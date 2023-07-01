@@ -496,9 +496,24 @@ router.patch(
   catchAsync(Admission.renderDropFeesStudentQuery)
 );
 
-// router.get(
-//   "/pending/list/query",
-//   catchAsync(Admission.renderPendingListStudentQuery)
-// );
+router.post(
+  "/:sid/add/fees/card/query",
+  catchAsync(Admission.renderAddFeesCardStudentQuery)
+);
+
+router.post(
+  "/:aid/paid/already/card/remaining/fee/:sid/student/:appId",
+  catchAsync(Admission.paidAlreadyCardRemainingFeeStudent)
+);
+
+router.post(
+  "/paid/already/card/government/grant/fee/:sid/student/:appId",
+  catchAsync(Admission.paidAlreadyCardRemainingFeeStudentFinanceQuery)
+);
+
+router.patch(
+  "/pending/list/query",
+  catchAsync(Admission.renderPendingListStudentQuery)
+);
 
 module.exports = router;

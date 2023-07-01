@@ -649,6 +649,7 @@ exports.promoteStudent = async (req, res) => {
             });
             new_remainFee.access_mode_card = "Installment_Wise";
             new_remainFee.card_type = "Promote";
+            new_remainFee.already_made = true;
             var structure_card = {
               fee_structure: structure[0],
             };

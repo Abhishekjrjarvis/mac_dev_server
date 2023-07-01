@@ -171,7 +171,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentGRNO studentMiddleName certificateBonaFideCopy studentAdmissionDate studentLastName photoId studentProfilePhoto studentDOB"
+        "studentFirstName studentGRNO studentMiddleName studentReason studentBonaStatus certificateBonaFideCopy studentAdmissionDate studentLastName photoId studentProfilePhoto studentDOB"
       )
       .populate({
         path: "studentClass",
@@ -1665,12 +1665,10 @@ exports.renderChangeExistingUserPhoneQuery = async (req, res) => {
     const { sid } = req.params;
     const { userPhoneNumber } = req.body;
     if (!sid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: true,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: true,
+      });
 
     const valid_student = await Student.findById({ _id: sid });
     const valid_user = await User.findById({ _id: `${student?.user}` });

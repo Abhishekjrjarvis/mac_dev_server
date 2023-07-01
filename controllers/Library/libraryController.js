@@ -407,6 +407,7 @@ exports.bookColletedByStaffSide = async (req, res) => {
           fee_receipt: new_receipt?._id,
           fine_charge: price,
           fine_type: `${req.body?.chargeBy}`,
+          status: "Paid"
         });
         await new_receipt.save();
         // library.exemptFine +=req.body?.exemptFine

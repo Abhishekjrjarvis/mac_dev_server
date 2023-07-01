@@ -31021,3 +31021,157 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/admission/{sid}/add/fees/card/query:
+    post:
+      tags:
+        - New Add-Ons Query
+      summary: Add / New Remaining Fees Card (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              appId:
+                type: string
+                description: Enter NewApplication ID
+              struct:
+                type: string
+                description: Enter Structure ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/paid/already/card/remaining/fee/{sid}/student/{appId}:
+    post:
+      tags:
+        - New Add-Ons Query
+      summary: Mark Remaining Fee paid by Admission Admin + add body content + Remain Card (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - amount
+              - mode
+              - type
+            properties:
+              amount:
+                type: number
+                description: Enter amount
+                required: true
+              mode:
+                type: string
+                description: Enter payment mode ("Online" | "Offline" | "Exempted")
+                required: true
+              type:
+                type: string
+                description: Enter Installment Value
+                required: true
+              remain_1:
+                type: string
+                description: Enter Remaining Card ID
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/paid/already/card/government/grant/fee/{sid}/student/{appId}:
+    post:
+      tags:
+        - New Add-Ons Query
+      summary: Mark Government Grant Fee paid by Finance Manager + add body content + Remain Card (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("Government/Scholarship")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+              amount:
+                type: number
+                description: Enter amount
+              mode:
+                type: string
+                description: Enter payment mode ("Online" | "Offline" | "Exempted")
+              type:
+                type: string
+                description: Enter Installment Value
+              scid:
+                type: string
+                description: Enter ScholarShip ID
+                required: true
+              remain_1:
+                type: string
+                description: Enter Remaining Card ID
+                required: true
+      responses:
+        "200":
+          description: OK

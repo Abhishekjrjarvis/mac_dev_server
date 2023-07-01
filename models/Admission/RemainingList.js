@@ -103,6 +103,10 @@ const remainingFeeListSchema = new mongoose.Schema({
     type: String,
     default: "Disable",
   },
+  already_made: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("RemainingList", remainingFeeListSchema);

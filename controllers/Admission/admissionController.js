@@ -7908,7 +7908,7 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
   try {
     try {
       const { aid, sid, appId } = req.params;
-      const { amount, mode, type, remain_1 } = req.body;
+      const { amount, mode, type, remain_1, rid } = req.body;
       if (!sid && !aid && !appId && !amount && !mode && !type && !remain_1)
         return res.status(200).send({
           message: "Their is a bug need to fix immediately 😡",
@@ -7936,10 +7936,10 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
         "deviceToken payment_history activity_tab"
       );
       var apply = await NewApplication.findById({ _id: appId });
-      var valid_remain_list = await RemainingList.findOne({
-        $and: [{ student: student?._id }, { appId: apply?._id }],
+      var valid_remain_list = await RemainingList.findById({
+        _id: rid
       });
-      console.log(valid_remain_list)
+      // console.log(valid_remain_list)
       const new_receipt = new FeeReceipt({ ...req.body });
       new_receipt.student = student?._id;
       new_receipt.application = apply?._id;
@@ -7978,12 +7978,12 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
               return val;
           });
         }
-        console.log("Card 1", card_1)
+        // console.log("Card 1", card_1)
         var card_2 = valid_remain_list?.remaining_array?.filter((val) => {
           if (`${val?._id}` != `${remain_1}` && val?.status === "Not Paid")
             return val;
         });
-        console.log("Card 2", card_2)
+        // console.log("Card 2", card_2)
         if (type === "First Installment") {
           await set_fee_head_query(student, price, apply, new_receipt);
           student.paidFeeList.push({
@@ -8006,16 +8006,16 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
           valid_remain_list,
           new_receipt
         );
+        var valid_price =
+          card_1[0]?.remainAmount >= price
+            ? card_1[0]?.remainAmount - price
+            : 0;
         if (card_1?.length > 0) {
           card_1[0].status = "Paid";
           card_1[0].mode = new_receipt?.fee_payment_mode;
           card_1[0].fee_receipt = new_receipt?._id;
           card_1[0].remainAmount = price;
         }
-        var valid_price =
-          card_1[0]?.remainAmount >= price
-            ? card_1[0]?.remainAmount - price
-            : 0;
         console.log("Valid Price", valid_price);
         if (card_2?.length > 0) {
           card_2[0].remainAmount += valid_price;
@@ -8182,7 +8182,7 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
 exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
   try {
     const { sid, appId } = req.params;
-    const { amount, mode, type, scid, remain_1 } = req.body;
+    const { amount, mode, type, scid, remain_1, rid } = req.body;
     if (!sid && !appId && !amount && !mode && !type && !scid && !remain_1)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -8223,8 +8223,8 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     const notify = new StudentNotification({});
-    const valid_remain_list = await RemainingList.findOne({
-      $and: [{ student: student?._id }, { appId: apply?._id }],
+    const valid_remain_list = await RemainingList.findById({
+      _id: rid
     });
     valid_remain_list.fee_receipts.push(new_receipt?._id);
     if (req?.body?.fee_payment_mode === "Government/Scholarship") {
@@ -8344,15 +8344,15 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
         valid_remain_list,
         new_receipt
       );
+      var valid_price =
+        card_1[0]?.remainAmount >= price ? card_1[0]?.remainAmount - price : 0;
       if (card_1?.length > 0) {
         card_1[0].status = "Paid";
         card_1[0].mode = new_receipt?.fee_payment_mode;
         card_1[0].fee_receipt = new_receipt?._id;
         card_1[0].remainAmount = price;
       }
-      var valid_price =
-        card_1[0]?.remainAmount >= price ? card_1[0]?.remainAmount - price : 0;
-      console.log("Valid Price", valid_price);
+      // console.log("Valid Price", valid_price);
       if (card_2?.length > 0) {
         card_2[0].remainAmount += valid_price;
         card_2[0].isEnable = true;

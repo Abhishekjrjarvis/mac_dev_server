@@ -654,17 +654,17 @@ exports.admissionInstituteFunction = async (
           valid_remain_list,
           new_receipt
         );
+        var valid_price =
+          card_1[0]?.remainAmount >= parseInt(tx_amount_ad)
+            ? card_1[0]?.remainAmount - parseInt(tx_amount_ad)
+            : 0;
+        // console.log("Valid Price", valid_price);
         if (card_1?.length > 0) {
           card_1[0].status = "Paid";
           card_1[0].mode = "Payment Gateway / Online";
           card_1[0].fee_receipt = new_receipt?._id;
           card_1[0].remainAmount = parseInt(tx_amount_ad);
         }
-        var valid_price =
-          card_1[0]?.remainAmount >= parseInt(tx_amount_ad)
-            ? card_1[0]?.remainAmount - parseInt(tx_amount_ad)
-            : 0;
-        console.log("Valid Price", valid_price);
         // if (valid_price || ) {
         if (card_2?.length > 0) {
           card_2[0].remainAmount += valid_price;
@@ -1987,10 +1987,10 @@ exports.libraryInstituteFunction = async (
     for (var ref of library?.pending_fee) {
       if (
         `${ref?.student}` === `${student?._id}` &&
-        `${ref?.book}` === `${bookId}` && 
+        `${ref?.book}` === `${bookId}` &&
         `${ref?.status}` === "Not Paid"
       ) {
-        ele_type = ref?.fine_type
+        ele_type = ref?.fine_type;
         library.pending_fee.pull(ref?._id);
       }
     }
@@ -2000,7 +2000,7 @@ exports.libraryInstituteFunction = async (
       fee_receipt: new_receipt?._id,
       fine_charge: parseInt(tx_amount),
       fine_type: `${ele_type}`,
-      status: "Paid"
+      status: "Paid",
     });
     // library.pending_fee.pull(student?._id);
     library.totalFine += parseInt(tx_amount);

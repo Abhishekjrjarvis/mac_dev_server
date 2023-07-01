@@ -31100,6 +31100,10 @@ paths:
                 required: true
               remain_1:
                 type: string
+                description: Enter Remaining Inner Card ID
+                required: true
+              rid:
+                type: string
                 description: Enter Remaining Card ID
                 required: true
       responses:
@@ -31169,6 +31173,10 @@ paths:
                 description: Enter ScholarShip ID
                 required: true
               remain_1:
+                type: string
+                description: Enter Remaining Inner Card ID
+                required: true
+              rid:
                 type: string
                 description: Enter Remaining Card ID
                 required: true

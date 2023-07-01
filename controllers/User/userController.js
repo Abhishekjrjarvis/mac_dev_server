@@ -31,6 +31,7 @@ const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { dateTimeSort } = require("../../Utilities/timeComparison");
 const { shuffleArray } = require("../../Utilities/Shuffle");
 const { valid_student_form_query } = require("../../Functions/validForm");
+const { handle_undefined } = require("../../Handler/customError");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.retrieveProfileData = async (req, res) => {
@@ -1914,6 +1915,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
       }
       average_points += student?.extraPoints / student?.batchCount;
+      var point = await handle_undefined(average_points)
       const status = await valid_student_form_query(
         student?.institute,
         student,
@@ -1934,7 +1936,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
         // average_points: cached.average_points,
         student: student,
         status: status,
-        average_points: average_points,
+        average_points: point,
       });
     } else {
       res.status(200).send({ message: "Need a valid Key Id" });

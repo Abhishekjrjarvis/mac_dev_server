@@ -1481,7 +1481,7 @@ exports.getFullStudentInfo = async (req, res) => {
     } else {
       var student = await Student.findById({ _id: id })
         .select(
-          "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+          "studentFirstName extraPoints batchCount studentMiddleName exist_linked_hostel studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
         )
         .populate({
           path: "user",
@@ -1495,15 +1495,32 @@ exports.getFullStudentInfo = async (req, res) => {
           path: "studentClass",
           select: "className classTitle classStatus",
         })
+        .populate({
+          path: "exist_linked_hostel.exist_student",
+          select: "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto student_bed_number hostelRemainFeeCount",
+          populate: {
+            path: "student_bed_number",
+            select: "bed_number bed_status hostelRoom",
+            populate: {
+              path: "hostelRoom",
+              select: "room_name hostelUnit",
+              populate: {
+                path: "hostelUnit",
+                select: "hostel_unit_name"
+              }
+            }
+          }
+        })
         .lean()
         .exec();
     }
     average_points += student.extraPoints / student.batchCount;
+    var point = await handle_undefined(average_points)
     if (student) {
       // Add Another Encryption
       res
         .status(200)
-        .send({ message: "Student Data To Member", student, average_points });
+        .send({ message: "Student Data To Member", student, average_points: point });
     } else {
       res.status(404).send({ message: "Failure" });
     }

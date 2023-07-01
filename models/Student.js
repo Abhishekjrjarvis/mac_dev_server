@@ -609,6 +609,16 @@ const studentSchema = new mongoose.Schema({
   valid_full_name: {
     type: String,
   },
+  exist_linked_hostel: {
+    status: {
+      type: String,
+      default: "Not Linked",
+    },
+    exist_student: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

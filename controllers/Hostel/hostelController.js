@@ -1915,6 +1915,14 @@ exports.renderAllotHostedBedQuery = async (req, res) => {
           ],
         });
         const user = await User.findById({ _id: `${student.user}` });
+        var exist_stu = await Student.find({
+          $and: [{ institute: institute?._id }, { user: user?._id }],
+        });
+        if (exist_stu?.length > 0) {
+          exist_stu[0].exist_linked_hostel.status = "Linked";
+          exist_stu[0].exist_linked_hostel.exist_student = student?._id;
+          await exist_stu[0].save();
+        }
         const notify = new Notification({});
         const aStatus = new Status({});
         for (let app of apply.confirmedApplication) {
@@ -3176,7 +3184,14 @@ const hostel_receipt_approve_query_renewal = async (
       finance.financeBankBalance += price;
     } else {
     }
-    await set_fee_head_query(student, price, one_app, one_receipt, "", "Renewal");
+    await set_fee_head_query(
+      student,
+      price,
+      one_app,
+      one_receipt,
+      "",
+      "Renewal"
+    );
     for (let app of one_unit?.renewal_selected_application) {
       if (`${app.student}` === `${student._id}`) {
         one_unit.renewal_selected_application.pull(app._id);
@@ -6404,6 +6419,14 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       institute.userFollowersList.push(user?._id);
       institute.followersCount += 1;
     }
+    var exist_stu = await Student.find({
+      $and: [{ institute: institute?._id }, { user: user?._id }],
+    });
+    if (exist_stu?.length > 0) {
+      exist_stu[0].exist_linked_hostel.status = "Linked";
+      exist_stu[0].exist_linked_hostel.exist_student = student?._id;
+      await exist_stu[0].save();
+    }
     // await insert_multiple_status(apply, user, institute, student?._id);
     await Promise.all([
       student.save(),
@@ -6647,6 +6670,14 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         user.followingUICount += 1;
         institute.userFollowersList.push(user?._id);
         institute.followersCount += 1;
+      }
+      var exist_stu = await Student.find({
+        $and: [{ institute: institute?._id }, { user: user?._id }],
+      });
+      if (exist_stu?.length > 0) {
+        exist_stu[0].exist_linked_hostel.status = "Linked";
+        exist_stu[0].exist_linked_hostel.exist_student = student?._id;
+        await exist_stu[0].save();
       }
       // await insert_multiple_status(apply, user, institute, student?._id);
       await Promise.all([

@@ -516,4 +516,9 @@ router.patch(
   catchAsync(Admission.renderPendingListStudentQuery)
 );
 
+router.get(
+  "/filter/by/:id/three/function/query",
+  catchAsync(Admission.renderFilterByThreeFunctionQuery)
+);
+
 module.exports = router;

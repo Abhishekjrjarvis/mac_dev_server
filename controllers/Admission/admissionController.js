@@ -8471,6 +8471,76 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
   }
 };
 
+exports.renderFilterByThreeFunctionQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { departId, batchId, masterId } = req.query;
+    if (!id && !departId && !batchId && !masterId)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: true,
+        });
+
+    var ads_admin = await Admission.findById({ institute: id });
+    if (search) {
+      var all_apps = await NewApplication.findById({
+        $and: [
+          { _id: { $in: ads_admin?.newApplication } },
+          { applicationDepartment: departId },
+          { applicationBatch: batchId },
+          { applicationMaster: masterId },
+        ],
+        $or: [{ applicationName: { $regex: search, $options: "i" } }],
+      })
+        .select(
+          "applicationName applicationDepartment applicationBatch applicationMaster application_flow applicationType applicationStatus"
+        )
+        .populate({
+          path: "admissionAdmin",
+          select: "_id",
+        });
+    } else {
+      var all_apps = await NewApplication.findById({
+        $and: [{ _id: { $in: ads_admin?.newApplication } }],
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "applicationName applicationDepartment applicationBatch applicationMaster application_flow applicationType applicationStatus"
+        )
+        .populate({
+          path: "admissionAdmin",
+          select: "_id",
+        });
+    }
+
+    if (all_apps?.length > 0) {
+      res
+        .status(200)
+        .send({
+          message: "Explore All Applications Query",
+          access: true,
+          all_apps: all_apps,
+        });
+    } else {
+      res
+        .status(200)
+        .send({
+          message: "No Applications Query",
+          access: false,
+          all_apps: [],
+        });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.renderPendingListStudentQuery = async (req, res) => {
   // try {
   //   var student = await Student.find({

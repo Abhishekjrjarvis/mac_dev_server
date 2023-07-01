@@ -1419,7 +1419,7 @@ exports.getFullStudentInfo = async (req, res) => {
         })
         .populate({
           path: "institute",
-          select: "insName",
+          select: "insName admissionDepart financeDepart",
         })
         .populate({
           path: "studentClass",
@@ -1427,7 +1427,8 @@ exports.getFullStudentInfo = async (req, res) => {
         })
         .populate({
           path: "exist_linked_hostel.exist_student",
-          select: "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto student_bed_number hostelRemainFeeCount",
+          select:
+            "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto student_bed_number hostelRemainFeeCount",
           populate: {
             path: "student_bed_number",
             select: "bed_number bed_status hostelRoom",
@@ -1436,10 +1437,10 @@ exports.getFullStudentInfo = async (req, res) => {
               select: "room_name hostelUnit",
               populate: {
                 path: "hostelUnit",
-                select: "hostel_unit_name"
-              }
-            }
-          }
+                select: "hostel_unit_name",
+              },
+            },
+          },
         })
         .lean()
         .exec();
@@ -1497,7 +1498,8 @@ exports.getFullStudentInfo = async (req, res) => {
         })
         .populate({
           path: "exist_linked_hostel.exist_student",
-          select: "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto student_bed_number hostelRemainFeeCount",
+          select:
+            "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto student_bed_number hostelRemainFeeCount",
           populate: {
             path: "student_bed_number",
             select: "bed_number bed_status hostelRoom",
@@ -1506,21 +1508,25 @@ exports.getFullStudentInfo = async (req, res) => {
               select: "room_name hostelUnit",
               populate: {
                 path: "hostelUnit",
-                select: "hostel_unit_name"
-              }
-            }
-          }
+                select: "hostel_unit_name",
+              },
+            },
+          },
         })
         .lean()
         .exec();
     }
     average_points += student.extraPoints / student.batchCount;
-    var point = await handle_undefined(average_points)
+    var point = await handle_undefined(average_points);
     if (student) {
       // Add Another Encryption
       res
         .status(200)
-        .send({ message: "Student Data To Member", student, average_points: point });
+        .send({
+          message: "Student Data To Member",
+          student,
+          average_points: point,
+        });
     } else {
       res.status(404).send({ message: "Failure" });
     }
@@ -1924,8 +1930,8 @@ exports.retrieveSubjectMaster = async (req, res) => {
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 

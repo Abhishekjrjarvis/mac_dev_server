@@ -310,17 +310,6 @@ exports.admissionInstituteFunction = async (
 ) => {
   try {
     // console.log(payment_type, remain_1, type, paidTo);
-    console.log(order,
-      paidBy,
-      tx_amount_ad,
-      tx_amount_ad_charges,
-      moduleId,
-      paidTo,
-      type,
-      is_author,
-      payment_type,
-      remain_1,
-      statusId)
     var student = await Student.findById({ _id: paidBy }).populate({
       path: "fee_structure",
     });

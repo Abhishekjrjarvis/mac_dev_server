@@ -301,6 +301,6 @@ router.get(
 
 // router.get("/:id/all/three/section/notify",isLoggedIn, catchAsync(User.getAllThreeCount));
 
-// router.patch("/:id/mark/viewed",isLoggedIn, catchAsync(User.retrieveMarkAllThree));
+// router.patch("/:id/mark/viewed",isLoggedIn, catchAsync(User.retrieveMarkAllThree))
 
 module.exports = router;

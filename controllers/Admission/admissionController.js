@@ -7890,7 +7890,12 @@ exports.renderAddFeesCardStudentQuery = async (req, res) => {
     student.admissionRemainFeeCount += structure?.total_admission_fees;
     apply.remainingFee += structure?.total_admission_fees;
     admission.remainingFeeCount += structure?.total_admission_fees;
-    await Promise.all([new_remainFee.save(), admission.save(), apply.save()]);
+    await Promise.all([
+      new_remainFee.save(),
+      admission.save(),
+      apply.save(),
+      student.save(),
+    ]);
     res
       .status(200)
       .send({ message: "Explore New Remaining Fees Card Query", access: true });
@@ -8477,18 +8482,16 @@ exports.renderFilterByThreeFunctionQuery = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { departId, batchId, masterId } = req.query;
+    const { departId, batchId, masterId, search } = req.query;
     if (!id && !departId && !batchId && !masterId)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: true,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: true,
+      });
 
-    var ads_admin = await Admission.findById({ institute: id });
+    var ads_admin = await Admission.findOne({ institute: id });
     if (search) {
-      var all_apps = await NewApplication.findById({
+      var all_apps = await NewApplication.find({
         $and: [
           { _id: { $in: ads_admin?.newApplication } },
           { applicationDepartment: departId },
@@ -8505,7 +8508,7 @@ exports.renderFilterByThreeFunctionQuery = async (req, res) => {
           select: "_id",
         });
     } else {
-      var all_apps = await NewApplication.findById({
+      var all_apps = await NewApplication.find({
         $and: [{ _id: { $in: ads_admin?.newApplication } }],
       })
         .limit(limit)
@@ -8520,21 +8523,17 @@ exports.renderFilterByThreeFunctionQuery = async (req, res) => {
     }
 
     if (all_apps?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore All Applications Query",
-          access: true,
-          all_apps: all_apps,
-        });
+      res.status(200).send({
+        message: "Explore All Applications Query",
+        access: true,
+        all_apps: all_apps,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No Applications Query",
-          access: false,
-          all_apps: [],
-        });
+      res.status(200).send({
+        message: "No Applications Query",
+        access: false,
+        all_apps: [],
+      });
     }
   } catch (e) {
     console.log(e);

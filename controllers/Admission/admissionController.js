@@ -2544,7 +2544,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
               ],
             },
             select:
-              "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
+              "studentFirstName studentMiddleName studentLastName valid_full_name applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
             populate: {
               path: "department",
               select: "dName",
@@ -2563,7 +2563,8 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
         student = student?.filter((ref) => {
           if (ref?.applicable_fees_pending > 0) return ref;
         });
-      } else {
+      } 
+      else {
         var student = [];
         var all_remain = await RemainingList.find({
           student: { $in: admin_ins?.remainingFee },
@@ -2595,8 +2596,8 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
         student = student?.filter((ref) => {
           if (ref?.applicable_fees_pending > 0) return ref;
         });
+        student = await nested_document_limit(page, limit, student);
       }
-      student = await nested_document_limit(page, limit, student);
       admin_ins.active_tab_index = "Applicable_Fees_Query";
       await admin_ins.save();
       // if (student?.length > 0) {

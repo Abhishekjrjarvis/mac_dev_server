@@ -3667,7 +3667,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       ],
     })
       .select(
-        "applicable_fee scholar_ship_number card_type remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made"
+        "applicable_fee scholar_ship_number card_type remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
       )
       .populate({
         path: "appId",
@@ -3733,7 +3733,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       ],
     })
       .select(
-        "applicable_fee scholar_ship_number card_type remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made"
+        "applicable_fee scholar_ship_number card_type remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
       )
       .populate({
         path: "appId",
@@ -3802,6 +3802,10 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
           : 0;
       if (ref?.applicable_fee === ref?.remaining_fee) {
         ref.drop_status = "Enable";
+      } else {
+      }
+      if (ref?.paid_fee >= ref?.fee_structure?.applicable_fees) {
+        ref.button_status = "Collect As Scholarship";
       } else {
       }
     }
@@ -8547,40 +8551,41 @@ exports.renderFilterByThreeFunctionQuery = async (req, res) => {
 };
 
 exports.renderPendingListStudentQuery = async (req, res) => {
-  try {
-    var student = await Student.find({
-      $and: [
-        { institute: "6449c83598fec071fbffd3ad" },
-        { studentStatus: "Approved" },
-      ],
-    });
-    // var ads_admin = await Admission.findById({
-    //   _id: "644a09e3d1679fcd6e76e606",
-    // });
-    for (var val of student) {
-      var all_remain = await RemainingList.find({ $and: [{ _id: { $in: val?.remainingFeeList }}]})
-      for(var ref of all_remain){
-        val.admissionRemainFeeCount += ref?.remaining_fee
-      }
-      // val.admissionRemainFeeCount = 0;
-      await val.save();
-    }
-    // await ads_admin.save();
-    res.status(200).send({ message: "Added Student Remaining Fees Query" });
-  } catch (e) {
-    console.log(e);
-  }
   // try {
-  //   const all_card = await RemainingList.find({});
-  //   for (var val of all_card) {
-  //     val.drop_status = "Disable";
-  //     val.already_made = false;
+  //   var student = await Student.find({
+  //     $and: [
+  //       { institute: "6449c83598fec071fbffd3ad" },
+  //       { studentStatus: "Approved" },
+  //     ],
+  //   });
+  //   // var ads_admin = await Admission.findById({
+  //   //   _id: "644a09e3d1679fcd6e76e606",
+  //   // });
+  //   for (var val of student) {
+  //     var all_remain = await RemainingList.find({ $and: [{ _id: { $in: val?.remainingFeeList }}]})
+  //     for(var ref of all_remain){
+  //       val.admissionRemainFeeCount += ref?.remaining_fee
+  //     }
+  //     // val.admissionRemainFeeCount = 0;
   //     await val.save();
   //   }
+  //   // await ads_admin.save();
   //   res.status(200).send({ message: "Added Student Remaining Fees Query" });
   // } catch (e) {
   //   console.log(e);
   // }
+  try {
+    const all_card = await RemainingList.find({});
+    for (var val of all_card) {
+      // val.drop_status = "Disable";
+      // val.already_made = false;
+      val.button_status = "Collect Fees"
+      await val.save();
+    }
+    res.status(200).send({ message: "Added Student Remaining Fees Query" });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 // exports.renderRetroOneStudentStructureQuery = async (req, res) => {

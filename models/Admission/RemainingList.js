@@ -107,6 +107,10 @@ const remainingFeeListSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  button_status: {
+    type: String,
+    default: "Collect Fees",
+  },
 });
 
 module.exports = mongoose.model("RemainingList", remainingFeeListSchema);

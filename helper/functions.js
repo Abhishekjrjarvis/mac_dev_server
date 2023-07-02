@@ -274,6 +274,46 @@ If you have queries regarding your fees, profile information or other, reach out
   }
 };
 
+exports.call_back_urls_redirection_query = async (
+  type,
+  moduleId,
+  paidBy,
+  name,
+  paidTo,
+  amount_nocharges,
+  isApk,
+  payment_installment,
+  payment_card_type,
+  payment_remain_1,
+  ad_status_id
+) => {
+  try {
+    var url = "";
+    if (type === "Fees") {
+      url = `${process.env.CALLBACK_URLS}/v1/paytm/verify/internal/fee/${moduleId}/paid/${paidBy}/query/${name}/to/${paidTo}/price/${amount_nocharges}/device/${isApk}`;
+    } else if (type === "Admission") {
+      url = `${process.env.CALLBACK_URLS}/v1/paytm/verify/admission/fee/${moduleId}/paid/${paidBy}/query/${name}/to/${paidTo}/price/${amount_nocharges}/device/${isApk}/install/${payment_installment}/card/${payment_card_type}/remain/${payment_remain_1}/status/${ad_status_id}`;
+    } else if (type === "Hostel") {
+      url = `${process.env.CALLBACK_URLS}/v1/paytm/verify/hostel/fee/${moduleId}/paid/${paidBy}/query/${name}/to/${paidTo}/price/${amount_nocharges}/device/${isApk}/install/${payment_installment}/status/${ad_status_id}`;
+    } else if (type === "Backlog") {
+      url = `${process.env.CALLBACK_URLS}/v1/paytm/verify/backlog/fee/${moduleId}/paid/${paidBy}/query/${name}/to/${paidTo}/price/${amount_nocharges}/device/${isApk}`;
+    } else if (type === "Transport") {
+      url = `${process.env.CALLBACK_URLS}/v1/paytm/verify/transport/fee/${moduleId}/paid/${paidBy}/query/${name}/to/${paidTo}/price/${amount_nocharges}/device/${isApk}`;
+    } else if (type === "Participate") {
+      url = `${process.env.CALLBACK_URLS}/v1/paytm/verify/participate/fee/${moduleId}/paid/${paidBy}/query/${name}/to/${paidTo}/price/${amount_nocharges}/device/${isApk}/status/${ad_status_id}`;
+    } else if (type === "Direct Admission") {
+      url = "";
+    } else if (type === "Library Fees") {
+      url = "";
+    } else {
+      url = "";
+    }
+    return url;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // console.log(
 //   send_email_authentication_promotional("pankajphad.stuff@gmail.com")
 // );

@@ -69,6 +69,7 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
       payment_remain_1,
       ad_status_id
     );
+    // console.log(valid_url);
     const totalAmount = JSON.stringify(amount);
     var params = {};
 
@@ -91,6 +92,7 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
           ...params,
           CHECKSUMHASH: checksum,
         };
+        // console.log(paytmParams);
         res.json(paytmParams);
       })
       .catch(function (error) {

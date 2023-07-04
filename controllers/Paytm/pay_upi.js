@@ -6,12 +6,12 @@ const OrderPayment = require("../../models/RazorPay/orderPayment");
 const {
   feeInstituteFunction,
   admissionInstituteFunction,
-  hostelInstituteFunction,
   backlogFunction,
   transportFunction,
   participateEventFunction,
 } = require("../RazorPay/paymentModule");
 const { call_back_urls_redirection_query } = require("../../helper/functions");
+const { hostelInstituteFunction } = require("../RazorPay/hostelPaymentModule");
 
 const order_history_query = async (
   module_type,

@@ -872,28 +872,29 @@ exports.renderNewHostelApplicationQuery = async (req, res) => {
     newApply.hostelAdmin = one_hostel?._id;
     newApply.applicationHostel = hid;
     newApply.application_flow = "Hostel Application";
+    newApply.applicationTypeStatus = "Normal Application";
     institute.hostelCount += 1;
     await Promise.all([one_hostel.save(), newApply.save(), institute.save()]);
     res
       .status(200)
       .send({ message: "New Hostel Application is ongoing 👍", status: true });
-    const post = new Post({});
-    post.imageId = "1";
-    institute.posts.push(post._id);
-    institute.postCount += 1;
-    post.author = institute._id;
-    post.authorName = institute.insName;
-    post.authorUserName = institute.name;
-    post.authorPhotoId = institute.photoId;
-    post.authorProfilePhoto = institute.insProfilePhoto;
-    post.authorOneLine = institute.one_line_about;
-    post.authorFollowersCount = institute.followersCount;
-    post.isInstitute = "institute";
-    post.postType = "Application";
-    post.new_application = newApply._id;
-    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
-    await Promise.all([post.save(), institute.save()]);
-    await new_admission_recommend_post(institute?._id, post?._id, expand);
+    // const post = new Post({});
+    // post.imageId = "1";
+    // institute.posts.push(post._id);
+    // institute.postCount += 1;
+    // post.author = institute._id;
+    // post.authorName = institute.insName;
+    // post.authorUserName = institute.name;
+    // post.authorPhotoId = institute.photoId;
+    // post.authorProfilePhoto = institute.insProfilePhoto;
+    // post.authorOneLine = institute.one_line_about;
+    // post.authorFollowersCount = institute.followersCount;
+    // post.isInstitute = "institute";
+    // post.postType = "Application";
+    // post.new_application = newApply._id;
+    // post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
+    // await Promise.all([post.save(), institute.save()]);
+    // await new_admission_recommend_post(institute?._id, post?._id, expand);
   } catch (e) {
     console.log(e);
   }

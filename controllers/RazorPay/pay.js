@@ -12,11 +12,14 @@ const {
   transportFunction,
   backlogFunction,
   applicationFunction,
-  hostelInstituteFunction,
   directAdmissionInstituteFunction,
   libraryInstituteFunction,
 } = require("./paymentModule");
 const { handle_undefined } = require("../../Handler/customError");
+const {
+  directHostelInstituteFunction,
+  hostelInstituteFunction,
+} = require("./hostelPaymentModule");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 var instance = new Razorpay({
@@ -316,6 +319,25 @@ exports.verifyRazorPayment = async (req, res) => {
         }
         res.redirect(
           `${process.env.FRONT_REDIRECT_URL}/q/${direct_admission_status}/feed`
+        );
+      } else if (payment_module_type === "Direct_Hostel") {
+        const direct_hostel_status = await directHostelInstituteFunction(
+          order_payment?._id,
+          payment_by_end_user_id,
+          refactor_amount_nocharges,
+          refactor_amount,
+          payment_module_id,
+          Boolean(razor_author),
+          student_data
+        );
+        if (isApk) {
+          res.status(200).send({
+            message: "Success with Razorpay Direct Hostel 😀",
+            check: true,
+          });
+        }
+        res.redirect(
+          `${process.env.FRONT_REDIRECT_URL}/q/${direct_hostel_status}/feed`
         );
       } else {
       }

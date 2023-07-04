@@ -3471,6 +3471,14 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
         path: "direct_attach_class",
         select: "className classTitle classStatus",
       })
+      .populate({
+        path: "applicationHostel",
+        select: "photoId hostel_photo",
+      })
+      .populate({
+        path: "applicationUnit",
+        select: "hostel_unit_name",
+      })
       .lean()
       .exec();
     // const oneEncrypt = await encryptionPayload(oneApply);

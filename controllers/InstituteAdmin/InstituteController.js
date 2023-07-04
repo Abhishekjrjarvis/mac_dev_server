@@ -1442,6 +1442,18 @@ exports.getFullStudentInfo = async (req, res) => {
             },
           },
         })
+        .populate({
+          path: "student_unit",
+          select: "hostel_unit_name hostel"
+        })
+        .populate({
+          path: "student_bed_number",
+          select: "bed_number bed_status hostelRoom",
+          populate: {
+            path: "hostelRoom",
+            select: "room_name"
+          }
+        })
         .lean()
         .exec();
 
@@ -1512,6 +1524,18 @@ exports.getFullStudentInfo = async (req, res) => {
               },
             },
           },
+        })
+        .populate({
+          path: "student_unit",
+          select: "hostel_unit_name hostel"
+        })
+        .populate({
+          path: "student_bed_number",
+          select: "bed_number bed_status hostelRoom",
+          populate: {
+            path: "hostelRoom",
+            select: "room_name"
+          }
         })
         .lean()
         .exec();

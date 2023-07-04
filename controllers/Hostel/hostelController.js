@@ -1116,7 +1116,7 @@ exports.renderSearchHostelApplicationQuery = async (req, res) => {
           .sort("-createdAt")
           .limit(limit)
           .skip(skip)
-          .select("applicationName applicationEndDate")
+          .select("applicationName applicationEndDate application_type")
           .populate({
             path: "applicationHostel",
             select: "_id",
@@ -1143,7 +1143,7 @@ exports.renderSearchHostelApplicationQuery = async (req, res) => {
           .sort("-createdAt")
           .limit(limit)
           .skip(skip)
-          .select("applicationName applicationEndDate")
+          .select("applicationName applicationEndDate application_type")
           .populate({
             path: "applicationHostel",
             select: "_id",

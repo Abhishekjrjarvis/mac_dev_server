@@ -314,6 +314,46 @@ exports.call_back_urls_redirection_query = async (
   }
 };
 
+exports.call_back_urls_redirection_apk_query = async (
+  type,
+  moduleId,
+  paidBy,
+  name,
+  paidTo,
+  amount_nocharges,
+  isApk,
+  payment_installment,
+  payment_card_type,
+  payment_remain_1,
+  ad_status_id
+) => {
+  try {
+    var url = "";
+    if (type === "Fees") {
+      url = `${process.env.CALLBACK_URLS}/v1/apk/paytm/verify/internal/fee/${moduleId}/paid/${paidBy}/to/${paidTo}/price/${amount_nocharges}/device/${isApk}/query/${name}`;
+    } else if (type === "Admission") {
+      url = `${process.env.CALLBACK_URLS}/v1/apk/paytm/verify/admission/fee/${moduleId}/paid/${paidBy}/to/${paidTo}/price/${amount_nocharges}/device/${isApk}/install/${payment_installment}/remain/${payment_remain_1}/query/${name}/card/${payment_card_type}/status/${ad_status_id}`;
+    } else if (type === "Hostel") {
+      url = `${process.env.CALLBACK_URLS}/v1/apk/paytm/verify/hostel/fee/${moduleId}/paid/${paidBy}/to/${paidTo}/price/${amount_nocharges}/device/${isApk}/install/${payment_installment}/status/${ad_status_id}/query/${name}`;
+    } else if (type === "Backlog") {
+      url = `${process.env.CALLBACK_URLS}/v1/apk/paytm/verify/backlog/fee/${moduleId}/paid/${paidBy}/to/${paidTo}/price/${amount_nocharges}/device/${isApk}/query/${name}`;
+    } else if (type === "Transport") {
+      url = `${process.env.CALLBACK_URLS}/v1/apk/paytm/verify/transport/fee/${moduleId}/paid/${paidBy}/to/${paidTo}/price/${amount_nocharges}/device/${isApk}/query/${name}`;
+    } else if (type === "Participate") {
+      url = `${process.env.CALLBACK_URLS}/v1/apk/paytm/verify/participate/fee/${moduleId}/paid/${paidBy}/to/${paidTo}/price/${amount_nocharges}/device/${isApk}/status/${ad_status_id}/query/${name}`;
+    } else if (type === "Direct Admission") {
+      url = "";
+    } else if (type === "Library Fees") {
+      url = "";
+    } else {
+      url = "";
+    }
+    return url;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // console.log(
 //   send_email_authentication_promotional("pankajphad.stuff@gmail.com")
 // );

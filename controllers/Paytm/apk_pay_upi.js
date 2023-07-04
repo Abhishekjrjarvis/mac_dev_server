@@ -10,7 +10,10 @@ const {
   transportFunction,
   participateEventFunction,
 } = require("../RazorPay/paymentModule");
-const { call_back_urls_redirection_query } = require("../../helper/functions");
+const {
+  call_back_urls_redirection_query,
+  call_back_urls_redirection_apk_query,
+} = require("../../helper/functions");
 const { hostelInstituteFunction } = require("../RazorPay/hostelPaymentModule");
 
 const order_history_query = async (
@@ -55,7 +58,7 @@ exports.generateApkPaytmTxnToken = async (req, res) => {
     ad_status_id,
     type,
   } = req.body;
-  var valid_url = await call_back_urls_redirection_query(
+  var valid_url = await call_back_urls_redirection_apk_query(
     type,
     moduleId,
     paidBy,

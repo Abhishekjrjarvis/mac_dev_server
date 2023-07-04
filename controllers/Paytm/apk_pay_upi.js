@@ -118,7 +118,7 @@ exports.generateApkPaytmTxnToken = async (req, res) => {
         response += chunk;
       });
 
-      post_res.on("end", function () {
+      post_res.on("end", async function () {
         res.send({
           signature: JSON.parse(response),
           oid: paytmParams.body.orderId,
@@ -173,12 +173,17 @@ exports.paytmVerifyResponseStatus = async (req, res, next) => {
         response += chunk;
       });
 
-      post_res.on("end", function () {
+      post_res.on("end", async function () {
         let { body } = JSON.parse(response);
         let status = body.resultInfo.resultStatus;
         let price = body.txnAmount;
         if (status === "TXN_SUCCESS") {
-          var order = await order_history_query("Fees", moduleId, price, paidTo);
+          var order = await order_history_query(
+            "Fees",
+            moduleId,
+            price,
+            paidTo
+          );
           var paytm_author = false;
           await feeInstituteFunction(
             order?._id,
@@ -199,7 +204,6 @@ exports.paytmVerifyResponseStatus = async (req, res, next) => {
         } else {
           res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
         }
-
       });
     });
 
@@ -222,84 +226,86 @@ exports.paytmVerifyAdmissionResponseStatus = async (req, res, next) => {
     ad_status_id,
   } = req.params;
   var paytmParams = {};
-paytmParams.body = {
-    "mid" : `${req.body.mid}`,
-    "orderId" : `${req.body.orderId}`,
-};
+  paytmParams.body = {
+    mid: `${req.body.mid}`,
+    orderId: `${req.body.orderId}`,
+  };
 
-PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PAYTM_MERCHANT_KEY).then(function(checksum){
+  PaytmChecksum.generateSignature(
+    JSON.stringify(paytmParams.body),
+    process.env.PAYTM_MERCHANT_KEY
+  ).then(function (checksum) {
     paytmParams.head = {
-        "signature"	: checksum
+      signature: checksum,
     };
 
     var post_data = JSON.stringify(paytmParams);
 
     var options = {
+      /* for Staging */
+      hostname: "securegw-stage.paytm.in",
 
-        /* for Staging */
-        hostname: 'securegw-stage.paytm.in',
+      /* for Production */
+      // hostname: 'securegw.paytm.in',
 
-        /* for Production */
-        // hostname: 'securegw.paytm.in',
-
-        port: 443,
-        path: '/v3/order/status',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': post_data.length
-        }
+      port: 443,
+      path: "/v3/order/status",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": post_data.length,
+      },
     };
 
     var response = "";
-    var post_req = https.request(options, function(post_res) {
-        post_res.on('data', function (chunk) {
-            response += chunk;
-        });
+    var post_req = https.request(options, function (post_res) {
+      post_res.on("data", function (chunk) {
+        response += chunk;
+      });
 
-        post_res.on('end', function(){
-            let { body } = JSON.parse(response);
-            let status = body.resultInfo.resultStatus;
-            let price = body.txnAmount;
-            if (status === "TXN_SUCCESS") {
-              var order = await order_history_query(
-                "Admission",
-                moduleId,
-                price,
-                paidTo
-              );
-              var paytm_author = false;
-              await admissionInstituteFunction(
-                order?._id,
-                paidBy,
-                price,
-                amount_nocharges,
-                moduleId,
-                paidTo,
-                payment_installment,
-                paytm_author,
-                payment_card_type ?? "",
-                payment_remain_1 ?? "",
-                ad_status_id ?? ""
-                // Boolean(ad_install)
-              );
-              if (isApk) {
-                res.status(200).send({
-                  message: "Success with Paytm Admission Fees 😀",
-                  check: true,
-                });
-              } else {
-                res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
-              }
-            } else {
-              res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
-            }
-        });
+      post_res.on("end", async function () {
+        let { body } = JSON.parse(response);
+        let status = body.resultInfo.resultStatus;
+        let price = body.txnAmount;
+        if (status === "TXN_SUCCESS") {
+          var order = await order_history_query(
+            "Admission",
+            moduleId,
+            price,
+            paidTo
+          );
+          var paytm_author = false;
+          await admissionInstituteFunction(
+            order?._id,
+            paidBy,
+            price,
+            amount_nocharges,
+            moduleId,
+            paidTo,
+            payment_installment,
+            paytm_author,
+            payment_card_type ?? "",
+            payment_remain_1 ?? "",
+            ad_status_id ?? ""
+            // Boolean(ad_install)
+          );
+          if (isApk) {
+            res.status(200).send({
+              message: "Success with Paytm Admission Fees 😀",
+              check: true,
+            });
+          } else {
+            res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+          }
+        } else {
+          res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+        }
+      });
     });
 
     post_req.write(post_data);
     post_req.end();
-});
+  });
 };
 
 exports.paytmVerifyHostelResponseStatus = async (req, res, next) => {
@@ -316,239 +322,245 @@ exports.paytmVerifyHostelResponseStatus = async (req, res, next) => {
     ad_status_id,
   } = req.params;
   var paytmParams = {};
-paytmParams.body = {
-    "mid" : `${req.body.mid}`,
-    "orderId" : `${req.body.orderId}`,
-};
+  paytmParams.body = {
+    mid: `${req.body.mid}`,
+    orderId: `${req.body.orderId}`,
+  };
 
-PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PAYTM_MERCHANT_KEY).then(function(checksum){
+  PaytmChecksum.generateSignature(
+    JSON.stringify(paytmParams.body),
+    process.env.PAYTM_MERCHANT_KEY
+  ).then(function (checksum) {
     paytmParams.head = {
-        "signature"	: checksum
+      signature: checksum,
     };
 
     var post_data = JSON.stringify(paytmParams);
 
     var options = {
+      /* for Staging */
+      hostname: "securegw-stage.paytm.in",
 
-        /* for Staging */
-        hostname: 'securegw-stage.paytm.in',
+      /* for Production */
+      // hostname: 'securegw.paytm.in',
 
-        /* for Production */
-        // hostname: 'securegw.paytm.in',
-
-        port: 443,
-        path: '/v3/order/status',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': post_data.length
-        }
+      port: 443,
+      path: "/v3/order/status",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": post_data.length,
+      },
     };
 
     var response = "";
-    var post_req = https.request(options, function(post_res) {
-        post_res.on('data', function (chunk) {
-            response += chunk;
-        });
+    var post_req = https.request(options, function (post_res) {
+      post_res.on("data", function (chunk) {
+        response += chunk;
+      });
 
-        post_res.on('end', function(){
-            let { body } = JSON.parse(response);
-            let status = body.resultInfo.resultStatus;
-            let price = body.txnAmount;
-            if (status === "TXN_SUCCESS") {
-              var order = await order_history_query(
-                "Hostel",
-                moduleId,
-                price,
-                paidTo
-              );
-              var paytm_author = false;
-              await hostelInstituteFunction(
-                order?._id,
-                paidBy,
-                price,
-                amount_nocharges,
-                moduleId,
-                ad_status_id ?? "",
-                paidTo ?? "",
-                payment_installment ?? "",
-                paytm_author
-                // Boolean(ad_install)
-              );
-              if (isApk) {
-                res.status(200).send({
-                  message: "Success with Paytm Hostel Fees 😀",
-                  check: true,
-                });
-              } else {
-                res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
-              }
-            } else {
-              res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
-            }
-        });
+      post_res.on("end", async function () {
+        let { body } = JSON.parse(response);
+        let status = body.resultInfo.resultStatus;
+        let price = body.txnAmount;
+        if (status === "TXN_SUCCESS") {
+          var order = await order_history_query(
+            "Hostel",
+            moduleId,
+            price,
+            paidTo
+          );
+          var paytm_author = false;
+          await hostelInstituteFunction(
+            order?._id,
+            paidBy,
+            price,
+            amount_nocharges,
+            moduleId,
+            ad_status_id ?? "",
+            paidTo ?? "",
+            payment_installment ?? "",
+            paytm_author
+            // Boolean(ad_install)
+          );
+          if (isApk) {
+            res.status(200).send({
+              message: "Success with Paytm Hostel Fees 😀",
+              check: true,
+            });
+          } else {
+            res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+          }
+        } else {
+          res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+        }
+      });
     });
 
     post_req.write(post_data);
     post_req.end();
-});
+  });
 };
 
 exports.paytmVerifyBacklogResponseStatus = async (req, res, next) => {
   const { name, paidBy, moduleId, paidTo, amount_nocharges, isApk } =
     req.params;
-    var paytmParams = {};
-    paytmParams.body = {
-        "mid" : `${req.body.mid}`,
-        "orderId" : `${req.body.orderId}`,
+  var paytmParams = {};
+  paytmParams.body = {
+    mid: `${req.body.mid}`,
+    orderId: `${req.body.orderId}`,
+  };
+
+  PaytmChecksum.generateSignature(
+    JSON.stringify(paytmParams.body),
+    process.env.PAYTM_MERCHANT_KEY
+  ).then(function (checksum) {
+    paytmParams.head = {
+      signature: checksum,
     };
-    
-    PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PAYTM_MERCHANT_KEY).then(function(checksum){
-        paytmParams.head = {
-            "signature"	: checksum
-        };
-    
-        var post_data = JSON.stringify(paytmParams);
-    
-        var options = {
-    
-            /* for Staging */
-            hostname: 'securegw-stage.paytm.in',
-    
-            /* for Production */
-            // hostname: 'securegw.paytm.in',
-    
-            port: 443,
-            path: '/v3/order/status',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': post_data.length
-            }
-        };
-    
-        var response = "";
-        var post_req = https.request(options, function(post_res) {
-            post_res.on('data', function (chunk) {
-                response += chunk;
+
+    var post_data = JSON.stringify(paytmParams);
+
+    var options = {
+      /* for Staging */
+      hostname: "securegw-stage.paytm.in",
+
+      /* for Production */
+      // hostname: 'securegw.paytm.in',
+
+      port: 443,
+      path: "/v3/order/status",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": post_data.length,
+      },
+    };
+
+    var response = "";
+    var post_req = https.request(options, function (post_res) {
+      post_res.on("data", function (chunk) {
+        response += chunk;
+      });
+
+      post_res.on("end", async function () {
+        let { body } = JSON.parse(response);
+        let status = body.resultInfo.resultStatus;
+        let price = body.txnAmount;
+        if (status === "TXN_SUCCESS") {
+          var order = await order_history_query(
+            "Backlog",
+            moduleId,
+            price,
+            paidTo
+          );
+          var paytm_author = false;
+          await backlogFunction(
+            order?._id,
+            paidBy,
+            price,
+            amount_nocharges,
+            moduleId,
+            // ad_status_id,
+            paytm_author
+          );
+          if (isApk) {
+            res.status(200).send({
+              message: "Success with Paytm Backlog Fees 😀",
+              check: true,
             });
-    
-            post_res.on('end', function(){
-                let { body } = JSON.parse(response);
-                let status = body.resultInfo.resultStatus;
-                let price = body.txnAmount;
-                if (status === "TXN_SUCCESS") {
-                  var order = await order_history_query(
-                    "Backlog",
-                    moduleId,
-                    price,
-                    paidTo
-                  );
-                  var paytm_author = false;
-                  await backlogFunction(
-                    order?._id,
-                    paidBy,
-                    price,
-                    amount_nocharges,
-                    moduleId,
-                    // ad_status_id,
-                    paytm_author
-                  );
-                  if (isApk) {
-                    res.status(200).send({
-                      message: "Success with Paytm Backlog Fees 😀",
-                      check: true,
-                    });
-                  } else {
-                    res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
-                  }
-                } else {
-                  res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
-                }
-            });
-        });
-    
-        post_req.write(post_data);
-        post_req.end();
+          } else {
+            res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+          }
+        } else {
+          res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+        }
+      });
     });
+
+    post_req.write(post_data);
+    post_req.end();
+  });
 };
 
 exports.paytmVerifyTransportResponseStatus = async (req, res, next) => {
   const { name, paidBy, moduleId, paidTo, amount_nocharges, isApk } =
     req.params;
-    var paytmParams = {};
-    paytmParams.body = {
-        "mid" : `${req.body.mid}`,
-        "orderId" : `${req.body.orderId}`,
+  var paytmParams = {};
+  paytmParams.body = {
+    mid: `${req.body.mid}`,
+    orderId: `${req.body.orderId}`,
+  };
+
+  PaytmChecksum.generateSignature(
+    JSON.stringify(paytmParams.body),
+    process.env.PAYTM_MERCHANT_KEY
+  ).then(function (checksum) {
+    paytmParams.head = {
+      signature: checksum,
     };
-    
-    PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PAYTM_MERCHANT_KEY).then(function(checksum){
-        paytmParams.head = {
-            "signature"	: checksum
-        };
-    
-        var post_data = JSON.stringify(paytmParams);
-    
-        var options = {
-    
-            /* for Staging */
-            hostname: 'securegw-stage.paytm.in',
-    
-            /* for Production */
-            // hostname: 'securegw.paytm.in',
-    
-            port: 443,
-            path: '/v3/order/status',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': post_data.length
-            }
-        };
-    
-        var response = "";
-        var post_req = https.request(options, function(post_res) {
-            post_res.on('data', function (chunk) {
-                response += chunk;
+
+    var post_data = JSON.stringify(paytmParams);
+
+    var options = {
+      /* for Staging */
+      hostname: "securegw-stage.paytm.in",
+
+      /* for Production */
+      // hostname: 'securegw.paytm.in',
+
+      port: 443,
+      path: "/v3/order/status",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": post_data.length,
+      },
+    };
+
+    var response = "";
+    var post_req = https.request(options, function (post_res) {
+      post_res.on("data", function (chunk) {
+        response += chunk;
+      });
+
+      post_res.on("end", async function () {
+        let { body } = JSON.parse(response);
+        let status = body.resultInfo.resultStatus;
+        let price = body.txnAmount;
+        if (status === "TXN_SUCCESS") {
+          var order = await order_history_query(
+            "Transport",
+            moduleId,
+            price,
+            paidTo
+          );
+          var paytm_author = false;
+          await transportFunction(
+            order?._id,
+            paidBy,
+            price,
+            amount_nocharges,
+            moduleId,
+            paytm_author
+          );
+          if (isApk) {
+            res.status(200).send({
+              message: "Success with Paytm Transport Fees 😀",
+              check: true,
             });
-    
-            post_res.on('end', function(){
-                let { body } = JSON.parse(response);
-                let status = body.resultInfo.resultStatus;
-                let price = body.txnAmount;
-                if (status === "TXN_SUCCESS") {
-                  var order = await order_history_query(
-                    "Transport",
-                    moduleId,
-                    price,
-                    paidTo
-                  );
-                  var paytm_author = false;
-                  await transportFunction(
-                    order?._id,
-                    paidBy,
-                    price,
-                    amount_nocharges,
-                    moduleId,
-                    paytm_author
-                  );
-                  if (isApk) {
-                    res.status(200).send({
-                      message: "Success with Paytm Transport Fees 😀",
-                      check: true,
-                    });
-                  } else {
-                    res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
-                  }
-                } else {
-                  res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
-                }
-            });
-        });
-    
-        post_req.write(post_data);
-        post_req.end();
+          } else {
+            res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+          }
+        } else {
+          res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+        }
+      });
     });
+
+    post_req.write(post_data);
+    post_req.end();
+  });
 };
 
 exports.paytmVerifyParticipateResponseStatus = async (req, res, next) => {
@@ -565,78 +577,79 @@ exports.paytmVerifyParticipateResponseStatus = async (req, res, next) => {
     ad_status_id,
   } = req.params;
   var paytmParams = {};
-paytmParams.body = {
-    "mid" : `${req.body.mid}`,
-    "orderId" : `${req.body.orderId}`,
-};
+  paytmParams.body = {
+    mid: `${req.body.mid}`,
+    orderId: `${req.body.orderId}`,
+  };
 
-PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PAYTM_MERCHANT_KEY).then(function(checksum){
+  PaytmChecksum.generateSignature(
+    JSON.stringify(paytmParams.body),
+    process.env.PAYTM_MERCHANT_KEY
+  ).then(function (checksum) {
     paytmParams.head = {
-        "signature"	: checksum
+      signature: checksum,
     };
 
     var post_data = JSON.stringify(paytmParams);
 
     var options = {
+      /* for Staging */
+      hostname: "securegw-stage.paytm.in",
 
-        /* for Staging */
-        hostname: 'securegw-stage.paytm.in',
+      /* for Production */
+      // hostname: 'securegw.paytm.in',
 
-        /* for Production */
-        // hostname: 'securegw.paytm.in',
-
-        port: 443,
-        path: '/v3/order/status',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': post_data.length
-        }
+      port: 443,
+      path: "/v3/order/status",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": post_data.length,
+      },
     };
 
     var response = "";
-    var post_req = https.request(options, function(post_res) {
-        post_res.on('data', function (chunk) {
-            response += chunk;
-        });
+    var post_req = https.request(options, function (post_res) {
+      post_res.on("data", function (chunk) {
+        response += chunk;
+      });
 
-        post_res.on('end', function(){
-            let { body } = JSON.parse(response);
-            let status = body.resultInfo.resultStatus;
-            let price = body.txnAmount;
-            if (status === "TXN_SUCCESS") {
-              var order = await order_history_query(
-                "Participate",
-                moduleId,
-                price,
-                paidTo
-              );
-              var paytm_author = false;
-              await participateEventFunction(
-                order?._id,
-                paidBy,
-                price,
-                amount_nocharges,
-                moduleId,
-                ad_status_id ?? "",
-                paytm_author
-              );
-              if (isApk) {
-                res.status(200).send({
-                  message: "Success with Paytm Participate Fees 😀",
-                  check: true,
-                });
-              } else {
-                res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
-              }
-            } else {
-              res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
-            }
-        });
+      post_res.on("end", async function () {
+        let { body } = JSON.parse(response);
+        let status = body.resultInfo.resultStatus;
+        let price = body.txnAmount;
+        if (status === "TXN_SUCCESS") {
+          var order = await order_history_query(
+            "Participate",
+            moduleId,
+            price,
+            paidTo
+          );
+          var paytm_author = false;
+          await participateEventFunction(
+            order?._id,
+            paidBy,
+            price,
+            amount_nocharges,
+            moduleId,
+            ad_status_id ?? "",
+            paytm_author
+          );
+          if (isApk) {
+            res.status(200).send({
+              message: "Success with Paytm Participate Fees 😀",
+              check: true,
+            });
+          } else {
+            res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+          }
+        } else {
+          res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+        }
+      });
     });
 
     post_req.write(post_data);
     post_req.end();
-});
+  });
 };
-

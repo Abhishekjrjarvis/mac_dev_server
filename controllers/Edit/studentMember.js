@@ -730,15 +730,12 @@ exports.renderAllExamCountQuery = async (req, res) => {
 
 exports.renderStudentUserLoginQuery = async (req, res) => {
   try {
-    const { sid } = req.params;
-    const { phone, email } = req.body;
+    const { phone, email, sid } = req.body;
     if (!sid && !phone && !email)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
     var valid_phone = await handle_undefined(phone);
     var valid_email = await handle_undefined(email);
     const one_student = await Student.findById(sid);

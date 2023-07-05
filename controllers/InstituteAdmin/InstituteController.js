@@ -1415,7 +1415,7 @@ exports.getFullStudentInfo = async (req, res) => {
         )
         .populate({
           path: "user",
-          select: "userLegalName userEmail",
+          select: "userLegalName userPhoneNumber userEmail",
         })
         .populate({
           path: "institute",
@@ -1444,15 +1444,15 @@ exports.getFullStudentInfo = async (req, res) => {
         })
         .populate({
           path: "student_unit",
-          select: "hostel_unit_name hostel"
+          select: "hostel_unit_name hostel",
         })
         .populate({
           path: "student_bed_number",
           select: "bed_number bed_status hostelRoom",
           populate: {
             path: "hostelRoom",
-            select: "room_name"
-          }
+            select: "room_name",
+          },
         })
         .lean()
         .exec();
@@ -1498,7 +1498,7 @@ exports.getFullStudentInfo = async (req, res) => {
         )
         .populate({
           path: "user",
-          select: "userLegalName userEmail",
+          select: "userLegalName userPhoneNumber userEmail",
         })
         .populate({
           path: "institute",
@@ -1527,15 +1527,15 @@ exports.getFullStudentInfo = async (req, res) => {
         })
         .populate({
           path: "student_unit",
-          select: "hostel_unit_name hostel"
+          select: "hostel_unit_name hostel",
         })
         .populate({
           path: "student_bed_number",
           select: "bed_number bed_status hostelRoom",
           populate: {
             path: "hostelRoom",
-            select: "room_name"
-          }
+            select: "room_name",
+          },
         })
         .lean()
         .exec();
@@ -1544,13 +1544,11 @@ exports.getFullStudentInfo = async (req, res) => {
     var point = await handle_undefined(average_points);
     if (student) {
       // Add Another Encryption
-      res
-        .status(200)
-        .send({
-          message: "Student Data To Member",
-          student,
-          average_points: point,
-        });
+      res.status(200).send({
+        message: "Student Data To Member",
+        student,
+        average_points: point,
+      });
     } else {
       res.status(404).send({ message: "Failure" });
     }

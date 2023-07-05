@@ -193,3 +193,15 @@ function uploadOneDocFile(file) {
   return s3.upload(uploadParams).promise();
 }
 exports.uploadOneDocFile = uploadOneDocFile;
+
+function uploadDocsFile(file) {
+  const fileStream = fs.createReadStream(file.path);
+  const uploadParams = {
+    Bucket: bucketName,
+    Body: fileStream,
+    Key: file?.fileName,
+    ContentType: file.mimetype,
+  };
+  return s3.upload(uploadParams).promise();
+}
+exports.uploadDocsFile = uploadDocsFile;

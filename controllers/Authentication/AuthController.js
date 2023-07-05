@@ -2100,7 +2100,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       if (file.name === "file") {
         student.photoId = "0";
         student.studentProfilePhoto = file.key;
-        user.profilePhoto = file.key;
+        // user.profilePhoto = file.key;
       } else if (file.name === "addharFrontCard")
         student.studentAadharFrontCard = file.key;
       else if (file.name === "addharBackCard")

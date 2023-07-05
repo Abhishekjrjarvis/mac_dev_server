@@ -317,7 +317,7 @@ exports.allDepartment = async (req, res) => {
         populate: {
           path: "batches",
           options,
-          match: { _id: { $ne: classes?.batch } },
+          // match: { _id: { $ne: classes?.batch } },
           select: "batchName createdAt",
         },
         select: "dName dTitle photo dHead batches",

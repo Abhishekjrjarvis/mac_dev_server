@@ -727,3 +727,37 @@ exports.renderAllExamCountQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderStudentUserLoginQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { phone, email } = req.body;
+    if (!sid && !phone && !email)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+    var valid_phone = await handle_undefined(phone);
+    var valid_email = await handle_undefined(email);
+    const one_student = await Student.findById(sid);
+    var one_user = await User.findById({ _id: `${one_student?.user}` });
+    if (valid_phone) {
+      one_user.userPhoneNumber = valid_phone
+        ? valid_phone
+        : one_user?.userPhoneNumber;
+      await one_user.save();
+    } else if (valid_email) {
+      one_user.userEmail = valid_email ? valid_email : one_user?.userEmail;
+      await one_user.save();
+    } else {
+    }
+    res.status(200).send({
+      message: "Student User Login Credentials edited successfully👍",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

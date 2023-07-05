@@ -50,4 +50,8 @@ router
   .route("/exam/moderator/count/:did")
   .get(catchAsync(studentMember.renderAllExamCountQuery));
 
+router
+  .route("/user/login/query")
+  .patch(catchAsync(studentMember.renderStudentUserLoginQuery));
+
 module.exports = router;

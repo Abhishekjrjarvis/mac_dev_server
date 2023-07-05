@@ -59,6 +59,11 @@ router
   )
   .post(paytmVerifyParticipateResponseStatus);
 
+// Direct Hostel Fees Payment
+// router
+//   .route("/verify/direct/hostel/fee/:moduleId/paid/:paidBy/query/:name")
+//   .post(paytmVerifyDirectHostelResponseStatus);
+
 // // Direct Admission Fees Payment
 // router
 //   .route("/verify/direct/admission/fee/:moduleId/paid/:paidBy/query/:name")

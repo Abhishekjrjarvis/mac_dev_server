@@ -37,6 +37,7 @@ const {
   uploadFile,
   uploadDocFile,
   uploadOneDocFile,
+  uploadDocsFile,
 } = require("../../S3Configuration");
 const {
   file_to_aws_and_deleted_previous,
@@ -56,6 +57,17 @@ exports.uploadOneImage = async (req, res) => {
   try {
     const file = req.file;
     const results = await uploadDocFile(file);
+    const imageKey = results.Key;
+    res.status(200).send({ message: "Uploaded file Successfully", imageKey });
+    await unlinkFile(file.path);
+  } catch (err) {
+    console.log(err);
+  }
+};
+exports.uploadOneImageWeb = async (req, res) => {
+  try {
+    const file = req.file;
+    const results = await uploadDocsFile(file);
     const imageKey = results.Key;
     res.status(200).send({ message: "Uploaded file Successfully", imageKey });
     await unlinkFile(file.path);

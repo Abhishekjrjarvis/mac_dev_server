@@ -55,6 +55,7 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
       payment_remain_1,
       ad_status_id,
       type,
+      student_data,
     } = req.body;
     var valid_url = await call_back_urls_redirection_query(
       type,
@@ -628,5 +629,86 @@ exports.paytmVerifyParticipateResponseStatus = (req, res, next) => {
     });
   } else {
     console.log("Checksum Mismatched In Participate Fees Error Query 😒");
+  }
+};
+
+exports.paytmVerifyResponseStatus = (req, res, next) => {
+  const { name, paidBy, moduleId, paidTo, amount_nocharges, isApk } =
+    req.params;
+  let paytmChecksum = req.body.CHECKSUMHASH;
+  delete req.body.CHECKSUMHASH;
+  let isVerifySignature = PaytmChecksum.verifySignature(
+    req.body,
+    process.env.PAYTM_MERCHANT_KEY,
+    paytmChecksum
+  );
+  if (isVerifySignature) {
+    var paytmParams = {};
+    paytmParams.body = {
+      mid: req.body.MID,
+      orderId: req.body.ORDERID,
+    };
+    PaytmChecksum.generateSignature(
+      JSON.stringify(paytmParams.body),
+      process.env.PAYTM_MERCHANT_KEY
+    ).then(function (checksum) {
+      paytmParams.head = {
+        signature: checksum,
+      };
+      var post_data = JSON.stringify(paytmParams);
+      var options = {
+        hostname: "securegw-stage.paytm.in",
+        // hostname: 'securegw.paytm.in',
+        port: 443,
+        path: "/v3/order/status",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": post_data.length,
+        },
+      };
+      var response = "";
+      var post_req = https.request(options, function (post_res) {
+        post_res.on("data", function (chunk) {
+          response += chunk;
+        });
+        post_res.on("end", async function () {
+          let { body } = JSON.parse(response);
+          let status = body?.resultInfo?.resultStatus;
+          let price = body?.txnAmount;
+          if (status === "TXN_SUCCESS") {
+            var order = await order_history_query(
+              "Fees",
+              moduleId,
+              price,
+              paidTo
+            );
+            var paytm_author = false;
+            await feeInstituteFunction(
+              order?._id,
+              paidBy,
+              price,
+              amount_nocharges,
+              moduleId,
+              paytm_author
+            );
+            if (isApk) {
+              res.status(200).send({
+                message: "Success with Paytm Fees 😀",
+                check: true,
+              });
+            } else {
+              res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+            }
+          } else {
+            res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+          }
+        });
+      });
+      post_req.write(post_data);
+      post_req.end();
+    });
+  } else {
+    console.log("Checksum Mismatched In Internal Fees Error Query 😒");
   }
 };

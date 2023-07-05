@@ -6786,6 +6786,9 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
     });
     // if (one_remain_list?.status === "Not Paid") {
     if (new_struct?.total_admission_fees >= old_struct?.total_admission_fees) {
+      if(one_student?.admissionRemainFeeCount >= one_remain_list.remaining_fee){
+        one_student.admissionRemainFeeCount -= one_remain_list.remaining_fee
+      }
       one_remain_list.applicable_fee = new_struct?.total_admission_fees;
       one_remain_list.remaining_fee =
         new_struct?.total_admission_fees - one_remain_list?.paid_fee;
@@ -6852,6 +6855,10 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       } else {
         var over_price =
           new_struct?.total_admission_fees - one_remain_list?.paid_fee;
+      }
+      //Later Add
+      if(one_student?.admissionRemainFeeCount >= one_remain_list.remaining_fee){
+        one_student.admissionRemainFeeCount -= one_remain_list.remaining_fee
       }
       one_remain_list.applicable_fee = new_struct?.total_admission_fees;
       one_remain_list.remaining_fee = over_price ?? 0;

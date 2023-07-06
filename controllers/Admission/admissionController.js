@@ -5175,6 +5175,7 @@ exports.renderOneReceiptReApply = async (req, res) => {
 exports.renderTriggerAlarmQuery = async (req, res) => {
   try {
     const { aid } = req.params;
+    const { alarm_mode, content } = req.query
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -5185,21 +5186,32 @@ exports.renderTriggerAlarmQuery = async (req, res) => {
       "alarm_count"
     );
 
-    if (alarm_count > 3) {
+    // if (alarm_count > 3) {
+    //   res.status(200).send({
+    //     message:
+    //       "You have only three attempts of sending notification to students for more contact Qviple",
+    //     access: false,
+    //   });
+    // } else {
+      if(alarm_mode === "APP_NOTIFICATION"){
+        await dueDateAlarm(alarm_mode, content);
+      }
+      else if(alarm_mode === "EMAIL_NOTIFICATION"){
+        await dueDateAlarm(alarm_mode, content);
+      }
+      else if(alarm_mode === "SMS_NOTIFICATION"){
+
+      }
+      else{}
+      // ads_admin.alarm_count += 1;
+      // await ads_admin.save();
+      // remaining ${ads_admin.alarm_count} attempts
       res.status(200).send({
-        message:
-          "You have only three attempts of sending notification to students for more contact Qviple",
-        access: false,
-      });
-    } else {
-      await dueDateAlarm();
-      ads_admin.alarm_count += 1;
-      await ads_admin.save();
-      res.status(200).send({
-        message: `Fees Alarm is triggered successfully remaining ${ads_admin.alarm_count} attempts`,
+        message: `Fees Alarm is triggered successfully`,
         access: true,
+        alarm_mode
       });
-    }
+    // }
   } catch (e) {
     console.log(e);
   }

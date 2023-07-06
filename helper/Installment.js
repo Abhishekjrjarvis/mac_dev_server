@@ -1562,7 +1562,7 @@ const retro_installment_sequence_query = async (new_fee_args) => {
 const buildObject = async (arr) => {
   var obj = {};
   if (arr?.length > 0) {
-    for (let i = 1; i <= arr.length; i++) {
+    for (let i = 0; i <= arr.length; i++) {
       var { query } = arr[i];
       obj[`key${i}`] = query;
     }

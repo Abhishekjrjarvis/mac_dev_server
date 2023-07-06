@@ -22804,6 +22804,16 @@ paths:
           required: true
           type: string
           description: Enter Admission Id
+        - in: query
+          name: alarm_mode
+          required: true
+          type: string
+          description: Enter Alarm Mode ("APP_NOTIFICATION" || "EMAIL_NOTIFICATION" || "SMS_NOTIFICATION")
+        - in: query
+          name: content
+          required: true
+          type: string
+          description: Enter Content For Alarm Mode ("EMAIL_NOTIFICATION" || "SMS_NOTIFICATION")
       responses:
         "200":
           description: OK

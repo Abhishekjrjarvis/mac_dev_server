@@ -291,6 +291,28 @@ const superAdminSchema = new mongoose.Schema({
       ref: "SubDomain",
     },
   ],
+  alarm_student: [
+    {
+      created_at: {
+        type: Date,
+        default: Date.now,
+      },
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      alarm_mode: {
+        type: String,
+      },
+      content: {
+        type: String,
+      },
+    },
+  ],
+  alarm_student_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Admin = mongoose.model("Admin", superAdminSchema);

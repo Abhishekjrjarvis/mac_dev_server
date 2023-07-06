@@ -6,32 +6,81 @@ const Renewal = require("../models/Hostel/renewal");
 const HostelUnit = require("../models/Hostel/hostelUnit");
 const { custom_date_time, ms_calc } = require("../helper/dayTimer");
 const User = require("../models/User");
+const axios = require("axios");
+const Admin = require("../models/superAdmin");
 
-exports.dueDateAlarm = async () => {
+exports.dueDateAlarm = async (type, message) => {
   try {
+    var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const all_remains = await RemainingList({})
       .select("remaining_array")
       .populate({
+        path: "fee_structure",
+      })
+      .populate({
         path: "student",
-        select: "user",
+        select: "user studentFirstName studentMiddleName studentLastName",
         populate: {
           path: "user",
           select: "deviceToken",
         },
       });
     for (let remind of all_remains) {
-      for (let set of remind.remaining_array) {
-        if (set?.status === "Not Paid") {
-          invokeSpecificRegister(
-            "Specific Notification",
-            `Admission Fees ${set?.installmentValue} is due. Paid As Soon As Possible.`,
-            "Fees Reminder",
-            remind?.student?.user._id,
-            remind?.student?.user.deviceToken
-          );
+      // for (let set of remind.remaining_array) {
+      if (remind?.status === "Not Paid") {
+        var valid_price =
+          remind?.paid_fee >= remind?.fee_structure?.applicable_fees
+            ? 0
+            : remind?.fee_structure?.applicable_fees - remind?.paid_fee;
+        if (valid_price > 0) {
+          s_admin.alarm_student.push({
+            student: remind?.student?._id,
+            alarm_mode: `${type}`,
+            content: message ? message : null,
+          });
+          s_admin.alarm_student_count += 1;
+          if (type === "APP_NOTIFICATION") {
+            invokeSpecificRegister(
+              "Specific Notification",
+              `Admission Fees Rs. ${valid_price} is due. Paid As Soon As Possible.`,
+              "Fees Reminder",
+              remind?.student?.user._id,
+              remind?.student?.user.deviceToken
+            );
+          } else if (type === "EMAIL_NOTIFICATION") {
+            var name = `${remind?.student?.studentFirstName}${
+              remind?.student?.studentMiddleName
+                ? ` ${remind?.student?.studentMiddleName}`
+                : ""
+            } ${remind?.student?.studentLastName}`;
+            const subject = "Qviple Outstanding Dues Reminder";
+
+            const message = `Dear ${name},
+You are requested to clear your dues for outstanding fees amount Rs.${valid_price}.
+Note: ${message ? message : ""}
+
+Login by Downloading app 'Qviple: Your College Online' from playstore
+
+OR
+
+Through link : https://play.google.com/store/apps/details?id=com.mithakalminds.qviple
+`;
+            const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+            const encodeURL = encodeURI(url);
+            axios
+              .post(encodeURL)
+              .then((res) => {
+                console.log("Sended Successfully");
+              })
+              .catch((e) => {
+                console.log("Alarm Bug", e.message);
+              });
+          } else if (type === "SMS_NOTIFICATION") {
+          }
         }
       }
     }
+    await s_admin.save();
   } catch (e) {
     console.log(e);
   }

@@ -1754,7 +1754,8 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "user",
-            select: "userLegalName username photoId profilePhoto",
+            select:
+              "userLegalName username photoId profilePhoto userPhoneNumber userEmail",
           })
           .populate({
             path: "vehicle",
@@ -1787,7 +1788,8 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "exist_linked_hostel.exist_student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto student_bed_number hostelRemainFeeCount",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto student_bed_number hostelRemainFeeCount",
             populate: {
               path: "student_bed_number",
               select: "bed_number bed_status hostelRoom",
@@ -1796,11 +1798,11 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
                 select: "room_name hostelUnit",
                 populate: {
                   path: "hostelUnit",
-                  select: "hostel_unit_name"
-                }
-              }
-            }
-          })
+                  select: "hostel_unit_name",
+                },
+              },
+            },
+          });
         if (student?.studentDocuments?.length > 0) {
           for (var docs of student.studentDocuments) {
             student.incomeCertificate =
@@ -1866,7 +1868,8 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "user",
-            select: "userLegalName username photoId profilePhoto",
+            select:
+              "userLegalName username photoId profilePhoto userPhoneNumber userEmail",
           })
           .populate({
             path: "vehicle",
@@ -1899,7 +1902,8 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "exist_linked_hostel.exist_student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto student_bed_number hostelRemainFeeCount",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto student_bed_number hostelRemainFeeCount",
             populate: {
               path: "student_bed_number",
               select: "bed_number bed_status hostelRoom",
@@ -1908,14 +1912,14 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
                 select: "room_name hostelUnit",
                 populate: {
                   path: "hostelUnit",
-                  select: "hostel_unit_name"
-                }
-              }
-            }
-          })
+                  select: "hostel_unit_name",
+                },
+              },
+            },
+          });
       }
       average_points += student?.extraPoints / student?.batchCount;
-      var point = await handle_undefined(average_points)
+      var point = await handle_undefined(average_points);
       const status = await valid_student_form_query(
         student?.institute,
         student,
@@ -2431,7 +2435,7 @@ exports.retrieveUserRoleQuery = async (req, res) => {
     mergeArray = mergeArray?.filter((val) => {
       if (`${val?._id}` != `${user?.active_member_role}`) return val;
     });
-    if(get_array?.length > 0){
+    if (get_array?.length > 0) {
       mergeArray.unshift(get_array?.[0]);
     }
     // const roleEncrypt = await encryptionPayload(mergeArray);

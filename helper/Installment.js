@@ -1591,7 +1591,7 @@ exports.set_retro_installment = async (
       console.log("Index", index);
       console.log(results[`key${index}`]);
       if (
-        ref?.installmentValue === results[`key${index + 1}`] &&
+        ref?.installmentValue === results[`key${index}`] &&
         ref?.status === "Not Paid"
       ) {
         console.log("results Bug");

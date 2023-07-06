@@ -1589,32 +1589,32 @@ exports.set_retro_installment = async (
     for (var ref of remain_args?.remaining_array) {
       var index = remain_args?.remaining_array?.indexOf(ref);
       console.log("Index", index);
-      if (
-        results &&
-        ref?.installmentValue === results[`key${index + 1}`] &&
-        ref?.status === "Not Paid"
-      ) {
-        console.log("results Bug");
-        ref.remainAmount += remain_args.remaining_fee;
-      } else if (
-        ref?.installmentValue === "Installment Remain" &&
-        ref?.status === "Not Paid"
-      ) {
-        console.log("Installment Bug");
-        ref.remainAmount += remain_args.remaining_fee;
-      } else {
-        if (remain_args.remaining_fee > 0) {
-          remain_args?.remaining_array.push({
-            remainAmount: remain_args.remaining_fee,
-            appId: app_args?._id,
-            instituteId: ins_args?._id,
-            isEnable: true,
-            installmentValue: "Installment Remain",
-          });
-        }
-      }
+      console.log(results[`key${index + 1}`]);
+      // if (
+      //   ref?.installmentValue === results[`key${index + 1}`] &&
+      //   ref?.status === "Not Paid"
+      // ) {
+      //   console.log("results Bug");
+      //   ref.remainAmount += remain_args.remaining_fee;
+      // } else if (
+      //   ref?.installmentValue === "Installment Remain" &&
+      //   ref?.status === "Not Paid"
+      // ) {
+      //   console.log("Installment Bug");
+      //   ref.remainAmount += remain_args.remaining_fee;
+      // } else {
+      //   if (remain_args.remaining_fee > 0) {
+      //     remain_args?.remaining_array.push({
+      //       remainAmount: remain_args.remaining_fee,
+      //       appId: app_args?._id,
+      //       instituteId: ins_args?._id,
+      //       isEnable: true,
+      //       installmentValue: "Installment Remain",
+      //     });
+      //   }
+      // }
     }
-    await remain_args.save();
+    // await remain_args.save();
   } catch (e) {
     console.log(e);
   }

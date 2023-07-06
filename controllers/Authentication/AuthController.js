@@ -3453,20 +3453,17 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
           staffAadharNumber: ref?.staffAadharNumber,
           staffPanNumber: ref?.staffPanNumber,
         });
+        staff.photoId = "0";
+        if (staff?.staffGender === "Male") {
+          staff.staffProfilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+          user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+        } else if (staff?.staffGender === "Female") {
+          staff.staffProfilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+          user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+        } else {
+        }
         for (var file of ref?.fileArray) {
           if (file.name === "file") {
-            staff.photoId = "0";
-            if(staff?.staffGender === "Male"){
-              staff.staffProfilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
-              user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
-            }
-            else if(staff?.staffGender === "Female"){
-              staff.staffProfilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
-              user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
-            }
-            else{
-
-            }
           } else if (file.name === "addharFrontCard")
             staff.staffAadharFrontCard = file.key;
           else if (file.name === "addharBackCard")

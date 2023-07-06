@@ -745,10 +745,10 @@ exports.renderStudentUserLoginQuery = async (req, res) => {
         ? valid_phone
         : one_user?.userPhoneNumber;
       await one_user.save();
-    } else if (valid_email) {
+    }
+    if (valid_email) {
       one_user.userEmail = valid_email ? valid_email : one_user?.userEmail;
       await one_user.save();
-    } else {
     }
     res.status(200).send({
       message: "Student User Login Credentials edited successfully👍",

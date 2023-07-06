@@ -1011,7 +1011,7 @@ exports.renderHostelAllApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationStatus applicationSeats applicationAbout admissionProcess"
+        "applicationName applicationEndDate applicationStatus applicationSeats applicationAbout admissionProcess application_type"
       )
       .populate({
         path: "applicationHostel",
@@ -1020,7 +1020,10 @@ exports.renderHostelAllApplication = async (req, res) => {
       .populate({
         path: "applicationUnit",
         select: "hostel_unit_name",
-      });
+      })
+      .populate({
+        path: "direct_linked_structure"
+      })
 
     if (ongoing?.length > 0) {
       res.status(200).send({

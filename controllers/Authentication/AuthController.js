@@ -822,6 +822,7 @@ exports.forgotPasswordSendOtp = async (req, res) => {
         // const fEncrypt = await encryptionPayload(user);
         res.status(200).send({
           message: "code will be send to registered email",
+          user,
         });
       } else {
       }

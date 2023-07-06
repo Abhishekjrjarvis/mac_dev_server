@@ -173,7 +173,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   });
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber enable_protection moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status active_tab_index"
+        "admissionAdminEmail admissionAdminPhoneNumber enable_protection moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status active_tab_index alarm_enable"
       )
       .populate({
         path: "admissionAdminHead",
@@ -5175,7 +5175,7 @@ exports.renderOneReceiptReApply = async (req, res) => {
 exports.renderTriggerAlarmQuery = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { alarm_mode, content } = req.query
+    const { alarm_mode, content } = req.query;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -5193,24 +5193,21 @@ exports.renderTriggerAlarmQuery = async (req, res) => {
     //     access: false,
     //   });
     // } else {
-      if(alarm_mode === "APP_NOTIFICATION"){
-        await dueDateAlarm(alarm_mode, content);
-      }
-      else if(alarm_mode === "EMAIL_NOTIFICATION"){
-        await dueDateAlarm(alarm_mode, content);
-      }
-      else if(alarm_mode === "SMS_NOTIFICATION"){
-
-      }
-      else{}
-      // ads_admin.alarm_count += 1;
-      // await ads_admin.save();
-      // remaining ${ads_admin.alarm_count} attempts
-      res.status(200).send({
-        message: `Fees Alarm is triggered successfully`,
-        access: true,
-        alarm_mode
-      });
+    if (alarm_mode === "APP_NOTIFICATION") {
+      await dueDateAlarm(alarm_mode, content);
+    } else if (alarm_mode === "EMAIL_NOTIFICATION") {
+      await dueDateAlarm(alarm_mode, content);
+    } else if (alarm_mode === "SMS_NOTIFICATION") {
+    } else {
+    }
+    // ads_admin.alarm_count += 1;
+    // await ads_admin.save();
+    // remaining ${ads_admin.alarm_count} attempts
+    res.status(200).send({
+      message: `Fees Alarm is triggered successfully`,
+      access: true,
+      alarm_mode,
+    });
     // }
   } catch (e) {
     console.log(e);
@@ -6798,9 +6795,11 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
     });
     // if (one_remain_list?.status === "Not Paid") {
     if (new_struct?.total_admission_fees >= old_struct?.total_admission_fees) {
-      if(one_student?.admissionRemainFeeCount >= one_remain_list.remaining_fee){
-        one_student.admissionRemainFeeCount -= one_remain_list.remaining_fee
-        await one_student.save()
+      if (
+        one_student?.admissionRemainFeeCount >= one_remain_list.remaining_fee
+      ) {
+        one_student.admissionRemainFeeCount -= one_remain_list.remaining_fee;
+        await one_student.save();
       }
       one_remain_list.applicable_fee = new_struct?.total_admission_fees;
       one_remain_list.remaining_fee =
@@ -6870,9 +6869,11 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
           new_struct?.total_admission_fees - one_remain_list?.paid_fee;
       }
       //Later Add
-      if(one_student?.admissionRemainFeeCount >= one_remain_list.remaining_fee){
-        one_student.admissionRemainFeeCount -= one_remain_list.remaining_fee
-        await one_student.save()
+      if (
+        one_student?.admissionRemainFeeCount >= one_remain_list.remaining_fee
+      ) {
+        one_student.admissionRemainFeeCount -= one_remain_list.remaining_fee;
+        await one_student.save();
       }
       one_remain_list.applicable_fee = new_struct?.total_admission_fees;
       one_remain_list.remaining_fee = over_price ?? 0;
@@ -8591,9 +8592,11 @@ exports.renderPendingListStudentQuery = async (req, res) => {
   //   //   _id: "644a09e3d1679fcd6e76e606",
   //   // });
   //   for (var val of student) {
-  //     var all_remain = await RemainingList.find({ $and: [{ _id: { $in: val?.remainingFeeList }}]})
-  //     for(var ref of all_remain){
-  //       val.admissionRemainFeeCount += ref?.remaining_fee
+  //     var all_remain = await RemainingList.find({
+  //       $and: [{ _id: { $in: val?.remainingFeeList } }],
+  //     });
+  //     for (var ref of all_remain) {
+  //       val.admissionRemainFeeCount += ref?.remaining_fee;
   //     }
   //     // val.admissionRemainFeeCount = 0;
   //     await val.save();
@@ -8603,18 +8606,18 @@ exports.renderPendingListStudentQuery = async (req, res) => {
   // } catch (e) {
   //   console.log(e);
   // }
-  try {
-    const all_card = await RemainingList.find({});
-    for (var val of all_card) {
-      // val.drop_status = "Disable";
-      // val.already_made = false;
-      val.button_status = "Collect Fees"
-      await val.save();
-    }
-    res.status(200).send({ message: "Added Student Remaining Fees Query" });
-  } catch (e) {
-    console.log(e);
-  }
+  // try {
+  //   const all_card = await RemainingList.find({});
+  //   for (var val of all_card) {
+  //     // val.drop_status = "Disable";
+  //     // val.already_made = false;
+  //     val.button_status = "Collect Fees"
+  //     await val.save();
+  //   }
+  //   res.status(200).send({ message: "Added Student Remaining Fees Query" });
+  // } catch (e) {
+  //   console.log(e);
+  // }
 };
 
 // exports.renderRetroOneStudentStructureQuery = async (req, res) => {

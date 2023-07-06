@@ -7,6 +7,7 @@ const {
   dueDateAlarm,
   renewal_request_alarm,
   quote_disappear,
+  outstanding_reminder_disable_query,
 } = require("../Service/alarm");
 const {
   renderRealTimeDailyUpdate,
@@ -25,6 +26,9 @@ exports.timerFunction = () => {
   setInterval(async () => {
     await quote_disappear();
   }, 86400000);
+  setInterval(async () => {
+    await outstanding_reminder_disable_query();
+  }, 864000);
   // setInterval(async () => {
   //   await renderRealTimeDailyUpdate();
   // }, 86400000);

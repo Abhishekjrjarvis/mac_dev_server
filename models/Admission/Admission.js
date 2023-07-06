@@ -149,6 +149,13 @@ const admissionAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  alarm_enable: {
+    type: Date,
+  },
+  alarm_enable_status: {
+    type: String,
+    default: "Enable",
+  },
   required_document: [
     {
       document_name: { type: String },

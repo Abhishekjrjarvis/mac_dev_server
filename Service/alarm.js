@@ -16,8 +16,7 @@ exports.dueDateAlarm = async (aid, type, content) => {
       "alarm_enable alarm_enable_status"
     );
     var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const all_remains = await RemainingList({})
-      .select("remaining_array")
+    var all_remains = await RemainingList({})
       .populate({
         path: "fee_structure",
       })
@@ -32,7 +31,7 @@ exports.dueDateAlarm = async (aid, type, content) => {
     if (ads_admin?.alarm_enable_status === "Enable") {
       var valid_date = custom_date_time(3);
       ads_admin.alarm_enable = new Date(`${valid_date}`);
-      for (let remind of all_remains) {
+      for (var remind of all_remains) {
         // for (let set of remind.remaining_array) {
         if (remind?.status === "Not Paid") {
           var valid_price =

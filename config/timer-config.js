@@ -28,7 +28,7 @@ exports.timerFunction = () => {
   }, 86400000);
   setInterval(async () => {
     await outstanding_reminder_disable_query();
-  }, 864000);
+  }, 86400000);
   // setInterval(async () => {
   //   await renderRealTimeDailyUpdate();
   // }, 86400000);

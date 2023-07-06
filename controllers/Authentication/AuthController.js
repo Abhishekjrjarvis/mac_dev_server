@@ -3338,6 +3338,26 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
 ) => {
   try {
     for (var ref of staff_array) {
+      var maleAvatar = [
+        "3D2.jpg",
+        "3D4.jpg",
+        "3D6.jpg",
+        "3D19.jpg",
+        "3D20.jpg",
+        "3D26.jpg",
+        "3D21.jpg",
+        "3D12.jpg",
+      ];
+      var femaleAvatar = [
+        "3D1.jpg",
+        "3D3.jpg",
+        "3D10.jpg",
+        "3D11.jpg",
+        "3D14.jpg",
+        "3D15.jpg",
+        "3D22.jpg",
+        "3D31.jpg",
+      ];
       const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
       const valid = await filter_unique_username(
         ref?.staffFirstName,
@@ -3436,8 +3456,17 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
         for (var file of ref?.fileArray) {
           if (file.name === "file") {
             staff.photoId = "0";
-            staff.staffProfilePhoto = file.key;
-            user.profilePhoto = file.key;
+            if(staff?.staffGender === "Male"){
+              staff.staffProfilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+              user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+            }
+            else if(staff?.staffGender === "Female"){
+              staff.staffProfilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+              user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+            }
+            else{
+
+            }
           } else if (file.name === "addharFrontCard")
             staff.staffAadharFrontCard = file.key;
           else if (file.name === "addharBackCard")

@@ -1704,31 +1704,28 @@ exports.set_retro_installment = async (
 ) => {
   try {
     const arr_query = await retro_installment_sequence_query(new_fee_args);
-    console.log("ARR Query", arr_query);
     var results = await buildObject(arr_query);
-    console.log("results", results);
     for (var ref of remain_args?.remaining_array) {
       var index = remain_args?.remaining_array?.indexOf(ref);
-      console.log("Index", index);
-      console.log(results[`key${index}`]);
       if (
         ref?.installmentValue === results[`key${index}`] &&
         ref?.status === "Not Paid"
       ) {
-        console.log("results Bug");
         ref.remainAmount +=
           remain_args.remaining_fee >= ref.remainAmount
             ? remain_args.remaining_fee - ref?.remainAmount
             : ref.remainAmount;
+        console.log("results Bug", ref.remainAmount);
       } else if (
         ref?.installmentValue === "Installment Remain" &&
         ref?.status === "Not Paid"
       ) {
-        console.log("Installment Bug");
+        console.log("Installment Bug Before", ref.remainAmount);
         ref.remainAmount +=
           remain_args.remaining_fee >= ref.remainAmount
             ? remain_args.remaining_fee - ref?.remainAmount
             : ref.remainAmount;
+        console.log("Installment Bug After", ref.remainAmount);
       }
       // else {
       //   if (remain_args.remaining_fee > 0) {

@@ -1563,6 +1563,7 @@ const buildObject = async (arr) => {
   var obj = {};
   if (arr?.length > 0) {
     for (let i = 0; i <= arr.length; i++) {
+      console.log(`Array At ${i}`, arr[i])
       var { query } = arr[i];
       obj[`key${i}`] = query;
     }

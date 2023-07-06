@@ -1716,7 +1716,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       var new_remainFee = new RemainingList({
         appId: apply._id,
         applicable_fee: total_amount,
-        institute: institute?._id,
+        institute: institute?._id
       });
       new_remainFee.access_mode_card = "Installment_Wise";
       new_remainFee.remaining_array.push({
@@ -1748,7 +1748,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       var new_remainFee = new RemainingList({
         appId: apply._id,
         applicable_fee: student?.fee_structure?.total_admission_fees,
-        institute: institute?._id,
+        institute: institute?._id
       });
       new_remainFee.access_mode_card = "One_Time_Wise";
       new_remainFee.remaining_array.push({
@@ -4916,7 +4916,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         var new_remainFee = new RemainingList({
           appId: one_app._id,
           applicable_fee: total_amount,
-          institute: institute?._id,
+          institute: institute?._id
         });
         new_remainFee.access_mode_card = "Installment_Wise";
         new_remainFee.remaining_array.push({
@@ -4948,7 +4948,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         var new_remainFee = new RemainingList({
           appId: one_app._id,
           applicable_fee: student?.fee_structure?.total_admission_fees,
-          institute: institute?._id,
+          institute: institute?._id
         });
         new_remainFee.access_mode_card = "One_Time_Wise";
         new_remainFee.remaining_array.push({
@@ -6835,6 +6835,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
             // }
           }
         } else {
+          console.log(one_remain_list?.remaining_fee)
           await set_retro_installment(
             institute,
             new_struct,
@@ -6874,9 +6875,9 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       }
       //Later Add
       if (
-        one_student?.admissionRemainFeeCount >= one_remain_list.remaining_fee
+        one_student?.admissionRemainFeeCount >= over_price
       ) {
-        one_student.admissionRemainFeeCount -= one_remain_list.remaining_fee;
+        one_student.admissionRemainFeeCount -= over_price;
         await one_student.save();
       }
       one_remain_list.applicable_fee = new_struct?.total_admission_fees;
@@ -6913,12 +6914,14 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
             one_remain_list?.applicable_fee <= one_remain_list?.paid_fee &&
             one_remain_list?.remaining_fee >= 0
           ) {
+            console.log("PULL CARD")
             for (var ref of one_remain_list?.remaining_array) {
               if (ref?.status === "Not Paid") {
                 one_remain_list.remaining_array.pull(ref?._id);
               }
             }
           }
+          console.log(one_remain_list.remaining_fee)
           await set_retro_installment(
             institute,
             new_struct,
@@ -7908,7 +7911,7 @@ exports.renderAddFeesCardStudentQuery = async (req, res) => {
     var new_remainFee = new RemainingList({
       appId: apply?._id,
       applicable_fee: structure?.total_admission_fees,
-      institute: institute?._id,
+      institute: institute?._id
     });
     new_remainFee.access_mode_card = "Installment_Wise";
     new_remainFee.card_type = "Normal";
@@ -8596,17 +8599,15 @@ exports.renderPendingListStudentQuery = async (req, res) => {
     var ads_admin = await Admission.findById({
       _id: "644a09e3d1679fcd6e76e606",
     });
-    var institute = await InstituteAdmin.findById({
-      _id: ads_admin?.institute,
-    });
+    var institute = await InstituteAdmin.findById({ _id: ads_admin?.institute})
     for (var val of student) {
       var all_remain = await RemainingList.find({
         $and: [{ _id: { $in: val?.remainingFeeList } }],
       });
       for (var ref of all_remain) {
         // val.admissionRemainFeeCount += ref?.remaining_fee;
-        val.institute = institute?._id;
-        await ref.save();
+        val.institute = institute?._id
+        await ref.save()
       }
       // val.admissionRemainFeeCount = 0;
       // await val.save();

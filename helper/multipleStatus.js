@@ -186,6 +186,7 @@ exports.fee_reordering = async (
       var new_remainFee = new RemainingList({
         appId: apply._id,
         applicable_fee: student?.fee_structure?.total_admission_fees,
+        institute: institute?._id,
       });
       new_remainFee.access_mode_card = "One_Time_Wise";
       new_remainFee.remaining_array.push({
@@ -238,6 +239,7 @@ exports.fee_reordering = async (
       var new_remainFee = new RemainingList({
         appId: apply._id,
         applicable_fee: total_amount,
+        institute: institute?._id,
       });
       new_remainFee.access_mode_card = "Installment_Wise";
       new_remainFee.remaining_array.push({
@@ -363,6 +365,7 @@ exports.fee_reordering_direct_student = async (
         var new_remainFee = new RemainingList({
           appId: apply._id,
           applicable_fee: fee_structure?.total_admission_fees,
+          institute: institute?._id,
         });
         new_remainFee.access_mode_card = "One_Time_Wise";
         new_remainFee.paid_fee += price;
@@ -412,6 +415,7 @@ exports.fee_reordering_direct_student = async (
         var new_remainFee = new RemainingList({
           appId: apply._id,
           applicable_fee: total_amount,
+          institute: institute?._id,
         });
         new_remainFee.access_mode_card = "Installment_Wise";
         new_remainFee.paid_fee += price;
@@ -622,6 +626,7 @@ exports.fee_reordering_direct_student_payload = async (
           var new_remainFee = new RemainingList({
             appId: apply._id,
             applicable_fee: fee_structure?.total_admission_fees,
+            institute: institute?._id,
           });
           new_remainFee.access_mode_card = "One_Time_Wise";
           // console.log("card created");
@@ -797,6 +802,7 @@ exports.fee_reordering_direct_student_payload = async (
           var new_remainFee = new RemainingList({
             appId: apply._id,
             applicable_fee: total_amount,
+            institute: institute?._id,
           });
           new_remainFee.access_mode_card = "Installment_Wise";
           // console.log("card created");

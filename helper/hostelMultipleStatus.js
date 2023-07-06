@@ -151,6 +151,7 @@ exports.fee_reordering_hostel = async (
         appId: apply._id,
         applicable_fee: student?.hostel_fee_structure?.total_admission_fees,
         remaining_flow: "Hostel Application",
+        institute: institute?._id,
       });
       new_remainFee.access_mode_card = "One_Time_Wise";
       new_remainFee.remaining_array.push({
@@ -205,6 +206,7 @@ exports.fee_reordering_hostel = async (
         appId: apply._id,
         applicable_fee: total_amount,
         remaining_flow: "Hostel Application",
+        institute: institute?._id,
       });
       new_remainFee.access_mode_card = "Installment_Wise";
       new_remainFee.remaining_array.push({

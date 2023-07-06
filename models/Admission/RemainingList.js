@@ -111,6 +111,10 @@ const remainingFeeListSchema = new mongoose.Schema({
     type: String,
     default: "Collect Fees",
   },
+  institute: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteAdmin",
+  },
 });
 
 module.exports = mongoose.model("RemainingList", remainingFeeListSchema);

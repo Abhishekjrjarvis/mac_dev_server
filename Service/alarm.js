@@ -14,7 +14,9 @@ exports.dueDateAlarm = async (aid, type, content) => {
   try {
     var ads_admin = await Admission.findById({ _id: aid });
     var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    var all_remains = await RemainingList.find({})
+    var all_remains = await RemainingList.find({
+      institute: ads_admin?.institute,
+    })
       .populate({
         path: "fee_structure",
       })
@@ -22,9 +24,13 @@ exports.dueDateAlarm = async (aid, type, content) => {
         path: "student",
         select: "user studentFirstName studentMiddleName studentLastName",
         populate: {
-          path: "user institute",
-          select: "deviceToken insName userEmail",
+          path: "user",
+          select: "deviceToken userEmail",
         },
+      })
+      .populate({
+        path: "institute",
+        select: "insName",
       });
     if (ads_admin?.alarm_enable_status === "Enable") {
       var valid_date = custom_date_time(3);

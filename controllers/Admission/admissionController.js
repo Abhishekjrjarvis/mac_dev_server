@@ -1716,6 +1716,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       var new_remainFee = new RemainingList({
         appId: apply._id,
         applicable_fee: total_amount,
+        institute: institute?._id,
       });
       new_remainFee.access_mode_card = "Installment_Wise";
       new_remainFee.remaining_array.push({
@@ -1747,6 +1748,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       var new_remainFee = new RemainingList({
         appId: apply._id,
         applicable_fee: student?.fee_structure?.total_admission_fees,
+        institute: institute?._id,
       });
       new_remainFee.access_mode_card = "One_Time_Wise";
       new_remainFee.remaining_array.push({
@@ -4914,6 +4916,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         var new_remainFee = new RemainingList({
           appId: one_app._id,
           applicable_fee: total_amount,
+          institute: institute?._id,
         });
         new_remainFee.access_mode_card = "Installment_Wise";
         new_remainFee.remaining_array.push({
@@ -4945,6 +4948,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         var new_remainFee = new RemainingList({
           appId: one_app._id,
           applicable_fee: student?.fee_structure?.total_admission_fees,
+          institute: institute?._id,
         });
         new_remainFee.access_mode_card = "One_Time_Wise";
         new_remainFee.remaining_array.push({
@@ -7904,6 +7908,7 @@ exports.renderAddFeesCardStudentQuery = async (req, res) => {
     var new_remainFee = new RemainingList({
       appId: apply?._id,
       applicable_fee: structure?.total_admission_fees,
+      institute: institute?._id,
     });
     new_remainFee.access_mode_card = "Installment_Wise";
     new_remainFee.card_type = "Normal";
@@ -8581,37 +8586,43 @@ exports.renderFilterByThreeFunctionQuery = async (req, res) => {
 };
 
 exports.renderPendingListStudentQuery = async (req, res) => {
-  // try {
-  //   var student = await Student.find({
-  //     $and: [
-  //       { institute: "6449c83598fec071fbffd3ad" },
-  //       { studentStatus: "Approved" },
-  //     ],
-  //   });
-  //   // var ads_admin = await Admission.findById({
-  //   //   _id: "644a09e3d1679fcd6e76e606",
-  //   // });
-  //   for (var val of student) {
-  //     var all_remain = await RemainingList.find({
-  //       $and: [{ _id: { $in: val?.remainingFeeList } }],
-  //     });
-  //     for (var ref of all_remain) {
-  //       val.admissionRemainFeeCount += ref?.remaining_fee;
-  //     }
-  //     // val.admissionRemainFeeCount = 0;
-  //     await val.save();
-  //   }
-  //   // await ads_admin.save();
-  //   res.status(200).send({ message: "Added Student Remaining Fees Query" });
-  // } catch (e) {
-  //   console.log(e);
-  // }
+  try {
+    var student = await Student.find({
+      $and: [
+        { institute: "6449c83598fec071fbffd3ad" },
+        { studentStatus: "Approved" },
+      ],
+    });
+    var ads_admin = await Admission.findById({
+      _id: "644a09e3d1679fcd6e76e606",
+    });
+    var institute = await InstituteAdmin.findById({
+      _id: ads_admin?.institute,
+    });
+    for (var val of student) {
+      var all_remain = await RemainingList.find({
+        $and: [{ _id: { $in: val?.remainingFeeList } }],
+      });
+      for (var ref of all_remain) {
+        // val.admissionRemainFeeCount += ref?.remaining_fee;
+        val.institute = institute?._id;
+        await ref.save();
+      }
+      // val.admissionRemainFeeCount = 0;
+      // await val.save();
+    }
+    // await ads_admin.save();
+    res.status(200).send({ message: "Added Student Remaining Fees Query" });
+  } catch (e) {
+    console.log(e);
+  }
   // try {
   //   const all_card = await RemainingList.find({});
   //   for (var val of all_card) {
   //     // val.drop_status = "Disable";
   //     // val.already_made = false;
-  //     val.button_status = "Collect Fees"
+  //     // val.button_status = "Collect Fees"
+  //     val.institute = institute?._id
   //     await val.save();
   //   }
   //   res.status(200).send({ message: "Added Student Remaining Fees Query" });

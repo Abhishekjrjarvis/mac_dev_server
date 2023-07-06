@@ -1547,13 +1547,15 @@ const retro_installment_sequence_query = async (new_fee_args) => {
         : parseInt(new_fee_args?.total_installments);
     var get_obj;
     var custom_obj = [];
-    for (var i = 1; i <= install_count; i++) {
-      var query = install_obj[i];
-      get_obj = { ...get_obj, query, key: "key" };
-      custom_obj.push(get_obj);
+    if (install_count > 0) {
+      for (var i = 1; i <= install_count; i++) {
+        var query = install_obj[i];
+        get_obj = { ...get_obj, query, key: "key" };
+        custom_obj.push(get_obj);
+      }
+      // console.log("Custom OBJ", custom_obj);
+      return custom_obj;
     }
-    // console.log("Custom OBJ", custom_obj);
-    return custom_obj;
   } catch (e) {
     console.log(e);
   }

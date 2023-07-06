@@ -646,6 +646,7 @@ exports.promoteStudent = async (req, res) => {
             var new_remainFee = new RemainingList({
               appId: apply?._id,
               applicable_fee: structure[0]?.total_admission_fees,
+              institute: institute?._id,
             });
             new_remainFee.access_mode_card = "Installment_Wise";
             new_remainFee.card_type = "Promote";

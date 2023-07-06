@@ -140,15 +140,9 @@ exports.send_email_authentication = async (email) => {
   return OTP;
 };
 
-exports.send_email_authentication_login_query = (email) => {
-  let rand1 = Math.floor(Math.random() * 9) + 1;
-  let rand2 = Math.floor(Math.random() * 9) + 1;
-  let rand3 = Math.floor(Math.random() * 9) + 1;
-  let rand4 = Math.floor(Math.random() * 9) + 1;
-  const OTP = `${rand1}${rand2}${rand3}${rand4}`;
+exports.send_email_authentication_login_query = (email, i_email, name) => {
   const subject = "Qviple ERP Login Details";
-
-  const message = `Hello Pankaj Phad,
+  const message = `Hello ${name},
 Qviple is ERP software of Mithkal Minds.
 You are requested to login to your account with your email ${email} (on which this e-mail is received).
 Stay updated about your fees, exams, events and much more about your school/college.
@@ -165,7 +159,7 @@ Through link : https://play.google.com/store/apps/details?id=com.mithakalminds.q
 Note: 
 If you are not able to login or are facing difficulty in login reach out to us at: connect@qviple.com
   
-If you have queries regarding your fees, profile information or other, reach out to your institute's appropriate authority or at: pankaj@qviple.com
+If you have queries regarding your fees, profile information or other, reach out to your institute's appropriate authority or at: ${i_email}
 
 `;
   const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;

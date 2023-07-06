@@ -26,6 +26,9 @@ const {
   spi_calculate,
   grade_symbol,
 } = require("../../Utilities/custom_grade");
+const {
+  send_email_authentication_login_query,
+} = require("../../helper/functions");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.photoEditByStudent = async (req, res) => {
@@ -738,7 +741,13 @@ exports.renderStudentUserLoginQuery = async (req, res) => {
       });
     var valid_phone = await handle_undefined(phone);
     var valid_email = await handle_undefined(email);
-    const one_student = await Student.findById(sid);
+    const one_student = await Student.findById(sid).populate({
+      path: "institute",
+      select: "insName insEmail",
+    });
+    var name = `${one_student?.studentFirstName} ${
+      one_student?.studentMiddleName ? `${one_student?.studentMiddleName}` : ""
+    } ${one_student?.studentLastName}`;
     var one_user = await User.findById({ _id: `${one_student?.user}` });
     if (valid_phone) {
       one_user.userPhoneNumber = valid_phone
@@ -749,6 +758,11 @@ exports.renderStudentUserLoginQuery = async (req, res) => {
     if (valid_email) {
       one_user.userEmail = valid_email ? valid_email : one_user?.userEmail;
       await one_user.save();
+      await send_email_authentication_login_query(
+        one_user.userEmail,
+        one_student?.institute?.insEmail,
+        name
+      );
     }
     res.status(200).send({
       message: "Student User Login Credentials edited successfully👍",

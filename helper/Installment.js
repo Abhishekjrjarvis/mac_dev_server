@@ -1552,7 +1552,7 @@ const retro_installment_sequence_query = async (new_fee_args) => {
       get_obj = { ...get_obj, query, key: "key" };
       custom_obj.push(get_obj);
     }
-    console.log("Custom OBJ", custom_obj);
+    // console.log("Custom OBJ", custom_obj);
     return custom_obj;
   } catch (e) {
     console.log(e);
@@ -1562,8 +1562,8 @@ const retro_installment_sequence_query = async (new_fee_args) => {
 const buildObject = async (arr) => {
   var obj = {};
   if (arr?.length > 0) {
-    for (let i = 0; i <= arr.length; i++) {
-      console.log(`Array At ${i}`, arr[i])
+    for (let i = 0; i < arr.length; i++) {
+      // console.log(`Array At ${i}`, arr[i])
       var { query } = arr[i];
       obj[`key${i}`] = query;
     }
@@ -1581,9 +1581,9 @@ exports.set_retro_installment = async (
 ) => {
   try {
     const arr_query = await retro_installment_sequence_query(new_fee_args);
-    console.log("ARR Query", arr_query);
+    // console.log("ARR Query", arr_query);
     var results = await buildObject(arr_query);
-    console.log("results", results);
+    // console.log("results", results);
     for (var ref of remain_args?.remaining_array) {
       var index = remain_args?.remaining_array?.indexOf(ref);
       if (

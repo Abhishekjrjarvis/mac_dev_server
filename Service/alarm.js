@@ -16,7 +16,7 @@ exports.dueDateAlarm = async (aid, type, content) => {
       "alarm_enable alarm_enable_status"
     );
     var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    var all_remains = await RemainingList({})
+    var all_remains = await RemainingList.find({})
       .populate({
         path: "fee_structure",
       })

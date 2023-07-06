@@ -12,9 +12,7 @@ const Admin = require("../models/superAdmin");
 
 exports.dueDateAlarm = async (aid, type, content) => {
   try {
-    var ads_admin = await Admission.findById({ _id: aid }).select(
-      "alarm_enable alarm_enable_status"
-    );
+    var ads_admin = await Admission.findById({ _id: aid });
     var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     var all_remains = await RemainingList.find({})
       .populate({

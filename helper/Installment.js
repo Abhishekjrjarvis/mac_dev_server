@@ -1595,7 +1595,10 @@ exports.set_retro_installment = async (
         ref?.status === "Not Paid"
       ) {
         console.log("results Bug");
-        ref.remainAmount += remain_args.remaining_fee;
+        ref.remainAmount +=
+          remain_args.remaining_fee >= ref.remainAmount
+            ? remain_args.remaining_fee - ref?.remainAmount
+            : 0;
       } else if (
         ref?.installmentValue === "Installment Remain" &&
         ref?.status === "Not Paid"

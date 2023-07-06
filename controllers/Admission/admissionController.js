@@ -5194,9 +5194,9 @@ exports.renderTriggerAlarmQuery = async (req, res) => {
     //   });
     // } else {
     if (alarm_mode === "APP_NOTIFICATION") {
-      await dueDateAlarm(alarm_mode, content);
+      await dueDateAlarm(aid, alarm_mode, content);
     } else if (alarm_mode === "EMAIL_NOTIFICATION") {
-      await dueDateAlarm(alarm_mode, content);
+      await dueDateAlarm(aid, alarm_mode, content);
     } else if (alarm_mode === "SMS_NOTIFICATION") {
     } else {
     }

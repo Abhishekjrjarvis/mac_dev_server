@@ -10,7 +10,7 @@ const User = require("../models/User");
 const axios = require("axios");
 const Admin = require("../models/superAdmin");
 
-exports.dueDateAlarm = async (aid, type, message) => {
+exports.dueDateAlarm = async (aid, type, content) => {
   try {
     var ads_admin = await Admission.findById({ _id: aid }).select(
       "alarm_enable alarm_enable_status"
@@ -26,7 +26,7 @@ exports.dueDateAlarm = async (aid, type, message) => {
         select: "user studentFirstName studentMiddleName studentLastName",
         populate: {
           path: "user institute",
-          select: "deviceToken insName",
+          select: "deviceToken insName userEmail",
         },
       });
     if (ads_admin?.alarm_enable_status === "Enable") {
@@ -43,7 +43,7 @@ exports.dueDateAlarm = async (aid, type, message) => {
             s_admin.alarm_student.push({
               student: remind?.student?._id,
               alarm_mode: `${type}`,
-              content: message ? message : null,
+              content: content ? content : null,
             });
             s_admin.alarm_student_count += 1;
             if (type === "APP_NOTIFICATION") {
@@ -63,20 +63,20 @@ exports.dueDateAlarm = async (aid, type, message) => {
               const subject = "Outstanding Dues Reminder";
 
               const message = `Dear ${name},
-  You are requested to clear your dues for outstanding fees amount Rs.${valid_price}.
-  Note: ${message ? message : ""}
+You are requested to clear your dues for outstanding fees amount Rs.${valid_price}.
+Note: ${content ? content : ""}
 
-  Login by Downloading app 'Qviple: Your College Online' from playstore
+Login by Downloading app 'Qviple: Your College Online' from playstore
 
-  OR
+OR
 
-  Through link : https://play.google.com/store/apps/details?id=com.mithakalminds.qviple
+Through link : https://play.google.com/store/apps/details?id=com.mithakalminds.qviple
 
-  Regards
-  Accounts Section
-  ${remind?.student?.institute?.iName}
-  `;
-              const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+Regards
+Accounts Section
+${remind?.student?.institute?.iName}
+`;
+              const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${remind?.student?.user?.userEmail}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
               const encodeURL = encodeURI(url);
               axios
                 .post(encodeURL)

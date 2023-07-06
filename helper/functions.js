@@ -140,7 +140,7 @@ exports.send_email_authentication = async (email) => {
   return OTP;
 };
 
-const send_email_authentication_promotional = (email) => {
+exports.send_email_authentication_login_query = (email) => {
   let rand1 = Math.floor(Math.random() * 9) + 1;
   let rand2 = Math.floor(Math.random() * 9) + 1;
   let rand3 = Math.floor(Math.random() * 9) + 1;

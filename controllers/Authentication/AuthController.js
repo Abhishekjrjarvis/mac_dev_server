@@ -503,9 +503,17 @@ exports.verifyOtpByUser = async (req, res) => {
       }
     } else {
       var low_id = id?.toLowerCase()
-      var all_account_email = await User.find({ $or: [{ userEmail: low_id }, { userEmail: id}] }).select(
-        "userLegalName username profilePhoto userPassword"
-      );
+      var all_account_email;
+      if(low_id){
+        all_account_email = await User.find({ userEmail: low_id }).select(
+          "userLegalName username profilePhoto userPassword"
+        );
+      }
+      if(id){
+        all_account_email = await User.find({ userEmail: id }).select(
+          "userLegalName username profilePhoto userPassword"
+        );
+      }
       if (all_account_email?.length > 0) {
         for (let all of all_account_email) {
           const token = generateAccessToken(

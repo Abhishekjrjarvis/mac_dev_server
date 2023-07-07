@@ -502,19 +502,11 @@ exports.verifyOtpByUser = async (req, res) => {
         }
       }
     } else {
-      var low_id = id?.toLowerCase();
-      var high_id = id?.toUpperCase();
-      var all_account_email;
-      if (low_id) {
-        all_account_email = await User.find({ userEmail: low_id }).select(
-          "userLegalName username profilePhoto userPassword"
-        );
-      }
-      if (high_id) {
-        all_account_email = await User.find({ userEmail: high_id }).select(
-          "userLegalName username profilePhoto userPassword"
-        );
-      }
+      // var low_id = id?.toLowerCase();
+      // var high_id = id?.toUpperCase();
+      var all_account_email = await User.find({
+        userEmail: { $regex: id, $options: "i" },
+      }).select("userLegalName username profilePhoto userPassword");
       if (all_account_email?.length > 0) {
         for (let all of all_account_email) {
           const token = generateAccessToken(

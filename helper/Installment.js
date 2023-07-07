@@ -1724,7 +1724,10 @@ exports.set_retro_installment = async (
         ref.remainAmount +=
           remain_args.remaining_fee >= ref.remainAmount
             ? remain_args.remaining_fee - ref?.remainAmount
-            : ref.remainAmount;
+            : 0;
+        if (remain_args.remaining_fee < ref.remainAmount) {
+          ref.remainAmount = remain_args.remaining_fee;
+        }
         console.log("Installment Bug After", ref.remainAmount);
       }
       // else {

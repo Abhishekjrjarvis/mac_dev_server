@@ -17,10 +17,12 @@ const smartPhrase = require("../../Service/smartRecoveryPhrase");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const invokeSpecificRegister = require("../../Firebase/specific");
 const SubDomain = require("../../models/Domain/sub-domain");
+const Department = require("../../models/Department");
 const {
   connect_redis_hit,
   connect_redis_miss,
 } = require("../../config/redis-config");
+const BankAccount = require("../../models/Finance/BankAccount");
 
 var AdminOTP = "";
 
@@ -1187,6 +1189,43 @@ exports.renderLinkSubDomainQuery = async (req, res) => {
 
     await Promise.all([one_domain.save(), one_institute.save()]);
     res.status(200).send({ message: "Successfully Linked Up", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllBankAccountQuery = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    // var one_institute = await InstituteAdmin.findById({ _id: id})
+    var all_depart = await Department.find({ $and: [{ institute: id }] });
+    var all_accounts = await BankAccount.find({
+      department: { $in: all_depart },
+    })
+      .limit(limit)
+      .skip(skip);
+    if (all_accounts?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Bank Accounts For Repayment",
+        access: true,
+        all_accounts: all_accounts,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Bank Accounts For Repayment",
+        access: false,
+        all_accounts: [],
+      });
+    }
   } catch (e) {
     console.log(e);
   }

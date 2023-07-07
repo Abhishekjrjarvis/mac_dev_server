@@ -239,4 +239,9 @@ router.patch(
 
 // router.get('/filter/user/data',isLoggedIn, catchAsync(Admin.filterByYear))
 
+router.get(
+  "/all/:id/bank/accounts/query",
+  catchAsync(Admin.renderAllBankAccountQuery)
+);
+
 module.exports = router;

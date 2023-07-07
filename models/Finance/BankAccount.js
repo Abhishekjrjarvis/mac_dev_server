@@ -50,6 +50,14 @@ const bankAccountSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  due_repay: {
+    type: Number,
+    default: 0,
+  },
+  total_repay: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("BankAccount", bankAccountSchema);

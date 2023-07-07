@@ -29,6 +29,7 @@ const {
   generate_excel_to_json_scholarship_query,
   generate_excel_to_json_scholarship_gr_batch_query,
   generate_excel_to_json_library_offline_book_query,
+  generate_excel_to_json_login_query,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -51,6 +52,7 @@ const {
   renderNewOfflineBookAutoQuery,
 } = require("../Library/libraryController");
 const Library = require("../../models/Library/Library");
+const { retrieveEmailReplaceQuery } = require("../Edit/studentMember");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -1679,6 +1681,24 @@ exports.renderChangeExistingUserPhoneQuery = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore New User Phone Number Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONEmailReplaceQuery = async (req, res) => {
+  try {
+    const { excel_file } = req.body;
+
+    const val = await simple_object(excel_file);
+
+    res.status(200).send({ message: "Email Replace " });
+    const is_converted = await generate_excel_to_json_login_query(val);
+    if (is_converted?.value) {
+      await retrieveEmailReplaceQuery(is_converted?.email_array);
+    } else {
+      console.log("false");
+    }
   } catch (e) {
     console.log(e);
   }

@@ -1715,12 +1715,12 @@ exports.set_retro_installment = async (
           remain_args.remaining_fee >= ref.remainAmount
             ? remain_args.remaining_fee - ref?.remainAmount
             : ref.remainAmount;
-        console.log("results Bug", ref.remainAmount);
+        // console.log("results Bug", ref.remainAmount);
       } else if (
         ref?.installmentValue === "Installment Remain" &&
         ref?.status === "Not Paid"
       ) {
-        console.log("Installment Bug Before", ref.remainAmount);
+        // console.log("Installment Bug Before", ref.remainAmount);
         ref.remainAmount +=
           remain_args.remaining_fee >= ref.remainAmount
             ? remain_args.remaining_fee - ref?.remainAmount
@@ -1728,7 +1728,7 @@ exports.set_retro_installment = async (
         if (remain_args.remaining_fee < ref.remainAmount) {
           ref.remainAmount = remain_args.remaining_fee;
         }
-        console.log("Installment Bug After", ref.remainAmount);
+        // console.log("Installment Bug After", ref.remainAmount);
       }
       // else {
       //   if (remain_args.remaining_fee > 0) {

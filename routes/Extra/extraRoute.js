@@ -244,4 +244,10 @@ router.patch(
   catchAsync(Extra.renderChangeExistingUserPhoneQuery)
 );
 
+router.patch(
+  "/excel/to/json/email/replace/query",
+  // isLoggedIn,
+  catchAsync(Extra.renderExcelToJSONEmailReplaceQuery)
+);
+
 module.exports = router;

@@ -172,7 +172,26 @@ If you have queries regarding your fees, profile information or other, reach out
     .catch((e) => {
       console.log("SMS API Bug", e.message);
     });
-  return OTP;
+};
+
+exports.send_phone_login_query = async (mob, valid_sname, valid_iname) => {
+  var sName = `${valid_sname?.slice(0, 30)}`;
+  var iName = `${valid_iname?.slice(0, 30)}`;
+  const e_message = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+  const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=1&entityid=1701164286216096677&tempid=1707168309247841573`;
+  axios
+    .post(url)
+    .then((res) => {
+      if ((res && res.data.includes("success")) || res.data.includes("sent")) {
+        console.log("E-messsage Sent Successfully", res.data);
+      } else {
+        console.log("E-something went wrong");
+      }
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+  return true;
 };
 
 // console.log(

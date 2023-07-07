@@ -509,3 +509,31 @@ exports.generate_excel_to_json_library_offline_book_query = async (file) => {
     console.log("Library Offline Book Excel Query Not Resolved", e);
   }
 };
+
+exports.generate_excel_to_json_login_query = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body, {
+      dateNF: "yyyy-mm-dd",
+    });
+    // xlsx.readFile("./Student.xlsx", {
+    //   dateNF: "yyyy-mm-dd",
+    // });
+
+    const w_sheet = w_query.Sheets["ReplaceEmail"];
+
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var ref of data_query) {
+      ref.studentGRNO = ref?.GRNO;
+      ref.userEmail = ref?.Email;
+      new_data_query.push(ref);
+    }
+    return { email_array: new_data_query, value: true };
+    // fs.writeFileSync(
+    //   "../studentJSON.json",
+    //   JSON.stringify(new_data_query, null, 2)
+    // );
+  } catch (e) {
+    console.log("Login Excel Query Not Resolved", e);
+  }
+};

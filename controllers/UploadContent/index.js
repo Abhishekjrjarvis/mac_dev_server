@@ -67,12 +67,13 @@ exports.uploadOneImage = async (req, res) => {
 exports.uploadOneImageWeb = async (req, res) => {
   try {
     const file = req.file;
+    // console.log(file);
     const results = await uploadDocsFile(file);
     const imageKey = results.Key;
     res.status(200).send({ message: "Uploaded file Successfully", imageKey });
     await unlinkFile(file.path);
-  } catch (err) {
-    console.log(err);
+  } catch (e) {
+    console.log(e.message);
   }
 };
 exports.patchInstituteImagePhoto = async (req, res) => {

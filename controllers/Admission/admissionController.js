@@ -6835,7 +6835,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
             // }
           }
         } else {
-          console.log(one_remain_list?.remaining_fee)
+          // console.log(one_remain_list?.remaining_fee)
           await set_retro_installment(
             institute,
             new_struct,
@@ -6921,7 +6921,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
               }
             }
           }
-          console.log(one_remain_list.remaining_fee)
+          // console.log(one_remain_list.remaining_fee)
           await set_retro_installment(
             institute,
             new_struct,

@@ -28,6 +28,7 @@ const {
 } = require("../../Utilities/custom_grade");
 const {
   send_email_authentication_login_query,
+  send_phone_login_query,
 } = require("../../helper/functions");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
@@ -741,10 +742,15 @@ exports.renderStudentUserLoginQuery = async (req, res) => {
       });
     var valid_phone = await handle_undefined(phone);
     var valid_email = await handle_undefined(email);
-    const one_student = await Student.findById(sid).populate({
-      path: "institute",
-      select: "insName insEmail",
-    });
+    const one_student = await Student.findById(sid)
+      .populate({
+        path: "institute",
+        select: "insName insEmail",
+      })
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      });
     var name = `${one_student?.studentFirstName} ${
       one_student?.studentMiddleName ? `${one_student?.studentMiddleName}` : ""
     } ${one_student?.studentLastName}`;
@@ -754,6 +760,12 @@ exports.renderStudentUserLoginQuery = async (req, res) => {
         ? valid_phone
         : one_user?.userPhoneNumber;
       await one_user.save();
+      await send_phone_login_query(
+        one_user?.userPhoneNumber,
+        name,
+        one_student?.institute?.insName,
+        one_student?.studentClass?.classTitle
+      );
     }
     if (valid_email) {
       one_user.userEmail = valid_email ? valid_email : one_user?.userEmail;
@@ -768,6 +780,45 @@ exports.renderStudentUserLoginQuery = async (req, res) => {
       message: "Student User Login Credentials edited successfully👍",
       access: true,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveEmailReplaceQuery = async (arr) => {
+  try {
+    if (arr?.length > 0) {
+      for (var ref of arr) {
+        var one_student = await Student.findOne({
+          studentGRNO: `${ref?.studentGRNO}`,
+        })
+          .populate({
+            path: "institute",
+            select: "insName insEmail",
+          })
+          .populate({
+            path: "studentClass",
+            select: "className classTitle",
+          });
+        var name = `${one_student?.studentFirstName} ${
+          one_student?.studentMiddleName
+            ? `${one_student?.studentMiddleName}`
+            : ""
+        } ${one_student?.studentLastName}`;
+        if (one_student?.user) {
+          var one_user = await User.findById({ _id: `${one_student?.user}` });
+          one_user.userEmail = ref?.userEmail
+            ? ref?.userEmail
+            : one_user?.userEmail;
+          await one_user.save();
+          // await send_email_authentication_login_query(
+          //   one_user.userEmail,
+          //   one_student?.institute?.insEmail,
+          //   name
+          // );
+        }
+      }
+    }
   } catch (e) {
     console.log(e);
   }

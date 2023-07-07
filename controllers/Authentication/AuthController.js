@@ -409,7 +409,7 @@ exports.getOtpAtUser = async (req, res) => {
           otp_email: userPhoneNumber,
           otp_code: `${code}`,
         });
-        console.log(code)
+        console.log(code);
         await otpCode.save();
         // const uPhoneEncrypt = await encryptionPayload(userPhoneNumber);
         res.status(200).send({
@@ -502,15 +502,16 @@ exports.verifyOtpByUser = async (req, res) => {
         }
       }
     } else {
-      var low_id = id?.toLowerCase()
+      var low_id = id?.toLowerCase();
+      var high_id = id?.toUpperCase();
       var all_account_email;
-      if(low_id){
+      if (low_id) {
         all_account_email = await User.find({ userEmail: low_id }).select(
           "userLegalName username profilePhoto userPassword"
         );
       }
-      if(id){
-        all_account_email = await User.find({ userEmail: id }).select(
+      if (high_id) {
+        all_account_email = await User.find({ userEmail: high_id }).select(
           "userLegalName username profilePhoto userPassword"
         );
       }
@@ -539,7 +540,7 @@ exports.verifyOtpByUser = async (req, res) => {
       // Add Another Encryption
       res.send({
         message: "OTP verified",
-        low_id,
+        id,
         userStatus,
         accounts: account_linked,
         count: account_linked?.length,

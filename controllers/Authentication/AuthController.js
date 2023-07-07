@@ -503,7 +503,7 @@ exports.verifyOtpByUser = async (req, res) => {
       }
     } else {
       var low_id = id?.toLowerCase()
-      var all_account_email = await User.find({ userEmail: low_id }).select(
+      var all_account_email = await User.find({ $or: [{ userEmail: low_id }, { userEmail: id}] }).select(
         "userLegalName username profilePhoto userPassword"
       );
       if (all_account_email?.length > 0) {

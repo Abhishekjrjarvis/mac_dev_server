@@ -8606,7 +8606,7 @@ exports.renderPendingListStudentQuery = async (req, res) => {
       });
       for (var ref of all_remain) {
         // val.admissionRemainFeeCount += ref?.remaining_fee;
-        val.institute = institute?._id
+        ref.institute = institute?._id
         await ref.save()
       }
       // val.admissionRemainFeeCount = 0;

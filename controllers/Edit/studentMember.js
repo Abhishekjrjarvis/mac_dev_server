@@ -811,11 +811,11 @@ exports.retrieveEmailReplaceQuery = async (arr) => {
             ? ref?.userEmail
             : one_user?.userEmail;
           await one_user.save();
-          // await send_email_authentication_login_query(
-          //   one_user.userEmail,
-          //   one_student?.institute?.insEmail,
-          //   name
-          // );
+          await send_email_authentication_login_query(
+            one_user.userEmail,
+            one_student?.institute?.insEmail,
+            name
+          );
         }
       }
     }

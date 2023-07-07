@@ -409,7 +409,7 @@ exports.getOtpAtUser = async (req, res) => {
           otp_email: userPhoneNumber,
           otp_code: `${code}`,
         });
-        console.log(code);
+        // console.log(code);
         await otpCode.save();
         // const uPhoneEncrypt = await encryptionPayload(userPhoneNumber);
         res.status(200).send({

@@ -1207,23 +1207,23 @@ exports.renderAllBankAccountQuery = async (req, res) => {
       });
 
     // var one_institute = await InstituteAdmin.findById({ _id: id})
-    var all_depart = await Department.find({ $and: [{ institute: id }] });
-    var all_accounts = await BankAccount.find({
-      department: { $in: all_depart },
-    })
+    var all_depart = await Department.find({ $and: [{ institute: id }] })
       .limit(limit)
-      .skip(skip);
-    if (all_accounts?.length > 0) {
+      .skip(skip)
+      .populate({
+        path: "bank_account"
+      })
+    if (all_depart?.length > 0) {
       res.status(200).send({
         message: "Explore All Bank Accounts For Repayment",
         access: true,
-        all_accounts: all_accounts,
+        all_depart: all_depart,
       });
     } else {
       res.status(200).send({
         message: "No Bank Accounts For Repayment",
         access: false,
-        all_accounts: [],
+        all_depart: [],
       });
     }
   } catch (e) {

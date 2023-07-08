@@ -66,11 +66,11 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
       amount_nocharges,
       isApk,
       payment_installment,
-      payment_card_type,
+      payment_card_type ?? null,
       payment_remain_1,
-      ad_status_id
+      ad_status_id ?? null
     );
-    // console.log(valid_url);
+    console.log(valid_url);
     const totalAmount = JSON.stringify(amount);
     var params = {};
 

@@ -57,6 +57,7 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
           ...params,
           CHECKSUMHASH: checksum,
         };
+        console.log(paytmParams);
         res.json(paytmParams);
       })
       .catch(function (error) {
@@ -69,6 +70,7 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
 
 exports.paytmVerifyResponseStatus = (req, res, next) => {
   const { name, paidBy, moduleId } = req.params;
+  console.log("CHECKSUMHASH", req.body.CHECKSUMHASH);
   let paytmChecksum = req.body.CHECKSUMHASH;
   delete req.body.CHECKSUMHASH;
   let isVerifySignature = PaytmChecksum.verifySignature(

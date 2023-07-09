@@ -41,7 +41,7 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
       (params["WEBSITE"] = process.env.PAYTM_WEBSITE),
       (params["CHANNEL_ID"] = process.env.PAYTM_CHANNEL_ID),
       (params["INDUSTRY_TYPE_ID"] = process.env.PAYTM_INDUSTRY_TYPE),
-      (params["ORDER_ID"] = v4()),
+      (params["ORDER_ID"] = uuidv4()),
       (params["CUST_ID"] = process.env.PAYTM_CUST_ID),
       (params["TXN_AMOUNT"] = totalAmount),
       (params["CALLBACK_URL"] =

@@ -19,9 +19,7 @@ const {
 router.route("/generateTxnToken").post(generatePaytmTxnToken);
 // router.route("/apk/generateTxnToken").post(generateApkPaytmTxnToken);
 router
-  .route(
-    "/verify/internal/fee/:moduleId/paid/:paidBy/to/:paidTo/price/:amount_nocharges/device/:isApk/query/:name"
-  )
+  .route("/verify/internal/fee/:moduleId/paid/:paidBy/query/:name")
   .post(paytmVerifyResponseStatus);
 
 // Admission Fees Payment

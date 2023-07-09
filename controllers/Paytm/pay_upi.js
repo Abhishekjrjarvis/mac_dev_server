@@ -73,7 +73,7 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
       payment_remain_1,
       s_type ?? null
     );
-    // console.log(valid_url);
+    console.log(valid_url);
     const totalAmount = JSON.stringify(amount);
     var params = {};
 

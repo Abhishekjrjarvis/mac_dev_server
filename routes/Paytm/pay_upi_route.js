@@ -18,9 +18,7 @@ const {
 // Internal Fees Payment
 router.route("/generateTxnToken").post(generatePaytmTxnToken);
 // router.route("/apk/generateTxnToken").post(generateApkPaytmTxnToken);
-router
-  .route("/verify/internal/fee/:moduleId/paid/:paidBy/query/:name")
-  .post(paytmVerifyResponseStatus);
+router.route("/callback").post(paytmVerifyResponseStatus);
 
 // Admission Fees Payment
 // router

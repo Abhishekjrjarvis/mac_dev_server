@@ -12,6 +12,7 @@ const {
 } = require("../RazorPay/paymentModule");
 const { call_back_urls_redirection_query } = require("../../helper/functions");
 const { hostelInstituteFunction } = require("../RazorPay/hostelPaymentModule");
+const { handle_undefined } = require("../../Handler/customError");
 
 const order_history_query = async (
   module_type,
@@ -57,6 +58,8 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
       type,
       student_data,
     } = req.body;
+    var c_type = await handle_undefined(payment_card_type);
+    var s_type = await handle_undefined(ad_status_id);
     var valid_url = await call_back_urls_redirection_query(
       type,
       moduleId,
@@ -66,11 +69,11 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
       amount_nocharges,
       isApk,
       payment_installment,
-      payment_card_type ?? null,
+      c_type ?? null,
       payment_remain_1,
-      ad_status_id ?? null
+      s_type ?? null
     );
-    console.log(valid_url);
+    // console.log(valid_url);
     const totalAmount = JSON.stringify(amount);
     var params = {};
 

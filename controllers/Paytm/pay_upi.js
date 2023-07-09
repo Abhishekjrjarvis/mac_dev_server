@@ -30,7 +30,7 @@ const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure")
 
 exports.generatePaytmTxnToken = async (req, res, next) => {
   try {
-    const { amount, email } = req.body;
+    const { amount } = req.body;
 
     /* import checksum generation utility */
     const totalAmount = JSON.stringify(amount);
@@ -46,14 +46,14 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
       (params["TXN_AMOUNT"] = totalAmount),
       (params["CALLBACK_URL"] =
         "http://54.224.4.209/api/api/v1/paytm/callback"),
-      (params["EMAIL"] = email),
-      (params["MOBILE_NO"] = "9876543210");
+      // (params["EMAIL"] = email),
+      // (params["MOBILE_NO"] = "9876543210");
 
-    /**
-     * Generate checksum by parameters we have
-     * Find your Merchant Key in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys
-     */
-    console.log(process.env.PAYTM_MERCHANT_KEY);
+      /**
+       * Generate checksum by parameters we have
+       * Find your Merchant Key in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys
+       */
+      console.log(process.env.PAYTM_MERCHANT_KEY);
     var paytmChecksum = PaytmChecksum.generateSignature(
       params,
       process.env.PAYTM_MERCHANT_KEY

@@ -95,6 +95,10 @@ const orderPaymentSchema = new mongoose.Schema({
     type: String,
     default: "Not Paid",
   },
+  fee_receipt: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeReceipt",
+  },
   // payment_expense_by_end_user_id: {
   //   type: mongoose.Schema.Types.ObjectId,
   //   ref: "InstituteAdmin",

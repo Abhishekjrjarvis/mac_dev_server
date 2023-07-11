@@ -200,6 +200,7 @@ exports.feesPaidByStudent = async (req, res) => {
           new_receipt.finance = finance?._id;
           new_receipt.invoice_count = order?.payment_invoice_number;
           new_receipt.order_history = order?._id;
+          order.fee_receipt = new_receipt?._id;
           new_internal.fee_receipt = new_receipt?._id;
           new_receipt.internal_fees = new_internal?._id;
           const notify = new StudentNotification({});

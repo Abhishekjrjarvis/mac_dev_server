@@ -900,7 +900,19 @@ exports.fee_reordering_direct_student_payload = async (
             new_remainFee.status = "Paid";
           }
           new_remainFee.student = student?._id;
-          if (total_amount - price > 0 && price > 0) {
+          if (
+            new_remainFee.remaining_fee > 0 &&
+            `${student_structure?.fee_structure?.total_installments}` === "1"
+          ) {
+            new_remainFee.remaining_array.push({
+              remainAmount: new_remainFee?.remaining_fee,
+              appId: apply._id,
+              instituteId: institute._id,
+              installmentValue: "Installment Remain",
+              isEnable: true,
+            });
+          }
+          if (new_remainFee?.remaining_fee > 0) {
             await add_all_installment(
               apply,
               institute._id,
@@ -908,19 +920,6 @@ exports.fee_reordering_direct_student_payload = async (
               price,
               student_structure
             );
-          }
-          if (
-            total_amount - price > 0 &&
-            price > 0 &&
-            `${student_structure?.fee_structure?.total_installments}` === "1"
-          ) {
-            new_remainFee.remaining_array.push({
-              remainAmount: total_amount - price,
-              appId: apply._id,
-              instituteId: institute._id,
-              installmentValue: "Installment Remain",
-              isEnable: true,
-            });
           }
         }
         student.admissionPaidFeeCount += price;

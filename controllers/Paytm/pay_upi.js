@@ -45,15 +45,15 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
       (params["CUST_ID"] = process.env.PAYTM_CUST_ID),
       (params["TXN_AMOUNT"] = totalAmount),
       (params["CALLBACK_URL"] =
-        "http://54.224.4.209/api/api/v1/paytm/callback"),
-      // (params["EMAIL"] = email),
-      // (params["MOBILE_NO"] = "9876543210");
+        "http://54.224.4.209/api/api/v1/paytm/callback");
+    // (params["EMAIL"] = email),
+    // (params["MOBILE_NO"] = "9876543210");
 
-      /**
-       * Generate checksum by parameters we have
-       * Find your Merchant Key in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys
-       */
-      console.log(process.env.PAYTM_MERCHANT_KEY);
+    /**
+     * Generate checksum by parameters we have
+     * Find your Merchant Key in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys
+     */
+    // console.log(process.env.PAYTM_MERCHANT_KEY);
     var paytmChecksum = PaytmChecksum.generateSignature(
       params,
       process.env.PAYTM_MERCHANT_KEY
@@ -169,6 +169,7 @@ const internal_fee_query = async (moduleId, paidBy, status, tx_amount) => {
     new_receipt.finance = finance?._id;
     new_receipt.invoice_count = orderPay?.payment_invoice_number;
     new_receipt.order_history = orderPay?._id;
+    orderPay.fee_receipt = new_receipt?._id;
     new_internal.fee_receipt = new_receipt?._id;
     new_receipt.internal_fees = new_internal?._id;
     if (fData) {

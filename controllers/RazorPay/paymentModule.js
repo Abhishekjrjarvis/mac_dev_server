@@ -115,6 +115,7 @@ exports.feeInstituteFunction = async (
     new_receipt.finance = finance?._id;
     new_receipt.invoice_count = orderPay?.payment_invoice_number;
     new_receipt.order_history = orderPay?._id;
+    orderPay.fee_receipt = new_receipt?._id;
     new_internal.fee_receipt = new_receipt?._id;
     new_receipt.internal_fees = new_internal?._id;
     if (fData) {
@@ -548,6 +549,7 @@ exports.admissionInstituteFunction = async (
       orderPay.payment_admission = apply._id;
       orderPay.payment_by_end_user_id = user._id;
       new_receipt.order_history = orderPay?._id;
+      orderPay.fee_receipt = new_receipt?._id;
       await Promise.all([
         student.save(),
         user.save(),
@@ -694,6 +696,7 @@ exports.admissionInstituteFunction = async (
         orderPay.payment_admission = apply?._id;
         orderPay.payment_by_end_user_id = user._id;
         new_receipt.order_history = orderPay?._id;
+        orderPay.fee_receipt = new_receipt?._id;
         user.payment_history.push(order);
         await Promise.all([
           student.save(),
@@ -824,6 +827,7 @@ exports.admissionInstituteFunction = async (
       orderPay.payment_admission = apply._id;
       orderPay.payment_by_end_user_id = user._id;
       new_receipt.order_history = orderPay?._id;
+      orderPay.fee_receipt = new_receipt?._id;
       await Promise.all([
         admission.save(),
         student.save(),
@@ -1169,6 +1173,7 @@ exports.backlogFunction = async (
     new_receipt.finance = finance?._id;
     new_receipt.invoice_count = orderPay?.payment_invoice_number;
     new_receipt.order_history = orderPay?._id;
+    orderPay.fee_receipt = new_receipt?._id;
     new_internal.fee_receipt = new_receipt?._id;
     new_receipt.internal_fees = new_internal?._id;
     if (is_author) {
@@ -1572,6 +1577,7 @@ exports.libraryInstituteFunction = async (
     new_receipt.finance = finance?._id;
     new_receipt.invoice_count = orderPay?.payment_invoice_number;
     new_receipt.order_history = orderPay?._id;
+    orderPay.fee_receipt = new_receipt?._id;
     new_internal.fee_receipt = new_receipt?._id;
     new_receipt.internal_fees = new_internal?._id;
     new_internal.internal_fee_status = "Paid";

@@ -397,6 +397,9 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
         .populate({
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "fee_receipt",
         });
       if (order?.length > 0) {
         var new_order = order?.filter((ref) => {
@@ -444,6 +447,9 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
         .populate({
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "fee_receipt",
         });
       for (var filteredData of order) {
         if (
@@ -515,6 +521,9 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
         .populate({
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "fee_receipt",
         });
       // .populate({
       //   path: "payment_expense_by_end_user_id",
@@ -570,6 +579,9 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
         .populate({
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "fee_receipt",
         });
       // .populate({
       //   path: "payment_expense_by_end_user_id",
@@ -636,6 +648,9 @@ exports.fetchPaymentOneHistory = async (req, res) => {
       .populate({
         path: "payment_to_end_user_id",
         select: "insName photoId insProfilePhoto",
+      })
+      .populate({
+        path: "fee_receipt",
       });
     // const oEncrypt = await encryptionPayload(one_pay);
     res

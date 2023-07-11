@@ -62,7 +62,7 @@ exports.activateLibrary = async (req, res) => {
       user.save(),
       notify.save(),
     ]);
-    res.status(201).send({ message: "Library Head is assign" });
+    res.status(201).send({ message: "Library Head is assign", status: true });
     designation_alarm(
       user?.userPhoneNumber,
       "LIBRARY",
@@ -407,7 +407,7 @@ exports.bookColletedByStaffSide = async (req, res) => {
           fee_receipt: new_receipt?._id,
           fine_charge: price,
           fine_type: `${req.body?.chargeBy}`,
-          status: "Paid"
+          status: "Paid",
         });
         await new_receipt.save();
         // library.exemptFine +=req.body?.exemptFine

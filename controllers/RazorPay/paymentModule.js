@@ -101,10 +101,14 @@ exports.feeInstituteFunction = async (
     const orderPay = await OrderPayment.findById({ _id: order });
     const classes = await Class.findById({ _id: `${student.studentClass}` });
     var new_internal = await InternalFees.findById({ _id: moduleId });
-    var fData = await Fees.findOne({ _id: `${new_internal?.fees}` });
-    var checklistData = await Checklist.findOne({
-      _id: `${new_internal?.checklist}`,
-    });
+    if (new_internal?.fees) {
+      var fData = await Fees.findOne({ _id: `${new_internal?.fees}` });
+    }
+    if (new_internal?.checklist) {
+      var checklistData = await Checklist.findOne({
+        _id: `${new_internal?.checklist}`,
+      });
+    }
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     var notify = new Notification({});
     var new_receipt = new FeeReceipt({});

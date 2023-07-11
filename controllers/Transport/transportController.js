@@ -74,6 +74,7 @@ exports.renderNewTransportManager = async (req, res) => {
       message: "Successfully Assigned Transport Manager",
       transport: transport._id,
       access: true,
+      status: true,
     });
     designation_alarm(
       user?.userPhoneNumber,

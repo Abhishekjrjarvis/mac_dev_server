@@ -117,7 +117,7 @@ exports.fee_reordering_hostel = async (
   start_date
 ) => {
   try {
-    console.log(start_date);
+    // console.log(start_date);
     const room = await HostelRoom.findOne({
       $and: [{ _id: roomId }, { hostelUnit: one_unit?._id }],
     });
@@ -141,10 +141,10 @@ exports.fee_reordering_hostel = async (
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
     new_receipt.unit = one_unit?._id;
-    s_admin.invoice_count += 1;
+    institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     var total_amount = add_total_installment(student);
     if (price > 0 && !is_install) {
       var new_remainFee = new RemainingList({
@@ -314,7 +314,7 @@ exports.fee_reordering_hostel = async (
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    order.payment_invoice_number = s_admin.invoice_count;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     var valid_end = student?.hostel_fee_structure?.structure_month;
@@ -342,6 +342,7 @@ exports.fee_reordering_hostel = async (
       room.save(),
       student.save(),
       renew.save(),
+      institute.save(),
     ]);
   } catch (e) {
     console.log(e);

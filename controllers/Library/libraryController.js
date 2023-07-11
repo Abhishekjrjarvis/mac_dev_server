@@ -376,10 +376,10 @@ exports.bookColletedByStaffSide = async (req, res) => {
       order.payment_mode = req.body?.paymentType;
       order.payment_admission = library._id;
       order.payment_from = student._id;
-      s_admin.invoice_count += 1;
+      institute.invoice_count += 1;
       order.payment_invoice_number = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${s_admin.invoice_count}`;
+      }${new Date().getFullYear()}${institute.invoice_count}`;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
       await order.save();
@@ -397,7 +397,7 @@ exports.bookColletedByStaffSide = async (req, res) => {
         new_receipt.fee_transaction_date = new Date();
         new_receipt.invoice_count = `${
           new Date().getMonth() + 1
-        }${new Date().getFullYear()}${s_admin.invoice_count}`;
+        }${new Date().getFullYear()}${institute.invoice_count}`;
         library.offlineFine += price;
         library.collectedFine += price;
         library.totalFine += price;
@@ -850,10 +850,10 @@ exports.renderFineChargesCollectOfflineQuery = async (req, res) => {
     order.payment_mode = "Offline";
     order.payment_admission = lib._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
+    institute.invoice_count += 1;
     order.payment_invoice_number = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.fee_payment_mode = "By Cash";
@@ -863,7 +863,7 @@ exports.renderFineChargesCollectOfflineQuery = async (req, res) => {
     new_receipt.fee_transaction_date = new Date();
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     for (var val of lib?.pending_fee) {
       if (`${val?._id}` === `${prid}`) {
         lib.paid_fee.push({

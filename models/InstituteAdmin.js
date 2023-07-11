@@ -822,6 +822,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
     default: "Disable",
   },
+  invoice_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

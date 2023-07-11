@@ -105,10 +105,10 @@ exports.hostelInstituteFunction = async (
       new_receipt.finance = finance?._id;
       renew.renewal_student = student?._id;
       renew.renewal_application = apply?._id;
-      admin.invoice_count += 1;
+      ins.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${admin.invoice_count}`;
+      }${new Date().getFullYear()}${ins.invoice_count}`;
       const notify = new Notification({});
       one_hostel.onlineFee += parseInt(tx_amount_ad);
       one_hostel.collected_fee += parseInt(tx_amount_ad);
@@ -325,10 +325,10 @@ exports.hostelInstituteFunction = async (
         $and: [{ student: student?._id }, { appId: apply?._id }],
       });
       remaining_fee_lists.fee_receipts.push(new_receipt?._id);
-      admin.invoice_count += 1;
+      institute.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${admin.invoice_count}`;
+      }${new Date().getFullYear()}${institute.invoice_count}`;
       await render_installment(
         type,
         student,
@@ -532,15 +532,15 @@ exports.directHostelInstituteFunction = async (
     order.payment_mode = "Online";
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     renew.renewal_student = student?._id;
     renew.renewal_application = apply?._id;
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     var total_amount = add_total_installment(student);
     var is_install;
     if (

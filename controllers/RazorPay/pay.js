@@ -123,6 +123,9 @@ exports.verifyRazorPayment = async (req, res) => {
     const is_authenticated = expectedSignature === razorpay_signature;
     if (is_authenticated) {
       var order_payment = new OrderPayment({ ...req.body });
+      var institute = await InstituteAdmin.findById({
+        _id: `${payment_to_end_user_id}`,
+      });
       order_payment.payment_module_type = payment_module_type;
       // order_payment.payment_by_end_user_id = payment_by_end_user_id;
       order_payment.payment_to_end_user_id = payment_to_end_user_id;
@@ -131,11 +134,11 @@ exports.verifyRazorPayment = async (req, res) => {
       order_payment.payment_module_id = payment_module_id;
       order_payment.payment_amount = refactor_amount_nocharges;
       order_payment.payment_status = "Captured";
-      s_admin.invoice_count += 1;
+      institute.invoice_count += 1;
       order_payment.payment_invoice_number = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${s_admin.invoice_count}`;
-      await Promise.all([order_payment.save(), s_admin.save()]);
+      }${new Date().getFullYear()}${institute.invoice_count}`;
+      await Promise.all([order_payment.save(), institute.save()]);
       if (payment_module_type === "Unlock") {
         const unlock_status = await unlockInstituteFunction(
           order_payment?._id,

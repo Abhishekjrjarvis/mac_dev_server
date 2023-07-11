@@ -377,10 +377,10 @@ exports.admissionInstituteFunction = async (
       new_receipt.fee_transaction_date = new Date();
       new_receipt.application = apply?._id;
       new_receipt.finance = finance?._id;
-      admin.invoice_count += 1;
+      ins.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${admin.invoice_count}`;
+      }${new Date().getFullYear()}${ins.invoice_count}`;
       const notify = new Notification({});
       admission.onlineFee += parseInt(tx_amount_ad);
       admission.collected_fee += parseInt(tx_amount_ad);
@@ -598,10 +598,10 @@ exports.admissionInstituteFunction = async (
         new_receipt.fee_transaction_date = new Date();
         new_receipt.application = apply?._id;
         new_receipt.finance = finance?._id;
-        admin.invoice_count += 1;
+        ins.invoice_count += 1;
         new_receipt.invoice_count = `${
           new Date().getMonth() + 1
-        }${new Date().getFullYear()}${admin.invoice_count}`;
+        }${new Date().getFullYear()}${ins.invoice_count}`;
         if (admission?.remainingFeeCount >= parseInt(tx_amount_ad)) {
           admission.remainingFeeCount -= parseInt(tx_amount_ad);
         }
@@ -740,10 +740,10 @@ exports.admissionInstituteFunction = async (
         $and: [{ student: student?._id }, { appId: apply?._id }],
       });
       remaining_fee_lists.fee_receipts.push(new_receipt?._id);
-      admin.invoice_count += 1;
+      ins.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${admin.invoice_count}`;
+      }${new Date().getFullYear()}${ins.invoice_count}`;
       await render_installment(
         type,
         student,
@@ -1293,7 +1293,7 @@ exports.directAdmissionInstituteFunction = async (
       path: "admissionAdminHead",
       select: "user",
     });
-    const s_admin = await Admin.findById({
+    const admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
     var institute = await InstituteAdmin.findById({
@@ -1360,13 +1360,13 @@ exports.directAdmissionInstituteFunction = async (
     order.payment_mode = "Online";
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     var total_amount = await add_total_installment({
       fee_structure: structure,
     });

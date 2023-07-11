@@ -24,6 +24,7 @@ const order_history_query = async (
 ) => {
   try {
     var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    var institute = await InstituteAdmin.findById({ _id: `${to_end_user_id}` });
     var order_payment = new OrderPayment({});
     order_payment.payment_module_type = module_type;
     order_payment.payment_to_end_user_id = to_end_user_id;
@@ -32,11 +33,11 @@ const order_history_query = async (
     order_payment.payment_module_id = module_id;
     order_payment.payment_amount = amount_nocharges;
     order_payment.payment_status = "Captured";
-    s_admin.invoice_count += 1;
+    institute.invoice_count += 1;
     order_payment.payment_invoice_number = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
-    await Promise.all([order_payment.save(), s_admin.save()]);
+    }${new Date().getFullYear()}${institute.invoice_count}`;
+    await Promise.all([order_payment.save(), institute.save()]);
     return order_payment;
   } catch (e) {
     console.log(e);

@@ -1626,11 +1626,11 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
         });
         status.receipt_status = "Requested";
       }
-      s_admin.invoice_count += 1;
+      institute.invoice_count += 1;
       receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${s_admin.invoice_count}`;
-      await Promise.all([receipt.save(), s_admin.save()]);
+      }${new Date().getFullYear()}${institute.invoice_count}`;
+      await Promise.all([receipt.save(), institute.save()]);
     }
     await Promise.all([status.save(), user.save(), admin_ins.save()]);
     res.status(200).send({
@@ -1691,13 +1691,13 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     var total_amount = await add_total_installment(student);
     var is_install;
     if (
@@ -1877,7 +1877,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       user.save(),
       order.save(),
       institute.save(),
-      s_admin.save(),
+      // s_admin.save(),
       new_remainFee.save(),
       new_receipt.save(),
       status.save(),
@@ -2085,13 +2085,13 @@ exports.cancelAdmissionApplication = async (req, res) => {
       order.payment_mode = mode;
       order.payment_admission = apply._id;
       order.payment_from = student._id;
-      s_admin.invoice_count += 1;
-      order.payment_invoice_number = s_admin.invoice_count;
+      institute.invoice_count += 1;
+      order.payment_invoice_number = institute.invoice_count;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${s_admin.invoice_count}`;
+      }${new Date().getFullYear()}${institute.invoice_count}`;
       await Promise.all([
         apply.save(),
         student.save(),
@@ -2729,13 +2729,13 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
       await exempt_installment(
         req?.body?.fee_payment_mode,
@@ -2974,13 +2974,13 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     student.refundAdmission.push({
       refund_status: "Refund",
       refund_reason: "Extra Amount Paid Or Grant Some Scholarships",
@@ -3223,8 +3223,8 @@ const request_mode_query_by_student = async (
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (new_receipt?.fee_payment_mode === "Exempted/Unrecovered") {
@@ -5056,8 +5056,8 @@ exports.renderOneReceiptStatus = async (req, res) => {
       order.payment_mode = mode;
       order.payment_admission = one_app._id;
       order.payment_from = student._id;
-      s_admin.invoice_count += 1;
-      order.payment_invoice_number = s_admin.invoice_count;
+      institute.invoice_count += 1;
+      order.payment_invoice_number = institute.invoice_count;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
       status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
@@ -5799,13 +5799,13 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
       await exempt_installment(
         req?.body?.fee_payment_mode,
@@ -6074,11 +6074,11 @@ exports.renderStudentGoOfflineReceiptQuery = async (req, res) => {
       }
       receipt.fee_request_remain_card = raid;
       remain_list.fee_receipts.push(receipt?._id);
-      s_admin.invoice_count += 1;
+      institute.invoice_count += 1;
       receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${s_admin.invoice_count}`;
-      await Promise.all([receipt.save(), s_admin.save()]);
+      }${new Date().getFullYear()}${institute.invoice_count}`;
+      await Promise.all([receipt.save(), institute.save()]);
     }
     await Promise.all([ads_admin.save(), remain_list.save()]);
     res.status(200).send({ message: "Wait For Approval", access: true });
@@ -6421,10 +6421,10 @@ exports.renderScholarShipNewFundCorpusQuery = async (req, res) => {
     order.payment_mode = incomes.incomeAccount;
     order.payment_income = incomes._id;
     f_user.payment_history.push(order._id);
-    s_admin.invoice_count += 1;
+    institute.invoice_count += 1;
     order.payment_invoice_number = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     if (user) {
       order.payment_by_end_user_id = user._id;
       order.payment_flag_by = "Debit";
@@ -6487,6 +6487,7 @@ exports.renderNewFundCorpusIncomeQuery = async (req, res) => {
       path: "institute",
       select: "financeDepart",
     });
+    const institute = await InstituteAdmin.findById({ _id: `${ads_admin?.institute?._id}`})
     const finance = await Finance.findById({
       _id: `${ads_admin?.institute?.financeDepart[0]}`,
     });
@@ -6519,10 +6520,10 @@ exports.renderNewFundCorpusIncomeQuery = async (req, res) => {
     order.payment_mode = incomes.incomeAccount;
     order.payment_income = incomes._id;
     f_user.payment_history.push(order._id);
-    s_admin.invoice_count += 1;
+    institute.invoice_count += 1;
     order.payment_invoice_number = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     if (user) {
       order.payment_by_end_user_id = user._id;
       order.payment_flag_by = "Debit";
@@ -6556,6 +6557,7 @@ exports.renderNewFundCorpusIncomeQuery = async (req, res) => {
       s_admin.save(),
       corpus.save(),
       scholar.save(),
+      institute.save()
     ]);
     res.status(200).send({
       message: "Add New Income",
@@ -7151,13 +7153,13 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         order.payment_mode = mode;
         order.payment_admission = apply._id;
         order.payment_from = student._id;
-        s_admin.invoice_count += 1;
-        order.payment_invoice_number = s_admin.invoice_count;
+        institute.invoice_count += 1;
+        order.payment_invoice_number = institute.invoice_count;
         user.payment_history.push(order._id);
         institute.payment_history.push(order._id);
         new_receipt.invoice_count = `${
           new Date().getMonth() + 1
-        }${new Date().getFullYear()}${s_admin.invoice_count}`;
+        }${new Date().getFullYear()}${institute.invoice_count}`;
         if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
           await exempt_installment(
             req?.body?.fee_payment_mode,
@@ -7479,13 +7481,13 @@ const auto_scholar_query = async (
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     if (fee_payment_mode === "Exempted/Unrecovered") {
       await exempt_installment(
         fee_payment_mode,
@@ -8003,13 +8005,13 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
       order.payment_mode = mode;
       order.payment_admission = apply._id;
       order.payment_from = student._id;
-      s_admin.invoice_count += 1;
-      order.payment_invoice_number = s_admin.invoice_count;
+      institute.invoice_count += 1;
+      order.payment_invoice_number = institute.invoice_count;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${s_admin.invoice_count}`;
+      }${new Date().getFullYear()}${institute.invoice_count}`;
       if (valid_remain_list?.access_mode_card === "Installment_Wise") {
         if (valid_remain_list?.remaining_fee >= price) {
           valid_remain_list.remaining_fee -= price;
@@ -8296,13 +8298,13 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
       await exempt_installment(
         req?.body?.fee_payment_mode,
@@ -8530,8 +8532,8 @@ exports.renderFilterByThreeFunctionQuery = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { departId, batchId, masterId, search } = req.query;
-    if (!id && !departId && !batchId && !masterId)
+    const { departId, masterId, search } = req.query;
+    if (!id && !departId && !masterId)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: true,
@@ -8543,7 +8545,7 @@ exports.renderFilterByThreeFunctionQuery = async (req, res) => {
         $and: [
           { _id: { $in: ads_admin?.newApplication } },
           { applicationDepartment: departId },
-          { applicationBatch: batchId },
+          // { applicationBatch: batchId },
           { applicationMaster: masterId },
         ],
         $or: [{ applicationName: { $regex: search, $options: "i" } }],

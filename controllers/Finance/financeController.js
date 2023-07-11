@@ -291,6 +291,7 @@ exports.getIncome = async (req, res) => {
     const { fid } = req.params;
     const { user_query } = req.query;
     const finance = await Finance.findById({ _id: fid });
+    const institute = await InstituteAdmin.findById({ _id: `${finance?.institute}`})
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
@@ -319,10 +320,10 @@ exports.getIncome = async (req, res) => {
     order.payment_mode = incomes.incomeAccount;
     order.payment_income = incomes._id;
     f_user.payment_history.push(order._id);
-    s_admin.invoice_count += 1;
+    institute.invoice_count += 1;
     order.payment_invoice_number = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     if (user) {
       order.payment_by_end_user_id = user._id;
       order.payment_flag_by = "Debit";
@@ -354,6 +355,7 @@ exports.getIncome = async (req, res) => {
       order.save(),
       f_user.save(),
       s_admin.save(),
+      institute.save()
     ]);
     if (req.file) {
       await unlinkFile(req.file.path);
@@ -394,6 +396,7 @@ exports.getExpense = async (req, res) => {
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
     const finance = await Finance.findById({ _id: fid });
+    const institute = await InstituteAdmin.findById({ _id: `${finance?.institute}`})
     var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
     if (user_query) {
       var user = await User.findOne({
@@ -402,8 +405,9 @@ exports.getExpense = async (req, res) => {
     }
     if (
       finance.financeTotalBalance > 0 &&
-      req.body.expenseAmount <= finance.financeTotalBalance &&
-      req.body.expenseAmount <= finance.financeBankBalance
+      req.body.expenseAmount <= finance.financeTotalBalance 
+      // &&
+      // req.body.expenseAmount <= finance.financeBankBalance
     ) {
       const expenses = new Expense({ ...req.body });
       if (req.file) {
@@ -422,10 +426,10 @@ exports.getExpense = async (req, res) => {
       order.payment_status = "Captured";
       order.payment_flag_by = "Debit";
       order.payment_mode = expenses.expenseAccount;
-      s_admin.invoice_count += 1;
+      institute.invoice_count += 1;
       order.payment_invoice_number = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${s_admin.invoice_count}`;
+      }${new Date().getFullYear()}${institute.invoice_count}`;
       order.payment_expense = expenses._id;
       f_user.payment_history.push(order._id);
       if (user) {
@@ -463,6 +467,7 @@ exports.getExpense = async (req, res) => {
         order.save(),
         f_user.save(),
         s_admin.save(),
+        institute.save()
       ]);
       if (req.file) {
         await unlinkFile(req.file.path);
@@ -4055,8 +4060,8 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
     order.payment_mode = mode;
     order.payment_finance = finance?._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (master?.deposit_amount >= price) {
@@ -4093,7 +4098,7 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
     new_receipt.fee_transaction_date = new Date();
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     if (master?.master_status === "Linked") {
       finance.refund_deposit.push(new_receipt?._id);
     } else if (master?.master_status === "Hostel Linked") {
@@ -4390,6 +4395,7 @@ exports.renderFinanceOnePayrollMasterMarkPayExpenseQuery = async (req, res) => {
       _id: `${one_master?.payroll_master}`,
     });
     const finance = await Finance.findById({ _id: fid });
+    const institute = await InstituteAdmin.findById({ _id: `${finance?.institute}`})
     const new_receipt = new FeeReceipt({ ...req.body });
     const expense = new Expense({});
     new_receipt.pay_master = one_master?._id;
@@ -4403,18 +4409,19 @@ exports.renderFinanceOnePayrollMasterMarkPayExpenseQuery = async (req, res) => {
     expense.expenseAmount = price;
     expense.expensePaid = `Account ${one_payroll_master?.payroll_head_name} Payment`;
     expense.finances = finance?._id;
-    s_admin.invoice_count += 1;
-    expense.invoice_number = s_admin?.invoice_count;
+    institute.invoice_count += 1;
+    expense.invoice_number = institute?.invoice_count;
     finance.expenseDepartment.push(expense?._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin?.invoice_count}`;
+    }${new Date().getFullYear()}${institute?.invoice_count}`;
     await Promise.all([
       expense.save(),
       s_admin.save(),
       new_receipt.save(),
       one_master.save(),
       finance.save(),
+      institute.save()
     ]);
     res
       .status(200)

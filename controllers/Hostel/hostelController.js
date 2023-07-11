@@ -1364,15 +1364,15 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     renew.renewal_student = student?._id;
     renew.renewal_application = apply?._id;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     var total_amount = add_total_installment(student);
     var is_install;
     if (
@@ -1715,13 +1715,13 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
       order.payment_mode = mode;
       order.payment_admission = apply._id;
       order.payment_from = student._id;
-      s_admin.invoice_count += 1;
-      order.payment_invoice_number = s_admin.invoice_count;
+      institute.invoice_count += 1;
+      order.payment_invoice_number = institute.invoice_count;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${s_admin.invoice_count}`;
+      }${new Date().getFullYear()}${institute.invoice_count}`;
       await Promise.all([
         apply.save(),
         student.save(),
@@ -2107,13 +2107,13 @@ exports.renderPaidRemainingFeeStudentQuery = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
       await exempt_installment(
         req?.body?.fee_payment_mode,
@@ -2353,13 +2353,13 @@ exports.renderPaidRemainingFeeStudentRefundBy = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     student.refundAdmission.push({
       refund_status: "Refund",
       refund_reason: "Extra Amount Paid Or Grant Some Scholarships",
@@ -2700,8 +2700,8 @@ const hostel_receipt_approve_query = async (
     order.payment_mode = mode;
     order.payment_admission = one_app._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     status.content = `Your hostel has been confirmed, You will be alloted to your room / bed shortly, Stay Update!. Please visit hostel once to check sourroundings.`;
@@ -2850,8 +2850,8 @@ const request_hostel_mode_query_by_student = async (
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (new_receipt?.fee_payment_mode === "Exempted/Unrecovered") {
@@ -3237,8 +3237,8 @@ const hostel_receipt_approve_query_renewal = async (
     order.payment_mode = mode;
     order.payment_admission = one_app._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     status.content = `Your hostel has been confirmed, You will be alloted to your room / bed shortly, Stay Update!. Please visit hostel once to check sourroundings.`;
@@ -3383,8 +3383,8 @@ const request_hostel_mode_query_by_student_renewal = async (
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (new_receipt?.fee_payment_mode === "Exempted/Unrecovered") {
@@ -3711,11 +3711,11 @@ exports.renderStudentGoOfflineHostelReceiptQuery = async (req, res) => {
       }
       receipt.fee_request_remain_card = raid;
       remain_list.fee_receipts.push(receipt?._id);
-      s_admin.invoice_count += 1;
+      institute.invoice_count += 1;
       receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${s_admin.invoice_count}`;
-      await Promise.all([receipt.save(), s_admin.save()]);
+      }${new Date().getFullYear()}${institute.invoice_count}`;
+      await Promise.all([receipt.save(), institute.save()]);
     }
     await Promise.all([ads_admin.save(), remain_list.save()]);
     res.status(200).send({ message: "Wait For Approval", access: true });
@@ -4411,15 +4411,15 @@ exports.renderPayOfflineHostelFeeRenewal = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = institute.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     renew.renewal_student = student?._id;
     renew.renewal_application = apply?._id;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     var total_amount = add_total_installment(student);
     var is_install;
     if (
@@ -4897,13 +4897,13 @@ exports.renderCancelHostelRefundRenewalApplicationQuery = async (req, res) => {
       order.payment_mode = mode;
       order.payment_admission = apply._id;
       order.payment_from = student._id;
-      s_admin.invoice_count += 1;
-      order.payment_invoice_number = s_admin.invoice_count;
+      institute.invoice_count += 1;
+      order.payment_invoice_number = institute.invoice_count;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${s_admin.invoice_count}`;
+      }${new Date().getFullYear()}${institute.invoice_count}`;
       await Promise.all([
         apply.save(),
         student.save(),
@@ -5182,11 +5182,11 @@ exports.renderHostelPayModeRenewal = async (req, res) => {
         });
         renew.receipt_status = "Requested";
       }
-      s_admin.invoice_count += 1;
+      institute.invoice_count += 1;
       receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${s_admin.invoice_count}`;
-      await Promise.all([receipt.save(), s_admin.save()]);
+      }${new Date().getFullYear()}${institute.invoice_count}`;
+      await Promise.all([receipt.save(), institute.save()]);
     }
     aStatus.content = `Your renewal is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees or contact institute if neccessory`;
     aStatus.applicationId = apply._id;
@@ -5351,11 +5351,11 @@ exports.renderHostelPayMode = async (req, res) => {
         });
         status.receipt_status = "Requested";
       }
-      s_admin.invoice_count += 1;
+      institute.invoice_count += 1;
       receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${s_admin.invoice_count}`;
-      await Promise.all([receipt.save(), s_admin.save()]);
+      }${new Date().getFullYear()}${institute.invoice_count}`;
+      await Promise.all([receipt.save(), institute.save()]);
     }
     status.isPaid = "Not Paid";
     status.for_selection = "No";

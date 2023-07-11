@@ -412,18 +412,22 @@ exports.getUpdateAnnouncement = async (req, res) => {
     // await announcement_feed_query(institute?._id, announcements?._id);
     for (var num of institute.userFollowersList) {
       const user = await User.findById({ _id: `${num}` });
-      if (user?.followInsAnnouncement?.includes(announcements?._id)) {
-      } else {
-        user.followInsAnnouncement.push(announcements?._id);
-        await user.save();
+      if (user) {
+        if (user?.followInsAnnouncement?.includes(announcements?._id)) {
+        } else {
+          user.followInsAnnouncement.push(announcements?._id);
+          await user.save();
+        }
       }
     }
     for (var arr of institute.joinedUserList) {
       const user = await User.findById({ _id: `${arr}` });
-      if (user?.followInsAnnouncement?.includes(announcements?._id)) {
-      } else {
-        user.followInsAnnouncement.push(announcements?._id);
-        await user.save();
+      if (user) {
+        if (user?.followInsAnnouncement?.includes(announcements?._id)) {
+        } else {
+          user.followInsAnnouncement.push(announcements?._id);
+          await user.save();
+        }
       }
     }
   } catch (e) {

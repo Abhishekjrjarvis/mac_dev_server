@@ -743,13 +743,14 @@ exports.admissionInstituteFunction = async (
       await render_installment(
         type,
         student,
-        apply,
         "Online",
         parseInt(tx_amount_ad),
         admission,
         student?.fee_structure,
         remaining_fee_lists,
-        new_receipt
+        new_receipt,
+        apply,
+        ins
       );
       remaining_fee_lists.paid_fee += parseInt(tx_amount_ad);
       if (remaining_fee_lists.remaining_fee >= parseInt(tx_amount_ad)) {

@@ -7793,9 +7793,10 @@ exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
         if (`${ele?.fee_structure?.batch_master}` === `${ref?.batchId}`) {
           ele.scholar_ship_number = `${ref?.ScholarNumber}`;
           await ele.save();
+          console.log("Add");
         }
       }
-      console.log("push")
+      // console.log("push")
     }
     // } else {
     // }

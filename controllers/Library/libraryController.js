@@ -921,29 +921,29 @@ exports.renderFineChargesCollectOfflineQuery = async (req, res) => {
 
 exports.renderNewOfflineBookAutoQuery = async (lid, book_array) => {
   try {
-    if (!lid) {
-      var library = await Library.findById(lid);
-      for (var val of book_array) {
-        const book = new Book({
-          bookName: val?.bookName,
-          bookStatus: val?.bookStatus,
-          author: val?.author,
-          language: val?.language,
-          totalCopies: val?.totalCopies ? parseInt(val?.totalCopies) : 0,
-          price: val?.price ? parseInt(val?.price) : 0,
-          description: val?.description,
-          shellNumber: val?.shellNumber,
-        });
-        library.books.push(book._id);
-        library.bookCount += 1;
-        book.library = lid;
-        book.leftCopies = book.totalCopies;
-        await book.save();
-      }
-      await library.save();
-    } else {
-      console.log("Invalid / Library ID");
+    // if (!lid) {
+    var library = await Library.findById(lid);
+    for (var val of book_array) {
+      const book = new Book({
+        bookName: val?.bookName,
+        bookStatus: val?.bookStatus,
+        author: val?.author,
+        language: val?.language,
+        totalCopies: val?.totalCopies ? parseInt(val?.totalCopies) : 0,
+        price: val?.price ? parseInt(val?.price) : 0,
+        description: val?.description,
+        shellNumber: val?.shellNumber,
+      });
+      library.books.push(book._id);
+      library.bookCount += 1;
+      book.library = lid;
+      book.leftCopies = book.totalCopies;
+      await book.save();
     }
+    await library.save();
+    // } else {
+    //   console.log("Invalid / Library ID");
+    // }
   } catch (e) {
     console.log(e);
   }

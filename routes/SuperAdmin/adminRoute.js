@@ -161,7 +161,7 @@ router.post(
 
 router.get(
   "/repay/query/institute/:id",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admin.retrieveInstituteRepayQuery)
 );
 //

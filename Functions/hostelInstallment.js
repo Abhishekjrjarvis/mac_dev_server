@@ -1336,6 +1336,18 @@ exports.update_fee_head_query = async (
 ) => {
   try {
     var price_query = price;
+    for (var ref of student_args?.active_fee_heads) {
+      receipt_args.fee_heads.push({
+        head_id: ref?._id,
+        head_name: ref?.head_name,
+        paid_fee: ref?.paid_fee,
+        remain_fee: ref?.remain_fee,
+        applicable_fee: ref?.applicable_fee,
+        fee_structure: ref?.fee_structure,
+        master: ref?.master,
+        original_paid: 0,
+      });
+    }
     const filter_student_heads = student_args?.active_fee_heads?.filter(
       (stu) => {
         if (`${stu.appId}` === `${apply_args._id}` && stu.remain_fee > 0)
@@ -1376,17 +1388,24 @@ exports.update_fee_head_query = async (
     }
     await student_args.save();
     receipt_args.fee_flow = "FEE_HEADS";
-    for (var ref of student_args?.active_fee_heads) {
-      receipt_args.fee_heads.push({
-        head_id: ref?._id,
-        head_name: ref?.head_name,
-        paid_fee: ref?.paid_fee,
-        remain_fee: ref?.remain_fee,
-        applicable_fee: ref?.applicable_fee,
-        fee_structure: ref?.fee_structure,
-        master: ref?.master,
-        original_paid: ref?.original_paid,
-      });
+    const filter_receipt_heads = receipt_args?.fee_heads?.filter((rec) => {
+      if (`${rec.appId}` === `${apply_args._id}` && rec.remain_fee > 0)
+        return rec;
+    });
+    for (var ele of filter_receipt_heads) {
+      if (ele?.paid_fee == ele?.applicable_fee) {
+      } else {
+        ele.original_paid =
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+        ele.paid_fee +=
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+        price_query =
+          price_query >= ele.remain_fee ? price_query - ele.remain_fee : 0;
+        ele.remain_fee =
+          ele.paid_fee == ele.applicable_fee
+            ? 0
+            : ele.applicable_fee - ele.paid_fee;
+      }
     }
     student_args.fee_receipt.push(receipt_args?._id);
     await receipt_args.save();

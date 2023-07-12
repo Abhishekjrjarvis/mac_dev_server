@@ -1615,6 +1615,7 @@ exports.renderExcelToJSONLibraryBookQuery = async (req, res) => {
   try {
     const { lid } = req.params;
     const { excel_file } = req.body;
+    console.log(req.body, req.params)
     if (!lid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",

@@ -50,4 +50,8 @@ router
   .route("/hostel/manager/staff/:osid")
   .patch(isLoggedIn, catchAsync(staffMember.renderHostelManagerStaffQuery));
 
+router
+  .route("/user/login/query")
+  .patch(catchAsync(staffMember.renderStaffUserLoginQuery));
+
 module.exports = router;

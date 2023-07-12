@@ -42,8 +42,8 @@ router.post(
 
 router.post(
   "/:id/video",
-  isLoggedIn,
-  isApproved,
+  // isLoggedIn,
+  // isApproved,
   upload.single("file"),
   catchAsync(Post.postWithVideo)
 );

@@ -1442,7 +1442,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "user",
-          select: "userLegalName photoId profilePhoto",
+          select: "userLegalName userPhoneNumber userEmail photoId profilePhoto",
         })
         .populate({
           path: "financeDepartment",
@@ -1610,7 +1610,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "user",
-          select: "userLegalName photoId profilePhoto",
+          select: "userLegalName userPhoneNumber userEmail photoId profilePhoto",
         })
         .populate({
           path: "financeDepartment",

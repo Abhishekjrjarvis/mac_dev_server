@@ -19,8 +19,13 @@ const {
 } = require("../../WhatsAppSMS/payload");
 const Transport = require("../../models/Transport/transport");
 const EventManager = require("../../models/Event/eventManager");
-const { generate_hash_pass } = require("../../helper/functions");
+const {
+  generate_hash_pass,
+  send_phone_login_query,
+  send_email_authentication_login_query,
+} = require("../../helper/functions");
 const Hostel = require("../../models/Hostel/hostel");
+const { handle_undefined } = require("../../Handler/customError");
 
 exports.photoEditByStaff = async (req, res) => {
   try {
@@ -731,6 +736,54 @@ exports.renderHostelManagerStaffQuery = async (req, res) => {
         ""
       );
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStaffUserLoginQuery = async (req, res) => {
+  try {
+    const { phone, email, sid } = req.body;
+    if (!sid && !phone && !email)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var valid_phone = await handle_undefined(phone);
+    var valid_email = await handle_undefined(email);
+    const one_staff = await Staff.findById(sid).populate({
+      path: "institute",
+      select: "insName insEmail",
+    });
+    var name = `${one_staff?.staffFirstName} ${
+      one_staff?.staffMiddleName ? `${one_staff?.staffMiddleName}` : ""
+    } ${one_staff?.staffLastName}`;
+    var one_user = await User.findById({ _id: `${one_staff?.user}` });
+    if (valid_phone) {
+      one_user.userPhoneNumber = valid_phone
+        ? valid_phone
+        : one_user?.userPhoneNumber;
+      await one_user.save();
+      await send_phone_login_query(
+        one_user?.userPhoneNumber,
+        name,
+        one_staff?.institute?.insName
+        // one_staff?.studentClass?.classTitle
+      );
+    }
+    if (valid_email) {
+      one_user.userEmail = valid_email ? valid_email : one_user?.userEmail;
+      await one_user.save();
+      await send_email_authentication_login_query(
+        one_user.userEmail,
+        one_staff?.institute?.insEmail,
+        name
+      );
+    }
+    res.status(200).send({
+      message: "Staff User Login Credentials edited successfully👍",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }

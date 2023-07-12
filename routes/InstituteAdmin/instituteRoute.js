@@ -102,6 +102,23 @@ router.post(
   catchAsync(Institute.getUpdateAnnouncement)
 );
 
+router.post(
+  "/announcement/:id/apk/query",
+  upload.fields([
+    { name: "file1" },
+    { name: "file2" },
+    { name: "file3" },
+    { name: "file4" },
+    { name: "file5" },
+    { name: "file6" },
+    { name: "file7" },
+    { name: "file8" },
+    { name: "file9" },
+    { name: "file10" },
+  ]),
+  catchAsync(Institute.getUpdateAnnouncementApk)
+);
+
 router.get(
   "-announcement-detail/:id",
 

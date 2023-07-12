@@ -435,6 +435,59 @@ exports.getUpdateAnnouncement = async (req, res) => {
   }
 };
 
+exports.getUpdateAnnouncementApk = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { annImageCount } = req.body;
+    const institute = await InstituteAdmin.findById({ _id: id });
+    const announcements = new InsAnnouncement({ ...req.body });
+    institute.announcement.unshift(announcements._id);
+    institute.announcementCount += 1;
+    announcements.institute = institute._id;
+    for (var i = 1; i <= parseInt(annImageCount); i++) {
+      var fileValue = req?.files[`file${i}`];
+      for (let file of fileValue) {
+        const insDocument = new InsDocument({});
+        insDocument.documentType = file.mimetype;
+        insDocument.documentName = file.originalname;
+        insDocument.documentEncoding = file.encoding;
+        insDocument.documentSize = file.size;
+        const results = await uploadDocFile(file);
+        insDocument.documentKey = results.Key;
+        announcements.announcementDocument.push(insDocument._id);
+        await insDocument.save();
+        await unlinkFile(file.path);
+      }
+    }
+    await Promise.all([institute.save(), announcements.save()]);
+    // const aEncrypt = await encryptionPayload(announcements);
+    res.status(200).send({ message: "Successfully Created", announcements });
+    // await announcement_feed_query(institute?._id, announcements?._id);
+    for (var num of institute.userFollowersList) {
+      const user = await User.findById({ _id: `${num}` });
+      if (user) {
+        if (user?.followInsAnnouncement?.includes(announcements?._id)) {
+        } else {
+          user.followInsAnnouncement.push(announcements?._id);
+          await user.save();
+        }
+      }
+    }
+    for (var arr of institute.joinedUserList) {
+      const user = await User.findById({ _id: `${arr}` });
+      if (user) {
+        if (user?.followInsAnnouncement?.includes(announcements?._id)) {
+        } else {
+          user.followInsAnnouncement.push(announcements?._id);
+          await user.save();
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.getAnnouncement = async (req, res) => {
   try {
     const { id } = req.params;
@@ -1338,7 +1391,7 @@ exports.getFullStaffInfo = async (req, res) => {
         )
         .populate({
           path: "user",
-          select: "userLegalName userEmail",
+          select: "userLegalName userPhoneNumber userEmail",
         })
         .populate({
           path: "institute",
@@ -1387,7 +1440,7 @@ exports.getFullStaffInfo = async (req, res) => {
         )
         .populate({
           path: "user",
-          select: "userLegalName userEmail",
+          select: "userLegalName userPhoneNumber userEmail",
         })
         .populate({
           path: "institute",

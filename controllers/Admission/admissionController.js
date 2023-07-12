@@ -7795,6 +7795,7 @@ exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
           await ele.save();
         }
       }
+      console.log("push")
     }
     // } else {
     // }

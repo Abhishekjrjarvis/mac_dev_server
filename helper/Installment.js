@@ -1656,6 +1656,7 @@ exports.set_fee_head_query_retro = async (
     }
     for (var ele of receipt_args) {
       ele.fee_flow = "FEE_HEADS";
+      var receipt_query = ele?.fee_payment_amount; //New Add
       for (var ref of student_args?.active_fee_heads) {
         ele.fee_heads.push({
           head_id: ref?._id,
@@ -1665,8 +1666,11 @@ exports.set_fee_head_query_retro = async (
           applicable_fee: ref?.applicable_fee,
           fee_structure: ref?.fee_structure,
           master: ref?.master,
-          original_paid: ref?.original_paid,
+          original_paid:
+            receipt_query >= ref.remain_fee ? ref.remain_fee : receipt_query, // New Add
         });
+        receipt_query =
+          receipt_query >= ref.remain_fee ? receipt_query - ref.remain_fee : 0; // New Add
       }
       student_args.fee_receipt.push(ele?._id);
       await ele.save();

@@ -516,7 +516,7 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const { search } = req.query;
-    const ins_apply = await InstituteAdmin.findById({ _id: id })
+    const ins_apply = await InstituteAdmin.findById({ _id: id });
     if (ins_apply?.admissionDepart?.length > 0) {
       if (search) {
         const apply = await Admission.findById({
@@ -2658,7 +2658,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    })
+    });
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -2941,7 +2941,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     var student = await Student.findById({ _id: sid });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins?.institute}`,
-    })
+    });
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -3152,7 +3152,7 @@ const request_mode_query_by_student = async (
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    })
+    });
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -5726,7 +5726,7 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    })
+    });
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -6485,7 +6485,9 @@ exports.renderNewFundCorpusIncomeQuery = async (req, res) => {
       path: "institute",
       select: "financeDepart",
     });
-    const institute = await InstituteAdmin.findById({ _id: `${ads_admin?.institute?._id}`})
+    const institute = await InstituteAdmin.findById({
+      _id: `${ads_admin?.institute?._id}`,
+    });
     const finance = await Finance.findById({
       _id: `${ads_admin?.institute?.financeDepart[0]}`,
     });
@@ -6555,7 +6557,7 @@ exports.renderNewFundCorpusIncomeQuery = async (req, res) => {
       s_admin.save(),
       corpus.save(),
       scholar.save(),
-      institute.save()
+      institute.save(),
     ]);
     res.status(200).send({
       message: "Add New Income",
@@ -7064,7 +7066,7 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    })
+    });
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -7407,7 +7409,7 @@ const auto_scholar_query = async (
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    })
+    });
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -7777,25 +7779,25 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, scid) => {
 
 exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
   try {
-    if (arr?.length > 0) {
-      for (var ref of arr) {
-        var one_student = await Student.findOne({
-          studentGRNO: `${ref?.GRNO}`,
-        });
-        var all_remain = await RemainingList.find({
-          student: `${one_student?._id}`,
-        }).populate({
-          path: "fee_structure",
-        });
-        for (var ele of all_remain) {
-          if (`${ele?.fee_structure?.batch_master}` === `${ref?.batchId}`) {
-            ele.scholar_ship_number = `${ref?.ScholarNumber}`;
-            await ele.save();
-          }
+    // if (arr?.length > 0) {
+    for (var ref of arr) {
+      var one_student = await Student.findOne({
+        studentGRNO: `${ref?.GRNO}`,
+      });
+      var all_remain = await RemainingList.find({
+        student: `${one_student?._id}`,
+      }).populate({
+        path: "fee_structure",
+      });
+      for (var ele of all_remain) {
+        if (`${ele?.fee_structure?.batch_master}` === `${ref?.batchId}`) {
+          ele.scholar_ship_number = `${ref?.ScholarNumber}`;
+          await ele.save();
         }
       }
-    } else {
     }
+    // } else {
+    // }
   } catch (e) {
     console.log(e);
   }
@@ -7971,7 +7973,7 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
       });
       var institute = await InstituteAdmin.findById({
         _id: `${admin_ins.institute}`,
-      })
+      });
       var finance = await Finance.findById({
         _id: `${institute?.financeDepart[0]}`,
       });
@@ -8253,7 +8255,7 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    })
+    });
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });

@@ -2034,7 +2034,7 @@ exports.renderPaidRemainingFeeStudentQuery = async (req, res) => {
     });
     var institute = await InstituteAdmin.findById({
       _id: `${hostel_ins?.institute}`,
-    }).select("insName financeDepart gstSlab payment_history");
+    });
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -2318,7 +2318,7 @@ exports.renderPaidRemainingFeeStudentRefundBy = async (req, res) => {
     var student = await Student.findById({ _id: sid });
     var institute = await InstituteAdmin.findById({
       _id: `${hostel_ins?.institute}`,
-    }).select("insName financeDepart gstSlab payment_history");
+    });
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -2768,7 +2768,7 @@ const request_hostel_mode_query_by_student = async (
     });
     var institute = await InstituteAdmin.findById({
       _id: `${hostel_ins.institute}`,
-    }).select("insName financeDepart gstSlab payment_history");
+    });
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -3309,7 +3309,7 @@ const request_hostel_mode_query_by_student_renewal = async (
     });
     var institute = await InstituteAdmin.findById({
       _id: `${hostel_ins.institute}`,
-    }).select("insName financeDepart gstSlab payment_history");
+    });
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });

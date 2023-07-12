@@ -516,9 +516,7 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const { search } = req.query;
-    const ins_apply = await InstituteAdmin.findById({ _id: id }).select(
-      "admissionDepart"
-    );
+    const ins_apply = await InstituteAdmin.findById({ _id: id })
     if (ins_apply?.admissionDepart?.length > 0) {
       if (search) {
         const apply = await Admission.findById({
@@ -2660,7 +2658,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    }).select("insName financeDepart gstSlab payment_history");
+    })
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -2943,7 +2941,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     var student = await Student.findById({ _id: sid });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins?.institute}`,
-    }).select("insName financeDepart gstSlab payment_history");
+    })
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -3154,7 +3152,7 @@ const request_mode_query_by_student = async (
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    }).select("insName financeDepart gstSlab payment_history");
+    })
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -5728,7 +5726,7 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    }).select("insName financeDepart gstSlab payment_history");
+    })
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -7066,7 +7064,7 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    }).select("insName financeDepart gstSlab payment_history");
+    })
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -7409,7 +7407,7 @@ const auto_scholar_query = async (
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    }).select("insName financeDepart gstSlab payment_history");
+    })
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -7973,7 +7971,7 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
       });
       var institute = await InstituteAdmin.findById({
         _id: `${admin_ins.institute}`,
-      }).select("insName financeDepart gstSlab payment_history");
+      })
       var finance = await Finance.findById({
         _id: `${institute?.financeDepart[0]}`,
       });
@@ -8255,7 +8253,7 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    }).select("insName financeDepart gstSlab payment_history");
+    })
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });

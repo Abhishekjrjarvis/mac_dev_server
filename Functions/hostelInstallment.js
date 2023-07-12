@@ -1348,6 +1348,7 @@ exports.update_fee_head_query = async (
         original_paid: 0,
       });
     }
+    await receipt_args.save();
     const filter_student_heads = student_args?.active_fee_heads?.filter(
       (stu) => {
         if (`${stu.appId}` === `${apply_args._id}` && stu.remain_fee > 0)

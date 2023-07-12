@@ -1,3 +1,4 @@
+const { remaining_card_initiate_query } = require("../Functions/SetOff");
 const FeeMaster = require("../models/Finance/FeeMaster");
 const Student = require("../models/Student");
 
@@ -180,7 +181,8 @@ const second_payable = async (
       ) {
       }
     } else {
-      if (arg1.remaining_fee > 0) {
+      var num = await remaining_card_initiate_query(arg1);
+      if (arg1.remaining_fee > 0 && num == 0) {
         arg1.remaining_array.push({
           remainAmount: flex_two,
           appId: app_args._id,
@@ -249,7 +251,8 @@ const third_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      if (arg1.remaining_fee > 0) {
+      var num = await remaining_card_initiate_query(arg1);
+      if (arg1.remaining_fee > 0 && num == 0) {
         arg1.remaining_array.push({
           remainAmount: flex_three,
           appId: app_args._id,
@@ -323,7 +326,8 @@ const four_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      if (arg1.remaining_fee > 0) {
+      var num = await remaining_card_initiate_query(arg1);
+      if (arg1.remaining_fee > 0 && num == 0) {
         arg1.remaining_array.push({
           remainAmount: flex_four,
           appId: app_args._id,
@@ -397,7 +401,8 @@ const five_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      if (arg1.remaining_fee > 0) {
+      var num = await remaining_card_initiate_query(arg1);
+      if (arg1.remaining_fee > 0 && num == 0) {
         arg1.remaining_array.push({
           remainAmount: flex_five,
           appId: app_args._id,
@@ -471,7 +476,8 @@ const six_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      if (arg1.remaining_fee > 0) {
+      var num = await remaining_card_initiate_query(arg1);
+      if (arg1.remaining_fee > 0 && num == 0) {
         arg1.remaining_array.push({
           remainAmount: flex_six,
           appId: app_args._id,
@@ -545,7 +551,8 @@ const seven_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      if (arg1.remaining_fee > 0) {
+      var num = await remaining_card_initiate_query(arg1);
+      if (arg1.remaining_fee > 0 && num == 0) {
         arg1.remaining_array.push({
           remainAmount: flex_seven,
           appId: app_args._id,
@@ -619,7 +626,8 @@ const eight_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      if (arg1.remaining_fee > 0) {
+      var num = await remaining_card_initiate_query(arg1);
+      if (arg1.remaining_fee > 0 && num == 0) {
         arg1.remaining_array.push({
           remainAmount: flex_eight,
           appId: app_args._id,
@@ -693,7 +701,8 @@ const nine_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      if (arg1.remaining_fee > 0) {
+      var num = await remaining_card_initiate_query(arg1);
+      if (arg1.remaining_fee > 0 && num == 0) {
         arg1.remaining_array.push({
           remainAmount: flex_nine,
           appId: app_args._id,
@@ -767,7 +776,8 @@ const ten_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      if (arg1.remaining_fee > 0) {
+      var num = await remaining_card_initiate_query(arg1);
+      if (arg1.remaining_fee > 0 && num == 0) {
         arg1.remaining_array.push({
           remainAmount: flex_ten,
           appId: app_args._id,
@@ -841,7 +851,8 @@ const eleven_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      if (arg1.remaining_fee > 0) {
+      var num = await remaining_card_initiate_query(arg1);
+      if (arg1.remaining_fee > 0 && num == 0) {
         arg1.remaining_array.push({
           remainAmount: flex_eleven,
           appId: app_args._id,
@@ -908,7 +919,8 @@ const tweleve_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      if (arg1.remaining_fee > 0) {
+      var num = await remaining_card_initiate_query(arg1);
+      if (arg1.remaining_fee > 0 && num == 0) {
         arg1.remaining_array.push({
           remainAmount: flex_tweleve,
           appId: app_args._id,
@@ -1541,13 +1553,11 @@ exports.update_fee_head_query = async (
     student_args.fee_receipt.push(receipt_args?._id);
     await student_args.save();
     receipt_args.fee_flow = "FEE_HEADS";
-    const filter_receipt_heads = receipt_args?.fee_heads?.filter(
-      (rec) => {
-        if (`${rec.appId}` === `${apply_args._id}` && rec.remain_fee > 0)
-          return rec;
-      }
-    );
-    for(var ele of filter_receipt_heads){
+    const filter_receipt_heads = receipt_args?.fee_heads?.filter((rec) => {
+      if (`${rec.appId}` === `${apply_args._id}` && rec.remain_fee > 0)
+        return rec;
+    });
+    for (var ele of filter_receipt_heads) {
       if (ele?.paid_fee == ele?.applicable_fee) {
       } else {
         ele.original_paid =

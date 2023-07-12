@@ -50,3 +50,20 @@ exports.applicable_pending_calc_singleton = async (s_args) => {
     console.log(e);
   }
 };
+
+exports.remaining_card_initiate_query = async (r_args) => {
+  try {
+    var value = 0;
+    var filter_card = await r_args?.remaining_array?.filter((val) => {
+      if (`${val?.status}` === "Not Paid") return val;
+    });
+    if (filter_card?.length > 0) {
+      value = filter_card?.length;
+      return value;
+    } else {
+      return value;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

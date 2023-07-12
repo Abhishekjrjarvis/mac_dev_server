@@ -1506,6 +1506,7 @@ exports.update_fee_head_query = async (
 ) => {
   try {
     var price_query = price;
+    var receipt_query = price;
     for (var ref of student_args?.active_fee_heads) {
       receipt_args.fee_heads.push({
         head_id: ref?._id,
@@ -1555,18 +1556,17 @@ exports.update_fee_head_query = async (
     await student_args.save();
     receipt_args.fee_flow = "FEE_HEADS";
     const filter_receipt_heads = receipt_args?.fee_heads?.filter((rec) => {
-      if (rec.remain_fee > 0)
-        return rec;
+      if (rec.remain_fee > 0) return rec;
     });
     for (var ele of filter_receipt_heads) {
       if (ele?.paid_fee == ele?.applicable_fee) {
       } else {
         ele.original_paid =
-          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+          receipt_query >= ele.remain_fee ? ele.remain_fee : receipt_query;
         ele.paid_fee +=
-          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
-        price_query =
-          price_query >= ele.remain_fee ? price_query - ele.remain_fee : 0;
+          receipt_query >= ele.remain_fee ? ele.remain_fee : receipt_query;
+        receipt_query =
+          receipt_query >= ele.remain_fee ? receipt_query - ele.remain_fee : 0;
         ele.remain_fee =
           ele.paid_fee == ele.applicable_fee
             ? 0

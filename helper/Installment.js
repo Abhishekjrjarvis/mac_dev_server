@@ -1555,7 +1555,7 @@ exports.update_fee_head_query = async (
     await student_args.save();
     receipt_args.fee_flow = "FEE_HEADS";
     const filter_receipt_heads = receipt_args?.fee_heads?.filter((rec) => {
-      if (`${rec.appId}` === `${apply_args._id}` && rec.remain_fee > 0)
+      if (rec.remain_fee > 0)
         return rec;
     });
     for (var ele of filter_receipt_heads) {

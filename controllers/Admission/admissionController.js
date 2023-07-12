@@ -7790,7 +7790,7 @@ exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
         path: "fee_structure",
       });
       for (var ele of all_remain) {
-        if (`${ele?.fee_structure?.batch_master}` === `${ref?.batchId}`) {
+        if (`${ele?.fee_structure?.batch_master}` === `${ref?.batchId?._id}`) {
           ele.scholar_ship_number = `${ref?.ScholarNumber}`;
           await ele.save();
           console.log("Add");

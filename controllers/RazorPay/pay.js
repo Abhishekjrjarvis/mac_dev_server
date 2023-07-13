@@ -101,6 +101,7 @@ exports.verifyRazorPayment = async (req, res) => {
       payment_module_id,
       payment_amount_charges,
       payment_amount,
+      payment_card_id,
       ad_status_id,
       isApk,
       payment_installment,
@@ -180,6 +181,7 @@ exports.verifyRazorPayment = async (req, res) => {
           Boolean(razor_author),
           payment_card_type ?? "",
           payment_remain_1 ?? "",
+          payment_card_id ?? "",
           ad_status_id ?? "",
           // activity_id ?? "",
           Boolean(ad_install)

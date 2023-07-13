@@ -312,6 +312,7 @@ exports.admissionInstituteFunction = async (
   is_author,
   payment_type,
   remain_1,
+  payment_card_id,
   statusId
 ) => {
   try {
@@ -366,7 +367,7 @@ exports.admissionInstituteFunction = async (
       await business_data.save();
     }
     if (statusId) {
-      console.log("Status BLOCK")
+      console.log("Status BLOCK");
       var total_amount = await add_total_installment(student);
       const status = await Status.findById({ _id: statusId });
       const aStatus = new Status({});
@@ -583,13 +584,9 @@ exports.admissionInstituteFunction = async (
         new_remainFee.save(),
       ]);
     } else if (`${payment_type}` === "Promote") {
-      console.log("PROMOTE BLOCK")
-      var valid_remain_list = await RemainingList.findOne({
-        $and: [
-          { student: student?._id },
-          { appId: apply?._id },
-          { card_type: "Promote" },
-        ],
+      console.log("PROMOTE BLOCK");
+      var valid_remain_list = await RemainingList.findById({
+        _id: payment_card_id,
       });
       if (valid_remain_list?.access_mode_card === "Installment_Wise") {
         const new_receipt = new FeeReceipt({
@@ -730,7 +727,7 @@ exports.admissionInstituteFunction = async (
         ]);
       }
     } else {
-      console.log("EXISTING BLOCK")
+      console.log("EXISTING BLOCK");
       const new_receipt = new FeeReceipt({
         fee_payment_mode: "Payment Gateway / Online",
         fee_payment_amount: parseInt(tx_amount_ad),

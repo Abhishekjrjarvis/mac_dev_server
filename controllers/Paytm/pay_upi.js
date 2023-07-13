@@ -49,6 +49,7 @@ exports.initiate = async (req, res) => {
       payment_card_type,
       payment_remain_1,
       ad_status_id,
+      payment_card_id,
     } = req.body;
     var order = `ORDERID${v4()}`;
     var price = `${amount}`;
@@ -65,7 +66,7 @@ exports.initiate = async (req, res) => {
           ? `https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=${order}`
           : type === "Fees"
           ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}`
-          : `${process.env.CALLBACK_URLS}/v1/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/install/${payment_installment}/remain/${payment_remain_1}/card/${payment_card_type}/status/${ad_status_id}`,
+          : `${process.env.CALLBACK_URLS}/v1/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_1}/card/${payment_card_type}/status/${ad_status_id}`,
       txnAmount: {
         value: price,
         currency: "INR",
@@ -210,6 +211,7 @@ exports.callbackAdmission = async (req, res) => {
       payment_card_type,
       payment_remain_1,
       ad_status_id,
+      payment_card_id,
     } = req.params;
     var paytmParams = {};
     paytmParams.body = {
@@ -270,6 +272,7 @@ exports.callbackAdmission = async (req, res) => {
               paytm_author,
               valid_card,
               payment_remain_1,
+              payment_card_id,
               valid_status
               // Boolean(ad_install)
             );

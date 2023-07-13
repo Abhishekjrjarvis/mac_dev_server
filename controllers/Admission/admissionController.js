@@ -1814,6 +1814,12 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     } else {
       await set_fee_head_query(student, price, apply, new_receipt);
     }
+    if(new_remainFee?.remaining_fee > 0){
+
+    }
+    else{
+      new_remainFee.status = "Paid"
+    }
     await lookup_applicable_grant(
       req.body?.fee_payment_mode,
       price,
@@ -7793,7 +7799,7 @@ exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
         if (`${ele?.fee_structure?.batch_master}` === `${ref?.batchId?._id}`) {
           ele.scholar_ship_number = `${ref?.ScholarNumber}`;
           await ele.save();
-          console.log("Add");
+          // console.log("Add");
         }
       }
       // console.log("push")

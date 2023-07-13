@@ -256,6 +256,9 @@ exports.callbackAdmission = async (req, res) => {
               paidTo
             );
             var paytm_author = false;
+            var valid_status = ad_status_id === "null" ? "" : ad_status_id;
+            var valid_card =
+              payment_card_type === "null" ? "" : payment_card_type;
             await admissionInstituteFunction(
               order?._id,
               paidBy,
@@ -265,9 +268,9 @@ exports.callbackAdmission = async (req, res) => {
               paidTo,
               payment_installment,
               paytm_author,
-              payment_card_type ?? "",
-              payment_remain_1 ?? "",
-              ad_status_id ?? ""
+              valid_card,
+              payment_remain_1,
+              valid_status
               // Boolean(ad_install)
             );
             if (isApk === "APK") {

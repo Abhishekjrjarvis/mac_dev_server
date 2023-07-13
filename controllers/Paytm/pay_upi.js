@@ -34,7 +34,7 @@ const order_history_query = async (
 
 exports.initiate = async (req, res) => {
   try {
-    const { moduleId, paidBy, amount, name, paidTo } = req.body;
+    const { moduleId, paidBy, amount, name, paidTo, isApk } = req.body;
     var order = `ORDERID${v4()}`;
     var price = `${amount}`;
 
@@ -45,7 +45,9 @@ exports.initiate = async (req, res) => {
       mid: `${process.env.PAYTM_MID}`,
       websiteName: `${process.env.PAYTM_WEBSITE}`,
       orderId: order,
-      callbackUrl: `${process.env.CALLBACK_URLS}/v1/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}`,
+      callbackUrl: isApk
+        ? `https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=${order}`
+        : `${process.env.CALLBACK_URLS}/v1/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}`,
       txnAmount: {
         value: price,
         currency: "INR",

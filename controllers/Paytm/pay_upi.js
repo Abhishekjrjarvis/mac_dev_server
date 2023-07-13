@@ -158,8 +158,7 @@ exports.callback = async (req, res) => {
               moduleId,
               paytm_author
             );
-            var valid_apk = Boolean(isApk);
-            if (valid_apk) {
+            if (isApk === "APK") {
               res.status(200).send({
                 message: "Success with Internal Paytm Fees 😀",
                 check: true,

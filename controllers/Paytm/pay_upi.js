@@ -3,7 +3,10 @@ const https = require("https");
 const { v4 } = require("uuid");
 const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
-const { feeInstituteFunction } = require("../RazorPay/paymentModule");
+const {
+  feeInstituteFunction,
+  admissionInstituteFunction,
+} = require("../RazorPay/paymentModule");
 
 const order_history_query = async (
   module_type,
@@ -34,7 +37,19 @@ const order_history_query = async (
 
 exports.initiate = async (req, res) => {
   try {
-    const { moduleId, paidBy, amount, name, paidTo, isApk } = req.body;
+    const {
+      moduleId,
+      paidBy,
+      amount,
+      name,
+      paidTo,
+      isApk,
+      type,
+      payment_installment,
+      payment_card_type,
+      payment_remain_1,
+      ad_status_id,
+    } = req.body;
     var order = `ORDERID${v4()}`;
     var price = `${amount}`;
 
@@ -48,7 +63,9 @@ exports.initiate = async (req, res) => {
       callbackUrl:
         isApk === "APK"
           ? `https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=${order}`
-          : `${process.env.CALLBACK_URLS}/v1/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}`,
+          : type === "Fees"
+          ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}`
+          : `${process.env.CALLBACK_URLS}/v1/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/install/${payment_installment}/remain/${payment_remain_1}/card/${payment_card_type}/status/${ad_status_id}`,
       txnAmount: {
         value: price,
         currency: "INR",
@@ -158,6 +175,100 @@ exports.callback = async (req, res) => {
               price,
               moduleId,
               paytm_author
+            );
+            if (isApk === "APK") {
+              res.status(200).send({
+                message: "Success with Internal Paytm Fees 😀",
+                check: true,
+              });
+            } else {
+              res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+            }
+          } else {
+            res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+          }
+        });
+      });
+      post_req.write(post_data);
+      post_req.end();
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.callbackAdmission = async (req, res) => {
+  try {
+    const {
+      name,
+      paidBy,
+      moduleId,
+      paidTo,
+      amount_nocharges,
+      isApk,
+      payment_installment,
+      payment_card_type,
+      payment_remain_1,
+      ad_status_id,
+    } = req.params;
+    var paytmParams = {};
+    paytmParams.body = {
+      mid: `${process.env.PAYTM_MID}`,
+      orderId: `${req.body?.ORDERID}`,
+    };
+    PaytmChecksum.generateSignature(
+      JSON.stringify(paytmParams.body),
+      `${process.env.PAYTM_MERCHANT_KEY}`
+    ).then(function (checksum) {
+      paytmParams.head = {
+        signature: checksum,
+      };
+
+      var post_data = JSON.stringify(paytmParams);
+
+      var options = {
+        hostname: "securegw-stage.paytm.in",
+        // hostname: 'securegw.paytm.in',
+
+        port: 443,
+        path: "/v3/order/status",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": post_data.length,
+        },
+      };
+
+      var response = "";
+      var post_req = https.request(options, function (post_res) {
+        post_res.on("data", function (chunk) {
+          response += chunk;
+        });
+
+        post_res.on("end", async function () {
+          var status = req?.body?.STATUS;
+          var price = req?.body?.TXNAMOUNT;
+          if (status === "TXN_SUCCESS") {
+            var order = await order_history_query(
+              "Admission",
+              moduleId,
+              price,
+              paidTo
+            );
+            var paytm_author = false;
+            await admissionInstituteFunction(
+              order?._id,
+              paidBy,
+              price,
+              price,
+              moduleId,
+              paidTo,
+              payment_installment,
+              paytm_author,
+              payment_card_type ?? "",
+              payment_remain_1 ?? "",
+              ad_status_id ?? ""
+              // Boolean(ad_install)
             );
             if (isApk === "APK") {
               res.status(200).send({

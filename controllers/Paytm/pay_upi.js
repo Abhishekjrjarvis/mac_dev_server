@@ -45,9 +45,10 @@ exports.initiate = async (req, res) => {
       mid: `${process.env.PAYTM_MID}`,
       websiteName: `${process.env.PAYTM_WEBSITE}`,
       orderId: order,
-      callbackUrl: isApk
-        ? `https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=${order}`
-        : `${process.env.CALLBACK_URLS}/v1/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}`,
+      callbackUrl:
+        isApk === "APK"
+          ? `https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=${order}`
+          : `${process.env.CALLBACK_URLS}/v1/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}`,
       txnAmount: {
         value: price,
         currency: "INR",

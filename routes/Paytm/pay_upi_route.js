@@ -10,13 +10,13 @@ const {
 router.route("/generateTxnToken").post(initiate);
 router
   .route(
-    "/callback/internal/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk"
+    "/callback/internal/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price"
   )
   .post(callback);
 
 router
   .route(
-    "/callback/admission/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/fees/:payment_card_id/install/:payment_installment/remain/:payment_remain_1/card/:payment_card_type/status/:ad_status_id"
+    "/callback/admission/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price/fees/:payment_card_id/install/:payment_installment/remain/:payment_remain_1/card/:payment_card_type/status/:ad_status_id"
   )
   .post(callbackAdmission);
 

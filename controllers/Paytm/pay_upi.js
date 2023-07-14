@@ -51,6 +51,10 @@ exports.initiate = async (req, res) => {
       ad_status_id,
       payment_card_id,
     } = req.body;
+    let gatewayCharges = (parseInt(amount) * 2.1) / 100;
+    let gst = (+gatewayCharges * 18) / 100;
+    let withGst = gatewayCharges + gst;
+    let data = parseInt(amount);
     var order = `ORDERID${v4()}`;
     var price = `${amount}`;
 
@@ -65,10 +69,10 @@ exports.initiate = async (req, res) => {
         isApk === "APK"
           ? `https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=${order}`
           : type === "Fees"
-          ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}`
-          : `${process.env.CALLBACK_URLS}/v1/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_1}/card/${payment_card_type}/status/${ad_status_id}`,
+          ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}`
+          : `${process.env.CALLBACK_URLS}/v1/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_1}/card/${payment_card_type}/status/${ad_status_id}`,
       txnAmount: {
-        value: price,
+        value: Math.ceil(data + +withGst.toFixed(2)),
         currency: "INR",
       },
       userInfo: {
@@ -123,7 +127,7 @@ exports.initiate = async (req, res) => {
 
 exports.callback = async (req, res) => {
   try {
-    const { moduleId, paidBy, name, paidTo, isApk } = req.params;
+    const { moduleId, paidBy, name, paidTo, isApk, price } = req.params;
     var paytmParams = {};
     paytmParams.body = {
       mid: `${process.env.PAYTM_MID}`,
@@ -160,7 +164,7 @@ exports.callback = async (req, res) => {
 
         post_res.on("end", async function () {
           var status = req?.body?.STATUS;
-          var price = req?.body?.TXNAMOUNT;
+          var price_charge = req?.body?.TXNAMOUNT;
           if (status === "TXN_SUCCESS") {
             var order = await order_history_query(
               "Fees",
@@ -173,7 +177,7 @@ exports.callback = async (req, res) => {
               order?._id,
               paidBy,
               price,
-              price,
+              price_charge,
               moduleId,
               paytm_author
             );
@@ -212,6 +216,7 @@ exports.callbackAdmission = async (req, res) => {
       payment_remain_1,
       ad_status_id,
       payment_card_id,
+      price,
     } = req.params;
     var paytmParams = {};
     paytmParams.body = {
@@ -249,7 +254,7 @@ exports.callbackAdmission = async (req, res) => {
 
         post_res.on("end", async function () {
           var status = req?.body?.STATUS;
-          var price = req?.body?.TXNAMOUNT;
+          var price_charge = req?.body?.TXNAMOUNT;
           if (status === "TXN_SUCCESS") {
             var order = await order_history_query(
               "Admission",
@@ -265,7 +270,7 @@ exports.callbackAdmission = async (req, res) => {
               order?._id,
               paidBy,
               price,
-              price,
+              price_charge,
               moduleId,
               paidTo,
               payment_installment,

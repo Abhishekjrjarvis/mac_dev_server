@@ -46,7 +46,7 @@ exports.photoEditByStudent = async (req, res) => {
       res.status(200).send({
         message: "Photo edited successfully👍",
       });
-      await unlinkFile(file.path);
+      await unlinkFile(req.file.path);
     } else {
       student.studentProfilePhoto = sample_pic;
       await student.save();

@@ -793,7 +793,7 @@ exports.retrieveInstituteRepayQuery = async (req, res) => {
     );
 
     const get_return = await RePay.find({ _id: { $in: institute?.getReturn } })
-      .sort("createdAt")
+      .sort("-createdAt")
       .limit(limit)
       .skip(skip)
       .select("repayAmount repayStatus message txnId createdAt")

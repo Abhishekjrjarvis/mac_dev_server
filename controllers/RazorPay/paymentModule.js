@@ -367,7 +367,7 @@ exports.admissionInstituteFunction = async (
       await business_data.save();
     }
     if (statusId) {
-      console.log("Status BLOCK");
+      // console.log("Status BLOCK");
       var total_amount = await add_total_installment(student);
       const status = await Status.findById({ _id: statusId });
       const aStatus = new Status({});
@@ -584,7 +584,7 @@ exports.admissionInstituteFunction = async (
         new_remainFee.save(),
       ]);
     } else if (`${payment_type}` === "Promote") {
-      console.log("PROMOTE BLOCK");
+      // console.log("PROMOTE BLOCK");
       var valid_remain_list = await RemainingList.findById({
         _id: payment_card_id,
       });
@@ -727,7 +727,7 @@ exports.admissionInstituteFunction = async (
         ]);
       }
     } else {
-      console.log("EXISTING BLOCK");
+      // console.log("EXISTING BLOCK");
       const new_receipt = new FeeReceipt({
         fee_payment_mode: "Payment Gateway / Online",
         fee_payment_amount: parseInt(tx_amount_ad),
@@ -1474,7 +1474,7 @@ exports.directAdmissionInstituteFunction = async (
       finance.financeBankBalance += price;
       institute.insBankBalance += price;
     } else {
-      s_admin.returnAmount += parseInt(tx_amount_ad_charges);
+      admin.returnAmount += parseInt(tx_amount_ad_charges);
       institute.adminRepayAmount += price;
     }
     await set_fee_head_query(student, price, apply, new_receipt);
@@ -1539,7 +1539,7 @@ exports.directAdmissionInstituteFunction = async (
       apply.save(),
       institute.save(),
       notify.save(),
-      s_admin.save(),
+      admin.save(),
       order.save(),
       new_receipt.save(),
       new_remainFee.save(),

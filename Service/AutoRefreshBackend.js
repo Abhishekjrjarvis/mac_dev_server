@@ -377,7 +377,7 @@ exports.recommendedAllIns = async (req, res) => {
     );
     const ins = await InstituteAdmin.find({
       _id: { $in: user?.userInstituteFollowing },
-    }).select("joinedUserList");
+    }).select("joinedUserList ApproveStudent");
     if (ins?.length > 0) {
       var refresh_recommend_user = [];
       for (var recommend of ins) {
@@ -385,6 +385,15 @@ exports.recommendedAllIns = async (req, res) => {
           if (`${ref_rec}` === `${user?._id}`) {
           } else {
             refresh_recommend_user.push(ref_rec);
+          }
+        }
+        for (var ref_rec of recommend?.ApproveStudent) {
+          var valid_student = await Student.findById({
+            _id: `${ref_rec}`,
+          }).select("user");
+          if (`${valid_student?.user}` === `${user?._id}`) {
+          } else {
+            refresh_recommend_user.push(valid_student?.user);
           }
         }
       }

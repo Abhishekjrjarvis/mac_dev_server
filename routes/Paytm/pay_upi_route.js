@@ -5,6 +5,8 @@ const {
   initiate,
   callback,
   callbackAdmission,
+  callbackStatus,
+  callbackAdmissionStatus,
 } = require("../../controllers/Paytm/pay_upi");
 
 router.route("/generateTxnToken").post(initiate);
@@ -19,5 +21,9 @@ router
     "/callback/admission/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price/fees/:payment_card_id/install/:payment_installment/remain/:payment_remain_1/card/:payment_card_type/status/:ad_status_id"
   )
   .post(callbackAdmission);
+
+router.route("/status/success/internal/query").post(callbackStatus);
+
+router.route("/status/success/admission/query").post(callbackAdmissionStatus);
 
 module.exports = router;

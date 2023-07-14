@@ -3090,16 +3090,16 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         } else {
         }
         await Promise.all([classes.save(), batch.save()]);
-        if (institute.sms_lang === "en") {
-          await directESMSQuery(
-            user?.userPhoneNumber,
-            `${student.studentFirstName} ${
-              student.studentMiddleName ? student.studentMiddleName : ""
-            } ${student.studentLastName}`,
-            institute?.insName,
-            classes?.classTitle
-          );
-        }
+        // if (institute.sms_lang === "en") {
+        //   await directESMSQuery(
+        //     user?.userPhoneNumber,
+        //     `${student.studentFirstName} ${
+        //       student.studentMiddleName ? student.studentMiddleName : ""
+        //     } ${student.studentLastName}`,
+        //     institute?.insName,
+        //     classes?.classTitle
+        //   );
+        // }
         // else if (institute.sms_lang === "hi") {
         //   await directHSMSQuery(
         //     user?.userPhoneNumber,
@@ -3135,19 +3135,19 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           0,
           institute?.sms_lang
         );
-        if (user?.userEmail) {
-          await email_sms_payload_query(
-            user?.userEmail,
-            studentName,
-            institute,
-            "ADSIS",
-            institute?.insType,
-            0,
-            0,
-            institute?.sms_lang
-          );
-        }
-        return true
+        // if (user?.userEmail) {
+        //   await email_sms_payload_query(
+        //     user?.userEmail,
+        //     studentName,
+        //     institute,
+        //     "ADSIS",
+        //     institute?.insType,
+        //     0,
+        //     0,
+        //     institute?.sms_lang
+        //   );
+        // }
+        // return true
       } else {
         console.log("Problem in Account Creation");
         // return false

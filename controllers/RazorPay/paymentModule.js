@@ -148,7 +148,7 @@ exports.feeInstituteFunction = async (
           } else {
             institute.adminRepayAmount =
               institute.adminRepayAmount + parseInt(tx_amount);
-            admin.returnAmount += tx_amount_charges;
+            admin.returnAmount += parseInt(tx_amount_charges);
           }
           // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount);
           notify.notifyContent = `${student.studentFirstName} ${

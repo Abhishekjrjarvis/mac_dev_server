@@ -301,3 +301,96 @@ exports.callbackAdmission = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.callbackStatus = async (req, res) => {
+  try {
+    const { moduleId, paidBy, name, paidTo, isApk, price, TXNAMOUNT, STATUS } =
+      req.body;
+    var status = STATUS;
+    var price_charge = TXNAMOUNT;
+    if (status === "TXN_SUCCESS") {
+      var order = await order_history_query("Fees", moduleId, price, paidTo);
+      var paytm_author = false;
+      await feeInstituteFunction(
+        order?._id,
+        paidBy,
+        price,
+        price_charge,
+        moduleId,
+        paytm_author
+      );
+      if (isApk === "APK") {
+        res.status(200).send({
+          message: "Success with Internal Paytm Fees 😀",
+          check: true,
+        });
+      } else {
+        res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+      }
+    } else {
+      res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.callbackAdmissionStatus = async (req, res) => {
+  try {
+    const {
+      name,
+      paidBy,
+      moduleId,
+      paidTo,
+      isApk,
+      payment_installment,
+      payment_card_type,
+      payment_remain_1,
+      ad_status_id,
+      payment_card_id,
+      price,
+      TXNAMOUNT,
+      STATUS,
+    } = req.body;
+    var status = STATUS;
+    var price_charge = TXNAMOUNT;
+    if (status === "TXN_SUCCESS") {
+      var order = await order_history_query(
+        "Admission",
+        moduleId,
+        price,
+        paidTo
+      );
+      var paytm_author = false;
+      var valid_status = ad_status_id === "null" ? "" : ad_status_id;
+      var valid_card = payment_card_type === "null" ? "" : payment_card_type;
+      await admissionInstituteFunction(
+        order?._id,
+        paidBy,
+        price,
+        price_charge,
+        moduleId,
+        paidTo,
+        payment_installment,
+        paytm_author,
+        valid_card,
+        payment_remain_1,
+        payment_card_id,
+        valid_status
+        // Boolean(ad_install)
+      );
+      if (isApk === "APK") {
+        res.status(200).send({
+          message: "Success with Admission Paytm Fees 😀",
+          check: true,
+        });
+      } else {
+        res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+      }
+    } else {
+      res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

@@ -729,47 +729,19 @@ exports.retrieveRepayInstituteAmount = async (req, res) => {
     });
     const notify = new Notification({});
     const repay = new RePay({});
-    const date = new Date(new Date().setDate(new Date().getDate() - 2));
-    const pay_flow = await OrderPayment.find({
-      $and: [
-        { _id: { $in: institute?.payment_history } },
-        {
-          created_at: {
-            $lte: date,
-          },
-        },
-        {
-          payout_enable: "Not Paid",
-        },
-      ],
-    }).select("payment_module_type payment_amount payout_enable payment_mode");
-
-    for (var flow of pay_flow) {
-      if (
-        flow?.payment_module_type === "Fees" &&
-        flow?.payment_mode === "By Bank"
-      ) {
-        flow.payout_enable = "Paid";
-        await flow.save();
-      }
-      if (
-        flow?.payment_module_type === "Admission" &&
-        flow?.payment_mode === "By Bank"
-      ) {
-        flow.payout_enable = "Paid";
-        await flow.save();
-      }
+    if (institute?.payout_pool >= p_amount) {
+      institute.payout_pool -= p_amount;
     }
-    institute.partial_pay_amount +=
-      t_amount - p_amount - institute.partial_pay_amount;
     if (institute.adminRepayAmount > p_amount) {
       institute.adminRepayAmount -= p_amount;
     }
     institute.insBankBalance += p_amount;
     finance.financeBankBalance = finance.financeBankBalance + p_amount;
     finance.financeTotalBalance = finance.financeTotalBalance + p_amount;
-    admin.returnAmount -= p_amount;
-    notify.notifyContent = `Qviple Super Admin re-pay Rs. ${p_amount} to you`;
+    if (admin.returnAmount >= p_amount) {
+      admin.returnAmount -= p_amount;
+    }
+    notify.notifyContent = `Qviple Super Admin re-pay Rs. ${p_amount} to you as settlement.`;
     notify.notifySender = admin._id;
     notify.notifyCategory = "Qviple Repayment";
     notify.notifyReceiever = uid;
@@ -824,10 +796,11 @@ exports.retrieveInstituteRepayQuery = async (req, res) => {
       .sort("createdAt")
       .limit(limit)
       .skip(skip)
-      .select("repayAmount repayStatus createdAt")
+      .select("repayAmount repayStatus message txnId createdAt")
       .populate({
         path: "institute",
-        select: "insName",
+        select:
+          "insName bankAccountHolderName bankAccountNumber bankIfscCode bankAccountPhoneNumber bankAccountType bank_status",
       });
     if (get_return?.length > 0) {
       // const adminEncrypt = await encryptionPayload(get_return);
@@ -1033,59 +1006,6 @@ exports.retrieveOneUserBlock = async (req, res) => {
   }
 };
 
-exports.renderPayouts = async (req, res) => {
-  try {
-    const { pid } = req.params;
-    var payout_price = 0;
-    if (!pid)
-      return res.status(200).send({
-        message: "Their is a bug need to fix immediately 😡",
-        access: false,
-      });
-    const date = new Date(new Date().setDate(new Date().getDate() - 2));
-    const pay_ins = await InstituteAdmin.findById({ _id: pid }).select(
-      "payment_history partial_pay_amount"
-    );
-
-    const pay_flow = await OrderPayment.find({
-      $and: [
-        { _id: { $in: pay_ins?.payment_history } },
-        {
-          created_at: {
-            $lte: date,
-          },
-        },
-        {
-          payout_enable: "Not Paid",
-        },
-      ],
-    }).select("payment_module_type payment_amount payment_mode");
-
-    for (var flow of pay_flow) {
-      if (
-        flow?.payment_module_type === "Fees" &&
-        flow?.payment_mode === "By Bank"
-      ) {
-        payout_price += flow?.payment_amount;
-      }
-      if (
-        flow?.payment_module_type === "Admission" &&
-        flow?.payment_mode === "By Bank"
-      ) {
-        payout_price += flow?.payment_amount;
-      }
-    }
-    // const insEncrypt = await encryptionPayload(institute);
-    res.status(200).send({
-      message: "T-2 Days Payment Payout 😀",
-      access: true,
-      payout_price: payout_price + pay_ins.partial_pay_amount,
-    });
-  } catch (e) {
-    console.log(e);
-  }
-};
-
 exports.renderAddSubDomainQuery = async (req, res) => {
   try {
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
@@ -1211,8 +1131,8 @@ exports.renderAllBankAccountQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .populate({
-        path: "bank_account"
-      })
+        path: "bank_account",
+      });
     if (all_depart?.length > 0) {
       res.status(200).send({
         message: "Explore All Bank Accounts For Repayment",
@@ -1226,6 +1146,71 @@ exports.renderAllBankAccountQuery = async (req, res) => {
         all_depart: [],
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAutoPayoutsQuery = async (req, res) => {
+  try {
+    var date = new Date(new Date().setDate(new Date().getDate() - 3));
+    var all_ins = await InstituteAdmin.find({}).select(
+      "payment_history partial_pay_amount payout_pool"
+    );
+
+    for (var pay_ins of all_ins) {
+      var payout_price = 0;
+      const pay_flow = await OrderPayment.find({
+        $and: [
+          { _id: { $in: pay_ins?.payment_history } },
+          {
+            created_at: {
+              $lte: date,
+            },
+          },
+          {
+            payout_enable: "Not Paid",
+          },
+        ],
+      }).select(
+        "payment_module_type payment_amount payment_mode payout_enable"
+      );
+
+      for (var flow of pay_flow) {
+        if (
+          flow?.payment_module_type === "Fees" &&
+          flow?.payment_mode === "By Bank"
+        ) {
+          payout_price += flow?.payment_amount;
+          flow.payout_enable = "Paid";
+          await flow.save();
+        }
+        if (
+          flow?.payment_module_type === "Admission" &&
+          flow?.payment_mode === "By Bank"
+        ) {
+          payout_price += flow?.payment_amount;
+          flow.payout_enable = "Paid";
+          await flow.save();
+        }
+        // if (
+        //   flow?.payment_module_type === "Admission" &&
+        //   flow?.payment_mode === "By Bank"
+        // ) {
+        //   payout_price += flow?.payment_amount;
+        //   flow.payout_enable = "Paid";
+        //   await flow.save();
+        // }
+      }
+      pay_ins.payout_pool += payout_price;
+      await pay_ins.save();
+      payout_price = 0;
+    }
+    // const insEncrypt = await encryptionPayload(institute);
+    // res.status(200).send({
+    //   message: "T-3 Days Payment Payout Settelled 😀",
+    //   access: true,
+    // });
   } catch (e) {
     console.log(e);
   }

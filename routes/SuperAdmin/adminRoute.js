@@ -218,7 +218,7 @@ router.patch(
   catchAsync(Admin.retrieveOneUserBlock)
 );
 
-router.get("/payout/:pid", isLoggedIn, catchAsync(Admin.renderPayouts));
+// router.get("/payout/:pid", isLoggedIn, catchAsync(Admin.renderPayouts));
 
 router.patch("/add/sub/domain", catchAsync(Admin.renderAddSubDomainQuery));
 

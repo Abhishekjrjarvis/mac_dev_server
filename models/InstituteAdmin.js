@@ -826,6 +826,14 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  payout_pool: {
+    type: Number,
+    default: 0,
+  },
+  bank_status: {
+    type: String,
+    default: "Primary",
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

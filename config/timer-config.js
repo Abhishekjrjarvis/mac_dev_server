@@ -12,6 +12,9 @@ const {
 const {
   renderRealTimeDailyUpdate,
 } = require("../controllers/DailyUpdate/dailyUpdateController");
+const {
+  renderAutoPayoutsQuery,
+} = require("../controllers/SuperAdmin/AdminController");
 
 exports.timerFunction = () => {
   setInterval(async () => {
@@ -26,6 +29,9 @@ exports.timerFunction = () => {
   setInterval(async () => {
     await quote_disappear();
   }, 86400000);
+  setInterval(async () => {
+    await renderAutoPayoutsQuery();
+  }, 86400);
   setInterval(async () => {
     await outstanding_reminder_disable_query();
   }, 86400000);

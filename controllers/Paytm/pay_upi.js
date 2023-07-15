@@ -115,7 +115,7 @@ exports.initiate = async (req, res) => {
             response: JSON.parse(response),
             amount: amount,
             order: order,
-            isStaging: process.env.PAYTM_CALLBACK_URL_APK ? true : false,
+            isStaging: process.env.PAYTM_CALLBACK_URL_APK ? false : true,
             callback_apk_url: process.env.PAYTM_CALLBACK_URL_APK
               ? "https://securegw.paytm.in/theia/paytmCallback?ORDER_ID="
               : "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=",

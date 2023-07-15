@@ -1717,7 +1717,7 @@ exports.renderAllStudentAccessFeesEditableQuery = async (req, res) => {
 
     if (flow === "Institute_Admin") {
       var valid_institute = await InstituteAdmin.findById({ _id: id }).select(
-        "ApproveStudent"
+        "ApproveStudent online_amount_edit_access"
       );
 
       valid_institute.online_amount_edit_access = online_amount_edit_access;

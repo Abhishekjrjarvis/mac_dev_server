@@ -10,6 +10,7 @@ const Post = require("../models/Post");
 const Department = require("../models/Department");
 const { custom_date_time } = require("../helper/dayTimer");
 const { large_vote_candidate } = require("../Custom/checkInitials");
+const { nested_document_limit } = require("../helper/databaseFunction");
 
 exports.check_poll_status = async (req, res) => {
   var r_date = new Date();
@@ -372,6 +373,8 @@ const remove_redundancy_recommend = (re1, uf1, uc1, uff1) => {
 exports.recommendedAllIns = async (req, res) => {
   try {
     const { uid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     var user = await User.findById({ _id: uid }).select(
       "user_latitude user_longitude userInstituteFollowing userFollowers userCircle userFollowing"
     );
@@ -418,7 +421,8 @@ exports.recommendedAllIns = async (req, res) => {
         .lean()
         .exec();
 
-      var shuffle_query = shuffleArray(recommend_user);
+      var nest_array = await nested_document_limit(page, limit, recommend_user);
+      var shuffle_query = shuffleArray(nest_array);
       res.status(200).send({
         message: "Recommended Institute for follow and Joined",
         recommend_ins_array: [],

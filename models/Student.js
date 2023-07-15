@@ -619,6 +619,10 @@ const studentSchema = new mongoose.Schema({
       ref: "Student",
     },
   },
+  online_amount_edit_access: {
+    type: String,
+    default: "Not Granted",
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

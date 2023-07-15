@@ -31194,6 +31194,40 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/extra/access/fees/editable/query:
+    patch:
+      tags:
+        - New Add-Ons Query
+      summary: Update Installment Accessible By Student Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: flow
+          required: true
+          type: string
+          description: Enter Flow ("Institute_Admin" || "Finance_Manager" || "Admission_Admin")
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Enter Institute ID if flow is Institute_Admin
+              sid:
+                type: string
+                description: Enter Student ID if flow is Finance_Manager || Admission_Admin
+              online_amount_edit_access:
+                type: string
+                description: Enter Access ("Not Granted" || "Granted")
+      responses:
+        "200":
+          description: OK
+
 #Super Admin
 
   /api/v1/admin/all/{id}/bank/accounts/query:

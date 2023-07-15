@@ -6920,7 +6920,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
             one_remain_list?.applicable_fee <= one_remain_list?.paid_fee &&
             one_remain_list?.remaining_fee >= 0
           ) {
-            console.log("PULL CARD");
+            // console.log("PULL CARD");
             for (var ref of one_remain_list?.remaining_array) {
               if (ref?.status === "Not Paid") {
                 one_remain_list.remaining_array.pull(ref?._id);

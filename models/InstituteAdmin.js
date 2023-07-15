@@ -834,6 +834,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
     default: "Primary",
   },
+  online_amount_edit_access: {
+    type: String,
+    default: "Not Granted",
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

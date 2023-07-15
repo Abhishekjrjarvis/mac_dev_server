@@ -372,6 +372,7 @@ exports.postWithImageAPK = async (req, res) => {
 exports.postWithVideo = async (req, res) => {
   try {
     const { id } = req.params;
+    const { video_cover } = req.body;
     const user = await User.findById({ _id: id })
       .populate({ path: "userFollowers" })
       .populate({ path: "userCircle" });
@@ -390,6 +391,7 @@ exports.postWithVideo = async (req, res) => {
     const file = req.file;
     const results = await uploadVideo(file);
     post.postVideo = results.Key;
+    post.video_cover = video_cover;
     // post.postVideo.extension = req?.file?.mimeType;
     post.imageId = "1";
     user.userPosts.push(post._id);
@@ -821,7 +823,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -869,7 +871,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -920,7 +922,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -971,7 +973,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -1209,7 +1211,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -1256,7 +1258,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -1299,7 +1301,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -1397,7 +1399,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText question_visibility postDescription post_question_transcript post_description_transcript comment_turned isHelpful authorFollowersCount authorOneLine needCount needUser isNeed endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
+            "postTitle postText question_visibility postDescription post_question_transcript post_description_transcript comment_turned isHelpful authorFollowersCount authorOneLine needCount needUser isNeed endUserSave tagPeople isUser isInstitute createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
           )
           .populate({
             path: "poll_query",
@@ -1437,7 +1439,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText question_visibility postDescription post_question_transcript post_description_transcript comment_turned isHelpful authorFollowersCount authorOneLine needCount needUser isNeed endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
+            "postTitle postText question_visibility postDescription post_question_transcript post_description_transcript comment_turned isHelpful authorFollowersCount authorOneLine needCount needUser isNeed endUserSave tagPeople isUser isInstitute createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
           )
           .populate({
             path: "poll_query",
@@ -1780,7 +1782,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "postTitle postText postQuestion post_question_transcript post_description_transcript isHelpful needCount authorFollowersCount authorOneLine needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+          "postTitle postText postQuestion post_question_transcript post_description_transcript isHelpful needCount authorFollowersCount authorOneLine needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
         )
         .populate({
           path: "poll_query",
@@ -1873,7 +1875,7 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "postTitle postText postQuestion post_question_transcript post_description_transcript isHelpful needCount authorFollowersCount authorOneLine needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+          "postTitle postText postQuestion post_question_transcript post_description_transcript isHelpful needCount authorFollowersCount authorOneLine needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
         )
         .populate({
           path: "poll_query",
@@ -1961,7 +1963,7 @@ exports.retrieveAllUserReposts = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "postTitle postText postQuestion post_question_transcript post_description_transcript isHelpful needCount authorFollowersCount authorOneLine needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+        "postTitle postText postQuestion post_question_transcript post_description_transcript isHelpful needCount authorFollowersCount authorOneLine needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
       )
 
       .populate({
@@ -2113,7 +2115,7 @@ exports.renderOnePostQuery = async (req, res) => {
     //   });
     const one_post = await Post.findById({ _id: pid })
       .select(
-        "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+        "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
       )
       .populate({
         path: "poll_query",
@@ -2178,7 +2180,7 @@ exports.renderOnePostQuery = async (req, res) => {
 //     .limit(limit)
 //     .skip(skip)
 //     .select(
-//       "postTitle postText postQuestion comment_turned isHelpful needCount authorFollowersCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
+//       "postTitle postText postQuestion comment_turned isHelpful needCount authorFollowersCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
 //     )
 //     .populate({
 //       path: "poll_query",

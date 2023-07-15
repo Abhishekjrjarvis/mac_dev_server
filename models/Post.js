@@ -165,6 +165,9 @@ const postSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InsAnnouncement",
   },
+  video_cover: {
+    type: String,
+  },
   //
 });
 

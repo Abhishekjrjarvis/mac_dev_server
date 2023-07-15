@@ -287,6 +287,59 @@ If you have queries regarding your fees, profile information or other, reach out
   }
 };
 
+// const installment_update = async () => {
+//   try{
+
+//   }
+//   catch(e){
+//     console.log(e)
+//   }
+// }
+
+// exports.installment_checker_query = async(body) => {
+//   try{
+//     if(body?.total_installments == "1"){
+      
+//     }
+//     else if(body?.total_installments == "2"){
+
+//     }
+//     else if(body?.total_installments == "3"){
+
+//     }
+//     else if(body?.total_installments == "4"){
+
+//     }
+//     else if(body?.total_installments == "5"){
+
+//     }
+//     else if(body?.total_installments == "6"){
+
+//     }
+//     else if(body?.total_installments == "7"){
+
+//     }
+//     else if(body?.total_installments == "8"){
+
+//     }
+//     else if(body?.total_installments == "9"){
+
+//     }
+//     else if(body?.total_installments == "10"){
+
+//     }
+//     else if(body?.total_installments == "11"){
+
+//     }
+//     else if(body?.total_installments == "12"){
+
+//     }
+//   }
+//   catch(e){
+//     console.log(e)
+//   }
+// }
+
 exports.call_back_urls_redirection_query = async (
   type,
   moduleId,

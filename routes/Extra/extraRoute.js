@@ -250,4 +250,9 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONEmailReplaceQuery)
 );
 
+router.patch(
+  "/access/fees/editable/query",
+  catchAsync(Extra.renderAllStudentAccessFeesEditableQuery)
+);
+
 module.exports = router;

@@ -58,6 +58,7 @@ exports.retrieveProfileData = async (req, res) => {
       user,
       upVote: totalUpVote,
       post,
+      profile_modification: user?.profile_modification,
     });
     // if (`${req.tokenData?.userId}` === `${id}`) {
     // } else {
@@ -613,7 +614,7 @@ exports.updateUserPersonal = async (req, res) => {
     } else {
       user.ageRestrict = "Yes";
     }
-    user.profile_modification = new Date()
+    user.profile_modification = new Date();
     await user.save();
     //
     const post = await Post.find({ author: `${user._id}` });
@@ -1158,12 +1159,12 @@ exports.getDashDataQuery = async (req, res) => {
     }
     if (user) {
       // Add Another Encryption
-      res.status(200).send({ message: "Success", user, post });
+      res.status(200).send({ message: "Success", user, post, profile_modification: user?.profile_modification, });
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 

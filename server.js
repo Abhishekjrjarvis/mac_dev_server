@@ -22,10 +22,13 @@ const dburl = require("./config/db-config");
 app.use(compression());
 
 app.use(mongoSanitize());
-app.use(helmet({ contentSecurityPolicy: false }));
-// app.use(
-//   helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
-// );
+if (`${process.env.CONNECT_DB}` === "PROD") {
+  app.use(helmet({ contentSecurityPolicy: false }));
+} else {
+  app.use(
+    helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
+  );
+}
 
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");

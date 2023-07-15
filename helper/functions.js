@@ -299,7 +299,7 @@ If you have queries regarding your fees, profile information or other, reach out
 // exports.installment_checker_query = async(body) => {
 //   try{
 //     if(body?.total_installments == "1"){
-      
+
 //     }
 //     else if(body?.total_installments == "2"){
 

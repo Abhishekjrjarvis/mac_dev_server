@@ -838,6 +838,12 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
     default: "Not Granted",
   },
+  last_login: {
+    type: Date,
+  },
+  profile_modification: {
+    type: Date,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

@@ -91,7 +91,9 @@ exports.initiate = async (req, res) => {
 
       var options = {
         // hostname: "securegw-stage.paytm.in",
-        hostname: "securegw.paytm.in",
+        hostname: process.env.PAYTM_CALLBACK_URL_APK
+          ? "securegw.paytm.in"
+          : "securegw-stage.paytm.in",
         port: 443,
         path: `/theia/api/v1/initiateTransaction?mid=${process.env.PAYTM_MID}&orderId=${order}`,
         method: "POST",
@@ -113,6 +115,10 @@ exports.initiate = async (req, res) => {
             response: JSON.parse(response),
             amount: amount,
             order: order,
+            isStaging: process.env.PAYTM_CALLBACK_URL_APK ? true : false,
+            callback_apk_url: process.env.PAYTM_CALLBACK_URL_APK
+              ? "https://securegw.paytm.in/theia/paytmCallback?ORDER_ID="
+              : "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=",
           });
         });
       });
@@ -145,7 +151,9 @@ exports.callback = async (req, res) => {
 
       var options = {
         // hostname: "securegw-stage.paytm.in",
-        hostname: "securegw.paytm.in",
+        hostname: process.env.PAYTM_CALLBACK_URL_APK
+          ? "securegw.paytm.in"
+          : "securegw-stage.paytm.in",
 
         port: 443,
         path: "/v3/order/status",
@@ -235,7 +243,9 @@ exports.callbackAdmission = async (req, res) => {
 
       var options = {
         // hostname: "securegw-stage.paytm.in",
-        hostname: "securegw.paytm.in",
+        hostname: process.env.PAYTM_CALLBACK_URL_APK
+          ? "securegw.paytm.in"
+          : "securegw-stage.paytm.in",
 
         port: 443,
         path: "/v3/order/status",

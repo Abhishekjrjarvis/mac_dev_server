@@ -191,12 +191,14 @@ exports.patchUserImagePhoto = async (req, res) => {
       const results = await uploadFile(file, width, height);
       user.profilePhoto = results.key;
       user.photoId = "0";
+      user.profile_modification = new Date();
       await user.save();
       await unlinkFile(file.path);
       res.status(201).send({ message: "Successfully photo change" });
     } else {
       user.profilePhoto = sample_pic;
       user.photoId = "0";
+      user.profile_modification = new Date();
       await user.save();
       res.status(201).send({ message: "Successfully photo change" });
     }

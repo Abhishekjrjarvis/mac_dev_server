@@ -65,6 +65,7 @@ exports.getDashOneQuery = async (req, res) => {
       message: "limit Ins Data",
       institute: institute,
       roles: req?.query?.mod_id ? value : null,
+      profile_modification: institute?.profile_modification
       // eData: encrypt,
     });
   } catch {}
@@ -94,7 +95,12 @@ exports.getProfileOneQuery = async (req, res) => {
     const encrypt = await encryptionPayload(institute);
     res
       .status(200)
-      .send({ message: "Limit Post Ins", institute, eData: encrypt });
+      .send({
+        message: "Limit Post Ins",
+        institute,
+        eData: encrypt,
+        profile_modification: institute?.profile_modification,
+      });
   } catch {}
 };
 

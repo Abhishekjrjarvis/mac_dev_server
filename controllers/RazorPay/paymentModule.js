@@ -237,7 +237,7 @@ exports.feeInstituteFunction = async (
           } else {
             institute.adminRepayAmount =
               institute.adminRepayAmount + parseInt(tx_amount);
-            admin.returnAmount += tx_amount_charges;
+            admin.returnAmount += parseInt(tx_amount_charges);
           }
           // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount);
           notify.notifyContent = `${student.studentFirstName} ${
@@ -397,7 +397,7 @@ exports.admissionInstituteFunction = async (
           finance.financeTotalBalance + parseInt(tx_amount_ad);
         ins.insBankBalance = ins.insBankBalance + parseInt(tx_amount_ad);
       } else {
-        admin.returnAmount += tx_amount_ad_charges;
+        admin.returnAmount += parseInt(tx_amount_ad_charges);
         ins.adminRepayAmount += parseInt(tx_amount_ad);
       }
       // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
@@ -627,7 +627,7 @@ exports.admissionInstituteFunction = async (
             finance.financeTotalBalance + parseInt(tx_amount_ad);
           ins.insBankBalance = ins.insBankBalance + parseInt(tx_amount_ad);
         } else {
-          admin.returnAmount += tx_amount_ad_charges;
+          admin.returnAmount += parseInt(tx_amount_ad_charges);
           ins.adminRepayAmount += parseInt(tx_amount_ad);
         }
         if (remain_1) {
@@ -783,7 +783,7 @@ exports.admissionInstituteFunction = async (
           finance.financeTotalBalance + parseInt(tx_amount_ad);
         ins.insBankBalance = ins.insBankBalance + parseInt(tx_amount_ad);
       } else {
-        admin.returnAmount += tx_amount_ad_charges;
+        admin.returnAmount += parseInt(tx_amount_ad_charges);
         ins.adminRepayAmount += parseInt(tx_amount_ad);
       }
       // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
@@ -899,7 +899,7 @@ exports.participateEventFunction = async (
         finance.financeTotalBalance + parseInt(tx_amount_ad);
       ins.insBankBalance = ins.insBankBalance + parseInt(tx_amount_ad);
     } else {
-      admin.returnAmount += tx_amount_ad_charges;
+      admin.returnAmount += parseInt(tx_amount_ad_charges);
       ins.adminRepayAmount += parseInt(tx_amount_ad);
     }
     // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
@@ -988,7 +988,7 @@ exports.transportFunction = async (
         finance.financeTotalBalance + parseInt(tx_amount_ad);
       ins.insBankBalance = institute.insBankBalance + parseInt(tx_amount_ad);
     } else {
-      admin.returnAmount += tx_amount_ad_charges;
+      admin.returnAmount += parseInt(tx_amount_ad_charges);
       ins.adminRepayAmount += parseInt(tx_amount_ad);
     }
     // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
@@ -1200,7 +1200,7 @@ exports.backlogFunction = async (
         finance.financeTotalBalance + parseInt(tx_amount_ad);
       ins.insBankBalance = institute.insBankBalance + parseInt(tx_amount_ad);
     } else {
-      admin.returnAmount += tx_amount_ad_charges;
+      admin.returnAmount += parseInt(tx_amount_ad_charges);
       ins.adminRepayAmount += parseInt(tx_amount_ad);
     }
     // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
@@ -1640,7 +1640,7 @@ exports.libraryInstituteFunction = async (
     } else {
       institute.adminRepayAmount =
         institute.adminRepayAmount + parseInt(tx_amount);
-      admin.returnAmount += tx_amount_charges;
+      admin.returnAmount += parseInt(tx_amount_charges);
     }
     notify.notifyContent = `${student.studentFirstName} ${
       student.studentMiddleName ? ` ${student.studentMiddleName}` : ""

@@ -1710,18 +1710,22 @@ exports.renderAllStudentAccessFeesEditableQuery = async (req, res) => {
     const { flow } = req.query;
     const { id, sid, online_amount_edit_access } = req.body;
     if (!flow && !online_amount_edit_access)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fix immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately",
+        access: false,
+      });
 
     if (flow === "Institute_Admin") {
       var valid_institute = await InstituteAdmin.findById({ _id: id }).select(
         "ApproveStudent"
       );
 
+      valid_institute.online_amount_edit_access = online_amount_edit_access;
+      await valid_institute.save();
+      res.status(200).send({
+        message: "Explore Institute Editable Fee Access to all",
+        access: true,
+      });
       var all_student = await Student.find({
         _id: { $in: valid_institute?.ApproveStudent },
       });
@@ -1730,24 +1734,14 @@ exports.renderAllStudentAccessFeesEditableQuery = async (req, res) => {
         ref.online_amount_edit_access = online_amount_edit_access;
         await ref.save();
       }
-      valid_institute.online_amount_edit_access = online_amount_edit_access;
-      await valid_institute.save();
-      res
-        .status(200)
-        .send({
-          message: "Explore Institute Editable Fee Access to all",
-          access: true,
-        });
     } else if (flow === "Finance_Manager" || flow === "Admission_Admin") {
       var one_student = await Student.findById({ _id: sid });
       one_student.online_amount_edit_access = online_amount_edit_access;
       await one_student.save();
-      res
-        .status(200)
-        .send({
-          message: `Explore ${flow} Editable Fee Access to all`,
-          access: false,
-        });
+      res.status(200).send({
+        message: `Explore ${flow} Editable Fee Access to all`,
+        access: false,
+      });
     } else {
       res.status(200).send({ message: "You are lost in space", access: false });
     }

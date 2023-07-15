@@ -90,8 +90,8 @@ exports.initiate = async (req, res) => {
       var post_data = JSON.stringify(paytmParams);
 
       var options = {
-        hostname: "securegw-stage.paytm.in",
-        // hostname: 'securegw.paytm.in',
+        // hostname: "securegw-stage.paytm.in",
+        hostname: "securegw.paytm.in",
         port: 443,
         path: `/theia/api/v1/initiateTransaction?mid=${process.env.PAYTM_MID}&orderId=${order}`,
         method: "POST",
@@ -144,8 +144,8 @@ exports.callback = async (req, res) => {
       var post_data = JSON.stringify(paytmParams);
 
       var options = {
-        hostname: "securegw-stage.paytm.in",
-        // hostname: 'securegw.paytm.in',
+        // hostname: "securegw-stage.paytm.in",
+        hostname: "securegw.paytm.in",
 
         port: 443,
         path: "/v3/order/status",
@@ -234,8 +234,8 @@ exports.callbackAdmission = async (req, res) => {
       var post_data = JSON.stringify(paytmParams);
 
       var options = {
-        hostname: "securegw-stage.paytm.in",
-        // hostname: 'securegw.paytm.in',
+        // hostname: "securegw-stage.paytm.in",
+        hostname: "securegw.paytm.in",
 
         port: 443,
         path: "/v3/order/status",

@@ -324,6 +324,14 @@ const departmentSchema = new mongoose.Schema({
   gr_initials: {
     type: String,
   },
+  due_repay: {
+    type: Number,
+    default: 0,
+  },
+  total_repay: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

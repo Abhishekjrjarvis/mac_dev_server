@@ -844,6 +844,9 @@ const instituteAdminSchema = new mongoose.Schema({
   profile_modification: {
     type: Date,
   },
+  random_institute_code: {
+    type: String,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

@@ -420,6 +420,17 @@ exports.call_back_urls_redirection_apk_query = async (
   }
 };
 
+exports.generate_random_code = async () => {
+  let rand1 = Math.floor(Math.random() * 9);
+  let rand2 = Math.floor(Math.random() * 9);
+  let rand3 = Math.floor(Math.random() * 9);
+  let rand4 = Math.floor(Math.random() * 9);
+  let rand5 = Math.floor(Math.random() * 9);
+  let rand6 = Math.floor(Math.random() * 9);
+  var pass = `${rand1}${rand2}${rand3}${rand4}${rand5}${rand6}`;
+  return pass;
+};
+
 // console.log(
 //   send_email_authentication_promotional("pankajphad.stuff@gmail.com")
 // );

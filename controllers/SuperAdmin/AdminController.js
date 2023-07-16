@@ -23,6 +23,7 @@ const {
   connect_redis_miss,
 } = require("../../config/redis-config");
 const BankAccount = require("../../models/Finance/BankAccount");
+const { generate_random_code } = require("../../helper/functions");
 
 var AdminOTP = "";
 
@@ -352,6 +353,8 @@ exports.getApproveIns = async (req, res) => {
     notify.institute = institute._id;
     notify.notifyBySuperAdminPhoto =
       "https://qviple.com/static/media/Mithkal_icon.043e3412.png";
+    const code = await generate_random_code();
+    institute.random_institute_code = `${code}`;
     await Promise.all([institute.save(), notify.save(), admin.save()]);
     // const adsEncrypt = await encryptionPayload(admin._id);
     res.status(200).send({

@@ -4719,12 +4719,18 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
             ? ref?.paid_fee - ref?.applicable_fee
             : 0;
         if (ref?.applicable_fee > exist_struct?.total_admission_fees) {
+          console.log(
+            "Entering in Applicable Greater Than Total Admission Fees"
+          );
           if (valid_refund > 0) {
+            console.log("Valid Refund Greater Than Zero");
             if (
               valid_refund >=
               ref?.applicable_fee - exist_struct?.total_admission_fees
             ) {
+              console.log("Valid Refund Subtract");
             } else {
+              console.log("In Valid Refund Entering in Else Part");
               if (ref?.access_mode_card === "Installment_Wise") {
                 ref.remaining_array.push({
                   remainAmount:
@@ -4756,6 +4762,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           ref.applicable_fee = exist_struct?.total_admission_fees;
           await ref.save();
         } else if (ref?.applicable_fee < exist_struct?.total_admission_fees) {
+          console.log("In Else Part Lest Than Total Admission Fees");
           if (valid_refund > 0) {
             if (
               valid_refund >=
@@ -4824,7 +4831,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           exist_struct
         );
         var all_receipt = await FeeReceipt.find({
-          _id: { $in: `${one_student?.fee_receipt}` },
+          _id: { $in: one_student?.fee_receipt },
         });
         for (var rec of all_receipt) {
           for (var ele of rec?.fee_heads) {

@@ -39,7 +39,9 @@ exports.preformedStructure = async (req, res) => {
         path: "subject",
       },
     });
-    var valid_structure = await FeeStructure.find({ batch_master: batch?._id })
+    var valid_structure = await FeeStructure.find({
+      $and: [{ batch_master: batch?._id }, { document_update: false }],
+    })
       .populate({
         path: "category_master",
         select: "category_name",

@@ -31291,45 +31291,29 @@ paths:
 
 #Guest Pay
 
-  /api/v1/guest/pay/online/search/institute:
-    get:
+  /api/v1/guest/pay/online/search/institute/search/student:
+    post:
       tags:
         - Guest Pay Online Query
-      summary: Get One Institute By Its Code (verified)
+      summary: Get One Institute By Its Code and Student By Its GR (verified)
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
-        - in: query
-          name: code
-          required: true
-          type: string
-          description: Enter Institute Code
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/guest/pay/online/search/student:
-    get:
-      tags:
-        - Guest Pay Online Query
-      summary: Get One Student By Its GR (verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: query
-          name: gr
-          required: true
-          type: string
-          description: Enter GR Number
-        - in: query
-          name: id
-          required: true
-          type: string
-          description: Enter Institute ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Enter Institute Code
+                required: true
+              gr:
+                type: string
+                description: Enter Student GR
+                required: true
       responses:
         "200":
           description: OK

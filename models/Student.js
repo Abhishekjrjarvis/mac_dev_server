@@ -623,6 +623,10 @@ const studentSchema = new mongoose.Schema({
     type: String,
     default: "Not Granted",
   },
+  pay_as_a_guest: {
+    type: String,
+    default: "Not Guested",
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

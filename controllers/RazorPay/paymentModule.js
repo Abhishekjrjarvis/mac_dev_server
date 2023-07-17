@@ -557,7 +557,7 @@ exports.admissionInstituteFunction = async (
       } तुमचा व्यवहार यशस्वी झाला आहे ${parseInt(tx_amount_ad)}`;
       notify.notifySender = admission._id;
       notify.notifyReceiever = user._id;
-      // ins.iNotify.push(notify._id);
+      ins.iNotify.push(notify._id);
       // notify.institute = ins._id;
       user.uNotify.push(notify._id);
       notify.notifyCategory = "Admission Online Fee";
@@ -769,6 +769,9 @@ exports.admissionInstituteFunction = async (
       }
       if (student?.admissionRemainFeeCount >= parseInt(tx_amount_ad)) {
         student.admissionRemainFeeCount -= parseInt(tx_amount_ad);
+      }
+      if (remaining_fee_lists.remaining_fee <= 0) {
+        remaining_fee_lists.status = "Paid";
       }
       // admission.remainingFee.pull(student._id);
       admission.onlineFee += parseInt(tx_amount_ad);

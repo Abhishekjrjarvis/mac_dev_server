@@ -735,7 +735,7 @@ exports.retrieveRepayInstituteAmount = async (req, res) => {
     if (institute?.payout_pool >= p_amount) {
       institute.payout_pool -= p_amount;
     }
-    if (institute.adminRepayAmount > p_amount) {
+    if (institute.adminRepayAmount >= p_amount) {
       institute.adminRepayAmount -= p_amount;
     }
     institute.insBankBalance += p_amount;
@@ -768,7 +768,7 @@ exports.retrieveRepayInstituteAmount = async (req, res) => {
     ]);
     // const insEncrypt = await encryptionPayload(institute);
     res.status(200).send({
-      message: "T-2 Days Payment Payout Done 😀",
+      message: "T-3 Days Payment Payout Done 😀",
       status: true,
       // pay_flow,
       // pay_ins,

@@ -51,7 +51,10 @@ const Library = require("../../models/Library/Library");
 const { handle_undefined } = require("../../Handler/customError");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 const RemainingList = require("../../models/Admission/RemainingList");
-const { generate_hash_pass } = require("../../helper/functions");
+const {
+  generate_hash_pass,
+  installment_checker_query,
+} = require("../../helper/functions");
 const { render_finance_current_role } = require("../Moderator/roleController");
 const {
   retro_student_heads_sequencing_query,
@@ -291,7 +294,9 @@ exports.getIncome = async (req, res) => {
     const { fid } = req.params;
     const { user_query } = req.query;
     const finance = await Finance.findById({ _id: fid });
-    const institute = await InstituteAdmin.findById({ _id: `${finance?.institute}`})
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    });
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
@@ -355,7 +360,7 @@ exports.getIncome = async (req, res) => {
       order.save(),
       f_user.save(),
       s_admin.save(),
-      institute.save()
+      institute.save(),
     ]);
     if (req.file) {
       await unlinkFile(req.file.path);
@@ -396,7 +401,9 @@ exports.getExpense = async (req, res) => {
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
     const finance = await Finance.findById({ _id: fid });
-    const institute = await InstituteAdmin.findById({ _id: `${finance?.institute}`})
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    });
     var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
     if (user_query) {
       var user = await User.findOne({
@@ -405,7 +412,7 @@ exports.getExpense = async (req, res) => {
     }
     if (
       finance.financeTotalBalance > 0 &&
-      req.body.expenseAmount <= finance.financeTotalBalance 
+      req.body.expenseAmount <= finance.financeTotalBalance
       // &&
       // req.body.expenseAmount <= finance.financeBankBalance
     ) {
@@ -467,7 +474,7 @@ exports.getExpense = async (req, res) => {
         order.save(),
         f_user.save(),
         s_admin.save(),
-        institute.save()
+        institute.save(),
       ]);
       if (req.file) {
         await unlinkFile(req.file.path);
@@ -3936,11 +3943,11 @@ exports.renderFinanceMasterDepositQuery = async (req, res) => {
         access: false,
       });
 
-      var master = await FeeMaster.findOne({
-        $and: [{ master_status: "Linked" }, { finance: fid }],
-      }).select(
-        "paid_student_count deposit_amount master_name refund_student_count refund_amount"
-      );
+    var master = await FeeMaster.findOne({
+      $and: [{ master_status: "Linked" }, { finance: fid }],
+    }).select(
+      "paid_student_count deposit_amount master_name refund_student_count refund_amount"
+    );
 
     res.status(200).send({
       message: "Explore Linked Fee Masters",
@@ -4395,7 +4402,9 @@ exports.renderFinanceOnePayrollMasterMarkPayExpenseQuery = async (req, res) => {
       _id: `${one_master?.payroll_master}`,
     });
     const finance = await Finance.findById({ _id: fid });
-    const institute = await InstituteAdmin.findById({ _id: `${finance?.institute}`})
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    });
     const new_receipt = new FeeReceipt({ ...req.body });
     const expense = new Expense({});
     new_receipt.pay_master = one_master?._id;
@@ -4421,7 +4430,7 @@ exports.renderFinanceOnePayrollMasterMarkPayExpenseQuery = async (req, res) => {
       new_receipt.save(),
       one_master.save(),
       finance.save(),
-      institute.save()
+      institute.save(),
     ]);
     res
       .status(200)
@@ -4649,7 +4658,16 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    var exist_struct = await FeeStructure.findByIdAndUpdate(fsid, req.body);
+    await FeeStructure.findByIdAndUpdate(fsid, req.body);
+    res.status(200).send({
+      message: "Explore Retro Events Based Editable Structure Query",
+      access: true,
+    });
+    var exist_struct = await FeeStructure.findById({ _id: fsid });
+    await installment_checker_query(
+      exist_struct?.total_installments,
+      exist_struct
+    );
     const depart = await Department.findById({
       _id: `${req.body?.department}`,
     });
@@ -4676,10 +4694,6 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
       }
     }
     await exist_struct.save();
-    res.status(200).send({
-      message: "Explore Retro Events Based Editable Structure Query",
-      access: true,
-    });
     var all_remain_query = await RemainingList.find({
       $and: [{ fee_structure: `${exist_struct?._id}` }],
     }).populate({

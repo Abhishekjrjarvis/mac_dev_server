@@ -51,6 +51,8 @@ app.use(
       "https://dashboard.qviple.com",
       "http://localhost:3001",
       "https://sndcoerc.qviple.com",
+      "https://mithkal.qviple.com",
+      "https://pay.qviple.com",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

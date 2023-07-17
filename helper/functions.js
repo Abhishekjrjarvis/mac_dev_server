@@ -287,58 +287,73 @@ If you have queries regarding your fees, profile information or other, reach out
   }
 };
 
-// const installment_update = async () => {
-//   try{
+const installment_obj = () => {
+  try {
+    var obj = {
+      one_installments: 1,
+      two_installments: 2,
+      three_installments: 3,
+      four_installments: 4,
+      five_installments: 5,
+      six_installments: 6,
+      seven_installments: 7,
+      eight_installments: 8,
+      nine_installments: 9,
+      ten_installments: 10,
+      eleven_installments: 11,
+      tweleve_installments: 12,
+    };
+    return obj;
+  } catch (e) {
+    console.log(e);
+  }
+};
 
-//   }
-//   catch(e){
-//     console.log(e)
-//   }
-// }
-
-// exports.installment_checker_query = async(body) => {
-//   try{
-//     if(body?.total_installments == "1"){
-
-//     }
-//     else if(body?.total_installments == "2"){
-
-//     }
-//     else if(body?.total_installments == "3"){
-
-//     }
-//     else if(body?.total_installments == "4"){
-
-//     }
-//     else if(body?.total_installments == "5"){
-
-//     }
-//     else if(body?.total_installments == "6"){
-
-//     }
-//     else if(body?.total_installments == "7"){
-
-//     }
-//     else if(body?.total_installments == "8"){
-
-//     }
-//     else if(body?.total_installments == "9"){
-
-//     }
-//     else if(body?.total_installments == "10"){
-
-//     }
-//     else if(body?.total_installments == "11"){
-
-//     }
-//     else if(body?.total_installments == "12"){
-
-//     }
-//   }
-//   catch(e){
-//     console.log(e)
-//   }
-// }
+exports.installment_checker_query = async (count, struct) => {
+  try {
+    var valid_count = count === "0" ? 0 : parseInt(count);
+    var data = installment_obj();
+    if (valid_count > 0) {
+      struct.one_installments.fees =
+        data?.one_installments <= count ? struct?.one_installments?.fees : 0;
+      struct.two_installments.fees =
+        data?.two_installments <= count ? struct?.two_installments?.fees : 0;
+      struct.three_installments.fees =
+        data?.three_installments <= count
+          ? struct?.three_installments?.fees
+          : 0;
+      struct.four_installments.fees =
+        data?.four_installments <= count ? struct?.four_installments?.fees : 0;
+      struct.five_installments.fees =
+        data?.five_installments <= count ? struct?.five_installments?.fees : 0;
+      struct.six_installments.fees =
+        data?.six_installments <= count ? struct?.six_installments?.fees : 0;
+      struct.seven_installments.fees =
+        data?.seven_installments <= count
+          ? struct?.seven_installments?.fees
+          : 0;
+      struct.eight_installments.fees =
+        data?.eight_installments <= count
+          ? struct?.eight_installments?.fees
+          : 0;
+      struct.nine_installments.fees =
+        data?.nine_installments <= count ? struct?.nine_installments?.fees : 0;
+      struct.ten_installments.fees =
+        data?.ten_installments <= count ? struct?.ten_installments?.fees : 0;
+      struct.eleven_installments.fees =
+        data?.eleven_installments <= count
+          ? struct?.eleven_installments?.fees
+          : 0;
+      struct.tweleve_installments.fees =
+        data?.tweleve_installments <= count
+          ? struct?.tweleve_installments?.fees
+          : 0;
+      await struct.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.call_back_urls_redirection_query = async (
   type,

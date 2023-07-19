@@ -58,6 +58,14 @@ const bankAccountSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  collect_online: {
+    type: Number,
+    default: 0,
+  },
+  collect_offline: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("BankAccount", bankAccountSchema);

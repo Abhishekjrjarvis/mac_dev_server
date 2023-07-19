@@ -38,6 +38,7 @@ const {
 const Hostel = require("../../models/Hostel/hostel");
 const Renewal = require("../../models/Hostel/renewal");
 const { custom_month_query } = require("../../helper/dayTimer");
+const BankAccount = require("../../models/Finance/BankAccount");
 
 exports.hostelInstituteFunction = async (
   order,
@@ -61,6 +62,8 @@ exports.hostelInstituteFunction = async (
     var one_hostel = await Hostel.findById({
       _id: `${apply.hostelAdmin}`,
     });
+    // var depart = await Department.findById({ _id: `${apply?.applicationDepartment}`})
+    var account = await BankAccount.findOne({ hostel: `${one_hostel?._id}` });
     var ins = await InstituteAdmin.findById({ _id: `${paidTo}` });
     var finance = await Finance.findById({
       _id: `${ins?.financeDepart[0]}`,
@@ -125,6 +128,11 @@ exports.hostelInstituteFunction = async (
       } else {
         admin.returnAmount += tx_amount_ad_charges;
         ins.adminRepayAmount += parseInt(tx_amount_ad);
+        // depart.due_repay += parseInt(tx_amount);
+        // depart.total_repay += parseInt(tx_amount);
+        account.due_repay += parseInt(tx_amount_ad);
+        account.total_repay += parseInt(tx_amount_ad);
+        account.collect_online += parseInt(tx_amount_ad);
       }
       // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
       if (parseInt(tx_amount_ad) > 0 && is_install) {
@@ -311,6 +319,7 @@ exports.hostelInstituteFunction = async (
         new_receipt.save(),
         new_remainFee.save(),
         renew.save(),
+        account.save(),
       ]);
     } else {
       const new_receipt = new FeeReceipt({
@@ -369,6 +378,9 @@ exports.hostelInstituteFunction = async (
       } else {
         admin.returnAmount += tx_amount_ad_charges;
         ins.adminRepayAmount += parseInt(tx_amount_ad);
+        account.due_repay += parseInt(tx_amount_ad);
+        account.total_repay += parseInt(tx_amount_ad);
+        account.collect_online += parseInt(tx_amount_ad);
       }
       // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
       await update_fee_head_query(
@@ -437,6 +449,7 @@ exports.hostelInstituteFunction = async (
         admin.save(),
         new_receipt.save(),
         remaining_fee_lists.save(),
+        account.save(),
       ]);
     }
     return `${user?.username}`;
@@ -461,6 +474,7 @@ exports.directHostelInstituteFunction = async (
     const one_hostel = await Hostel.findById({
       _id: `${apply.hostelAdmin}`,
     });
+    var account = BankAccount.findOne({ hostel: `${one_hostel?._id}` });
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
@@ -654,6 +668,9 @@ exports.directHostelInstituteFunction = async (
     } else {
       s_admin.returnAmount += parseInt(tx_amount_ad_charges);
       institute.adminRepayAmount += price;
+      account.due_repay += price;
+      account.total_repay += price;
+      account.collect_online += price;
     }
     await set_fee_head_query(student, price, apply, new_receipt);
     for (let app of apply?.selectedApplication) {
@@ -703,6 +720,7 @@ exports.directHostelInstituteFunction = async (
       new_receipt.save(),
       status.save(),
       renew.save(),
+      account.save(),
     ]);
     return `${user?.username}`;
   } catch (e) {

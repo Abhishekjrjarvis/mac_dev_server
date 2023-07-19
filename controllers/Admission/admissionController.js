@@ -2473,6 +2473,8 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
     );
     if (flow === "All_Pending_Fees_Query") {
       if (search) {
+        var depart = await Department.findOne({ dName: { $regex: search, $options: "i"}})
+        var batch = await Batch.findOne({ batchName: { $regex: search, $options: "i"}})
         var student = await Student.find({
           $and: [{ _id: { $in: admin_ins?.remainingFee } }],
           $or: [
@@ -2480,11 +2482,16 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             { studentMiddleName: { $regex: search, $options: "i" } },
             { studentLastName: { $regex: search, $options: "i" } },
             { studentGRNO: { $regex: search, $options: "i" } },
+            { studentCast: { $regex: search, $options: "i"}},
+            { studentCastCategory: { $regex: search, $options: "i"}},
+            { studentGender: { $regex: search, $options: "i"}},
+            { department: depart?._id},
+            { batches: batch?._id},
           ],
         })
           .sort("-admissionRemainFeeCount")
           .select(
-            "studentFirstName studentMiddleName studentLastName photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
+            "studentFirstName studentMiddleName studentGender studentCast studentCastCategory studentLastName photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
           )
           .populate({
             path: "department",
@@ -2530,6 +2537,8 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
     } else if (flow === "Applicable_Fees_Query") {
       if (search) {
         var student = [];
+        var depart = await Department.findOne({ dName: { $regex: search, $options: "i"}})
+        var batch = await Batch.findOne({ batchName: { $regex: search, $options: "i"}})
         var all_remain = await RemainingList.find({
           student: { $in: admin_ins?.remainingFee },
         })
@@ -2547,10 +2556,15 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
                 { studentLastName: { $regex: search, $options: "i" } },
                 { valid_full_name: { $regex: search, $options: "i" } },
                 { studentGRNO: { $regex: search, $options: "i" } },
+                { studentCast: { $regex: search, $options: "i"}},
+                { studentCastCategory: { $regex: search, $options: "i"}},
+                { studentGender: { $regex: search, $options: "i"}},
+                { department: depart?._id},
+                { batches: batch?._id},
               ],
             },
             select:
-              "studentFirstName studentMiddleName studentLastName valid_full_name applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
+              "studentFirstName studentMiddleName studentLastName valid_full_name applicable_fees_pending studentCast studentGender studentCastCategory photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
             populate: {
               path: "department",
               select: "dName",
@@ -6979,10 +6993,10 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
     for (var ref of all_receipts) {
       for (var ele of ref?.fee_heads) {
         if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
-          console.log("Pull");
+          // console.log("Pull");
           ref.fee_heads.pull(ele?._id);
         } else {
-          console.log("Push with some bugs");
+          // console.log("Push with some bugs");
         }
       }
       await ref.save();

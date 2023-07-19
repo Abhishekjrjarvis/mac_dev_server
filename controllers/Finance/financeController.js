@@ -4854,7 +4854,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
         var filter_remain = await ref?.remaining_array?.filter((val) => {
           if (`${val?.status}` === "Not Paid") return val;
         });
-        if (ref?.applicable_fee > exist_struct?.total_admission_fees) {
+        if (ref?.applicable_fee >= exist_struct?.total_admission_fees) {
           var app_diff =
             ref?.applicable_fee - exist_struct?.total_admission_fees;
           filter_remain = filter_remain.reverse();
@@ -4873,6 +4873,12 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
             }
           }
           ref.applicable_fee = exist_struct?.total_admission_fees;
+          if(ref?.remaining_fee > 0){
+
+          }
+          else{
+            ref.status = "Paid"
+          }
           await ref.save();
         } else if (ref?.applicable_fee < exist_struct?.total_admission_fees) {
           if (filter_remain?.length > 0) {

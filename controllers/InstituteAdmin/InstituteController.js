@@ -65,7 +65,7 @@ exports.getDashOneQuery = async (req, res) => {
       message: "limit Ins Data",
       institute: institute,
       roles: req?.query?.mod_id ? value : null,
-      profile_modification: institute?.profile_modification
+      profile_modification: institute?.profile_modification,
       // eData: encrypt,
     });
   } catch {}
@@ -93,14 +93,12 @@ exports.getProfileOneQuery = async (req, res) => {
       .lean()
       .exec();
     const encrypt = await encryptionPayload(institute);
-    res
-      .status(200)
-      .send({
-        message: "Limit Post Ins",
-        institute,
-        eData: encrypt,
-        profile_modification: institute?.profile_modification,
-      });
+    res.status(200).send({
+      message: "Limit Post Ins",
+      institute,
+      eData: encrypt,
+      profile_modification: institute?.profile_modification,
+    });
   } catch {}
 };
 
@@ -3349,13 +3347,14 @@ exports.getStudentFormQuery = async (req, res) => {
       throw "Please send institute id to perform task of student form setting";
     const { id } = req.params;
     const institute = await InstituteAdmin.findById(id).select(
-      "studentFormSetting admissionDepart"
+      "studentFormSetting admissionDepart online_amount_edit_access"
     );
     // const sEncrypt = await encryptionPayload(institute.studentFormSetting);
     res.status(200).send({
       message: "Student form setting details",
       studentFormSetting: institute.studentFormSetting,
       admissionId: institute?.admissionDepart,
+      online_amount_edit_access: institute?.online_amount_edit_access,
     });
   } catch (e) {
     res.status(400).send({

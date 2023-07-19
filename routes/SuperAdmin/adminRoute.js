@@ -159,6 +159,11 @@ router.post(
   catchAsync(Admin.retrieveRepayInstituteAmount)
 );
 
+router.post(
+  "/:aid/repay/:did/department/:baid/query",
+  catchAsync(Admin.retrieveRepayDepartmentAmount)
+);
+
 router.get(
   "/repay/query/institute/:id",
   // isLoggedIn,
@@ -242,6 +247,11 @@ router.patch(
 router.get(
   "/all/:id/bank/accounts/query",
   catchAsync(Admin.renderAllBankAccountQuery)
+);
+
+router.get(
+  "/all/repay/:id/bank/accounts/query",
+  catchAsync(Admin.renderAllRepayBankAccountQuery)
 );
 
 module.exports = router;

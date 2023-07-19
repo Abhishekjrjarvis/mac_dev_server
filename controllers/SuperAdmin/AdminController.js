@@ -713,7 +713,7 @@ exports.getRecentChatInstitute = async (req, res) => {
 exports.retrieveRepayInstituteAmount = async (req, res) => {
   try {
     const { uid } = req.params;
-    const { txnId, message, t_amount, p_amount } = req.body;
+    const { txnId, message, t_amount, p_amount, bank_array } = req.body;
     if (!uid && !t_amount && p_amount)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -721,6 +721,113 @@ exports.retrieveRepayInstituteAmount = async (req, res) => {
       });
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const institute = await InstituteAdmin.findById({ _id: uid });
+    const finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    }).populate({
+      path: "financeHead",
+      select: "user",
+    });
+    const financeUser = await User.findById({
+      _id: `${finance?.financeHead?.user}`,
+    });
+    var price = p_amount ? parseInt(p_amount) : 0;
+    const notify = new Notification({});
+    const repay = new RePay({});
+    if (institute?.payout_pool >= p_amount) {
+      institute.payout_pool -= p_amount;
+    }
+    if (institute.adminRepayAmount >= p_amount) {
+      institute.adminRepayAmount -= p_amount;
+    }
+    institute.insBankBalance += p_amount;
+    finance.financeBankBalance = finance.financeBankBalance + p_amount;
+    finance.financeTotalBalance = finance.financeTotalBalance + p_amount;
+    if (admin.returnAmount >= p_amount) {
+      admin.returnAmount -= p_amount;
+    }
+    notify.notifyContent = `Qviple Super Admin re-pay Rs. ${p_amount} to you as settlement in (Primary A/C)`;
+    notify.notifySender = admin._id;
+    notify.notifyCategory = "Qviple Repayment";
+    notify.notifyReceiever = uid;
+    institute.iNotify.push(notify._id);
+    financeUser.uNotify.push(notify._id);
+    notify.institute = institute._id;
+    notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo.svg";
+    repay.repayAmount = p_amount;
+    (repay.repayStatus = "Transferred"), (repay.txnId = txnId);
+    repay.message = message;
+    repay.institute = institute._id;
+    admin.repayArray.push(repay._id);
+    institute.getReturn.push(repay._id);
+    if (req.body?.bank_array?.length > 0) {
+      for (var ref of bank_array) {
+        var account = await BankAccount.findById({ _id: `${ref}` });
+        var depart = await Department.findById({
+          _id: `${account?.department}`,
+        });
+        if (account?.due_repay >= price) {
+          account.due_repay -= price;
+        }
+        if (account?.total_repay >= price) {
+          account.total_repay -= price;
+        }
+        if (depart?.due_repay >= price) {
+          depart.due_repay -= price;
+        }
+        if (depart?.total_repay >= price) {
+          depart.total_repay -= price;
+        }
+        price =
+          account.due_repay >= price
+            ? account.due_repay - price
+            : price - account.due_repay;
+        repay.bank_account.push(account?._id);
+        repay.bank_account_count += 1;
+        await Promise.all([depart.save(), account.save()]);
+      }
+    }
+    await Promise.all([
+      institute.save(),
+      notify.save(),
+      admin.save(),
+      repay.save(),
+      finance.save(),
+      financeUser.save(),
+    ]);
+    // const insEncrypt = await encryptionPayload(institute);
+    res.status(200).send({
+      message: "T-3 Days Payment Payout Done 😀",
+      status: true,
+      // pay_flow,
+      // pay_ins,
+    });
+    invokeSpecificRegister(
+      "Specific Notification",
+      `Qviple Super Admin re-pay Rs. ${p_amount} to you`,
+      "Qviple Repayment",
+      financeUser._id,
+      financeUser.deviceToken
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveRepayDepartmentAmount = async (req, res) => {
+  try {
+    const { did, baid } = req.params;
+    const { txnId, message, t_amount, p_amount } = req.body;
+    if (!did && !t_amount && !p_amount && !baid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const depart = await Department.findById({ _id: did });
+    const account = await BankAccount.findById({ _id: baid });
+    const institute = await InstituteAdmin.findById({
+      _id: `${depart?.institute}`,
+    });
     const finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     }).populate({
@@ -744,7 +851,9 @@ exports.retrieveRepayInstituteAmount = async (req, res) => {
     if (admin.returnAmount >= p_amount) {
       admin.returnAmount -= p_amount;
     }
-    notify.notifyContent = `Qviple Super Admin re-pay Rs. ${p_amount} to you as settlement.`;
+    notify.notifyContent = `Qviple Super Admin re-pay Rs. ${p_amount} to you as settlement in ${
+      account?.finance_bank_name ?? ""
+    } (Secondary A/C)`;
     notify.notifySender = admin._id;
     notify.notifyCategory = "Qviple Repayment";
     notify.notifyReceiever = uid;
@@ -758,6 +867,20 @@ exports.retrieveRepayInstituteAmount = async (req, res) => {
     repay.institute = institute._id;
     admin.repayArray.push(repay._id);
     institute.getReturn.push(repay._id);
+    if (account?.due_repay >= p_amount) {
+      account.due_repay -= p_amount;
+    }
+    if (account?.total_repay >= p_amount) {
+      account.total_repay -= p_amount;
+    }
+    if (depart?.due_repay >= p_amount) {
+      depart.due_repay -= p_amount;
+    }
+    if (depart?.total_repay >= p_amount) {
+      depart.total_repay -= p_amount;
+    }
+    repay.bank_account.push(account?._id);
+    repay.bank_account_count += 1;
     await Promise.all([
       institute.save(),
       notify.save(),
@@ -765,6 +888,8 @@ exports.retrieveRepayInstituteAmount = async (req, res) => {
       repay.save(),
       finance.save(),
       financeUser.save(),
+      depart.save(),
+      account.save(),
     ]);
     // const insEncrypt = await encryptionPayload(institute);
     res.status(200).send({
@@ -799,11 +924,16 @@ exports.retrieveInstituteRepayQuery = async (req, res) => {
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select("repayAmount repayStatus message txnId createdAt")
+      .select(
+        "repayAmount repayStatus message txnId createdAt bank_account_count"
+      )
       .populate({
         path: "institute",
         select:
           "insName bankAccountHolderName bankAccountNumber bankIfscCode bankAccountPhoneNumber bankAccountType bank_status",
+      })
+      .populate({
+        path: "bank_account",
       });
     if (get_return?.length > 0) {
       // const adminEncrypt = await encryptionPayload(get_return);
@@ -1147,6 +1277,52 @@ exports.renderAllBankAccountQuery = async (req, res) => {
         message: "No Bank Accounts For Repayment",
         access: false,
         all_depart: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllRepayBankAccountQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var all = [];
+    var one_institute = await InstituteAdmin.findById({ _id: id });
+    var all_account = await BankAccount.find({
+      $and: [{ department: { $in: one_institute?.depart } }],
+    });
+    var hostel_account = await BankAccount.find({
+      hostel: `${one_institute?.hostelDepart?.[0]}`,
+    });
+    var trans_account = await BankAccount.find({
+      transport: `${one_institute?.transportDepart?.[0]}`,
+    });
+    var lib_account = await BankAccount.find({
+      library: `${one_institute?.library?.[0]}`,
+    });
+    all.push(
+      ...all_account,
+      ...hostel_account,
+      ...trans_account,
+      ...lib_account
+    );
+    if (all?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Bank Accounts For Repayment",
+        access: true,
+        all_account: all,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Bank Accounts For Repayment",
+        access: false,
+        all_account: [],
       });
     }
   } catch (e) {

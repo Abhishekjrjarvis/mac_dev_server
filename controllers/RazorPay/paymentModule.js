@@ -38,6 +38,7 @@ const {
 const Hostel = require("../../models/Hostel/hostel");
 const Renewal = require("../../models/Hostel/renewal");
 const { custom_month_query } = require("../../helper/dayTimer");
+const BankAccount = require("../../models/Finance/BankAccount");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
   try {
@@ -103,11 +104,19 @@ exports.feeInstituteFunction = async (
     var new_internal = await InternalFees.findById({ _id: moduleId });
     if (new_internal?.fees) {
       var fData = await Fees.findOne({ _id: `${new_internal?.fees}` });
+      var depart = await Department.findById({
+        _id: `${fData?.feeDepartment}`,
+      });
+      var account = await BankAccount.findOne({ department: `${depart?._id}` });
     }
     if (new_internal?.checklist) {
       var checklistData = await Checklist.findOne({
         _id: `${new_internal?.checklist}`,
       });
+      var depart = await Department.findById({
+        _id: `${checklistData?.feeDepartment}`,
+      });
+      var account = await BankAccount.findOne({ department: `${depart?._id}` });
     }
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     var notify = new Notification({});
@@ -149,6 +158,11 @@ exports.feeInstituteFunction = async (
             institute.adminRepayAmount =
               institute.adminRepayAmount + parseInt(tx_amount);
             admin.returnAmount += parseInt(tx_amount_charges);
+            depart.due_repay += parseInt(tx_amount);
+            depart.total_repay += parseInt(tx_amount);
+            account.due_repay += parseInt(tx_amount);
+            account.total_repay += parseInt(tx_amount);
+            account.collect_online += parseInt(tx_amount);
           }
           // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount);
           notify.notifyContent = `${student.studentFirstName} ${
@@ -205,6 +219,8 @@ exports.feeInstituteFunction = async (
             orderPay.save(),
             new_internal.save(),
             new_receipt.save(),
+            depart.save(),
+            account.save(),
           ]);
         } catch (e) {
           console.log(e);
@@ -238,6 +254,11 @@ exports.feeInstituteFunction = async (
             institute.adminRepayAmount =
               institute.adminRepayAmount + parseInt(tx_amount);
             admin.returnAmount += parseInt(tx_amount_charges);
+            depart.due_repay += parseInt(tx_amount);
+            depart.total_repay += parseInt(tx_amount);
+            account.due_repay += parseInt(tx_amount);
+            account.total_repay += parseInt(tx_amount);
+            account.collect_online += parseInt(tx_amount);
           }
           // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount);
           notify.notifyContent = `${student.studentFirstName} ${
@@ -289,6 +310,8 @@ exports.feeInstituteFunction = async (
             orderPay.save(),
             new_internal.save(),
             new_receipt.save(),
+            depart.save(),
+            account.save(),
           ]);
         } catch (e) {
           console.log(e);
@@ -340,6 +363,10 @@ exports.admissionInstituteFunction = async (
       _id: `${apply.admissionAdmin}`,
     });
     var ins = await InstituteAdmin.findById({ _id: `${paidTo}` });
+    var depart = await Department.findById({
+      _id: `${apply?.applicationDepartment}`,
+    });
+    var account = await BankAccount.findOne({ department: `${depart?._id}` });
     var finance = await Finance.findById({
       _id: `${ins?.financeDepart[0]}`,
     }).populate({
@@ -385,7 +412,7 @@ exports.admissionInstituteFunction = async (
       }${new Date().getFullYear()}${ins.invoice_count}`;
       const notify = new Notification({});
       admission.onlineFee += parseInt(tx_amount_ad);
-      admission.collected_fee += parseInt(tx_amount_ad);
+      // admission.collected_fee += parseInt(tx_amount_ad);
       apply.onlineFee += parseInt(tx_amount_ad);
       apply.collectedFeeCount += parseInt(tx_amount_ad);
       finance.financeAdmissionBalance += parseInt(tx_amount_ad);
@@ -399,6 +426,11 @@ exports.admissionInstituteFunction = async (
       } else {
         admin.returnAmount += parseInt(tx_amount_ad_charges);
         ins.adminRepayAmount += parseInt(tx_amount_ad);
+        depart.due_repay += parseInt(tx_amount_ad);
+        depart.total_repay += parseInt(tx_amount_ad);
+        account.due_repay += parseInt(tx_amount_ad);
+        account.total_repay += parseInt(tx_amount_ad);
+        account.collect_online += parseInt(tx_amount_ad);
       }
       // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
       if (parseInt(tx_amount_ad) > 0 && is_install) {
@@ -557,7 +589,7 @@ exports.admissionInstituteFunction = async (
       } तुमचा व्यवहार यशस्वी झाला आहे ${parseInt(tx_amount_ad)}`;
       notify.notifySender = admission._id;
       notify.notifyReceiever = user._id;
-      ins.iNotify.push(notify._id);
+      // ins.iNotify.push(notify._id);
       // notify.institute = ins._id;
       user.uNotify.push(notify._id);
       notify.notifyCategory = "Admission Online Fee";
@@ -582,6 +614,8 @@ exports.admissionInstituteFunction = async (
         orderPay.save(),
         new_receipt.save(),
         new_remainFee.save(),
+        depart.save(),
+        account.save(),
       ]);
     } else if (`${payment_type}` === "Promote") {
       // console.log("PROMOTE BLOCK");
@@ -615,7 +649,7 @@ exports.admissionInstituteFunction = async (
         }
         valid_remain_list.paid_fee += parseInt(tx_amount_ad);
         admission.onlineFee += parseInt(tx_amount_ad);
-        admission.collected_fee += parseInt(tx_amount_ad);
+        // admission.collected_fee += parseInt(tx_amount_ad);
         apply.onlineFee += parseInt(tx_amount_ad);
         apply.collectedFeeCount += parseInt(tx_amount_ad);
         finance.financeAdmissionBalance += parseInt(tx_amount_ad);
@@ -629,6 +663,11 @@ exports.admissionInstituteFunction = async (
         } else {
           admin.returnAmount += parseInt(tx_amount_ad_charges);
           ins.adminRepayAmount += parseInt(tx_amount_ad);
+          depart.due_repay += parseInt(tx_amount_ad);
+          depart.total_repay += parseInt(tx_amount_ad);
+          account.due_repay += parseInt(tx_amount_ad);
+          account.total_repay += parseInt(tx_amount_ad);
+          account.collect_online += parseInt(tx_amount_ad);
         }
         if (remain_1) {
           var card_1 = valid_remain_list?.remaining_array?.filter((val) => {
@@ -724,6 +763,8 @@ exports.admissionInstituteFunction = async (
           new_receipt.save(),
           orderPay.save(),
           user.save(),
+          depart.save(),
+          account.save(),
         ]);
       }
     } else {
@@ -775,7 +816,7 @@ exports.admissionInstituteFunction = async (
       }
       // admission.remainingFee.pull(student._id);
       admission.onlineFee += parseInt(tx_amount_ad);
-      admission.collected_fee += parseInt(tx_amount_ad);
+      // admission.collected_fee += parseInt(tx_amount_ad);
       apply.onlineFee += parseInt(tx_amount_ad);
       apply.collectedFeeCount += parseInt(tx_amount_ad);
       finance.financeAdmissionBalance += parseInt(tx_amount_ad);
@@ -788,6 +829,11 @@ exports.admissionInstituteFunction = async (
       } else {
         admin.returnAmount += parseInt(tx_amount_ad_charges);
         ins.adminRepayAmount += parseInt(tx_amount_ad);
+        depart.due_repay += parseInt(tx_amount_ad);
+        depart.total_repay += parseInt(tx_amount_ad);
+        account.due_repay += parseInt(tx_amount_ad);
+        account.total_repay += parseInt(tx_amount_ad);
+        account.collect_online += parseInt(tx_amount_ad);
       }
       // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
       await update_fee_head_query(
@@ -858,6 +904,8 @@ exports.admissionInstituteFunction = async (
         admin.save(),
         new_receipt.save(),
         remaining_fee_lists.save(),
+        depart.save(),
+        account.save(),
       ]);
     }
     return `${user?.username}`;
@@ -882,6 +930,7 @@ exports.participateEventFunction = async (
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const orderPay = await OrderPayment.findById({ _id: order });
     const depart = await Department.findById({ _id: `${event.department}` });
+    var account = await BankAccount.findOne({ department: `${depart?._id}` });
     const ins = await InstituteAdmin.findById({ _id: `${depart.institute}` });
     const finance = await Finance.findById({
       _id: `${ins?.financeDepart[0]}`,
@@ -904,6 +953,11 @@ exports.participateEventFunction = async (
     } else {
       admin.returnAmount += parseInt(tx_amount_ad_charges);
       ins.adminRepayAmount += parseInt(tx_amount_ad);
+      depart.due_repay += parseInt(tx_amount_ad);
+      depart.total_repay += parseInt(tx_amount_ad);
+      account.due_repay += parseInt(tx_amount_ad);
+      account.total_repay += parseInt(tx_amount_ad);
+      account.collect_online += parseInt(tx_amount_ad);
     }
     // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
     status.event_payment_status = "Paid";
@@ -923,6 +977,7 @@ exports.participateEventFunction = async (
     notify.notifySender = depart._id;
     notify.notifyReceiever = user._id;
     user.activity_tab.push(notify._id);
+    // ins.iNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
     notify.notifyType = "Student";
@@ -945,6 +1000,7 @@ exports.participateEventFunction = async (
       depart.save(),
       notify.save(),
       orderPay.save(),
+      account.save(),
     ]);
     invokeMemberTabNotification(
       "Student Activity",
@@ -974,6 +1030,7 @@ exports.transportFunction = async (
     const user = await User.findById({ _id: `${student.user}` });
     const vehicle = await Vehicle.findById({ _id: moduleId });
     const trans = await Transport.findById({ _id: `${vehicle?.transport}` });
+    var account = await BankAccount.findOne({ transport: `${trans?._id}` });
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const orderPay = await OrderPayment.findById({ _id: order });
     const ins = await InstituteAdmin.findById({ _id: `${trans.institute}` });
@@ -993,6 +1050,11 @@ exports.transportFunction = async (
     } else {
       admin.returnAmount += parseInt(tx_amount_ad_charges);
       ins.adminRepayAmount += parseInt(tx_amount_ad);
+      // depart.due_repay += parseInt(tx_amount_ad);
+      // depart.total_repay += parseInt(tx_amount_ad);
+      account.due_repay += parseInt(tx_amount_ad);
+      account.total_repay += parseInt(tx_amount_ad);
+      account.collect_online += parseInt(tx_amount_ad);
     }
     // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
     trans.online_fee += parseInt(tx_amount_ad);
@@ -1026,6 +1088,7 @@ exports.transportFunction = async (
     notify.notifySender = trans._id;
     notify.notifyReceiever = user._id;
     user.activity_tab.push(notify._id);
+    // ins.iNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
     notify.notifyType = "Student";
@@ -1046,6 +1109,7 @@ exports.transportFunction = async (
       notify.save(),
       orderPay.save(),
       vehicle.save(),
+      account.save(),
     ]);
     invokeMemberTabNotification(
       "Student Activity",
@@ -1172,6 +1236,9 @@ exports.backlogFunction = async (
     const valid_depart = await Department.findById({
       _id: `${exam_struct?.department}`,
     });
+    var account = await BankAccount.findOne({
+      department: `${valid_depart?._id}`,
+    });
     const exam = await Exam.findById({ _id: `${exam_struct?.exam}` });
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const orderPay = await OrderPayment.findById({ _id: order });
@@ -1205,6 +1272,11 @@ exports.backlogFunction = async (
     } else {
       admin.returnAmount += parseInt(tx_amount_ad_charges);
       ins.adminRepayAmount += parseInt(tx_amount_ad);
+      valid_depart.due_repay += parseInt(tx_amount_ad);
+      valid_depart.total_repay += parseInt(tx_amount_ad);
+      account.due_repay += parseInt(tx_amount_ad);
+      account.total_repay += parseInt(tx_amount_ad);
+      account.collect_online += parseInt(tx_amount_ad);
     }
     // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
     exam_struct.total_paid_collection += parseInt(tx_amount_ad);
@@ -1237,6 +1309,7 @@ exports.backlogFunction = async (
     notify.notifySender = valid_depart?._id;
     notify.notifyReceiever = user._id;
     user.activity_tab.push(notify._id);
+    // ins.iNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
     notify.notifyType = "Student";
@@ -1258,6 +1331,8 @@ exports.backlogFunction = async (
       orderPay.save(),
       new_internal.save(),
       new_receipt.save(),
+      valid_depart.save(),
+      account.save(),
     ]);
     invokeMemberTabNotification(
       "Student Activity",
@@ -1290,6 +1365,10 @@ exports.directAdmissionInstituteFunction = async (
       path: "direct_attach_class",
       select: "className classTitle",
     });
+    var depart = await Department.findById({
+      _id: `${apply?.applicationDepartment}`,
+    });
+    var account = await BankAccount.findOne({ department: `${depart?._id}` });
     var admission = await Admission.findById({
       _id: `${apply?.admissionAdmin}`,
     }).populate({
@@ -1479,6 +1558,11 @@ exports.directAdmissionInstituteFunction = async (
     } else {
       admin.returnAmount += parseInt(tx_amount_ad_charges);
       institute.adminRepayAmount += price;
+      depart.due_repay += price;
+      depart.total_repay += price;
+      account.due_repay += price;
+      account.total_repay += price;
+      account.collect_online += price;
     }
     await set_fee_head_query(student, price, apply, new_receipt);
     if (apply?.direct_attach_class?._id) {
@@ -1525,6 +1609,7 @@ exports.directAdmissionInstituteFunction = async (
     notify.notifyType = "Student";
     notify.notifyPublisher = student?._id;
     user.activity_tab.push(notify?._id);
+    // institute.iNotify.push(notify?._id);
     notify.notifyByAdmissionPhoto = admission?._id;
     notify.notifyCategory = "Direct Admission Status Alert";
     notify.redirectIndex = 29;
@@ -1548,6 +1633,8 @@ exports.directAdmissionInstituteFunction = async (
       new_remainFee.save(),
       admission.save(),
       finance.save(),
+      depart.save(),
+      account.save(),
     ]);
     return `${user?.username}`;
   } catch (e) {
@@ -1582,6 +1669,7 @@ exports.libraryInstituteFunction = async (
       path: "libraryHead",
       select: "user",
     });
+    var account = await BankAccount.findOne({ library: `${library?._id}` });
     const user = await User.findById({
       _id: `${finance.financeHead.user}`,
     });
@@ -1644,6 +1732,11 @@ exports.libraryInstituteFunction = async (
       institute.adminRepayAmount =
         institute.adminRepayAmount + parseInt(tx_amount);
       admin.returnAmount += parseInt(tx_amount_charges);
+      // depart.due_repay += parseInt(tx_amount);
+      // depart.total_repay += parseInt(tx_amount);
+      account.due_repay += parseInt(tx_amount);
+      account.total_repay += parseInt(tx_amount);
+      account.collect_online += parseInt(tx_amount);
     }
     notify.notifyContent = `${student.studentFirstName} ${
       student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
@@ -1664,6 +1757,7 @@ exports.libraryInstituteFunction = async (
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Online Fee";
     user.uNotify.push(notify._id);
+    // institute.iNotify.push(notify?._id);
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
     studentUser.payment_history.push(order);
@@ -1682,6 +1776,7 @@ exports.libraryInstituteFunction = async (
       orderPay.save(),
       new_internal.save(),
       new_receipt.save(),
+      account.save(),
     ]);
     return `${studentUser?.username}`;
   } catch (e) {

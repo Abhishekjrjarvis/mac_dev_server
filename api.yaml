@@ -6349,6 +6349,25 @@ paths:
         "200":
           description: OK
 
+  /api/v1/ins/{id}/unapprove-student/list/query:
+    get:
+      tags:
+        - Student-Module
+      summary: All Un Approved Students in Student Tab at Institute Side -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/ins/student/{id}:
     get:
       tags:
@@ -24353,6 +24372,34 @@ paths:
         "200":
           description: OK
 
+  /api/v1/extra/excel/to/json/{id}/un/approved/student/query:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File To Directly Un Approved Institute (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
+      responses:
+        "200":
+          description: OK
+
   /api/v1/finance/{id}/all/export/excel/array:
     get:
       tags:
@@ -31317,3 +31364,33 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/ins/{cid}/approve/student/query:
+    post:
+      tags:
+        - Guest Pay Online Query
+      summary: Approve Multiple Student By Class Teacher -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class Teacher ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              unapprove:
+                type: array
+                description: Enter Array of Object Id's
+                required: true
+      responses:
+        "200":
+          description: OK
+
+          

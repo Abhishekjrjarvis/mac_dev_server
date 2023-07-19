@@ -121,6 +121,12 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  UnApprovedStudent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
   saveInsPost: [
     {
       type: mongoose.Schema.Types.ObjectId,

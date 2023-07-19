@@ -530,13 +530,13 @@ exports.retrieveApproveInstituteActivateVolume = async (req, res) => {
     const admin = await Admin.findById({ _id: aid }).select("activateAccount");
     const institute = await InstituteAdmin.find({ activateStatus: "Activated" })
       .select(
-        "createdAt insName name photoId insProfilePhoto bankAccountHolderName paymentBankStatus bankAccountNumber bankIfscCode bankAccountPhoneNumber bankAccountType paymentBankStatus insBankBalance adminRepayAmount payout_pool"
+        "createdAt insName name photoId insEmail insPhoneNumber insProfilePhoto bankAccountHolderName paymentBankStatus bankAccountNumber bankIfscCode bankAccountPhoneNumber bankAccountType paymentBankStatus insBankBalance adminRepayAmount payout_pool"
       )
       .populate({
         path: "getReturn",
         populate: {
           path: "institute",
-          select: "insName",
+          select: "insName insEmail insPhoneNumber",
         },
       });
     // Add Another Encryption

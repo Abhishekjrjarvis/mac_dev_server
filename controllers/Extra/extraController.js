@@ -34,6 +34,7 @@ const {
 const {
   retrieveInstituteDirectJoinQueryPayload,
   retrieveInstituteDirectJoinStaffAutoQuery,
+  retrieveUnApprovedDirectJoinQuery,
 } = require("../Authentication/AuthController");
 const {
   renderFinanceAddFeeCategoryAutoQuery,
@@ -1744,6 +1745,54 @@ exports.renderAllStudentAccessFeesEditableQuery = async (req, res) => {
       });
     } else {
       res.status(200).send({ message: "You are lost in space", access: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONUnApprovedStudentQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { excel_file } = req.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const one_ins = await InstituteAdmin.findById({
+      _id: id,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      status: "Uploaded",
+      flow: "UNAPPROVED STUDENT",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: id,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.flow}` === `UNAPPROVED STUDENT`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_un_approved(val);
+    if (is_converted?.value) {
+      await retrieveUnApprovedDirectJoinQuery(id, is_converted?.student_array);
+    } else {
+      console.log("false");
     }
   } catch (e) {
     console.log(e);

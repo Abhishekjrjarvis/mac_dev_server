@@ -1386,6 +1386,92 @@ exports.retrieveApproveStudentList = async (req, res) => {
   }
 };
 
+exports.retrieveUnApproveStudentListQuery = async (req, res) => {
+  try {
+    var { id } = req.params;
+    if (req.query.limit) {
+      const page = req.query.page ? parseInt(req.query.page) : 1;
+      const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+      const skip = (page - 1) * limit;
+      const student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "UnApprovedStudent insName gr_initials"
+      );
+      const studentIns = await Student.find({
+        _id: { $in: student_ins?.UnApprovedStudent },
+      })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName applicable_fees_pending studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        });
+      if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        var valid_list = await applicable_pending_calc(studentIns);
+        res
+          .status(200)
+          .send({ message: "All Student with limit", studentIns: valid_list });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
+    } else {
+      const student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "UnApprovedStudent insName gr_initials"
+      );
+      const studentIns = await Student.find({
+        _id: { $in: student_ins?.UnApprovedStudent },
+      })
+        .sort({ createdAt: -1 })
+        .select(
+          "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        });
+      if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        var valid_list = await applicable_pending_calc(studentIns);
+        res
+          .status(200)
+          .send({ message: "Without Limit", studentIns: valid_list });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.getFullStaffInfo = async (req, res) => {
   try {
     const { id } = req.params;
@@ -3524,6 +3610,129 @@ exports.renderStats = async (req, res) => {
       stats,
       access: true,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const { unapprove } = req.body;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var classes = await Class.findById({ _id: cid });
+    var batch = await Batch.findById({ _id: `${classes?.batch}` });
+    var depart = await Department.findById({ _id: `${batch?.department}` });
+    var institute = await InstituteAdmin.findById({
+      _id: `${depart?.institute}`,
+    });
+    var admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    for (var ref of unapprove) {
+      var student = await Student.findById({ _id: `${ref}` }).populate({
+        path: "user",
+      });
+      var user = await User.findById({ _id: `${student.user._id}` });
+      var notify = new Notification({});
+      var aStatus = new Status({});
+      for (let subjChoose of student?.studentOptionalSubject) {
+        const subject = await Subject.findById(subjChoose);
+        subject.optionalStudent.push(student?._id);
+        await subject.save();
+      }
+      student.studentStatus = req.body.status;
+      institute.ApproveStudent.push(student._id);
+      admins.studentArray.push(student._id);
+      admins.studentCount += 1;
+      institute.UnApprovedStudent.pull(sid);
+      institute.studentCount += 1;
+      classes.strength += 1;
+      classes.ApproveStudent.push(student._id);
+      classes.studentCount += 1;
+      classes.student.pull(sid);
+      student.studentGRNO = `${
+        institute?.gr_initials ? institute?.gr_initials : `Q`
+      }${depart?.gr_initials ?? ""}${institute.ApproveStudent.length}`;
+      student.studentROLLNO = classes.ApproveStudent.length;
+      student.studentClass = classes._id;
+      student.studentAdmissionDate = new Date().toISOString();
+      depart.ApproveStudent.push(student._id);
+      depart.studentCount += 1;
+      student.department = depart._id;
+      batch.ApproveStudent.push(student._id);
+      student.batches = batch._id;
+      student.batchCount += 1;
+      notify.notifyContent = `${student.studentFirstName}${
+        student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+      } ${student.studentLastName} joined as a Student of Class ${
+        classes.className
+      } of ${batch.batchName}`;
+      notify.notifySender = cid;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Approve Student";
+      institute.iNotify.push(notify._id);
+      notify.institute = institute._id;
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByStudentPhoto = student._id;
+      aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
+      user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
+      invokeFirebaseNotification(
+        "Student Approval",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([
+        student.save(),
+        user.save(),
+        notify.save(),
+        aStatus.save(),
+      ]);
+      if (student.studentGender === "Male") {
+        classes.boyCount += 1;
+        batch.student_category.boyCount += 1;
+      } else if (student.studentGender === "Female") {
+        classes.girlCount += 1;
+        batch.student_category.girlCount += 1;
+      } else if (student.studentGender === "Other") {
+        classes.otherCount += 1;
+        batch.student_category.otherCount += 1;
+      } else {
+      }
+      if (student.studentCastCategory === "General") {
+        batch.student_category.generalCount += 1;
+      } else if (student.studentCastCategory === "OBC") {
+        batch.student_category.obcCount += 1;
+      } else if (student.studentCastCategory === "SC") {
+        batch.student_category.scCount += 1;
+      } else if (student.studentCastCategory === "ST") {
+        batch.student_category.stCount += 1;
+      } else if (student.studentCastCategory === "NT-A") {
+        batch.student_category.ntaCount += 1;
+      } else if (student.studentCastCategory === "NT-B") {
+        batch.student_category.ntbCount += 1;
+      } else if (student.studentCastCategory === "NT-C") {
+        batch.student_category.ntcCount += 1;
+      } else if (student.studentCastCategory === "NT-D") {
+        batch.student_category.ntdCount += 1;
+      } else if (student.studentCastCategory === "VJ") {
+        batch.student_category.vjCount += 1;
+      } else {
+      }
+    }
+    await Promise.all([
+      admins.save(),
+      classes.save(),
+      depart.save(),
+      batch.save(),
+      institute.save(),
+    ]);
   } catch (e) {
     console.log(e);
   }

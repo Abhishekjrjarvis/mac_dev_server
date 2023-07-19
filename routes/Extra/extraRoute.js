@@ -255,4 +255,9 @@ router.patch(
   catchAsync(Extra.renderAllStudentAccessFeesEditableQuery)
 );
 
+router.patch(
+  "/excel/to/json/:id/un/approved/student/query",
+  catchAsync(Extra.renderExcelToJSONUnApprovedStudentQuery)
+);
+
 module.exports = router;

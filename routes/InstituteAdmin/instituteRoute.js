@@ -211,6 +211,11 @@ router.get(
   catchAsync(Institute.retrieveApproveStudentList)
 );
 
+router.get(
+  "/:id/unapprove-student/list/query",
+  catchAsync(Institute.retrieveUnApproveStudentListQuery)
+);
+
 router.get("/staff/:id", catchAsync(Institute.getFullStaffInfo));
 
 router.get(
@@ -566,5 +571,10 @@ router.patch(
 );
 
 router.get("/:id/stats", catchAsync(Institute.renderStats));
+
+router.post(
+  "/:cid/approve/student/query",
+  catchAsync(Institute.retrieveUnApproveStudentRequestQuery)
+);
 
 module.exports = router;

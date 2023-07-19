@@ -537,3 +537,50 @@ exports.generate_excel_to_json_login_query = async (file) => {
     console.log("Login Excel Query Not Resolved", e);
   }
 };
+
+exports.generate_excel_to_json_un_approved = async (file, aid, fid, did) => {
+  try {
+    const w_query = xlsx.read(file.Body, {
+      dateNF: "yyyy-mm-dd",
+    });
+
+    const w_sheet = w_query.Sheets["UnApprovedStudent"];
+
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var ref of data_query) {
+      ref.studentGender = ref?.Gender;
+      ref.studentMotherName = ref?.MotherName;
+      ref.studentPhoneNumber = ref?.PhoneNumber;
+      ref.userPhoneNumber = parseInt(ref?.PhoneNumber);
+      ref.userEmail = ref?.Email ?? "";
+      ref.studentNationality = ref?.Nationality ?? "";
+      ref.studentReligion = ref?.Religion ?? "";
+      ref.studentCast = ref?.Caste ?? "";
+      ref.studentCastCategory = ref?.CasteCategory ?? "";
+      ref.studentAddress = ref?.Address ?? "";
+      let name_query = ref?.Name?.split(" ");
+      if (name_query?.length > 2) {
+        new_data_query.push({
+          ...ref,
+          studentFirstName: name_query[0],
+          studentMiddleName: name_query[1],
+          studentLastName: name_query[2],
+          fileArray: [],
+          sample_pic: "",
+        });
+      } else {
+        new_data_query.push({
+          ...ref,
+          studentFirstName: name_query[0],
+          studentLastName: name_query[1],
+          fileArray: [],
+          sample_pic: "",
+        });
+      }
+    }
+    return { student_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("Un Approved Excel Query Not Resolved", e);
+  }
+};

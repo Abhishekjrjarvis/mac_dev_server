@@ -984,7 +984,7 @@ module.exports.authentication = async (req, res) => {
         ) {
           institute.activeStatus = "Activated";
           institute.activeDate = "";
-          institute.last_login = new Date()
+          institute.last_login = new Date();
           await institute.save();
           const token = generateAccessInsToken(
             institute?.name,
@@ -1009,8 +1009,8 @@ module.exports.authentication = async (req, res) => {
             institute: institute,
             login: true,
           });
-          institute.last_login = new Date()
-          await institute.save()
+          institute.last_login = new Date();
+          await institute.save();
         } else {
           res.status(401).send({ message: "Unauthorized", login: false });
         }
@@ -1047,7 +1047,7 @@ module.exports.authentication = async (req, res) => {
           ) {
             user.activeStatus = "Activated";
             user.activeDate = "";
-            user.last_login = new Date()
+            user.last_login = new Date();
             await user.save();
             const token = generateAccessToken(
               user?.username,
@@ -1073,7 +1073,7 @@ module.exports.authentication = async (req, res) => {
               login: true,
               is_developer: user?.is_developer,
             });
-            user.last_login = new Date()
+            user.last_login = new Date();
             await user.save();
           } else {
             res.status(401).send({ message: "Unauthorized", login: false });
@@ -3852,6 +3852,143 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
       admin.save(),
     ]);
     // res.status(200).send({ message: "Deletion Operation Completed", access: true})
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
+  try {
+    for (var ref of student_array) {
+      const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+      const valid = await filter_unique_username(
+        ref?.studentFirstName,
+        ref?.studentDOB
+      );
+      if (!valid?.exist) {
+        const genUserPass = bcrypt.genSaltSync(12);
+        const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+        var user = new User({
+          userLegalName: `${ref?.studentFirstName} ${
+            ref?.studentMiddleName ? ref?.studentMiddleName : ""
+          } ${ref?.studentLastName ? ref?.studentLastName : ""}`,
+          userGender: ref?.studentGender,
+          userDateOfBirth: ref?.studentDOB,
+          username: valid?.username,
+          userStatus: "Not Approved",
+          userPhoneNumber: ref?.userPhoneNumber,
+          userPassword: hashUserPass,
+          userEmail: ref?.userEmail,
+          photoId: "0",
+          coverId: "2",
+          remindLater: rDate,
+          next_date: c_date,
+        });
+        admins.users.push(user);
+        admins.userCount += 1;
+        await Promise.all([admins.save(), user.save()]);
+        var uInstitute = await InstituteAdmin.findOne({
+          isUniversal: "Universal",
+        })
+          .select("id userFollowersList followersCount")
+          .populate({ path: "posts" });
+        if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+          const post = await Post.find({
+            _id: { $in: uInstitute.posts },
+            postStatus: "Anyone",
+          });
+          post.forEach(async (ele) => {
+            user.userPosts.push(ele);
+          });
+          await user.save();
+        }
+        //
+        var b_date = user.userDateOfBirth.slice(8, 10);
+        var b_month = user.userDateOfBirth.slice(5, 7);
+        var b_year = user.userDateOfBirth.slice(0, 4);
+        if (b_date > p_date) {
+          p_date = p_date + month[b_month - 1];
+          p_month = p_month - 1;
+        }
+        if (b_month > p_month) {
+          p_year = p_year - 1;
+          p_month = p_month + 12;
+        }
+        var get_cal_year = p_year - b_year;
+        if (get_cal_year > 13) {
+          user.ageRestrict = "No";
+        } else {
+          user.ageRestrict = "Yes";
+        }
+        await user.save();
+        //
+        if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+        } else {
+          uInstitute.userFollowersList.push(user._id);
+          uInstitute.followersCount += 1;
+          user.userInstituteFollowing.push(uInstitute._id);
+          user.followingUICount += 1;
+          await Promise.all([uInstitute.save(), user.save()]);
+          const posts = await Post.find({ author: `${uInstitute._id}` });
+          posts.forEach(async (ele) => {
+            ele.authorFollowersCount = uInstitute.followersCount;
+            await ele.save();
+          });
+        }
+        const institute = await InstituteAdmin.findById({
+          _id: id,
+        });
+        const student = new Student({
+          studentFirstName: ref?.studentFirstName,
+          studentMiddleName: ref?.studentMiddleName,
+          studentLastName: ref?.studentLastName,
+          studentDOB: ref?.studentDOB,
+          studentGender: ref?.studentGender,
+          studentMotherName: ref?.studentMotherName,
+          studentCast: ref?.studentCast,
+          studentCastCategory: ref?.studentCastCategory,
+          studentReligion: ref?.studentReligion,
+          studentNationality: ref?.studentNationality,
+          studentAddress: ref.studentAddress,
+        });
+        student.valid_full_name = `${student?.studentFirstName} ${
+          student?.studentMiddleName ?? ""
+        } ${student?.studentLastName}`;
+        const aStatus = new Status({});
+        institute.UnApprovedStudent.push(student._id);
+        user.student.push(student._id);
+        user.is_mentor = true;
+        institute.joinedPost.push(user._id);
+        if (institute.userFollowersList.includes(user?._id)) {
+        } else {
+          user.userInstituteFollowing.push(institute?._id);
+          user.followingUICount += 1;
+          institute.userFollowersList.push(user?._id);
+          institute.followersCount += 1;
+        }
+        student.user = user._id;
+        aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.Tap here to see username ${user?.username}`;
+        aStatus.see_secure = true;
+        user.applicationStatus.push(aStatus._id);
+        aStatus.instituteId = institute._id;
+        await Promise.all([
+          student.save(),
+          institute.save(),
+          user.save(),
+          aStatus.save(),
+        ]);
+        // res.status(200).send({
+        //   message: "Account Creation Process Completed 😀✨",
+        //   access: true
+        // });
+      } else {
+        console.log("Bug in the direct un-approved joining process 😡");
+        // res.status(200).send({
+        //   message: "Bug in the direct joining process 😡",
+        //   access: false,
+        // });
+      }
+    }
   } catch (e) {
     console.log(e);
   }

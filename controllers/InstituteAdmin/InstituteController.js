@@ -38,6 +38,8 @@ const { shuffleArray } = require("../../Utilities/Shuffle");
 const {
   designation_alarm,
   email_sms_designation_alarm,
+  email_sms_payload_query,
+  whats_app_sms_payload,
 } = require("../../WhatsAppSMS/payload");
 const {
   render_institute_current_role,
@@ -46,6 +48,7 @@ const { announcement_feed_query } = require("../../Post/announceFeed");
 const { handle_undefined } = require("../../Handler/customError");
 const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
 const { applicable_pending_calc } = require("../../Functions/SetOff");
+const { send_phone_login_query } = require("../../helper/functions");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -3724,6 +3727,37 @@ exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
       } else if (student.studentCastCategory === "VJ") {
         batch.student_category.vjCount += 1;
       } else {
+      }
+      var studentName = `${student.studentFirstName} ${
+        student.studentMiddleName ? student.studentMiddleName : ""
+      } ${student.studentLastName}`;
+      await send_phone_login_query(
+        user?.userPhoneNumber,
+        studentName,
+        institute?.insName
+      );
+      whats_app_sms_payload(
+        user?.userPhoneNumber,
+        studentName,
+        institute?.insName,
+        classes?.className,
+        "ADSIS",
+        institute?.insType,
+        0,
+        0,
+        institute?.sms_lang
+      );
+      if (user?.userEmail) {
+        await email_sms_payload_query(
+          user?.userEmail,
+          studentName,
+          institute,
+          "ADSIS",
+          institute?.insType,
+          0,
+          0,
+          institute?.sms_lang
+        );
       }
     }
     await Promise.all([

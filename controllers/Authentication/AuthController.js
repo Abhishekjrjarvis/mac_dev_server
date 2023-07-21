@@ -3904,6 +3904,7 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
           await user.save();
         }
         //
+        if(user?.userDateOfBirth){
         var b_date = user.userDateOfBirth.slice(8, 10);
         var b_month = user.userDateOfBirth.slice(5, 7);
         var b_year = user.userDateOfBirth.slice(0, 4);
@@ -3921,6 +3922,7 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
         } else {
           user.ageRestrict = "Yes";
         }
+      }
         await user.save();
         //
         if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {

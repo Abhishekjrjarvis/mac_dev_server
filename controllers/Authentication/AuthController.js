@@ -3860,6 +3860,7 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
 exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
   try {
     for (var ref of student_array) {
+      console.log("INSERTED");
       const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
       const valid = await filter_unique_username(
         ref?.studentFirstName,

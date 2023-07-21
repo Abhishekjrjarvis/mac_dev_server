@@ -69,6 +69,38 @@ exports.renderSearchInstituteByCodeQuery = async (req, res) => {
   }
 };
 
+exports.renderSearchInstituteCodeQuery = async (req, res) => {
+  try {
+    const { code } = req.query;
+    if (!code)
+      return res.status(200).send({
+        message: "I Think you did not know. what you want to search",
+        access: false,
+      });
+    var valid_ins = await InstituteAdmin.findOne({
+      random_institute_code: code,
+    }).select(
+      "insName insProfilePhoto photoId name financeDepart admissionDepart hostelDepart"
+    );
+
+    if (valid_ins) {
+      res.status(200).send({
+        message: "Explore Institute By Its Code",
+        access: true,
+        valid_ins: valid_ins,
+      });
+    } else {
+      res.status(200).send({
+        message: "You are lost in space 🌌 Invalid Code",
+        access: false,
+        valid_ins: "",
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.renderNewCodeQuery = async (req, res) => {
   try {
     var all = await InstituteAdmin.find({}).select(

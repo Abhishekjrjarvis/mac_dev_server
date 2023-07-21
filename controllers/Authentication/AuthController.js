@@ -3860,7 +3860,7 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
 exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
   try {
     for (var ref of student_array) {
-      console.log("INSERTED");
+      // console.log("INSERTED");
       const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
       const valid = await filter_unique_username(
         ref?.studentFirstName,
@@ -3904,25 +3904,25 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
           await user.save();
         }
         //
-        if(user?.userDateOfBirth){
-        var b_date = user.userDateOfBirth.slice(8, 10);
-        var b_month = user.userDateOfBirth.slice(5, 7);
-        var b_year = user.userDateOfBirth.slice(0, 4);
-        if (b_date > p_date) {
-          p_date = p_date + month[b_month - 1];
-          p_month = p_month - 1;
+        if (user?.userDateOfBirth) {
+          var b_date = user.userDateOfBirth.slice(8, 10);
+          var b_month = user.userDateOfBirth.slice(5, 7);
+          var b_year = user.userDateOfBirth.slice(0, 4);
+          if (b_date > p_date) {
+            p_date = p_date + month[b_month - 1];
+            p_month = p_month - 1;
+          }
+          if (b_month > p_month) {
+            p_year = p_year - 1;
+            p_month = p_month + 12;
+          }
+          var get_cal_year = p_year - b_year;
+          if (get_cal_year > 13) {
+            user.ageRestrict = "No";
+          } else {
+            user.ageRestrict = "Yes";
+          }
         }
-        if (b_month > p_month) {
-          p_year = p_year - 1;
-          p_month = p_month + 12;
-        }
-        var get_cal_year = p_year - b_year;
-        if (get_cal_year > 13) {
-          user.ageRestrict = "No";
-        } else {
-          user.ageRestrict = "Yes";
-        }
-      }
         await user.save();
         //
         if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {

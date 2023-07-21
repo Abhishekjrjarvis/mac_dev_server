@@ -569,7 +569,7 @@ exports.generate_excel_to_json_un_approved = async (file, aid, fid, did) => {
           fileArray: [],
           sample_pic: "",
         });
-        console.log("PUSH");
+        // console.log("PUSH");
       } else {
         new_data_query.push({
           ...ref,
@@ -578,7 +578,7 @@ exports.generate_excel_to_json_un_approved = async (file, aid, fid, did) => {
           fileArray: [],
           sample_pic: "",
         });
-        console.log("PUSH");
+        // console.log("PUSH");
       }
     }
     return { student_array: new_data_query, value: true };

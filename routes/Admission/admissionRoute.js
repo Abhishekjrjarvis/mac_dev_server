@@ -186,7 +186,7 @@ router.patch(
 );
 
 // Remaining Fee List
-router.get(
+router.patch(
   "/:aid/all/remaining/array",
   // isLoggedIn,
   catchAsync(Admission.retrieveAdmissionRemainingArray)
@@ -519,6 +519,16 @@ router.patch(
 router.get(
   "/filter/by/:id/three/function/query",
   catchAsync(Admission.renderFilterByThreeFunctionQuery)
+);
+
+router.get(
+  "/pending/custom/filter/:aid/query",
+  catchAsync(Admission.renderPendingCustomFilterQuery)
+);
+
+router.patch(
+  "/pending/custom/filter/master/batch/query",
+  catchAsync(Admission.renderPendingCustomFilterBatchMasterQuery)
 );
 
 module.exports = router;

@@ -13,6 +13,7 @@ const Status = require("../../models/Admission/status");
 const Income = require("../../models/Income");
 const Finance = require("../../models/Finance");
 const Batch = require("../../models/Batch");
+const ClassMaster = require("../../models/ClassMaster");
 const Department = require("../../models/Department");
 const Class = require("../../models/Class");
 const Admin = require("../../models/superAdmin");
@@ -1814,11 +1815,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     } else {
       await set_fee_head_query(student, price, apply, new_receipt);
     }
-    if(new_remainFee?.remaining_fee > 0){
-
-    }
-    else{
-      new_remainFee.status = "Paid"
+    if (new_remainFee?.remaining_fee > 0) {
+    } else {
+      new_remainFee.status = "Paid";
     }
     await lookup_applicable_grant(
       req.body?.fee_payment_mode,
@@ -2468,13 +2467,19 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const { search, flow } = req.query;
+    const { depart_arr, batch_arr, master_arr, gender, cast_category } =
+      req.body;
     const admin_ins = await Admission.findById({ _id: aid }).select(
       "remainingFee active_tab_index"
     );
     if (flow === "All_Pending_Fees_Query") {
       if (search) {
-        var depart = await Department.findOne({ dName: { $regex: search, $options: "i"}})
-        var batch = await Batch.findOne({ batchName: { $regex: search, $options: "i"}})
+        var depart = await Department.findOne({
+          dName: { $regex: search, $options: "i" },
+        });
+        var batch = await Batch.findOne({
+          batchName: { $regex: search, $options: "i" },
+        });
         var student = await Student.find({
           $and: [{ _id: { $in: admin_ins?.remainingFee } }],
           $or: [
@@ -2482,20 +2487,24 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             { studentMiddleName: { $regex: search, $options: "i" } },
             { studentLastName: { $regex: search, $options: "i" } },
             { studentGRNO: { $regex: search, $options: "i" } },
-            { studentCast: { $regex: search, $options: "i"}},
-            { studentCastCategory: { $regex: search, $options: "i"}},
-            { studentGender: { $regex: search, $options: "i"}},
-            { department: depart?._id},
-            { batches: batch?._id},
+            { studentCast: { $regex: search, $options: "i" } },
+            { studentCastCategory: { $regex: search, $options: "i" } },
+            { studentGender: { $regex: search, $options: "i" } },
+            { department: depart?._id },
+            { batches: batch?._id },
           ],
         })
           .sort("-admissionRemainFeeCount")
           .select(
-            "studentFirstName studentMiddleName studentGender studentCast studentCastCategory studentLastName photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
+            "studentFirstName studentMiddleName batches studentGender studentCast studentCastCategory studentLastName photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
           )
           .populate({
             path: "department",
             select: "dName",
+          })
+          .populate({
+            path: "studentClass",
+            select: "masterClassName",
           });
         // if (student?.length > 0) {
         var remain_fee = student?.filter((ref) => {
@@ -2515,12 +2524,62 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "studentFirstName studentMiddleName studentLastName photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
+            "studentFirstName studentMiddleName studentLastName batches photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
           )
           .populate({
             path: "department",
             select: "dName",
+          })
+          .populate({
+            path: "studentClass",
+            select: "masterClassName",
           });
+        if (depart_arr?.length > 0) {
+          student = student?.filter((ref) => {
+            if (depart_arr?.includes(`${ref?.department?._id}`)) return ref;
+          });
+        }
+        if (batch_arr?.length > 0) {
+          student = student?.filter((ref) => {
+            if (batch_arr?.includes(`${ref?.batches}`)) return ref;
+          });
+        }
+        if (master_arr?.length > 0) {
+          student = student?.filter((ref) => {
+            if (master_arr?.includes(`${ref?.studentClass?.masterClassName}`))
+              return ref;
+          });
+        }
+        if (gender) {
+          student = student?.filter((ref) => {
+            if (`${ref?.studentGender}` === `${gender}`) return ref;
+          });
+        }
+        if (cast_category) {
+          student = student?.filter((ref) => {
+            if (`${ref?.studentCastCategory}` === `${cast_category}`)
+              return ref;
+          });
+        }
+        admin_ins.pending_fee_custom_filter.cast_category = cast_category
+          ? true
+          : false;
+        admin_ins.pending_fee_custom_filter.gender = gender ? true : false;
+        if (master_arr?.length > 0) {
+          admin_ins.pending_fee_custom_filter.master.push(...master_arr);
+        } else {
+          admin_ins.pending_fee_custom_filter.master = [];
+        }
+        if (batch_arr?.length > 0) {
+          admin_ins.pending_fee_custom_filter.batch.push(...batch_arr);
+        } else {
+          admin_ins.pending_fee_custom_filter.batch = [];
+        }
+        if (depart_arr?.length > 0) {
+          admin_ins.pending_fee_custom_filter.department.push(...depart_arr);
+        } else {
+          admin_ins.pending_fee_custom_filter.department = [];
+        }
       }
       admin_ins.active_tab_index = "Pending_Fees_Query";
       await admin_ins.save();
@@ -2537,8 +2596,12 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
     } else if (flow === "Applicable_Fees_Query") {
       if (search) {
         var student = [];
-        var depart = await Department.findOne({ dName: { $regex: search, $options: "i"}})
-        var batch = await Batch.findOne({ batchName: { $regex: search, $options: "i"}})
+        var depart = await Department.findOne({
+          dName: { $regex: search, $options: "i" },
+        });
+        var batch = await Batch.findOne({
+          batchName: { $regex: search, $options: "i" },
+        });
         var all_remain = await RemainingList.find({
           student: { $in: admin_ins?.remainingFee },
         })
@@ -2556,11 +2619,11 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
                 { studentLastName: { $regex: search, $options: "i" } },
                 { valid_full_name: { $regex: search, $options: "i" } },
                 { studentGRNO: { $regex: search, $options: "i" } },
-                { studentCast: { $regex: search, $options: "i"}},
-                { studentCastCategory: { $regex: search, $options: "i"}},
-                { studentGender: { $regex: search, $options: "i"}},
-                { department: depart?._id},
-                { batches: batch?._id},
+                { studentCast: { $regex: search, $options: "i" } },
+                { studentCastCategory: { $regex: search, $options: "i" } },
+                { studentGender: { $regex: search, $options: "i" } },
+                { department: depart?._id },
+                { batches: batch?._id },
               ],
             },
             select:
@@ -8656,6 +8719,60 @@ exports.renderPendingListStudentQuery = async (req, res) => {
   // } catch (e) {
   //   console.log(e);
   // }
+};
+
+exports.renderPendingCustomFilterQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "pending_fee_custom_filter"
+    );
+
+    res.status(200).send({
+      message: "Explore New Custom Filter",
+      access: true,
+      ads_admin: ads_admin,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderPendingCustomFilterBatchMasterQuery = async (req, res) => {
+  try {
+    const { arr } = req.body;
+    if (arr?.length > 0) {
+      var all_batch = await Batch.find({ department: { $in: arr } }).select(
+        "batchName batchStatus createdAt"
+      );
+
+      var all_master = await ClassMaster.find({
+        department: { $in: arr },
+      }).select("className classCount");
+
+      res.status(200).send({
+        message: "Explore One Department All Dynamic Batch + Master",
+        access: false,
+        batch: all_batch,
+        master: all_master,
+      });
+    } else {
+      res.status(200).send({
+        message: "Continue Searching",
+        access: false,
+        batch: [],
+        master: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 // exports.renderRetroOneStudentStructureQuery = async (req, res) => {

@@ -219,6 +219,19 @@ const admissionAdminSchema = new mongoose.Schema({
     type: String,
     default: "Pending_Fees_Query",
   },
+  pending_fee_custom_filter: {
+    gender: {
+      type: Boolean,
+      default: false,
+    },
+    cast_category: {
+      type: Boolean,
+      default: false,
+    },
+    department: [],
+    batch: [],
+    master: [],
+  },
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

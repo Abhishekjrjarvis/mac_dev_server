@@ -1791,7 +1791,7 @@ exports.renderExcelToJSONUnApprovedStudentQuery = async (req, res) => {
 
     const is_converted = await generate_excel_to_json_un_approved(val);
     if (is_converted?.value) {
-      console.log(is_converted?.student_array);
+      // console.log(is_converted?.student_array);
       await retrieveUnApprovedDirectJoinQuery(id, is_converted?.student_array);
     } else {
       console.log("false");

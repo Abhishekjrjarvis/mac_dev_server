@@ -8,6 +8,11 @@ router.post(
   catchAsync(Guest.renderSearchInstituteByCodeQuery)
 );
 
+router.get(
+  "/search/institute",
+  catchAsync(Guest.renderSearchInstituteCodeQuery)
+);
+
 router.patch("/new/code", catchAsync(Guest.renderNewCodeQuery));
 
 module.exports = router;

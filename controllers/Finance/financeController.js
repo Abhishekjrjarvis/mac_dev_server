@@ -2446,7 +2446,6 @@ exports.renderFinanceBankAddQuery = async (req, res) => {
   try {
     const { fid } = req.params;
     const { flow, flow_id } = req.query;
-    const { depart_arr } = req.body;
     if (!fid && !flow && !flow_id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -2455,14 +2454,11 @@ exports.renderFinanceBankAddQuery = async (req, res) => {
 
     const finance = await Finance.findById({ _id: fid });
     const new_account = new BankAccount({ ...req.body });
-    if (flow === "Department" && depart_arr?.length > 0) {
-      for (var ref of depart_arr) {
-        const department = await Department.findById({ _id: `${ref}` });
-        new_account.department = department?._id;
-        new_account.departments.push(department?._id);
-        department.bank_account = new_account?._id;
-        await department.save();
-      }
+    if (flow === "Department") {
+      const department = await Department.findById({ _id: flow_id });
+      new_account.department = flow_id;
+      department.bank_account = new_account?._id;
+      await department.save();
     } else if (flow === "Transport") {
       const trans = await Transport.findById({ _id: flow_id });
       new_account.transport = flow_id;
@@ -4877,9 +4873,11 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
             }
           }
           ref.applicable_fee = exist_struct?.total_admission_fees;
-          if (ref?.remaining_fee > 0) {
-          } else {
-            ref.status = "Paid";
+          if(ref?.remaining_fee > 0){
+
+          }
+          else{
+            ref.status = "Paid"
           }
           await ref.save();
         } else if (ref?.applicable_fee < exist_struct?.total_admission_fees) {

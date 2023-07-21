@@ -186,7 +186,7 @@ router.patch(
 );
 
 // Remaining Fee List
-router.patch(
+router.get(
   "/:aid/all/remaining/array",
   // isLoggedIn,
   catchAsync(Admission.retrieveAdmissionRemainingArray)

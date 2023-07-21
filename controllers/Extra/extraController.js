@@ -30,6 +30,7 @@ const {
   generate_excel_to_json_scholarship_gr_batch_query,
   generate_excel_to_json_library_offline_book_query,
   generate_excel_to_json_login_query,
+  generate_excel_to_json_un_approved,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,

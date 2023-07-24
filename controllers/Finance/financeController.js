@@ -4729,6 +4729,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
             ) {
               console.log("Valid Refund Subtract");
               ref.refund_fee += valid_refund
+              ref.status = "Paid"
               await ref.save();
             } else {
               console.log("In Valid Refund Entering in Else Part");

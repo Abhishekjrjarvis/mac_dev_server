@@ -4704,6 +4704,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
       },
     });
     for (var ref of all_remain_query) {
+      console.log(ref)
       var valid_ref = { paid_fee: ref?.paid_fee, appId: ref?.appId };
       if (ref?.status === "Paid") {
         var one_student = await Student.findById({ _id: `${ref?.student}` });

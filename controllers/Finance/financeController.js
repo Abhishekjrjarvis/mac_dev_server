@@ -4714,10 +4714,13 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           one_student.active_fee_heads.pull(ref?._id);
         }
         await one_student.save();
+        console.log("Paid Fee", ref?.paid_fee);
+        console.log("Applicable Fee", ref?.applicable_fee);
         var valid_refund =
           ref?.paid_fee >= ref?.applicable_fee
             ? ref?.paid_fee - ref?.applicable_fee
             : 0;
+        console.log("Valid ", valid_refund);
         if (ref?.applicable_fee >= exist_struct?.total_admission_fees) {
           console.log(
             "Entering in Applicable Greater Than Total Admission Fees"

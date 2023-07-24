@@ -4763,6 +4763,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           await ref.save();
         } else if (ref?.applicable_fee < exist_struct?.total_admission_fees) {
           console.log("In Else Part Lest Than Total Admission Fees");
+          console.log("Valid Refund", valid_refund);
           if (valid_refund > 0) {
             if (
               valid_refund >=

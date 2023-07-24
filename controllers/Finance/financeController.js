@@ -4728,6 +4728,8 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
               ref?.applicable_fee - exist_struct?.total_admission_fees
             ) {
               console.log("Valid Refund Subtract");
+              ref.refund_fee += valid_refund
+              await ref.save();
             } else {
               console.log("In Valid Refund Entering in Else Part");
               if (ref?.access_mode_card === "Installment_Wise") {
@@ -4758,9 +4760,6 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
               ref.status = "Not Paid";
             }
           }
-          ref.refund_fee += valid_refund
-          ref.applicable_fee = exist_struct?.total_admission_fees;
-          await ref.save();
         } else if (ref?.applicable_fee < exist_struct?.total_admission_fees) {
           console.log("In Else Part Lest Than Total Admission Fees");
           console.log("Valid Refund", valid_refund);

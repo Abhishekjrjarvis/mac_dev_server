@@ -4704,15 +4704,16 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
       },
     });
     for (var ref of all_remain_query) {
-      console.log(ref)
       var valid_ref = { paid_fee: ref?.paid_fee, appId: ref?.appId };
       if (ref?.status === "Paid") {
+        ref.applicable_fee = exist_struct?.total_admission_fees;
+        await ref.save();
         var one_student = await Student.findById({ _id: `${ref?.student}` });
         var filtered_head = one_student?.active_fee_heads?.filter((val) => {
           if (`${val?.fee_structure}` === `${exist_struct?._id}`) return val;
         });
-        for (var ref of filtered_head) {
-          one_student.active_fee_heads.pull(ref?._id);
+        for (var val of filtered_head) {
+          one_student.active_fee_heads.pull(val?._id);
         }
         await one_student.save();
         console.log("Paid Fee", ref?.paid_fee);

@@ -4718,7 +4718,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           ref?.paid_fee >= ref?.applicable_fee
             ? ref?.paid_fee - ref?.applicable_fee
             : 0;
-        if (ref?.applicable_fee > exist_struct?.total_admission_fees) {
+        if (ref?.applicable_fee >= exist_struct?.total_admission_fees) {
           console.log(
             "Entering in Applicable Greater Than Total Admission Fees"
           );
@@ -4842,74 +4842,75 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           await rec.save();
           await retro_receipt_heads_sequencing_query(one_student, rec);
         }
-      } else if (ref?.status === "Not Paid") {
-        var one_student = await Student.findById({ _id: `${ref?.student}` });
-        var filtered_head = one_student?.active_fee_heads?.filter((val) => {
-          if (`${val?.fee_structure}` === `${exist_struct?._id}`) return val;
-        });
-        for (var ref of filtered_head) {
-          one_student.active_fee_heads.pull(ref?._id);
-        }
-        await one_student.save();
-        var filter_remain = await ref?.remaining_array?.filter((val) => {
-          if (`${val?.status}` === "Not Paid") return val;
-        });
-        if (ref?.applicable_fee >= exist_struct?.total_admission_fees) {
-          var app_diff =
-            ref?.applicable_fee - exist_struct?.total_admission_fees;
-          filter_remain = filter_remain.reverse();
-          for (var ele of filter_remain) {
-            var valid_remain_diff =
-              ele?.remainAmount <= app_diff ? true : false;
-            if (valid_remain_diff) {
-              ele.remainAmount -= valid_remain_diff;
-            }
-            app_diff -= ele.remainAmount;
-          }
-          for (var ele of ref?.remaining_array) {
-            if (ele?.remainAmount > 0) {
-            } else {
-              ref.remaining_array.pull(ele?._id);
-            }
-          }
-          ref.applicable_fee = exist_struct?.total_admission_fees;
-          if(ref?.remaining_fee > 0){
-
-          }
-          else{
-            ref.status = "Paid"
-          }
-          await ref.save();
-        } else if (ref?.applicable_fee < exist_struct?.total_admission_fees) {
-          if (filter_remain?.length > 0) {
-            filter_remain[filter_remain?.length - 1].remainAmount +=
-              exist_struct?.total_admission_fees - ref?.applicable_fee;
-          }
-          ref.applicable_fee = exist_struct?.total_admission_fees;
-          ref.remaining_fee +=
-            exist_struct?.total_admission_fees - ref?.applicable_fee;
-          ref.status = "Not Paid";
-          await ref.save();
-        }
-        // console.log(ref);
-        await retro_student_heads_sequencing_query(
-          one_student,
-          valid_ref,
-          exist_struct
-        );
-        var all_receipt = await FeeReceipt.find({
-          _id: { $in: `${one_student?.fee_receipt}` },
-        });
-        for (var rec of all_receipt) {
-          for (var ele of rec?.fee_heads) {
-            if (`${ele?.fee_structure}` === `${exist_struct?._id}`) {
-              rec.fee_heads.pull(ele?._id);
-            }
-          }
-          await rec.save();
-          await retro_receipt_heads_sequencing_query(one_student, rec);
-        }
       }
+      // else if (ref?.status === "Not Paid") {
+      //   var one_student = await Student.findById({ _id: `${ref?.student}` });
+      //   var filtered_head = one_student?.active_fee_heads?.filter((val) => {
+      //     if (`${val?.fee_structure}` === `${exist_struct?._id}`) return val;
+      //   });
+      //   for (var ref of filtered_head) {
+      //     one_student.active_fee_heads.pull(ref?._id);
+      //   }
+      //   await one_student.save();
+      //   var filter_remain = await ref?.remaining_array?.filter((val) => {
+      //     if (`${val?.status}` === "Not Paid") return val;
+      //   });
+      //   if (ref?.applicable_fee >= exist_struct?.total_admission_fees) {
+      //     var app_diff =
+      //       ref?.applicable_fee - exist_struct?.total_admission_fees;
+      //     filter_remain = filter_remain.reverse();
+      //     for (var ele of filter_remain) {
+      //       var valid_remain_diff =
+      //         ele?.remainAmount <= app_diff ? true : false;
+      //       if (valid_remain_diff) {
+      //         ele.remainAmount -= valid_remain_diff;
+      //       }
+      //       app_diff -= ele.remainAmount;
+      //     }
+      //     for (var ele of ref?.remaining_array) {
+      //       if (ele?.remainAmount > 0) {
+      //       } else {
+      //         ref.remaining_array.pull(ele?._id);
+      //       }
+      //     }
+      //     ref.applicable_fee = exist_struct?.total_admission_fees;
+      //     if(ref?.remaining_fee > 0){
+
+      //     }
+      //     else{
+      //       ref.status = "Paid"
+      //     }
+      //     await ref.save();
+      //   } else if (ref?.applicable_fee < exist_struct?.total_admission_fees) {
+      //     if (filter_remain?.length > 0) {
+      //       filter_remain[filter_remain?.length - 1].remainAmount +=
+      //         exist_struct?.total_admission_fees - ref?.applicable_fee;
+      //     }
+      //     ref.applicable_fee = exist_struct?.total_admission_fees;
+      //     ref.remaining_fee +=
+      //       exist_struct?.total_admission_fees - ref?.applicable_fee;
+      //     ref.status = "Not Paid";
+      //     await ref.save();
+      //   }
+      //   // console.log(ref);
+      //   await retro_student_heads_sequencing_query(
+      //     one_student,
+      //     valid_ref,
+      //     exist_struct
+      //   );
+      //   var all_receipt = await FeeReceipt.find({
+      //     _id: { $in: `${one_student?.fee_receipt}` },
+      //   });
+      //   for (var rec of all_receipt) {
+      //     for (var ele of rec?.fee_heads) {
+      //       if (`${ele?.fee_structure}` === `${exist_struct?._id}`) {
+      //         rec.fee_heads.pull(ele?._id);
+      //       }
+      //     }
+      //     await rec.save();
+      //     await retro_receipt_heads_sequencing_query(one_student, rec);
+      //   }
+      // }
     }
   } catch (e) {
     console.log(e);

@@ -685,6 +685,7 @@ Note: Stay tuned for further updates.`;
     status.document_visible = true;
     status.instituteId = institute._id;
     status.finance = institute?.financeDepart?.[0];
+    status.student = student?._id
     user.student.push(student._id);
     status.bank_account = filtered_account?._id;
     user.applyApplication.push(apply._id);

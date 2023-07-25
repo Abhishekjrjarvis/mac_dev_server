@@ -89,6 +89,11 @@ router.post(
 );
 
 router.post(
+  "/direct/join/hostel/:id/apply/:aid",
+  catchAsync(Auth.retrieveDirectJoinHostelQuery)
+);
+
+router.post(
   "/direct/institute/join/student/:id/class/:cid",
   catchAsync(Auth.retrieveInstituteDirectJoinQuery)
 );

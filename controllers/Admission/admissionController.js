@@ -187,7 +187,8 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
       })
       .populate({
         path: "institute",
-        select: "_id insName insProfilePhoto status financeDepart hostelDepart",
+        select:
+          "_id insName insProfilePhoto status financeDepart hostelDepart random_institute_code",
       });
     // const adsEncrypt = await encryptionPayload(admission);
     // const cached = await connect_redis_miss(
@@ -633,7 +634,7 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     const status = new Status({});
     const notify = new StudentNotification({});
     var filtered_account = await BankAccount.findOne({
-      department: `${apply?.applicationDepartment}`,
+      departments: { $in: apply?.applicationDepartment },
     });
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
@@ -1338,6 +1339,7 @@ Start your admission process by confirming below.`;
     status.for_docs = "Yes";
     // status.docs_status
     status.studentId = student._id;
+    status.student = student._id;
     status.admissionFee = structure.total_admission_fees;
     status.instituteId = admission_admin?.institute;
     status.feeStructure = structure?._id;
@@ -1429,6 +1431,7 @@ Payment modes available:`;
       // status.for_selection = "Yes";
       status.admission_process = "Yes";
       status.studentId = student._id;
+      status.student = student._id;
       status.admissionFee = student?.fee_structure.total_admission_fees;
       status.instituteId = admission_admin?.institute;
       status.feeStructure = student?.fee_structure?._id;
@@ -1508,6 +1511,7 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
     status.content = `You have been rejected for ${apply.applicationName}. Best of luck for next time `;
     status.applicationId = apply._id;
     status.studentId = student._id;
+    status.student = student._id;
     user.applicationStatus.push(status._id);
     status.instituteId = admission_admin?.institute;
     notify.notifyContent = `You have been rejected for ${apply.applicationName}. Best of luck for next time `;
@@ -2467,8 +2471,8 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const { search, flow } = req.query;
-    // const { depart_arr, batch_arr, master_arr, gender, cast_category } =
-    //   req.body;
+    const { depart_arr, batch_arr, master_arr, gender, cast_category } =
+      req.body;
     const admin_ins = await Admission.findById({ _id: aid }).select(
       "remainingFee active_tab_index"
     );
@@ -2521,8 +2525,8 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           _id: { $in: admin_ins?.remainingFee },
         })
           .sort("-admissionRemainFeeCount")
-          .limit(limit)
-          .skip(skip)
+          // .limit(limit)
+          // .skip(skip)
           .select(
             "studentFirstName studentMiddleName studentLastName batches photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
           )
@@ -2534,56 +2538,57 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             path: "studentClass",
             select: "masterClassName",
           });
-        // if (depart_arr?.length > 0) {
-        //   student = student?.filter((ref) => {
-        //     if (depart_arr?.includes(`${ref?.department?._id}`)) return ref;
-        //   });
-        // }
-        // if (batch_arr?.length > 0) {
-        //   student = student?.filter((ref) => {
-        //     if (batch_arr?.includes(`${ref?.batches}`)) return ref;
-        //   });
-        // }
-        // if (master_arr?.length > 0) {
-        //   student = student?.filter((ref) => {
-        //     if (master_arr?.includes(`${ref?.studentClass?.masterClassName}`))
-        //       return ref;
-        //   });
-        // }
-        // if (gender) {
-        //   student = student?.filter((ref) => {
-        //     if (`${ref?.studentGender}` === `${gender}`) return ref;
-        //   });
-        // }
-        // if (cast_category) {
-        //   student = student?.filter((ref) => {
-        //     if (`${ref?.studentCastCategory}` === `${cast_category}`)
-        //       return ref;
-        //   });
-        // }
-        // admin_ins.pending_fee_custom_filter.cast_category = cast_category
-        //   ? true
-        //   : false;
-        // admin_ins.pending_fee_custom_filter.gender = gender ? true : false;
-        // if (master_arr?.length > 0) {
-        //   admin_ins.pending_fee_custom_filter.master.push(...master_arr);
-        // } else {
-        //   admin_ins.pending_fee_custom_filter.master = [];
-        // }
-        // if (batch_arr?.length > 0) {
-        //   admin_ins.pending_fee_custom_filter.batch.push(...batch_arr);
-        // } else {
-        //   admin_ins.pending_fee_custom_filter.batch = [];
-        // }
-        // if (depart_arr?.length > 0) {
-        //   admin_ins.pending_fee_custom_filter.department.push(...depart_arr);
-        // } else {
-        //   admin_ins.pending_fee_custom_filter.department = [];
-        // }
+        if (depart_arr?.length > 0) {
+          student = student?.filter((ref) => {
+            if (depart_arr?.includes(`${ref?.department?._id}`)) return ref;
+          });
+        }
+        if (batch_arr?.length > 0) {
+          student = student?.filter((ref) => {
+            if (batch_arr?.includes(`${ref?.batches}`)) return ref;
+          });
+        }
+        if (master_arr?.length > 0) {
+          student = student?.filter((ref) => {
+            if (master_arr?.includes(`${ref?.studentClass?.masterClassName}`))
+              return ref;
+          });
+        }
+        if (gender) {
+          student = student?.filter((ref) => {
+            if (`${ref?.studentGender}` === `${gender}`) return ref;
+          });
+        }
+        if (cast_category) {
+          student = student?.filter((ref) => {
+            if (`${ref?.studentCastCategory}` === `${cast_category}`)
+              return ref;
+          });
+        }
+        admin_ins.pending_fee_custom_filter.cast_category = cast_category
+          ? true
+          : false;
+        admin_ins.pending_fee_custom_filter.gender = gender ? true : false;
+        if (master_arr?.length > 0) {
+          admin_ins.pending_fee_custom_filter.master.push(...master_arr);
+        } else {
+          admin_ins.pending_fee_custom_filter.master = [];
+        }
+        if (batch_arr?.length > 0) {
+          admin_ins.pending_fee_custom_filter.batch.push(...batch_arr);
+        } else {
+          admin_ins.pending_fee_custom_filter.batch = [];
+        }
+        if (depart_arr?.length > 0) {
+          admin_ins.pending_fee_custom_filter.department.push(...depart_arr);
+        } else {
+          admin_ins.pending_fee_custom_filter.department = [];
+        }
       }
       admin_ins.active_tab_index = "Pending_Fees_Query";
       await admin_ins.save();
       // if (student?.length > 0) {
+      student = await nested_document_limit(page, limit, student);
       var remain_fee = student?.filter((ref) => {
         if (ref?.admissionRemainFeeCount > 0) return ref;
       });
@@ -3972,6 +3977,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     status.feeStructure = structure?._id;
     status.for_selection = "Yes";
     status.studentId = student?._id;
+    status.student = student?._id;
     status.instituteId = institute._id;
     notify.notifyContent = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
     // console.log(
@@ -5358,6 +5364,7 @@ Payment modes available:`;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
       aStatus.studentId = student._id;
+      aStatus.student = student?._id;
       aStatus.finance = finance?._id;
       aStatus.admissionFee = student?.fee_structure.total_admission_fees;
       notify.notifyContent = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees. or contact institute if neccessory`;
@@ -5435,6 +5442,7 @@ exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
     status.content = `You admission is cancelled for ${apply.applicationName}. Due to no further activity `;
     status.applicationId = apply._id;
     status.studentId = student._id;
+    status.student = student?._id;
     user.applicationStatus.push(status._id);
     status.instituteId = admission_admin?.institute;
     notify.notifyContent = `You admission is cancelled for ${apply.applicationName}. Due to no further activity`;
@@ -8121,6 +8129,44 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
             appId: apply?._id,
           });
           valid_remain_list.active_payment_type = "First Installment";
+          if (
+            valid_remain_list?.re_admission_class != null &&
+            valid_remain_list?.re_admission_flow
+          ) {
+            var classes = await Class.findById({
+              _id: `${valid_remain_list?.re_admission_class}`,
+            });
+            var batch = await Batch.findById({ _id: `${classes?.batch}` });
+            var depart = await Department.findById({
+              _id: `${batch?.department}`,
+            });
+            if (classes?.ApproveStudent?.includes(student._id)) {
+            } else {
+              classes?.ApproveStudent.push(student._id);
+              classes?.UnApproveStudent.pull(student._id);
+            }
+            if (batch?.ApproveStudent?.includes(student._id)) {
+            } else {
+              batch?.ApproveStudent.push(student._id);
+              batch?.UnApproveStudent.pull(student._id);
+            }
+            if (depart?.ApproveStudent?.includes(student._id)) {
+            } else {
+              depart?.ApproveStudent.push(student._id);
+              depart?.UnApproveStudent.pull(student._id);
+            }
+            classes.studentCount += 1;
+            if (student.studentGender === "Male") {
+              classes.boyCount += 1;
+            } else if (student.studentGender === "Female") {
+              classes.girlCount += 1;
+            } else if (student.studentGender === "Other") {
+              classes.otherCount += 1;
+            } else {
+            }
+            student.studentROLLNO = classes.ApproveStudent?.length + 1;
+            await Promise.all([classes.save(), batch.save(), depart.save()]);
+          }
         } else {
           await update_fee_head_query(student, price, apply, new_receipt);
           for (var match of student?.paidFeeList) {
@@ -8460,6 +8506,44 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
           appId: apply?._id,
         });
         valid_remain_list.active_payment_type = "First Installment";
+        if (
+          valid_remain_list?.re_admission_class != null &&
+          valid_remain_list?.re_admission_flow
+        ) {
+          var classes = await Class.findById({
+            _id: `${valid_remain_list?.re_admission_class}`,
+          });
+          var batch = await Batch.findById({ _id: `${classes?.batch}` });
+          var depart = await Department.findById({
+            _id: `${batch?.department}`,
+          });
+          if (classes?.ApproveStudent?.includes(student._id)) {
+          } else {
+            classes?.ApproveStudent.push(student._id);
+            classes?.UnApproveStudent.pull(student._id);
+          }
+          if (batch?.ApproveStudent?.includes(student._id)) {
+          } else {
+            batch?.ApproveStudent.push(student._id);
+            batch?.UnApproveStudent.pull(student._id);
+          }
+          if (depart?.ApproveStudent?.includes(student._id)) {
+          } else {
+            depart?.ApproveStudent.push(student._id);
+            depart?.UnApproveStudent.pull(student._id);
+          }
+          classes.studentCount += 1;
+          if (student.studentGender === "Male") {
+            classes.boyCount += 1;
+          } else if (student.studentGender === "Female") {
+            classes.girlCount += 1;
+          } else if (student.studentGender === "Other") {
+            classes.otherCount += 1;
+          } else {
+          }
+          student.studentROLLNO = classes.ApproveStudent?.length + 1;
+          await Promise.all([classes.save(), batch.save(), depart.save()]);
+        }
       } else {
         await update_fee_head_query(student, price, apply, new_receipt);
         for (var match of student?.paidFeeList) {
@@ -8724,15 +8808,24 @@ exports.renderPendingListStudentQuery = async (req, res) => {
 exports.renderPendingCustomFilterQuery = async (req, res) => {
   try {
     const { aid } = req.params;
+    const { flow } = req.query;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
 
-    const ads_admin = await Admission.findById({ _id: aid }).select(
-      "pending_fee_custom_filter"
-    );
+    if (flow === "Admission_Filter") {
+      var ads_admin = await Admission.findById({ _id: aid }).select(
+        "pending_fee_custom_filter"
+      );
+    } else if (flow === "Institute_Filter") {
+      var ads_admin = await InstituteAdmin.findById({ _id: aid }).select(
+        "pending_fee_custom_filter"
+      );
+    } else {
+      var ads_admin = "" || null;
+    }
 
     res.status(200).send({
       message: "Explore New Custom Filter",

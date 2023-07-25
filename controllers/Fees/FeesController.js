@@ -776,7 +776,7 @@ exports.retrieveStudentOneFeeReceiptQuery = async (req, res) => {
         path: "internal_fees",
       });
     var one_account = await BankAccount.findOne({
-      department: receipt?.internal_fees?.department,
+      departments: { $in: receipt?.internal_fees?.department },
     }).select(
       "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
     );

@@ -26,6 +26,12 @@ const bankAccountSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  departments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+    },
+  ],
   transport: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Transport",

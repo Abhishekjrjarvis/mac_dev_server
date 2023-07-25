@@ -1159,7 +1159,14 @@ exports.getDashDataQuery = async (req, res) => {
     }
     if (user) {
       // Add Another Encryption
-      res.status(200).send({ message: "Success", user, post, profile_modification: user?.profile_modification, });
+      res
+        .status(200)
+        .send({
+          message: "Success",
+          user,
+          post,
+          profile_modification: user?.profile_modification,
+        });
     } else {
       res.status(404).send({ message: "Failure" });
     }
@@ -2152,6 +2159,15 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
         path: "applicationStatus",
         populate: {
           path: "bank_account",
+        },
+        options,
+      })
+      .populate({
+        path: "applicationStatus",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName valid_full_name studentStatus application_print",
         },
         options,
       });

@@ -32,7 +32,7 @@ exports.photoEditByStaff = async (req, res) => {
     if (!req.params.sid || !req.file)
       throw "Please send staff id to perform task or upload photo";
     const staff = await Staff.findById(req.params.sid);
-    await deleteFile(staff.staffProfilePhoto);
+    // await deleteFile(staff.staffProfilePhoto);
     const results = await uploadFile(req.file);
     staff.staffProfilePhoto = results.Key;
     await staff.save();

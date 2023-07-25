@@ -99,6 +99,12 @@ const departmentSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  UnApproveStudent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
   studentComplaint: [
     {
       type: mongoose.Schema.Types.ObjectId,

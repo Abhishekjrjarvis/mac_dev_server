@@ -72,6 +72,7 @@ const { handle_undefined } = require("../../Handler/customError");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 const FeeStructure = require("../../models/Finance/FeesStructure");
 const RemainingList = require("../../models/Admission/RemainingList");
+const Hostel = require("../../models/Hostel/hostel");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -1552,6 +1553,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       aStatus.see_secure = true;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
+      aStatus.student = student._id;
       //
       invokeMemberTabNotification(
         "Staff Activity",
@@ -1744,6 +1746,7 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
       aStatus.see_secure = true;
+      aStatus.staff = staff._id;
       await Promise.all([
         staff.save(),
         institute.save(),
@@ -1876,7 +1879,7 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         _id: `${admission.institute}`,
       });
       var filtered_account = await BankAccount.findOne({
-        department: `${apply?.applicationDepartment}`,
+        departments: { $in: apply?.applicationDepartment },
       });
       const status = new Status({});
       const studentOptionalSubject = req.body?.optionalSubject
@@ -1932,6 +1935,7 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 Note: Stay tuned for further updates.`;
       status.applicationId = apply._id;
       status.document_visible = true;
+      status.student = student._id;
       status.finance = institute?.financeDepart?.[0];
       user.student.push(student._id);
       status.bank_account = filtered_account?._id;
@@ -1960,6 +1964,223 @@ Note: Stay tuned for further updates.`;
       ]);
       invokeMemberTabNotification(
         "Admission Status",
+        status.content,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
+      const token = generateAccessToken(
+        user?.username,
+        user?._id,
+        user?.userPassword
+      );
+      res.status(200).send({
+        message:
+          "Account Creation Process Completed & message: Taste a bite of sweets till your application is selected, 😀✨",
+        user,
+        token: `Bearer ${token}`,
+        login: true,
+        student: student?._id,
+      });
+    } else {
+      res.status(200).send({
+        message: "Bug in the direct joining process 😡",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveDirectJoinHostelQuery = async (req, res) => {
+  try {
+    const { id, aid } = req.params;
+    const { sample_pic, fileArray } = req.body;
+    if (
+      !id &&
+      !aid &&
+      !req.body.studentFirstName &&
+      !req.body.studentLastName &&
+      !req.body.studentGender &&
+      !req.body.studentDOB
+    )
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const valid = await filter_unique_username(
+      req.body.studentFirstName,
+      req.body.studentDOB
+    );
+    if (!valid?.exist) {
+      const genUserPass = bcrypt.genSaltSync(12);
+      const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+      var user = new User({
+        userLegalName: `${req.body.studentFirstName} ${
+          req.body.studentMiddleName ? req.body.studentMiddleName : ""
+        } ${req.body.studentLastName ? req.body.studentLastName : ""}`,
+        userGender: req.body.studentGender,
+        userDateOfBirth: req.body.studentDOB,
+        username: valid?.username,
+        userStatus: "Approved",
+        userPhoneNumber: id,
+        userPassword: hashUserPass,
+        photoId: "0",
+        coverId: "2",
+        remindLater: rDate,
+        next_date: c_date,
+      });
+      admins.users.push(user);
+      admins.userCount += 1;
+      await Promise.all([admins.save(), user.save()]);
+      var uInstitute = await InstituteAdmin.findOne({
+        isUniversal: "Universal",
+      })
+        .select("id userFollowersList followersCount")
+        .populate({ path: "posts" });
+      if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+        const post = await Post.find({
+          _id: { $in: uInstitute.posts },
+          postStatus: "Anyone",
+        });
+        post.forEach(async (ele) => {
+          user.userPosts.push(ele);
+        });
+        await user.save();
+      }
+      //
+      var b_date = user.userDateOfBirth.slice(8, 10);
+      var b_month = user.userDateOfBirth.slice(5, 7);
+      var b_year = user.userDateOfBirth.slice(0, 4);
+      if (b_date > p_date) {
+        p_date = p_date + month[b_month - 1];
+        p_month = p_month - 1;
+      }
+      if (b_month > p_month) {
+        p_year = p_year - 1;
+        p_month = p_month + 12;
+      }
+      var get_cal_year = p_year - b_year;
+      if (get_cal_year > 13) {
+        user.ageRestrict = "No";
+      } else {
+        user.ageRestrict = "Yes";
+      }
+      await user.save();
+      //
+      if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+      } else {
+        uInstitute.userFollowersList.push(user._id);
+        uInstitute.followersCount += 1;
+        user.userInstituteFollowing.push(uInstitute._id);
+        user.followingUICount += 1;
+        await Promise.all([uInstitute.save(), user.save()]);
+        const posts = await Post.find({ author: `${uInstitute._id}` });
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = uInstitute.followersCount;
+          await ele.save();
+        });
+      }
+      const student = new Student({ ...req.body });
+      student.valid_full_name = `${student?.studentFirstName} ${
+        student?.studentMiddleName ?? ""
+      } ${student?.studentLastName}`;
+      const apply = await NewApplication.findById({ _id: aid });
+      const one_hostel = await Hostel.findById({
+        _id: `${apply.hostelAdmin}`,
+      }).select("institute");
+      const institute = await InstituteAdmin.findById({
+        _id: `${one_hostel?.institute}`,
+      });
+      var filtered_account = await BankAccount.findOne({
+        departments: { $in: apply?.applicationDepartment },
+      });
+      const status = new Status({});
+      const studentOptionalSubject = req.body?.optionalSubject
+        ? req.body?.optionalSubject
+        : [];
+      for (var file of fileArray) {
+        if (file.name === "file") {
+          student.photoId = "0";
+          student.studentProfilePhoto = file.key;
+          user.profilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          student.studentAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          student.studentAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          student.studentBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          student.studentCasteCertificatePhoto = file.key;
+        else {
+          student.studentDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
+        }
+      }
+      if (studentOptionalSubject?.length > 0) {
+        student.studentOptionalSubject.push(...studentOptionalSubject);
+      }
+      if (sample_pic) {
+        user.profilePhoto = sample_pic;
+        student.photoId = "0";
+        student.studentProfilePhoto = sample_pic;
+      }
+      status.content = `Your application for ${apply?.applicationName} have been filled successfully.
+
+Below is the admission process:
+1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)
+
+2.After selection, confirm from your side and start the admission process.
+
+3.After confirmation from your side, visit the institute with the required documents and applicable fees. (You will get Required documents and application fees information on your selection from the institute side. (Till then check our standard required documents and fee structures)
+
+4.Payment modes available for fee payment: 
+Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe, Google pay, Paytm)
+
+5.After submission and verification of documents, you are required to pay application admission fees.
+
+6. Pay application admission fees and your admission will be confirmed and complete.
+
+7. For cancellation and refund, contact the admission department.
+
+Note: Stay tuned for further updates.`;
+      status.applicationId = apply._id;
+      status.document_visible = true;
+      status.student = student._id;
+      status.finance = institute?.financeDepart?.[0];
+      user.student.push(student._id);
+      status.bank_account = filtered_account?._id;
+      user.applyApplication.push(apply._id);
+      status.flow_status = "Hostel Application";
+      student.user = user._id;
+      user.applicationStatus.push(status._id);
+      status.instituteId = institute._id;
+      apply.receievedApplication.push({
+        student: student._id,
+        fee_remain: 0,
+      });
+      apply.receievedCount += 1;
+      if (institute.userFollowersList.includes(user?._id)) {
+      } else {
+        user.userInstituteFollowing.push(institute._id);
+        user.followingUICount += 1;
+        institute.userFollowersList.push(user?._id);
+        institute.followersCount += 1;
+      }
+      await Promise.all([
+        student.save(),
+        user.save(),
+        status.save(),
+        apply.save(),
+        institute.save(),
+      ]);
+      invokeMemberTabNotification(
+        "Hostel Admission Status",
         status.content,
         "Application Status",
         user._id,
@@ -2189,6 +2410,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
+    aStatus.student = student._id;
     student.fee_structure =
       is_remain === "No" ? fee_struct : batch_set[0]?.fee_struct;
     await student.save();
@@ -2495,6 +2717,7 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
     aStatus.content = `Welcome to ${institute.insName}.Your application for joining as staff  has been accepted by ${institute.insName}.`;
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
+    aStatus.staff = staff._id;
     invokeFirebaseNotification(
       "Staff Approval",
       notify,
@@ -3032,6 +3255,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
         user.applicationStatus.push(aStatus._id);
         aStatus.instituteId = institute._id;
+        aStatus.student = student._id;
         student.fee_structure =
           query?.is_remain === "No"
             ? query?.fee_struct
@@ -3538,6 +3762,7 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
         aStatus.content = `Welcome to ${institute.insName}.Your application for joining as staff  has been accepted by ${institute.insName}.`;
         user.applicationStatus.push(aStatus._id);
         aStatus.instituteId = institute._id;
+        aStatus.staff = staff?._id;
         invokeFirebaseNotification(
           "Staff Approval",
           notify,
@@ -3974,6 +4199,7 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
         aStatus.see_secure = true;
         user.applicationStatus.push(aStatus._id);
         aStatus.instituteId = institute._id;
+        aStatus.student = student._id;
         await Promise.all([
           student.save(),
           institute.save(),

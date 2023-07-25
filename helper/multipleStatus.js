@@ -30,13 +30,14 @@ exports.insert_multiple_status = async (
 ) => {
   try {
     var filtered_account = await BankAccount.findOne({
-      department: `${args?.applicationDepartment}`,
+      departments: { $in: args?.applicationDepartment },
     });
     const statusArray = [
       {
         content: `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`,
         applicationId: args?._id,
         instituteId: iargs?._id,
+        student: sid,
       },
       {
         content: `Your application for ${args?.applicationName} have been filled successfully.
@@ -64,6 +65,7 @@ Note: Stay tuned for further updates. Tap here to see username ${uargs?.username
         document_visible: true,
         finance: finance?._id,
         bank_account: filtered_account?._id,
+        student: sid,
       },
       // {
       //   content: `You have been selected for ${args.applicationName}. Visit ${iargs.insName} with required documents & fees. Your Fee Structure is ${structure?.structure_name}. Available payment modes.`,

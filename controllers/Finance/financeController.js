@@ -2446,6 +2446,7 @@ exports.renderFinanceBankAddQuery = async (req, res) => {
   try {
     const { fid } = req.params;
     const { flow, flow_id } = req.query;
+    const { depart_arr } = req.body;
     if (!fid && !flow && !flow_id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -2454,11 +2455,14 @@ exports.renderFinanceBankAddQuery = async (req, res) => {
 
     const finance = await Finance.findById({ _id: fid });
     const new_account = new BankAccount({ ...req.body });
-    if (flow === "Department") {
-      const department = await Department.findById({ _id: flow_id });
-      new_account.department = flow_id;
-      department.bank_account = new_account?._id;
-      await department.save();
+    if (flow === "Department" && depart_arr?.length > 0) {
+      for (var ref of depart_arr) {
+        const department = await Department.findById({ _id: `${ref}` });
+        // new_account.department = flow_id;
+        new_account.departments.push(department?._id);
+        department.bank_account = new_account?._id;
+        await department.save();
+      }
     } else if (flow === "Transport") {
       const trans = await Transport.findById({ _id: flow_id });
       new_account.transport = flow_id;
@@ -3501,7 +3505,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
 
     if (receipt?.application?.applicationDepartment) {
       var one_account = await BankAccount.findOne({
-        department: receipt?.application?.applicationDepartment,
+        departments: { $in: receipt?.application?.applicationDepartment },
       }).select(
         "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
       );
@@ -3612,7 +3616,7 @@ exports.renderFinanceAllBankDetails = async (req, res) => {
 
     if (flow === "Department") {
       var all_account = await BankAccount.findOne({
-        $and: [{ department: filter_by }],
+        $and: [{ departments: { $in: filter_by } }],
       }).select(
         "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
       );
@@ -4728,8 +4732,8 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
               ref?.applicable_fee - exist_struct?.total_admission_fees
             ) {
               console.log("Valid Refund Subtract");
-              ref.refund_fee += valid_refund
-              ref.status = "Paid"
+              ref.refund_fee += valid_refund;
+              ref.status = "Paid";
               await ref.save();
             } else {
               console.log("In Valid Refund Entering in Else Part");
@@ -4844,74 +4848,74 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           await retro_receipt_heads_sequencing_query(one_student, rec);
         }
       }
-      // else if (ref?.status === "Not Paid") {
-      //   var one_student = await Student.findById({ _id: `${ref?.student}` });
-      //   var filtered_head = one_student?.active_fee_heads?.filter((val) => {
-      //     if (`${val?.fee_structure}` === `${exist_struct?._id}`) return val;
-      //   });
-      //   for (var ref of filtered_head) {
-      //     one_student.active_fee_heads.pull(ref?._id);
-      //   }
-      //   await one_student.save();
-      //   var filter_remain = await ref?.remaining_array?.filter((val) => {
-      //     if (`${val?.status}` === "Not Paid") return val;
-      //   });
-      //   if (ref?.applicable_fee >= exist_struct?.total_admission_fees) {
-      //     var app_diff =
-      //       ref?.applicable_fee - exist_struct?.total_admission_fees;
-      //     filter_remain = filter_remain.reverse();
-      //     for (var ele of filter_remain) {
-      //       var valid_remain_diff =
-      //         ele?.remainAmount <= app_diff ? true : false;
-      //       if (valid_remain_diff) {
-      //         ele.remainAmount -= valid_remain_diff;
-      //       }
-      //       app_diff -= ele.remainAmount;
-      //     }
-      //     for (var ele of ref?.remaining_array) {
-      //       if (ele?.remainAmount > 0) {
-      //       } else {
-      //         ref.remaining_array.pull(ele?._id);
-      //       }
-      //     }
-      //     ref.applicable_fee = exist_struct?.total_admission_fees;
-      //     if(ref?.remaining_fee > 0){
+      else if (ref?.status === "Not Paid") {
+        ref.applicable_fee = exist_struct?.total_admission_fees;
+        await ref.save()
+        var one_student = await Student.findById({ _id: `${ref?.student}` });
+        var filtered_head = one_student?.active_fee_heads?.filter((val) => {
+          if (`${val?.fee_structure}` === `${exist_struct?._id}`) return val;
+        });
+        for (var ref of filtered_head) {
+          one_student.active_fee_heads.pull(ref?._id);
+        }
+        await one_student.save();
+        var filter_remain = await ref?.remaining_array?.filter((val) => {
+          if (`${val?.status}` === "Not Paid") return val;
+        });
+        if (ref?.applicable_fee >= exist_struct?.total_admission_fees) {
+          var app_diff =
+            ref?.applicable_fee - exist_struct?.total_admission_fees;
+          filter_remain = filter_remain.reverse();
+          for (var ele of filter_remain) {
+            var valid_remain_diff =
+              ele?.remainAmount <= app_diff ? true : false;
+            if (valid_remain_diff) {
+              ele.remainAmount -= valid_remain_diff;
+            }
+            app_diff -= ele.remainAmount;
+          }
+          for (var ele of ref?.remaining_array) {
+            if (ele?.remainAmount > 0) {
+            } else {
+              ref.remaining_array.pull(ele?._id);
+            }
+          }
+          if(ref?.remaining_fee > 0){
 
-      //     }
-      //     else{
-      //       ref.status = "Paid"
-      //     }
-      //     await ref.save();
-      //   } else if (ref?.applicable_fee < exist_struct?.total_admission_fees) {
-      //     if (filter_remain?.length > 0) {
-      //       filter_remain[filter_remain?.length - 1].remainAmount +=
-      //         exist_struct?.total_admission_fees - ref?.applicable_fee;
-      //     }
-      //     ref.applicable_fee = exist_struct?.total_admission_fees;
-      //     ref.remaining_fee +=
-      //       exist_struct?.total_admission_fees - ref?.applicable_fee;
-      //     ref.status = "Not Paid";
-      //     await ref.save();
-      //   }
-      //   // console.log(ref);
-      //   await retro_student_heads_sequencing_query(
-      //     one_student,
-      //     valid_ref,
-      //     exist_struct
-      //   );
-      //   var all_receipt = await FeeReceipt.find({
-      //     _id: { $in: `${one_student?.fee_receipt}` },
-      //   });
-      //   for (var rec of all_receipt) {
-      //     for (var ele of rec?.fee_heads) {
-      //       if (`${ele?.fee_structure}` === `${exist_struct?._id}`) {
-      //         rec.fee_heads.pull(ele?._id);
-      //       }
-      //     }
-      //     await rec.save();
-      //     await retro_receipt_heads_sequencing_query(one_student, rec);
-      //   }
-      // }
+          }
+          else{
+            ref.status = "Paid"
+          }
+          await ref.save();
+        } else if (ref?.applicable_fee < exist_struct?.total_admission_fees) {
+          if (filter_remain?.length > 0) {
+            filter_remain[filter_remain?.length - 1].remainAmount +=
+              exist_struct?.total_admission_fees - ref?.applicable_fee;
+          }
+          ref.remaining_fee +=
+            exist_struct?.total_admission_fees - ref?.applicable_fee;
+          ref.status = "Not Paid";
+          await ref.save();
+        }
+        // console.log(ref);
+        await retro_student_heads_sequencing_query(
+          one_student,
+          valid_ref,
+          exist_struct
+        );
+        var all_receipt = await FeeReceipt.find({
+          _id: { $in: `${one_student?.fee_receipt}` },
+        });
+        for (var rec of all_receipt) {
+          for (var ele of rec?.fee_heads) {
+            if (`${ele?.fee_structure}` === `${exist_struct?._id}`) {
+              rec.fee_heads.pull(ele?._id);
+            }
+          }
+          await rec.save();
+          await retro_receipt_heads_sequencing_query(one_student, rec);
+        }
+      }
     }
   } catch (e) {
     console.log(e);

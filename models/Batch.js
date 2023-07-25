@@ -49,6 +49,12 @@ const batchSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  UnApproveStudent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
   idCardStatus: {
     type: String,
   },

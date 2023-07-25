@@ -115,6 +115,14 @@ const remainingFeeListSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+  re_admission_flow: {
+    type: Boolean,
+    default: false,
+  },
+  re_admission_class: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Class",
+  },
 });
 
 module.exports = mongoose.model("RemainingList", remainingFeeListSchema);

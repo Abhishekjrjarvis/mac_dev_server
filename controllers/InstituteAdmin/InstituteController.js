@@ -49,6 +49,7 @@ const { handle_undefined } = require("../../Handler/customError");
 const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
 const { applicable_pending_calc } = require("../../Functions/SetOff");
 const { send_phone_login_query } = require("../../helper/functions");
+const { nested_document_limit } = require("../../helper/databaseFunction");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -1298,17 +1299,17 @@ exports.retrieveApproveStudentList = async (req, res) => {
       const page = req.query.page ? parseInt(req.query.page) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
       const skip = (page - 1) * limit;
-      const student_ins = await InstituteAdmin.findById({ _id: id }).select(
-        "ApproveStudent insName gr_initials"
+      var student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStudent insName gr_initials pending_fee_custom_filter"
       );
-      const studentIns = await Student.find({
+      var studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
       })
         .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip)
         .select(
-          "studentFirstName studentMiddleName applicable_fees_pending studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+          "studentFirstName studentMiddleName applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -1342,15 +1343,15 @@ exports.retrieveApproveStudentList = async (req, res) => {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
     } else {
-      const student_ins = await InstituteAdmin.findById({ _id: id }).select(
-        "ApproveStudent insName gr_initials"
+      var student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStudent insName gr_initials pending_fee_custom_filter"
       );
-      const studentIns = await Student.find({
+      var studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
       })
         .sort({ createdAt: -1 })
         .select(
-          "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+          "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -1388,6 +1389,215 @@ exports.retrieveApproveStudentList = async (req, res) => {
     console.log(e);
   }
 };
+
+// exports.retrieveApproveStudentList = async (req, res) => {
+//   try {
+//     var { id } = req.params;
+//     const { depart_arr, batch_arr, master_arr, gender, cast_category } =
+//       req.body;
+//     if (req.query.limit) {
+//       const page = req.query.page ? parseInt(req.query.page) : 1;
+//       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+//       const skip = (page - 1) * limit;
+//       var student_ins = await InstituteAdmin.findById({ _id: id }).select(
+//         "ApproveStudent insName gr_initials pending_fee_custom_filter"
+//       );
+//       var studentIns = await Student.find({
+//         _id: { $in: student_ins?.ApproveStudent },
+//       })
+//         .sort({ createdAt: -1 })
+//         // .limit(limit)
+//         // .skip(skip)
+//         .select(
+//           "studentFirstName studentMiddleName applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+//         )
+//         .populate({
+//           path: "user",
+//           select: "userLegalName userEmail userPhoneNumber",
+//         })
+//         .populate({
+//           path: "studentClass",
+//           select: "className classTitle classStatus",
+//         })
+//         .populate({
+//           path: "remainingFeeList",
+//           select: "paid_fee fee_structure",
+//           populate: {
+//             path: "fee_structure",
+//             select: "applicable_fees",
+//           },
+//         })
+//         .populate({
+//           path: "department",
+//           select: "dName",
+//         })
+//         .populate({
+//           path: "studentClass",
+//           select: "masterClassName",
+//         });
+//       if (depart_arr?.length > 0) {
+//         studentIns = studentIns?.filter((ref) => {
+//           if (depart_arr?.includes(`${ref?.department?._id}`)) return ref;
+//         });
+//       }
+//       if (batch_arr?.length > 0) {
+//         studentIns = studentIns?.filter((ref) => {
+//           if (batch_arr?.includes(`${ref?.batches}`)) return ref;
+//         });
+//       }
+//       if (master_arr?.length > 0) {
+//         studentIns = studentIns?.filter((ref) => {
+//           if (master_arr?.includes(`${ref?.studentClass?.masterClassName}`))
+//             return ref;
+//         });
+//       }
+//       if (gender) {
+//         studentIns = studentIns?.filter((ref) => {
+//           if (`${ref?.studentGender}` === `${gender}`) return ref;
+//         });
+//       }
+//       if (cast_category) {
+//         studentIns = studentIns?.filter((ref) => {
+//           if (`${ref?.studentCastCategory}` === `${cast_category}`) return ref;
+//         });
+//       }
+//       student_ins.pending_fee_custom_filter.cast_category = cast_category
+//         ? true
+//         : false;
+//       student_ins.pending_fee_custom_filter.gender = gender ? true : false;
+//       if (master_arr?.length > 0) {
+//         student_ins.pending_fee_custom_filter.master.push(...master_arr);
+//       } else {
+//         student_ins.pending_fee_custom_filter.master = [];
+//       }
+//       if (batch_arr?.length > 0) {
+//         student_ins.pending_fee_custom_filter.batch.push(...batch_arr);
+//       } else {
+//         student_ins.pending_fee_custom_filter.batch = [];
+//       }
+//       if (depart_arr?.length > 0) {
+//         student_ins.pending_fee_custom_filter.department.push(...depart_arr);
+//       } else {
+//         student_ins.pending_fee_custom_filter.department = [];
+//       }
+//       await student_ins.save();
+//       studentIns = await nested_document_limit(page, limit, studentIns);
+//       if (studentIns) {
+//         // const sEncrypt = await encryptionPayload(studentIns);
+//         var valid_list = await applicable_pending_calc(studentIns);
+//         valid_list.sort(function (st1, st2) {
+//           return (
+//             parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+//             parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+//           );
+//         });
+//         res
+//           .status(200)
+//           .send({ message: "All Student with limit", studentIns: valid_list });
+//       } else {
+//         res.status(404).send({ message: "Failure", studentIns: [] });
+//       }
+//     } else {
+//       var student_ins = await InstituteAdmin.findById({ _id: id }).select(
+//         "ApproveStudent insName gr_initials pending_fee_custom_filter"
+//       );
+//       var studentIns = await Student.find({
+//         _id: { $in: student_ins?.ApproveStudent },
+//       })
+//         .sort({ createdAt: -1 })
+//         .select(
+//           "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+//         )
+//         .populate({
+//           path: "user",
+//           select: "userLegalName userEmail userPhoneNumber",
+//         })
+//         .populate({
+//           path: "studentClass",
+//           select: "className classTitle classStatus",
+//         })
+//         .populate({
+//           path: "remainingFeeList",
+//           select: "paid_fee fee_structure",
+//           populate: {
+//             path: "fee_structure",
+//             select: "applicable_fees",
+//           },
+//         })
+//         .populate({
+//           path: "department",
+//           select: "dName",
+//         })
+//         .populate({
+//           path: "studentClass",
+//           select: "masterClassName",
+//         });
+//       if (depart_arr?.length > 0) {
+//         studentIns = studentIns?.filter((ref) => {
+//           if (depart_arr?.includes(`${ref?.department?._id}`)) return ref;
+//         });
+//       }
+//       if (batch_arr?.length > 0) {
+//         studentIns = studentIns?.filter((ref) => {
+//           if (batch_arr?.includes(`${ref?.batches}`)) return ref;
+//         });
+//       }
+//       if (master_arr?.length > 0) {
+//         studentIns = studentIns?.filter((ref) => {
+//           if (master_arr?.includes(`${ref?.studentClass?.masterClassName}`))
+//             return ref;
+//         });
+//       }
+//       if (gender) {
+//         studentIns = studentIns?.filter((ref) => {
+//           if (`${ref?.studentGender}` === `${gender}`) return ref;
+//         });
+//       }
+//       if (cast_category) {
+//         studentIns = studentIns?.filter((ref) => {
+//           if (`${ref?.studentCastCategory}` === `${cast_category}`) return ref;
+//         });
+//       }
+//       student_ins.pending_fee_custom_filter.cast_category = cast_category
+//         ? true
+//         : false;
+//       student_ins.pending_fee_custom_filter.gender = gender ? true : false;
+//       if (master_arr?.length > 0) {
+//         student_ins.pending_fee_custom_filter.master.push(...master_arr);
+//       } else {
+//         student_ins.pending_fee_custom_filter.master = [];
+//       }
+//       if (batch_arr?.length > 0) {
+//         student_ins.pending_fee_custom_filter.batch.push(...batch_arr);
+//       } else {
+//         student_ins.pending_fee_custom_filter.batch = [];
+//       }
+//       if (depart_arr?.length > 0) {
+//         student_ins.pending_fee_custom_filter.department.push(...depart_arr);
+//       } else {
+//         student_ins.pending_fee_custom_filter.department = [];
+//       }
+//       await student_ins.save();
+//       if (studentIns) {
+//         // const sEncrypt = await encryptionPayload(studentIns);
+//         var valid_list = await applicable_pending_calc(studentIns);
+//         valid_list.sort(function (st1, st2) {
+//           return (
+//             parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+//             parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+//           );
+//         });
+//         res
+//           .status(200)
+//           .send({ message: "Without Limit", studentIns: valid_list });
+//       } else {
+//         res.status(404).send({ message: "Failure", studentIns: [] });
+//       }
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 
 exports.retrieveUnApproveStudentListQuery = async (req, res) => {
   try {
@@ -3171,6 +3381,35 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
   }
 };
 
+exports.retrieveUnApproveCatalogArray = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const classes = await Class.findById({ _id: cid })
+      .select(
+        "className classStatus classTitle exams boyCount girlCount studentCount"
+      )
+      .populate({
+        path: "UnApproveStudent",
+        select:
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
+        populate: {
+          path: "user",
+          select: "userLegalName username",
+        },
+      })
+      .lean()
+      .exec();
+
+    classes?.UnApproveStudent.sort(function (st1, st2) {
+      return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+    });
+    // const cEncrypt = await encryptionPayload(classes);
+    res.status(200).send({ message: "Un Approve catalog", classes: classes });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.retrieveDepartmentStaffArray = async (req, res) => {
   try {
     const { did } = req.params;
@@ -3650,12 +3889,12 @@ exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
       institute.ApproveStudent.push(student._id);
       admins.studentArray.push(student._id);
       admins.studentCount += 1;
-      institute.UnApprovedStudent.pull(sid);
+      institute.UnApprovedStudent.pull(student._id);
       institute.studentCount += 1;
       classes.strength += 1;
       classes.ApproveStudent.push(student._id);
       classes.studentCount += 1;
-      classes.student.pull(sid);
+      classes.student.pull(student._id);
       student.studentGRNO = `${
         institute?.gr_initials ? institute?.gr_initials : `Q`
       }${depart?.gr_initials ?? ""}${institute.ApproveStudent.length}`;

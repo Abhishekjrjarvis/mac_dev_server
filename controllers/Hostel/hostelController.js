@@ -496,6 +496,9 @@ exports.renderOneHostelRoomAllBedQuery = async (req, res) => {
       select:
         "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
     });
+    all_beds = all_beds?.filter((val) => {
+      if (!`${val?.bed_allotted_candidate}`) return val;
+    });
     if (all_beds?.length > 0) {
       res.status(200).send({
         message: "Explore All Hostel Beds",
@@ -1283,6 +1286,7 @@ exports.renderHostelSelectedQuery = async (req, res) => {
     status.applicationId = apply._id;
     status.for_selection = "Yes";
     status.studentId = student._id;
+    status.student = student?._id;
     status.admissionFee = structure.total_admission_fees;
     status.instituteId = one_hostel?.institute;
     status.finance = finance?._id;
@@ -4173,6 +4177,7 @@ exports.renderHostelCancelApplication = async (req, res) => {
     status.content = `You have been rejected for ${apply.applicationName}. Best of luck for next time `;
     status.applicationId = apply._id;
     status.studentId = student._id;
+    status.student = student?._id;
     user.applicationStatus.push(status._id);
     status.instituteId = hostel_admin?.institute;
     await Promise.all([
@@ -4225,6 +4230,7 @@ exports.renderHostelCancelApplicationRenewal = async (req, res) => {
     status.content = `You have been rejected for ${one_unit.hostel_unit_name}. Best of luck for next time `;
     status.hostelUnit = one_unit?._id;
     status.studentId = student._id;
+    status.student = student?._id;
     user.applicationStatus.push(status._id);
     status.flow_status = "Hostel Application";
     status.instituteId = hostel_admin?.institute;
@@ -4319,6 +4325,7 @@ exports.renderHostelSelectedRenewalQuery = async (req, res) => {
     status.content = `You have been selected for ${one_unit?.hostel_unit_name}. Confirm your admission`;
     status.for_selection = "No";
     status.studentId = student._id;
+    status.student = student?._id;
     status.hostelUnit = one_unit?._id;
     status.flow_status = "Hostel Application";
     status.admissionFee = structure.total_admission_fees;
@@ -4662,30 +4669,30 @@ exports.renderAllotHostedBedRenewalQuery = async (req, res) => {
           } else {
           }
         }
-        if (bed_mode === "Different") {
-          var bed = new HostelBed({});
-          bed.bed_allotted_candidate = student?._id;
-          bed.hostelRoom = room?._id;
-          bed.bed_number = room.bed_count + 1 - room.vacant_count;
-          if (room?.vacant_count > 0) {
-            room.vacant_count -= 1;
-          }
-          room.beds.push(bed?._id);
-          one_unit.hostelities_count += 1;
-          one_unit.hostelities.push(student?._id);
-          one_hostel.hostelities_count += 1;
-          student.student_bed_number = bed?._id;
-          student.student_unit = one_unit?._id;
-          if (student?.studentGender === "Male") {
-            one_hostel.boy_count += 1;
-          } else if (student?.studentGender === "Female") {
-            one_hostel.girl_count += 1;
-          } else if (student?.studentGender === "Other") {
-            one_hostel.other_count += 1;
-          } else {
-          }
-          await bed.save();
-        }
+        // if (bed_mode === "Different") {
+        //   var bed = new HostelBed({});
+        //   bed.bed_allotted_candidate = student?._id;
+        //   bed.hostelRoom = room?._id;
+        //   bed.bed_number = room.bed_count + 1 - room.vacant_count;
+        //   if (room?.vacant_count > 0) {
+        //     room.vacant_count -= 1;
+        //   }
+        //   room.beds.push(bed?._id);
+        //   one_unit.hostelities_count += 1;
+        //   one_unit.hostelities.push(student?._id);
+        //   one_hostel.hostelities_count += 1;
+        //   student.student_bed_number = bed?._id;
+        //   student.student_unit = one_unit?._id;
+        //   if (student?.studentGender === "Male") {
+        //     one_hostel.boy_count += 1;
+        //   } else if (student?.studentGender === "Female") {
+        //     one_hostel.girl_count += 1;
+        //   } else if (student?.studentGender === "Other") {
+        //     one_hostel.other_count += 1;
+        //   } else {
+        //   }
+        //   await bed.save();
+        // }
         one_unit.renewal_allotted_application.push({
           student: student._id,
           payment_status: "offline",
@@ -6080,6 +6087,7 @@ exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
     status.content = `You admission is cancelled for ${apply.applicationName}. Due to no further activity `;
     status.applicationId = apply._id;
     status.studentId = student._id;
+    status.student = student?._id;
     user.applicationStatus.push(status._id);
     status.instituteId = admission_admin?.institute;
     // student.active_status.pull(aStatus?._id);

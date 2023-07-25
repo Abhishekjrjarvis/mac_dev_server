@@ -71,6 +71,9 @@ exports.hostelInstituteFunction = async (
       path: "financeHead",
       select: "user",
     });
+    var finance_user = await User.findById({
+      _id: `${finance?.financeHead?.user}`,
+    });
     var is_install;
     if (
       parseInt(tx_amount_ad) <=
@@ -297,7 +300,8 @@ exports.hostelInstituteFunction = async (
       notify.notifyReceiever = user._id;
       // ins.iNotify.push(notify._id);
       // notify.institute = ins._id;
-      user.uNotify.push(notify._id);
+      user.activity_tab.push(notify._id);
+      finance_user.activity_tab.push(notify._id);
       notify.notifyCategory = "Hostel Online Fee";
       notify.user = user._id;
       notify.notifyByStudentPhoto = student._id;
@@ -320,6 +324,7 @@ exports.hostelInstituteFunction = async (
         new_remainFee.save(),
         renew.save(),
         account.save(),
+        finance_user.save(),
       ]);
     } else {
       const new_receipt = new FeeReceipt({

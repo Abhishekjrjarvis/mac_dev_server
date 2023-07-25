@@ -69,6 +69,14 @@ const statusSchema = new mongoose.Schema({
   admission_process: {
     type: String,
   },
+  student: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Student",
+  },
+  staff: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff",
+  },
 });
 
 module.exports = mongoose.model("Status", statusSchema);

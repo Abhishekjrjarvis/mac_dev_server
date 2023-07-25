@@ -369,7 +369,7 @@ exports.allClasses = async (req, res) => {
 exports.promoteStudent = async (req, res) => {
   try {
     const { departmentId, batchId, classId } = req.body;
-    const { flow } = req.query;
+    const { flow, re_ads } = req.query;
     const previousclasses = await Class.findById(req.params.cid);
     const classes = await Class.findById(classId);
     const batch = await Batch.findById(batchId);
@@ -584,7 +584,7 @@ exports.promoteStudent = async (req, res) => {
           student.batches = batchId;
           //here how to give the null in objectID
           student.studentBehaviour = null;
-          student.studentROLLNO = roll;
+          student.studentROLLNO = re_ads === "WITH_RE_ADMISSION" ? "" : roll;
           student.subjectMarks = [];
           student.exams = [];
           student.finalReportStatus = "No";
@@ -664,8 +664,12 @@ exports.promoteStudent = async (req, res) => {
               structure_card
             );
             new_remainFee.fee_structure = structure[0]?._id;
+            new_remainFee.re_admission_flow =
+              re_ads === "WITH_RE_ADMISSION" ? true : false;
             new_remainFee.remaining_fee += structure[0]?.total_admission_fees;
             student.remainingFeeList.push(new_remainFee?._id);
+            new_remainFee.re_admission_class =
+              re_ads === "WITH_RE_ADMISSION" ? classes?._id : null;
             student.remainingFeeList_count += 1;
             new_remainFee.student = student?._id;
             admission.remainingFee.push(student._id);
@@ -680,36 +684,62 @@ exports.promoteStudent = async (req, res) => {
             ]);
           }
           roll += 1;
-          if (classes?.ApproveStudent?.includes(student._id)) {
+          if (re_ads === "WITH_RE_ADMISSION") {
+            if (classes?.UnApproveStudent?.includes(student._id)) {
+            } else {
+              classes?.UnApproveStudent.push(student._id);
+            }
+            if (batch?.UnApproveStudent?.includes(student._id)) {
+            } else {
+              batch?.UnApproveStudent.push(student._id);
+            }
+            if (department?.UnApproveStudent?.includes(student._id)) {
+            } else {
+              department?.UnApproveStudent.push(student._id);
+            }
           } else {
-            classes?.ApproveStudent.push(student._id);
+            if (classes?.ApproveStudent?.includes(student._id)) {
+            } else {
+              classes?.ApproveStudent.push(student._id);
+            }
+            if (batch?.ApproveStudent?.includes(student._id)) {
+            } else {
+              batch?.ApproveStudent.push(student._id);
+            }
+            if (department?.ApproveStudent?.includes(student._id)) {
+            } else {
+              department?.ApproveStudent.push(student._id);
+            }
           }
-          if (batch?.ApproveStudent?.includes(student._id)) {
-          } else {
-            batch?.ApproveStudent.push(student._id);
-          }
-          if (department?.ApproveStudent?.includes(student._id)) {
-          } else {
-            department?.ApproveStudent.push(student._id);
-          }
-
           previousclasses?.promoteStudent?.push(stu);
           // previousclasses?.ApproveStudent?.pull(stu);
-          classes.studentCount += 1;
+          if (re_ads === "WITH_RE_ADMISSION") {
+          } else {
+            classes.studentCount += 1;
+          }
           await student.save();
 
           if (student.studentGender === "Male") {
-            classes.boyCount += 1;
+            if (re_ads === "WITH_RE_ADMISSION") {
+            } else {
+              classes.boyCount += 1;
+            }
             if (!same_batch_promotion) {
               batch.student_category.boyCount += 1;
             }
           } else if (student.studentGender === "Female") {
-            classes.girlCount += 1;
+            if (re_ads === "WITH_RE_ADMISSION") {
+            } else {
+              classes.girlCount += 1;
+            }
             if (!same_batch_promotion) {
               batch.student_category.girlCount += 1;
             }
           } else if (student.studentGender === "Other") {
-            classes.otherCount += 1;
+            if (re_ads === "WITH_RE_ADMISSION") {
+            } else {
+              classes.otherCount += 1;
+            }
             if (!same_batch_promotion) {
               batch.student_category.otherCount += 1;
             }

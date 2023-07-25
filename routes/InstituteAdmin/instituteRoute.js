@@ -211,6 +211,12 @@ router.get(
   catchAsync(Institute.retrieveApproveStudentList)
 );
 
+// router.patch(
+//   "/:id/approve-student/list",
+
+//   catchAsync(Institute.retrieveApproveStudentList)
+// );
+
 router.get(
   "/:id/unapprove-student/list/query",
   catchAsync(Institute.retrieveUnApproveStudentListQuery)
@@ -458,6 +464,11 @@ router.get(
   "/:cid/student/catalog",
 
   catchAsync(Institute.retrieveApproveCatalogArray)
+);
+
+router.get(
+  "/:cid/student/un/approve/catalog",
+  catchAsync(Institute.retrieveUnApproveCatalogArray)
 );
 
 router.get(

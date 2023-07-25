@@ -20,4 +20,9 @@ router
   .get(siteController.getHostelInfo)
   .patch(isLoggedIn, siteController.updateHostelInfo);
 
+router
+  .route("/institute/:id/opener")
+  .get(siteController.getInstituteSiteOpeners)
+  .patch(isLoggedIn, siteController.updateInstituteSiteOpeners);
+
 module.exports = router;

@@ -16,7 +16,7 @@ const Admission = require("../../models/Admission/Admission");
 const { chatCount } = require("../../Firebase/dailyChat");
 const { getFirestore } = require("firebase-admin/firestore");
 const { valid_initials } = require("../../Custom/checkInitials");
-const { simple_object } = require("../../S3Configuration");
+const { simple_object, uploadFile } = require("../../S3Configuration");
 const Hostel = require("../../models/Hostel/hostel");
 const ClassMaster = require("../../models/ClassMaster");
 const {
@@ -164,7 +164,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
   try {
     const { gr, id } = req.params;
     var download = true;
-    const { reason } = req.body;
+    const { reason, student_bona_message } = req.body;
     const institute = await InstituteAdmin.findById({
       _id: id,
     });
@@ -175,7 +175,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentGRNO studentMiddleName studentReason studentBonaStatus certificateBonaFideCopy studentAdmissionDate studentLastName photoId studentProfilePhoto studentDOB"
+        "studentFirstName studentGRNO studentMiddleName studentReason studentBonaStatus student_bona_message certificateBonaFideCopy studentAdmissionDate studentLastName photoId studentProfilePhoto studentDOB"
       )
       .populate({
         path: "studentClass",
@@ -191,6 +191,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
           "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto",
       });
     student.studentReason = reason;
+    student.student_bona_message = student_bona_message;
     student.studentBonaStatus = "Ready";
     institute.b_certificate_count += 1;
     if (student.certificateBonaFideCopy.trueCopy) {
@@ -1796,6 +1797,37 @@ exports.renderExcelToJSONUnApprovedStudentQuery = async (req, res) => {
     } else {
       console.log("false");
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderApplicationCDNQuery = async (req, res) => {
+  try {
+    const { sid } = req.query;
+    var file = req.file
+    if (!sid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+
+    var student = await Student.findById({ _id: sid });
+    const results = await uploadFile(file);
+    student.application_print.push({
+      value: results.Key,
+    });
+    await student.save();
+    res
+      .status(200)
+      .send({
+        message: "Explore Application Print ",
+        access: true,
+        student: student.application_print,
+      });
+    await unlinkFile(file.path);
   } catch (e) {
     console.log(e);
   }

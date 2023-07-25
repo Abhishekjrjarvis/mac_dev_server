@@ -338,3 +338,66 @@ exports.updateHostelInfo = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.getInstituteSiteOpeners = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "You fetch api with proper knownledge",
+        access: true,
+      });
+    const institute = await InstituteAdmin.findById(id).select(
+      "site_flash_notice"
+    );
+    res.status(200).send({
+      message: "get institute site opener detail 😋😊😋",
+      institute: institute ?? null,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.updateInstituteSiteOpeners = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "You fetch api with proper knownledge",
+        access: true,
+      });
+
+    const institute = await InstituteAdmin.findById(id);
+
+    for (let flash of req.body?.flash_notice) {
+      if (flash?.flashId) {
+        for (let a_flash of institute.site_flash_notice) {
+          if (String(a_flash?._id) === String(flash?.flashId)) {
+            a_flash.notice_title = flash.notice_title;
+            a_flash.notice_image = flash.notice_image;
+            a_flash.notice_button_name = flash.notice_button_name;
+            a_flash.notice_button_link = flash.notice_button_link;
+          }
+        }
+      } else {
+        institute.site_flash_notice.push({
+          notice_title: flash.notice_title,
+          notice_image: flash.notice_image,
+          notice_button_name: flash.notice_button_name,
+          notice_button_link: flash.notice_button_link,
+        });
+      }
+    }
+
+    await institute.save();
+    res.status(200).send({
+      message: "flash notices edited successful. 😙",
+      access: true,
+    });
+    if (req.body?.previousKey) await deleteFile(req.body.previousKey);
+  } catch (e) {
+    console.log(e);
+  }
+};

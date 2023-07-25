@@ -41,6 +41,12 @@ const classSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  UnApproveStudent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
   promoteStudent: [
     {
       type: mongoose.Schema.Types.ObjectId,

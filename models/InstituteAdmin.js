@@ -853,6 +853,27 @@ const instituteAdminSchema = new mongoose.Schema({
   random_institute_code: {
     type: String,
   },
+  pending_fee_custom_filter: {
+    gender: {
+      type: Boolean,
+      default: false,
+    },
+    cast_category: {
+      type: Boolean,
+      default: false,
+    },
+    department: [],
+    batch: [],
+    master: [],
+  },
+  site_flash_notice: [
+    {
+      notice_title: { type: String },
+      notice_image: { type: String },
+      notice_button_name: { type: String },
+      notice_button_link: { type: String },
+    },
+  ],
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

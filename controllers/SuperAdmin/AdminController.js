@@ -1295,7 +1295,7 @@ exports.renderAllRepayBankAccountQuery = async (req, res) => {
     var all = [];
     var one_institute = await InstituteAdmin.findById({ _id: id });
     var all_account = await BankAccount.find({
-      $and: [{ department: { $in: one_institute?.depart } }],
+      $and: [{ departments: { $in: one_institute?.depart } }],
     });
     var hostel_account = await BankAccount.find({
       hostel: `${one_institute?.hostelDepart?.[0]}`,

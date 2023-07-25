@@ -260,4 +260,10 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONUnApprovedStudentQuery)
 );
 
+router.patch(
+  "/application/print/cdn/:sid/query",
+  upload.single("file"),
+  catchAsync(Extra.renderApplicationCDNQuery)
+);
+
 module.exports = router;

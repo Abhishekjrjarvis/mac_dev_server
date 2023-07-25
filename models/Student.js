@@ -627,6 +627,19 @@ const studentSchema = new mongoose.Schema({
     type: String,
     default: "Not Guested",
   },
+  application_print: [
+    {
+      created_at: {
+        type: Date,
+        default: Date.now,
+      },
+      flow: { type: String },
+      value: { type: String },
+    },
+  ],
+  student_bona_message: {
+    type: String,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

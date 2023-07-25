@@ -51,10 +51,13 @@ exports.initiate = async (req, res) => {
       ad_status_id,
       payment_card_id,
     } = req.body;
-    let gatewayCharges = (parseInt(amount) * 2.1) / 100;
-    let gst = (+gatewayCharges * 18) / 100;
-    let withGst = gatewayCharges + gst;
-    let data = parseInt(amount);
+    let gatewayCharges = (parseInt(amount) * 1) / 100;
+    var valid_charge = gatewayCharges >= 100 ? 100 : gatewayCharges;
+    let data = parseInt(amount) + parseInt(valid_charge);
+    // let gatewayCharges = (parseInt(amount) * 2.1) / 100;
+    // let gst = (+gatewayCharges * 18) / 100;
+    // let withGst = gatewayCharges + gst;
+    // let data = parseInt(amount);
     var order = `ORDERID${v4()}`;
     var price = `${amount}`;
 
@@ -72,7 +75,7 @@ exports.initiate = async (req, res) => {
           ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}`
           : `${process.env.CALLBACK_URLS}/v1/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_1}/card/${payment_card_type}/status/${ad_status_id}`,
       txnAmount: {
-        value: Math.ceil(data + +withGst.toFixed(2)),
+        value: Math.ceil(data),
         currency: "INR",
       },
       userInfo: {

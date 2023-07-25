@@ -35,6 +35,7 @@ exports.insert_multiple_hostel_status = async (
         instituteId: iargs?._id,
         hostelUnit: unit_args?._id,
         flow_status: "Hostel Application",
+        student: sid,
       },
       {
         content: `You have been selected for ${unit_args.hostel_unit_name} Hostel. Confirm your admission`,
@@ -54,6 +55,7 @@ exports.insert_multiple_hostel_status = async (
         instituteId: iargs?._id,
         hostelUnit: unit_args?._id,
         flow_status: "Hostel Application",
+        student: sid,
       },
       {
         content: `Your Hostel has been confirmed, You will be alloted your bed shortly, Stay Update!`,
@@ -61,6 +63,7 @@ exports.insert_multiple_hostel_status = async (
         instituteId: iargs?._id,
         hostelUnit: unit_args?._id,
         flow_status: "Hostel Application",
+        student: sid,
       },
     ];
 

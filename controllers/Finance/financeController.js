@@ -2583,6 +2583,10 @@ exports.renderFinanceOneBankQuery = async (req, res) => {
         select: "dName dTitle",
       })
       .populate({
+        path: "departments",
+        select: "dName dTitle",
+      })
+      .populate({
         path: "transport",
         select: "_id",
       })

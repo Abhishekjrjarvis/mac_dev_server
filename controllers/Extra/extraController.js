@@ -1808,15 +1808,13 @@ exports.renderExcelToJSONUnApprovedStudentQuery = async (req, res) => {
 
 exports.renderApplicationCDNQuery = async (req, res) => {
   try {
-    const { sid } = req.query;
-    var file = req.file
+    const { sid } = req.params;
+    var file = req.file;
     if (!sid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var student = await Student.findById({ _id: sid });
     const results = await uploadFile(file);
@@ -1824,13 +1822,11 @@ exports.renderApplicationCDNQuery = async (req, res) => {
       value: results.Key,
     });
     await student.save();
-    res
-      .status(200)
-      .send({
-        message: "Explore Application Print ",
-        access: true,
-        student: student.application_print,
-      });
+    res.status(200).send({
+      message: "Explore Application Print ",
+      access: true,
+      student: student.application_print,
+    });
     await unlinkFile(file.path);
   } catch (e) {
     console.log(e);

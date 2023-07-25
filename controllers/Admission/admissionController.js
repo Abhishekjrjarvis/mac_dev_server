@@ -8242,44 +8242,44 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
             appId: apply?._id,
           });
           valid_remain_list.active_payment_type = "First Installment";
-          if (
-            valid_remain_list?.re_admission_class != null &&
-            valid_remain_list?.re_admission_flow
-          ) {
-            var classes = await Class.findById({
-              _id: `${valid_remain_list?.re_admission_class}`,
-            });
-            var batch = await Batch.findById({ _id: `${classes?.batch}` });
-            var depart = await Department.findById({
-              _id: `${batch?.department}`,
-            });
-            if (classes?.ApproveStudent?.includes(student._id)) {
-            } else {
-              classes?.ApproveStudent.push(student._id);
-              classes?.UnApproveStudent.pull(student._id);
-            }
-            if (batch?.ApproveStudent?.includes(student._id)) {
-            } else {
-              batch?.ApproveStudent.push(student._id);
-              batch?.UnApproveStudent.pull(student._id);
-            }
-            if (depart?.ApproveStudent?.includes(student._id)) {
-            } else {
-              depart?.ApproveStudent.push(student._id);
-              depart?.UnApproveStudent.pull(student._id);
-            }
-            classes.studentCount += 1;
-            if (student.studentGender === "Male") {
-              classes.boyCount += 1;
-            } else if (student.studentGender === "Female") {
-              classes.girlCount += 1;
-            } else if (student.studentGender === "Other") {
-              classes.otherCount += 1;
-            } else {
-            }
-            student.studentROLLNO = classes.ApproveStudent?.length + 1;
-            await Promise.all([classes.save(), batch.save(), depart.save()]);
-          }
+          // if (
+          //   valid_remain_list?.re_admission_class != null &&
+          //   valid_remain_list?.re_admission_flow
+          // ) {
+          //   var classes = await Class.findById({
+          //     _id: `${valid_remain_list?.re_admission_class}`,
+          //   });
+          //   var batch = await Batch.findById({ _id: `${classes?.batch}` });
+          //   var depart = await Department.findById({
+          //     _id: `${batch?.department}`,
+          //   });
+          //   if (classes?.ApproveStudent?.includes(student._id)) {
+          //   } else {
+          //     classes?.ApproveStudent.push(student._id);
+          //     classes?.UnApproveStudent.pull(student._id);
+          //   }
+          //   if (batch?.ApproveStudent?.includes(student._id)) {
+          //   } else {
+          //     batch?.ApproveStudent.push(student._id);
+          //     batch?.UnApproveStudent.pull(student._id);
+          //   }
+          //   if (depart?.ApproveStudent?.includes(student._id)) {
+          //   } else {
+          //     depart?.ApproveStudent.push(student._id);
+          //     depart?.UnApproveStudent.pull(student._id);
+          //   }
+          //   classes.studentCount += 1;
+          //   if (student.studentGender === "Male") {
+          //     classes.boyCount += 1;
+          //   } else if (student.studentGender === "Female") {
+          //     classes.girlCount += 1;
+          //   } else if (student.studentGender === "Other") {
+          //     classes.otherCount += 1;
+          //   } else {
+          //   }
+          //   student.studentROLLNO = classes.ApproveStudent?.length + 1;
+          //   await Promise.all([classes.save(), batch.save(), depart.save()]);
+          // }
         } else {
           await update_fee_head_query(student, price, apply, new_receipt);
           for (var match of student?.paidFeeList) {
@@ -8619,44 +8619,44 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
           appId: apply?._id,
         });
         valid_remain_list.active_payment_type = "First Installment";
-        if (
-          valid_remain_list?.re_admission_class != null &&
-          valid_remain_list?.re_admission_flow
-        ) {
-          var classes = await Class.findById({
-            _id: `${valid_remain_list?.re_admission_class}`,
-          });
-          var batch = await Batch.findById({ _id: `${classes?.batch}` });
-          var depart = await Department.findById({
-            _id: `${batch?.department}`,
-          });
-          if (classes?.ApproveStudent?.includes(student._id)) {
-          } else {
-            classes?.ApproveStudent.push(student._id);
-            classes?.UnApproveStudent.pull(student._id);
-          }
-          if (batch?.ApproveStudent?.includes(student._id)) {
-          } else {
-            batch?.ApproveStudent.push(student._id);
-            batch?.UnApproveStudent.pull(student._id);
-          }
-          if (depart?.ApproveStudent?.includes(student._id)) {
-          } else {
-            depart?.ApproveStudent.push(student._id);
-            depart?.UnApproveStudent.pull(student._id);
-          }
-          classes.studentCount += 1;
-          if (student.studentGender === "Male") {
-            classes.boyCount += 1;
-          } else if (student.studentGender === "Female") {
-            classes.girlCount += 1;
-          } else if (student.studentGender === "Other") {
-            classes.otherCount += 1;
-          } else {
-          }
-          student.studentROLLNO = classes.ApproveStudent?.length + 1;
-          await Promise.all([classes.save(), batch.save(), depart.save()]);
-        }
+        // if (
+        //   valid_remain_list?.re_admission_class != null &&
+        //   valid_remain_list?.re_admission_flow
+        // ) {
+        //   var classes = await Class.findById({
+        //     _id: `${valid_remain_list?.re_admission_class}`,
+        //   });
+        //   var batch = await Batch.findById({ _id: `${classes?.batch}` });
+        //   var depart = await Department.findById({
+        //     _id: `${batch?.department}`,
+        //   });
+        //   if (classes?.ApproveStudent?.includes(student._id)) {
+        //   } else {
+        //     classes?.ApproveStudent.push(student._id);
+        //     classes?.UnApproveStudent.pull(student._id);
+        //   }
+        //   if (batch?.ApproveStudent?.includes(student._id)) {
+        //   } else {
+        //     batch?.ApproveStudent.push(student._id);
+        //     batch?.UnApproveStudent.pull(student._id);
+        //   }
+        //   if (depart?.ApproveStudent?.includes(student._id)) {
+        //   } else {
+        //     depart?.ApproveStudent.push(student._id);
+        //     depart?.UnApproveStudent.pull(student._id);
+        //   }
+        //   classes.studentCount += 1;
+        //   if (student.studentGender === "Male") {
+        //     classes.boyCount += 1;
+        //   } else if (student.studentGender === "Female") {
+        //     classes.girlCount += 1;
+        //   } else if (student.studentGender === "Other") {
+        //     classes.otherCount += 1;
+        //   } else {
+        //   }
+        //   student.studentROLLNO = classes.ApproveStudent?.length + 1;
+        //   await Promise.all([classes.save(), batch.save(), depart.save()]);
+        // }
       } else {
         await update_fee_head_query(student, price, apply, new_receipt);
         for (var match of student?.paidFeeList) {

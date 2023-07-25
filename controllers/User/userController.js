@@ -1746,6 +1746,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
     //     average_points: is_cache.average_points,
     //   });
     if (sid) {
+      var re_admission_tab;
       var average_points = 0;
       if (isApk) {
         var student = await Student.findById({ _id: sid })
@@ -1816,6 +1817,10 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               },
             },
           });
+          var classes = await Class.findById({ _id: `${student?.studentClass?._id}`})
+          if(classes?.UnApproveStudent?.includes(`${student?._id}`)){
+            re_admission_tab = "Visible"
+          }
         if (student?.studentDocuments?.length > 0) {
           for (var docs of student.studentDocuments) {
             student.incomeCertificate =
@@ -1861,7 +1866,8 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           student,
           "APK"
         );
-      } else {
+      } 
+      else {
         var student = await Student.findById({ _id: sid })
           .select(
             "batchCount extraPoints studentFirstName exist_linked_hostel form_status online_amount_edit_access student_prn_enroll_number studentBirthPlace studentBankAccountHolderName department studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
@@ -1930,6 +1936,10 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               },
             },
           });
+          var classes = await Class.findById({ _id: `${student?.studentClass?._id}`})
+          if(classes?.UnApproveStudent?.includes(`${student?._id}`)){
+            re_admission_tab = "Visible"
+          }
       }
       average_points += student?.extraPoints / student?.batchCount;
       var point = await handle_undefined(average_points);
@@ -1954,6 +1964,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
         student: student,
         status: status,
         average_points: point,
+        re_admission_tab: re_admission_tab ? re_admission_tab : "" || null
       });
     } else {
       res.status(200).send({ message: "Need a valid Key Id" });

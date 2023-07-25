@@ -13,6 +13,7 @@ const Comment = require("../../models/Comment");
 const ReplyComment = require("../../models/ReplyComment/ReplyComment");
 const AnswerReply = require("../../models/Question/AnswerReply");
 const StudentNotification = require("../../models/Marks/StudentNotification");
+const Class = require("../../models/Class");
 const invokeSpecificRegister = require("../../Firebase/specific");
 const {
   connect_redis_hit,
@@ -1159,14 +1160,12 @@ exports.getDashDataQuery = async (req, res) => {
     }
     if (user) {
       // Add Another Encryption
-      res
-        .status(200)
-        .send({
-          message: "Success",
-          user,
-          post,
-          profile_modification: user?.profile_modification,
-        });
+      res.status(200).send({
+        message: "Success",
+        user,
+        post,
+        profile_modification: user?.profile_modification,
+      });
     } else {
       res.status(404).send({ message: "Failure" });
     }
@@ -1817,10 +1816,12 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               },
             },
           });
-          var classes = await Class.findById({ _id: `${student?.studentClass?._id}`})
-          if(classes?.UnApproveStudent?.includes(`${student?._id}`)){
-            re_admission_tab = "Visible"
-          }
+        var classes = await Class.findById({
+          _id: `${student?.studentClass?._id}`,
+        });
+        if (classes?.UnApproveStudent?.includes(`${student?._id}`)) {
+          re_admission_tab = "Visible";
+        }
         if (student?.studentDocuments?.length > 0) {
           for (var docs of student.studentDocuments) {
             student.incomeCertificate =
@@ -1866,8 +1867,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           student,
           "APK"
         );
-      } 
-      else {
+      } else {
         var student = await Student.findById({ _id: sid })
           .select(
             "batchCount extraPoints studentFirstName exist_linked_hostel form_status online_amount_edit_access student_prn_enroll_number studentBirthPlace studentBankAccountHolderName department studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
@@ -1936,10 +1936,12 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               },
             },
           });
-          var classes = await Class.findById({ _id: `${student?.studentClass?._id}`})
-          if(classes?.UnApproveStudent?.includes(`${student?._id}`)){
-            re_admission_tab = "Visible"
-          }
+        var classes = await Class.findById({
+          _id: `${student?.studentClass?._id}`,
+        });
+        if (classes?.UnApproveStudent?.includes(`${student?._id}`)) {
+          re_admission_tab = "Visible";
+        }
       }
       average_points += student?.extraPoints / student?.batchCount;
       var point = await handle_undefined(average_points);
@@ -1964,7 +1966,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
         student: student,
         status: status,
         average_points: point,
-        re_admission_tab: re_admission_tab ? re_admission_tab : "" || null
+        re_admission_tab: re_admission_tab ? re_admission_tab : "" || null,
       });
     } else {
       res.status(200).send({ message: "Need a valid Key Id" });

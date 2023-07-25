@@ -1827,9 +1827,9 @@ exports.renderApplicationCDNQuery = async (req, res) => {
 
     var student = await Student.findById({ _id: sid });
     if (isApk) {
-      const results = await uploadDocFile(file);
+      var results = await uploadDocFile(file);
     } else {
-      const results = await uploadDocsFile(file);
+      var results = await uploadDocsFile(file);
     }
     student.application_print.push({
       value: results.Key,

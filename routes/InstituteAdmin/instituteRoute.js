@@ -205,17 +205,17 @@ router.get(
   catchAsync(Institute.retrieveApproveStaffList)
 );
 
-router.get(
-  "/:id/approve-student/list",
-
-  catchAsync(Institute.retrieveApproveStudentList)
-);
-
-// router.patch(
+// router.get(
 //   "/:id/approve-student/list",
 
 //   catchAsync(Institute.retrieveApproveStudentList)
 // );
+
+router.patch(
+  "/:id/approve-student/list",
+
+  catchAsync(Institute.retrieveApproveStudentList)
+);
 
 router.get(
   "/:id/unapprove-student/list/query",

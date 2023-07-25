@@ -20,6 +20,7 @@ const {
   simple_object,
   uploadFile,
   uploadDocsFile,
+  uploadDocFile,
 } = require("../../S3Configuration");
 const Hostel = require("../../models/Hostel/hostel");
 const ClassMaster = require("../../models/ClassMaster");
@@ -59,6 +60,9 @@ const {
 } = require("../Library/libraryController");
 const Library = require("../../models/Library/Library");
 const { retrieveEmailReplaceQuery } = require("../Edit/studentMember");
+const fs = require("fs");
+const util = require("util");
+const unlinkFile = util.promisify(fs.unlink);
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -1813,6 +1817,7 @@ exports.renderExcelToJSONUnApprovedStudentQuery = async (req, res) => {
 exports.renderApplicationCDNQuery = async (req, res) => {
   try {
     const { sid } = req.params;
+    const { isApk } = req.query;
     var file = req.file;
     if (!sid)
       return res.status(200).send({
@@ -1821,7 +1826,11 @@ exports.renderApplicationCDNQuery = async (req, res) => {
       });
 
     var student = await Student.findById({ _id: sid });
-    const results = await uploadDocsFile(file);
+    if (isApk) {
+      const results = await uploadDocFile(file);
+    } else {
+      const results = await uploadDocsFile(file);
+    }
     student.application_print.push({
       value: results.Key,
     });

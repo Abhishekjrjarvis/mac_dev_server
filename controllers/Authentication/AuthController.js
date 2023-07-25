@@ -12,8 +12,8 @@ const {
 } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
-const BankAccount = require("../../models/Finance/BankAccount");
 const unlinkFile = util.promisify(fs.unlink);
+const BankAccount = require("../../models/Finance/BankAccount");
 const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const payment_modal_activate = require("./AuthFunction");

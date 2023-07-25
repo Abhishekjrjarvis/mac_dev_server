@@ -137,54 +137,120 @@ exports.allBookByStaffSide = async (req, res) => {
       req.query?.search?.trim() !== "" ||
       req.query?.search !== undefined
     ) {
-      const library = await Library.findById(req.params.lid)
-        .populate({
-          path: "books",
-          match: {
-            $or: [
-              {
-                bookName: { $regex: req.query.search, $options: "i" },
-              },
-              {
-                author: { $regex: req.query.search, $options: "i" },
-              },
-              {
-                publication: { $regex: req.query.search, $options: "i" },
-              },
-            ],
-          },
-          select: "bookName photoId photo author language bookStatus",
-          skip: dropItem,
-          limit: itemPerPage,
-        })
-        .select("books")
-        .lean()
-        .exec();
-      res.status(200).send({
-        message: "List of All Books with pagination search",
-        books: library.books?.length ? library.books : [],
-      });
+      if (req.query?.flow === "ISSUE_BOOK") {
+        const library = await Library.findById(req.params.lid)
+          .populate({
+            path: "books",
+            match: {
+              $and: [
+                {
+                  $or: [
+                    {
+                      bookName: { $regex: req.query.search, $options: "i" },
+                    },
+                    {
+                      author: { $regex: req.query.search, $options: "i" },
+                    },
+                    {
+                      publication: { $regex: req.query.search, $options: "i" },
+                    },
+                  ],
+                },
+                {
+                  bookStatus: "Offline",
+                },
+                {
+                  leftCopies: { $gt: 0 },
+                },
+              ],
+            },
+            select: "bookName photoId photo author language bookStatus",
+            skip: dropItem,
+            limit: itemPerPage,
+          })
+          .select("books")
+          .lean()
+          .exec();
+        res.status(200).send({
+          message: "List of All Books with pagination search",
+          books: library.books?.length ? library.books : [],
+        });
+      } else {
+        const library = await Library.findById(req.params.lid)
+          .populate({
+            path: "books",
+            match: {
+              $or: [
+                {
+                  bookName: { $regex: req.query.search, $options: "i" },
+                },
+                {
+                  author: { $regex: req.query.search, $options: "i" },
+                },
+                {
+                  publication: { $regex: req.query.search, $options: "i" },
+                },
+              ],
+            },
+            select: "bookName photoId photo author language bookStatus",
+            skip: dropItem,
+            limit: itemPerPage,
+          })
+          .select("books")
+          .lean()
+          .exec();
+        res.status(200).send({
+          message: "List of All Books with pagination search",
+          books: library.books?.length ? library.books : [],
+        });
+      }
     } else {
-      const library = await Library.findById(req.params.lid)
-        .populate({
-          path: "books",
-          select: "bookName photoId photo author language bookStatus",
-          skip: dropItem,
-          limit: itemPerPage,
-        })
-        .select("books")
-        .lean()
-        .exec();
-      res.status(200).send({
-        message: "List of All Books",
-        books: library.books?.length ? library.books : [],
-      });
+      if (req.query?.flow === "ISSUE_BOOK") {
+        const library = await Library.findById(req.params.lid)
+          .populate({
+            path: "books",
+            match: {
+              $and: [
+                {
+                  bookStatus: "Offline",
+                },
+                {
+                  leftCopies: { $gt: 0 },
+                },
+              ],
+            },
+            select: "bookName photoId photo author language bookStatus",
+            skip: dropItem,
+            limit: itemPerPage,
+          })
+          .select("books")
+          .lean()
+          .exec();
+        res.status(200).send({
+          message: "List of All Books",
+          books: library.books?.length ? library.books : [],
+        });
+      } else {
+        const library = await Library.findById(req.params.lid)
+          .populate({
+            path: "books",
+            select: "bookName photoId photo author language bookStatus",
+            skip: dropItem,
+            limit: itemPerPage,
+          })
+          .select("books")
+          .lean()
+          .exec();
+        res.status(200).send({
+          message: "List of All Books",
+          books: library.books?.length ? library.books : [],
+        });
+      }
     }
   } catch (e) {
     console.log(e);
   }
 };
-
 exports.createBookByStaffSide = async (req, res) => {
   try {
     if (!req.params.lid) throw "Please send library id to perform task";

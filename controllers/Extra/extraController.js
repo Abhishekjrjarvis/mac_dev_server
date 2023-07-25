@@ -186,6 +186,10 @@ exports.retrieveBonafideGRNO = async (req, res) => {
         select: "batchName",
       })
       .populate({
+        path: "department",
+        select: "dName",
+      })
+      .populate({
         path: "institute",
         select:
           "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto",

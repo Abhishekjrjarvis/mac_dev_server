@@ -3371,7 +3371,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       .lean()
       .exec();
 
-    classes?.ApproveStudent.sort(function (st1, st2) {
+    classes?.ApproveStudent?.sort(function (st1, st2) {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
     // const cEncrypt = await encryptionPayload(classes);
@@ -3400,7 +3400,7 @@ exports.retrieveUnApproveCatalogArray = async (req, res) => {
       .lean()
       .exec();
 
-    classes?.UnApproveStudent.sort(function (st1, st2) {
+    classes?.UnApproveStudent?.sort(function (st1, st2) {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
     // const cEncrypt = await encryptionPayload(classes);

@@ -2707,6 +2707,119 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
   }
 };
 
+exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    const admin_ins = await Admission.findById({ _id: aid }).select(
+      "remainingFee active_tab_index"
+    );
+      if (search) {
+        var student = [];
+        var depart = await Department.findOne({
+          dName: { $regex: search, $options: "i" },
+        });
+        var batch = await Batch.findOne({
+          batchName: { $regex: search, $options: "i" },
+        });
+        var all_remain = await RemainingList.find({
+          student: { $in: admin_ins?.remainingFee },
+        })
+          .select("applicable_fee paid_fee student")
+          .populate({
+            path: "fee_structure",
+            select: "applicable_fees",
+          })
+          .populate({
+            path: "student",
+            match: {
+              $or: [
+                { studentFirstName: { $regex: search, $options: "i" } },
+                { studentMiddleName: { $regex: search, $options: "i" } },
+                { studentLastName: { $regex: search, $options: "i" } },
+                { valid_full_name: { $regex: search, $options: "i" } },
+                { studentGRNO: { $regex: search, $options: "i" } },
+                { studentCast: { $regex: search, $options: "i" } },
+                { studentCastCategory: { $regex: search, $options: "i" } },
+                { studentGender: { $regex: search, $options: "i" } },
+                { department: depart?._id },
+                { batches: batch?._id },
+              ],
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name applicable_fees_pending studentCast studentGender studentCastCategory photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
+            populate: {
+              path: "department",
+              select: "dName",
+            },
+          });
+        // console.log(all_remain);
+        for (var ele of all_remain) {
+          if (ele?.student != null) {
+            ele.student.applicable_fees_pending +=
+              ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+                ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+                : 0;
+            if (student?.includes(ele?.student)) {
+            } else {
+              student.push(ele?.student);
+            }
+          }
+        }
+        student = student?.filter((ref) => {
+          if (ref?.applicable_fees_pending > 0) return ref;
+        });
+      } else {
+        var student = [];
+        var all_remain = await RemainingList.find({
+          student: { $in: admin_ins?.remainingFee },
+        })
+          .select("applicable_fee paid_fee student")
+          .populate({
+            path: "fee_structure",
+            select: "applicable_fees",
+          })
+          .populate({
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
+            populate: {
+              path: "department",
+              select: "dName",
+            },
+          });
+        for (var ele of all_remain) {
+          ele.student.applicable_fees_pending +=
+            ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+              ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+              : 0;
+          if (student?.includes(ele?.student)) {
+          } else {
+            student.push(ele?.student);
+          }
+        }
+        student = student?.filter((ref) => {
+          if (ref?.applicable_fees_pending > 0) return ref;
+        });
+        student = await nested_document_limit(page, limit, student);
+      }
+      admin_ins.active_tab_index = "Applicable_Fees_Query";
+      await admin_ins.save();
+      // if (student?.length > 0) {
+      res.status(200).send({
+        message: "Its a party time from DB 🙌",
+        remain: student,
+        remainCount: student?.length,
+      });
+      // }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.oneStudentViewRemainingFee = async (req, res) => {
   try {
     const { sid } = req.params;

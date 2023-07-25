@@ -192,6 +192,12 @@ router.patch(
   catchAsync(Admission.retrieveAdmissionRemainingArray)
 );
 
+router.get(
+  "/:aid/all/remaining/applicable/array",
+  // isLoggedIn,
+  catchAsync(Admission.retrieveAdmissionApplicableRemainingArray)
+);
+
 // One Student Fee
 router.get(
   "/:sid/student/view/fee",

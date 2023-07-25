@@ -81,12 +81,15 @@ exports.initiate = async (req, res) => {
       userInfo: {
         custId: `${process.env.PAYTM_CUST_ID}`,
       },
-      enablePaymentMode: [
-        {
-          mode: "UPI",
-          channels: ["UPIPUSH"],
-        },
-      ],
+      enablePaymentMode:
+        isApk === "APK"
+          ? [
+              {
+                mode: "UPI",
+                channels: ["UPIPUSH"],
+              },
+            ]
+          : [],
     };
     PaytmChecksum.generateSignature(
       JSON.stringify(paytmParams.body),

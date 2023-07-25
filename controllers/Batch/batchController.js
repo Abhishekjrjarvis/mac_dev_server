@@ -584,7 +584,7 @@ exports.promoteStudent = async (req, res) => {
           student.batches = batchId;
           //here how to give the null in objectID
           student.studentBehaviour = null;
-          student.studentROLLNO = re_ads === "WITH_RE_ADMISSION" ? "" : roll;
+          student.studentROLLNO = `${re_ads}` === "WITH_RE_ADMISSION" ? "" : roll;
           student.subjectMarks = [];
           student.exams = [];
           student.finalReportStatus = "No";
@@ -665,11 +665,11 @@ exports.promoteStudent = async (req, res) => {
             );
             new_remainFee.fee_structure = structure[0]?._id;
             new_remainFee.re_admission_flow =
-              re_ads === "WITH_RE_ADMISSION" ? true : false;
+            `${re_ads}` === "WITH_RE_ADMISSION" ? true : false;
             new_remainFee.remaining_fee += structure[0]?.total_admission_fees;
             student.remainingFeeList.push(new_remainFee?._id);
             new_remainFee.re_admission_class =
-              re_ads === "WITH_RE_ADMISSION" ? classes?._id : null;
+            `${re_ads}` === "WITH_RE_ADMISSION" ? classes?._id : null;
             student.remainingFeeList_count += 1;
             new_remainFee.student = student?._id;
             admission.remainingFee.push(student._id);
@@ -684,7 +684,7 @@ exports.promoteStudent = async (req, res) => {
             ]);
           }
           roll += 1;
-          if (re_ads === "WITH_RE_ADMISSION") {
+          if (`${re_ads}` === "WITH_RE_ADMISSION") {
             if (classes?.UnApproveStudent?.includes(student._id)) {
             } else {
               classes?.UnApproveStudent.push(student._id);
@@ -713,14 +713,14 @@ exports.promoteStudent = async (req, res) => {
           }
           previousclasses?.promoteStudent?.push(stu);
           // previousclasses?.ApproveStudent?.pull(stu);
-          if (re_ads === "WITH_RE_ADMISSION") {
+          if (`${re_ads}` === "WITH_RE_ADMISSION") {
           } else {
             classes.studentCount += 1;
           }
           await student.save();
 
           if (student.studentGender === "Male") {
-            if (re_ads === "WITH_RE_ADMISSION") {
+            if (`${re_ads}` === "WITH_RE_ADMISSION") {
             } else {
               classes.boyCount += 1;
             }
@@ -728,7 +728,7 @@ exports.promoteStudent = async (req, res) => {
               batch.student_category.boyCount += 1;
             }
           } else if (student.studentGender === "Female") {
-            if (re_ads === "WITH_RE_ADMISSION") {
+            if (`${re_ads}` === "WITH_RE_ADMISSION") {
             } else {
               classes.girlCount += 1;
             }
@@ -736,7 +736,7 @@ exports.promoteStudent = async (req, res) => {
               batch.student_category.girlCount += 1;
             }
           } else if (student.studentGender === "Other") {
-            if (re_ads === "WITH_RE_ADMISSION") {
+            if (`${re_ads}` === "WITH_RE_ADMISSION") {
             } else {
               classes.otherCount += 1;
             }

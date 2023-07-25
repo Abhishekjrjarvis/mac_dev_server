@@ -2474,7 +2474,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
     const { depart_arr, batch_arr, master_arr, gender, cast_category } =
       req.body;
     const admin_ins = await Admission.findById({ _id: aid }).select(
-      "remainingFee active_tab_index"
+      "remainingFee active_tab_index pending_fee_custom_filter"
     );
     if (flow === "All_Pending_Fees_Query") {
       if (search) {

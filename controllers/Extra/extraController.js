@@ -16,7 +16,11 @@ const Admission = require("../../models/Admission/Admission");
 const { chatCount } = require("../../Firebase/dailyChat");
 const { getFirestore } = require("firebase-admin/firestore");
 const { valid_initials } = require("../../Custom/checkInitials");
-const { simple_object, uploadFile } = require("../../S3Configuration");
+const {
+  simple_object,
+  uploadFile,
+  uploadDocsFile,
+} = require("../../S3Configuration");
 const Hostel = require("../../models/Hostel/hostel");
 const ClassMaster = require("../../models/ClassMaster");
 const {
@@ -1817,7 +1821,7 @@ exports.renderApplicationCDNQuery = async (req, res) => {
       });
 
     var student = await Student.findById({ _id: sid });
-    const results = await uploadFile(file);
+    const results = await uploadDocsFile(file);
     student.application_print.push({
       value: results.Key,
     });

@@ -302,4 +302,9 @@ router.get(
   catchAsync(Hostel.renderHostelMasterAllDepositHistory)
 );
 
+router.patch(
+  "/:hid/add/auto/qrcode/query",
+  catchAsync(Hostel.renderApplicationAutoQRCodeQuery)
+);
+
 module.exports = router;

@@ -199,17 +199,17 @@ router.get(
   catchAsync(Institute.retrievePendingStaffList)
 );
 
-router.get(
-  "/:id/approve-staff/list",
-
-  catchAsync(Institute.retrieveApproveStaffList)
-);
-
 // router.get(
-//   "/:id/approve-student/list",
+//   "/:id/approve-staff/list",
 
-//   catchAsync(Institute.retrieveApproveStudentList)
+//   catchAsync(Institute.retrieveApproveStaffList)
 // );
+
+router.get(
+  "/:id/approve-student/list",
+
+  catchAsync(Institute.retrieveApproveStudentList)
+);
 
 router.patch(
   "/:id/approve-student/list",

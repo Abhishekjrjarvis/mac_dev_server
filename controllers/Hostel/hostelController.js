@@ -6832,3 +6832,24 @@ exports.renderHostelMasterAllDepositHistory = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderApplicationAutoQRCodeQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const { qr_code } = req.query;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+
+    var new_app = await NewApplication.findById({ _id: hid });
+    new_app.app_qr_code = qr_code;
+    await new_app.save();
+    res
+      .status(200)
+      .send({ message: "Explore New Application QR Code Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};

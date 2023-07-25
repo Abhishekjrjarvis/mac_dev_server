@@ -1816,12 +1816,14 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               },
             },
           });
+          if(student?.studentClass){
         var classes = await Class.findById({
           _id: `${student?.studentClass?._id}`,
         });
         if (classes?.UnApproveStudent?.includes(`${student?._id}`)) {
           re_admission_tab = "Visible";
         }
+      }
         if (student?.studentDocuments?.length > 0) {
           for (var docs of student.studentDocuments) {
             student.incomeCertificate =
@@ -1936,12 +1938,14 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               },
             },
           });
+          if(student?.studentClass){
         var classes = await Class.findById({
           _id: `${student?.studentClass?._id}`,
         });
         if (classes?.UnApproveStudent?.includes(`${student?._id}`)) {
           re_admission_tab = "Visible";
         }
+      }
       }
       average_points += student?.extraPoints / student?.batchCount;
       var point = await handle_undefined(average_points);

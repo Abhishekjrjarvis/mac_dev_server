@@ -6,7 +6,7 @@ const Department = require("../../models/Department");
 const Admission = require("../../models/Admission/Admission");
 const Library = require("../../models/Library/Library");
 const Hostel = require("../../models/Hostel/hostel");
-
+const InstituteAdmin = require("../../models/InstituteAdmin");
 const { deleteFile } = require("../../S3Configuration");
 
 exports.getDepartmentInfo = async (req, res) => {

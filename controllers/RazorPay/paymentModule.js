@@ -472,13 +472,27 @@ exports.admissionInstituteFunction = async (
         student.remainingFeeList_count += 1;
         new_remainFee.student = student?._id;
         new_remainFee.fee_receipts.push(new_receipt?._id);
-        await add_all_installment(
-          apply,
-          ins._id,
-          new_remainFee,
-          parseInt(tx_amount_ad),
-          student
-        );
+        if (new_remainFee?.remaining_fee > 0) {
+          await add_all_installment(
+            apply,
+            ins._id,
+            new_remainFee,
+            parseInt(tx_amount_ad),
+            student
+          );
+        }
+        if (
+          new_remainFee.remaining_fee > 0 &&
+          `${student?.fee_structure?.total_installments}` === "1"
+        ) {
+          new_remainFee.remaining_array.push({
+            remainAmount: new_remainFee?.remaining_fee,
+            appId: apply._id,
+            instituteId: ins._id,
+            installmentValue: "Installment Remain",
+            isEnable: true,
+          });
+        }
       } else if (parseInt(tx_amount_ad) > 0 && !is_install) {
         var new_remainFee = new RemainingList({
           appId: apply._id,

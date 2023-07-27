@@ -82,6 +82,15 @@ exports.checkoutRazorPayment = async (req, res) => {
   }
 };
 
+const oneRazorPayment = async (pid) => {
+  try {
+    const pay = await instance.payments.fetch(`${pid}`);
+    return pay;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.verifyRazorPayment = async (req, res) => {
   try {
     const s_admin = await Admin.findById({
@@ -139,6 +148,10 @@ exports.verifyRazorPayment = async (req, res) => {
       order_payment.payment_invoice_number = `${
         new Date().getMonth() + 1
       }${new Date().getFullYear()}${institute.invoice_count}`;
+      var valid_pay = await oneRazorPayment(`${razorpay_payment_id}`);
+      order_payment.razor_query.push({
+        ...valid_pay,
+      });
       await Promise.all([order_payment.save(), institute.save()]);
       if (payment_module_type === "Unlock") {
         const unlock_status = await unlockInstituteFunction(

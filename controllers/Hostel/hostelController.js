@@ -1520,7 +1520,7 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
-    status.document_visible = true;
+    status.document_visible = false;
     new_remainFee.renewal_start = new Date();
     new_remainFee.renewal_end = student?.hostel_renewal;
     renew.renewal_start = new Date();

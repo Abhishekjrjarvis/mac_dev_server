@@ -472,7 +472,7 @@ exports.admissionInstituteFunction = async (
         student.remainingFeeList_count += 1;
         new_remainFee.student = student?._id;
         new_remainFee.fee_receipts.push(new_receipt?._id);
-        if (new_remainFee?.remaining_fee > 0) {
+        if (total_amount - parseInt(tx_amount_ad)) {
           await add_all_installment(
             apply,
             ins._id,
@@ -482,11 +482,11 @@ exports.admissionInstituteFunction = async (
           );
         }
         if (
-          new_remainFee.remaining_fee > 0 &&
+          total_amount - parseInt(tx_amount_ad); > 0 &&
           `${student?.fee_structure?.total_installments}` === "1"
         ) {
           new_remainFee.remaining_array.push({
-            remainAmount: new_remainFee?.remaining_fee,
+            remainAmount: total_amount - parseInt(tx_amount_ad),
             appId: apply._id,
             instituteId: ins._id,
             installmentValue: "Installment Remain",

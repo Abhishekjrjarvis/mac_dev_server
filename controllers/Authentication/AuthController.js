@@ -1386,6 +1386,8 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const { sample_pic, fileArray } = req.body;
+    var valid_phone = `${id}`;
+    var valid_email = valid_phone?.includes("@");
     if (
       !id &&
       !req.body.studentCode &&
@@ -1414,7 +1416,8 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
         userDateOfBirth: req.body.studentDOB,
         username: valid?.username,
         userStatus: "Approved",
-        userPhoneNumber: id,
+        userPhoneNumber: valid_email ? 0 : id,
+        userEmail: valid_email ? id : null,
         userPassword: hashUserPass,
         photoId: "0",
         coverId: "2",
@@ -1601,6 +1604,8 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const { sample_pic, fileArray } = req.body;
+    var valid_phone = `${id}`;
+    var valid_email = valid_phone?.includes("@");
     if (
       !id &&
       !req.body.staffCode &&
@@ -1629,7 +1634,8 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
         userDateOfBirth: req.body.staffDOB,
         username: valid?.username,
         userStatus: "Approved",
-        userPhoneNumber: id,
+        userPhoneNumber: valid_email ? 0 : id,
+        userEmail: valid_email ? id : null,
         userPassword: hashUserPass,
         photoId: "0",
         coverId: "2",
@@ -1781,8 +1787,8 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
   try {
     const { id, aid } = req.params;
     const { sample_pic, fileArray } = req.body;
-    var valid_phone = `${id}`
-    var valid_email = valid_phone?.includes("@")
+    var valid_phone = `${id}`;
+    var valid_email = valid_phone?.includes("@");
     if (
       !id &&
       !aid &&
@@ -2000,8 +2006,8 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
   try {
     const { id, aid } = req.params;
     const { sample_pic, fileArray } = req.body;
-    var valid_phone = `${id}`
-    var valid_email = valid_phone?.includes("@")
+    var valid_phone = `${id}`;
+    var valid_email = valid_phone?.includes("@");
     if (
       !id &&
       !aid &&
@@ -2220,6 +2226,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
   try {
     const { id, cid } = req.params;
     const { existingUser } = req.query;
+    var valid_phone = `${id}`;
+    var valid_email = valid_phone?.includes("@");
     var existing = await handle_undefined(existingUser);
     const { sample_pic, fileArray, batch_set, is_remain, fee_struct } =
       req.body;
@@ -2254,7 +2262,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
           userDateOfBirth: req.body.studentDOB,
           username: valid?.username,
           userStatus: "Approved",
-          userPhoneNumber: id,
+          userPhoneNumber: valid_email ? 0 : id,
+          userEmail: valid_email ? id : null,
           userPassword: hashUserPass,
           photoId: "0",
           coverId: "2",
@@ -2561,6 +2570,8 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
   try {
     const { id, insId } = req.params;
     const { existingUser } = req.query;
+    var valid_phone = `${id}`;
+    var valid_email = valid_phone?.includes("@");
     var existing = await handle_undefined(existingUser);
     const { sample_pic, fileArray } = req.body;
     if (
@@ -2594,7 +2605,8 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
           userDateOfBirth: req.body.staffDOB,
           username: valid?.username,
           userStatus: "Approved",
-          userPhoneNumber: id,
+          userPhoneNumber: valid_email ? 0 : id,
+          userEmail: valid_email ? id : null,
           userPassword: hashUserPass,
           photoId: "0",
           coverId: "2",
@@ -2823,6 +2835,8 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
   try {
     const { id, aid } = req.params;
     const { existingUser } = req.query;
+    var valid_phone = `${id}`;
+    var valid_email = valid_phone?.includes("@");
     var existing = await handle_undefined(existingUser);
     const { sample_pic, fileArray, type, mode, amount, fee_struct } = req.body;
     if (
@@ -2874,7 +2888,8 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
           userDateOfBirth: req.body.studentDOB,
           username: valid?.username,
           userStatus: "Approved",
-          userPhoneNumber: id,
+          userPhoneNumber: valid_email ? 0 : id,
+          userEmail: valid_email ? id : null,
           userPassword: hashUserPass,
           photoId: "0",
           coverId: "2",

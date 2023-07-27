@@ -1741,6 +1741,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       student.remainingFeeList_count += 1;
       new_remainFee.student = student?._id;
       new_remainFee.fee_receipts.push(new_receipt?._id);
+      if (new_remainFee.remaining_fee > 0){
       await add_all_installment(
         apply,
         institute._id,
@@ -1748,6 +1749,19 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         price,
         student
       );
+      }
+      if (
+        new_remainFee.remaining_fee > 0 &&
+        `${student?.fee_structure?.total_installments}` === "1"
+      ) {
+        new_remainFee.remaining_array.push({
+          remainAmount: new_remainFee?.remaining_fee,
+          appId: apply._id,
+          instituteId: institute._id,
+          installmentValue: "Installment Remain",
+          isEnable: true,
+        });
+      }
     } else if (price > 0 && !is_install) {
       var new_remainFee = new RemainingList({
         appId: apply._id,
@@ -5138,6 +5152,9 @@ exports.renderOneReceiptStatus = async (req, res) => {
         student.remainingFeeList_count += 1;
         new_remainFee.student = student?._id;
         new_remainFee.fee_receipts.push(one_receipt?._id);
+        if (
+          new_remainFee.remaining_fee > 0
+        ) {
         await add_all_installment(
           one_app,
           institute._id,
@@ -5145,6 +5162,19 @@ exports.renderOneReceiptStatus = async (req, res) => {
           price,
           student
         );
+        }
+        if (
+          new_remainFee.remaining_fee > 0 &&
+          `${student?.fee_structure?.total_installments}` === "1"
+        ) {
+          new_remainFee.remaining_array.push({
+            remainAmount: new_remainFee?.remaining_fee,
+            appId: one_app._id,
+            instituteId: institute._id,
+            installmentValue: "Installment Remain",
+            isEnable: true,
+          });
+        }
       } else if (price > 0 && !is_install) {
         var new_remainFee = new RemainingList({
           appId: one_app._id,

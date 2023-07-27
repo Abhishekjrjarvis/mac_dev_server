@@ -386,7 +386,7 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "razorpay_order_id payment_module_type payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          "razorpay_order_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
         )
         .populate({
           path: "payment_fee",
@@ -436,7 +436,7 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "razorpay_order_id payment_module_type payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          "razorpay_order_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
         )
         .populate({
           path: "payment_fee",
@@ -510,7 +510,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "razorpay_order_id payment_module_type payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          "razorpay_order_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
         )
         .populate({
           path: "payment_fee",
@@ -568,7 +568,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "razorpay_order_id payment_module_type payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          "razorpay_order_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
         )
         .populate({
           path: "payment_fee",

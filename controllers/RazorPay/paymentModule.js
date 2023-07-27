@@ -482,7 +482,7 @@ exports.admissionInstituteFunction = async (
           );
         }
         if (
-          total_amount - parseInt(tx_amount_ad); > 0 &&
+          total_amount - parseInt(tx_amount_ad) > 0 &&
           `${student?.fee_structure?.total_installments}` === "1"
         ) {
           new_remainFee.remaining_array.push({

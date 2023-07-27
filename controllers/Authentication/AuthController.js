@@ -1781,6 +1781,8 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
   try {
     const { id, aid } = req.params;
     const { sample_pic, fileArray } = req.body;
+    var valid_phone = `${id}`
+    var valid_email = valid_phone?.includes("@")
     if (
       !id &&
       !aid &&
@@ -1809,7 +1811,8 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         userDateOfBirth: req.body.studentDOB,
         username: valid?.username,
         userStatus: "Approved",
-        userPhoneNumber: id,
+        userPhoneNumber: valid_email ? 0 : id,
+        userEmail: valid_email ? id : null,
         userPassword: hashUserPass,
         photoId: "0",
         coverId: "2",
@@ -1997,6 +2000,8 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
   try {
     const { id, aid } = req.params;
     const { sample_pic, fileArray } = req.body;
+    var valid_phone = `${id}`
+    var valid_email = valid_phone?.includes("@")
     if (
       !id &&
       !aid &&
@@ -2025,7 +2030,8 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
         userDateOfBirth: req.body.studentDOB,
         username: valid?.username,
         userStatus: "Approved",
-        userPhoneNumber: id,
+        userPhoneNumber: valid_email ? 0 : id,
+        userEmail: valid_email ? id : null,
         userPassword: hashUserPass,
         photoId: "0",
         coverId: "2",

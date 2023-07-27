@@ -25,7 +25,8 @@ const other_personal_query = (one_student) => {
     one_student?.studentBirthPlace &&
     one_student?.studentPhoneNumber &&
     one_student?.studentFatherRationCardColor &&
-    one_student?.studentAadharNumber
+    one_student?.studentAadharNumber &&
+    one_student?.studentEmail
   ) {
     return {
       form_status: "Filled",

@@ -56,7 +56,7 @@ exports.getDashOneQuery = async (req, res) => {
     const { id } = req.params;
     const { mod_id } = req.query;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId blockStatus profile_modification random_institute_code last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus"
+      "insName name insAbout photoId blockStatus profile_modification random_institute_code affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus"
     );
     // const encrypt = await encryptionPayload(institute);
     if (req?.query?.mod_id) {
@@ -80,7 +80,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto hostelDepart insEditableText_one insEditableText_two profile_modification random_institute_code last_login gr_initials online_amount_edit_access sub_domain_link_up_status application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by block_institute blockedBy"
+        "insName status photoId insProfilePhoto hostelDepart insEditableText_one insEditableText_two profile_modification affliatedLogo random_institute_code last_login gr_initials online_amount_edit_access sub_domain_link_up_status application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by block_institute blockedBy"
       )
       .populate({
         path: "request_at",
@@ -1773,7 +1773,7 @@ exports.getFullStudentInfo = async (req, res) => {
     if (isApk) {
       var student = await Student.findById({ _id: id })
         .select(
-          "studentFirstName extraPoints batchCount student_prn_enroll_number online_amount_edit_access hostelRemainFeeCount hostelPaidFeeCount exist_linked_hostel studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+          "studentFirstName extraPoints batchCount student_prn_enroll_number studentEmail online_amount_edit_access hostelRemainFeeCount hostelPaidFeeCount exist_linked_hostel studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
         )
         .populate({
           path: "user",
@@ -1856,7 +1856,7 @@ exports.getFullStudentInfo = async (req, res) => {
     } else {
       var student = await Student.findById({ _id: id })
         .select(
-          "studentFirstName extraPoints batchCount studentMiddleName exist_linked_hostel online_amount_edit_access hostelRemainFeeCount hostelPaidFeeCount studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+          "studentFirstName extraPoints batchCount studentMiddleName exist_linked_hostel studentEmail online_amount_edit_access hostelRemainFeeCount hostelPaidFeeCount studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
         )
         .populate({
           path: "user",
@@ -3649,7 +3649,9 @@ exports.retrieveCertificateEditableDetailQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const detail = await InstituteAdmin.findById(id)
-      .select("insAffiliated insEditableText_one insEditableText_two")
+      .select(
+        "insAffiliated insEditableText_one insEditableText_two affliatedLogo"
+      )
       .lean()
       .exec();
     // const dEncrypt = await encryptionPayload(detail);

@@ -874,6 +874,9 @@ const instituteAdminSchema = new mongoose.Schema({
       notice_button_link: { type: String },
     },
   ],
+  affliatedLogo: {
+    type: String,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

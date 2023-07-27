@@ -640,6 +640,9 @@ const studentSchema = new mongoose.Schema({
   student_bona_message: {
     type: String,
   },
+  studentEmail: {
+    type: String,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

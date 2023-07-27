@@ -141,7 +141,7 @@ exports.updateAdmissonInfo = async (req, res) => {
       admissionSite.admission_about = req.body.admission_about;
       admissionSite.admission_process = req.body.admission_process;
       admissionSite.cashier_signature = req.body?.cashier_signature;
-
+      admissionSite.cashier_name = req.body?.cashier_name;
       for (let contact of req.body.edit_admission_contact) {
         for (let cont of admissionSite.admission_contact) {
           if (String(contact?.contactId) === String(cont?._id)) {

@@ -616,6 +616,8 @@ exports.admissionInstituteFunction = async (
       // ins.iNotify.push(notify._id);
       // notify.institute = ins._id;
       user.activity_tab.push(notify._id);
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
       finance_user.activity_tab.push(notify._id);
       notify.notifyCategory = "Admission Online Fee";
       notify.user = user._id;

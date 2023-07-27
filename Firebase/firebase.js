@@ -1,7 +1,15 @@
 var firebase = require("firebase-admin");
 var serviceAccount = require("./qviple-user-firebase-adminsdk-4qvna-aca6cd00fb.json");
 
-const invokeFirebaseNotification = (type, info, title, id, token, pid, aid) => {
+const invokeFirebaseNotification = async (
+  type,
+  info,
+  title,
+  id,
+  token,
+  pid,
+  aid
+) => {
   if (!firebase.apps.length) {
     firebase.initializeApp({
       credential: firebase.credential.cert(serviceAccount),
@@ -175,8 +183,7 @@ const invokeFirebaseNotification = (type, info, title, id, token, pid, aid) => {
     };
 
     firebase.messaging().sendToDevice(firebaseToken, payload, options);
-  }
-  else if (type === "Comment") {
+  } else if (type === "Comment") {
     const firebaseToken = `${token && token}`;
 
     const payload = {
@@ -198,8 +205,7 @@ const invokeFirebaseNotification = (type, info, title, id, token, pid, aid) => {
     };
 
     firebase.messaging().sendToDevice(firebaseToken, payload, options);
-  }
-  else if (type === "Answer") {
+  } else if (type === "Answer") {
     const firebaseToken = `${token && token}`;
 
     const payload = {
@@ -221,8 +227,7 @@ const invokeFirebaseNotification = (type, info, title, id, token, pid, aid) => {
     };
 
     firebase.messaging().sendToDevice(firebaseToken, payload, options);
-  }
-  else {
+  } else {
   }
 };
 

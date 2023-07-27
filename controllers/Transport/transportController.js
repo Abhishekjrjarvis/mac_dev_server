@@ -55,7 +55,7 @@ exports.renderNewTransportManager = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       institute.insName,

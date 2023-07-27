@@ -119,7 +119,7 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
     notify.user = user._id;
     notify.notifyPid = "1";
     notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       institute.insName,
@@ -685,7 +685,7 @@ Note: Stay tuned for further updates.`;
     status.document_visible = true;
     status.instituteId = institute._id;
     status.finance = institute?.financeDepart?.[0];
-    status.student = student?._id
+    status.student = student?._id;
     user.student.push(student._id);
     status.bank_account = filtered_account?._id;
     user.applyApplication.push(apply._id);
@@ -1741,14 +1741,14 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       student.remainingFeeList_count += 1;
       new_remainFee.student = student?._id;
       new_remainFee.fee_receipts.push(new_receipt?._id);
-      if (new_remainFee.remaining_fee > 0){
-      await add_all_installment(
-        apply,
-        institute._id,
-        new_remainFee,
-        price,
-        student
-      );
+      if (new_remainFee.remaining_fee > 0) {
+        await add_all_installment(
+          apply,
+          institute._id,
+          new_remainFee,
+          price,
+          student
+        );
       }
       if (
         new_remainFee.remaining_fee > 0 &&
@@ -2732,81 +2732,48 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
     const admin_ins = await Admission.findById({ _id: aid }).select(
       "remainingFee active_tab_index"
     );
-      if (search) {
-        var student = [];
-        var depart = await Department.findOne({
-          dName: { $regex: search, $options: "i" },
-        });
-        var batch = await Batch.findOne({
-          batchName: { $regex: search, $options: "i" },
-        });
-        var all_remain = await RemainingList.find({
-          student: { $in: admin_ins?.remainingFee },
+    if (search) {
+      var student = [];
+      var depart = await Department.findOne({
+        dName: { $regex: search, $options: "i" },
+      });
+      var batch = await Batch.findOne({
+        batchName: { $regex: search, $options: "i" },
+      });
+      var all_remain = await RemainingList.find({
+        student: { $in: admin_ins?.remainingFee },
+      })
+        .select("applicable_fee paid_fee student")
+        .populate({
+          path: "fee_structure",
+          select: "applicable_fees",
         })
-          .select("applicable_fee paid_fee student")
-          .populate({
-            path: "fee_structure",
-            select: "applicable_fees",
-          })
-          .populate({
-            path: "student",
-            match: {
-              $or: [
-                { studentFirstName: { $regex: search, $options: "i" } },
-                { studentMiddleName: { $regex: search, $options: "i" } },
-                { studentLastName: { $regex: search, $options: "i" } },
-                { valid_full_name: { $regex: search, $options: "i" } },
-                { studentGRNO: { $regex: search, $options: "i" } },
-                { studentCast: { $regex: search, $options: "i" } },
-                { studentCastCategory: { $regex: search, $options: "i" } },
-                { studentGender: { $regex: search, $options: "i" } },
-                { department: depart?._id },
-                { batches: batch?._id },
-              ],
-            },
-            select:
-              "studentFirstName studentMiddleName studentLastName valid_full_name applicable_fees_pending studentCast studentGender studentCastCategory photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
-            populate: {
-              path: "department",
-              select: "dName",
-            },
-          });
-        // console.log(all_remain);
-        for (var ele of all_remain) {
-          if (ele?.student != null) {
-            ele.student.applicable_fees_pending +=
-              ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
-                ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
-                : 0;
-            if (student?.includes(ele?.student)) {
-            } else {
-              student.push(ele?.student);
-            }
-          }
-        }
-        student = student?.filter((ref) => {
-          if (ref?.applicable_fees_pending > 0) return ref;
+        .populate({
+          path: "student",
+          match: {
+            $or: [
+              { studentFirstName: { $regex: search, $options: "i" } },
+              { studentMiddleName: { $regex: search, $options: "i" } },
+              { studentLastName: { $regex: search, $options: "i" } },
+              { valid_full_name: { $regex: search, $options: "i" } },
+              { studentGRNO: { $regex: search, $options: "i" } },
+              { studentCast: { $regex: search, $options: "i" } },
+              { studentCastCategory: { $regex: search, $options: "i" } },
+              { studentGender: { $regex: search, $options: "i" } },
+              { department: depart?._id },
+              { batches: batch?._id },
+            ],
+          },
+          select:
+            "studentFirstName studentMiddleName studentLastName valid_full_name applicable_fees_pending studentCast studentGender studentCastCategory photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
+          populate: {
+            path: "department",
+            select: "dName",
+          },
         });
-      } else {
-        var student = [];
-        var all_remain = await RemainingList.find({
-          student: { $in: admin_ins?.remainingFee },
-        })
-          .select("applicable_fee paid_fee student")
-          .populate({
-            path: "fee_structure",
-            select: "applicable_fees",
-          })
-          .populate({
-            path: "student",
-            select:
-              "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
-            populate: {
-              path: "department",
-              select: "dName",
-            },
-          });
-        for (var ele of all_remain) {
+      // console.log(all_remain);
+      for (var ele of all_remain) {
+        if (ele?.student != null) {
           ele.student.applicable_fees_pending +=
             ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
               ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
@@ -2816,20 +2783,53 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
             student.push(ele?.student);
           }
         }
-        student = student?.filter((ref) => {
-          if (ref?.applicable_fees_pending > 0) return ref;
-        });
-        student = await nested_document_limit(page, limit, student);
       }
-      admin_ins.active_tab_index = "Applicable_Fees_Query";
-      await admin_ins.save();
-      // if (student?.length > 0) {
-      res.status(200).send({
-        message: "Its a party time from DB 🙌",
-        remain: student,
-        remainCount: student?.length,
+      student = student?.filter((ref) => {
+        if (ref?.applicable_fees_pending > 0) return ref;
       });
-      // }
+    } else {
+      var student = [];
+      var all_remain = await RemainingList.find({
+        student: { $in: admin_ins?.remainingFee },
+      })
+        .select("applicable_fee paid_fee student")
+        .populate({
+          path: "fee_structure",
+          select: "applicable_fees",
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
+          populate: {
+            path: "department",
+            select: "dName",
+          },
+        });
+      for (var ele of all_remain) {
+        ele.student.applicable_fees_pending +=
+          ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+            ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+            : 0;
+        if (student?.includes(ele?.student)) {
+        } else {
+          student.push(ele?.student);
+        }
+      }
+      student = student?.filter((ref) => {
+        if (ref?.applicable_fees_pending > 0) return ref;
+      });
+      student = await nested_document_limit(page, limit, student);
+    }
+    admin_ins.active_tab_index = "Applicable_Fees_Query";
+    await admin_ins.save();
+    // if (student?.length > 0) {
+    res.status(200).send({
+      message: "Its a party time from DB 🙌",
+      remain: student,
+      remainCount: student?.length,
+    });
+    // }
   } catch (e) {
     console.log(e);
   }
@@ -5152,16 +5152,14 @@ exports.renderOneReceiptStatus = async (req, res) => {
         student.remainingFeeList_count += 1;
         new_remainFee.student = student?._id;
         new_remainFee.fee_receipts.push(one_receipt?._id);
-        if (
-          new_remainFee.remaining_fee > 0
-        ) {
-        await add_all_installment(
-          one_app,
-          institute._id,
-          new_remainFee,
-          price,
-          student
-        );
+        if (new_remainFee.remaining_fee > 0) {
+          await add_all_installment(
+            one_app,
+            institute._id,
+            new_remainFee,
+            price,
+            student
+          );
         }
         if (
           new_remainFee.remaining_fee > 0 &&

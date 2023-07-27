@@ -44,7 +44,7 @@ exports.getSportDepart = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       institute.insName,
@@ -212,7 +212,7 @@ exports.getSportClass = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       institute.insName,
@@ -287,7 +287,7 @@ exports.getSportEvent = async (req, res) => {
       notify.notifyReceiever = student[i].user._id;
       student[i].user.uNotify.push(notify._id);
       notify.user = student[i].user._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         "New Event",
@@ -484,7 +484,7 @@ exports.getIntraMatchEvent = async (req, res) => {
       notify.notifyReceiever = ele.user._id;
       ele.user.uNotify.push(notify._id);
       notify.user = ele.user._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         "New Intra Match",
@@ -577,7 +577,7 @@ exports.getInterMatchEvent = async (req, res) => {
       notify.notifyReceiever = ele.user._id;
       ele.user.uNotify.push(notify._id);
       notify.user = ele.user._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         "New Inter Match",

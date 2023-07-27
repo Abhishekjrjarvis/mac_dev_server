@@ -130,7 +130,7 @@ exports.postQuestionText = async (req, res) => {
         notify.notifyCategory = "Post Feed";
         ref.uNotify.push(notify._id);
         notify.notifyByInsPhoto = institute._id;
-        invokeFirebaseNotification(
+        await invokeFirebaseNotification(
           "New To Post Feed",
           notify,
           institute.insName,
@@ -272,7 +272,7 @@ exports.retrievePollQuestionText = async (req, res) => {
           notify.notifyCategory = "Post Feed";
           ref.uNotify.push(notify._id);
           notify.notifyByInsPhoto = institute._id;
-          invokeFirebaseNotification(
+          await invokeFirebaseNotification(
             "New To Post Feed",
             notify,
             institute.insName,

@@ -312,7 +312,7 @@ exports.updateUserFollow = async (req, res) => {
         notify.notifyByPhoto = user;
         await Promise.all([user.save(), suser.save(), notify.save()]);
         if (suser?.user_follower_notify === "Enable") {
-          invokeFirebaseNotification(
+          await invokeFirebaseNotification(
             "Followers",
             notify,
             suser.userLegalName,
@@ -426,7 +426,7 @@ exports.updateUserCircle = async (req, res) => {
         notify.notifyByPhoto = user;
         await Promise.all([user.save(), suser.save(), notify.save()]);
         if (suser?.user_follower_notify === "Enable") {
-          invokeFirebaseNotification(
+          await invokeFirebaseNotification(
             "Circle",
             notify,
             "Circled",
@@ -1816,14 +1816,14 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               },
             },
           });
-          if(student?.studentClass){
-        var classes = await Class.findById({
-          _id: `${student?.studentClass?._id}`,
-        });
-        if (classes?.UnApproveStudent?.includes(`${student?._id}`)) {
-          re_admission_tab = "Visible";
+        if (student?.studentClass) {
+          var classes = await Class.findById({
+            _id: `${student?.studentClass?._id}`,
+          });
+          if (classes?.UnApproveStudent?.includes(`${student?._id}`)) {
+            re_admission_tab = "Visible";
+          }
         }
-      }
         if (student?.studentDocuments?.length > 0) {
           for (var docs of student.studentDocuments) {
             student.incomeCertificate =
@@ -1938,14 +1938,14 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               },
             },
           });
-          if(student?.studentClass){
-        var classes = await Class.findById({
-          _id: `${student?.studentClass?._id}`,
-        });
-        if (classes?.UnApproveStudent?.includes(`${student?._id}`)) {
-          re_admission_tab = "Visible";
+        if (student?.studentClass) {
+          var classes = await Class.findById({
+            _id: `${student?.studentClass?._id}`,
+          });
+          if (classes?.UnApproveStudent?.includes(`${student?._id}`)) {
+            re_admission_tab = "Visible";
+          }
         }
-      }
       }
       average_points += student?.extraPoints / student?.batchCount;
       var point = await handle_undefined(average_points);

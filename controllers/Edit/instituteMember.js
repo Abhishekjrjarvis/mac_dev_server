@@ -61,7 +61,7 @@ exports.departmentEdit = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = institute._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         institute.insName,
@@ -351,7 +351,7 @@ exports.classEdit = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = institute._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         institute.insName,
@@ -550,7 +550,7 @@ exports.subjectEdit = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = institute._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         subject.subjectName,

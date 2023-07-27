@@ -43,7 +43,7 @@ exports.renderNewMentorQuery = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByDepartPhoto = depart?._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       depart?.dName,

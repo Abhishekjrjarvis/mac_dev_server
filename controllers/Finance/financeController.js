@@ -91,7 +91,7 @@ exports.getFinanceDepart = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       institute.insName,
@@ -4851,10 +4851,9 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           await rec.save();
           await retro_receipt_heads_sequencing_query(one_student, rec);
         }
-      }
-      else if (ref?.status === "Not Paid") {
+      } else if (ref?.status === "Not Paid") {
         ref.applicable_fee = exist_struct?.total_admission_fees;
-        await ref.save()
+        await ref.save();
         var one_student = await Student.findById({ _id: `${ref?.student}` });
         var filtered_head = one_student?.active_fee_heads?.filter((val) => {
           if (`${val?.fee_structure}` === `${exist_struct?._id}`) return val;
@@ -4884,11 +4883,9 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
               ref.remaining_array.pull(ele?._id);
             }
           }
-          if(ref?.remaining_fee > 0){
-
-          }
-          else{
-            ref.status = "Paid"
+          if (ref?.remaining_fee > 0) {
+          } else {
+            ref.status = "Paid";
           }
           await ref.save();
         } else if (ref?.applicable_fee < exist_struct?.total_admission_fees) {

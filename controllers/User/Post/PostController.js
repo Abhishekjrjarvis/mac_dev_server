@@ -740,7 +740,7 @@ exports.postComment = async (req, res) => {
       } else {
         await Promise.all([notify.save(), author_user.save()]);
         if (author_user?.user_comment_notify === "Enable") {
-          invokeFirebaseNotification(
+          await invokeFirebaseNotification(
             "Comment",
             notify,
             "New Comment",
@@ -774,7 +774,7 @@ exports.postComment = async (req, res) => {
       if (`${comment.author}` === `${author_ins?._id}`) {
       } else {
         await Promise.all([notify.save(), author_ins.save()]);
-        invokeFirebaseNotification(
+        await invokeFirebaseNotification(
           "Comment",
           notify,
           "New Comment",

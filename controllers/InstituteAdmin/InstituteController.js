@@ -649,7 +649,7 @@ exports.updateApproveStaff = async (req, res) => {
     aStatus.content = `Welcome to ${institute.insName}.Your application for joining as staff  has been accepted by ${institute.insName}.`;
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Staff Approval",
       notify,
       institute.insName,
@@ -732,7 +732,7 @@ exports.updateRejectStaff = async (req, res) => {
     aStatus.content = `Your application for joining as staff in ${institute.insName} is being rejected. Please follow up with institute for any queries.`;
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       institute.insName,
@@ -797,7 +797,7 @@ exports.getNewDepartment = async (req, res) => {
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
     notify.notifyCategory = "Department Designation";
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       institute.insName,
@@ -2143,7 +2143,7 @@ exports.retrieveNewClass = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = institute._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         institute.insName,
@@ -2254,7 +2254,7 @@ exports.retrieveNewSubject = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       depart.dName,
@@ -3220,7 +3220,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Student Approval",
       notify,
       institute.insName,
@@ -3925,7 +3925,7 @@ exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
       aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Student Approval",
         notify,
         institute.insName,

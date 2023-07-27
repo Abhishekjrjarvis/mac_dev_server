@@ -179,7 +179,7 @@ exports.preformedStructure = async (req, res) => {
         class_user.uNotify.push(notify._id);
         notify.user = class_user._id;
         notify.notifyByInsPhoto = institute._id;
-        invokeFirebaseNotification(
+        await invokeFirebaseNotification(
           "Designation Allocation",
           notify,
           institute.insName,
@@ -228,7 +228,7 @@ exports.preformedStructure = async (req, res) => {
           subject_user.uNotify.push(notify_subject._id);
           notify_subject.user = subject_user._id;
           notify_subject.notifyByInsPhoto = institute._id;
-          invokeFirebaseNotification(
+          await invokeFirebaseNotification(
             "Designation Allocation",
             notify_subject,
             institute.insName,
@@ -584,7 +584,8 @@ exports.promoteStudent = async (req, res) => {
           student.batches = batchId;
           //here how to give the null in objectID
           student.studentBehaviour = null;
-          student.studentROLLNO = `${re_ads}` === "WITH_RE_ADMISSION" ? "" : roll;
+          student.studentROLLNO =
+            `${re_ads}` === "WITH_RE_ADMISSION" ? "" : roll;
           student.subjectMarks = [];
           student.exams = [];
           student.finalReportStatus = "No";
@@ -665,11 +666,11 @@ exports.promoteStudent = async (req, res) => {
             );
             new_remainFee.fee_structure = structure[0]?._id;
             new_remainFee.re_admission_flow =
-            `${re_ads}` === "WITH_RE_ADMISSION" ? true : false;
+              `${re_ads}` === "WITH_RE_ADMISSION" ? true : false;
             new_remainFee.remaining_fee += structure[0]?.total_admission_fees;
             student.remainingFeeList.push(new_remainFee?._id);
             new_remainFee.re_admission_class =
-            `${re_ads}` === "WITH_RE_ADMISSION" ? classes?._id : null;
+              `${re_ads}` === "WITH_RE_ADMISSION" ? classes?._id : null;
             student.remainingFeeList_count += 1;
             new_remainFee.student = student?._id;
             admission.remainingFee.push(student._id);
@@ -1180,7 +1181,7 @@ exports.assignDesignationToStaffByBatch = async (req, res) => {
         class_user.uNotify.push(notify._id);
         notify.user = class_user._id;
         notify.notifyByInsPhoto = institute._id;
-        invokeFirebaseNotification(
+        await invokeFirebaseNotification(
           "Designation Allocation",
           notify,
           institute.insName,
@@ -1213,7 +1214,7 @@ exports.assignDesignationToStaffByBatch = async (req, res) => {
             subject_user.uNotify.push(notify_subject._id);
             notify_subject.user = subject_user._id;
             notify_subject.notifyByInsPhoto = institute._id;
-            invokeFirebaseNotification(
+            await invokeFirebaseNotification(
               "Designation Allocation",
               notify_subject,
               institute.insName,

@@ -2414,7 +2414,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     student.fee_structure =
       is_remain === "No" ? fee_struct : batch_set[0]?.fee_struct;
     await student.save();
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Student Approval",
       notify,
       institute.insName,
@@ -2718,7 +2718,7 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
     aStatus.staff = staff._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Staff Approval",
       notify,
       institute.insName,
@@ -3261,7 +3261,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
             ? query?.fee_struct
             : query?.batch_set[0]?.fee_struct;
         await student.save();
-        invokeFirebaseNotification(
+        await invokeFirebaseNotification(
           "Student Approval",
           notify,
           institute.insName,
@@ -3763,7 +3763,7 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
         user.applicationStatus.push(aStatus._id);
         aStatus.instituteId = institute._id;
         aStatus.staff = staff?._id;
-        invokeFirebaseNotification(
+        await invokeFirebaseNotification(
           "Staff Approval",
           notify,
           institute.insName,

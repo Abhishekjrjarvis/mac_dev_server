@@ -287,7 +287,7 @@ exports.postQuestionAnswer = async (req, res) => {
         notify.user = post_user._id;
         await Promise.all([post_user.save(), notify.save()]);
         if (post_user?.user_answer_notify === "Enable") {
-          invokeFirebaseNotification(
+          await invokeFirebaseNotification(
             "Answer",
             notify,
             "New Answer",
@@ -301,7 +301,7 @@ exports.postQuestionAnswer = async (req, res) => {
         post_ins.iNotify.push(notify._id);
         notify.institute = post_ins._id;
         await Promise.all([post_ins.save(), notify.save()]);
-        invokeFirebaseNotification(
+        await invokeFirebaseNotification(
           "Answer",
           notify,
           "New Answer",
@@ -580,7 +580,7 @@ exports.rePostQuestionAnswer = async (req, res) => {
         post_user.uNotify.push(notify._id);
         notify.user = post_user._id;
         await Promise.all([post_user.save(), notify.save()]);
-        invokeFirebaseNotification(
+        await invokeFirebaseNotification(
           "Answer",
           notify,
           "New Repost Answer",
@@ -593,7 +593,7 @@ exports.rePostQuestionAnswer = async (req, res) => {
         post_ins.iNotify.push(notify._id);
         notify.institute = post_ins._id;
         await Promise.all([post_ins.save(), notify.save()]);
-        invokeFirebaseNotification(
+        await invokeFirebaseNotification(
           "Answer",
           notify,
           "New Repost Answer",

@@ -401,7 +401,7 @@ exports.OneComplaintReportAdmin = async (req, res) => {
       notify.institute = institute._id;
       notify.notifyCategory = "Report Complaint";
       notify.notifyByInsPhoto = institute._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         "Reported Complaint",

@@ -105,7 +105,7 @@ exports.renderAdministrator = async (req, res) => {
       access_user.uNotify.push(notify._id);
       notify.user = access_user._id;
       notify.notifyByManageAdminPhoto = manage._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         "New Affiliation",

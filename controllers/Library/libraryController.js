@@ -48,7 +48,7 @@ exports.activateLibrary = async (req, res) => {
     notify.notifyCategory = "Library Designation";
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       institute.insName,

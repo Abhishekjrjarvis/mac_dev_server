@@ -148,7 +148,7 @@ exports.postWithText = async (req, res) => {
         notify.notifyCategory = "Post Feed";
         ref.uNotify.push(notify._id);
         notify.notifyByInsPhoto = institute._id;
-        invokeFirebaseNotification(
+        await invokeFirebaseNotification(
           "New To Post Feed",
           notify,
           institute.insName,
@@ -290,7 +290,7 @@ exports.postWithImage = async (req, res) => {
         notify.notifyCategory = "Post Feed";
         ref.uNotify.push(notify._id);
         notify.notifyByInsPhoto = institute._id;
-        invokeFirebaseNotification(
+        await invokeFirebaseNotification(
           "New To Post Feed",
           notify,
           institute.insName,
@@ -436,7 +436,7 @@ exports.postWithImageAPK = async (req, res) => {
         notify.notifyCategory = "Post Feed";
         ref.uNotify.push(notify._id);
         notify.notifyByInsPhoto = institute._id;
-        invokeFirebaseNotification(
+        await invokeFirebaseNotification(
           "New To Post Feed",
           notify,
           institute.insName,
@@ -580,7 +580,7 @@ exports.postWithVideo = async (req, res) => {
         notify.notifyCategory = "Post Feed";
         ref.uNotify.push(notify._id);
         notify.notifyByInsPhoto = institute._id;
-        invokeFirebaseNotification(
+        await invokeFirebaseNotification(
           "New To Post Feed",
           notify,
           institute.insName,
@@ -1020,7 +1020,7 @@ exports.postComment = async (req, res) => {
     if (`${comment.author}` === `${author_ins._id}`) {
     } else {
       await Promise.all([notify.save(), author_ins.save()]);
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Comment",
         notify,
         "New Comment",

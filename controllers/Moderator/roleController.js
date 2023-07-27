@@ -148,7 +148,7 @@ exports.addAdmissionAppModerator = async (req, res) => {
     notify.user = user._id;
     notify.notifyPid = "1";
     notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       institute.insName,
@@ -368,7 +368,7 @@ exports.updateAdmissionAppModeratorQuery = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = one_moderator?.admission?.institute?._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         one_moderator?.admission?.institute?.insName,
@@ -478,7 +478,7 @@ exports.addFinanceModeratorQuery = async (req, res) => {
     notify.user = user._id;
     notify.notifyPid = "1";
     notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       institute.insName,
@@ -623,7 +623,7 @@ exports.updateFinanceAppModeratorQuery = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = one_moderator?.finance?.institute?._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         one_moderator?.finance?.institute?.insName,
@@ -722,7 +722,7 @@ exports.addInstituteModeratorQuery = async (req, res) => {
     notify.user = user._id;
     notify.notifyPid = "1";
     notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       institute.insName,
@@ -863,7 +863,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = one_moderator?.institute?._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         one_moderator?.institute?.insName,
@@ -974,7 +974,7 @@ exports.addHostelAppModerator = async (req, res) => {
     notify.user = user._id;
     notify.notifyPid = "1";
     notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       institute.insName,
@@ -1141,7 +1141,7 @@ exports.updateHostelAppModeratorQuery = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = one_moderator?.hostel?.institute?._id;
-      invokeFirebaseNotification(
+      await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         one_moderator?.hostel?.institute?.insName,

@@ -140,7 +140,7 @@ exports.renderFinanceStaffQuery = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = finance.institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       finance.institute.insName,
@@ -222,7 +222,7 @@ exports.renderAdmissionStaffQuery = async (req, res) => {
     notify.user = user._id;
     notify.notifyPid = "1";
     notify.notifyByInsPhoto = admission.institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       admission.institute.insName,
@@ -303,7 +303,7 @@ exports.renderSportStaffQuery = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = sport.institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       sport.institute.insName,
@@ -384,7 +384,7 @@ exports.renderSportStaffClassQuery = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = sportClasses.institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       sportClasses.institute.insName,
@@ -463,7 +463,7 @@ exports.renderLibraryStaffQuery = async (req, res) => {
     notify.notifyCategory = "Library Designation";
     notify.user = user._id;
     notify.notifyByInsPhoto = library.institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       library.institute.insName,
@@ -542,7 +542,7 @@ exports.renderTransportStaffQuery = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = trans.institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       trans.institute.insName,
@@ -621,7 +621,7 @@ exports.renderEventManagerStaffQuery = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = event.institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       event.institute.insName,
@@ -700,7 +700,7 @@ exports.renderHostelManagerStaffQuery = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = one_hostel?.institute._id;
-    invokeFirebaseNotification(
+    await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
       one_hostel?.institute.insName,

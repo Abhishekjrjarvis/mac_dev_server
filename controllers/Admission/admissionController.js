@@ -245,7 +245,7 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationTypeStatus admissionAdmin selectCount confirmCount receievedCount applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch"
+        "applicationName applicationEndDate applicationTypeStatus receievedApplication selectedApplication confirmedApplication admissionAdmin selectCount confirmCount receievedCount applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch"
       )
       .populate({
         path: "applicationDepartment",
@@ -270,6 +270,11 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
       //   `Admission-Ongoing-${aid}-${page}`,
       //   bind_ongoing
       // );
+      for (var ref of ongoing) {
+        ref.selectCount = ref?.selectedApplication?.length;
+        ref.confirmCount = ref?.confirmedApplication?.length;
+        ref.receievedCount = ref?.receievedApplication?.length;
+      }
       res.status(200).send({
         message: "All Ongoing Application from DB 🙌",
         // ongoing: cached.ongoing,

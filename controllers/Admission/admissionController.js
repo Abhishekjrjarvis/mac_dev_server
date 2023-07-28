@@ -7318,7 +7318,7 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
       .status(200)
       .send({ message: "Price set off is under processing...", access: true });
     var valid_price = await set_off_amount(all_remain_list);
-    console.log("Valid Set Off"valid_price)
+    console.log("Valid Set Off", valid_price);
     if (valid_price?.total > 0) {
       var filtered_card = valid_price?.set_arr?.filter((val) => {
         if (val?.excess_fee > 0) return val;
@@ -7327,7 +7327,7 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         var valid_remain_card = await RemainingList.findById({
           _id: filtered_card?.[0]?.remain,
         });
-        console.log("Enter in This Zone")
+        console.log("Enter in This Zone");
         const new_receipt = new FeeReceipt({ ...req.body });
         new_receipt.student = student?._id;
         new_receipt.application = apply?._id;

@@ -7320,7 +7320,7 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
     var valid_price = await set_off_amount(all_remain_list);
     console.log("Valid Set Off", valid_price);
     if (valid_price?.total > 0) {
-      var filtered_card = valid_price?.set_arr?.filter((val) => {
+      var filtered_card = valid_price?.set_off_arr?.filter((val) => {
         if (val?.excess_fee > 0) return val;
       });
       if (filtered_card?.length > 1) {

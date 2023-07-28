@@ -1587,7 +1587,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
         user,
         token: `Bearer ${token}`,
         login: true,
-        student,
+        student: student?._id,
       });
     } else {
       res.status(200).send({
@@ -2522,6 +2522,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     res.status(200).send({
       message: `Direct Institute Account Creation Process Completed ${student.studentFirstName} ${student.studentLastName} 😀✨`,
       status: true,
+      student: student?._id,
     });
     const studentName = `${student.studentFirstName} ${
       student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
@@ -2991,6 +2992,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       message:
         "Account Creation Process Completed & message: Taste a bite of sweets till your application is selected, 😀✨",
       access: true,
+      student: student?._id,
     });
     await ignite_multiple_alarm(user);
     const studentName = `${student?.studentFirstName} ${

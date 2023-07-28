@@ -7323,7 +7323,7 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
       var filtered_card = valid_price?.set_off_arr?.filter((val) => {
         if (val?.excess_fee > 0) return val;
       });
-      if (filtered_card?.length > 1) {
+      if (filtered_card?.length >= 1) {
         var valid_remain_card = await RemainingList.findById({
           _id: filtered_card?.[0]?.remain,
         });

@@ -1442,6 +1442,7 @@ exports.directAdmissionInstituteFunction = async (
   body
 ) => {
   try {
+    console.log(body);
     var user = await User.findById({ _id: `${paidBy}` });
     var price = parseInt(tx_amount_ad);
     var apply = await NewApplication.findById({ _id: `${moduleId}` }).populate({

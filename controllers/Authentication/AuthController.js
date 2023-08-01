@@ -2581,7 +2581,6 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
     const { existingUser } = req.query;
     var valid_phone = `${id}`;
     var valid_email = valid_phone?.includes("@");
-    console.log(existingUser);
     var existing = await handle_undefined(existingUser);
     const { sample_pic, fileArray } = req.body;
     if (

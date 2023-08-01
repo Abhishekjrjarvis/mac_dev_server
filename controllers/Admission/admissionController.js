@@ -779,7 +779,7 @@ exports.fetchAllRequestApplication = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user",
             populate: {
               path: "user",
               select: "userPhoneNumber userEmail",
@@ -811,7 +811,7 @@ exports.fetchAllRequestApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user",
             populate: {
               path: "user",
               select: "userPhoneNumber userEmail",
@@ -861,7 +861,7 @@ exports.fetchAllSelectApplication = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:
@@ -899,7 +899,7 @@ exports.fetchAllSelectApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:
@@ -954,7 +954,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:
@@ -992,7 +992,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:
@@ -1047,7 +1047,7 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt",
             populate: {
               path: "user",
               select: "userPhoneNumber userEmail",
@@ -1080,7 +1080,7 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt",
             populate: {
               path: "user",
               select: "userPhoneNumber userEmail",
@@ -1131,7 +1131,7 @@ exports.fetchAllAllotApplication = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
               path: "student_bed_number",
               select: "bed_number hostelRoom",
@@ -1166,7 +1166,7 @@ exports.fetchAllAllotApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
               path: "student_bed_number",
               select: "bed_number hostelRoom",
@@ -1230,7 +1230,7 @@ exports.fetchAllCancelApplication = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user",
             populate: {
               path: "user",
               select: "userPhoneNumber userEmail",
@@ -1261,7 +1261,7 @@ exports.fetchAllCancelApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user",
             populate: {
               path: "user",
               select: "userPhoneNumber userEmail",
@@ -1890,13 +1890,13 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
-    status.fee_receipt = new_receipt?._id
+    status.fee_receipt = new_receipt?._id;
     notify.notifyContent = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
     notify.notifySender = admission?.admissionAdminHead?.user;
     notify.notifyReceiever = user?._id;
     notify.notifyType = "Student";
     notify.notifyPublisher = student?._id;
-    notify.fee_receipt = new_receipt?._id
+    notify.fee_receipt = new_receipt?._id;
     user.activity_tab.push(notify?._id);
     notify.notifyByAdmissionPhoto = admission?._id;
     notify.notifyCategory = "Status Alert";
@@ -5318,14 +5318,14 @@ exports.renderOneReceiptStatus = async (req, res) => {
       status.applicationId = one_app._id;
       user.applicationStatus.push(status._id);
       status.instituteId = institute._id;
-      status.fee_receipt = one_receipt?._id
+      status.fee_receipt = one_receipt?._id;
       status.document_visible = false;
       notify.notifyContent = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
       notify.notifySender = ads_admin?.admissionAdminHead?.user;
       notify.notifyReceiever = user?._id;
       notify.notifyType = "Student";
       notify.notifyPublisher = student?._id;
-      notify.fee_receipt = one_receipt?._id
+      notify.fee_receipt = one_receipt?._id;
       user.activity_tab.push(notify?._id);
       notify.notifyByAdmissionPhoto = ads_admin?._id;
       notify.notifyCategory = "Status Alert";

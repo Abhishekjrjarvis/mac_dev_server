@@ -231,6 +231,15 @@ exports.all_access_role_ins = () => {
         accessStaff: "",
       },
     },
+    ID_CARD_ACCESS: {
+      role: "ID_CARD_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["NEW_ID_CARD", "ID_CARD_ZIP", "ID_CARD_EXCEL"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
   };
   return access_role_ins;
 };

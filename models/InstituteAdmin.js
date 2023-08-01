@@ -877,6 +877,16 @@ const instituteAdminSchema = new mongoose.Schema({
   affliatedLogo: {
     type: String,
   },
+  alias_pronounciation: {
+    student_alias: {
+      type: String,
+      default: "GRNO",
+    },
+    staff_alias: {
+      type: String,
+      default: "Index No.",
+    },
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

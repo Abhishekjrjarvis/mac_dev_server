@@ -1423,7 +1423,7 @@ exports.renderCollectDocsConfirmByStudentQuery = async (req, res) => {
       if (apply?.selectedApplication?.length > 0) {
         apply?.selectedApplication?.forEach((ele) => {
           if (`${ele.student}` === `${student._id}`) {
-            ele.payment_status = "offline";
+            ele.payment_status = "pending";
           }
         });
         await apply.save();

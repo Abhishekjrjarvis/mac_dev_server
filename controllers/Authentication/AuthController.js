@@ -2581,6 +2581,7 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
     const { existingUser } = req.query;
     var valid_phone = `${id}`;
     var valid_email = valid_phone?.includes("@");
+    console.log(existingUser);
     var existing = await handle_undefined(existingUser);
     const { sample_pic, fileArray } = req.body;
     if (
@@ -3353,18 +3354,18 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         }
         await Promise.all([classes.save(), batch.save()]);
         if (process.env.AUTH_SMS_EMAIL_FLOW) {
-        if (institute.sms_lang === "en") {
-          if (user?.userPhoneNumber) {
-            await directESMSQuery(
-              user?.userPhoneNumber,
-              `${student.studentFirstName} ${
-                student.studentMiddleName ? student.studentMiddleName : ""
-              } ${student.studentLastName}`,
-              institute?.insName,
-              classes?.classTitle
-            );
+          if (institute.sms_lang === "en") {
+            if (user?.userPhoneNumber) {
+              await directESMSQuery(
+                user?.userPhoneNumber,
+                `${student.studentFirstName} ${
+                  student.studentMiddleName ? student.studentMiddleName : ""
+                } ${student.studentLastName}`,
+                institute?.insName,
+                classes?.classTitle
+              );
+            }
           }
-        }
         }
         // else if (institute.sms_lang === "hi") {
         //   await directHSMSQuery(
@@ -3402,19 +3403,19 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           institute?.sms_lang
         );
         if (process.env.AUTH_SMS_EMAIL_FLOW) {
-        if (user?.userEmail) {
-          await email_sms_payload_query(
-            user?.userEmail,
-            studentName,
-            institute,
-            "ADSIS",
-            institute?.insType,
-            0,
-            0,
-            institute?.sms_lang
-          );
-        }
-        // return true;
+          if (user?.userEmail) {
+            await email_sms_payload_query(
+              user?.userEmail,
+              studentName,
+              institute,
+              "ADSIS",
+              institute?.insType,
+              0,
+              0,
+              institute?.sms_lang
+            );
+          }
+          // return true;
         }
       } else {
         console.log("Problem in Account Creation");

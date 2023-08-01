@@ -6,6 +6,7 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const Staff = require("../../models/Staff");
 const Student = require("../../models/Student");
 const Class = require("../../models/Class");
+const OrderPayment = require("../../models/RazorPay/orderPayment");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // exports.allUsers = async (req, res) => {
@@ -306,6 +307,23 @@ exports.allLogs = async (req, res) => {
       "studentFirstName studentDocuments studentAadharFrontCard"
     );
     res.status(200).send({ message: "All Student Documents", logs });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.allReceiptInvoiceQuery = async (req, res) => {
+  try {
+    var all_order = await OrderPayment.find({}).populate({
+      path: "fee_receipt",
+    });
+    for (var ref of all_order) {
+      if (ref?.fee_receipt?._id) {
+        ref.payment_invoice_number = ref?.fee_receipt?.invoice_count;
+        await ref.save();
+      }
+    }
+    res.status(200).send({ message: "Explore All Order", access: true });
   } catch (e) {
     console.log(e);
   }

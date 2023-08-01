@@ -41,4 +41,6 @@ router.delete("/ins/:id/delete", catchAsync(Prod.deleteIns));
 
 router.get("/all/log", catchAsync(Prod.allLogs));
 
+router.patch("/receipt/query", catchAsync(Prod.allReceiptInvoiceQuery));
+
 module.exports = router;

@@ -430,7 +430,8 @@ exports.bookColletedByStaffSide = async (req, res) => {
     library?.issued?.pull(issue._id);
     library?.collected?.push(collect._id);
     if (req.body?.paymentType === "Offline") {
-      const order = new OrderPayment({});
+      var order = new OrderPayment({});
+      const new_receipt = new FeeReceipt({});
       order.payment_module_type = "Library Fine";
       order.payment_to_end_user_id = institute?._id;
       order.payment_by_end_user_id = user._id;
@@ -448,34 +449,34 @@ exports.bookColletedByStaffSide = async (req, res) => {
       }${new Date().getFullYear()}${institute.invoice_count}`;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
-      await order.save();
+      new_receipt.fee_payment_mode = "By Cash";
+      new_receipt.fee_payment_amount = price;
+      new_receipt.student = student?._id;
+      new_receipt.finance = finance?._id;
+      new_receipt.fee_transaction_date = new Date();
+      new_receipt.invoice_count = `${
+        new Date().getMonth() + 1
+      }${new Date().getFullYear()}${institute.invoice_count}`;
+      order.fee_receipt = new_receipt?._id;
+      library.offlineFine += price;
+      library.collectedFine += price;
+      library.totalFine += price;
+      library.paid_fee.push({
+        student: student?._id,
+        book: book?._id,
+        fee_receipt: new_receipt?._id,
+        fine_charge: price,
+        fine_type: `${req.body?.chargeBy}`,
+        status: "Paid",
+      });
+
+      await Promise.all([order.save(), new_receipt.save()]);
     }
     if (book.bookStatus === "Offline") book.leftCopies += 1;
 
     if (req.body?.chargeBy === "Damaged" || req.body?.chargeBy === "Lost") {
       library.charge_history.push(collect?._id);
       if (req.body?.paymentType === "Offline") {
-        const new_receipt = new FeeReceipt({});
-        new_receipt.fee_payment_mode = "By Cash";
-        new_receipt.fee_payment_amount = price;
-        new_receipt.student = student?._id;
-        new_receipt.finance = finance?._id;
-        new_receipt.fee_transaction_date = new Date();
-        new_receipt.invoice_count = `${
-          new Date().getMonth() + 1
-        }${new Date().getFullYear()}${institute.invoice_count}`;
-        library.offlineFine += price;
-        library.collectedFine += price;
-        library.totalFine += price;
-        library.paid_fee.push({
-          student: student?._id,
-          book: book?._id,
-          fee_receipt: new_receipt?._id,
-          fine_charge: price,
-          fine_type: `${req.body?.chargeBy}`,
-          status: "Paid",
-        });
-        await new_receipt.save();
         // library.exemptFine +=req.body?.exemptFine
       } else {
         // library.onlineFine += price;
@@ -930,6 +931,7 @@ exports.renderFineChargesCollectOfflineQuery = async (req, res) => {
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
+    order.fee_receipt = new_receipt?._id;
     for (var val of lib?.pending_fee) {
       if (`${val?._id}` === `${prid}`) {
         lib.paid_fee.push({

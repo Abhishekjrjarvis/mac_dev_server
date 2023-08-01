@@ -77,6 +77,10 @@ const statusSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff",
   },
+  fee_receipt: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeReceipt",
+  },
 });
 
 module.exports = mongoose.model("Status", statusSchema);

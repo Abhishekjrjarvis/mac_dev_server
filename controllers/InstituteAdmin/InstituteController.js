@@ -2036,21 +2036,75 @@ exports.retrieveCurrentBatchData = async (req, res) => {
 exports.retrieveClassMaster = async (req, res) => {
   try {
     const { did } = req.params;
-    const classMaster = await ClassMaster.find({ department: did })
-      .select("className classTitle classDivision")
-      .populate({
-        path: "department",
-        select: "dName",
+    const { search } = req.query;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    if (search) {
+      const classMaster = await ClassMaster.find({
+        $and: [
+          {
+            department: did,
+          },
+        ],
+        $or: [
+          {
+            className: { $regex: search, $options: "i" },
+          },
+        ],
       })
-      .lean()
-      .exec();
-    if (classMaster) {
-      // const cEncrypt = await encryptionPayload(classMaster);
-      res.status(200).send({ message: "ClassMaster Are here", classMaster });
+        .select("className classTitle classDivision")
+        .populate({
+          path: "department",
+          select: "dName",
+        })
+        .lean()
+        .exec();
+      if (classMaster?.length > 0) {
+        // const cEncrypt = await encryptionPayload(classMaster);
+        res.status(200).send({
+          message: "Explore ClassMaster Query",
+          access: true,
+          classMaster: classMaster,
+        });
+      } else {
+        res.status(200).send({
+          message: "You are lost in space",
+          access: false,
+          classMaster: [],
+        });
+      }
     } else {
-      res.status(404).send({ message: "Failure" });
+      const classMaster = await ClassMaster.find({
+        department: did,
+      })
+        .select("className classTitle classDivision")
+        .populate({
+          path: "department",
+          select: "dName",
+        })
+        .lean()
+        .exec();
+      if (classMaster?.length > 0) {
+        // const cEncrypt = await encryptionPayload(classMaster);
+        res.status(200).send({
+          message: "Explore ClassMaster Query",
+          access: true,
+          classMaster: classMaster,
+        });
+      } else {
+        res.status(200).send({
+          message: "You are lost in space",
+          access: false,
+          classMaster: [],
+        });
+      }
     }
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveNewClass = async (req, res) => {
@@ -2302,17 +2356,60 @@ exports.retrieveNewSubject = async (req, res) => {
 exports.retrieveSubjectMaster = async (req, res) => {
   try {
     const { did } = req.params;
-    const subjectMaster = await SubjectMaster.find({ department: did })
-      .select("subjectName subjects subjectType course_credit")
-      .lean()
-      .exec();
-    if (subjectMaster) {
-      // const sEncrypt = await encryptionPayload(subjectMaster);
-      res
-        .status(200)
-        .send({ message: "SubjectMaster Are here", subjectMaster });
+    const { search } = req.query;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    if (search) {
+      const subjectMaster = await SubjectMaster.find({
+        $and: [{ department: did }],
+        $or: [
+          {
+            subjectName: { $regex: search, $options: "i" },
+          },
+          {
+            subjectType: { $regex: search, $options: "i" },
+          },
+        ],
+      })
+        .select("subjectName subjects subjectType course_credit")
+        .lean()
+        .exec();
+      if (subjectMaster?.length > 0) {
+        // const sEncrypt = await encryptionPayload(subjectMaster);
+        res.status(200).send({
+          message: "Explore SubjectMaster Query",
+          access: true,
+          subjectMaster: subjectMaster,
+        });
+      } else {
+        res.status(200).send({
+          message: "You are lost in space",
+          access: false,
+          subjectMaster: [],
+        });
+      }
     } else {
-      res.status(404).send({ message: "Failure" });
+      const subjectMaster = await SubjectMaster.find({ department: did })
+        .select("subjectName subjects subjectType course_credit")
+        .lean()
+        .exec();
+      if (subjectMaster?.length > 0) {
+        // const sEncrypt = await encryptionPayload(subjectMaster);
+        res.status(200).send({
+          message: "Explore SubjectMaster Query",
+          access: true,
+          subjectMaster: subjectMaster,
+        });
+      } else {
+        res.status(200).send({
+          message: "You are lost in space",
+          access: false,
+          subjectMaster: [],
+        });
+      }
     }
   } catch (e) {
     console.log(e);

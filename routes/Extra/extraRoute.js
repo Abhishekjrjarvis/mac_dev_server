@@ -266,4 +266,9 @@ router.patch(
   catchAsync(Extra.renderApplicationCDNQuery)
 );
 
+router.patch(
+  "/:sid/active/designation/role/query",
+  catchAsync(Extra.renderActiveDesignationRoleQuery)
+);
+
 module.exports = router;

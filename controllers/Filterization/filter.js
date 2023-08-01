@@ -20,10 +20,13 @@ const {
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
+const NewApplication = require("../../models/Admission/NewApplication");
 const {
   custom_date_time_reverse,
   custom_year_reverse,
   custom_month_reverse,
+  day_month_year_bifurgate,
+  custom_date_time,
 } = require("../../helper/dayTimer");
 const moment = require("moment");
 const FeeStructure = require("../../models/Finance/FeesStructure");
@@ -1735,4 +1738,120 @@ exports.renderUpdate = async (req, res) => {
     await ref.save();
   }
   res.status(200).send({ message: "updated", access: true });
+};
+
+const filterization_app_query = async (arr, type, date) => {
+  try {
+    var list = [];
+    if (type === "Request") {
+      var req_count = 0;
+      arr?.filter((val) => {
+        var valid_val = moment(val?.apply_on).format("YYYY-MM-DD");
+        if (`${date}` === `${valid_val}`) {
+          req_count += 1;
+          list.push(val?.student);
+        }
+      });
+      return { req_count: req_count, list: list };
+    } else if (type === "Select") {
+      var sel_count = 0;
+      arr?.filter((val) => {
+        var valid_val = moment(`${val?.select_on}`).format("YYYY-MM-DD");
+        if (`${date}` === `${valid_val}`) {
+          sel_count += 1;
+          list.push(val?.student);
+        }
+      });
+      return { sel_count: sel_count, list: list };
+    } else if (type === "Confirm") {
+      var conf_count = 0;
+      arr?.filter((val) => {
+        var valid_val = moment(`${val?.apply_on}`).format("YYYY-MM-DD");
+        if (`${date}` === `${valid_val}`) {
+          conf_count += 1;
+          list.push(val?.student);
+        }
+      });
+      return { conf_count: conf_count, list: list };
+    } else if (type === "Allot") {
+      var all_count = 0;
+      arr?.filter((val) => {
+        var valid_val = moment(`${val?.allot_on}`).format("YYYY-MM-DD");
+        if (`${date}` === `${valid_val}`) {
+          all_count += 1;
+          list.push(val?.student);
+        }
+      });
+      return { all_count: all_count, list: list };
+    } else if (type === "Cancel") {
+      var can_count = 0;
+      arr?.filter((val) => {
+        var valid_val = moment(`${val?.cancel_on}`).format("YYYY-MM-DD");
+        if (`${date}` === `${valid_val}`) {
+          can_count += 1;
+          list.push(val?.student);
+        }
+      });
+      return { can_count: can_count, list: list };
+    }
+  } catch (e) {}
+};
+
+exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    var valid_date = custom_date_time(0);
+    var valid_app = await NewApplication.findById({ _id: aid });
+    var request_count = await filterization_app_query(
+      valid_app?.receievedApplication,
+      "Request",
+      valid_date
+    );
+    var select_count = await filterization_app_query(
+      valid_app?.selectedApplication,
+      "Select",
+      valid_date
+    );
+    var confirm_count = await filterization_app_query(
+      valid_app?.confirmedApplication,
+      "Confirm",
+      valid_date
+    );
+    var allot_count = await filterization_app_query(
+      valid_app?.allottedApplication,
+      "Allot",
+      valid_date
+    );
+    var cancel_count = await filterization_app_query(
+      valid_app?.cancelApplication,
+      "Cancel",
+      valid_date
+    );
+    var day_wise = {
+      request_count: request_count?.req_count,
+      select_count: select_count?.sel_count,
+      confirm_count: confirm_count?.conf_count,
+      allot_count: allot_count?.all_count,
+      cancel_count: cancel_count?.can_count,
+    };
+    var day_arr = [
+      ...select_count?.list,
+      ...confirm_count?.list,
+      ...allot_count?.list,
+      ...request_count?.list,
+    ];
+    res.status(200).send({
+      message: "Explore All Filterization Method Day Wise Collection",
+      access: true,
+      day_wise,
+      day_arr,
+    });
+  } catch (e) {
+    // console.log(e);
+  }
 };

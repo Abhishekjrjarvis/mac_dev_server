@@ -1845,3 +1845,26 @@ exports.renderApplicationCDNQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderActiveDesignationRoleQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { flow, flow_id } = req.query;
+    if (!sid && !flow && !flow_id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_staff = await Staff.findById({ _id: sid });
+    one_staff.active_designation.flow = flow;
+    one_staff.active_designation.flow_id = flow_id;
+    await one_staff.save();
+    res.status(200).send({
+      message: "Explore Current Active Staff Designation Role 😀",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

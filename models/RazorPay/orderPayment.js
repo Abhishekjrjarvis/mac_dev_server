@@ -35,8 +35,7 @@ const orderPaymentSchema = new mongoose.Schema({
     type: String,
   },
   payment_invoice_number: {
-    type: Number,
-    default: 0,
+    type: String,
   },
   payment_mode: {
     type: String,

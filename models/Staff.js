@@ -383,6 +383,15 @@ const staffSchema = new mongoose.Schema({
     type: String,
     default: "Not Transfer",
   },
+  active_designation: {
+    flow: {
+      type: String,
+      default: "None",
+    },
+    flow_id: {
+      type: String,
+    },
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

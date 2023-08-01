@@ -31393,4 +31393,33 @@ paths:
         "200":
           description: OK
 
+  /api/v1/extra/{sid}/active/designation/role/query:
+    patch:
+      tags:
+        - New Add-Ons Query
+      summary: Mark Current Designation As a Active Role -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Staff ID
+        - in: query
+          name: flow
+          required: true
+          type: string
+          description: This is Flow ("Department_Head" || "Class_Teacher" || "Subject_Teacher" || "Finance_Manager" || "Admission_Admin" || "Transportation_Manager" || "Sports_Head" || "Librarian" || "Sports_Class_Head" || "Event_Manager" || "Hostel_Manager" || "Alumini" || "Moderator")
+        - in: query
+          name: flow_id
+          required: true
+          type: string
+          description: This is Flow ID
+      responses:
+        "200":
+          description: OK
+
           

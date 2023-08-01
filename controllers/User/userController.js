@@ -914,6 +914,9 @@ exports.getAllUserActivity = async (req, res) => {
           },
         },
       })
+      .populate({
+        path: "fee_receipt",
+      })
       .sort("-notifyTime")
       .limit(limit)
       .skip(skip);
@@ -960,7 +963,8 @@ exports.getAllTotalCount = async (req, res) => {
         // console.log(false);
       }
     }
-    total = total + notify?.length + activity?.length + counts;
+    // total = total + notify?.length + activity?.length + counts;
+    total = total + notify?.length + activity?.length;
     // Add Another Encryption
     res.status(200).send({
       message: "Not Viewed Notification & Activity",
@@ -1416,7 +1420,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     if (isApk) {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount vehicle_category staffMiddleName mentorDepartment hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
+          "staffFirstName staffDesignationCount vehicle_category active_designation staffMiddleName mentorDepartment hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
         )
         .populate({
           path: "staffDepartment",
@@ -1585,7 +1589,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     } else {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount vehicle_category staffMiddleName mentorDepartment hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
+          "staffFirstName staffDesignationCount vehicle_category active_designation staffMiddleName mentorDepartment hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
         )
         .populate({
           path: "staffDepartment",
@@ -2176,6 +2180,13 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
         path: "applicationStatus",
         populate: {
           path: "bank_account",
+        },
+        options,
+      })
+      .populate({
+        path: "applicationStatus",
+        populate: {
+          path: "fee_receipt",
         },
         options,
       })

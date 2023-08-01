@@ -76,5 +76,11 @@ router.patch(
   catchAsync(Filter.renderUpdate)
 );
 
+router.get(
+  "/by/date/collection/:aid/query",
+  // isLoggedIn,
+  catchAsync(Filter.renderApplicationFilterByDateCollectionQuery)
+);
+
 // router.get('/filter/by/date/funds',isLoggedIn, catchAsync(Filter.filterByDateFunds))
 module.exports = router;

@@ -99,6 +99,10 @@ const studentNotificationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Queries",
   },
+  fee_receipt: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeReceipt",
+  },
 });
 
 module.exports = mongoose.model(

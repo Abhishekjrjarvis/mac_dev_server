@@ -502,7 +502,7 @@ exports.verifyOtpByUser = async (req, res) => {
           });
         }
       }
-    } else {
+    } else if (valid_otp_email) {
       // var low_id = id?.toLowerCase();
       // var high_id = id?.toUpperCase();
       var all_account_email = await User.find({
@@ -522,6 +522,7 @@ exports.verifyOtpByUser = async (req, res) => {
           });
         }
       }
+    } else {
     }
     if (
       (req.body.userOtpCode &&
@@ -531,23 +532,30 @@ exports.verifyOtpByUser = async (req, res) => {
     ) {
       var userStatus = "approved";
       // Add Another Encryption
-      res.send({
+      res.status(200).send({
         message: "OTP verified",
         id,
         userStatus,
         accounts: account_linked,
         count: account_linked?.length,
+        access: true,
       });
       if (valid_otp) {
         await OTPCode.findByIdAndDelete(valid_otp?._id);
-      } else {
+      } else if (valid_otp_email) {
         await OTPCode.findByIdAndDelete(valid_otp_email?._id);
+      } else {
       }
     } else {
-      res.send({ message: "Invalid OTP" });
+      res.status(200).send({
+        message: "Invalid OTP",
+        access: false,
+        accounts: [],
+        count: 0,
+      });
     }
   } catch (e) {
-    console.log(`Error`, e);
+    console.log(e);
   }
 };
 
@@ -2954,7 +2962,8 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       institute,
       student?._id,
       finance,
-      structure
+      structure,
+      new_receipt
     );
     apply.receievedCount += 1;
     apply.selectCount += 1;
@@ -3109,7 +3118,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           userPhoneNumber: query?.userPhoneNumber
             ? parseInt(query?.userPhoneNumber)
             : 0,
-          userEmail: query.userEmail,
+          userEmail: query?.userEmail,
           userPassword: hashUserPass,
           photoId: "0",
           coverId: "2",
@@ -3344,7 +3353,8 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         }
         await Promise.all([classes.save(), batch.save()]);
         if (process.env.AUTH_SMS_EMAIL_FLOW) {
-          if (institute.sms_lang === "en") {
+        if (institute.sms_lang === "en") {
+          if (user?.userPhoneNumber) {
             await directESMSQuery(
               user?.userPhoneNumber,
               `${student.studentFirstName} ${
@@ -3354,6 +3364,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
               classes?.classTitle
             );
           }
+        }
         }
         // else if (institute.sms_lang === "hi") {
         //   await directHSMSQuery(
@@ -3391,19 +3402,19 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           institute?.sms_lang
         );
         if (process.env.AUTH_SMS_EMAIL_FLOW) {
-          if (user?.userEmail) {
-            await email_sms_payload_query(
-              user?.userEmail,
-              studentName,
-              institute,
-              "ADSIS",
-              institute?.insType,
-              0,
-              0,
-              institute?.sms_lang
-            );
-          }
-          return true;
+        if (user?.userEmail) {
+          await email_sms_payload_query(
+            user?.userEmail,
+            studentName,
+            institute,
+            "ADSIS",
+            institute?.insType,
+            0,
+            0,
+            institute?.sms_lang
+          );
+        }
+        // return true;
         }
       } else {
         console.log("Problem in Account Creation");

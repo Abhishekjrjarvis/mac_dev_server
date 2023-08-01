@@ -24,6 +24,7 @@ const order_history_query = async (
     order_payment.payment_flag_by = "Debit";
     order_payment.payment_flag_to = "Credit";
     order_payment.payment_module_id = module_id;
+    order_payment.payment_mode = "Paytm Payment Gateway - (PG)";
     order_payment.payment_amount = amount_nocharges;
     order_payment.payment_status = "Captured";
     institute.invoice_count += 1;

@@ -141,6 +141,7 @@ exports.verifyRazorPayment = async (req, res) => {
       order_payment.payment_flag_by = "Debit";
       order_payment.payment_flag_to = "Credit";
       order_payment.payment_module_id = payment_module_id;
+      order_payment.payment_mode = "Razorpay Payment Gateway - (PG)";
       order_payment.payment_amount = refactor_amount_nocharges;
       order_payment.payment_status = "Captured";
       institute.invoice_count += 1;
@@ -379,6 +380,7 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
         $and: [
           { payment_by_end_user_id: uid },
           { payment_module_type: filter },
+          { payment_amount: { $gt: 0 } },
         ],
       })
         .sort("-created_at")
@@ -419,18 +421,26 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           path: "fee_receipt",
         });
       if (order?.length > 0) {
-        var new_order = order?.filter((ref) => {
-          if (ref?.payment_amount > 0) return ref;
-        });
+        // var new_order = order?.filter((ref) => {
+        //   if (ref?.payment_amount > 0) return ref;
+        // });
         // const oEncrypt = await encryptionPayload(order);
-        res
-          .status(200)
-          .send({ message: "User Pay History", history: new_order });
+        res.status(200).send({ message: "User Pay History", history: order });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
     } else {
-      var order = await OrderPayment.find({ payment_by_end_user_id: uid })
+      var order = await OrderPayment.find({
+        $and: [
+          {
+            payment_by_end_user_id: uid,
+          },
+          {
+            payment_amount: { $gt: 0 },
+          },
+          { payment_module_type: { $ne: "Expense" } },
+        ],
+      })
         .sort("-created_at")
         .limit(limit)
         .skip(skip)
@@ -468,19 +478,17 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
         .populate({
           path: "fee_receipt",
         });
-      for (var filteredData of order) {
-        if (
-          `${filteredData?.payment_module_type}` != "Expense" &&
-          filteredData?.payment_amount > 0
-        ) {
-          filtered_array.push(filteredData);
-        }
-      }
-      if (filtered_array?.length > 0) {
-        // const oEncrypt = await encryptionPayload(filtered_array);
-        res
-          .status(200)
-          .send({ message: "User Pay History", history: filtered_array });
+      // for (var filteredData of order) {
+      //   if (
+      //     `${filteredData?.payment_module_type}` != "Expense" &&
+      //     filteredData?.payment_amount > 0
+      //   ) {
+      //     filtered_array.push(filteredData);
+      //   }
+      // }
+      if (order?.length > 0) {
+        // const oEncrypt = await encryptionPayload(order);
+        res.status(200).send({ message: "User Pay History", history: order });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
@@ -503,6 +511,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
         $and: [
           { payment_to_end_user_id: uid },
           { payment_module_type: filter },
+          { payment_amount: { $gt: 0 } },
         ],
       })
         .sort("-created_at")
@@ -552,17 +561,27 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       // });
       if (order?.length > 0) {
         // const oEncrypt = await encryptionPayload(order);
-        var new_order = order?.filter((ref) => {
-          if (ref?.payment_amount > 0) return ref;
-        });
-        res
-          .status(200)
-          .send({ message: "User Pay History", history: new_order });
+        // var new_order = order?.filter((ref) => {
+        //   if (ref?.payment_amount > 0) return ref;
+        // });
+        res.status(200).send({ message: "User Pay History", history: order });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
     } else {
-      var order = await OrderPayment.find({ payment_to_end_user_id: uid })
+      var order = await OrderPayment.find({
+        $and: [
+          {
+            payment_to_end_user_id: uid,
+          },
+          {
+            payment_module_type: { $ne: "Expense" },
+          },
+          {
+            payment_amount: { $gt: 0 },
+          },
+        ],
+      })
         .sort("-created_at")
         .limit(limit)
         .skip(skip)
@@ -608,19 +627,17 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       //   path: "payment_expense_to_end_user_id",
       //   select: "userLegalName photoId profilePhoto",
       // });
-      for (var filteredData of order) {
-        if (
-          `${filteredData?.payment_module_type}` != "Expense" &&
-          filteredData?.payment_amount > 0
-        ) {
-          filtered_array.push(filteredData);
-        }
-      }
-      if (filtered_array?.length > 0) {
-        // const oEncrypt = await encryptionPayload(filtered_array);
-        res
-          .status(200)
-          .send({ message: "User Pay History", history: filtered_array });
+      // for (var filteredData of order) {
+      //   if (
+      //     `${filteredData?.payment_module_type}` != "Expense" &&
+      //     filteredData?.payment_amount > 0
+      //   ) {
+      //     filtered_array.push(filteredData);
+      //   }
+      // }
+      if (order?.length > 0) {
+        // const oEncrypt = await encryptionPayload(order);
+        res.status(200).send({ message: "User Pay History", history: order });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }

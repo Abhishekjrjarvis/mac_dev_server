@@ -317,7 +317,10 @@ exports.fee_reordering_hostel = async (
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    order.payment_invoice_number = institute.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
+    order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     var valid_end = student?.hostel_fee_structure?.structure_month;

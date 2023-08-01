@@ -26,7 +26,8 @@ exports.insert_multiple_status = async (
   iargs,
   sid,
   finance,
-  structure
+  structure,
+  receipt
 ) => {
   try {
     var filtered_account = await BankAccount.findOne({
@@ -38,6 +39,7 @@ exports.insert_multiple_status = async (
         applicationId: args?._id,
         instituteId: iargs?._id,
         student: sid,
+        fee_receipt: receipt?._id,
       },
       {
         content: `Your application for ${args?.applicationName} have been filled successfully.
@@ -316,7 +318,10 @@ exports.fee_reordering = async (
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    order.payment_invoice_number = institute.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
+    order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     await Promise.all([
@@ -711,8 +716,11 @@ exports.fee_reordering_direct_student_payload = async (
               order.payment_admission = apply._id;
               order.payment_from = student._id;
               institute.invoice_count += 1;
-              order.payment_invoice_number = institute.invoice_count;
+              order.payment_invoice_number = `${
+                new Date().getMonth() + 1
+              }${new Date().getFullYear()}${institute.invoice_count}`;
               user.payment_history.push(order._id);
+              order.fee_receipt = new_receipt?._id;
               institute.payment_history.push(order._id);
               new_receipt.invoice_count = `${
                 new Date().getMonth() + 1
@@ -884,9 +892,12 @@ exports.fee_reordering_direct_student_payload = async (
               order.payment_mode = nest?.mode;
               order.payment_admission = apply._id;
               order.payment_from = student._id;
-              order.payment_invoice_number = institute.invoice_count;
+              order.payment_invoice_number = `${
+                new Date().getMonth() + 1
+              }${new Date().getFullYear()}${institute.invoice_count}`;
               user.payment_history.push(order._id);
               institute.payment_history.push(order._id);
+              order.fee_receipt = new_receipt?._id;
               await Promise.all([
                 new_receipt.save(),
                 institute.save(),

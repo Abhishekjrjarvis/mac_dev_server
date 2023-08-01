@@ -277,3 +277,22 @@ exports.ms_calc = async (old_date, new_date) => {
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   return diffDays;
 };
+
+exports.day_month_year_bifurgate = () => {
+  const date = new Date();
+  var day = date.getDate();
+  var month = date.getMonth() + 1;
+  var year = date.getFullYear();
+  if (month < 10) {
+    month = `0${month}`;
+  }
+  if (day < 10) {
+    day = `0${day}`;
+  }
+  const date_pattern = {
+    day: day,
+    month: month,
+    year: year,
+  };
+  return date_pattern;
+};

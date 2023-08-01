@@ -273,6 +273,7 @@ exports.hostelInstituteFunction = async (
       });
       aStatus.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
       aStatus.applicationId = apply._id;
+      aStatus.fee_receipt = new_receipt?._id;
       aStatus.document_visible = false;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = ins._id;
@@ -283,7 +284,7 @@ exports.hostelInstituteFunction = async (
         student.studentMiddleName ? `${student.studentMiddleName} ` : ""
       } ${
         student.studentLastName
-      } your transaction is successfull for Admission Fee ${parseInt(
+      } your transaction is successfull for Hostel Admission Fee ${parseInt(
         tx_amount_ad
       )}`;
       notify.notify_hi_content = `${student.studentFirstName} ${
@@ -552,7 +553,9 @@ exports.directHostelInstituteFunction = async (
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     institute.invoice_count += 1;
-    order.payment_invoice_number = institute.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     user.payment_history.push(order._id);
     renew.renewal_student = student?._id;
     renew.renewal_application = apply?._id;

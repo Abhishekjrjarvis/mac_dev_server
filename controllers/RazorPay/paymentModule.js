@@ -591,6 +591,7 @@ exports.admissionInstituteFunction = async (
       aStatus.document_visible = false;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = ins._id;
+      aStatus.fee_receipt = new_receipt?._id;
       user.payment_history.push(order);
       (status.payMode = "online"), (status.isPaid = "Paid");
       status.for_selection = "Yes";
@@ -1534,7 +1535,9 @@ exports.directAdmissionInstituteFunction = async (
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     institute.invoice_count += 1;
-    order.payment_invoice_number = institute.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${

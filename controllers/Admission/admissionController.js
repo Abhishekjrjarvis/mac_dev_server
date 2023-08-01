@@ -954,7 +954,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:
@@ -992,7 +992,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:
@@ -1047,7 +1047,7 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt",
             populate: {
               path: "user",
               select: "userPhoneNumber userEmail",
@@ -1080,7 +1080,7 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt",
             populate: {
               path: "user",
               select: "userPhoneNumber userEmail",
@@ -1700,8 +1700,11 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
+    order.fee_receipt = new_receipt?._id;
     institute.invoice_count += 1;
-    order.payment_invoice_number = institute.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
@@ -1887,11 +1890,13 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
+    status.fee_receipt = new_receipt?._id
     notify.notifyContent = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
     notify.notifySender = admission?.admissionAdminHead?.user;
     notify.notifyReceiever = user?._id;
     notify.notifyType = "Student";
     notify.notifyPublisher = student?._id;
+    notify.fee_receipt = new_receipt?._id
     user.activity_tab.push(notify?._id);
     notify.notifyByAdmissionPhoto = admission?._id;
     notify.notifyCategory = "Status Alert";
@@ -2113,7 +2118,10 @@ exports.cancelAdmissionApplication = async (req, res) => {
       order.payment_admission = apply._id;
       order.payment_from = student._id;
       institute.invoice_count += 1;
-      order.payment_invoice_number = institute.invoice_count;
+      order.payment_invoice_number = `${
+        new Date().getMonth() + 1
+      }${new Date().getFullYear()}${institute.invoice_count}`;
+      order.fee_receipt = new_receipt?._id;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
       new_receipt.invoice_count = `${
@@ -2949,9 +2957,12 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     institute.invoice_count += 1;
-    order.payment_invoice_number = institute.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
+    order.fee_receipt = new_receipt?._id;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
@@ -3194,7 +3205,10 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     institute.invoice_count += 1;
-    order.payment_invoice_number = institute.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
+    order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
@@ -3443,7 +3457,10 @@ const request_mode_query_by_student = async (
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     institute.invoice_count += 1;
-    order.payment_invoice_number = institute.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
+    order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (new_receipt?.fee_payment_mode === "Exempted/Unrecovered") {
@@ -5291,19 +5308,24 @@ exports.renderOneReceiptStatus = async (req, res) => {
       order.payment_admission = one_app._id;
       order.payment_from = student._id;
       institute.invoice_count += 1;
-      order.payment_invoice_number = institute.invoice_count;
+      order.payment_invoice_number = `${
+        new Date().getMonth() + 1
+      }${new Date().getFullYear()}${institute.invoice_count}`;
       user.payment_history.push(order._id);
+      order.fee_receipt = one_receipt?._id;
       institute.payment_history.push(order._id);
       status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
       status.applicationId = one_app._id;
       user.applicationStatus.push(status._id);
       status.instituteId = institute._id;
+      status.fee_receipt = one_receipt?._id
       status.document_visible = false;
       notify.notifyContent = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
       notify.notifySender = ads_admin?.admissionAdminHead?.user;
       notify.notifyReceiever = user?._id;
       notify.notifyType = "Student";
       notify.notifyPublisher = student?._id;
+      notify.fee_receipt = one_receipt?._id
       user.activity_tab.push(notify?._id);
       notify.notifyByAdmissionPhoto = ads_admin?._id;
       notify.notifyCategory = "Status Alert";
@@ -6036,8 +6058,11 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     institute.invoice_count += 1;
-    order.payment_invoice_number = institute.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     user.payment_history.push(order._id);
+    order.fee_receipt = new_receipt?._id;
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
@@ -7394,9 +7419,12 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         order.payment_admission = apply._id;
         order.payment_from = student._id;
         institute.invoice_count += 1;
-        order.payment_invoice_number = institute.invoice_count;
+        order.payment_invoice_number = `${
+          new Date().getMonth() + 1
+        }${new Date().getFullYear()}${institute.invoice_count}`;
         user.payment_history.push(order._id);
         institute.payment_history.push(order._id);
+        order.fee_receipt = new_receipt?._id;
         new_receipt.invoice_count = `${
           new Date().getMonth() + 1
         }${new Date().getFullYear()}${institute.invoice_count}`;
@@ -7722,7 +7750,10 @@ const auto_scholar_query = async (
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     institute.invoice_count += 1;
-    order.payment_invoice_number = institute.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
+    order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
@@ -8248,9 +8279,12 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
       order.payment_admission = apply._id;
       order.payment_from = student._id;
       institute.invoice_count += 1;
-      order.payment_invoice_number = institute.invoice_count;
+      order.payment_invoice_number = `${
+        new Date().getMonth() + 1
+      }${new Date().getFullYear()}${institute.invoice_count}`;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
+      order.fee_receipt = new_receipt?._id;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
       }${new Date().getFullYear()}${institute.invoice_count}`;
@@ -8579,9 +8613,12 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     institute.invoice_count += 1;
-    order.payment_invoice_number = institute.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
+    order.fee_receipt = new_receipt?._id;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;

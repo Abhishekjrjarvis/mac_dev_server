@@ -4076,7 +4076,9 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
     order.payment_finance = finance?._id;
     order.payment_from = student._id;
     institute.invoice_count += 1;
-    order.payment_invoice_number = institute.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (master?.deposit_amount >= price) {

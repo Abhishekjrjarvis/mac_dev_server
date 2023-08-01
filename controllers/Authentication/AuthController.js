@@ -2674,9 +2674,9 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
             await ele.save();
           });
         }
-      } else {
-        var user = await User.findById({ _id: `${existing}` });
       }
+    } else {
+      var user = await User.findById({ _id: `${existing}` });
     }
     const institute = await InstituteAdmin.findById({
       _id: insId,

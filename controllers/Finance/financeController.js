@@ -4965,6 +4965,12 @@ exports.renderSecondaryStructureQuery = async (req, res) => {
   }
 };
 
+// exports.updateAlias = async(req, res) => {
+//   try{
+
+//   }
+// }
+
 // exports.delete_structure = async (req, res) => {
 //   try {
 //     const { did } = req.params;

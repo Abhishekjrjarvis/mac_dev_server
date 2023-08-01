@@ -79,6 +79,7 @@ const newApplicationSchema = new mongoose.Schema({
       fee_remain: { type: Number, default: 0 },
       docs_collect: { type: String, default: "Not Collected" },
       status_id: { type: mongoose.Schema.Types.ObjectId, ref: "Status" },
+      edited_struct: { type: Boolean, default: true },
     },
   ],
   confirmedApplication: [

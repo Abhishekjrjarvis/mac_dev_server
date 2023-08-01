@@ -4117,6 +4117,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       if (`${app.student}` === `${student._id}`) {
         app.docs_collect = "Collected";
         app.status_id = status?._id;
+        app.edited_struct = false
       } else {
       }
     }

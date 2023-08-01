@@ -55,7 +55,9 @@ exports.initiate = async (req, res) => {
       payment_card_id,
     } = req.body;
     let gatewayCharges = (parseInt(amount) * 1) / 100;
-    var valid_charge = gatewayCharges >= 100 ? 100 : gatewayCharges;
+    let gst = (+gatewayCharges * 18) / 100;
+    let withGst = gatewayCharges + gst;
+    var valid_charge = withGst >= 100 ? 100 : withGst;
     let data = parseInt(amount) + parseInt(valid_charge);
     // let gatewayCharges = (parseInt(amount) * 2.1) / 100;
     // let gst = (+gatewayCharges * 18) / 100;

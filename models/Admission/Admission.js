@@ -221,12 +221,10 @@ const admissionAdminSchema = new mongoose.Schema({
   },
   pending_fee_custom_filter: {
     gender: {
-      type: Boolean,
-      default: false,
+      type: String,
     },
     cast_category: {
-      type: Boolean,
-      default: false,
+      type: String,
     },
     department: [],
     batch: [],

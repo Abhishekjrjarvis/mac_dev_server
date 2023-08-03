@@ -2499,7 +2499,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const { search, flow } = req.query;
-    const { depart_arr, batch_arr, master_arr, gender, cast_category } =
+    const { depart_arr, batch_arr, master_arr, gender, cast_category, filter_by } =
       req.body;
     const admin_ins = await Admission.findById({ _id: aid }).select(
       "remainingFee active_tab_index pending_fee_custom_filter"
@@ -2568,35 +2568,33 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           });
         if (depart_arr?.length > 0) {
           student = student?.filter((ref) => {
-            if (depart_arr?.includes(`${ref?.department?._id}`)) return ref;
+            if (depart_arr?.includes(`${ref?.department?._id}`) || admin_ins.pending_fee_custom_filter.department?.includes(`${ref?.department?._id}`)) return ref;
           });
         }
         if (batch_arr?.length > 0) {
           student = student?.filter((ref) => {
-            if (batch_arr?.includes(`${ref?.batches}`)) return ref;
+            if (batch_arr?.includes(`${ref?.batches}`) || admin_ins.pending_fee_custom_filter.batch?.includes(`${ref?.batches}`)) return ref;
           });
         }
         if (master_arr?.length > 0) {
           student = student?.filter((ref) => {
-            if (master_arr?.includes(`${ref?.studentClass?.masterClassName}`))
+            if (master_arr?.includes(`${ref?.studentClass?.masterClassName}`) || admin_ins.pending_fee_custom_filter.master?.includes(`${ref?.studentClass?.masterClassName}`))
               return ref;
           });
         }
         if (gender) {
           student = student?.filter((ref) => {
-            if (`${ref?.studentGender}` === `${gender}`) return ref;
+            if (`${ref?.studentGender}` === `${gender}` || `${admin_ins.pending_fee_custom_filter.gender}` === `${gender}`) return ref;
           });
         }
         if (cast_category) {
           student = student?.filter((ref) => {
-            if (`${ref?.studentCastCategory}` === `${cast_category}`)
+            if (`${ref?.studentCastCategory}` === `${cast_category}` || `${admin_ins.pending_fee_custom_filter.cast_category}` === `${cast_category}`)
               return ref;
           });
         }
-        admin_ins.pending_fee_custom_filter.cast_category = cast_category
-          ? true
-          : false;
-        admin_ins.pending_fee_custom_filter.gender = gender ? true : false;
+        admin_ins.pending_fee_custom_filter.cast_category = cast_category ? cast_category : admin_ins.pending_fee_custom_filter.cast_category
+        admin_ins.pending_fee_custom_filter.gender = gender ? gender : admin_ins.pending_fee_custom_filter.gender;
         if (master_arr?.length > 0) {
           admin_ins.pending_fee_custom_filter.master.push(...master_arr);
         } else {
@@ -2611,6 +2609,13 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           admin_ins.pending_fee_custom_filter.department.push(...depart_arr);
         } else {
           admin_ins.pending_fee_custom_filter.department = [];
+        }
+        if(`${filter_by}` === "Clear_All"){
+          admin_ins.pending_fee_custom_filter.cast_category = null
+          admin_ins.pending_fee_custom_filter.gender = null
+          admin_ins.pending_fee_custom_filter.master = []
+          admin_ins.pending_fee_custom_filter.batch = []
+          admin_ins.pending_fee_custom_filter.department = []
         }
       }
       admin_ins.active_tab_index = "Pending_Fees_Query";

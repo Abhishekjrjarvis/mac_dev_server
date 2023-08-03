@@ -1756,7 +1756,7 @@ const filterization_app_query = async (arr, type, date) => {
     } else if (type === "Select") {
       var sel_count = 0;
       arr?.filter((val) => {
-        var valid_val = moment(`${val?.select_on}`).format("YYYY-MM-DD");
+        var valid_val = moment(val?.select_on).format("YYYY-MM-DD");
         if (`${date}` === `${valid_val}`) {
           sel_count += 1;
           list.push(val?.student);
@@ -1766,7 +1766,7 @@ const filterization_app_query = async (arr, type, date) => {
     } else if (type === "Confirm") {
       var conf_count = 0;
       arr?.filter((val) => {
-        var valid_val = moment(`${val?.apply_on}`).format("YYYY-MM-DD");
+        var valid_val = moment(val?.apply_on).format("YYYY-MM-DD");
         if (`${date}` === `${valid_val}`) {
           conf_count += 1;
           list.push(val?.student);
@@ -1776,7 +1776,7 @@ const filterization_app_query = async (arr, type, date) => {
     } else if (type === "Allot") {
       var all_count = 0;
       arr?.filter((val) => {
-        var valid_val = moment(`${val?.allot_on}`).format("YYYY-MM-DD");
+        var valid_val = moment(val?.allot_on).format("YYYY-MM-DD");
         if (`${date}` === `${valid_val}`) {
           all_count += 1;
           list.push(val?.student);
@@ -1786,7 +1786,7 @@ const filterization_app_query = async (arr, type, date) => {
     } else if (type === "Cancel") {
       var can_count = 0;
       arr?.filter((val) => {
-        var valid_val = moment(`${val?.cancel_on}`).format("YYYY-MM-DD");
+        var valid_val = moment(val?.cancel_on).format("YYYY-MM-DD");
         if (`${date}` === `${valid_val}`) {
           can_count += 1;
           list.push(val?.student);
@@ -1794,18 +1794,22 @@ const filterization_app_query = async (arr, type, date) => {
       });
       return { can_count: can_count, list: list };
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
   try {
     const { aid } = req.params;
+    const { valid_date } = req.query;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    var valid_date = custom_date_time(0);
+    // var val_date = custom_date_time(0);
+    // var valid_date = valid_date_query ? valid_date_query : val_date;
     var valid_app = await NewApplication.findById({ _id: aid });
     var request_count = await filterization_app_query(
       valid_app?.receievedApplication,
@@ -1832,24 +1836,27 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       "Cancel",
       valid_date
     );
+    var day_arr = [...confirm_count?.list];
+    var all_remain = await RemainingList.find({ student: day_arr });
+    var paid = 0;
+    var remain = 0;
+    for (var ref of all_remain) {
+      paid += ref?.paid_fee;
+      remain += ref?.remaining_fee;
+    }
     var day_wise = {
       request_count: request_count?.req_count,
       select_count: select_count?.sel_count,
       confirm_count: confirm_count?.conf_count,
       allot_count: allot_count?.all_count,
       cancel_count: cancel_count?.can_count,
+      paid: paid,
+      remain: remain,
     };
-    var day_arr = [
-      ...select_count?.list,
-      ...confirm_count?.list,
-      ...allot_count?.list,
-      ...request_count?.list,
-    ];
     res.status(200).send({
       message: "Explore All Filterization Method Day Wise Collection",
       access: true,
       day_wise,
-      day_arr,
     });
   } catch (e) {
     // console.log(e);

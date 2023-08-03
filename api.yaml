@@ -16936,6 +16936,30 @@ paths:
         "200":
           description: OK
 
+  /api/v1/feed/filter/by/date/collection/{aid}/query:
+    get:
+      tags:
+        - Platform All Feed Query
+      summary: Get Date Wise Collection + RSCAC TAB (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID
+        - in: query
+          name: valid_date
+          required: true
+          type: string
+          description: This is Date ("2023-01-01")
+      responses:
+        "200":
+          description: OK
+
   /api/v1/feed/filter/by/participate:
     get:
       tags:

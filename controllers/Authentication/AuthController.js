@@ -2407,7 +2407,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     classes.ApproveStudent.push(student._id);
     classes.studentCount += 1;
     student.studentGRNO = `${
-      institute?.gr_initials ? institute?.gr_initials : `Q`
+      institute?.gr_initials ? institute?.gr_initials : ""
     }${depart?.gr_initials ?? ""}${institute.ApproveStudent.length}`;
     student.studentROLLNO = classes.ApproveStudent.length;
     student.studentClass = classes._id;

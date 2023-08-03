@@ -72,8 +72,8 @@ exports.getDashOneQuery = async (req, res) => {
       profile_modification: institute?.profile_modification,
       // eData: encrypt,
     });
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -105,8 +105,8 @@ exports.getProfileOneQuery = async (req, res) => {
       eData: encrypt,
       profile_modification: institute?.profile_modification,
     });
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -2496,7 +2496,8 @@ exports.retrieveClassSubject = async (req, res) => {
       )
       .populate({
         path: "subject",
-        select: "subjectName subjectTitle subjectStatus subjectOptional",
+        select:
+          "subjectName subjectTitle subjectStatus subjectOptional topic_count_bifurgate topic_count lecture_analytic practical_analytic tutorial_analytic",
       })
       .lean()
       .exec();
@@ -3294,7 +3295,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     classes.studentCount += 1;
     classes.student.pull(sid);
     student.studentGRNO = `${
-      institute?.gr_initials ? institute?.gr_initials : `Q`
+      institute?.gr_initials ? institute?.gr_initials : ""
     }${depart?.gr_initials ?? ""}${institute.ApproveStudent.length}`;
     student.studentROLLNO = classes.ApproveStudent.length;
     student.studentClass = classes._id;
@@ -3999,7 +4000,7 @@ exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
       classes.studentCount += 1;
       classes.student.pull(student._id);
       student.studentGRNO = `${
-        institute?.gr_initials ? institute?.gr_initials : `Q`
+        institute?.gr_initials ? institute?.gr_initials : ""
       }${depart?.gr_initials ?? ""}${institute.ApproveStudent.length}`;
       student.studentROLLNO = classes.ApproveStudent.length;
       student.studentClass = classes._id;

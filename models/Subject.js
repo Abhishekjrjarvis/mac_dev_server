@@ -117,6 +117,57 @@ const subjectSchema = new mongoose.Schema({
     type: Number,
     default: 10,
   },
+  lecture_analytic: {
+    lecture_count: {
+      type: Number,
+      default: 0,
+    },
+    lecture_time: {
+      type: String,
+    },
+  },
+  practical_analytic: {
+    practical_count: {
+      type: Number,
+      default: 0,
+    },
+    practical_time: {
+      type: String,
+    },
+  },
+  tutorial_analytic: {
+    tutorial_count: {
+      type: Number,
+      default: 0,
+    },
+    tutorial_time: {
+      type: String,
+    },
+  },
+  topic: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Chapter",
+    },
+  ],
+  topic_count: {
+    type: Number,
+    default: 0,
+  },
+  topic_count_bifurgate: {
+    early: {
+      type: Number,
+      default: 0,
+    },
+    delayed: {
+      type: Number,
+      default: 0,
+    },
+    timely: {
+      type: Number,
+      default: 0,
+    },
+  },
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

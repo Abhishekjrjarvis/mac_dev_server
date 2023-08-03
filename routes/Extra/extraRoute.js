@@ -271,4 +271,9 @@ router.patch(
   catchAsync(Extra.renderActiveDesignationRoleQuery)
 );
 
+router.patch(
+  "/excel/to/json/query/:sid/chapter/query",
+  catchAsync(Extra.renderExcelToJSONSubjectChapterQuery)
+);
+
 module.exports = router;

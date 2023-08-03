@@ -3,19 +3,26 @@ const router = express.Router();
 const Academic = require("../../controllers/Academics/academicController");
 const catchAsync = require("../../Utilities/catchAsync");
 
-// router.post(
-//   "/search/institute/search/student",
-//   catchAsync(Guest.renderSearchInstituteByCodeQuery)
-// );
+router.get(
+  "/:sid/all/chapter",
+  catchAsync(Academic.renderOneSubjectAllChapterQuery)
+);
 
 router.get(
-  "/:sid/all/topic",
+  "/:cid/all/topic",
   catchAsync(Academic.renderOneSubjectAllTopicQuery)
 );
 
-// router.patch(
-//   "/edit/one/:ctid/topic/query",
-//   catchAsync(Guest.renderEditOneChapterTopicQuery)
-// );
+router.patch(
+  "/edit/one/:ctid/topic/query",
+  catchAsync(Academic.renderEditOneChapterTopicQuery)
+);
+
+router.post(
+  "/add/:sid/new/lecture/query",
+  catchAsync(Academic.renderAddNewLectureQuery)
+);
+
+router.patch("/:tid/status/query", catchAsync(Academic.renderTopicStatusQuery));
 
 module.exports = router;

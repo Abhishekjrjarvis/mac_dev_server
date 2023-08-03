@@ -34,6 +34,18 @@ const subjectUpdateSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  daily_topic: [
+    {
+      topic: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ChapterTopic",
+      },
+      status: {
+        type: String,
+        ref: "Pending",
+      },
+    },
+  ],
 });
 
 module.exports = mongoose.model("SubjectUpdate", subjectUpdateSchema);

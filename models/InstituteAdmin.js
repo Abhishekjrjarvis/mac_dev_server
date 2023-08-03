@@ -691,6 +691,10 @@ const instituteAdminSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Library",
       },
+      subjectId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subject",
+      },
       flow: { type: String },
       status: { type: String, default: "Not Uploaded" },
     },
@@ -855,12 +859,10 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   pending_fee_custom_filter: {
     gender: {
-      type: Boolean,
-      default: false,
+      type: String,
     },
     cast_category: {
-      type: Boolean,
-      default: false,
+      type: String,
     },
     department: [],
     batch: [],

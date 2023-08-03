@@ -1,12 +1,9 @@
 const mongoose = require("mongoose");
 
-const chapterTopicSchema = new mongoose.Schema({
-  topic_name: {
+const chapterSchema = new mongoose.Schema({
+  chapter_name: {
     type: String,
     required: true,
-  },
-  topic_last_date: {
-    type: String,
   },
   created_at: {
     type: Date,
@@ -16,20 +13,16 @@ const chapterTopicSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Subject",
   },
-  topic_completion_date: {
-    type: Date,
-  },
-  topic_completion_status: {
-    type: String,
-    default: "Pending",
-  },
-  topic_current_status: {
-    type: String,
-    default: "Ongoing",
-  },
-  topic_edited_status: {
-    type: String,
+  topic: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ChapterTopic",
+    },
+  ],
+  topic_count: {
+    type: Number,
+    default: 0,
   },
 });
 
-module.exports = mongoose.model("Chapter", chapterTopicSchema);
+module.exports = mongoose.model("Chapter", chapterSchema);

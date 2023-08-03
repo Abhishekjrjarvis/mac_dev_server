@@ -211,11 +211,11 @@ router.get(
   catchAsync(Institute.retrieveApproveStudentList)
 );
 
-// router.patch(
-//   "/:id/approve-student/list",
+router.patch(
+  "/:id/approve-student/list/filter/query",
 
-//   catchAsync(Institute.retrieveApproveStudentList)
-// );
+  catchAsync(Institute.retrieveApproveStudentListFilterQuery)
+);
 
 router.get(
   "/:id/unapprove-student/list/query",

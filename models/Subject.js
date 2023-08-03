@@ -125,6 +125,10 @@ const subjectSchema = new mongoose.Schema({
     lecture_time: {
       type: String,
     },
+    lecture_complete: {
+      type: Number,
+      default: 0,
+    },
   },
   practical_analytic: {
     practical_count: {
@@ -133,6 +137,10 @@ const subjectSchema = new mongoose.Schema({
     },
     practical_time: {
       type: String,
+    },
+    practical_complete: {
+      type: Number,
+      default: 0,
     },
   },
   tutorial_analytic: {
@@ -143,14 +151,18 @@ const subjectSchema = new mongoose.Schema({
     tutorial_time: {
       type: String,
     },
+    tutorial_complete: {
+      type: Number,
+      default: 0,
+    },
   },
-  topic: [
+  chapter: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Chapter",
     },
   ],
-  topic_count: {
+  chapter_count: {
     type: Number,
     default: 0,
   },

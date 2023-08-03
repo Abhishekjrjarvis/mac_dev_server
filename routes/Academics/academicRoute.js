@@ -13,9 +13,9 @@ router.get(
   catchAsync(Academic.renderOneSubjectAllTopicQuery)
 );
 
-router.patch(
-  "/edit/one/:ctid/topic/query",
-  catchAsync(Guest.renderEditOneChapterTopicQuery)
-);
+// router.patch(
+//   "/edit/one/:ctid/topic/query",
+//   catchAsync(Guest.renderEditOneChapterTopicQuery)
+// );
 
 module.exports = router;

@@ -586,3 +586,21 @@ exports.generate_excel_to_json_un_approved = async (file, aid, fid, did) => {
     console.log("Un Approved Excel Query Not Resolved", e);
   }
 };
+
+// exports.generate_excel_to_json_subject_chapter_query = async (file) => {
+//   try {
+//     const w_query = xlsx.read(file.Body);
+//     const w_sheet = w_query.Sheets["SubjectChapter"];
+//     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+//     var new_data_query = [];
+//     for (var ref of data_query) {
+//       for(var i=1; i<)
+//       ref.topic_name = ref?.Name;
+//       ref.topic_last_date = ref?.LastDate;
+//       new_data_query.push(ref);
+//     }
+//     return { chapter_array: data_query, value: true };
+//   } catch (e) {
+//     console.log("Subject Chapter Excel Query Not Resolved", e);
+//   }
+// };

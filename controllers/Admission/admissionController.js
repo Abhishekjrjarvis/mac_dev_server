@@ -2631,13 +2631,34 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           ? gender
           : admin_ins.pending_fee_custom_filter.gender;
         if (master_arr?.length > 0) {
-          admin_ins.pending_fee_custom_filter.master.push(...master_arr);
+          for(var val of master_arr){
+            if(admin_ins.pending_fee_custom_filter.master?.includes(`${val}`)){
+
+            }
+            else{
+              admin_ins.pending_fee_custom_filter.master.push(val);
+            }
+          }
         }
         if (batch_arr?.length > 0) {
-          admin_ins.pending_fee_custom_filter.batch.push(...batch_arr);
+          for(var val of batch_arr){
+            if(admin_ins.pending_fee_custom_filter.batch?.includes(`${val}`)){
+
+            }
+            else{
+              admin_ins.pending_fee_custom_filter.batch.push(val);
+            }
+          }
         }
         if (depart_arr?.length > 0) {
-          admin_ins.pending_fee_custom_filter.department.push(...depart_arr);
+          for(var val of depart_arr){
+            if(admin_ins.pending_fee_custom_filter.department?.includes(`${val}`)){
+
+            }
+            else{
+              admin_ins.pending_fee_custom_filter.department.push(val);
+            }
+          }
         }
         if (`${filter_by}` === "Clear_All") {
           admin_ins.pending_fee_custom_filter.cast_category = null;

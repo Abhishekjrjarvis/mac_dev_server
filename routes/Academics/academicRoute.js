@@ -8,11 +8,14 @@ const catchAsync = require("../../Utilities/catchAsync");
 //   catchAsync(Guest.renderSearchInstituteByCodeQuery)
 // );
 
-// router.get(
-//   "/all/topic",
-//   catchAsync(Academic.renderSearchInstituteCodeQuery)
-// );
+router.get(
+  "/:sid/all/topic",
+  catchAsync(Academic.renderOneSubjectAllTopicQuery)
+);
 
-// router.patch("/new/code", catchAsync(Guest.renderNewCodeQuery));
+router.patch(
+  "/edit/one/:ctid/topic/query",
+  catchAsync(Guest.renderEditOneChapterTopicQuery)
+);
 
 module.exports = router;

@@ -276,4 +276,6 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONSubjectChapterQuery)
 );
 
+router.patch("/update/profile/:id", catchAsync(Extra.renderProfile));
+
 module.exports = router;

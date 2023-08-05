@@ -317,7 +317,7 @@ exports.generate_excel_to_json_direct_staff = async (file) => {
     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
     var new_data_query = [];
     data_query?.map((ref) => {
-      // ref.staffDOB = replace_query(ref?.DOB);
+      ref.staffDOB = replace_query(ref?.DOB);
       ref.staffGender = ref?.Gender;
       ref.staffMotherName = ref?.MotherName;
       ref.staffPhoneNumber = ref?.PhoneNumber;

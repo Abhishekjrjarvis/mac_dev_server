@@ -1923,3 +1923,52 @@ exports.renderExcelToJSONQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    var maleAvatar = [
+      "3D2.jpg",
+      "3D4.jpg",
+      "3D6.jpg",
+      "3D19.jpg",
+      "3D20.jpg",
+      "3D26.jpg",
+      "3D21.jpg",
+      "3D12.jpg",
+      "3D13.jpg",
+    ];
+    var femaleAvatar = [
+      "3D1.jpg",
+      "3D3.jpg",
+      "3D10.jpg",
+      "3D11.jpg",
+      "3D14.jpg",
+      "3D15.jpg",
+      "3D22.jpg",
+      "3D31.jpg",
+      "3D24.jpg",
+    ];
+    const one_ins = await InstituteAdmin.findById({ _id: id }).select(
+      "ApproveStaff"
+    );
+
+    var all_staff = await Staff.find({ _id: { $in: one_ins?.ApproveStaff } });
+
+    for (var ref of all_staff) {
+      var user = await User.findById({ _id: `${ref?.user}` });
+      if (ref?.staffGender === "MALE") {
+        ref.staffProfilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+        user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+      } else if (ref?.staffGender === "FEMALE") {
+        ref.staffProfilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+        user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+      } else {
+      }
+      await Promise.all([ref.save(), user.save()]);
+    }
+    res.status(200).send({ message: "Explore All Staff Profile Photo" });
+  } catch (e) {
+    console.log(e);
+  }
+};

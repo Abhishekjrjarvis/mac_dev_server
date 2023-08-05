@@ -19,10 +19,20 @@ router.patch(
 );
 
 router.post(
-  "/add/:sid/new/lecture/query",
+  "/edit/:sid/new/lecture/:subId/query",
+  catchAsync(Academic.renderAddNewLectureQuery)
+);
+
+router.post(
+  "/edit/:sid/new/lecture/:subId/query",
   catchAsync(Academic.renderAddNewLectureQuery)
 );
 
 router.patch("/:tid/status/query", catchAsync(Academic.renderTopicStatusQuery));
+
+router.get(
+  "/:tid/one/topic/query",
+  catchAsync(Academic.renderOneTopicProfileQuery)
+);
 
 module.exports = router;

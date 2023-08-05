@@ -489,6 +489,10 @@ const userSchema = new mongoose.Schema(
     profile_modification: {
       type: Date,
     },
+    user_existing_status: {
+      type: String,
+      default: "Active",
+    },
   },
   { timestamps: true }
 );

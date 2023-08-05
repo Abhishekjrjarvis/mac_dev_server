@@ -53,6 +53,7 @@ app.use(
       "https://sndcoerc.qviple.com",
       "https://mithkal.qviple.com",
       "https://pay.qviple.com",
+      "https://sndpoly.qviple.com",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

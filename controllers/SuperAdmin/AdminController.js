@@ -1141,6 +1141,7 @@ exports.retrieveOneUserBlock = async (req, res) => {
 
 exports.renderAddSubDomainQuery = async (req, res) => {
   try {
+    // console.log(process.env.S_ADMIN_ID);
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const domain = new SubDomain({ ...req.body });
     admin.sub_domain_count += 1;

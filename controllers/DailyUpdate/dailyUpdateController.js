@@ -10,6 +10,7 @@ const unlinkFile = util.promisify(fs.unlink);
 const { dailyChatFirebaseQuery } = require("../../Firebase/dailyChat");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const StudentNotification = require("../../models/Marks/StudentNotification");
+const ChapterTopic = require("../../models/Academics/ChapterTopic");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { dailyUpdateTimer } = require("../../Service/close");
 
@@ -48,6 +49,7 @@ exports.getAlldailyUpdate = async (req, res) => {
 exports.createDailyUpdate = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send subject id to perform task";
+    const { arr, rec_status } = req.body;
     const subject = await Subject.findById(req.params.sid)
       .populate({
         path: "subjectTeacherName",
@@ -66,7 +68,21 @@ exports.createDailyUpdate = async (req, res) => {
       updateDescription: req.body?.updateDescription,
       date: req.body?.date,
     });
-
+    var all_topic = await ChapterTopic.find({ _id: { $in: arr } });
+    for (var val of all_topic) {
+      dailyUpdate.daily_topic.push({
+        topic: val?._id,
+        status: rec_status,
+      });
+      if (`${rec_status}` === "Lecture") {
+        subject.lecture_analytic.lecture_complete += 1;
+      } else if (`${rec_status}` === "Practical") {
+        subject.practical_analytic.practical_complete += 1;
+      } else if (`${rec_status}` === "Tutorial") {
+        subject.tutorial_analytic.tutorial_complete += 1;
+      } else {
+      }
+    }
     if (req?.files) {
       for (let file of req?.files) {
         const obj = {

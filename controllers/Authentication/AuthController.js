@@ -2329,9 +2329,10 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
             await ele.save();
           });
         }
-      } else {
-        var user = await User.findById({ _id: `${existing}` });
       }
+    }
+    else {
+      var user = await User.findById({ _id: `${existing}` });
     }
     const classes = await Class.findById({ _id: cid });
     const batch = await Batch.findById({ _id: `${classes?.batch}` });

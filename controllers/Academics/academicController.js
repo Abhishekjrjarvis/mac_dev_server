@@ -1,6 +1,7 @@
 const Subject = require("../../models/Subject");
 const Chapter = require("../../models/Academics/Chapter");
 const ChapterTopic = require("../../models/Academics/ChapterTopic");
+const { custom_date_time } = require("../../helper/dayTimer");
 
 exports.renderOneSubjectAllChapterQuery = async (req, res) => {
   try {
@@ -182,7 +183,7 @@ exports.renderAddNewLectureQuery = async (req, res) => {
       }
     }
 
-    await valid_subject.save();
+    await Promise.all([valid_subject.save(), one_subject.save()]);
     res
       .status(200)
       .send({ message: "Explore New / Add Lecture Query", access: true });
@@ -192,10 +193,51 @@ exports.renderAddNewLectureQuery = async (req, res) => {
 };
 
 exports.renderTopicStatusQuery = async (req, res) => {
-  // try{
-  //   const {}
-  // }
-  // catch(e){
-  //   console.log(e)
-  // }
+  try {
+    const { tid } = req.params;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var valid_date = custom_date_time(0);
+    var valid_topic = await ChapterTopic.findById({ _id: tid });
+    var subject = await Subject.findById({ _id: `${valid_topic?.subject}` });
+    if (`${valid_topic?.topic_last_date}` > `${valid_date}`) {
+      valid_topic.topic_completion_status = "Delayed Completed";
+      valid_topic.topic_completion_date = new Date();
+      subject.topic_count_bifurgate.delayed += 1;
+    } else if (`${valid_topic?.topic_last_date}` < `${valid_date}`) {
+      valid_topic.topic_completion_status = "Early Completed";
+      valid_topic.topic_completion_date = new Date();
+      subject.topic_count_bifurgate.early += 1;
+    } else {
+      valid_topic.topic_completion_status = "Timely Completed";
+      valid_topic.topic_completion_date = new Date();
+      subject.topic_count_bifurgate.timely += 1;
+    }
+    valid_topic.topic_current_status = "Completed";
+    await Promise.all([valid_topic.save(), subject.save()]);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneTopicProfileQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    if (!tid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+
+    const one_topic = await ChapterTopic.findById({ _id: tid });
+    // const one_subject = await Subject.
+  } catch (e) {
+    console.log(e);
+  }
 };

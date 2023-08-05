@@ -187,6 +187,7 @@ exports.getDateWiseSchedule = async (req, res) => {
         if (classes?.timetableDateWise?.length) {
           for (let datewise of classes?.timetableDateWise[0]?.schedule) {
             if (String(daywise.subject) === String(datewise.subject)) {
+              // var all_topic = await ChapterTopic.find({ subject: `${datewise.subject}`})
               daywise.from = datewise.from;
               daywise.to = datewise.to;
               daywise.assignStaff = datewise.assignStaff;

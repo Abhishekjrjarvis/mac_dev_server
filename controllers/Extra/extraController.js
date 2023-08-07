@@ -2003,12 +2003,10 @@ exports.renderAllClassMatesQuery = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     if (!sid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var one_student = await Student.findById({ _id: sid }).select(
       "studentClass"
@@ -2027,6 +2025,8 @@ exports.renderAllClassMatesQuery = async (req, res) => {
         select: "username userLegalName profilePhoto photoId",
       });
 
+    console.log(all_mates);
+
     all_mates = all_mates?.filter((val) => {
       if (`${val?._id}` === `${one_student?._id}`) {
         val.you_default = true;
@@ -2034,21 +2034,17 @@ exports.renderAllClassMatesQuery = async (req, res) => {
     });
 
     if (all_mates?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore One Student All Class Mates Query",
-          access: true,
-          all_mates: all_mates,
-        });
+      res.status(200).send({
+        message: "Explore One Student All Class Mates Query",
+        access: true,
+        all_mates: all_mates,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "You're lost in space",
-          access: false,
-          all_mates: [],
-        });
+      res.status(200).send({
+        message: "You're lost in space",
+        access: false,
+        all_mates: [],
+      });
     }
   } catch (e) {
     console.log(e);

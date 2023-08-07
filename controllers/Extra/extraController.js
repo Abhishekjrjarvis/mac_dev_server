@@ -1890,7 +1890,7 @@ exports.renderActiveDesignationRoleQuery = async (req, res) => {
   }
 };
 
-exports.renderExcelToJSONQuery = async (req, res) => {
+exports.renderExcelToJSONSubjectChapterQuery = async (req, res) => {
   try {
     const { sid } = req.params;
     const { excel_file } = req.body;
@@ -1992,3 +1992,41 @@ exports.renderProfile = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderAllClassMatesQuery = async(req, res) => {
+  try{
+    const { sid } = req.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    var one_student = await Student.findById({ _id: sid })
+    .select("studentClass")
+
+    var all_mates = await Student.find({ studentClass: `${one_student?.studentClass}`})
+    .limit(limit)
+    .skip(skip)
+    .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender user")
+    .populate({
+      path: "user",
+      select: "username userLegalName profilePhoto photoId"
+    })
+
+    all_mates = all_mates?.filter((val) => {
+      if(`${val?._id}` === `${one_student?._id}`){
+        val.you_default = true
+      }
+    })
+
+    if(all_mates?.length > 0){
+      res.status(200).send({ message: "Explore One Student All Class Mates Query", access: true, all_mates: all_mates})
+    }
+    else{
+      res.status(200).send({ message: "You're lost in space", access: false, all_mates: []})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}

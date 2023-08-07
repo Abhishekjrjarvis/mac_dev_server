@@ -24432,6 +24432,35 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/extra/excel/to/json/query/{sid}/chapter/query:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File To Directly Subject Chapter (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid 
+          required: true
+          type: string
+          description: Enter Subject Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
+      responses:
+        "200":
+          description: OK
+
   /api/v1/finance/{id}/all/export/excel/array:
     get:
       tags:
@@ -31637,6 +31666,35 @@ paths:
                 type: string
                 description: Enter Student ID
                 required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/all/classmates/{sid}/query:
+    get:
+      tags:
+        - Id Card Query
+      summary: Get All Class Mates of One Student -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
       responses:
         "200":
           description: OK

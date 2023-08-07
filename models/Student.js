@@ -643,6 +643,10 @@ const studentSchema = new mongoose.Schema({
   studentEmail: {
     type: String,
   },
+  you_default: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

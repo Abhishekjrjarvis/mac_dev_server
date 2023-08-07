@@ -283,4 +283,9 @@ router.patch(
 
 router.patch("/update/profile/:id", catchAsync(Extra.renderProfile));
 
+router.get(
+  "/all/classmates/:sid/query",
+  catchAsync(Extra.renderAllClassMatesQuery)
+);
+
 module.exports = router;

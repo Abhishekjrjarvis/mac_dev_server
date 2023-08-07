@@ -3529,7 +3529,12 @@ exports.retrieveUnApproveCatalogArray = async (req, res) => {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
     // const cEncrypt = await encryptionPayload(classes);
-    res.status(200).send({ message: "Un Approve catalog", classes: classes });
+    if(classes?.UnApproveStudent?.length > 0){
+      res.status(200).send({ message: "Un Approve catalog Query", classes: classes?.UnApproveStudent });
+    }
+    else{
+      res.status(200).send({ message: "No Un Approve catalog Query", access: false, classes: []  });
+    }
   } catch (e) {
     console.log(e);
   }

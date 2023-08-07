@@ -18,10 +18,10 @@ router.patch(
   catchAsync(Academic.renderEditOneChapterTopicQuery)
 );
 
-router.post(
-  "/edit/:sid/new/lecture/:subId/query",
-  catchAsync(Academic.renderAddNewLectureQuery)
-);
+// router.post(
+//   "/edit/:sid/new/lecture/:subId/query",
+//   catchAsync(Academic.renderAddNewLectureQuery)
+// );
 
 router.post(
   "/edit/:sid/new/lecture/:subId/query",

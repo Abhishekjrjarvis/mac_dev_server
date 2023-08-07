@@ -678,6 +678,26 @@ exports.fetchExportStudentIdCardQuery = async (req, res) => {
   }
 };
 
+exports.fetchExportOneStudentIdCardQuery = async (req, res) => {
+  try {
+    const { sid } = req.body;
+    const student_query = await Student.findById({
+      _id: sid,
+    }).select(
+      "studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress  studentAadharNumber studentPhoneNumber"
+    );
+
+    // const liveEncrypt = await encryptionPayload(live_data);
+    res.status(200).send({
+      message: "Exported One Student Format Pattern Save",
+      student_card: student_query,
+      export_format: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.fetchExportStudentAllQuery = async (req, res) => {
 //   try {
 //     const { id } = req.params;

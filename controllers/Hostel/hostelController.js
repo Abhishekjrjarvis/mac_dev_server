@@ -6643,10 +6643,10 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
       if (studentOptionalSubject?.length > 0) {
         student.studentOptionalSubject.push(...studentOptionalSubject);
       }
-      if (student.studentGender === "Male") {
+      if (student?.studentGender?.toLowerCase() === "male") {
         user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
         student.studentProfilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
-      } else if (student.studentGender === "Female") {
+      } else if (student?.studentGender?.toLowerCase() === "female") {
         user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
         student.studentProfilePhoto =
           femaleAvatar[Math.floor(Math.random() * 8)];

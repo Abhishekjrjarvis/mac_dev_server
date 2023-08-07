@@ -14980,6 +14980,14 @@ paths:
                 type: string
                 required:  true
                 description: here give the daily update updateDescription
+              arr:
+                type: array
+                description: Enter Array of Object Id's (Chapter Topic)
+                required: true
+              rec_status:
+                type: string
+                description: Enter Status ("Lecture" || "Practical" || "Tutorial")
+                required: true
               files:
                 type: array
                 required:  true
@@ -31442,6 +31450,193 @@ paths:
           required: true
           type: string
           description: This is Flow ID
+      responses:
+        "200":
+          description: OK
+
+#Academic Module
+  /api/v1/academic/analytics/{sid}/all/chapter:
+    get:
+      tags:
+        - Academic Query
+      summary: Get All Chapters of One Subject -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Subject ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/academic/analytics/{cid}/all/topic:
+    get:
+      tags:
+        - Academic Query
+      summary: Get All Topics of One Chapter -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Chapter ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/academic/analytics/edit/one/{ctid}/topic/query:
+    patch:
+      tags:
+        - Academic Query
+      summary: Edit One Topic and send whole object as body -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: ctid
+          required: true
+          type: string
+          description: This is Chapter Topic ID
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/academic/analytics/{tid}/one/topic/query:
+    get:
+      tags:
+        - Academic Query
+      summary: One Topic All Details -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Topic ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/academic/analytics/{tid}/status/query:
+    patch:
+      tags:
+        - Academic Query
+      summary: Update One Topic Status -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Topic ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/academic/analytics/edit/{sid}/new/lecture/{subId}/query:
+    post:
+      tags:
+        - Academic Query
+      summary: Update Subject Daily Update With Recording -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Subject Daily Update ID
+        - in: path
+          name: subId
+          required: true
+          type: string
+          description: This is Subject ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              arr:
+                type: array
+                description: Enter Array of Object Id's (Chapter Topic)
+                required: true
+              rec_status:
+                type: string
+                description: Enter Status ("Lecture" || "Practical" || "Tutorial")
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/export/one/student/card/query:
+    post:
+      tags:
+        - ID Card Query
+      summary: One Student ID Card Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              sid:
+                type: string
+                description: Enter Student ID
+                required: true
       responses:
         "200":
           description: OK

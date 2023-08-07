@@ -126,6 +126,11 @@ router.post(
   catchAsync(Extra.fetchExportStudentIdCardQuery)
 );
 
+router.post(
+  "/export/one/student/card/query",
+  catchAsync(Extra.fetchExportOneStudentIdCardQuery)
+);
+
 router.patch(
   "/export/student/all/:id",
   // isLoggedIn,

@@ -6704,6 +6704,9 @@ exports.renderScholarShipNewFundCorpusQuery = async (req, res) => {
       path: "institute",
       select: "financeDepart",
     });
+    const institute = await InstituteAdmin.findById({
+      _id: `${ads_admin?.institute?._id}`,
+    });
     const finance = await Finance.findById({
       _id: `${ads_admin?.institute?.financeDepart[0]}`,
     });
@@ -6711,7 +6714,7 @@ exports.renderScholarShipNewFundCorpusQuery = async (req, res) => {
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
-    var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
+    var f_user = await InstituteAdmin.findById({ _id: `${finance?.institute}` });
     if (user_query) {
       var user = await User.findOne({
         _id: `${user_query}`,

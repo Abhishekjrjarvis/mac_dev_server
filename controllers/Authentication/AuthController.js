@@ -2330,8 +2330,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
           });
         }
       }
-    }
-    else {
+    } else {
       var user = await User.findById({ _id: `${existing}` });
     }
     const classes = await Class.findById({ _id: cid });
@@ -3226,11 +3225,11 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         if (studentOptionalSubject?.length > 0) {
           student.studentOptionalSubject.push(...studentOptionalSubject);
         }
-        if (student.studentGender === "Male") {
+        if (student?.studentGender?.toLowerCase() === "male") {
           user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
           student.studentProfilePhoto =
             maleAvatar[Math.floor(Math.random() * 8)];
-        } else if (student.studentGender === "Female") {
+        } else if (student?.studentGender?.toLowerCase() === "female") {
           user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
           student.studentProfilePhoto =
             femaleAvatar[Math.floor(Math.random() * 8)];
@@ -3726,10 +3725,10 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
           staffPanNumber: ref?.staffPanNumber,
         });
         staff.photoId = "0";
-        if (staff?.staffGender === "Male") {
+        if (staff?.staffGender?.toLowerCase() === "male") {
           staff.staffProfilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
           user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
-        } else if (staff?.staffGender === "Female") {
+        } else if (staff?.staffGender?.toLowerCase() === "female") {
           staff.staffProfilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
           user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
         } else {

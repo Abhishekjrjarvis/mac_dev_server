@@ -228,15 +228,26 @@ exports.renderOneTopicProfileQuery = async (req, res) => {
   try {
     const { tid } = req.params;
     if (!tid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const one_topic = await ChapterTopic.findById({ _id: tid });
-    // const one_subject = await Subject.
+    const one_topic = await ChapterTopic.findById({ _id: tid })
+      .populate({
+        path: "subject",
+        select:
+          "subjectName subjectStatus topic_count_bifurgate lecture_analytic practical_analytic tutorial_analytic",
+      })
+      .populate({
+        path: "chapter",
+        select: "chapter_name",
+      });
+    res.status(200).send({
+      message: "Explore One Topic With regarding its chapter + subject",
+      access: true,
+      one_topic: one_topic,
+    });
   } catch (e) {
     console.log(e);
   }

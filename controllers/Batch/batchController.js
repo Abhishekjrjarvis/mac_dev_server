@@ -202,6 +202,9 @@ exports.preformedStructure = async (req, res) => {
           class: identicalClass._id,
           institute: batch?.institute,
           setting: oneSubject?.setting,
+          lecture_analytic: oneSubject?.lecture_analytic,
+          practical_analytic: oneSubject?.practical_analytic,
+          tutorial_analytic: oneSubject?.tutorial_analytic,
         });
         subjectMaster?.subjects.push(identicalSubject._id);
         subjectMaster.subjectCount += 1;

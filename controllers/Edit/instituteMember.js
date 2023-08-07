@@ -529,6 +529,15 @@ exports.subjectEdit = async (req, res) => {
       subjectMaster?.subjects?.push(subject._id);
       await Promise.all([previousSubjectMaster.save(), subjectMaster.save()]);
     }
+    if (req?.body?.lecture_analytic) {
+      subject.lecture_analytic = req.body?.lecture_analytic;
+    }
+    if (req?.body?.practical_analytic) {
+      subject.practical_analytic = req.body?.practical_analytic;
+    }
+    if (req?.body?.tutorial_analytic) {
+      subject.tutorial_analytic = req.body?.tutorial_analytic;
+    }
 
     if (req.body?.sid) {
       const previousStaff = await Staff.findById(subject.subjectTeacherName);

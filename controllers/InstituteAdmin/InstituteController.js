@@ -2273,7 +2273,7 @@ exports.retrieveNewClass = async (req, res) => {
 exports.retrieveNewSubject = async (req, res) => {
   try {
     const { id, cid, bid, did } = req.params;
-    const { sid, subjectTitle, msid, subjectPassingMarks } = req.body;
+    const { sid, subjectTitle, msid, subjectPassingMarks, lecture_analytic, practical_analytic, tutorial_analytic } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const classes = await Class.findById({ _id: cid }).populate({
       path: "classTeacher",
@@ -2296,6 +2296,9 @@ exports.retrieveNewSubject = async (req, res) => {
       setting: {
         subjectPassingMarks: subjectPassingMarks,
       },
+      lecture_analytic: lecture_analytic,
+      practical_analytic: practical_analytic,
+      tutorial_analytic: tutorial_analytic
     });
     classes.subject.push(subject._id);
     classes.subjectCount += 1;

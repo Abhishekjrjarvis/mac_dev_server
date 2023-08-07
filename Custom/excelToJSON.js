@@ -596,7 +596,8 @@ exports.generate_excel_to_json_subject_chapter_query = async (file) => {
     for (var ref of data_query) {
       var chap_arr = [];
       ref.chapter_name = ref?.ChapterName;
-      for (var i = 1; i < count; i++) {
+      var valid_count = ref?.count ? parseInt(ref?.count) : 1;
+      for (var i = 1; i < valid_count; i++) {
         chap_arr.push({
           topic_name: ref?.[`Name${i}`],
           topic_last_date: ref?.[`LastDate${i}`],

@@ -3529,11 +3529,21 @@ exports.retrieveUnApproveCatalogArray = async (req, res) => {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
     // const cEncrypt = await encryptionPayload(classes);
-    if(classes?.UnApproveStudent?.length > 0){
-      res.status(200).send({ message: "Un Approve catalog Query", classes: classes?.UnApproveStudent });
-    }
-    else{
-      res.status(200).send({ message: "No Un Approve catalog Query", access: false, classes: []  });
+    if (classes?.UnApproveStudent?.length > 0) {
+      res
+        .status(200)
+        .send({
+          message: "Un Approve catalog Query",
+          classes: classes?.UnApproveStudent,
+        });
+    } else {
+      res
+        .status(200)
+        .send({
+          message: "No Un Approve catalog Query",
+          access: false,
+          classes: [],
+        });
     }
   } catch (e) {
     console.log(e);
@@ -4138,6 +4148,33 @@ exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
       batch.save(),
       institute.save(),
     ]);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveOneSubjectQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+
+    var one_subject = await Subject.findById({ _id: sid }).select(
+      "subjectName subjectStatus subjectTitle tutorial_analytic lecture_analytic practical_analytic chapter_count topic_count_bifurgate createdAt"
+    );
+
+    res
+      .status(200)
+      .send({
+        message: "Explore One Subject Profile Query",
+        access: true,
+        one_subject: one_subject,
+      });
   } catch (e) {
     console.log(e);
   }

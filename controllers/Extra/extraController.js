@@ -63,6 +63,7 @@ const Library = require("../../models/Library/Library");
 const { retrieveEmailReplaceQuery } = require("../Edit/studentMember");
 const fs = require("fs");
 const util = require("util");
+const { renderNewOneChapterTopicQuery } = require("../Academics/academicController");
 const unlinkFile = util.promisify(fs.unlink);
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
@@ -1932,7 +1933,7 @@ exports.renderExcelToJSONSubjectChapterQuery = async (req, res) => {
 
     const is_converted = await generate_excel_to_json(val);
     if (is_converted?.value) {
-      await retrieveInstituteDirectJoinQueryPayload(
+      await renderNewOneChapterTopicQuery(
         sid,
         is_converted?.chapter_array
       );

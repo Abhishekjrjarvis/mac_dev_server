@@ -31699,4 +31699,24 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/ins/{sid}/one/subject/query:
+    get:
+      tags:
+        - Id Card Query
+      summary: Get One Subject Profile Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Subject ID
+      responses:
+        "200":
+          description: OK
+
           

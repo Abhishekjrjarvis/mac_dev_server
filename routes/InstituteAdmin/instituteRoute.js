@@ -588,4 +588,9 @@ router.post(
   catchAsync(Institute.retrieveUnApproveStudentRequestQuery)
 );
 
+router.get(
+  "/:sid/one/subject/query",
+  catchAsync(Institute.retrieveOneSubjectQuery)
+);
+
 module.exports = router;

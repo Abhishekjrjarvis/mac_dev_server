@@ -37,6 +37,7 @@ const {
   generate_excel_to_json_library_offline_book_query,
   generate_excel_to_json_login_query,
   generate_excel_to_json_un_approved,
+  generate_excel_to_json_subject_chapter_query,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -63,7 +64,9 @@ const Library = require("../../models/Library/Library");
 const { retrieveEmailReplaceQuery } = require("../Edit/studentMember");
 const fs = require("fs");
 const util = require("util");
-const { renderNewOneChapterTopicQuery } = require("../Academics/academicController");
+const {
+  renderNewOneChapterTopicQuery,
+} = require("../Academics/academicController");
 const unlinkFile = util.promisify(fs.unlink);
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
@@ -1931,12 +1934,11 @@ exports.renderExcelToJSONSubjectChapterQuery = async (req, res) => {
     }
     const val = await simple_object(key);
 
-    const is_converted = await generate_excel_to_json(val);
+    const is_converted = await generate_excel_to_json_subject_chapter_query(
+      val
+    );
     if (is_converted?.value) {
-      await renderNewOneChapterTopicQuery(
-        sid,
-        is_converted?.chapter_array
-      );
+      await renderNewOneChapterTopicQuery(sid, is_converted?.chapter_array);
     } else {
       console.log("false");
     }
@@ -1994,40 +1996,61 @@ exports.renderProfile = async (req, res) => {
   }
 };
 
-exports.renderAllClassMatesQuery = async(req, res) => {
-  try{
-    const { sid } = req.params
+exports.renderAllClassMatesQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    if (!sid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
 
-    var one_student = await Student.findById({ _id: sid })
-    .select("studentClass")
+    var one_student = await Student.findById({ _id: sid }).select(
+      "studentClass"
+    );
 
-    var all_mates = await Student.find({ studentClass: `${one_student?.studentClass}`})
-    .limit(limit)
-    .skip(skip)
-    .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender user")
-    .populate({
-      path: "user",
-      select: "username userLegalName profilePhoto photoId"
+    var all_mates = await Student.find({
+      studentClass: `${one_student?.studentClass}`,
     })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender user"
+      )
+      .populate({
+        path: "user",
+        select: "username userLegalName profilePhoto photoId",
+      });
 
     all_mates = all_mates?.filter((val) => {
-      if(`${val?._id}` === `${one_student?._id}`){
-        val.you_default = true
+      if (`${val?._id}` === `${one_student?._id}`) {
+        val.you_default = true;
       }
-    })
+    });
 
-    if(all_mates?.length > 0){
-      res.status(200).send({ message: "Explore One Student All Class Mates Query", access: true, all_mates: all_mates})
+    if (all_mates?.length > 0) {
+      res
+        .status(200)
+        .send({
+          message: "Explore One Student All Class Mates Query",
+          access: true,
+          all_mates: all_mates,
+        });
+    } else {
+      res
+        .status(200)
+        .send({
+          message: "You're lost in space",
+          access: false,
+          all_mates: [],
+        });
     }
-    else{
-      res.status(200).send({ message: "You're lost in space", access: false, all_mates: []})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};

@@ -29,6 +29,12 @@ exports.getAlldailyUpdate = async (req, res) => {
       _id: { $in: subject.dailyUpdate },
     })
       .select("updateDate updateDescription date upadateImage createdAt")
+      .populate({
+        path: "daily_topic",
+        populate: {
+          path: "topic",
+        },
+      })
       .skip(dropItem)
       .limit(itemPerPage)
       .sort({ createdAt: -1 })

@@ -204,11 +204,11 @@ exports.renderTopicStatusQuery = async (req, res) => {
     var valid_date = custom_date_time(0);
     var valid_topic = await ChapterTopic.findById({ _id: tid });
     var subject = await Subject.findById({ _id: `${valid_topic?.subject}` });
-    if (`${valid_topic?.topic_last_date}` > `${valid_date}`) {
+    if (`${valid_topic?.topic_last_date}` < `${valid_date}`) {
       valid_topic.topic_completion_status = "Delayed Completed";
       valid_topic.topic_completion_date = new Date();
       subject.topic_count_bifurgate.delayed += 1;
-    } else if (`${valid_topic?.topic_last_date}` < `${valid_date}`) {
+    } else if (`${valid_topic?.topic_last_date}` > `${valid_date}`) {
       valid_topic.topic_completion_status = "Early Completed";
       valid_topic.topic_completion_date = new Date();
       subject.topic_count_bifurgate.early += 1;
@@ -219,6 +219,9 @@ exports.renderTopicStatusQuery = async (req, res) => {
     }
     valid_topic.topic_current_status = "Completed";
     await Promise.all([valid_topic.save(), subject.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore Topic Status Query", access: true });
   } catch (e) {
     console.log(e);
   }

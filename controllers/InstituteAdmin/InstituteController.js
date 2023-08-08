@@ -3494,7 +3494,8 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       })
       .lean()
       .exec();
-
+    
+    console.log(classes)
     classes?.ApproveStudent?.sort(function (st1, st2) {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });

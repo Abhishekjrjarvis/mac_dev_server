@@ -50,6 +50,7 @@ exports.createDailyUpdate = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send subject id to perform task";
     const { arr, rec_status } = req.body;
+    var valid_arr = req.body?.arr ? JSON.parse(req.body?.arr) : "";
     const subject = await Subject.findById(req.params.sid)
       .populate({
         path: "subjectTeacherName",
@@ -68,7 +69,7 @@ exports.createDailyUpdate = async (req, res) => {
       updateDescription: req.body?.updateDescription,
       date: req.body?.date,
     });
-    var all_topic = await ChapterTopic.find({ _id: { $in: arr } });
+    var all_topic = await ChapterTopic.find({ _id: { $in: valid_arr } });
     for (var val of all_topic) {
       dailyUpdate.daily_topic.push({
         topic: val?._id,

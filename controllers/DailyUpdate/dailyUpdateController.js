@@ -213,6 +213,12 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         .skip(dropItem)
         .select("updateDate updateDescription date upadateImage createdAt")
         .populate({
+          path: "daily_topic",
+          populate: {
+            path: "topic",
+          },
+        })
+        .populate({
           path: "subject",
           select: "subjectTeacherName",
           populate: {
@@ -234,6 +240,12 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         .limit(itemPerPage)
         .skip(dropItem)
         .select("updateDate updateDescription date upadateImage createdAt")
+        .populate({
+          path: "daily_topic",
+          populate: {
+            path: "topic",
+          },
+        })
         .populate({
           path: "subject",
           select: "subjectTeacherName",

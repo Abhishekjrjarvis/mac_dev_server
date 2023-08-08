@@ -1493,7 +1493,7 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
         })
         .populate({
           path: "studentClass",
-          select: "className classTitle classStatus",
+          select: "className classTitle classStatus masterClassName",
         })
         .populate({
           path: "remainingFeeList",
@@ -1507,10 +1507,6 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
           path: "department",
           select: "dName",
         })
-        .populate({
-          path: "studentClass",
-          select: "masterClassName",
-        });
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (

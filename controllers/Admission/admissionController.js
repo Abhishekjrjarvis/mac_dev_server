@@ -550,7 +550,7 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
           )
           .populate({
             path: "applicationDepartment",
-            select: "dName",
+            select: "dName studentFormSetting",
           })
           .populate({
             path: "applicationBatch",
@@ -575,7 +575,7 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
           )
           .populate({
             path: "applicationDepartment",
-            select: "dName",
+            select: "dName studentFormSetting",
           })
           .populate({
             path: "applicationBatch",
@@ -3741,7 +3741,7 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
       )
       .populate({
         path: "applicationDepartment",
-        select: "dName",
+        select: "dName studentFormSetting",
       })
       .populate({
         path: "applicationBatch",

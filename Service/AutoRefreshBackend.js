@@ -373,8 +373,8 @@ const remove_redundancy_recommend = (re1, uf1, uc1, uff1) => {
 exports.recommendedAllIns = async (req, res) => {
   try {
     const { uid } = req.params;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    var page = req.query.page ? parseInt(req.query.page) : 1;
+    var limit = req.query.limit ? parseInt(req.query.limit) : 10;
     var user = await User.findById({ _id: uid }).select(
       "user_latitude user_longitude userInstituteFollowing userFollowers userCircle userFollowing"
     );
@@ -384,13 +384,23 @@ exports.recommendedAllIns = async (req, res) => {
     if (ins?.length > 0) {
       var refresh_recommend_user = [];
       for (var recommend of ins) {
-        for (var ref_rec of recommend?.joinedUserList) {
+        var valid_list = await nested_document_limit(
+          page,
+          (limit = 10),
+          recommend?.joinedUserList
+        );
+        var valid_student_arr = await nested_document_limit(
+          page,
+          (limit = 10),
+          recommend?.ApproveStudent
+        );
+        for (var ref_rec of valid_list) {
           if (`${ref_rec}` === `${user?._id}`) {
           } else {
             refresh_recommend_user.push(ref_rec);
           }
         }
-        for (var ref_rec of recommend?.ApproveStudent) {
+        for (var ref_rec of valid_student_arr) {
           var valid_student = await Student.findById({
             _id: `${ref_rec}`,
           }).select("user");
@@ -406,12 +416,14 @@ exports.recommendedAllIns = async (req, res) => {
         return `${user_ref}` !== `${user?._id}`;
         // return `${user_ref}` !== `${user?._id}`;
       });
+      // console.log("Before Redundancy", refresh_recommend_user);
       var valid_recommend_user = remove_redundancy_recommend(
         refresh_recommend_ref,
         user?.userFollowers,
         user?.userCircle,
         user?.userFollowing
       );
+      // console.log("After Redundancy", valid_recommend_user);
       const recommend_user = await User.find({
         _id: { $in: valid_recommend_user },
       })
@@ -421,8 +433,7 @@ exports.recommendedAllIns = async (req, res) => {
         .lean()
         .exec();
 
-      var nest_array = await nested_document_limit(page, limit, recommend_user);
-      var shuffle_query = shuffleArray(nest_array);
+      var shuffle_query = shuffleArray(recommend_user);
       res.status(200).send({
         message: "Recommended Institute for follow and Joined",
         recommend_ins_array: [],

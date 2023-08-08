@@ -2025,13 +2025,11 @@ exports.renderAllClassMatesQuery = async (req, res) => {
         select: "username userLegalName profilePhoto photoId",
       });
 
-    console.log(all_mates);
-
-    all_mates = all_mates?.filter((val) => {
+    for (var val of all_mates) {
       if (`${val?._id}` === `${one_student?._id}`) {
         val.you_default = true;
       }
-    });
+    }
 
     if (all_mates?.length > 0) {
       res.status(200).send({

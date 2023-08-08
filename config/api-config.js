@@ -54,6 +54,7 @@ const community = require("../routes/Community/communityRoute");
 const apkPaytm = require("../routes/Paytm/apk_pay_upi_route");
 const guest = require("../routes/GuestOnline/guestRoute");
 const academics = require("../routes/Academics/academicRoute");
+const department = require("../routes/Department/departmentRoute");
 
 // Api Middleware Func
 
@@ -109,6 +110,7 @@ router.use("/api/v1/community", community);
 router.use("/api/v1/apk/paytm", apkPaytm);
 router.use("/api/v1/guest/pay/online", guest);
 router.use("/api/v1/academic/analytics", academics);
+router.use("/api/v1/department", department);
 
 router.use("/api/v1/prod/access", prod);
 

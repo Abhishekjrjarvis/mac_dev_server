@@ -338,6 +338,28 @@ const departmentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  studentFormSetting: {
+    personalInfo: { type: Boolean, default: true },
+    otherPersonalInfo: { type: Boolean, default: false },
+    identityDetails: { type: Boolean, default: false },
+    addressInfo: { type: Boolean, default: false },
+    parentsInfo: { type: Boolean, default: false },
+    enrollmentPrn: { type: Boolean, default: false },
+    previousSchoolAndDocument: {
+      previousSchoolDocument: { type: Boolean, default: false },
+      aadharCard: { type: Boolean, default: false },
+      identityDocument: { type: Boolean, default: false },
+      casteCertificate: { type: Boolean, default: false },
+      joiningTransferLetter: { type: Boolean, default: false },
+      leavingTransferCertificate: { type: Boolean, default: false },
+      incomeCertificate: { type: Boolean, default: false },
+      lastYearMarksheet: { type: Boolean, default: false },
+      nationalityCertificate: { type: Boolean, default: false },
+      domicileCertificate: { type: Boolean, default: false },
+      nonCreamyLayerCertificate: { type: Boolean, default: false },
+    },
+    bankDetails: { type: Boolean, default: false },
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

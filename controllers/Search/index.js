@@ -111,7 +111,9 @@ exports.searchUserUniversalWeb = async (req, res) => {
         // !allMentors.length &&
         !allHashtag.length
       )
-        res.status(204).send({ message: "Not found any search" });
+        res
+          .status(204)
+          .send({ message: "Not found any search", universalArrayUser: [] });
       else {
         if (filter === "Institute") {
           res.status(200).send({
@@ -248,7 +250,9 @@ exports.searchInstituteUniversalWeb = async (req, res) => {
         !staff.length &&
         !students.length
       )
-        res.status(202).send({ message: "Not found any search" });
+        res
+          .status(202)
+          .send({ message: "Not found any search", universalArray: [] });
       else {
         if (filter === "Institute") {
           res.status(200).send({
@@ -356,7 +360,9 @@ exports.searchUserUniversal = async (req, res) => {
       // && !staffs.length
       //   .exec();
       if (!allInstitutes.length && !users.length)
-        res.status(204).send({ message: "Not found any search" });
+        res
+          .status(204)
+          .send({ message: "Not found any search", universalArrayUser: [] });
       else {
         res.status(200).send({
           // allInstitutes,
@@ -467,7 +473,9 @@ exports.searchInstituteUniversal = async (req, res) => {
         !staff.length &&
         !students.length
       )
-        res.status(202).send({ message: "Not found any search" });
+        res
+          .status(202)
+          .send({ message: "Not found any search", universalArray: [] });
       else
         var universalArray = [
           ...allInstitutes,

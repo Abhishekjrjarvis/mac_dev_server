@@ -288,4 +288,9 @@ router.get(
   catchAsync(Extra.renderAllClassMatesQuery)
 );
 
+router.patch(
+  "/send/filtered/message/query",
+  catchAsync(Extra.renderFilteredMessageQuery)
+);
+
 module.exports = router;

@@ -135,7 +135,7 @@ exports.send_email_authentication = async (email) => {
       console.log("Sended Successfully");
     })
     .catch((e) => {
-      console.log("SMS API Bug", e);
+      console.log("SMS API Bug", e.message);
     });
   return OTP;
 };

@@ -2048,3 +2048,48 @@ exports.renderAllClassMatesQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderFilteredMessageQuery = async (req, res) => {
+  // try {
+  //   const { filtered_arr, message, from } = req.body;
+  //   if (!filtered_arr)
+  //     return res
+  //       .status(200)
+  //       .send({
+  //         message: "Their is a bug need to fixed immediately",
+  //         access: false,
+  //       });
+
+  //   var all_student = await Student.find({ _id: { $in: filtered_arr } });
+  //   var valid_staff = await Staff.findById({ _id: `${from}` });
+
+  //   for (var ref of all_student) {
+  //     var user = await User.findById({
+  //       _id: `${ref?.user}`,
+  //     });
+  //     var notify = new StudentNotification({});
+  //     notify.notifyContent = `${message}`;
+  //     notify.notifySender = `${ads_admin?.admissionAdminHead?.user}`;
+  //     notify.notifyReceiever = `${user?._id}`;
+  //     notify.notifyType = "Student";
+  //     notify.notifyPublisher = ref?._id;
+  //     user.activity_tab.push(notify?._id);
+  //     notify.notifyByAdmissionPhoto = aid;
+  //     notify.notifyCategory = "Reminder Alert";
+  //     notify.redirectIndex = 59;
+  //     await Promise.all([user.save(), notify.save()]);
+  //     invokeSpecificRegister(
+  //       "Specific Notification",
+  //       `Admission Outstanding Fees Rs. ${valid_price} is due. Paid As Soon As Possible.`,
+  //       "Fees Reminder",
+  //       user._id,
+  //       user.deviceToken
+  //     );
+  //   }
+  //   res
+  //     .status(200)
+  //     .send({ message: "Explore Filtered Message Query", access: true });
+  // } catch (e) {
+  //   console.log(e);
+  // }
+};

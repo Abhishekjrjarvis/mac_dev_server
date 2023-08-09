@@ -329,7 +329,7 @@ exports.whats_app_sms_payload = (
             console.log("Sended Successfully");
           })
           .catch((e) => {
-            console.log("SMS API Bug", e);
+            console.log("SMS API Bug", e.message);
           });
         return true;
       } else {

@@ -647,6 +647,33 @@ const studentSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  student_gate_score: {
+    type: String,
+  },
+  student_gate_year: {
+    type: String,
+  },
+  student_degree_institute: {
+    type: String,
+  },
+  student_degree_year: {
+    type: String,
+  },
+  student_degree_marks: {
+    type: String,
+  },
+  student_percentage: {
+    type: String,
+  },
+  student_class_cpi: {
+    type: String,
+  },
+  student_pre_sem_points: {
+    type: String,
+  },
+  student_final_sem_points: {
+    type: String,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

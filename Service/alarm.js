@@ -9,10 +9,13 @@ const { custom_date_time, ms_calc } = require("../helper/dayTimer");
 const User = require("../models/User");
 const axios = require("axios");
 const Admin = require("../models/superAdmin");
+const StudentNotification = require("../models/Marks/StudentNotification");
 
 exports.dueDateAlarm = async (aid, type, content) => {
   try {
-    var ads_admin = await Admission.findById({ _id: aid });
+    var ads_admin = await Admission.findById({ _id: aid }).populate({
+      path: "admissionAdminHead",
+    });
     var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     var all_remains = await RemainingList.find({
       institute: ads_admin?.institute,
@@ -50,6 +53,20 @@ exports.dueDateAlarm = async (aid, type, content) => {
             });
             s_admin.alarm_student_count += 1;
             if (type === "APP_NOTIFICATION") {
+              var user = await User.findById({
+                _id: `${remind?.student?.user?._id}`,
+              });
+              var notify = new StudentNotification({});
+              notify.notifyContent = `Admission Outstanding Fees Rs. ${valid_price} is due. Paid As Soon As Possible.`;
+              notify.notifySender = `${ads_admin?.admissionAdminHead?.user}`;
+              notify.notifyReceiever = `${user?._id}`;
+              notify.notifyType = "Student";
+              notify.notifyPublisher = remind?.student?._id;
+              user.activity_tab.push(notify?._id);
+              notify.notifyByAdmissionPhoto = aid;
+              notify.notifyCategory = "Outstanding Reminder Alert";
+              notify.redirectIndex = 39;
+              await Promise.all([user.save(), notify.save()]);
               invokeSpecificRegister(
                 "Specific Notification",
                 `Admission Outstanding Fees Rs. ${valid_price} is due. Paid As Soon As Possible.`,
@@ -79,6 +96,20 @@ Regards
 Accounts Section
 ${remind?.student?.institute?.iName}
 `;
+              var user = await User.findById({
+                _id: `${remind?.student?.user?._id}`,
+              });
+              var notify = new StudentNotification({});
+              notify.notifyContent = `${message}`;
+              notify.notifySender = `${ads_admin?.admissionAdminHead?.user}`;
+              notify.notifyReceiever = `${user?._id}`;
+              notify.notifyType = "Student";
+              notify.notifyPublisher = remind?.student?._id;
+              user.activity_tab.push(notify?._id);
+              notify.notifyByAdmissionPhoto = aid;
+              notify.notifyCategory = "Outstanding Reminder Alert";
+              notify.redirectIndex = 39;
+              await Promise.all([user.save(), notify.save()]);
               const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${remind?.student?.user?.userEmail}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
               const encodeURL = encodeURI(url);
               axios

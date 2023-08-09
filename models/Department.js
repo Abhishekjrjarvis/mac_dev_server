@@ -359,6 +359,8 @@ const departmentSchema = new mongoose.Schema({
       nonCreamyLayerCertificate: { type: Boolean, default: false },
     },
     bankDetails: { type: Boolean, default: false },
+    gate_score: { type: Boolean, default: false },
+    marks_and_degree_score: { type: Boolean, default: false },
   },
 });
 

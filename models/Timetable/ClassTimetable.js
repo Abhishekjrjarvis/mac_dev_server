@@ -25,6 +25,12 @@ const timetableSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Staff",
       },
+      topic: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "ChapterTopic",
+        },
+      ],
     },
   ],
 

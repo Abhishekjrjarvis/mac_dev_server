@@ -31719,4 +31719,92 @@ paths:
         "200":
           description: OK
 
-          
+  /api/v1/extra/send/filtered/message/query:
+    patch:
+      tags:
+        - Id Card Query
+      summary: Send Message To Filtered Student-(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              filtered_arr:
+                type: array
+                description: Enter Array of Student ID
+                required: true
+              message:
+                type: string
+                description: Enter message
+                required: true
+              from:
+                type: string
+                description: Enter Staff ID From All Student Tab
+                required: true
+              type:
+                type: string
+                description: Enter Flow of All Student TAB
+                required: true
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/department/{did}/student/form:
+    get:
+      tags:
+        - Id Card Query
+      summary: Get All Toggles For Department Form -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/department/{did}/form/setting/update:
+    patch:
+      tags:
+        - Id Card Query
+      summary: Update All Toggles For Department Form -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              studentFormSetting:
+                type: object
+                required:  true
+                description: here pass all student form setting boolean
+                properties:
+                  gate_score:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  marks_and_degree_score:
+                    type: boolean
+                    description: here pass value "true" or "false"  
+      responses:
+        "200":
+          description: OK

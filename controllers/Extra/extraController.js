@@ -16,6 +16,7 @@ const Finance = require("../../models/Finance");
 const Admission = require("../../models/Admission/Admission");
 const { chatCount } = require("../../Firebase/dailyChat");
 const { getFirestore } = require("firebase-admin/firestore");
+const StudentNotification = require("../../models/Marks/StudentNotification");
 const { valid_initials } = require("../../Custom/checkInitials");
 const {
   simple_object,
@@ -2050,46 +2051,50 @@ exports.renderAllClassMatesQuery = async (req, res) => {
 };
 
 exports.renderFilteredMessageQuery = async (req, res) => {
-  // try {
-  //   const { filtered_arr, message, from } = req.body;
-  //   if (!filtered_arr)
-  //     return res
-  //       .status(200)
-  //       .send({
-  //         message: "Their is a bug need to fixed immediately",
-  //         access: false,
-  //       });
+  try {
+    const { filtered_arr, message, from, type } = req.body;
+    if (!filtered_arr)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-  //   var all_student = await Student.find({ _id: { $in: filtered_arr } });
-  //   var valid_staff = await Staff.findById({ _id: `${from}` });
+    var all_student = await Student.find({ _id: { $in: filtered_arr } });
+    var valid_staff = await Staff.findById({ _id: `${from}` });
 
-  //   for (var ref of all_student) {
-  //     var user = await User.findById({
-  //       _id: `${ref?.user}`,
-  //     });
-  //     var notify = new StudentNotification({});
-  //     notify.notifyContent = `${message}`;
-  //     notify.notifySender = `${ads_admin?.admissionAdminHead?.user}`;
-  //     notify.notifyReceiever = `${user?._id}`;
-  //     notify.notifyType = "Student";
-  //     notify.notifyPublisher = ref?._id;
-  //     user.activity_tab.push(notify?._id);
-  //     notify.notifyByAdmissionPhoto = aid;
-  //     notify.notifyCategory = "Reminder Alert";
-  //     notify.redirectIndex = 59;
-  //     await Promise.all([user.save(), notify.save()]);
-  //     invokeSpecificRegister(
-  //       "Specific Notification",
-  //       `Admission Outstanding Fees Rs. ${valid_price} is due. Paid As Soon As Possible.`,
-  //       "Fees Reminder",
-  //       user._id,
-  //       user.deviceToken
-  //     );
-  //   }
-  //   res
-  //     .status(200)
-  //     .send({ message: "Explore Filtered Message Query", access: true });
-  // } catch (e) {
-  //   console.log(e);
-  // }
+    for (var ref of all_student) {
+      var user = await User.findById({
+        _id: `${ref?.user}`,
+      });
+      var notify = new StudentNotification({});
+      notify.notifyContent = `${message} - From ${type},
+      ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${
+        valid_staff?.staffLastName
+      }`;
+      notify.notifySender = `${valid_staff?.user}`;
+      notify.notifyReceiever = `${user?._id}`;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = ref?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByStaffPhoto = valid_staff?._id;
+      notify.notifyCategory = "Reminder Alert";
+      notify.redirectIndex = 59;
+      await Promise.all([user.save(), notify.save()]);
+      invokeSpecificRegister(
+        "Specific Notification",
+        `${message} - From ${type},
+      ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${
+          valid_staff?.staffLastName
+        }`,
+        "Fees Reminder",
+        user._id,
+        user.deviceToken
+      );
+    }
+    res
+      .status(200)
+      .send({ message: "Explore Filtered Message Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
 };

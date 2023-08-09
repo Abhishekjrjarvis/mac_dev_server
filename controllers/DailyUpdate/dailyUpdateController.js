@@ -220,7 +220,8 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         })
         .populate({
           path: "subject",
-          select: "subjectTeacherName",
+          select:
+            "subjectTeacherName subjectName subjectStatus subjectTitle tutorial_analytic lecture_analytic practical_analytic topic_count_bifurgate",
           populate: {
             path: "subjectTeacherName",
             select:
@@ -248,7 +249,8 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         })
         .populate({
           path: "subject",
-          select: "subjectTeacherName",
+          select:
+            "subjectTeacherName subjectName subjectStatus subjectTitle tutorial_analytic lecture_analytic practical_analytic topic_count_bifurgate",
           populate: {
             path: "subjectTeacherName",
             select:

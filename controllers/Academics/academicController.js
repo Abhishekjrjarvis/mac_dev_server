@@ -1,6 +1,7 @@
 const Subject = require("../../models/Subject");
 const Chapter = require("../../models/Academics/Chapter");
 const ChapterTopic = require("../../models/Academics/ChapterTopic");
+const SubjectUpdate = require("../../models/SubjectUpdate");
 const { custom_date_time } = require("../../helper/dayTimer");
 
 exports.renderOneSubjectAllChapterQuery = async (req, res) => {
@@ -166,6 +167,7 @@ exports.renderAddNewLectureQuery = async (req, res) => {
       });
 
     var one_subject = await Subject.findById({ _id: subId });
+    await SubjectUpdate.findByIdAndUpdate(sid, req.body);
     var valid_subject = await SubjectUpdate.findById({ _id: sid });
     var all_topic = await ChapterTopic.find({ _id: { $in: arr } });
     for (var val of all_topic) {

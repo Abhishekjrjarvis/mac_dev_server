@@ -1506,7 +1506,7 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
         .populate({
           path: "department",
           select: "dName",
-        })
+        });
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -2269,7 +2269,15 @@ exports.retrieveNewClass = async (req, res) => {
 exports.retrieveNewSubject = async (req, res) => {
   try {
     const { id, cid, bid, did } = req.params;
-    const { sid, subjectTitle, msid, subjectPassingMarks, lecture_analytic, practical_analytic, tutorial_analytic } = req.body;
+    const {
+      sid,
+      subjectTitle,
+      msid,
+      subjectPassingMarks,
+      lecture_analytic,
+      practical_analytic,
+      tutorial_analytic,
+    } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const classes = await Class.findById({ _id: cid }).populate({
       path: "classTeacher",
@@ -2294,7 +2302,7 @@ exports.retrieveNewSubject = async (req, res) => {
       },
       lecture_analytic: lecture_analytic,
       practical_analytic: practical_analytic,
-      tutorial_analytic: tutorial_analytic
+      tutorial_analytic: tutorial_analytic,
     });
     classes.subject.push(subject._id);
     classes.subjectCount += 1;
@@ -3494,8 +3502,8 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       })
       .lean()
       .exec();
-    
-    console.log(classes)
+
+    // console.log(classes)
     classes?.ApproveStudent?.sort(function (st1, st2) {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
@@ -3530,20 +3538,16 @@ exports.retrieveUnApproveCatalogArray = async (req, res) => {
     });
     // const cEncrypt = await encryptionPayload(classes);
     if (classes?.UnApproveStudent?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Un Approve catalog Query",
-          classes: classes?.UnApproveStudent,
-        });
+      res.status(200).send({
+        message: "Un Approve catalog Query",
+        classes: classes?.UnApproveStudent,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No Un Approve catalog Query",
-          access: false,
-          classes: [],
-        });
+      res.status(200).send({
+        message: "No Un Approve catalog Query",
+        access: false,
+        classes: [],
+      });
     }
   } catch (e) {
     console.log(e);
@@ -4157,24 +4161,20 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
   try {
     const { sid } = req.params;
     if (!sid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var one_subject = await Subject.findById({ _id: sid }).select(
       "subjectName subjectStatus subjectTitle tutorial_analytic lecture_analytic practical_analytic chapter_count topic_count_bifurgate createdAt"
     );
 
-    res
-      .status(200)
-      .send({
-        message: "Explore One Subject Profile Query",
-        access: true,
-        one_subject: one_subject,
-      });
+    res.status(200).send({
+      message: "Explore One Subject Profile Query",
+      access: true,
+      one_subject: one_subject,
+    });
   } catch (e) {
     console.log(e);
   }

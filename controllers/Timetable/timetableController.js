@@ -4,6 +4,7 @@ const Staff = require("../../models/Staff");
 const Assignment = require("../../models/MCQ/Assignment");
 const ClassTimetable = require("../../models/Timetable/ClassTimetable");
 const InstituteAdmin = require("../../models/InstituteAdmin");
+const ChapterTopic = require("../../models/Academics/ChapterTopic");
 const {
   offStaffTimetableTimeCompare,
   // staffSideFromTimeComparison,
@@ -570,6 +571,7 @@ exports.getStudentSideDateWise = async (req, res) => {
         assignment: assignmentObj,
         assignStaff: sched.assignStaff,
         offStaff: sched?.offStaff,
+        topic: sched?.topic,
       });
     }
     // const studentEncrypt = await encryptionPayload(studentScheduleList);

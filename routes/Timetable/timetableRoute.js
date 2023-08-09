@@ -28,6 +28,6 @@ router
 
 router
   .route("/student/:cid/schedule/list")
-  .get(isLoggedIn, catchAsync(timetable.getStudentSideDateWise));
+  .get(catchAsync(timetable.getStudentSideDateWise));
 
 module.exports = router;

@@ -539,15 +539,9 @@ exports.getStudentSideDateWise = async (req, res) => {
     for (let sched of scheduleList) {
       for (let sched1 of scheduleList1) {
         if (String(sched.subject) === String(sched1.subject)) {
-          var valid_date = custom_date_time(0);
-          var custom_date = `${valid_date}T00:00:00.000`;
-          var one_topic = await ChapterTopic.find({
-            topic_last_date: custom_date,
-          });
           sched.from = sched1.from;
           sched.to = sched1.to;
           sched.offStaff = sched1.offStaff;
-          sched.topic = [...one_topic];
         }
       }
     }
@@ -564,6 +558,19 @@ exports.getStudentSideDateWise = async (req, res) => {
           _id: assign._id,
         });
       }
+      var valid_date = custom_date_time(0);
+      // console.log(valid_date);
+      var one_topic = await ChapterTopic.find({
+        $and: [
+          {
+            topic_last_date: `${valid_date}`,
+          },
+          {
+            subject: sched?.subject,
+          },
+        ],
+      });
+      // console.log(one_topic);
       studentScheduleList.push({
         from: sched.from,
         subjectName: sched.subjectName,
@@ -571,7 +578,7 @@ exports.getStudentSideDateWise = async (req, res) => {
         assignment: assignmentObj,
         assignStaff: sched.assignStaff,
         offStaff: sched?.offStaff,
-        topic: sched?.topic,
+        topic: [...one_topic],
       });
     }
     // const studentEncrypt = await encryptionPayload(studentScheduleList);

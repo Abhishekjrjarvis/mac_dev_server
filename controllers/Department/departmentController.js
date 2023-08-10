@@ -9,7 +9,7 @@ exports.renderStudentFormQuery = async (req, res) => {
         access: false,
       });
     var valid_depart = await Department.findById(did).select(
-      "studentFormSetting"
+      "studentFormSetting ug_undertakings_admission pg_undertakings_admission"
     );
     res.status(200).send({
       message: "Explore Department Student form setting details Query",

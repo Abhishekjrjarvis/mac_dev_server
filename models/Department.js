@@ -362,6 +362,14 @@ const departmentSchema = new mongoose.Schema({
     gate_score: { type: Boolean, default: false },
     marks_and_degree_score: { type: Boolean, default: false },
   },
+  ug_undertakings_admission: {
+    type: Boolean,
+    default: false,
+  },
+  pg_undertakings_admission: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

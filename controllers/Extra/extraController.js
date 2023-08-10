@@ -8,6 +8,7 @@ const { shuffleArray } = require("../../Utilities/Shuffle");
 const Post = require("../../models/Post");
 const Answer = require("../../models/Question/Answer");
 const Poll = require("../../models/Question/Poll");
+const moment = require("moment");
 const Department = require("../../models/Department");
 const Class = require("../../models/Class");
 const Subject = require("../../models/Subject");
@@ -68,7 +69,12 @@ const util = require("util");
 const {
   renderNewOneChapterTopicQuery,
 } = require("../Academics/academicController");
+const {
+  custom_date_time,
+  custom_date_time_birthday,
+} = require("../../helper/dayTimer");
 const unlinkFile = util.promisify(fs.unlink);
+const Notification = require("../../models/notification");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -2094,6 +2100,42 @@ exports.renderFilteredMessageQuery = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore Filtered Message Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderBirthdaySurpriseQuery = async (req, res) => {
+  try {
+    var valid_date = custom_date_time_birthday(0);
+    var user = await User.find({
+      userDateOfBirth: { $regex: `${valid_date}`, $options: "i" },
+    });
+    for (var ref of user) {
+      invokeSpecificRegister(
+        "Specific Notification",
+        `Wishing you a very happy birthday! May all your dreams come true - From Qviple Teams.`,
+        "Birthday Surprise",
+        ref._id,
+        ref.deviceToken
+      );
+      for (var val of ref?.userFollowers) {
+        var valid_user = await User.findById({ _id: `${val}` });
+        var notify = new Notification({});
+        notify.notifyContent = `Wish a very happy birthday to ${
+          ref?.userLegalName
+        } on ${moment(ref?.userDateOfBirth).format("LL")}. - say congrats`;
+        notify.notifyReceiever = valid_user?._id;
+        notify.notifyCategory = "Birthday Surprise";
+        valid_user.uNotify.push(notify._id);
+        notify.notifyByPhoto = ref?._id;
+        // console.log(notify?.notifyContent);
+        await Promise.all([valid_user.save(), notify.save()]);
+      }
+    }
+    res
+      .status(200)
+      .send({ message: "Explore Birthday Boy || Girl", access: true });
   } catch (e) {
     console.log(e);
   }

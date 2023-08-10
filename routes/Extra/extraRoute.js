@@ -293,4 +293,9 @@ router.patch(
   catchAsync(Extra.renderFilteredMessageQuery)
 );
 
+router.patch(
+  "/send/birthday/content/query",
+  catchAsync(Extra.renderBirthdaySurpriseQuery)
+);
+
 module.exports = router;

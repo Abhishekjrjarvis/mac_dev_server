@@ -659,19 +659,19 @@ const studentSchema = new mongoose.Schema({
   student_degree_year: {
     type: String,
   },
-  student_degree_marks: {
+  student_pre_sem_obtained_points: {
     type: String,
   },
-  student_percentage: {
+  student_percentage_cpi: {
     type: String,
   },
-  student_class_cpi: {
+  student_pre_sem_total_points: {
     type: String,
   },
-  student_pre_sem_points: {
+  student_final_sem_total_points: {
     type: String,
   },
-  student_final_sem_points: {
+  student_final_sem_obtained_points: {
     type: String,
   },
 });

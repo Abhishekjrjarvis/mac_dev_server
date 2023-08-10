@@ -492,7 +492,7 @@ exports.subjectDetail = async (req, res) => {
           "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
       })
       .select(
-        "subjectName subjectTitle subjectOptional subjectTeacherName subjectMasterName setting.subjectPassingMarks"
+        "subjectName subjectTitle subjectOptional subjectTeacherName subjectMasterName setting.subjectPassingMarks lecture_analytic practical_analytic tutorial_analytic"
       )
       .lean()
       .exec();

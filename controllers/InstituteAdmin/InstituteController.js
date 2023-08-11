@@ -4192,29 +4192,29 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
       lecture_percentage: `${(
         (one_subject?.lecture_analytic?.lecture_complete * 100) /
         one_subject?.lecture_analytic?.lecture_count
-      ).toFixed(2)}%`,
+      ).toFixed(2)}`,
       practical_percentage: `${(
         (one_subject?.practical_analytic?.practical_complete * 100) /
         one_subject?.practical_analytic?.practical_count
-      ).toFixed(2)}%`,
+      ).toFixed(2)}`,
       tutorial_percentage: `${(
         (one_subject?.tutorial_analytic?.tutorial_complete * 100) /
         one_subject?.tutorial_analytic?.tutorial_count
-      ).toFixed(2)}%`,
+      ).toFixed(2)}`,
       academic_performance: {
-        academic_percentage: `${((academic_count * 100) / count).toFixed(2)}%`,
+        academic_percentage: `${((academic_count * 100) / count).toFixed(2)}`,
         early_percentage: `${(
           (one_subject?.topic_count_bifurgate?.early * 100) /
           count
-        ).toFixed(2)}%`,
+        ).toFixed(2)}`,
         timely_percenatge: `${(
           (one_subject?.topic_count_bifurgate?.timely * 100) /
           count
-        ).toFixed(2)}%`,
+        ).toFixed(2)}`,
         delayed_percentage: `${(
           (one_subject?.topic_count_bifurgate?.delayed * 100) /
           count
-        ).toFixed(2)}%`,
+        ).toFixed(2)}`,
       },
     });
   } catch (e) {

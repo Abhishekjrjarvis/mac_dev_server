@@ -4174,6 +4174,15 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
       message: "Explore One Subject Profile Query",
       access: true,
       one_subject: one_subject,
+      lecture_percentage: "0%",
+      practical_percentage: "0%",
+      tutorial_percentage: "0%",
+      academic_performance: {
+        academic_percentage: "0%",
+        early_percentage: "0%",
+        timely_percenatge: "0%",
+        delayed_percentage: "0%",
+      },
     });
   } catch (e) {
     console.log(e);

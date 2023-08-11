@@ -2106,6 +2106,13 @@ exports.renderFilteredMessageQuery = async (req, res) => {
 };
 
 exports.renderBirthdaySurpriseQuery = async (req, res) => {
+  // const all_depart = await Department.find({});
+  // for (var val of all_depart) {
+  //   val.ug_undertakings_admission = false;
+  //   val.pg_undertakings_admission = false;
+  //   await val.save();
+  // }
+  // res.status(200).send({ message: "Updated" });
   try {
     var valid_date = custom_date_time_birthday(0);
     var user = await User.find({

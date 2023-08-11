@@ -14,6 +14,8 @@ exports.renderStudentFormQuery = async (req, res) => {
     res.status(200).send({
       message: "Explore Department Student form setting details Query",
       studentFormSetting: valid_depart?.studentFormSetting,
+      ug_undertakings_admission: valid_depart?.ug_undertakings_admission,
+      pg_undertakings_admission: valid_depart?.pg_undertakings_admission,
     });
   } catch (e) {
     console.log(e);

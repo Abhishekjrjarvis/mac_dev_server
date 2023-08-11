@@ -4188,6 +4188,7 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
       message: "Explore One Subject Profile Query",
       access: true,
       one_subject: one_subject,
+      total_topic: count,
       lecture_percentage: `${(
         (one_subject?.lecture_analytic?.lecture_complete * 100) /
         one_subject?.lecture_analytic?.lecture_count

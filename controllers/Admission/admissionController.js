@@ -16,6 +16,7 @@ const Batch = require("../../models/Batch");
 const ClassMaster = require("../../models/ClassMaster");
 const Department = require("../../models/Department");
 const Class = require("../../models/Class");
+const FinanceModerator = require("../../models/Moderator/FinanceModerator");
 const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
@@ -2631,31 +2632,29 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           ? gender
           : admin_ins.pending_fee_custom_filter.gender;
         if (master_arr?.length > 0) {
-          for(var val of master_arr){
-            if(admin_ins.pending_fee_custom_filter.master?.includes(`${val}`)){
-
-            }
-            else{
+          for (var val of master_arr) {
+            if (
+              admin_ins.pending_fee_custom_filter.master?.includes(`${val}`)
+            ) {
+            } else {
               admin_ins.pending_fee_custom_filter.master.push(val);
             }
           }
         }
         if (batch_arr?.length > 0) {
-          for(var val of batch_arr){
-            if(admin_ins.pending_fee_custom_filter.batch?.includes(`${val}`)){
-
-            }
-            else{
+          for (var val of batch_arr) {
+            if (admin_ins.pending_fee_custom_filter.batch?.includes(`${val}`)) {
+            } else {
               admin_ins.pending_fee_custom_filter.batch.push(val);
             }
           }
         }
         if (depart_arr?.length > 0) {
-          for(var val of depart_arr){
-            if(admin_ins.pending_fee_custom_filter.department?.includes(`${val}`)){
-
-            }
-            else{
+          for (var val of depart_arr) {
+            if (
+              admin_ins.pending_fee_custom_filter.department?.includes(`${val}`)
+            ) {
+            } else {
               admin_ins.pending_fee_custom_filter.department.push(val);
             }
           }
@@ -4109,9 +4108,10 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         ref.button_status = "Collect As Scholarship";
       } else {
       }
-      ref.applicable_fees_pending += ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0
-      ? ref?.fee_structure?.applicable_fees - ref?.paid_fee
-      : 0
+      ref.applicable_fees_pending +=
+        ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0
+          ? ref?.fee_structure?.applicable_fees - ref?.paid_fee
+          : 0;
     }
     for (var ref of valid_remain) {
       ref.setOffPrice = count;
@@ -6717,7 +6717,9 @@ exports.renderScholarShipNewFundCorpusQuery = async (req, res) => {
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
-    var f_user = await InstituteAdmin.findById({ _id: `${finance?.institute}` });
+    var f_user = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    });
     if (user_query) {
       var user = await User.findOne({
         _id: `${user_query}`,
@@ -9067,18 +9069,64 @@ exports.renderPendingCustomFilterQuery = async (req, res) => {
       var ads_admin = await Admission.findById({ _id: aid }).select(
         "pending_fee_custom_filter"
       );
+      var dynamic = {
+        pending_fee_custom_filter: {
+          ...ads_admin?.pending_fee_custom_filter,
+        },
+      };
     } else if (flow === "Institute_Filter") {
       var ads_admin = await InstituteAdmin.findById({ _id: aid }).select(
         "pending_fee_custom_filter"
       );
+      var dynamic = {
+        pending_fee_custom_filter: {
+          ...ads_admin?.pending_fee_custom_filter,
+        },
+      };
+    } else if (flow === "Finance_Student_Filter") {
+      var ads_admin = await Finance.findById({ _id: aid }).select(
+        "pending_all_student_fee_custom_filter"
+      );
+      var dynamic = {
+        pending_fee_custom_filter: {
+          ...ads_admin?.pending_all_student_fee_custom_filter,
+        },
+      };
+    } else if (flow === "Admission_Student_Filter") {
+      var ads_admin = await Admission.findById({ _id: aid }).select(
+        "pending_all_student_fee_custom_filter"
+      );
+      var dynamic = {
+        pending_fee_custom_filter: {
+          ...ads_admin?.pending_all_student_fee_custom_filter,
+        },
+      };
+    } else if (flow === "Student_Section_Filter") {
+      var ads_admin = await FinanceModerator.findById({ _id: aid }).select(
+        "pending_all_student_fee_custom_filter"
+      );
+      var dynamic = {
+        pending_fee_custom_filter: {
+          ...ads_admin?.pending_all_student_fee_custom_filter,
+        },
+      };
+    } else if (flow === "Certificate_Section_Filter") {
+      var ads_admin = await FinanceModerator.findById({ _id: aid }).select(
+        "pending_all_student_fee_cert_custom_filter"
+      );
+      var dynamic = {
+        pending_fee_custom_filter: {
+          ...ads_admin?.pending_all_student_fee_cert_custom_filter,
+        },
+      };
     } else {
-      var ads_admin = "" || null;
+      var dynamic = "" || null
     }
 
     res.status(200).send({
       message: "Explore New Custom Filter",
       access: true,
-      ads_admin: ads_admin,
+      ads_admin: dynamic,
     });
   } catch (e) {
     console.log(e);

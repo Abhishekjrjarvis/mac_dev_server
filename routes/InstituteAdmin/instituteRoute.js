@@ -217,25 +217,25 @@ router.patch(
   catchAsync(Institute.retrieveApproveStudentListFilterQuery)
 );
 
-// router.patch(
-//   "/:id/approve-student/finance/list/filter/query",
-//   catchAsync(Institute.retrieveFinanceApproveStudentListFilterQuery)
-// );
+router.patch(
+  "/:id/approve-student/finance/list/filter/query",
+  catchAsync(Institute.retrieveFinanceApproveStudentListFilterQuery)
+);
 
-// router.patch(
-//   "/:id/approve-student/admission/list/filter/query",
-//   catchAsync(Institute.retrieveApproveStudentListFilterQuery)
-// );
+router.patch(
+  "/:id/approve-student/admission/list/filter/query",
+  catchAsync(Institute.retrieveAdmissionApproveStudentListFilterQuery)
+);
 
-// router.patch(
-//   "/:id/approve-student/section/list/filter/query",
-//   catchAsync(Institute.retrieveApproveStudentListFilterQuery)
-// );
+router.patch(
+  "/:id/approve-student/section/list/filter/query/:fid",
+  catchAsync(Institute.retrieveApproveStudentSectionListFilterQuery)
+);
 
-// router.patch(
-//   "/:id/approve-student/certificate/list/filter/query",
-//   catchAsync(Institute.retrieveApproveStudentListFilterQuery)
-// );
+router.patch(
+  "/:id/approve-student/certificate/list/filter/query/:fid",
+  catchAsync(Institute.retrieveCertificateApproveStudentListFilterQuery)
+);
 
 router.get(
   "/:id/unapprove-student/list/query",

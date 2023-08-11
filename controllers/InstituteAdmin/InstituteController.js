@@ -11,6 +11,8 @@ const Fees = require("../../models/Fees");
 const Report = require("../../models/Report");
 const Batch = require("../../models/Batch");
 const Admission = require("../../models/Admission/Admission");
+const Finance = require("../../models/Finance");
+const FinanceModerator = require("../../models/Moderator/FinanceModerator");
 const NewApplication = require("../../models/Admission/NewApplication");
 const DisplayPerson = require("../../models/DisplayPerson");
 const bcrypt = require("bcryptjs");
@@ -1602,6 +1604,966 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
         student_ins.pending_fee_custom_filter.department = [];
       }
       await student_ins.save();
+      if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        var valid_list = await applicable_pending_calc(studentIns);
+        valid_list.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+          );
+        });
+        res
+          .status(200)
+          .send({ message: "Without Limit", studentIns: valid_list });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveFinanceApproveStudentListFilterQuery = async (req, res) => {
+  try {
+    var { id } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    const {
+      depart_arr,
+      batch_arr,
+      master_arr,
+      gender,
+      cast_category,
+      filter_by,
+    } = req.body;
+    var finance = await Finance.findOne({ institute: id });
+    if (search) {
+      var student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStudent insName gr_initials pending_fee_custom_filter"
+      );
+      var studentIns = await Student.find({
+        $and: [
+          {
+            _id: { $in: student_ins?.ApproveStudent },
+          },
+        ],
+        $or: [
+          {
+            studentFirstName: { $regex: search, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: search, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: search, $options: "i" },
+          },
+          {
+            valid_full_name: { $regex: search, $options: "i" },
+          },
+          {
+            studentGRNO: { $regex: search, $options: "i" },
+          },
+        ],
+      })
+        .sort({ createdAt: -1 })
+        // .limit(limit)
+        // .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        });
+      if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        var valid_list = await applicable_pending_calc(studentIns);
+        valid_list.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+          );
+        });
+        res
+          .status(200)
+          .send({ message: "All Student with limit", studentIns: valid_list });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
+    } else {
+      var student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStudent insName gr_initials pending_fee_custom_filter"
+      );
+      var studentIns = await Student.find({
+        _id: { $in: student_ins?.ApproveStudent },
+      })
+        .limit(limit)
+        .skip(skip)
+        .sort({ createdAt: -1 })
+        .select(
+          "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus masterClassName",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        })
+        .populate({
+          path: "department",
+          select: "dName",
+        });
+      if (depart_arr?.length > 0) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            depart_arr?.includes(`${ref?.department?._id}`) ||
+            finance.pending_all_student_fee_custom_filter.department?.includes(
+              `${ref?.department?._id}`
+            )
+          )
+            return ref;
+        });
+      }
+      if (batch_arr?.length > 0) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            batch_arr?.includes(`${ref?.batches}`) ||
+            finance.pending_all_student_fee_custom_filter.batch?.includes(
+              `${ref?.batches}`
+            )
+          )
+            return ref;
+        });
+      }
+      if (master_arr?.length > 0) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            master_arr?.includes(`${ref?.studentClass?.masterClassName}`) ||
+            finance.pending_all_student_fee_custom_filter.master?.includes(
+              `${ref?.studentClass?.masterClassName}`
+            )
+          )
+            return ref;
+        });
+      }
+      if (gender) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            `${ref?.studentGender}` === `${gender}` ||
+            `${finance.pending_all_student_fee_custom_filter.gender}` ===
+              `${gender}`
+          )
+            return ref;
+        });
+      }
+      if (cast_category) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            `${ref?.studentCastCategory}` === `${cast_category}` ||
+            `${finance.pending_all_student_fee_custom_filter.cast_category}` ===
+              `${cast_category}`
+          )
+            return ref;
+        });
+      }
+      finance.pending_all_student_fee_custom_filter.cast_category =
+        cast_category
+          ? cast_category
+          : finance.pending_all_student_fee_custom_filter.cast_category;
+      finance.pending_all_student_fee_custom_filter.gender = gender
+        ? gender
+        : finance.pending_all_student_fee_custom_filter.gender;
+      if (master_arr?.length > 0) {
+        for (var val of master_arr) {
+          if (
+            finance.pending_all_student_fee_custom_filter.master?.includes(
+              `${val}`
+            )
+          ) {
+          } else {
+            finance.pending_all_student_fee_custom_filter.master.push(val);
+          }
+        }
+      }
+      if (batch_arr?.length > 0) {
+        for (var val of batch_arr) {
+          if (
+            finance.pending_all_student_fee_custom_filter.batch?.includes(
+              `${val}`
+            )
+          ) {
+          } else {
+            finance.pending_all_student_fee_custom_filter.batch.push(val);
+          }
+        }
+      }
+      if (depart_arr?.length > 0) {
+        for (var val of depart_arr) {
+          if (
+            finance.pending_all_student_fee_custom_filter.department?.includes(
+              `${val}`
+            )
+          ) {
+          } else {
+            finance.pending_all_student_fee_custom_filter.department.push(val);
+          }
+        }
+      }
+      if (`${filter_by}` === "Clear_All") {
+        finance.pending_all_student_fee_custom_filter.cast_category = null;
+        finance.pending_all_student_fee_custom_filter.gender = null;
+        finance.pending_all_student_fee_custom_filter.master = [];
+        finance.pending_all_student_fee_custom_filter.batch = [];
+        finance.pending_all_student_fee_custom_filter.department = [];
+      }
+      await finance.save();
+      if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        var valid_list = await applicable_pending_calc(studentIns);
+        valid_list.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+          );
+        });
+        res
+          .status(200)
+          .send({ message: "Without Limit", studentIns: valid_list });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveAdmissionApproveStudentListFilterQuery = async (req, res) => {
+  try {
+    var { id } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    const {
+      depart_arr,
+      batch_arr,
+      master_arr,
+      gender,
+      cast_category,
+      filter_by,
+    } = req.body;
+    var ads_admin = await Admission.findOne({ institute: id });
+    if (search) {
+      var student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStudent insName gr_initials pending_fee_custom_filter"
+      );
+      var studentIns = await Student.find({
+        $and: [
+          {
+            _id: { $in: student_ins?.ApproveStudent },
+          },
+        ],
+        $or: [
+          {
+            studentFirstName: { $regex: search, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: search, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: search, $options: "i" },
+          },
+          {
+            valid_full_name: { $regex: search, $options: "i" },
+          },
+          {
+            studentGRNO: { $regex: search, $options: "i" },
+          },
+        ],
+      })
+        .sort({ createdAt: -1 })
+        // .limit(limit)
+        // .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        });
+      if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        var valid_list = await applicable_pending_calc(studentIns);
+        valid_list.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+          );
+        });
+        res
+          .status(200)
+          .send({ message: "All Student with limit", studentIns: valid_list });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
+    } else {
+      var student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStudent insName gr_initials pending_fee_custom_filter"
+      );
+      var studentIns = await Student.find({
+        _id: { $in: student_ins?.ApproveStudent },
+      })
+        .limit(limit)
+        .skip(skip)
+        .sort({ createdAt: -1 })
+        .select(
+          "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus masterClassName",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        })
+        .populate({
+          path: "department",
+          select: "dName",
+        });
+      if (depart_arr?.length > 0) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            depart_arr?.includes(`${ref?.department?._id}`) ||
+            ads_admin.pending_all_student_fee_custom_filter.department?.includes(
+              `${ref?.department?._id}`
+            )
+          )
+            return ref;
+        });
+      }
+      if (batch_arr?.length > 0) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            batch_arr?.includes(`${ref?.batches}`) ||
+            ads_admin.pending_all_student_fee_custom_filter.batch?.includes(
+              `${ref?.batches}`
+            )
+          )
+            return ref;
+        });
+      }
+      if (master_arr?.length > 0) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            master_arr?.includes(`${ref?.studentClass?.masterClassName}`) ||
+            ads_admin.pending_all_student_fee_custom_filter.master?.includes(
+              `${ref?.studentClass?.masterClassName}`
+            )
+          )
+            return ref;
+        });
+      }
+      if (gender) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            `${ref?.studentGender}` === `${gender}` ||
+            `${ads_admin.pending_all_student_fee_custom_filter.gender}` ===
+              `${gender}`
+          )
+            return ref;
+        });
+      }
+      if (cast_category) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            `${ref?.studentCastCategory}` === `${cast_category}` ||
+            `${ads_admin.pending_all_student_fee_custom_filter.cast_category}` ===
+              `${cast_category}`
+          )
+            return ref;
+        });
+      }
+      ads_admin.pending_all_student_fee_custom_filter.cast_category =
+        cast_category
+          ? cast_category
+          : ads_admin.pending_all_student_fee_custom_filter.cast_category;
+      ads_admin.pending_all_student_fee_custom_filter.gender = gender
+        ? gender
+        : ads_admin.pending_all_student_fee_custom_filter.gender;
+      if (master_arr?.length > 0) {
+        for (var val of master_arr) {
+          if (
+            ads_admin.pending_all_student_fee_custom_filter.master?.includes(
+              `${val}`
+            )
+          ) {
+          } else {
+            ads_admin.pending_all_student_fee_custom_filter.master.push(val);
+          }
+        }
+      }
+      if (batch_arr?.length > 0) {
+        for (var val of batch_arr) {
+          if (
+            ads_admin.pending_all_student_fee_custom_filter.batch?.includes(
+              `${val}`
+            )
+          ) {
+          } else {
+            ads_admin.pending_all_student_fee_custom_filter.batch.push(val);
+          }
+        }
+      }
+      if (depart_arr?.length > 0) {
+        for (var val of depart_arr) {
+          if (
+            ads_admin.pending_all_student_fee_custom_filter.department?.includes(
+              `${val}`
+            )
+          ) {
+          } else {
+            ads_admin.pending_all_student_fee_custom_filter.department.push(
+              val
+            );
+          }
+        }
+      }
+      if (`${filter_by}` === "Clear_All") {
+        ads_admin.pending_all_student_fee_custom_filter.cast_category = null;
+        ads_admin.pending_all_student_fee_custom_filter.gender = null;
+        ads_admin.pending_all_student_fee_custom_filter.master = [];
+        ads_admin.pending_all_student_fee_custom_filter.batch = [];
+        ads_admin.pending_all_student_fee_custom_filter.department = [];
+      }
+      await ads_admin.save();
+      if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        var valid_list = await applicable_pending_calc(studentIns);
+        valid_list.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+          );
+        });
+        res
+          .status(200)
+          .send({ message: "Without Limit", studentIns: valid_list });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveApproveStudentSectionListFilterQuery = async (req, res) => {
+  try {
+    var { id, fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    const {
+      depart_arr,
+      batch_arr,
+      master_arr,
+      gender,
+      cast_category,
+      filter_by,
+    } = req.body;
+    var stu_sec = await FinanceModerator.findById({ _id: fid });
+    if (search) {
+      var student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStudent insName gr_initials pending_fee_custom_filter"
+      );
+      var studentIns = await Student.find({
+        $and: [
+          {
+            _id: { $in: student_ins?.ApproveStudent },
+          },
+        ],
+        $or: [
+          {
+            studentFirstName: { $regex: search, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: search, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: search, $options: "i" },
+          },
+          {
+            valid_full_name: { $regex: search, $options: "i" },
+          },
+          {
+            studentGRNO: { $regex: search, $options: "i" },
+          },
+        ],
+      })
+        .sort({ createdAt: -1 })
+        // .limit(limit)
+        // .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        });
+      if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        var valid_list = await applicable_pending_calc(studentIns);
+        valid_list.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+          );
+        });
+        res
+          .status(200)
+          .send({ message: "All Student with limit", studentIns: valid_list });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
+    } else {
+      var student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStudent insName gr_initials pending_fee_custom_filter"
+      );
+      var studentIns = await Student.find({
+        _id: { $in: student_ins?.ApproveStudent },
+      })
+        .limit(limit)
+        .skip(skip)
+        .sort({ createdAt: -1 })
+        .select(
+          "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus masterClassName",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        })
+        .populate({
+          path: "department",
+          select: "dName",
+        });
+      if (depart_arr?.length > 0) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            depart_arr?.includes(`${ref?.department?._id}`) ||
+            stu_sec.pending_all_student_fee_custom_filter.department?.includes(
+              `${ref?.department?._id}`
+            )
+          )
+            return ref;
+        });
+      }
+      if (batch_arr?.length > 0) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            batch_arr?.includes(`${ref?.batches}`) ||
+            stu_sec.pending_all_student_fee_custom_filter.batch?.includes(
+              `${ref?.batches}`
+            )
+          )
+            return ref;
+        });
+      }
+      if (master_arr?.length > 0) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            master_arr?.includes(`${ref?.studentClass?.masterClassName}`) ||
+            stu_sec.pending_all_student_fee_custom_filter.master?.includes(
+              `${ref?.studentClass?.masterClassName}`
+            )
+          )
+            return ref;
+        });
+      }
+      if (gender) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            `${ref?.studentGender}` === `${gender}` ||
+            `${stu_sec.pending_all_student_fee_custom_filter.gender}` ===
+              `${gender}`
+          )
+            return ref;
+        });
+      }
+      if (cast_category) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            `${ref?.studentCastCategory}` === `${cast_category}` ||
+            `${stu_sec.pending_all_student_fee_custom_filter.cast_category}` ===
+              `${cast_category}`
+          )
+            return ref;
+        });
+      }
+      stu_sec.pending_all_student_fee_custom_filter.cast_category =
+        cast_category
+          ? cast_category
+          : stu_sec.pending_all_student_fee_custom_filter.cast_category;
+      stu_sec.pending_all_student_fee_custom_filter.gender = gender
+        ? gender
+        : stu_sec.pending_all_student_fee_custom_filter.gender;
+      if (master_arr?.length > 0) {
+        for (var val of master_arr) {
+          if (
+            stu_sec.pending_all_student_fee_custom_filter.master?.includes(
+              `${val}`
+            )
+          ) {
+          } else {
+            stu_sec.pending_all_student_fee_custom_filter.master.push(val);
+          }
+        }
+      }
+      if (batch_arr?.length > 0) {
+        for (var val of batch_arr) {
+          if (
+            stu_sec.pending_all_student_fee_custom_filter.batch?.includes(
+              `${val}`
+            )
+          ) {
+          } else {
+            stu_sec.pending_all_student_fee_custom_filter.batch.push(val);
+          }
+        }
+      }
+      if (depart_arr?.length > 0) {
+        for (var val of depart_arr) {
+          if (
+            stu_sec.pending_all_student_fee_custom_filter.department?.includes(
+              `${val}`
+            )
+          ) {
+          } else {
+            stu_sec.pending_all_student_fee_custom_filter.department.push(val);
+          }
+        }
+      }
+      if (`${filter_by}` === "Clear_All") {
+        stu_sec.pending_all_student_fee_custom_filter.cast_category = null;
+        stu_sec.pending_all_student_fee_custom_filter.gender = null;
+        stu_sec.pending_all_student_fee_custom_filter.master = [];
+        stu_sec.pending_all_student_fee_custom_filter.batch = [];
+        stu_sec.pending_all_student_fee_custom_filter.department = [];
+      }
+      await stu_sec.save();
+      if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        var valid_list = await applicable_pending_calc(studentIns);
+        valid_list.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+          );
+        });
+        res
+          .status(200)
+          .send({ message: "Without Limit", studentIns: valid_list });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveCertificateApproveStudentListFilterQuery = async (req, res) => {
+  try {
+    var { id, fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    const {
+      depart_arr,
+      batch_arr,
+      master_arr,
+      gender,
+      cast_category,
+      filter_by,
+    } = req.body;
+    var cer_sec = await FinanceModerator.findById({ _id: fid });
+    if (search) {
+      var student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStudent insName gr_initials pending_fee_custom_filter"
+      );
+      var studentIns = await Student.find({
+        $and: [
+          {
+            _id: { $in: student_ins?.ApproveStudent },
+          },
+        ],
+        $or: [
+          {
+            studentFirstName: { $regex: search, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: search, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: search, $options: "i" },
+          },
+          {
+            valid_full_name: { $regex: search, $options: "i" },
+          },
+          {
+            studentGRNO: { $regex: search, $options: "i" },
+          },
+        ],
+      })
+        .sort({ createdAt: -1 })
+        // .limit(limit)
+        // .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        });
+      if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        var valid_list = await applicable_pending_calc(studentIns);
+        valid_list.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+          );
+        });
+        res
+          .status(200)
+          .send({ message: "All Student with limit", studentIns: valid_list });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
+    } else {
+      var student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStudent insName gr_initials pending_fee_custom_filter"
+      );
+      var studentIns = await Student.find({
+        _id: { $in: student_ins?.ApproveStudent },
+      })
+        .limit(limit)
+        .skip(skip)
+        .sort({ createdAt: -1 })
+        .select(
+          "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus masterClassName",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        })
+        .populate({
+          path: "department",
+          select: "dName",
+        });
+      if (depart_arr?.length > 0) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            depart_arr?.includes(`${ref?.department?._id}`) ||
+            cer_sec.pending_all_student_fee_cert_custom_filter.department?.includes(
+              `${ref?.department?._id}`
+            )
+          )
+            return ref;
+        });
+      }
+      if (batch_arr?.length > 0) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            batch_arr?.includes(`${ref?.batches}`) ||
+            cer_sec.pending_all_student_fee_cert_custom_filter.batch?.includes(
+              `${ref?.batches}`
+            )
+          )
+            return ref;
+        });
+      }
+      if (master_arr?.length > 0) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            master_arr?.includes(`${ref?.studentClass?.masterClassName}`) ||
+            cer_sec.pending_all_student_fee_cert_custom_filter.master?.includes(
+              `${ref?.studentClass?.masterClassName}`
+            )
+          )
+            return ref;
+        });
+      }
+      if (gender) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            `${ref?.studentGender}` === `${gender}` ||
+            `${cer_sec.pending_all_student_fee_cert_custom_filter.gender}` ===
+              `${gender}`
+          )
+            return ref;
+        });
+      }
+      if (cast_category) {
+        studentIns = studentIns?.filter((ref) => {
+          if (
+            `${ref?.studentCastCategory}` === `${cast_category}` ||
+            `${cer_sec.pending_all_student_fee_cert_custom_filter.cast_category}` ===
+              `${cast_category}`
+          )
+            return ref;
+        });
+      }
+      cer_sec.pending_all_student_fee_cert_custom_filter.cast_category =
+        cast_category
+          ? cast_category
+          : cer_sec.pending_all_student_fee_cert_custom_filter.cast_category;
+      cer_sec.pending_all_student_fee_cert_custom_filter.gender = gender
+        ? gender
+        : cer_sec.pending_all_student_fee_cert_custom_filter.gender;
+      if (master_arr?.length > 0) {
+        for (var val of master_arr) {
+          if (
+            cer_sec.pending_all_student_fee_cert_custom_filter.master?.includes(
+              `${val}`
+            )
+          ) {
+          } else {
+            cer_sec.pending_all_student_fee_cert_custom_filter.master.push(val);
+          }
+        }
+      }
+      if (batch_arr?.length > 0) {
+        for (var val of batch_arr) {
+          if (
+            cer_sec.pending_all_student_fee_cert_custom_filter.batch?.includes(
+              `${val}`
+            )
+          ) {
+          } else {
+            cer_sec.pending_all_student_fee_cert_custom_filter.batch.push(val);
+          }
+        }
+      }
+      if (depart_arr?.length > 0) {
+        for (var val of depart_arr) {
+          if (
+            cer_sec.pending_all_student_fee_cert_custom_filter.department?.includes(
+              `${val}`
+            )
+          ) {
+          } else {
+            cer_sec.pending_all_student_fee_cert_custom_filter.department.push(
+              val
+            );
+          }
+        }
+      }
+      if (`${filter_by}` === "Clear_All") {
+        cer_sec.pending_all_student_fee_cert_custom_filter.cast_category = null;
+        cer_sec.pending_all_student_fee_cert_custom_filter.gender = null;
+        cer_sec.pending_all_student_fee_cert_custom_filter.master = [];
+        cer_sec.pending_all_student_fee_cert_custom_filter.batch = [];
+        cer_sec.pending_all_student_fee_cert_custom_filter.department = [];
+      }
+      await cer_sec.save();
       if (studentIns) {
         // const sEncrypt = await encryptionPayload(studentIns);
         var valid_list = await applicable_pending_calc(studentIns);

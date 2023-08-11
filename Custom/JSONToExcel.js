@@ -3,6 +3,8 @@ const fs = require("fs");
 const Admission = require("../models/Admission/Admission");
 const InstituteAdmin = require("../models/InstituteAdmin");
 const Finance = require("../models/Finance");
+const Hostel = require("../models/Hostel/hostel");
+const NewApplication = require("../models/Admission/NewApplication");
 const { uploadExcelFile } = require("../S3Configuration");
 
 exports.json_to_excel_query = async (
@@ -123,6 +125,40 @@ exports.fee_heads_receipt_json_to_excel_query = async (
     });
     ins_admin.export_collection_count += 1;
     await ins_admin.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.json_to_excel_hostel_application_query = async (
+  data_query,
+  app_name,
+  unit_name,
+  appId
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, "HostelApplications");
+    var name = `${unit_name}-${app_name}-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const apply = await NewApplication.findById({ _id: appId });
+    const hostel_admin = await Hostel.findById({
+      _id: `${apply?.applicationHostel}`,
+    });
+    hostel_admin.export_collection.push({
+      excel_file: results,
+      excel_file_name: name,
+    });
+    hostel_admin.export_collection_count += 1;
+    await hostel_admin.save();
+    return {
+      back: true,
+    };
   } catch (e) {
     console.log(e);
   }

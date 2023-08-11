@@ -6883,3 +6883,98 @@ exports.renderApplicationAutoQRCodeQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderAllExportExcelArrayQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ads_admin = await Hostel.findById({ _id: hid }).select(
+      "export_collection"
+    );
+
+    var all_excel = await nested_document_limit(
+      page,
+      limit,
+      ads_admin?.export_collection.reverse()
+    );
+    if (all_excel?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Exported Excel",
+        access: true,
+        all_excel: all_excel,
+        count: ads_admin?.export_collection?.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Exported Excel Available",
+        access: false,
+        all_excel: [],
+        count: 0,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderEditOneExcel = async (req, res) => {
+  try {
+    const { hid, exid } = req.params;
+    const { excel_file_name } = req.body;
+    if (!hid && !exid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ads_admin = await Hostel.findById({ _id: hid }).select(
+      "export_collection"
+    );
+    for (var exe of ads_admin?.export_collection) {
+      if (`${exe?._id}` === `${exid}`) {
+        exe.excel_file_name = excel_file_name;
+      }
+    }
+    await ads_admin.save();
+    res.status(200).send({
+      message: "Exported Excel Updated",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDeleteOneExcel = async (req, res) => {
+  try {
+    const { hid, exid } = req.params;
+    if (!hid && !exid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ads_admin = await Hostel.findById({ _id: hid }).select(
+      "export_collection export_collection_count"
+    );
+    for (var exe of ads_admin?.export_collection) {
+      if (`${exe?._id}` === `${exid}`) {
+        ads_admin?.export_collection.pull(exid);
+        if (ads_admin?.export_collection_count > 0) {
+          ads_admin.export_collection_count -= 1;
+        }
+      }
+    }
+    await ads_admin.save();
+    res.status(200).send({
+      message: "Exported Excel Deletion Operation Completed",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

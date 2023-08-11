@@ -82,5 +82,10 @@ router.get(
   catchAsync(Filter.renderApplicationFilterByDateCollectionQuery)
 );
 
+router.patch(
+  "/application/export/:appId",
+  catchAsync(Filter.renderHostelApplicationListQuery)
+);
+
 // router.get('/filter/by/date/funds',isLoggedIn, catchAsync(Filter.filterByDateFunds))
 module.exports = router;

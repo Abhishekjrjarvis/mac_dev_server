@@ -2026,7 +2026,7 @@ exports.renderAllClassMatesQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender user"
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender user studentROLLNO studentGRNO"
       )
       .populate({
         path: "user",

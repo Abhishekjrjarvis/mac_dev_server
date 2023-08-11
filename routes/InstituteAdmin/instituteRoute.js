@@ -237,6 +237,11 @@ router.patch(
   catchAsync(Institute.retrieveCertificateApproveStudentListFilterQuery)
 );
 
+router.patch(
+  "/:id/approve-student/id/card/list/filter/query/:fid",
+  catchAsync(Institute.retrieveIDCardApproveStudentListFilterQuery)
+);
+
 router.get(
   "/:id/unapprove-student/list/query",
   catchAsync(Institute.retrieveUnApproveStudentListQuery)

@@ -307,4 +307,19 @@ router.patch(
   catchAsync(Hostel.renderApplicationAutoQRCodeQuery)
 );
 
+router.get(
+  "/:hid/all/export/excel/array",
+  catchAsync(Hostel.renderAllExportExcelArrayQuery)
+);
+
+router.patch(
+  "/:hid/export/excel/:exid/edit",
+  catchAsync(Hostel.renderEditOneExcel)
+);
+
+router.delete(
+  "/:hid/export/excel/:exid/destroy/query",
+  catchAsync(Hostel.renderDeleteOneExcel)
+);
+
 module.exports = router;

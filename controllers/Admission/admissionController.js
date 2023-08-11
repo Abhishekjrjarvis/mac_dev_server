@@ -9119,7 +9119,18 @@ exports.renderPendingCustomFilterQuery = async (req, res) => {
           ...ads_admin?.pending_all_student_fee_cert_custom_filter,
         },
       };
-    } else {
+    } 
+    else if (flow === "Id_Card_Section_Filter") {
+      var ads_admin = await FinanceModerator.findById({ _id: aid }).select(
+        "pending_all_student_fee_id_card_custom_filter"
+      );
+      var dynamic = {
+        pending_fee_custom_filter: {
+          ...ads_admin?.pending_all_student_fee_id_card_custom_filter,
+        },
+      };
+    }
+    else {
       var dynamic = "" || null
     }
 

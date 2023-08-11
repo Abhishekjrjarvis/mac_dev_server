@@ -674,6 +674,9 @@ const studentSchema = new mongoose.Schema({
   student_final_sem_obtained_points: {
     type: String,
   },
+  student_hostel_cpi: {
+    type: String,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

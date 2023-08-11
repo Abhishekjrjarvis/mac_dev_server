@@ -31,6 +31,17 @@ const financeModeratorSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Hostel",
   },
+  pending_all_student_fee_custom_filter: {
+    gender: {
+      type: String,
+    },
+    cast_category: {
+      type: String,
+    },
+    department: [],
+    batch: [],
+    master: [],
+  },
 });
 
 module.exports = mongoose.model("FinanceModerator", financeModeratorSchema);

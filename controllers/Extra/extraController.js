@@ -75,6 +75,7 @@ const {
 } = require("../../helper/dayTimer");
 const unlinkFile = util.promisify(fs.unlink);
 const Notification = require("../../models/notification");
+const RemainingList = require("../../models/Admission/RemainingList");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -2106,10 +2107,11 @@ exports.renderFilteredMessageQuery = async (req, res) => {
 };
 
 exports.renderBirthdaySurpriseQuery = async (req, res) => {
-  // const all_depart = await Department.find({});
+  // const all_depart = await RemainingList.find({});
   // for (var val of all_depart) {
-  //   val.ug_undertakings_admission = false;
-  //   val.pg_undertakings_admission = false;
+  //   val.applicable_fees_pending = 0;
+  //   // val.ug_undertakings_admission = false;
+  //   // val.pg_undertakings_admission = false;
   //   await val.save();
   // }
   // res.status(200).send({ message: "Updated" });

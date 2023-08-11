@@ -230,6 +230,17 @@ const admissionAdminSchema = new mongoose.Schema({
     batch: [],
     master: [],
   },
+  pending_all_student_fee_custom_filter: {
+    gender: {
+      type: String,
+    },
+    cast_category: {
+      type: String,
+    },
+    department: [],
+    batch: [],
+    master: [],
+  },
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

@@ -3968,7 +3968,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       ],
     })
       .select(
-        "applicable_fee scholar_ship_number card_type remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
+        "applicable_fee scholar_ship_number card_type applicable_fees_pending remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
       )
       .populate({
         path: "appId",
@@ -4034,7 +4034,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       ],
     })
       .select(
-        "applicable_fee scholar_ship_number card_type remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
+        "applicable_fee scholar_ship_number card_type applicable_fees_pending remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
       )
       .populate({
         path: "appId",
@@ -4109,6 +4109,9 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         ref.button_status = "Collect As Scholarship";
       } else {
       }
+      ref.applicable_fees_pending += ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0
+      ? ref?.fee_structure?.applicable_fees - ref?.paid_fee
+      : 0
     }
     for (var ref of valid_remain) {
       ref.setOffPrice = count;

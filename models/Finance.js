@@ -481,6 +481,17 @@ const financeSchema = new mongoose.Schema(
       },
       status: { type: String, default: "Not Assigned" },
     },
+    pending_all_student_fee_custom_filter: {
+      gender: {
+        type: String,
+      },
+      cast_category: {
+        type: String,
+      },
+      department: [],
+      batch: [],
+      master: [],
+    },
   },
   { timestamps: true }
 );

@@ -50,6 +50,7 @@ const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure")
 const { applicable_pending_calc } = require("../../Functions/SetOff");
 const { send_phone_login_query } = require("../../helper/functions");
 const { nested_document_limit } = require("../../helper/databaseFunction");
+const Chapter = require("../../models/Academics/Chapter");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -4166,22 +4167,53 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
         access: false,
       });
 
-    var one_subject = await Subject.findById({ _id: sid }).select(
-      "subjectName subjectStatus subjectTitle tutorial_analytic lecture_analytic practical_analytic chapter_count topic_count_bifurgate createdAt"
-    );
+    var count = 0;
+    var one_subject = await Subject.findById({ _id: sid })
+      .select(
+        "subjectName subjectStatus subjectTitle tutorial_analytic lecture_analytic practical_analytic chapter_count topic_count_bifurgate createdAt"
+      )
+      .populate({
+        path: "chapter",
+        select: "topic_count",
+      });
 
+    for (var ref of one_subject?.chapter) {
+      count += ref?.topic_count;
+    }
+    var academic_count =
+      one_subject?.topic_count_bifurgate?.early +
+      one_subject?.topic_count_bifurgate?.timely +
+      one_subject?.topic_count_bifurgate?.delayed;
     res.status(200).send({
       message: "Explore One Subject Profile Query",
       access: true,
       one_subject: one_subject,
-      lecture_percentage: "0%",
-      practical_percentage: "0%",
-      tutorial_percentage: "0%",
+      lecture_percentage: `${(
+        (one_subject?.lecture_analytic?.lecture_complete * 100) /
+        one_subject?.lecture_analytic?.lecture_count
+      ).toFixed(2)}%`,
+      practical_percentage: `${(
+        (one_subject?.practical_analytic?.practical_complete * 100) /
+        one_subject?.practical_analytic?.practical_count
+      ).toFixed(2)}%`,
+      tutorial_percentage: `${(
+        (one_subject?.tutorial_analytic?.tutorial_complete * 100) /
+        one_subject?.tutorial_analytic?.tutorial_count
+      ).toFixed(2)}%`,
       academic_performance: {
-        academic_percentage: "0%",
-        early_percentage: "0%",
-        timely_percenatge: "0%",
-        delayed_percentage: "0%",
+        academic_percentage: `${((academic_count * 100) / count).toFixed(2)}%`,
+        early_percentage: `${(
+          (one_subject?.topic_count_bifurgate?.early * 100) /
+          count
+        ).toFixed(2)}%`,
+        timely_percenatge: `${(
+          (one_subject?.topic_count_bifurgate?.timely * 100) /
+          count
+        ).toFixed(2)}%`,
+        delayed_percentage: `${(
+          (one_subject?.topic_count_bifurgate?.delayed * 100) /
+          count
+        ).toFixed(2)}%`,
       },
     });
   } catch (e) {

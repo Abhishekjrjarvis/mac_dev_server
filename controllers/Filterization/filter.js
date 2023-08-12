@@ -1881,57 +1881,65 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
         populate: {
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
         },
       });
 
     var valid_unit = await HostelUnit.findById({
       _id: valid_apply?.applicationUnit,
     }).select("hostel_unit_name");
-    
-    if(valid_apply?.receievedApplication?.length > 0){
-    var excel_list = [];
-    for (var ref of valid_apply?.receievedApplication) {
-      excel_list.push({
-        RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-        Name: `${ref?.student?.studentFirstName} ${
-          ref?.student?.studentMiddleName ? ref?.student?.studentMiddleName : ""
-        } ${ref?.student?.studentLastName}`,
-        DOB: ref?.student?.studentDOB ?? "#NA",
-        Gender: ref?.student?.studentGender ?? "#NA",
-        CPI: ref?.student?.student_hostel_cpi ?? "#NA",
-        Caste: ref?.student?.studentCastCategory ?? "#NA",
-        Religion: ref?.student?.studentReligion ?? "#NA",
-        MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
-        ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
-        Address: `${ref?.student?.studentAddress}` ?? "#NA",
-        AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
-      });
-    }
-    var valid_back = await json_to_excel_hostel_application_query(
-      excel_list,
-      valid_apply?.applicationName,
-      valid_unit?.hostel_unit_name,
-      appId
-    );
-    if (valid_back?.back) {
-      res.status(200).send({
-        message: "Explore New Excel On Hostel Export TAB",
-        access: true,
-      });
+
+    if (valid_apply?.receievedApplication?.length > 0) {
+      var excel_list = [];
+      for (var ref of valid_apply?.receievedApplication) {
+        excel_list.push({
+          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+          Name: `${ref?.student?.studentFirstName} ${
+            ref?.student?.studentMiddleName
+              ? ref?.student?.studentMiddleName
+              : ""
+          } ${ref?.student?.studentLastName}`,
+          DOB: ref?.student?.studentDOB ?? "#NA",
+          Gender: ref?.student?.studentGender ?? "#NA",
+          CPI: ref?.student?.student_hostel_cpi ?? "#NA",
+          Programme: ref?.student?.student_programme ?? "#NA",
+          Branch: ref?.student?.student_branch ?? "#NA",
+          Year: ref?.student?.student_year ?? "#NA",
+          SingleSeaterRoom: ref?.student?.student_single_seater_room ?? "#NA",
+          PhysicallyHandicapped: ref?.student?.student_ph ?? "#NA",
+          Caste: ref?.student?.studentCastCategory ?? "#NA",
+          Religion: ref?.student?.studentReligion ?? "#NA",
+          MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+          Address: `${ref?.student?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+          ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+        });
+      }
+      var valid_back = await json_to_excel_hostel_application_query(
+        excel_list,
+        valid_apply?.applicationName,
+        valid_unit?.hostel_unit_name,
+        appId
+      );
+      if (valid_back?.back) {
+        res.status(200).send({
+          message: "Explore New Excel On Hostel Export TAB",
+          access: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No New Excel Exports ",
+          access: false,
+        });
+      }
     } else {
       res.status(200).send({
-        message: "No New Excel Exports ",
+        message: "No Applications Found",
         access: false,
       });
     }
-  }
-  else{
-    res.status(200).send({
-      message: "No Applications Found",
-      access: false,
-    });
-  }
   } catch (e) {
     console.log(e);
   }

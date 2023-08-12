@@ -677,6 +677,21 @@ const studentSchema = new mongoose.Schema({
   student_hostel_cpi: {
     type: String,
   },
+  student_programme: {
+    type: String,
+  },
+  student_branch: {
+    type: String,
+  },
+  student_year: {
+    type: String,
+  },
+  student_single_seater_room: {
+    type: String,
+  },
+  student_ph: {
+    type: String,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

@@ -889,6 +889,16 @@ const instituteAdminSchema = new mongoose.Schema({
       default: "Index No.",
     },
   },
+  merchant_options: {
+    razor_pay: {
+      type: Boolean,
+      default: true,
+    },
+    paytm: {
+      type: Boolean,
+      default: true,
+    },
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

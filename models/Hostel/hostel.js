@@ -236,6 +236,28 @@ const hostelSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  batches: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
+    },
+  ],
+  departmentSelectBatch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch",
+  },
+  batchCount: {
+    type: Number,
+    default: 0,
+  },
+  ug_undertakings_hostel_admission: {
+    type: Boolean,
+    default: false,
+  },
+  pg_undertakings_hostel_admission: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("Hostel", hostelSchema);

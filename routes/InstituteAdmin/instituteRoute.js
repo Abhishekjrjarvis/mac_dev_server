@@ -618,4 +618,9 @@ router.get(
   catchAsync(Institute.retrieveOneSubjectQuery)
 );
 
+router.patch(
+  "/:id/select/merchant/query",
+  catchAsync(Institute.renderSelectMerchantQuery)
+);
+
 module.exports = router;

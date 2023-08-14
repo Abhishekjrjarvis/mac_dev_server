@@ -177,7 +177,7 @@ exports.renderHostelDashQuery = async (req, res) => {
 
     const one_hostel = await Hostel.findById({ _id: hid })
       .select(
-        "created_at moderator_role moderator_role_count fees_structures_count onlineFee offlineFee exemptAmount requested_status remainingFeeCount collected_fee hostel_unit_count hostel_photo hostel_wardens_count boy_count girl_count other_count bed_count room_count"
+        "created_at moderator_role moderator_role_count fees_structures_count batchCount departmentSelectBatch ug_undertakings_hostel_admission pg_undertakings_hostel_admission onlineFee offlineFee exemptAmount requested_status remainingFeeCount collected_fee hostel_unit_count hostel_photo hostel_wardens_count boy_count girl_count other_count bed_count room_count"
       )
       .populate({
         path: "hostel_manager",
@@ -535,7 +535,7 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
       var all_structures = await FeeStructure.find({
         $and: [
           { _id: { $in: one_hostel?.fees_structures } },
-          { class_master: master_query },
+          { batch_master: master_query },
           { document_update: false },
         ],
       })
@@ -1014,7 +1014,7 @@ exports.renderHostelAllApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationStatus applicationSeats applicationAbout admissionProcess application_type"
+        "applicationName applicationEndDate applicationStatus applicationSeats applicationAbout admissionProcess application_type selectCount confirmCount receievedCount selectedApplication confirmedApplication receievedApplication"
       )
       .populate({
         path: "applicationHostel",
@@ -1029,6 +1029,11 @@ exports.renderHostelAllApplication = async (req, res) => {
       });
 
     if (ongoing?.length > 0) {
+      for (var ref of ongoing) {
+        ref.selectCount = ref?.selectedApplication?.length;
+        ref.confirmCount = ref?.confirmedApplication?.length;
+        ref.receievedCount = ref?.receievedApplication?.length;
+      }
       res.status(200).send({
         message: "All Ongoing Hostel Application from DB 🙌",
         ongoing: ongoing,
@@ -1203,7 +1208,7 @@ exports.renderOneHostelApplicationQuery = async (req, res) => {
         select: "_id",
         populate: {
           path: "institute",
-          select: "id",
+          select: "id insProfilePhoto name insName",
         },
       })
       .lean()
@@ -6973,6 +6978,111 @@ exports.renderDeleteOneExcel = async (req, res) => {
     res.status(200).send({
       message: "Exported Excel Deletion Operation Completed",
       access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewBatchQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const one_hostel = await Hostel.findById({ _id: hid });
+    const institute = await InstituteAdmin.findById({
+      _id: `${one_hostel?.institute}`,
+    });
+    const batch = new Batch({ ...req.body });
+    one_hostel.batches.push(batch);
+    one_hostel.batchCount += 1;
+    batch.hostel = one_hostel?._id;
+    institute.batches.push(batch._id);
+    batch.institute = institute?._id;
+    await Promise.all([one_hostel.save(), batch.save(), institute.save()]);
+    res.status(200).send({
+      message: "Explore New Batch Query",
+      batch: batch._id,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllBatchQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const one_hostel = await Hostel.findById({ _id: hid }).select(
+      "departmentSelectBatch batches"
+    );
+
+    var all_batches = await Batch.find({ _id: { $in: one_hostel?.batches } })
+      .limit(limit)
+      .skip(skip)
+      .select("batchName batchStatus createdAt");
+
+    if (all_batches?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Batches Query",
+        access: true,
+        all_batches: all_batches,
+        select_batch: one_hostel?.departmentSelectBatch,
+      });
+    } else {
+      res.status(200).send({
+        message: "No All Batches Query",
+        all_batches: [],
+        access: false,
+        select_batch: null || "",
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderCurrentSelectBatchQuery = async (req, res) => {
+  try {
+    const { hid, bid } = req.params;
+    if (!hid && !bid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+    const valid_hostel = await Hostel.findById({ _id: hid });
+    var valid_active_batch = await handle_undefined(
+      valid_hostel?.departmentSelectBatch
+    );
+    if (valid_active_batch) {
+      var prev_batches = await Batch.findById({
+        _id: valid_hostel.departmentSelectBatch,
+      });
+      prev_batches.activeBatch = "Not Active";
+      await prev_batches.save();
+    }
+    const batches = await Batch.findById({ _id: bid });
+    valid_hostel.departmentSelectBatch = batches._id;
+    valid_hostel.userBatch = batches._id;
+    batches.activeBatch = "Active";
+    await Promise.all([valid_hostel.save(), batches.save()]);
+    res.status(200).send({
+      message: "Explore Selected Batch Detail Query",
+      batches: batches._id,
+      valid_hostel: valid_hostel?.departmentSelectBatch,
     });
   } catch (e) {
     console.log(e);

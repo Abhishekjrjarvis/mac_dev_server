@@ -322,4 +322,13 @@ router.delete(
   catchAsync(Hostel.renderDeleteOneExcel)
 );
 
+router.post("/:hid/new/batch/query", catchAsync(Hostel.renderNewBatchQuery));
+
+router.get("/:hid/all/batch/query", catchAsync(Hostel.renderAllBatchQuery));
+
+router.post(
+  "/:hid/batch-select/:bid",
+  catchAsync(Hostel.renderCurrentSelectBatchQuery)
+);
+
 module.exports = router;

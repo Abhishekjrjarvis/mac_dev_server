@@ -59,7 +59,7 @@ exports.getDashOneQuery = async (req, res) => {
     const { id } = req.params;
     const { mod_id } = req.query;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId blockStatus profile_modification random_institute_code alias_pronounciation affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus"
+      "insName name insAbout photoId blockStatus profile_modification random_institute_code merchant_options alias_pronounciation affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus"
     );
     // const encrypt = await encryptionPayload(institute);
     if (req?.query?.mod_id) {
@@ -85,7 +85,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto hostelDepart insEditableText_one insEditableText_two profile_modification alias_pronounciation affliatedLogo random_institute_code last_login gr_initials online_amount_edit_access sub_domain_link_up_status application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by block_institute blockedBy"
+        "insName status photoId insProfilePhoto hostelDepart insEditableText_one insEditableText_two profile_modification merchant_options alias_pronounciation affliatedLogo random_institute_code last_login gr_initials online_amount_edit_access sub_domain_link_up_status application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by block_institute blockedBy"
       )
       .populate({
         path: "request_at",
@@ -2755,7 +2755,8 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
       id_card_sec.pending_all_student_fee_id_card_custom_filter.cast_category =
         cast_category
           ? cast_category
-          : id_card_sec.pending_all_student_fee_id_card_custom_filter.cast_category;
+          : id_card_sec.pending_all_student_fee_id_card_custom_filter
+              .cast_category;
       id_card_sec.pending_all_student_fee_id_card_custom_filter.gender = gender
         ? gender
         : id_card_sec.pending_all_student_fee_id_card_custom_filter.gender;
@@ -2767,7 +2768,9 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
             )
           ) {
           } else {
-            id_card_sec.pending_all_student_fee_id_card_custom_filter.master.push(val);
+            id_card_sec.pending_all_student_fee_id_card_custom_filter.master.push(
+              val
+            );
           }
         }
       }
@@ -2779,7 +2782,9 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
             )
           ) {
           } else {
-            id_card_sec.pending_all_student_fee_id_card_custom_filter.batch.push(val);
+            id_card_sec.pending_all_student_fee_id_card_custom_filter.batch.push(
+              val
+            );
           }
         }
       }
@@ -2798,11 +2803,13 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
         }
       }
       if (`${filter_by}` === "Clear_All") {
-        id_card_sec.pending_all_student_fee_id_card_custom_filter.cast_category = null;
+        id_card_sec.pending_all_student_fee_id_card_custom_filter.cast_category =
+          null;
         id_card_sec.pending_all_student_fee_id_card_custom_filter.gender = null;
         id_card_sec.pending_all_student_fee_id_card_custom_filter.master = [];
         id_card_sec.pending_all_student_fee_id_card_custom_filter.batch = [];
-        id_card_sec.pending_all_student_fee_id_card_custom_filter.department = [];
+        id_card_sec.pending_all_student_fee_id_card_custom_filter.department =
+          [];
       }
       await id_card_sec.save();
       if (studentIns) {
@@ -5420,6 +5427,38 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
         ).toFixed(2)}`,
       },
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderSelectMerchantQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { razor, paytm } = req.query;
+    if (!id)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+
+    var valid_institute = await InstituteAdmin.findById({ _id: id }).select(
+      "merchant_options"
+    );
+
+    valid_institute.merchant_options.razor_pay = razor
+      ? razor
+      : valid_institute?.merchant_options?.razor_pay;
+    valid_institute.merchant_options.paytm = paytm
+      ? paytm
+      : valid_institute?.merchant_options?.paytm;
+
+    await valid_institute.save();
+    res
+      .status(200)
+      .send({ message: "Explore New Merchant Query", access: true });
   } catch (e) {
     console.log(e);
   }

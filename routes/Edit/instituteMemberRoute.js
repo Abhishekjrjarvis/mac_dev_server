@@ -35,4 +35,8 @@ router
   .patch(isLoggedIn, catchAsync(instituteMember.subjectEdit))
   .delete(isLoggedIn, catchAsync(instituteMember.subjectDelete));
 
+router
+  .route("/hostel/batch/:bid")
+  .delete(catchAsync(instituteMember.renderHostelbatchDelete));
+
 module.exports = router;

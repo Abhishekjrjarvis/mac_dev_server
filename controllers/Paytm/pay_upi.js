@@ -92,7 +92,7 @@ exports.initiate = async (req, res) => {
           ? [
               {
                 mode: "UPI",
-                // channels: ["UPIPUSH"],
+                channels: ["UPIPUSH"],
               },
             ]
           : [],

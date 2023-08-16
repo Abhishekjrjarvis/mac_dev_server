@@ -3488,6 +3488,45 @@ exports.renderOneFeeReceipt = async (req, res) => {
         },
       })
       .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number",
+        populate: {
+          path: "student_bed_number",
+          select: "bed_number hostelRoom",
+          populate: {
+            path: "hostelRoom",
+            select: "room_name hostelUnit",
+            populate: {
+              path: "hostelUnit",
+              select: "hostel_unit_name",
+            },
+          },
+        },
+      })
+      .populate({
+        path: "application",
+        select: "applicationName applicationDepartment applicationHostel",
+        populate: {
+          path: "hostelAdmin",
+          select: "_id institute",
+          populate: {
+            path: "institute",
+            select:
+              "insName name insAddress insPhoneNumber insEmail insState insDistrict insProfilePhoto photoId affliatedLogo",
+            populate: {
+              path: "displayPersonList",
+              select: "displayTitle",
+              populate: {
+                path: "displayUser displayStaff",
+                select:
+                  "userLegalName staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
+              },
+            },
+          },
+        },
+      })
+      .populate({
         path: "order_history",
       })
       .populate({

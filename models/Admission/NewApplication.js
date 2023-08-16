@@ -157,57 +157,6 @@ const newApplicationSchema = new mongoose.Schema({
   app_qr_code: {
     type: String,
   },
-  filter_request_collection: [
-    {
-      date: {
-        type: Date,
-      },
-      request_count: {
-        type: Number,
-        default: 0,
-      },
-      select_count: {
-        type: Number,
-        default: 0,
-      },
-      confirm_count: {
-        type: Number,
-        default: 0,
-      },
-      allot_count: {
-        type: Number,
-        default: 0,
-      },
-      cancel_count: {
-        type: Number,
-        default: 0,
-      },
-      paid_collection: {
-        type: Number,
-        default: 0,
-      },
-      pending_collection: {
-        type: Number,
-        default: 0,
-      },
-      paid_collection_query: [
-        {
-          student: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Student",
-          },
-          price: {
-            type: Number,
-            default: 0,
-          },
-        },
-      ],
-      paid_collection_query_count: {
-        type: Number,
-        default: 0,
-      },
-    },
-  ],
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

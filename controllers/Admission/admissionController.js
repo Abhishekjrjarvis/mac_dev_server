@@ -5771,6 +5771,7 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
     const status = await Status.find({
       $and: [{ applicationId: apply?._id }, { structure_edited: "Edited"}, { studentId: `${student?._id}`}],
     });
+    // console.log(status)
     var flag = false;
     if (remain_list) {
       for (var ref of remain_list?.remaining_array) {

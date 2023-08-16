@@ -3505,6 +3505,15 @@ exports.renderOneFeeReceipt = async (req, res) => {
         },
       })
       .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_unit",
+        populate: {
+          path: "student_unit",
+          select: "hostel_unit_name ",
+        },
+      })
+      .populate({
         path: "application",
         select: "applicationName applicationDepartment applicationHostel",
         populate: {

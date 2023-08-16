@@ -1926,15 +1926,15 @@ exports.renderAllotHostedBedQuery = async (req, res) => {
       for (var sid of array) {
         const student = await Student.findById({ _id: sid });
         const bed = new HostelBed({});
-        const remain_list = await RemainingList.findOne({
-          $and: [
-            { _id: { $in: student?.remainingFeeList } },
-            { appId: apply?._id },
-            {
-              remaining_flow: "Hostel Application",
-            },
-          ],
-        });
+        // const remain_list = await RemainingList.findOne({
+        //   $and: [
+        //     { _id: { $in: student?.remainingFeeList } },
+        //     { appId: apply?._id },
+        //     {
+        //       remaining_flow: "Hostel Application",
+        //     },
+        //   ],
+        // });
         const user = await User.findById({ _id: `${student.user}` });
         var exist_stu = await Student.find({
           $and: [{ institute: institute?._id }, { user: user?._id }],
@@ -2002,7 +2002,7 @@ exports.renderAllotHostedBedQuery = async (req, res) => {
           aStatus.save(),
           institute.save(),
           notify.save(),
-          remain_list.save(),
+          // remain_list.save(),
           room.save(),
           bed.save(),
           one_hostel.save(),

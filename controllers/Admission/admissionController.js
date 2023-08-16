@@ -771,7 +771,7 @@ exports.fetchAllRequestApplication = async (req, res) => {
     if (search) {
       const filter_request = [];
       var apply = await NewApplication.findById({ _id: aid })
-        .select("receievedCount")
+        .select("receievedCount receievedApplication")
         .populate({
           path: "receievedApplication",
           populate: {
@@ -796,7 +796,7 @@ exports.fetchAllRequestApplication = async (req, res) => {
         // const requestEncrypt = await encryptionPayload(apply);
         res.status(200).send({
           message: "find difficulties with easy search ",
-          request: filter_request,
+          request: filter_request?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -806,7 +806,7 @@ exports.fetchAllRequestApplication = async (req, res) => {
       }
     } else {
       var apply = await NewApplication.findById({ _id: aid })
-        .select("receievedCount")
+        .select("receievedCount receievedApplication")
         .populate({
           path: "receievedApplication",
           populate: {
@@ -829,7 +829,7 @@ exports.fetchAllRequestApplication = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Request arrived make sure you come up with Tea and Snack from DB 🙌",
-          request: all_request_query,
+          request: all_request_query?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -884,7 +884,7 @@ exports.fetchAllSelectApplication = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Selection required make sure you come up with Tea and Snack from DB 🙌",
-          select: filter_select,
+          select: filter_select?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -922,7 +922,7 @@ exports.fetchAllSelectApplication = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Selection required make sure you come up with Tea and Snack from DB 🙌",
-          select: all_select_query,
+          select: all_select_query?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -977,7 +977,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Confirmation and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          confirm: filter_confirm,
+          confirm: filter_confirm?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -1015,7 +1015,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Confirmation and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          confirm: all_confirm_query,
+          confirm: all_confirm_query?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -1065,7 +1065,7 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Confirmation and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          confirm: filter_confirm,
+          confirm: filter_confirm?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -1093,7 +1093,7 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Confirmation and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          confirm: apply.confirmedApplication,
+          confirm: apply.confirmedApplication?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -1151,7 +1151,7 @@ exports.fetchAllAllotApplication = async (req, res) => {
       if (filter_allot?.length > 0) {
         res.status(200).send({
           message: "Lots of Allotted Application from DB 😥",
-          allot: filter_allot,
+          allot: filter_allot?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -1192,7 +1192,7 @@ exports.fetchAllAllotApplication = async (req, res) => {
         res.status(200).send({
           message: "Lots of Allotted Application from DB 😥",
           // allot: cached.apply,
-          allot: all_allot_query,
+          allot: all_allot_query?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -1246,7 +1246,7 @@ exports.fetchAllCancelApplication = async (req, res) => {
       if (filter_cancel?.length > 0) {
         res.status(200).send({
           message: "Lots of Cancel Application from DB 😂😂",
-          cancel: filter_cancel,
+          cancel: filter_cancel?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -1283,7 +1283,7 @@ exports.fetchAllCancelApplication = async (req, res) => {
         res.status(200).send({
           message: "Lots of Cancel Application from DB 😂😂",
           // cancel: cached.apply,
-          cancel: all_cancel_query,
+          cancel: all_cancel_query?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -5769,7 +5769,11 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
     });
     const structure = await FeeStructure.findById({ _id: fee_struct });
     const status = await Status.find({
-      $and: [{ applicationId: apply?._id }, { structure_edited: "Edited"}, { studentId: `${student?._id}`}],
+      $and: [
+        { applicationId: apply?._id },
+        { structure_edited: "Edited" },
+        { studentId: `${student?._id}` },
+      ],
     });
     // console.log(status)
     var flag = false;
@@ -5794,10 +5798,10 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
           app.fee_remain = structure.total_admission_fees;
         }
       }
-      for(var ref of status){
+      for (var ref of status) {
         ref.admissionFee = structure.total_admission_fees;
         ref.feeStructure = structure?._id;
-        await ref.save()
+        await ref.save();
       }
       student.fee_structure = structure?._id;
       await Promise.all([apply.save(), student.save()]);

@@ -220,7 +220,7 @@ exports.renderHostelFormQuery = async (req, res) => {
       });
 
     const one_hostel = await Hostel.findById({ _id: hid }).select(
-      "student_form_query"
+      "student_form_query ug_undertakings_hostel_admission pg_undertakings_hostel_admission"
     );
     res.status(200).send({
       message: "Explore One Hostel Form Query",

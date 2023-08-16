@@ -822,14 +822,14 @@ exports.fetchAllRequestApplication = async (req, res) => {
       var all_request_query = nested_document_limit(
         page,
         limit,
-        apply?.receievedApplication
+        apply?.receievedApplication?.reverse()
       );
       if (all_request_query?.length > 0) {
         // const requestEncrypt = await encryptionPayload(apply);
         res.status(200).send({
           message:
             "Lots of Request arrived make sure you come up with Tea and Snack from DB 🙌",
-          request: all_request_query?.reverse(),
+          request: all_request_query,
         });
       } else {
         res.status(200).send({
@@ -915,14 +915,14 @@ exports.fetchAllSelectApplication = async (req, res) => {
       var all_select_query = nested_document_limit(
         page,
         limit,
-        apply?.selectedApplication
+        apply?.selectedApplication?.reverse()
       );
       if (all_select_query?.length > 0) {
         // const selectEncrypt = await encryptionPayload(apply);
         res.status(200).send({
           message:
             "Lots of Selection required make sure you come up with Tea and Snack from DB 🙌",
-          select: all_select_query?.reverse(),
+          select: all_select_query,
         });
       } else {
         res.status(200).send({
@@ -1008,14 +1008,14 @@ exports.fetchAllConfirmApplication = async (req, res) => {
       var all_confirm_query = nested_document_limit(
         page,
         limit,
-        apply?.confirmedApplication
+        apply?.confirmedApplication?.reverse()
       );
       if (all_confirm_query?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);
         res.status(200).send({
           message:
             "Lots of Confirmation and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          confirm: all_confirm_query?.reverse(),
+          confirm: all_confirm_query,
         });
       } else {
         res.status(200).send({
@@ -1181,7 +1181,7 @@ exports.fetchAllAllotApplication = async (req, res) => {
       var all_allot_query = nested_document_limit(
         page,
         limit,
-        apply?.allottedApplication
+        apply?.allottedApplication?.reverse()
       );
       if (all_allot_query?.length > 0) {
         // const allotEncrypt = await encryptionPayload(apply);
@@ -1192,7 +1192,7 @@ exports.fetchAllAllotApplication = async (req, res) => {
         res.status(200).send({
           message: "Lots of Allotted Application from DB 😥",
           // allot: cached.apply,
-          allot: all_allot_query?.reverse(),
+          allot: all_allot_query,
         });
       } else {
         res.status(200).send({
@@ -1272,7 +1272,7 @@ exports.fetchAllCancelApplication = async (req, res) => {
       var all_cancel_query = nested_document_limit(
         page,
         limit,
-        apply?.cancelApplication
+        apply?.cancelApplication?.reverse()
       );
       if (all_cancel_query?.length > 0) {
         // const cancelEncrypt = await encryptionPayload(apply);
@@ -1283,7 +1283,7 @@ exports.fetchAllCancelApplication = async (req, res) => {
         res.status(200).send({
           message: "Lots of Cancel Application from DB 😂😂",
           // cancel: cached.apply,
-          cancel: all_cancel_query?.reverse(),
+          cancel: all_cancel_query,
         });
       } else {
         res.status(200).send({

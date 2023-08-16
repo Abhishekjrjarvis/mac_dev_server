@@ -13,7 +13,8 @@ const order_history_query = async (
   module_type,
   module_id,
   amount_nocharges,
-  to_end_user_id
+  to_end_user_id,
+  txn_id
 ) => {
   try {
     // var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
@@ -28,6 +29,7 @@ const order_history_query = async (
     order_payment.payment_amount = amount_nocharges;
     order_payment.payment_status = "Captured";
     institute.invoice_count += 1;
+    order_payment.razorpay_payment_id = `${txn_id}`;
     order_payment.payment_invoice_number = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
@@ -90,7 +92,7 @@ exports.initiate = async (req, res) => {
           ? [
               {
                 mode: "UPI",
-                channels: ["UPIPUSH"],
+                // channels: ["UPIPUSH"],
               },
             ]
           : [],
@@ -189,12 +191,14 @@ exports.callback = async (req, res) => {
         post_res.on("end", async function () {
           var status = req?.body?.STATUS;
           var price_charge = req?.body?.TXNAMOUNT;
+          var txn_id = req?.body?.TXNID;
           if (status === "TXN_SUCCESS") {
             var order = await order_history_query(
               "Fees",
               moduleId,
               price,
-              paidTo
+              paidTo,
+              txn_id
             );
             var paytm_author = false;
             await feeInstituteFunction(
@@ -281,12 +285,14 @@ exports.callbackAdmission = async (req, res) => {
         post_res.on("end", async function () {
           var status = req?.body?.STATUS;
           var price_charge = req?.body?.TXNAMOUNT;
+          var txn_id = req?.body?.TXNID;
           if (status === "TXN_SUCCESS") {
             var order = await order_history_query(
               "Admission",
               moduleId,
               price,
-              paidTo
+              paidTo,
+              txn_id
             );
             var paytm_author = false;
             var valid_status = ad_status_id === "null" ? "" : ad_status_id;
@@ -330,12 +336,27 @@ exports.callbackAdmission = async (req, res) => {
 
 exports.callbackStatus = async (req, res) => {
   try {
-    const { moduleId, paidBy, name, paidTo, isApk, price, TXNAMOUNT, STATUS } =
-      req.body;
+    const {
+      moduleId,
+      paidBy,
+      name,
+      paidTo,
+      isApk,
+      price,
+      TXNAMOUNT,
+      STATUS,
+      TXNID,
+    } = req.body;
     var status = STATUS;
     var price_charge = TXNAMOUNT;
     if (status === "TXN_SUCCESS") {
-      var order = await order_history_query("Fees", moduleId, price, paidTo);
+      var order = await order_history_query(
+        "Fees",
+        moduleId,
+        price,
+        paidTo,
+        TXNID
+      );
       var paytm_author = false;
       await feeInstituteFunction(
         order?._id,
@@ -377,6 +398,7 @@ exports.callbackAdmissionStatus = async (req, res) => {
       price,
       TXNAMOUNT,
       STATUS,
+      TXNID,
     } = req.body;
     var status = STATUS;
     var price_charge = TXNAMOUNT;
@@ -385,7 +407,8 @@ exports.callbackAdmissionStatus = async (req, res) => {
         "Admission",
         moduleId,
         price,
-        paidTo
+        paidTo,
+        TXNID
       );
       var paytm_author = false;
       var valid_status = ad_status_id === "null" ? "" : ad_status_id;

@@ -1355,6 +1355,7 @@ Start your admission process by confirming below.`;
     status.finance = finance?._id;
     user.applicationStatus.push(status._id);
     student.active_status.push(status?._id);
+    status.structure_edited = "Edited";
     notify.notifyContent = `You have been selected for ${apply.applicationName}. 
 Your fee structure will be ${structure?.structure_name}. And required documents are 'click here for details'. 
 Start your admission process by confirming below.`;
@@ -4185,6 +4186,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     status.finance = institute?.financeDepart?.[0];
     status.feeStructure = structure?._id;
     status.for_selection = "Yes";
+    status.structure_edited = "Edited";
     status.studentId = student?._id;
     status.student = student?._id;
     status.instituteId = institute._id;
@@ -5766,8 +5768,8 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
       ],
     });
     const structure = await FeeStructure.findById({ _id: fee_struct });
-    const status = await Status.findOne({
-      $and: [{ _id: student?.active_status }, { applicationId: apply?._id }],
+    const status = await Status.find({
+      $and: [{ applicationId: apply?._id }, { structure_edited: "Edited"}, { studentId: `${student?._id}`}],
     });
     var flag = false;
     if (remain_list) {
@@ -5791,10 +5793,13 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
           app.fee_remain = structure.total_admission_fees;
         }
       }
-      status.admissionFee = structure.total_admission_fees;
-      status.feeStructure = structure?._id;
+      for(var ref of status){
+        ref.admissionFee = structure.total_admission_fees;
+        ref.feeStructure = structure?._id;
+        await ref.save()
+      }
       student.fee_structure = structure?._id;
-      await Promise.all([apply.save(), student.save(), status.save()]);
+      await Promise.all([apply.save(), student.save()]);
       res.status(200).send({
         message: `congrats for new fee structure `,
         access: true,
@@ -9119,8 +9124,7 @@ exports.renderPendingCustomFilterQuery = async (req, res) => {
           ...ads_admin?.pending_all_student_fee_cert_custom_filter,
         },
       };
-    } 
-    else if (flow === "Id_Card_Section_Filter") {
+    } else if (flow === "Id_Card_Section_Filter") {
       var ads_admin = await FinanceModerator.findById({ _id: aid }).select(
         "pending_all_student_fee_id_card_custom_filter"
       );
@@ -9129,9 +9133,8 @@ exports.renderPendingCustomFilterQuery = async (req, res) => {
           ...ads_admin?.pending_all_student_fee_id_card_custom_filter,
         },
       };
-    }
-    else {
-      var dynamic = "" || null
+    } else {
+      var dynamic = "" || null;
     }
 
     res.status(200).send({

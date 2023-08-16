@@ -81,6 +81,10 @@ const statusSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeReceipt",
   },
+  structure_edited: {
+    type: String,
+    default: "Not Edited",
+  },
 });
 
 module.exports = mongoose.model("Status", statusSchema);

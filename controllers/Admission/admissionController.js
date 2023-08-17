@@ -2514,12 +2514,18 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
     );
     if (flow === "All_Pending_Fees_Query") {
       if (search) {
-        var depart = await Department.findOne({
-          dName: { $regex: search, $options: "i" },
-        });
-        var batch = await Batch.findOne({
-          batchName: { $regex: search, $options: "i" },
-        });
+        // var depart = await Department.findOne({
+        //   $and: [{ institute: admin_ins?.institute }],
+        //   $or: [
+        //     {
+        //       dName: { $regex: search, $options: "i" },
+        //     },
+        //   ],
+        // });
+        // var batch = await Batch.findOne({
+        //   $and: [{ institute: admin_ins?.institute }],
+        //   $or: [{ batchName: { $regex: search, $options: "i" }}]
+        // });
         var student = await Student.find({
           $and: [{ _id: { $in: admin_ins?.remainingFee } }],
           $or: [
@@ -2530,8 +2536,6 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             { studentCast: { $regex: search, $options: "i" } },
             { studentCastCategory: { $regex: search, $options: "i" } },
             { studentGender: { $regex: search, $options: "i" } },
-            { department: depart?._id },
-            { batches: batch?._id },
           ],
         })
           .sort("-admissionRemainFeeCount")
@@ -2546,6 +2550,16 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             path: "studentClass",
             select: "masterClassName",
           });
+        // if (depart) {
+        //   student = student?.filter((val) => {
+        //     if (`${val?.department?._id}` === `${depart?._id}`) return val;
+        //   });
+        // }
+        // if (batch) {
+        //   student = student?.filter((val) => {
+        //     if (`${val?.batches}` === `${batch?._id}`) return val;
+        //   });
+        // }
         // if (student?.length > 0) {
         var remain_fee = student?.filter((ref) => {
           if (ref?.admissionRemainFeeCount > 0) return ref;

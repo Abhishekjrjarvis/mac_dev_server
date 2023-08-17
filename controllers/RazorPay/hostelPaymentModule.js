@@ -33,7 +33,7 @@ const {
   set_fee_head_query,
   remain_one_time_query,
   update_fee_head_query,
-  lookup_applicable_grant,
+  hostel_lookup_applicable_grant,
 } = require("../../Functions/hostelInstallment");
 const Hostel = require("../../models/Hostel/hostel");
 const Renewal = require("../../models/Hostel/renewal");
@@ -350,13 +350,14 @@ exports.hostelInstituteFunction = async (
       await render_installment(
         type,
         student,
-        apply,
         "Online",
         parseInt(tx_amount_ad),
         one_hostel,
         student?.hostel_fee_structure,
         remaining_fee_lists,
-        new_receipt
+        new_receipt,
+        apply,
+        ins
       );
       remaining_fee_lists.paid_fee += parseInt(tx_amount_ad);
       if (remaining_fee_lists.remaining_fee >= parseInt(tx_amount_ad)) {
@@ -398,7 +399,7 @@ exports.hostelInstituteFunction = async (
         apply,
         new_receipt
       );
-      await lookup_applicable_grant(
+      await hostel_lookup_applicable_grant(
         new_receipt?.fee_payment_mode,
         parseInt(tx_amount_ad),
         remaining_fee_lists,

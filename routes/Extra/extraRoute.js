@@ -307,4 +307,6 @@ router.patch("/status/:qid/query", catchAsync(Extra.renderOneQueryStatus));
 
 router.get("/all/:id/query", catchAsync(Extra.renderAllInternalQuery));
 
+router.get("/profile/upload/query", catchAsync(Extra.renderProfileUploadQuery));
+
 module.exports = router;

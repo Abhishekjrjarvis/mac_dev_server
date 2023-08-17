@@ -2263,3 +2263,34 @@ exports.renderAllInternalQuery = async(req, res) => {
     console.log(e)
   }
 }
+
+exports.renderProfileUploadQuery = async(req, res) => {
+  try{
+    const { suid, role } = req.query
+    const file = req?.file
+    if(!suid && !role) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    if(role === "ONLY_USER"){
+      const valid_user = await User.findById({ _id: suid })
+      const profile = await uploadDocsFile(file)
+      valid_user.profilePhoto = profile?.Key
+      await valid_user.save()
+      res.status(200).send({ message: "Explore New User Profile", access: true})
+    }
+    else if(role === "USER_AND_STUDENT"){
+      const valid_student = await Student.findById({ _id: suid })
+      const valid_user = await User.findById({ _id: `${valid_student?.user}` })
+      const profile = await uploadDocsFile(file)
+      valid_user.profilePhoto = profile?.Key
+      valid_student.studentProfilePhoto = profile?.Key
+      await Promise.all([ valid_user.save(), valid_student.save()])
+      res.status(200).send({ message: "Explore New User + Student Profile", access: false})
+    }
+    else{
+      res.status(200).send({ message: "You're are lost in space", access: false})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}

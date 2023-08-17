@@ -3756,6 +3756,14 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
         },
       })
       .populate({
+        path: "hostelAdmin",
+        select: "_id",
+        populate: {
+          path: "institute",
+          select: "id",
+        },
+      })
+      .populate({
         path: "direct_linked_structure",
         select:
           "unique_structure_name structure_name total_admission_fees applicable_fees one_installments",

@@ -4118,6 +4118,28 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
 
 exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
   try {
+    var maleAvatar = [
+      "3D2.jpg",
+      "3D4.jpg",
+      "3D6.jpg",
+      "3D19.jpg",
+      "3D20.jpg",
+      "3D26.jpg",
+      "3D21.jpg",
+      "3D12.jpg",
+      "3D13.jpg",
+    ];
+    var femaleAvatar = [
+      "3D1.jpg",
+      "3D3.jpg",
+      "3D10.jpg",
+      "3D11.jpg",
+      "3D14.jpg",
+      "3D15.jpg",
+      "3D22.jpg",
+      "3D31.jpg",
+      "3D24.jpg",
+    ];
     for (var ref of student_array) {
       // console.log("INSERTED");
       const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
@@ -4219,8 +4241,17 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
         student.valid_full_name = `${student?.studentFirstName} ${
           student?.studentMiddleName ?? ""
         } ${student?.studentLastName}`;
+        if (student?.studentGender?.toLowerCase() === "male") {
+          student.studentProfilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+          user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+        } else if (student?.studentGender?.toLowerCase() === "female") {
+          student.studentProfilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+          user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+        } else {
+        }
         const aStatus = new Status({});
         institute.UnApprovedStudent.push(student._id);
+        institute.un_approved_student_count += 1
         user.student.push(student._id);
         user.is_mentor = true;
         institute.joinedPost.push(user._id);

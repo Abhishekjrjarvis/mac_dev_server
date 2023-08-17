@@ -1981,24 +1981,32 @@ exports.renderProfile = async (req, res) => {
       "3D24.jpg",
     ];
     const one_ins = await InstituteAdmin.findById({ _id: id }).select(
-      "ApproveStaff"
+      "UnApprovedStudent un_approved_student_count"
     );
 
-    var all_staff = await Staff.find({ _id: { $in: one_ins?.ApproveStaff } });
+    // var all_staff = await Staff.find({ _id: { $in: one_ins?.ApproveStaff } });
+    var all_staff = await Student.find({
+      _id: { $in: one_ins?.UnApprovedStudent },
+    });
 
     for (var ref of all_staff) {
       var user = await User.findById({ _id: `${ref?.user}` });
-      if (ref?.staffGender === "MALE") {
-        ref.staffProfilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+      ref.studentGRNO = ref?.student_prn_enroll_number;
+      if (ref?.studentGender?.toLowerCase() === "male") {
+        ref.studentProfilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
         user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
-      } else if (ref?.staffGender === "FEMALE") {
-        ref.staffProfilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+      } else if (ref?.studentGender?.toLowerCase() === "female") {
+        ref.studentProfilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
         user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
       } else {
       }
       await Promise.all([ref.save(), user.save()]);
     }
-    res.status(200).send({ message: "Explore All Staff Profile Photo" });
+    one_ins.un_approved_student_count = one_ins?.UnApprovedStudent?.length;
+    await one_ins.save();
+    res
+      .status(200)
+      .send({ message: "Explore All Staff || Student Profile Photo" });
   } catch (e) {
     console.log(e);
   }
@@ -2150,11 +2158,10 @@ exports.renderBirthdaySurpriseQuery = async (req, res) => {
   }
 };
 
-exports.renderOneStudentGRNumberQuery = async(req, res) => {
-  try{
-    const { sid } = req.params
+exports.renderOneStudentGRNumberQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};

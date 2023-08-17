@@ -899,6 +899,10 @@ const instituteAdminSchema = new mongoose.Schema({
       default: true,
     },
   },
+  un_approved_student_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

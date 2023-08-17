@@ -225,7 +225,7 @@ exports.hostelInstituteFunction = async (
               parseInt(tx_amount_ad),
             appId: apply._id,
             status: "Not Paid",
-            instituteId: institute._id,
+            instituteId: ins._id,
             installmentValue: "One Time Fees Remain",
             isEnable: true,
           });
@@ -341,10 +341,10 @@ exports.hostelInstituteFunction = async (
         _id: rid,
       });
       remaining_fee_lists.fee_receipts.push(new_receipt?._id);
-      institute.invoice_count += 1;
+      ins.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${institute.invoice_count}`;
+      }${new Date().getFullYear()}${ins.invoice_count}`;
       await render_installment(
         type,
         student,

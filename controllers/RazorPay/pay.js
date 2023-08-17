@@ -236,6 +236,7 @@ exports.verifyRazorPayment = async (req, res) => {
           payment_to_end_user_id ?? "",
           payment_installment ?? "",
           Boolean(razor_author),
+          payment_remain_1 ?? "",
           Boolean(ad_install)
         );
         if (isApk) {

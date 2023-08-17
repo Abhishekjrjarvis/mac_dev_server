@@ -6,7 +6,10 @@ const Student = require("../../models/Student");
 const Staff = require("../../models/Staff");
 const { shuffleArray } = require("../../Utilities/Shuffle");
 const Post = require("../../models/Post");
+const Comment = require("../../models/Comment");
+const ReplyComment = require("../../models/ReplyComment/ReplyComment");
 const Answer = require("../../models/Question/Answer");
+const AnswerReply = require("../../models/Question/AnswerReply");
 const Poll = require("../../models/Question/Poll");
 const moment = require("moment");
 const Department = require("../../models/Department");
@@ -2192,14 +2195,12 @@ exports.renderOneStudentGRNumberQuery = async (req, res) => {
 exports.renderOneQueryStatus = async (req, res) => {
   try {
     const { qid } = req.params;
-    const { status } = req.query
+    const { status } = req.query;
     if (!qid && !status)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug nedd to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug nedd to fixed immediately",
+        access: false,
+      });
 
     const one_query = await InternalQuery.findById({ _id: qid });
     const one_student = await Student.findById({
@@ -2212,85 +2213,174 @@ exports.renderOneQueryStatus = async (req, res) => {
         { studentGRNO: `${one_query?.query_gr}` },
       ],
     });
-    if(exist_gr?.length > 0){
-      res.status(200).send({ message: "GR Number Already Exists", access: false})
-    }
-    else{
-      if(status === "Approved"){
-        one_student.studentGRNO = `${one_query?.query_gr}`
-      }
-      else{
-        
+    if (exist_gr?.length > 0) {
+      res
+        .status(200)
+        .send({ message: "GR Number Already Exists", access: false });
+    } else {
+      if (status === "Approved") {
+        one_student.studentGRNO = `${one_query?.query_gr}`;
+      } else {
       }
       one_query.query_status = status;
-      one_student.query_lock_status = "Unlocked"
-      await Promise.all([ one_query.save(), one_student.save()])
-      res.status(200).send({ message: `Explore New GR Number ${status}`, access: true})
+      one_student.query_lock_status = "Unlocked";
+      await Promise.all([one_query.save(), one_student.save()]);
+      res
+        .status(200)
+        .send({ message: `Explore New GR Number ${status}`, access: true });
     }
   } catch (e) {
     console.log(e);
   }
 };
 
-exports.renderAllInternalQuery = async(req, res) => {
-  try{
-    const { id } = req.params
+exports.renderAllInternalQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    if (!id)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
 
-    var one_ins = await InstituteAdmin.findById({ _id: id})
-    .select("internal_query")
+    var one_ins = await InstituteAdmin.findById({ _id: id }).select(
+      "internal_query"
+    );
 
-    var all_query = await InternalQuery.find({ _id: { $in: one_ins?.internal_query }})
-    .limit(limit)
-    .skip(skip)
-    .populate({
-      path: "query_by_student",
-      select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
+    var all_query = await InternalQuery.find({
+      _id: { $in: one_ins?.internal_query },
     })
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "query_by_student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      });
 
-    if(all_query?.length > 0){
-      res.status(200).send({ message: "Explore All Internal Query", access: true, all_query: all_query})
+    if (all_query?.length > 0) {
+      res
+        .status(200)
+        .send({
+          message: "Explore All Internal Query",
+          access: true,
+          all_query: all_query,
+        });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Internal Query", access: false, all_query: [] });
     }
-    else{
-      res.status(200).send({ message: "No Internal Query", access: false, all_query: []})
-    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
-  }
-  catch(e){
-    console.log(e)
-  }
-}
+exports.renderProfileUploadQuery = async (req, res) => {
+  try {
+    const { suid, role } = req.query;
+    const file = req?.file;
+    if (!suid && !role)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
 
-exports.renderProfileUploadQuery = async(req, res) => {
-  try{
-    const { suid, role } = req.query
-    const file = req?.file
-    if(!suid && !role) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
-
-    if(role === "ONLY_USER"){
-      const valid_user = await User.findById({ _id: suid })
-      const profile = await uploadDocsFile(file)
-      valid_user.profilePhoto = profile?.Key
-      await valid_user.save()
-      res.status(200).send({ message: "Explore New User Profile", access: true})
+    if (role === "ONLY_USER") {
+      const user = await User.findById({ _id: suid });
+      const profile = await uploadDocsFile(file);
+      user.profilePhoto = profile?.Key;
+      user.profile_modification = new Date();
+      await user.save();
+      await unlinkFile(file);
+      res
+        .status(200)
+        .send({ message: "Explore New User Profile", access: true });
+      const post = await Post.find({ author: user._id });
+      post.forEach(async (ele) => {
+        ele.authorPhotoId = "0";
+        ele.authorProfilePhoto = user.profilePhoto;
+        await ele.save();
+      });
+      const comment = await Comment.find({ author: user._id });
+      comment.forEach(async (com) => {
+        com.authorPhotoId = "0";
+        com.authorProfilePhoto = user.profilePhoto;
+        await com.save();
+      });
+      const replyComment = await ReplyComment.find({ author: user._id });
+      replyComment.forEach(async (reply) => {
+        reply.authorPhotoId = "0";
+        reply.authorProfilePhoto = user.profilePhoto;
+        await reply.save();
+      });
+      const answers = await Answer.find({ author: user._id });
+      answers.forEach(async (ans) => {
+        ans.authorPhotoId = "0";
+        ans.authorProfilePhoto = user.profilePhoto;
+        await ans.save();
+      });
+      const answerReply = await AnswerReply.find({ author: user._id });
+      answerReply.forEach(async (ansRep) => {
+        ansRep.authorPhotoId = "0";
+        ansRep.authorProfilePhoto = user.profilePhoto;
+        await ansRep.save();
+      });
+    } else if (role === "USER_AND_STUDENT") {
+      const valid_student = await Student.findById({ _id: suid });
+      const user = await User.findById({ _id: `${valid_student?.user}` });
+      const profile = await uploadDocsFile(file);
+      user.profilePhoto = profile?.Key;
+      valid_student.studentProfilePhoto = profile?.Key;
+      user.profile_modification = new Date();
+      await Promise.all([user.save(), valid_student.save()]);
+      await unlinkFile(file);
+      res
+        .status(200)
+        .send({ message: "Explore New User + Student Profile", access: false });
+      const post = await Post.find({ author: user._id });
+      post.forEach(async (ele) => {
+        ele.authorPhotoId = "0";
+        ele.authorProfilePhoto = user.profilePhoto;
+        await ele.save();
+      });
+      const comment = await Comment.find({ author: user._id });
+      comment.forEach(async (com) => {
+        com.authorPhotoId = "0";
+        com.authorProfilePhoto = user.profilePhoto;
+        await com.save();
+      });
+      const replyComment = await ReplyComment.find({ author: user._id });
+      replyComment.forEach(async (reply) => {
+        reply.authorPhotoId = "0";
+        reply.authorProfilePhoto = user.profilePhoto;
+        await reply.save();
+      });
+      const answers = await Answer.find({ author: user._id });
+      answers.forEach(async (ans) => {
+        ans.authorPhotoId = "0";
+        ans.authorProfilePhoto = user.profilePhoto;
+        await ans.save();
+      });
+      const answerReply = await AnswerReply.find({ author: user._id });
+      answerReply.forEach(async (ansRep) => {
+        ansRep.authorPhotoId = "0";
+        ansRep.authorProfilePhoto = user.profilePhoto;
+        await ansRep.save();
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "You're are lost in space", access: false });
     }
-    else if(role === "USER_AND_STUDENT"){
-      const valid_student = await Student.findById({ _id: suid })
-      const valid_user = await User.findById({ _id: `${valid_student?.user}` })
-      const profile = await uploadDocsFile(file)
-      valid_user.profilePhoto = profile?.Key
-      valid_student.studentProfilePhoto = profile?.Key
-      await Promise.all([ valid_user.save(), valid_student.save()])
-      res.status(200).send({ message: "Explore New User + Student Profile", access: false})
-    }
-    else{
-      res.status(200).send({ message: "You're are lost in space", access: false})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};

@@ -817,7 +817,6 @@ const installment_remain = async (
       )
         return stu;
     });
-    console.log(filter_student_install);
     for (var ref of filter_student_install) {
       if (amount < ref?.remainAmount) {
         arg1.remaining_array.push({

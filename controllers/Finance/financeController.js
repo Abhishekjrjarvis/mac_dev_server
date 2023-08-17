@@ -3429,7 +3429,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
           "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads",
         populate: {
           path: "remainingFeeList",
-          select: "appId remaining_flow",
+          select: "appId",
         },
       })
       .populate({
@@ -3489,8 +3489,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       })
       .populate({
         path: "application",
-        select:
-          "applicationName applicationDepartment applicationHostel applicationUnit",
+        select: "applicationName applicationDepartment applicationHostel applicationUnit",
         populate: {
           path: "applicationUnit",
           select: "hostel_unit_name",
@@ -3575,10 +3574,14 @@ exports.renderOneFeeReceipt = async (req, res) => {
 
     if (ref?.length > 0) {
       var all_remain = await RemainingList.findById({ _id: ref[0]?._id })
-        .select("applicable_fee paid_fee remaining_fee refund_fee")
+        .select("applicable_fee paid_fee remaining_fee refund_fee remaining_flow")
         .populate({
           path: "batchId",
           select: "batchName",
+        })
+        .populate({
+          path: "fee_structure",
+          select: "total_admission_fees",
         });
     }
 

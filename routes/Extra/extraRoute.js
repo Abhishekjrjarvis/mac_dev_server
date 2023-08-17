@@ -303,4 +303,8 @@ router.patch(
   catchAsync(Extra.renderOneStudentGRNumberQuery)
 );
 
+router.patch("/status/:qid/query", catchAsync(Extra.renderOneQueryStatus));
+
+router.get("/all/:id/query", catchAsync(Extra.renderAllInternalQuery));
+
 module.exports = router;

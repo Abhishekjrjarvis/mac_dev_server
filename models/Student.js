@@ -692,6 +692,10 @@ const studentSchema = new mongoose.Schema({
   student_ph: {
     type: String,
   },
+  query_lock_status: {
+    type: String,
+    default: "Unlocked",
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

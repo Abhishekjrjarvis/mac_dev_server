@@ -19,6 +19,7 @@ const { chatCount } = require("../../Firebase/dailyChat");
 const { getFirestore } = require("firebase-admin/firestore");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const { valid_initials } = require("../../Custom/checkInitials");
+const InternalQuery = require("../../models/Content/InternalQuery");
 const {
   simple_object,
   uploadFile,
@@ -2162,20 +2163,103 @@ exports.renderOneStudentGRNumberQuery = async (req, res) => {
   try {
     const { sid } = req.params;
     if (!sid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const one_student = await Student.findById({ _id: sid });
     const one_ins = await InstituteAdmin.findById({
       _id: `${one_student?.institute}`,
     });
-    const query = new InternalQuery({});
-    query.query_content = null;
+    const query = new InternalQuery({
+      ...req.body,
+    });
+    query.query_by_student = one_student?._id;
+    query.query_to_admin = one_ins?._id;
+    one_ins.internal_query.push(query?._id);
+    one_ins.internal_query_count += 1;
+    one_student.query_lock_status = "Locked";
+    await Promise.all([one_student.save(), one_ins.save(), query.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New Internal Query By Student", access: true });
   } catch (e) {
     console.log(e);
   }
 };
+
+exports.renderOneQueryStatus = async (req, res) => {
+  try {
+    const { qid } = req.params;
+    const { status } = req.query
+    if (!qid && !status)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug nedd to fixed immediately",
+          access: false,
+        });
+
+    const one_query = await InternalQuery.findById({ _id: qid });
+    const one_student = await Student.findById({
+      _id: `${one_query?.query_by_student}`,
+    });
+    const exist_gr = await Student.find({
+      $and: [
+        { institute: `${one_query?.query_to_admin}` },
+        { studentStatus: "Approved" },
+        { studentGRNO: `${one_query?.query_gr}` },
+      ],
+    });
+    if(exist_gr?.length > 0){
+      res.status(200).send({ message: "GR Number Already Exists", access: false})
+    }
+    else{
+      if(status === "Approved"){
+        one_student.studentGRNO = `${one_query?.query_gr}`
+      }
+      else{
+        
+      }
+      one_query.query_status = status;
+      one_student.query_lock_status = "Unlocked"
+      await Promise.all([ one_query.save(), one_student.save()])
+      res.status(200).send({ message: `Explore New GR Number ${status}`, access: true})
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllInternalQuery = async(req, res) => {
+  try{
+    const { id } = req.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    var one_ins = await InstituteAdmin.findById({ _id: id})
+    .select("internal_query")
+
+    var all_query = await InternalQuery.find({ _id: { $in: one_ins?.internal_query }})
+    .limit(limit)
+    .skip(skip)
+    .populate({
+      path: "query_by_student",
+      select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
+    })
+
+    if(all_query?.length > 0){
+      res.status(200).send({ message: "Explore All Internal Query", access: true, all_query: all_query})
+    }
+    else{
+      res.status(200).send({ message: "No Internal Query", access: false, all_query: []})
+    }
+
+  }
+  catch(e){
+    console.log(e)
+  }
+}

@@ -20,6 +20,9 @@ const internalQuerySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+  query_gr: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("InternalQuery", internalQuerySchema);

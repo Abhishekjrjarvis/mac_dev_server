@@ -31889,3 +31889,90 @@ paths:
       responses:
         "200":
           description: OK
+
+#GRNumber
+
+  /api/v1/extra/edit/{sid}/gr/unique/query:
+    patch:
+      tags:
+        - GR Number Query
+      summary: Edit One Student GR Number Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This Student ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              query_content:
+                type: string
+                description: Enter Internal Query Message
+                required: true
+              query_gr:
+                type: string
+                description: Enter Internal Query GR Number
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/status/{qid}/query:
+    patch:
+      tags:
+        - GR Number Query
+      summary: Approve || Reject One Student GR Number Status Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: qid
+          required: true
+          type: string
+          description: This Internal Query ID
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Approved" || "Rejected")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/all/{id}/query:
+    get:
+      tags:
+        - GR Number Query
+      summary: All Internal Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute Admin ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+      responses:
+        "200":
+          description: OK

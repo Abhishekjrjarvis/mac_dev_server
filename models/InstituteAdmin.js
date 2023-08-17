@@ -903,6 +903,16 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  internal_query: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InternalQuery",
+    },
+  ],
+  internal_query_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

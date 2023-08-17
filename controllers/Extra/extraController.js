@@ -2161,6 +2161,20 @@ exports.renderBirthdaySurpriseQuery = async (req, res) => {
 exports.renderOneStudentGRNumberQuery = async (req, res) => {
   try {
     const { sid } = req.params;
+    if (!sid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+
+    const one_student = await Student.findById({ _id: sid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${one_student?.institute}`,
+    });
+    const query = new InternalQuery({});
+    query.query_content = null;
   } catch (e) {
     console.log(e);
   }

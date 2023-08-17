@@ -311,6 +311,7 @@ exports.hostelInstituteFunction = async (
       ins.payment_history.push(order);
       orderPay.payment_admission = apply._id;
       orderPay.payment_by_end_user_id = user._id;
+      new_receipt.order_history = orderPay?._id;
       await Promise.all([
         student.save(),
         user.save(),
@@ -447,6 +448,7 @@ exports.hostelInstituteFunction = async (
       ins.payment_history.push(order);
       orderPay.payment_admission = apply._id;
       orderPay.payment_by_end_user_id = user._id;
+      new_receipt.order_history = orderPay?._id;
       await Promise.all([
         one_hostel.save(),
         student.save(),

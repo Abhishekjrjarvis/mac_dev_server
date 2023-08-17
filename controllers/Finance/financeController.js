@@ -3463,7 +3463,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
           populate: {
             path: "institute",
             select:
-              "insName name insAddress insPhoneNumber insEmail insState insDistrict insProfilePhoto photoId affliatedLogo",
+              "insName name insAddress insPhoneNumber insEmail insState insDistrict insProfilePhoto photoId affliatedLogo insAffiliated insEditableText_one insEditableText_two",
             populate: {
               path: "displayPersonList",
               select: "displayTitle",
@@ -3521,7 +3521,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
           populate: {
             path: "institute",
             select:
-              "insName name insAddress insPhoneNumber insEmail insState insDistrict insProfilePhoto photoId affliatedLogo",
+              "insName name insAddress insPhoneNumber insEmail insState insDistrict insProfilePhoto photoId affliatedLogo insAffiliated insEditableText_one insEditableText_two",
             populate: {
               path: "displayPersonList",
               select: "displayTitle",

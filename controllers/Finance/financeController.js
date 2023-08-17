@@ -3429,7 +3429,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
           "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads",
         populate: {
           path: "remainingFeeList",
-          select: "appId",
+          select: "appId remaining_flow",
         },
       })
       .populate({
@@ -3489,7 +3489,8 @@ exports.renderOneFeeReceipt = async (req, res) => {
       })
       .populate({
         path: "application",
-        select: "applicationName applicationDepartment applicationHostel applicationUnit",
+        select:
+          "applicationName applicationDepartment applicationHostel applicationUnit",
         populate: {
           path: "applicationUnit",
           select: "hostel_unit_name",

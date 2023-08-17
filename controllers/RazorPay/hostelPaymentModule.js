@@ -272,7 +272,7 @@ exports.hostelInstituteFunction = async (
         paidAmount: parseInt(tx_amount_ad),
         appId: apply._id,
       });
-      aStatus.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
+      aStatus.content = `Your hostel seat has been confirmed, You will be alloted your bed shortly, Stay Updated!`;
       aStatus.applicationId = apply._id;
       aStatus.fee_receipt = new_receipt?._id;
       aStatus.document_visible = false;
@@ -280,7 +280,6 @@ exports.hostelInstituteFunction = async (
       aStatus.instituteId = ins._id;
       user.payment_history.push(order);
       (status.payMode = "online"), (status.isPaid = "Paid");
-      status.for_selection = "Yes";
       notify.notifyContent = `${student.studentFirstName} ${
         student.studentMiddleName ? `${student.studentMiddleName} ` : ""
       } ${

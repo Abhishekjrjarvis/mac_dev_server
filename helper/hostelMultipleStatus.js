@@ -12,6 +12,7 @@ const Admin = require("../models/superAdmin");
 const HostelUnit = require("../models/Hostel/hostelUnit");
 const HostelRoom = require("../models/Hostel/hostelRoom");
 const HostelBed = require("../models/Hostel/hostelBed");
+const BankAccount = require("../models/Finance/BankAccount");
 const {
   add_all_installment,
   add_total_installment,
@@ -25,44 +26,51 @@ exports.insert_multiple_hostel_status = async (
   uargs,
   iargs,
   sid,
-  unit_args
+  unit_args,
+  finance,
+  receipt,
 ) => {
   try {
+    var filtered_account = await BankAccount.findOne({
+      hostel: args?.applicationHostel
+    });
     const statusArray = [
-      {
-        content: `You have applied for ${unit_args.hostel_unit_name} Hostel has been filled successfully.Stay updated to check status of your application.Tap here to see username ${uargs?.username}`,
-        applicationId: args?._id,
-        instituteId: iargs?._id,
-        hostelUnit: unit_args?._id,
-        flow_status: "Hostel Application",
-        student: sid,
-      },
-      {
-        content: `You have been selected for ${unit_args.hostel_unit_name} Hostel. Confirm your admission`,
-        applicationId: args?._id,
-        instituteId: iargs?._id,
-        for_selection: "No",
-        studentId: sid,
-        admissionFee: args.admissionFee,
-        payMode: "offline",
-        isPaid: "Paid",
-        hostelUnit: unit_args?._id,
-        flow_status: "Hostel Application",
-      },
-      {
-        content: `Your hostel admission is on hold please visit ${iargs.insName}, ${iargs.insDistrict}. with required fees or contact institute if neccessory`,
-        applicationId: args?._id,
-        instituteId: iargs?._id,
-        hostelUnit: unit_args?._id,
-        flow_status: "Hostel Application",
-        student: sid,
-      },
       {
         content: `Your Hostel has been confirmed, You will be alloted your bed shortly, Stay Update!`,
         applicationId: args?._id,
         instituteId: iargs?._id,
         hostelUnit: unit_args?._id,
         flow_status: "Hostel Application",
+        student: sid,
+        fee_receipt: receipt?._id,
+      },
+      {
+        content: `Your application for ${unit_args.hostel_unit_name} have been filled successfully.
+
+Below is the Hostel Admission process:
+1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the hostel department)
+
+2.After selection, confirm from your side and start the hostel admission process.
+
+3.After confirmation from your side, visit the institute with the applicable fees. (You will get application fees information on your selection from the institute side. (Till then check our fee structures)
+
+4.Payment modes available for fee payment: 
+Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe, Google pay, Paytm)
+
+5.After submission and verification of documents, you are required to pay application hostel admission fees.
+
+6. Pay application admission fees and your hostel admission will be confirmed and complete.
+
+7. For cancellation and refund, contact the hostel department.
+
+Note: Stay tuned for further updates. Tap here to see username ${uargs?.username}`,
+        applicationId: args?._id,
+        instituteId: iargs?._id,
+        document_visible: true,
+        hostelUnit: unit_args?._id,
+        flow_status: "Hostel Application",
+        finance: finance?._id,
+        bank_account: filtered_account?._id,
         student: sid,
       },
     ];

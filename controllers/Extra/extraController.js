@@ -2149,3 +2149,12 @@ exports.renderBirthdaySurpriseQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderOneStudentGRNumberQuery = async(req, res) => {
+  try{
+    const { sid } = req.params
+  }
+  catch(e){
+    console.log(e)
+  }
+}

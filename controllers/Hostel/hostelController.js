@@ -22,6 +22,7 @@ const Class = require("../../models/Class");
 const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
+const BankAccount = require("../../models/Finance/BankAccount");
 const {
   designation_alarm,
   email_sms_payload_query,
@@ -917,6 +918,12 @@ exports.renderHostelReceievedApplication = async (req, res) => {
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
     const apply = await NewApplication.findById({ _id: aid });
+    const valid_unit = await HostelUnit.findById({
+      _id: `${apply?.applicationUnit}`,
+    });
+    var filtered_account = await BankAccount.findOne({
+      hostel: apply?.applicationHostel,
+    });
     const one_hostel = await Hostel.findById({
       _id: `${apply.hostelAdmin}`,
     }).select("institute");
@@ -950,11 +957,33 @@ exports.renderHostelReceievedApplication = async (req, res) => {
     if (studentOptionalSubject?.length > 0) {
       student.studentOptionalSubject?.push(...studentOptionalSubject);
     }
-    status.content = `You have applied for ${apply.applicationName} has been filled successfully.Stay updated to check status of your application.`;
+    status.content = `Your application for ${valid_unit?.hostel_unit_name} have been filled successfully.
+
+Below is the Hostel Admission process:
+1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the hostel department)
+
+2.After selection, confirm from your side and start the hostel admission process.
+
+3.After confirmation from your side, visit the institute with the applicable fees. (You will get application fees information on your selection from the institute side. (Till then check our fee structures)
+
+4.Payment modes available for fee payment: 
+Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe, Google pay, Paytm)
+
+5.After submission and verification of documents, you are required to pay application hostel admission fees.
+
+6. Pay application admission fees and your hostel admission will be confirmed and complete.
+
+7. For cancellation and refund, contact the hostel department.
+
+Note: Stay tuned for further updates.`;
     status.applicationId = apply._id;
+    status.document_visible = true;
     status.instituteId = institute._id;
+    status.finance = institute?.financeDepart?.[0];
+    status.student = student?._id;
     user.student.push(student._id);
     user.applyApplication.push(apply._id);
+    status.bank_account = filtered_account?._id;
     status.flow_status = "Hostel Application";
     student.user = user._id;
     user.applicationStatus.push(status._id);
@@ -1287,14 +1316,26 @@ exports.renderHostelSelectedQuery = async (req, res) => {
       fee_remain: structure.total_admission_fees,
     });
     apply.selectCount += 1;
-    status.content = `You have been selected for ${apply.applicationName}. Confirm your admission`;
+
     status.applicationId = apply._id;
-    status.for_selection = "Yes";
+    status.for_docs = "Yes";
     status.studentId = student._id;
     status.student = student?._id;
-    status.admissionFee = structure.total_admission_fees;
+    if (valid_month > 0 && valid_month <= 60 && valid_month !== 12) {
+      status.content = `You have been selected for ${apply.applicationName}. 
+Your fee structure will be ${new_structure?.structure_name}. And required documents are 'click here for details'.   
+Start your admission process by confirming below.`;
+      status.admissionFee = new_structure.total_admission_fees;
+    } else {
+      status.content = `You have been selected for ${apply.applicationName}. 
+Your fee structure will be ${structure?.structure_name}. And required documents are 'click here for details'.   
+Start your admission process by confirming below.`;
+      status.admissionFee = structure.total_admission_fees;
+    }
     status.instituteId = one_hostel?.institute;
     status.finance = finance?._id;
+    status.document_visible = true;
+    status.structure_edited = "Edited";
     status.flow_status = "Hostel Application";
     user.applicationStatus.push(status._id);
     student.active_status.push(status?._id);
@@ -1528,7 +1569,7 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
-    status.document_visible = false;
+    status.fee_receipt = new_receipt?._id;
     new_remainFee.renewal_start = new Date();
     new_remainFee.renewal_end = student?.hostel_renewal;
     renew.renewal_start = new Date();
@@ -2729,6 +2770,7 @@ const hostel_receipt_approve_query = async (
     institute.payment_history.push(order._id);
     status.content = `Your hostel has been confirmed, You will be alloted to your room / bed shortly, Stay Update!. Please visit hostel once to check sourroundings.`;
     status.applicationId = one_app._id;
+    status.fee_receipt = one_receipt?._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
     status.document_visible = true;
@@ -3273,6 +3315,7 @@ const hostel_receipt_approve_query_renewal = async (
     status.content = `Your hostel has been confirmed, You will be alloted to your room / bed shortly, Stay Update!. Please visit hostel once to check sourroundings.`;
     status.applicationId = one_app._id;
     status.hostelUnit = one_unit?._id;
+    status.fee_receipt = one_receipt?._id;
     status.flow_status = "Hostel Application";
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
@@ -6446,7 +6489,9 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       user,
       institute,
       student?._id,
-      one_unit
+      one_unit,
+      finance,
+      new_receipt
     );
     apply.receievedCount += 1;
     apply.selectCount += 1;
@@ -6697,7 +6742,9 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         user,
         institute,
         student?._id,
-        one_unit
+        one_unit,
+        finance,
+        new_receipt
       );
       apply.receievedCount += 1;
       apply.selectCount += 1;
@@ -7057,12 +7104,10 @@ exports.renderCurrentSelectBatchQuery = async (req, res) => {
   try {
     const { hid, bid } = req.params;
     if (!hid && !bid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
     const valid_hostel = await Hostel.findById({ _id: hid });
     var valid_active_batch = await handle_undefined(
       valid_hostel?.departmentSelectBatch

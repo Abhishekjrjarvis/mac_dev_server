@@ -49,7 +49,8 @@ exports.hostelInstituteFunction = async (
   statusId,
   paidTo,
   type,
-  is_author
+  is_author,
+  rid
 ) => {
   try {
     var student = await Student.findById({ _id: paidBy }).populate({
@@ -336,8 +337,8 @@ exports.hostelInstituteFunction = async (
       new_receipt.application = apply?._id;
       new_receipt.finance = finance?._id;
       new_receipt.fee_transaction_date = new Date();
-      const remaining_fee_lists = await RemainingList.findOne({
-        $and: [{ student: student?._id }, { appId: apply?._id }],
+      const remaining_fee_lists = await RemainingList.findById({
+        _id: rid,
       });
       remaining_fee_lists.fee_receipts.push(new_receipt?._id);
       institute.invoice_count += 1;

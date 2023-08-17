@@ -4212,6 +4212,9 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
           studentReligion: ref?.studentReligion,
           studentNationality: ref?.studentNationality,
           studentAddress: ref.studentAddress,
+          studentDOB: ref.studentDOB,
+          studentMTongue: ref.studentMTongue,
+          student_prn_enroll_number: ref.student_prn_enroll_number,
         });
         student.valid_full_name = `${student?.studentFirstName} ${
           student?.studentMiddleName ?? ""

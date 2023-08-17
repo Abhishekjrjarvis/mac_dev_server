@@ -298,4 +298,9 @@ router.patch(
   catchAsync(Extra.renderBirthdaySurpriseQuery)
 );
 
+router.patch(
+  "/edit/:sid/gr/unique/query",
+  catchAsync(Extra.renderOneStudentGRNumberQuery)
+);
+
 module.exports = router;

@@ -549,8 +549,9 @@ exports.generate_excel_to_json_un_approved = async (file, aid, fid, did) => {
     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
     var new_data_query = [];
     for (var ref of data_query) {
+      ref.studentDOB = ref?.DOB ?? "";
       ref.studentGender = ref?.Gender;
-      ref.studentMotherName = ref?.MotherName;
+      ref.studentMotherName = ref?.MotherName ?? "";
       ref.studentPhoneNumber = ref?.PhoneNumber;
       ref.userPhoneNumber = parseInt(ref?.PhoneNumber);
       ref.userEmail = ref?.Email ?? "";
@@ -559,6 +560,8 @@ exports.generate_excel_to_json_un_approved = async (file, aid, fid, did) => {
       ref.studentCast = ref?.Caste ?? "";
       ref.studentCastCategory = ref?.CasteCategory ?? "";
       ref.studentAddress = ref?.Address ?? "";
+      ref.student_prn_enroll_number = ref?.EnrollmentNumber ?? "";
+      ref.studentMTongue = ref?.MotherTongue ?? "";
       let name_query = ref?.Name?.split(" ");
       if (name_query?.length > 2) {
         new_data_query.push({

@@ -3489,7 +3489,8 @@ exports.renderOneFeeReceipt = async (req, res) => {
       })
       .populate({
         path: "application",
-        select: "applicationName applicationDepartment applicationHostel applicationUnit",
+        select:
+          "applicationName applicationDepartment applicationHostel applicationUnit",
         populate: {
           path: "applicationUnit",
           select: "hostel_unit_name",
@@ -3535,6 +3536,18 @@ exports.renderOneFeeReceipt = async (req, res) => {
         },
       })
       .populate({
+        path: "application",
+        select:
+          "applicationName applicationDepartment applicationHostel applicationUnit",
+        populate: {
+          path: "applicationHostel",
+          select: "site_info",
+          populate: {
+            path: "site_info",
+          },
+        },
+      })
+      .populate({
         path: "order_history",
       })
       .populate({
@@ -3574,7 +3587,9 @@ exports.renderOneFeeReceipt = async (req, res) => {
 
     if (ref?.length > 0) {
       var all_remain = await RemainingList.findById({ _id: ref[0]?._id })
-        .select("applicable_fee paid_fee remaining_fee refund_fee remaining_flow")
+        .select(
+          "applicable_fee paid_fee remaining_fee refund_fee remaining_flow"
+        )
         .populate({
           path: "batchId",
           select: "batchName",

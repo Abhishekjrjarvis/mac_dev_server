@@ -2343,7 +2343,7 @@ exports.renderProfileUploadQuery = async (req, res) => {
       await unlinkFile(file?.path);
       res
         .status(200)
-        .send({ message: "Explore New User + Student Profile", access: false });
+        .send({ message: "Explore New User + Student Profile", access: true });
       const post = await Post.find({ author: user._id });
       post.forEach(async (ele) => {
         ele.authorPhotoId = "0";

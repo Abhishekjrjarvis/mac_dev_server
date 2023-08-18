@@ -2836,21 +2836,37 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
 exports.retrieveUnApproveStudentListQuery = async (req, res) => {
   try {
     var { id } = req.params;
-    if (req.query.limit) {
-      const page = req.query.page ? parseInt(req.query.page) : 1;
-      const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-      const skip = (page - 1) * limit;
+    var page = req.query.page ? parseInt(req.query.page) : 1;
+    var limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    var skip = (page - 1) * limit;
+    var { search } = req.query;
+    if (search) {
       const student_ins = await InstituteAdmin.findById({ _id: id }).select(
         "UnApprovedStudent insName gr_initials"
       );
       const studentIns = await Student.find({
-        _id: { $in: student_ins?.UnApprovedStudent },
+        $and: [{ _id: { $in: student_ins?.UnApprovedStudent } }],
+        $or: [
+          {
+            studentFirstName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            valid_full_name: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentGRNO: { $regex: `${search}`, $options: "i" },
+          },
+        ],
       })
         .sort({ createdAt: -1 })
-        .limit(limit)
-        .skip(skip)
         .select(
-          "studentFirstName studentMiddleName applicable_fees_pending studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+          "studentFirstName studentMiddleName applicable_fees_pending studentLastName valid_full_name photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -2885,8 +2901,10 @@ exports.retrieveUnApproveStudentListQuery = async (req, res) => {
         _id: { $in: student_ins?.UnApprovedStudent },
       })
         .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
         .select(
-          "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+          "studentFirstName studentMiddleName studentLastName applicable_fees_pending valid_full_name photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -4728,37 +4746,79 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
 exports.retrieveUnApproveCatalogArray = async (req, res) => {
   try {
     const { cid } = req.params;
-    const classes = await Class.findById({ _id: cid })
-      .select(
-        "className classStatus classTitle exams boyCount girlCount studentCount"
-      )
-      .populate({
-        path: "UnApproveStudent",
-        select:
-          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
-        populate: {
-          path: "user",
-          select: "userLegalName username",
-        },
-      })
-      .lean()
-      .exec();
+    const { search } = req.query;
+    if (search) {
+      const classes = await Class.findById({ _id: cid })
+        .select(
+          "className classStatus classTitle exams boyCount girlCount studentCount"
+        )
+        .populate({
+          path: "UnApproveStudent",
+          match: {
+            studentFirstName: { $regex: `${search}`, $options: "i" },
+            studentMiddleName: { $regex: `${search}`, $options: "i" },
+            studentLastName: { $regex: `${search}`, $options: "i" },
+            valid_full_name: { $regex: `${search}`, $options: "i" },
+          },
+          select:
+            "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO valid_full_name",
+          populate: {
+            path: "user",
+            select: "userLegalName username",
+          },
+        })
+        .lean()
+        .exec();
 
-    classes?.UnApproveStudent?.sort(function (st1, st2) {
-      return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
-    });
-    // const cEncrypt = await encryptionPayload(classes);
-    if (classes?.UnApproveStudent?.length > 0) {
-      res.status(200).send({
-        message: "Un Approve catalog Query",
-        classes: classes?.UnApproveStudent,
+      classes?.UnApproveStudent?.sort(function (st1, st2) {
+        return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
       });
+      // const cEncrypt = await encryptionPayload(classes);
+      if (classes?.UnApproveStudent?.length > 0) {
+        res.status(200).send({
+          message: "Un Approve catalog Query",
+          classes: classes?.UnApproveStudent,
+        });
+      } else {
+        res.status(200).send({
+          message: "No Un Approve catalog Query",
+          access: false,
+          classes: [],
+        });
+      }
     } else {
-      res.status(200).send({
-        message: "No Un Approve catalog Query",
-        access: false,
-        classes: [],
+      const classes = await Class.findById({ _id: cid })
+        .select(
+          "className classStatus classTitle exams boyCount girlCount studentCount"
+        )
+        .populate({
+          path: "UnApproveStudent",
+          select:
+            "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO valid_full_name",
+          populate: {
+            path: "user",
+            select: "userLegalName username",
+          },
+        })
+        .lean()
+        .exec();
+
+      classes?.UnApproveStudent?.sort(function (st1, st2) {
+        return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
       });
+      // const cEncrypt = await encryptionPayload(classes);
+      if (classes?.UnApproveStudent?.length > 0) {
+        res.status(200).send({
+          message: "Un Approve catalog Query",
+          classes: classes?.UnApproveStudent,
+        });
+      } else {
+        res.status(200).send({
+          message: "No Un Approve catalog Query",
+          access: false,
+          classes: [],
+        });
+      }
     }
   } catch (e) {
     console.log(e);

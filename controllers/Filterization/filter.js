@@ -1838,7 +1838,11 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       "Cancel",
       valid_date
     );
-    var day_arr = [...confirm_count?.list, ...allot_count?.list];
+    var day_arr = [
+      ...confirm_count?.list,
+      ...allot_count?.list,
+      ...select_count?.list,
+    ];
     var all_remain = await RemainingList.find({ student: day_arr });
     var paid = 0;
     var remain = 0;
@@ -1854,6 +1858,10 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       cancel_count: cancel_count?.can_count,
       paid: paid,
       remain: remain,
+      // confirm_list: c_query,
+      // allot_list: a_query,
+      // select_list: s_query,
+      // request_list: r_query
     };
     res.status(200).send({
       message: "Explore All Filterization Method Day Wise Collection",

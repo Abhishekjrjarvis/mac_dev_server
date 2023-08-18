@@ -2241,12 +2241,10 @@ exports.renderAllInternalQuery = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var one_ins = await InstituteAdmin.findById({ _id: id }).select(
       "internal_query"
@@ -2264,13 +2262,11 @@ exports.renderAllInternalQuery = async (req, res) => {
       });
 
     if (all_query?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore All Internal Query",
-          access: true,
-          all_query: all_query,
-        });
+      res.status(200).send({
+        message: "Explore All Internal Query",
+        access: true,
+        all_query: all_query,
+      });
     } else {
       res
         .status(200)
@@ -2286,12 +2282,10 @@ exports.renderProfileUploadQuery = async (req, res) => {
     const { suid, role } = req.query;
     const file = req?.file;
     if (!suid && !role)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     if (role === "ONLY_USER") {
       const user = await User.findById({ _id: suid });
@@ -2299,7 +2293,7 @@ exports.renderProfileUploadQuery = async (req, res) => {
       user.profilePhoto = profile?.Key;
       user.profile_modification = new Date();
       await user.save();
-      await unlinkFile(file);
+      await unlinkFile(file?.path);
       res
         .status(200)
         .send({ message: "Explore New User Profile", access: true });
@@ -2335,18 +2329,18 @@ exports.renderProfileUploadQuery = async (req, res) => {
       });
     } else if (role === "USER_AND_STUDENT") {
       const user = await User.findById({ _id: suid });
-      var valid_student = await Student.find({ _id: { $in: user?.student }});
+      var valid_student = await Student.find({ _id: { $in: user?.student } });
       var profile = await uploadDocsFile(file);
       user.profilePhoto = profile?.Key;
       user.profile_modification = new Date();
-      for(var val of valid_student){
-        if(val){
+      for (var val of valid_student) {
+        if (val) {
           val.studentProfilePhoto = profile?.Key;
-          await val.save()
+          await val.save();
         }
       }
-      await user.save()
-      await unlinkFile(file);
+      await user.save();
+      await unlinkFile(file?.path);
       res
         .status(200)
         .send({ message: "Explore New User + Student Profile", access: false });

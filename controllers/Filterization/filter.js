@@ -1838,7 +1838,7 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       "Cancel",
       valid_date
     );
-    var day_arr = [...confirm_count?.list];
+    var day_arr = [...confirm_count?.list, ...allot_count?.list];
     var all_remain = await RemainingList.find({ student: day_arr });
     var paid = 0;
     var remain = 0;

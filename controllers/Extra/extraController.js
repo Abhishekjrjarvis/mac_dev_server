@@ -2336,12 +2336,14 @@ exports.renderProfileUploadQuery = async (req, res) => {
     } else if (role === "USER_AND_STUDENT") {
       const user = await User.findById({ _id: suid });
       var valid_student = await Student.find({ _id: { $in: user?.student }});
-      const profile = await uploadDocsFile(file);
+      var profile = await uploadDocsFile(file);
       user.profilePhoto = profile?.Key;
       user.profile_modification = new Date();
       for(var val of valid_student){
-        val.studentProfilePhoto = profile?.Key;
-        await val.save()
+        if(val){
+          val.studentProfilePhoto = profile?.Key;
+          await val.save()
+        }
       }
       await user.save()
       await unlinkFile(file);

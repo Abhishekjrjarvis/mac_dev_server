@@ -95,6 +95,20 @@ const batchSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch",
   },
+  class_student_query: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  class_student_query_count: {
+    type: Number,
+    default: 0,
+  },
+  class_batch_select: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch",
+  },
 });
 
 const Batch = mongoose.model("Batch", batchSchema);

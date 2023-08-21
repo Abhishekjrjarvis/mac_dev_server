@@ -1952,3 +1952,89 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderTallyPriceQuery = async (req, res) => {
+  // try {
+  //   var { arr } = req.body;
+  //   const { search } = req.query;
+  //   var list = [];
+  //   var all_apps = await NewApplication.find({ _id: { $in: arr } });
+  //   for (var ref of all_apps) {
+  //     ref?.confirmedApplication?.filter((val) => {
+  //       var valid_val = moment(val?.apply_on).format("YYYY-MM-DD");
+  //       if (`2023-08-14` === `${valid_val}`) {
+  //         list.push(val?.student);
+  //       }
+  //       if (`2023-08-15` === `${valid_val}`) {
+  //         list.push(val?.student);
+  //       }
+  //       if (`2023-08-16` === `${valid_val}`) {
+  //         list.push(val?.student);
+  //       }
+  //       if (`2023-08-17` === `${valid_val}`) {
+  //         list.push(val?.student);
+  //       }
+  //     });
+  //   }
+  //   var total = 0;
+  //   if (search) {
+  //     var all_remain = await RemainingList.find({ student: { $in: list } })
+  //       .select("paid_fee")
+  //       .populate({
+  //         path: "student",
+  //         match: {
+  //           studentFirstName: { $regex: `${search}`, $options: "i" },
+  //         },
+  //         select: "studentFirstName valid_full_name fee_receipt",
+  //       });
+  //     // .populate({
+  //     //   path: "fee_receipts",
+  //     // });
+  //   } else {
+  //     var all_remain = await RemainingList.find({ student: { $in: list } })
+  //       .select("paid_fee")
+  //       .populate({
+  //         path: "student",
+  //         select: "studentFirstName valid_full_name fee_receipt",
+  //       });
+  //     // .populate({
+  //     //   path: "fee_receipts",
+  //     // });
+  //   }
+  //   for (var val of all_remain) {
+  //     total += val?.paid_fee;
+  //   }
+
+  //   var calc = [];
+
+  //   // for (var val of all_remain) {
+  //   //   if (val?.student?.fee_receipt?.length > 1) {
+  //   //     calc.push(val?.student?._id);
+  //   //   }
+  //   // }
+
+  //   var all_exist = await FeeReceipt.find({ student: { $in: list } }).select(
+  //     "student"
+  //   );
+
+  //   for (var ref of all_exist) {
+  //     calc.push(ref?.student);
+  //   }
+
+  //   var u_arr = [...new Set(calc)];
+
+  //   var data = {
+  //     total: total,
+  //     // pay: total - calc,
+  //     // all_remain,
+  //     // all_exist,
+  //     u_arr: u_arr?.length,
+  //     calc: calc?.length,
+  //   };
+  //   res
+  //     .status(200)
+  //     .send({ message: "Explore All TALLY", access: true, data: data });
+  // } catch (e) {
+  //   console.log(e);
+  // }
+};

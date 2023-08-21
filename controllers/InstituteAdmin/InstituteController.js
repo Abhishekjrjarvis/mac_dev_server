@@ -2944,7 +2944,7 @@ exports.getFullStaffInfo = async (req, res) => {
     if (isApk) {
       var staff = await Staff.findById({ _id: id })
         .select(
-          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
+          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffBatch staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
         )
         .populate({
           path: "user",
@@ -2993,7 +2993,7 @@ exports.getFullStaffInfo = async (req, res) => {
     } else {
       var staff = await Staff.findById({ _id: id })
         .select(
-          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
+          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffBatch staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
         )
         .populate({
           path: "user",
@@ -3506,6 +3506,7 @@ exports.retrieveNewSubject = async (req, res) => {
       lecture_analytic,
       practical_analytic,
       tutorial_analytic,
+      batch_arr,
     } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const classes = await Class.findById({ _id: cid }).populate({
@@ -3571,6 +3572,11 @@ exports.retrieveNewSubject = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
+    if (batch_arr?.length > 0) {
+      for (var ref of batch_arr) {
+        staff.staffBatch.push(ref);
+      }
+    }
     await invokeFirebaseNotification(
       "Designation Allocation",
       notify,
@@ -4725,8 +4731,8 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
         select:
           "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
         populate: {
-          path: "user",
-          select: "userLegalName username",
+          path: "user class_selected_batch",
+          select: "userLegalName username batchName batchStatus",
         },
       })
       .lean()

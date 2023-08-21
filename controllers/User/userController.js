@@ -1548,6 +1548,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
           path: "hostelModeratorDepartment",
           select: "hostel access_role active_tab",
         })
+        .populate({
+          path: "staffBatch",
+          select: "batchName batchStatus",
+        })
         .lean()
         .exec();
       if (staff?.staffDocuments?.length > 0) {
@@ -1716,6 +1720,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "hostelModeratorDepartment",
           select: "hostel access_role active_tab",
+        })
+        .populate({
+          path: "staffBatch",
+          select: "batchName batchStatus",
         })
         .lean()
         .exec();

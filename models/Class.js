@@ -273,6 +273,16 @@ const classSchema = new mongoose.Schema({
       created_at: { type: Date, default: Date.now },
     },
   ],
+  multiple_batches: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
+    },
+  ],
+  multiple_batches_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Class = mongoose.model("Class", classSchema);

@@ -392,6 +392,12 @@ const staffSchema = new mongoose.Schema({
       type: String,
     },
   },
+  staffBatch: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
+    },
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

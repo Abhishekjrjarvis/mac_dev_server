@@ -150,3 +150,163 @@ exports.renderAllStudentMentors = async (req, res) => {
 //     res.status(201).send({ message: "checklist is created", checklist });
 //   } catch {}
 // };
+
+exports.renderNewBatchQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_class = await Class.findById({ _id: cid });
+    var new_batch = new Batch({ ...req.body });
+    one_class.multiple_batches.push(new_batch?._id);
+    one_class.multiple_batches_count += 1;
+    new_batch.class_batch_select = one_class?._id;
+    await Promise.all([one_class.save(), new_batch.save()]);
+    res.status(200).send({ message: "Explore New Batch Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewStudentQuery = async (req, res) => {
+  try {
+    const { bid } = req.params;
+    const { student_arr } = req.body;
+    if (!bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_batch = await Batch.findById({ _id: bid });
+    var all_student = await Student.find({ _id: { $in: student_arr } });
+
+    for (var ref of all_student) {
+      one_batch.class_student_query.push(ref?._id);
+      one_batch.class_student_query_count += 1;
+      ref.class_selected_batch = one_batch?._id;
+      await ref.save();
+    }
+    await one_batch.save();
+    res.status(200).send({
+      message: "Explore New Student In One Batch Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllClassBatchQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_class = await Class.findById({ _id: cid }).select(
+      "multiple_batches"
+    );
+
+    var all_batches = await Batch.find({
+      _id: { $in: one_class?.multiple_batches },
+    }).select("batchName batchStatus createdAt");
+    if (all_batches?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Batches Query",
+        access: true,
+        all_batches: all_batches,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Batches Query", access: false, all_batches: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllBatchStudentQuery = async (req, res) => {
+  try {
+    const { bid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const valid_batch = await Batch.findById({ _id: bid }).select(
+      "class_student_query"
+    );
+
+    if (search) {
+      const all_students = await Student.find({
+        $and: [{ _id: { $in: valid_batch?.class_student_query } }],
+        $or: [
+          {
+            studentFirstName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            valid_full_name: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentGRNO: { $regex: `${search}`, $options: "i" },
+          },
+        ],
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO"
+        )
+        .populate({
+          path: "class_selected_batch",
+          select: "batchName batchStatus",
+        });
+    } else {
+      const all_students = await Student.find({
+        _id: { $in: valid_batch?.class_student_query },
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO"
+        )
+        .populate({
+          path: "class_selected_batch",
+          select: "batchName batchStatus",
+        });
+    }
+
+    if (all_students?.length > 0) {
+      res.status(200).send({
+        message: "Explore One Batch All Students Query",
+        access: true,
+        all_students: all_students,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Students Query",
+        access: false,
+        all_students: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

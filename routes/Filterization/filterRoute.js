@@ -88,4 +88,7 @@ router.patch(
 );
 
 // router.get('/filter/by/date/funds',isLoggedIn, catchAsync(Filter.filterByDateFunds))
+
+router.get("/tally/price", catchAsync(Filter.renderTallyPriceQuery));
+
 module.exports = router;

@@ -696,6 +696,10 @@ const studentSchema = new mongoose.Schema({
     type: String,
     default: "Unlocked",
   },
+  class_selected_batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch",
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

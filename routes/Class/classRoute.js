@@ -21,5 +21,23 @@ router
 router
   .route("/:sid/all/active/mentors")
   .get(catchAsync(classController.renderAllStudentMentors));
+
+//// New Batch ////
+
+router
+  .route("/:cid/new/batch/query")
+  .post(catchAsync(classController.renderNewBatchQuery));
+
+router
+  .route("/:bid/new/student/query")
+  .post(catchAsync(classController.renderNewStudentQuery));
+
+router
+  .route("/:cid/all/batch/query")
+  .get(catchAsync(classController.renderAllClassBatchQuery));
+
+router
+  .route("/:bid/all/student/query")
+  .get(catchAsync(classController.renderAllBatchStudentQuery));
 // router.route("/checklist/:cid").post(isLoggedIn,catchAsync(classController.createClassChecklist));
 module.exports = router;

@@ -31976,3 +31976,114 @@ paths:
       responses:
         "200":
           description: OK
+
+#Class New Batch Query
+
+  /api/v1/class/{cid}/new/batch/query:
+    post:
+      tags:
+        - Class Batch Query
+      summary: New Batch Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              batchName:
+                type: string
+                description: Enter Batch Name
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/class/{bid}/new/student/query:
+    post:
+      tags:
+        - Class Batch Query
+      summary: New Student In Batch Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is Batch ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              student_arr:
+                type: array
+                description: Enter Array of Student Object Id's
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/class/{bid}/all/student/query:
+    get:
+      tags:
+        - Class Batch Query
+      summary: All Student In Batch Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is Batch ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/class/{cid}/all/batch/query:
+    get:
+      tags:
+        - Class Batch Query
+      summary: All Batch In Class Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class ID
+      responses:
+        "200":
+          description: OK

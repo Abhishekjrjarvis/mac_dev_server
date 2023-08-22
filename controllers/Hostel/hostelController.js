@@ -7133,3 +7133,26 @@ exports.renderCurrentSelectBatchQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// exports.renderHostelAllAppsQuery = async (req, res) => {
+//   try {
+//     const { hid } = req.params;
+//     const { bid } = req.query;
+//     var one_hostel = await Hostel.findById({ _id: hid }).select(
+//       "newApplication"
+//     );
+
+//     var one_batch = await Batch.findById({ _id: bid });
+//     var all_apps = await NewApplication.find({
+//       _id: { $in: one_hostel?.newApplication },
+//     });
+
+//     for (var ref of all_apps) {
+//       ref.applicationBatch = one_batch?._id;
+//       await ref.save();
+//     }
+//     res.status(200).send({ message: "Attach Batch with Hostel", access: true });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };

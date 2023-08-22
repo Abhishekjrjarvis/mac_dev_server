@@ -331,4 +331,9 @@ router.post(
   catchAsync(Hostel.renderCurrentSelectBatchQuery)
 );
 
+// router.patch(
+//   "/:hid/all/apps/query",
+//   catchAsync(Hostel.renderHostelAllAppsQuery)
+// );
+
 module.exports = router;

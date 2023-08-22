@@ -4,6 +4,7 @@ const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const Subject = require("../../models/Subject");
 const Student = require("../../models/Student");
 const { handle_undefined } = require("../../Handler/customError");
+const Batch = require("../../models/Batch");
 // const Checklist = require("../../models/Checklist");
 
 exports.getOneInstitute = async (req, res) => {

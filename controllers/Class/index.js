@@ -252,7 +252,7 @@ exports.renderAllBatchStudentQuery = async (req, res) => {
     );
 
     if (search) {
-      const all_students = await Student.find({
+      var all_students = await Student.find({
         $and: [{ _id: { $in: valid_batch?.class_student_query } }],
         $or: [
           {
@@ -280,7 +280,7 @@ exports.renderAllBatchStudentQuery = async (req, res) => {
           select: "batchName batchStatus",
         });
     } else {
-      const all_students = await Student.find({
+      var all_students = await Student.find({
         _id: { $in: valid_batch?.class_student_query },
       })
         .limit(limit)
@@ -307,6 +307,43 @@ exports.renderAllBatchStudentQuery = async (req, res) => {
         all_students: [],
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderBatchDestroyQuery = async (req, res) => {
+  try {
+    const { bid } = req.params;
+    if (!bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_batch = await Batch.findById({ _id: bid }).select(
+      "class_batch_select class_student_query"
+    );
+
+    var one_class = await Class.findById({
+      _id: `${one_batch?.class_batch_select}`,
+    });
+    one_class.multiple_batches.pull(one_batch?._id);
+    if (one_class.multiple_batches_count > 0) {
+      one_class.multiple_batches_count -= 1;
+    }
+
+    for (var val of one_batch?.class_student_query) {
+      var valid_student = await Student.findById({ _id: `${val}` });
+      valid_student.class_selected_batch = null;
+      await valid_student.save();
+    }
+
+    await one_class.save();
+    await Batch.findByIdAndDelete(bid);
+    res
+      .status(200)
+      .send({ message: "Explore Batch Deletion Operation", access: true });
   } catch (e) {
     console.log(e);
   }

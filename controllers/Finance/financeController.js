@@ -2,6 +2,7 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const Finance = require("../../models/Finance");
 const Student = require("../../models/Student");
 const Hostel = require("../../models/Hostel/hostel");
+const HostelUnit = require("../../models/Hostel/hostelUnit");
 const Staff = require("../../models/Staff");
 const User = require("../../models/User");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -2776,7 +2777,7 @@ exports.renderFinanceFeeCategoryDeleteQuery = async (req, res) => {
 exports.renderFinanceAddFeeStructure = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { heads, did, hid } = req.body;
+    const { heads, did, hid, unit_master } = req.body;
     const { flow } = req.query;
     if (!fid && !flow)
       return res.status(200).send({
@@ -2823,17 +2824,27 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
       const category = await FeeCategory.findById({
         _id: `${req.body?.category_master}`,
       });
-      // const class_master = await ClassMaster.findById({
-      //   _id: `${req.body?.class_master}`,
-      // });
+      if (req?.body?.class_master) {
+        var class_master = await ClassMaster.findById({
+          _id: `${req.body?.class_master}`,
+        });
+      }
+      if (unit_master) {
+        var unit_master = await HostelUnit.findById({ _id: `${unit_master}` });
+      }
       const batch_master = await Batch.findById({
         _id: `${req.body?.batch_master}`,
       });
       struct_query.batch_master = batch_master?._id;
-      struct_query.class_master = null;
+      struct_query.class_master = class_master ? class_master?._id : null;
+      struct_query.unit_master = unit_master ? unit_master?._id : null;
       struct_query.finance = finance?._id;
       struct_query.hostel = hostel?._id;
-      struct_query.unique_structure_name = `${category?.category_name} - ${batch_master?.batchName} / ${req.body?.structure_name}`;
+      struct_query.unique_structure_name = `${category?.category_name} - ${
+        batch_master?.batchName
+      }${class_master ? ` - ${class_master?.className}` : ""}${
+        unit_master ? ` - ${unit_master?.hostel_unit_name}` : ""
+      } / ${req.body?.structure_name}`;
       hostel.fees_structures.push(struct_query?._id);
       hostel.fees_structures_count += 1;
       if (heads?.length > 0) {
@@ -2929,7 +2940,7 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
 exports.renderFeeStructureRetroQuery = async (req, res) => {
   try {
     const { fsid } = req.params;
-    const { heads } = req.body;
+    const { heads, unit_master } = req.body;
     const { flow } = req.query;
     if (!fsid && !flow)
       return res.status(200).send({
@@ -2993,17 +3004,29 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
       const category = await FeeCategory.findById({
         _id: `${req.body?.category_master}`,
       });
-      // const class_master = await ClassMaster.findById({
-      //   _id: `${req.body?.class_master}`,
-      // });
+      if (req.body?.class_master) {
+        var class_master = await ClassMaster.findById({
+          _id: `${req.body?.class_master}`,
+        });
+      }
+      if (unit_master) {
+        var unit_master = await HostelUnit.findById({
+          _id: `${unit_master}`,
+        });
+      }
       const batch_master = await Batch.findById({
         _id: `${req.body?.batch_master}`,
       });
       struct_query.batch_master = batch_master?._id;
-      struct_query.class_master = null;
+      struct_query.class_master = class_master ? class_master?._id : null;
+      struct_query.unit_master = unit_master ? unit_master : null;
       struct_query.finance = finance?._id;
       struct_query.hostel = hostel?._id;
-      struct_query.unique_structure_name = `${category?.category_name} - ${batch_master?.batchName} / ${req.body?.structure_name}`;
+      struct_query.unique_structure_name = `${category?.category_name} - ${
+        batch_master?.batchName
+      }${class_master ? ` - ${class_master?.className}` : ""}${
+        unit_master ? ` - ${unit_master?.hostel_unit_name}` : ""
+      } / ${req.body?.structure_name}`;
       hostel.fees_structures.push(struct_query?._id);
       hostel.modify_fees_structures_count += 1;
       previous_struct.document_update = true;

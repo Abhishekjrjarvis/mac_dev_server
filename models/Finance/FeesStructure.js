@@ -122,6 +122,10 @@ const feeStructureSchema = new mongoose.Schema({
     type: Number,
     default: 12,
   },
+  unit_master: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "HostelUnit",
+  },
 });
 
 module.exports = mongoose.model("FeeStructure", feeStructureSchema);

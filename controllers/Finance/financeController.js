@@ -2940,7 +2940,7 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
 exports.renderFeeStructureRetroQuery = async (req, res) => {
   try {
     const { fsid } = req.params;
-    const { heads, unit_master } = req.body;
+    const { heads } = req.body;
     const { flow } = req.query;
     if (!fsid && !flow)
       return res.status(200).send({
@@ -3009,9 +3009,9 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
           _id: `${req.body?.class_master}`,
         });
       }
-      if (unit_master) {
+      if (req?.body?.unit_master) {
         var unit_master = await HostelUnit.findById({
-          _id: `${unit_master}`,
+          _id: `${req?.body?.unit_master}`,
         });
       }
       const batch_master = await Batch.findById({

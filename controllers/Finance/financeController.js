@@ -2777,7 +2777,7 @@ exports.renderFinanceFeeCategoryDeleteQuery = async (req, res) => {
 exports.renderFinanceAddFeeStructure = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { heads, did, hid, unit_master } = req.body;
+    const { heads, did, hid } = req.body;
     const { flow } = req.query;
     if (!fid && !flow)
       return res.status(200).send({
@@ -2829,8 +2829,8 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
           _id: `${req.body?.class_master}`,
         });
       }
-      if (unit_master) {
-        var unit_master = await HostelUnit.findById({ _id: `${unit_master}` });
+      if (req?.body?.unit_master) {
+        var unit_master = await HostelUnit.findById({ _id: `${req?.body?.unit_master}` });
       }
       const batch_master = await Batch.findById({
         _id: `${req.body?.batch_master}`,

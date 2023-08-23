@@ -180,6 +180,10 @@ const subjectSchema = new mongoose.Schema({
       default: 0,
     },
   },
+  selected_batch_query: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch",
+  },
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

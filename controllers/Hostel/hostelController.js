@@ -522,7 +522,7 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { filter_by } = req.query;
+    const { filter_by, master_by } = req.query;
     const master_query = await handle_undefined(filter_by);
     if (!hid)
       return res.status(200).send({
@@ -539,6 +539,11 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
           { batch_master: master_query },
           { document_update: false },
         ],
+        $or: [
+          {
+            class_master: `${master_by}`
+          }
+        ]
       })
         .limit(limit)
         .skip(skip)

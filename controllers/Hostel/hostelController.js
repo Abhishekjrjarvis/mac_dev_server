@@ -7158,7 +7158,7 @@ exports.renderNewMasterQuery = async (req, res) => {
   }
 };
 
-exports.renderAllBatchQuery = async (req, res) => {
+exports.renderAllMasterQuery = async (req, res) => {
   try {
     const { hid } = req.params;
     if (!hid)

@@ -5465,43 +5465,46 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
       one_subject?.topic_count_bifurgate?.early +
       one_subject?.topic_count_bifurgate?.timely +
       one_subject?.topic_count_bifurgate?.delayed;
+
+    var lecture = `${(
+      (one_subject?.lecture_analytic?.lecture_complete * 100) /
+      one_subject?.lecture_analytic?.lecture_count
+    ).toFixed(2)}`
+
+    var practical = `${(
+      (one_subject?.practical_analytic?.practical_complete * 100) /
+      one_subject?.practical_analytic?.practical_count
+    ).toFixed(2)}`
+    var tutorial = `${(
+      (one_subject?.tutorial_analytic?.tutorial_complete * 100) /
+      one_subject?.tutorial_analytic?.tutorial_count
+    ).toFixed(2)}`
+    var academic = `${((academic_count * 100) / count).toFixed(2)}`
+    var early = `${(
+      (one_subject?.topic_count_bifurgate?.early * 100) /
+      count
+    ).toFixed(2)}`
+    var timely = `${(
+      (one_subject?.topic_count_bifurgate?.timely * 100) /
+      count
+    ).toFixed(2)}`
+    var delayed = `${(
+      (one_subject?.topic_count_bifurgate?.delayed * 100) /
+      count
+    ).toFixed(2)}`
     res.status(200).send({
       message: "Explore One Subject Profile Query",
       access: true,
       one_subject: one_subject,
       total_topic: count,
-      lecture_percentage:
-        `${(
-          (one_subject?.lecture_analytic?.lecture_complete * 100) /
-          one_subject?.lecture_analytic?.lecture_count
-        ).toFixed(2)}` || "0",
-      practical_percentage:
-        `${(
-          (one_subject?.practical_analytic?.practical_complete * 100) /
-          one_subject?.practical_analytic?.practical_count
-        ).toFixed(2)}` || "0",
-      tutorial_percentage:
-        `${(
-          (one_subject?.tutorial_analytic?.tutorial_complete * 100) /
-          one_subject?.tutorial_analytic?.tutorial_count
-        ).toFixed(2)}` || "0",
+      lecture_percentage: lecture === "NaN" ? "0" : lecture,
+      practical_percentage: practical === "NaN" ? "0" : practical,
+      tutorial_percentage: tutorial === "NaN" ? "0" : tutorial,
       academic_performance: {
-        academic_percentage: `${((academic_count * 100) / count).toFixed(2)}`,
-        early_percentage:
-          `${(
-            (one_subject?.topic_count_bifurgate?.early * 100) /
-            count
-          ).toFixed(2)}` || "0",
-        timely_percenatge:
-          `${(
-            (one_subject?.topic_count_bifurgate?.timely * 100) /
-            count
-          ).toFixed(2)}` || "0",
-        delayed_percentage:
-          `${(
-            (one_subject?.topic_count_bifurgate?.delayed * 100) /
-            count
-          ).toFixed(2)}` || "0",
+        academic_percentage: academic === "NaN" ? "0" : academic,
+        early_percentage: early === "NaN" ? "0" : early,
+        timely_percenatge: timely === "NaN" ? "0" : timely,
+        delayed_percentage: delayed === "NaN" ? "0" : delayed,
       },
     });
   } catch (e) {

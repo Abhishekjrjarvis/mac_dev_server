@@ -547,4 +547,14 @@ router.post(
   catchAsync(Admission.retrieveAdmissionCollectDocsRevertedQuery)
 );
 
+router.patch(
+  "/:aid/one/receipts/:rid/status/decheque/query",
+  catchAsync(Admission.renderDemandChequeApprovalQuery)
+);
+
+router.patch(
+  "/:sid/re/apply/receipts/:rid/decheque/query",
+  catchAsync(Admission.renderOneReceiptReApplyDeChequeQuery)
+);
+
 module.exports = router;

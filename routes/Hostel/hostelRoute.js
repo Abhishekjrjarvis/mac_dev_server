@@ -335,6 +335,16 @@ router.post("/:hid/new/master/query", catchAsync(Hostel.renderNewMasterQuery));
 
 router.get("/:hid/all/master/query", catchAsync(Hostel.renderAllMasterQuery));
 
+router.patch(
+  "/:hid/one/receipts/:rid/status/decheque/query",
+  catchAsync(Hostel.renderDemandChequeApprovalQuery)
+);
+
+router.patch(
+  "/:sid/re/apply/receipts/:rid/decheque/query",
+  catchAsync(Hostel.renderOneReceiptReApplyDeChequeQuery)
+);
+
 // router.patch(
 //   "/:hid/all/apps/query",
 //   catchAsync(Hostel.renderHostelAllAppsQuery)

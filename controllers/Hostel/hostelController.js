@@ -541,9 +541,9 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
         ],
         $or: [
           {
-            class_master: `${master_by}`
-          }
-        ]
+            class_master: `${master_by}`,
+          },
+        ],
       })
         .limit(limit)
         .skip(skip)
@@ -1582,6 +1582,21 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
     renew.renewal_status = "Current Stay";
     renew.renewal_hostel = one_hostel?._id;
     student.student_renewal.push(renew?._id);
+    if (
+      `${new_receipt?.fee_payment_mode}` === "Demand Draft" ||
+      `${new_receipt?.fee_payment_mode}` === "Cheque"
+    ) {
+      status.receipt_status = "Requested";
+      status.receipt = new_receipt?._id;
+      if (one_hostel?.request_array?.includes(`${new_receipt?._id}`)) {
+      } else {
+        one_hostel.request_array.push(new_receipt?._id);
+        one_hostel.fee_receipt_request.push({
+          receipt: new_receipt?._id,
+          demand_cheque_status: "Requested",
+        });
+      }
+    }
     await Promise.all([
       one_hostel.save(),
       apply.save(),
@@ -5966,7 +5981,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
       notify.notifyType = "Student";
       notify.notifyPublisher = one_receipt?.student?._id;
       user.activity_tab.push(notify._id);
-      notify.notifyByAdmissionPhoto = ads_admin._id;
+      notify.notifyByHostelPhoto = ads_admin._id;
       notify.notifyCategory = "Receipt Reject";
       notify.redirectIndex = 28;
       invokeMemberTabNotification(
@@ -7190,6 +7205,186 @@ exports.renderAllMasterQuery = async (req, res) => {
         access: false,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDemandChequeApprovalQuery = async (req, res) => {
+  try {
+    const { hid, rid } = req.params;
+    const { status, reqId } = req.query;
+    const { reason } = req.body;
+    if (!hid && !rid && !reqId)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+      var ads_admin = await Hostel.findById({ _id: hid }).populate({
+        path: "hostel_manager",
+        select: "user",
+      });
+    var institute = await InstituteAdmin.findById({
+      _id: `${ads_admin?.institute}`,
+    });
+    var finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    });
+    var one_receipt = await FeeReceipt.findById({ _id: rid }).populate({
+      path: "student",
+      select: "user",
+    });
+    var student = await Student.findById({
+      _id: `${one_receipt?.student?._id}`,
+    }).populate({
+      path: "fee_structure",
+    });
+    var user = await User.findById({ _id: `${student?.user}` });
+    var one_app = await NewApplication.findById({
+      _id: `${one_receipt?.application}`,
+    });
+    var one_status = await Status.findOne({
+      receipt: one_receipt?._id,
+    });
+    if (status === "Approved") {
+      for (var ele of ads_admin?.fee_receipt_request) {
+        if (`${ele._id}` === `${reqId}`) {
+          ads_admin.fee_receipt_request.pull(reqId);
+        }
+      }
+      ads_admin?.request_array.pull(rid);
+      ads_admin.fee_receipt_approve.push({
+        receipt: one_receipt?._id,
+        demand_cheque_status: "Approved",
+      });
+      if (one_status) {
+        one_status.receipt_status = "Approved";
+      }
+      one_receipt.fee_transaction_date = new Date()
+      await one_receipt.save();
+    } else if (status === "Rejected") {
+      for (var ele of ads_admin?.fee_receipt_request) {
+        if (`${ele._id}` === `${reqId}`) {
+          ads_admin.fee_receipt_request.pull(reqId);
+        }
+      }
+      ads_admin?.request_array.pull(rid);
+      ads_admin.fee_receipt_reject.push({
+        receipt: one_receipt?._id,
+        demand_cheque_status: "Rejected",
+        reason: reason,
+      });
+      one_receipt.reason = reason;
+      if (one_status) {
+        one_status.receipt_status = "Rejected";
+      }
+      await one_receipt.save()
+    } else if (status === "Over_Rejection") {
+      for (var ele of ads_admin?.fee_receipt_reject) {
+        if (`${ele._id}` === `${reqId}`) {
+          ads_admin.fee_receipt_reject.pull(reqId);
+        }
+      }
+      ads_admin?.request_array.pull(rid);
+      ads_admin.fee_receipt_approve.push({
+        receipt: one_receipt?._id,
+        demand_cheque_status: "Approved",
+        over_status: "After Rejection Approved By Hostel Manager",
+      });
+      one_receipt.fee_transaction_date = new Date()
+      if (one_status) {
+        one_status.receipt_status = "Approved";
+      }
+      one_receipt.re_apply = false;
+      await one_receipt.save()
+    } else if (status === "Rejection_Notify") {
+      if (one_status) {
+        one_status.receipt_status = "Rejected";
+      }
+      one_receipt.re_apply = false;
+      for (var ele of ads_admin?.fee_receipt_reject) {
+        if (`${ele._id}` === `${reqId}`) {
+          ele.reason = reason;
+        }
+      }
+      one_receipt.reason = reason;
+      await Promise.all([one_receipt.save(), one_app.save()]);
+      const notify = new StudentNotification({});
+      notify.notifyContent = `Your Fees Receipt was cancelled By Hostel Manager`;
+      notify.notifySender = ads_admin?.hostel_manager?.user;
+      notify.notifyReceiever = user._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = one_receipt?.student?._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyByHostelPhoto = ads_admin._id;
+      notify.notifyCategory = "Receipt Reject";
+      notify.redirectIndex = 28;
+      invokeMemberTabNotification(
+        "Hostel Status",
+        `Payment Receipt Reject`,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([user.save(), notify.save()]);
+    } else {
+    }
+    if (one_status) {
+      await Promise.all([ads_admin.save(), one_status.save(), one_app.save()]);
+    } else {
+      await Promise.all([ads_admin.save(), one_app.save()]);
+    }
+    res
+      .status(200)
+      .send({ message: `Receipts ${status} by Admission Admin`, access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneReceiptReApplyDeChequeQuery = async (req, res) => {
+  try {
+    const { sid, rid } = req.params;
+    const { delete_pic } = req.query;
+    const image = await handle_undefined(delete_pic);
+    if (!sid && !rid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_receipt = await FeeReceipt.findByIdAndUpdate(rid, req.body);
+    if (image) {
+      await deleteFile(image);
+    }
+    const one_app = await NewApplication.findById({
+      _id: `${one_receipt?.application}`,
+    });
+    const ads_admin = await Hostel.findById({
+      _id: `${`${one_app?.hostelAdmin}`}`,
+    }).populate({
+      path: "institute",
+      select: "admissionDepart",
+    });
+    var status = await Status.findOne({ receipt: one_receipt?._id });
+    if (status) {
+      status.receipt_status = "Requested";
+    }
+    one_receipt.re_apply = true;
+    await Promise.all([status.save(), one_receipt.save()]);
+    res
+      .status(200)
+      .send({ message: "Your Receipts Under Processing", access: true });
+    for (var all of ads_admin?.fee_receipt_reject) {
+      if (`${all?.receipt}` === `${one_receipt?._id}`) {
+        ads_admin.fee_receipt_reject.pull(all?._id);
+        ads_admin.fee_receipt_reject.unshift({
+          receipt: one_receipt?._id,
+          demand_cheque_status: "Rejected",
+        });
+      }
+    }
+    await ads_admin.save();
   } catch (e) {
     console.log(e);
   }

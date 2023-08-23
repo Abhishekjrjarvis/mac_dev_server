@@ -148,6 +148,7 @@ const hostelSchema = new mongoose.Schema({
       },
       status: { type: String, default: "Pending" },
       created_at: { type: Date, default: Date.now },
+      demand_cheque_status: { type: String, default: "Pending" },
     },
   ],
   fee_receipt_approve: [
@@ -159,6 +160,7 @@ const hostelSchema = new mongoose.Schema({
       status: { type: String, default: "Pending" },
       created_at: { type: Date, default: Date.now },
       over_status: { type: String },
+      demand_cheque_status: { type: String, default: "Pending" },
     },
   ],
   fee_receipt_reject: [
@@ -170,6 +172,7 @@ const hostelSchema = new mongoose.Schema({
       status: { type: String, default: "Pending" },
       created_at: { type: Date, default: Date.now },
       reason: { type: String },
+      demand_cheque_status: { type: String, default: "Pending" },
     },
   ],
   student_form_query: {

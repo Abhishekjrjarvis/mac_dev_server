@@ -80,6 +80,10 @@ const newApplicationSchema = new mongoose.Schema({
       docs_collect: { type: String, default: "Not Collected" },
       status_id: { type: mongoose.Schema.Types.ObjectId, ref: "Status" },
       edited_struct: { type: Boolean, default: true },
+      revert_request_status: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Status",
+      },
     },
   ],
   confirmedApplication: [
@@ -94,6 +98,7 @@ const newApplicationSchema = new mongoose.Schema({
       paid_status: { type: "String" },
       install_type: { type: String },
       second_pay_mode: { type: "String" },
+      status_id: { type: mongoose.Schema.Types.ObjectId, ref: "Status" },
     },
   ],
   allottedApplication: [

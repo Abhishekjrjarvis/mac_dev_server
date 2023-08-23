@@ -5512,6 +5512,19 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
   }
 };
 
+exports.retrieveOneSubjectEditQuery = async(req, res) => {
+  try{
+    const { sid } = req.params
+    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    await Subject.findByIdAndUpdate(sid, req.body)
+    res.status(200).send({ message: "Explore New Edited Subject", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 exports.renderSelectMerchantQuery = async (req, res) => {
   try {
     const { id } = req.params;

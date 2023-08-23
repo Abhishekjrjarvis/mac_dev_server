@@ -619,6 +619,11 @@ router.get(
 );
 
 router.patch(
+  "/:sid/one/subject/edit/query",
+  catchAsync(Institute.retrieveOneSubjectEditQuery)
+);
+
+router.patch(
   "/:id/select/merchant/query",
   catchAsync(Institute.renderSelectMerchantQuery)
 );

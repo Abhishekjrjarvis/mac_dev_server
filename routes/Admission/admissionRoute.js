@@ -537,4 +537,14 @@ router.patch(
   catchAsync(Admission.renderPendingCustomFilterBatchMasterQuery)
 );
 
+router.post(
+  "/:sid/student/:aid/revert/back/select/query",
+  catchAsync(Admission.retrieveAdmissionSelectedRevertedApplication)
+);
+
+router.post(
+  "/:sid/student/:aid/collect/revert/back/docs/query",
+  catchAsync(Admission.retrieveAdmissionCollectDocsRevertedQuery)
+);
+
 module.exports = router;

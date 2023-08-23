@@ -1335,6 +1335,7 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     apply.selectedApplication.push({
       student: student._id,
       fee_remain: structure.total_admission_fees,
+      revert_request_status: status?._id,
     });
     apply.selectCount += 1;
     status.content = `You have been selected for ${apply.applicationName}. 
@@ -9200,6 +9201,76 @@ exports.renderPendingCustomFilterBatchMasterQuery = async (req, res) => {
         master: [],
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveAdmissionSelectedRevertedApplication = async (req, res) => {
+  try {
+    const { sid, aid } = req.params;
+    const { statusId } = req.body;
+    if (!sid && !aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        select_status: false,
+      });
+    const apply = await NewApplication.findById({ _id: aid });
+    const student = await Student.findById({ _id: sid });
+    var user = await User.findById({ _id: `${student?.user}` });
+    var status = await Status.findById({ _id: statusId });
+    for (let app of apply?.selectedApplication) {
+      if (`${app.student}` === `${student._id}`) {
+        apply.selectedApplication.pull(app._id);
+      } else {
+      }
+    }
+    apply.receievedApplication.push({
+      student: student._id,
+    });
+    if (apply.selectCount > 0) {
+      apply.selectCount -= 1;
+    }
+    user.applicationStatus.pull(status?._id);
+    await Status.findByIdAndDelete(statusId);
+    await Promise.all([apply.save(), user.save()]);
+    res.status(200).send({
+      message: `${student.studentFirstName} Revert Back To Receieved Application`,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveAdmissionCollectDocsRevertedQuery = async (req, res) => {
+  try {
+    const { sid, aid } = req.params;
+    const { statusId } = req.body;
+    if (!sid && !aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        docs_status: false,
+      });
+    var apply = await NewApplication.findById({ _id: aid });
+    var student = await Student.findById({ _id: sid });
+    var user = await User.findById({ _id: `${student?.user}` });
+    var status = await Status.findById({ _id: statusId });
+    for (let app of apply.selectedApplication) {
+      if (`${app.student}` === `${student._id}`) {
+        app.docs_collect = "Not Collected";
+        app.status_id = null;
+        app.edited_struct = true;
+      } else {
+      }
+    }
+    user.applicationStatus.pull(status?._id);
+    await Status.findByIdAndDelete(statusId);
+    await Promise.all([apply.save(), user.save()]);
+    res.status(200).send({
+      message: "Look like a party mood Reverted Query",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }

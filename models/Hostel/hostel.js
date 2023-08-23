@@ -258,6 +258,16 @@ const hostelSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  masters: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
+    },
+  ],
+  masterCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Hostel", hostelSchema);

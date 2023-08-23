@@ -32,6 +32,10 @@ const classMasterSchema = new mongoose.Schema({
       ref: "StandardMarkList",
     },
   ],
+  hostel: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Hostel",
+  },
 });
 
 const ClassMaster = mongoose.model("ClassMaster", classMasterSchema);

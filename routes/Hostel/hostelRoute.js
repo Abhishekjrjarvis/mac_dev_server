@@ -331,6 +331,10 @@ router.post(
   catchAsync(Hostel.renderCurrentSelectBatchQuery)
 );
 
+router.post("/:hid/new/master/query", catchAsync(Hostel.renderNewMasterQuery));
+
+router.get("/:hid/all/master/query", catchAsync(Hostel.renderAllMasterQuery));
+
 // router.patch(
 //   "/:hid/all/apps/query",
 //   catchAsync(Hostel.renderHostelAllAppsQuery)

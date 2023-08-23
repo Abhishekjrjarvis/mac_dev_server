@@ -7134,6 +7134,62 @@ exports.renderCurrentSelectBatchQuery = async (req, res) => {
   }
 };
 
+exports.renderNewMasterQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const one_hostel = await Hostel.findById({ _id: hid });
+    const master = new ClassMaster({ ...req.body });
+    one_hostel.masters.push(master?._id);
+    one_hostel.masterCount += 1;
+    master.hostel = one_hostel?._id;
+    await Promise.all([one_hostel.save(), master.save()]);
+    res.status(200).send({
+      message: "Explore New Master Query",
+      master: master._id,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllBatchQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const one_hostel = await Hostel.findById({ _id: hid }).select("masters");
+
+    var all_masters = await ClassMaster.find({
+      _id: { $in: one_hostel?.masters },
+    }).select("className");
+
+    if (all_masters?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Masters Query",
+        access: true,
+        all_masters: all_masters,
+      });
+    } else {
+      res.status(200).send({
+        message: "No All Masters Query",
+        all_masters: [],
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.renderHostelAllAppsQuery = async (req, res) => {
 //   try {
 //     const { hid } = req.params;

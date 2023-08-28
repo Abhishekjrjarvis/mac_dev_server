@@ -1843,19 +1843,19 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       ...allot_count?.list,
       ...select_count?.list,
     ];
-    var all_remain = await RemainingList.find({ student: day_arr })
-    .populate({
-      path: "fee_structure"
-    })
+    var all_remain = await RemainingList.find({ student: day_arr }).populate({
+      path: "fee_structure",
+    });
     var paid = 0;
     var remain = 0;
-    var applicable_pending = 0
+    var applicable_pending = 0;
     for (var ref of all_remain) {
       paid += ref?.paid_fee;
       remain += ref?.remaining_fee;
-      applicable_pending += ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0
-              ? ref?.fee_structure?.applicable_fees - ref?.paid_fee
-              : 0;
+      applicable_pending +=
+        ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0
+          ? ref?.fee_structure?.applicable_fees - ref?.paid_fee
+          : 0;
     }
     var day_wise = {
       request_count: request_count?.req_count,
@@ -1865,7 +1865,7 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       cancel_count: cancel_count?.can_count,
       paid: paid,
       remain: remain,
-      applicable_pending: applicable_pending
+      applicable_pending: applicable_pending,
       // confirm_list: c_query,
       // allot_list: a_query,
       // select_list: s_query,
@@ -2012,25 +2012,19 @@ exports.renderTallyPriceQuery = async (req, res) => {
   //   for (var val of all_remain) {
   //     total += val?.paid_fee;
   //   }
-
   //   var calc = [];
-
   //   // for (var val of all_remain) {
   //   //   if (val?.student?.fee_receipt?.length > 1) {
   //   //     calc.push(val?.student?._id);
   //   //   }
   //   // }
-
   //   var all_exist = await FeeReceipt.find({ student: { $in: list } }).select(
   //     "student"
   //   );
-
   //   for (var ref of all_exist) {
   //     calc.push(ref?.student);
   //   }
-
   //   var u_arr = [...new Set(calc)];
-
   //   var data = {
   //     total: total,
   //     // pay: total - calc,

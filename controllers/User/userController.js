@@ -1812,6 +1812,10 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
             },
           })
           .populate({
+            path: "department",
+            select: "dName dTitle",
+          })
+          .populate({
             path: "exist_linked_hostel.exist_student",
             select:
               "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto student_bed_number hostelRemainFeeCount",
@@ -1932,6 +1936,10 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               path: "hostelRoom",
               select: "room_name room_strength",
             },
+          })
+          .populate({
+            path: "department",
+            select: "dName dTitle",
           })
           .populate({
             path: "exist_linked_hostel.exist_student",

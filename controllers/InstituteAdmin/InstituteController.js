@@ -5268,7 +5268,7 @@ exports.renderStats = async (req, res) => {
         access: false,
       });
     const stats = await InstituteAdmin.findById({ _id: id }).select(
-      "departmentCount staffCount studentCount insProfileCoverPhoto insProfilePhoto"
+      "departmentCount staffCount studentCount insProfileCoverPhoto insProfilePhoto un_approved_student_count"
     );
     // const statsEncrypt = await encryptionPayload(stats);
     res.status(200).send({
@@ -5454,6 +5454,10 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
         select: "topic_count",
       })
       .populate({
+        path: "class",
+        select: "studentCount className classTitle",
+      })
+      .populate({
         path: "selected_batch_query",
         select: "batchName batchStatus",
       });
@@ -5469,29 +5473,29 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
     var lecture = `${(
       (one_subject?.lecture_analytic?.lecture_complete * 100) /
       one_subject?.lecture_analytic?.lecture_count
-    ).toFixed(2)}`
+    ).toFixed(2)}`;
 
     var practical = `${(
       (one_subject?.practical_analytic?.practical_complete * 100) /
       one_subject?.practical_analytic?.practical_count
-    ).toFixed(2)}`
+    ).toFixed(2)}`;
     var tutorial = `${(
       (one_subject?.tutorial_analytic?.tutorial_complete * 100) /
       one_subject?.tutorial_analytic?.tutorial_count
-    ).toFixed(2)}`
-    var academic = `${((academic_count * 100) / count).toFixed(2)}`
+    ).toFixed(2)}`;
+    var academic = `${((academic_count * 100) / count).toFixed(2)}`;
     var early = `${(
       (one_subject?.topic_count_bifurgate?.early * 100) /
       count
-    ).toFixed(2)}`
+    ).toFixed(2)}`;
     var timely = `${(
       (one_subject?.topic_count_bifurgate?.timely * 100) /
       count
-    ).toFixed(2)}`
+    ).toFixed(2)}`;
     var delayed = `${(
       (one_subject?.topic_count_bifurgate?.delayed * 100) /
       count
-    ).toFixed(2)}`
+    ).toFixed(2)}`;
     res.status(200).send({
       message: "Explore One Subject Profile Query",
       access: true,
@@ -5512,18 +5516,25 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
   }
 };
 
-exports.retrieveOneSubjectEditQuery = async(req, res) => {
-  try{
-    const { sid } = req.params
-    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.retrieveOneSubjectEditQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
 
-    await Subject.findByIdAndUpdate(sid, req.body)
-    res.status(200).send({ message: "Explore New Edited Subject", access: true})
+    await Subject.findByIdAndUpdate(sid, req.body);
+    res
+      .status(200)
+      .send({ message: "Explore New Edited Subject", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.renderSelectMerchantQuery = async (req, res) => {
   try {

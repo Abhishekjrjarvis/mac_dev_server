@@ -345,6 +345,8 @@ router.patch(
   catchAsync(Hostel.renderOneReceiptReApplyDeChequeQuery)
 );
 
+router.get("/:hid/all/apps", catchAsync(Hostel.renderAllAppsQuery));
+
 // router.patch(
 //   "/:hid/all/apps/query",
 //   catchAsync(Hostel.renderHostelAllAppsQuery)

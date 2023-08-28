@@ -139,25 +139,25 @@ exports.postWithText = async (req, res) => {
         }
       }
     }
-    if (institute?.isUniversal === "Universal") {
-      for (var ref of institute?.userFollowersList) {
-        var notify = new Notification({});
-        notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
-        notify.notifySender = institute?._id;
-        notify.notifyReceiever = ref._id;
-        notify.notifyCategory = "Post Feed";
-        ref.uNotify.push(notify._id);
-        notify.notifyByInsPhoto = institute._id;
-        await invokeFirebaseNotification(
-          "New To Post Feed",
-          notify,
-          institute.insName,
-          ref._id,
-          ref.deviceToken
-        );
-        await Promise.all([notify.save(), ref.save()]);
-      }
-    }
+    // if (institute?.isUniversal === "Universal") {
+    //   for (var ref of institute?.userFollowersList) {
+    //     var notify = new Notification({});
+    //     notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
+    //     notify.notifySender = institute?._id;
+    //     notify.notifyReceiever = ref._id;
+    //     notify.notifyCategory = "Post Feed";
+    //     ref.uNotify.push(notify._id);
+    //     notify.notifyByInsPhoto = institute._id;
+    //     await invokeFirebaseNotification(
+    //       "New To Post Feed",
+    //       notify,
+    //       institute.insName,
+    //       ref._id,
+    //       ref.deviceToken
+    //     );
+    //     await Promise.all([notify.save(), ref.save()]);
+    //   }
+    // }
   } catch (e) {
     console.log(e);
   }
@@ -281,25 +281,25 @@ exports.postWithImage = async (req, res) => {
         }
       }
     }
-    if (institute?.isUniversal === "Universal") {
-      for (var ref of institute?.userFollowersList) {
-        var notify = new Notification({});
-        notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
-        notify.notifySender = institute?._id;
-        notify.notifyReceiever = ref._id;
-        notify.notifyCategory = "Post Feed";
-        ref.uNotify.push(notify._id);
-        notify.notifyByInsPhoto = institute._id;
-        await invokeFirebaseNotification(
-          "New To Post Feed",
-          notify,
-          institute.insName,
-          ref._id,
-          ref.deviceToken
-        );
-        await Promise.all([notify.save(), ref.save()]);
-      }
-    }
+    // if (institute?.isUniversal === "Universal") {
+    //   for (var ref of institute?.userFollowersList) {
+    //     var notify = new Notification({});
+    //     notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
+    //     notify.notifySender = institute?._id;
+    //     notify.notifyReceiever = ref._id;
+    //     notify.notifyCategory = "Post Feed";
+    //     ref.uNotify.push(notify._id);
+    //     notify.notifyByInsPhoto = institute._id;
+    //     await invokeFirebaseNotification(
+    //       "New To Post Feed",
+    //       notify,
+    //       institute.insName,
+    //       ref._id,
+    //       ref.deviceToken
+    //     );
+    //     await Promise.all([notify.save(), ref.save()]);
+    //   }
+    // }
   } catch (e) {
     console.log(e);
   }
@@ -427,25 +427,25 @@ exports.postWithImageAPK = async (req, res) => {
         }
       }
     }
-    if (institute?.isUniversal === "Universal") {
-      for (var ref of institute?.userFollowersList) {
-        var notify = new Notification({});
-        notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
-        notify.notifySender = institute?._id;
-        notify.notifyReceiever = ref._id;
-        notify.notifyCategory = "Post Feed";
-        ref.uNotify.push(notify._id);
-        notify.notifyByInsPhoto = institute._id;
-        await invokeFirebaseNotification(
-          "New To Post Feed",
-          notify,
-          institute.insName,
-          ref._id,
-          ref.deviceToken
-        );
-        await Promise.all([notify.save(), ref.save()]);
-      }
-    }
+    // if (institute?.isUniversal === "Universal") {
+    //   for (var ref of institute?.userFollowersList) {
+    //     var notify = new Notification({});
+    //     notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
+    //     notify.notifySender = institute?._id;
+    //     notify.notifyReceiever = ref._id;
+    //     notify.notifyCategory = "Post Feed";
+    //     ref.uNotify.push(notify._id);
+    //     notify.notifyByInsPhoto = institute._id;
+    //     await invokeFirebaseNotification(
+    //       "New To Post Feed",
+    //       notify,
+    //       institute.insName,
+    //       ref._id,
+    //       ref.deviceToken
+    //     );
+    //     await Promise.all([notify.save(), ref.save()]);
+    //   }
+    // }
   } catch (e) {
     console.log(e);
   }
@@ -571,25 +571,25 @@ exports.postWithVideo = async (req, res) => {
         }
       }
     }
-    if (institute?.isUniversal === "Universal") {
-      for (var ref of institute?.userFollowersList) {
-        var notify = new Notification({});
-        notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
-        notify.notifySender = institute?._id;
-        notify.notifyReceiever = ref._id;
-        notify.notifyCategory = "Post Feed";
-        ref.uNotify.push(notify._id);
-        notify.notifyByInsPhoto = institute._id;
-        await invokeFirebaseNotification(
-          "New To Post Feed",
-          notify,
-          institute.insName,
-          ref._id,
-          ref.deviceToken
-        );
-        await Promise.all([notify.save(), ref.save()]);
-      }
-    }
+    // if (institute?.isUniversal === "Universal") {
+    //   for (var ref of institute?.userFollowersList) {
+    //     var notify = new Notification({});
+    //     notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
+    //     notify.notifySender = institute?._id;
+    //     notify.notifyReceiever = ref._id;
+    //     notify.notifyCategory = "Post Feed";
+    //     ref.uNotify.push(notify._id);
+    //     notify.notifyByInsPhoto = institute._id;
+    //     await invokeFirebaseNotification(
+    //       "New To Post Feed",
+    //       notify,
+    //       institute.insName,
+    //       ref._id,
+    //       ref.deviceToken
+    //     );
+    //     await Promise.all([notify.save(), ref.save()]);
+    //   }
+    // }
   } catch (e) {
     console.log(e);
   }

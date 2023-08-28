@@ -1843,12 +1843,19 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       ...allot_count?.list,
       ...select_count?.list,
     ];
-    var all_remain = await RemainingList.find({ student: day_arr });
+    var all_remain = await RemainingList.find({ student: day_arr })
+    .populate({
+      path: "fee_structure"
+    })
     var paid = 0;
     var remain = 0;
+    var applicable_pending = 0
     for (var ref of all_remain) {
       paid += ref?.paid_fee;
       remain += ref?.remaining_fee;
+      applicable_pending += ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0
+              ? ref?.fee_structure?.applicable_fees - ref?.paid_fee
+              : 0;
     }
     var day_wise = {
       request_count: request_count?.req_count,
@@ -1858,6 +1865,7 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       cancel_count: cancel_count?.can_count,
       paid: paid,
       remain: remain,
+      applicable_pending: applicable_pending
       // confirm_list: c_query,
       // allot_list: a_query,
       // select_list: s_query,

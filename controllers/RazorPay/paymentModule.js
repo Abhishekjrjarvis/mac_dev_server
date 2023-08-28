@@ -344,23 +344,10 @@ exports.admissionInstituteFunction = async (
   statusId
 ) => {
   try {
-    // console.log(
-    //   order,
-    //   paidBy,
-    //   tx_amount_ad,
-    //   tx_amount_ad_charges,
-    //   moduleId,
-    //   paidTo,
-    //   type,
-    //   is_author,
-    //   payment_type,
-    //   remain_1,
-    //   statusId
-    // );
     var student = await Student.findById({ _id: paidBy }).populate({
       path: "fee_structure",
     });
-    var user = await User.findById({ _id: `${student.user}` });
+    var user = await User.findById({ _id: `${student?.user}` });
     var apply = await NewApplication.findById({ _id: moduleId });
     var orderPay = await OrderPayment.findById({ _id: order });
     var admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
@@ -392,17 +379,17 @@ exports.admissionInstituteFunction = async (
     } else {
       is_install = false;
     }
-    if (apply?.gstSlab > 0) {
-      var business_data = new BusinessTC({});
-      business_data.b_to_c_month = new Date().toISOString();
-      business_data.b_to_c_i_slab = parseInt(apply?.gstSlab) / 2;
-      business_data.b_to_c_s_slab = parseInt(apply?.gstSlab) / 2;
-      business_data.b_to_c_name = "Admission Fees";
-      business_data.finance = finance._id;
-      finance.gst_format.b_to_c.push(business_data?._id);
-      business_data.b_to_c_total_amount = parseInt(tx_amount_ad);
-      await business_data.save();
-    }
+    // if (apply?.gstSlab > 0) {
+    //   var business_data = new BusinessTC({});
+    //   business_data.b_to_c_month = new Date().toISOString();
+    //   business_data.b_to_c_i_slab = parseInt(apply?.gstSlab) / 2;
+    //   business_data.b_to_c_s_slab = parseInt(apply?.gstSlab) / 2;
+    //   business_data.b_to_c_name = "Admission Fees";
+    //   business_data.finance = finance._id;
+    //   finance.gst_format.b_to_c.push(business_data?._id);
+    //   business_data.b_to_c_total_amount = parseInt(tx_amount_ad);
+    //   await business_data.save();
+    // }
     if (statusId) {
       // console.log("Status BLOCK");
       var total_amount = await add_total_installment(student);
@@ -852,6 +839,10 @@ exports.admissionInstituteFunction = async (
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
       }${new Date().getFullYear()}${ins.invoice_count}`;
+      remaining_fee_lists.paid_fee += parseInt(tx_amount_ad);
+      if (remaining_fee_lists.remaining_fee >= parseInt(tx_amount_ad)) {
+        remaining_fee_lists.remaining_fee -= parseInt(tx_amount_ad);
+      }
       await render_installment(
         type,
         student,
@@ -864,10 +855,6 @@ exports.admissionInstituteFunction = async (
         apply,
         ins
       );
-      remaining_fee_lists.paid_fee += parseInt(tx_amount_ad);
-      if (remaining_fee_lists.remaining_fee >= parseInt(tx_amount_ad)) {
-        remaining_fee_lists.remaining_fee -= parseInt(tx_amount_ad);
-      }
       student.admissionPaidFeeCount += parseInt(tx_amount_ad);
       if (admission?.remainingFeeCount >= parseInt(tx_amount_ad)) {
         admission.remainingFeeCount -= parseInt(tx_amount_ad);
@@ -958,7 +945,7 @@ exports.admissionInstituteFunction = async (
       }
       ins.payment_history.push(order);
       orderPay.payment_admission = apply._id;
-      orderPay.payment_by_end_user_id = user._id;
+      orderPay.payment_by_end_user_id = user?._id;
       new_receipt.order_history = orderPay?._id;
       orderPay.fee_receipt = new_receipt?._id;
       await Promise.all([

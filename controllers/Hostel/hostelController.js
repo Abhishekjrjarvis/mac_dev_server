@@ -1319,6 +1319,7 @@ exports.renderHostelSelectedQuery = async (req, res) => {
     apply.selectedApplication.push({
       student: student._id,
       fee_remain: structure.total_admission_fees,
+      status_id: status?._id,
     });
     apply.selectCount += 1;
 
@@ -1550,6 +1551,13 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
     await set_fee_head_query(student, price, apply, new_receipt);
     for (let app of apply?.selectedApplication) {
       if (`${app.student}` === `${student._id}`) {
+        if (app?.status_id) {
+          const valid_status = await Status.findById({
+            _id: `${app?.status_id}`,
+          });
+          valid_status.isPaid = "Paid";
+          await valid_status.save();
+        }
         apply.selectedApplication.pull(app._id);
       } else {
       }
@@ -7220,10 +7228,10 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-      var ads_admin = await Hostel.findById({ _id: hid }).populate({
-        path: "hostel_manager",
-        select: "user",
-      });
+    var ads_admin = await Hostel.findById({ _id: hid }).populate({
+      path: "hostel_manager",
+      select: "user",
+    });
     var institute = await InstituteAdmin.findById({
       _id: `${ads_admin?.institute}`,
     });
@@ -7260,7 +7268,7 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
       if (one_status) {
         one_status.receipt_status = "Approved";
       }
-      one_receipt.fee_transaction_date = new Date()
+      one_receipt.fee_transaction_date = new Date();
       await one_receipt.save();
     } else if (status === "Rejected") {
       for (var ele of ads_admin?.fee_receipt_request) {
@@ -7278,7 +7286,7 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
       if (one_status) {
         one_status.receipt_status = "Rejected";
       }
-      await one_receipt.save()
+      await one_receipt.save();
     } else if (status === "Over_Rejection") {
       for (var ele of ads_admin?.fee_receipt_reject) {
         if (`${ele._id}` === `${reqId}`) {
@@ -7291,12 +7299,12 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
         demand_cheque_status: "Approved",
         over_status: "After Rejection Approved By Hostel Manager",
       });
-      one_receipt.fee_transaction_date = new Date()
+      one_receipt.fee_transaction_date = new Date();
       if (one_status) {
         one_status.receipt_status = "Approved";
       }
       one_receipt.re_apply = false;
-      await one_receipt.save()
+      await one_receipt.save();
     } else if (status === "Rejection_Notify") {
       if (one_status) {
         one_status.receipt_status = "Rejected";
@@ -7385,6 +7393,20 @@ exports.renderOneReceiptReApplyDeChequeQuery = async (req, res) => {
       }
     }
     await ads_admin.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllAppsQuery = async (req, res) => {
+  try {
+    var { hid } = req.params;
+    var ads = await Hostel.findById({ _id: hid });
+    var all = await NewApplication.find({
+      _id: { $in: ads?.newApplication },
+    }).select("applicationName");
+
+    res.status(200).send({ message: "Explore All Apps", all: all });
   } catch (e) {
     console.log(e);
   }

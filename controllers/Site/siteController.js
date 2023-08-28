@@ -401,3 +401,58 @@ exports.updateInstituteSiteOpeners = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.updateHostelInfo = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    if (!hid)
+      return res.status(200).send({
+        message: "You fetch api with proper knownledge",
+        access: true,
+      });
+    const hostel = await Hostel.findById(hid);
+    if (hostel.site_info?.[0]) {
+      const hostelSite = await HostelSite.findById(hostel.site_info[0]);
+      hostelSite.hostel_about = req.body.hostel_about;
+      hostelSite.hostel_process = req.body.hostel_process;
+      hostelSite.cashier_signature = req.body?.cashier_signature;
+      hostelSite.cashier_name = req.body?.cashier_name;
+      for (let contact of req.body.edit_hostel_contact) {
+        for (let cont of hostelSite.hostel_contact) {
+          if (String(contact?.contactId) === String(cont?._id)) {
+            cont.contact_department_name = contact.contact_department_name;
+            cont.contact_person_name = contact.contact_person_name;
+            cont.contact_person_mobile = contact.contact_person_mobile;
+            cont.contact_person_email = contact.contact_person_email;
+          }
+        }
+      }
+      hostelSite.hostel_contact.push(...req.body.hostel_contact);
+      await hostelSite.save();
+      res.status(200).send({
+        message: "Hostel site info is updated 😋😊😋",
+        access: true,
+      });
+      if (req.body?.previousKey) await deleteFile(req.body.previousKey);
+
+      // await DepartmentSite.findByIdAndUpdate(department.site_info[0], req.body);
+    } else {
+      const hostelSite = new HostelSite({
+        hostel_about: req.body.hostel_about,
+        hostel_process: req.body.hostel_process,
+        hostel_contact: req.body.hostel_contact,
+        related_hostel: hostel?._id,
+        cashier_name: req.body?.cashier_name,
+        cashier_signature: req.body?.cashier_signature,
+      });
+      hostel.site_info.push(hostelSite?._id);
+      await Promise.all([hostelSite.save(), hostel.save()]);
+      res.status(200).send({
+        message: "Hostel site info is updated first time 😋😊😋",
+        access: true,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

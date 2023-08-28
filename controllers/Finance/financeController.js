@@ -2517,6 +2517,10 @@ exports.renderFinanceAllBankAccountQuery = async (req, res) => {
           select: "dName dTitle",
         })
         .populate({
+          path: "departments",
+          select: "dName dTitle",
+        })
+        .populate({
           path: "transport",
           select: "_id",
         })
@@ -2536,6 +2540,10 @@ exports.renderFinanceAllBankAccountQuery = async (req, res) => {
         .skip(skip)
         .populate({
           path: "department",
+          select: "dName dTitle",
+        })
+        .populate({
+          path: "departments",
           select: "dName dTitle",
         })
         .populate({

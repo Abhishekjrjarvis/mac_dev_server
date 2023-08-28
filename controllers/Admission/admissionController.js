@@ -3069,6 +3069,10 @@ exports.paidRemainingFeeStudent = async (req, res) => {
           remaining_fee_lists.remaining_fee -= price;
         }
       } else {
+        remaining_fee_lists.paid_fee += price;
+        if (remaining_fee_lists.remaining_fee >= price) {
+          remaining_fee_lists.remaining_fee -= price;
+        }
         await render_installment(
           type,
           student,
@@ -3081,10 +3085,6 @@ exports.paidRemainingFeeStudent = async (req, res) => {
           apply,
           institute
         );
-        remaining_fee_lists.paid_fee += price;
-        if (remaining_fee_lists.remaining_fee >= price) {
-          remaining_fee_lists.remaining_fee -= price;
-        }
       }
     }
     if (admin_ins?.remainingFeeCount >= price) {
@@ -3568,6 +3568,12 @@ const request_mode_query_by_student = async (
           remaining_fee_lists.remaining_fee -= price;
         }
       } else {
+        if (remaining_fee_lists) {
+          remaining_fee_lists.paid_fee += price;
+        }
+        if (remaining_fee_lists?.remaining_fee >= price) {
+          remaining_fee_lists.remaining_fee -= price;
+        }
         await render_installment(
           type,
           student,
@@ -3580,12 +3586,6 @@ const request_mode_query_by_student = async (
           apply,
           institute
         );
-        if (remaining_fee_lists) {
-          remaining_fee_lists.paid_fee += price;
-        }
-        if (remaining_fee_lists?.remaining_fee >= price) {
-          remaining_fee_lists.remaining_fee -= price;
-        }
       }
     }
     if (admin_ins?.remainingFeeCount >= price) {
@@ -6192,6 +6192,10 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
           remaining_fee_lists.remaining_fee -= price;
         }
       } else {
+        remaining_fee_lists.paid_fee += price;
+        if (remaining_fee_lists.remaining_fee >= price) {
+          remaining_fee_lists.remaining_fee -= price;
+        }
         await render_installment(
           type,
           student,
@@ -6204,10 +6208,6 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
           apply,
           institute
         );
-        remaining_fee_lists.paid_fee += price;
-        if (remaining_fee_lists.remaining_fee >= price) {
-          remaining_fee_lists.remaining_fee -= price;
-        }
       }
     }
     if (admin_ins?.remainingFeeCount >= price) {
@@ -7558,6 +7558,10 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
               remaining_fee_lists.remaining_fee -= price;
             }
           } else {
+            remaining_fee_lists.paid_fee += price;
+            if (remaining_fee_lists.remaining_fee >= price) {
+              remaining_fee_lists.remaining_fee -= price;
+            }
             await render_installment(
               type,
               student,
@@ -7570,10 +7574,6 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
               apply,
               institute
             );
-            remaining_fee_lists.paid_fee += price;
-            if (remaining_fee_lists.remaining_fee >= price) {
-              remaining_fee_lists.remaining_fee -= price;
-            }
           }
         }
         if (admin_ins?.remainingFeeCount >= price) {
@@ -7889,6 +7889,10 @@ const auto_scholar_query = async (
           remaining_fee_lists.remaining_fee -= price;
         }
       } else {
+        remaining_fee_lists.paid_fee += price;
+        if (remaining_fee_lists.remaining_fee >= price) {
+          remaining_fee_lists.remaining_fee -= price;
+        }
         await render_installment(
           type,
           student,
@@ -7901,10 +7905,6 @@ const auto_scholar_query = async (
           apply,
           institute
         );
-        remaining_fee_lists.paid_fee += price;
-        if (remaining_fee_lists.remaining_fee >= price) {
-          remaining_fee_lists.remaining_fee -= price;
-        }
       }
     }
     if (admin_ins?.remainingFeeCount >= price) {
@@ -9341,7 +9341,7 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
       if (one_status) {
         one_status.receipt_status = "Approved";
       }
-      one_receipt.fee_transaction_date = new Date()
+      one_receipt.fee_transaction_date = new Date();
       await one_receipt.save();
     } else if (status === "Rejected") {
       for (var ele of ads_admin?.fee_receipt_request) {
@@ -9359,7 +9359,7 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
       if (one_status) {
         one_status.receipt_status = "Rejected";
       }
-      await one_receipt.save()
+      await one_receipt.save();
     } else if (status === "Over_Rejection") {
       for (var ele of ads_admin?.fee_receipt_reject) {
         if (`${ele._id}` === `${reqId}`) {
@@ -9372,12 +9372,12 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
         demand_cheque_status: "Approved",
         over_status: "After Rejection Approved By Admission Admin",
       });
-      one_receipt.fee_transaction_date = new Date()
+      one_receipt.fee_transaction_date = new Date();
       if (one_status) {
         one_status.receipt_status = "Approved";
       }
       one_receipt.re_apply = false;
-      await one_receipt.save()
+      await one_receipt.save();
     } else if (status === "Rejection_Notify") {
       if (one_status) {
         one_status.receipt_status = "Rejected";

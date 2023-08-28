@@ -55,6 +55,7 @@ exports.structure_pricing_query = async (new_struct, month) => {
     } else {
     }
     await new_struct.save();
+    console.log("New Structure Pricing", new_struct);
   } catch (e) {
     console.log(e);
   }

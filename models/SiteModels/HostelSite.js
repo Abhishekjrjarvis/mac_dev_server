@@ -15,6 +15,8 @@ const hoselSiteSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Hostel",
   },
+  cashier_name: String,
+  cashier_signature: String,
 });
 
 module.exports = mongoose.model("HostelSite", hoselSiteSchema);

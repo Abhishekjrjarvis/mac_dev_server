@@ -557,4 +557,9 @@ router.patch(
   catchAsync(Admission.renderOneReceiptReApplyDeChequeQuery)
 );
 
+// router.patch(
+//   "/:aid/transfer/apps/query",
+//   catchAsync(Admission.renderTransferAppsQuery)
+// );
+
 module.exports = router;

@@ -9468,6 +9468,45 @@ exports.renderOneReceiptReApplyDeChequeQuery = async (req, res) => {
   }
 };
 
+// exports.renderTransferAppsQuery = async(req, res) => {
+//   try{
+//     const { aid } = req.params
+//     const { app_array, oaid, student_array } = req.body
+//     if(!aid && !app_array && !oaid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+//     var valid_new_app = await NewApplication.findById({ _id: aid})
+//     var valid_old_app = await NewApplication.findById({ _id: oaid})
+
+//     for(var ref of app_array){
+//       valid_old_app.confirmedApplication.pull(ref)
+//       if(valid_old_app?.confirmCount > 0){
+//         valid_old_app?.confirmCount -= 1
+//       }
+//     }
+//     await valid_old_app.save()
+//     res.status(200).send({ message: `Explore ${student_array?.length} transferred to New Application`, access: true})
+
+//     for(var ele of student_array){
+//       var valid_student = await Student.findById({ _id: `${ele?.studentId}`})
+//       valid_new_app.confirmedApplication.push({
+//         student: valid_student?._id,
+//         payment_status: ele?.mode,
+//         install_type: ele?.type,
+//         fee_remain: price,
+//         transfer_status: "Transferred",
+//         transfer_from_app: valid_old_app?._id
+//       })
+//       valid_new_app.confirmCount += 1
+//       valid_new_app.transferCount += 1
+
+//       var all_remain = await RemainingList.find({ $and: [{ _id: { $in: valid_student?.remainingFeeList} }]})
+//     }
+//   }
+//   catch(e){
+//     console.log(e)
+//   }
+// }
+
 // exports.renderRetroOneStudentStructureQuery = async (req, res) => {
 //   try {
 //     const { new_fee_struct } = req.params;

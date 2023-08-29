@@ -99,6 +99,14 @@ const newApplicationSchema = new mongoose.Schema({
       install_type: { type: String },
       second_pay_mode: { type: "String" },
       status_id: { type: mongoose.Schema.Types.ObjectId, ref: "Status" },
+      transfer_status: {
+        type: String,
+        default: "Not Transferred",
+      },
+      transfer_from_app: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
     },
   ],
   allottedApplication: [
@@ -161,6 +169,10 @@ const newApplicationSchema = new mongoose.Schema({
   },
   app_qr_code: {
     type: String,
+  },
+  transferCount: {
+    type: Number,
+    default: 0,
   },
 });
 

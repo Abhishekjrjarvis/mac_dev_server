@@ -1436,32 +1436,33 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
     }).select("insName");
-    if (fsid && depart) {
-      var all_students = await Student.find({
-        $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
-        $or: [
-          {
-            fee_structure: fsid,
-          },
-          {
-            department: depart,
-          },
-        ],
-      }).select("_id fee_receipt");
-    } else {
-      var all_students = await Student.find({
-        $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
-      }).select("_id fee_receipt");
-    }
-    for (var ref of all_students) {
-      sorted_array.push(ref?._id);
-    }
+    // if (fsid && depart) {
+    //   var all_students = await Student.find({
+    //     $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
+    //     $or: [
+    //       {
+    //         fee_structure: fsid,
+    //       },
+    //       {
+    //         department: depart,
+    //       },
+    //     ],
+    //   }).select("_id fee_receipt");
+    // } else {
+    //   var all_students = await Student.find({
+    //     $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
+    //   }).select("_id fee_receipt");
+    // }
+    // for (var ref of all_students) {
+    //   sorted_array.push(ref?._id);
+    // }
     if (valid_timeline) {
       const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
       const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
       var all_receipts = await FeeReceipt.find({
         $and: [
-          { student: { $in: sorted_array } },
+          // { student: { $in: sorted_array } },
+          { finance: fid },
           // { fee_flow: "FEE_HEADS" },
           {
             created_at: {
@@ -1475,7 +1476,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList department",
           populate: {
             path: "fee_structure",
             select:
@@ -1489,7 +1490,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList department",
           populate: {
             path: "studentClass",
             select: "className classTitle",
@@ -1498,7 +1499,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList department",
           populate: {
             path: "batches",
             select: "batchName",
@@ -1519,6 +1520,17 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         })
         .lean()
         .exec();
+
+      if (fsid) {
+        all_receipts = all_receipts?.filter((val) => {
+          if (`${val?.student?.fee_structure?._id}` === `${fsid}`) return val;
+        });
+      }
+      if (depart) {
+        all_receipts = all_receipts?.filter((val) => {
+          if (`${val?.student?.department?._id}` === `${depart}`) return val;
+        });
+      }
     } else {
       var g_year = new Date(`${from}`).getFullYear();
       var g_day = new Date(`${from}`).getDate();
@@ -1542,7 +1554,8 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
       var all_receipts = await FeeReceipt.find({
         $and: [
-          { student: { $in: sorted_array } },
+          // { student: { $in: sorted_array } },
+          { finance: fid },
           // { fee_flow: "FEE_HEADS" },
           {
             created_at: {
@@ -1605,6 +1618,8 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       res.status(200).send({
         message: "Explore Fee Receipt Heads Structure Query",
         access: true,
+        all_receipts,
+        count: all_receipts?.length,
       });
       var head_list = [];
       const buildStructureObject = async (arr) => {
@@ -2040,3 +2055,20 @@ exports.renderTallyPriceQuery = async (req, res) => {
   //   console.log(e);
   // }
 };
+// var data = "2023-08-28T11:22:55.743+00:00";
+// var from = "2023-07-01";
+// var to = "2023-08-28";
+
+// var da = () => {
+//   if (
+//     `${moment(data).format("YYYY-MM-DD")}` >= `${from}` &&
+//     `${moment(data).format("YYYY-MM-DD")}` <= `${to}`
+//   ) {
+//     return true;
+//   } else {
+//     return false;
+//   }
+// };
+
+// console.log(da());
+// console.log(moment("2023-08-06T11:39:18.835Z").format("YYYY-MM-DD"));

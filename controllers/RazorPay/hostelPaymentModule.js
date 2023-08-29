@@ -118,7 +118,7 @@ exports.hostelInstituteFunction = async (
       }${new Date().getFullYear()}${ins.invoice_count}`;
       const notify = new Notification({});
       one_hostel.onlineFee += parseInt(tx_amount_ad);
-      one_hostel.collected_fee += parseInt(tx_amount_ad);
+      // one_hostel.collected_fee += parseInt(tx_amount_ad);
       apply.onlineFee += parseInt(tx_amount_ad);
       apply.collectedFeeCount += parseInt(tx_amount_ad);
       finance.financeHostelBalance += parseInt(tx_amount_ad);
@@ -376,7 +376,7 @@ exports.hostelInstituteFunction = async (
       }
       // admission.remainingFee.pull(student._id);
       one_hostel.onlineFee += parseInt(tx_amount_ad);
-      one_hostel.collected_fee += parseInt(tx_amount_ad);
+      // one_hostel.collected_fee += parseInt(tx_amount_ad);
       apply.onlineFee += parseInt(tx_amount_ad);
       apply.collectedFeeCount += parseInt(tx_amount_ad);
       finance.financeHostelBalance += parseInt(tx_amount_ad);

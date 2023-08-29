@@ -313,4 +313,9 @@ router.patch(
   catchAsync(Extra.renderProfileUploadQuery)
 );
 
+router.get(
+  "/:id/student/section/form/query",
+  catchAsync(Extra.renderStudentSectionFormShowQuery)
+);
+
 module.exports = router;

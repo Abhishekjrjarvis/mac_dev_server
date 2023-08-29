@@ -9507,6 +9507,33 @@ exports.renderOneReceiptReApplyDeChequeQuery = async (req, res) => {
 //   }
 // }
 
+exports.renderRemainCardRemovalQuery = async (req, res) => {
+  try {
+    const { rid } = req.params;
+    const { raid } = req.query;
+    if (!rid && !raid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+
+    var valid_card = await RemainingList.findById({ _id: rid }).select(
+      "remaining_array"
+    );
+
+    valid_card.remaining_array.pull(raid);
+    await valid_card.save();
+
+    res
+      .status(200)
+      .send({ message: "Explore Card Removal Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.renderRetroOneStudentStructureQuery = async (req, res) => {
 //   try {
 //     const { new_fee_struct } = req.params;

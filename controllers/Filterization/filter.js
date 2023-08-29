@@ -1688,17 +1688,24 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
                   : ""
               } ${ref?.student?.studentLastName}` ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
-            TotalFees: remain_list?.fee_structure?.total_admission_fees ?? "0",
-            ApplicableFees: remain_list?.fee_structure?.applicable_fees ?? "0",
-            TotalPaidFees: remain_list?.paid_fee,
-            RemainingFees: remain_list?.remaining_fee,
-            PaidByStudent: remain_list?.paid_by_student,
-            PaidByGovernment: remain_list?.paid_by_government,
             Standard:
               `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
             Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
             FeeStructure:
               remain_list?.fee_structure?.unique_structure_name ?? "#NA",
+            TotalFees: remain_list?.fee_structure?.total_admission_fees ?? "0",
+            ApplicableFees: remain_list?.fee_structure?.applicable_fees ?? "0",
+            PaidByStudent: remain_list?.paid_by_student,
+            PaidByGovernment: remain_list?.paid_by_government,
+            TotalPaidFees: remain_list?.paid_fee,
+            ApplicableOutstanding:
+              remain_list?.fee_structure?.applicable_fees -
+                remain_list?.paid_fee >
+              0
+                ? remain_list?.fee_structure?.applicable_fees -
+                  remain_list?.paid_fee
+                : 0,
+            TotalOutstanding: remain_list?.remaining_fee,
             Remark: remain_list?.remark ?? "#NA",
             DepartmentBankName:
               ref?.application?.applicationDepartment?.bank_account
@@ -1899,6 +1906,7 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
 exports.renderHostelApplicationListQuery = async (req, res) => {
   try {
     const { appId } = req.params;
+    const { flow } = req.query;
     if (!appId)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -1906,9 +1914,27 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
       });
 
     var valid_apply = await NewApplication.findById({ _id: appId })
-      .select("receievedApplication applicationUnit applicationName")
+      .select(
+        "receievedApplication applicationUnit applicationName confirmedApplication allottedApplication"
+      )
       .populate({
         path: "receievedApplication",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
+        },
+      })
+      .populate({
+        path: "confirmedApplication",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
+        },
+      })
+      .populate({
+        path: "allottedApplication",
         populate: {
           path: "student",
           select:
@@ -1920,7 +1946,10 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
       _id: valid_apply?.applicationUnit,
     }).select("hostel_unit_name");
 
-    if (valid_apply?.receievedApplication?.length > 0) {
+    if (
+      `${flow}` === "Request_Query" &&
+      valid_apply?.receievedApplication?.length > 0
+    ) {
       var excel_list = [];
       for (var ref of valid_apply?.receievedApplication) {
         excel_list.push({
@@ -1952,7 +1981,106 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
         excel_list,
         valid_apply?.applicationName,
         valid_unit?.hostel_unit_name,
-        appId
+        appId,
+        flow
+      );
+      if (valid_back?.back) {
+        res.status(200).send({
+          message: "Explore New Excel On Hostel Export TAB",
+          access: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No New Excel Exports ",
+          access: false,
+        });
+      }
+    } else if (
+      `${flow}` === "Confirm_Query" &&
+      valid_apply?.confirmedApplication?.length > 0
+    ) {
+      var excel_list = [];
+      for (var ref of valid_apply?.confirmedApplication) {
+        excel_list.push({
+          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+          Name: `${ref?.student?.studentFirstName} ${
+            ref?.student?.studentMiddleName
+              ? ref?.student?.studentMiddleName
+              : ""
+          } ${ref?.student?.studentLastName}`,
+          DOB: ref?.student?.studentDOB ?? "#NA",
+          Gender: ref?.student?.studentGender ?? "#NA",
+          CPI: ref?.student?.student_hostel_cpi ?? "#NA",
+          Programme: ref?.student?.student_programme ?? "#NA",
+          Branch: ref?.student?.student_branch ?? "#NA",
+          Year: ref?.student?.student_year ?? "#NA",
+          SingleSeaterRoom: ref?.student?.student_single_seater_room ?? "#NA",
+          PhysicallyHandicapped: ref?.student?.student_ph ?? "#NA",
+          Caste: ref?.student?.studentCastCategory ?? "#NA",
+          Religion: ref?.student?.studentReligion ?? "#NA",
+          MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+          Address: `${ref?.student?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+          ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+        });
+      }
+      var valid_back = await json_to_excel_hostel_application_query(
+        excel_list,
+        valid_apply?.applicationName,
+        valid_unit?.hostel_unit_name,
+        appId,
+        flow
+      );
+      if (valid_back?.back) {
+        res.status(200).send({
+          message: "Explore New Excel On Hostel Export TAB",
+          access: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No New Excel Exports ",
+          access: false,
+        });
+      }
+    } else if (
+      `${flow}` === "Allot_Query" &&
+      valid_apply?.allottedApplication?.length > 0
+    ) {
+      var excel_list = [];
+      for (var ref of valid_apply?.allottedApplication) {
+        excel_list.push({
+          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+          Name: `${ref?.student?.studentFirstName} ${
+            ref?.student?.studentMiddleName
+              ? ref?.student?.studentMiddleName
+              : ""
+          } ${ref?.student?.studentLastName}`,
+          DOB: ref?.student?.studentDOB ?? "#NA",
+          Gender: ref?.student?.studentGender ?? "#NA",
+          CPI: ref?.student?.student_hostel_cpi ?? "#NA",
+          Programme: ref?.student?.student_programme ?? "#NA",
+          Branch: ref?.student?.student_branch ?? "#NA",
+          Year: ref?.student?.student_year ?? "#NA",
+          SingleSeaterRoom: ref?.student?.student_single_seater_room ?? "#NA",
+          PhysicallyHandicapped: ref?.student?.student_ph ?? "#NA",
+          Caste: ref?.student?.studentCastCategory ?? "#NA",
+          Religion: ref?.student?.studentReligion ?? "#NA",
+          MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+          Address: `${ref?.student?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+          ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+        });
+      }
+      var valid_back = await json_to_excel_hostel_application_query(
+        excel_list,
+        valid_apply?.applicationName,
+        valid_unit?.hostel_unit_name,
+        appId,
+        flow
       );
       if (valid_back?.back) {
         res.status(200).send({

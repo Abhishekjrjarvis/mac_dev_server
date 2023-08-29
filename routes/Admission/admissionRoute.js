@@ -562,4 +562,9 @@ router.patch(
 //   catchAsync(Admission.renderTransferAppsQuery)
 // );
 
+router.patch(
+  "/:rid/card/removal/query",
+  catchAsync(Admission.renderRemainCardRemovalQuery)
+);
+
 module.exports = router;

@@ -1452,7 +1452,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "institute",
-          select: "insName photoId insProfilePhoto",
+          select: "insName photoId insProfilePhoto student_section_form_show_query",
         })
         .populate({
           path: "user",
@@ -1625,7 +1625,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "institute",
-          select: "insName photoId insProfilePhoto",
+          select: "insName photoId insProfilePhoto student_section_form_show_query",
         })
         .populate({
           path: "user",
@@ -1775,7 +1775,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           .populate({
             path: "institute",
             select:
-              "insName name photoId insProfilePhoto library studentFormSetting",
+              "insName name photoId insProfilePhoto library studentFormSetting student_section_form_show_query",
           })
           .populate({
             path: "user",
@@ -1901,7 +1901,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           .populate({
             path: "institute",
             select:
-              "insName name photoId insProfilePhoto library studentFormSetting",
+              "insName name photoId insProfilePhoto library studentFormSetting student_section_form_show_query",
           })
           .populate({
             path: "user",

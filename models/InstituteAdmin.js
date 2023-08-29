@@ -913,6 +913,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  student_section_form_show_query: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

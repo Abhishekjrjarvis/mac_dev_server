@@ -100,6 +100,17 @@ exports.all_access_role = () => {
         appArray: [],
       },
     },
+    DATA_EXPORT_ACCESS: {
+      role: "DATA_EXPORT_ACCESS",
+      permission: {
+        allow: true,
+        bound: [".xlsx", ".pdf", ".doc"],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
   };
   return access_role;
 };
@@ -172,6 +183,17 @@ exports.all_access_role_finance = () => {
         bound: ["ADD BANK ACCOUNT", "EDIT BANK ACCOUNT", "DELETE BANK ACCOUNT"],
         addons: [],
         accessStaff: "",
+      },
+    },
+    DATA_EXPORT_ACCESS: {
+      role: "DATA_EXPORT_ACCESS",
+      permission: {
+        allow: true,
+        bound: [".xlsx", ".pdf", ".doc"],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
       },
     },
   };
@@ -365,6 +387,17 @@ exports.all_access_role_hostel = () => {
       permission: {
         allow: true,
         bound: ["ADD NEW INCOME", "ADD NEW EXPENSE"],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
+    DATA_EXPORT_ACCESS: {
+      role: "DATA_EXPORT_ACCESS",
+      permission: {
+        allow: true,
+        bound: [".xlsx", ".pdf", ".doc"],
         addons: [],
         accessStaff: "",
         accessApplication: "",

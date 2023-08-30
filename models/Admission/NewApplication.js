@@ -174,6 +174,16 @@ const newApplicationSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  transferApplication: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      transfer_on: { type: Date, default: Date.now },
+      status: { type: String, default: "Transferred" },
+    },
+  ],
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

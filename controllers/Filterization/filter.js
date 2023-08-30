@@ -1050,6 +1050,7 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
         res.status(200).send({
           message: "Explore Date From To Query",
           access: true,
+          order,
         });
       }
     } else if (tab_flow === "BY_FEE_TYPE") {
@@ -1243,6 +1244,7 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
           parseInt(st2?.payment_invoice_number)
         );
       });
+
       for (var ref of order) {
         if (ref?.payment_by_end_user_id) {
           var user = await User.findById({

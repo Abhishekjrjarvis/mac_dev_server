@@ -915,7 +915,7 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   student_section_form_show_query: {
     type: Boolean,
-    default: false,
+    default: true,
   },
 });
 

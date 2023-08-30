@@ -564,6 +564,7 @@ exports.admissionInstituteFunction = async (
         } else {
         }
       }
+      await apply.save()
       // for (var match of student.paidFeeList) {
       //   if (`${match.appId}` === `${apply._id}`) {
       //     match.paidAmount += parseInt(tx_amount_ad);

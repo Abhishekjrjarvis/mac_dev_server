@@ -2387,28 +2387,39 @@ exports.renderProfileUploadQuery = async (req, res) => {
 exports.renderStudentSectionFormShowQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { show } = req.query;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const valid_ins = await InstituteAdmin.findById({ _id: id }).select(
       "student_section_form_show_query"
     );
-    valid_ins.student_section_form_show_query = show === "ON" ? true : false;
-    await valid_ins.save();
+    res.status(200).send({
+      message: "Explore Show Form Visibility For All Students",
+      access: true,
+      show: valid_ins,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
-    res
-      .status(200)
-      .send({
-        message: "Explore Form Visibility For All Students",
-        access: true,
-        show: valid_ins,
+exports.renderStudentSectionFormShowEditQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
       });
+
+    await InstituteAdmin.findByIdAndUpdate(id, req?.body);
+    res.status(200).send({
+      message: "Explore New Form Visibility For All Students",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }

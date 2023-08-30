@@ -557,10 +557,10 @@ router.patch(
   catchAsync(Admission.renderOneReceiptReApplyDeChequeQuery)
 );
 
-// router.patch(
-//   "/:aid/transfer/apps/query",
-//   catchAsync(Admission.renderTransferAppsQuery)
-// );
+router.patch(
+  "/:aid/transfer/apps/query",
+  catchAsync(Admission.renderTransferAppsQuery)
+);
 
 router.patch(
   "/:rid/card/removal/query",

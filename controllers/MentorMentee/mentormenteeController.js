@@ -138,6 +138,7 @@ exports.renderOneMentorAllMenteesQuery = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
+    const { search } = req.query;
     if (!mid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -146,12 +147,41 @@ exports.renderOneMentorAllMenteesQuery = async (req, res) => {
 
     const mentor = await Mentor.findById({ _id: mid });
 
-    const all_mentees = await Student.find({ _id: { $in: mentor?.mentees } })
-      .limit(limit)
-      .skip(skip)
-      .select(
-        "query_count studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
+    if (search) {
+      const all_mentees = await Student.find({
+        $and: [
+          {
+            _id: { $in: mentor?.mentees },
+          },
+        ],
+        $or: [
+          {
+            studentFirstName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            valid_full_name: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentGRNO: { $regex: `${search}`, $options: "i" },
+          },
+        ],
+      }).select(
+        "query_count studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO"
       );
+    } else {
+      const all_mentees = await Student.find({ _id: { $in: mentor?.mentees } })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "query_count studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO"
+        );
+    }
 
     if (all_mentees?.length > 0) {
       res.status(200).send({

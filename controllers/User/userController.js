@@ -89,6 +89,7 @@ exports.retrieveFIAnnouncement = async (req, res) => {
     const announcements = await InsAnnouncement.find({
       _id: { $in: user?.followInsAnnouncement },
     })
+      .sort("createdAt")
       .populate({
         path: "institute",
         select: "insName photoId insProfilePhoto",
@@ -1452,7 +1453,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "institute",
-          select: "insName photoId insProfilePhoto student_section_form_show_query",
+          select:
+            "insName photoId insProfilePhoto student_section_form_show_query",
         })
         .populate({
           path: "user",
@@ -1625,7 +1627,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "institute",
-          select: "insName photoId insProfilePhoto student_section_form_show_query",
+          select:
+            "insName photoId insProfilePhoto student_section_form_show_query",
         })
         .populate({
           path: "user",

@@ -197,6 +197,7 @@ exports.getAnnouncementArray = async (req, res) => {
     const announcement = await InsAnnouncement.find({
       _id: { $in: institute?.announcement },
     })
+      .sort("createdAt")
       .select(
         "insAnnPhoto photoId insAnnTitle insAnnVisibilty insAnnDescription createdAt"
       )
@@ -208,7 +209,6 @@ exports.getAnnouncementArray = async (req, res) => {
         path: "institute",
         select: "insName name photoId insProfilePhoto",
       })
-      .sort("-createdAt")
       .limit(limit)
       .skip(skip);
     // const aEncrypt = await encryptionPayload(announcement);

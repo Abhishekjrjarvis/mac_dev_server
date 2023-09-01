@@ -323,4 +323,9 @@ router.patch(
   catchAsync(Extra.renderStudentSectionFormShowEditQuery)
 );
 
+router.patch(
+  "/:id/name/case/query",
+  catchAsync(Extra.renderStudentNameCaseQuery)
+);
+
 module.exports = router;

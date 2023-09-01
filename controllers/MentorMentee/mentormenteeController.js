@@ -148,7 +148,7 @@ exports.renderOneMentorAllMenteesQuery = async (req, res) => {
     const mentor = await Mentor.findById({ _id: mid });
 
     if (search) {
-      const all_mentees = await Student.find({
+      var all_mentees = await Student.find({
         $and: [
           {
             _id: { $in: mentor?.mentees },
@@ -175,7 +175,7 @@ exports.renderOneMentorAllMenteesQuery = async (req, res) => {
         "query_count studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO"
       );
     } else {
-      const all_mentees = await Student.find({ _id: { $in: mentor?.mentees } })
+      var all_mentees = await Student.find({ _id: { $in: mentor?.mentees } })
         .limit(limit)
         .skip(skip)
         .select(

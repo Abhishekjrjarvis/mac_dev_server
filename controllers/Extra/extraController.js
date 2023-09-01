@@ -2424,3 +2424,43 @@ exports.renderStudentSectionFormShowEditQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderStudentNameCaseQuery = async(req, res) => {
+  try{
+    const { id } = req.params
+    const { name_case_format_query } = req.body
+    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    var valid_ins = await InstituteAdmin.findById({ _id: id})
+    .select("name_case_format_query ApproveStudent")
+    .populate({
+      path: "ApproveStudent"
+    })
+
+    var format;
+    if(`${valid_ins?.name_case_format_query}` === "CAPS_FORMAT"){
+      for(var ref of valid_ins?.ApproveStudent){
+          format = await all_upper_case_query(ref)
+      }
+    }
+    else if(`${valid_ins?.name_case_format_query}` === "SMALL_FORMAT"){
+      for(var ref of valid_ins?.ApproveStudent){
+          format = await all_lower_case_query(ref)
+      }
+    }
+    else if(`${valid_ins?.name_case_format_query}` === "TITLE_FORMAT"){
+      for(var ref of valid_ins?.ApproveStudent){
+          format = await all_title_case_query(ref)
+      }
+    }
+    else{
+      
+    }
+    valid_ins.name_case_format_query = name_case_format_query
+    await valid_ins.save()
+    res.status(200).send({ message: "Explore Name Case Query", access: true, format: format})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

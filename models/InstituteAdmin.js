@@ -920,6 +920,10 @@ const instituteAdminSchema = new mongoose.Schema({
   social_media_password_query: {
     type: String,
   },
+  name_case_format_query: {
+    type: String,
+    default: "Normal",
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

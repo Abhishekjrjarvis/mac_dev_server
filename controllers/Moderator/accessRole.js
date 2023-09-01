@@ -262,6 +262,15 @@ exports.all_access_role_ins = () => {
         accessStaff: "",
       },
     },
+    SOCIAL_MEDIA_ACCESS: {
+      role: "SOCIAL_MEDIA_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["CREATE_POST", "EDIT_SITE_INFO", "CREATE_POLL", "CREATE_QUESTION", "CREATE_ANNOUNCEMENT"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
   };
   return access_role_ins;
 };

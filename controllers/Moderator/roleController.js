@@ -18,6 +18,7 @@ const { nested_document_limit } = require("../../helper/databaseFunction");
 const { handle_undefined } = require("../../Handler/customError");
 const AdmissionModerator = require("../../models/Moderator/AdmissionModerator");
 const FinanceModerator = require("../../models/Moderator/FinanceModerator");
+const bcrypt = require("bcryptjs");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.render_admission_current_role = async (ads_admin, mid) => {
@@ -683,7 +684,7 @@ exports.destroyFinanceModeratorQuery = async (req, res) => {
 exports.addInstituteModeratorQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { mod_role, sid } = req.body;
+    const { mod_role, sid, social_media_password_query } = req.body;
     if (!id && !mod_role && !sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -694,8 +695,8 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       _id: id,
     });
     const staff = await Staff.findById({ _id: sid });
-    const user = await User.findById({ _id: `${staff?.user}` });
-    const notify = new Notification({});
+    var user = await User.findById({ _id: `${staff?.user}` });
+    var notify = new Notification({});
     const new_mod = new FinanceModerator({});
     new_mod.access_role = mod_role;
     new_mod.access_staff = staff?._id;
@@ -703,6 +704,13 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       new_mod.permission.bound = [
         ...all_role[`${mod_role}`]?.permission?.bound,
       ];
+    }
+    if (`${mod_role}` === "SOCIAL_MEDIA_ACCESS") {
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(social_media_password_query, new_user_pass);
+      institute.social_media_password_query = hash_user_pass;
+      user.social_media_password_query = hash_user_pass;
+      new_mod.social_media_password_query = hash_user_pass
     }
     new_mod.institute = institute?._id;
     institute.moderator_role.push(new_mod?._id);
@@ -714,10 +722,17 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       role: "Institute Admin Moderator",
       role_id: new_mod?._id,
     });
-    notify.notifyContent = `you got the designation of Institute Admin Moderator for ${mod_role} 🎉🎉`;
+    notify.notifyContent = `you got the designation of Institute Admin Moderator for ${mod_role} ${
+      social_media_password_query
+        ? `For Social Media Handle, Credentials / Password are:- ${social_media_password_query}`
+        : ""
+    } 🎉🎉`;
     notify.notifySender = institute?._id;
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Institute Moderator Designation";
+    if (`${mod_role}` === "SOCIAL_MEDIA_ACCESS") {
+      notify.social = true
+    }
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyPid = "1";
@@ -816,7 +831,7 @@ exports.renderInstituteAllAppModeratorArray = async (req, res) => {
 exports.updateInstituteAppModeratorQuery = async (req, res) => {
   try {
     const { mid } = req.params;
-    const { role, staffId } = req.body;
+    const { role, staffId, social_media_password_query } = req.body;
     if (!mid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -849,20 +864,38 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
         one_staff.staffDesignationCount -= 1;
       }
       await one_staff.save();
+      if(`${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS"){
+        var one_user = await User.findById({
+          _id: `${one_staff?.user}`,
+        });
+        one_user.social_media_password_query = null
+        await one_user.save()
+      }
       var new_staff = await Staff.findById({ _id: sid });
       new_staff.instituteModeratorDepartment.push(one_moderator?._id);
       new_staff.recentDesignation = `Institute Admin Moderator - ${one_moderator?.access_role}`;
       new_staff.staffDesignationCount += 1;
       one_moderator.access_staff = new_staff?._id;
-      const notify = new Notification({});
+      var notify = new Notification({});
       var user = await User.findById({ _id: `${new_staff?.user}` });
-      notify.notifyContent = `you got the designation of Institute Admin Moderator 🎉🎉`;
+      notify.notifyContent = `you got the designation of Institute Admin Moderator ${
+        social_media_password_query
+          ? `For Social Media Handle, Credentials / Password are:- ${social_media_password_query}`
+          : ""
+      } 🎉🎉`;
       notify.notifySender = one_moderator?.institute?._id;
       notify.notifyReceiever = user._id;
       notify.notifyCategory = "Institute Moderator Designation";
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = one_moderator?.institute?._id;
+      if(`${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS"){
+        const new_user_pass = bcrypt.genSaltSync(12);
+        const hash_user_pass = bcrypt.hashSync(social_media_password_query, new_user_pass);
+        user.social_media_password_query = hash_user_pass
+        await user.save()
+        notify.social = true
+      }
       await invokeFirebaseNotification(
         "Designation Allocation",
         notify,
@@ -881,6 +914,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
       await Promise.all([new_staff.save(), user.save(), notify.save()]);
     }
     await one_moderator.save();
+    await FinanceModerator.findByIdAndUpdate(fid, req?.body)
     res.status(200).send({ message: "Explore Update Role", access: true });
   } catch (e) {
     console.log(e);

@@ -56,6 +56,10 @@ const notificationSchema = new mongoose.Schema({
   module_id: { type: String },
   publisher_id: { type: String },
   module_title: { type: String },
+  social: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("Notification", notificationSchema);

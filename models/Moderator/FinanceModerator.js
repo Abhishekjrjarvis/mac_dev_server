@@ -64,6 +64,9 @@ const financeModeratorSchema = new mongoose.Schema({
     batch: [],
     master: [],
   },
+  social_media_password_query: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("FinanceModerator", financeModeratorSchema);

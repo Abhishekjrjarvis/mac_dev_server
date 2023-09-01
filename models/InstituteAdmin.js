@@ -917,6 +917,9 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  social_media_password_query: {
+    type: String,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

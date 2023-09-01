@@ -985,7 +985,13 @@ module.exports.authentication = async (req, res) => {
 
     if (institute) {
       const checkPass = bcrypt.compareSync(insPassword, institute.insPassword);
-      if (checkPass) {
+      if(institute?.social_media_password_query){
+        var checkUserSocialPass = bcrypt.compareSync(
+          insPassword,
+          institute?.social_media_password_query
+        );
+      }
+      if (checkPass || checkUserSocialPass) {
         //
         if (
           institute.activeStatus === "Deactivated" &&
@@ -995,6 +1001,7 @@ module.exports.authentication = async (req, res) => {
           institute.activeDate = "";
           institute.last_login = new Date();
           await institute.save();
+          institute.insPassword = institute?.insPassword ? institute?.insPassword : institute?.social_media_password_query
           const token = generateAccessInsToken(
             institute?.name,
             institute?._id,
@@ -1005,8 +1012,12 @@ module.exports.authentication = async (req, res) => {
             token: `Bearer ${token}`,
             institute: institute,
             login: true,
+            main_role: institute?.social_media_password_query ? "SOCIAL_MEDIA_HANDLER" : "MAIN_ADMIN",
           });
         } else if (institute.activeStatus === "Activated") {
+          institute.last_login = new Date();
+          await institute.save();
+          institute.insPassword = institute?.insPassword ? institute?.insPassword : institute?.social_media_password_query
           const token = generateAccessInsToken(
             institute?.name,
             institute?._id,
@@ -1017,9 +1028,8 @@ module.exports.authentication = async (req, res) => {
             token: `Bearer ${token}`,
             institute: institute,
             login: true,
+            main_role: institute?.social_media_password_query ? "SOCIAL_MEDIA_HANDLER" : "MAIN_ADMIN",
           });
-          institute.last_login = new Date();
-          await institute.save();
         } else {
           res.status(401).send({ message: "Unauthorized", login: false });
         }
@@ -1047,7 +1057,7 @@ module.exports.authentication = async (req, res) => {
       if (user) {
         const checkUserPass = bcrypt.compareSync(
           insPassword,
-          user.userPassword
+          user?.userPassword
         );
         if (checkUserPass) {
           if (

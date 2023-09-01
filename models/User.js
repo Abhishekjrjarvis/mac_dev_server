@@ -493,6 +493,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "Active",
     },
+    social_media_password_query: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

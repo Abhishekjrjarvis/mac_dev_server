@@ -2056,7 +2056,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
       for (var ref of valid_apply?.allottedApplication) {
         excel_list.push({
           RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-          GRNO: ref?.studentGRNO ?? "#NA",
+          GRNO: ref?.student?.studentGRNO ?? "#NA",
           Name: `${ref?.student?.studentFirstName} ${
             ref?.student?.studentMiddleName
               ? ref?.student?.studentMiddleName

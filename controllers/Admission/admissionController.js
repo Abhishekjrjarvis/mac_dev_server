@@ -9473,12 +9473,10 @@ exports.renderTransferAppsQuery = async (req, res) => {
     const { aid } = req.params;
     const { app_array, oaid, student_array } = req.body;
     if (!aid && !app_array && !oaid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var valid_new_app = await NewApplication.findById({ _id: aid });
     var valid_old_app = await NewApplication.findById({ _id: oaid });
@@ -9490,12 +9488,10 @@ exports.renderTransferAppsQuery = async (req, res) => {
       }
     }
     await valid_old_app.save();
-    res
-      .status(200)
-      .send({
-        message: `Explore ${student_array?.length} transferred to New Application`,
-        access: true,
-      });
+    res.status(200).send({
+      message: `Explore ${student_array?.length} transferred to New Application`,
+      access: true,
+    });
 
     for (var ele of student_array) {
       var valid_student = await Student.findById({ _id: `${ele?.studentId}` });
@@ -9504,7 +9500,7 @@ exports.renderTransferAppsQuery = async (req, res) => {
         student: valid_student?._id,
         payment_status: ele?.mode,
         install_type: ele?.type,
-        fee_remain: price,
+        fee_remain: ele?.price,
         transfer_status: "Transferred",
         transfer_from_app: valid_old_app?._id,
       });

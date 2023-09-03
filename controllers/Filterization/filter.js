@@ -1944,9 +1944,11 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
         },
       });
 
-    var valid_unit = await HostelUnit.findById({
-      _id: valid_apply?.applicationUnit,
-    }).select("hostel_unit_name");
+    if(valid_apply?.applicationUnit){
+      var valid_unit = await HostelUnit.findById({
+        _id: valid_apply?.applicationUnit,
+      }).select("hostel_unit_name");
+  }
 
     if (
       `${flow}` === "Request_Query" &&
@@ -1982,7 +1984,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
       var valid_back = await json_to_excel_hostel_application_query(
         excel_list,
         valid_apply?.applicationName,
-        valid_unit?.hostel_unit_name,
+        // valid_unit?.hostel_unit_name ? valid_unit?.hostel_unit_name : "NA",
         appId,
         flow
       );
@@ -2031,7 +2033,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
       var valid_back = await json_to_excel_hostel_application_query(
         excel_list,
         valid_apply?.applicationName,
-        valid_unit?.hostel_unit_name,
+        // valid_unit?.hostel_unit_name,
         appId,
         flow
       );
@@ -2080,7 +2082,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
       var valid_back = await json_to_excel_hostel_application_query(
         excel_list,
         valid_apply?.applicationName,
-        valid_unit?.hostel_unit_name,
+        // valid_unit?.hostel_unit_name,
         appId,
         flow
       );

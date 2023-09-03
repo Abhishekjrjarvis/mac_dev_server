@@ -1944,11 +1944,11 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
         },
       });
 
-    if(valid_apply?.applicationUnit){
+    if (valid_apply?.applicationUnit) {
       var valid_unit = await HostelUnit.findById({
         _id: valid_apply?.applicationUnit,
       }).select("hostel_unit_name");
-  }
+    }
 
     if (
       `${flow}` === "Request_Query" &&
@@ -2056,6 +2056,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
       for (var ref of valid_apply?.allottedApplication) {
         excel_list.push({
           RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+          GRNO: ref?.studentGRNO ?? "#NA",
           Name: `${ref?.student?.studentFirstName} ${
             ref?.student?.studentMiddleName
               ? ref?.student?.studentMiddleName

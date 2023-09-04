@@ -1752,10 +1752,12 @@ exports.set_retro_installment = async (
     var results = await buildObject(arr_query);
     for (var ref of remain_args?.remaining_array) {
       var index = remain_args?.remaining_array?.indexOf(ref);
+      console.log("REFERENCE", ref);
       if (
         ref?.installmentValue === results[`key${index}`] &&
         ref?.status === "Not Paid"
       ) {
+        console.log("Inner Ref", ref);
         ref.remainAmount +=
           remain_args.remaining_fee >= ref.remainAmount
             ? remain_args.remaining_fee - ref?.remainAmount

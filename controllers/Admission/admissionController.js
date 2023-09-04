@@ -7250,6 +7250,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         var over_price =
           new_struct?.total_admission_fees - one_remain_list?.paid_fee;
       }
+      console.log("OVER", over_price)
       //Later Add
       if (one_student?.admissionRemainFeeCount >= over_price) {
         one_student.admissionRemainFeeCount -= over_price;

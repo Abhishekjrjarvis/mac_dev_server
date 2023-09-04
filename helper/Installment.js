@@ -1489,7 +1489,10 @@ exports.set_fee_head_query = async (
           original_paid: ref?.original_paid,
         });
       }
-      student_args.fee_receipt.push(receipt_args?._id);
+      if (student_args?.fee_receipt?.includes(`${receipt_args?._id}`)) {
+      } else {
+        student_args.fee_receipt.push(receipt_args?._id);
+      }
       await Promise.all([student_args.save(), receipt_args.save()]);
       price_query = 0;
     }
@@ -1552,7 +1555,10 @@ exports.update_fee_head_query = async (
             : ele.applicable_fee - ele.paid_fee;
       }
     }
-    student_args.fee_receipt.push(receipt_args?._id);
+    if (student_args?.fee_receipt?.includes(`${receipt_args?._id}`)) {
+    } else {
+      student_args.fee_receipt.push(receipt_args?._id);
+    }
     await student_args.save();
     receipt_args.fee_flow = "FEE_HEADS";
     const filter_receipt_heads = receipt_args?.fee_heads?.filter((rec) => {
@@ -1672,7 +1678,10 @@ exports.set_fee_head_query_retro = async (
         receipt_query =
           receipt_query >= ref.remain_fee ? receipt_query - ref.remain_fee : 0; // New Add
       }
-      student_args.fee_receipt.push(ele?._id);
+      if (student_args?.fee_receipt?.includes(`${ele?._id}`)) {
+      } else {
+        student_args.fee_receipt.push(ele?._id);
+      }
       await ele.save();
     }
     await student_args.save();

@@ -1048,7 +1048,7 @@ exports.renderHostelAllApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationStatus applicationSeats applicationAbout admissionProcess application_type selectCount confirmCount receievedCount selectedApplication confirmedApplication receievedApplication"
+        "applicationName applicationEndDate applicationStatus applicationSeats applicationAbout admissionProcess application_type selectCount confirmCount receievedCount selectedApplication confirmedApplication receievedApplication gr_initials"
       )
       .populate({
         path: "applicationHostel",

@@ -133,7 +133,42 @@ exports.fee_heads_receipt_json_to_excel_query = async (
 exports.json_to_excel_hostel_application_query = async (
   data_query,
   app_name,
-  // unit_name,
+  unit_name,
+  appId,
+  flow
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, "HostelApplications");
+    var name = `${unit_name}-${app_name}-${flow}-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const apply = await NewApplication.findById({ _id: appId });
+    const hostel_admin = await Hostel.findById({
+      _id: `${apply?.applicationHostel}`,
+    });
+    hostel_admin.export_collection.push({
+      excel_file: results,
+      excel_file_name: name,
+    });
+    hostel_admin.export_collection_count += 1;
+    await hostel_admin.save();
+
+    return {
+      back: true,
+    };
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.json_to_excel_admission_application_query = async (
+  data_query,
+  app_name,
   appId,
   flow
 ) => {
@@ -148,28 +183,15 @@ exports.json_to_excel_hostel_application_query = async (
     const results = await uploadExcelFile(`${name}.xlsx`);
 
     const apply = await NewApplication.findById({ _id: appId });
-    if (apply?.applicationHostel) {
-      const hostel_admin = await Hostel.findById({
-        _id: `${apply?.applicationHostel}`,
-      });
-      hostel_admin.export_collection.push({
-        excel_file: results,
-        excel_file_name: name,
-      });
-      hostel_admin.export_collection_count += 1;
-      await hostel_admin.save();
-    } else {
-      const ads_admin = await Admission.findById({
-        _id: `${apply?.admissionAdmin}`,
-      });
-      ads_admin.export_collection.push({
-        excel_file: results,
-        excel_file_name: name,
-      });
-      ads_admin.export_collection_count += 1;
-      await ads_admin.save();
-    }
-
+    const ads_admin = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    });
+    ads_admin.export_collection.push({
+      excel_file: results,
+      excel_file_name: name,
+    });
+    ads_admin.export_collection_count += 1;
+    await ads_admin.save();
     return {
       back: true,
     };

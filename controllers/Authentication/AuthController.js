@@ -985,7 +985,7 @@ module.exports.authentication = async (req, res) => {
 
     if (institute) {
       const checkPass = bcrypt.compareSync(insPassword, institute.insPassword);
-      if(institute?.social_media_password_query){
+      if (institute?.social_media_password_query) {
         var checkUserSocialPass = bcrypt.compareSync(
           insPassword,
           institute?.social_media_password_query
@@ -1001,7 +1001,9 @@ module.exports.authentication = async (req, res) => {
           institute.activeDate = "";
           institute.last_login = new Date();
           await institute.save();
-          institute.insPassword = institute?.insPassword ? institute?.insPassword : institute?.social_media_password_query
+          institute.insPassword = institute?.insPassword
+            ? institute?.insPassword
+            : institute?.social_media_password_query;
           const token = generateAccessInsToken(
             institute?.name,
             institute?._id,
@@ -1012,12 +1014,16 @@ module.exports.authentication = async (req, res) => {
             token: `Bearer ${token}`,
             institute: institute,
             login: true,
-            main_role: institute?.social_media_password_query ? "SOCIAL_MEDIA_HANDLER" : "MAIN_ADMIN",
+            main_role: institute?.social_media_password_query
+              ? "SOCIAL_MEDIA_HANDLER"
+              : "MAIN_ADMIN",
           });
         } else if (institute.activeStatus === "Activated") {
           institute.last_login = new Date();
           await institute.save();
-          institute.insPassword = institute?.insPassword ? institute?.insPassword : institute?.social_media_password_query
+          institute.insPassword = institute?.insPassword
+            ? institute?.insPassword
+            : institute?.social_media_password_query;
           const token = generateAccessInsToken(
             institute?.name,
             institute?._id,
@@ -1028,7 +1034,9 @@ module.exports.authentication = async (req, res) => {
             token: `Bearer ${token}`,
             institute: institute,
             login: true,
-            main_role: institute?.social_media_password_query ? "SOCIAL_MEDIA_HANDLER" : "MAIN_ADMIN",
+            main_role: institute?.social_media_password_query
+              ? "SOCIAL_MEDIA_HANDLER"
+              : "MAIN_ADMIN",
           });
         } else {
           res.status(401).send({ message: "Unauthorized", login: false });
@@ -4252,16 +4260,18 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
           student?.studentMiddleName ?? ""
         } ${student?.studentLastName}`;
         if (student?.studentGender?.toLowerCase() === "male") {
-          student.studentProfilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+          student.studentProfilePhoto =
+            maleAvatar[Math.floor(Math.random() * 8)];
           user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
         } else if (student?.studentGender?.toLowerCase() === "female") {
-          student.studentProfilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+          student.studentProfilePhoto =
+            femaleAvatar[Math.floor(Math.random() * 8)];
           user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
         } else {
         }
         const aStatus = new Status({});
         institute.UnApprovedStudent.push(student._id);
-        institute.un_approved_student_count += 1
+        institute.un_approved_student_count += 1;
         user.student.push(student._id);
         user.is_mentor = true;
         institute.joinedPost.push(user._id);

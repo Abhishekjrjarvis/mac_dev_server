@@ -914,7 +914,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
       await Promise.all([new_staff.save(), user.save(), notify.save()]);
     }
     await one_moderator.save();
-    await FinanceModerator.findByIdAndUpdate(fid, req?.body)
+    await FinanceModerator.findByIdAndUpdate(mid, req?.body)
     res.status(200).send({ message: "Explore Update Role", access: true });
   } catch (e) {
     console.log(e);

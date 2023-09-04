@@ -19,6 +19,7 @@ const {
   fee_heads_json_to_excel_query,
   fee_heads_receipt_json_to_excel_query,
   json_to_excel_hostel_application_query,
+  json_to_excel_admission_application_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -1905,6 +1906,183 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
   }
 };
 
+exports.renderApplicationListQuery = async (req, res) => {
+  try {
+    const { appId } = req.params;
+    const { flow } = req.query;
+    if (!appId)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var valid_apply = await NewApplication.findById({ _id: appId })
+      .select(
+        "receievedApplication applicationUnit applicationName confirmedApplication allottedApplication"
+      )
+      .populate({
+        path: "receievedApplication",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
+        },
+      })
+      .populate({
+        path: "confirmedApplication",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
+        },
+      })
+      .populate({
+        path: "allottedApplication",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
+        },
+      });
+
+    if (
+      `${flow}` === "Request_Query" &&
+      valid_apply?.receievedApplication?.length > 0
+    ) {
+      var excel_list = [];
+      for (var ref of valid_apply?.receievedApplication) {
+        excel_list.push({
+          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+          Name: `${ref?.student?.studentFirstName} ${
+            ref?.student?.studentMiddleName
+              ? ref?.student?.studentMiddleName
+              : ""
+          } ${ref?.student?.studentLastName}`,
+          DOB: ref?.student?.studentDOB ?? "#NA",
+          Gender: ref?.student?.studentGender ?? "#NA",
+          Caste: ref?.student?.studentCastCategory ?? "#NA",
+          Religion: ref?.student?.studentReligion ?? "#NA",
+          MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+          Address: `${ref?.student?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+          ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+        });
+      }
+      var valid_back = await json_to_excel_admission_application_query(
+        excel_list,
+        valid_apply?.applicationName,
+        appId,
+        flow
+      );
+      if (valid_back?.back) {
+        res.status(200).send({
+          message: "Explore New Excel On Hostel Export TAB",
+          access: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No New Excel Exports ",
+          access: false,
+        });
+      }
+    } else if (
+      `${flow}` === "Confirm_Query" &&
+      valid_apply?.confirmedApplication?.length > 0
+    ) {
+      var excel_list = [];
+      for (var ref of valid_apply?.confirmedApplication) {
+        excel_list.push({
+          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+          Name: `${ref?.student?.studentFirstName} ${
+            ref?.student?.studentMiddleName
+              ? ref?.student?.studentMiddleName
+              : ""
+          } ${ref?.student?.studentLastName}`,
+          DOB: ref?.student?.studentDOB ?? "#NA",
+          Gender: ref?.student?.studentGender ?? "#NA",
+          Caste: ref?.student?.studentCastCategory ?? "#NA",
+          Religion: ref?.student?.studentReligion ?? "#NA",
+          MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+          Address: `${ref?.student?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+          ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+        });
+      }
+      var valid_back = await json_to_excel_admission_application_query(
+        excel_list,
+        valid_apply?.applicationName,
+        appId,
+        flow
+      );
+      if (valid_back?.back) {
+        res.status(200).send({
+          message: "Explore New Excel On Hostel Export TAB",
+          access: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No New Excel Exports ",
+          access: false,
+        });
+      }
+    } else if (
+      `${flow}` === "Allot_Query" &&
+      valid_apply?.allottedApplication?.length > 0
+    ) {
+      var excel_list = [];
+      for (var ref of valid_apply?.allottedApplication) {
+        excel_list.push({
+          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+          GRNO: ref?.student?.studentGRNO ?? "#NA",
+          Name: `${ref?.student?.studentFirstName} ${
+            ref?.student?.studentMiddleName
+              ? ref?.student?.studentMiddleName
+              : ""
+          } ${ref?.student?.studentLastName}`,
+          DOB: ref?.student?.studentDOB ?? "#NA",
+          Gender: ref?.student?.studentGender ?? "#NA",
+          Caste: ref?.student?.studentCastCategory ?? "#NA",
+          Religion: ref?.student?.studentReligion ?? "#NA",
+          MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+          Address: `${ref?.student?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+          ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+        });
+      }
+      var valid_back = await json_to_excel_admission_application_query(
+        excel_list,
+        valid_apply?.applicationName,
+        appId,
+        flow
+      );
+      if (valid_back?.back) {
+        res.status(200).send({
+          message: "Explore New Excel On Hostel Export TAB",
+          access: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No New Excel Exports ",
+          access: false,
+        });
+      }
+    } else {
+      res.status(200).send({
+        message: "No Applications Found",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.renderHostelApplicationListQuery = async (req, res) => {
   try {
     const { appId } = req.params;
@@ -1984,7 +2162,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
       var valid_back = await json_to_excel_hostel_application_query(
         excel_list,
         valid_apply?.applicationName,
-        // valid_unit?.hostel_unit_name ? valid_unit?.hostel_unit_name : "NA",
+        valid_unit?.hostel_unit_name,
         appId,
         flow
       );
@@ -2033,7 +2211,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
       var valid_back = await json_to_excel_hostel_application_query(
         excel_list,
         valid_apply?.applicationName,
-        // valid_unit?.hostel_unit_name,
+        valid_unit?.hostel_unit_name,
         appId,
         flow
       );
@@ -2083,7 +2261,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
       var valid_back = await json_to_excel_hostel_application_query(
         excel_list,
         valid_apply?.applicationName,
-        // valid_unit?.hostel_unit_name,
+        valid_unit?.hostel_unit_name,
         appId,
         flow
       );

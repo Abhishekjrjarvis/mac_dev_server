@@ -130,7 +130,7 @@ exports.hostelInstituteFunction = async (
           finance.financeTotalBalance + parseInt(tx_amount_ad);
         ins.insBankBalance = ins.insBankBalance + parseInt(tx_amount_ad);
       } else {
-        admin.returnAmount += tx_amount_ad_charges;
+        admin.returnAmount += parseInt(tx_amount_ad_charges);
         ins.adminRepayAmount += parseInt(tx_amount_ad);
         // depart.due_repay += parseInt(tx_amount);
         // depart.total_repay += parseInt(tx_amount);
@@ -387,7 +387,7 @@ exports.hostelInstituteFunction = async (
           finance.financeTotalBalance + parseInt(tx_amount_ad);
         ins.insBankBalance = ins.insBankBalance + parseInt(tx_amount_ad);
       } else {
-        admin.returnAmount += tx_amount_ad_charges;
+        admin.returnAmount += parseInt(tx_amount_ad_charges);
         ins.adminRepayAmount += parseInt(tx_amount_ad);
         account.due_repay += parseInt(tx_amount_ad);
         account.total_repay += parseInt(tx_amount_ad);

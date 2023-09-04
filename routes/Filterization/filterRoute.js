@@ -84,6 +84,11 @@ router.get(
 
 router.patch(
   "/application/export/:appId",
+  catchAsync(Filter.renderApplicationListQuery)
+);
+
+router.patch(
+  "/application/export/:appId/hostel",
   catchAsync(Filter.renderHostelApplicationListQuery)
 );
 

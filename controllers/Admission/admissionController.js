@@ -7259,6 +7259,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       one_remain_list.applicable_fee = new_struct?.total_admission_fees;
       one_remain_list.remaining_fee = over_price ?? 0;
       one_remain_list.refund_fee = refund_price ?? 0;
+      await one_remain_list.save()
       for (var ref of one_remain_list?.remaining_array) {
         if (
           ref?.installmentValue === "One Time Fees" ||

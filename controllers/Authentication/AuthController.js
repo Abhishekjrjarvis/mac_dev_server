@@ -63,6 +63,7 @@ const {
   insert_multiple_status,
   fee_reordering_direct_student,
   fee_reordering_direct_student_payload,
+  fee_reordering_direct_student_payload_exist_query,
 } = require("../../helper/multipleStatus");
 const {
   whats_app_sms_payload,
@@ -4304,6 +4305,47 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
         //   message: "Bug in the direct joining process 😡",
         //   access: false,
         // });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveInstituteDirectJoinPayloadFeesQuery = async (
+  aid,
+  student_array
+) => {
+  try {
+    for (var query of student_array) {
+      if (query?.GRNO) {
+        var student = await Student.findOne({ studentGRNO: `${query?.GRNO}` });
+        var user = await User.findById({ _id: `${student?.user}` });
+        const ads_admin = await Admission.findById({ _id: aid });
+        const institute = await InstituteAdmin.findById({
+          _id: `${ads_admin?.institute}`,
+        });
+        var finance = await Finance.findById({
+          _id: `${institute?.financeDepart[0]}`,
+        });
+        student.fee_structure =
+          query?.is_remain === "No"
+            ? query?.fee_struct
+            : query?.batch_set[0]?.fee_struct;
+        await student.save();
+        if (query?.batch_set?.length > 0) {
+          await fee_reordering_direct_student_payload_exist_query(
+            student,
+            institute,
+            query?.batch_set,
+            user,
+            finance
+          );
+        }
+        await Promise.all([student.save(), institute.save(), user.save()]);
+      } else {
+        console.log("Problem in Account Creation");
+        // return false
       }
     }
   } catch (e) {

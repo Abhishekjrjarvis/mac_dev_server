@@ -44,11 +44,13 @@ const {
   generate_excel_to_json_login_query,
   generate_excel_to_json_un_approved,
   generate_excel_to_json_subject_chapter_query,
+  generate_excel_to_json_fee_query,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
   retrieveInstituteDirectJoinStaffAutoQuery,
   retrieveUnApprovedDirectJoinQuery,
+  retrieveInstituteDirectJoinPayloadFeesQuery,
 } = require("../Authentication/AuthController");
 const {
   renderFinanceAddFeeCategoryAutoQuery,
@@ -2425,42 +2427,105 @@ exports.renderStudentSectionFormShowEditQuery = async (req, res) => {
   }
 };
 
-exports.renderStudentNameCaseQuery = async(req, res) => {
-  try{
-    const { id } = req.params
-    const { name_case_format_query } = req.body
-    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.renderStudentNameCaseQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name_case_format_query } = req.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var valid_ins = await InstituteAdmin.findById({ _id: id})
-    .select("name_case_format_query ApproveStudent")
-    .populate({
-      path: "ApproveStudent"
-    })
+    var valid_ins = await InstituteAdmin.findById({ _id: id })
+      .select("name_case_format_query ApproveStudent")
+      .populate({
+        path: "ApproveStudent",
+      });
 
     var format;
-    if(`${valid_ins?.name_case_format_query}` === "CAPS_FORMAT"){
-      for(var ref of valid_ins?.ApproveStudent){
-          format = await all_upper_case_query(ref)
+    if (`${valid_ins?.name_case_format_query}` === "CAPS_FORMAT") {
+      for (var ref of valid_ins?.ApproveStudent) {
+        format = await all_upper_case_query(ref);
       }
-    }
-    else if(`${valid_ins?.name_case_format_query}` === "SMALL_FORMAT"){
-      for(var ref of valid_ins?.ApproveStudent){
-          format = await all_lower_case_query(ref)
+    } else if (`${valid_ins?.name_case_format_query}` === "SMALL_FORMAT") {
+      for (var ref of valid_ins?.ApproveStudent) {
+        format = await all_lower_case_query(ref);
       }
-    }
-    else if(`${valid_ins?.name_case_format_query}` === "TITLE_FORMAT"){
-      for(var ref of valid_ins?.ApproveStudent){
-          format = await all_title_case_query(ref)
+    } else if (`${valid_ins?.name_case_format_query}` === "TITLE_FORMAT") {
+      for (var ref of valid_ins?.ApproveStudent) {
+        format = await all_title_case_query(ref);
       }
+    } else {
     }
-    else{
-      
-    }
-    valid_ins.name_case_format_query = name_case_format_query
-    await valid_ins.save()
-    res.status(200).send({ message: "Explore Name Case Query", access: true, format: format})
+    valid_ins.name_case_format_query = name_case_format_query;
+    await valid_ins.save();
+    res.status(200).send({
+      message: "Explore Name Case Query",
+      access: true,
+      format: format,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
+};
+
+exports.renderExcelToJSONExistFeesQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { excel_file } = req.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${ads_admin?.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${one_ins?.financeDepart?.[0]}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      admissionId: ads_admin?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${ads_admin?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.admissionId}` === `${ads_admin?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_fee_query(
+      val,
+      ads_admin?._id,
+      finance?._id
+    );
+    if (is_converted?.value) {
+      await retrieveInstituteDirectJoinPayloadFeesQuery(
+        aid,
+        is_converted?.student_array
+      );
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
   }
-}
+};

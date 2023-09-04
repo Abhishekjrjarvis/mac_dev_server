@@ -328,4 +328,9 @@ router.patch(
   catchAsync(Extra.renderStudentNameCaseQuery)
 );
 
+router.patch(
+  "/excel/to/json/query/:aid/fees/query",
+  catchAsync(Extra.renderExcelToJSONExistFeesQuery)
+);
+
 module.exports = router;

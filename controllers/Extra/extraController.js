@@ -2576,7 +2576,7 @@ exports.renderZipFileQuery = async (req, res) => {
       access: true,
       cdn_link_last_key: `${valid_ins?.name}.zip`,
     });
-    await remove_call(`${valid_ins?.name}.zip`);
+    // await remove_call(`${valid_ins?.name}.zip`);
   } catch (e) {
     console.log(e);
   }

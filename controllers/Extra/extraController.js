@@ -712,13 +712,13 @@ exports.fetchExportStudentIdCardQuery = async (req, res) => {
         ref?.institute?.name
       );
     }
-    var stats = await createZipArchive(`${valid_ins?.name}`);
     res.status(200).send({
       message: "Exported Student Format Pattern Save",
       student_card: student_query,
       export_format: true,
-      stats: stats ? true : false,
+      stats: true,
     });
+    var stats = await createZipArchive(`${valid_ins?.name}`);
     await remove_assets();
   } catch (e) {
     console.log(e);

@@ -82,7 +82,13 @@ const {
 const unlinkFile = util.promisify(fs.unlink);
 const Notification = require("../../models/notification");
 const RemainingList = require("../../models/Admission/RemainingList");
-const { download_file } = require("../../Archive/IdCard");
+const {
+  download_file,
+  next_call,
+  remove_call,
+  createZipArchive,
+  remove_assets,
+} = require("../../Archive/IdCard");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -672,7 +678,9 @@ exports.fetchExportStaffIdCardQuery = async (req, res) => {
 exports.fetchExportStudentIdCardQuery = async (req, res) => {
   try {
     const { request } = req.body;
+    const { id } = req.query;
     var query_data = [];
+    const valid_ins = await InstituteAdmin.findById({ _id: id });
     const classes = await Class.find({ _id: { $in: request } }).select(
       "ApproveStudent"
     );
@@ -696,15 +704,22 @@ exports.fetchExportStudentIdCardQuery = async (req, res) => {
       });
 
     // const liveEncrypt = await encryptionPayload(live_data);
+    for (var ref of student_query) {
+      var name = `${ref?.valid_full_name}-${ref?.studentGRNO}`;
+      var file = await download_file(
+        `${ref?.studentProfilePhoto}`,
+        name,
+        ref?.institute?.name
+      );
+    }
+    var stats = await createZipArchive(`${valid_ins?.name}`);
     res.status(200).send({
       message: "Exported Student Format Pattern Save",
       student_card: student_query,
       export_format: true,
+      stats: stats ? true : false,
     });
-    for (var ref of student_query) {
-      var name = `${ref?.valid_full_name}-${ref?.studentGRNO}`;
-      var file = await download_file(`${ref?.studentProfilePhoto}`, name);
-    }
+    await remove_assets();
   } catch (e) {
     console.log(e);
   }
@@ -2544,9 +2559,24 @@ exports.renderExcelToJSONExistFeesQuery = async (req, res) => {
   }
 };
 
-exports.renderFile = async (req, res) => {
+exports.renderZipFileQuery = async (req, res) => {
   try {
-    res.status(200).send({ message: "Explore Id Card File" });
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const valid_ins = await InstituteAdmin.findById({ _id: id }).select(
+      "insName name"
+    );
+    await next_call(`${valid_ins?.name}.zip`);
+    res.status(200).send({
+      message: "Explore Id Card File",
+      access: true,
+      cdn_link_last_key: `${valid_ins?.name}.zip`,
+    });
+    await remove_call(`${valid_ins?.name}.zip`);
   } catch (e) {
     console.log(e);
   }

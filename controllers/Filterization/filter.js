@@ -1918,7 +1918,7 @@ exports.renderApplicationListQuery = async (req, res) => {
 
     var valid_apply = await NewApplication.findById({ _id: appId })
       .select(
-        "receievedApplication applicationUnit applicationName confirmedApplication allottedApplication"
+        "receievedApplication applicationUnit applicationName confirmedApplication allottedApplication applicationHostel"
       )
       .populate({
         path: "receievedApplication",

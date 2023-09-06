@@ -1950,26 +1950,58 @@ exports.renderApplicationListQuery = async (req, res) => {
       valid_apply?.receievedApplication?.length > 0
     ) {
       var excel_list = [];
-      for (var ref of valid_apply?.receievedApplication) {
-        excel_list.push({
-          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-          Name: `${ref?.student?.studentFirstName} ${
-            ref?.student?.studentMiddleName
-              ? ref?.student?.studentMiddleName
-              : ""
-          } ${ref?.student?.studentLastName}`,
-          DOB: ref?.student?.studentDOB ?? "#NA",
-          Gender: ref?.student?.studentGender ?? "#NA",
-          Caste: ref?.student?.studentCastCategory ?? "#NA",
-          Religion: ref?.student?.studentReligion ?? "#NA",
-          MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
-          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
-          Address: `${ref?.student?.studentAddress}` ?? "#NA",
-          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
-          ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
-          AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
-        });
+      if (valid_apply?.applicationHostel) {
+        for (var ref of valid_apply?.receievedApplication) {
+          excel_list.push({
+            RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName
+                : ""
+            } ${ref?.student?.studentLastName}`,
+            DOB: ref?.student?.studentDOB ?? "#NA",
+            Gender: ref?.student?.studentGender ?? "#NA",
+            CPI: ref?.student?.student_hostel_cpi ?? "#NA",
+            Programme: ref?.student?.student_programme ?? "#NA",
+            Branch: ref?.student?.student_branch ?? "#NA",
+            Year: ref?.student?.student_year ?? "#NA",
+            SingleSeaterRoom: ref?.student?.student_single_seater_room ?? "#NA",
+            PhysicallyHandicapped: ref?.student?.student_ph ?? "#NA",
+            Caste: ref?.student?.studentCastCategory ?? "#NA",
+            Religion: ref?.student?.studentReligion ?? "#NA",
+            MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+            ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+            Address: `${ref?.student?.studentAddress}` ?? "#NA",
+            AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+            AlternateContactNo:
+              ref?.student?.studentParentsPhoneNumber ?? "#NA",
+          });
+        }
+      } else {
+        for (var ref of valid_apply?.receievedApplication) {
+          excel_list.push({
+            RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName
+                : ""
+            } ${ref?.student?.studentLastName}`,
+            DOB: ref?.student?.studentDOB ?? "#NA",
+            Gender: ref?.student?.studentGender ?? "#NA",
+            Caste: ref?.student?.studentCastCategory ?? "#NA",
+            Religion: ref?.student?.studentReligion ?? "#NA",
+            MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+            ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+            Address: `${ref?.student?.studentAddress}` ?? "#NA",
+            AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+            AlternateContactNo:
+              ref?.student?.studentParentsPhoneNumber ?? "#NA",
+          });
+        }
       }
+
       var valid_back = await json_to_excel_admission_application_query(
         excel_list,
         valid_apply?.applicationName,
@@ -1992,25 +2024,55 @@ exports.renderApplicationListQuery = async (req, res) => {
       valid_apply?.confirmedApplication?.length > 0
     ) {
       var excel_list = [];
-      for (var ref of valid_apply?.confirmedApplication) {
-        excel_list.push({
-          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-          Name: `${ref?.student?.studentFirstName} ${
-            ref?.student?.studentMiddleName
-              ? ref?.student?.studentMiddleName
-              : ""
-          } ${ref?.student?.studentLastName}`,
-          DOB: ref?.student?.studentDOB ?? "#NA",
-          Gender: ref?.student?.studentGender ?? "#NA",
-          Caste: ref?.student?.studentCastCategory ?? "#NA",
-          Religion: ref?.student?.studentReligion ?? "#NA",
-          MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
-          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
-          Address: `${ref?.student?.studentAddress}` ?? "#NA",
-          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
-          ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
-          AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
-        });
+      if(valid_apply?.applicationHostel){
+        for (var ref of valid_apply?.confirmedApplication) {
+          excel_list.push({
+            RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName
+                : ""
+            } ${ref?.student?.studentLastName}`,
+            DOB: ref?.student?.studentDOB ?? "#NA",
+            Gender: ref?.student?.studentGender ?? "#NA",
+            CPI: ref?.student?.student_hostel_cpi ?? "#NA",
+            Programme: ref?.student?.student_programme ?? "#NA",
+            Branch: ref?.student?.student_branch ?? "#NA",
+            Year: ref?.student?.student_year ?? "#NA",
+            SingleSeaterRoom: ref?.student?.student_single_seater_room ?? "#NA",
+            PhysicallyHandicapped: ref?.student?.student_ph ?? "#NA",
+            Caste: ref?.student?.studentCastCategory ?? "#NA",
+            Religion: ref?.student?.studentReligion ?? "#NA",
+            MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+            ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+            Address: `${ref?.student?.studentAddress}` ?? "#NA",
+            AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+            AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+          });
+        }
+      }
+      else{
+        for (var ref of valid_apply?.confirmedApplication) {
+          excel_list.push({
+            RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName
+                : ""
+            } ${ref?.student?.studentLastName}`,
+            DOB: ref?.student?.studentDOB ?? "#NA",
+            Gender: ref?.student?.studentGender ?? "#NA",
+            Caste: ref?.student?.studentCastCategory ?? "#NA",
+            Religion: ref?.student?.studentReligion ?? "#NA",
+            MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+            ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+            Address: `${ref?.student?.studentAddress}` ?? "#NA",
+            AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+            AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+          });
+        }
       }
       var valid_back = await json_to_excel_admission_application_query(
         excel_list,
@@ -2034,26 +2096,57 @@ exports.renderApplicationListQuery = async (req, res) => {
       valid_apply?.allottedApplication?.length > 0
     ) {
       var excel_list = [];
-      for (var ref of valid_apply?.allottedApplication) {
-        excel_list.push({
-          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-          GRNO: ref?.student?.studentGRNO ?? "#NA",
-          Name: `${ref?.student?.studentFirstName} ${
-            ref?.student?.studentMiddleName
-              ? ref?.student?.studentMiddleName
-              : ""
-          } ${ref?.student?.studentLastName}`,
-          DOB: ref?.student?.studentDOB ?? "#NA",
-          Gender: ref?.student?.studentGender ?? "#NA",
-          Caste: ref?.student?.studentCastCategory ?? "#NA",
-          Religion: ref?.student?.studentReligion ?? "#NA",
-          MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
-          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
-          Address: `${ref?.student?.studentAddress}` ?? "#NA",
-          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
-          ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
-          AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
-        });
+      if(valid_apply?.applicationHostel){
+        for (var ref of valid_apply?.allottedApplication) {
+          excel_list.push({
+            RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            GRNO: ref?.student?.studentGRNO ?? "#NA",
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName
+                : ""
+            } ${ref?.student?.studentLastName}`,
+            DOB: ref?.student?.studentDOB ?? "#NA",
+            Gender: ref?.student?.studentGender ?? "#NA",
+            CPI: ref?.student?.student_hostel_cpi ?? "#NA",
+            Programme: ref?.student?.student_programme ?? "#NA",
+            Branch: ref?.student?.student_branch ?? "#NA",
+            Year: ref?.student?.student_year ?? "#NA",
+            SingleSeaterRoom: ref?.student?.student_single_seater_room ?? "#NA",
+            PhysicallyHandicapped: ref?.student?.student_ph ?? "#NA",
+            Caste: ref?.student?.studentCastCategory ?? "#NA",
+            Religion: ref?.student?.studentReligion ?? "#NA",
+            MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+            ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+            Address: `${ref?.student?.studentAddress}` ?? "#NA",
+            AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+            AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+          });
+        }
+      }
+      else{
+        for (var ref of valid_apply?.allottedApplication) {
+          excel_list.push({
+            RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            GRNO: ref?.student?.studentGRNO ?? "#NA",
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName
+                : ""
+            } ${ref?.student?.studentLastName}`,
+            DOB: ref?.student?.studentDOB ?? "#NA",
+            Gender: ref?.student?.studentGender ?? "#NA",
+            Caste: ref?.student?.studentCastCategory ?? "#NA",
+            Religion: ref?.student?.studentReligion ?? "#NA",
+            MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+            ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+            Address: `${ref?.student?.studentAddress}` ?? "#NA",
+            AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+            AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+          });
+        }
       }
       var valid_back = await json_to_excel_admission_application_query(
         excel_list,

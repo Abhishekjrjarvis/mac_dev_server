@@ -40,7 +40,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      "http://54.224.4.209",
+      "http://3.88.27.4",
       "http://localhost:3000",
       "https://qviple.com",
       "https://admin.qviple.com",

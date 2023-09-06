@@ -28,6 +28,7 @@ const {
   uploadFile,
   uploadDocsFile,
   uploadDocFile,
+  getFileStream,
 } = require("../../S3Configuration");
 const Hostel = require("../../models/Hostel/hostel");
 const ClassMaster = require("../../models/ClassMaster");
@@ -88,6 +89,7 @@ const {
   remove_call,
   createZipArchive,
   remove_assets,
+  all_s3_objects,
 } = require("../../Archive/IdCard");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
@@ -702,25 +704,16 @@ exports.fetchExportStudentIdCardQuery = async (req, res) => {
         path: "institute",
         select: "insName name",
       });
-
-    for (var ref of student_query) {
-      var name = `${ref?.valid_full_name}-${ref?.studentGRNO}`;
-      await download_file(
-        `${ref?.studentProfilePhoto}`,
-        name,
-        ref?.institute?.name
-      );
-    }
+    // await download_file(student_query, `${valid_ins?.name}`);
     // const liveEncrypt = await encryptionPayload(live_data);
     res.status(200).send({
       message: "Exported Student Format Pattern Save",
       student_card: student_query,
       export_format: true,
-      stats: true,
     });
     // var stats = await createZipArchive(`${valid_ins?.name}`)
 
-    await createZipArchive(`${valid_ins?.name}`);
+    // await createZipArchive(`${valid_ins?.name}`);
     // await remove_assets();
   } catch (e) {
     console.log(e);

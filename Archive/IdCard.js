@@ -29,17 +29,23 @@ exports.createZipArchive = async (ins) => {
   return `${ins}.zip`;
 };
 
-exports.download_file = async (file, name, ins) => {
+exports.download_file = async (arr, ins) => {
   var getParams = {
     Bucket: bucketName,
-    Key: file,
   };
-  s3.getObject(getParams, function (err, data) {
-    if (err) {
-      return err;
+  if (arr?.length > 0) {
+    for (var ref of arr) {
+      var name = `${ref?.valid_full_name}_${ref?.studentGRNO}`;
+      getParams.Key = ref?.studentProfilePhoto;
+      s3.getObject(getParams, function (err, data) {
+        if (err) {
+          return err;
+        }
+        fs.writeFileSync(`./assets/${name}.png`, data.Body);
+      });
     }
-    fs.writeFileSync(`./assets/${name}.png`, data.Body);
-  });
+  } else {
+  }
   // await createZipArchive(ins);
 };
 
@@ -89,6 +95,15 @@ exports.remove_assets = async () => {
         });
       }
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.all_s3_objects = async () => {
+  try {
+    var nest_arr = [];
+    return s3.listObjects({ Bucket: bucketName }).promise();
   } catch (e) {
     console.log(e);
   }

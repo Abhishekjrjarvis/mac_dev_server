@@ -82,6 +82,7 @@ const {
 const unlinkFile = util.promisify(fs.unlink);
 const Notification = require("../../models/notification");
 const RemainingList = require("../../models/Admission/RemainingList");
+const { download_file } = require("../../Archive/IdCard");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -681,9 +682,18 @@ exports.fetchExportStudentIdCardQuery = async (req, res) => {
     });
     const student_query = await Student.find({
       _id: { $in: query_data },
-    }).select(
-      "studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress  studentAadharNumber studentPhoneNumber"
-    );
+    })
+      .select(
+        "studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress  studentAadharNumber studentPhoneNumber studentParentsName studentParentsPhoneNumber student_blood_group studentEmail"
+      )
+      .populate({
+        path: "studentClass",
+        select: "className classTitle classStatus",
+      })
+      .populate({
+        path: "institute",
+        select: "insName name",
+      });
 
     // const liveEncrypt = await encryptionPayload(live_data);
     res.status(200).send({
@@ -691,6 +701,10 @@ exports.fetchExportStudentIdCardQuery = async (req, res) => {
       student_card: student_query,
       export_format: true,
     });
+    for (var ref of student_query) {
+      var name = `${ref?.valid_full_name}-${ref?.studentGRNO}`;
+      var file = await download_file(`${ref?.studentProfilePhoto}`, name);
+    }
   } catch (e) {
     console.log(e);
   }
@@ -2525,6 +2539,14 @@ exports.renderExcelToJSONExistFeesQuery = async (req, res) => {
     } else {
       console.log("false");
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFile = async (req, res) => {
+  try {
+    res.status(200).send({ message: "Explore Id Card File" });
   } catch (e) {
     console.log(e);
   }

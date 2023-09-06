@@ -700,6 +700,9 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch",
   },
+  student_blood_group: {
+    type: String,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

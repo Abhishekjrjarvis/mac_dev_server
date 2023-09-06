@@ -1,48 +1,104 @@
-// // filesystem is a node module that allows us to work with
-// // the files that are stored on our pc
-// const file_system = require('fs')
+const fs = require("fs");
+const aws = require("aws-sdk");
+const AdmZip = require("adm-zip");
+const bucketName = process.env.AWS_BUCKET_NAME;
+const region = process.env.AWS_BUCKET_REGION;
+const accessKeyId = process.env.AWS_ACCESS_KEY;
+const secretAccessKey = process.env.AWS_SECRET_KEY;
+const new_bucket = process.env.AWS_NEW_BUCKET_NAME;
+var archiver = require("archiver");
+const path = require("path");
 
-// // it is an npm package.this is to be required in our JS
-// // file for the conversion of data to a zip file!
-// const admz = require('adm-zip')
+async function createZipArchive(ins) {
+  var output = fs.createWriteStream(`${ins}.zip`);
+  var archive = archiver("zip");
 
-// // this is the name of specific folder which is to be
-// // changed into zip file1
-// var to_zip = file_system.readdirSync(__dirname + '/' + 'upload_data')
+  output.on("close", function () {
+    console.log(archive.pointer() + " total bytes");
+    console.log(
+      "archiver has been finalized and the output file descriptor has closed."
+    );
+  });
 
-// // this is used to request the specific file and then print
-// // the data in it!
-// app.get('/', function (req, res) {
-// 	res.sendFile(__dirname + '/' + 'index.html')
+  archive.on("error", function (err) {
+    throw err;
+  });
 
-// 	// zp is created as an object of class admz() which
-// 	// contains functionalities
-// 	const zp = new admz();
+  archive.pipe(output);
 
-// 	// this is the main part of our work!
-// 	// here for loop check counts and passes each and every
-// 	// file of our folder "upload_data"
-// 	// and convert each of them to a zip!
-// 	for (let k = 0; k < to_zip.length; k++) {
-// 		zp.addLocalFile(__dirname + '/' + 'upload_data' + '/' + to_zip[k])
-// 	}
+  // append files from a sub-directory, putting its contents at the root of archive
+  archive.directory("assets/", false);
 
-// 	// here we assigned the name to our downloaded file!
-// 	const file_after_download = 'downloaded_file.zip';
+  // append files from a sub-directory and naming it `new-subdir` within the archive
+  archive.directory("subdir/", "new-subdir");
 
-// 	// toBuffer() is used to read the data and save it
-// 	// for downloading process!
-// 	const data = zp.toBuffer();
+  archive.finalize();
+}
 
-// 	// this is the code for downloading!
-// 	// here we have to specify 3 things:
-// 	// 1. type of content that we are downloading
-// 	// 2. name of file to be downloaded
-// 	// 3. length or size of the downloaded file!
+exports.download_file = async (file, name, ins) => {
+  const s3 = new aws.S3({ region, accessKeyId, secretAccessKey });
+  var getParams = {
+    Bucket: bucketName,
+    Key: file,
+  };
+  s3.getObject(getParams, function (err, data) {
+    if (err) {
+      return err;
+    }
+    fs.writeFileSync("./assets/hello.png", data.Body);
+  });
+  var f_name = await createZipArchive(ins);
+  var is_uploaded = await upload_folder(f_name);
+  if (is_uploaded) {
+    fs.rmSync(`${f_name}/`, { recursive: true, force: true });
+  }
+};
 
-// 	res.set('Content-Type', 'application/octet-stream');
-// 	res.set('Content-Disposition', `attachment; filename=${file_after_download}`);
-// 	res.set('Content-Length', data.length);
-// 	res.send(data);
+const upload_folder = async (folder_name) => {
+  try {
+    const distFolderPath = path.join(__dirname, `${folder_name}`);
+    fs.readdir(distFolderPath, (err, files) => {
+      if (!files || files.length === 0) {
+        console.log(
+          `provided folder '${distFolderPath}' is empty or does not exist.`
+        );
+        console.log("Make sure your project was compiled!");
+        return;
+      }
 
-// })
+      // for each file in the directory
+      for (const fileName of files) {
+        // get the full path of the file
+        const filePath = path.join(distFolderPath, fileName);
+
+        // ignore if directory
+        if (fs.lstatSync(filePath).isDirectory()) {
+          continue;
+        }
+
+        // read file contents
+        fs.readFile(filePath, (error, fileContent) => {
+          // if unable to read file contents, throw exception
+          if (error) {
+            throw error;
+          }
+
+          // upload file to S3
+          s3.putObject(
+            {
+              Bucket: config.s3BucketName,
+              Key: fileName,
+              Body: fileContent,
+            },
+            (res) => {
+              console.log(`Successfully uploaded '${fileName}'!`);
+            }
+          );
+        });
+      }
+    });
+    return true;
+  } catch (e) {
+    console.log(e);
+  }
+};

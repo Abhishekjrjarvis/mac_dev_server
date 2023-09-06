@@ -333,6 +333,6 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONExistFeesQuery)
 );
 
-router.get("/:id/zip/file/query", catchAsync(Extra.renderZipFileQuery));
+router.patch("/:id/zip/file/query", catchAsync(Extra.renderZipFileQuery));
 
 module.exports = router;

@@ -40,6 +40,7 @@ exports.download_file = async (file, name, ins) => {
     }
     fs.writeFileSync(`./assets/${name}.png`, data.Body);
   });
+  // await createZipArchive(ins);
 };
 
 exports.next_call = async (f_name) => {

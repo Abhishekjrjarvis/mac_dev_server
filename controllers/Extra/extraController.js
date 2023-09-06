@@ -703,23 +703,25 @@ exports.fetchExportStudentIdCardQuery = async (req, res) => {
         select: "insName name",
       });
 
-    // const liveEncrypt = await encryptionPayload(live_data);
     for (var ref of student_query) {
       var name = `${ref?.valid_full_name}-${ref?.studentGRNO}`;
-      var file = await download_file(
+      await download_file(
         `${ref?.studentProfilePhoto}`,
         name,
         ref?.institute?.name
       );
     }
+    // const liveEncrypt = await encryptionPayload(live_data);
     res.status(200).send({
       message: "Exported Student Format Pattern Save",
       student_card: student_query,
       export_format: true,
       stats: true,
     });
-    var stats = await createZipArchive(`${valid_ins?.name}`);
-    await remove_assets();
+    // var stats = await createZipArchive(`${valid_ins?.name}`)
+
+    await createZipArchive(`${valid_ins?.name}`);
+    // await remove_assets();
   } catch (e) {
     console.log(e);
   }
@@ -2576,7 +2578,8 @@ exports.renderZipFileQuery = async (req, res) => {
       access: true,
       cdn_link_last_key: `${valid_ins?.name}.zip`,
     });
-    // await remove_call(`${valid_ins?.name}.zip`);
+    await remove_call(`${valid_ins?.name}.zip`);
+    await remove_assets();
   } catch (e) {
     console.log(e);
   }

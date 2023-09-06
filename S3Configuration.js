@@ -205,3 +205,25 @@ function uploadDocsFile(file) {
   return s3.upload(uploadParams).promise();
 }
 exports.uploadDocsFile = uploadDocsFile;
+
+exports.rename_objects = (ele, name) => {
+  try {
+    const copyObjectRequest = {
+      Bucket: bucketName,
+      CopySource: `/${bucketName}/${ele}`,
+      Key: `${name}`,
+    };
+    var status;
+    s3.copyObject(copyObjectRequest, (err, data) => {
+      if (err) {
+        console.log(err.message);
+      } else {
+        console.log("The object was renamed successfully", data);
+        status = true;
+        return status;
+      }
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

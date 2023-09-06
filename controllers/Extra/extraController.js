@@ -29,6 +29,7 @@ const {
   uploadDocsFile,
   uploadDocFile,
   getFileStream,
+  rename_objects,
 } = require("../../S3Configuration");
 const Hostel = require("../../models/Hostel/hostel");
 const ClassMaster = require("../../models/ClassMaster");
@@ -2562,17 +2563,33 @@ exports.renderZipFileQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    const valid_ins = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name"
+    var valid_student = await Student.findById({ _id: id }).select(
+      "studentFirstName studentGRNO studentProfilePhoto"
     );
-    await next_call(`${valid_ins?.name}.zip`);
+    var allow;
+    if (
+      `${valid_student?.studentProfilePhoto}` ==
+      `${valid_student?.studentFirstName}_${valid_student?.studentGRNO}`
+    ) {
+      allow = false;
+    } else {
+      var query = rename_objects(
+        `${valid_student?.studentProfilePhoto}`,
+        `${valid_student?.studentFirstName}_${valid_student?.studentGRNO}`
+      );
+      allow = true;
+    }
+    valid_student.studentProfilePhoto = `${valid_student?.studentFirstName}_${valid_student?.studentGRNO}`;
+    await valid_student.save()
     res.status(200).send({
       message: "Explore Id Card File",
       access: true,
-      cdn_link_last_key: `${valid_ins?.name}.zip`,
+      allow,
     });
-    await remove_call(`${valid_ins?.name}.zip`);
-    await remove_assets();
+    // cdn_link_last_key: `${valid_ins?.name}.zip`,
+    // await next_call(`${valid_ins?.name}.zip`);
+    // await remove_call(`${valid_ins?.name}.zip`);
+    // await remove_assets();
   } catch (e) {
     console.log(e);
   }

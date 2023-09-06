@@ -2024,7 +2024,7 @@ exports.renderApplicationListQuery = async (req, res) => {
       valid_apply?.confirmedApplication?.length > 0
     ) {
       var excel_list = [];
-      if(valid_apply?.applicationHostel){
+      if (valid_apply?.applicationHostel) {
         for (var ref of valid_apply?.confirmedApplication) {
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
@@ -2048,11 +2048,11 @@ exports.renderApplicationListQuery = async (req, res) => {
             Address: `${ref?.student?.studentAddress}` ?? "#NA",
             AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
             ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
-            AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+            AlternateContactNo:
+              ref?.student?.studentParentsPhoneNumber ?? "#NA",
           });
         }
-      }
-      else{
+      } else {
         for (var ref of valid_apply?.confirmedApplication) {
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
@@ -2070,7 +2070,8 @@ exports.renderApplicationListQuery = async (req, res) => {
             Address: `${ref?.student?.studentAddress}` ?? "#NA",
             AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
             ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
-            AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+            AlternateContactNo:
+              ref?.student?.studentParentsPhoneNumber ?? "#NA",
           });
         }
       }
@@ -2096,7 +2097,7 @@ exports.renderApplicationListQuery = async (req, res) => {
       valid_apply?.allottedApplication?.length > 0
     ) {
       var excel_list = [];
-      if(valid_apply?.applicationHostel){
+      if (valid_apply?.applicationHostel) {
         for (var ref of valid_apply?.allottedApplication) {
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
@@ -2121,11 +2122,11 @@ exports.renderApplicationListQuery = async (req, res) => {
             Address: `${ref?.student?.studentAddress}` ?? "#NA",
             AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
             ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
-            AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+            AlternateContactNo:
+              ref?.student?.studentParentsPhoneNumber ?? "#NA",
           });
         }
-      }
-      else{
+      } else {
         for (var ref of valid_apply?.allottedApplication) {
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
@@ -2144,7 +2145,8 @@ exports.renderApplicationListQuery = async (req, res) => {
             Address: `${ref?.student?.studentAddress}` ?? "#NA",
             AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
             ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
-            AlternateContactNo: ref?.student?.studentParentsPhoneNumber ?? "#NA",
+            AlternateContactNo:
+              ref?.student?.studentParentsPhoneNumber ?? "#NA",
           });
         }
       }
@@ -2188,7 +2190,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
 
     var valid_apply = await NewApplication.findById({ _id: appId })
       .select(
-        "receievedApplication applicationUnit applicationName confirmedApplication allottedApplication"
+        "receievedApplication applicationUnit applicationName confirmedApplication allottedApplication applicationHostel"
       )
       .populate({
         path: "receievedApplication",

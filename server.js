@@ -131,13 +131,13 @@ app.listen(port, function () {
 //   });
 // }
 
-// process.on("SIGTERM", () => {
-//   console.info("SIGTERM signal received.");
-//   server.close(() => {
-//     console.log("Http server closed.");
-//     mongoose.connection.close(false, () => {
-//       console.log("MongoDb connection closed.");
-//       process.exit(0);
-//     });
-//   });
-// });
+process.on("SIGTERM", () => {
+  console.info("SIGTERM signal received.", new Date());
+  server.close(() => {
+    console.log("Http server closed.");
+    mongoose.connection.close(false, () => {
+      console.log("MongoDb connection closed.");
+      process.exit(0);
+    });
+  });
+});

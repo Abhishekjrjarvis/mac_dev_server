@@ -92,6 +92,9 @@ const {
   remove_assets,
   all_s3_objects,
 } = require("../../Archive/IdCard");
+const { all_upper_case_query } = require("../../FormatCase/UpperCase");
+const { all_lower_case_query } = require("../../FormatCase/LowerCase");
+const { all_title_case_query } = require("../../FormatCase/TitleCase");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -2580,12 +2583,12 @@ exports.renderZipFileQuery = async (req, res) => {
       allow = true;
     }
     valid_student.studentProfilePhoto = `${valid_student?.studentFirstName}_${valid_student?.studentGRNO}`;
-    await valid_student.save()
+    await valid_student.save();
     res.status(200).send({
       message: "Explore Id Card File",
       access: true,
       allow,
-      Key: valid_student.studentProfilePhoto
+      Key: valid_student.studentProfilePhoto,
     });
     // cdn_link_last_key: `${valid_ins?.name}.zip`,
     // await next_call(`${valid_ins?.name}.zip`);

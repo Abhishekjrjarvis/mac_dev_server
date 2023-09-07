@@ -729,9 +729,14 @@ exports.fetchExportOneStudentIdCardQuery = async (req, res) => {
     const { sid } = req.body;
     const student_query = await Student.findById({
       _id: sid,
-    }).select(
-      "studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress  studentAadharNumber studentPhoneNumber"
-    );
+    })
+      .select(
+        "studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress  studentAadharNumber studentPhoneNumber studentEmail studentParentsName studentParentsPhoneNumber student_blood_group"
+      )
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      });
 
     // const liveEncrypt = await encryptionPayload(live_data);
     res.status(200).send({
@@ -2588,7 +2593,7 @@ exports.renderZipFileQuery = async (req, res) => {
       message: "Explore Id Card File",
       access: true,
       allow,
-      Key: valid_student.studentProfilePhoto,
+      Key: `${valid_student.studentProfilePhoto}.jpg`,
     });
     // cdn_link_last_key: `${valid_ins?.name}.zip`,
     // await next_call(`${valid_ins?.name}.zip`);

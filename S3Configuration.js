@@ -211,7 +211,7 @@ exports.rename_objects = (ele, name) => {
     const copyObjectRequest = {
       Bucket: bucketName,
       CopySource: `/${bucketName}/${ele}`,
-      Key: `${name}`,
+      Key: `${name}.jpg`,
     };
     var status;
     s3.copyObject(copyObjectRequest, (err, data) => {

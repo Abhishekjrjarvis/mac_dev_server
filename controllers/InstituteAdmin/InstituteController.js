@@ -1089,6 +1089,7 @@ exports.fillStudentForm = async (req, res) => {
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
+    student.student_join_mode = "ADMISSION_PROCESS";
     const classes = await Class.findOne({ classCode: req.body.studentCode });
     const classStaff = await Staff.findById({ _id: `${classes.classTeacher}` });
     const classUser = await User.findById({ _id: `${classStaff.user}` });

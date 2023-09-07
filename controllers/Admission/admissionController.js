@@ -625,6 +625,7 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
+    student.student_join_mode = "ADMISSION_PROCESS"
     const apply = await NewApplication.findById({ _id: aid });
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,

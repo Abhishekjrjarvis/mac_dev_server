@@ -922,6 +922,7 @@ exports.renderHostelReceievedApplication = async (req, res) => {
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
+    student.student_join_mode = "HOSTEL_PROCESS"
     const apply = await NewApplication.findById({ _id: aid });
     const valid_unit = await HostelUnit.findById({
       _id: `${apply?.applicationUnit}`,
@@ -6446,6 +6447,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
+    student.student_join_mode = "HOSTEL_PROCESS"
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
       : [];
@@ -6690,6 +6692,7 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         studentGender: ref?.studentGender,
         studentDOB: ref?.studentDOB,
         studentPhoneNumber: ref?.studentPhoneNumber,
+        student_join_mode: "HOSTEL_PROCESS"
       });
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""

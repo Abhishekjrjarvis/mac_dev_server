@@ -564,7 +564,7 @@ exports.admissionInstituteFunction = async (
         } else {
         }
       }
-      await apply.save()
+      await apply.save();
       // for (var match of student.paidFeeList) {
       //   if (`${match.appId}` === `${apply._id}`) {
       //     match.paidAmount += parseInt(tx_amount_ad);
@@ -1473,6 +1473,7 @@ exports.directAdmissionInstituteFunction = async (
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
+    student.student_join_mode = "ADMISSION_PROCESS";
     const studentOptionalSubject = body?.optionalSubject
       ? body?.optionalSubject
       : [];

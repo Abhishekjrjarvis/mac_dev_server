@@ -1510,6 +1510,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;
+      student.student_join_mode = "ADMISSION_PROCESS";
       const classStaff = await Staff.findById({
         _id: `${classes.classTeacher}`,
       });
@@ -1907,6 +1908,7 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;
+      student.student_join_mode = "ADMISSION_PROCESS";
       const apply = await NewApplication.findById({ _id: aid });
       const admission = await Admission.findById({
         _id: `${apply.admissionAdmin}`,
@@ -2126,6 +2128,7 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;
+      student.student_join_mode = "HOSTEL_PROCESS";
       const apply = await NewApplication.findById({ _id: aid });
       const one_hostel = await Hostel.findById({
         _id: `${apply.hostelAdmin}`,
@@ -2365,6 +2368,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
+    student.student_join_mode = "ADMISSION_PROCESS";
     student.studentCode = classes.classCode;
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
@@ -2938,6 +2942,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
+    student.student_join_mode = "ADMISSION_PROCESS";
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
       : [];
@@ -3217,6 +3222,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           student?.studentMiddleName ?? ""
         } ${student?.studentLastName}`;
         student.studentCode = classes.classCode;
+        student.student_join_mode = "ADMISSION_PROCESS";
         const studentOptionalSubject = query?.optionalSubject
           ? query?.optionalSubject
           : [];
@@ -4256,6 +4262,7 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
           studentDOB: ref.studentDOB,
           studentMTongue: ref.studentMTongue,
           student_prn_enroll_number: ref.student_prn_enroll_number,
+          student_join_mode: "ADMISSION_PROCESS",
         });
         student.valid_full_name = `${student?.studentFirstName} ${
           student?.studentMiddleName ?? ""

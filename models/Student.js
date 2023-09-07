@@ -703,6 +703,9 @@ const studentSchema = new mongoose.Schema({
   student_blood_group: {
     type: String,
   },
+  student_join_mode: {
+    type: String,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

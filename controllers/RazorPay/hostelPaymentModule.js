@@ -507,6 +507,7 @@ exports.directHostelInstituteFunction = async (
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
+    student.student_join_mode = "HOSTEL_PROCESS";
     const studentOptionalSubject = body?.optionalSubject
       ? body?.optionalSubject
       : [];

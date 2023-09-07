@@ -2490,7 +2490,7 @@ exports.retrieveUserRoleQuery = async (req, res) => {
     const student = await Student.find({ _id: { $in: user?.student } })
       .sort("createdAt")
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto student_join_mode"
       )
       .populate({
         path: "institute",
@@ -2665,6 +2665,25 @@ exports.retrieveUserReportBlockIns = async (req, res) => {
     console.log("UUBU", e);
   }
 };
+
+exports.renderMode = async(req, res) => {
+  try{
+    var all_students = await Student.find({})
+    for(var ref of all_students){
+      if(ref?.hostel_fee_structure){
+        ref.student_join_mode = "HOSTEL_PROCESS"
+      }
+      else{
+        ref.student_join_mode = "ADMISSION_PROCESS"
+      }
+      await ref.save()
+    }
+    res.status(200).send({ message: "Explore New Mode", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
 
 // exports.getAllThreeCount = async (req, res) => {
 //   try {

@@ -2490,11 +2490,19 @@ exports.retrieveUserRoleQuery = async (req, res) => {
     const student = await Student.find({ _id: { $in: user?.student } })
       .sort("createdAt")
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto student_join_mode"
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto student_join_mode student_unit"
       )
       .populate({
         path: "institute",
         select: "insName insProfilePhoto photoId name",
+      })
+      .populate({
+        path: "student_unit",
+        select: "hostel_unit_name hostel hostel_unit_photo",
+        populate: {
+          path: "hostel",
+          select: "_id",
+        },
       });
 
     var mergeArray = [...staff, ...student];
@@ -2666,24 +2674,22 @@ exports.retrieveUserReportBlockIns = async (req, res) => {
   }
 };
 
-exports.renderMode = async(req, res) => {
-  try{
-    var all_students = await Student.find({})
-    for(var ref of all_students){
-      if(ref?.hostel_fee_structure){
-        ref.student_join_mode = "HOSTEL_PROCESS"
+exports.renderMode = async (req, res) => {
+  try {
+    var all_students = await Student.find({});
+    for (var ref of all_students) {
+      if (ref?.hostel_fee_structure) {
+        ref.student_join_mode = "HOSTEL_PROCESS";
+      } else {
+        ref.student_join_mode = "ADMISSION_PROCESS";
       }
-      else{
-        ref.student_join_mode = "ADMISSION_PROCESS"
-      }
-      await ref.save()
+      await ref.save();
     }
-    res.status(200).send({ message: "Explore New Mode", access: true})
+    res.status(200).send({ message: "Explore New Mode", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 // exports.getAllThreeCount = async (req, res) => {
 //   try {

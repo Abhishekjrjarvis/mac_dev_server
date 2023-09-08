@@ -301,7 +301,7 @@ exports.renderAllHostelUnitQuery = async (req, res) => {
         $and: [{ _id: { $in: hostel?.units } }],
         $or: [{ hostel_unit_name: { $regex: search, $options: "i" } }],
       })
-        .select("created_at hostel_unit_name")
+        .select("created_at hostel_unit_name hostel_unit_photo")
         .populate({
           path: "hostel_unit_head",
           select:
@@ -311,7 +311,7 @@ exports.renderAllHostelUnitQuery = async (req, res) => {
       var all_units = await HostelUnit.find({ _id: { $in: hostel?.units } })
         .limit(limit)
         .skip(skip)
-        .select("created_at hostel_unit_name")
+        .select("created_at hostel_unit_name hostel_unit_photo")
         .populate({
           path: "hostel_unit_head",
           select:

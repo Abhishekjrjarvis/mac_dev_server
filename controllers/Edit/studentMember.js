@@ -617,12 +617,19 @@ exports.getPromoteStudentByClass = async (req, res) => {
           select: "className classTitle",
         },
       })
-      .select("promoteStudent")
+      .select("promoteStudent boyCount girlCount")
       .lean()
       .exec();
+
+    var count = {
+      boyCount: classes?.boyCount,
+      girlCount: classes?.girlCount,
+      totalCount: classes?.boyCount + classes?.girlCount,
+    };
     res.status(200).send({
       message: "All promoted student list",
       promoteStudent: classes.promoteStudent ?? [],
+      count: count,
     });
   } catch (e) {
     res.status(200).send({ message: e, promoteStudent: [] });

@@ -707,10 +707,13 @@ exports.addInstituteModeratorQuery = async (req, res) => {
     }
     if (`${mod_role}` === "SOCIAL_MEDIA_ACCESS") {
       const new_user_pass = bcrypt.genSaltSync(12);
-      const hash_user_pass = bcrypt.hashSync(social_media_password_query, new_user_pass);
+      const hash_user_pass = bcrypt.hashSync(
+        social_media_password_query,
+        new_user_pass
+      );
       institute.social_media_password_query = hash_user_pass;
       user.social_media_password_query = hash_user_pass;
-      new_mod.social_media_password_query = hash_user_pass
+      new_mod.social_media_password_query = hash_user_pass;
     }
     new_mod.institute = institute?._id;
     institute.moderator_role.push(new_mod?._id);
@@ -731,7 +734,7 @@ exports.addInstituteModeratorQuery = async (req, res) => {
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Institute Moderator Designation";
     if (`${mod_role}` === "SOCIAL_MEDIA_ACCESS") {
-      notify.social = true
+      notify.social = true;
     }
     user.uNotify.push(notify._id);
     notify.user = user._id;
@@ -864,12 +867,12 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
         one_staff.staffDesignationCount -= 1;
       }
       await one_staff.save();
-      if(`${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS"){
+      if (`${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS") {
         var one_user = await User.findById({
           _id: `${one_staff?.user}`,
         });
-        one_user.social_media_password_query = null
-        await one_user.save()
+        one_user.social_media_password_query = null;
+        await one_user.save();
       }
       var new_staff = await Staff.findById({ _id: sid });
       new_staff.instituteModeratorDepartment.push(one_moderator?._id);
@@ -889,12 +892,19 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = one_moderator?.institute?._id;
-      if(`${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS"){
+      if (`${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS") {
+        const valid_ins = await InstituteAdmin.findById({
+          institute: one_moderator?.institute?._id,
+        });
         const new_user_pass = bcrypt.genSaltSync(12);
-        const hash_user_pass = bcrypt.hashSync(social_media_password_query, new_user_pass);
-        user.social_media_password_query = hash_user_pass
-        await user.save()
-        notify.social = true
+        const hash_user_pass = bcrypt.hashSync(
+          social_media_password_query,
+          new_user_pass
+        );
+        user.social_media_password_query = hash_user_pass;
+        valid_ins.social_media_password_query = hash_user_pass;
+        await Promise.all([user.save(), valid_ins.save()]);
+        notify.social = true;
       }
       await invokeFirebaseNotification(
         "Designation Allocation",
@@ -914,7 +924,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
       await Promise.all([new_staff.save(), user.save(), notify.save()]);
     }
     await one_moderator.save();
-    await FinanceModerator.findByIdAndUpdate(mid, req?.body)
+    await FinanceModerator.findByIdAndUpdate(mid, req?.body);
     res.status(200).send({ message: "Explore Update Role", access: true });
   } catch (e) {
     console.log(e);

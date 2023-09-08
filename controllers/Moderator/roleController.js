@@ -894,7 +894,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
       notify.notifyByInsPhoto = one_moderator?.institute?._id;
       if (`${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS") {
         const valid_ins = await InstituteAdmin.findById({
-          institute: one_moderator?.institute?._id,
+          _id: one_moderator?.institute?._id,
         });
         const new_user_pass = bcrypt.genSaltSync(12);
         const hash_user_pass = bcrypt.hashSync(

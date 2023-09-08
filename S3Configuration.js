@@ -210,8 +210,8 @@ exports.rename_objects = (ele, name) => {
   try {
     const copyObjectRequest = {
       Bucket: bucketName,
-      CopySource: `/${bucketName}/${ele}.jpg`,
-      Key: `${name}`,
+      CopySource: `/${bucketName}/${ele}`,
+      Key: `${name}.jpg`,
       ContentType: "image/jpg",
     };
     var status;

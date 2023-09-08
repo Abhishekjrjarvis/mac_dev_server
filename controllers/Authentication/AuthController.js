@@ -988,15 +988,17 @@ module.exports.authentication = async (req, res) => {
     if (institute) {
       const checkPass = bcrypt.compareSync(insPassword, institute.insPassword);
       if (institute?.social_media_password_query) {
+        var checkUserSocialPass
         const all_mods = await FinanceModerator.find({ $and: [{ institute: institute?._id}, { access_role: "SOCIAL_MEDIA_ACCESS"}]})
         for(var ref of all_mods){
-          var checkUserSocialPass = bcrypt.compareSync(
+          checkUserSocialPass = bcrypt.compareSync(
             insPassword,
             ref?.social_media_password_query
           );
           if(checkUserSocialPass) break
         }
       }
+      console.log(checkUserSocialPass)
       if (checkPass || checkUserSocialPass) {
         //
         if (

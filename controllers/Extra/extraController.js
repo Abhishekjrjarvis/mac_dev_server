@@ -2589,12 +2589,18 @@ exports.renderZipFileQuery = async (req, res) => {
     // }
     valid_student.studentProfilePhoto = `${valid_student?.studentFirstName}_${valid_student?.studentGRNO}.jpg`;
     await valid_student.save();
+    var valid_students = await Student.findById({ _id: id })
+    var data = {
+      profile_pic: valid_students?.studentProfilePhoto,
+      name: valid_students?.valid_full_name,
+      gr: valid_students?.studentGRNO
+    }
     res.status(200).send({
       message: "Explore Id Card File",
       access: true,
       allow,
       Key: `${valid_student.studentProfilePhoto}`,
-      valid_student: valid_student,
+      data: data
     });
     // cdn_link_last_key: `${valid_ins?.name}.zip`,
     // await next_call(`${valid_ins?.name}.zip`);

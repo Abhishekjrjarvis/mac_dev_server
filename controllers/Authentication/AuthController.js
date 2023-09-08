@@ -1020,7 +1020,7 @@ module.exports.authentication = async (req, res) => {
             token: `Bearer ${token}`,
             institute: institute,
             login: true,
-            main_role: checkUserSocialPass ? 
+            main_role: checkUserSocialPass 
               ? "SOCIAL_MEDIA_HANDLER"
               : "MAIN_ADMIN",
           });

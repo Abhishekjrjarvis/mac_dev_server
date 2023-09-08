@@ -74,6 +74,7 @@ const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 const FeeStructure = require("../../models/Finance/FeesStructure");
 const RemainingList = require("../../models/Admission/RemainingList");
 const Hostel = require("../../models/Hostel/hostel");
+const FinanceModerator = require("../../models/Moderator/FinanceModerator");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -987,10 +988,14 @@ module.exports.authentication = async (req, res) => {
     if (institute) {
       const checkPass = bcrypt.compareSync(insPassword, institute.insPassword);
       if (institute?.social_media_password_query) {
-        var checkUserSocialPass = bcrypt.compareSync(
-          insPassword,
-          institute?.social_media_password_query
-        );
+        const all_mods = await FinanceModerator.find({ $and: [{ institute: institute?._id}, { access_role: "SOCIAL_MEDIA_ACCESS"}]})
+        for(var ref of all_mods){
+          var checkUserSocialPass = bcrypt.compareSync(
+            insPassword,
+            ref?.social_media_password_query
+          );
+          if(checkUserSocialPass) break
+        }
       }
       if (checkPass || checkUserSocialPass) {
         //
@@ -1015,7 +1020,7 @@ module.exports.authentication = async (req, res) => {
             token: `Bearer ${token}`,
             institute: institute,
             login: true,
-            main_role: institute?.social_media_password_query
+            main_role: checkUserSocialPass ? 
               ? "SOCIAL_MEDIA_HANDLER"
               : "MAIN_ADMIN",
           });
@@ -1035,7 +1040,7 @@ module.exports.authentication = async (req, res) => {
             token: `Bearer ${token}`,
             institute: institute,
             login: true,
-            main_role: institute?.social_media_password_query
+            main_role: checkUserSocialPass
               ? "SOCIAL_MEDIA_HANDLER"
               : "MAIN_ADMIN",
           });

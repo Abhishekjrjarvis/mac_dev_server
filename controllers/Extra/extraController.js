@@ -2594,6 +2594,7 @@ exports.renderZipFileQuery = async (req, res) => {
       access: true,
       allow,
       Key: `${valid_student.studentProfilePhoto}`,
+      valid_student: valid_student,
     });
     // cdn_link_last_key: `${valid_ins?.name}.zip`,
     // await next_call(`${valid_ins?.name}.zip`);

@@ -2575,18 +2575,18 @@ exports.renderZipFileQuery = async (req, res) => {
       "studentFirstName studentGRNO studentProfilePhoto"
     );
     var allow;
-    if (
-      `${valid_student?.studentProfilePhoto}` ==
+    // if (
+    //   `${valid_student?.studentProfilePhoto}` ==
+    //   `${valid_student?.studentFirstName}_${valid_student?.studentGRNO}`
+    // ) {
+    //   allow = false;
+    // } else {
+    var query = rename_objects(
+      `${valid_student?.studentProfilePhoto}`,
       `${valid_student?.studentFirstName}_${valid_student?.studentGRNO}`
-    ) {
-      allow = false;
-    } else {
-      var query = rename_objects(
-        `${valid_student?.studentProfilePhoto}`,
-        `${valid_student?.studentFirstName}_${valid_student?.studentGRNO}`
-      );
-      allow = true;
-    }
+    );
+    allow = true;
+    // }
     valid_student.studentProfilePhoto = `${valid_student?.studentFirstName}_${valid_student?.studentGRNO}.jpg`;
     await valid_student.save();
     res.status(200).send({

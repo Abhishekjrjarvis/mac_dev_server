@@ -611,7 +611,7 @@ exports.getPromoteStudentByClass = async (req, res) => {
       .populate({
         path: "promoteStudent",
         select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentClass",
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentClass studentGender",
         populate: {
           path: "studentClass",
           select: "className classTitle",
@@ -621,10 +621,20 @@ exports.getPromoteStudentByClass = async (req, res) => {
       .lean()
       .exec();
 
+    var boyCount = 0
+    var girlCount = 0
+    for(var val of classes?.promoteStudent){
+      if(`${val?.studentGender?.toLowerCase()}` === "male"){
+        boyCount += 1
+      }
+      else if(`${val?.studentGender?.toLowerCase()}` === "female"){
+        girlCount += 1
+      }
+    }
     var count = {
-      boyCount: classes?.boyCount,
-      girlCount: classes?.girlCount,
-      totalCount: classes?.boyCount + classes?.girlCount,
+      boyCount: boyCount,
+      girlCount: girlCount,
+      totalCount: boyCount + girlCount,
     };
     res.status(200).send({
       message: "All promoted student list",

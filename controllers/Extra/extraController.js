@@ -2581,7 +2581,7 @@ exports.renderZipFileQuery = async (req, res) => {
     // ) {
     //   allow = false;
     // } else {
-    var query = rename_objects(
+    await rename_objects(
       `${valid_student?.studentProfilePhoto}`,
       `${valid_student?.studentFirstName}_${valid_student?.studentGRNO}`
     );

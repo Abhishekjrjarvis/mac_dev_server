@@ -206,7 +206,7 @@ function uploadDocsFile(file) {
 }
 exports.uploadDocsFile = uploadDocsFile;
 
-exports.rename_objects = (ele, name) => {
+exports.rename_objects = async (ele, name) => {
   try {
     const copyObjectRequest = {
       Bucket: bucketName,

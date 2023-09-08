@@ -2593,7 +2593,7 @@ exports.renderZipFileQuery = async (req, res) => {
       message: "Explore Id Card File",
       access: true,
       allow,
-      Key: `${valid_student.studentProfilePhoto}`,
+      Key: `${valid_student.studentProfilePhoto}.jpg`,
       valid_student: valid_student,
     });
     // cdn_link_last_key: `${valid_ins?.name}.zip`,

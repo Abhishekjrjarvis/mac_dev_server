@@ -2587,7 +2587,7 @@ exports.renderZipFileQuery = async (req, res) => {
       );
       allow = true;
     }
-    valid_student.studentProfilePhoto = `${valid_student?.studentFirstName}_${valid_student?.studentGRNO}`;
+    valid_student.studentProfilePhoto = `${valid_student?.studentFirstName}_${valid_student?.studentGRNO}.jpg`;
     await valid_student.save();
     res.status(200).send({
       message: "Explore Id Card File",

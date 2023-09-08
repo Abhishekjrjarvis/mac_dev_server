@@ -998,7 +998,6 @@ module.exports.authentication = async (req, res) => {
           if(checkUserSocialPass) break
         }
       }
-      console.log(checkUserSocialPass)
       if (checkPass || checkUserSocialPass) {
         //
         if (

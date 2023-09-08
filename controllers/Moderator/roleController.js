@@ -903,6 +903,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
         );
         user.social_media_password_query = hash_user_pass;
         valid_ins.social_media_password_query = hash_user_pass;
+        one_moderator.social_media_password_query = hash_user_pass;
         await Promise.all([user.save(), valid_ins.save()]);
         notify.social = true;
       }
@@ -924,7 +925,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
       await Promise.all([new_staff.save(), user.save(), notify.save()]);
     }
     await one_moderator.save();
-    await FinanceModerator.findByIdAndUpdate(mid, req?.body);
+    // await FinanceModerator.findByIdAndUpdate(mid, req?.body);
     res.status(200).send({ message: "Explore Update Role", access: true });
   } catch (e) {
     console.log(e);

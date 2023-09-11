@@ -1509,6 +1509,7 @@ exports.update_fee_head_query = async (
   receipt_args
 ) => {
   try {
+    console.log("Enter Exist Fee Heads")
     var price_query = price;
     var receipt_query = price;
     for (var ref of student_args?.active_fee_heads) {
@@ -1581,6 +1582,7 @@ exports.update_fee_head_query = async (
       }
     }
     await receipt_args.save();
+    console.log("EXIT FROM FEE HEADS")
     return student_args;
   } catch (e) {
     console.log(e);

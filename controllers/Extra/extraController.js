@@ -95,6 +95,7 @@ const {
 const { all_upper_case_query } = require("../../FormatCase/UpperCase");
 const { all_lower_case_query } = require("../../FormatCase/LowerCase");
 const { all_title_case_query } = require("../../FormatCase/TitleCase");
+const { all_new_designation_query } = require("../../Designation/functions");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -2606,6 +2607,77 @@ exports.renderZipFileQuery = async (req, res) => {
     // await next_call(`${valid_ins?.name}.zip`);
     // await remove_call(`${valid_ins?.name}.zip`);
     // await remove_assets();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDesignationCheckQuery = async (req, res) => {
+  try {
+    const { sid, id } = req.params;
+    const { desig_array } = req.body;
+    if (desig_array?.length > 0) {
+      await all_new_designation_query(desig_array, sid, id);
+      res.status(200).send({
+        message: "Explore New Flow Model Of Checkbox Designation",
+        access: true,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Designation available for staff", access: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDesignationAllQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // const { search, flow } = req.query
+    if (!id)
+      return res
+        .status(200)
+        .send({ message: "Explore All Designation with heads", access: false });
+    var valid_institute = await InstituteAdmin.findById({ _id: id })
+      .select(
+        "insName name financeDepart admissionDepart hostelDepart transportDepart library eventManagerDepart aluminiDepart"
+      )
+      .populate({
+        path: "financeDepart",
+        select: "financeHead",
+      })
+      .populate({
+        path: "admissionDepart",
+        select: "admissionAdminHead",
+      })
+      .populate({
+        path: "hostelDepart",
+        select: "hostel_manager",
+      })
+      .populate({
+        path: "transportDepart",
+        select: "transport_manager",
+      })
+      .populate({
+        path: "library",
+        select: "libraryHead",
+      })
+      .populate({
+        path: "eventManagerDepart",
+        select: "event_head",
+      })
+      .populate({
+        path: "alumniDepart",
+        select: "alumini_head",
+      });
+
+    res.status(200).send({
+      message: "Explore New / All Designations with all heads / manager",
+      access: true,
+      valid_institute: valid_institute,
+    });
   } catch (e) {
     console.log(e);
   }

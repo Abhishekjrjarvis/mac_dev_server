@@ -4,7 +4,7 @@ const librarySchema = new mongoose.Schema({
   libraryHead: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff",
-    required: true,
+    // required: true,
   },
   institute: {
     type: mongoose.Schema.Types.ObjectId,

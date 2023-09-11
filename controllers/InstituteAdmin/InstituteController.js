@@ -767,57 +767,74 @@ exports.getNewDepartment = async (req, res) => {
   try {
     const { id } = req.params;
     const { sid } = req.body;
-    const staff = await Staff.findById({ _id: sid }).populate({
-      path: "user",
-    });
-    const user = await User.findById({ _id: `${staff.user._id}` });
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const department = new Department({ ...req.body });
-    const notify = new Notification({});
+    var institute = await InstituteAdmin.findById({ _id: id });
+    var department = new Department({ ...req.body });
     institute.depart.push(department._id);
     institute.departmentCount += 1;
     department.institute = institute._id;
-    staff.staffDepartment.push(department._id);
-    staff.staffDesignationCount += 1;
-    staff.recentDesignation = req.body.dTitle;
-    staff.designation_array.push({
-      role: "Department Head",
-      role_id: department?._id,
-    });
-    department.dHead = staff._id;
-    department.staffCount += 1;
-    user.departmentChat.push({
-      isDepartmentHead: "Yes",
-      department: department._id,
-    });
-    if (
-      department.departmentChatGroup.length >= 1 &&
-      department.departmentChatGroup.includes(`${staff._id}`)
-    ) {
+    if (sid) {
+      var staff = await Staff.findById({ _id: sid }).populate({
+        path: "user",
+      });
+      var user = await User.findById({ _id: `${staff.user._id}` });
+      var notify = new Notification({});
+      department.dHead = staff._id;
+      department.staffCount += 1;
+      staff.staffDepartment.push(department._id);
+      staff.staffDesignationCount += 1;
+      staff.recentDesignation = req.body.dTitle;
+      staff.designation_array.push({
+        role: "Department Head",
+        role_id: department?._id,
+      });
+      user.departmentChat.push({
+        isDepartmentHead: "Yes",
+        department: department._id,
+      });
+      if (
+        department.departmentChatGroup.length >= 1 &&
+        department.departmentChatGroup.includes(`${staff._id}`)
+      ) {
+      } else {
+        department.departmentChatGroup.push(staff._id);
+      }
+      notify.notifyContent = `you got the designation of ${department.dName} as ${department.dTitle}`;
+      notify.notifySender = id;
+      notify.notifyReceiever = user._id;
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByInsPhoto = institute._id;
+      notify.notifyCategory = "Department Designation";
+      await invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([staff.save(), user.save(), notify.save()]);
+      designation_alarm(
+        user?.userPhoneNumber,
+        "DHEAD",
+        institute?.sms_lang,
+        department?.dName,
+        department?.dTitle,
+        ""
+      );
+      if (user?.userEmail) {
+        email_sms_designation_alarm(
+          user?.userEmail,
+          "DHEAD",
+          institute?.sms_lang,
+          department?.dName,
+          department?.dTitle,
+          ""
+        );
+      }
     } else {
-      department.departmentChatGroup.push(staff._id);
+      department.dHead = null;
     }
-    notify.notifyContent = `you got the designation of ${department.dName} as ${department.dTitle}`;
-    notify.notifySender = id;
-    notify.notifyReceiever = user._id;
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyByInsPhoto = institute._id;
-    notify.notifyCategory = "Department Designation";
-    await invokeFirebaseNotification(
-      "Designation Allocation",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
-    await Promise.all([
-      institute.save(),
-      staff.save(),
-      department.save(),
-      user.save(),
-      notify.save(),
-    ]);
+    await Promise.all([institute.save(), department.save()]);
     // const dEncrypt = await encryptionPayload(department._id);
     res.status(200).send({
       message: "Successfully Created Department",
@@ -831,25 +848,9 @@ exports.getNewDepartment = async (req, res) => {
     department.exam_fee_structure.push(new_exam_fee?._id);
     department.exam_fee_structure_count += 1;
     await Promise.all([department.save(), new_exam_fee.save()]);
-    designation_alarm(
-      user?.userPhoneNumber,
-      "DHEAD",
-      institute?.sms_lang,
-      department?.dName,
-      department?.dTitle,
-      ""
-    );
-    if (user?.userEmail) {
-      email_sms_designation_alarm(
-        user?.userEmail,
-        "DHEAD",
-        institute?.sms_lang,
-        department?.dName,
-        department?.dTitle,
-        ""
-      );
-    }
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.getNewStaffJoinCodeIns = async (req, res) => {
@@ -3383,22 +3384,17 @@ exports.retrieveNewClass = async (req, res) => {
       aggregatePassingPercentage,
       optionalSubjectCount,
     } = req.body;
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const masterClass = await ClassMaster.findById({ _id: mcId });
-    const mCName = masterClass.className;
-    const batch = await Batch.findById({ _id: bid });
-    const staff = await Staff.findById({ _id: sid }).populate({
-      path: "user",
-    });
-    const user = await User.findById({ _id: `${staff.user._id}` });
-    const depart = await Department.findById({ _id: did }).populate({
+    var institute = await InstituteAdmin.findById({ _id: id });
+    var masterClass = await ClassMaster.findById({ _id: mcId });
+    var mCName = masterClass.className;
+    var batch = await Batch.findById({ _id: bid });
+    var depart = await Department.findById({ _id: did }).populate({
       path: "dHead",
     });
     if (institute.classCodeList.includes(`${result}`)) {
     } else {
-      const notify = new Notification({});
       const date = await todayDate();
-      const classRoom = new Class({
+      var classRoom = new Class({
         masterClassName: mcId,
         className: mCName,
         classTitle: classTitle,
@@ -3410,6 +3406,69 @@ exports.retrieveNewClass = async (req, res) => {
         },
         optionalSubjectCount: optionalSubjectCount,
       });
+      if (sid) {
+        var staff = await Staff.findById({ _id: sid }).populate({
+          path: "user",
+        });
+        var user = await User.findById({ _id: `${staff.user._id}` });
+        var notify = new Notification({});
+        if (
+          depart.departmentChatGroup.length >= 1 &&
+          depart.departmentChatGroup.includes(`${staff._id}`)
+        ) {
+        } else {
+          depart.departmentChatGroup.push(staff._id);
+          depart.staffCount += 1;
+        }
+        staff.staffClass.push(classRoom._id);
+        staff.staffDesignationCount += 1;
+        staff.recentDesignation = classHeadTitle;
+        staff.designation_array.push({
+          role: "Class Teacher",
+          role_id: classRoom?._id,
+        });
+        classRoom.classTeacher = staff._id;
+        user.classChat.push({
+          isClassTeacher: "Yes",
+          classes: classRoom._id,
+        });
+        notify.notifyContent = `you got the designation of ${classRoom.className} as ${classRoom.classHeadTitle}`;
+        notify.notifySender = id;
+        notify.notifyReceiever = user._id;
+        notify.notifyCategory = "Class Designation";
+        user.uNotify.push(notify._id);
+        notify.user = user._id;
+        notify.notifyByInsPhoto = institute._id;
+        await invokeFirebaseNotification(
+          "Designation Allocation",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
+        await Promise.all([staff.save(), user.save(), notify.save()]);
+        designation_alarm(
+          user?.userPhoneNumber,
+          "CLASS",
+          institute?.sms_lang,
+          classRoom?.className,
+          classRoom?.classTitle,
+          ""
+        );
+        if (user?.userEmail) {
+          email_sms_designation_alarm(
+            user?.userEmail,
+            "CLASS",
+            institute?.sms_lang,
+            classRoom?.className,
+            classRoom?.classTitle,
+            ""
+          );
+        }
+      }
+      else{
+        classRoom.classTeacher = null;
+      }
       institute.classCodeList.push(`${result}`);
       institute.classRooms.push(classRoom._id);
       classRoom.institute = institute._id;
@@ -3417,79 +3476,24 @@ exports.retrieveNewClass = async (req, res) => {
       batch.classCount += 1;
       masterClass.classDivision.push(classRoom._id);
       masterClass.classCount += 1;
-      if (
-        depart.departmentChatGroup.length >= 1 &&
-        depart.departmentChatGroup.includes(`${staff._id}`)
-      ) {
-      } else {
-        depart.departmentChatGroup.push(staff._id);
-        depart.staffCount += 1;
-      }
       classRoom.batch = batch._id;
       // batch.batchStaff.push(staff._id);
       // staff.batches = batch._id;
-      staff.staffClass.push(classRoom._id);
-      staff.staffDesignationCount += 1;
-      staff.recentDesignation = classHeadTitle;
-      staff.designation_array.push({
-        role: "Class Teacher",
-        role_id: classRoom?._id,
-      });
-      classRoom.classTeacher = staff._id;
       depart.class.push(classRoom._id);
       depart.classCount += 1;
-      user.classChat.push({
-        isClassTeacher: "Yes",
-        classes: classRoom._id,
-      });
       classRoom.department = depart._id;
-      notify.notifyContent = `you got the designation of ${classRoom.className} as ${classRoom.classHeadTitle}`;
-      notify.notifySender = id;
-      notify.notifyReceiever = user._id;
-      notify.notifyCategory = "Class Designation";
-      user.uNotify.push(notify._id);
-      notify.user = user._id;
-      notify.notifyByInsPhoto = institute._id;
-      await invokeFirebaseNotification(
-        "Designation Allocation",
-        notify,
-        institute.insName,
-        user._id,
-        user.deviceToken
-      );
       await Promise.all([
         institute.save(),
         batch.save(),
         masterClass.save(),
-        staff.save(),
         classRoom.save(),
         depart.save(),
-        user.save(),
-        notify.save(),
       ]);
       // const classEncrypt = await encryptionPayload(classRoom._id);
       res.status(200).send({
         message: "Successfully Created Class",
         classRoom: classRoom._id,
       });
-      designation_alarm(
-        user?.userPhoneNumber,
-        "CLASS",
-        institute?.sms_lang,
-        classRoom?.className,
-        classRoom?.classTitle,
-        ""
-      );
-      if (user?.userEmail) {
-        email_sms_designation_alarm(
-          user?.userEmail,
-          "CLASS",
-          institute?.sms_lang,
-          classRoom?.className,
-          classRoom?.classTitle,
-          ""
-        );
-      }
     }
   } catch (e) {
     console.log(e);
@@ -3509,20 +3513,15 @@ exports.retrieveNewSubject = async (req, res) => {
       tutorial_analytic,
       batch_arr,
     } = req.body;
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const classes = await Class.findById({ _id: cid }).populate({
+    var institute = await InstituteAdmin.findById({ _id: id });
+    var classes = await Class.findById({ _id: cid }).populate({
       path: "classTeacher",
     });
-    const subjectMaster = await SubjectMaster.findById({ _id: msid });
-    // const batch = await Batch.findById({ _id: bid });
-    const staff = await Staff.findById({ _id: sid }).populate({
-      path: "user",
-    });
-    const user = await User.findById({ _id: `${staff.user._id}` });
-    const depart = await Department.findById({ _id: did }).populate({
+    var subjectMaster = await SubjectMaster.findById({ _id: msid });
+    // var batch = await Batch.findById({ _id: bid });
+    var depart = await Department.findById({ _id: did }).populate({
       path: "dHead",
     });
-    const notify = new Notification({});
     const subject = new Subject({
       subjectTitle: subjectTitle,
       subjectName: subjectMaster.subjectName,
@@ -3535,6 +3534,80 @@ exports.retrieveNewSubject = async (req, res) => {
       practical_analytic: practical_analytic,
       tutorial_analytic: tutorial_analytic,
     });
+    if (sid) {
+      var staff = await Staff.findById({ _id: sid }).populate({
+        path: "user",
+      });
+      var user = await User.findById({ _id: `${staff.user._id}` });
+      var notify = new Notification({});
+      if (
+        depart.departmentChatGroup.length >= 1 &&
+        depart.departmentChatGroup.includes(`${staff._id}`)
+      ) {
+      } else {
+        depart.departmentChatGroup.push(staff._id);
+        depart.staffCount += 1;
+        await depart.save();
+      }
+      staff.staffSubject.push(subject._id);
+      staff.staffDesignationCount += 1;
+      staff.recentDesignation = subjectTitle;
+      staff.designation_array.push({
+        role: "Subject Teacher",
+        role_id: subject?._id,
+      });
+      user.subjectChat.push({
+        isSubjectTeacher: "Yes",
+        subjects: subject._id,
+      });
+      subject.subjectTeacherName = staff._id;
+      notify.notifyContent = `you got the designation of ${subject.subjectName} of ${classes.className} as ${subject.subjectTitle}`;
+      notify.notifySender = id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Subject Designation";
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByInsPhoto = institute._id;
+      if (batch_arr?.length > 0) {
+        for (var ref of batch_arr) {
+          staff.staffBatch.push(ref);
+          subject.selected_batch_query = ref;
+        }
+      }
+      await invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        depart.dName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([
+        staff.save(),
+        subject.save(),
+        user.save(),
+        notify.save(),
+      ]);
+      designation_alarm(
+        user?.userPhoneNumber,
+        "SUBJECT",
+        institute?.sms_lang,
+        subject?.subjectName,
+        subject?.subjectTitle,
+        classes?.className
+      );
+      if (user?.userEmail) {
+        email_sms_designation_alarm(
+          user?.userEmail,
+          "SUBJECT",
+          institute?.sms_lang,
+          subject?.subjectName,
+          subject?.subjectTitle,
+          classes?.className
+        );
+      }
+    } else {
+      subject.subjectTeacherName = null;
+    }
     classes.subject.push(subject._id);
     classes.subjectCount += 1;
     subjectMaster.subjects.push(subject._id);
@@ -3545,80 +3618,17 @@ exports.retrieveNewSubject = async (req, res) => {
     //   batch.batchStaff.push(staff._id);
     //   staff.batches = batch._id;
     // }
-    if (
-      depart.departmentChatGroup.length >= 1 &&
-      depart.departmentChatGroup.includes(`${staff._id}`)
-    ) {
-    } else {
-      depart.departmentChatGroup.push(staff._id);
-      depart.staffCount += 1;
-      await depart.save();
-    }
-    staff.staffSubject.push(subject._id);
-    staff.staffDesignationCount += 1;
-    staff.recentDesignation = subjectTitle;
-    staff.designation_array.push({
-      role: "Subject Teacher",
-      role_id: subject?._id,
-    });
-    user.subjectChat.push({
-      isSubjectTeacher: "Yes",
-      subjects: subject._id,
-    });
-    subject.subjectTeacherName = staff._id;
-    notify.notifyContent = `you got the designation of ${subject.subjectName} of ${classes.className} as ${subject.subjectTitle}`;
-    notify.notifySender = id;
-    notify.notifyReceiever = user._id;
-    notify.notifyCategory = "Subject Designation";
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyByInsPhoto = institute._id;
-    if (batch_arr?.length > 0) {
-      for (var ref of batch_arr) {
-        staff.staffBatch.push(ref);
-        subject.selected_batch_query = ref;
-      }
-    }
-    await invokeFirebaseNotification(
-      "Designation Allocation",
-      notify,
-      depart.dName,
-      user._id,
-      user.deviceToken
-    );
     await Promise.all([
       subjectMaster.save(),
       classes.save(),
-      // batch.save(),
-      staff.save(),
       subject.save(),
       depart.save(),
-      user.save(),
-      notify.save(),
     ]);
     // const sEncrypt = await encryptionPayload(subject);
     res.status(200).send({
       message: "Successfully Created Subject",
       subject,
     });
-    designation_alarm(
-      user?.userPhoneNumber,
-      "SUBJECT",
-      institute?.sms_lang,
-      subject?.subjectName,
-      subject?.subjectTitle,
-      classes?.className
-    );
-    if (user?.userEmail) {
-      email_sms_designation_alarm(
-        user?.userEmail,
-        "SUBJECT",
-        institute?.sms_lang,
-        subject?.subjectName,
-        subject?.subjectTitle,
-        classes?.className
-      );
-    }
   } catch (e) {
     console.log(e);
   }

@@ -4,7 +4,7 @@ const aluminiSchema = new mongoose.Schema({
   alumini_head: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff",
-    required: true,
+    // required: true,
   },
   alumini_passage: {
     type: String,

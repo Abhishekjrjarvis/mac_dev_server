@@ -4,7 +4,7 @@ const hostelSchema = new mongoose.Schema({
   hostel_manager: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff",
-    required: true,
+    // required: true,
   },
   created_at: {
     type: Date,

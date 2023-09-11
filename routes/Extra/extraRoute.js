@@ -335,4 +335,14 @@ router.patch(
 
 router.patch("/:id/zip/file/query", catchAsync(Extra.renderZipFileQuery));
 
+router.post(
+  "/designation/check/:id/staff/:sid/query",
+  catchAsync(Extra.renderDesignationCheckQuery)
+);
+
+router.get(
+  "/designation/check/:id/all/query",
+  catchAsync(Extra.renderDesignationAllQuery)
+);
+
 module.exports = router;

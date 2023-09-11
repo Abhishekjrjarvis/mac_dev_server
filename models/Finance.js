@@ -5,7 +5,7 @@ const financeSchema = new mongoose.Schema(
     financeHead: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Staff",
-      required: true,
+      // required: true,
     },
     financeName: { type: String },
     financePhoneNumber: { type: Number },

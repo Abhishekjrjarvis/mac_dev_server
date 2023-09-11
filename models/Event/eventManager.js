@@ -4,7 +4,7 @@ const eventManagerSchema = new mongoose.Schema({
   event_head: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff",
-    required: true,
+    // required: true,
   },
   event_count: {
     type: Number,

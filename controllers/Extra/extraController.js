@@ -697,9 +697,9 @@ exports.fetchExportStudentIdCardQuery = async (req, res) => {
     const student_query = await Student.find({
       _id: { $in: query_data },
     })
-      .select(
-        "studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress  studentAadharNumber studentPhoneNumber studentParentsName studentParentsPhoneNumber student_blood_group studentEmail"
-      )
+      // .select(
+      //   "studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress  studentAadharNumber studentPhoneNumber studentParentsName studentParentsPhoneNumber student_blood_group studentEmail"
+      // )
       .populate({
         path: "studentClass",
         select: "className classTitle classStatus",
@@ -730,9 +730,9 @@ exports.fetchExportOneStudentIdCardQuery = async (req, res) => {
     const student_query = await Student.findById({
       _id: sid,
     })
-      .select(
-        "studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress  studentAadharNumber studentPhoneNumber studentEmail studentParentsName studentParentsPhoneNumber student_blood_group"
-      )
+      // .select(
+      //   "studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress  studentAadharNumber studentPhoneNumber studentEmail studentParentsName studentParentsPhoneNumber student_blood_group"
+      // )
       .populate({
         path: "studentClass",
         select: "className classTitle",
@@ -2589,18 +2589,18 @@ exports.renderZipFileQuery = async (req, res) => {
     // }
     valid_student.studentProfilePhoto = `${valid_student?.studentFirstName}_${valid_student?.studentGRNO}.jpg`;
     await valid_student.save();
-    var valid_students = await Student.findById({ _id: id })
+    var valid_students = await Student.findById({ _id: id });
     var data = {
       profile_pic: valid_students?.studentProfilePhoto,
       name: valid_students?.valid_full_name,
-      gr: valid_students?.studentGRNO
-    }
+      gr: valid_students?.studentGRNO,
+    };
     res.status(200).send({
       message: "Explore Id Card File",
       access: true,
       allow,
       Key: `${valid_student.studentProfilePhoto}`,
-      data: data
+      data: data,
     });
     // cdn_link_last_key: `${valid_ins?.name}.zip`,
     // await next_call(`${valid_ins?.name}.zip`);

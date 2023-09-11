@@ -1848,7 +1848,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     if (req.body?.fee_payment_mode === "Government/Scholarship") {
       // New Logic
     } else {
+      console.log("Enter")
       await set_fee_head_query(student, price, apply, new_receipt);
+      console.log("Exit")
     }
     if (new_remainFee?.remaining_fee > 0) {
     } else {

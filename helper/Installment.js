@@ -1495,6 +1495,7 @@ exports.set_fee_head_query = async (
       }
       await Promise.all([student_args.save(), receipt_args.save()]);
       price_query = 0;
+      console.log("INSIDE FEE HEADS");
     }
   } catch (e) {
     console.log(e);

@@ -699,6 +699,7 @@ exports.admissionInstituteFunction = async (
         // console.log("Card Data", card_2);
         // console.log("Card Data Length", card_2?.length);
         if (type === "First Installment") {
+          console.log("FIRST_INSTALLMENT ALL FEE HEADS PUSH");
           await set_fee_head_query(
             student,
             parseInt(tx_amount_ad),
@@ -749,6 +750,7 @@ exports.admissionInstituteFunction = async (
             await Promise.all([classes.save(), batch.save(), depart.save()]);
           }
         } else {
+          console.log("EXIST_INSTALLMENT ALL FEE HEADS PUSH");
           await update_fee_head_query(
             student,
             parseInt(tx_amount_ad),

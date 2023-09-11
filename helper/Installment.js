@@ -1946,6 +1946,9 @@ exports.add_all_installment_zero = async (arg1, arg2, arg3, amount, arg4) => {
       });
     }
     await arg3.save();
+    console.log(
+      "PROMOTE FEE STRUCTURE ASSIGN BUG AND DB UPDATED WITH INSTALLMENT CARD"
+    );
   } catch (e) {
     console.log(e, "From All Installment");
   }

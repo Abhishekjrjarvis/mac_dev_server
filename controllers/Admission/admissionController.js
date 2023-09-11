@@ -625,7 +625,7 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
-    student.student_join_mode = "ADMISSION_PROCESS"
+    student.student_join_mode = "ADMISSION_PROCESS";
     const apply = await NewApplication.findById({ _id: aid });
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
@@ -1658,6 +1658,7 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
 exports.payOfflineAdmissionFee = async (req, res) => {
   try {
     const { sid, aid } = req.params;
+    const { receipt_status } = req.query;
     const { amount, mode } = req.body;
     if (!sid && !aid && !amount && !mode)
       return res.status(200).send({
@@ -1693,6 +1694,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
+    new_receipt.receipt_status = receipt_status
+      ? receipt_status
+      : "Already Generated";
     order.payment_module_type = "Admission Fees";
     order.payment_to_end_user_id = institute?._id;
     order.payment_by_end_user_id = user._id;
@@ -7251,7 +7255,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         var over_price =
           new_struct?.total_admission_fees - one_remain_list?.paid_fee;
       }
-      console.log("OVER", over_price)
+      console.log("OVER", over_price);
       //Later Add
       if (one_student?.admissionRemainFeeCount >= over_price) {
         one_student.admissionRemainFeeCount -= over_price;
@@ -7260,7 +7264,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       one_remain_list.applicable_fee = new_struct?.total_admission_fees;
       one_remain_list.remaining_fee = over_price ?? 0;
       one_remain_list.refund_fee = refund_price ?? 0;
-      await one_remain_list.save()
+      await one_remain_list.save();
       for (var ref of one_remain_list?.remaining_array) {
         if (
           ref?.installmentValue === "One Time Fees" ||

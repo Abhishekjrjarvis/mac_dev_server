@@ -129,6 +129,9 @@ const feeReceiptSchema = new mongoose.Schema({
     type: String,
     default: "Not Set off",
   },
+  receipt_status: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

@@ -74,6 +74,7 @@ const {
   set_retro_installment,
   lookup_applicable_grant,
   add_all_installment_zero,
+  set_fee_head_query_redesign,
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -9648,20 +9649,62 @@ exports.renderFeeHeadsQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-
+    var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
-    var all_student = await Student.find({
-      $and: [{ _id: ins?.ApproveStudent }],
+    var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}`})
+    // var all_student = await Student.find({
+    //   $and: [{ _id: ins?.ApproveStudent }],
+    // });
+
+    const g_date = new Date(`2023-09-05T00:00:00.000Z`);
+    const l_date = new Date(`2023-09-13T00:00:00.000Z`);
+    var receipt = await FeeReceipt.find({
+      $and: [
+        {
+          created_at: {
+            $gte: g_date,
+            $lte: l_date,
+          },
+        },
+        {
+          finance: finance?._id
+        }
+      ],
     });
+    var empty_student = []
+    for(var ref of receipt){
+      var student = await Student.findById({ _id: `${ref?.student}`})
+      .populate({
+        path: "fee_structure",
+      })
+      if(student?.active_fee_heads?.length > 0){
+        // for(var ele of student?.active_fee_heads){
+        // console.log("CONTAIN LENGTH")
+        // }
+      }
+      else{
+        // await set_fee_head_query_redesign(student, ref?.fee_payment_amount, ref?.application, ref)
+        empty_student.push({
+          name: student?.valid_full_name,
+          id: student?._id
+        })
+      }
+    }
 
-    // for(var ref of all_student){
-
+    // for (var ref of all_student) {
+    //   var card = await RemainingList.find({ student: `${ref?._id}` });
+    //   for (var ele of card) {
+    //     array.push(ele);
+    //   }
     // }
 
     res.status(200).send({
       message: "Explore All Student Fee Heads Query",
       access: true,
-      count: all_student?.length,
+      count: empty_student?.length,
+      // array,
+      // receipt
+      empty_student
     });
   } catch (e) {
     console.log(e);

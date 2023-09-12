@@ -1512,6 +1512,7 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
           path: "department",
           select: "dName",
         });
+        var all_student_query = [...studentIns]
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -1617,7 +1618,7 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
         });
         res
           .status(200)
-          .send({ message: "Without Limit", studentIns: valid_list });
+          .send({ message: "Without Limit", studentIns: valid_list, all_student_query: all_student_query });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }

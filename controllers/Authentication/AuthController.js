@@ -418,6 +418,7 @@ exports.getOtpAtUser = async (req, res) => {
         res.status(200).send({
           message: "code will be send to entered Email",
           userPhoneNumber,
+          code
         });
       } else {
         res.send({ message: "User will be verified..." });

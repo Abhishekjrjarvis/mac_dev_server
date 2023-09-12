@@ -2657,7 +2657,7 @@ exports.renderDesignationAllQuery = async (req, res) => {
         path: "admissionDepart",
         select: "admissionAdminHead",
         populate: {
-          path: "admissionHead",
+          path: "admissionAdminHead",
           select:
             "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         },

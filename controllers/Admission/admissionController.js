@@ -89,7 +89,7 @@ const { set_off_amount } = require("../../Functions/SetOff");
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
     const { id } = req.params;
-    const { sid } = req.body
+    const { sid } = req.body;
     if (!sid && !id)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -97,70 +97,66 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
       });
     var institute = await InstituteAdmin.findById({ _id: id });
     var admission = new Admission({});
-    if(sid){
+    if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });
       var notify = new Notification({});
-    staff.admissionDepartment.push(admission._id);
-    staff.staffDesignationCount += 1;
-    staff.recentDesignation = "Admission Admin";
-    staff.designation_array.push({
-      role: "Admission Admin",
-      role_id: admission?._id,
-    });
-    admission.admissionAdminHead = staff._id;
-    let password = await generate_hash_pass();
-    admission.designation_password = password?.pass;
-    notify.notifyContent = `you got the designation of Admission Admin A/c Access Pin - ${password?.pin}`;
-    notify.notifySender = id;
-    notify.notifyReceiever = user._id;
-    notify.notifyCategory = "Admission Designation";
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyPid = "1";
-    notify.notifyByInsPhoto = institute._id;
-    await invokeFirebaseNotification(
-      "Designation Allocation",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
-    await Promise.all([
-      staff.save(),
-      admission.save(),
-      user.save(),
-      notify.save(),
-    ]);
-    designation_alarm(
-      user?.userPhoneNumber,
-      "ADMISSION",
-      institute?.sms_lang,
-      "",
-      "",
-      ""
-    );
-    if (user?.userEmail) {
-      email_sms_designation_alarm(
-        user?.userEmail,
+      staff.admissionDepartment.push(admission._id);
+      staff.staffDesignationCount += 1;
+      staff.recentDesignation = "Admission Admin";
+      staff.designation_array.push({
+        role: "Admission Admin",
+        role_id: admission?._id,
+      });
+      admission.admissionAdminHead = staff._id;
+      let password = await generate_hash_pass();
+      admission.designation_password = password?.pass;
+      notify.notifyContent = `you got the designation of Admission Admin A/c Access Pin - ${password?.pin}`;
+      notify.notifySender = id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Admission Designation";
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyPid = "1";
+      notify.notifyByInsPhoto = institute._id;
+      await invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([
+        staff.save(),
+        admission.save(),
+        user.save(),
+        notify.save(),
+      ]);
+      designation_alarm(
+        user?.userPhoneNumber,
         "ADMISSION",
         institute?.sms_lang,
         "",
         "",
         ""
       );
-    }
-    }
-    else{
+      if (user?.userEmail) {
+        email_sms_designation_alarm(
+          user?.userEmail,
+          "ADMISSION",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+      }
+    } else {
       admission.admissionAdminHead = null;
     }
     institute.admissionDepart.push(admission._id);
     institute.admissionStatus = "Enable";
     admission.institute = institute._id;
-    await Promise.all([
-      institute.save(),
-      admission.save(),
-    ]);
+    await Promise.all([institute.save(), admission.save()]);
     // const adsEncrypt = await encryptionPayload(admission._id);
     res.status(200).send({
       message: "Successfully Assigned Staff",
@@ -1857,9 +1853,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     if (req.body?.fee_payment_mode === "Government/Scholarship") {
       // New Logic
     } else {
-      console.log("Enter")
+      console.log("Enter");
       await set_fee_head_query(student, price, apply, new_receipt);
-      console.log("Exit")
+      console.log("Exit");
     }
     if (new_remainFee?.remaining_fee > 0) {
     } else {
@@ -2969,6 +2965,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
   try {
     const { aid, sid, appId } = req.params;
     const { amount, mode, type } = req.body;
+    const { receipt_status } = req.query;
     if (!sid && !aid && !appId && !amount && !mode && !type)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -3001,6 +2998,9 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+    new_receipt.receipt_status = receipt_status
+      ? receipt_status
+      : "Already Generated";
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findOne({
       $and: [{ student: student?._id }, { appId: apply?._id }],
@@ -8357,6 +8357,7 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
     try {
       const { aid, sid, appId } = req.params;
       const { amount, mode, type, remain_1, rid } = req.body;
+      const { receipt_status } = req.query;
       if (!sid && !aid && !appId && !amount && !mode && !type && !remain_1)
         return res.status(200).send({
           message: "Their is a bug need to fix immediately 😡",
@@ -8395,6 +8396,9 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
       new_receipt.fee_transaction_date = new Date(
         `${req.body.transaction_date}`
       );
+      new_receipt.receipt_status = receipt_status
+        ? receipt_status
+        : "Already Generated";
       const notify = new StudentNotification({});
       var order = new OrderPayment({});
       order.payment_module_type = "Admission Fees";

@@ -567,4 +567,5 @@ router.patch(
   catchAsync(Admission.renderRemainCardRemovalQuery)
 );
 
+router.get("/fee/heads/:id", catchAsync(Admission.renderFeeHeadsQuery));
 module.exports = router;

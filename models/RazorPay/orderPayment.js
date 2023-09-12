@@ -99,6 +99,7 @@ const orderPaymentSchema = new mongoose.Schema({
     ref: "FeeReceipt",
   },
   razor_query: [],
+  paytm_query: [],
   // payment_expense_by_end_user_id: {
   //   type: mongoose.Schema.Types.ObjectId,
   //   ref: "InstituteAdmin",

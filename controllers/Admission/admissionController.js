@@ -9640,6 +9640,34 @@ exports.renderRemainCardRemovalQuery = async (req, res) => {
   }
 };
 
+exports.renderFeeHeadsQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var ins = await InstituteAdmin.findById({ _id: id });
+    var all_student = await Student.find({
+      $and: [{ _id: ins?.ApproveStudent }],
+    });
+
+    // for(var ref of all_student){
+
+    // }
+
+    res.status(200).send({
+      message: "Explore All Student Fee Heads Query",
+      access: true,
+      count: all_student?.length,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.renderRetroOneStudentStructureQuery = async (req, res) => {
 //   try {
 //     const { new_fee_struct } = req.params;

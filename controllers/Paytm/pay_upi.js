@@ -15,7 +15,8 @@ const order_history_query = async (
   module_id,
   amount_nocharges,
   to_end_user_id,
-  txn_id
+  txn_id,
+  body
 ) => {
   try {
     // var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
@@ -31,6 +32,7 @@ const order_history_query = async (
     order_payment.payment_status = "Captured";
     institute.invoice_count += 1;
     order_payment.razorpay_payment_id = `${txn_id}`;
+    order_payment.paytm_query.push(body);
     order_payment.payment_invoice_number = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
@@ -201,7 +203,8 @@ exports.callback = async (req, res) => {
               moduleId,
               price,
               paidTo,
-              txn_id
+              txn_id,
+              req?.body
             );
             var paytm_author = false;
             await feeInstituteFunction(
@@ -295,7 +298,8 @@ exports.callbackAdmission = async (req, res) => {
               moduleId,
               price,
               paidTo,
-              txn_id
+              txn_id,
+              req?.body
             );
             var paytm_author = false;
             var valid_status = ad_status_id === "null" ? "" : ad_status_id;
@@ -397,7 +401,8 @@ exports.callbackHostel = async (req, res) => {
               moduleId,
               price,
               paidTo,
-              txn_id
+              txn_id,
+              req?.body
             );
             var paytm_author = false;
             var valid_status = ad_status_id === "null" ? "" : ad_status_id;
@@ -447,6 +452,7 @@ exports.callbackStatus = async (req, res) => {
       TXNAMOUNT,
       STATUS,
       TXNID,
+      apk_body,
     } = req.body;
     var status = STATUS;
     var price_charge = TXNAMOUNT;
@@ -456,7 +462,8 @@ exports.callbackStatus = async (req, res) => {
         moduleId,
         price,
         paidTo,
-        TXNID
+        TXNID,
+        apk_body
       );
       var paytm_author = false;
       await feeInstituteFunction(
@@ -500,6 +507,7 @@ exports.callbackAdmissionStatus = async (req, res) => {
       TXNAMOUNT,
       STATUS,
       TXNID,
+      apk_body,
     } = req.body;
     var status = STATUS;
     var price_charge = TXNAMOUNT;
@@ -509,7 +517,8 @@ exports.callbackAdmissionStatus = async (req, res) => {
         moduleId,
         price,
         paidTo,
-        TXNID
+        TXNID,
+        apk_body
       );
       var paytm_author = false;
       var valid_status = ad_status_id === "null" ? "" : ad_status_id;
@@ -560,6 +569,7 @@ exports.callbackHostelStatus = async (req, res) => {
       TXNAMOUNT,
       STATUS,
       TXNID,
+      apk_body,
     } = req.body;
     var status = STATUS;
     var price_charge = TXNAMOUNT;
@@ -569,7 +579,8 @@ exports.callbackHostelStatus = async (req, res) => {
         moduleId,
         price,
         paidTo,
-        TXNID
+        TXNID,
+        apk_body
       );
       var paytm_author = false;
       var valid_status = ad_status_id === "null" ? "" : ad_status_id;

@@ -2669,7 +2669,7 @@ exports.renderDesignationAllQuery = async (req, res) => {
         select: "event_head",
       })
       .populate({
-        path: "alumniDepart",
+        path: "aluminiDepart",
         select: "alumini_head",
       });
 

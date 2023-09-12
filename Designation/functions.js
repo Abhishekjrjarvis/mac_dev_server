@@ -56,6 +56,11 @@ const {
 } = require("../helper/functions");
 const { nested_document_limit } = require("../helper/databaseFunction");
 const Chapter = require("../models/Academics/Chapter");
+const Library = require("../models/Library/Library");
+const Hostel = require("../models/Hostel/hostel");
+const EventManager = require("../models/Event/eventManager");
+const Alumini = require("../models/Alumini/Alumini");
+const Transport = require("../models/Transport/transport");
 
 exports.all_new_designation_query = async (d_array, sid, id) => {
   try {
@@ -440,10 +445,141 @@ exports.all_new_designation_query = async (d_array, sid, id) => {
         }
       }
       if (`${ele?.role}` === "EVENT_MANAGER") {
+        var event_manager = await EventManager.findById({
+          _id: `${ele?.roleId}`,
+        });
+        var notify = new Notification({});
+        staff.eventManagerDepartment.push(event_manager._id);
+        staff.staffDesignationCount += 1;
+        staff.recentDesignation = "Events / Seminar Administrator";
+        staff.designation_array.push({
+          role: "Events / Seminar Administrator",
+          role_id: event_manager?._id,
+        });
+        event_manager.event_head = staff._id;
+        notify.notifyContent = `you got the designation of as Events / Seminar Administrator`;
+        notify.notifySender = id;
+        notify.notifyReceiever = user._id;
+        notify.notifyCategory = "Event Manager Designation";
+        user.uNotify.push(notify._id);
+        notify.user = user._id;
+        notify.notifyByInsPhoto = institute._id;
+        await invokeFirebaseNotification(
+          "Designation Allocation",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
+        await Promise.all([event_manager.save(), notify.save()]);
+        designation_alarm(
+          user?.userPhoneNumber,
+          "EVENT_MANAGER",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+        if (user?.userEmail) {
+          email_sms_designation_alarm(
+            user?.userEmail,
+            "EVENT_MANAGER",
+            institute?.sms_lang,
+            "",
+            "",
+            ""
+          );
+        }
       }
       if (`${ele?.role}` === "ALUMNI") {
+        var alumini = await Alumini.findById({ _id: `${ele?.roleId}` });
+        var notify = new Notification({});
+        staff.aluminiDepartment.push(alumini?._id);
+        staff.staffDesignationCount += 1;
+        staff.recentDesignation = "Alumini Head";
+        staff.designation_array.push({
+          role: "Alumini Head",
+          role_id: alumini?._id,
+        });
+        alumini.alumini_head = staff._id;
+        notify.notifyContent = `you got the designation of as Alumini Head`;
+        notify.notifySender = id;
+        notify.notifyReceiever = user._id;
+        notify.notifyCategory = "Alumini Designation";
+        user.uNotify.push(notify._id);
+        notify.user = user._id;
+        notify.notifyByInsPhoto = institute._id;
+        await invokeFirebaseNotification(
+          "Designation Allocation",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
+        await Promise.all([alumini.save(), notify.save()]);
+        designation_alarm(
+          user?.userPhoneNumber,
+          "ALUMINI",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+        if (user?.userEmail) {
+          email_sms_designation_alarm(
+            user?.userEmail,
+            "ALUMINI",
+            institute?.sms_lang,
+            "",
+            "",
+            ""
+          );
+        }
       }
       if (`${ele?.role}` === "TRANSPORT_MANAGER") {
+        var transport = await Transport.findById({ _id: `${ele?.roleId}` });
+        var notify = new Notification({});
+        staff.transportDepartment.push(transport._id);
+        staff.staffDesignationCount += 1;
+        staff.recentDesignation = "Transportation Manager";
+        staff.designation_array.push({
+          role: "Transportation Manager",
+          role_id: transport?._id,
+        });
+        transport.transport_manager = staff._id;
+        notify.notifyContent = `you got the designation of Transportation Manager 🎉🎉`;
+        notify.notifySender = id;
+        notify.notifyReceiever = user._id;
+        notify.notifyCategory = "Transport Designation";
+        user.uNotify.push(notify._id);
+        notify.user = user._id;
+        notify.notifyByInsPhoto = institute._id;
+        await invokeFirebaseNotification(
+          "Designation Allocation",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
+        await Promise.all([transport.save(), notify.save()]);
+        designation_alarm(
+          user?.userPhoneNumber,
+          "TRANSPORT",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+        if (user?.userEmail) {
+          email_sms_designation_alarm(
+            user?.userEmail,
+            "TRANSPORT",
+            institute?.sms_lang,
+            "",
+            "",
+            ""
+          );
+        }
       }
     }
     await Promise.all([staff.save(), user.save()]);

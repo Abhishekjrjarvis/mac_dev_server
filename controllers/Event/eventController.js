@@ -38,67 +38,72 @@ const { date_renew, generate_date } = require("../../helper/dayTimer");
 
 exports.renderNewEventManagerQuery = async (req, res) => {
   try {
-    const { id, sid } = req.params;
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const staff = await Staff.findById({ _id: sid });
-    const user = await User.findById({ _id: `${staff.user}` });
-    const event_manager = new EventManager({});
-    const notify = new Notification({});
-    staff.eventManagerDepartment.push(event_manager._id);
-    staff.staffDesignationCount += 1;
-    staff.recentDesignation = "Events / Seminar Administrator";
-    staff.designation_array.push({
-      role: "Events / Seminar Administrator",
-      role_id: event_manager?._id,
-    });
-    event_manager.event_head = staff._id;
-    institute.eventManagerDepart.push(event_manager._id);
-    institute.eventManagerStatus = "Enable";
-    event_manager.institute = institute._id;
-    notify.notifyContent = `you got the designation of as Events / Seminar Administrator`;
-    notify.notifySender = id;
-    notify.notifyReceiever = user._id;
-    notify.notifyCategory = "Event Manager Designation";
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyByInsPhoto = institute._id;
-    await invokeFirebaseNotification(
-      "Designation Allocation",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
-    await Promise.all([
-      institute.save(),
-      staff.save(),
-      event_manager.save(),
-      user.save(),
-      notify.save(),
-    ]);
-    res.status(200).send({
-      message: "Successfully Assigned Staff",
-      manager: event_manager._id,
-      status: true,
-    });
-    designation_alarm(
-      user?.userPhoneNumber,
-      "EVENT_MANAGER",
-      institute?.sms_lang,
-      "",
-      "",
-      ""
-    );
-    if (user?.userEmail) {
-      email_sms_designation_alarm(
-        user?.userEmail,
+    const { id } = req.params;
+    const { sid } = req.body;
+    var institute = await InstituteAdmin.findById({ _id: id });
+    var event_manager = new EventManager({});
+    if (sid) {
+      var staff = await Staff.findById({ _id: sid });
+      var user = await User.findById({ _id: `${staff.user}` });
+      var notify = new Notification({});
+      staff.eventManagerDepartment.push(event_manager._id);
+      staff.staffDesignationCount += 1;
+      staff.recentDesignation = "Events / Seminar Administrator";
+      staff.designation_array.push({
+        role: "Events / Seminar Administrator",
+        role_id: event_manager?._id,
+      });
+      event_manager.event_head = staff._id;
+      notify.notifyContent = `you got the designation of as Events / Seminar Administrator`;
+      notify.notifySender = id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Event Manager Designation";
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByInsPhoto = institute._id;
+      await invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([
+        staff.save(),
+        event_manager.save(),
+        user.save(),
+        notify.save(),
+      ]);
+      designation_alarm(
+        user?.userPhoneNumber,
         "EVENT_MANAGER",
         institute?.sms_lang,
         "",
         "",
         ""
       );
+      if (user?.userEmail) {
+        email_sms_designation_alarm(
+          user?.userEmail,
+          "EVENT_MANAGER",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+      }
+    } else {
+      event_manager.event_head = null;
     }
+    institute.eventManagerDepart.push(event_manager._id);
+    institute.eventManagerStatus = "Enable";
+    event_manager.institute = institute._id;
+    await Promise.all([institute.save(), event_manager.save()]);
+    res.status(200).send({
+      message: "Successfully Assigned Staff",
+      manager: event_manager._id,
+      status: true,
+    });
   } catch (e) {
     console.log(e);
   }

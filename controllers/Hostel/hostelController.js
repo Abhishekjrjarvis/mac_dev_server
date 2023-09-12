@@ -133,6 +133,7 @@ exports.renderActivateHostelQuery = async (req, res) => {
       staff.save(),
       user.save(),
       notify.save(),
+      hostel.save()
     ]);
     designation_alarm(
       user?.userPhoneNumber,

@@ -54,7 +54,7 @@ exports.activateLibrary = async (req, res) => {
         user._id,
         user.deviceToken
       );
-      await Promise.all([staff.save(), user.save(), notify.save()]);
+      await Promise.all([staff.save(), user.save(), notify.save(), library.save()]);
       designation_alarm(
         user?.userPhoneNumber,
         "LIBRARY",

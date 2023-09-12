@@ -36,67 +36,71 @@ const { generate_hash_pass } = require("../../helper/functions");
 exports.renderNewAluminiQuery = async (req, res) => {
   try {
     const { id, sid } = req.params;
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const staff = await Staff.findById({ _id: sid });
-    const user = await User.findById({ _id: `${staff.user}` });
-    const alumini = new Alumini({ ...req.body });
-    const notify = new Notification({});
-    staff.aluminiDepartment.push(alumini?._id);
-    staff.staffDesignationCount += 1;
-    staff.recentDesignation = "Alumini Head";
-    staff.designation_array.push({
-      role: "Alumini Head",
-      role_id: alumini?._id,
-    });
-    alumini.alumini_head = staff._id;
-    institute.aluminiDepart.push(alumini?._id);
-    institute.aluminiStatus = "Enable";
-    alumini.institute = institute._id;
-    notify.notifyContent = `you got the designation of as Alumini Head`;
-    notify.notifySender = id;
-    notify.notifyReceiever = user._id;
-    notify.notifyCategory = "Alumini Designation";
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyByInsPhoto = institute._id;
-    await invokeFirebaseNotification(
-      "Designation Allocation",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
-    await Promise.all([
-      institute.save(),
-      staff.save(),
-      alumini.save(),
-      user.save(),
-      notify.save(),
-    ]);
-    // const fEncrypt = await encryptionPayload(alumini._id);
-    res.status(200).send({
-      message: "Successfully Assigned Staff",
-      alumini: alumini?._id,
-      status: true,
-    });
-    designation_alarm(
-      user?.userPhoneNumber,
-      "ALUMINI",
-      institute?.sms_lang,
-      "",
-      "",
-      ""
-    );
-    if (user?.userEmail) {
-      email_sms_designation_alarm(
-        user?.userEmail,
+    var institute = await InstituteAdmin.findById({ _id: id });
+    var alumini = new Alumini({ ...req.body });
+    if (sid) {
+      var staff = await Staff.findById({ _id: sid });
+      var user = await User.findById({ _id: `${staff.user}` });
+      var notify = new Notification({});
+      staff.aluminiDepartment.push(alumini?._id);
+      staff.staffDesignationCount += 1;
+      staff.recentDesignation = "Alumini Head";
+      staff.designation_array.push({
+        role: "Alumini Head",
+        role_id: alumini?._id,
+      });
+      alumini.alumini_head = staff._id;
+      notify.notifyContent = `you got the designation of as Alumini Head`;
+      notify.notifySender = id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Alumini Designation";
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByInsPhoto = institute._id;
+      await invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([
+        staff.save(),
+        alumini.save(),
+        user.save(),
+        notify.save(),
+      ]);
+      designation_alarm(
+        user?.userPhoneNumber,
         "ALUMINI",
         institute?.sms_lang,
         "",
         "",
         ""
       );
+      if (user?.userEmail) {
+        email_sms_designation_alarm(
+          user?.userEmail,
+          "ALUMINI",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+      }
+    } else {
+      alumini.alumini_head = null;
     }
+    institute.aluminiDepart.push(alumini?._id);
+    institute.aluminiStatus = "Enable";
+    alumini.institute = institute._id;
+    await Promise.all([institute.save(), alumini.save()]);
+    // const fEncrypt = await encryptionPayload(alumini._id);
+    res.status(200).send({
+      message: "Successfully Assigned Staff",
+      alumini: alumini?._id,
+      status: true,
+    });
   } catch (e) {
     console.log(e);
   }

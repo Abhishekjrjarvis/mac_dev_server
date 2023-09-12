@@ -6,7 +6,10 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const { isLoggedIn } = require("../../middleware");
 
-router.post("/ins/:id/staff/:sid", catchAsync(Alumini.renderNewAluminiQuery));
+router.post(
+  "/ins/:id/alumini/query",
+  catchAsync(Alumini.renderNewAluminiQuery)
+);
 
 router.get(
   "/:aid/dashboard/query",

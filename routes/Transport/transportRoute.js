@@ -7,7 +7,7 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
 router.post(
-  "/ins/:id/staff/:sid",
+  "/ins/:id/transport/query",
   // isLoggedIn,
   // isApproved,
   catchAsync(Transport.renderNewTransportManager)

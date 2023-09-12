@@ -32,43 +32,65 @@ exports.renderNewTransportManager = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const staff = await Staff.findById({ _id: sid });
-    const user = await User.findById({ _id: `${staff.user}` });
-    const transport = new Transport({});
-    const notify = new Notification({});
-    staff.transportDepartment.push(transport._id);
-    staff.staffDesignationCount += 1;
-    staff.recentDesignation = "Transportation Manager";
-    staff.designation_array.push({
-      role: "Transportation Manager",
-      role_id: transport?._id,
-    });
-    transport.transport_manager = staff._id;
+    var institute = await InstituteAdmin.findById({ _id: id });
+    var transport = new Transport({});
+    if (sid) {
+      var staff = await Staff.findById({ _id: sid });
+      var user = await User.findById({ _id: `${staff.user}` });
+      var notify = new Notification({});
+      staff.transportDepartment.push(transport._id);
+      staff.staffDesignationCount += 1;
+      staff.recentDesignation = "Transportation Manager";
+      staff.designation_array.push({
+        role: "Transportation Manager",
+        role_id: transport?._id,
+      });
+      transport.transport_manager = staff._id;
+      notify.notifyContent = `you got the designation of Transportation Manager 🎉🎉`;
+      notify.notifySender = id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Transport Designation";
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByInsPhoto = institute._id;
+      await invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([
+        staff.save(),
+        transport.save(),
+        user.save(),
+        notify.save(),
+      ]);
+      designation_alarm(
+        user?.userPhoneNumber,
+        "TRANSPORT",
+        institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+      if (user?.userEmail) {
+        email_sms_designation_alarm(
+          user?.userEmail,
+          "TRANSPORT",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+      }
+    } else {
+      transport.transport_manager = null;
+    }
     institute.transportDepart.push(transport._id);
     institute.transportStatus = "Enable";
     transport.institute = institute._id;
-    notify.notifyContent = `you got the designation of Transportation Manager 🎉🎉`;
-    notify.notifySender = id;
-    notify.notifyReceiever = user._id;
-    notify.notifyCategory = "Transport Designation";
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyByInsPhoto = institute._id;
-    await invokeFirebaseNotification(
-      "Designation Allocation",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
-    await Promise.all([
-      institute.save(),
-      staff.save(),
-      transport.save(),
-      user.save(),
-      notify.save(),
-    ]);
+    await Promise.all([institute.save(), transport.save()]);
     // const tEncrypt = await encryptionPayload(transport._id);
     res.status(200).send({
       message: "Successfully Assigned Transport Manager",
@@ -76,24 +98,6 @@ exports.renderNewTransportManager = async (req, res) => {
       access: true,
       status: true,
     });
-    designation_alarm(
-      user?.userPhoneNumber,
-      "TRANSPORT",
-      institute?.sms_lang,
-      "",
-      "",
-      ""
-    );
-    if (user?.userEmail) {
-      email_sms_designation_alarm(
-        user?.userEmail,
-        "TRANSPORT",
-        institute?.sms_lang,
-        "",
-        "",
-        ""
-      );
-    }
   } catch (e) {
     console.log(e);
   }

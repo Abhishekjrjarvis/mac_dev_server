@@ -74,7 +74,7 @@ exports.all_new_designation_query = async (d_array, sid, id) => {
         department.staffCount += 1;
         staff.staffDepartment.push(department._id);
         staff.staffDesignationCount += 1;
-        staff.recentDesignation = req.body.dTitle;
+        staff.recentDesignation = department?.dTitle;
         staff.designation_array.push({
           role: "Department Head",
           role_id: department?._id,
@@ -126,6 +126,9 @@ exports.all_new_designation_query = async (d_array, sid, id) => {
       }
       if (`${ele?.role}` === "CLASS_TEACHER") {
         var classRoom = await Class.findById({ _id: `${ele?.roleId}` });
+        var depart = await Department.findById({
+          _id: `${classRoom?.department}`,
+        });
         var notify = new Notification({});
         if (
           depart.departmentChatGroup.length >= 1 &&
@@ -137,7 +140,7 @@ exports.all_new_designation_query = async (d_array, sid, id) => {
         }
         staff.staffClass.push(classRoom._id);
         staff.staffDesignationCount += 1;
-        staff.recentDesignation = classHeadTitle;
+        staff.recentDesignation = classRoom?.classHeadTitle;
         staff.designation_array.push({
           role: "Class Teacher",
           role_id: classRoom?._id,
@@ -184,6 +187,9 @@ exports.all_new_designation_query = async (d_array, sid, id) => {
       if (`${ele?.role}` === "SUBJECT_TEACHER") {
         var subject = await Subject.findById({ _id: `${ele?.roleId}` });
         var classes = await Class.findById({ _id: `${subject?.class}` });
+        var depart = await Department.findById({
+          _id: `${classes?.department}`,
+        });
         var notify = new Notification({});
         if (
           depart.departmentChatGroup.length >= 1 &&
@@ -196,7 +202,7 @@ exports.all_new_designation_query = async (d_array, sid, id) => {
         }
         staff.staffSubject.push(subject._id);
         staff.staffDesignationCount += 1;
-        staff.recentDesignation = subjectTitle;
+        staff.recentDesignation = subject?.subjectTitle;
         staff.designation_array.push({
           role: "Subject Teacher",
           role_id: subject?._id,

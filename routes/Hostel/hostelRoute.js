@@ -7,7 +7,7 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
 router.post(
-  "/ins/:id/staff/:sid",
+  "/ins/:id/hostel/query",
   catchAsync(Hostel.renderActivateHostelQuery)
 );
 

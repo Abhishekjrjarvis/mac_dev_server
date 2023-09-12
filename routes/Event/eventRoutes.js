@@ -5,7 +5,7 @@ const { isLoggedIn } = require("../../middleware");
 const catchAsync = require("../../Utilities/catchAsync");
 
 router.post(
-  "/ins/:id/staff/:sid/manager",
+  "/ins/:id/event/manager/query",
   // isLoggedIn,
   catchAsync(Event.renderNewEventManagerQuery)
 );

@@ -8,9 +8,9 @@ const upload = multer({ dest: "uploads/" });
 
 // Assigning Finance Department To Staff
 router.post(
-  "/ins/:id/staff/:sid",
-  isLoggedIn,
-  isApproved,
+  "/ins/:id/finance/query",
+  // isLoggedIn,
+  // isApproved,
   catchAsync(Finance.getFinanceDepart)
 );
 

@@ -64,47 +64,74 @@ const {
 
 exports.getFinanceDepart = async (req, res) => {
   try {
-    const { id, sid } = req.params;
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const staff = await Staff.findById({ _id: sid });
-    const user = await User.findById({ _id: `${staff.user}` });
-    const finance = new Finance({});
-    const notify = new Notification({});
-    staff.financeDepartment.push(finance._id);
-    staff.staffDesignationCount += 1;
-    staff.recentDesignation = "Finance Manager";
-    staff.designation_array.push({
-      role: "Finance Manager",
-      role_id: finance?._id,
-    });
-    finance.financeHead = staff._id;
-    let password = await generate_hash_pass();
-    finance.designation_password = password?.pass;
+    const { id } = req.params;
+    const { sid } = req.body
+    var institute = await InstituteAdmin.findById({ _id: id });
+    var finance = new Finance({});
+    if(sid){
+      var staff = await Staff.findById({ _id: sid });
+      var user = await User.findById({ _id: `${staff.user}` });
+      var notify = new Notification({});
+      staff.financeDepartment.push(finance._id);
+      staff.staffDesignationCount += 1;
+      staff.recentDesignation = "Finance Manager";
+      staff.designation_array.push({
+        role: "Finance Manager",
+        role_id: finance?._id,
+      });
+      finance.financeHead = staff._id;
+      let password = await generate_hash_pass();
+      finance.designation_password = password?.pass;
+      notify.notifyContent = `you got the designation of as Finance Manager A/c Access Pin - ${password?.pin}`;
+      notify.notify_hi_content = `आपको वित्त व्यवस्थापक के रूप में पदनाम मिला है |`;
+      notify.notify_mr_content = `तुम्हाला वित्त व्यवस्थापक म्हणून पद मिळाले आहे`;
+      notify.notifySender = id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Finance Designation";
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByInsPhoto = institute._id;
+      await invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([
+        staff.save(),
+        user.save(),
+        notify.save(),
+        finance.save()
+      ]);
+      designation_alarm(
+        user?.userPhoneNumber,
+        "FINANCE",
+        institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+      if (user?.userEmail) {
+        email_sms_designation_alarm(
+          user?.userEmail,
+          "FINANCE",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+      }
+    }
+    else{
+      finance.financeHead = null;
+    }
     institute.financeDepart.push(finance._id);
     institute.financeStatus = "Enable";
     finance.institute = institute._id;
-    notify.notifyContent = `you got the designation of as Finance Manager A/c Access Pin - ${password?.pin}`;
-    notify.notify_hi_content = `आपको वित्त व्यवस्थापक के रूप में पदनाम मिला है |`;
-    notify.notify_mr_content = `तुम्हाला वित्त व्यवस्थापक म्हणून पद मिळाले आहे`;
-    notify.notifySender = id;
-    notify.notifyReceiever = user._id;
-    notify.notifyCategory = "Finance Designation";
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyByInsPhoto = institute._id;
-    await invokeFirebaseNotification(
-      "Designation Allocation",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
     await Promise.all([
       institute.save(),
-      staff.save(),
       finance.save(),
-      user.save(),
-      notify.save(),
     ]);
     // const fEncrypt = await encryptionPayload(finance._id);
     res.status(200).send({
@@ -112,25 +139,9 @@ exports.getFinanceDepart = async (req, res) => {
       finance: finance._id,
       status: true,
     });
-    designation_alarm(
-      user?.userPhoneNumber,
-      "FINANCE",
-      institute?.sms_lang,
-      "",
-      "",
-      ""
-    );
-    if (user?.userEmail) {
-      email_sms_designation_alarm(
-        user?.userEmail,
-        "FINANCE",
-        institute?.sms_lang,
-        "",
-        "",
-        ""
-      );
-    }
-  } catch (e) {}
+  } catch (e) {
+    console.log(e)
+  }
 };
 
 exports.uploadBankDetail = async (req, res) => {

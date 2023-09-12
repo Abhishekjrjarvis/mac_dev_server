@@ -23,64 +23,63 @@ exports.activateLibrary = async (req, res) => {
     if (!req.params.id) throw "Please send institute id to perform task";
     const { sid } = req.body;
     if (!sid) throw "Please send staff id to activate library head";
-    const institute = await InstituteAdmin.findById(req.params.id);
-    const staff = await Staff.findById(sid);
-    const user = await User.findById({ _id: `${staff?.user}` });
-    const notify = new Notification({});
-    const library = new Library({
-      libraryHead: sid,
+    var institute = await InstituteAdmin.findById(req.params.id);
+    var library = new Library({
       institute: institute._id,
       coverId: "2",
     });
-    institute.libraryActivate = "Enable";
-    institute.library.push(library._id);
-    staff.library.push(library._id);
-    staff.recentDesignation = "Library Head";
-    staff.staffDesignationCount += 1;
-    staff.designation_array.push({
-      role: "Library Head",
-      role_id: library?._id,
-    });
-    notify.notifyContent = `you got the designation of as Library Head`;
-    notify.notifySender = institute._id;
-    notify.notifyReceiever = user._id;
-    user.uNotify.push(notify._id);
-    notify.notifyCategory = "Library Designation";
-    notify.user = user._id;
-    notify.notifyByInsPhoto = institute._id;
-    await invokeFirebaseNotification(
-      "Designation Allocation",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
-    await Promise.all([
-      library.save(),
-      institute.save(),
-      staff.save(),
-      user.save(),
-      notify.save(),
-    ]);
-    res.status(201).send({ message: "Library Head is assign", status: true });
-    designation_alarm(
-      user?.userPhoneNumber,
-      "LIBRARY",
-      institute?.sms_lang,
-      "",
-      "",
-      ""
-    );
-    if (user?.userEmail) {
-      email_sms_designation_alarm(
-        user?.userEmail,
+    if (sid) {
+      var staff = await Staff.findById(sid);
+      var user = await User.findById({ _id: `${staff?.user}` });
+      var notify = new Notification({});
+      library.libraryHead = staff?._id;
+      staff.library.push(library._id);
+      staff.recentDesignation = "Library Head";
+      staff.staffDesignationCount += 1;
+      staff.designation_array.push({
+        role: "Library Head",
+        role_id: library?._id,
+      });
+      notify.notifyContent = `you got the designation of as Library Head`;
+      notify.notifySender = institute._id;
+      notify.notifyReceiever = user._id;
+      user.uNotify.push(notify._id);
+      notify.notifyCategory = "Library Designation";
+      notify.user = user._id;
+      notify.notifyByInsPhoto = institute._id;
+      await invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([staff.save(), user.save(), notify.save()]);
+      designation_alarm(
+        user?.userPhoneNumber,
         "LIBRARY",
         institute?.sms_lang,
         "",
         "",
         ""
       );
+      if (user?.userEmail) {
+        email_sms_designation_alarm(
+          user?.userEmail,
+          "LIBRARY",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+      }
+    } else {
+      library.libraryHead = null;
     }
+    institute.libraryActivate = "Enable";
+    institute.library.push(library._id);
+    await Promise.all([library.save(), institute.save()]);
+    res.status(201).send({ message: "Library Head is assign", status: true });
   } catch (e) {
     res.status(200).send({
       message: e.message,

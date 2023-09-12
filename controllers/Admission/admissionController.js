@@ -88,17 +88,19 @@ const { set_off_amount } = require("../../Functions/SetOff");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
-    const { id, sid } = req.params;
+    const { id } = req.params;
+    const { sid } = req.body
     if (!sid && !id)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         status: false,
       });
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const staff = await Staff.findById({ _id: sid });
-    const user = await User.findById({ _id: `${staff.user}` });
-    const admission = new Admission({});
-    const notify = new Notification({});
+    var institute = await InstituteAdmin.findById({ _id: id });
+    var admission = new Admission({});
+    if(sid){
+      var staff = await Staff.findById({ _id: sid });
+      var user = await User.findById({ _id: `${staff.user}` });
+      var notify = new Notification({});
     staff.admissionDepartment.push(admission._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Admission Admin";
@@ -109,9 +111,6 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
     admission.admissionAdminHead = staff._id;
     let password = await generate_hash_pass();
     admission.designation_password = password?.pass;
-    institute.admissionDepart.push(admission._id);
-    institute.admissionStatus = "Enable";
-    admission.institute = institute._id;
     notify.notifyContent = `you got the designation of Admission Admin A/c Access Pin - ${password?.pin}`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
@@ -128,18 +127,11 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
       user.deviceToken
     );
     await Promise.all([
-      institute.save(),
       staff.save(),
       admission.save(),
       user.save(),
       notify.save(),
     ]);
-    // const adsEncrypt = await encryptionPayload(admission._id);
-    res.status(200).send({
-      message: "Successfully Assigned Staff",
-      admission: admission._id,
-      status: true,
-    });
     designation_alarm(
       user?.userPhoneNumber,
       "ADMISSION",
@@ -158,6 +150,23 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
         ""
       );
     }
+    }
+    else{
+      admission.admissionAdminHead = null;
+    }
+    institute.admissionDepart.push(admission._id);
+    institute.admissionStatus = "Enable";
+    admission.institute = institute._id;
+    await Promise.all([
+      institute.save(),
+      admission.save(),
+    ]);
+    // const adsEncrypt = await encryptionPayload(admission._id);
+    res.status(200).send({
+      message: "Successfully Assigned Staff",
+      admission: admission._id,
+      status: true,
+    });
   } catch (e) {
     console.log(e);
   }

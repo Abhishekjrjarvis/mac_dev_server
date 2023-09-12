@@ -8,7 +8,7 @@ const upload = multer({ dest: "uploads/" });
 
 //Assign
 router.post(
-  "/ins/:id/staff/:sid",
+  "/ins/:id/admission/query",
   // isLoggedIn,
   // isApproved,
   catchAsync(Admission.retrieveAdmissionAdminHead)

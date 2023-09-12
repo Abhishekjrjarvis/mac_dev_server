@@ -50,7 +50,10 @@ const { announcement_feed_query } = require("../Post/announceFeed");
 const { handle_undefined } = require("../Handler/customError");
 const ExamFeeStructure = require("../models/BacklogStudent/ExamFeeStructure");
 const { applicable_pending_calc } = require("../Functions/SetOff");
-const { send_phone_login_query } = require("../helper/functions");
+const {
+  send_phone_login_query,
+  generate_hash_pass,
+} = require("../helper/functions");
 const { nested_document_limit } = require("../helper/databaseFunction");
 const Chapter = require("../models/Academics/Chapter");
 
@@ -101,7 +104,7 @@ exports.all_new_designation_query = async (d_array, sid, id) => {
           user._id,
           user.deviceToken
         );
-        await Promise.all([staff.save(), user.save(), notify.save()]);
+        await Promise.all([department.save(), notify.save()]);
         designation_alarm(
           user?.userPhoneNumber,
           "DHEAD",
@@ -158,7 +161,7 @@ exports.all_new_designation_query = async (d_array, sid, id) => {
           user._id,
           user.deviceToken
         );
-        await Promise.all([staff.save(), user.save(), notify.save()]);
+        await Promise.all([classRoom.save(), notify.save()]);
         designation_alarm(
           user?.userPhoneNumber,
           "CLASS",
@@ -244,12 +247,191 @@ exports.all_new_designation_query = async (d_array, sid, id) => {
         }
       }
       if (`${ele?.role}` === "FINANCE_MANAGER") {
+        var finance = await Finance.findById({ _id: `${ele?.roleId}` });
+        var notify = new Notification({});
+        staff.financeDepartment.push(finance._id);
+        staff.staffDesignationCount += 1;
+        staff.recentDesignation = "Finance Manager";
+        staff.designation_array.push({
+          role: "Finance Manager",
+          role_id: finance?._id,
+        });
+        finance.financeHead = staff._id;
+        let password = await generate_hash_pass();
+        finance.designation_password = password?.pass;
+        notify.notifyContent = `you got the designation of as Finance Manager A/c Access Pin - ${password?.pin}`;
+        notify.notify_hi_content = `आपको वित्त व्यवस्थापक के रूप में पदनाम मिला है |`;
+        notify.notify_mr_content = `तुम्हाला वित्त व्यवस्थापक म्हणून पद मिळाले आहे`;
+        notify.notifySender = id;
+        notify.notifyReceiever = user._id;
+        notify.notifyCategory = "Finance Designation";
+        user.uNotify.push(notify._id);
+        notify.user = user._id;
+        notify.notifyByInsPhoto = institute._id;
+        await invokeFirebaseNotification(
+          "Designation Allocation",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
+        await Promise.all([finance.save(), notify.save()]);
+        designation_alarm(
+          user?.userPhoneNumber,
+          "FINANCE",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+        if (user?.userEmail) {
+          email_sms_designation_alarm(
+            user?.userEmail,
+            "FINANCE",
+            institute?.sms_lang,
+            "",
+            "",
+            ""
+          );
+        }
       }
       if (`${ele?.role}` === "ADMISSION_ADMIN") {
+        var admission = await Admission.findById({ _id: `${ele?.roleId}` });
+        var notify = new Notification({});
+        staff.admissionDepartment.push(admission._id);
+        staff.staffDesignationCount += 1;
+        staff.recentDesignation = "Admission Admin";
+        staff.designation_array.push({
+          role: "Admission Admin",
+          role_id: admission?._id,
+        });
+        admission.admissionAdminHead = staff._id;
+        let password = await generate_hash_pass();
+        admission.designation_password = password?.pass;
+        notify.notifyContent = `you got the designation of Admission Admin A/c Access Pin - ${password?.pin}`;
+        notify.notifySender = id;
+        notify.notifyReceiever = user._id;
+        notify.notifyCategory = "Admission Designation";
+        user.uNotify.push(notify._id);
+        notify.user = user._id;
+        notify.notifyPid = "1";
+        notify.notifyByInsPhoto = institute._id;
+        await invokeFirebaseNotification(
+          "Designation Allocation",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
+        await Promise.all([admission.save(), notify.save()]);
+        designation_alarm(
+          user?.userPhoneNumber,
+          "ADMISSION",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+        if (user?.userEmail) {
+          email_sms_designation_alarm(
+            user?.userEmail,
+            "ADMISSION",
+            institute?.sms_lang,
+            "",
+            "",
+            ""
+          );
+        }
       }
       if (`${ele?.role}` === "LIBRARIAN") {
+        var library = await Library.findById({ _id: `${ele?.roleId}` });
+        var notify = new Notification({});
+        staff.library.push(library._id);
+        staff.recentDesignation = "Library Head";
+        staff.staffDesignationCount += 1;
+        staff.designation_array.push({
+          role: "Library Head",
+          role_id: library?._id,
+        });
+        library.libraryHead = staff?._id;
+        notify.notifyContent = `you got the designation of as Library Head`;
+        notify.notifySender = institute._id;
+        notify.notifyReceiever = user._id;
+        user.uNotify.push(notify._id);
+        notify.notifyCategory = "Library Designation";
+        notify.user = user._id;
+        notify.notifyByInsPhoto = institute._id;
+        await invokeFirebaseNotification(
+          "Designation Allocation",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
+        await Promise.all([notify.save(), library.save()]);
+        designation_alarm(
+          user?.userPhoneNumber,
+          "LIBRARY",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+        if (user?.userEmail) {
+          email_sms_designation_alarm(
+            user?.userEmail,
+            "LIBRARY",
+            institute?.sms_lang,
+            "",
+            "",
+            ""
+          );
+        }
       }
       if (`${ele?.role}` === "HOSTEL_MANAGER") {
+        var hostel = await Hostel.findById({ _id: `${ele?.roleId}` });
+        var notify = new Notification({});
+        staff.hostelDepartment.push(hostel?._id);
+        staff.staffDesignationCount += 1;
+        staff.recentDesignation = "Hostel Manager";
+        staff.designation_array.push({
+          role: "Hostel Manager",
+          role_id: hostel?._id,
+        });
+        hostel.hostel_manager = staff._id;
+        notify.notifyContent = `you got the designation of as Hostel Manager`;
+        notify.notifySender = id;
+        notify.notifyReceiever = user._id;
+        notify.notifyCategory = "Hostel Designation";
+        user.uNotify.push(notify._id);
+        notify.user = user._id;
+        notify.notifyByInsPhoto = institute._id;
+        await invokeFirebaseNotification(
+          "Designation Allocation",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
+        await Promise.all([notify.save(), hostel.save()]);
+        designation_alarm(
+          user?.userPhoneNumber,
+          "HOSTEL",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+        if (user?.userEmail) {
+          email_sms_designation_alarm(
+            user?.userEmail,
+            "HOSTEL",
+            institute?.sms_lang,
+            "",
+            "",
+            ""
+          );
+        }
       }
       if (`${ele?.role}` === "EVENT_MANAGER") {
       }

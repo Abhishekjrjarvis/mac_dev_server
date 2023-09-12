@@ -513,7 +513,6 @@ exports.promoteStudent = async (req, res) => {
             form_status: student?.form_status,
             fee_receipt: student?.fee_receipt,
           });
-          // console.log(previousData);
           const notify = new StudentNotification({});
           notify.notifyContent = `${student.studentFirstName} ${
             student.studentMiddleName ? student.studentMiddleName : ""
@@ -543,44 +542,6 @@ exports.promoteStudent = async (req, res) => {
             previousData.save(),
           ]);
           student?.previousYearData?.push(previousData._id);
-          // if (student.vehicle) {
-          //   const vehicle = await Vehicle.findById({ _id: student.vehicle });
-          //   const trans = await Transport.findById({
-          //     _id: `${vehicle?.transport}`,
-          //   });
-          //   const trans_batch = new TransportBatch({
-          //     batchId: batchId,
-          //     student: student._id,
-          //     vehicle: vehicle._id,
-          //     transport: trans._id,
-          //   });
-          //   trans.transport_passengers_with_batch.push(trans_batch?._id);
-          //   vehicle.passenger_array_with_batch.push(trans_batch?._id);
-          //   const route = await Direction.findById({
-          //     _id: `${vehicle?.vehicle_route}`,
-          //   });
-          //   for (var path of route?.direction_route) {
-          //     if (`${path?._id}` === `${student.routes?.[0]?.routeId}`) {
-          //       path.passenger_list_with_batch.push(trans_batch?._id);
-          //       student.vehicleRemainFeeCount += path?.route_fees;
-          //       vehicle.remaining_fee += path?.route_fees;
-          //       trans.remaining_fee += path?.route_fees;
-          //     }
-          //   }
-          //   student.previous_transport_history.push({
-          //     batchId: student.batches,
-          //     vehicleRemainFeeCount: student.vehicleRemainFeeCount,
-          //     vehiclePaidFeeCount: student.vehiclePaidFeeCount,
-          //     vehicle_payment_status: student.vehicle_payment_status,
-          //   });
-          //   await Promise.all([
-          //     trans.save(),
-          //     trans_batch.save(),
-          //     vehicle.save(),
-          //     route.save(),
-          //   ]);
-          //   // console.log(trans, vehicle, route);
-          // }
           student.studentClass = classId;
           student.studentCode = classes.classCode;
           student.department = departmentId;
@@ -616,7 +577,7 @@ exports.promoteStudent = async (req, res) => {
           if (!same_batch_promotion) {
             student.fee_structure = structure ? structure[0]?._id : null;
           }
-          student.active_fee_heads = [];
+          // student.active_fee_heads = [];
           /////
           student.certificateBonaFideCopy = {
             trueCopy: false,
@@ -647,7 +608,7 @@ exports.promoteStudent = async (req, res) => {
           student.deposit_refund_amount = 0;
           student.refund_deposit = [];
           student.form_status = "Not Filled";
-          student.fee_receipt = [];
+          // student.fee_receipt = [];
           if (!same_batch_promotion) {
             var new_remainFee = new RemainingList({
               appId: apply?._id,
@@ -895,44 +856,6 @@ exports.promoteStudent = async (req, res) => {
             previousData.save(),
           ]);
           student?.previousYearData?.push(previousData._id);
-          // if (student.vehicle) {
-          //   const vehicle = await Vehicle.findById({ _id: student.vehicle });
-          //   const trans = await Transport.findById({
-          //     _id: `${vehicle?.transport}`,
-          //   });
-          //   const trans_batch = new TransportBatch({
-          //     batchId: batchId,
-          //     student: student._id,
-          //     vehicle: vehicle._id,
-          //     transport: trans._id,
-          //   });
-          //   trans.transport_passengers_with_batch.push(trans_batch?._id);
-          //   vehicle.passenger_array_with_batch.push(trans_batch?._id);
-          //   const route = await Direction.findById({
-          //     _id: `${vehicle?.vehicle_route}`,
-          //   });
-          //   for (var path of route?.direction_route) {
-          //     if (`${path?._id}` === `${student.routes?.[0]?.routeId}`) {
-          //       path.passenger_list_with_batch.push(trans_batch?._id);
-          //       student.vehicleRemainFeeCount += path?.route_fees;
-          //       vehicle.remaining_fee += path?.route_fees;
-          //       trans.remaining_fee += path?.route_fees;
-          //     }
-          //   }
-          //   student.previous_transport_history.push({
-          //     batchId: student.batches,
-          //     vehicleRemainFeeCount: student.vehicleRemainFeeCount,
-          //     vehiclePaidFeeCount: student.vehiclePaidFeeCount,
-          //     vehicle_payment_status: student.vehicle_payment_status,
-          //   });
-          //   await Promise.all([
-          //     trans.save(),
-          //     trans_batch.save(),
-          //     vehicle.save(),
-          //     route.save(),
-          //   ]);
-          //   // console.log(trans, vehicle, route);
-          // }
           student.studentClass = classId;
           student.studentCode = classes.classCode;
           student.department = departmentId;

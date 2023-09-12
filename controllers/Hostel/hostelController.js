@@ -99,12 +99,14 @@ const FeeMaster = require("../../models/Finance/FeeMaster");
 
 exports.renderActivateHostelQuery = async (req, res) => {
   try {
-    const { id, sid } = req.params;
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const staff = await Staff.findById({ _id: sid });
-    const user = await User.findById({ _id: `${staff.user}` });
-    const hostel = new Hostel({});
-    const notify = new Notification({});
+    const { id } = req.params;
+    const { sid } = req.body
+    var institute = await InstituteAdmin.findById({ _id: id });
+    var hostel = new Hostel({});
+    if(sid){
+      var staff = await Staff.findById({ _id: sid });
+    var user = await User.findById({ _id: `${staff.user}` });
+    var notify = new Notification({});
     staff.hostelDepartment.push(hostel?._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Hostel Manager";
@@ -113,9 +115,6 @@ exports.renderActivateHostelQuery = async (req, res) => {
       role_id: hostel?._id,
     });
     hostel.hostel_manager = staff._id;
-    institute.hostelDepart.push(hostel?._id);
-    institute.hostelStatus = "Enable";
-    hostel.institute = institute._id;
     notify.notifyContent = `you got the designation of as Hostel Manager`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
@@ -131,11 +130,38 @@ exports.renderActivateHostelQuery = async (req, res) => {
       user.deviceToken
     );
     await Promise.all([
-      institute.save(),
       staff.save(),
-      hostel.save(),
       user.save(),
       notify.save(),
+    ]);
+    designation_alarm(
+      user?.userPhoneNumber,
+      "HOSTEL",
+      institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "HOSTEL",
+        institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
+    }
+    else{
+      hostel.hostel_manager = null
+    }
+    institute.hostelDepart.push(hostel?._id);
+    institute.hostelStatus = "Enable";
+    hostel.institute = institute._id;
+    await Promise.all([
+      institute.save(),
+      hostel.save(),
     ]);
     // const fEncrypt = await encryptionPayload(hostel._id);
     res.status(200).send({

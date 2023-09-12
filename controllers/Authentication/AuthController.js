@@ -418,7 +418,7 @@ exports.getOtpAtUser = async (req, res) => {
         res.status(200).send({
           message: "code will be send to entered Email",
           userPhoneNumber,
-          code
+          // code
         });
       } else {
         res.send({ message: "User will be verified..." });
@@ -989,14 +989,19 @@ module.exports.authentication = async (req, res) => {
     if (institute) {
       const checkPass = bcrypt.compareSync(insPassword, institute.insPassword);
       if (institute?.social_media_password_query) {
-        var checkUserSocialPass
-        const all_mods = await FinanceModerator.find({ $and: [{ institute: institute?._id}, { access_role: "SOCIAL_MEDIA_ACCESS"}]})
-        for(var ref of all_mods){
+        var checkUserSocialPass;
+        const all_mods = await FinanceModerator.find({
+          $and: [
+            { institute: institute?._id },
+            { access_role: "SOCIAL_MEDIA_ACCESS" },
+          ],
+        });
+        for (var ref of all_mods) {
           checkUserSocialPass = bcrypt.compareSync(
             insPassword,
             ref?.social_media_password_query
           );
-          if(checkUserSocialPass) break
+          if (checkUserSocialPass) break;
         }
       }
       if (checkPass || checkUserSocialPass) {
@@ -1022,7 +1027,7 @@ module.exports.authentication = async (req, res) => {
             token: `Bearer ${token}`,
             institute: institute,
             login: true,
-            main_role: checkUserSocialPass 
+            main_role: checkUserSocialPass
               ? "SOCIAL_MEDIA_HANDLER"
               : "MAIN_ADMIN",
           });

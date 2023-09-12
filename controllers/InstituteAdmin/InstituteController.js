@@ -3465,8 +3465,7 @@ exports.retrieveNewClass = async (req, res) => {
             ""
           );
         }
-      }
-      else{
+      } else {
         classRoom.classTeacher = null;
       }
       institute.classCodeList.push(`${result}`);
@@ -3775,6 +3774,11 @@ exports.retrieveClassSubject = async (req, res) => {
         path: "subject",
         select:
           "subjectName subjectTitle subjectStatus subjectOptional topic_count_bifurgate topic_count lecture_analytic practical_analytic tutorial_analytic",
+        populate: {
+          path: "subjectTeacherName",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
       })
       .lean()
       .exec();

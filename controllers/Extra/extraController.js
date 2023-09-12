@@ -2647,30 +2647,65 @@ exports.renderDesignationAllQuery = async (req, res) => {
       .populate({
         path: "financeDepart",
         select: "financeHead",
+        populate: {
+          path: "financeHead",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
       })
       .populate({
         path: "admissionDepart",
         select: "admissionAdminHead",
+        populate: {
+          path: "admissionHead",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
       })
       .populate({
         path: "hostelDepart",
         select: "hostel_manager",
+        populate: {
+          path: "hostel_manager",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
       })
       .populate({
         path: "transportDepart",
         select: "transport_manager",
+        populate: {
+          path: "transport_manager",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
       })
       .populate({
         path: "library",
         select: "libraryHead",
+        populate: {
+          path: "libraryHead",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
       })
       .populate({
         path: "eventManagerDepart",
         select: "event_head",
+        populate: {
+          path: "event_head",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
       })
       .populate({
         path: "aluminiDepart",
         select: "alumini_head",
+        populate: {
+          path: "alumini_head",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
       });
 
     res.status(200).send({

@@ -20,6 +20,7 @@ const {
   fee_heads_receipt_json_to_excel_query,
   json_to_excel_hostel_application_query,
   json_to_excel_admission_application_query,
+  json_to_excel_hostel_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -33,6 +34,7 @@ const {
 } = require("../../helper/dayTimer");
 const moment = require("moment");
 const FeeStructure = require("../../models/Finance/FeesStructure");
+const Hostel = require("../../models/Hostel/hostel");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -2384,6 +2386,239 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
         access: false,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveHostelPendingFeeFilterQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const { gender, category, is_all, all_depart } = req.query;
+    const { depart, fee_struct } = req.body;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ads_admin = await Hostel.findById({ _id: hid }).select(
+      "remainingFee institute units"
+    );
+
+    var valid_all = is_all === "false" ? false : true;
+
+    if (all_depart === "All") {
+      // var sorted_batch = [];
+      // const institute = await InstituteAdmin.findById({
+      //   _id: `${ads_admin?.institute}`,
+      // }).select("depart");
+
+      // if (batch_status === "All") {
+      //   var all_department = await Department.find({
+      //     _id: { $in: institute?.depart },
+      //   }).select("batches");
+      //   for (var ref of all_department) {
+      //     sorted_batch.push(...ref?.batches);
+      //   }
+      // } else if (batch_status === "Current") {
+      //   var all_department = await Department.find({
+      //     _id: { $in: institute?.depart },
+      //   }).select("departmentSelectBatch");
+      //   for (var ref of all_department) {
+      //     sorted_batch.push(ref?.departmentSelectBatch);
+      //   }
+      // }
+      var all_students = await Student.find({
+        $and: [
+          { student_unit: { $in: ads_admin?.units } },
+          { hostelRemainFeeCount: valid_all ? { $gte: 0 } : { $gt: 0 } },
+        ],
+      })
+        .select("studentGender studentCastCategory student_unit")
+        .populate({
+          path: "hostel_fee_structure",
+        });
+    } else if (all_depart === "Particular") {
+      var all_students = await Student.find({
+        $and: [
+          { _id: { $in: ads_admin?.remainingFee } },
+          { hostelRemainFeeCount: valid_all ? { $gte: 0 } : { $gt: 0 } },
+        ],
+      })
+        .select("student_unit studentGender studentCastCategory")
+        .populate({
+          path: "hostel_fee_structure",
+        });
+      if (depart) {
+        all_students = all_students?.filter((ref) => {
+          if (`${ref?.student_unit}` === `${depart}`) return ref;
+        });
+      }
+    }
+
+    if (category) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.studentCastCategory}` === `${category}`) return ref;
+      });
+    }
+
+    if (gender) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.studentGender}` === `${gender}`) return ref;
+      });
+    }
+
+    if (fee_struct) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.hostel_fee_structure?.category_master}` === `${fee_struct}`)
+          return ref;
+      });
+    }
+
+    var sorted_list = [];
+    for (var ref of all_students) {
+      sorted_list.push(ref?._id);
+    }
+
+    if (sorted_list?.length > 0) {
+      res.status(200).send({
+        message: "Explore New Excel Exports Wait for Some Time To Process",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        access: false,
+      });
+    }
+
+    const valid_all_students = await Student.find({ _id: { $in: sorted_list } })
+      .sort({ remainingFeeList_count: -1 })
+      .select(
+        "studentFirstName studentMiddleName remainingFeeList_count studentLastName studentDOB studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto hostelRemainFeeCount"
+      )
+      .populate({
+        path: "department",
+        select: "dName",
+      })
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName",
+      })
+      .populate({
+        path: "hostel_fee_structure",
+        select: "structure_name unique_structure_name applicable_fees",
+      })
+      .populate({
+        path: "remainingFeeList",
+        populate: {
+          path: "batchId",
+          select: "batchName",
+        },
+      })
+      .populate({
+        path: "remainingFeeList",
+        populate: {
+          path: "appId",
+          select: "applicationName",
+        },
+      })
+      .populate({
+        path: "remainingFeeList",
+        populate: {
+          path: "hostel_fee_structure",
+          select:
+            "structure_name unique_structure_name category_master total_admission_fees one_installments applicable_fees class_master batch_master",
+          populate: {
+            path: "category_master batch_master class_master",
+            select: "category_name batchName className",
+          },
+        },
+      });
+    // valid_all_students.sort(function (st1, st2) {
+    //   return (
+    //     parseInt(st1?.studentGRNO?.slice(1)) -
+    //     parseInt(st2?.studentGRNO?.slice(1))
+    //   );
+    // });
+    // const buildObject = async (arr) => {
+    //   const obj = {};
+    //   for (let i = 0; i < arr.length; i++) {
+    //     const { amount, price, paymode, mode } = arr[i];
+    //     obj[amount] = price;
+    //     obj[paymode] = mode;
+    //   }
+    //   return obj;
+    // };
+    var excel_list = [];
+    var remain_array = [];
+    for (var ref of valid_all_students) {
+      for (var val of ref?.remainingFeeList) {
+        // for (var num of val?.remaining_array) {
+        //   var i = 0;
+        //   if (num.status === "Paid") {
+        //     remain_array.push({
+        //       amount: `${i + 1}-Payment`,
+        //       price: num?.remainAmount,
+        //       paymode: `${i + 1}-Mode`,
+        //       mode: num?.mode,
+        //     });
+        //   }
+        //   i = val?.remaining_array?.length - i + 1;
+        // }
+        // var result = await buildObject(remain_array);
+
+        excel_list.push({
+          GRNO: ref?.studentGRNO ?? "#NA",
+          Name: `${ref?.studentFirstName} ${
+            ref?.studentMiddleName ? ref?.studentMiddleName : ""
+          } ${ref?.studentLastName}`,
+          DOB: ref?.studentDOB ?? "#NA",
+          Gender: ref?.studentGender ?? "#NA",
+          Caste: ref?.studentCastCategory ?? "#NA",
+          Religion: ref?.studentReligion ?? "#NA",
+          MotherName: `${ref?.studentMotherName}` ?? "#NA",
+          Batch:
+            `${val?.hostel_fee_structure?.batch_master?.batchName}` ?? "#NA",
+          ActualFees:
+            `${val?.hostel_fee_structure?.total_admission_fees}` ?? "0",
+          ApplicableFees:
+            `${val?.hostel_fee_structure?.applicable_fees}` ?? "0",
+          TotalRemainingFees: `${val?.remaining_fee}` ?? "0",
+          ApplicationName: `${val?.appId?.applicationName}` ?? "#NA",
+          TotalPaidFees: `${val?.paid_fee}` ?? "0",
+          TotalApplicableRemaining:
+            `${val?.hostel_fee_structure?.applicable_fees}` -
+              `${val?.paid_fee}` >
+            0
+              ? `${val?.hostel_fee_structure?.applicable_fees}` -
+                `${val?.paid_fee}`
+              : 0,
+          PaidByStudent: `${val?.paid_by_student}`,
+          PaidByGovernment: `${val?.paid_by_government}`,
+          Standard: `${val?.hostel_fee_structure?.class_master?.className}`,
+          FeeStructure:
+            `${val?.hostel_fee_structure?.category_master?.category_name}` ??
+            "#NA",
+          Address: `${ref?.studentAddress}` ?? "#NA",
+          // ...result,
+        });
+        // remain_array = [];
+      }
+    }
+    await json_to_excel_hostel_query(
+      excel_list,
+      all_depart,
+      category,
+      gender,
+      valid_all,
+      hid
+    );
   } catch (e) {
     console.log(e);
   }

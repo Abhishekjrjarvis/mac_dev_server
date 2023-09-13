@@ -75,10 +75,10 @@ exports.createDailyUpdate = async (req, res) => {
       updateDescription: req.body?.updateDescription,
       date: req.body?.date,
     });
-    var all_topic = await ChapterTopic.find({ _id: { $in: valid_arr } });
-    for (var val of all_topic) {
+    // var all_topic = await ChapterTopic.find({ _id: { $in: valid_arr } });
+    for (var val of valid_arr) {
       dailyUpdate.daily_topic.push({
-        topic: val?._id,
+        topic: val?.topicId,
         status: rec_status,
         current_status: val?.current_status,
       });

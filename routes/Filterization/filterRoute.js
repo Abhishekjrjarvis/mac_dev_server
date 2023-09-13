@@ -96,4 +96,10 @@ router.patch(
 
 router.get("/tally/price", catchAsync(Filter.renderTallyPriceQuery));
 
+router.patch(
+  "/pending/fee/:hid/hostel/query",
+  // isLoggedIn,
+  catchAsync(Filter.retrieveHostelPendingFeeFilterQuery)
+);
+
 module.exports = router;

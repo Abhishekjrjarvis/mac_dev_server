@@ -169,13 +169,14 @@ exports.renderAddNewLectureQuery = async (req, res) => {
     var one_subject = await Subject.findById({ _id: subId });
     await SubjectUpdate.findByIdAndUpdate(sid, req.body);
     var valid_subject = await SubjectUpdate.findById({ _id: sid });
-    var all_topic = await ChapterTopic.find({ _id: { $in: arr } });
-    for (var val of all_topic) {
+    // var all_topic = await ChapterTopic.find({ _id: { $in: arr } });
+    for (var val of arr) {
+      var topic = await ChapterTopic.find({ _id: val?.topicId });
       for (var all of valid_subject?.daily_topic) {
-        if (`${all?.topic}` === `${val?._id}`) {
+        if (`${all?.topic}` === `${topic?._id}`) {
         } else {
           valid_subject.daily_topic.push({
-            topic: val?._id,
+            topic: topic?._id,
             status: rec_status,
             current_status: val?.current_status,
           });

@@ -627,142 +627,150 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
         status: false,
       });
     const user = await User.findById({ _id: uid });
-    const student = new Student({ ...req.body });
-    student.valid_full_name = `${student?.studentFirstName} ${
-      student?.studentMiddleName ?? ""
-    } ${student?.studentLastName}`;
-    student.student_join_mode = "ADMISSION_PROCESS";
-    const apply = await NewApplication.findById({ _id: aid });
-    const admission = await Admission.findById({
-      _id: `${apply.admissionAdmin}`,
-    })
-      .select("institute admissionAdminHead")
-      .populate({
-        path: "admissionAdminHead",
-        select: "user",
+    if (user?.applyApplication?.includes(`${aid}`)) {
+      res.status(200).send({
+        message: "You have already applied for this application",
+        status: false,
+        denied: true,
       });
-    const institute = await InstituteAdmin.findById({
-      _id: `${admission.institute}`,
-    });
-    const status = new Status({});
-    const notify = new StudentNotification({});
-    var filtered_account = await BankAccount.findOne({
-      departments: { $in: apply?.applicationDepartment },
-    });
-    const studentOptionalSubject = req.body?.optionalSubject
-      ? req.body?.optionalSubject
-      : [];
-    for (var file of req.body?.fileArray) {
-      if (file.name === "file") {
-        student.photoId = "0";
-        student.studentProfilePhoto = file.key;
-      } else if (file.name === "addharFrontCard")
-        student.studentAadharFrontCard = file.key;
-      else if (file.name === "addharBackCard")
-        student.studentAadharBackCard = file.key;
-      else if (file.name === "bankPassbook")
-        student.studentBankPassbook = file.key;
-      else if (file.name === "casteCertificate")
-        student.studentCasteCertificatePhoto = file.key;
-      else {
-        student.studentDocuments.push({
-          documentName: file.name,
-          documentKey: file.key,
-          documentType: file.type,
-        });
-      }
-    }
-    if (studentOptionalSubject?.length > 0) {
-      student.studentOptionalSubject?.push(...studentOptionalSubject);
-    }
-    status.content = `Your application for ${apply?.applicationName} have been filled successfully.
-
-Below is the admission process:
-1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)
-
-2.After selection, confirm from your side and start the admission process.
-
-3.After confirmation from your side, visit the institute with the required documents and applicable fees. (You will get Required documents and application fees information on your selection from the institute side. (Till then check our standard required documents and fee structures)
-
-4.Payment modes available for fee payment: 
-Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe, Google pay, Paytm)
-
-5.After submission and verification of documents, you are required to pay application admission fees.
-
-6. Pay application admission fees and your admission will be confirmed and complete.
-
-7. For cancellation and refund, contact the admission department.
-
-Note: Stay tuned for further updates.`;
-    status.applicationId = apply._id;
-    status.document_visible = true;
-    status.instituteId = institute._id;
-    status.finance = institute?.financeDepart?.[0];
-    status.student = student?._id;
-    user.student.push(student._id);
-    status.bank_account = filtered_account?._id;
-    user.applyApplication.push(apply._id);
-    student.user = user._id;
-    user.applicationStatus.push(status._id);
-    apply.receievedApplication.push({
-      student: student._id,
-      fee_remain: 0,
-    });
-    apply.receievedCount += 1;
-    notify.notifyContent = `Your application for ${apply?.applicationName} have been filled successfully.
-
-Below is the admission process:
-1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)
-
-2.After selection, confirm from your side and start the admission process.
-
-3.After confirmation from your side, visit the institute with the required documents and applicable fees. (You will get Required documents and application fees information on your selection from the institute side. (Till then check our standard required documents and fee structures)
-
-4.Payment modes available for fee payment: 
-Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe, Google pay, Paytm)
-
-5.After submission and verification of documents, you are required to pay application admission fees.
-
-6. Pay application admission fees and your admission will be confirmed and complete.
-
-7. For cancellation and refund, contact the admission department.
-
-Note: Stay tuned for further updates.`;
-    notify.notifySender = admission?.admissionAdminHead?.user;
-    notify.notifyReceiever = user?._id;
-    notify.notifyType = "Student";
-    notify.notifyPublisher = student?._id;
-    user.activity_tab.push(notify?._id);
-    notify.notifyByAdmissionPhoto = admission?._id;
-    notify.notifyCategory = "Status Alert";
-    notify.redirectIndex = 29;
-    if (institute.userFollowersList.includes(uid)) {
     } else {
-      user.userInstituteFollowing.push(institute._id);
-      user.followingUICount += 1;
-      institute.userFollowersList.push(uid);
-      institute.followersCount += 1;
+      const student = new Student({ ...req.body });
+      student.valid_full_name = `${student?.studentFirstName} ${
+        student?.studentMiddleName ?? ""
+      } ${student?.studentLastName}`;
+      student.student_join_mode = "ADMISSION_PROCESS";
+      const apply = await NewApplication.findById({ _id: aid });
+      const admission = await Admission.findById({
+        _id: `${apply.admissionAdmin}`,
+      })
+        .select("institute admissionAdminHead")
+        .populate({
+          path: "admissionAdminHead",
+          select: "user",
+        });
+      const institute = await InstituteAdmin.findById({
+        _id: `${admission.institute}`,
+      });
+      const status = new Status({});
+      const notify = new StudentNotification({});
+      var filtered_account = await BankAccount.findOne({
+        departments: { $in: apply?.applicationDepartment },
+      });
+      const studentOptionalSubject = req.body?.optionalSubject
+        ? req.body?.optionalSubject
+        : [];
+      for (var file of req.body?.fileArray) {
+        if (file.name === "file") {
+          student.photoId = "0";
+          student.studentProfilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          student.studentAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          student.studentAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          student.studentBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          student.studentCasteCertificatePhoto = file.key;
+        else {
+          student.studentDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
+        }
+      }
+      if (studentOptionalSubject?.length > 0) {
+        student.studentOptionalSubject?.push(...studentOptionalSubject);
+      }
+      status.content = `Your application for ${apply?.applicationName} have been filled successfully.
+
+Below is the admission process:
+1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)
+
+2.After selection, confirm from your side and start the admission process.
+
+3.After confirmation from your side, visit the institute with the required documents and applicable fees. (You will get Required documents and application fees information on your selection from the institute side. (Till then check our standard required documents and fee structures)
+
+4.Payment modes available for fee payment: 
+Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe, Google pay, Paytm)
+
+5.After submission and verification of documents, you are required to pay application admission fees.
+
+6. Pay application admission fees and your admission will be confirmed and complete.
+
+7. For cancellation and refund, contact the admission department.
+
+Note: Stay tuned for further updates.`;
+      status.applicationId = apply._id;
+      status.document_visible = true;
+      status.instituteId = institute._id;
+      status.finance = institute?.financeDepart?.[0];
+      status.student = student?._id;
+      user.student.push(student._id);
+      status.bank_account = filtered_account?._id;
+      user.applyApplication.push(apply._id);
+      student.user = user._id;
+      user.applicationStatus.push(status._id);
+      apply.receievedApplication.push({
+        student: student._id,
+        fee_remain: 0,
+      });
+      apply.receievedCount += 1;
+      notify.notifyContent = `Your application for ${apply?.applicationName} have been filled successfully.
+
+Below is the admission process:
+1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)
+
+2.After selection, confirm from your side and start the admission process.
+
+3.After confirmation from your side, visit the institute with the required documents and applicable fees. (You will get Required documents and application fees information on your selection from the institute side. (Till then check our standard required documents and fee structures)
+
+4.Payment modes available for fee payment: 
+Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe, Google pay, Paytm)
+
+5.After submission and verification of documents, you are required to pay application admission fees.
+
+6. Pay application admission fees and your admission will be confirmed and complete.
+
+7. For cancellation and refund, contact the admission department.
+
+Note: Stay tuned for further updates.`;
+      notify.notifySender = admission?.admissionAdminHead?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByAdmissionPhoto = admission?._id;
+      notify.notifyCategory = "Status Alert";
+      notify.redirectIndex = 29;
+      if (institute.userFollowersList.includes(uid)) {
+      } else {
+        user.userInstituteFollowing.push(institute._id);
+        user.followingUICount += 1;
+        institute.userFollowersList.push(uid);
+        institute.followersCount += 1;
+      }
+      await Promise.all([
+        student.save(),
+        user.save(),
+        status.save(),
+        apply.save(),
+        institute.save(),
+        notify.save(),
+      ]);
+      res.status(201).send({
+        message: "Taste a bite of sweets till your application is selected",
+        student: student._id,
+        status: true,
+      });
+      invokeMemberTabNotification(
+        "Admission Status",
+        status.content,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
     }
-    await Promise.all([
-      student.save(),
-      user.save(),
-      status.save(),
-      apply.save(),
-      institute.save(),
-      notify.save(),
-    ]);
-    res.status(201).send({
-      message: "Taste a bite of sweets till your application is selected",
-      student: student._id,
-      status: true,
-    });
-    invokeMemberTabNotification(
-      "Admission Status",
-      status.content,
-      "Application Status",
-      user._id,
-      user.deviceToken
-    );
   } catch (e) {
     console.log(e);
   }
@@ -9677,13 +9685,14 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     var all_student = await Student.find({});
 
     var all_remain = await RemainingList.find({
-      student: { $in: all_student},
-    }).populate({
-      path: "student",
+      student: { $in: all_student },
     })
-    .populate({
-      path: "fee_structure"
-    })
+      .populate({
+        path: "student",
+      })
+      .populate({
+        path: "fee_structure",
+      });
     var empty_student = [];
 
     for (var ref of all_remain) {
@@ -9700,15 +9709,14 @@ exports.renderFeeHeadsQuery = async (req, res) => {
       }
     }
 
-    var arr = []
-    var all_student = await Student.find({ _id: { $in: empty_student }})
-    .select("valid_full_name active_fee_heads")
-    for(var ele of all_student){
-      if(ele?.active_fee_heads?.length > 0){
-
-      }
-      else{
-        arr.push(ele?._id)
+    var arr = [];
+    var all_student = await Student.find({
+      _id: { $in: empty_student },
+    }).select("valid_full_name active_fee_heads");
+    for (var ele of all_student) {
+      if (ele?.active_fee_heads?.length > 0) {
+      } else {
+        arr.push(ele?._id);
       }
     }
     // const g_date = new Date(`2023-09-05T00:00:00.000Z`);
@@ -9776,7 +9784,7 @@ exports.renderFeeHeadsQuery = async (req, res) => {
       // receipt
       // empty_student,
       // arr,
-      all_student
+      all_student,
     });
   } catch (e) {
     console.log(e);
@@ -9839,6 +9847,33 @@ exports.renderOrder = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore New Student Order", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveAdmissionReceievedValidApplicationQuery = async (req, res) => {
+  try {
+    const { uid, aid } = req.params;
+    if (!uid && !aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        status: false,
+      });
+    const user = await User.findById({ _id: uid });
+    if (user?.applyApplication?.includes(`${aid}`)) {
+      res.status(200).send({
+        message: "You have already applied for this application",
+        status: false,
+        denied: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "You are good to go",
+        status: true,
+        denied: false,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

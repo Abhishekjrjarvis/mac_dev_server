@@ -574,4 +574,11 @@ router.get("/fee/heads/:id", catchAsync(Admission.renderFeeHeadsQuery));
 router.get("/find/receipt/:id", catchAsync(Admission.renderFindReceiptQuery));
 
 router.patch("/order/query", catchAsync(Admission.renderOrder));
+
+router.post(
+  "/:uid/user/:aid/apply/valid/query",
+  // isLoggedIn,
+  catchAsync(Admission.retrieveAdmissionReceievedValidApplicationQuery)
+);
+
 module.exports = router;

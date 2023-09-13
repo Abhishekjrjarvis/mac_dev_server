@@ -456,3 +456,34 @@ exports.updateHostelInfo = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.trashInstituteSiteOpeners = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { fid } = req.body;
+    if (!id || !fid)
+      return res.status(200).send({
+        message: "You fetch api with proper knownledge",
+        access: true,
+      });
+    const institute = await InstituteAdmin.findById(id).select(
+      "site_flash_notice"
+    );
+    let remain_flash = [];
+    for (let rflash of institute?.site_flash_notice) {
+      if (`${rflash?._id}` === `${fid}`) {
+      } else {
+        remain_flash.push(rflash);
+      }
+    }
+    institute.site_flash_notice = remain_flash;
+    remain_flash = [];
+    await institute.save();
+    res.status(200).send({
+      message: "trash institute site opener detail 😋😊😋",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

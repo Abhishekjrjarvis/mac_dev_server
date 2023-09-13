@@ -568,4 +568,6 @@ router.patch(
 );
 
 router.get("/fee/heads/:id", catchAsync(Admission.renderFeeHeadsQuery));
+
+router.get("/find/receipt/:id", catchAsync(Admission.renderFindReceiptQuery));
 module.exports = router;

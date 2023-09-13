@@ -1512,7 +1512,10 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
           path: "department",
           select: "dName",
         });
-        var all_student_query = [...studentIns]
+      var all_student_query = [];
+      for (var ref of studentIns) {
+        all_student_query.push(ref?._id);
+      }
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -1618,7 +1621,11 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
         });
         res
           .status(200)
-          .send({ message: "Without Limit", studentIns: valid_list, all_student_query: all_student_query });
+          .send({
+            message: "Without Limit",
+            studentIns: valid_list,
+            all_student_query: all_student_query,
+          });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
@@ -1742,6 +1749,10 @@ exports.retrieveFinanceApproveStudentListFilterQuery = async (req, res) => {
           path: "department",
           select: "dName",
         });
+      var all_student_query = [];
+      for (var ref of studentIns) {
+        all_student_query.push(ref?._id);
+      }
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -1857,7 +1868,11 @@ exports.retrieveFinanceApproveStudentListFilterQuery = async (req, res) => {
         });
         res
           .status(200)
-          .send({ message: "Without Limit", studentIns: valid_list });
+          .send({
+            message: "Without Limit",
+            studentIns: valid_list,
+            all_student_query: all_student_query,
+          });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
@@ -1981,6 +1996,10 @@ exports.retrieveAdmissionApproveStudentListFilterQuery = async (req, res) => {
           path: "department",
           select: "dName",
         });
+      var all_student_query = [];
+      for (var ref of studentIns) {
+        all_student_query.push(ref?._id);
+      }
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -2098,7 +2117,11 @@ exports.retrieveAdmissionApproveStudentListFilterQuery = async (req, res) => {
         });
         res
           .status(200)
-          .send({ message: "Without Limit", studentIns: valid_list });
+          .send({
+            message: "Without Limit",
+            studentIns: valid_list,
+            all_student_query: all_student_query,
+          });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
@@ -2222,6 +2245,10 @@ exports.retrieveApproveStudentSectionListFilterQuery = async (req, res) => {
           path: "department",
           select: "dName",
         });
+      var all_student_query = [];
+      for (var ref of studentIns) {
+        all_student_query.push(ref?._id);
+      }
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -2337,7 +2364,11 @@ exports.retrieveApproveStudentSectionListFilterQuery = async (req, res) => {
         });
         res
           .status(200)
-          .send({ message: "Without Limit", studentIns: valid_list });
+          .send({
+            message: "Without Limit",
+            studentIns: valid_list,
+            all_student_query: all_student_query,
+          });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
@@ -2461,6 +2492,10 @@ exports.retrieveCertificateApproveStudentListFilterQuery = async (req, res) => {
           path: "department",
           select: "dName",
         });
+      var all_student_query = [];
+      for (var ref of studentIns) {
+        all_student_query.push(ref?._id);
+      }
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -2578,7 +2613,11 @@ exports.retrieveCertificateApproveStudentListFilterQuery = async (req, res) => {
         });
         res
           .status(200)
-          .send({ message: "Without Limit", studentIns: valid_list });
+          .send({
+            message: "Without Limit",
+            studentIns: valid_list,
+            all_student_query: all_student_query,
+          });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
@@ -2702,6 +2741,10 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
           path: "department",
           select: "dName",
         });
+      var all_student_query = [];
+      for (var ref of studentIns) {
+        all_student_query.push(ref?._id);
+      }
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -2826,7 +2869,11 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
         });
         res
           .status(200)
-          .send({ message: "Without Limit", studentIns: valid_list });
+          .send({
+            message: "Without Limit",
+            studentIns: valid_list,
+            all_student_query: all_student_query,
+          });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }

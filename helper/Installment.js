@@ -2122,11 +2122,24 @@ exports.set_fee_head_query_redesign = async (
             ? price_query - parent_head[`${i}`].head_amount
             : 0;
       }
+      receipt_args.fee_flow = "FEE_HEADS";
+      for (var ref of student_args?.active_fee_heads) {
+        receipt_args.fee_heads.push({
+          head_id: ref?._id,
+          head_name: ref?.head_name,
+          paid_fee: ref?.paid_fee,
+          remain_fee: ref?.remain_fee,
+          applicable_fee: ref?.applicable_fee,
+          fee_structure: ref?.fee_structure,
+          master: ref?.master,
+          original_paid: ref?.original_paid,
+        });
+      }
       if (student_args?.fee_receipt?.includes(`${receipt_args?._id}`)) {
       } else {
         student_args.fee_receipt.push(receipt_args?._id);
       }
-      await student_args.save();
+      await Promise.all([receipt_args.save(), student_args.save()]);
       price_query = 0;
       console.log("INSIDE FEE HEADS");
     }

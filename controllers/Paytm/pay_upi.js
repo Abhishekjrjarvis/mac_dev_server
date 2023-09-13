@@ -32,7 +32,9 @@ const order_history_query = async (
     order_payment.payment_status = "Captured";
     institute.invoice_count += 1;
     order_payment.razorpay_payment_id = `${txn_id}`;
-    order_payment.paytm_query.push(body);
+    if (body) {
+      order_payment.paytm_query.push(body);
+    }
     order_payment.payment_invoice_number = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;

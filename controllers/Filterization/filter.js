@@ -1751,6 +1751,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         message: "No Fee Receipt Heads Structure Query",
         access: false,
         all_students: [],
+        // head_list,
       });
     }
   } catch (e) {

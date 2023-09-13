@@ -23,6 +23,7 @@ router
 router
   .route("/institute/:id/opener")
   .get(siteController.getInstituteSiteOpeners)
-  .patch(isLoggedIn, siteController.updateInstituteSiteOpeners);
+  .patch(isLoggedIn, siteController.updateInstituteSiteOpeners)
+  .delete(isLoggedIn, siteController.trashInstituteSiteOpeners);
 
 module.exports = router;

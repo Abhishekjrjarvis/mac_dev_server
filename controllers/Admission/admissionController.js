@@ -9651,7 +9651,7 @@ exports.renderFeeHeadsQuery = async (req, res) => {
       });
     var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
-    var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}`})
+    var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
     // var all_student = await Student.find({
     //   $and: [{ _id: ins?.ApproveStudent }],
     // });
@@ -9667,27 +9667,33 @@ exports.renderFeeHeadsQuery = async (req, res) => {
           },
         },
         {
-          finance: finance?._id
-        }
+          finance: finance?._id,
+        },
       ],
     });
-    var empty_student = []
-    for(var ref of receipt){
-      var student = await Student.findById({ _id: `${ref?.student}`})
-      .populate({
-        path: "fee_structure",
-      })
-      if(student?.active_fee_heads?.length > 0){
+    var empty_student = [];
+    for (var ref of receipt) {
+      var student = await Student.findById({ _id: `${ref?.student}` }).populate(
+        {
+          path: "fee_structure",
+        }
+      );
+      if (ref?.student?.active_fee_heads?.length > 0) {
         // for(var ele of student?.active_fee_heads){
         // console.log("CONTAIN LENGTH")
         // }
-      }
-      else{
-        // await set_fee_head_query_redesign(student, ref?.fee_payment_amount, ref?.application, ref)
-        empty_student.push({
-          name: student?.valid_full_name,
-          id: student?._id
-        })
+      } else {
+        await set_fee_head_query_redesign(
+          student,
+          ref?.fee_payment_amount,
+          ref?.application,
+          ref
+        );
+        // empty_student.push({
+        //   name: ref?.student?.valid_full_name,
+        //   id: ref?.student?._id,
+        //   length: ref?.student?.active_fee_heads?.length,
+        // });
       }
     }
 
@@ -9701,11 +9707,54 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     res.status(200).send({
       message: "Explore All Student Fee Heads Query",
       access: true,
-      count: empty_student?.length,
+      // count: empty_student?.length,
       // array,
       // receipt
-      empty_student
+      // empty_student,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFindReceiptQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    var ins = await InstituteAdmin.findById({ _id: id });
+    var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
+    const g_date = new Date(`2023-09-05T00:00:00.000Z`);
+    const l_date = new Date(`2023-09-13T00:00:00.000Z`);
+    var receipt = await FeeReceipt.find({
+      $and: [
+        {
+          finance: finance?._id,
+        },
+      ],
+    });
+    var arr = [];
+    for (var ref of receipt) {
+      // var student = await Student.findById({ _id: `${ref?.student}` }).populate(
+      //   {
+      //     path: "remainingFeeList",
+      //   }
+      // );
+      var remain = await RemainingList.find({
+        student: `${ref?.student}`,
+      }).populate({
+        path: "student",
+        select: "valid_full_name",
+      });
+      for (var ele of remain) {
+        if (`${ele?.appId}` != `${ref?.application}`) {
+          arr.push({
+            name: ele?.student?.valid_full_name,
+            id: ele?.student?._id,
+          });
+        }
+      }
+    }
+
+    res.status(200).send({ message: "Explore", access: true, arr: arr });
   } catch (e) {
     console.log(e);
   }

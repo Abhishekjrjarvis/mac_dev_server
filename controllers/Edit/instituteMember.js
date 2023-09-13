@@ -40,6 +40,7 @@ exports.departmentEdit = async (req, res) => {
   try {
     if (!req.params.did) throw "Please send department id to perform task";
     const department = await Department.findById(req.params.did);
+    var institute = await InstituteAdmin.findById(department.institute);
     if (req.body?.dName) department.dName = req.body?.dName;
     if (req.body?.dTitle) department.dTitle = req.body?.dTitle;
     if (req.body?.sid) {
@@ -49,7 +50,6 @@ exports.departmentEdit = async (req, res) => {
       previousStaff.recentDesignation = "";
       const staff = await Staff.findById(req.body?.sid);
       var user = await User.findById(staff.user);
-      const institute = await InstituteAdmin.findById(department.institute);
       const notify = new Notification({});
       staff.staffDepartment.push(department._id);
       staff.staffDesignationCount += 1;
@@ -315,7 +315,8 @@ exports.classDetail = async (req, res) => {
 exports.classEdit = async (req, res) => {
   try {
     if (!req.params.cid) throw "Please send Class id to perform task";
-    const classes = await Class.findById(req.params.cid);
+    var classes = await Class.findById(req.params.cid);
+    var institute = await InstituteAdmin.findById(classes.institute);
     if (req.body.mcId) {
       const previousClassMaster = await ClassMaster.findById(
         classes.masterClassName
@@ -339,7 +340,6 @@ exports.classEdit = async (req, res) => {
       previousStaff.recentDesignation = "";
       const staff = await Staff.findById(req.body?.classTeacher);
       const user = await User.findById(staff.user);
-      const institute = await InstituteAdmin.findById(classes.institute);
       const notify = await new Notification({});
       staff.staffClass.push(classes._id);
       staff.staffDesignationCount += 1;
@@ -513,8 +513,9 @@ exports.subjectDetail = async (req, res) => {
 exports.subjectEdit = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send subject id to perform task";
-    const subject = await Subject.findById(req.params.sid);
-    const classes = await Class.findById({ _id: `${subject?.class}` });
+    var subject = await Subject.findById(req.params.sid);
+    var classes = await Class.findById({ _id: `${subject?.class}` });
+    var institute = await InstituteAdmin.findById(classes?.institute);
     // console.log(subject);
     if (req.body?.subjectTitle) {
       subject.subjectTitle = req.body?.subjectTitle;
@@ -547,7 +548,6 @@ exports.subjectEdit = async (req, res) => {
       previousStaff.recentDesignation = "";
       const staff = await Staff.findById(req.body?.sid);
       var user = await User.findById(staff.user);
-      var institute = await InstituteAdmin.findById(classes.institute);
       const notify = await new Notification({});
       staff.staffSubject.push(subject._id);
       staff.staffDesignationCount += 1;

@@ -398,9 +398,12 @@ exports.promoteStudent = async (req, res) => {
       ],
     });
     var apply = valid_app ? valid_app?.[0] : "";
+    // console.log("Enter in this code");
     if (apply) {
+      // console.log("Application Find");
       let roll = classes.ApproveStudent?.length + 1;
       if (flow === "WITH_STRUCTURE") {
+        // console.log("with Fee Structure");
         for (let stu of req.body?.students) {
           const student = await Student.findById(stu).populate({
             path: "fee_structure",
@@ -425,6 +428,7 @@ exports.promoteStudent = async (req, res) => {
             });
             if (structure?.length > 0) {
             } else {
+              // console.log("structure Assign");
               var structure = department?.fees_structures?.filter((ref) => {
                 if (
                   `${ref?.class_master}` === `${classes?.masterClassName}` &&
@@ -526,15 +530,17 @@ exports.promoteStudent = async (req, res) => {
           notify.notifyByClassPhoto = classes._id;
           notify.notifyCategory = "Report Card";
           notify.redirectIndex = 20;
-          invokeMemberTabNotification(
-            "Student Activity",
-            notify,
-            "View Report Card",
-            user._id,
-            user.deviceToken,
-            "Student",
-            notify
-          );
+          if (user?.deviceToken) {
+            invokeMemberTabNotification(
+              "Student Activity",
+              notify,
+              "View Report Card",
+              user._id,
+              user.deviceToken,
+              "Student",
+              notify
+            );
+          }
           await Promise.all([
             student.save(),
             notify.save(),

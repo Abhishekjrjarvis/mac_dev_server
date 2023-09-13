@@ -44,6 +44,9 @@ const subjectUpdateSchema = new mongoose.Schema({
         type: String,
         ref: "Pending",
       },
+      current_status: {
+        type: String,
+      },
     },
   ],
 });

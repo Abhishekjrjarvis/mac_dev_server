@@ -788,3 +788,82 @@ exports.renderStaffUserLoginQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderAluminiStaffQuery = async (req, res) => {
+  try {
+    const { osid } = req.params;
+    const { nsid } = req.query;
+    if (!osid && !nsid && osid !== nsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        status: false,
+      });
+    const oldStaff = await Staff.findById({ _id: osid }).populate({
+      path: "institute",
+      select: "aluminiDepart",
+    });
+    const newStaff = await Staff.findById({ _id: nsid });
+    const user = await User.findById({ _id: `${newStaff.user}` });
+    const alumini = await Alumini.findById({
+      _id: `${oldStaff?.institute?.aluminiDepart[0]}`,
+    }).populate({
+      path: "institute",
+      select: "insName sms_lang",
+    });
+    const notify = new Notification({});
+    newStaff.aluminiDepartment.push(alumini?._id);
+    newStaff.staffDesignationCount += 1;
+    newStaff.recentDesignation = "Alumini Head";
+    alumini.alumini_head = newStaff._id;
+    oldStaff.aluminiDepartment.pull(alumini?._id);
+    if (oldStaff.staffDesignationCount > 0) {
+      oldStaff.staffDesignationCount -= 1;
+    }
+    oldStaff.recentDesignation = "";
+    notify.notifyContent = `you got the designation of Alumini Head`;
+    notify.notifySender = alumini?.institute._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Alumini Designation";
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByInsPhoto = alumini?.institute._id;
+    await invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      alumini?.institute.insName,
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([
+      oldStaff.save(),
+      alumini.save(),
+      user.save(),
+      notify.save(),
+      newStaff.save(),
+    ]);
+    res.status(200).send({
+      message: "Successfully Assigned Alumini Head",
+      status: true,
+    });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "ALUMINI",
+      alumini?.institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "ALUMINI",
+        alumini?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

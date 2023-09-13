@@ -684,7 +684,8 @@ exports.destroyFinanceModeratorQuery = async (req, res) => {
 exports.addInstituteModeratorQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { mod_role, sid, social_media_password_query } = req.body;
+    const { mod_role, sid, social_media_password_query, academic_department } =
+      req.body;
     if (!id && !mod_role && !sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -714,6 +715,9 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       institute.social_media_password_query = hash_user_pass;
       user.social_media_password_query = hash_user_pass;
       new_mod.social_media_password_query = hash_user_pass;
+    }
+    if (`${mod_role}` === "ACADEMIC_ADMINISTRATOR_ACCESS") {
+      new_mod.academic_department = academic_department;
     }
     new_mod.institute = institute?._id;
     institute.moderator_role.push(new_mod?._id);
@@ -834,7 +838,8 @@ exports.renderInstituteAllAppModeratorArray = async (req, res) => {
 exports.updateInstituteAppModeratorQuery = async (req, res) => {
   try {
     const { mid } = req.params;
-    const { role, staffId, social_media_password_query } = req.body;
+    const { role, staffId, social_media_password_query, academic_department } =
+      req.body;
     if (!mid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -923,6 +928,11 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
         ""
       );
       await Promise.all([new_staff.save(), user.save(), notify.save()]);
+    }
+    if (`${one_moderator?.access_role}` === "ACADEMIC_ADMINISTRATOR_ACCESS") {
+      one_moderator.academic_department = academic_department
+        ? academic_department
+        : null;
     }
     await one_moderator.save();
     // await FinanceModerator.findByIdAndUpdate(mid, req?.body);

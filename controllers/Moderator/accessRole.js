@@ -266,7 +266,22 @@ exports.all_access_role_ins = () => {
       role: "SOCIAL_MEDIA_ACCESS",
       permission: {
         allow: true,
-        bound: ["CREATE_POST", "EDIT_SITE_INFO", "CREATE_POLL", "CREATE_QUESTION", "CREATE_ANNOUNCEMENT"],
+        bound: [
+          "CREATE_POST",
+          "EDIT_SITE_INFO",
+          "CREATE_POLL",
+          "CREATE_QUESTION",
+          "CREATE_ANNOUNCEMENT",
+        ],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    ACADEMIC_ADMINISTRATOR_ACCESS: {
+      role: "ACADEMIC_ADMINISTRATOR_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["ASSIGN SUBJECT TEACHER", "EDIT SUBJECT ANALYTICS"],
         addons: [],
         accessStaff: "",
       },

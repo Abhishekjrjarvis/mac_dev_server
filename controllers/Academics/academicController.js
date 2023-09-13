@@ -177,6 +177,7 @@ exports.renderAddNewLectureQuery = async (req, res) => {
           valid_subject.daily_topic.push({
             topic: val?._id,
             status: rec_status,
+            current_status: val?.current_status,
           });
         }
       }

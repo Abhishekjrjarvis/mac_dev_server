@@ -924,9 +924,9 @@ exports.retrieveInstituteRepayQuery = async (req, res) => {
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select(
-        "repayAmount repayStatus message txnId createdAt bank_account_count"
-      )
+      // .select(
+      //   "repayAmount repayStatus message txnId createdAt bank_account_count"
+      // )
       .populate({
         path: "institute",
         select:
@@ -1468,3 +1468,56 @@ exports.renderAutoPayoutsQuery = async (req, res) => {
 //     console.log(e)
 //   }
 // }
+
+exports.renderRepayAutoQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const institute = await InstituteAdmin.findById({ _id: id });
+    const account = await BankAccount.findById({ _id: `${req?.body?.bank}` });
+    const finance = await Finance.findById({
+      _id: `${account?.finance}`,
+    }).populate({
+      path: "financeHead",
+      select: "user",
+    });
+    const financeUser = await User.findById({
+      _id: `${finance?.financeHead?.user}`,
+    });
+    const repay = new RePay({ ...req.body });
+    const notify = new Notification({});
+    repay.institute = institute._id;
+    admin.repayArray.push(repay._id);
+    institute.getReturn.push(repay._id);
+    notify.notifyContent = `Qviple Super Admin re-pay Rs. ${
+      repay?.repayAmount
+    } to you as settlement in ${
+      account?.finance_bank_name ?? ""
+    } (Secondary A/C)`;
+    notify.notifySender = admin._id;
+    notify.notifyCategory = "Qviple Repayment";
+    notify.notifyReceiever = institute._id;
+    institute.iNotify.push(notify._id);
+    financeUser.uNotify.push(notify._id);
+    notify.institute = institute._id;
+    notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo.svg";
+    repay.bank_account.push(account?._id);
+    repay.bank_account_count += 1;
+    await Promise.all([
+      repay.save(),
+      admin.save(),
+      institute.save(),
+      financeUser.save(),
+      notify.save(),
+    ]);
+    res.status(200).send({ message: "Updated Repayment" });
+  } catch (e) {
+    console.log(e);
+  }
+};

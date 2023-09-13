@@ -80,6 +80,7 @@ exports.createDailyUpdate = async (req, res) => {
       dailyUpdate.daily_topic.push({
         topic: val?._id,
         status: rec_status,
+        current_status: val?.current_status,
       });
       if (`${rec_status}` === "Lecture") {
         subject.lecture_analytic.lecture_complete += 1;

@@ -67,6 +67,10 @@ const financeModeratorSchema = new mongoose.Schema({
   social_media_password_query: {
     type: String,
   },
+  academic_department: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Department",
+  },
 });
 
 module.exports = mongoose.model("FinanceModerator", financeModeratorSchema);

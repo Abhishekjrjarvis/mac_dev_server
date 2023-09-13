@@ -254,4 +254,9 @@ router.get(
   catchAsync(Admin.renderAllRepayBankAccountQuery)
 );
 
+router.post(
+  "/repay/:id/institute/auto/query",
+  catchAsync(Admin.renderRepayAutoQuery)
+);
+
 module.exports = router;

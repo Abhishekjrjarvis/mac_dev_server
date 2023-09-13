@@ -54,4 +54,8 @@ router
   .route("/user/login/query")
   .patch(catchAsync(staffMember.renderStaffUserLoginQuery));
 
+router
+  .route("/alumini/staff/:osid")
+  .patch(isLoggedIn, catchAsync(staffMember.renderAluminiStaffQuery));
+
 module.exports = router;

@@ -20,7 +20,7 @@ router
   .patch(isLoggedIn, batchController.subjectUpdateSetting);
 
 router.route("/class/:cid").get(batchController.allDepartment);
-router.route("/promote/:cid").post(isLoggedIn, batchController.promoteStudent);
+router.route("/promote/:cid").post(batchController.promoteStudent);
 
 router
   .route("/complete/:cid")

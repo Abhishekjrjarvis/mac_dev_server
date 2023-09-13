@@ -374,53 +374,130 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { uid } = req.query;
     const skip = (page - 1) * limit;
-    const { filter } = req.query;
+    const { filter, search } = req.query;
     var filtered_array = [];
     if (filter) {
-      var order = await OrderPayment.find({
-        $and: [
-          { payment_by_end_user_id: uid },
-          { payment_module_type: filter },
-          { payment_amount: { $gt: 0 } },
-        ],
-      })
-        .sort("-created_at")
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
-        )
-        .populate({
-          path: "payment_fee",
-          select: "feeName",
+      if (search) {
+        var order = await OrderPayment.find({
+          $and: [
+            { payment_by_end_user_id: uid },
+            { payment_module_type: filter },
+            { payment_amount: { $gt: 0 } },
+          ],
+          $or: [
+            {
+              razorpay_payment_id: { $regex: search, $options: "i" },
+            },
+            {
+              payment_invoice_number: { $regex: search, $options: "i" },
+            },
+          ],
         })
-        .populate({
-          path: "payment_admission",
-          select: "applicationName",
+          .sort("-created_at")
+          .select(
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          )
+          .populate({
+            path: "payment_fee",
+            select: "feeName",
+          })
+          .populate({
+            path: "payment_admission",
+            select: "applicationName",
+          })
+          .populate({
+            path: "payment_checklist",
+            select: "checklistName",
+          })
+          .populate({
+            path: "payment_income",
+            select: "incomeDesc",
+          })
+          .populate({
+            path: "payment_expense",
+            select: "expenseDesc",
+          })
+          .populate({
+            path: "payment_by_end_user_id",
+            select: "userLegalName photoId profilePhoto",
+          })
+          .populate({
+            path: "payment_to_end_user_id",
+            select: "insName photoId insProfilePhoto",
+          })
+          .populate({
+            path: "fee_receipt",
+          })
+          .populate({
+            path: "payment_student",
+            match: {
+              studentFirstName: { $regex: search, $options: "i" },
+              studentMiddleName: { $regex: search, $options: "i" },
+              studentLastName: { $regex: search, $options: "i" },
+              valid_full_name: { $regex: search, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          });
+      } else {
+        var order = await OrderPayment.find({
+          $and: [
+            { payment_by_end_user_id: uid },
+            { payment_module_type: filter },
+            { payment_amount: { $gt: 0 } },
+          ],
         })
-        .populate({
-          path: "payment_checklist",
-          select: "checklistName",
-        })
-        .populate({
-          path: "payment_income",
-          select: "incomeDesc",
-        })
-        .populate({
-          path: "payment_expense",
-          select: "expenseDesc",
-        })
-        .populate({
-          path: "payment_by_end_user_id",
-          select: "userLegalName photoId profilePhoto",
-        })
-        .populate({
-          path: "payment_to_end_user_id",
-          select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "fee_receipt",
-        });
+          .sort("-created_at")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          )
+          .populate({
+            path: "payment_fee",
+            select: "feeName",
+          })
+          .populate({
+            path: "payment_admission",
+            select: "applicationName",
+          })
+          .populate({
+            path: "payment_checklist",
+            select: "checklistName",
+          })
+          .populate({
+            path: "payment_income",
+            select: "incomeDesc",
+          })
+          .populate({
+            path: "payment_expense",
+            select: "expenseDesc",
+          })
+          .populate({
+            path: "payment_by_end_user_id",
+            select: "userLegalName photoId profilePhoto",
+          })
+          .populate({
+            path: "payment_to_end_user_id",
+            select: "insName photoId insProfilePhoto",
+          })
+          .populate({
+            path: "fee_receipt",
+          })
+          .populate({
+            path: "payment_student",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          });
+      }
       if (order?.length > 0) {
         // var new_order = order?.filter((ref) => {
         //   if (ref?.payment_amount > 0) return ref;
@@ -431,54 +508,135 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
     } else {
-      var order = await OrderPayment.find({
-        $and: [
-          {
-            payment_by_end_user_id: uid,
-          },
-          {
-            payment_amount: { $gt: 0 },
-          },
-          { payment_module_type: { $ne: "Expense" } },
-        ],
-      })
-        .sort("-created_at")
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
-        )
-        .populate({
-          path: "payment_fee",
-          select: "feeName",
+      if (search) {
+        var order = await OrderPayment.find({
+          $and: [
+            {
+              payment_by_end_user_id: uid,
+            },
+            {
+              payment_amount: { $gt: 0 },
+            },
+            { payment_module_type: { $ne: "Expense" } },
+          ],
+          $or: [
+            {
+              razorpay_payment_id: { $regex: search, $options: "i" },
+            },
+            {
+              payment_invoice_number: { $regex: search, $options: "i" },
+            },
+          ],
         })
-        .populate({
-          path: "payment_admission",
-          select: "applicationName",
+          .sort("-created_at")
+          .select(
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          )
+          .populate({
+            path: "payment_fee",
+            select: "feeName",
+          })
+          .populate({
+            path: "payment_admission",
+            select: "applicationName",
+          })
+          .populate({
+            path: "payment_checklist",
+            select: "checklistName",
+          })
+          .populate({
+            path: "payment_income",
+            select: "incomeDesc",
+          })
+          .populate({
+            path: "payment_expense",
+            select: "expenseDesc",
+          })
+          .populate({
+            path: "payment_by_end_user_id",
+            select: "userLegalName photoId profilePhoto",
+          })
+          .populate({
+            path: "payment_to_end_user_id",
+            select: "insName photoId insProfilePhoto",
+          })
+          .populate({
+            path: "fee_receipt",
+          })
+          .populate({
+            path: "payment_student",
+            match: {
+              studentFirstName: { $regex: search, $options: "i" },
+              studentMiddleName: { $regex: search, $options: "i" },
+              studentLastName: { $regex: search, $options: "i" },
+              valid_full_name: { $regex: search, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          });
+      } else {
+        var order = await OrderPayment.find({
+          $and: [
+            {
+              payment_by_end_user_id: uid,
+            },
+            {
+              payment_amount: { $gt: 0 },
+            },
+            { payment_module_type: { $ne: "Expense" } },
+          ],
         })
-        .populate({
-          path: "payment_checklist",
-          select: "checklistName",
-        })
-        .populate({
-          path: "payment_income",
-          select: "incomeDesc",
-        })
-        .populate({
-          path: "payment_expense",
-          select: "expenseDesc",
-        })
-        .populate({
-          path: "payment_by_end_user_id",
-          select: "userLegalName photoId profilePhoto",
-        })
-        .populate({
-          path: "payment_to_end_user_id",
-          select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "fee_receipt",
-        });
+          .sort("-created_at")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          )
+          .populate({
+            path: "payment_fee",
+            select: "feeName",
+          })
+          .populate({
+            path: "payment_admission",
+            select: "applicationName",
+          })
+          .populate({
+            path: "payment_checklist",
+            select: "checklistName",
+          })
+          .populate({
+            path: "payment_income",
+            select: "incomeDesc",
+          })
+          .populate({
+            path: "payment_expense",
+            select: "expenseDesc",
+          })
+          .populate({
+            path: "payment_by_end_user_id",
+            select: "userLegalName photoId profilePhoto",
+          })
+          .populate({
+            path: "payment_to_end_user_id",
+            select: "insName photoId insProfilePhoto",
+          })
+          .populate({
+            path: "fee_receipt",
+          })
+          .populate({
+            path: "payment_student",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          });
+      }
       // for (var filteredData of order) {
       //   if (
       //     `${filteredData?.payment_module_type}` != "Expense" &&
@@ -505,53 +663,130 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { uid } = req.query;
     const skip = (page - 1) * limit;
-    const { filter } = req.query;
+    const { filter, search } = req.query;
     var filtered_array = [];
     if (filter) {
-      var order = await OrderPayment.find({
-        $and: [
-          { payment_to_end_user_id: uid },
-          { payment_module_type: filter },
-          { payment_amount: { $gt: 0 } },
-        ],
-      })
-        .sort("-created_at")
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
-        )
-        .populate({
-          path: "payment_fee",
-          select: "feeName",
+      if (search) {
+        var order = await OrderPayment.find({
+          $and: [
+            { payment_to_end_user_id: uid },
+            { payment_module_type: filter },
+            { payment_amount: { $gt: 0 } },
+          ],
+          $or: [
+            {
+              razorpay_payment_id: { $regex: search, $options: "i" },
+            },
+            {
+              payment_invoice_number: { $regex: search, $options: "i" },
+            },
+          ],
         })
-        .populate({
-          path: "payment_admission",
-          select: "applicationName",
+          .sort("-created_at")
+          .select(
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          )
+          .populate({
+            path: "payment_fee",
+            select: "feeName",
+          })
+          .populate({
+            path: "payment_admission",
+            select: "applicationName",
+          })
+          .populate({
+            path: "payment_checklist",
+            select: "checklistName",
+          })
+          .populate({
+            path: "payment_income",
+            select: "incomeDesc",
+          })
+          .populate({
+            path: "payment_expense",
+            select: "expenseDesc",
+          })
+          .populate({
+            path: "payment_by_end_user_id",
+            select: "userLegalName photoId profilePhoto",
+          })
+          .populate({
+            path: "payment_to_end_user_id",
+            select: "insName photoId insProfilePhoto",
+          })
+          .populate({
+            path: "fee_receipt",
+          })
+          .populate({
+            path: "payment_student",
+            match: {
+              studentFirstName: { $regex: search, $options: "i" },
+              studentMiddleName: { $regex: search, $options: "i" },
+              studentLastName: { $regex: search, $options: "i" },
+              valid_full_name: { $regex: search, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          });
+      } else {
+        var order = await OrderPayment.find({
+          $and: [
+            { payment_to_end_user_id: uid },
+            { payment_module_type: filter },
+            { payment_amount: { $gt: 0 } },
+          ],
         })
-        .populate({
-          path: "payment_checklist",
-          select: "checklistName",
-        })
-        .populate({
-          path: "payment_income",
-          select: "incomeDesc",
-        })
-        .populate({
-          path: "payment_expense",
-          select: "expenseDesc",
-        })
-        .populate({
-          path: "payment_by_end_user_id",
-          select: "userLegalName photoId profilePhoto",
-        })
-        .populate({
-          path: "payment_to_end_user_id",
-          select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "fee_receipt",
-        });
+          .sort("-created_at")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          )
+          .populate({
+            path: "payment_fee",
+            select: "feeName",
+          })
+          .populate({
+            path: "payment_admission",
+            select: "applicationName",
+          })
+          .populate({
+            path: "payment_checklist",
+            select: "checklistName",
+          })
+          .populate({
+            path: "payment_income",
+            select: "incomeDesc",
+          })
+          .populate({
+            path: "payment_expense",
+            select: "expenseDesc",
+          })
+          .populate({
+            path: "payment_by_end_user_id",
+            select: "userLegalName photoId profilePhoto",
+          })
+          .populate({
+            path: "payment_to_end_user_id",
+            select: "insName photoId insProfilePhoto",
+          })
+          .populate({
+            path: "fee_receipt",
+          })
+          .populate({
+            path: "payment_student",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          });
+      }
       // .populate({
       //   path: "payment_expense_by_end_user_id",
       //   select: "insName photoId insProfilePhoto",
@@ -570,56 +805,139 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
     } else {
-      var order = await OrderPayment.find({
-        $and: [
-          {
-            payment_to_end_user_id: uid,
-          },
-          {
-            payment_module_type: { $ne: "Expense" },
-          },
-          {
-            payment_amount: { $gt: 0 },
-          },
-        ],
-      })
-        .sort("-created_at")
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
-        )
-        .populate({
-          path: "payment_fee",
-          select: "feeName",
+      if (search) {
+        var order = await OrderPayment.find({
+          $and: [
+            {
+              payment_to_end_user_id: uid,
+            },
+            {
+              payment_module_type: { $ne: "Expense" },
+            },
+            {
+              payment_amount: { $gt: 0 },
+            },
+          ],
+          $or: [
+            {
+              razorpay_payment_id: { $regex: search, $options: "i" },
+            },
+            {
+              payment_invoice_number: { $regex: search, $options: "i" },
+            },
+          ],
         })
-        .populate({
-          path: "payment_admission",
-          select: "applicationName",
+          .sort("-created_at")
+          .select(
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          )
+          .populate({
+            path: "payment_fee",
+            select: "feeName",
+          })
+          .populate({
+            path: "payment_admission",
+            select: "applicationName",
+          })
+          .populate({
+            path: "payment_checklist",
+            select: "checklistName",
+          })
+          .populate({
+            path: "payment_income",
+            select: "incomeDesc",
+          })
+          .populate({
+            path: "payment_expense",
+            select: "expenseDesc",
+          })
+          .populate({
+            path: "payment_by_end_user_id",
+            select: "userLegalName photoId profilePhoto",
+          })
+          .populate({
+            path: "payment_to_end_user_id",
+            select: "insName photoId insProfilePhoto",
+          })
+          .populate({
+            path: "fee_receipt",
+          })
+          .populate({
+            path: "payment_student",
+            match: {
+              studentFirstName: { $regex: search, $options: "i" },
+              studentMiddleName: { $regex: search, $options: "i" },
+              studentLastName: { $regex: search, $options: "i" },
+              valid_full_name: { $regex: search, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          });
+      } else {
+        var order = await OrderPayment.find({
+          $and: [
+            {
+              payment_to_end_user_id: uid,
+            },
+            {
+              payment_module_type: { $ne: "Expense" },
+            },
+            {
+              payment_amount: { $gt: 0 },
+            },
+          ],
         })
-        .populate({
-          path: "payment_checklist",
-          select: "checklistName",
-        })
-        .populate({
-          path: "payment_income",
-          select: "incomeDesc",
-        })
-        .populate({
-          path: "payment_expense",
-          select: "expenseDesc",
-        })
-        .populate({
-          path: "payment_by_end_user_id",
-          select: "userLegalName photoId profilePhoto",
-        })
-        .populate({
-          path: "payment_to_end_user_id",
-          select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "fee_receipt",
-        });
+          .sort("-created_at")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          )
+          .populate({
+            path: "payment_fee",
+            select: "feeName",
+          })
+          .populate({
+            path: "payment_admission",
+            select: "applicationName",
+          })
+          .populate({
+            path: "payment_checklist",
+            select: "checklistName",
+          })
+          .populate({
+            path: "payment_income",
+            select: "incomeDesc",
+          })
+          .populate({
+            path: "payment_expense",
+            select: "expenseDesc",
+          })
+          .populate({
+            path: "payment_by_end_user_id",
+            select: "userLegalName photoId profilePhoto",
+          })
+          .populate({
+            path: "payment_to_end_user_id",
+            select: "insName photoId insProfilePhoto",
+          })
+          .populate({
+            path: "fee_receipt",
+          })
+          .populate({
+            path: "payment_student",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          });
+      }
       // .populate({
       //   path: "payment_expense_by_end_user_id",
       //   select: "insName photoId insProfilePhoto",
@@ -686,6 +1004,15 @@ exports.fetchPaymentOneHistory = async (req, res) => {
       })
       .populate({
         path: "fee_receipt",
+      })
+      .populate({
+        path: "payment_student",
+        select:
+          "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+        populate: {
+          path: "fee_structure hostel_fee_structure",
+          select: "unique_structure_name",
+        },
       });
     // const oEncrypt = await encryptionPayload(one_pay);
     res

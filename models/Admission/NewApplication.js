@@ -184,6 +184,11 @@ const newApplicationSchema = new mongoose.Schema({
       status: { type: String, default: "Transferred" },
     },
   ],
+  allot_array: [],
+  confirm_array: [],
+  select_array: [],
+  request_array: [],
+  cancel_array: [],
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

@@ -313,6 +313,7 @@ exports.hostelInstituteFunction = async (
       orderPay.payment_by_end_user_id = user?._id;
       new_receipt.order_history = orderPay?._id;
       orderPay.fee_receipt = new_receipt?._id;
+      orderPay.payment_student = student?._id;
       await Promise.all([
         student.save(),
         user.save(),
@@ -452,6 +453,7 @@ exports.hostelInstituteFunction = async (
       orderPay.payment_by_end_user_id = user?._id;
       new_receipt.order_history = orderPay?._id;
       orderPay.fee_receipt = new_receipt?._id;
+      orderPay.payment_student = student?._id;
       await Promise.all([
         one_hostel.save(),
         student.save(),
@@ -560,6 +562,7 @@ exports.directHostelInstituteFunction = async (
     order.payment_mode = "Online";
     order.payment_admission = apply._id;
     order.payment_from = student._id;
+    order.payment_student = student?._id;
     institute.invoice_count += 1;
     order.payment_invoice_number = `${
       new Date().getMonth() + 1

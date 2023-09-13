@@ -33,6 +33,12 @@ const repaySchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  excel_attach: {
+    type: String,
+  },
+  settlement_date: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("RePay", repaySchema);

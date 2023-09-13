@@ -785,9 +785,12 @@ exports.fetchAllRequestApplication = async (req, res) => {
             path: "student",
             match: {
               studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name",
             populate: {
               path: "user",
               select: "userPhoneNumber userEmail",
@@ -867,9 +870,12 @@ exports.fetchAllSelectApplication = async (req, res) => {
             path: "student",
             match: {
               studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:
@@ -960,9 +966,12 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             path: "student",
             match: {
               studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:
@@ -1053,9 +1062,12 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
             path: "student",
             match: {
               studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name",
             populate: {
               path: "user",
               select: "userPhoneNumber userEmail",
@@ -1137,9 +1149,13 @@ exports.fetchAllAllotApplication = async (req, res) => {
             path: "student",
             match: {
               studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
+              studentGRNO: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentGRNO studentParentsPhoneNumber fee_receipt valid_full_name",
             populate: {
               path: "student_bed_number",
               select: "bed_number hostelRoom",
@@ -1236,9 +1252,12 @@ exports.fetchAllCancelApplication = async (req, res) => {
             path: "student",
             match: {
               studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name",
             populate: {
               path: "user",
               select: "userPhoneNumber userEmail",
@@ -2334,133 +2353,136 @@ exports.retrieveClassAllotQuery = async (req, res) => {
     var array = req.body.dataList;
     if (array?.length > 0) {
       for (var sid of array) {
-        const student = await Student.findById({ _id: sid });
-        const remain_list = await RemainingList.findOne({
-          $and: [
-            { _id: { $in: student?.remainingFeeList } },
-            { appId: apply?._id },
-          ],
-        });
-        const user = await User.findById({ _id: `${student.user}` });
-        const notify = new Notification({});
-        const aStatus = new Status({});
-        for (let app of apply.confirmedApplication) {
-          if (`${app.student}` === `${student._id}`) {
-            apply.confirmedApplication.pull(app._id);
+        if (apply?.allot_array?.includes(`${sid}`)) {
+        } else {
+          const student = await Student.findById({ _id: sid });
+          const remain_list = await RemainingList.findOne({
+            $and: [
+              { _id: { $in: student?.remainingFeeList } },
+              { appId: apply?._id },
+            ],
+          });
+          const user = await User.findById({ _id: `${student.user}` });
+          const notify = new Notification({});
+          const aStatus = new Status({});
+          for (let app of apply.confirmedApplication) {
+            if (`${app.student}` === `${student._id}`) {
+              apply.confirmedApplication.pull(app._id);
+            } else {
+            }
+          }
+          apply.allottedApplication.push({
+            student: student._id,
+            payment_status: "offline",
+            alloted_class: `${classes.className} - ${classes.classTitle}`,
+            alloted_status: "Alloted",
+            fee_remain: student.admissionRemainFeeCount,
+            paid_status:
+              student.admissionRemainFeeCount == 0 ? "Paid" : "Not Paid",
+          });
+          remain_list.batchId = batch?._id;
+          apply.allotCount += 1;
+          // student.confirmApplication.pull(apply._id)
+          student.studentStatus = "Approved";
+          institute.ApproveStudent.push(student._id);
+          student.institute = institute._id;
+          admins.studentArray.push(student._id);
+          admins.studentCount += 1;
+          institute.studentCount += 1;
+          classes.strength += 1;
+          classes.ApproveStudent.push(student._id);
+          classes.studentCount += 1;
+          if (apply?.gr_initials) {
+            student.studentGRNO = `${
+              institute?.gr_initials ? institute?.gr_initials : ""
+            }${depart?.gr_initials ?? ""}${apply?.gr_initials ?? ""}${
+              apply?.allotCount
+            }`;
+          } else {
+            student.studentGRNO = `${
+              institute?.gr_initials ? institute?.gr_initials : ""
+            }${depart?.gr_initials ?? ""}${apply?.gr_initials ?? ""}${
+              institute.ApproveStudent.length
+            }`;
+          }
+          student.studentROLLNO = classes.ApproveStudent.length;
+          student.studentClass = classes._id;
+          student.studentAdmissionDate = new Date().toISOString();
+          depart.ApproveStudent.push(student._id);
+          depart.studentCount += 1;
+          student.department = depart._id;
+          batch.ApproveStudent.push(student._id);
+          student.batches = batch._id;
+          notify.notifyContent = `${student.studentFirstName}${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} joined as a Student of Class ${
+            classes.className
+          } of ${batch.batchName}`;
+          notify.notifySender = classes._id;
+          notify.notifyReceiever = user._id;
+          institute.iNotify.push(notify._id);
+          notify.institute = institute._id;
+          user.uNotify.push(notify._id);
+          notify.user = user._id;
+          notify.notifyByStudentPhoto = student._id;
+          notify.notifyCategory = "Approve Student";
+          aStatus.content = `Welcome to ${depart.dName} ${classes.classTitle} Enjoy your Learning.`;
+          aStatus.applicationId = apply._id;
+          user.applicationStatus.push(aStatus._id);
+          aStatus.instituteId = institute._id;
+          await Promise.all([
+            apply.save(),
+            student.save(),
+            user.save(),
+            aStatus.save(),
+            admins.save(),
+            institute.save(),
+            classes.save(),
+            depart.save(),
+            batch.save(),
+            notify.save(),
+            remain_list.save(),
+          ]);
+          if (student.studentGender === "Male") {
+            classes.boyCount += 1;
+            batch.student_category.boyCount += 1;
+          } else if (student.studentGender === "Female") {
+            classes.girlCount += 1;
+            batch.student_category.girlCount += 1;
+          } else if (student.studentGender === "Other") {
+            classes.otherCount += 1;
+            batch.student_category.otherCount += 1;
           } else {
           }
+          if (student.studentCastCategory === "General") {
+            batch.student_category.generalCount += 1;
+          } else if (student.studentCastCategory === "OBC") {
+            batch.student_category.obcCount += 1;
+          } else if (student.studentCastCategory === "SC") {
+            batch.student_category.scCount += 1;
+          } else if (student.studentCastCategory === "ST") {
+            batch.student_category.stCount += 1;
+          } else if (student.studentCastCategory === "NT-A") {
+            batch.student_category.ntaCount += 1;
+          } else if (student.studentCastCategory === "NT-B") {
+            batch.student_category.ntbCount += 1;
+          } else if (student.studentCastCategory === "NT-C") {
+            batch.student_category.ntcCount += 1;
+          } else if (student.studentCastCategory === "NT-D") {
+            batch.student_category.ntdCount += 1;
+          } else if (student.studentCastCategory === "VJ") {
+            batch.student_category.vjCount += 1;
+          } else {
+          }
+          await Promise.all([classes.save(), batch.save()]);
+          invokeMemberTabNotification(
+            "Admission Status",
+            aStatus.content,
+            "Application Status",
+            user._id,
+            user.deviceToken
+          );
         }
-        apply.allottedApplication.push({
-          student: student._id,
-          payment_status: "offline",
-          alloted_class: `${classes.className} - ${classes.classTitle}`,
-          alloted_status: "Alloted",
-          fee_remain: student.admissionRemainFeeCount,
-          paid_status:
-            student.admissionRemainFeeCount == 0 ? "Paid" : "Not Paid",
-        });
-        remain_list.batchId = batch?._id;
-        apply.allotCount += 1;
-        // student.confirmApplication.pull(apply._id)
-        student.studentStatus = "Approved";
-        institute.ApproveStudent.push(student._id);
-        student.institute = institute._id;
-        admins.studentArray.push(student._id);
-        admins.studentCount += 1;
-        institute.studentCount += 1;
-        classes.strength += 1;
-        classes.ApproveStudent.push(student._id);
-        classes.studentCount += 1;
-        if (apply?.gr_initials) {
-          student.studentGRNO = `${
-            institute?.gr_initials ? institute?.gr_initials : ""
-          }${depart?.gr_initials ?? ""}${apply?.gr_initials ?? ""}${
-            apply?.allotCount
-          }`;
-        } else {
-          student.studentGRNO = `${
-            institute?.gr_initials ? institute?.gr_initials : ""
-          }${depart?.gr_initials ?? ""}${apply?.gr_initials ?? ""}${
-            institute.ApproveStudent.length
-          }`;
-        }
-        student.studentROLLNO = classes.ApproveStudent.length;
-        student.studentClass = classes._id;
-        student.studentAdmissionDate = new Date().toISOString();
-        depart.ApproveStudent.push(student._id);
-        depart.studentCount += 1;
-        student.department = depart._id;
-        batch.ApproveStudent.push(student._id);
-        student.batches = batch._id;
-        notify.notifyContent = `${student.studentFirstName}${
-          student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-        } ${student.studentLastName} joined as a Student of Class ${
-          classes.className
-        } of ${batch.batchName}`;
-        notify.notifySender = classes._id;
-        notify.notifyReceiever = user._id;
-        institute.iNotify.push(notify._id);
-        notify.institute = institute._id;
-        user.uNotify.push(notify._id);
-        notify.user = user._id;
-        notify.notifyByStudentPhoto = student._id;
-        notify.notifyCategory = "Approve Student";
-        aStatus.content = `Welcome to ${depart.dName} ${classes.classTitle} Enjoy your Learning.`;
-        aStatus.applicationId = apply._id;
-        user.applicationStatus.push(aStatus._id);
-        aStatus.instituteId = institute._id;
-        await Promise.all([
-          apply.save(),
-          student.save(),
-          user.save(),
-          aStatus.save(),
-          admins.save(),
-          institute.save(),
-          classes.save(),
-          depart.save(),
-          batch.save(),
-          notify.save(),
-          remain_list.save(),
-        ]);
-        if (student.studentGender === "Male") {
-          classes.boyCount += 1;
-          batch.student_category.boyCount += 1;
-        } else if (student.studentGender === "Female") {
-          classes.girlCount += 1;
-          batch.student_category.girlCount += 1;
-        } else if (student.studentGender === "Other") {
-          classes.otherCount += 1;
-          batch.student_category.otherCount += 1;
-        } else {
-        }
-        if (student.studentCastCategory === "General") {
-          batch.student_category.generalCount += 1;
-        } else if (student.studentCastCategory === "OBC") {
-          batch.student_category.obcCount += 1;
-        } else if (student.studentCastCategory === "SC") {
-          batch.student_category.scCount += 1;
-        } else if (student.studentCastCategory === "ST") {
-          batch.student_category.stCount += 1;
-        } else if (student.studentCastCategory === "NT-A") {
-          batch.student_category.ntaCount += 1;
-        } else if (student.studentCastCategory === "NT-B") {
-          batch.student_category.ntbCount += 1;
-        } else if (student.studentCastCategory === "NT-C") {
-          batch.student_category.ntcCount += 1;
-        } else if (student.studentCastCategory === "NT-D") {
-          batch.student_category.ntdCount += 1;
-        } else if (student.studentCastCategory === "VJ") {
-          batch.student_category.vjCount += 1;
-        } else {
-        }
-        await Promise.all([classes.save(), batch.save()]);
-        invokeMemberTabNotification(
-          "Admission Status",
-          aStatus.content,
-          "Application Status",
-          user._id,
-          user.deviceToken
-        );
       }
       res.status(200).send({
         message: `Distribute sweets to all family members`,
@@ -9651,51 +9673,93 @@ exports.renderFeeHeadsQuery = async (req, res) => {
       });
     var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
-    var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    // var all_student = await Student.find({
-    //   $and: [{ _id: ins?.ApproveStudent }],
-    // });
+    // var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
+    var all_student = await Student.find({});
 
-    const g_date = new Date(`2023-09-05T00:00:00.000Z`);
-    const l_date = new Date(`2023-09-13T00:00:00.000Z`);
-    var receipt = await FeeReceipt.find({
-      $and: [
-        {
-          created_at: {
-            $gte: g_date,
-            $lte: l_date,
-          },
-        },
-        {
-          finance: finance?._id,
-        },
-      ],
-    });
+    var all_remain = await RemainingList.find({
+      student: { $in: all_student},
+    }).populate({
+      path: "student",
+    })
+    .populate({
+      path: "fee_structure"
+    })
     var empty_student = [];
-    for (var ref of receipt) {
-      var student = await Student.findById({ _id: `${ref?.student}` }).populate(
-        {
-          path: "fee_structure",
+
+    for (var ref of all_remain) {
+      // var all_receipts = await FeeReceipt.find({ _id: { $in: }})
+      for (var ele of ref?.student?.active_fee_heads) {
+        if (`${ele?.appId}` === `${ref?.appId}`) {
+          console.log("MATCH");
+        } else {
+          if (empty_student?.includes(ref?.student?._id)) {
+          } else {
+            empty_student.push(ref?.student?._id);
+          }
         }
-      );
-      if (ref?.student?.active_fee_heads?.length > 0) {
-        // for(var ele of student?.active_fee_heads){
-        // console.log("CONTAIN LENGTH")
-        // }
-      } else {
-        await set_fee_head_query_redesign(
-          student,
-          ref?.fee_payment_amount,
-          ref?.application,
-          ref
-        );
-        // empty_student.push({
-        //   name: ref?.student?.valid_full_name,
-        //   id: ref?.student?._id,
-        //   length: ref?.student?.active_fee_heads?.length,
-        // });
       }
     }
+
+    var arr = []
+    var all_student = await Student.find({ _id: { $in: empty_student }})
+    .select("valid_full_name active_fee_heads")
+    for(var ele of all_student){
+      if(ele?.active_fee_heads?.length > 0){
+
+      }
+      else{
+        arr.push(ele?._id)
+      }
+    }
+    // const g_date = new Date(`2023-09-05T00:00:00.000Z`);
+    // const l_date = new Date(`2023-09-13T00:00:00.000Z`);
+    // var receipt = await FeeReceipt.find({
+    //   $and: [
+    //     {
+    //       created_at: {
+    //         $gte: g_date,
+    //         $lte: l_date,
+    //       },
+    //     },
+    //     {
+    //       finance: finance?._id,
+    //     },
+    //   ],
+    // });
+    // var empty_student = [];
+    // for (var ref of all_student) {
+    // var student = await Student.findById({ _id: `${ref?.student}` }).populate(
+    //   {
+    //     path: "fee_structure",
+    //   }
+    // );
+    // if (ref?.fee_structure) {
+    //   if (ref?.active_fee_heads?.length > 0) {
+    //   } else {
+    //     empty_student.push({
+    //       name: ref?.valid_full_name,
+    //       id: ref?._id,
+    //       length: ref?.active_fee_heads?.length,
+    //     });
+    //   }
+    //   // for(var ele of student?.active_fee_heads){
+    //   // console.log("CONTAIN LENGTH")
+    //   // }
+    // }
+    // // else {
+    //   await set_fee_head_query_redesign(
+    //     student,
+    //     ref?.fee_payment_amount,
+    //     ref?.application,
+    //     ref
+    //   );
+    //   // empty_student.push({
+    //   //   name: ref?.student?.valid_full_name,
+    //   //   id: ref?.student?._id,
+    //   //   length: ref?.student?.active_fee_heads?.length,
+    //   // });
+    // }
+    // }
 
     // for (var ref of all_student) {
     //   var card = await RemainingList.find({ student: `${ref?._id}` });
@@ -9707,10 +9771,12 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     res.status(200).send({
       message: "Explore All Student Fee Heads Query",
       access: true,
-      // count: empty_student?.length,
+      count: empty_student?.length,
       // array,
       // receipt
       // empty_student,
+      // arr,
+      all_student
     });
   } catch (e) {
     console.log(e);
@@ -9755,6 +9821,24 @@ exports.renderFindReceiptQuery = async (req, res) => {
     }
 
     res.status(200).send({ message: "Explore", access: true, arr: arr });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOrder = async (req, res) => {
+  try {
+    var all_order = await OrderPayment.find({});
+    for (var ref of all_order) {
+      if (ref?.payment_from) {
+        ref.payment_student = ref?.payment_from;
+        await ref.save();
+      }
+    }
+
+    res
+      .status(200)
+      .send({ message: "Explore New Student Order", access: true });
   } catch (e) {
     console.log(e);
   }

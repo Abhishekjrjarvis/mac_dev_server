@@ -567,7 +567,11 @@ router.patch(
   catchAsync(Admission.renderRemainCardRemovalQuery)
 );
 
+// FOR BUG //
+
 router.get("/fee/heads/:id", catchAsync(Admission.renderFeeHeadsQuery));
 
 router.get("/find/receipt/:id", catchAsync(Admission.renderFindReceiptQuery));
+
+router.patch("/order/query", catchAsync(Admission.renderOrder));
 module.exports = router;

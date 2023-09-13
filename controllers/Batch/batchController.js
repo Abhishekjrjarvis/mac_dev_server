@@ -888,7 +888,7 @@ exports.promoteStudent = async (req, res) => {
 
           // here assign new fee st
           student.fee_structure = null;
-          student.active_fee_heads = [];
+          // student.active_fee_heads = [];
           /////
           student.certificateBonaFideCopy = {
             trueCopy: false,
@@ -919,7 +919,7 @@ exports.promoteStudent = async (req, res) => {
           student.deposit_refund_amount = 0;
           student.refund_deposit = [];
           student.form_status = "Not Filled";
-          student.fee_receipt = [];
+          // student.fee_receipt = [];
           roll += 1;
           if (classes?.ApproveStudent?.includes(student._id)) {
           } else {

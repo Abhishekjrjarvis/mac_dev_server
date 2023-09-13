@@ -1473,6 +1473,9 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               $lt: l_date,
             },
           },
+          {
+            refund_status: "No Refund",
+          },
         ],
       })
         .sort({ invoice_count: "1" })
@@ -1565,6 +1568,9 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               $gte: g_date,
               $lt: l_date,
             },
+          },
+          {
+            refund_status: "No Refund",
           },
         ],
       })

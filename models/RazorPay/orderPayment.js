@@ -100,6 +100,10 @@ const orderPaymentSchema = new mongoose.Schema({
   },
   razor_query: [],
   paytm_query: [],
+  payment_student: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Student",
+  },
   // payment_expense_by_end_user_id: {
   //   type: mongoose.Schema.Types.ObjectId,
   //   ref: "InstituteAdmin",

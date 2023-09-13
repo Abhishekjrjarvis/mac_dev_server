@@ -1906,6 +1906,8 @@ exports.renderApplicationCDNQuery = async (req, res) => {
     }
     student.application_print.push({
       value: results.Key,
+      flow: isApk ? "APK" : "WEB",
+      from: isApk ? true : false,
     });
     await student.save();
     res.status(200).send({

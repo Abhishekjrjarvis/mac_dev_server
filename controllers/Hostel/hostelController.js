@@ -100,70 +100,66 @@ const FeeMaster = require("../../models/Finance/FeeMaster");
 exports.renderActivateHostelQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { sid } = req.body
+    const { sid } = req.body;
     var institute = await InstituteAdmin.findById({ _id: id });
     var hostel = new Hostel({});
-    if(sid){
+    if (sid) {
       var staff = await Staff.findById({ _id: sid });
-    var user = await User.findById({ _id: `${staff.user}` });
-    var notify = new Notification({});
-    staff.hostelDepartment.push(hostel?._id);
-    staff.staffDesignationCount += 1;
-    staff.recentDesignation = "Hostel Manager";
-    staff.designation_array.push({
-      role: "Hostel Manager",
-      role_id: hostel?._id,
-    });
-    hostel.hostel_manager = staff._id;
-    notify.notifyContent = `you got the designation of as Hostel Manager`;
-    notify.notifySender = id;
-    notify.notifyReceiever = user._id;
-    notify.notifyCategory = "Hostel Designation";
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyByInsPhoto = institute._id;
-    await invokeFirebaseNotification(
-      "Designation Allocation",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
-    await Promise.all([
-      staff.save(),
-      user.save(),
-      notify.save(),
-      hostel.save()
-    ]);
-    designation_alarm(
-      user?.userPhoneNumber,
-      "HOSTEL",
-      institute?.sms_lang,
-      "",
-      "",
-      ""
-    );
-    if (user?.userEmail) {
-      email_sms_designation_alarm(
-        user?.userEmail,
+      var user = await User.findById({ _id: `${staff.user}` });
+      var notify = new Notification({});
+      staff.hostelDepartment.push(hostel?._id);
+      staff.staffDesignationCount += 1;
+      staff.recentDesignation = "Hostel Manager";
+      staff.designation_array.push({
+        role: "Hostel Manager",
+        role_id: hostel?._id,
+      });
+      hostel.hostel_manager = staff._id;
+      notify.notifyContent = `you got the designation of as Hostel Manager`;
+      notify.notifySender = id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Hostel Designation";
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByInsPhoto = institute._id;
+      await invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([
+        staff.save(),
+        user.save(),
+        notify.save(),
+        hostel.save(),
+      ]);
+      designation_alarm(
+        user?.userPhoneNumber,
         "HOSTEL",
         institute?.sms_lang,
         "",
         "",
         ""
       );
-    }
-    }
-    else{
-      hostel.hostel_manager = null
+      if (user?.userEmail) {
+        email_sms_designation_alarm(
+          user?.userEmail,
+          "HOSTEL",
+          institute?.sms_lang,
+          "",
+          "",
+          ""
+        );
+      }
+    } else {
+      hostel.hostel_manager = null;
     }
     institute.hostelDepart.push(hostel?._id);
     institute.hostelStatus = "Enable";
     hostel.institute = institute._id;
-    await Promise.all([
-      institute.save(),
-      hostel.save(),
-    ]);
+    await Promise.all([institute.save(), hostel.save()]);
     // const fEncrypt = await encryptionPayload(hostel._id);
     res.status(200).send({
       message: "Successfully Assigned Hostel Manager",
@@ -949,7 +945,7 @@ exports.renderHostelReceievedApplication = async (req, res) => {
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
-    student.student_join_mode = "HOSTEL_PROCESS"
+    student.student_join_mode = "HOSTEL_PROCESS";
     const apply = await NewApplication.findById({ _id: aid });
     const valid_unit = await HostelUnit.findById({
       _id: `${apply?.applicationUnit}`,
@@ -959,11 +955,15 @@ exports.renderHostelReceievedApplication = async (req, res) => {
     });
     const one_hostel = await Hostel.findById({
       _id: `${apply.hostelAdmin}`,
-    }).select("institute");
+    }).populate({
+      path: "hostel_manager",
+      select: "user",
+    });
     const institute = await InstituteAdmin.findById({
       _id: `${one_hostel?.institute}`,
     });
     const status = new Status({});
+    var notify = new StudentNotification({});
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
       : [];
@@ -1032,12 +1032,41 @@ Note: Stay tuned for further updates.`;
       institute.userFollowersList.push(uid);
       institute.followersCount += 1;
     }
+    notify.notifyContent = `Your application for ${valid_unit?.hostel_unit_name} have been filled successfully.
+
+Below is the Hostel Admission process:
+1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the hostel department)
+
+2.After selection, confirm from your side and start the hostel admission process.
+
+3.After confirmation from your side, visit the institute with the applicable fees. (You will get application fees information on your selection from the institute side. (Till then check our fee structures)
+
+4.Payment modes available for fee payment: 
+Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe, Google pay, Paytm)
+
+5.After submission and verification of documents, you are required to pay application hostel admission fees.
+
+6. Pay application admission fees and your hostel admission will be confirmed and complete.
+
+7. For cancellation and refund, contact the hostel department.
+
+Note: Stay tuned for further updates.`;
+    notify.notifySender = one_hostel?.hostel_manager?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByHostelPhoto = one_hostel?._id;
+    notify.notifyCategory = "Hostel Status Alert";
+    notify.redirectIndex = 59;
+    notify.notifyCategory = "Application Requested";
     await Promise.all([
       student.save(),
       user.save(),
       status.save(),
       apply.save(),
       institute.save(),
+      notify.save(),
     ]);
     res.status(201).send({
       message: "Taste a bite of sweets till your application is selected",
@@ -1298,7 +1327,10 @@ exports.renderHostelSelectedQuery = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid });
     const one_hostel = await Hostel.findById({
       _id: `${apply?.hostelAdmin}`,
-    }).select("institute");
+    }).populate({
+      path: "hostel_manager",
+      select: "user",
+    });
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     var structure = await FeeStructure.findById({ _id: fee_struct });
@@ -1306,6 +1338,7 @@ exports.renderHostelSelectedQuery = async (req, res) => {
       institute: one_hostel?.institute,
     });
     const status = new Status({});
+    var notify = new StudentNotification({});
     if (valid_month > 0 && valid_month <= 60 && valid_month !== 12) {
       var new_structure = new FeeStructure({
         category_master: structure?.category_master,
@@ -1360,12 +1393,27 @@ exports.renderHostelSelectedQuery = async (req, res) => {
 Your fee structure will be ${new_structure?.structure_name}. And required documents are 'click here for details'.   
 Start your admission process by confirming below.`;
       status.admissionFee = new_structure.total_admission_fees;
+      notify.notifyContent = `You have been selected for ${apply.applicationName}. 
+Your fee structure will be ${new_structure?.structure_name}. And required documents are 'click here for details'.   
+Start your admission process by confirming below.`;
     } else {
       status.content = `You have been selected for ${apply.applicationName}. 
 Your fee structure will be ${structure?.structure_name}. And required documents are 'click here for details'.   
 Start your admission process by confirming below.`;
       status.admissionFee = structure.total_admission_fees;
+      notify.notifyContent = `You have been selected for ${apply.applicationName}. 
+Your fee structure will be ${structure?.structure_name}. And required documents are 'click here for details'.   
+Start your admission process by confirming below.`;
     }
+    notify.notifySender = one_hostel?.hostel_manager?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByHostelPhoto = one_hostel?._id;
+    notify.notifyCategory = "Hostel Status Alert";
+    notify.redirectIndex = 58;
+    notify.notifyCategory = "Application Selection";
     status.instituteId = one_hostel?.institute;
     status.finance = finance?._id;
     status.document_visible = true;
@@ -1385,6 +1433,7 @@ Start your admission process by confirming below.`;
       student.save(),
       user.save(),
       status.save(),
+      notify.save(),
     ]);
     res.status(200).send({
       message: `congrats ${student.studentFirstName} `,
@@ -1418,6 +1467,9 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid });
     const one_hostel = await Hostel.findById({
       _id: `${apply.hostelAdmin}`,
+    }).populate({
+      path: "hostel_manager",
+      select: "user",
     });
     var institute = await InstituteAdmin.findById({
       _id: `${one_hostel?.institute}`,
@@ -1431,6 +1483,7 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
     });
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
+    const notify = new StudentNotification({});
     const order = new OrderPayment({});
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
@@ -1618,6 +1671,16 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
     renew.renewal_status = "Current Stay";
     renew.renewal_hostel = one_hostel?._id;
     student.student_renewal.push(renew?._id);
+    notify.notifyContent = `Your hostel has been confirmed, You will be alloted to your room / bed shortly, Stay Update!. Please visit hostel once to check sourroundings.`;
+    notify.notifySender = one_hostel?.hostel_manager?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByHostelPhoto = one_hostel?._id;
+    notify.notifyCategory = "Hostel Status Alert";
+    notify.redirectIndex = 57;
+    notify.notifyCategory = "Seat Confirmation";
     if (
       `${new_receipt?.fee_payment_mode}` === "Demand Draft" ||
       `${new_receipt?.fee_payment_mode}` === "Cheque"
@@ -1646,6 +1709,7 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
       new_receipt.save(),
       status.save(),
       renew.save(),
+      notify.save(),
     ]);
     res.status(200).send({
       message: "Look like a party mood",
@@ -1690,6 +1754,9 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid });
     const one_hostel = await Hostel.findById({
       _id: `${apply.hostelAdmin}`,
+    }).populate({
+      path: "hostel_manager",
+      select: "user",
     });
     const institute = await InstituteAdmin.findById({
       _id: `${one_hostel?.institute}`,
@@ -1698,6 +1765,7 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
       _id: `${institute?.financeDepart[0]}`,
     });
     const aStatus = new Status({});
+    const notify = new StudentNotification({});
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.refund_status = "Refunded";
     new_receipt.student = student?._id;
@@ -1768,6 +1836,16 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
+      notify.notifyContent = `your hostel admission has been cancelled successfully with refund of Rs. ${price}`;
+      notify.notifySender = one_hostel?.hostel_manager?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByHostelPhoto = one_hostel?._id;
+      notify.notifyCategory = "Hostel Status Alert";
+      notify.redirectIndex = 56;
+      notify.notifyCategory = "Cancellation & Refund";
       student.hostelRemainFeeCount = 0;
       student.refundAdmission.push({
         refund_status: "Refund",
@@ -1775,6 +1853,7 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
         refund_amount: price,
         refund_from: apply?._id,
       });
+
       const all_remain_fee_list = await RemainingList.findOne({
         $and: [
           { student: student?._id },
@@ -1846,6 +1925,7 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
         s_admin.save(),
         all_remain_fee_list.save(),
         new_receipt.save(),
+        notify.save(),
       ]);
       res.status(200).send({
         message: "Refund & Cancellation of Hostel Admission",
@@ -2011,6 +2091,9 @@ exports.renderAllotHostedBedQuery = async (req, res) => {
     var apply = await NewApplication.findById({ _id: aid });
     var one_hostel = await Hostel.findById({
       _id: `${apply.hostelAdmin}`,
+    }).populate({
+      path: "hostel_manager",
+      select: "user",
     });
     var institute = await InstituteAdmin.findById({
       _id: `${one_hostel?.institute}`,
@@ -2041,7 +2124,7 @@ exports.renderAllotHostedBedQuery = async (req, res) => {
           exist_stu[0].exist_linked_hostel.exist_student = student?._id;
           await exist_stu[0].save();
         }
-        const notify = new Notification({});
+        const notify = new StudentNotification({});
         const aStatus = new Status({});
         for (let app of apply.confirmedApplication) {
           if (`${app.student}` === `${student._id}`) {
@@ -2071,14 +2154,15 @@ exports.renderAllotHostedBedQuery = async (req, res) => {
         });
         // remain_list.batchId = batch?._id;
         apply.allotCount += 1;
-        notify.notifyContent = `Allotted Bed`;
-        notify.notifySender = one_hostel?._id;
-        notify.notifyReceiever = user._id;
-        institute.iNotify.push(notify._id);
-        notify.institute = institute._id;
-        user.uNotify.push(notify._id);
-        notify.user = user._id;
-        notify.notifyByStudentPhoto = student._id;
+        notify.notifyContent = `Welcome to ${room?.room_name} Enjoy your Hostel Life.`;
+        notify.notifySender = one_hostel?.hostel_manager?.user;
+        notify.notifyReceiever = user?._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = student?._id;
+        user.activity_tab.push(notify?._id);
+        notify.notifyByHostelPhoto = one_hostel?._id;
+        notify.notifyCategory = "Hostel Status Alert";
+        notify.redirectIndex = 55;
         notify.notifyCategory = "Bed Allottment";
         aStatus.content = `Welcome to ${room?.room_name} Enjoy your Hostel Life.`;
         aStatus.applicationId = apply._id;
@@ -2806,6 +2890,7 @@ const hostel_receipt_approve_query = async (
       appId: one_app._id,
     });
     const status = new Status({});
+    const notify = new StudentNotification({});
     const order = new OrderPayment({});
     order.payment_module_type = "Hostel Fees";
     order.payment_to_end_user_id = institute?._id;
@@ -2840,6 +2925,15 @@ const hostel_receipt_approve_query = async (
     renew.renewal_hostel = ads_admin?._id;
     student.student_renewal.push(renew?._id);
     order.fee_receipt = one_receipt?._id;
+    notify.notifyContent = `Your hostel has been confirmed, You will be alloted to your room / bed shortly, Stay Update!. Please visit hostel once to check sourroundings.`;
+    notify.notifySender = ads_admin?.hostel_manager?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByHostelPhoto = ads_admin?._id;
+    notify.notifyCategory = "Seat Confirmation";
+    notify.redirectIndex = 54;
     await Promise.all([
       ads_admin.save(),
       renew.save(),
@@ -2853,6 +2947,7 @@ const hostel_receipt_approve_query = async (
       new_remainFee.save(),
       one_receipt.save(),
       status.save(),
+      notify.save(),
     ]);
     invokeMemberTabNotification(
       "Admission Status",
@@ -4289,10 +4384,14 @@ exports.renderHostelCancelApplication = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid });
     const hostel_admin = await Hostel.findById({
       _id: `${apply?.hostelAdmin}`,
-    }).select("institute");
+    }).populate({
+      path: "hostel_manager",
+      select: "user",
+    });
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
+    const notify = new StudentNotification({});
     for (let app of apply.receievedApplication) {
       if (`${app.student}` === `${student._id}`) {
         apply.receievedApplication.pull(app._id);
@@ -4308,11 +4407,21 @@ exports.renderHostelCancelApplication = async (req, res) => {
     status.student = student?._id;
     user.applicationStatus.push(status._id);
     status.instituteId = hostel_admin?.institute;
+    notify.notifyContent = `You have been rejected for ${apply.applicationName}. Best of luck for next time `;
+    notify.notifySender = hostel_admin?.hostel_manager?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByHostelPhoto = hostel_admin?._id;
+    notify.notifyCategory = "Application Rejected";
+    notify.redirectIndex = 53;
     await Promise.all([
       apply.save(),
       student.save(),
       user.save(),
       status.save(),
+      notify.save(),
     ]);
     res.status(200).send({
       message: `Best of luck for next time 😥`,
@@ -5449,15 +5558,21 @@ exports.renderHostelPayMode = async (req, res) => {
     const user = await User.findById({ _id: `${student.user}` });
     const status = await Status.findById({ _id: statusId });
     const aStatus = new Status({});
+    const notify = new StudentNotification({});
     const apply = await NewApplication.findById({ _id: aid }).select(
       "selectedApplication hostelAdmin"
     );
     var admin_ins = await Hostel.findById({
       _id: `${apply?.hostelAdmin}`,
-    }).populate({
-      path: "institute",
-      select: "admissionDepart",
-    });
+    })
+      .populate({
+        path: "institute",
+        select: "admissionDepart",
+      })
+      .populate({
+        path: "hostel_manager",
+        select: "user",
+      });
     const institute = await InstituteAdmin.findById({
       _id: `${admin_ins?.institute?._id}`,
     });
@@ -5504,11 +5619,21 @@ exports.renderHostelPayMode = async (req, res) => {
     aStatus.applicationId = apply._id;
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
+    notify.notifyContent = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees or contact institute if neccessory`;
+    notify.notifySender = admin_ins?.hostel_manager?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByHostelPhoto = admin_ins?._id;
+    notify.notifyCategory = "Admission Hold";
+    notify.redirectIndex = 52;
     await Promise.all([
       status.save(),
       aStatus.save(),
       user.save(),
       admin_ins.save(),
+      notify.save(),
     ]);
     res.status(200).send({
       message: "Lets do some excercise visit institute",
@@ -6063,6 +6188,9 @@ exports.renderOneReceiptStatus = async (req, res) => {
       } else if (status === "Approved" || status === "Over_Rejection") {
         const ads_admin = await Hostel.findById({
           _id: `${one_app?.hostelAdmin}`,
+        }).populate({
+          path: "hostel_manager",
+          select: "user",
         });
         await hostel_receipt_approve_query(
           ads_admin,
@@ -6133,12 +6261,16 @@ exports.renderAdminSelectMode = async (req, res) => {
     );
     const student = await Student.findById({ _id: sid });
     const aStatus = new Status({});
+    const notify = new StudentNotification({});
     const status = await Status.findOne({
       $and: [{ _id: student?.active_status }, { applicationId: apply?._id }],
     });
     const user = await User.findById({ _id: `${student.user}` });
     var admin_ins = await Hostel.findById({
       _id: `${apply?.hostelAdmin}`,
+    }).populate({
+      path: "hostel_manager",
+      select: "user",
     });
     const institute = await InstituteAdmin.findById({
       _id: `${admin_ins?.institute}`,
@@ -6161,10 +6293,20 @@ exports.renderAdminSelectMode = async (req, res) => {
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
       // student.active_status.pull(status?._id);
+      notify.notifyContent = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees or contact institute if neccessory`;
+      notify.notifySender = admin_ins?.hostel_manager?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByHostelPhoto = admin_ins?._id;
+      notify.notifyCategory = "Admission Hold";
+      notify.redirectIndex = 52;
       await Promise.all([
         status.save(),
         aStatus.save(),
         user.save(),
+        notify.save(),
         // student.save(),
       ]);
       res.status(200).send({
@@ -6200,10 +6342,14 @@ exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid });
     var admission_admin = await Hostel.findById({
       _id: `${apply?.hostelAdmin}`,
-    }).select("institute");
+    }).populate({
+      path: "hostel_manager",
+      select: "user",
+    });
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
+    const notify = new StudentNotification({});
     const aStatus = await Status.findOne({
       $and: [{ _id: student?.active_status }, { applicationId: apply?._id }],
     });
@@ -6218,19 +6364,29 @@ exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
     }
     aStatus.isPaid = "Not Paid";
     aStatus.for_selection = "No";
-    status.content = `You admission is cancelled for ${apply.applicationName}. Due to no further activity `;
+    status.content = `Your hostel admission is cancelled for ${apply.applicationName}. Due to no further activity `;
     status.applicationId = apply._id;
     status.studentId = student._id;
     status.student = student?._id;
     user.applicationStatus.push(status._id);
     status.instituteId = admission_admin?.institute;
     // student.active_status.pull(aStatus?._id);
+    notify.notifyContent = `Your hostel admission is cancelled for ${apply.applicationName}. Due to no further activity`;
+    notify.notifySender = admission_admin?.hostel_manager?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByHostelPhoto = admission_admin?._id;
+    notify.notifyCategory = "Admission Cancellation";
+    notify.redirectIndex = 51;
     await Promise.all([
       apply.save(),
       // student.save(),
       user.save(),
       status.save(),
       aStatus.save(),
+      notify.save(),
     ]);
     res.status(200).send({
       message: `Best of luck for next time 😥`,
@@ -6474,7 +6630,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
-    student.student_join_mode = "HOSTEL_PROCESS"
+    student.student_join_mode = "HOSTEL_PROCESS";
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
       : [];
@@ -6719,7 +6875,7 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         studentGender: ref?.studentGender,
         studentDOB: ref?.studentDOB,
         studentPhoneNumber: ref?.studentPhoneNumber,
-        student_join_mode: "HOSTEL_PROCESS"
+        student_join_mode: "HOSTEL_PROCESS",
       });
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
@@ -7437,6 +7593,66 @@ exports.renderAllAppsQuery = async (req, res) => {
     }).select("applicationName");
 
     res.status(200).send({ message: "Explore All Apps", all: all });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const nested_function_app = async (arg) => {
+  var flag = false;
+  if (arg?.receievedApplication?.length > 0) {
+    flag = true;
+  } else if (arg?.selectedApplication?.length > 0) {
+    flag = true;
+  } else if (arg?.confirmedApplication?.length > 0) {
+    flag = true;
+  } else if (arg?.allottedApplication?.length > 0) {
+    flag = true;
+  } else if (arg?.cancelApplication?.length > 0) {
+    flag = true;
+  } else {
+    flag = false;
+  }
+  return flag;
+};
+
+exports.renderAppDeleteQuery = async (req, res) => {
+  try {
+    const { hid, appId } = req.params;
+    if (!appId && !hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately 😡",
+        access: false,
+      });
+    const ads_admin = await Hostel.findById({ _id: hid });
+    const ads_app = await NewApplication.findById({ _id: appId });
+    const institute = await InstituteAdmin.findById({
+      _id: `${ads_admin?.institute}`,
+    });
+    const flag_status = await nested_function_app(ads_app);
+    if (flag_status) {
+      res.status(200).send({
+        message:
+          "Deletion Operation Denied Some Student Already Applied for this Application 😥",
+        access: false,
+      });
+    } else {
+      ads_admin.newApplication.pull(ads_app?._id);
+      if (ads_admin?.newAppCount > 0) {
+        ads_admin.newAppCount -= 1;
+      }
+      if (institute.hostelCount > 0) {
+        institute.hostelCount -= 1;
+      }
+      await Promise.all([institute.save(), ads_admin.save()]);
+      if (ads_app?.applicationPhoto) {
+        await deleteFile(ads_app?.applicationPhoto);
+      }
+      await NewApplication.findByIdAndDelete(ads_app?._id);
+      res
+        .status(200)
+        .send({ message: "Deletion Operation Completed 😁", access: true });
+    }
   } catch (e) {
     console.log(e);
   }

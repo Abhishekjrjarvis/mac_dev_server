@@ -635,6 +635,7 @@ const studentSchema = new mongoose.Schema({
       },
       flow: { type: String },
       value: { type: String },
+      from: { type: String },
     },
   ],
   student_bona_message: {

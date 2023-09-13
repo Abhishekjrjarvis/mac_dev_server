@@ -352,4 +352,6 @@ router.get("/:hid/all/apps", catchAsync(Hostel.renderAllAppsQuery));
 //   catchAsync(Hostel.renderHostelAllAppsQuery)
 // );
 
+router.delete("/:hid/destroy/:appId", catchAsync(Hostel.renderAppDeleteQuery));
+
 module.exports = router;

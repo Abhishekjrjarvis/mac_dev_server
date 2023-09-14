@@ -431,10 +431,10 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           .populate({
             path: "payment_student",
             match: {
-              studentFirstName: { $regex: search, $options: "i" },
-              studentMiddleName: { $regex: search, $options: "i" },
-              studentLastName: { $regex: search, $options: "i" },
-              valid_full_name: { $regex: search, $options: "i" },
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
             },
             select:
               "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
@@ -566,10 +566,10 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           .populate({
             path: "payment_student",
             match: {
-              studentFirstName: { $regex: search, $options: "i" },
-              studentMiddleName: { $regex: search, $options: "i" },
-              studentLastName: { $regex: search, $options: "i" },
-              valid_full_name: { $regex: search, $options: "i" },
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
             },
             select:
               "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
@@ -720,10 +720,10 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           .populate({
             path: "payment_student",
             match: {
-              studentFirstName: { $regex: search, $options: "i" },
-              studentMiddleName: { $regex: search, $options: "i" },
-              studentLastName: { $regex: search, $options: "i" },
-              valid_full_name: { $regex: search, $options: "i" },
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
             },
             select:
               "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
@@ -865,10 +865,10 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           .populate({
             path: "payment_student",
             match: {
-              studentFirstName: { $regex: search, $options: "i" },
-              studentMiddleName: { $regex: search, $options: "i" },
-              studentLastName: { $regex: search, $options: "i" },
-              valid_full_name: { $regex: search, $options: "i" },
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
             },
             select:
               "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",

@@ -171,12 +171,13 @@ exports.renderAddNewLectureQuery = async (req, res) => {
     var valid_subject = await SubjectUpdate.findById({ _id: sid });
     // var all_topic = await ChapterTopic.find({ _id: { $in: arr } });
     for (var val of arr) {
-      var topic = await ChapterTopic.find({ _id: val?.topicId });
-      if (valid_subject?.daily_topic_list?.includes(`${topic?._id}`)) {
+      if (valid_subject?.daily_topic_list?.includes(`${val?.topicId}`)) {
       } else {
         if (val?.current_status === "Completed") {
           var valid_date = custom_date_time(0);
-          var valid_topic = await ChapterTopic.findById({ _id: topic?._id });
+          var valid_topic = await ChapterTopic.findById({
+            _id: `${val?.topicId}`,
+          });
           var subject = await Subject.findById({
             _id: `${valid_topic?.subject}`,
           });
@@ -195,7 +196,7 @@ exports.renderAddNewLectureQuery = async (req, res) => {
           }
           valid_topic.topic_current_status = "Completed";
           valid_subject.daily_topic.push({
-            topic: topic?._id,
+            topic: valid_topic?._id,
             status: rec_status,
             current_status: valid_topic.topic_completion_status,
           });

@@ -49,6 +49,7 @@ const subjectUpdateSchema = new mongoose.Schema({
       },
     },
   ],
+  daily_topic_list: [],
 });
 
 module.exports = mongoose.model("SubjectUpdate", subjectUpdateSchema);

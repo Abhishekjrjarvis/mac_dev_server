@@ -26,6 +26,7 @@ const {
 } = require("../../helper/functions");
 const Hostel = require("../../models/Hostel/hostel");
 const { handle_undefined } = require("../../Handler/customError");
+const Alumini = require("../../models/Alumini/Alumini");
 
 exports.photoEditByStaff = async (req, res) => {
   try {

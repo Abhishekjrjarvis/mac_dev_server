@@ -1487,6 +1487,7 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
     const order = new OrderPayment({});
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
+    new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
@@ -1769,6 +1770,7 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.refund_status = "Refunded";
     new_receipt.student = student?._id;
+    new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date();
@@ -2240,6 +2242,7 @@ exports.renderPaidRemainingFeeStudentQuery = async (req, res) => {
     var apply = await NewApplication.findById({ _id: appId });
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
+    new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
@@ -2528,6 +2531,7 @@ exports.renderPaidRemainingFeeStudentRefundBy = async (req, res) => {
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
     new_receipt.refund_status = "Refunded";
+    new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
@@ -3920,6 +3924,7 @@ exports.renderStudentGoOfflineHostelReceiptQuery = async (req, res) => {
       var receipt = new FeeReceipt({ ...req.body });
       receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
       receipt.student = student?._id;
+      receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
       receipt.application = apply?._id;
       receipt.finance = institute?.financeDepart[0];
       if (ads_admin?.request_array?.includes(`${receipt?._id}`)) {
@@ -4640,6 +4645,7 @@ exports.renderPayOfflineHostelFeeRenewal = async (req, res) => {
     old_renew.renewal_status = "Current Stay";
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
+    new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     new_receipt.application = apply?._id;
     new_receipt.unit = one_unit?._id;
@@ -5018,6 +5024,7 @@ exports.renderCancelHostelRefundRenewalApplicationQuery = async (req, res) => {
     new_receipt.refund_status = "Refunded";
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
+    new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
     new_receipt.unit = one_unit?._id;
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date();
@@ -5419,6 +5426,7 @@ exports.renderHostelPayModeRenewal = async (req, res) => {
       var receipt = new FeeReceipt({ ...req.body });
       receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
       receipt.student = student?._id;
+      receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
       receipt.application = apply?._id;
       // receipt.app_status = status?._id;
       renew.receipt = receipt?._id;
@@ -5595,6 +5603,7 @@ exports.renderHostelPayMode = async (req, res) => {
       receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
       receipt.student = student?._id;
       receipt.application = apply?._id;
+      receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
       receipt.app_status = status?._id;
       status.receipt = receipt?._id;
       receipt.finance = institute?.financeDepart[0];
@@ -6582,6 +6591,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
     new_receipt.fee_transaction_date = new Date(
       `${req.body?.transaction_date}`
     );
+    new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
     const ons_hostel = await Hostel.findById({
       _id: `${apply.hostelAdmin}`,
     });
@@ -6859,6 +6869,7 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         fee_payment_mode: ref?.fee_payment_mode,
         fee_transaction_date: ref?.fee_transaction_date,
       });
+      new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
       const ons_hostel = await Hostel.findById({
         _id: hid,
       });

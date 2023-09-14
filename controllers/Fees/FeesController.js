@@ -196,6 +196,7 @@ exports.feesPaidByStudent = async (req, res) => {
           new_receipt.fee_payment_amount = new_internal?.internal_fee_amount;
           new_receipt.fee_payment_mode = "Offline";
           new_receipt.student = student?._id;
+          new_receipt.receipt_generated_from = "BY_ClASS_TEACHER";
           new_receipt.fee_transaction_date = new Date();
           new_receipt.finance = finance?._id;
           new_receipt.invoice_count = order?.payment_invoice_number;

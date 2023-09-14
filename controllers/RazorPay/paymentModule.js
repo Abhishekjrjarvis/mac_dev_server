@@ -127,6 +127,7 @@ exports.feeInstituteFunction = async (
     var notify = new StudentNotification({});
     var new_receipt = new FeeReceipt({});
     new_receipt.fee_payment_amount = new_internal?.internal_fee_amount;
+    new_receipt.receipt_generated_from = "BY_CLASS_TEACHER";
     new_receipt.fee_payment_mode = "Payment Gateway - PG";
     new_receipt.student = student?._id;
     new_receipt.fee_transaction_date = new Date();
@@ -401,6 +402,7 @@ exports.admissionInstituteFunction = async (
         fee_payment_amount: parseInt(tx_amount_ad),
       });
       new_receipt.student = student?._id;
+      new_receipt.receipt_generated_from = "BY_ADMISSION";
       new_receipt.fee_transaction_date = new Date();
       new_receipt.application = apply?._id;
       new_receipt.finance = finance?._id;
@@ -647,6 +649,7 @@ exports.admissionInstituteFunction = async (
           fee_payment_amount: parseInt(tx_amount_ad),
         });
         new_receipt.student = student?._id;
+        new_receipt.receipt_generated_from = "BY_ADMISSION";
         new_receipt.fee_transaction_date = new Date();
         new_receipt.application = apply?._id;
         new_receipt.finance = finance?._id;
@@ -835,6 +838,7 @@ exports.admissionInstituteFunction = async (
       });
       new_receipt.student = student?._id;
       new_receipt.application = apply?._id;
+      new_receipt.receipt_generated_from = "BY_ADMISSION";
       new_receipt.finance = finance?._id;
       new_receipt.fee_transaction_date = new Date();
       const remaining_fee_lists = await RemainingList.findOne({
@@ -1334,6 +1338,7 @@ exports.backlogFunction = async (
     new_receipt.fee_payment_amount = new_internal?.internal_fee_amount;
     new_receipt.fee_payment_mode = "Payment Gateway - PG";
     new_receipt.student = student?._id;
+    new_receipt.receipt_generated_from = "BY_CLASS_TEACHER";
     new_receipt.fee_transaction_date = new Date();
     new_receipt.finance = finance?._id;
     new_receipt.invoice_count = orderPay?.payment_invoice_number;
@@ -1521,6 +1526,7 @@ exports.directAdmissionInstituteFunction = async (
     new_receipt.fee_transaction_date = new Date().toISOString();
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
+    new_receipt.receipt_generated_from = "BY_ADMISSION";
     order.payment_module_type = "Direct Admission Fees";
     order.payment_to_end_user_id = institute?._id;
     order.payment_by_end_user_id = user._id;
@@ -1777,6 +1783,7 @@ exports.libraryInstituteFunction = async (
     var notify = new StudentNotification({});
     var new_receipt = new FeeReceipt({});
     new_receipt.fee_payment_amount = new_internal?.internal_fee_amount;
+    new_receipt.receipt_generated_from = "BY_LIBRARIAN"
     new_receipt.fee_payment_mode = "Payment Gateway - PG";
     new_receipt.student = student?._id;
     new_receipt.fee_transaction_date = new Date();

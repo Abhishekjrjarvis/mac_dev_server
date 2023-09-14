@@ -132,6 +132,9 @@ const feeReceiptSchema = new mongoose.Schema({
   receipt_status: {
     type: String,
   },
+  receipt_generated_from: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

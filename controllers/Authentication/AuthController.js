@@ -2904,6 +2904,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     new_receipt.fee_transaction_date = new Date(
       `${req.body?.transaction_date}`
     );
+    new_receipt.receipt_generated_from = "BY_ADMISSION";
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
     });

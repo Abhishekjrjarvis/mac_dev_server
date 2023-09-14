@@ -102,4 +102,9 @@ router.patch(
   catchAsync(Filter.retrieveHostelPendingFeeFilterQuery)
 );
 
+router.get(
+  "/heads/by/:fid/receipt/hostel/query",
+  catchAsync(Filter.renderHostelFeeHeadsStructureReceiptQuery)
+);
+
 module.exports = router;

@@ -1660,6 +1660,7 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
       receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
       receipt.student = student?._id;
       receipt.application = apply?._id;
+      receipt.receipt_generated_from = "BY_ADMISSION";
       receipt.app_status = status?._id;
       status.receipt = receipt?._id;
       receipt.finance = institute?.financeDepart[0];
@@ -1726,6 +1727,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     new_receipt.student = student?._id;
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     new_receipt.application = apply?._id;
+    new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.finance = finance?._id;
     new_receipt.receipt_status = receipt_status
       ? receipt_status
@@ -2035,6 +2037,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
     new_receipt.refund_status = "Refunded";
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
+    new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date();
     if (
@@ -3028,6 +3031,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
+    new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     new_receipt.receipt_status = receipt_status
       ? receipt_status
@@ -3317,6 +3321,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     new_receipt.student = student?._id;
     new_receipt.refund_status = "Refunded";
     new_receipt.application = apply?._id;
+    new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     const notify = new StudentNotification({});
@@ -6152,6 +6157,7 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
+    new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findOne({
@@ -6471,6 +6477,7 @@ exports.renderStudentGoOfflineReceiptQuery = async (req, res) => {
       var receipt = new FeeReceipt({ ...req.body });
       receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
       receipt.student = student?._id;
+      receipt.receipt_generated_from = "BY_ADMISSION";
       receipt.application = apply?._id;
       receipt.finance = institute?.financeDepart[0];
       if (ads_admin?.request_array?.includes(`${receipt?._id}`)) {
@@ -7517,6 +7524,7 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         const new_receipt = new FeeReceipt({ ...req.body });
         new_receipt.student = student?._id;
         new_receipt.application = apply?._id;
+        new_receipt.receipt_generated_from = "BY_ADMISSION";
         new_receipt.finance = finance?._id;
         new_receipt.set_off_status = "Set Off";
         new_receipt.fee_transaction_date = new Date();
@@ -7852,6 +7860,7 @@ const auto_scholar_query = async (
     });
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
+    new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date();
     const notify = new StudentNotification({});
@@ -8424,6 +8433,7 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
       new_receipt.student = student?._id;
       new_receipt.application = apply?._id;
       new_receipt.finance = finance?._id;
+      new_receipt.receipt_generated_from = "BY_ADMISSION";
       new_receipt.fee_transaction_date = new Date(
         `${req.body.transaction_date}`
       );
@@ -8746,6 +8756,7 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
+    new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     const notify = new StudentNotification({});
     const valid_remain_list = await RemainingList.findById({

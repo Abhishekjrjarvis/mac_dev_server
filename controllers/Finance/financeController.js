@@ -65,10 +65,10 @@ const {
 exports.getFinanceDepart = async (req, res) => {
   try {
     const { id } = req.params;
-    const { sid } = req.body
+    const { sid } = req.body;
     var institute = await InstituteAdmin.findById({ _id: id });
     var finance = new Finance({});
-    if(sid){
+    if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });
       var notify = new Notification({});
@@ -102,7 +102,7 @@ exports.getFinanceDepart = async (req, res) => {
         staff.save(),
         user.save(),
         notify.save(),
-        finance.save()
+        finance.save(),
       ]);
       designation_alarm(
         user?.userPhoneNumber,
@@ -122,17 +122,13 @@ exports.getFinanceDepart = async (req, res) => {
           ""
         );
       }
-    }
-    else{
+    } else {
       finance.financeHead = null;
     }
     institute.financeDepart.push(finance._id);
     institute.financeStatus = "Enable";
     finance.institute = institute._id;
-    await Promise.all([
-      institute.save(),
-      finance.save(),
-    ]);
+    await Promise.all([institute.save(), finance.save()]);
     // const fEncrypt = await encryptionPayload(finance._id);
     res.status(200).send({
       message: "Successfully Assigned Staff",
@@ -140,7 +136,7 @@ exports.getFinanceDepart = async (req, res) => {
       status: true,
     });
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 };
 
@@ -2849,7 +2845,9 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
         });
       }
       if (req?.body?.unit_master) {
-        var unit_master = await HostelUnit.findById({ _id: `${req?.body?.unit_master}` });
+        var unit_master = await HostelUnit.findById({
+          _id: `${req?.body?.unit_master}`,
+        });
       }
       const batch_master = await Batch.findById({
         _id: `${req.body?.batch_master}`,
@@ -4171,6 +4169,7 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
     const new_receipt = new FeeReceipt({ ...req.body });
+    new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
     const order = new OrderPayment({});
     order.payment_module_type = "Expense";
     order.payment_to_end_user_id = institute?._id;
@@ -4524,6 +4523,7 @@ exports.renderFinanceOnePayrollMasterMarkPayExpenseQuery = async (req, res) => {
       _id: `${finance?.institute}`,
     });
     const new_receipt = new FeeReceipt({ ...req.body });
+    new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
     const expense = new Expense({});
     new_receipt.pay_master = one_master?._id;
     new_receipt.finance = finance?._id;

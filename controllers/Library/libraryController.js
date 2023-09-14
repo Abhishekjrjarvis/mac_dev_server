@@ -22,7 +22,6 @@ exports.activateLibrary = async (req, res) => {
   try {
     if (!req.params.id) throw "Please send institute id to perform task";
     const { sid } = req.body;
-    if (!sid) throw "Please send staff id to activate library head";
     var institute = await InstituteAdmin.findById(req.params.id);
     var library = new Library({
       institute: institute._id,
@@ -54,7 +53,12 @@ exports.activateLibrary = async (req, res) => {
         user._id,
         user.deviceToken
       );
-      await Promise.all([staff.save(), user.save(), notify.save(), library.save()]);
+      await Promise.all([
+        staff.save(),
+        user.save(),
+        notify.save(),
+        library.save(),
+      ]);
       designation_alarm(
         user?.userPhoneNumber,
         "LIBRARY",
@@ -81,9 +85,7 @@ exports.activateLibrary = async (req, res) => {
     await Promise.all([library.save(), institute.save()]);
     res.status(201).send({ message: "Library Head is assign", status: true });
   } catch (e) {
-    res.status(200).send({
-      message: e.message,
-    });
+    console.log(e);
   }
 };
 
@@ -431,6 +433,7 @@ exports.bookColletedByStaffSide = async (req, res) => {
     if (req.body?.paymentType === "Offline") {
       var order = new OrderPayment({});
       const new_receipt = new FeeReceipt({});
+      new_receipt.receipt_generated_from = "BY_LIBRARIAN";
       order.payment_module_type = "Library Fine";
       order.payment_to_end_user_id = institute?._id;
       order.payment_by_end_user_id = user._id;
@@ -904,6 +907,7 @@ exports.renderFineChargesCollectOfflineQuery = async (req, res) => {
     const user = await User.findById({ _id: `${student?.user}` });
     const book = await Book.findById({ _id: bid });
     const new_receipt = new FeeReceipt({});
+    new_receipt.receipt_generated_from = "BY_LIBRARIAN";
     const order = new OrderPayment({});
     order.payment_module_type = "Library Fine";
     order.payment_to_end_user_id = institute?._id;

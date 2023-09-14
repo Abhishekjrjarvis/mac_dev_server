@@ -350,6 +350,7 @@ exports.fee_reordering_direct_student = async (
         fee_payment_mode: "Offline",
         fee_payment_amount: price,
       });
+      new_receipt.receipt_generated_from = "BY_ADMISSION";
       var apply = await NewApplication.findById({ _id: ref?.appId });
       var admission = await Admission.findById({
         _id: `${apply?.admissionAdmin}`,
@@ -675,6 +676,7 @@ exports.fee_reordering_direct_student_payload = async (
                 fee_payment_mode: nest?.mode,
                 fee_payment_amount: nestPrice,
               });
+              new_receipt.receipt_generated_from = "BY_ADMISSION";
               new_receipt.student = student?._id;
               new_receipt.application = apply?._id;
               new_receipt.finance = finance?._id;
@@ -852,6 +854,7 @@ exports.fee_reordering_direct_student_payload = async (
                 fee_payment_mode: nest?.mode,
                 fee_payment_amount: nestPrice,
               });
+              new_receipt.receipt_generated_from = "BY_ADMISSION";
               new_receipt.student = student?._id;
               new_receipt.application = apply?._id;
               new_receipt.finance = finance?._id;
@@ -1064,6 +1067,7 @@ exports.fee_reordering_direct_student_payload_exist_query = async (
                 fee_payment_mode: nest?.mode,
                 fee_payment_amount: nestPrice,
               });
+              new_receipt.receipt_generated_from = "BY_ADMISSION";
               new_receipt.student = student?._id;
               new_receipt.application = apply?._id;
               new_receipt.finance = finance?._id;
@@ -1241,6 +1245,7 @@ exports.fee_reordering_direct_student_payload_exist_query = async (
                 fee_payment_mode: nest?.mode,
                 fee_payment_amount: nestPrice,
               });
+              new_receipt.receipt_generated_from = "BY_ADMISSION";
               new_receipt.student = student?._id;
               new_receipt.application = apply?._id;
               new_receipt.finance = finance?._id;

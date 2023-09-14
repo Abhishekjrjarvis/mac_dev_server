@@ -106,6 +106,7 @@ exports.hostelInstituteFunction = async (
         fee_payment_mode: "Payment Gateway / Online",
         fee_payment_amount: parseInt(tx_amount_ad),
       });
+      new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
       new_receipt.student = student?._id;
       new_receipt.fee_transaction_date = new Date();
       new_receipt.application = apply?._id;
@@ -339,6 +340,7 @@ exports.hostelInstituteFunction = async (
       });
       new_receipt.student = student?._id;
       new_receipt.application = apply?._id;
+      new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
       new_receipt.finance = finance?._id;
       new_receipt.fee_transaction_date = new Date();
       const remaining_fee_lists = await RemainingList.findById({
@@ -551,6 +553,7 @@ exports.directHostelInstituteFunction = async (
     new_receipt.fee_transaction_date = new Date().toISOString();
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
+    new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
     order.payment_module_type = "Direct Hostel Fees";
     order.payment_to_end_user_id = institute?._id;
     order.payment_by_end_user_id = user._id;

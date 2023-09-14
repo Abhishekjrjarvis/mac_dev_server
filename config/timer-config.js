@@ -36,9 +36,9 @@ exports.timerFunction = () => {
   setInterval(async () => {
     await outstanding_reminder_disable_query();
   }, 86400000);
-  setInterval(async () => {
-    await reset_receipt();
-  }, 86400);
+  // setInterval(async () => {
+  //   await reset_receipt();
+  // }, 86400);
   // setInterval(async () => {
   //   await renderRealTimeDailyUpdate();
   // }, 86400000);

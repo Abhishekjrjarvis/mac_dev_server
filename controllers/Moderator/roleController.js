@@ -798,11 +798,15 @@ exports.renderInstituteAllAppModeratorArray = async (req, res) => {
       var all_mods = await FinanceModerator.find({
         $and: [{ _id: { $in: institute?.moderator_role } }],
         $or: [{ access_role: { $regex: search, $options: "i" } }],
-      }).populate({
-        path: "access_staff",
-        select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
-      });
+      })
+        .populate({
+          path: "access_staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        })
+        .populate({
+          path: "academic_department",
+        });
     } else {
       var all_mods = await FinanceModerator.find({
         _id: { $in: institute?.moderator_role },
@@ -814,6 +818,9 @@ exports.renderInstituteAllAppModeratorArray = async (req, res) => {
           path: "access_staff",
           select:
             "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        })
+        .populate({
+          path: "academic_department",
         });
     }
     if (all_mods?.length > 0) {

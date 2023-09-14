@@ -924,6 +924,16 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
     default: "Normal",
   },
+  invoice_count_array: [
+    {
+      year: {
+        type: String,
+      },
+      last_count: {
+        type: String,
+      },
+    },
+  ],
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

@@ -508,4 +508,9 @@ router.delete("/:did/delete/structure", catchAsync(Finance.delete_structure));
 
 // router.patch("/update/alias", catchAsync(Finance.updateAlias));
 
+router.patch(
+  "/:fid/valid/bank/query/:aid",
+  catchAsync(Finance.renderValidBankQuery)
+);
+
 module.exports = router;

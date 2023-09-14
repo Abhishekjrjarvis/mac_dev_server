@@ -61,6 +61,7 @@ const {
   retro_student_heads_sequencing_query,
   retro_receipt_heads_sequencing_query,
 } = require("../../helper/Installment");
+const NewApplication = require("../../models/Admission/NewApplication");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -5067,6 +5068,70 @@ exports.renderSecondaryStructureQuery = async (req, res) => {
         message: "No New Secondary Fee Structure Query",
         access: false,
       });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderValidBankQuery = async (req, res) => {
+  try {
+    const { fid, aid } = req.params;
+    const { flow } = req.query;
+    if (!fid && !aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var finance = await Finance.findById({ _id: fid });
+    if (flow === "BY_DEPARTMENT") {
+      var apply = await NewApplication.findById({ _id: aid });
+      var valid_bank_depart = await BankAccount.find({
+        $and: [
+          { finance: finance?._id },
+          { departments: { $in: apply?.applicationDepartment } },
+        ],
+      });
+      res.status(200).send({
+        message: "Explore Valid New Department Bank Account",
+        access: true,
+        denied: valid_bank_depart ? false : true,
+      });
+    } else if (flow === "BY_HOSTEL") {
+      var apply = await NewApplication.findById({ _id: aid });
+      var valid_bank_hostel = await BankAccount.find({
+        $and: [{ finance: finance?._id }, { hostel: apply?.applicationHostel }],
+      });
+      res.status(200).send({
+        message: "Explore Valid New Hostel Bank Account",
+        access: true,
+        denied: valid_bank_hostel ? false : true,
+      });
+    } else if (flow === "BY_LIBRARY") {
+      var apply = await Library.findById({ _id: aid });
+      var valid_bank_library = await BankAccount.find({
+        $and: [{ finance: finance?._id }, { library: apply?._id }],
+      });
+      res.status(200).send({
+        message: "Explore Valid New Library Bank Account",
+        access: true,
+        denied: valid_bank_library ? false : true,
+      });
+    } else if (flow === "BY_TRANSPORT") {
+      var apply = await Transport.findById({ _id: aid });
+      var valid_bank_trans = await BankAccount.find({
+        $and: [{ finance: finance?._id }, { transport: apply?._id }],
+      });
+      res.status(200).send({
+        message: "Explore Valid New Transport Bank Account",
+        access: true,
+        denied: valid_bank_trans ? false : true,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "Invalid Flow", access: false, denied: true });
     }
   } catch (e) {
     console.log(e);

@@ -13,6 +13,7 @@ const StudentNotification = require("../../models/Marks/StudentNotification");
 const ChapterTopic = require("../../models/Academics/ChapterTopic");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { dailyUpdateTimer } = require("../../Service/close");
+const { custom_date_time } = require("../../helper/dayTimer");
 
 exports.getAlldailyUpdate = async (req, res) => {
   try {
@@ -82,6 +83,28 @@ exports.createDailyUpdate = async (req, res) => {
         status: rec_status,
         current_status: val?.current_status,
       });
+      if (val?.current_status === "Completed") {
+        var valid_date = custom_date_time(0);
+        var valid_topic = await ChapterTopic.findById({ _id: val?.topicId });
+        var subject_date = await Subject.findById({
+          _id: `${valid_topic?.subject}`,
+        });
+        if (`${valid_topic?.topic_last_date}` < `${valid_date}`) {
+          valid_topic.topic_completion_status = "Delayed Completed";
+          valid_topic.topic_completion_date = new Date();
+          subject_date.topic_count_bifurgate.delayed += 1;
+        } else if (`${valid_topic?.topic_last_date}` > `${valid_date}`) {
+          valid_topic.topic_completion_status = "Early Completed";
+          valid_topic.topic_completion_date = new Date();
+          subject_date.topic_count_bifurgate.early += 1;
+        } else {
+          valid_topic.topic_completion_status = "Timely Completed";
+          valid_topic.topic_completion_date = new Date();
+          subject_date.topic_count_bifurgate.timely += 1;
+        }
+        valid_topic.topic_current_status = "Completed";
+        await Promise.all([valid_topic.save(), subject_date.save()]);
+      }
       if (`${rec_status}` === "Lecture") {
         subject.lecture_analytic.lecture_complete += 1;
       } else if (`${rec_status}` === "Practical") {

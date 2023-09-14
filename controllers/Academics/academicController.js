@@ -180,6 +180,28 @@ exports.renderAddNewLectureQuery = async (req, res) => {
             status: rec_status,
             current_status: val?.current_status,
           });
+          if (val?.current_status === "Completed") {
+            var valid_date = custom_date_time(0);
+            var valid_topic = await ChapterTopic.findById({ _id: topic?._id });
+            var subject = await Subject.findById({
+              _id: `${valid_topic?.subject}`,
+            });
+            if (`${valid_topic?.topic_last_date}` < `${valid_date}`) {
+              valid_topic.topic_completion_status = "Delayed Completed";
+              valid_topic.topic_completion_date = new Date();
+              subject.topic_count_bifurgate.delayed += 1;
+            } else if (`${valid_topic?.topic_last_date}` > `${valid_date}`) {
+              valid_topic.topic_completion_status = "Early Completed";
+              valid_topic.topic_completion_date = new Date();
+              subject.topic_count_bifurgate.early += 1;
+            } else {
+              valid_topic.topic_completion_status = "Timely Completed";
+              valid_topic.topic_completion_date = new Date();
+              subject.topic_count_bifurgate.timely += 1;
+            }
+            valid_topic.topic_current_status = "Completed";
+            await Promise.all([valid_topic.save(), subject.save()]);
+          }
         }
       }
       if (`${rec_status}` === "Lecture") {

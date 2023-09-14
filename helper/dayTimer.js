@@ -312,3 +312,15 @@ exports.custom_date_time_birthday = (arg) => {
   const date_pattern = `-${month}-${day}`;
   return date_pattern;
 };
+
+exports.custom_date_time_receipt = (arg) => {
+  const date = new Date(new Date());
+  date.setDate(date.getDate() + arg);
+  var month = date.getMonth() + 1;
+  var year = date.getFullYear();
+  if (month < 10) {
+    month = `0${month}`;
+  }
+  const date_pattern = `${year}-${month}`;
+  return date_pattern;
+};

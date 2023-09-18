@@ -7249,8 +7249,8 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       $and: [
         { student: one_student?._id },
         { application: one_app?._id },
-        { fee_structure: old_fee_struct }
-      ]
+        { fee_structure: old_fee_struct },
+      ],
     });
     const all_receipts = await FeeReceipt.find({
       $and: [
@@ -7314,16 +7314,16 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
             } else {
               // console.log(one_remain_list?.remaining_fee)
               // if(parseInt(new_struct?.total_installments) >= parseInt(old_struct?.total_admission_fees)){
-                await set_retro_installment(
-                  institute,
-                  new_struct,
-                  one_app,
-                  one_remain_list
-                );
+              await set_retro_installment(
+                institute,
+                new_struct,
+                one_app,
+                one_remain_list
+              );
               // }
               // else{
 
-              }
+              // }
             }
           }
         } else if (

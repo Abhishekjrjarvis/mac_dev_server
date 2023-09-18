@@ -7262,12 +7262,15 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
     // if (one_remain_list?.status === "Not Paid") {
     if (one_remain_list?.paid_fee <= 0) {
       one_remain_list.remaining_array = [];
+      var direct_structure = {
+        fee_structure: new_struct
+      }
       await add_all_installment_zero(
         one_app,
         institute?._id,
         one_remain_list,
-        one_student?.fee_structure?.total_admission_fees,
-        one_student
+        new_struct?.fee_structure?.total_admission_fees,
+        direct_structure
       );
     } else {
       if (

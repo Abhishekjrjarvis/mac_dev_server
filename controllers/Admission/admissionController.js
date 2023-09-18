@@ -7266,6 +7266,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         one_app,
         institute?._id,
         one_remain_list,
+        one_student?.fee_structure?.total_admission_fees,
         one_student
       );
     } else {

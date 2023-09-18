@@ -1756,7 +1756,7 @@ exports.set_retro_installment = async (
     for (var ref of remain_args?.remaining_array) {
       var index = remain_args?.remaining_array?.indexOf(ref);
       // console.log("REFERENCE", ref);
-      console.log("Index", index)
+      console.log("Index", index);
       if (
         ref?.installmentValue === results[`key${index}`] &&
         ref?.status === "Not Paid"
@@ -1780,16 +1780,13 @@ exports.set_retro_installment = async (
           ref.remainAmount = remain_args.remaining_fee;
         }
         console.log("Installment Bug After", ref.remainAmount);
-      }
-      else{
-        if(ref?.status === "Not Paid"){
-        if(ref?.installmentValue === "Installment Remain"){
-
+      } else {
+        if (ref?.status === "Not Paid") {
+          if (ref?.installmentValue === "Installment Remain") {
+          } else {
+            remain_args.remaining_array.pull(ref);
+          }
         }
-        else{
-          remain_args.remaining_array.pull(ref)
-        }
-      }
       }
       // else {
       //   if (remain_args.remaining_fee > 0) {
@@ -1836,7 +1833,7 @@ exports.lookup_applicable_grant = async (
   }
 };
 
-exports.add_all_installment_zero = async (arg1, arg2, arg3, arg4) => {
+exports.add_all_installment_zero = async (arg1, arg2, arg3, amount, arg4) => {
   try {
     if (arg4?.fee_structure.one_installments.fees > 0) {
       arg3.remaining_array.push({

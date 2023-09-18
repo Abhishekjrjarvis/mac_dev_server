@@ -1782,12 +1782,14 @@ exports.set_retro_installment = async (
         console.log("Installment Bug After", ref.remainAmount);
       }
       else{
+        if(ref?.status === "Not Paid"){
         if(ref?.installmentValue === "Installment Remain"){
 
         }
         else{
           remain_args.remaining_array.pull(ref)
         }
+      }
       }
       // else {
       //   if (remain_args.remaining_fee > 0) {

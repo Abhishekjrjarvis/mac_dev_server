@@ -7253,11 +7253,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       ],
     });
     const all_receipts = await FeeReceipt.find({
-      $and: [
-        { student: one_student?._id },
-        { application: one_app?._id },
-        { fee_flow: "FEE_HEADS" },
-      ],
+      _id: { $in: one_remain_list?.fee_receipts}
     });
     // if (one_remain_list?.status === "Not Paid") {
     if (one_remain_list?.paid_fee <= 0) {

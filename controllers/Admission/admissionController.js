@@ -7245,8 +7245,12 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
     var one_app = await NewApplication.findById({ _id: appId });
     var old_struct = await FeeStructure.findById({ _id: old_fee_struct });
     var new_struct = await FeeStructure.findById({ _id: new_fee_struct });
-    var one_remain_list = await RemainingList.findById({
-      _id: rid,
+    var one_remain_list = await RemainingList.findOne({
+      $and: [
+        { student: one_student?._id },
+        { application: one_app?._id },
+        { fee_structure: old_fee_struct }
+      ]
     });
     const all_receipts = await FeeReceipt.find({
       $and: [

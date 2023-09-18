@@ -1597,7 +1597,7 @@ exports.set_fee_head_query_retro = async (
   direct_args
 ) => {
   try {
-    console.log("Enter Fee Retro Heads")
+    console.log("Enter Fee Retro Heads");
     var student_args = await Student.findById({
       _id: `${student?._id}`,
     }).populate({
@@ -1690,7 +1690,7 @@ exports.set_fee_head_query_retro = async (
     }
     await student_args.save();
     price_query = 0;
-    console.log("Exit Fee Retro Heads")
+    console.log("Exit Fee Retro Heads");
   } catch (e) {
     console.log(e);
   }
@@ -1764,7 +1764,7 @@ exports.set_retro_installment = async (
         ref?.status === "Not Paid"
       ) {
         console.log("Inner Ref", results[`key${index}`]);
-        ref.remainAmount +=
+        ref.remainAmount =
           remain_args.remaining_fee >= ref.remainAmount
             ? remain_args.remaining_fee - ref?.remainAmount
             : ref.remainAmount;

@@ -7253,14 +7253,14 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       ],
     });
     const all_receipts = await FeeReceipt.find({
-      _id: { $in: one_remain_list?.fee_receipts}
+      _id: { $in: one_remain_list?.fee_receipts },
     });
     // if (one_remain_list?.status === "Not Paid") {
     if (one_remain_list?.paid_fee <= 0) {
       one_remain_list.remaining_array = [];
       var direct_structure = {
-        fee_structure: new_struct
-      }
+        fee_structure: new_struct,
+      };
       await add_all_installment_zero(
         one_app,
         institute?._id,
@@ -7271,11 +7271,13 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       one_remain_list.applicable_fee = new_struct?.total_admission_fees;
       one_remain_list.remaining_fee =
         new_struct?.total_admission_fees - one_remain_list?.paid_fee;
-        one_remain_list.fee_structure = new_struct?._id;
-        one_student.fee_structure = new_struct?._id;
-        one_student.admissionRemainFeeCount += one_remain_list?.remaining_fee;
-        await Promise.all([ one_remain_list.save(), one_student.save() ])
-        res.status(200).send({ message: "Zero Paid Fees Structure Edited", access: true})
+      one_remain_list.fee_structure = new_struct?._id;
+      one_student.fee_structure = new_struct?._id;
+      one_student.admissionRemainFeeCount += one_remain_list?.remaining_fee;
+      await Promise.all([one_remain_list.save(), one_student.save()]);
+      res
+        .status(200)
+        .send({ message: "Zero Paid Fees Structure Edited", access: true });
     } else {
       if (
         new_struct?.total_admission_fees >= old_struct?.total_admission_fees
@@ -7367,17 +7369,6 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
           one_app,
           all_receipts
         );
-        for (var ref of all_receipts) {
-          for (var ele of ref?.fee_heads) {
-            if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
-              // console.log("Pull");
-              ref.fee_heads.pull(ele?._id);
-            } else {
-              // console.log("Push with some bugs");
-            }
-          }
-          await ref.save();
-        }
         if (one_remain_list?.remaining_fee > 0) {
           one_remain_list.status = "Not Paid";
         } else {
@@ -7473,17 +7464,6 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
           one_app,
           all_receipts
         );
-        for (var ref of all_receipts) {
-          for (var ele of ref?.fee_heads) {
-            if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
-              // console.log("Pull");
-              ref.fee_heads.pull(ele?._id);
-            } else {
-              // console.log("Push with some bugs");
-            }
-          }
-          await ref.save();
-        }
       }
       await Promise.all([
         one_remain_list.save(),
@@ -7499,6 +7479,17 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         }
       }
       await one_remain_list.save();
+      for (var ref of all_receipts) {
+        for (var ele of ref?.fee_heads) {
+          if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
+            // console.log("Pull");
+            ref.fee_heads.pull(ele?._id);
+          } else {
+            // console.log("Push with some bugs");
+          }
+        }
+        await ref.save();
+      }
     }
     // } else {
     //   res

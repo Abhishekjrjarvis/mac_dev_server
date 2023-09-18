@@ -96,6 +96,7 @@ const { all_upper_case_query } = require("../../FormatCase/UpperCase");
 const { all_lower_case_query } = require("../../FormatCase/LowerCase");
 const { all_title_case_query } = require("../../FormatCase/TitleCase");
 const { all_new_designation_query } = require("../../Designation/functions");
+const { nested_document_limit } = require("../../helper/databaseFunction");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -2148,9 +2149,61 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         user.deviceToken
       );
     }
+    valid_staff.student_message.push({
+      message: `${message}`,
+      student_list: [...filtered_arr],
+      student_list_count: filtered_arr?.length,
+      message_type: `${type}`,
+    });
+    await valid_staff.save();
     res
       .status(200)
       .send({ message: "Explore Filtered Message Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllFilteredMessageQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var valid_staff = await Staff.findById({ _id: sid })
+      .select("student_message")
+      .populate({
+        path: "student_message",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name",
+        },
+      });
+
+    var all_message = await nested_document_limit(
+      page,
+      limit,
+      valid_staff?.student_message
+    );
+
+    if (all_message?.length > 0) {
+      res.status(200).send({
+        message: "Explore New All Message Query",
+        access: true,
+        all_message: all_message,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New All Message Query",
+        access: false,
+        all_message: [],
+      });
+    }
   } catch (e) {
     console.log(e);
   }

@@ -1825,7 +1825,7 @@ exports.lookup_applicable_grant = async (
   }
 };
 
-exports.add_all_installment_zero = async (arg1, arg2, arg3, amount, arg4) => {
+exports.add_all_installment_zero = async (arg1, arg2, arg3, arg4) => {
   try {
     if (arg4?.fee_structure.one_installments.fees > 0) {
       arg3.remaining_array.push({

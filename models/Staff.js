@@ -398,6 +398,30 @@ const staffSchema = new mongoose.Schema({
       ref: "Batch",
     },
   ],
+  student_message: [
+    {
+      message: {
+        type: String,
+      },
+      student_list: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Student",
+        },
+      ],
+      created_at: {
+        type: Date,
+        default: Date.now,
+      },
+      student_list_count: {
+        type: Number,
+        default: 0,
+      },
+      message_type: {
+        type: String,
+      },
+    },
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

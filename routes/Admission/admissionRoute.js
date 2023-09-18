@@ -181,8 +181,12 @@ router.post(
 // Mark App Complete
 router.patch(
   "/:aid/application/complete",
-  // isLoggedIn,
   catchAsync(Admission.completeAdmissionApplication)
+);
+
+router.patch(
+  "/:aid/application/incomplete",
+  catchAsync(Admission.inCompleteAdmissionApplication)
 );
 
 // Remaining Fee List
@@ -580,5 +584,7 @@ router.post(
   // isLoggedIn,
   catchAsync(Admission.retrieveAdmissionReceievedValidApplicationQuery)
 );
+
+router.patch("/all/order", catchAsync(Admission.renderAllOrderQuery));
 
 module.exports = router;

@@ -293,6 +293,11 @@ router.patch(
   catchAsync(Extra.renderFilteredMessageQuery)
 );
 
+router.get(
+  "/all/filtered/message/:sid/query",
+  catchAsync(Extra.renderAllFilteredMessageQuery)
+);
+
 router.patch(
   "/send/birthday/content/query",
   catchAsync(Extra.renderBirthdaySurpriseQuery)

@@ -135,6 +135,10 @@ const feeReceiptSchema = new mongoose.Schema({
   receipt_generated_from: {
     type: String,
   },
+  receipt_edited_status: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

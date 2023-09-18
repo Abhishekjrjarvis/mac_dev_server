@@ -1597,6 +1597,7 @@ exports.set_fee_head_query_retro = async (
   direct_args
 ) => {
   try {
+    console.log("Enter Fee Retro Heads")
     var student_args = await Student.findById({
       _id: `${student?._id}`,
     }).populate({
@@ -1689,6 +1690,7 @@ exports.set_fee_head_query_retro = async (
     }
     await student_args.save();
     price_query = 0;
+    console.log("Exit Fee Retro Heads")
   } catch (e) {
     console.log(e);
   }

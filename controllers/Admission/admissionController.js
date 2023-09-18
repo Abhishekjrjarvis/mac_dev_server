@@ -7313,12 +7313,17 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
               }
             } else {
               // console.log(one_remain_list?.remaining_fee)
-              await set_retro_installment(
-                institute,
-                new_struct,
-                one_app,
-                one_remain_list
-              );
+              // if(parseInt(new_struct?.total_installments) >= parseInt(old_struct?.total_admission_fees)){
+                await set_retro_installment(
+                  institute,
+                  new_struct,
+                  one_app,
+                  one_remain_list
+                );
+              // }
+              // else{
+
+              }
             }
           }
         } else if (

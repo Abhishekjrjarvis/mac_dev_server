@@ -7272,6 +7272,14 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         new_struct?.fee_structure?.total_admission_fees,
         direct_structure
       );
+      one_remain_list.applicable_fee = new_struct?.total_admission_fees;
+      one_remain_list.remaining_fee =
+        new_struct?.total_admission_fees - one_remain_list?.paid_fee;
+        one_remain_list.fee_structure = new_struct?._id;
+        one_student.fee_structure = new_struct?._id;
+        one_student.admissionRemainFeeCount += one_remain_list?.remaining_fee;
+        await Promise.all([ one_remain_list.save(), one_student.save() ])
+        res.status(200).send({ message: "Zero Paid Fees Structure Edited", access: true})
     } else {
       if (
         new_struct?.total_admission_fees >= old_struct?.total_admission_fees

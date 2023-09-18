@@ -1755,17 +1755,18 @@ exports.set_retro_installment = async (
     var results = await buildObject(arr_query);
     for (var ref of remain_args?.remaining_array) {
       var index = remain_args?.remaining_array?.indexOf(ref);
-      console.log("REFERENCE", ref);
+      // console.log("REFERENCE", ref);
+      console.log("Index", index)
       if (
         ref?.installmentValue === results[`key${index}`] &&
         ref?.status === "Not Paid"
       ) {
-        console.log("Inner Ref", ref);
+        console.log("Inner Ref", results[`key${index}`]);
         ref.remainAmount +=
           remain_args.remaining_fee >= ref.remainAmount
             ? remain_args.remaining_fee - ref?.remainAmount
             : ref.remainAmount;
-        console.log("results Bug", ref.remainAmount);
+        // console.log("results Bug", ref.remainAmount);
       } else if (
         ref?.installmentValue === "Installment Remain" &&
         ref?.status === "Not Paid"
@@ -1779,6 +1780,14 @@ exports.set_retro_installment = async (
           ref.remainAmount = remain_args.remaining_fee;
         }
         console.log("Installment Bug After", ref.remainAmount);
+      }
+      else{
+        if(ref?.installmentValue === "Installment Remain"){
+
+        }
+        else{
+          remain_args.remaining_array.pull(ref)
+        }
       }
       // else {
       //   if (remain_args.remaining_fee > 0) {

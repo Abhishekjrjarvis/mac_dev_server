@@ -7367,6 +7367,17 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
           one_app,
           all_receipts
         );
+        for (var ref of all_receipts) {
+          for (var ele of ref?.fee_heads) {
+            if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
+              // console.log("Pull");
+              ref.fee_heads.pull(ele?._id);
+            } else {
+              // console.log("Push with some bugs");
+            }
+          }
+          await ref.save();
+        }
         if (one_remain_list?.remaining_fee > 0) {
           one_remain_list.status = "Not Paid";
         } else {
@@ -7462,6 +7473,17 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
           one_app,
           all_receipts
         );
+        for (var ref of all_receipts) {
+          for (var ele of ref?.fee_heads) {
+            if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
+              // console.log("Pull");
+              ref.fee_heads.pull(ele?._id);
+            } else {
+              // console.log("Push with some bugs");
+            }
+          }
+          await ref.save();
+        }
       }
       await Promise.all([
         one_remain_list.save(),
@@ -7477,17 +7499,6 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         }
       }
       await one_remain_list.save();
-      for (var ref of all_receipts) {
-        for (var ele of ref?.fee_heads) {
-          if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
-            // console.log("Pull");
-            ref.fee_heads.pull(ele?._id);
-          } else {
-            // console.log("Push with some bugs");
-          }
-        }
-        await ref.save();
-      }
     }
     // } else {
     //   res

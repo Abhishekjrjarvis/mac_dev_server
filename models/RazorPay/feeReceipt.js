@@ -40,6 +40,7 @@ const feeReceiptSchema = new mongoose.Schema({
   },
   invoice_count: {
     type: String,
+    unique: true,
   },
   app_status: {
     type: mongoose.Schema.Types.ObjectId,

@@ -7245,13 +7245,14 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
     var one_app = await NewApplication.findById({ _id: appId });
     var old_struct = await FeeStructure.findById({ _id: old_fee_struct });
     var new_struct = await FeeStructure.findById({ _id: new_fee_struct });
-    var one_remain_list = await RemainingList.findOne({
-      $and: [
-        { student: one_student?._id },
-        { application: one_app?._id },
-        { fee_structure: old_fee_struct },
-      ],
+    var one_remain_list = await RemainingList.findById({
+      _id: rid
     });
+    // $and: [
+      //   { student: one_student?._id },
+      //   { application: one_app?._id },
+      //   { fee_structure: old_fee_struct },
+      // ],
     const all_receipts = await FeeReceipt.find({
       _id: { $in: one_remain_list?.fee_receipts },
     });
@@ -9880,44 +9881,42 @@ exports.renderFeeHeadsQuery = async (req, res) => {
   }
 };
 
-exports.renderFindReceiptQuery = async (req, res) => {
+exports.renderFindReceiptQuery = async () => {
   try {
-    const { id } = req.params;
-    var ins = await InstituteAdmin.findById({ _id: id });
+    var arr = ["6449c83598fec071fbffd3ad"]
+    for(var ref of arr){
+      var ins = await InstituteAdmin.findById({ _id: `${ref}` });
     var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    const g_date = new Date(`2023-09-05T00:00:00.000Z`);
-    const l_date = new Date(`2023-09-13T00:00:00.000Z`);
+    const g_date = new Date(`2023-09-01T00:00:00.000Z`);
+    const l_date = new Date(`2023-10-01T00:00:00.000Z`);
     var receipt = await FeeReceipt.find({
       $and: [
         {
           finance: finance?._id,
         },
+        {
+          created_at: {
+            $gte: g_date,
+            $lte: l_date,
+          },
+        },
       ],
+    }).populate({
+      path: "order_history",
     });
-    var arr = [];
+    var num = 0;
     for (var ref of receipt) {
-      // var student = await Student.findById({ _id: `${ref?.student}` }).populate(
-      //   {
-      //     path: "remainingFeeList",
-      //   }
-      // );
-      var remain = await RemainingList.find({
-        student: `${ref?.student}`,
-      }).populate({
-        path: "student",
-        select: "valid_full_name",
-      });
-      for (var ele of remain) {
-        if (`${ele?.appId}` != `${ref?.application}`) {
-          arr.push({
-            name: ele?.student?.valid_full_name,
-            id: ele?.student?._id,
-          });
-        }
+      ref.invoice_count = `92023${num + 1}`;
+      if (ref?.order_history) {
+        ref.order_history.payment_invoice_number = `${ref.invoice_count}`;
+        await ref.order_history.save();
       }
+      await ref.save();
+      num += 1;
     }
-
-    res.status(200).send({ message: "Explore", access: true, arr: arr });
+    }
+    
+    // res.status(200).send({ message: "Explore New Fee Receipt", access: true });
   } catch (e) {
     console.log(e);
   }

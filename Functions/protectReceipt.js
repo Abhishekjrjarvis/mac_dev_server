@@ -9,7 +9,7 @@ exports.fail_safe_receipt = async (inc) => {
     if (valid_receipt?.length > 0) {
       return { fail_safe: false, skip: valid_receipt?.length };
     } else {
-      return { fail_safe: true, skip: valid_receipt?.length };
+      return { fail_safe: true, skip: 0 };
     }
   } catch (e) {
     console.log(e);

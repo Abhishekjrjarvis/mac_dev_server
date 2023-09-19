@@ -3823,9 +3823,9 @@ exports.retrieveClassSubject = async (req, res) => {
         select:
           "subjectName subjectTitle subjectStatus subjectOptional topic_count_bifurgate topic_count lecture_analytic practical_analytic tutorial_analytic",
         populate: {
-          path: "subjectTeacherName",
+          path: "subjectTeacherName selected_batch_query",
           select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto batchName batchStatus",
         },
       })
       .lean()

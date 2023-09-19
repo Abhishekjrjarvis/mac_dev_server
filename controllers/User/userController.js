@@ -879,6 +879,14 @@ exports.getAllUserActivity = async (req, res) => {
         },
       })
       .populate({
+        path: "notifyByHostelPhoto",
+        select: "coverId cover institute",
+        populate: {
+          path: "institute",
+          select: "insName name photoId insProfilePhoto",
+        },
+      })
+      .populate({
         path: "notifyByEventManagerPhoto",
         select: "event_photo photoId",
       })

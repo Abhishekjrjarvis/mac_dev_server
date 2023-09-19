@@ -11,6 +11,9 @@ const {
   outstanding_reminder_disable_query,
 } = require("../Service/alarm");
 const {
+  renderFindReceiptQuery,
+} = require("../controllers/Admission/admissionController");
+const {
   renderRealTimeDailyUpdate,
 } = require("../controllers/DailyUpdate/dailyUpdateController");
 const {
@@ -36,9 +39,9 @@ exports.timerFunction = () => {
   setInterval(async () => {
     await outstanding_reminder_disable_query();
   }, 86400000);
-  // setInterval(async () => {
-  //   await reset_receipt();
-  // }, 86400);
+  setInterval(async () => {
+    await renderFindReceiptQuery();
+  }, 86400);
   // setInterval(async () => {
   //   await renderRealTimeDailyUpdate();
   // }, 86400000);

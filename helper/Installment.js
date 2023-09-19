@@ -1597,7 +1597,7 @@ exports.set_fee_head_query_retro = async (
   direct_args
 ) => {
   try {
-    console.log("Enter Fee Retro Heads")
+    console.log("Enter Fee Retro Heads");
     var student_args = await Student.findById({
       _id: `${student?._id}`,
     }).populate({
@@ -1690,7 +1690,7 @@ exports.set_fee_head_query_retro = async (
     }
     await student_args.save();
     price_query = 0;
-    console.log("Exit Fee Retro Heads")
+    console.log("Exit Fee Retro Heads");
   } catch (e) {
     console.log(e);
   }
@@ -1764,7 +1764,7 @@ exports.set_retro_installment = async (
         ref?.status === "Not Paid"
       ) {
         console.log("Inner Ref", results[`key${index}`]);
-        console.log(ref?.remainAmount)
+        console.log(ref?.remainAmount);
         ref.remainAmount +=
           remain_args.remaining_fee >= ref.remainAmount
             ? remain_args.remaining_fee - ref?.remainAmount
@@ -2082,6 +2082,21 @@ exports.set_fee_head_query_redesign = async (
       }
     );
     if (exist_filter_student_heads?.length > 0) {
+      console.log("Exist APP");
+      receipt_args.fee_flow = "FEE_HEADS";
+      for (var ref of exist_filter_student_heads) {
+        receipt_args.fee_heads.push({
+          head_id: ref?._id,
+          head_name: ref?.head_name,
+          paid_fee: ref?.paid_fee,
+          remain_fee: ref?.remain_fee,
+          applicable_fee: ref?.applicable_fee,
+          fee_structure: ref?.fee_structure,
+          master: ref?.master,
+          original_paid: ref?.original_paid,
+        });
+      }
+      await receipt_args.save();
     } else {
       for (var i = 0; i < parent_head?.count; i++) {
         var one_master = await FeeMaster.findOne({

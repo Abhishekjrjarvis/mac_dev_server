@@ -9883,6 +9883,7 @@ exports.renderFeeHeadsQuery = async (req, res) => {
 
 exports.renderFindReceiptQuery = async () => {
   try {
+    if (`${process.env.CONNECT_DB}` === "PROD") {
     var arr = ["6449c83598fec071fbffd3ad"]
     for(var ref of arr){
       var ins = await InstituteAdmin.findById({ _id: `${ref}` });
@@ -9915,8 +9916,9 @@ exports.renderFindReceiptQuery = async () => {
       num += 1;
     }
     }
-    
+  }
     // res.status(200).send({ message: "Explore New Fee Receipt", access: true });
+  
   } catch (e) {
     console.log(e);
   }

@@ -22,7 +22,8 @@ exports.getDayWiseSchedule = async (req, res) => {
         match: { day: { $eq: req.query.status } },
         populate: {
           path: "schedule.assignStaff",
-          select: "-_id staffFirstName staffMiddleName staffLastName",
+          select:
+            "-_id staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
         },
         select:
           "schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff",

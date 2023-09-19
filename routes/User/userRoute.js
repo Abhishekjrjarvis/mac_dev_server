@@ -303,6 +303,6 @@ router.get(
 
 // router.patch("/:id/mark/viewed",isLoggedIn, catchAsync(User.retrieveMarkAllThree))
 
-router.patch("/update/mode", catchAsync(User.renderMode));
+router.patch("/update/mode/:id", catchAsync(User.renderMode));
 
 module.exports = router;

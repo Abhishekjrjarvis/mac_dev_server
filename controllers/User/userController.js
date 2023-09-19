@@ -1547,8 +1547,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
           select: "institute access_role academic_department",
           populate: {
             path: "academic_department",
-            select: "departmentSelectBatch dName dTitle"
-          }
+            select: "departmentSelectBatch dName dTitle",
+          },
         })
         .populate({
           path: "hostelModeratorDepartment",
@@ -1725,8 +1725,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
           select: "institute access_role academic_department",
           populate: {
             path: "academic_department",
-            select: "departmentSelectBatch dName dTitle"
-          }
+            select: "departmentSelectBatch dName dTitle",
+          },
         })
         .populate({
           path: "hostelModeratorDepartment",
@@ -2686,7 +2686,7 @@ exports.renderMode = async (req, res) => {
   try {
     var all_students = await Student.find({});
     for (var ref of all_students) {
-      if (ref?.hostel_fee_structure) {
+      if (ref?.hostelPaidFeeCount > 0) {
         ref.student_join_mode = "HOSTEL_PROCESS";
       } else {
         ref.student_join_mode = "ADMISSION_PROCESS";

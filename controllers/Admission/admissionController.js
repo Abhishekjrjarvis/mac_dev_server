@@ -9772,7 +9772,7 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
     // var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    var all_student = await Student.find({});
+    var all_student = await Student.find({ _id: { $in: ins?.ApproveStudent } });
 
     var all_remain = await RemainingList.find({
       student: { $in: all_student },
@@ -9781,34 +9781,33 @@ exports.renderFeeHeadsQuery = async (req, res) => {
         path: "student",
       })
       .populate({
-        path: "fee_structure",
+        path: "fee_receipts",
       });
     var empty_student = [];
 
     for (var ref of all_remain) {
-      // var all_receipts = await FeeReceipt.find({ _id: { $in: }})
-      for (var ele of ref?.student?.active_fee_heads) {
-        if (`${ele?.appId}` === `${ref?.appId}`) {
+      for (var val of ref?.fee_receipts) {
+        if (`${ref?.appId}` === `${val?.application}`) {
           console.log("MATCH");
         } else {
-          if (empty_student?.includes(ref?.student?._id)) {
+          if (empty_student?.includes(ref?._id)) {
           } else {
-            empty_student.push(ref?.student?._id);
+            empty_student.push(ref?._id);
           }
         }
       }
     }
 
-    var arr = [];
-    var all_student = await Student.find({
-      _id: { $in: empty_student },
-    }).select("valid_full_name active_fee_heads");
-    for (var ele of all_student) {
-      if (ele?.active_fee_heads?.length > 0) {
-      } else {
-        arr.push(ele?._id);
-      }
-    }
+    // var arr = [];
+    // var all_student = await Student.find({
+    //   _id: { $in: empty_student },
+    // }).select("valid_full_name");
+    // for (var ele of all_student) {
+    //   if (ele?.active_fee_heads?.length > 0) {
+    //   } else {
+    //     arr.push(ele?._id);
+    //   }
+    // }
     // const g_date = new Date(`2023-09-05T00:00:00.000Z`);
     // const l_date = new Date(`2023-09-13T00:00:00.000Z`);
     // var receipt = await FeeReceipt.find({
@@ -9874,7 +9873,7 @@ exports.renderFeeHeadsQuery = async (req, res) => {
       // receipt
       // empty_student,
       // arr,
-      all_student,
+      empty_student,
     });
   } catch (e) {
     console.log(e);

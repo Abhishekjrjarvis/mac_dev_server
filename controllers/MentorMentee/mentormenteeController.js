@@ -2,6 +2,7 @@ const Staff = require("../../models/Staff");
 const Student = require("../../models/Student");
 const Department = require("../../models/Department");
 const Mentor = require("../../models/MentorMentee/mentor");
+const Meeting = require("../../models/MentorMentee/meetings");
 const Queries = require("../../models/MentorMentee/queries");
 const Notification = require("../../models/notification");
 const User = require("../../models/User");
@@ -1052,6 +1053,148 @@ exports.renderAllFilteredStudentQuery = async (req, res) => {
         assigned_mentee: [],
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewMeetingQuery = async (req, res) => {
+  try {
+    const { mid, p_array, a_array } = req.body;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var valid_mentor = await Mentor.findById({ _id: mid });
+    var new_meet = new Meeting({ ...req.body });
+    new_meet.mentor = valid_mentor?._id;
+    new_meet.department = valid_mentor?.department;
+    valid_mentor.meetings.push(new_meet?._id);
+    valid_mentor.meetings_count += 1;
+    if (p_array?.length > 0) {
+      new_meet.present_mentees.push(...p_array);
+      new_meet.mentees_present_count = p_array?.length;
+    }
+    if (a_array?.length > 0) {
+      new_meet.absent_mentees.push(...a_array);
+      new_meet.mentees_absent_count = a_array?.length;
+    }
+
+    await Promise.all([new_meet.save(), valid_mentor.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New Meetings Query", access: true });
+
+    if (new_meet?.meeting_alert) {
+      var all_mentees = await Student.find({
+        _id: { $in: valid_mentor?.mentees },
+      });
+      for (var ref of all_mentees) {
+        var user = await User.findById({ _id: `${ref?.user}` });
+        var notify = new StudentNotification({});
+        notify.notifyContent = `Today Meetings Agenda - ${new_meet?.agenda}. click here to read more...`;
+        notify.notifySender = valid_mentor?._id;
+        notify.notifyReceiever = user?._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = ref?._id;
+        user.activity_tab.push(notify?._id);
+        notify.notifyByDepartPhoto = valid_mentor?.department;
+        notify.notifyCategory = "Meeting Alert";
+        notify.redirectIndex = 57;
+        await Promise.all([user.save(), notify.save()]);
+        invokeMemberTabNotification(
+          "Meeting Alert",
+          notify.notifyContent,
+          "New Agenda",
+          user._id,
+          user.deviceToken
+        );
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllMeetingQuery = async (req, res) => {
+  try {
+    const { mid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const valid_mentor = await Mentor.findById({ _id: mid }).select("meetings");
+
+    if (search) {
+      var all_meet = await Meeting.find({
+        $and: [{ _id: { $in: valid_mentor?.meetings } }],
+        $or: [
+          {
+            agenda: { $regex: `${search}`, $options: "i" },
+          },
+        ],
+      }).select(
+        "agenda summary discussion created_at mentees_present_count mentees_absent_count meeting_alert department mentor"
+      );
+    } else {
+      var all_meet = await Meeting.find({
+        _id: { $in: valid_mentor?.meetings },
+      })
+        .sort({ created_at: "-1" })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "agenda summary discussion created_at mentees_present_count mentees_absent_count meeting_alert department mentor"
+        );
+    }
+
+    if (all_meet?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Meet Query",
+        access: true,
+        all_meet: all_meet,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Meet Query", access: true, all_meet: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneMeetDetail = async (req, res) => {
+  try {
+    const { meid } = req.params;
+    if (!meid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var all_meet = await Meeting.findById({ _id: meid })
+      .populate({
+        path: "present_mentees",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO",
+      })
+      .populate({
+        path: "absent_mentees",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO",
+      });
+    res.status(200).send({
+      message: "Explore One Meet Query",
+      access: true,
+      all_meet: all_meet,
+    });
   } catch (e) {
     console.log(e);
   }

@@ -56,6 +56,16 @@ const mentorSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  meetings: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Meeting",
+    },
+  ],
+  meetings_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Mentor", mentorSchema);

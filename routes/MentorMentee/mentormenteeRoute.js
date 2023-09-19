@@ -77,4 +77,10 @@ router.get(
   catchAsync(Mentor.renderAllFilteredStudentQuery)
 );
 
+router.post("/new/meeting/query", catchAsync(Mentor.renderNewMeetingQuery));
+
+router.get("/:mid/all/meeting/query", catchAsync(Mentor.renderAllMeetingQuery));
+
+router.get("/one/meet/:meid/query", catchAsync(Mentor.renderOneMeetDetail));
+
 module.exports = router;

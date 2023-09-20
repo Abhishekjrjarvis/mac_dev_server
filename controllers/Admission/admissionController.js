@@ -7246,13 +7246,13 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
     var old_struct = await FeeStructure.findById({ _id: old_fee_struct });
     var new_struct = await FeeStructure.findById({ _id: new_fee_struct });
     var one_remain_list = await RemainingList.findById({
-      _id: rid
+      _id: rid,
     });
     // $and: [
-      //   { student: one_student?._id },
-      //   { application: one_app?._id },
-      //   { fee_structure: old_fee_struct },
-      // ],
+    //   { student: one_student?._id },
+    //   { application: one_app?._id },
+    //   { fee_structure: old_fee_struct },
+    // ],
     const all_receipts = await FeeReceipt.find({
       _id: { $in: one_remain_list?.fee_receipts },
     });
@@ -9800,52 +9800,53 @@ exports.renderFeeHeadsQuery = async (req, res) => {
       message: "Explore All Student Fee Heads Query",
       access: true,
       count: receipt?.length,
-      receipt
+      receipt,
     });
   } catch (e) {
     console.log(e);
   }
 };
 
-exports.renderFindReceiptQuery = async (req, res) => {
+exports.renderFindReceiptQuery = async () => {
   try {
-    // if (`${process.env.CONNECT_DB}` === "PROD") {
-    // var arr = ["6449c83598fec071fbffd3ad"]
-    // for(var ref of arr){
-      // var ins = await InstituteAdmin.findById({ _id: `${ref}` });
-      var ins = await InstituteAdmin.findById({ _id: req?.params?.id });
-    var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    const g_date = new Date(`2023-09-01T00:00:00.000Z`);
-    const l_date = new Date(`2023-10-01T00:00:00.000Z`);
-    var receipt = await FeeReceipt.find({
-      $and: [
-        {
-          finance: finance?._id,
-        },
-        {
-          created_at: {
-            $gte: g_date,
-            $lte: l_date,
-          },
-        },
-      ],
-    }).populate({
-      path: "order_history",
-    });
-    var num = 0;
-    for (var ref of receipt) {
-      ref.invoice_count = `92023${num + 1}`;
-      if (ref?.order_history) {
-        ref.order_history.payment_invoice_number = `${ref.invoice_count}`;
-        await ref.order_history.save();
+    if (`${process.env.CONNECT_DB}` === "PROD") {
+      var arr = ["6449c83598fec071fbffd3ad"];
+      for (var ref of arr) {
+        var ins = await InstituteAdmin.findById({ _id: `${ref}` });
+        // var ins = await InstituteAdmin.findById({ _id: req?.params?.id });
+        var finance = await Finance.findById({
+          _id: `${ins?.financeDepart?.[0]}`,
+        });
+        const g_date = new Date(`2023-09-01T00:00:00.000Z`);
+        const l_date = new Date(`2023-10-01T00:00:00.000Z`);
+        var receipt = await FeeReceipt.find({
+          $and: [
+            {
+              finance: finance?._id,
+            },
+            {
+              created_at: {
+                $gte: g_date,
+                $lte: l_date,
+              },
+            },
+          ],
+        }).populate({
+          path: "order_history",
+        });
+        var num = 0;
+        for (var ref of receipt) {
+          ref.invoice_count = `92023${num + 1}`;
+          if (ref?.order_history) {
+            ref.order_history.payment_invoice_number = `${ref.invoice_count}`;
+            await ref.order_history.save();
+          }
+          await ref.save();
+          num += 1;
+        }
       }
-      await ref.save();
-      num += 1;
     }
-  //   }
-  // }
-    res.status(200).send({ message: "Explore New Fee Receipt", access: true });
-  
+    // res.status(200).send({ message: "Explore New Fee Receipt", access: true });
   } catch (e) {
     console.log(e);
   }

@@ -346,18 +346,18 @@ exports.admissionInstituteFunction = async (
   statusId
 ) => {
   try {
-    console.log("order", order)
-    console.log("paidBy", paidBy)
-    console.log("tx_amount_ad", tx_amount_ad)
-    console.log("tx_amount_ad_charges", tx_amount_ad_charges)
-    console.log("moduleId", moduleId)
-    console.log("paidTo", paidTo)
-    console.log("type", type)
-    console.log("is_author", is_author)
-    console.log("payment_type", payment_type)
-    console.log("remain_1", remain_1)
-    console.log("payment_card_id", payment_card_id)
-    console.log("statusId", statusId)  
+    // console.log("order", order)
+    // console.log("paidBy", paidBy)
+    // console.log("tx_amount_ad", tx_amount_ad)
+    // console.log("tx_amount_ad_charges", tx_amount_ad_charges)
+    // console.log("moduleId", moduleId)
+    // console.log("paidTo", paidTo)
+    // console.log("type", type)
+    // console.log("is_author", is_author)
+    // console.log("payment_type", payment_type)
+    // console.log("remain_1", remain_1)
+    // console.log("payment_card_id", payment_card_id)
+    // console.log("statusId", statusId)
     var student = await Student.findById({ _id: paidBy }).populate({
       path: "fee_structure",
     });
@@ -1795,7 +1795,7 @@ exports.libraryInstituteFunction = async (
     var notify = new StudentNotification({});
     var new_receipt = new FeeReceipt({});
     new_receipt.fee_payment_amount = new_internal?.internal_fee_amount;
-    new_receipt.receipt_generated_from = "BY_LIBRARIAN"
+    new_receipt.receipt_generated_from = "BY_LIBRARIAN";
     new_receipt.fee_payment_mode = "Payment Gateway - PG";
     new_receipt.student = student?._id;
     new_receipt.fee_transaction_date = new Date();

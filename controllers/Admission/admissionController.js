@@ -9772,78 +9772,22 @@ exports.renderFeeHeadsQuery = async (req, res) => {
       });
     var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
-    // var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    var all_student = await Student.find({ _id: { $in: ins?.ApproveStudent } });
-
-    var all_remain = await RemainingList.find({
-      student: { $in: all_student },
-    })
-      .populate({
-        path: "student",
-      })
-      .populate({
-        path: "fee_receipts",
-      });
-    var empty_student = [];
-
-    for (var ref of all_remain) {
-      for (var val of ref?.fee_receipts) {
-        if (`${ref?.appId}` === `${val?.application}`) {
-          console.log("MATCH");
-        } else {
-          if (empty_student?.includes(ref?._id)) {
-          } else {
-            empty_student.push(ref?._id);
-          }
-        }
-      }
-    }
-
-    // var arr = [];
-    // var all_student = await Student.find({
-    //   _id: { $in: empty_student },
-    // }).select("valid_full_name");
-    // for (var ele of all_student) {
-    //   if (ele?.active_fee_heads?.length > 0) {
-    //   } else {
-    //     arr.push(ele?._id);
-    //   }
-    // }
-    // const g_date = new Date(`2023-09-05T00:00:00.000Z`);
-    // const l_date = new Date(`2023-09-13T00:00:00.000Z`);
-    // var receipt = await FeeReceipt.find({
-    //   $and: [
-    //     {
-    //       created_at: {
-    //         $gte: g_date,
-    //         $lte: l_date,
-    //       },
-    //     },
-    //     {
-    //       finance: finance?._id,
-    //     },
-    //   ],
-    // });
-    // var empty_student = [];
-    // for (var ref of all_student) {
-    // var student = await Student.findById({ _id: `${ref?.student}` }).populate(
-    //   {
-    //     path: "fee_structure",
-    //   }
-    // );
-    // if (ref?.fee_structure) {
-    //   if (ref?.active_fee_heads?.length > 0) {
-    //   } else {
-    //     empty_student.push({
-    //       name: ref?.valid_full_name,
-    //       id: ref?._id,
-    //       length: ref?.active_fee_heads?.length,
-    //     });
-    //   }
-    //   // for(var ele of student?.active_fee_heads){
-    //   // console.log("CONTAIN LENGTH")
-    //   // }
-    // }
+    var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
+    const g_date = new Date(`2023-09-19T00:00:00.000Z`);
+    const l_date = new Date(`2023-09-21T00:00:00.000Z`);
+    var receipt = await FeeReceipt.find({
+      $and: [
+        {
+          created_at: {
+            $gte: g_date,
+            $lte: l_date,
+          },
+        },
+        {
+          finance: finance?._id,
+        },
+      ],
+    });
     // // else {
     //   await set_fee_head_query_redesign(
     //     student,
@@ -9851,42 +9795,25 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     //     ref?.application,
     //     ref
     //   );
-    //   // empty_student.push({
-    //   //   name: ref?.student?.valid_full_name,
-    //   //   id: ref?.student?._id,
-    //   //   length: ref?.student?.active_fee_heads?.length,
-    //   // });
-    // }
-    // }
-
-    // for (var ref of all_student) {
-    //   var card = await RemainingList.find({ student: `${ref?._id}` });
-    //   for (var ele of card) {
-    //     array.push(ele);
-    //   }
-    // }
 
     res.status(200).send({
       message: "Explore All Student Fee Heads Query",
       access: true,
-      count: empty_student?.length,
-      // array,
-      // receipt
-      // empty_student,
-      // arr,
-      empty_student,
+      count: receipt?.length,
+      receipt
     });
   } catch (e) {
     console.log(e);
   }
 };
 
-exports.renderFindReceiptQuery = async () => {
+exports.renderFindReceiptQuery = async (req, res) => {
   try {
-    if (`${process.env.CONNECT_DB}` === "PROD") {
-    var arr = ["6449c83598fec071fbffd3ad"]
-    for(var ref of arr){
-      var ins = await InstituteAdmin.findById({ _id: `${ref}` });
+    // if (`${process.env.CONNECT_DB}` === "PROD") {
+    // var arr = ["6449c83598fec071fbffd3ad"]
+    // for(var ref of arr){
+      // var ins = await InstituteAdmin.findById({ _id: `${ref}` });
+      var ins = await InstituteAdmin.findById({ _id: req?.params?.id });
     var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
     const g_date = new Date(`2023-09-01T00:00:00.000Z`);
     const l_date = new Date(`2023-10-01T00:00:00.000Z`);
@@ -9915,9 +9842,9 @@ exports.renderFindReceiptQuery = async () => {
       await ref.save();
       num += 1;
     }
-    }
-  }
-    // res.status(200).send({ message: "Explore New Fee Receipt", access: true });
+  //   }
+  // }
+    res.status(200).send({ message: "Explore New Fee Receipt", access: true });
   
   } catch (e) {
     console.log(e);

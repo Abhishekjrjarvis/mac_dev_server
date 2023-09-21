@@ -36,6 +36,10 @@ const classMasterSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Hostel",
   },
+  transport: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Transport",
+  },
 });
 
 const ClassMaster = mongoose.model("ClassMaster", classMasterSchema);

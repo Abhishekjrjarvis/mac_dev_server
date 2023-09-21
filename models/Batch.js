@@ -25,6 +25,10 @@ const batchSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Hostel",
   },
+  transport: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Transport",
+  },
   classroom: [
     {
       type: mongoose.Schema.Types.ObjectId,

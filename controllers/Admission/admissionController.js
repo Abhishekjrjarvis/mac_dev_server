@@ -4105,6 +4105,19 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         },
       })
       .populate({
+        path: "vehicleId",
+        select:
+          "vehicle_type vehicle_number",
+        populate: {
+          path: "transport",
+          select: "institute",
+          populate: {
+            path: "institute",
+            select: "financeDepart",
+          },
+        },
+      })
+      .populate({
         path: "remaining_array",
         populate: {
           path: "fee_receipt",
@@ -4163,6 +4176,19 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
           "applicationName applicationDepartment applicationMaster admissionAdmin hostelAdmin applicationBatch",
         populate: {
           path: "admissionAdmin hostelAdmin",
+          select: "institute",
+          populate: {
+            path: "institute",
+            select: "financeDepart",
+          },
+        },
+      })
+      .populate({
+        path: "vehicleId",
+        select:
+          "vehicle_type vehicle_number",
+        populate: {
+          path: "transport",
           select: "institute",
           populate: {
             path: "institute",

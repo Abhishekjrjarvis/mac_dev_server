@@ -126,6 +126,14 @@ const feeStructureSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "HostelUnit",
   },
+  vehicle_master: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Vehicle",
+  },
+  transport: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Transport",
+  },
 });
 
 module.exports = mongoose.model("FeeStructure", feeStructureSchema);

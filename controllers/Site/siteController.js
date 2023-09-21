@@ -487,3 +487,79 @@ exports.trashInstituteSiteOpeners = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.getTransportInfo = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    if (!tid)
+      return res.status(200).send({
+        message: "You fetch api with proper knownledge",
+        access: true,
+      });
+    const trans = await Transport.findById(tid);
+    if (trans.site_info?.[0]) {
+      const transSite = await TransportSite.findById(trans.site_info[0]);
+      res.status(200).send({
+        message: "get Transport site info detail 😋😊😋",
+        trans_site: transSite,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "Transport site info is not updated 😋😊😋",
+        access: true,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.updateTransportInfo = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    if (!tid)
+      return res.status(200).send({
+        message: "You fetch api with proper knownledge",
+        access: true,
+      });
+    const trans = await Transport.findById(tid);
+    if (trans.site_info?.[0]) {
+      const transSite = await TransportSite.findById(trans.site_info[0]);
+      transSite.trans_about = req.body.trans_about;
+      transSite.trans_process = req.body.trans_process;
+      for (let contact of req.body.edit_trans_contact) {
+        for (let cont of transSite.trans_contact) {
+          if (String(contact?.contactId) === String(cont?._id)) {
+            cont.contact_department_name = contact.contact_department_name;
+            cont.contact_person_name = contact.contact_person_name;
+            cont.contact_person_mobile = contact.contact_person_mobile;
+            cont.contact_person_email = contact.contact_person_email;
+          }
+        }
+      }
+      transSite.trans_contact.push(...req.body.trans_contact);
+      await transSite.save();
+      res.status(200).send({
+        message: "Transport site info is updated 😋😊😋",
+        access: true,
+      });
+      // await DepartmentSite.findByIdAndUpdate(department.site_info[0], req.body);
+    } else {
+      const transSite = new TransportSite({
+        trans_about: req.body.trans_about,
+        trans_process: req.body.trans_process,
+        trans_contact: req.body.trans_contact,
+        related_transport: trans?._id,
+      });
+      trans.site_info.push(transSite?._id);
+      await Promise.all([transSite.save(), trans.save()]);
+      res.status(200).send({
+        message: "Transport site info is updated first time 😋😊😋",
+        access: true,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

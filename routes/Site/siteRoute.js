@@ -26,4 +26,9 @@ router
   .patch(isLoggedIn, siteController.updateInstituteSiteOpeners)
   .delete(isLoggedIn, siteController.trashInstituteSiteOpeners);
 
+router
+  .route("/info/transport/:tid")
+  .get(siteController.getTransportInfo)
+  .patch(isLoggedIn, siteController.updateTransportInfo);
+
 module.exports = router;

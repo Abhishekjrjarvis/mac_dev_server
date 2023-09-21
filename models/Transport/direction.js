@@ -5,6 +5,10 @@ const directionSchema = new mongoose.Schema({
     {
       route_stop: { type: String },
       route_fees: { type: Number, default: 0 },
+      route_structure: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeStructure",
+      },
       passenger_list: [
         {
           type: mongoose.Schema.Types.ObjectId,

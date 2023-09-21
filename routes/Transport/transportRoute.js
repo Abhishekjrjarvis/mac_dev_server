@@ -109,6 +109,11 @@ router.post(
   catchAsync(Transport.renderTransportStudentCollect)
 );
 
+router.post(
+  "/:tid/students/:sid/exempt/query",
+  catchAsync(Transport.renderTransportStudentExempt)
+);
+
 router.patch(
   "/:tid/request/finance",
   // isLoggedIn,
@@ -119,6 +124,50 @@ router.delete(
   "/vehicle/:vid/route/:rid/destroy",
   // isLoggedIn,
   catchAsync(Transport.destroyOneVehicleRouteQuery)
+);
+
+router.post("/:tid/new/batch/query", catchAsync(Transport.renderNewBatchQuery));
+
+router.get("/:tid/all/batch/query", catchAsync(Transport.renderAllBatchQuery));
+
+router.post(
+  "/:tid/batch-select/:bid",
+  catchAsync(Transport.renderCurrentSelectBatchQuery)
+);
+
+router.post(
+  "/:tid/new/master/query",
+  catchAsync(Transport.renderNewMasterQuery)
+);
+
+router.get(
+  "/:tid/all/master/query",
+  catchAsync(Transport.renderAllMasterQuery)
+);
+
+router.get(
+  "/:tid/all/fee/structure",
+  catchAsync(Transport.renderTransportAllFeeStructure)
+);
+
+router.post(
+  "/:tid/paid/remaining/fee/:sid/student",
+  catchAsync(Transport.paidRemainingFeeStudent)
+);
+
+router.get(
+  "/:tid/all/remaining/array",
+  catchAsync(Transport.retrieveTransportRemainingArray)
+);
+
+router.get(
+  "/:tid/master/deposit/query",
+  catchAsync(Transport.renderTransportMasterDepositQuery)
+);
+
+router.get(
+  "/:tid/master/all/refund/deposit/history",
+  catchAsync(Transport.renderTransportMasterAllDepositHistory)
 );
 
 module.exports = router;

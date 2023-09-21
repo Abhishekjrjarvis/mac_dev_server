@@ -41,6 +41,12 @@ const transportSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  remainingFee: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
   transport_photo: {
     type: String,
   },
@@ -105,6 +111,96 @@ const transportSchema = new mongoose.Schema({
       ref: "TransportBatch",
     },
   ],
+  fees_structures: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeStructure",
+    },
+  ],
+  fees_structures_count: {
+    type: Number,
+    default: 0,
+  },
+  modify_fees_structures_count: {
+    type: Number,
+    default: 0,
+  },
+  refund_deposit: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeReceipt",
+    },
+  ],
+  batches: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
+    },
+  ],
+  departmentSelectBatch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch",
+  },
+  batchCount: {
+    type: Number,
+    default: 0,
+  },
+  masters: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
+    },
+  ],
+  masterCount: {
+    type: Number,
+    default: 0,
+  },
+  moderator_role: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AdmissionModerator",
+    },
+  ],
+  moderator_role_count: {
+    type: Number,
+    default: 0,
+  },
+  site_info: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TransportSite",
+    },
+  ],
+  refundFeeList: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      refund: { type: Number, default: 0 },
+    },
+  ],
+  refundCount: {
+    type: Number,
+    default: 0,
+  },
+  refundedFeeList: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      refund: { type: Number, default: 0 },
+      fee_receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+    },
+  ],
+  refundedCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Transport", transportSchema);

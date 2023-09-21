@@ -23,6 +23,23 @@ const {
   email_sms_designation_alarm,
 } = require("../../WhatsAppSMS/payload");
 const { nested_document_limit } = require("../../helper/databaseFunction");
+const OrderPayment = require("../../models/RazorPay/orderPayment");
+const FeeReceipt = require("../../models/RazorPay/feeReceipt");
+const Batch = require("../../models/Batch");
+const ClassMaster = require("../../models/ClassMaster");
+const RemainingList = require("../../models/Admission/RemainingList");
+const {
+  add_all_installment,
+  render_installment,
+  add_total_installment,
+  exempt_installment,
+  set_fee_head_query,
+  remain_one_time_query,
+  update_fee_head_query,
+  lookup_applicable_grant,
+} = require("../../helper/TransportInstallment");
+const StudentNotification = require("../../models/Marks/StudentNotification");
+const FeeMaster = require("../../models/Finance/FeeMaster");
 
 exports.renderNewTransportManager = async (req, res) => {
   try {
@@ -220,7 +237,8 @@ exports.renderVehicleNewRoute = async (req, res) => {
     for (var path of route_path) {
       route.direction_route.push({
         route_stop: path.stop,
-        route_fees: path.fee,
+        // route_fees: path.fee,
+        route_structure: path.structure,
       });
       vehicle.route_count += 1;
     }
@@ -238,7 +256,7 @@ exports.renderVehicleNewRoute = async (req, res) => {
 exports.renderVehicleUpdateRoute = async (req, res) => {
   try {
     const { vid } = req.params;
-    const { edit_path, rid, route_stop, route_fees } = req.body;
+    const { edit_path, rid, route_stop, route_structure } = req.body;
     const { route_status } = req.query;
     if (!vid && !route_status)
       return res.status(200).send({
@@ -251,7 +269,10 @@ exports.renderVehicleUpdateRoute = async (req, res) => {
       for (var path of route.direction_route) {
         if (`${path?._id}` === `${rid}`) {
           path.route_stop = route_stop ? route_stop : path.route_stop;
-          path.route_fees = route_fees ? route_fees : path.route_fees;
+          // path.route_fees = route_fees ? route_fees : path.route_fees;
+          path.route_structure = route_structure
+            ? route_structure
+            : path.route_structure;
         }
       }
       await route.save();
@@ -260,12 +281,14 @@ exports.renderVehicleUpdateRoute = async (req, res) => {
         if (path?.index > route.direction_route?.length) {
           route.direction_route.push({
             route_stop: path.stop,
-            route_fees: path.fee,
+            // route_fees: path.fee,
+            route_structure: path.structure,
           });
         } else {
           route.direction_route.splice(path.index, 0, {
             route_stop: path.stop,
-            route_fees: path.fee,
+            // route_fees: path.fee,
+            route_structure: path.structure,
           });
         }
         vehicle.route_count += 1;
@@ -285,8 +308,8 @@ exports.renderVehicleUpdateRoute = async (req, res) => {
 exports.renderVehicleNewPassenger = async (req, res) => {
   try {
     const { vid } = req.params;
-    const { sid, rid, amount } = req.body;
-    var remain_fee = parseInt(amount);
+    const { sid, rid } = req.body;
+    // var remain_fee = parseInt(amount);
     if (!vid && !sid && !rid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -319,17 +342,19 @@ exports.renderVehicleNewPassenger = async (req, res) => {
         student.routes.push({
           routeId: path?._id,
           routePath: path?.route_stop,
+          routeStructure: path?.route_structure,
         });
+        student.transport_fee_structure = path?.route_structure;
         student.active_routes = path?.route_stop;
-        if (remain_fee) {
-          student.vehicleRemainFeeCount += remain_fee;
-          vehicle.remaining_fee += remain_fee;
-          trans.remaining_fee += remain_fee;
-        } else {
-          student.vehicleRemainFeeCount += path?.route_fees;
-          vehicle.remaining_fee += path?.route_fees;
-          trans.remaining_fee += path?.route_fees;
-        }
+        // if (remain_fee) {
+        //   student.vehicleRemainFeeCount += remain_fee;
+        //   vehicle.remaining_fee += remain_fee;
+        //   trans.remaining_fee += remain_fee;
+        // } else {
+        //   student.vehicleRemainFeeCount += path?.route_fees;
+        //   vehicle.remaining_fee += path?.route_fees;
+        //   trans.remaining_fee += path?.route_fees;
+        // }
       }
     }
     await Promise.all([
@@ -379,9 +404,9 @@ exports.renderVehicleDestroyPassenger = async (req, res) => {
           }
           student.routes.pull(ref?._id);
           student.active_routes = null;
-          student.vehicleRemainFeeCount -= student.vehicleRemainFeeCount;
-          vehicle.remaining_fee -= student.vehicleRemainFeeCount;
-          trans.remaining_fee -= student.vehicleRemainFeeCount;
+          // student.vehicleRemainFeeCount -= student.vehicleRemainFeeCount;
+          // vehicle.remaining_fee -= student.vehicleRemainFeeCount;
+          // trans.remaining_fee -= student.vehicleRemainFeeCount;
         }
       }
     }
@@ -984,73 +1009,428 @@ exports.renderTransportVehicleUserManage = async (req, res) => {
   }
 };
 
+// exports.renderTransportStudentCollect = async (req, res) => {
+//   try {
+//     const { tid, sid } = req.params;
+//     const { amount, mode, is_install } = req.body;
+//     if (!tid && !amount && !mode && !is_install)
+//       return res.status(200).send({
+//         message: "Their is a bug need to fix immediately 😡",
+//         access: false,
+//       });
+//     const price = parseInt(amount);
+//     const trans = await Transport.findById({ _id: tid });
+//     const one_student = await Student.findById({ _id: sid });
+//     const one_vehicle = await Vehicle.findById({
+//       _id: `${one_student?.vehicle}`,
+//     });
+//     const institute = await InstituteAdmin.findById({
+//       _id: `${trans?.institute}`,
+//     });
+//     const finance = await Finance.findById({
+//       _id: `${institute?.financeDepart[0]}`,
+//     });
+//     if (price > one_student?.vehicleRemainFeeCount) {
+//       res.status(200).send({
+//         message: "No Balance Pool for further Operation 😡",
+//         access: false,
+//       });
+//     } else if (price <= one_student?.vehicleRemainFeeCount) {
+//       var exempt = one_student?.vehicleRemainFeeCount - price;
+//       if (!is_install) {
+//         trans.exempt_fee += one_student?.vehicleRemainFeeCount - price;
+//         finance.financeExemptBalance +=
+//           one_student?.vehicleRemainFeeCount - price;
+//       }
+//       trans.collected_fee += price;
+//       if (one_vehicle?.remaining_fee >= price) {
+//         one_vehicle.remaining_fee -= price;
+//       }
+//       if (one_student?.vehicleRemainFeeCount >= price) {
+//         one_student.vehicleRemainFeeCount -= price + exempt;
+//       }
+//       one_student.vehiclePaidFeeCount += price;
+//       if (mode === "Online") {
+//         trans.online_fee += price;
+//       } else if (mode === "Offline") {
+//         trans.offline_fee += price;
+//       } else {
+//       }
+//       if (trans.remaining_fee > price) {
+//         trans.remaining_fee -= price;
+//       }
+//       trans.fund_history.push({
+//         student: one_student?._id,
+//         is_install: is_install ? true : false,
+//         amount: price,
+//         mode: mode,
+//       });
+//       await Promise.all([
+//         finance.save(),
+//         trans.save(),
+//         one_student.save(),
+//         one_vehicle.save(),
+//       ]);
+//       res.status(200).send({
+//         message: "Installment Operation Completed 😀",
+//         access: true,
+//       });
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+// trans.exempt_fee += one_student?.vehicleRemainFeeCount - price;
+//         finance.financeExemptBalance +=
+//           one_student?.vehicleRemainFeeCount - price;
+
 exports.renderTransportStudentCollect = async (req, res) => {
   try {
-    const { tid, sid } = req.params;
-    const { amount, mode, is_install } = req.body;
-    if (!tid && !amount && !mode && !is_install)
+    const { sid, tid } = req.params;
+    const { receipt_status } = req.query;
+    const { amount, mode } = req.body;
+    if (!sid && !tid && !amount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
-        access: false,
+        confirm_status: false,
       });
-    const price = parseInt(amount);
+    var price = parseInt(amount);
     const trans = await Transport.findById({ _id: tid });
-    const one_student = await Student.findById({ _id: sid });
+    const student = await Student.findById({ _id: sid }).populate({
+      path: "transport_fee_structure",
+    });
+    const user = await User.findById({ _id: `${student.user}` });
     const one_vehicle = await Vehicle.findById({
-      _id: `${one_student?.vehicle}`,
+      _id: `${student?.vehicle}`,
     });
-    const institute = await InstituteAdmin.findById({
-      _id: `${trans?.institute}`,
+    var institute = await InstituteAdmin.findById({
+      _id: `${trans.institute}`,
     });
-    const finance = await Finance.findById({
-      _id: `${institute?.financeDepart[0]}`,
+    var finance = await Finance.findById({
+      _id: `${institute.financeDepart[0]}`,
     });
-    if (price > one_student?.vehicleRemainFeeCount) {
-      res.status(200).send({
-        message: "No Balance Pool for further Operation 😡",
-        access: false,
-      });
-    } else if (price <= one_student?.vehicleRemainFeeCount) {
-      var exempt = one_student?.vehicleRemainFeeCount - price;
-      if (!is_install) {
-        trans.exempt_fee += one_student?.vehicleRemainFeeCount - price;
-        finance.financeExemptBalance +=
-          one_student?.vehicleRemainFeeCount - price;
-      }
-      trans.collected_fee += price;
-      if (one_vehicle?.remaining_fee >= price) {
-        one_vehicle.remaining_fee -= price;
-      }
-      if (one_student?.vehicleRemainFeeCount >= price) {
-        one_student.vehicleRemainFeeCount -= price + exempt;
-      }
-      one_student.vehiclePaidFeeCount += price;
-      if (mode === "Online") {
-        trans.online_fee += price;
-      } else if (mode === "Offline") {
-        trans.offline_fee += price;
-      } else {
-      }
-      if (trans.remaining_fee > price) {
-        trans.remaining_fee -= price;
-      }
-      trans.fund_history.push({
-        student: one_student?._id,
-        is_install: is_install ? true : false,
-        amount: price,
-        mode: mode,
-      });
-      await Promise.all([
-        finance.save(),
-        trans.save(),
-        one_student.save(),
-        one_vehicle.save(),
-      ]);
-      res.status(200).send({
-        message: "Installment Operation Completed 😀",
-        access: true,
-      });
+    const order = new OrderPayment({});
+    const new_receipt = new FeeReceipt({ ...req.body });
+    new_receipt.student = student?._id;
+    new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+    new_receipt.vehicle = one_vehicle?._id;
+    new_receipt.receipt_generated_from = "BY_TRANSPORT";
+    new_receipt.finance = finance?._id;
+    new_receipt.receipt_status = receipt_status
+      ? receipt_status
+      : "Already Generated";
+    order.payment_module_type = "Transport Fees";
+    order.payment_to_end_user_id = institute?._id;
+    order.payment_by_end_user_id = user._id;
+    order.payment_module_id = one_vehicle._id;
+    order.payment_amount = price;
+    order.payment_status = "Captured";
+    order.payment_flag_to = "Credit";
+    order.payment_flag_by = "Debit";
+    order.payment_mode = mode;
+    order.payment_transport = one_vehicle._id;
+    order.payment_from = student._id;
+    order.fee_receipt = new_receipt?._id;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
+    user.payment_history.push(order._id);
+    institute.payment_history.push(order._id);
+    new_receipt.invoice_count = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
+    var total_amount = await add_total_installment(student);
+    var is_install;
+    if (
+      price <= student?.transport_fee_structure?.total_admission_fees &&
+      price <= student?.transport_fee_structure?.one_installments?.fees
+    ) {
+      is_install = true;
+    } else {
+      is_install = false;
     }
+    if (price > 0 && is_install) {
+      trans.remainingFee.push(student._id);
+      student.vehicleRemainFeeCount += total_amount - price;
+      one_vehicle.remaining_fee += total_amount - price;
+      trans.remaining_fee += total_amount - price;
+      var new_remainFee = new RemainingList({
+        vehicleId: one_vehicle._id,
+        applicable_fee: total_amount,
+        institute: institute?._id,
+        remaining_flow: "Transport Application",
+      });
+      new_remainFee.access_mode_card = "Installment_Wise";
+      new_remainFee.remaining_array.push({
+        remainAmount: price,
+        vehicleId: one_vehicle._id,
+        status: "Paid",
+        instituteId: institute._id,
+        installmentValue: "First Installment",
+        mode: mode,
+        isEnable: true,
+        fee_receipt: new_receipt?._id,
+      });
+      new_remainFee.active_payment_type = "First Installment";
+      new_remainFee.paid_fee += price;
+      new_remainFee.fee_structure = student?.transport_fee_structure?._id;
+      new_remainFee.remaining_fee += total_amount - price;
+      student.remainingFeeList.push(new_remainFee?._id);
+      student.remainingFeeList_count += 1;
+      new_remainFee.student = student?._id;
+      new_remainFee.fee_receipts.push(new_receipt?._id);
+      if (new_remainFee.remaining_fee > 0) {
+        await add_all_installment(
+          one_vehicle,
+          institute._id,
+          new_remainFee,
+          price,
+          student
+        );
+      }
+      if (
+        new_remainFee.remaining_fee > 0 &&
+        `${student?.transport_fee_structure?.total_installments}` === "1"
+      ) {
+        new_remainFee.remaining_array.push({
+          remainAmount: new_remainFee?.remaining_fee,
+          vehicleId: one_vehicle._id,
+          instituteId: institute._id,
+          installmentValue: "Installment Remain",
+          isEnable: true,
+        });
+      }
+    } else if (price > 0 && !is_install) {
+      var new_remainFee = new RemainingList({
+        vehicleId: one_vehicle._id,
+        applicable_fee: student?.fee_structure?.total_admission_fees,
+        institute: institute?._id,
+        remaining_flow: "Transport Application",
+      });
+      new_remainFee.access_mode_card = "One_Time_Wise";
+      new_remainFee.remaining_array.push({
+        remainAmount: price,
+        vehicleId: one_vehicle._id,
+        status: "Paid",
+        instituteId: institute._id,
+        installmentValue: "One Time Fees",
+        mode: mode,
+        isEnable: true,
+        fee_receipt: new_receipt?._id,
+      });
+      new_remainFee.active_payment_type = "One Time Fees";
+      new_remainFee.paid_fee += price;
+      new_remainFee.fee_structure = student?.transport_fee_structure?._id;
+      new_remainFee.remaining_fee +=
+        student?.transport_fee_structure?.total_admission_fees - price;
+      student.remainingFeeList.push(new_remainFee?._id);
+      student.remainingFeeList_count += 1;
+      new_remainFee.student = student?._id;
+      new_remainFee.fee_receipts.push(new_receipt?._id);
+      trans.remainingFee.push(student._id);
+      student.vehicleRemainFeeCount +=
+        student?.transport_fee_structure?.total_admission_fees - price;
+      one_vehicle.remaining_fee +=
+        student?.transport_fee_structure?.total_admission_fees - price;
+      trans.remaining_fee +=
+        student?.transport_fee_structure?.total_admission_fees - price;
+      const valid_one_time_fees =
+        student?.transport_fee_structure?.total_admission_fees - price == 0
+          ? true
+          : false;
+      if (valid_one_time_fees) {
+        trans.remainingFee.pull(student._id);
+      } else {
+        new_remainFee.remaining_array.push({
+          remainAmount:
+            student?.transport_fee_structure?.total_admission_fees - price,
+          vehicleId: one_vehicle._id,
+          status: "Not Paid",
+          instituteId: institute._id,
+          installmentValue: "One Time Fees Remain",
+          isEnable: true,
+        });
+      }
+    }
+    if (mode === "Offline") {
+      trans.offline_fee += price;
+      one_vehicle.collectedFeeCount += price;
+      one_vehicle.offlineFee += price;
+      trans.collected_fee += price;
+      finance.financeTransportBalance += price;
+      finance.financeTotalBalance += price;
+      finance.financeSubmitBalance += price;
+    } else if (mode === "Online") {
+      trans.online_fee += price;
+      one_vehicle.collectedFeeCount += price;
+      one_vehicle.onlineFee += price;
+      finance.financeTransportBalance += price;
+      finance.financeTotalBalance += price;
+      finance.financeBankBalance += price;
+    } else {
+    }
+    if (req.body?.fee_payment_mode === "Government/Scholarship") {
+      // New Logic
+    } else {
+      console.log("Enter");
+      await set_fee_head_query(student, price, one_vehicle, new_receipt);
+      console.log("Exit");
+    }
+    if (new_remainFee?.remaining_fee > 0) {
+    } else {
+      new_remainFee.status = "Paid";
+    }
+    await lookup_applicable_grant(
+      req.body?.fee_payment_mode,
+      price,
+      new_remainFee,
+      new_receipt
+    );
+    student.vehiclePaidFeeCount += price;
+    trans.fund_history.push({
+      student: student?._id,
+      is_install: is_install ? true : false,
+      amount: price,
+      mode: mode,
+    });
+    // notify.notifyContent = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
+    // notify.notifySender = admission?.admissionAdminHead?.user;
+    // notify.notifyReceiever = user?._id;
+    // notify.notifyType = "Student";
+    // notify.notifyPublisher = student?._id;
+    // notify.fee_receipt = new_receipt?._id;
+    // user.activity_tab.push(notify?._id);
+    // notify.notifyByAdmissionPhoto = admission?._id;
+    // notify.notifyCategory = "Status Alert";
+    // notify.redirectIndex = 29;
+    // if (
+    //   `${new_receipt?.fee_payment_mode}` === "Demand Draft" ||
+    //   `${new_receipt?.fee_payment_mode}` === "Cheque"
+    // ) {
+    //   status.receipt_status = "Requested";
+    //   status.receipt = new_receipt?._id;
+    //   if (admission?.request_array?.includes(`${new_receipt?._id}`)) {
+    //   } else {
+    //     admission.request_array.push(new_receipt?._id);
+    //     admission.fee_receipt_request.push({
+    //       receipt: new_receipt?._id,
+    //       demand_cheque_status: "Requested",
+    //     });
+    //   }
+    // }
+    await Promise.all([
+      trans.save(),
+      one_vehicle.save(),
+      student.save(),
+      finance.save(),
+      user.save(),
+      order.save(),
+      institute.save(),
+      // s_admin.save(),
+      new_remainFee.save(),
+      new_receipt.save(),
+      // status.save(),
+      // notify.save(),
+    ]);
+    res.status(200).send({
+      message: "Look like a party mood",
+      confirm_status: true,
+    });
+    // invokeMemberTabNotification(
+    //   "Admission Status",
+    //   status.content,
+    //   "Application Status",
+    //   user._id,
+    //   user.deviceToken
+    // );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderTransportStudentExempt = async (req, res) => {
+  try {
+    const { sid, tid } = req.params;
+    const { amount, mode } = req.body;
+    if (!sid && !tid && !amount && !mode)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        confirm_status: false,
+      });
+    var price = parseInt(amount);
+    const trans = await Transport.findById({ _id: tid });
+    const student = await Student.findById({ _id: sid }).populate({
+      path: "transport_fee_structure",
+    });
+    const user = await User.findById({ _id: `${student.user}` });
+    const one_vehicle = await Vehicle.findById({
+      _id: `${student?.vehicle}`,
+    });
+    var institute = await InstituteAdmin.findById({
+      _id: `${trans.institute}`,
+    });
+    var finance = await Finance.findById({
+      _id: `${institute.financeDepart[0]}`,
+    });
+    const remaining_fee_lists = await RemainingList.findOne({
+      $and: [{ student: student?._id }, { vehicleId: one_vehicle?._id }],
+    });
+    const order = new OrderPayment({});
+    const new_receipt = new FeeReceipt({ ...req.body });
+    new_receipt.student = student?._id;
+    new_receipt.fee_transaction_date = new Date();
+    new_receipt.vehicle = one_vehicle?._id;
+    new_receipt.receipt_generated_from = "BY_TRANSPORT";
+    new_receipt.finance = finance?._id;
+    order.payment_module_type = "Transport Fees";
+    order.payment_to_end_user_id = institute?._id;
+    order.payment_by_end_user_id = user._id;
+    order.payment_module_id = one_vehicle._id;
+    order.payment_amount = price;
+    order.payment_status = "Captured";
+    order.payment_flag_to = "Credit";
+    order.payment_flag_by = "Debit";
+    order.payment_mode = mode;
+    order.payment_transport = one_vehicle._id;
+    order.payment_from = student._id;
+    order.fee_receipt = new_receipt?._id;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
+    user.payment_history.push(order._id);
+    institute.payment_history.push(order._id);
+    new_receipt.invoice_count = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
+    if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
+      await exempt_installment(
+        req?.body?.fee_payment_mode,
+        remaining_fee_lists,
+        student,
+        trans,
+        one_vehicle,
+        finance,
+        price,
+        new_receipt
+      );
+    }
+    await Promise.all([
+      user.save(),
+      student.save(),
+      new_receipt.save(),
+      trans.save(),
+      one_vehicle.save(),
+      finance.save(),
+      institute.save(),
+      remaining_fee_lists.save(),
+      order.save(),
+    ]);
+    res
+      .status(200)
+      .send({ message: "Explore Exempted Transport Fees", access: true });
   } catch (e) {
     console.log(e);
   }
@@ -1974,6 +2354,619 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
         message: "No Passengers / Student found 😥",
         access: false,
         all_passengers: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewBatchQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const trans = await Transport.findById({ _id: tid });
+    const institute = await InstituteAdmin.findById({
+      _id: `${trans?.institute}`,
+    });
+    const batch = new Batch({ ...req.body });
+    trans.batches.push(batch?._id);
+    trans.batchCount += 1;
+    batch.transport = trans?._id;
+    institute.batches.push(batch._id);
+    batch.institute = institute?._id;
+    await Promise.all([trans.save(), batch.save(), institute.save()]);
+    res.status(200).send({
+      message: "Explore New Batch Query",
+      batch: batch._id,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllBatchQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const trans = await Transport.findById({ _id: tid }).select(
+      "departmentSelectBatch batches"
+    );
+
+    var all_batches = await Batch.find({ _id: { $in: trans?.batches } })
+      .limit(limit)
+      .skip(skip)
+      .select("batchName batchStatus createdAt");
+
+    if (all_batches?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Batches Query",
+        access: true,
+        all_batches: all_batches,
+        select_batch: trans?.departmentSelectBatch,
+      });
+    } else {
+      res.status(200).send({
+        message: "No All Batches Query",
+        all_batches: [],
+        access: false,
+        select_batch: null || "",
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderCurrentSelectBatchQuery = async (req, res) => {
+  try {
+    const { tid, bid } = req.params;
+    if (!tid && !bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const valid_trans = await Transport.findById({ _id: tid });
+    var valid_active_batch = await handle_undefined(
+      valid_trans?.departmentSelectBatch
+    );
+    if (valid_active_batch) {
+      var prev_batches = await Batch.findById({
+        _id: valid_trans.departmentSelectBatch,
+      });
+      prev_batches.activeBatch = "Not Active";
+      await prev_batches.save();
+    }
+    const batches = await Batch.findById({ _id: bid });
+    valid_trans.departmentSelectBatch = batches._id;
+    valid_trans.userBatch = batches._id;
+    batches.activeBatch = "Active";
+    await Promise.all([valid_trans.save(), batches.save()]);
+    res.status(200).send({
+      message: "Explore Selected Batch Detail Query",
+      batches: batches._id,
+      valid_trans: valid_trans?.departmentSelectBatch,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewMasterQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const trans = await Transport.findById({ _id: tid });
+    const master = new ClassMaster({ ...req.body });
+    trans.masters.push(master?._id);
+    trans.masterCount += 1;
+    master.transport = trans?._id;
+    await Promise.all([trans.save(), master.save()]);
+    res.status(200).send({
+      message: "Explore New Master Query",
+      master: master._id,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllMasterQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const trans = await Transport.findById({ _id: tid }).select("masters");
+
+    var all_masters = await ClassMaster.find({
+      _id: { $in: trans?.masters },
+    }).select("className");
+
+    if (all_masters?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Masters Query",
+        access: true,
+        all_masters: all_masters,
+      });
+    } else {
+      res.status(200).send({
+        message: "No All Masters Query",
+        all_masters: [],
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderTransportAllFeeStructure = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { filter_by, master_by, vehicle_by } = req.query;
+    const master_query = await handle_undefined(filter_by);
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const trans = await Transport.findById({ _id: tid }).select(
+      "fees_structures"
+    );
+    if (master_query) {
+      var all_structures = await FeeStructure.find({
+        $and: [
+          { _id: { $in: trans?.fees_structures } },
+          { batch_master: master_query },
+          { document_update: false },
+        ],
+        $or: [
+          {
+            class_master: `${master_by}`,
+          },
+          {
+            vehicle_master: `${vehicle_by}`,
+          },
+        ],
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "total_admission_fees structure_name unique_structure_name applicable_fees"
+        )
+        .populate({
+          path: "category_master",
+          select: "category_name",
+        })
+        .populate({
+          path: "class_master",
+          select: "className",
+        });
+    } else {
+      var all_structures = await FeeStructure.find({
+        $and: [
+          { _id: { $in: trans?.fees_structures } },
+          { document_update: false },
+        ],
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "total_admission_fees structure_name unique_structure_name applicable_fees"
+        )
+        .populate({
+          path: "category_master",
+          select: "category_name",
+        })
+        .populate({
+          path: "class_master",
+          select: "className",
+        });
+    }
+    if (all_structures?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Fees Structures Available 👍",
+        access: true,
+        all_structures: all_structures,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Fees Structures Available 👍",
+        access: true,
+        all_structures: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.paidRemainingFeeStudent = async (req, res) => {
+  try {
+    const { tid, sid } = req.params;
+    const { amount, mode, type } = req.body;
+    const { receipt_status } = req.query;
+    if (!sid && !tid && !amount && !mode && !type)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        paid: false,
+      });
+    var price = parseInt(amount);
+    var extra_price = 0;
+    const admin_ins = await Transport.findById({ _id: tid });
+    const student = await Student.findById({ _id: sid }).populate({
+      path: "transport_fee_structure",
+    });
+    const one_vehicle = await Vehicle.findById({
+      _id: `${student?.vehicle}`,
+    });
+    var institute = await InstituteAdmin.findById({
+      _id: `${admin_ins.institute}`,
+    });
+    var finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    });
+    var user = await User.findById({ _id: `${student.user}` }).select(
+      "deviceToken payment_history activity_tab"
+    );
+    const new_receipt = new FeeReceipt({ ...req.body });
+    new_receipt.student = student?._id;
+    new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+    new_receipt.vehicle = one_vehicle?._id;
+    new_receipt.receipt_generated_from = "BY_TRANSPORT";
+    new_receipt.finance = finance?._id;
+    new_receipt.receipt_status = receipt_status
+      ? receipt_status
+      : "Already Generated";
+    order.payment_module_type = "Transport Fees";
+    order.payment_to_end_user_id = institute?._id;
+    order.payment_by_end_user_id = user._id;
+    order.payment_module_id = one_vehicle._id;
+    order.payment_amount = price;
+    order.payment_status = "Captured";
+    order.payment_flag_to = "Credit";
+    order.payment_flag_by = "Debit";
+    order.payment_mode = mode;
+    order.payment_transport = one_vehicle._id;
+    order.payment_from = student._id;
+    order.fee_receipt = new_receipt?._id;
+    institute.invoice_count += 1;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
+    user.payment_history.push(order._id);
+    institute.payment_history.push(order._id);
+    new_receipt.invoice_count = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${institute.invoice_count}`;
+    const notify = new StudentNotification({});
+    const remaining_fee_lists = await RemainingList.findById({
+      _id: rid,
+    });
+    remaining_fee_lists.fee_receipts.push(new_receipt?._id);
+    if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
+      await exempt_installment(
+        req?.body?.fee_payment_mode,
+        remaining_fee_lists,
+        student,
+        admin_ins,
+        one_vehicle,
+        finance,
+        price,
+        new_receipt
+      );
+    } else {
+      remaining_fee_lists.paid_fee += price;
+      if (remaining_fee_lists.remaining_fee >= price) {
+        remaining_fee_lists.remaining_fee -= price;
+      }
+      await render_installment(
+        type,
+        student,
+        mode,
+        price,
+        admin_ins,
+        student?.transport_fee_structure,
+        remaining_fee_lists,
+        new_receipt,
+        one_vehicle,
+        institute
+      );
+    }
+    if (admin_ins?.remaining_fee >= price) {
+      admin_ins.remaining_fee -= price;
+    }
+    if (one_vehicle?.remaining_fee >= price) {
+      one_vehicle.remaining_fee -= price;
+    }
+    if (student?.vehicleRemainFeeCount >= price) {
+      student.vehicleRemainFeeCount -= price;
+    }
+    student.vehiclePaidFeeCount += price;
+    if (mode === "Online") {
+      admin_ins.online_fee += price + extra_price;
+      one_vehicle.onlineFee += price + extra_price;
+      one_vehicle.collectedFeeCount += price + extra_price;
+      finance.financeTotalBalance += price + extra_price;
+      finance.financeTransportBalance += price + extra_price;
+      finance.financeBankBalance += price + extra_price;
+    } else if (mode === "Offline") {
+      admin_ins.offline_fee += price + extra_price;
+      one_vehicle.offlineFee += price + extra_price;
+      one_vehicle.collectedFeeCount += price + extra_price;
+      admin_ins.collected_fee += price + extra_price;
+      finance.financeTotalBalance += price + extra_price;
+      finance.financeTransportBalance += price + extra_price;
+      finance.financeSubmitBalance += price + extra_price;
+    } else {
+    }
+    // await set_fee_head_query(student, price, apply);
+    if (req?.body?.fee_payment_mode === "Government/Scholarship") {
+    } else {
+      await update_fee_head_query(student, price, one_vehicle, new_receipt);
+    }
+    await lookup_applicable_grant(
+      req?.body?.fee_payment_mode,
+      price,
+      remaining_fee_lists,
+      new_receipt
+    );
+    if (type === "One Time Fees Remain") {
+      await remain_one_time_query(
+        admin_ins,
+        remaining_fee_lists,
+        one_vehicle,
+        institute,
+        student,
+        price,
+        new_receipt
+      );
+    }
+    await Promise.all([
+      admin_ins.save(),
+      student.save(),
+      one_vehicle.save(),
+      finance.save(),
+      institute.save(),
+      order.save(),
+      s_admin.save(),
+      remaining_fee_lists.save(),
+      new_receipt.save(),
+    ]);
+    res.status(200).send({
+      message: "Balance Pool increasing with price Operation complete",
+      paid: true,
+    });
+    var is_refund =
+      remaining_fee_lists?.paid_fee - remaining_fee_lists?.applicable_fee;
+    if (is_refund > 0) {
+      const filter_student_refund = admin_ins?.refundFeeList?.filter((stu) => {
+        if (`${stu.student}` === `${student?._id}`) return stu;
+      });
+      if (filter_student_refund?.length > 0) {
+        for (var data of filter_student_refund) {
+          data.refund += is_refund;
+          admin_ins.refundCount += is_refund;
+        }
+      } else {
+        admin_ins.refundFeeList.push({
+          student: student?._id,
+          refund: is_refund,
+        });
+        admin_ins.refundCount += is_refund;
+      }
+    }
+    await admin_ins.save();
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+    } ${student.studentLastName} your transaction is successfull for ${
+      one_vehicle?.vehicle_number
+    } ${price}`;
+    notify.notifySender = admin_ins?._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student._id;
+    user.activity_tab.push(notify._id);
+    notify.notifyByTransportPhoto = admin_ins._id;
+    notify.notifyCategory = "Remain Fees";
+    notify.redirectIndex = 18;
+    invokeMemberTabNotification(
+      "Admission Status",
+      `Payment Installment paid Successfully `,
+      "Application Status",
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([user.save(), notify.save()]);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveTransportRemainingArray = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    const admin_ins = await Transport.findById({ _id: tid }).select(
+      "remainingFee"
+    );
+    if (search) {
+      var student = await Student.find({
+        $and: [{ _id: { $in: admin_ins?.remainingFee } }],
+        $or: [
+          { studentFirstName: { $regex: search, $options: "i" } },
+          { studentMiddleName: { $regex: search, $options: "i" } },
+          { studentLastName: { $regex: search, $options: "i" } },
+          { studentGRNO: { $regex: search, $options: "i" } },
+          { studentCast: { $regex: search, $options: "i" } },
+          { studentCastCategory: { $regex: search, $options: "i" } },
+          { studentGender: { $regex: search, $options: "i" } },
+        ],
+      })
+        .sort("-vehicleRemainFeeCount")
+        .select(
+          "studentFirstName studentMiddleName batches studentGender studentCast studentCastCategory studentLastName photoId studentGRNO studentProfilePhoto vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "department",
+          select: "dName",
+        })
+        .populate({
+          path: "vehicle",
+          select: "vehicle_number",
+        });
+      var remain_fee = student?.filter((ref) => {
+        if (ref?.vehicleRemainFeeCount > 0) return ref;
+      });
+      res.status(200).send({
+        message: "Its a party time from DB 🙌",
+        remain: remain_fee,
+        remainCount: remain_fee?.length,
+      });
+      // }
+    } else {
+      var student = await Student.find({
+        _id: { $in: admin_ins?.remainingFee },
+      })
+        .sort("-vehicleRemainFeeCount")
+        .select(
+          "studentFirstName studentMiddleName studentLastName batches photoId studentGRNO studentProfilePhoto vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "department",
+          select: "dName",
+        })
+        .populate({
+          path: "vehicle",
+          select: "vehicle_number",
+        });
+      student = student?.filter((ref) => {
+        if (ref?.vehicleRemainFeeCount > 0) return ref;
+      });
+      var remain_fee = await nested_document_limit(page, limit, student);
+      res.status(200).send({
+        message: "Its a party time from DB 🙌",
+        remain: remain_fee,
+        remainCount: remain_fee?.length,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderTransportMasterDepositQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const trans = await Transport.findById({ _id: tid }).populate({
+      path: "institute",
+      select: "financeDepart",
+    });
+    const master = await FeeMaster.findOne({
+      $and: [
+        { master_status: "Transport Linked" },
+        { finance: trans?.institute?.financeDepart?.[0] },
+      ],
+    }).select(
+      "paid_student_count deposit_amount master_name refund_student_count refund_amount"
+    );
+
+    res.status(200).send({
+      message: "Explore Linked Fee Masters",
+      access: true,
+      master: master,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderTransportMasterAllDepositHistory = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const trans = await Transport.findById({ _id: tid }).select(
+      "refund_deposit"
+    );
+
+    if (search) {
+      var all_receipts = await FeeReceipt.find({
+        _id: { $in: trans?.refund_deposit },
+      }).populate({
+        path: "student",
+        match: {
+          studentFirstName: { $regex: search, $options: "i" },
+        },
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      });
+
+      all_receipts = all_receipts?.filter((ref) => {
+        if (ref?.student !== null) return ref;
+      });
+    } else {
+      var all_receipts = await FeeReceipt.find({
+        _id: { $in: trans?.refund_deposit },
+      })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+        });
+    }
+    if (all_receipts?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Refund History",
+        access: true,
+        all_receipts: all_receipts,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Refund History",
+        access: false,
+        all_receipts: [],
       });
     }
   } catch (e) {

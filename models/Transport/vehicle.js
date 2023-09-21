@@ -71,6 +71,22 @@ const vehicleSchema = new mongoose.Schema({
       ref: "TransportBatch",
     },
   ],
+  collectedFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  offlineFee: {
+    type: Number,
+    default: 0,
+  },
+  onlineFee: {
+    type: Number,
+    default: 0,
+  },
+  exemptFee: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Vehicle", vehicleSchema);

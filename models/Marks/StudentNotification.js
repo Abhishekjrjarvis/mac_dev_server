@@ -54,6 +54,10 @@ const studentNotificationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Hostel",
   },
+  notifyByTransportPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Transport",
+  },
   notifyType: {
     type: String,
   },

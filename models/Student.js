@@ -362,6 +362,10 @@ const studentSchema = new mongoose.Schema({
   active_fee_heads: [
     {
       appId: { type: mongoose.Schema.Types.ObjectId, ref: "NewApplication" },
+      vehicleId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Vehicle",
+      },
       head_name: { type: String },
       created_at: { type: Date, default: Date.now },
       applicable_fee: { type: Number, default: 0 },
@@ -427,6 +431,10 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Vehicle",
   },
+  transport_fee_structure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeStructure",
+  },
   vehicleRemainFeeCount: {
     type: Number,
     default: 0,
@@ -447,6 +455,10 @@ const studentSchema = new mongoose.Schema({
     {
       routeId: { type: String },
       routePath: { type: String },
+      routeStructure: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeStructure",
+      },
     },
   ],
   active_routes: {

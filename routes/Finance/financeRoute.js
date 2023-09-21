@@ -371,6 +371,12 @@ router.get(
   catchAsync(Finance.renderOneFeeReceipt)
 );
 
+router.get(
+  "/:frid/one/transport/receipt",
+  // isLoggedIn,
+  catchAsync(Finance.renderOneTransportFeeReceipt)
+);
+
 router.patch(
   "/:fid/update/payment/mode",
   // isLoggedIn,

@@ -5,6 +5,10 @@ const remainingFeeListSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "NewApplication",
   },
+  vehicleId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Vehicle",
+  },
   batchId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch",
@@ -17,6 +21,10 @@ const remainingFeeListSchema = new mongoose.Schema({
   remaining_array: [
     {
       appId: { type: mongoose.Schema.Types.ObjectId, ref: "NewApplication" },
+      vehicleId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Vehicle",
+      },
       remainAmount: { type: Number, default: 0 },
       status: { type: String, default: "Not Paid" },
       instituteId: {

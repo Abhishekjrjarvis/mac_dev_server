@@ -130,7 +130,7 @@ exports.renderTransportManagerDashboard = async (req, res) => {
       });
     const trans_panel = await Transport.findById({ _id: tid })
       .select(
-        "vehicle_count transport_staff_count transport_photo photoId passenger_count requested_status collected_fee exempt_fee online_fee offline_fee remaining_fee"
+        "vehicle_count transport_staff_count transport_photo photoId passenger_count requested_status collected_fee exempt_fee online_fee offline_fee remaining_fee departmentSelectBatch batchCount fees_structures_count fees_structures_count masterCount refundCount refundedCount"
       )
       .populate({
         path: "transport_manager",
@@ -139,7 +139,11 @@ exports.renderTransportManagerDashboard = async (req, res) => {
       })
       .populate({
         path: "institute",
-        select: "insProfilePhoto",
+        select: "insProfilePhoto financeDepart admissionDepart hostelDepart",
+        populate: {
+          path: "financeDepart",
+          select: "fee_master_array_count fees_category_count",
+        },
       });
     // const tEncrypt = await encryptionPayload(trans_panel);
     res.status(200).send({

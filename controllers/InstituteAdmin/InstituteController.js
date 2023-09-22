@@ -1341,8 +1341,8 @@ exports.retrieveApproveStudentList = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
         res
@@ -1383,8 +1383,8 @@ exports.retrieveApproveStudentList = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
         res
@@ -1469,8 +1469,8 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
         res
@@ -1615,17 +1615,17 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
-        res
-          .status(200)
-          .send({
-            message: "Without Limit",
-            studentIns: valid_list,
-            all_student_query: all_student_query,
-          });
+        res.status(200).send({
+          message: "Without Limit",
+          studentIns: valid_list,
+          all_student_query: all_student_query,
+        });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
@@ -1706,8 +1706,8 @@ exports.retrieveFinanceApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
         res
@@ -1862,17 +1862,15 @@ exports.retrieveFinanceApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
-        res
-          .status(200)
-          .send({
-            message: "Without Limit",
-            studentIns: valid_list,
-            all_student_query: all_student_query,
-          });
+        res.status(200).send({
+          message: "Without Limit",
+          studentIns: valid_list,
+          all_student_query: all_student_query,
+        });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
@@ -1953,8 +1951,8 @@ exports.retrieveAdmissionApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
         res
@@ -2111,17 +2109,15 @@ exports.retrieveAdmissionApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
-        res
-          .status(200)
-          .send({
-            message: "Without Limit",
-            studentIns: valid_list,
-            all_student_query: all_student_query,
-          });
+        res.status(200).send({
+          message: "Without Limit",
+          studentIns: valid_list,
+          all_student_query: all_student_query,
+        });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
@@ -2202,8 +2198,8 @@ exports.retrieveApproveStudentSectionListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
         res
@@ -2358,17 +2354,15 @@ exports.retrieveApproveStudentSectionListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
-        res
-          .status(200)
-          .send({
-            message: "Without Limit",
-            studentIns: valid_list,
-            all_student_query: all_student_query,
-          });
+        res.status(200).send({
+          message: "Without Limit",
+          studentIns: valid_list,
+          all_student_query: all_student_query,
+        });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
@@ -2449,8 +2443,8 @@ exports.retrieveCertificateApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
         res
@@ -2607,17 +2601,15 @@ exports.retrieveCertificateApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
-        res
-          .status(200)
-          .send({
-            message: "Without Limit",
-            studentIns: valid_list,
-            all_student_query: all_student_query,
-          });
+        res.status(200).send({
+          message: "Without Limit",
+          studentIns: valid_list,
+          all_student_query: all_student_query,
+        });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
@@ -2698,8 +2690,8 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
         res
@@ -2863,17 +2855,15 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
-        res
-          .status(200)
-          .send({
-            message: "Without Limit",
-            studentIns: valid_list,
-            all_student_query: all_student_query,
-          });
+        res.status(200).send({
+          message: "Without Limit",
+          studentIns: valid_list,
+          all_student_query: all_student_query,
+        });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }

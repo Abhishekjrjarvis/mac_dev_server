@@ -10,9 +10,9 @@ const {
   quote_disappear,
   outstanding_reminder_disable_query,
 } = require("../Service/alarm");
-const {
-  renderFindReceiptQuery,
-} = require("../controllers/Admission/admissionController");
+// const {
+//   renderFindReceiptQuery,
+// } = require("../controllers/Admission/admissionController");
 const {
   renderRealTimeDailyUpdate,
 } = require("../controllers/DailyUpdate/dailyUpdateController");

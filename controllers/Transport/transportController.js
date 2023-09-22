@@ -41,6 +41,7 @@ const {
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const FeeMaster = require("../../models/Finance/FeeMaster");
 const { handle_undefined } = require("../../Handler/customError");
+const FeeStructure = require("../../models/Finance/FeesStructure");
 
 exports.renderNewTransportManager = async (req, res) => {
   try {

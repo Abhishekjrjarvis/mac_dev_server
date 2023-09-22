@@ -2344,6 +2344,7 @@ exports.renderAllInternalQuery = async (req, res) => {
     var all_query = await InternalQuery.find({
       _id: { $in: one_ins?.internal_query },
     })
+      .sort({ created_at: "-1" })
       .limit(limit)
       .skip(skip)
       .populate({

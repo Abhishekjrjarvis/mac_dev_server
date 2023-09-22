@@ -141,6 +141,11 @@ router.delete(
   catchAsync(Auth.renderOneInstituteAllStudentQuery)
 );
 
+router.delete(
+  "/remove/platform/one/institute/:id/all/unapproved/student/query",
+  catchAsync(Auth.renderOneInstituteAllUnApprovedStudentQuery)
+);
+
 // router.patch("/all/student/:id", catchAsync(Auth.renderAllStudentQuery));
 
 module.exports = router;

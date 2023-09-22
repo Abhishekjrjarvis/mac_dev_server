@@ -4106,8 +4106,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       })
       .populate({
         path: "vehicleId",
-        select:
-          "vehicle_type vehicle_number",
+        select: "vehicle_type vehicle_number",
         populate: {
           path: "transport",
           select: "institute",
@@ -4185,8 +4184,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       })
       .populate({
         path: "vehicleId",
-        select:
-          "vehicle_type vehicle_number",
+        select: "vehicle_type vehicle_number",
         populate: {
           path: "transport",
           select: "institute",
@@ -9833,43 +9831,43 @@ exports.renderFeeHeadsQuery = async (req, res) => {
   }
 };
 
-exports.renderFindReceiptQuery = async () => {
+exports.renderFindReceiptQuery = async (req, res) => {
   try {
     if (`${process.env.CONNECT_DB}` === "PROD") {
       var arr = ["6449c83598fec071fbffd3ad"];
       for (var ref of arr) {
         var ins = await InstituteAdmin.findById({ _id: `${ref}` });
-        // var ins = await InstituteAdmin.findById({ _id: req?.params?.id });
-        var finance = await Finance.findById({
-          _id: `${ins?.financeDepart?.[0]}`,
-        });
-        const g_date = new Date(`2023-09-01T00:00:00.000Z`);
-        const l_date = new Date(`2023-10-01T00:00:00.000Z`);
-        var receipt = await FeeReceipt.find({
-          $and: [
-            {
-              finance: finance?._id,
-            },
-            {
-              created_at: {
-                $gte: g_date,
-                $lte: l_date,
-              },
-            },
-          ],
-        }).populate({
-          path: "order_history",
-        });
-        var num = 0;
-        for (var ref of receipt) {
-          ref.invoice_count = `92023${num + 1}`;
-          if (ref?.order_history) {
-            ref.order_history.payment_invoice_number = `${ref.invoice_count}`;
-            await ref.order_history.save();
-          }
-          await ref.save();
-          num += 1;
-        }
+    // var ins = await InstituteAdmin.findById({ _id: req?.params?.id });
+    var finance = await Finance.findById({
+      _id: `${ins?.financeDepart?.[0]}`,
+    });
+    const g_date = new Date(`2023-09-01T00:00:00.000Z`);
+    const l_date = new Date(`2023-10-01T00:00:00.000Z`);
+    var receipt = await FeeReceipt.find({
+      $and: [
+        {
+          finance: finance?._id,
+        },
+        {
+          created_at: {
+            $gte: g_date,
+            $lte: l_date,
+          },
+        },
+      ],
+    }).populate({
+      path: "order_history",
+    });
+    var num = 0;
+    for (var ref of receipt) {
+      ref.invoice_count = `92023${num + 1}`;
+      if (ref?.order_history) {
+        ref.order_history.payment_invoice_number = `${ref.invoice_count}`;
+        await ref.order_history.save();
+      }
+      await ref.save();
+      num += 1;
+    }
       }
     }
     // res.status(200).send({ message: "Explore New Fee Receipt", access: true });

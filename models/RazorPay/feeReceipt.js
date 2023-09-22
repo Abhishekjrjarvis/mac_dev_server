@@ -144,6 +144,10 @@ const feeReceiptSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Vehicle",
   },
+  fee_structure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeStructure",
+  },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

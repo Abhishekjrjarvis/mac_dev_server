@@ -587,4 +587,9 @@ router.post(
 
 router.patch("/all/order", catchAsync(Admission.renderAllOrderQuery));
 
+router.patch(
+  "/student/payment/:id",
+  catchAsync(Admission.renderFindStudentReceiptQuery)
+);
+
 module.exports = router;

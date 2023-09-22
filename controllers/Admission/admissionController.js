@@ -75,6 +75,7 @@ const {
   lookup_applicable_grant,
   add_all_installment_zero,
   set_fee_head_query_redesign,
+  receipt_set_fee_head_query_redesign,
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -9833,11 +9834,11 @@ exports.renderFeeHeadsQuery = async (req, res) => {
 
 exports.renderFindReceiptQuery = async (req, res) => {
   try {
-    if (`${process.env.CONNECT_DB}` === "PROD") {
-      var arr = ["6449c83598fec071fbffd3ad"];
-      for (var ref of arr) {
-        var ins = await InstituteAdmin.findById({ _id: `${ref}` });
-    // var ins = await InstituteAdmin.findById({ _id: req?.params?.id });
+    // if (`${process.env.CONNECT_DB}` === "PROD") {
+    //   var arr = ["6449c83598fec071fbffd3ad"];
+    //   for (var ref of arr) {
+    //     var ins = await InstituteAdmin.findById({ _id: `${ref}` });
+    var ins = await InstituteAdmin.findById({ _id: req?.params?.id });
     var finance = await Finance.findById({
       _id: `${ins?.financeDepart?.[0]}`,
     });
@@ -9868,9 +9869,9 @@ exports.renderFindReceiptQuery = async (req, res) => {
       await ref.save();
       num += 1;
     }
-      }
-    }
-    // res.status(200).send({ message: "Explore New Fee Receipt", access: true });
+    //   }
+    // }
+    res.status(200).send({ message: "Explore New Fee Receipt", access: true });
   } catch (e) {
     console.log(e);
   }
@@ -9936,6 +9937,71 @@ exports.renderAllOrderQuery = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore New Fee Receipt Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFindStudentReceiptQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { sid } = req.query
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var array = [];
+    var ins = await InstituteAdmin.findById({ _id: id });
+    var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
+    // const g_date = new Date(`2023-09-19T00:00:00.000Z`);
+    // const l_date = new Date(`2023-09-21T00:00:00.000Z`);
+    var receipt = await FeeReceipt.find({
+      $and: [
+        // {
+        //   created_at: {
+        //     $gte: g_date,
+        //     $lte: l_date,
+        //   },
+        // },
+        {
+          student: sid
+        },
+        {
+          finance: finance?._id,
+        },
+      ],
+    })
+    .populate({
+      path: "fee_structure"
+    })
+    .populate({
+      path: "student"
+    })
+    for(var ref of receipt){
+      if(ref?.fee_heads?.length > 0){
+        // ref.fee_heads = []
+        // // ref.fee_structure = ref?.fee_heads?.[0]?.fee_structure
+        // ref.save()
+      }
+      else{
+        if(ref?.fee_structure){
+          await receipt_set_fee_head_query_redesign(
+            ref?.student,
+            ref?.fee_payment_amount,
+            ref?.application,
+            ref
+          );
+        }
+      }
+    }
+
+    res.status(200).send({
+      message: "Explore All Student Fee Heads Query",
+      access: true,
+      count: receipt?.length,
+      receipt,
+    });
   } catch (e) {
     console.log(e);
   }

@@ -864,7 +864,14 @@ exports.renderTransportOneVehicleRoute = async (req, res) => {
       });
     const route = await Direction.findOne({
       vehicle: vid,
-    }).select("direction_route");
+    })
+      .select("direction_route")
+      .populate({
+        path: "direction_route",
+        populate: {
+          path: "route_structure",
+        },
+      });
 
     if (route) {
       const refactor_path = {

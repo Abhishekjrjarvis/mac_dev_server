@@ -612,6 +612,7 @@ exports.generate_excel_to_json_subject_chapter_query = async (file) => {
         topic_array: [...chap_arr],
       });
     }
+    console.log(new_data_query);
     return { chapter_array: new_data_query, value: true };
   } catch (e) {
     console.log("Subject Chapter Excel Query Not Resolved", e);

@@ -37,7 +37,7 @@ const order_history_query = async (
     }
     order_payment.payment_invoice_number = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
+    }${new Date().getFullYear()}${institute?.invoice_count}`;
     await Promise.all([order_payment.save(), institute.save()]);
     return order_payment;
   } catch (e) {

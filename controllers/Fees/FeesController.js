@@ -186,10 +186,8 @@ exports.feesPaidByStudent = async (req, res) => {
           order.payment_mode = "Offline";
           order.payment_fee = fData._id;
           order.payment_from = student._id;
+          order.payment_student = student?._id;
           institute.invoice_count += 1;
-          order.payment_invoice_number = `${
-            new Date().getMonth() + 1
-          }${new Date().getFullYear()}${institute.invoice_count}`;
           user.payment_history.push(order._id);
           institute.payment_history.push(order._id);
           var new_receipt = new FeeReceipt({});
@@ -199,7 +197,10 @@ exports.feesPaidByStudent = async (req, res) => {
           new_receipt.receipt_generated_from = "BY_ClASS_TEACHER";
           new_receipt.fee_transaction_date = new Date();
           new_receipt.finance = finance?._id;
-          new_receipt.invoice_count = order?.payment_invoice_number;
+          new_receipt.invoice_count = `${
+            new Date().getMonth() + 1
+          }${new Date().getFullYear()}${institute?.invoice_count}`;
+          order.payment_invoice_number = new_receipt?.invoice_count;
           new_receipt.order_history = order?._id;
           order.fee_receipt = new_receipt?._id;
           new_internal.fee_receipt = new_receipt?._id;

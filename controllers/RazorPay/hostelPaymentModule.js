@@ -566,17 +566,11 @@ exports.directHostelInstituteFunction = async (
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
-    institute.invoice_count += 1;
-    order.payment_invoice_number = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
     user.payment_history.push(order._id);
     renew.renewal_student = student?._id;
     renew.renewal_application = apply?._id;
     institute.payment_history.push(order._id);
-    new_receipt.invoice_count = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
+    new_receipt.invoice_count = order?.payment_invoice_number;
     var total_amount = add_total_installment(student);
     var is_install;
     if (

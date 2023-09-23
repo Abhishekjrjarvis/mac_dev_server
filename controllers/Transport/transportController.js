@@ -1144,16 +1144,15 @@ exports.renderTransportStudentCollect = async (req, res) => {
     order.payment_mode = mode;
     order.payment_transport = one_vehicle._id;
     order.payment_from = student._id;
+    order.payment_student = student?._id
     order.fee_receipt = new_receipt?._id;
     institute.invoice_count += 1;
-    order.payment_invoice_number = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
-    user.payment_history.push(order._id);
-    institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
+    order.payment_invoice_number = new_receipt?.invoice_count
+    user.payment_history.push(order._id);
+    institute.payment_history.push(order._id);
     var total_amount = await add_total_installment(student);
     var is_install;
     if (
@@ -1408,16 +1407,15 @@ exports.renderTransportStudentExempt = async (req, res) => {
     order.payment_mode = mode;
     order.payment_transport = one_vehicle._id;
     order.payment_from = student._id;
+    order.payment_student = student?._id
     order.fee_receipt = new_receipt?._id;
     institute.invoice_count += 1;
-    order.payment_invoice_number = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
-    user.payment_history.push(order._id);
-    institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
+    order.payment_invoice_number = new_receipt?.invoice_count
+    user.payment_history.push(order._id);
+    institute.payment_history.push(order._id);
     if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
       await exempt_installment(
         req?.body?.fee_payment_mode,
@@ -2667,14 +2665,12 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     order.payment_from = student._id;
     order.fee_receipt = new_receipt?._id;
     institute.invoice_count += 1;
-    order.payment_invoice_number = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
-    user.payment_history.push(order._id);
-    institute.payment_history.push(order._id);
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
+    order.payment_invoice_number = new_receipt?.invoice_count
+    user.payment_history.push(order._id);
+    institute.payment_history.push(order._id);
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findById({
       _id: rid,

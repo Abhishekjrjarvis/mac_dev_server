@@ -338,7 +338,7 @@ exports.getIncome = async (req, res) => {
     institute.invoice_count += 1;
     order.payment_invoice_number = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
+    }${new Date().getFullYear()}${institute?.invoice_count}`;
     if (user) {
       order.payment_by_end_user_id = user._id;
       order.payment_flag_by = "Debit";
@@ -446,7 +446,7 @@ exports.getExpense = async (req, res) => {
       institute.invoice_count += 1;
       order.payment_invoice_number = `${
         new Date().getMonth() + 1
-      }${new Date().getFullYear()}${institute.invoice_count}`;
+      }${new Date().getFullYear()}${institute?.invoice_count}`;
       order.payment_expense = expenses._id;
       f_user.payment_history.push(order._id);
       if (user) {
@@ -2835,8 +2835,7 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
         message: "Add new Structure to bucket",
         access: true,
       });
-    } 
-    else if (flow === "Hostel_Manager") {
+    } else if (flow === "Hostel_Manager") {
       const hostel = await Hostel.findById({ _id: hid });
       const struct_query = new FeeStructure({ ...req.body });
       const category = await FeeCategory.findById({
@@ -2882,8 +2881,7 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
         message: "Add new Structure to Hostel bucket",
         access: true,
       });
-    }
-    else if (flow === "Transport_Manager") {
+    } else if (flow === "Transport_Manager") {
       const trans = await Transport.findById({ _id: tid });
       const struct_query = new FeeStructure({ ...req.body });
       const category = await FeeCategory.findById({
@@ -2929,8 +2927,7 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
         message: "Add new Structure to Transport bucket",
         access: true,
       });
-    } 
-    else {
+    } else {
       res.status(200).send({
         message: "Invalid Structure Flow",
         access: true,
@@ -3060,8 +3057,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
         message: "Update Fees Structure to retro bucket",
         access: true,
       });
-    } 
-    else if (flow === "Hostel_Manager") {
+    } else if (flow === "Hostel_Manager") {
       const previous_struct = await FeeStructure.findById({ _id: fsid });
       const finance = await Finance.findById({
         _id: `${previous_struct?.finance}`,
@@ -3119,8 +3115,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
         message: "Update Fees Structure to retro Hostel bucket",
         access: true,
       });
-    } 
-    else if (flow === "Transport_Manager") {
+    } else if (flow === "Transport_Manager") {
       const previous_struct = await FeeStructure.findById({ _id: fsid });
       const finance = await Finance.findById({
         _id: `${previous_struct?.finance}`,
@@ -3178,8 +3173,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
         message: "Update Fees Structure to retro Transport bucket",
         access: true,
       });
-    }
-    else {
+    } else {
       res.status(200).send({
         message: "Invalid Retro Event Structure Flow",
         access: true,
@@ -3851,7 +3845,7 @@ exports.renderOneTransportFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads"
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads",
       })
       .populate({
         path: "order_history",
@@ -3873,11 +3867,11 @@ exports.renderOneTransportFeeReceipt = async (req, res) => {
         },
       });
 
-      var one_account = await BankAccount.findOne({
-        transport: receipt?.vehicle?.transport?._id,
-      }).select(
-        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
-      );
+    var one_account = await BankAccount.findOne({
+      transport: receipt?.vehicle?.transport?._id,
+    }).select(
+      "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+    );
 
     var ref = receipt?.student?.remainingFeeList?.filter((ele) => {
       if (`${ele?.vehicleId}` === `${receipt?.vehicle?._id}`) return ele;
@@ -4436,7 +4430,9 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
       _id: `${finance?.institute}`,
     });
     const hostel = await Hostel.findById({ _id: institute?.hostelDepart?.[0] });
-    const trans = await Transport.findOne({ _id: institute?.transportDepart?.[0]})
+    const trans = await Transport.findOne({
+      _id: institute?.transportDepart?.[0],
+    });
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
@@ -4454,10 +4450,11 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
     order.payment_mode = mode;
     order.payment_finance = finance?._id;
     order.payment_from = student._id;
+    order.payment_student = student?._id;
     institute.invoice_count += 1;
     order.payment_invoice_number = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
+    }${new Date().getFullYear()}${institute?.invoice_count}`;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (master?.deposit_amount >= price) {
@@ -4499,8 +4496,7 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
       finance.refund_deposit.push(new_receipt?._id);
     } else if (master?.master_status === "Hostel Linked") {
       hostel.refund_deposit.push(new_receipt?._id);
-    }
-    else if (master?.master_status === "Transport Linked") {
+    } else if (master?.master_status === "Transport Linked") {
       trans.refund_deposit.push(new_receipt?._id);
     }
     student.refund_deposit.push(new_receipt?._id);
@@ -4516,8 +4512,8 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
       institute.save(),
       order.save(),
     ]);
-    if(trans){
-      await trans.save()
+    if (trans) {
+      await trans.save();
     }
     res
       .status(200)

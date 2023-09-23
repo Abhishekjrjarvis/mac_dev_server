@@ -596,6 +596,7 @@ exports.generate_excel_to_json_subject_chapter_query = async (file) => {
     const w_sheet = w_query.Sheets["SubjectChapter"];
     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
     var new_data_query = [];
+    console.log(data_query);
     for (var ref of data_query) {
       var chap_arr = [];
       ref.chapter_name = ref?.ChapterName;

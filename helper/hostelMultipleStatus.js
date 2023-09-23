@@ -28,11 +28,11 @@ exports.insert_multiple_hostel_status = async (
   sid,
   unit_args,
   finance,
-  receipt,
+  receipt
 ) => {
   try {
     var filtered_account = await BankAccount.findOne({
-      hostel: args?.applicationHostel
+      hostel: args?.applicationHostel,
     });
     const statusArray = [
       {
@@ -325,9 +325,8 @@ exports.fee_reordering_hostel = async (
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    order.payment_invoice_number = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
+    order.payment_student = student?._id;
+    order.payment_invoice_number = new_receipt?.invoice_count;
     order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);

@@ -184,7 +184,7 @@ exports.fee_reordering = async (
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
+    }${new Date().getFullYear()}${institute?.invoice_count}`;
     var total_amount = await add_total_installment(student);
     if (price > 0 && !is_install) {
       var new_remainFee = new RemainingList({
@@ -318,9 +318,8 @@ exports.fee_reordering = async (
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    order.payment_invoice_number = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
+    order.payment_student = student?._id;
+    order.payment_invoice_number = new_receipt?.invoice_count;
     order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
@@ -717,16 +716,15 @@ exports.fee_reordering_direct_student_payload = async (
               order.payment_mode = nest?.mode;
               order.payment_admission = apply._id;
               order.payment_from = student._id;
+              order.payment_student = student?._id;
               institute.invoice_count += 1;
-              order.payment_invoice_number = `${
-                new Date().getMonth() + 1
-              }${new Date().getFullYear()}${institute.invoice_count}`;
               user.payment_history.push(order._id);
               order.fee_receipt = new_receipt?._id;
               institute.payment_history.push(order._id);
               new_receipt.invoice_count = `${
                 new Date().getMonth() + 1
-              }${new Date().getFullYear()}${institute.invoice_count}`;
+              }${new Date().getFullYear()}${institute?.invoice_count}`;
+              order.payment_invoice_number = new_receipt?.invoice_count;
               await Promise.all([
                 new_receipt.save(),
                 institute.save(),
@@ -862,7 +860,7 @@ exports.fee_reordering_direct_student_payload = async (
               institute.invoice_count += 1;
               new_receipt.invoice_count = `${
                 new Date().getMonth() + 1
-              }${new Date().getFullYear()}${institute.invoice_count}`;
+              }${new Date().getFullYear()}${institute?.invoice_count}`;
               new_remainFee.fee_receipts.push(new_receipt?._id);
               new_remainFee.remaining_array.push({
                 remainAmount: nestPrice,
@@ -895,9 +893,8 @@ exports.fee_reordering_direct_student_payload = async (
               order.payment_mode = nest?.mode;
               order.payment_admission = apply._id;
               order.payment_from = student._id;
-              order.payment_invoice_number = `${
-                new Date().getMonth() + 1
-              }${new Date().getFullYear()}${institute.invoice_count}`;
+              order.payment_student = student?._id;
+              order.payment_invoice_number = new_receipt?.invoice_count;
               user.payment_history.push(order._id);
               institute.payment_history.push(order._id);
               order.fee_receipt = new_receipt?._id;
@@ -1108,16 +1105,15 @@ exports.fee_reordering_direct_student_payload_exist_query = async (
               order.payment_mode = nest?.mode;
               order.payment_admission = apply._id;
               order.payment_from = student._id;
+              order.payment_student = student?._id;
               institute.invoice_count += 1;
-              order.payment_invoice_number = `${
-                new Date().getMonth() + 1
-              }${new Date().getFullYear()}${institute.invoice_count}`;
               user.payment_history.push(order._id);
               order.fee_receipt = new_receipt?._id;
               institute.payment_history.push(order._id);
               new_receipt.invoice_count = `${
                 new Date().getMonth() + 1
-              }${new Date().getFullYear()}${institute.invoice_count}`;
+              }${new Date().getFullYear()}${institute?.invoice_count}`;
+              order.payment_invoice_number = new_receipt?.invoice_count;
               await Promise.all([
                 new_receipt.save(),
                 institute.save(),
@@ -1253,7 +1249,7 @@ exports.fee_reordering_direct_student_payload_exist_query = async (
               institute.invoice_count += 1;
               new_receipt.invoice_count = `${
                 new Date().getMonth() + 1
-              }${new Date().getFullYear()}${institute.invoice_count}`;
+              }${new Date().getFullYear()}${institute?.invoice_count}`;
               new_remainFee.fee_receipts.push(new_receipt?._id);
               new_remainFee.remaining_array.push({
                 remainAmount: nestPrice,
@@ -1286,9 +1282,8 @@ exports.fee_reordering_direct_student_payload_exist_query = async (
               order.payment_mode = nest?.mode;
               order.payment_admission = apply._id;
               order.payment_from = student._id;
-              order.payment_invoice_number = `${
-                new Date().getMonth() + 1
-              }${new Date().getFullYear()}${institute.invoice_count}`;
+              order.payment_student = student?._id;
+              order.payment_invoice_number = new_receipt?.invoice_count;
               user.payment_history.push(order._id);
               institute.payment_history.push(order._id);
               order.fee_receipt = new_receipt?._id;

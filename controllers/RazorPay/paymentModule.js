@@ -418,10 +418,7 @@ exports.admissionInstituteFunction = async (
       new_receipt.fee_transaction_date = new Date();
       new_receipt.application = apply?._id;
       new_receipt.finance = finance?._id;
-      ins.invoice_count += 1;
-      new_receipt.invoice_count = `${
-        new Date().getMonth() + 1
-      }${new Date().getFullYear()}${ins.invoice_count}`;
+      new_receipt.invoice_count = orderPay?.payment_invoice_number;
       const notify = new StudentNotification({});
       admission.onlineFee += parseInt(tx_amount_ad);
       // admission.collected_fee += parseInt(tx_amount_ad);
@@ -665,10 +662,7 @@ exports.admissionInstituteFunction = async (
         new_receipt.fee_transaction_date = new Date();
         new_receipt.application = apply?._id;
         new_receipt.finance = finance?._id;
-        ins.invoice_count += 1;
-        new_receipt.invoice_count = `${
-          new Date().getMonth() + 1
-        }${new Date().getFullYear()}${ins.invoice_count}`;
+        new_receipt.invoice_count = orderPay?.payment_invoice_number;
         if (admission?.remainingFeeCount >= parseInt(tx_amount_ad)) {
           admission.remainingFeeCount -= parseInt(tx_amount_ad);
         }
@@ -857,10 +851,7 @@ exports.admissionInstituteFunction = async (
         $and: [{ student: student?._id }, { appId: apply?._id }],
       });
       remaining_fee_lists.fee_receipts.push(new_receipt?._id);
-      ins.invoice_count += 1;
-      new_receipt.invoice_count = `${
-        new Date().getMonth() + 1
-      }${new Date().getFullYear()}${ins.invoice_count}`;
+      new_receipt.invoice_count = orderPay?.payment_invoice_number;
       remaining_fee_lists.paid_fee += parseInt(tx_amount_ad);
       if (remaining_fee_lists.remaining_fee >= parseInt(tx_amount_ad)) {
         remaining_fee_lists.remaining_fee -= parseInt(tx_amount_ad);
@@ -1551,15 +1542,9 @@ exports.directAdmissionInstituteFunction = async (
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
-    institute.invoice_count += 1;
-    order.payment_invoice_number = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
-    new_receipt.invoice_count = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
+    new_receipt.invoice_count = order?.payment_invoice_number;
     var total_amount = await add_total_installment({
       fee_structure: structure,
     });

@@ -284,6 +284,7 @@ exports.renderVehicleUpdateRoute = async (req, res) => {
       await route.save();
     } else if (route_status === "Add_New_Stop_Point" && edit_path?.length > 0) {
       for (var path of edit_path) {
+        console.log(edit_path)
         if (path?.index >= route.direction_route?.length) {
           console.log("PUSH");
           route.direction_route.push({

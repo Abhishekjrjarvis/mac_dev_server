@@ -285,12 +285,14 @@ exports.renderVehicleUpdateRoute = async (req, res) => {
     } else if (route_status === "Add_New_Stop_Point" && edit_path?.length > 0) {
       for (var path of edit_path) {
         if (path?.index > route.direction_route?.length) {
+          console.log("PUSH")
           route.direction_route.push({
             route_stop: path.stop,
             // route_fees: path.fee,
             route_structure: path.structure,
           });
         } else {
+          console.log("CHANGE POS")
           route.direction_route.splice(path.index, 0, {
             route_stop: path.stop,
             // route_fees: path.fee,

@@ -402,61 +402,60 @@ exports.classDelete = async (req, res) => {
   try {
     if (!req.params.cid) throw "Please send class id to perform task";
 
-    const classes = await Class.findById(req.params.cid);
+    var classes = await Class.findById(req.params.cid);
     if (classes?.ApproveStudent?.length)
       throw "You can't delete class because students existence";
-
-    for (let display of classes?.displayPersonList) {
-      const displayPerson = await DisplayPerson.findById(display).populate({
-        path: "displayUser",
-      });
-      displayPerson.displayUser.displayPersonArray?.pull(display);
-      await displayPerson.displayUser.save();
-      await DisplayPerson.findByIdAndDelete(display);
-    }
-    for (let sub of classes?.subject) {
-      const subject = await Subject.findById(sub);
-      const subjectMaster = await SubjectMaster.findById(
-        subject.subjectMasterName
-      );
-      subjectMaster?.subjects.pull(subject._id);
-      subjectMaster.subjectCount -= 1;
-      const subjectTeacherName = await Staff.findById(
-        subject.subjectTeacherName
-      );
-      subjectTeacherName?.staffSubject.pull(subject._id);
-      subjectTeacherName.staffDesignationCount -= 1;
-      await Promise.all([subjectMaster.save(), subjectTeacherName.save()]);
-      await Subject.findByIdAndDelete(sub);
+    if (classes?.subject?.length > 0) {
+      for (let sub of classes?.subject) {
+        const subject = await Subject.findById(sub);
+        const subjectMaster = await SubjectMaster.findById(
+          subject.subjectMasterName
+        );
+        subjectMaster?.subjects.pull(subject._id);
+        subjectMaster.subjectCount -= 1;
+        const subjectTeacherName = await Staff.findById(
+          subject.subjectTeacherName
+        );
+        subjectTeacherName?.staffSubject.pull(subject._id);
+        subjectTeacherName.staffDesignationCount -= 1;
+        await Promise.all([subjectMaster.save(), subjectTeacherName.save()]);
+        await Subject.findByIdAndDelete(sub);
+      }
     }
 
-    const classMaster = await ClassMaster.findById(classes.masterClassName);
-    classMaster?.classDivision?.pull(classes._id);
-    classMaster.classCount -= 1;
-    const classTeacher = await Staff.findById(classes.classTeacher);
-    classTeacher?.staffClass?.pull(classes._id);
-    classTeacher.staffDesignationCount -= 1;
-    const institute = await InstituteAdmin.findById(classes.institute);
-    institute?.classRooms?.pull(classes._id);
-    const batch = await Batch.findById(classes.batch);
-    batch?.classroom?.pull(classes._id);
-    batch.classCount -= 1;
-    const department = await Department.findById(classes.department);
-    department?.class?.pull(classes._id);
-    department.classCount -= 1;
-
-    await Promise.all([
-      classMaster.save(),
-      classTeacher.save(),
-      institute.save(),
-      batch.save(),
-      department.save(),
-    ]);
+    if (classes?.masterClassName) {
+      var classMaster = await ClassMaster.findOne(classes?.masterClassName);
+      if (classMaster) {
+        classMaster?.classDivision?.pull(classes._id);
+        if (classMaster?.classCount > 0) {
+          classMaster.classCount -= 1;
+        }
+        await classMaster.save();
+      }
+    }
+    if (classes?.classTeacher) {
+      var classTeacher = await Staff.findById(classes?.classTeacher);
+      classTeacher?.staffClass?.pull(classes._id);
+      classTeacher.staffDesignationCount -= 1;
+      await classTeacher.save();
+    }
+    if (classes?.institute) {
+      const institute = await InstituteAdmin.findById(classes?.institute);
+      institute?.classRooms?.pull(classes._id);
+      const batch = await Batch.findById(classes.batch);
+      batch?.classroom?.pull(classes._id);
+      batch.classCount -= 1;
+      const department = await Department.findById(classes.department);
+      department?.class?.pull(classes._id);
+      department.classCount -= 1;
+      await Promise.all([institute.save(), batch.save(), department.save()]);
+    }
     await Class.findByIdAndDelete(req.params.cid);
     res
       .status(200)
       .send({ message: "Class deleted successfully👍", deleted: "Yes" });
   } catch (e) {
+    console.log(e);
     res.status(200).send({
       message: e,
       deleted: "No",

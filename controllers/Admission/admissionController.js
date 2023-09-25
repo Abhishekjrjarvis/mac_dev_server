@@ -1744,13 +1744,13 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    order.payment_student = student?._id
+    order.payment_student = student?._id;
     order.fee_receipt = new_receipt?._id;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count
+    order.payment_invoice_number = new_receipt?.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     var total_amount = await add_total_installment(student);
@@ -2178,12 +2178,12 @@ exports.cancelAdmissionApplication = async (req, res) => {
       order.payment_mode = mode;
       order.payment_admission = apply._id;
       order.payment_from = student._id;
-      order.payment_student = student?._id
+      order.payment_student = student?._id;
       institute.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
       }${new Date().getFullYear()}${institute.invoice_count}`;
-      order.payment_invoice_number = new_receipt?.invoice_count
+      order.payment_invoice_number = new_receipt?.invoice_count;
       order.fee_receipt = new_receipt?._id;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
@@ -3122,12 +3122,12 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    order.payment_student = student?._id
+    order.payment_student = student?._id;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count
+    order.payment_invoice_number = new_receipt?.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     order.fee_receipt = new_receipt?._id;
@@ -3370,12 +3370,12 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    order.payment_student = student?._id
+    order.payment_student = student?._id;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count
+    order.payment_invoice_number = new_receipt?.invoice_count;
     order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
@@ -3621,8 +3621,8 @@ const request_mode_query_by_student = async (
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    order.payment_student = student?._id
-    order.payment_invoice_number = new_receipt?.invoice_count
+    order.payment_student = student?._id;
+    order.payment_invoice_number = new_receipt?.invoice_count;
     order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
@@ -5508,9 +5508,9 @@ exports.renderOneReceiptStatus = async (req, res) => {
       order.payment_mode = mode;
       order.payment_admission = one_app._id;
       order.payment_from = student._id;
-      order.payment_student = student?._id
+      order.payment_student = student?._id;
       institute.invoice_count += 1;
-      order.payment_invoice_number = one_receipt?.invoice_count
+      order.payment_invoice_number = one_receipt?.invoice_count;
       user.payment_history.push(order._id);
       order.fee_receipt = one_receipt?._id;
       institute.payment_history.push(order._id);
@@ -6266,12 +6266,12 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    order.payment_student = student?._id
+    order.payment_student = student?._id;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count
+    order.payment_invoice_number = new_receipt?.invoice_count;
     user.payment_history.push(order._id);
     order.fee_receipt = new_receipt?._id;
     institute.payment_history.push(order._id);
@@ -7684,12 +7684,12 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         order.payment_mode = mode;
         order.payment_admission = apply._id;
         order.payment_from = student._id;
-        order.payment_student = student?._id
+        order.payment_student = student?._id;
         institute.invoice_count += 1;
         new_receipt.invoice_count = `${
           new Date().getMonth() + 1
         }${new Date().getFullYear()}${institute.invoice_count}`;
-        order.payment_invoice_number = new_receipt?.invoice_count
+        order.payment_invoice_number = new_receipt?.invoice_count;
         user.payment_history.push(order._id);
         institute.payment_history.push(order._id);
         order.fee_receipt = new_receipt?._id;
@@ -8015,12 +8015,12 @@ const auto_scholar_query = async (
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    order.payment_student = student?._id
+    order.payment_student = student?._id;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count
+    order.payment_invoice_number = new_receipt?.invoice_count;
     order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
@@ -8548,12 +8548,12 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
       order.payment_mode = mode;
       order.payment_admission = apply._id;
       order.payment_from = student._id;
-      order.payment_student = student?._id
+      order.payment_student = student?._id;
       institute.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
       }${new Date().getFullYear()}${institute.invoice_count}`;
-      order.payment_invoice_number = new_receipt?.invoice_count
+      order.payment_invoice_number = new_receipt?.invoice_count;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
       order.fee_receipt = new_receipt?._id;
@@ -8882,12 +8882,12 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
-    order.payment_student = student?._id
+    order.payment_student = student?._id;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count
+    order.payment_invoice_number = new_receipt?.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     order.fee_receipt = new_receipt?._id;
@@ -9786,8 +9786,8 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
     var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    const g_date = new Date(`2023-09-19T00:00:00.000Z`);
-    const l_date = new Date(`2023-09-21T00:00:00.000Z`);
+    const g_date = new Date(`2023-09-21T00:00:00.000Z`);
+    const l_date = new Date(`2023-09-24T00:00:00.000Z`);
     var receipt = await FeeReceipt.find({
       $and: [
         {
@@ -9800,7 +9800,25 @@ exports.renderFeeHeadsQuery = async (req, res) => {
           finance: finance?._id,
         },
       ],
+    }).populate({
+      path: "student",
+      populate: {
+        path: "fee_structure",
+      },
     });
+    for (var ref of receipt) {
+      if (ref?.fee_heads?.length > 0) {
+        // ref.fee_heads = [];
+        // ref.save();
+      } else {
+            await set_fee_head_query_redesign(
+          ref?.student,
+          ref?.fee_payment_amount,
+          ref?.application,
+          ref
+        );
+      }
+    }
     // // else {
     //   await set_fee_head_query_redesign(
     //     student,
@@ -9933,7 +9951,7 @@ exports.renderAllOrderQuery = async (req, res) => {
 exports.renderFindStudentReceiptQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { sid } = req.query
+    const { sid } = req.query;
     if (!id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -9953,27 +9971,26 @@ exports.renderFindStudentReceiptQuery = async (req, res) => {
         //   },
         // },
         {
-          student: sid
+          student: sid,
         },
         {
           finance: finance?._id,
         },
       ],
     })
-    .populate({
-      path: "fee_structure"
-    })
-    .populate({
-      path: "student"
-    })
-    for(var ref of receipt){
-      if(ref?.fee_heads?.length > 0){
+      .populate({
+        path: "fee_structure",
+      })
+      .populate({
+        path: "student",
+      });
+    for (var ref of receipt) {
+      if (ref?.fee_heads?.length > 0) {
         // ref.fee_heads = []
         // // ref.fee_structure = ref?.fee_heads?.[0]?.fee_structure
         // ref.save()
-      }
-      else{
-        if(ref?.fee_structure){
+      } else {
+        if (ref?.fee_structure) {
           await receipt_set_fee_head_query_redesign(
             ref?.student,
             ref?.fee_payment_amount,

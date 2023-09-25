@@ -23,7 +23,7 @@ router
   .route("/class/:cid")
   .get(isLoggedIn, catchAsync(instituteMember.classDetail))
   .patch(isLoggedIn, catchAsync(instituteMember.classEdit))
-  .delete(isLoggedIn, catchAsync(instituteMember.classDelete));
+  .delete(catchAsync(instituteMember.classDelete));
 
 router
   .route("/subjectmaster/:smid")

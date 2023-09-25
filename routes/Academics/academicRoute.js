@@ -36,7 +36,7 @@ router.get(
 );
 
 router.delete(
-  "/:tid/one/topic/destroy/query",
+  "/:tid/one/topic/destroy/:sid/query",
   catchAsync(Academic.renderOneTopicDestroyQuery)
 );
 

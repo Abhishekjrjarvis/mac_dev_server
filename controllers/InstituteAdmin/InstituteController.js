@@ -1486,8 +1486,6 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
       var studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
       })
-        .limit(limit)
-        .skip(skip)
         .sort({ createdAt: -1 })
         .select(
           "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
@@ -1516,6 +1514,7 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
       for (var ref of studentIns) {
         all_student_query.push(ref?._id);
       }
+      studentIns = await nested_document_limit(page, limit, studentIns)
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -1723,8 +1722,6 @@ exports.retrieveFinanceApproveStudentListFilterQuery = async (req, res) => {
       var studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
       })
-        .limit(limit)
-        .skip(skip)
         .sort({ createdAt: -1 })
         .select(
           "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
@@ -1753,6 +1750,7 @@ exports.retrieveFinanceApproveStudentListFilterQuery = async (req, res) => {
       for (var ref of studentIns) {
         all_student_query.push(ref?._id);
       }
+      studentIns = await nested_document_limit(page, limit, studentIns)
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -1968,8 +1966,6 @@ exports.retrieveAdmissionApproveStudentListFilterQuery = async (req, res) => {
       var studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
       })
-        .limit(limit)
-        .skip(skip)
         .sort({ createdAt: -1 })
         .select(
           "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
@@ -1998,6 +1994,7 @@ exports.retrieveAdmissionApproveStudentListFilterQuery = async (req, res) => {
       for (var ref of studentIns) {
         all_student_query.push(ref?._id);
       }
+      studentIns = await nested_document_limit(page, limit, studentIns)
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -2215,8 +2212,6 @@ exports.retrieveApproveStudentSectionListFilterQuery = async (req, res) => {
       var studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
       })
-        .limit(limit)
-        .skip(skip)
         .sort({ createdAt: -1 })
         .select(
           "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
@@ -2245,6 +2240,7 @@ exports.retrieveApproveStudentSectionListFilterQuery = async (req, res) => {
       for (var ref of studentIns) {
         all_student_query.push(ref?._id);
       }
+      studentIns = await nested_document_limit(page, limit, studentIns)
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -2460,8 +2456,6 @@ exports.retrieveCertificateApproveStudentListFilterQuery = async (req, res) => {
       var studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
       })
-        .limit(limit)
-        .skip(skip)
         .sort({ createdAt: -1 })
         .select(
           "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
@@ -2490,6 +2484,7 @@ exports.retrieveCertificateApproveStudentListFilterQuery = async (req, res) => {
       for (var ref of studentIns) {
         all_student_query.push(ref?._id);
       }
+      studentIns = await nested_document_limit(page, limit, studentIns)
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -2707,8 +2702,6 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
       var studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
       })
-        .limit(limit)
-        .skip(skip)
         .sort({ createdAt: -1 })
         .select(
           "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
@@ -2737,6 +2730,7 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
       for (var ref of studentIns) {
         all_student_query.push(ref?._id);
       }
+      studentIns = await nested_document_limit(page, limit, studentIns)
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (

@@ -9156,20 +9156,20 @@ exports.renderFilterByThreeFunctionQuery = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { departId, masterId, search } = req.query;
-    if (!id && !departId && !masterId)
+    const { departId, masterId, search, batchId } = req.query;
+    if (!id && !departId && !masterId && !batchId)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: true,
       });
 
     var ads_admin = await Admission.findOne({ institute: id });
-    if (search) {
+    if (departId && masterId && batchId) {
       var all_apps = await NewApplication.find({
         $and: [
           { _id: { $in: ads_admin?.newApplication } },
           { applicationDepartment: departId },
-          // { applicationBatch: batchId },
+          { applicationBatch: batchId },
           { applicationMaster: masterId },
         ],
         $or: [{ applicationName: { $regex: search, $options: "i" } }],
@@ -9786,8 +9786,8 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
     var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    const g_date = new Date(`2023-09-21T00:00:00.000Z`);
-    const l_date = new Date(`2023-09-24T00:00:00.000Z`);
+    const g_date = new Date(`2023-09-22T00:00:00.000Z`);
+    const l_date = new Date(`2023-09-26T00:00:00.000Z`);
     var receipt = await FeeReceipt.find({
       $and: [
         {
@@ -9795,6 +9795,9 @@ exports.renderFeeHeadsQuery = async (req, res) => {
             $gte: g_date,
             $lte: l_date,
           },
+        },
+        {
+          set_off_status: "Not Set off",
         },
         {
           finance: finance?._id,
@@ -9811,7 +9814,7 @@ exports.renderFeeHeadsQuery = async (req, res) => {
         // ref.fee_heads = [];
         // ref.save();
       } else {
-            await set_fee_head_query_redesign(
+        await set_fee_head_query_redesign(
           ref?.student,
           ref?.fee_payment_amount,
           ref?.application,

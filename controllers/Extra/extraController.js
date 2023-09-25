@@ -2122,7 +2122,7 @@ exports.renderAllClassMatesQuery = async (req, res) => {
 
 exports.renderFilteredMessageQuery = async (req, res) => {
   try {
-    const { filtered_arr, message, from, type } = req.body;
+    const { filtered_arr, message, from, type, flow } = req.body;
     if (!filtered_arr)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -2130,44 +2130,82 @@ exports.renderFilteredMessageQuery = async (req, res) => {
       });
 
     var all_student = await Student.find({ _id: { $in: filtered_arr } });
-    var valid_staff = await Staff.findById({ _id: `${from}` });
 
-    for (var ref of all_student) {
-      var user = await User.findById({
-        _id: `${ref?.user}`,
+    if (flow === "INSTITUTE_ADMIN") {
+      var valid_ins = await InstituteAdmin.findById({ _id: `${from}` });
+      for (var ref of all_student) {
+        var user = await User.findById({
+          _id: `${ref?.user}`,
+        });
+        var notify = new StudentNotification({});
+        notify.notifyContent = `${message} - From ${type},
+      Institute Admin`;
+        notify.notifySender = `${valid_ins?._id}`;
+        notify.notifyReceiever = `${user?._id}`;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = ref?._id;
+        user.activity_tab.push(notify?._id);
+        notify.notifyByInsPhoto = valid_ins?._id;
+        notify.notifyCategory = "Reminder Alert";
+        notify.redirectIndex = 59;
+        await Promise.all([user.save(), notify.save()]);
+        invokeSpecificRegister(
+          "Specific Notification",
+          `${message} - From ${type},
+      Institute Admin`,
+          "Fees Reminder",
+          user._id,
+          user.deviceToken
+        );
+      }
+
+      valid_ins.student_message.push({
+        message: `${message}`,
+        student_list: [...filtered_arr],
+        student_list_count: filtered_arr?.length,
+        message_type: `${type}`,
       });
-      var notify = new StudentNotification({});
-      notify.notifyContent = `${message} - From ${type},
-      ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${
-        valid_staff?.staffLastName
-      }`;
-      notify.notifySender = `${valid_staff?.user}`;
-      notify.notifyReceiever = `${user?._id}`;
-      notify.notifyType = "Student";
-      notify.notifyPublisher = ref?._id;
-      user.activity_tab.push(notify?._id);
-      notify.notifyByStaffPhoto = valid_staff?._id;
-      notify.notifyCategory = "Reminder Alert";
-      notify.redirectIndex = 59;
-      await Promise.all([user.save(), notify.save()]);
-      invokeSpecificRegister(
-        "Specific Notification",
-        `${message} - From ${type},
+      await valid_ins.save();
+    } else {
+      var valid_staff = await Staff.findById({ _id: `${from}` });
+      for (var ref of all_student) {
+        var user = await User.findById({
+          _id: `${ref?.user}`,
+        });
+        var notify = new StudentNotification({});
+        notify.notifyContent = `${message} - From ${type},
       ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${
           valid_staff?.staffLastName
-        }`,
-        "Fees Reminder",
-        user._id,
-        user.deviceToken
-      );
+        }`;
+        notify.notifySender = `${valid_staff?.user}`;
+        notify.notifyReceiever = `${user?._id}`;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = ref?._id;
+        user.activity_tab.push(notify?._id);
+        notify.notifyByStaffPhoto = valid_staff?._id;
+        notify.notifyCategory = "Reminder Alert";
+        notify.redirectIndex = 59;
+        await Promise.all([user.save(), notify.save()]);
+        invokeSpecificRegister(
+          "Specific Notification",
+          `${message} - From ${type},
+      ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${
+            valid_staff?.staffLastName
+          }`,
+          "Fees Reminder",
+          user._id,
+          user.deviceToken
+        );
+      }
+
+      valid_staff.student_message.push({
+        message: `${message}`,
+        student_list: [...filtered_arr],
+        student_list_count: filtered_arr?.length,
+        message_type: `${type}`,
+      });
+      await valid_staff.save();
     }
-    valid_staff.student_message.push({
-      message: `${message}`,
-      student_list: [...filtered_arr],
-      student_list_count: filtered_arr?.length,
-      message_type: `${type}`,
-    });
-    await valid_staff.save();
     res
       .status(200)
       .send({ message: "Explore Filtered Message Query", access: true });
@@ -2179,6 +2217,7 @@ exports.renderFilteredMessageQuery = async (req, res) => {
 exports.renderAllFilteredMessageQuery = async (req, res) => {
   try {
     const { sid } = req.params;
+    const { flow } = req.query;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     if (!sid)
@@ -2186,22 +2225,41 @@ exports.renderAllFilteredMessageQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    var valid_staff = await Staff.findById({ _id: sid })
-      .select("student_message")
-      .populate({
-        path: "student_message",
-        populate: {
-          path: "student",
-          select:
-            "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name",
-        },
-      });
+    if (flow === "INSTITUTE_ADMIN") {
+      var valid_ins = await InstituteAdmin.findById({ _id: sid })
+        .select("student_message")
+        .populate({
+          path: "student_message",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name",
+          },
+        });
 
-    var all_message = await nested_document_limit(
-      page,
-      limit,
-      valid_staff?.student_message
-    );
+      var all_message = await nested_document_limit(
+        page,
+        limit,
+        valid_ins?.student_message
+      );
+    } else {
+      var valid_staff = await Staff.findById({ _id: sid })
+        .select("student_message")
+        .populate({
+          path: "student_message",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name",
+          },
+        });
+
+      var all_message = await nested_document_limit(
+        page,
+        limit,
+        valid_staff?.student_message
+      );
+    }
 
     if (all_message?.length > 0) {
       res.status(200).send({
@@ -3036,6 +3094,96 @@ exports.renderExcelToJSONSubjectQuery = async (req, res) => {
     } else {
       console.log("false");
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
+  try {
+    const { sid, message, from, type, flow } = req.body;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    if (flow === "INSTITUTE_ADMIN") {
+      var student = await Student.find({ _id: sid });
+      var valid_ins = await InstituteAdmin.findById({ _id: `${from}` });
+      var user = await User.findById({
+        _id: `${student?.user}`,
+      });
+      var notify = new StudentNotification({});
+      notify.notifyContent = `${message} - From ${type},
+    Institute Admin`;
+      notify.notifySender = `${valid_ins?._id}`;
+      notify.notifyReceiever = `${user?._id}`;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByInsPhoto = valid_ins?._id;
+      notify.notifyCategory = "Reminder Alert";
+      notify.redirectIndex = 59;
+      await Promise.all([user.save(), notify.save()]);
+      invokeSpecificRegister(
+        "Specific Notification",
+        `${message} - From ${type},
+    Institute Admin`,
+        "Fees Reminder",
+        user._id,
+        user.deviceToken
+      );
+
+      valid_ins.student_message.push({
+        message: `${message}`,
+        student_list: [sid],
+        student_list_count: 1,
+        message_type: `${type}`,
+      });
+      await valid_ins.save();
+    } else {
+      var student = await Student.find({ _id: sid });
+      var valid_staff = await Staff.findById({ _id: `${from}` });
+      var user = await User.findById({
+        _id: `${student?.user}`,
+      });
+      var notify = new StudentNotification({});
+      notify.notifyContent = `${message} - From ${type},
+      ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${
+        valid_staff?.staffLastName
+      }`;
+      notify.notifySender = `${valid_staff?.user}`;
+      notify.notifyReceiever = `${user?._id}`;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByStaffPhoto = valid_staff?._id;
+      notify.notifyCategory = "Reminder Alert";
+      notify.redirectIndex = 59;
+      await Promise.all([user.save(), notify.save()]);
+      invokeSpecificRegister(
+        "Specific Notification",
+        `${message} - From ${type},
+      ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${
+          valid_staff?.staffLastName
+        }`,
+        "Fees Reminder",
+        user._id,
+        user.deviceToken
+      );
+
+      valid_staff.student_message.push({
+        message: `${message}`,
+        student_list: [sid],
+        student_list_count: 1,
+        message_type: `${type}`,
+      });
+      await valid_staff.save();
+    }
+    res
+      .status(200)
+      .send({ message: "Explore Filtered Message Query", access: true });
   } catch (e) {
     console.log(e);
   }

@@ -375,4 +375,9 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONSubjectQuery)
 );
 
+router.patch(
+  "/send/one/student/filtered/message/query",
+  catchAsync(Extra.renderOneStudentFilteredMessageQuery)
+);
+
 module.exports = router;

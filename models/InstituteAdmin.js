@@ -938,6 +938,30 @@ const instituteAdminSchema = new mongoose.Schema({
       },
     },
   ],
+  student_message: [
+    {
+      message: {
+        type: String,
+      },
+      student_list: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Student",
+        },
+      ],
+      created_at: {
+        type: Date,
+        default: Date.now,
+      },
+      student_list_count: {
+        type: Number,
+        default: 0,
+      },
+      message_type: {
+        type: String,
+      },
+    },
+  ],
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

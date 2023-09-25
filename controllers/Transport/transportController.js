@@ -340,7 +340,7 @@ exports.renderVehicleNewPassenger = async (req, res) => {
     vehicle.passenger_array.push(student?._id);
     vehicle.passenger_array_with_batch.push(trans_batch?._id);
     student.vehicle = vehicle._id;
-    trans.pending_student.push(student?._id)
+    trans.pending_student.push(student?._id);
     for (var path of route?.direction_route) {
       if (`${path?._id}` === `${rid}`) {
         path.passenger_list.push(student?._id);
@@ -1102,7 +1102,7 @@ exports.renderTransportVehicleUserManage = async (req, res) => {
 exports.renderTransportStudentCollect = async (req, res) => {
   try {
     const { sid, tid } = req.params;
-    const { receipt_status } = req.query;
+    const { receipt_status, id } = req.query;
     const { amount, mode } = req.body;
     if (!sid && !tid && !amount && !mode)
       return res.status(200).send({
@@ -1119,7 +1119,7 @@ exports.renderTransportStudentCollect = async (req, res) => {
       _id: `${student?.vehicle}`,
     });
     var institute = await InstituteAdmin.findById({
-      _id: `${trans.institute}`,
+      _id: id,
     });
     var finance = await Finance.findById({
       _id: `${institute.financeDepart[0]}`,
@@ -1308,8 +1308,8 @@ exports.renderTransportStudentCollect = async (req, res) => {
       amount: price,
       mode: mode,
     });
-    if(trans?.pending_student?.includes(`${student?._id}`)){
-      trans.pending_student.pull(student?._id)
+    if (trans?.pending_student?.includes(`${student?._id}`)) {
+      trans.pending_student.pull(student?._id);
     }
     // notify.notifyContent = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
     // notify.notifySender = admission?.admissionAdminHead?.user;
@@ -1369,7 +1369,7 @@ exports.renderTransportStudentCollect = async (req, res) => {
 exports.renderTransportStudentExempt = async (req, res) => {
   try {
     const { sid, tid } = req.params;
-    const { amount, mode } = req.body;
+    const { amount, mode, id } = req.body;
     if (!sid && !tid && !amount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -1385,7 +1385,7 @@ exports.renderTransportStudentExempt = async (req, res) => {
       _id: `${student?.vehicle}`,
     });
     var institute = await InstituteAdmin.findById({
-      _id: `${trans.institute}`,
+      _id: id,
     });
     var finance = await Finance.findById({
       _id: `${institute.financeDepart[0]}`,
@@ -1454,7 +1454,7 @@ exports.renderTransportStudentExempt = async (req, res) => {
 exports.renderTransportFundsQuery = async (req, res) => {
   try {
     const { tid } = req.params;
-    const { amount } = req.body;
+    const { amount, id } = req.body;
     if (!tid && !amount)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -1463,7 +1463,7 @@ exports.renderTransportFundsQuery = async (req, res) => {
     const price = parseInt(amount);
     const trans = await Transport.findById({ _id: tid });
     const one_ins = await InstituteAdmin.findById({
-      _id: `${trans?.institute}`,
+      _id: id,
     });
     const finance = await Finance.findById({
       _id: `${one_ins?.financeDepart[0]}`,
@@ -2106,6 +2106,7 @@ const getCurrentBatchPassengerWithSearch = async (
 exports.renderTransportAllPassengerWithBatch = async (req, res) => {
   try {
     const { tid } = req.params;
+    const { id } = req.query;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
@@ -2119,50 +2120,112 @@ exports.renderTransportAllPassengerWithBatch = async (req, res) => {
       "transport_passengers institute transport_passengers_with_batch"
     );
 
-    if (filter_by === "true") {
-      var all_passengers = await Student.find({
-        $and: [{ _id: { $in: trans?.transport_passengers } }],
-      })
-        .sort("-vehicleRemainFeeCount")
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
-        )
-        .populate({
-          path: "studentClass",
-          select: "className classTitle",
+    if (id) {
+      if (filter_by === "true") {
+        var all_passengers = await Student.find({
+          $and: [
+            { _id: { $in: trans?.transport_passengers } },
+            { institute: id },
+          ],
         })
-        .populate({
-          path: "user",
-          select: "userPhoneNumber",
+          .sort("-vehicleRemainFeeCount")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle",
+          })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber",
+          })
+          .populate({
+            path: "transport_fee_structure",
+          })
+          .exec();
+      } else {
+        var all_passengers = await Student.find({
+          $and: [
+            { _id: { $in: trans?.transport_passengers } },
+            { institute: id },
+          ],
         })
-        .populate({
-          path: "transport_fee_structure"
-        })
-        .exec();
+          .sort("vehicleRemainFeeCount")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle",
+          })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber",
+          })
+          .populate({
+            path: "transport_fee_structure",
+          })
+          .exec();
+      }
     } else {
-      var all_passengers = await Student.find({
-        $and: [{ _id: { $in: trans?.transport_passengers } }],
-      })
-        .sort("vehicleRemainFeeCount")
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
-        )
-        .populate({
-          path: "studentClass",
-          select: "className classTitle",
+      if (filter_by === "true") {
+        var all_passengers = await Student.find({
+          $and: [{ _id: { $in: trans?.transport_passengers } }],
         })
-        .populate({
-          path: "user",
-          select: "userPhoneNumber",
+          .sort("-vehicleRemainFeeCount")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle",
+          })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber",
+          })
+          .populate({
+            path: "transport_fee_structure",
+          })
+          .populate({
+            path: "institute",
+            select: "insName name",
+          })
+          .exec();
+      } else {
+        var all_passengers = await Student.find({
+          $and: [{ _id: { $in: trans?.transport_passengers } }],
         })
-        .populate({
-          path: "transport_fee_structure"
-        })
-        .exec();
+          .sort("vehicleRemainFeeCount")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle",
+          })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber",
+          })
+          .populate({
+            path: "transport_fee_structure",
+          })
+          .populate({
+            path: "institute",
+            select: "insName name",
+          })
+          .exec();
+      }
     }
 
     if (all_passengers?.length > 0) {
@@ -2186,6 +2249,7 @@ exports.renderTransportAllPassengerWithBatch = async (req, res) => {
 exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
   try {
     const { vid } = req.params;
+    const { id } = req.query;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
@@ -2205,50 +2269,112 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
       .select("passenger_array transport passenger_array_with_batch");
     // fetch all current data
 
-    if (filter_by === "true") {
-      var all_passengers = await Student.find({
-        $and: [{ _id: { $in: one_vehicle?.passenger_array } }],
-      })
-        .sort("-vehicleRemainFeeCount")
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
-        )
-        .populate({
-          path: "studentClass",
-          select: "className classTitle",
+    if (id) {
+      if (filter_by === "true") {
+        var all_passengers = await Student.find({
+          $and: [
+            { _id: { $in: one_vehicle?.passenger_array } },
+            { institute: id },
+          ],
         })
-        .populate({
-          path: "user",
-          select: "userPhoneNumber",
+          .sort("-vehicleRemainFeeCount")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle",
+          })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber",
+          })
+          .populate({
+            path: "transport_fee_structure",
+          })
+          .exec();
+      } else {
+        var all_passengers = await Student.find({
+          $and: [
+            { _id: { $in: one_vehicle?.passenger_array } },
+            { institute: id },
+          ],
         })
-        .populate({
-          path: "transport_fee_structure"
-        })
-        .exec();
+          .sort("vehicleRemainFeeCount")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle",
+          })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber",
+          })
+          .populate({
+            path: "transport_fee_structure",
+          })
+          .exec();
+      }
     } else {
-      var all_passengers = await Student.find({
-        $and: [{ _id: { $in: one_vehicle?.passenger_array } }],
-      })
-        .sort("vehicleRemainFeeCount")
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
-        )
-        .populate({
-          path: "studentClass",
-          select: "className classTitle",
+      if (filter_by === "true") {
+        var all_passengers = await Student.find({
+          $and: [{ _id: { $in: one_vehicle?.passenger_array } }],
         })
-        .populate({
-          path: "user",
-          select: "userPhoneNumber",
+          .sort("-vehicleRemainFeeCount")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle",
+          })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber",
+          })
+          .populate({
+            path: "transport_fee_structure",
+          })
+          .populate({
+            path: "institute",
+            select: "insName name",
+          })
+          .exec();
+      } else {
+        var all_passengers = await Student.find({
+          $and: [{ _id: { $in: one_vehicle?.passenger_array } }],
         })
-        .populate({
-          path: "transport_fee_structure"
-        })
-        .exec();
+          .sort("vehicleRemainFeeCount")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle",
+          })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber",
+          })
+          .populate({
+            path: "transport_fee_structure",
+          })
+          .populate({
+            path: "institute",
+            select: "insName name",
+          })
+          .exec();
+      }
     }
 
     if (all_passengers?.length > 0) {
@@ -2272,6 +2398,7 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
 exports.renderNewBatchQuery = async (req, res) => {
   try {
     const { tid } = req.params;
+    const { id } = req.query;
     if (!tid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -2279,7 +2406,7 @@ exports.renderNewBatchQuery = async (req, res) => {
       });
     const trans = await Transport.findById({ _id: tid });
     const institute = await InstituteAdmin.findById({
-      _id: `${trans?.institute}`,
+      _id: id,
     });
     const batch = new Batch({ ...req.body });
     trans.batches.push(batch?._id);
@@ -2516,7 +2643,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
   try {
     const { tid, sid } = req.params;
     const { amount, mode, type } = req.body;
-    const { receipt_status } = req.query;
+    const { receipt_status, id } = req.query;
     if (!sid && !tid && !amount && !mode && !type)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2532,7 +2659,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       _id: `${student?.vehicle}`,
     });
     var institute = await InstituteAdmin.findById({
-      _id: `${admin_ins.institute}`,
+      _id: id,
     });
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
@@ -2540,7 +2667,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     var user = await User.findById({ _id: `${student.user}` }).select(
       "deviceToken payment_history activity_tab"
     );
-    const order = new OrderPayment({})
+    const order = new OrderPayment({});
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
@@ -2716,6 +2843,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
 exports.retrieveTransportRemainingArray = async (req, res) => {
   try {
     const { tid } = req.params;
+    const { id } = req.query;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
@@ -2723,65 +2851,144 @@ exports.retrieveTransportRemainingArray = async (req, res) => {
     const admin_ins = await Transport.findById({ _id: tid }).select(
       "remainingFee"
     );
-    if (search) {
-      var student = await Student.find({
-        $and: [{ _id: { $in: admin_ins?.remainingFee } }],
-        $or: [
-          { studentFirstName: { $regex: search, $options: "i" } },
-          { studentMiddleName: { $regex: search, $options: "i" } },
-          { studentLastName: { $regex: search, $options: "i" } },
-          { studentGRNO: { $regex: search, $options: "i" } },
-          { studentCast: { $regex: search, $options: "i" } },
-          { studentCastCategory: { $regex: search, $options: "i" } },
-          { studentGender: { $regex: search, $options: "i" } },
-        ],
-      })
-        .sort("-vehicleRemainFeeCount")
-        .select(
-          "studentFirstName studentMiddleName batches studentGender studentCast studentCastCategory studentLastName photoId studentGRNO studentProfilePhoto vehicleRemainFeeCount"
-        )
-        .populate({
-          path: "department",
-          select: "dName",
+    if (id) {
+      if (search) {
+        var student = await Student.find({
+          $and: [{ _id: { $in: admin_ins?.remainingFee } }, { institute: id }],
+          $or: [
+            { studentFirstName: { $regex: search, $options: "i" } },
+            { studentMiddleName: { $regex: search, $options: "i" } },
+            { studentLastName: { $regex: search, $options: "i" } },
+            { studentGRNO: { $regex: search, $options: "i" } },
+            { studentCast: { $regex: search, $options: "i" } },
+            { studentCastCategory: { $regex: search, $options: "i" } },
+            { studentGender: { $regex: search, $options: "i" } },
+          ],
         })
-        .populate({
-          path: "vehicle",
-          select: "vehicle_number",
+          .sort("-vehicleRemainFeeCount")
+          .select(
+            "studentFirstName studentMiddleName batches studentGender studentCast studentCastCategory studentLastName photoId studentGRNO studentProfilePhoto vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "department",
+            select: "dName",
+          })
+          .populate({
+            path: "vehicle",
+            select: "vehicle_number",
+          })
+          .populate({
+            path: "institute",
+            select: "insName name",
+          });
+        var remain_fee = student?.filter((ref) => {
+          if (ref?.vehicleRemainFeeCount > 0) return ref;
         });
-      var remain_fee = student?.filter((ref) => {
-        if (ref?.vehicleRemainFeeCount > 0) return ref;
-      });
-      res.status(200).send({
-        message: "Its a party time from DB 🙌",
-        remain: remain_fee,
-        remainCount: remain_fee?.length,
-      });
-      // }
+        res.status(200).send({
+          message: "Its a party time from DB 🙌",
+          remain: remain_fee,
+          remainCount: remain_fee?.length,
+        });
+        // }
+      } else {
+        var student = await Student.find({
+          $and: [{ _id: { $in: admin_ins?.remainingFee } }, { institute: id }],
+        })
+          .sort("-vehicleRemainFeeCount")
+          .select(
+            "studentFirstName studentMiddleName studentLastName batches photoId studentGRNO studentProfilePhoto vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "department",
+            select: "dName",
+          })
+          .populate({
+            path: "vehicle",
+            select: "vehicle_number",
+          })
+          .populate({
+            path: "institute",
+            select: "insName name",
+          });
+        student = student?.filter((ref) => {
+          if (ref?.vehicleRemainFeeCount > 0) return ref;
+        });
+        var remain_fee = await nested_document_limit(page, limit, student);
+        res.status(200).send({
+          message: "Its a party time from DB 🙌",
+          remain: remain_fee,
+          remainCount: remain_fee?.length,
+        });
+      }
     } else {
-      var student = await Student.find({
-        _id: { $in: admin_ins?.remainingFee },
-      })
-        .sort("-vehicleRemainFeeCount")
-        .select(
-          "studentFirstName studentMiddleName studentLastName batches photoId studentGRNO studentProfilePhoto vehicleRemainFeeCount"
-        )
-        .populate({
-          path: "department",
-          select: "dName",
+      if (search) {
+        var student = await Student.find({
+          $and: [{ _id: { $in: admin_ins?.remainingFee } }],
+          $or: [
+            { studentFirstName: { $regex: search, $options: "i" } },
+            { studentMiddleName: { $regex: search, $options: "i" } },
+            { studentLastName: { $regex: search, $options: "i" } },
+            { studentGRNO: { $regex: search, $options: "i" } },
+            { studentCast: { $regex: search, $options: "i" } },
+            { studentCastCategory: { $regex: search, $options: "i" } },
+            { studentGender: { $regex: search, $options: "i" } },
+          ],
         })
-        .populate({
-          path: "vehicle",
-          select: "vehicle_number",
+          .sort("-vehicleRemainFeeCount")
+          .select(
+            "studentFirstName studentMiddleName batches studentGender studentCast studentCastCategory studentLastName photoId studentGRNO studentProfilePhoto vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "department",
+            select: "dName",
+          })
+          .populate({
+            path: "vehicle",
+            select: "vehicle_number",
+          })
+          .populate({
+            path: "institute",
+            select: "insName name",
+          });
+        var remain_fee = student?.filter((ref) => {
+          if (ref?.vehicleRemainFeeCount > 0) return ref;
         });
-      student = student?.filter((ref) => {
-        if (ref?.vehicleRemainFeeCount > 0) return ref;
-      });
-      var remain_fee = await nested_document_limit(page, limit, student);
-      res.status(200).send({
-        message: "Its a party time from DB 🙌",
-        remain: remain_fee,
-        remainCount: remain_fee?.length,
-      });
+        res.status(200).send({
+          message: "Its a party time from DB 🙌",
+          remain: remain_fee,
+          remainCount: remain_fee?.length,
+        });
+        // }
+      } else {
+        var student = await Student.find({
+          $and: [{ _id: { $in: admin_ins?.remainingFee } }],
+        })
+          .sort("-vehicleRemainFeeCount")
+          .select(
+            "studentFirstName studentMiddleName studentLastName batches photoId studentGRNO studentProfilePhoto vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "department",
+            select: "dName",
+          })
+          .populate({
+            path: "vehicle",
+            select: "vehicle_number",
+          })
+          .populate({
+            path: "institute",
+            select: "insName name",
+          });
+        student = student?.filter((ref) => {
+          if (ref?.vehicleRemainFeeCount > 0) return ref;
+        });
+        var remain_fee = await nested_document_limit(page, limit, student);
+        res.status(200).send({
+          message: "Its a party time from DB 🙌",
+          remain: remain_fee,
+          remainCount: remain_fee?.length,
+        });
+      }
     }
   } catch (e) {
     console.log(e);
@@ -2875,6 +3082,101 @@ exports.renderTransportMasterAllDepositHistory = async (req, res) => {
         access: false,
         all_receipts: [],
       });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllNotLinkedQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+
+    if (search) {
+      var all_ins = await InstituteAdmin.find({
+        $and: [
+          {
+            status: "Approved",
+          },
+        ],
+        $or: [
+          {
+            insName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            name: { $regex: `${search}`, $options: "i" },
+          },
+        ],
+      }).select(
+        "insName name photoId insProfilePhoto status transport_linked_status transportDepart"
+      );
+    } else {
+      var all_ins = await InstituteAdmin.find({
+        status: "Approved",
+      })
+        .sort({ createdAt: "-1" })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "insName name photoId insProfilePhoto status transport_linked_status transportDepart"
+        );
+    }
+
+    if (all_ins?.length > 0) {
+      for (var ref of all_ins) {
+        if (`${ref?.transportDepart?.includes(`${tid}`)}`) {
+          transport_linked_status = "Linked";
+        } else {
+          transport_linked_status = "Not Linked";
+        }
+      }
+      res.status(200).send({
+        message: "Explore Not Linked Query",
+        access: true,
+        all_ins: all_ins,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "You're lost in space", access: false, all_ins: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneLinkedQuery = async (req, res) => {
+  try {
+    const { tid, id } = req.params;
+    if (!tid && !id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    var trans = await Transport.findById({ _id: tid });
+    var one_ins = await InstituteAdmin.findById({ _id: id });
+
+    if (one_ins?.transportDepart?.includes(`${trans?._id}`)) {
+      res.status(200).send({ message: "Already Linked", access: true });
+    } else {
+      one_ins.transportDepart.push(trans?._id);
+      one_ins.transportStatus = "Enable";
+      trans.linked_institute.push(one_ins?._id);
+      trans.linked_institute_count += 1;
+      await Promise.all([one_ins.save(), trans.save()]);
+      res
+        .status(200)
+        .send({ message: "Linking Operation Completed", access: true });
     }
   } catch (e) {
     console.log(e);

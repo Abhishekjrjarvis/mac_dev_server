@@ -207,6 +207,16 @@ const transportSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  linked_institute: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InstituteAdmin",
+    },
+  ],
+  linked_institute_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Transport", transportSchema);

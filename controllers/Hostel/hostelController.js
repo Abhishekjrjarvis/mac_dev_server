@@ -7655,6 +7655,101 @@ exports.renderAppDeleteQuery = async (req, res) => {
   }
 };
 
+exports.renderAllNotLinkedQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+
+    if (search) {
+      var all_ins = await InstituteAdmin.find({
+        $and: [
+          {
+            status: "Approved",
+          },
+        ],
+        $or: [
+          {
+            insName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            name: { $regex: `${search}`, $options: "i" },
+          },
+        ],
+      }).select(
+        "insName name photoId insProfilePhoto status hostel_linked_status hostelDepart"
+      );
+    } else {
+      var all_ins = await InstituteAdmin.find({
+        status: "Approved",
+      })
+        .sort({ createdAt: "-1" })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "insName name photoId insProfilePhoto status hostel_linked_status hostelDepart"
+        );
+    }
+
+    if (all_ins?.length > 0) {
+      for (var ref of all_ins) {
+        if (`${ref?.hostelDepart?.includes(`${hid}`)}`) {
+          hostel_linked_status = "Linked";
+        } else {
+          hostel_linked_status = "Not Linked";
+        }
+      }
+      res.status(200).send({
+        message: "Explore Not Linked Query",
+        access: true,
+        all_ins: all_ins,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "You're lost in space", access: false, all_ins: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneLinkedQuery = async (req, res) => {
+  try {
+    const { hid, id } = req.params;
+    if (!hid && !id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    var hostel = await Hostel.findById({ _id: hid });
+    var one_ins = await InstituteAdmin.findById({ _id: id });
+
+    if (one_ins?.hostelDepart?.includes(`${hostel?._id}`)) {
+      res.status(200).send({ message: "Already Linked", access: true });
+    } else {
+      one_ins.hostelDepart.push(hostel?._id);
+      one_ins.hostelStatus = "Enable";
+      hostel.linked_institute.push(one_ins?._id);
+      hostel.linked_institute_count += 1;
+      await Promise.all([one_ins.save(), hostel.save()]);
+      res
+        .status(200)
+        .send({ message: "Linking Operation Completed", access: true });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.renderHostelAllAppsQuery = async (req, res) => {
 //   try {
 //     const { hid } = req.params;

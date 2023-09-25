@@ -354,4 +354,14 @@ router.get("/:hid/all/apps", catchAsync(Hostel.renderAllAppsQuery));
 
 router.delete("/:hid/destroy/:appId", catchAsync(Hostel.renderAppDeleteQuery));
 
+router.get(
+  "/all/:hid/not/linked/query",
+  catchAsync(Hostel.renderAllNotLinkedQuery)
+);
+
+router.patch(
+  "/:hid/linked/one/:id/query",
+  catchAsync(Hostel.renderOneLinkedQuery)
+);
+
 module.exports = router;

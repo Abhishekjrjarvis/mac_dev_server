@@ -962,6 +962,12 @@ const instituteAdminSchema = new mongoose.Schema({
       },
     },
   ],
+  transport_linked_status: {
+    type: String,
+  },
+  hostel_linked_status: {
+    type: String,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

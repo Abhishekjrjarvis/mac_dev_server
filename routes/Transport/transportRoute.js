@@ -170,4 +170,14 @@ router.get(
   catchAsync(Transport.renderTransportMasterAllDepositHistory)
 );
 
+router.get(
+  "/all/:tid/not/linked/query",
+  catchAsync(Transport.renderAllNotLinkedQuery)
+);
+
+router.patch(
+  "/:tid/linked/one/:id/query",
+  catchAsync(Transport.renderOneLinkedQuery)
+);
+
 module.exports = router;

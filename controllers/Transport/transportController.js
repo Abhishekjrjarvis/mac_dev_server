@@ -284,15 +284,15 @@ exports.renderVehicleUpdateRoute = async (req, res) => {
       await route.save();
     } else if (route_status === "Add_New_Stop_Point" && edit_path?.length > 0) {
       for (var path of edit_path) {
-        if (path?.index > route.direction_route?.length) {
-          console.log("PUSH")
+        if (path?.index >= route.direction_route?.length) {
+          // console.log("PUSH");
           route.direction_route.push({
             route_stop: path.stop,
             // route_fees: path.fee,
             route_structure: path.structure,
           });
         } else {
-          console.log("CHANGE POS")
+          // console.log("CHANGE POS");
           route.direction_route.splice(path.index, 0, {
             route_stop: path.stop,
             // route_fees: path.fee,
@@ -1146,13 +1146,13 @@ exports.renderTransportStudentCollect = async (req, res) => {
     order.payment_mode = mode;
     order.payment_transport = one_vehicle._id;
     order.payment_from = student._id;
-    order.payment_student = student?._id
+    order.payment_student = student?._id;
     order.fee_receipt = new_receipt?._id;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count
+    order.payment_invoice_number = new_receipt?.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     var total_amount = await add_total_installment(student);
@@ -1409,13 +1409,13 @@ exports.renderTransportStudentExempt = async (req, res) => {
     order.payment_mode = mode;
     order.payment_transport = one_vehicle._id;
     order.payment_from = student._id;
-    order.payment_student = student?._id
+    order.payment_student = student?._id;
     order.fee_receipt = new_receipt?._id;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count
+    order.payment_invoice_number = new_receipt?.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
@@ -2670,7 +2670,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count
+    order.payment_invoice_number = new_receipt?.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     const notify = new StudentNotification({});

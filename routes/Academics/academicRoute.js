@@ -35,4 +35,9 @@ router.get(
   catchAsync(Academic.renderOneTopicProfileQuery)
 );
 
+router.delete(
+  "/:tid/one/topic/destroy/query",
+  catchAsync(Academic.renderOneTopicDestroyQuery)
+);
+
 module.exports = router;

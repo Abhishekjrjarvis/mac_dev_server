@@ -286,3 +286,41 @@ exports.renderOneTopicProfileQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderOneTopicDestroyQuery = async (req, res) => {
+  try {
+    const { tid, sid } = req.params;
+    if (!tid && !sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var valid_topic = await ChapterTopic.findById({ _id: tid });
+    var valid_chapter = await Chapter.findById({
+      _id: `${valid_topic?.chapter}`,
+    });
+
+    valid_chapter.topic.pull(valid_topic?._id);
+    if (valid_chapter?.topic_count > 0) {
+      valid_chapter.topic_count -= 1;
+    }
+
+    await ChapterTopic.findByIdAndDelete(valid_topic?._id);
+    res
+      .status(200)
+      .send({ message: "Deletion Operation Completed", access: true });
+
+    var all_updates = await SubjectUpdate.find({ subject: sid });
+    for (var ref of all_updates) {
+      for (var val of ref?.daily_topic) {
+        if (`${val?.topic}` === `${tid}`) {
+          ref.daily_topic.pull(val?._id);
+        }
+      }
+      await ref.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

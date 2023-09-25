@@ -47,6 +47,11 @@ const {
   generate_excel_to_json_un_approved,
   generate_excel_to_json_subject_chapter_query,
   generate_excel_to_json_fee_query,
+  generate_excel_to_json_department_query,
+  generate_excel_to_json_class_master_query,
+  generate_excel_to_json_subject_master_query,
+  generate_excel_to_json_class_query,
+  generate_excel_to_json_subject_query,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -97,6 +102,13 @@ const { all_lower_case_query } = require("../../FormatCase/LowerCase");
 const { all_title_case_query } = require("../../FormatCase/TitleCase");
 const { all_new_designation_query } = require("../../Designation/functions");
 const { nested_document_limit } = require("../../helper/databaseFunction");
+const {
+  render_new_department_query,
+  render_new_class_master_query,
+  render_new_subject_master_query,
+  render_new_class_query,
+  render_new_subject_query,
+} = require("../../Import/ExcelImport");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -2769,6 +2781,261 @@ exports.renderDesignationAllQuery = async (req, res) => {
       access: true,
       valid_institute: valid_institute,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONDepartmentQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { excel_file } = req.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_ins = await InstituteAdmin.findById({
+      _id: id,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      instituteId: one_ins?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: id,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.instituteId}` === `${update_ins?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_department_query(val);
+    if (is_converted?.value) {
+      await render_new_department_query(is_converted?.depart_array, id);
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONClassMasterQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    const { excel_file } = req.body;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${depart?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      departId: depart?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${depart?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.departId}` === `${depart?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_class_master_query(val);
+    if (is_converted?.value) {
+      await render_new_class_master_query(
+        is_converted?.class_master_array,
+        did
+      );
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONSubjectMasterQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    const { excel_file } = req.body;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${depart?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      departId: depart?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${depart?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.departId}` === `${depart?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_subject_master_query(val);
+    if (is_converted?.value) {
+      await render_new_subject_master_query(
+        is_converted?.subject_master_array,
+        did
+      );
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONClassQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    const { excel_file } = req.body;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${depart?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      departId: depart?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${depart?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.departId}` === `${depart?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_class_query(val, did);
+    if (is_converted?.value) {
+      await render_new_class_query(is_converted?.class_array, did);
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONSubjectQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const { excel_file } = req.body;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const classes = await Class.findById({ _id: cid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${classes?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      classId: classes?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${classes?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.classId}` === `${classes?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_subject_query(val, did);
+    if (is_converted?.value) {
+      await render_new_subject_query(is_converted?.subject_array, cid);
+    } else {
+      console.log("false");
+    }
   } catch (e) {
     console.log(e);
   }

@@ -10,6 +10,7 @@ const ClassMaster = require("../models/ClassMaster");
 const HostelUnit = require("../models/Hostel/hostelUnit");
 const HostelRoom = require("../models/Hostel/hostelRoom");
 const Department = require("../models/Department");
+const SubjectMaster = require("../models/SubjectMaster");
 // const Batch = require("../models/Batch");
 
 exports.generate_excel_to_json = async (file, aid, fid, did) => {
@@ -719,5 +720,106 @@ exports.generate_excel_to_json_fee_query = async (file, aid, fid) => {
     // );
   } catch (e) {
     console.log("Excel Query Not Resolved", e);
+  }
+};
+
+exports.generate_excel_to_json_department_query = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["NewDepartment"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var val of data_query) {
+      val.dName = val?.Name;
+      val.dTitle = val?.Title ?? "HOD";
+      new_data_query.push(val);
+    }
+    return { depart_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("New Department Excel Query Not Resolved", e);
+  }
+};
+
+exports.generate_excel_to_json_class_master_query = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["NewClassMaster"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var val of data_query) {
+      val.className = val?.ClassName;
+      new_data_query.push(val);
+    }
+    return { class_master_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("New Class Master Excel Query Not Resolved", e);
+  }
+};
+
+exports.generate_excel_to_json_subject_master_query = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["NewSubjectMaster"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var val of data_query) {
+      val.subjectName = val?.SubjectName;
+      val.subjectType = val?.SubjectType;
+      new_data_query.push(val);
+    }
+    return { subject_master_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("New Subject Master Excel Query Not Resolved", e);
+  }
+};
+
+exports.generate_excel_to_json_class_query = async (file, did) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["NewClass"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var val of data_query) {
+      var new_master = await ClassMaster.findOne({
+        $and: [
+          { department: did },
+          {
+            className: { $regex: `${ref?.MasterName}`, $options: "i" },
+          },
+        ],
+      });
+      val.classTitle = val?.ClassTitle;
+      val.classHeadTitle = val?.ClassHeadTitle ?? "Class Teacher";
+      val.mcId = new_master?._id;
+      new_data_query.push(val);
+    }
+    return { class_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("New Class Excel Query Not Resolved", e);
+  }
+};
+
+exports.generate_excel_to_json_subject_query = async (file, did) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["NewSubject"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var val of data_query) {
+      var new_master = await SubjectMaster.findOne({
+        $and: [
+          { department: did },
+          {
+            subjectName: { $regex: `${ref?.MasterName}`, $options: "i" },
+          },
+        ],
+      });
+      val.subjectTitle = val?.SubjectTitle ?? "Subject Teacher";
+      val.msid = new_master?._id;
+      new_data_query.push(val);
+    }
+    return { subject_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("New Subject Excel Query Not Resolved", e);
   }
 };

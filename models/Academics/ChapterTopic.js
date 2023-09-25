@@ -18,7 +18,7 @@ const chapterTopicSchema = new mongoose.Schema({
   },
   subject: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Chapter",
+    ref: "Subject",
   },
   topic_completion_date: {
     type: Date,

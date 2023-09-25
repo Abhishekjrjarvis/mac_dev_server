@@ -201,6 +201,12 @@ const transportSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  pending_student: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Transport", transportSchema);

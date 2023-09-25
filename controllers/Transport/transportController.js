@@ -132,7 +132,7 @@ exports.renderTransportManagerDashboard = async (req, res) => {
       });
     const trans_panel = await Transport.findById({ _id: tid })
       .select(
-        "vehicle_count transport_staff_count transport_photo photoId passenger_count requested_status collected_fee exempt_fee online_fee offline_fee remaining_fee departmentSelectBatch batchCount fees_structures_count fees_structures_count masterCount refundCount refundedCount"
+        "vehicle_count transport_staff_count transport_photo photoId passenger_count requested_status collected_fee pending_student exempt_fee online_fee offline_fee remaining_fee departmentSelectBatch batchCount fees_structures_count fees_structures_count masterCount refundCount refundedCount"
       )
       .populate({
         path: "transport_manager",
@@ -340,6 +340,7 @@ exports.renderVehicleNewPassenger = async (req, res) => {
     vehicle.passenger_array.push(student?._id);
     vehicle.passenger_array_with_batch.push(trans_batch?._id);
     student.vehicle = vehicle._id;
+    trans.pending_student.push(student?._id)
     for (var path of route?.direction_route) {
       if (`${path?._id}` === `${rid}`) {
         path.passenger_list.push(student?._id);
@@ -458,7 +459,7 @@ exports.renderTransportAllVehicle = async (req, res) => {
         ],
       })
         .select(
-          "vehicle_number passenger_count vehicle_type vehicle_photo photoId"
+          "vehicle_number passenger_count vehicle_type vehicle_photo photoId vehicle_name"
         )
         .populate({
           path: "vehicle_conductor",
@@ -483,7 +484,7 @@ exports.renderTransportAllVehicle = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "vehicle_number passenger_count vehicle_type vehicle_photo photoId"
+          "vehicle_number passenger_count vehicle_type vehicle_photo photoId vehicle_name"
         )
         .populate({
           path: "vehicle_conductor",
@@ -1307,6 +1308,9 @@ exports.renderTransportStudentCollect = async (req, res) => {
       amount: price,
       mode: mode,
     });
+    if(trans?.pending_student?.includes(`${student?._id}`)){
+      trans.pending_student.pull(student?._id)
+    }
     // notify.notifyContent = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
     // notify.notifySender = admission?.admissionAdminHead?.user;
     // notify.notifyReceiever = user?._id;
@@ -2133,6 +2137,9 @@ exports.renderTransportAllPassengerWithBatch = async (req, res) => {
           path: "user",
           select: "userPhoneNumber",
         })
+        .populate({
+          path: "transport_fee_structure"
+        })
         .exec();
     } else {
       var all_passengers = await Student.find({
@@ -2151,6 +2158,9 @@ exports.renderTransportAllPassengerWithBatch = async (req, res) => {
         .populate({
           path: "user",
           select: "userPhoneNumber",
+        })
+        .populate({
+          path: "transport_fee_structure"
         })
         .exec();
     }
@@ -2213,6 +2223,9 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
           path: "user",
           select: "userPhoneNumber",
         })
+        .populate({
+          path: "transport_fee_structure"
+        })
         .exec();
     } else {
       var all_passengers = await Student.find({
@@ -2231,6 +2244,9 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
         .populate({
           path: "user",
           select: "userPhoneNumber",
+        })
+        .populate({
+          path: "transport_fee_structure"
         })
         .exec();
     }

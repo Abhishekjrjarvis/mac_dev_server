@@ -350,4 +350,29 @@ router.get(
   catchAsync(Extra.renderDesignationAllQuery)
 );
 
+router.patch(
+  "/excel/to/json/:id/add/department/query",
+  catchAsync(Extra.renderExcelToJSONDepartmentQuery)
+);
+
+router.patch(
+  "/excel/to/json/:did/add/class/master/query",
+  catchAsync(Extra.renderExcelToJSONClassMasterQuery)
+);
+
+router.patch(
+  "/excel/to/json/:did/add/subject/master/query",
+  catchAsync(Extra.renderExcelToJSONSubjectMasterQuery)
+);
+
+router.patch(
+  "/excel/to/json/:did/add/class/query",
+  catchAsync(Extra.renderExcelToJSONClassQuery)
+);
+
+router.patch(
+  "/excel/to/json/:cid/add/subject/query",
+  catchAsync(Extra.renderExcelToJSONSubjectQuery)
+);
+
 module.exports = router;

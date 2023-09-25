@@ -697,6 +697,10 @@ const instituteAdminSchema = new mongoose.Schema({
       },
       flow: { type: String },
       status: { type: String, default: "Not Uploaded" },
+      departId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Department",
+      },
     },
   ],
   careerStatus: {

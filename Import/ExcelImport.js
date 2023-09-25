@@ -45,7 +45,7 @@ exports.render_new_class_master_query = async (arr, did) => {
       const department = await Department.findById({ _id: did });
       for (var ref of arr) {
         const classroomMaster = new ClassMaster({
-          className: className,
+          className: ref?.className,
           institute: department?.institute,
           department: department?._id,
         });
@@ -99,8 +99,8 @@ exports.render_new_class_query = async (arr, did) => {
         } else {
           const date = await todayDate();
           var classRoom = new Class({
-            masterClassName: masterClass,
-            className: ref?.mCName,
+            masterClassName: masterClass?._id,
+            className: masterClass?.className,
             classTitle: ref?.classTitle,
             classHeadTitle: ref?.classHeadTitle,
             classCode: `${result}`,

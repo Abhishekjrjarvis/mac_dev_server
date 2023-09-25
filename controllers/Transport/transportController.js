@@ -284,16 +284,13 @@ exports.renderVehicleUpdateRoute = async (req, res) => {
       await route.save();
     } else if (route_status === "Add_New_Stop_Point" && edit_path?.length > 0) {
       for (var path of edit_path) {
-        console.log(edit_path)
-        if (path?.index >= route.direction_route?.length) {
-          console.log("PUSH");
+        if (path?.index > route.direction_route?.length) {
           route.direction_route.push({
             route_stop: path.stop,
             // route_fees: path.fee,
             route_structure: path.structure,
           });
         } else {
-          console.log("CHANGE POS");
           route.direction_route.splice(path.index, 0, {
             route_stop: path.stop,
             // route_fees: path.fee,
@@ -2117,103 +2114,45 @@ exports.renderTransportAllPassengerWithBatch = async (req, res) => {
     var trans = await Transport.findById({ _id: tid }).select(
       "transport_passengers institute transport_passengers_with_batch"
     );
-    if (batch_filter === "ALL") {
-      // fetch all data
-      const instituteCurrentBatch = await InstituteAdmin.findById(
-        trans.institute
-      )
-        .populate({
-          path: "batches",
-          match: {
-            activeBatch: { $eq: `Active` },
-          },
-          select: "_id",
-        })
-        .select("batches");
-      const institutePreviousBatch = await InstituteAdmin.findById(
-        trans.institute
-      )
-        .populate({
-          path: "batches",
-          match: { activeBatch: { $eq: "Not Active" } },
-          select: "_id",
-        })
-        .select("batches");
-      if (search)
-        var all_passengers = await getALLBatchPassengerWithSearch(
-          trans.transport_passengers_with_batch,
-          instituteCurrentBatch?.batches,
-          institutePreviousBatch?.batches,
-          page,
-          limit,
-          search,
-          filter_by
-        );
-      else
-        var all_passengers = await getALLBatchPassengerWithoutSearch(
-          trans.transport_passengers_with_batch,
-          instituteCurrentBatch?.batches,
-          institutePreviousBatch?.batches,
-          page,
-          limit,
-          filter_by
-        );
-    } else if (batch_filter === "PAST") {
-      // fetch all past data
-      const institute = await InstituteAdmin.findById(trans.institute)
-        .populate({
-          path: "batches",
-          match: { activeBatch: { $eq: "Not Active" } },
-          select: "_id",
-        })
-        .select("batches");
-      if (search)
-        var all_passengers = await getPastBatchPassengerWithSearch(
-          trans.transport_passengers_with_batch,
-          institute?.batches,
-          page,
-          limit,
-          search,
-          filter_by
-        );
-      else
-        var all_passengers = await getPastBatchPassengerWithoutSearch(
-          trans.transport_passengers_with_batch,
-          institute?.batches,
-          page,
-          limit,
-          filter_by
-        );
-      // console.log(all_passengers);
-    } else {
-      // fetch all current data
-      const institute = await InstituteAdmin.findById(trans.institute)
-        .populate({
-          path: "batches",
-          match: {
-            activeBatch: { $eq: `Active` },
-          },
-          select: "_id",
-        })
-        .select("batches");
 
-      if (search)
-        var all_passengers = await getCurrentBatchPassengerWithSearch(
-          trans?.transport_passengers,
-          institute?.batches,
-          skip,
-          limit,
-          search,
-          filter_by
-        );
-      else
-        var all_passengers = await getCurrentBatchPassengerWithoutSearch(
-          trans?.transport_passengers,
-          institute?.batches,
-          skip,
-          limit,
-          filter_by
-        );
+    if (filter_by === "true") {
+      var all_passengers = await Student.find({
+        $and: [{ _id: { $in: trans?.transport_passengers } }],
+      })
+        .sort("-vehicleRemainFeeCount")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        })
+        .exec();
+    } else {
+      var all_passengers = await Student.find({
+        $and: [{ _id: { $in: trans?.transport_passengers } }],
+      })
+        .sort("vehicleRemainFeeCount")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        })
+        .exec();
     }
 
     if (all_passengers?.length > 0) {
@@ -2254,107 +2193,46 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
         select: "institute",
       })
       .select("passenger_array transport passenger_array_with_batch");
-    if (batch_filter === "ALL") {
-      // fetch all data
-      const instituteCurrentBatch = await InstituteAdmin.findById(
-        one_vehicle.transport.institute
-      )
-        .populate({
-          path: "batches",
-          match: {
-            activeBatch: { $eq: `Active` },
-          },
-          select: "_id",
-        })
-        .select("batches");
-      const institutePreviousBatch = await InstituteAdmin.findById(
-        one_vehicle.transport.institute
-      )
-        .populate({
-          path: "batches",
-          match: { activeBatch: { $eq: "Not Active" } },
-          select: "_id",
-        })
-        .select("batches");
-      if (search)
-        var all_passengers = await getALLBatchPassengerWithSearch(
-          one_vehicle.passenger_array_with_batch,
-          instituteCurrentBatch?.batches,
-          institutePreviousBatch?.batches,
-          page,
-          limit,
-          search,
-          filter_by
-        );
-      else
-        var all_passengers = await getALLBatchPassengerWithoutSearch(
-          one_vehicle.passenger_array_with_batch,
-          instituteCurrentBatch?.batches,
-          institutePreviousBatch?.batches,
-          page,
-          limit,
-          filter_by
-        );
-    } else if (batch_filter === "PAST") {
-      // fetch all past data
-      const institute = await InstituteAdmin.findById(
-        one_vehicle.transport.institute
-      )
-        .populate({
-          path: "batches",
-          match: { activeBatch: { $eq: "Not Active" } },
-          select: "_id",
-        })
-        .select("batches");
-      if (search)
-        var all_passengers = await getPastBatchPassengerWithSearch(
-          one_vehicle.passenger_array_with_batch,
-          institute?.batches,
-          page,
-          limit,
-          search,
-          filter_by
-        );
-      else
-        var all_passengers = await getPastBatchPassengerWithoutSearch(
-          one_vehicle.passenger_array_with_batch,
-          institute?.batches,
-          page,
-          limit,
-          filter_by
-        );
-      // console.log(all_passengers);
-    } else {
-      // fetch all current data
-      const institute = await InstituteAdmin.findById(
-        one_vehicle.transport.institute
-      )
-        .populate({
-          path: "batches",
-          match: {
-            activeBatch: { $eq: `Active` },
-          },
-          select: "_id",
-        })
-        .select("batches");
+    // fetch all current data
 
-      if (search)
-        var all_passengers = await getCurrentBatchPassengerWithSearch(
-          one_vehicle?.passenger_array,
-          institute?.batches,
-          skip,
-          limit,
-          search,
-          filter_by
-        );
-      else
-        var all_passengers = await getCurrentBatchPassengerWithoutSearch(
-          one_vehicle?.passenger_array,
-          institute?.batches,
-          skip,
-          limit,
-          filter_by
-        );
+    if (filter_by === "true") {
+      var all_passengers = await Student.find({
+        $and: [{ _id: { $in: one_vehicle?.passenger_array } }],
+      })
+        .sort("-vehicleRemainFeeCount")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        })
+        .exec();
+    } else {
+      var all_passengers = await Student.find({
+        $and: [{ _id: { $in: one_vehicle?.passenger_array } }],
+      })
+        .sort("vehicleRemainFeeCount")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        })
+        .exec();
     }
 
     if (all_passengers?.length > 0) {

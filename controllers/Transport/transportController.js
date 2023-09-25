@@ -2540,6 +2540,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     var user = await User.findById({ _id: `${student.user}` }).select(
       "deviceToken payment_history activity_tab"
     );
+    const order = new OrderPayment({})
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);

@@ -9,6 +9,7 @@ const {
   callbackAdmissionStatus,
   callbackHostel,
   callbackHostelStatus,
+  callbackTransportStatus,
 } = require("../../controllers/Paytm/pay_upi");
 
 router.route("/generateTxnToken").post(initiate);
@@ -35,5 +36,7 @@ router.route("/status/success/internal/query").post(callbackStatus);
 router.route("/status/success/admission/query").post(callbackAdmissionStatus);
 
 router.route("/status/success/hostel/query").post(callbackHostelStatus);
+
+router.route("/status/success/transport/query").post(callbackTransportStatus);
 
 module.exports = router;

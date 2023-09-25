@@ -614,3 +614,62 @@ exports.callbackHostelStatus = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.callbackTransportStatus = async (req, res) => {
+  try {
+    const {
+      name,
+      paidBy,
+      moduleId,
+      paidTo,
+      isApk,
+      payment_installment,
+      payment_remain_1,
+      price,
+      ad_status_id,
+      TXNAMOUNT,
+      STATUS,
+      TXNID,
+      apk_body,
+    } = req.body;
+    var status = STATUS;
+    var price_charge = TXNAMOUNT;
+    if (status === "TXN_SUCCESS") {
+      var order = await order_history_query(
+        "Transport",
+        moduleId,
+        price,
+        paidTo,
+        TXNID,
+        apk_body
+      );
+      var paytm_author = false;
+      var valid_status = ad_status_id === "null" ? "" : ad_status_id;
+      await transportFunction(
+        order?._id,
+        paidBy,
+        price,
+        price_charge,
+        moduleId,
+        valid_status,
+        paidTo,
+        payment_installment,
+        paytm_author,
+        payment_remain_1
+        // Boolean(ad_install)
+      );
+      if (isApk === "APK") {
+        res.status(200).send({
+          message: "Success with Transport Admission Paytm Fees 😀",
+          check: true,
+        });
+      } else {
+        res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+      }
+    } else {
+      res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

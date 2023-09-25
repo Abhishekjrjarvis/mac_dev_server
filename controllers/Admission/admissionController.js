@@ -4101,7 +4101,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       })
       .populate({
         path: "vehicleId",
-        select: "vehicle_type vehicle_number",
+        select: "vehicle_type vehicle_number vehicle_name",
         populate: {
           path: "transport",
           select: "institute",
@@ -4179,7 +4179,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       })
       .populate({
         path: "vehicleId",
-        select: "vehicle_type vehicle_number",
+        select: "vehicle_type vehicle_number vehicle_name",
         populate: {
           path: "transport",
           select: "institute",

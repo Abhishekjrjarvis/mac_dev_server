@@ -727,7 +727,7 @@ exports.renderTransportOneVehicleQuery = async (req, res) => {
       _id: vid,
     })
       .select(
-        "vehicle_number passenger_count vehicle_type vehicle_photo photoId remaining_fee"
+        "vehicle_number passenger_count vehicle_type vehicle_photo photoId remaining_fee vehicle_name"
       )
       .populate({
         path: "vehicle_conductor",
@@ -2642,7 +2642,7 @@ exports.renderTransportAllFeeStructure = async (req, res) => {
 exports.paidRemainingFeeStudent = async (req, res) => {
   try {
     const { tid, sid } = req.params;
-    const { amount, mode, type } = req.body;
+    const { amount, mode, type, rid } = req.body;
     const { receipt_status, id } = req.query;
     if (!sid && !tid && !amount && !mode && !type)
       return res.status(200).send({

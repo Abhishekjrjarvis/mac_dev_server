@@ -8,6 +8,7 @@ const Library = require("../../models/Library/Library");
 const Hostel = require("../../models/Hostel/hostel");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const { deleteFile } = require("../../S3Configuration");
+const Transport = require("../../models/Transport/transport");
 
 exports.getDepartmentInfo = async (req, res) => {
   try {

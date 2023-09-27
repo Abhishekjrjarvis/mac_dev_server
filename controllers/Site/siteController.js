@@ -9,6 +9,7 @@ const Hostel = require("../../models/Hostel/hostel");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const { deleteFile } = require("../../S3Configuration");
 const Transport = require("../../models/Transport/transport");
+const TransportSite = require("../../models/SiteModels/TransportSite");
 
 exports.getDepartmentInfo = async (req, res) => {
   try {

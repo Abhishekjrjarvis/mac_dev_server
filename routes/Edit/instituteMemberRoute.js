@@ -39,4 +39,8 @@ router
   .route("/hostel/batch/:bid")
   .delete(catchAsync(instituteMember.renderHostelbatchDelete));
 
+router
+  .route("/transport/batch/:bid")
+  .delete(catchAsync(instituteMember.renderTransportbatchDelete));
+
 module.exports = router;

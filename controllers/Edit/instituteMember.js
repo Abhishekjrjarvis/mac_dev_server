@@ -12,6 +12,7 @@ const Notification = require("../../models/notification");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
 const Hostel = require("../../models/Hostel/hostel");
+const Transport = require("../../models/Transport/transport");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // const StudentPreviousData = require("../../models/StudentPreviousData");
@@ -656,6 +657,32 @@ exports.renderHostelbatchDelete = async (req, res) => {
       one_hostel.departmentSelectBatch = null;
     }
     await one_hostel.save();
+    await Batch.findByIdAndDelete(req.params.bid);
+    res.status(200).send({
+      message: "batch deleted successfully👍",
+      deleted: "Yes",
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+      deleted: "No",
+    });
+  }
+};
+
+exports.renderTransportbatchDelete = async (req, res) => {
+  try {
+    if (!req.params.bid) throw "Please send batch id to perform task";
+    const batch = await Batch.findById(req.params.bid);
+    if (batch?.ApproveStudent?.length)
+      throw "You can't delete batch because students existence";
+    const one_trans = await Transport.findById(batch.transport);
+    one_trans?.batches?.pull(batch._id);
+    one_trans.batchCount -= 1;
+    if (String(one_trans.departmentSelectBatch) === String(batch._id)) {
+      one_trans.departmentSelectBatch = null;
+    }
+    await one_trans.save();
     await Batch.findByIdAndDelete(req.params.bid);
     res.status(200).send({
       message: "batch deleted successfully👍",

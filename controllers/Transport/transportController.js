@@ -2786,7 +2786,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       finance.save(),
       institute.save(),
       order.save(),
-      s_admin.save(),
+      // s_admin.save(),
       remaining_fee_lists.save(),
       new_receipt.save(),
     ]);

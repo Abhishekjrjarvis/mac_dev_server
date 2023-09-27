@@ -43,4 +43,6 @@ router.get("/all/log", catchAsync(Prod.allLogs));
 
 router.patch("/receipt/query", catchAsync(Prod.allReceiptInvoiceQuery));
 
+router.get("/all/student", catchAsync(Prod.auto_query));
+
 module.exports = router;

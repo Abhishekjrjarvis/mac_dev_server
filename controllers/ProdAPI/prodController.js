@@ -7,6 +7,9 @@ const Staff = require("../../models/Staff");
 const Student = require("../../models/Student");
 const Class = require("../../models/Class");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
+const FeeStructure = require("../../models/Finance/FeesStructure");
+const RemainingList = require("../../models/Admission/RemainingList");
+const Department = require("../../models/Department");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // exports.allUsers = async (req, res) => {
@@ -324,6 +327,59 @@ exports.allReceiptInvoiceQuery = async (req, res) => {
       }
     }
     res.status(200).send({ message: "Explore All Order", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.auto_query = async (req, res) => {
+  try {
+    var depart = await Department.findById({ _id: req.query.id });
+    // var struct = await FeeStructure.find({
+    //   department: { $in: depart?.fees_structures },
+    // });
+    // var all_student = await Student.find({
+    //   fee_structure: `${struct?._id}`,
+    // }).select("valid_full_name remainingFeeList");
+
+    var remain = await RemainingList.find({
+      fee_structure: { $in: depart?.fees_structures },
+    })
+      .select("remaining_fee status remaining_array paid_fee")
+      .populate({
+        path: "fee_receipts",
+        select: "fee_payment_amount",
+      })
+      .populate({
+        path: "student",
+        select: "admissionRemainFeeCount admissionPaidFeeCount",
+      });
+
+    if (req.query.status) {
+      remain = remain?.filter((val) => {
+        if (val?.status === `${req.query.status}`) return val;
+      });
+    }
+
+    if (req.query.enable) {
+      for (var ref of remain) {
+        if (ref?.remaining_fee <= 0) {
+          ref.status = "Paid";
+          ref.save();
+        } else {
+          console.log("GTZ");
+        }
+      }
+    } else {
+      console.log("Disable");
+    }
+
+    if (req.query.greater) {
+      remain = remain?.filter((val) => {
+        if (val?.remaining_fee > 0) return val;
+      });
+    }
+    res.status(200).send({ message: "Explore", count: remain?.length, remain });
   } catch (e) {
     console.log(e);
   }

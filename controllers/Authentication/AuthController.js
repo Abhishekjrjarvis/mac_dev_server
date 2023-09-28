@@ -4559,7 +4559,7 @@ exports.renderOneInstituteAllUnApprovedStudentQuery = async (req, res) => {
     // ]);
     res
       .status(200)
-      .send({ message: "Deletion Operation Completed", access: true, });
+      .send({ message: "Deletion Operation Completed", access: true });
     // res.status(200).send({ message: "Deletion Operation Completed", access: true})
   } catch (e) {
     console.log(e);

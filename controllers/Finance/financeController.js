@@ -3807,7 +3807,7 @@ exports.renderOneTransportFeeReceipt = async (req, res) => {
       })
       .populate({
         path: "vehicle",
-        select: "vehicle_type vehicle_number",
+        select: "vehicle_type vehicle_number transport",
         populate: {
           path: "transport",
           select: "_id site_info",
@@ -3826,26 +3826,6 @@ exports.renderOneTransportFeeReceipt = async (req, res) => {
             },
           },
         },
-      })
-      .populate({
-        path: "vehicle",
-        select: "vehicle_type vehicle_number",
-        populate: {
-          path: "transport",
-          select: "_id site_info",
-          populate: {
-            path: "site_info",
-          },
-        },
-      })
-      .populate({
-        path: "vehicle",
-        select: "vehicle_type vehicle_number",
-      })
-      .populate({
-        path: "student",
-        select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads",
       })
       .populate({
         path: "order_history",

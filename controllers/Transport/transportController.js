@@ -910,7 +910,14 @@ exports.renderTransportVehicleStudentRoute = async (req, res) => {
     );
     const route = await Direction.findById({
       _id: `${vehicle?.vehicle_route}`,
-    }).select("direction_route");
+    })
+      .select("direction_route")
+      .populate({
+        path: "direction_route",
+        populate: {
+          path: "route_structure",
+        },
+      });
 
     const student = await Student.findById({ _id: sid }).select(
       "routes vehicleRemainFeeCount vehiclePaidFeeCount"

@@ -52,4 +52,6 @@ router
   .route("/subject/:smid/update/course/credit")
   .patch(isLoggedIn, catchAsync(batchController.subjectCreditUpdate));
 
+router.route("/undo").patch(catchAsync(batchController.undo));
+
 module.exports = router;

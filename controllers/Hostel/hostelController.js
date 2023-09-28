@@ -7245,6 +7245,7 @@ exports.renderDeleteOneExcel = async (req, res) => {
 exports.renderNewBatchQuery = async (req, res) => {
   try {
     const { hid } = req.params;
+    const { id } = req.query
     if (!hid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -7252,7 +7253,7 @@ exports.renderNewBatchQuery = async (req, res) => {
       });
     const one_hostel = await Hostel.findById({ _id: hid });
     const institute = await InstituteAdmin.findById({
-      _id: `${one_hostel?.institute}`,
+      _id: id,
     });
     const batch = new Batch({ ...req.body });
     one_hostel.batches.push(batch);

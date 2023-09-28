@@ -1270,3 +1270,49 @@ exports.subjectCreditUpdate = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.undo = async (req, res) => {
+  try {
+    const { cid } = req.query;
+    const classes = await Class.findById(cid);
+    // var arr = ["6480892ebff5c201991e3297"];
+    for (var stu of classes?.promoteStudent) {
+      // for (var stu of arr) {
+      var student = await Student.findById(stu);
+      var cls = await Class.findById(student?.studentClass);
+      cls.ApproveStudent.pull(student?._id);
+      await cls.save();
+      var prevL = student?.previousYearData?.length - 1;
+      var preStudent = await StudentPreviousData.findById(
+        student.previousYearData[prevL]
+      );
+
+      student.studentCode = preStudent.studentCode;
+      student.studentClass = preStudent.studentClass;
+      student.batches = preStudent.batches;
+      student.studentROLLNO = preStudent.studentROLLNO;
+      student.studentBehaviour = preStudent.studentBehaviour;
+      student.department = preStudent.department;
+      student.institute = preStudent.institute;
+      var remain_card = await RemainingList.findOne({
+        fee_structure: `${student?.fee_structure}`,
+      });
+      student.remainingFeeList.pull(remain_card?._id);
+      if (student?.remainingFeeList_count > 0) {
+        student.remainingFeeList_count -= 1;
+      }
+      if (student?.admissionRemainFeeCount >= remain_card?.remaining_fee) {
+        student.admissionRemainFeeCount -= remain_card.remaining_fee;
+      }
+      await RemainingList.findByIdAndDelete(remain_card?._id);
+      student.fee_structure = preStudent?.fee_structure;
+      await student.save();
+      var clsPrev = await Class.findById(student?.studentClass);
+      clsPrev.promoteStudent.pull(student?._id);
+      await clsPrev.save();
+    }
+    res.status(200).send({ message: "UNDO" });
+  } catch (e) {
+    console.log(e);
+  }
+};

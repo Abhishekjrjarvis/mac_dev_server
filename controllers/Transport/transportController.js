@@ -2322,6 +2322,10 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
           .populate({
             path: "transport_fee_structure",
           })
+          .populate({
+            path: "institute",
+            select: "insName name"
+          })
           .exec();
       } else {
         var all_passengers = await Student.find({
@@ -2346,6 +2350,10 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
           })
           .populate({
             path: "transport_fee_structure",
+          })
+          .populate({
+            path: "institute",
+            select: "insName name"
           })
           .exec();
       }
@@ -3215,16 +3223,14 @@ exports.renderStudentPassAccessQuery = async (req, res) => {
   try {
     const { sid } = req.params;
     if (!sid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const student = await Student.findById({ _id: sid })
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGender studentDOB student_blood_group studentGRNO studentROLLNO vehicle"
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGender studentDOB student_blood_group studentGRNO studentROLLNO vehicle studentAddress"
       )
       .populate({
         path: "vehicle",

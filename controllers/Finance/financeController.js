@@ -3828,6 +3828,16 @@ exports.renderOneTransportFeeReceipt = async (req, res) => {
         },
       })
       .populate({
+        path: "vehicle",
+        populate: {
+          path: "transport",
+          select: "_id site_info",
+          populate: {
+            path: "site_info",
+          },
+        },
+      })
+      .populate({
         path: "order_history",
       })
       .populate({

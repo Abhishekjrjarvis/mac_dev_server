@@ -390,7 +390,7 @@ exports.getRejectIns = async (req, res) => {
       message: `Application Rejected ${institute.insName}`,
       admin: admin._id,
     });
-  } catch {
+  } catch(e) {
     console.log(`Error`, e.message);
   }
 };

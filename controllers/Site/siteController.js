@@ -528,10 +528,10 @@ exports.updateTransportInfo = async (req, res) => {
     const trans = await Transport.findById(tid);
     if (trans.site_info?.[0]) {
       const transSite = await TransportSite.findById(trans.site_info[0]);
-      transSite.trans_about = req.body.trans_about;
-      transSite.trans_process = req.body.trans_process;
+      transSite.transport_about = req.body.transport_about;
+      transSite.transport_process = req.body.transport_process;
       for (let contact of req?.body?.edit_trans_contact) {
-        for (let cont of transSite?.trans_contact) {
+        for (let cont of transSite?.transport_contact) {
           if (String(contact?.contactId) === String(cont?._id)) {
             cont.contact_department_name = contact.contact_department_name;
             cont.contact_person_name = contact.contact_person_name;
@@ -540,7 +540,7 @@ exports.updateTransportInfo = async (req, res) => {
           }
         }
       }
-      transSite.trans_contact.push(...req?.body?.trans_contact);
+      transSite.transport_contact.push(...req?.body?.transport_contact);
       await transSite.save();
       res.status(200).send({
         message: "Transport site info is updated 😋😊😋",
@@ -549,9 +549,9 @@ exports.updateTransportInfo = async (req, res) => {
       // await DepartmentSite.findByIdAndUpdate(department.site_info[0], req.body);
     } else {
       const transSite = new TransportSite({
-        trans_about: req?.body?.trans_about,
-        trans_process: req?.body?.trans_process,
-        trans_contact: req?.body?.trans_contact,
+        transport_about: req?.body?.transport_about,
+        transport_process: req?.body?.transport_process,
+        transport_contact: req?.body?.transport_contact,
         related_transport: trans?._id,
       });
       trans.site_info.push(transSite?._id);

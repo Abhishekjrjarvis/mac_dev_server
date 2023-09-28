@@ -459,6 +459,10 @@ const studentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeStructure",
       },
+      vehicle: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Vehicle",
+      },
     },
   ],
   active_routes: {

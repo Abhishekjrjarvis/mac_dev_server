@@ -359,6 +359,7 @@ exports.renderVehicleNewPassenger = async (req, res) => {
           routeId: path?._id,
           routePath: path?.route_stop,
           routeStructure: path?.route_structure,
+          vehicle: vehicle._id,
         });
         student.transport_fee_structure = path?.route_structure;
         student.active_routes = path?.route_stop;
@@ -2324,7 +2325,7 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
           })
           .populate({
             path: "institute",
-            select: "insName name"
+            select: "insName name",
           })
           .exec();
       } else {
@@ -2353,7 +2354,7 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
           })
           .populate({
             path: "institute",
-            select: "insName name"
+            select: "insName name",
           })
           .exec();
       }
@@ -3230,7 +3231,7 @@ exports.renderStudentPassAccessQuery = async (req, res) => {
 
     const student = await Student.findById({ _id: sid })
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGender studentDOB student_blood_group studentGRNO studentROLLNO vehicle studentAddress"
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGender studentDOB student_blood_group studentGRNO studentROLLNO vehicle studentAddress active_routes routes"
       )
       .populate({
         path: "vehicle",
@@ -3253,10 +3254,53 @@ exports.renderStudentPassAccessQuery = async (req, res) => {
           },
         },
       });
+    var routes = student?.routes?.filter((val) => {
+      if (`${val?.vehicle}` === `${student?.vehicle?._id}`) return val;
+    });
+    res.status(200).send({
+      message: "New Pass Query",
+      access: true,
+      student: student,
+      routes: routes,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
+exports.renderRouteDragNDropQuery = async (req, res) => {
+  try {
+    const { vid, rid } = req.params;
+    const { index } = req.query;
+    if (!vid && !rid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var vehicle = await Vehicle.findById({ _id: vid }).select("vehicle_route");
+
+    var route = await Direction.findById({
+      _id: `${vehicle?.vehicle_route}`,
+    }).select("direction_route");
+    var deleted_route;
+
+    for (var ref of route?.direction_route) {
+      if (ref?._id) {
+        if (`${ref?._id}` === `${rid}`) {
+          deleted_route = ref;
+          route.direction_route.pull(ref?._id);
+        }
+        if (deleted_route) {
+          route?.direction_route.splice(index, 0, deleted_route);
+          deleted_route = "";
+        }
+      }
+    }
+    await route.save();
     res
       .status(200)
-      .send({ message: "New Pass Query", access: true, student: student });
+      .send({ message: "Explore New Drag n Drop Query", access: true });
   } catch (e) {
     console.log(e);
   }

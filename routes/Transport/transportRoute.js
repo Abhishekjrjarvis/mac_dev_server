@@ -185,4 +185,9 @@ router.get(
   catchAsync(Transport.renderStudentPassAccessQuery)
 );
 
+router.patch(
+  "/:rid/drag/n/drop/:vid/query",
+  catchAsync(Transport.renderRouteDragNDropQuery)
+);
+
 module.exports = router;

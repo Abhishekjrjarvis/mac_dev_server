@@ -3193,24 +3193,20 @@ exports.renderThreeDesignationQuery = async (req, res) => {
   try {
     const { sid } = req.params;
     if (!sid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const staff = await Staff.findById({ _id: sid }).select(
-      "staffDepartment staffSubject staffClass"
+      "staffDepartment staffSubject staffClass staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
     );
 
-    res
-      .status(200)
-      .send({
-        message: "Explore Three Designation Query",
-        access: true,
-        staff: staff,
-      });
+    res.status(200).send({
+      message: "Explore Three Designation Query",
+      access: true,
+      staff: staff,
+    });
   } catch (e) {
     console.log(e);
   }

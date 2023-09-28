@@ -169,61 +169,69 @@ exports.renderNewVehicleQuery = async (req, res) => {
         access: false,
       });
     const trans_panel = await Transport.findById({ _id: tid });
-    if (dsid) {
-      var d_staff = await Staff.findOne({ _id: dsid });
-    }
-    if (csid) {
-      var c_staff = await Staff.findOne({ _id: csid });
-    }
-    if (duid) {
-      var d_user = await User.findById({ _id: duid });
-    }
-    if (cuid) {
-      var c_user = await User.findById({ _id: cuid });
-    }
-    const new_vehicle = new Vehicle({ ...req.body });
-    if (new_vehicle?.vehicle_type === "Own") {
-      if (d_staff) {
-        new_vehicle.vehicle_driver = d_staff._id;
-        d_staff.vehicle.push(new_vehicle._id);
-        d_staff.vehicle_category = new_vehicle.vehicle_type;
-        trans_panel.transport_staff_count += 1;
-        trans_panel.transport_drivers.push(d_staff._id);
-        await d_staff.save();
+    if (trans_panel?.departmentSelectBatch) {
+      if (dsid) {
+        var d_staff = await Staff.findOne({ _id: dsid });
       }
-      if (c_staff) {
-        new_vehicle.vehicle_conductor = c_staff._id;
-        c_staff.vehicle.push(new_vehicle._id);
-        c_staff.vehicle_category = new_vehicle.vehicle_type;
-        trans_panel.transport_staff_count += 1;
-        trans_panel.transport_conductors.push(c_staff._id);
-        await c_staff.save();
+      if (csid) {
+        var c_staff = await Staff.findOne({ _id: csid });
       }
-    } else if (new_vehicle?.vehicle_type === "Outsider") {
-      if (d_user) {
-        new_vehicle.vehicle_no_driver = d_user?._id;
-        d_user.vehicle.push(d_user?._id);
-        trans_panel.transport_staff_count += 1;
-        trans_panel.transport_ndconductors.push(d_user._id);
-        await d_user.save();
+      if (duid) {
+        var d_user = await User.findById({ _id: duid });
       }
-      if (c_user) {
-        new_vehicle.vehicle_no_conductor = c_user?._id;
-        c_user.vehicle.push(c_user?._id);
-        trans_panel.transport_staff_count += 1;
-        trans_panel.transport_ndconductors.push(c_user._id);
-        await c_user.save();
+      if (cuid) {
+        var c_user = await User.findById({ _id: cuid });
       }
+      const new_vehicle = new Vehicle({ ...req.body });
+      new_vehicle.batch = trans_panel?.departmentSelectBatch;
+      if (new_vehicle?.vehicle_type === "Own") {
+        if (d_staff) {
+          new_vehicle.vehicle_driver = d_staff._id;
+          d_staff.vehicle.push(new_vehicle._id);
+          d_staff.vehicle_category = new_vehicle.vehicle_type;
+          trans_panel.transport_staff_count += 1;
+          trans_panel.transport_drivers.push(d_staff._id);
+          await d_staff.save();
+        }
+        if (c_staff) {
+          new_vehicle.vehicle_conductor = c_staff._id;
+          c_staff.vehicle.push(new_vehicle._id);
+          c_staff.vehicle_category = new_vehicle.vehicle_type;
+          trans_panel.transport_staff_count += 1;
+          trans_panel.transport_conductors.push(c_staff._id);
+          await c_staff.save();
+        }
+      } else if (new_vehicle?.vehicle_type === "Outsider") {
+        if (d_user) {
+          new_vehicle.vehicle_no_driver = d_user?._id;
+          d_user.vehicle.push(d_user?._id);
+          trans_panel.transport_staff_count += 1;
+          trans_panel.transport_ndconductors.push(d_user._id);
+          await d_user.save();
+        }
+        if (c_user) {
+          new_vehicle.vehicle_no_conductor = c_user?._id;
+          c_user.vehicle.push(c_user?._id);
+          trans_panel.transport_staff_count += 1;
+          trans_panel.transport_ndconductors.push(c_user._id);
+          await c_user.save();
+        }
+      } else {
+      }
+      trans_panel.transport_vehicles.push(new_vehicle?._id);
+      trans_panel.vehicle_count += 1;
+      new_vehicle.transport = trans_panel._id;
+      await Promise.all([trans_panel.save(), new_vehicle.save()]);
+      res.status(200).send({
+        message: "Awesome Give me party for Another new Vehicle 🎉",
+        access: true,
+      });
     } else {
+      res.status(200).send({
+        message: "Transport Department Default Batch Not Selected",
+        access: false,
+      });
     }
-    trans_panel.transport_vehicles.push(new_vehicle?._id);
-    trans_panel.vehicle_count += 1;
-    new_vehicle.transport = trans_panel._id;
-    await Promise.all([trans_panel.save(), new_vehicle.save()]);
-    res.status(200).send({
-      message: "Awesome Give me party for Another new Vehicle 🎉",
-      access: true,
-    });
   } catch (e) {
     console.log(e);
   }
@@ -477,6 +485,10 @@ exports.renderTransportAllVehicle = async (req, res) => {
         .populate({
           path: "vehicle_no_conductor",
           select: "userLegalName userPhoneNumber",
+        })
+        .populate({
+          path: "batch",
+          select: "batchName batchStatus",
         });
     } else {
       var all_vehicles = await Vehicle.find({
@@ -502,6 +514,10 @@ exports.renderTransportAllVehicle = async (req, res) => {
         .populate({
           path: "vehicle_no_conductor",
           select: "userLegalName userPhoneNumber",
+        })
+        .populate({
+          path: "batch",
+          select: "batchName batchStatus",
         });
     }
     if (all_vehicles?.length > 0) {
@@ -757,6 +773,10 @@ exports.renderTransportOneVehicleQuery = async (req, res) => {
       .populate({
         path: "transport",
         select: "institute",
+      })
+      .populate({
+        path: "batch",
+        select: "batchName batchStatus",
       });
 
     if (one_vehicle) {
@@ -3186,6 +3206,51 @@ exports.renderOneLinkedQuery = async (req, res) => {
         .status(200)
         .send({ message: "Linking Operation Completed", access: true });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStudentPassAccessQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+
+    const student = await Student.findById({ _id: sid })
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGender studentDOB student_blood_group studentGRNO studentROLLNO vehicle"
+      )
+      .populate({
+        path: "vehicle",
+        select: "vehicle_name vehicle_number vehicle_type transport batch",
+        populate: {
+          path: "batch",
+          select: "batchName batchStatus",
+        },
+      })
+      .populate({
+        path: "vehicle",
+        select: "vehicle_name vehicle_number vehicle_type transport batch",
+        populate: {
+          path: "transport",
+          select: "institute",
+          populate: {
+            path: "institute",
+            select:
+              "insName name photoId insProfilePhoto insEmail insPhoneNumber insAddress",
+          },
+        },
+      });
+
+    res
+      .status(200)
+      .send({ message: "New Pass Query", access: true, student: student });
   } catch (e) {
     console.log(e);
   }

@@ -91,6 +91,10 @@ const vehicleSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch",
+  },
 });
 
 module.exports = mongoose.model("Vehicle", vehicleSchema);

@@ -180,4 +180,9 @@ router.patch(
   catchAsync(Transport.renderOneLinkedQuery)
 );
 
+router.get(
+  "/:sid/access/pass/query",
+  catchAsync(Transport.renderStudentPassAccessQuery)
+);
+
 module.exports = router;

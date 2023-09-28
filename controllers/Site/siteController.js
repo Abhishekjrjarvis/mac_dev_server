@@ -530,6 +530,8 @@ exports.updateTransportInfo = async (req, res) => {
       const transSite = await TransportSite.findById(trans.site_info[0]);
       transSite.transport_about = req.body.transport_about;
       transSite.transport_process = req.body.transport_process;
+      transSite.cashier_signature = req.body?.cashier_signature;
+      transSite.cashier_name = req.body?.cashier_name;
       for (let contact of req?.body?.edit_transport_contact) {
         for (let cont of transSite?.transport_contact) {
           if (String(contact?.contactId) === String(cont?._id)) {

@@ -3807,7 +3807,7 @@ exports.renderOneTransportFeeReceipt = async (req, res) => {
       })
       .populate({
         path: "vehicle",
-        select: "vehicle_type vehicle_number transport",
+        select: "vehicle_type vehicle_number vehicle_name transport",
         populate: {
           path: "transport",
           select: "_id site_info",

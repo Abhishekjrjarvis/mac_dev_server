@@ -553,6 +553,8 @@ exports.updateTransportInfo = async (req, res) => {
         transport_process: req?.body?.transport_process,
         transport_contact: req?.body?.transport_contact,
         related_transport: trans?._id,
+        cashier_name: req.body?.cashier_name,
+        cashier_signature: req.body?.cashier_signature,
       });
       trans.site_info.push(transSite?._id);
       await Promise.all([transSite.save(), trans.save()]);

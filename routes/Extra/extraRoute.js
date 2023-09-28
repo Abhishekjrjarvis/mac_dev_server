@@ -380,4 +380,9 @@ router.patch(
   catchAsync(Extra.renderOneStudentFilteredMessageQuery)
 );
 
+router.get(
+  "/:sid/three/designation/query",
+  catchAsync(Extra.renderThreeDesignationQuery)
+);
+
 module.exports = router;

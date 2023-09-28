@@ -2289,7 +2289,7 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount fee_receipt"
           )
           .populate({
             path: "studentClass",
@@ -2314,7 +2314,7 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount fee_receipt"
           )
           .populate({
             path: "studentClass",
@@ -2338,7 +2338,7 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount fee_receipt"
           )
           .populate({
             path: "studentClass",
@@ -2364,7 +2364,7 @@ exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount fee_receipt"
           )
           .populate({
             path: "studentClass",

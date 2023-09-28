@@ -3188,3 +3188,30 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderThreeDesignationQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+
+    const staff = await Staff.findById({ _id: sid }).select(
+      "staffDepartment staffSubject staffClass"
+    );
+
+    res
+      .status(200)
+      .send({
+        message: "Explore Three Designation Query",
+        access: true,
+        staff: staff,
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};

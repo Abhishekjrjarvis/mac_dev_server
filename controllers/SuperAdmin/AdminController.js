@@ -390,7 +390,7 @@ exports.getRejectIns = async (req, res) => {
       message: `Application Rejected ${institute.insName}`,
       admin: admin._id,
     });
-  } catch(e) {
+  } catch (e) {
     console.log(`Error`, e.message);
   }
 };
@@ -530,7 +530,7 @@ exports.retrieveApproveInstituteActivateVolume = async (req, res) => {
     const admin = await Admin.findById({ _id: aid }).select("activateAccount");
     const institute = await InstituteAdmin.find({ activateStatus: "Activated" })
       .select(
-        "createdAt insName name photoId insEmail insPhoneNumber insProfilePhoto bankAccountHolderName paymentBankStatus bankAccountNumber bankIfscCode bankAccountPhoneNumber bankAccountType paymentBankStatus insBankBalance adminRepayAmount payout_pool"
+        "createdAt insName name photoId insEmail insPhoneNumber insProfilePhoto bankAccountHolderName paymentBankStatus bankAccountNumber bankIfscCode bankAccountPhoneNumber bankAccountType paymentBankStatus insBankBalance adminRepayAmount payout_pool financeDepart"
       )
       .populate({
         path: "getReturn",

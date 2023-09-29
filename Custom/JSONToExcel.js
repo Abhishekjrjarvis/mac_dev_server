@@ -6,6 +6,7 @@ const Finance = require("../models/Finance");
 const Hostel = require("../models/Hostel/hostel");
 const NewApplication = require("../models/Admission/NewApplication");
 const { uploadExcelFile } = require("../S3Configuration");
+const RePay = require("../models/Return/RePay");
 
 exports.json_to_excel_query = async (
   data_query,
@@ -239,6 +240,33 @@ exports.json_to_excel_hostel_query = async (
     });
     ads_admin.export_collection_count += 1;
     await ads_admin.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.fee_heads_receipt_json_to_excel_repay_query = async (
+  data_query,
+  insName,
+  rid
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(
+      real_book,
+      real_sheet,
+      "Settlement Fee Receipt Heads"
+    );
+    var name = `${insName}-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const repay = await RePay.findById({ _id: rid });
+    repay.excel_attach = results;
+    await repay.save();
   } catch (e) {
     console.log(e);
   }

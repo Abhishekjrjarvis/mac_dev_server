@@ -107,7 +107,7 @@ router.get(
   catchAsync(Filter.renderHostelFeeHeadsStructureReceiptQuery)
 );
 
-router.get(
+router.patch(
   "/heads/by/:fid/receipt/query/repay/price/calculate",
   catchAsync(Filter.renderFeeHeadsStructureReceiptRePayPriceQuery)
 );

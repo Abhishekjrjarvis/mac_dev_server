@@ -3031,15 +3031,33 @@ exports.renderFeeHeadsStructureReceiptRePayPriceQuery = async (req, res) => {
       _id: `${finance?.institute}`,
     });
     if (valid_timeline) {
-      const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
-      const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
+      var g_year = new Date(`${from}`).getFullYear();
+      var g_day = new Date(`${from}`).getDate();
+      var l_year = new Date(`${to}`).getFullYear();
+      var l_day = new Date(`${to}`).getDate();
+      var g_month = new Date(`${from}`).getMonth() + 1;
+      if (g_month < 10) {
+        g_month = `0${g_month}`;
+      }
+      if (g_day < 10) {
+        g_day = `0${g_day}`;
+      }
+      var l_month = new Date(`${to}`).getMonth() + 1;
+      if (l_month < 10) {
+        l_month = `0${l_month}`;
+      }
+      if (l_day < 10) {
+        l_day = `0${l_day}`;
+      }
+      const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+      const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
       var all_receipts = await FeeReceipt.find({
         $and: [
           { finance: fid },
           {
             created_at: {
               $gte: g_date,
-              $lt: l_date,
+              $lte: l_date,
             },
           },
           {
@@ -3128,8 +3146,26 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
       _id: `${finance?.institute}`,
     });
     if (valid_timeline) {
-      var g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
-      var l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
+      var g_year = new Date(`${from}`).getFullYear();
+      var g_day = new Date(`${from}`).getDate();
+      var l_year = new Date(`${to}`).getFullYear();
+      var l_day = new Date(`${to}`).getDate();
+      var g_month = new Date(`${from}`).getMonth() + 1;
+      if (g_month < 10) {
+        g_month = `0${g_month}`;
+      }
+      if (g_day < 10) {
+        g_day = `0${g_day}`;
+      }
+      var l_month = new Date(`${to}`).getMonth() + 1;
+      if (l_month < 10) {
+        l_month = `0${l_month}`;
+      }
+      if (l_day < 10) {
+        l_day = `0${l_day}`;
+      }
+      const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+      const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
       var all_receipts = await FeeReceipt.find({
         $and: [
           { finance: fid },
@@ -3270,7 +3306,7 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
       }
       repay.bank_account.push(account?._id);
       repay.bank_account_count += 1;
-      repay.settlement_date = `${g_date} To ${l_date} Settlement`
+      repay.settlement_date = `${g_date} To ${l_date} Settlement`;
       await Promise.all([
         institute.save(),
         notify.save(),

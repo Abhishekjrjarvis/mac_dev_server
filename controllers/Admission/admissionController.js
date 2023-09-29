@@ -980,7 +980,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
               valid_full_name: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:
@@ -1018,7 +1018,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt institute",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:

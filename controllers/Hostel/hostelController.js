@@ -1465,6 +1465,7 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
   try {
     const { sid, aid } = req.params;
     const { amount, mode } = req.body;
+    const { receipt_status } = req.query;
     if (!sid && !aid && !amount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -1501,6 +1502,9 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
+    new_receipt.receipt_status = receipt_status
+      ? receipt_status
+      : "Already Generated";
     order.payment_module_type = "Hostel Fees";
     order.payment_to_end_user_id = institute?._id;
     order.payment_by_end_user_id = user._id;
@@ -2226,6 +2230,7 @@ exports.renderPaidRemainingFeeStudentQuery = async (req, res) => {
   try {
     const { hid, sid, appId } = req.params;
     const { amount, mode, type } = req.body;
+    const { receipt_status } = req.query;
     if (!sid && !hid && !appId && !amount && !mode && !type)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2259,6 +2264,9 @@ exports.renderPaidRemainingFeeStudentQuery = async (req, res) => {
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+    new_receipt.receipt_status = receipt_status
+      ? receipt_status
+      : "Already Generated";
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findOne({
       $and: [
@@ -7765,6 +7773,29 @@ exports.renderOneLinkedQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderPass = async(req, res) => {
+  try{
+    var all_student = await Student.find({})
+    .populate({
+      path: "hostel_fee_structure",
+      populate: {
+        path: "finance",
+        select: "institute"
+      }
+    })
+    for(var ref of all_student){
+      if(ref?.hostel_fee_structure?._id){
+        ref.institute = ref?.hostel_fee_structure?.finance?.institute
+        await ref.save()
+      }
+    }
+    res.status(200).send({ message: "Pass"})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
 
 // exports.renderHostelAllAppsQuery = async (req, res) => {
 //   try {

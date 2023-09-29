@@ -1393,7 +1393,8 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
 exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { fsid, depart, timeline, timeline_content, from, to, bank } = req.query;
+    const { fsid, depart, timeline, timeline_content, from, to, bank } =
+      req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -1645,15 +1646,15 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         })
         .lean()
         .exec();
-        if (bank) {
-          all_receipts = all_receipts?.filter((val) => {
-            if (
-              `${val?.application?.applicationDepartment?.bank_account?._id}` ===
-              `${bank}`
-            )
-              return val;
-          });
-        }
+      if (bank) {
+        all_receipts = all_receipts?.filter((val) => {
+          if (
+            `${val?.application?.applicationDepartment?.bank_account?._id}` ===
+            `${bank}`
+          )
+            return val;
+        });
+      }
     }
     if (all_receipts?.length > 0) {
       res.status(200).send({
@@ -2735,7 +2736,7 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
           {
             created_at: {
               $gte: g_date,
-              $lt: l_date,
+              $lte: l_date,
             },
           },
           {
@@ -2835,8 +2836,11 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
           {
             created_at: {
               $gte: g_date,
-              $lt: l_date,
+              $lte: l_date,
             },
+          },
+          {
+            receipt_generated_from: "BY_HOSTEL_MANAGER",
           },
           {
             refund_status: "No Refund",
@@ -3036,7 +3040,7 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
 exports.renderFeeHeadsStructureReceiptRePayPriceQuery = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { fsid, depart, timeline, timeline_content, from, to, bank, module } =
+    const { fsid, depart, timeline, timeline_content, from, to, bank } =
       req.query;
     if (!fid)
       return res.status(200).send({
@@ -3083,9 +3087,6 @@ exports.renderFeeHeadsStructureReceiptRePayPriceQuery = async (req, res) => {
               $gte: g_date,
               $lte: l_date,
             },
-          },
-          {
-            receipt_generated_from: `${module}`,
           },
           {
             refund_status: "No Refund",
@@ -3146,7 +3147,7 @@ exports.renderFeeHeadsStructureReceiptRePayPriceQuery = async (req, res) => {
 exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { fsid, depart, timeline, timeline_content, from, to, bank, module } =
+    const { fsid, depart, timeline, timeline_content, from, to, bank } =
       req.query;
     const { txnId, message, t_amount, p_amount } = req.body;
     if (!fid)
@@ -3198,9 +3199,6 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
               $gte: g_date,
               $lte: l_date,
             },
-          },
-          {
-            receipt_generated_from: `${module}`,
           },
           {
             refund_status: "No Refund",

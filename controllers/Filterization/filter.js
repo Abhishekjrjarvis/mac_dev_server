@@ -3188,8 +3188,8 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
       if (l_day < 10) {
         l_day = `0${l_day}`;
       }
-      const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
-      const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
+      var g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+      var l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
       var all_receipts = await FeeReceipt.find({
         $and: [
           { finance: fid },

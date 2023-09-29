@@ -310,22 +310,22 @@ exports.markAttendenceClassStudent = async (req, res) => {
           const student = await Student.findById({
             _id: `${req.body.present[i]}`,
           });
-          const user = await User.findById({ _id: `${student.user}` });
-          const notify = new StudentNotification({});
-          notify.notifyContent = `you're present ${notify_attendence_provider(
-            req.body.date
-          )}`;
-          notify.notify_hi_content = `आप आज उपस्थित हैं |`;
-          notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
-          notify.notifySender = classes._id;
-          notify.notifyReceiever = user._id;
-          notify.notifyType = "Student";
-          notify.notifyPublisher = student._id;
-          notify.notifyByClassPhoto = classes._id;
-          notify.notifyCategory = "Student Present";
-          user.activity_tab.push(notify._id);
-          student.notification.push(notify._id);
-          student.attendDate.push(attendence._id);
+          // const user = await User.findById({ _id: `${student.user}` });
+          // const notify = new StudentNotification({});
+          // notify.notifyContent = `you're present ${notify_attendence_provider(
+          //   req.body.date
+          // )}`;
+          // notify.notify_hi_content = `आप आज उपस्थित हैं |`;
+          // notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
+          // notify.notifySender = classes._id;
+          // notify.notifyReceiever = user._id;
+          // notify.notifyType = "Student";
+          // notify.notifyPublisher = student._id;
+          // notify.notifyByClassPhoto = classes._id;
+          // notify.notifyCategory = "Student Present";
+          // user.activity_tab.push(notify._id);
+          // student.notification.push(notify._id);
+          // student.attendDate.push(attendence._id);
 
           attendence.presentStudent.push({
             student: student._id,
@@ -333,20 +333,20 @@ exports.markAttendenceClassStudent = async (req, res) => {
             // status: getOnlyTimeCompare(),
             status: "Present",
           });
-          notify.notifyCategory = "Attendence";
-          notify.redirectIndex = 3;
+          // notify.notifyCategory = "Attendence";
+          // notify.redirectIndex = 3;
           //
-          invokeMemberTabNotification(
-            "Student Activity",
-            notify,
-            "Mark Attendence",
-            user._id,
-            user.deviceToken,
-            "Student",
-            notify
-          );
+          // invokeMemberTabNotification(
+          //   "Student Activity",
+          //   notify,
+          //   "Mark Attendence",
+          //   user._id,
+          //   user.deviceToken,
+          //   "Student",
+          //   notify
+          // );
           //
-          await Promise.all([student.save(), notify.save(), user.save()]);
+          // await Promise.all([student.save(), notify.save(), user.save()]);
         }
 
         for (let i = 0; i < req.body.absent.length; i++) {
@@ -791,38 +791,38 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           select: "_id uNotify userLegalName deviceToken activity_tab",
         });
         staff.attendDates.push(staffAttendence._id);
-        const notify = new StudentNotification({});
-        notify.notifyContent = `you're present ${notify_attendence_provider(
-          req.body.date
-        )}`;
-        notify.notify_hi_content = `आप आज उपस्थित हैं |`;
-        notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
-        notify.notifySender = id;
-        notify.notifyReceiever = staff.user._id;
-        notify.notifyType = "Staff";
-        notify.notifyPublisher = staff._id;
-        notify.notifyCategory = "Staff Present";
-        staff.user.activity_tab.push(notify._id);
-        notify.notifyByInsPhoto = id;
+        // const notify = new StudentNotification({});
+        // notify.notifyContent = `you're present ${notify_attendence_provider(
+        //   req.body.date
+        // )}`;
+        // notify.notify_hi_content = `आप आज उपस्थित हैं |`;
+        // notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
+        // notify.notifySender = id;
+        // notify.notifyReceiever = staff.user._id;
+        // notify.notifyType = "Staff";
+        // notify.notifyPublisher = staff._id;
+        // notify.notifyCategory = "Staff Present";
+        // staff.user.activity_tab.push(notify._id);
+        // notify.notifyByInsPhoto = id;
         staffAttendence.presentStaff.push({
           staff: staff._id,
           inTime: getOnlyTime(),
           status: "Present",
         });
-        notify.notifyCategory = "Attendence";
-        notify.redirectIndex = 3;
+        // notify.notifyCategory = "Attendence";
+        // notify.redirectIndex = 3;
         //
-        invokeMemberTabNotification(
-          "Staff Activity",
-          notify,
-          "Mark Attendence",
-          staff.user._id,
-          staff.user.deviceToken,
-          "Staff",
-          notify
-        );
+        // invokeMemberTabNotification(
+        //   "Staff Activity",
+        //   notify,
+        //   "Mark Attendence",
+        //   staff.user._id,
+        //   staff.user.deviceToken,
+        //   "Staff",
+        //   notify
+        // );
         //
-        await Promise.all([staff.save(), notify.save(), staff.user.save()]);
+        await staff.save();
       }
 
       for (let i = 0; i < req.body.absent.length; i++) {
@@ -1526,25 +1526,25 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         const student = await Student.findById({
           _id: `${req.body.present[i]}`,
         });
-        const user = await User.findById({ _id: `${student.user}` });
-        const notify = new StudentNotification({});
-        notify.notifyContent = `you're present ${notify_attendence_provider(
-          req.body.date
-        )}`;
-        notify.notify_hi_content = `आप आज उपस्थित हैं |`;
-        notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
-        notify.notifySender = subjects._id;
-        notify.notifyReceiever = user._id;
-        notify.notifyType = "Student";
-        notify.notifyPublisher = student._id;
-        notify.notifyBySubjectPhoto.subject_id = subjects?._id;
-        notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
-        notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
-        notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
-        notify.notifyCategory = "Student Present";
-        user.activity_tab.push(notify._id);
-        student.notification.push(notify._id);
-        student.subjectAttendance.push(attendence._id);
+        // const user = await User.findById({ _id: `${student.user}` });
+        // const notify = new StudentNotification({});
+        // notify.notifyContent = `you're present ${notify_attendence_provider(
+        //   req.body.date
+        // )}`;
+        // notify.notify_hi_content = `आप आज उपस्थित हैं |`;
+        // notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
+        // notify.notifySender = subjects._id;
+        // notify.notifyReceiever = user._id;
+        // notify.notifyType = "Student";
+        // notify.notifyPublisher = student._id;
+        // notify.notifyBySubjectPhoto.subject_id = subjects?._id;
+        // notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
+        // notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+        // notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
+        // notify.notifyCategory = "Student Present";
+        // user.activity_tab.push(notify._id);
+        // student.notification.push(notify._id);
+        // student.subjectAttendance.push(attendence._id);
 
         attendence.presentStudent.push({
           student: student._id,
@@ -1552,20 +1552,20 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
           // status: getOnlyTimeCompare(),
           status: "Present",
         });
-        notify.notifyCategory = "Attendence";
-        notify.redirectIndex = 3;
+        // notify.notifyCategory = "Attendence";
+        // notify.redirectIndex = 3;
         //
-        invokeMemberTabNotification(
-          "Student Activity",
-          notify,
-          "Mark Attendence",
-          user._id,
-          user.deviceToken,
-          "Student",
-          notify
-        );
+        // invokeMemberTabNotification(
+        //   "Student Activity",
+        //   notify,
+        //   "Mark Attendence",
+        //   user._id,
+        //   user.deviceToken,
+        //   "Student",
+        //   notify
+        // );
         //
-        await Promise.all([student.save(), notify.save(), user.save()]);
+        // await Promise.all([student.save(), notify.save(), user.save()]);
       }
 
       for (let i = 0; i < req.body.absent.length; i++) {

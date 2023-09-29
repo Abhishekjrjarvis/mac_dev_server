@@ -1393,7 +1393,7 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
 exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { fsid, depart, timeline, timeline_content, from, to } = req.query;
+    const { fsid, depart, timeline, timeline_content, from, to, bank } = req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -1482,6 +1482,9 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             },
           },
           {
+            receipt_generated_from: "BY_ADMISSION",
+          },
+          {
             refund_status: "No Refund",
           },
         ],
@@ -1545,6 +1548,15 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
           if (`${val?.student?.department?._id}` === `${depart}`) return val;
         });
       }
+      if (bank) {
+        all_receipts = all_receipts?.filter((val) => {
+          if (
+            `${val?.application?.applicationDepartment?.bank_account?._id}` ===
+            `${bank}`
+          )
+            return val;
+        });
+      }
     } else {
       var g_year = new Date(`${from}`).getFullYear();
       var g_day = new Date(`${from}`).getDate();
@@ -1576,6 +1588,9 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               $gte: g_date,
               $lt: l_date,
             },
+          },
+          {
+            receipt_generated_from: "BY_ADMISSION",
           },
           {
             refund_status: "No Refund",
@@ -1630,6 +1645,15 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         })
         .lean()
         .exec();
+        if (bank) {
+          all_receipts = all_receipts?.filter((val) => {
+            if (
+              `${val?.application?.applicationDepartment?.bank_account?._id}` ===
+              `${bank}`
+            )
+              return val;
+          });
+        }
     }
     if (all_receipts?.length > 0) {
       res.status(200).send({

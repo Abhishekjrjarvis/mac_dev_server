@@ -205,6 +205,7 @@ exports.preformedStructure = async (req, res) => {
           lecture_analytic: oneSubject?.lecture_analytic,
           practical_analytic: oneSubject?.practical_analytic,
           tutorial_analytic: oneSubject?.tutorial_analytic,
+          subject_category: oneSubject?.subject_category
         });
         subjectMaster?.subjects.push(identicalSubject._id);
         subjectMaster.subjectCount += 1;
@@ -379,6 +380,9 @@ exports.promoteStudent = async (req, res) => {
     // console.log(batch?._id);
     const department = await Department.findById(departmentId).populate({
       path: "fees_structures",
+      populate: {
+        path: "category_master",
+      },
     });
     var institute = await InstituteAdmin.findById({
       _id: `${department?.institute}`,
@@ -407,6 +411,9 @@ exports.promoteStudent = async (req, res) => {
         for (let stu of req.body?.students) {
           const student = await Student.findById(stu).populate({
             path: "fee_structure",
+            populate: {
+              path: "category_master",
+            },
           });
           var same_batch_promotion =
             `${student?.batches}` === `${batch?._id}` ? true : false;
@@ -414,14 +421,14 @@ exports.promoteStudent = async (req, res) => {
           //   current_status: "Secondary Category",
           // });
           if (!same_batch_promotion) {
-            if (finance?.secondary_category?.status === "Assigned") {
-              var cate = finance?.secondary_category?.category;
-            }
+            // if (finance?.secondary_category?.status === "Assigned") {
+            //   var cate = finance?.secondary_category?.category;
+            // }
             var structure = department?.fees_structures?.filter((ref) => {
               if (
                 `${ref?.class_master}` === `${classes?.masterClassName}` &&
-                `${ref?.category_master}` ===
-                  `${student?.fee_structure?.category_master}` &&
+                `${ref?.category_master?._id}` ===
+                  `${student?.fee_structure?.category_master?._id}` &&
                 `${ref?.batch_master}` === `${batch?._id}`
               )
                 return ref;
@@ -432,7 +439,8 @@ exports.promoteStudent = async (req, res) => {
               var structure = department?.fees_structures?.filter((ref) => {
                 if (
                   `${ref?.class_master}` === `${classes?.masterClassName}` &&
-                  `${ref?.category_master}` === `${cate}` &&
+                  `${ref?.category_master?._id}` ===
+                    `${student?.fee_structure?.category_master?.secondary_category}` &&
                   `${ref?.batch_master}` === `${batch?._id}`
                 )
                   return ref;

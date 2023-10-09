@@ -382,11 +382,12 @@ exports.previousYearReportCard = async (req, res) => {
           "subject masterClassName batch department finalReportsSettings.aggregatePassingPercentage",
       });
     let classes = finalReport?.classId;
-    const department = await Department.findById(classes.department).populate({
-      path: "grade_system",
-      select: "grades custom_grade grade_name grade_type grade_count",
-    });
-
+    if (classes.department) {
+      var department = await Department.findById(classes.department).populate({
+        path: "grade_system",
+        select: "grades custom_grade grade_name grade_type grade_count",
+      });
+    }
     let s_with_max = [];
     for (let sub of classes.subject) {
       let arr = [];
@@ -454,7 +455,7 @@ exports.previousYearReportCard = async (req, res) => {
           if (`${su_matser.subjectMasterName}` === `${m_val.subjectMaster}`) {
             obj.showGrade = grade_calculate(
               m_val.maxValue,
-              department.grade_system?.[0],
+              department?.grade_system?.[0],
               m_val.passing,
               obj.subjectWiseTotal
             );
@@ -471,7 +472,7 @@ exports.previousYearReportCard = async (req, res) => {
     );
     total.showGradeTotal = grade_calculate(
       standard_max_value,
-      department.grade_system?.[0],
+      department?.grade_system?.[0],
       classes?.finalReportsSettings.aggregatePassingPercentage,
       totalPercentage
     );
@@ -621,14 +622,13 @@ exports.getPromoteStudentByClass = async (req, res) => {
       .lean()
       .exec();
 
-    var boyCount = 0
-    var girlCount = 0
-    for(var val of classes?.promoteStudent){
-      if(`${val?.studentGender?.toLowerCase()}` === "male"){
-        boyCount += 1
-      }
-      else if(`${val?.studentGender?.toLowerCase()}` === "female"){
-        girlCount += 1
+    var boyCount = 0;
+    var girlCount = 0;
+    for (var val of classes?.promoteStudent) {
+      if (`${val?.studentGender?.toLowerCase()}` === "male") {
+        boyCount += 1;
+      } else if (`${val?.studentGender?.toLowerCase()}` === "female") {
+        girlCount += 1;
       }
     }
     var count = {
@@ -646,6 +646,49 @@ exports.getPromoteStudentByClass = async (req, res) => {
     console.log(e);
   }
 };
+
+// exports.getPromoteStudentByClass = async (req, res) => {
+//   try {
+//     const { cid } = req.params;
+//     if (!cid) throw "Please call proper api with all *required details";
+//     const classes = await Class.findById(cid)
+//       .populate({
+//         path: "promoteStudent",
+//         select:
+//           "studentFirstName studentMiddleName studentLastName valid_full_name old_fee_structure",
+//         populate: {
+//           path: "fee_structure old_fee_structure",
+//           select: "unique_structure_name total_admission_fees",
+//         },
+//       })
+//       // .select("promoteStudent boyCount girlCount")
+//       .lean()
+//       .exec();
+
+//     // var boyCount = 0;
+//     // var girlCount = 0;
+//     // for (var val of classes?.promoteStudent) {
+//     //   if (`${val?.studentGender?.toLowerCase()}` === "male") {
+//     //     boyCount += 1;
+//     //   } else if (`${val?.studentGender?.toLowerCase()}` === "female") {
+//     //     girlCount += 1;
+//     //   }
+//     // }
+//     // var count = {
+//     //   // boyCount: boyCount,
+//     //   // girlCount: girlCount,
+//     //   totalCount: boyCount + girlCount,
+//     // };
+//     res.status(200).send({
+//       message: "All promoted student list",
+//       promoteStudent: classes.promoteStudent ?? [],
+//       count: classes.promoteStudent?.length,
+//     });
+//   } catch (e) {
+//     res.status(200).send({ message: e, promoteStudent: [] });
+//     console.log(e);
+//   }
+// };
 
 exports.getNotPromoteStudentByClass = async (req, res) => {
   try {

@@ -40,7 +40,7 @@ const feeReceiptSchema = new mongoose.Schema({
   },
   invoice_count: {
     type: String,
-    unique: true,
+    // unique: true,
   },
   app_status: {
     type: mongoose.Schema.Types.ObjectId,
@@ -147,6 +147,10 @@ const feeReceiptSchema = new mongoose.Schema({
   fee_structure: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeStructure",
+  },
+  remaining_list: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "RemainingList",
   },
 });
 

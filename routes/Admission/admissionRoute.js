@@ -592,4 +592,30 @@ router.patch(
   catchAsync(Admission.renderFindStudentReceiptQuery)
 );
 
+router.patch("/excel/bug", catchAsync(Admission.renderExcelBugQuery));
+
+router.patch(
+  "/student/structure/bug",
+  catchAsync(Admission.renderStudentStructureBugQuery)
+);
+
+router.patch(
+  "/student/structure/bug/query",
+  catchAsync(Admission.renderStudentsStructureBugQuery)
+);
+
+router.get("/student/data", catchAsync(Admission.renderStudentDataQuery));
+
+router.get(
+  "/student/data/heads",
+  catchAsync(Admission.renderStudentDataHeadsQuery)
+);
+
+router.patch("/data/card", catchAsync(Admission.renderCardUpdateQuery));
+
+router.patch(
+  "/fee/heads/card/:id",
+  catchAsync(Admission.renderCardFeeHeadsQuery)
+);
+
 module.exports = router;

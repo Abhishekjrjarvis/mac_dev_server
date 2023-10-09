@@ -3109,7 +3109,7 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       });
 
     if (flow === "INSTITUTE_ADMIN") {
-      var student = await Student.find({ _id: sid });
+      var student = await Student.findById({ _id: sid });
       var valid_ins = await InstituteAdmin.findById({ _id: `${from}` });
       var user = await User.findById({
         _id: `${student?.user}`,
@@ -3143,7 +3143,7 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       });
       await valid_ins.save();
     } else {
-      var student = await Student.find({ _id: sid });
+      var student = await Student.findById({ _id: sid });
       var valid_staff = await Staff.findById({ _id: `${from}` });
       var user = await User.findById({
         _id: `${student?.user}`,

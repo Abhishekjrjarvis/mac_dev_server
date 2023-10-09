@@ -1341,7 +1341,9 @@ exports.retrieveApproveStudentList = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
             parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
@@ -1383,7 +1385,9 @@ exports.retrieveApproveStudentList = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
             parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
@@ -1469,7 +1473,9 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
             parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
@@ -1514,7 +1520,7 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
       for (var ref of studentIns) {
         all_student_query.push(ref?._id);
       }
-      studentIns = await nested_document_limit(page, limit, studentIns)
+      studentIns = await nested_document_limit(page, limit, studentIns);
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -1705,7 +1711,9 @@ exports.retrieveFinanceApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
             parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
@@ -1750,7 +1758,7 @@ exports.retrieveFinanceApproveStudentListFilterQuery = async (req, res) => {
       for (var ref of studentIns) {
         all_student_query.push(ref?._id);
       }
-      studentIns = await nested_document_limit(page, limit, studentIns)
+      studentIns = await nested_document_limit(page, limit, studentIns);
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -1860,7 +1868,9 @@ exports.retrieveFinanceApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
             parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
@@ -1949,7 +1959,9 @@ exports.retrieveAdmissionApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
             parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
@@ -1994,7 +2006,7 @@ exports.retrieveAdmissionApproveStudentListFilterQuery = async (req, res) => {
       for (var ref of studentIns) {
         all_student_query.push(ref?._id);
       }
-      studentIns = await nested_document_limit(page, limit, studentIns)
+      studentIns = await nested_document_limit(page, limit, studentIns);
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -2106,7 +2118,9 @@ exports.retrieveAdmissionApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
             parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
@@ -2195,7 +2209,9 @@ exports.retrieveApproveStudentSectionListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
             parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
@@ -2240,7 +2256,7 @@ exports.retrieveApproveStudentSectionListFilterQuery = async (req, res) => {
       for (var ref of studentIns) {
         all_student_query.push(ref?._id);
       }
-      studentIns = await nested_document_limit(page, limit, studentIns)
+      studentIns = await nested_document_limit(page, limit, studentIns);
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -2350,7 +2366,9 @@ exports.retrieveApproveStudentSectionListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
             parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
@@ -2439,7 +2457,9 @@ exports.retrieveCertificateApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
             parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
@@ -2484,7 +2504,7 @@ exports.retrieveCertificateApproveStudentListFilterQuery = async (req, res) => {
       for (var ref of studentIns) {
         all_student_query.push(ref?._id);
       }
-      studentIns = await nested_document_limit(page, limit, studentIns)
+      studentIns = await nested_document_limit(page, limit, studentIns);
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -2596,7 +2616,9 @@ exports.retrieveCertificateApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
             parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
@@ -2685,7 +2707,9 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
             parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
@@ -2730,7 +2754,7 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
       for (var ref of studentIns) {
         all_student_query.push(ref?._id);
       }
-      studentIns = await nested_document_limit(page, limit, studentIns)
+      studentIns = await nested_document_limit(page, limit, studentIns);
       if (depart_arr?.length > 0) {
         studentIns = studentIns?.filter((ref) => {
           if (
@@ -2849,7 +2873,9 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
         var valid_list = await applicable_pending_calc(studentIns);
         valid_list.sort(function (st1, st2) {
           return (
-            parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+            parseInt(
+              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
+            ) -
             parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
           );
         });
@@ -3543,6 +3569,7 @@ exports.retrieveNewSubject = async (req, res) => {
       practical_analytic,
       tutorial_analytic,
       batch_arr,
+      subject_category,
     } = req.body;
     var institute = await InstituteAdmin.findById({ _id: id });
     var classes = await Class.findById({ _id: cid }).populate({
@@ -3564,6 +3591,7 @@ exports.retrieveNewSubject = async (req, res) => {
       lecture_analytic: lecture_analytic,
       practical_analytic: practical_analytic,
       tutorial_analytic: tutorial_analytic,
+      subject_category: subject_category,
     });
     if (sid) {
       var staff = await Staff.findById({ _id: sid }).populate({
@@ -3805,7 +3833,7 @@ exports.retrieveClassSubject = async (req, res) => {
       .populate({
         path: "subject",
         select:
-          "subjectName subjectTitle subjectStatus subjectOptional topic_count_bifurgate topic_count lecture_analytic practical_analytic tutorial_analytic",
+          "subjectName subjectTitle subjectStatus subjectOptional subject_category topic_count_bifurgate topic_count lecture_analytic practical_analytic tutorial_analytic",
         populate: {
           path: "subjectTeacherName selected_batch_query",
           select:
@@ -4053,11 +4081,11 @@ exports.retrieveClass = async (req, res) => {
       )
       .populate({
         path: "subject",
-        select: "subjectName subjectTitle subjectStatus",
+        select: "subjectName subjectTitle subjectStatus subject_category subjectOptional selected_batch_query",
         populate: {
-          path: "subjectTeacherName",
+          path: "subjectTeacherName selected_batch_query",
           select:
-            "staffFirstName staffMiddleName staffLastName staffProfilePhoto",
+            "staffFirstName staffMiddleName staffLastName staffProfilePhoto batchName batchStatus",
         },
       })
       .populate({
@@ -5494,7 +5522,7 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
     var count = 0;
     var one_subject = await Subject.findById({ _id: sid })
       .select(
-        "subjectName subjectStatus subjectTitle tutorial_analytic lecture_analytic practical_analytic chapter_count topic_count_bifurgate createdAt"
+        "subjectName subjectStatus subject_category subjectTitle tutorial_analytic lecture_analytic practical_analytic chapter_count topic_count_bifurgate createdAt"
       )
       .populate({
         path: "chapter",
@@ -5509,9 +5537,11 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
         select: "batchName batchStatus",
       });
 
-    for (var ref of one_subject?.chapter) {
-      count += ref?.topic_count;
-    }
+      if(one_subject?.chapter){
+        for (var ref of one_subject?.chapter) {
+          count += ref?.topic_count;
+        }
+      }
     var academic_count =
       one_subject?.topic_count_bifurgate?.early +
       one_subject?.topic_count_bifurgate?.timely +
@@ -5606,6 +5636,61 @@ exports.renderSelectMerchantQuery = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore New Merchant Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderEditClassMasterQuery = async (req, res) => {
+  try {
+    const { cmid } = req.params;
+    if (!cmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await ClassMaster.findByIdAndUpdate(cmid, req?.body);
+    res
+      .status(200)
+      .send({ message: "Explore Class Master Edit", access: true });
+    var master = await ClassMaster.findById({ _id: cmid }).select(
+      "classDivision"
+    );
+
+    var all_classes = await Class.find({ _id: { $in: master?.classDivision } });
+
+    for (var ref of all_classes) {
+      ref.className = `${master?.className}`;
+      await ref.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderEditSubjectMasterQuery = async (req, res) => {
+  try {
+    const { smid } = req.params;
+    if (!smid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await SubjectMaster.findByIdAndUpdate(smid, req?.body);
+    res
+      .status(200)
+      .send({ message: "Explore Subject Master Edit", access: true });
+
+    var master = await SubjectMaster.findById({ _id: smid }).select("subjects");
+
+    var all_subjects = await Subject.find({ _id: { $in: master?.subjects } });
+
+    for (var ref of all_subjects) {
+      ref.subjectName = `${master?.subjectName}`;
+      await ref.save();
+    }
   } catch (e) {
     console.log(e);
   }

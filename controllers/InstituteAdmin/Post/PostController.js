@@ -15,6 +15,7 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../../Firebase/firebase");
 const Notification = require("../../../models/notification");
+const { execute_ins_social_feed_query } = require("../../../Feed/socialFeed");
 // const encryptionPayload = require("../../../Utilities/Encrypt/payload");
 
 exports.postWithText = async (req, res) => {
@@ -49,96 +50,8 @@ exports.postWithText = async (req, res) => {
     await Promise.all([institute.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post is create", post });
-    if (institute.isUniversal === "Not Assigned") {
-      if (institute.followers.length >= 1) {
-        if (post.postStatus === "Anyone") {
-          institute.followers.forEach(async (ele) => {
-            if (ele.posts.includes(post._id)) {
-            } else {
-              ele.posts.push(post._id);
-              await ele.save();
-            }
-          });
-        } else {
-        }
-      }
-      if (institute.userFollowersList.length >= 1) {
-        if (post.postStatus === "Anyone") {
-          institute.userFollowersList.forEach(async (ele) => {
-            if (ele.userPosts.includes(post._id)) {
-            } else {
-              ele.userPosts.push(post._id);
-              await ele.save();
-            }
-          });
-        } else {
-          if (institute.joinedUserList.length >= 1) {
-            institute.joinedUserList.forEach(async (ele) => {
-              if (ele.userPosts.includes(post._id)) {
-              } else {
-                ele.userPosts.push(post._id);
-                await ele.save();
-              }
-            });
-          }
-        }
-      }
-    } else if (institute.isUniversal === "Universal") {
-      const all = await InstituteAdmin.find({ status: "Approved" });
-      const user = await User.find({ userStatus: "Approved" });
-      if (post.postStatus === "Anyone") {
-        all.forEach(async (el) => {
-          if (el._id !== institute._id) {
-            el.posts.push(post._id);
-            await el.save();
-          }
-        });
-        user.forEach(async (el) => {
-          el.userPosts.push(post._id);
-          await el.save();
-        });
-      }
-      if (post.postStatus === "Private") {
-        all.forEach(async (el) => {
-          if (el._id !== institute._id) {
-            el.posts.push(post._id);
-            await el.save();
-          }
-        });
-      }
-    }
-    if (Array.isArray(req.body?.people)) {
-      if (post?.tagPeople?.length) {
-        for (let instit of req.body?.people) {
-          const institTag = await InstituteAdmin.findById(instit.tagId)
-            .populate({ path: "followers" })
-            .populate({ path: "userFollowersList" });
-          // .populate({ path: "joinedUserList" });
-          if (institTag?.posts.includes(post._id)) {
-          } else {
-            institTag.posts?.push(post._id);
-          }
-          institTag.tag_post?.push(post._id);
-          if (post.postStatus === "Anyone") {
-            institTag?.followers?.forEach(async (ele) => {
-              if (ele?.posts?.includes(post._id)) {
-              } else {
-                ele.posts.push(post._id);
-                await ele.save();
-              }
-            });
-            institTag?.userFollowersList?.forEach(async (ele) => {
-              if (ele?.userPosts?.includes(post._id)) {
-              } else {
-                ele.userPosts.push(post._id);
-                await ele.save();
-              }
-            });
-          }
-          await institTag.save();
-        }
-      }
-    }
+    
+    await execute_ins_social_feed_query(institute, post, taggedPeople);
     // if (institute?.isUniversal === "Universal") {
     //   for (var ref of institute?.userFollowersList) {
     //     var notify = new Notification({});
@@ -201,86 +114,8 @@ exports.postWithImage = async (req, res) => {
     await Promise.all([institute.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post is create", post });
-    if (institute.isUniversal === "Not Assigned") {
-      if (institute.followers.length >= 1) {
-        if (post.postStatus === "Anyone") {
-          institute.followers.forEach(async (ele) => {
-            ele.posts.push(post._id);
-            await ele.save();
-          });
-        } else {
-        }
-      }
-      if (institute.userFollowersList.length >= 1) {
-        if (post.postStatus === "Anyone") {
-          institute.userFollowersList.forEach(async (ele) => {
-            ele.userPosts.push(post._id);
-            await ele.save();
-          });
-        } else {
-          if (institute.joinedUserList.length >= 1) {
-            institute.joinedUserList.forEach(async (ele) => {
-              ele.userPosts.push(post._id);
-              await ele.save();
-            });
-          }
-        }
-      }
-    } else if (institute.isUniversal === "Universal") {
-      const all = await InstituteAdmin.find({ status: "Approved" });
-      const user = await User.find({ userStatus: "Approved" });
-      if (post.postStatus === "Anyone") {
-        all.forEach(async (el) => {
-          if (el._id !== institute._id) {
-            el.posts.push(post._id);
-            await el.save();
-          }
-        });
-        user.forEach(async (el) => {
-          el.userPosts.push(post._id);
-          await el.save();
-        });
-      }
-      if (post.postStatus === "Private") {
-        all.forEach(async (el) => {
-          if (el._id !== institute._id) {
-            el.posts.push(post._id);
-            await el.save();
-          }
-        });
-      }
-    }
-    if (Array.isArray(taggedPeople)) {
-      if (post?.tagPeople?.length) {
-        for (let instit of taggedPeople) {
-          const institTag = await InstituteAdmin.findById(instit.tagId)
-            .populate({ path: "followers" })
-            .populate({ path: "userFollowersList" });
-          if (institTag?.posts.includes(post._id)) {
-          } else {
-            institTag.posts?.push(post._id);
-          }
-          institTag.tag_post?.push(post._id);
-          if (post.postStatus === "Anyone") {
-            institTag?.followers?.forEach(async (ele) => {
-              if (ele?.posts?.includes(post._id)) {
-              } else {
-                ele.posts.push(post._id);
-                await ele.save();
-              }
-            });
-            institTag?.userFollowersList?.forEach(async (ele) => {
-              if (ele?.userPosts?.includes(post._id)) {
-              } else {
-                ele.userPosts.push(post._id);
-                await ele.save();
-              }
-            });
-          }
-          await institTag.save();
-        }
-      }
-    }
+
+    await execute_ins_social_feed_query(institute, post, taggedPeople);
     // if (institute?.isUniversal === "Universal") {
     //   for (var ref of institute?.userFollowersList) {
     //     var notify = new Notification({});
@@ -347,86 +182,8 @@ exports.postWithImageAPK = async (req, res) => {
     await Promise.all([institute.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post is create", post });
-    if (institute.isUniversal === "Not Assigned") {
-      if (institute.followers.length >= 1) {
-        if (post.postStatus === "Anyone") {
-          institute.followers.forEach(async (ele) => {
-            ele.posts.push(post._id);
-            await ele.save();
-          });
-        } else {
-        }
-      }
-      if (institute.userFollowersList.length >= 1) {
-        if (post.postStatus === "Anyone") {
-          institute.userFollowersList.forEach(async (ele) => {
-            ele.userPosts.push(post._id);
-            await ele.save();
-          });
-        } else {
-          if (institute.joinedUserList.length >= 1) {
-            institute.joinedUserList.forEach(async (ele) => {
-              ele.userPosts.push(post._id);
-              await ele.save();
-            });
-          }
-        }
-      }
-    } else if (institute.isUniversal === "Universal") {
-      const all = await InstituteAdmin.find({ status: "Approved" });
-      const user = await User.find({ userStatus: "Approved" });
-      if (post.postStatus === "Anyone") {
-        all.forEach(async (el) => {
-          if (el._id !== institute._id) {
-            el.posts.push(post._id);
-            await el.save();
-          }
-        });
-        user.forEach(async (el) => {
-          el.userPosts.push(post._id);
-          await el.save();
-        });
-      }
-      if (post.postStatus === "Private") {
-        all.forEach(async (el) => {
-          if (el._id !== institute._id) {
-            el.posts.push(post._id);
-            await el.save();
-          }
-        });
-      }
-    }
-    if (Array.isArray(taggedPeople)) {
-      if (post?.tagPeople?.length) {
-        for (let instit of taggedPeople) {
-          const institTag = await InstituteAdmin.findById(instit.tagId)
-            .populate({ path: "followers" })
-            .populate({ path: "userFollowersList" });
-          if (institTag?.posts.includes(post._id)) {
-          } else {
-            institTag.posts?.push(post._id);
-          }
-          institTag.tag_post?.push(post._id);
-          if (post.postStatus === "Anyone") {
-            institTag?.followers?.forEach(async (ele) => {
-              if (ele?.posts?.includes(post._id)) {
-              } else {
-                ele.posts.push(post._id);
-                await ele.save();
-              }
-            });
-            institTag?.userFollowersList?.forEach(async (ele) => {
-              if (ele?.userPosts?.includes(post._id)) {
-              } else {
-                ele.userPosts.push(post._id);
-                await ele.save();
-              }
-            });
-          }
-          await institTag.save();
-        }
-      }
-    }
+
+    await execute_ins_social_feed_query(institute, post, taggedPeople);
     // if (institute?.isUniversal === "Universal") {
     //   for (var ref of institute?.userFollowersList) {
     //     var notify = new Notification({});
@@ -491,86 +248,8 @@ exports.postWithVideo = async (req, res) => {
     await unlinkFile(file.path);
     // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post created", post });
-    if (institute.isUniversal === "Not Assigned") {
-      if (institute.followers.length >= 1) {
-        if (post.postStatus === "Anyone") {
-          institute.followers.forEach(async (ele) => {
-            ele.posts.push(post._id);
-            await ele.save();
-          });
-        } else {
-        }
-      }
-      if (institute.userFollowersList.length >= 1) {
-        if (post.postStatus === "Anyone") {
-          institute.userFollowersList.forEach(async (ele) => {
-            ele.userPosts.push(post._id);
-            await ele.save();
-          });
-        } else {
-          if (institute.joinedUserList.length >= 1) {
-            institute.joinedUserList.forEach(async (ele) => {
-              ele.userPosts.push(post._id);
-              await ele.save();
-            });
-          }
-        }
-      }
-    } else if (institute.isUniversal === "Universal") {
-      const all = await InstituteAdmin.find({ status: "Approved" });
-      const user = await User.find({ userStatus: "Approved" });
-      if (post.postStatus === "Anyone") {
-        all.forEach(async (el) => {
-          if (el._id !== institute._id) {
-            el.posts.push(post._id);
-            await el.save();
-          }
-        });
-        user.forEach(async (el) => {
-          el.userPosts.push(post._id);
-          await el.save();
-        });
-      }
-      if (post.postStatus === "Private") {
-        all.forEach(async (el) => {
-          if (el._id !== institute._id) {
-            el.posts.push(post._id);
-            await el.save();
-          }
-        });
-      }
-    }
-    if (Array.isArray(taggedPeople)) {
-      if (post?.tagPeople?.length) {
-        for (let instit of taggedPeople) {
-          const institTag = await InstituteAdmin.findById(instit.tagId)
-            .populate({ path: "followers" })
-            .populate({ path: "userFollowersList" });
-          if (institTag?.posts.includes(post._id)) {
-          } else {
-            institTag.posts?.push(post._id);
-          }
-          institTag.tag_post?.push(post._id);
-          if (post.postStatus === "Anyone") {
-            institTag?.followers?.forEach(async (ele) => {
-              if (ele?.posts?.includes(post._id)) {
-              } else {
-                ele.posts.push(post._id);
-                await ele.save();
-              }
-            });
-            institTag?.userFollowersList?.forEach(async (ele) => {
-              if (ele?.userPosts?.includes(post._id)) {
-              } else {
-                ele.userPosts.push(post._id);
-                await ele.save();
-              }
-            });
-          }
-          await institTag.save();
-        }
-      }
-    }
+
+    await execute_ins_social_feed_query(institute, post, taggedPeople);
     // if (institute?.isUniversal === "Universal") {
     //   for (var ref of institute?.userFollowersList) {
     //     var notify = new Notification({});

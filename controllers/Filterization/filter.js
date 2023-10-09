@@ -707,11 +707,11 @@ exports.retrievePendingFeeFilter = async (req, res) => {
 
     var valid_all = is_all === "false" ? false : true;
 
+    var institute = await InstituteAdmin.findById({
+      _id: `${ads_admin?.institute}`,
+    }).select("depart");
     if (all_depart === "All") {
       var sorted_batch = [];
-      const institute = await InstituteAdmin.findById({
-        _id: `${ads_admin?.institute}`,
-      }).select("depart");
 
       if (batch_status === "All") {
         var all_department = await Department.find({
@@ -763,17 +763,19 @@ exports.retrievePendingFeeFilter = async (req, res) => {
           if (`${ref?.batches}` === `${batch}`) return ref;
         });
       }
-      var select_classes = [];
-      const all_master = await ClassMaster.find({
-        _id: { $in: master },
-      }).select("classDivision");
+      if (master?.length > 0) {
+        var select_classes = [];
+        const all_master = await ClassMaster.find({
+          _id: { $in: master },
+        }).select("classDivision");
 
-      for (var ref of all_master) {
-        select_classes.push(...ref?.classDivision);
+        for (var ref of all_master) {
+          select_classes.push(...ref?.classDivision);
+        }
+        all_students = all_students?.filter((ref) => {
+          if (select_classes?.includes(`${ref?.studentClass}`)) return ref;
+        });
       }
-      all_students = all_students?.filter((ref) => {
-        if (select_classes?.includes(`${ref?.studentClass}`)) return ref;
-      });
     }
 
     if (category) {
@@ -859,6 +861,7 @@ exports.retrievePendingFeeFilter = async (req, res) => {
           },
         },
       });
+    // console.log(valid_all_students)
     valid_all_students.sort(function (st1, st2) {
       return (
         parseInt(st1?.studentGRNO?.slice(1)) -
@@ -902,6 +905,7 @@ exports.retrievePendingFeeFilter = async (req, res) => {
           Caste: ref?.studentCastCategory ?? "#NA",
           Religion: ref?.studentReligion ?? "#NA",
           MotherName: `${ref?.studentMotherName}` ?? "#NA",
+          Department: `${ref?.department?.dName}` ?? "#NA",
           Class:
             `${ref?.studentClass?.className}-${ref?.studentClass.classTitle}` ??
             "#NA",
@@ -1393,8 +1397,17 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
 exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { fsid, depart, timeline, timeline_content, from, to, bank } =
-      req.query;
+    const {
+      fsid,
+      timeline,
+      timeline_content,
+      from,
+      to,
+      bank,
+      all_depart,
+      batch_status,
+    } = req.query;
+    const { depart, batch, master } = req?.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -1447,7 +1460,66 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
     const finance = await Finance.findById({ _id: fid }).select("institute");
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
-    }).select("insName");
+    }).select("insName depart");
+
+    if (all_depart === "All") {
+      var sorted_batch = [];
+      if (batch_status === "All") {
+        var all_department = await Department.find({
+          _id: { $in: institute?.depart },
+        }).select("batches");
+        for (var ref of all_department) {
+          sorted_batch.push(...ref?.batches);
+        }
+      } else if (batch_status === "Current") {
+        var all_department = await Department.find({
+          _id: { $in: institute?.depart },
+        }).select("departmentSelectBatch");
+        for (var ref of all_department) {
+          sorted_batch.push(ref?.departmentSelectBatch);
+        }
+      }
+      var all_students = await Student.find({
+        $and: [{ batches: { $in: sorted_batch } }],
+      })
+        .select("studentClass batches department")
+        .populate({
+          path: "fee_structure",
+        });
+      console.log(all_students?.length);
+    } else if (all_depart === "Particular") {
+      var all_students = await Student.find({
+        institute: institute?._id,
+      })
+        .select("studentClass batches department")
+        .populate({
+          path: "fee_structure",
+        });
+      if (depart) {
+        all_students = all_students?.filter((ref) => {
+          if (`${ref?.department}` === `${depart}`) return ref;
+        });
+      }
+      if (batch) {
+        all_students = all_students?.filter((ref) => {
+          if (`${ref?.batches}` === `${batch}`) return ref;
+        });
+      }
+      if (master?.length > 0) {
+        var select_classes = [];
+        const all_master = await ClassMaster.find({
+          _id: { $in: master },
+        }).select("classDivision");
+
+        for (var ref of all_master) {
+          select_classes.push(...ref?.classDivision);
+        }
+        all_students = all_students?.filter((ref) => {
+          if (select_classes?.includes(`${ref?.studentClass}`)) return ref;
+        });
+      }
+    }
+
     // if (fsid && depart) {
     //   var all_students = await Student.find({
     //     $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
@@ -1465,15 +1537,15 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
     //     $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
     //   }).select("_id fee_receipt");
     // }
-    // for (var ref of all_students) {
-    //   sorted_array.push(ref?._id);
-    // }
+    for (var ref of all_students) {
+      sorted_array.push(ref?._id);
+    }
+    console.log(sorted_array?.length);
     if (valid_timeline) {
       const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
       const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
       var all_receipts = await FeeReceipt.find({
         $and: [
-          // { student: { $in: sorted_array } },
           { finance: fid },
           // { fee_flow: "FEE_HEADS" },
           {
@@ -1482,12 +1554,13 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               $lt: l_date,
             },
           },
-          {
-            receipt_generated_from: "BY_ADMISSION",
-          },
+          // {
+          //   receipt_generated_from: "BY_ADMISSION",
+          // },
           {
             refund_status: "No Refund",
           },
+          { student: { $in: sorted_array } },
         ],
       })
         .sort({ invoice_count: "1" })
@@ -1539,16 +1612,6 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         .lean()
         .exec();
 
-      if (fsid) {
-        all_receipts = all_receipts?.filter((val) => {
-          if (`${val?.student?.fee_structure?._id}` === `${fsid}`) return val;
-        });
-      }
-      if (depart) {
-        all_receipts = all_receipts?.filter((val) => {
-          if (`${val?.student?.department?._id}` === `${depart}`) return val;
-        });
-      }
       if (bank) {
         all_receipts = all_receipts?.filter((val) => {
           if (
@@ -1581,7 +1644,6 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
       var all_receipts = await FeeReceipt.find({
         $and: [
-          // { student: { $in: sorted_array } },
           { finance: fid },
           // { fee_flow: "FEE_HEADS" },
           {
@@ -1590,12 +1652,13 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               $lt: l_date,
             },
           },
-          {
-            receipt_generated_from: "BY_ADMISSION",
-          },
+          // {
+          //   receipt_generated_from: "BY_ADMISSION",
+          // },
           {
             refund_status: "No Refund",
           },
+          { student: { $in: sorted_array } },
         ],
       })
         .sort({ invoice_count: "1" })
@@ -1737,7 +1800,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               remain_list?.fee_structure?.unique_structure_name ?? "#NA",
             TotalFees: remain_list?.fee_structure?.total_admission_fees ?? "0",
             ApplicableFees: remain_list?.fee_structure?.applicable_fees ?? "0",
-            PaidByStudent: remain_list?.paid_by_student,
+            PaidByStudent: remain_list?.paid_fee,
             PaidByGovernment: remain_list?.paid_by_government,
             TotalPaidFees: remain_list?.paid_fee,
             ApplicableOutstanding:
@@ -1790,7 +1853,6 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         message: "No Fee Receipt Heads Structure Query",
         access: false,
         all_students: [],
-        // head_list,
       });
     }
   } catch (e) {

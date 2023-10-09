@@ -173,14 +173,14 @@ exports.renderOneMentorAllMenteesQuery = async (req, res) => {
           },
         ],
       }).select(
-        "query_count studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO"
+        "query_count total_query studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO"
       );
     } else {
       var all_mentees = await Student.find({ _id: { $in: mentor?.mentees } })
         .limit(limit)
         .skip(skip)
         .select(
-          "query_count studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO"
+          "query_count total_query studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO"
         );
     }
 

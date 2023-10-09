@@ -40,7 +40,7 @@ router
 
 router
   .route("/promote/class/:cid/student/list")
-  .get(isLoggedIn, catchAsync(studentMember.getPromoteStudentByClass));
+  .get(catchAsync(studentMember.getPromoteStudentByClass));
 
 router
   .route("/promote/remain/class/:cid/student")

@@ -713,15 +713,21 @@ const studentSchema = new mongoose.Schema({
     type: String,
     default: "Unlocked",
   },
-  class_selected_batch: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Batch",
-  },
+  class_selected_batch: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
+    },
+  ],
   student_blood_group: {
     type: String,
   },
   student_join_mode: {
     type: String,
+  },
+  old_fee_structure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeStructure",
   },
 });
 

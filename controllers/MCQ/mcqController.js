@@ -1696,9 +1696,9 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
       subjectAssignment.checkedCount += 1;
       notify.notifyContent = `${student.studentFirstName} ${
         student.studentMiddleName ? student.studentMiddleName : ""
-      } ${student.studentLastName} ${req.body.assignmentSubmit} ${
+      } ${student.studentLastName} ${
         subjectAssignment?.assignmentName
-      } Assignment Completed successfully`;
+      } Completed successfully`;
       notify.notifyCategory = "Complete Assignment";
       notify.redirectIndex = 19;
     } else {
@@ -1709,9 +1709,9 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
       subjectAssignment.submittedStudent.pull(req.params.sid);
       notify.notifyContent = `${student.studentFirstName} ${
         student.studentMiddleName ? student.studentMiddleName : ""
-      } ${student.studentLastName} ${req.body.assignmentSubmit} ${
+      } ${student.studentLastName} ${
         subjectAssignment?.assignmentName
-      } Assignment cancelled successfully`;
+      } cancelled successfully`;
       notify.notifyCategory = "Cancel Assignment";
       notify.redirectIndex = 19;
     }
@@ -1942,6 +1942,46 @@ exports.getStudentOneAssignmentSubmit = async (req, res) => {
     ]);
     res.status(200).send({
       message: "Assignment is submitted",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneAssignmentQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_assignment = await Assignment.findById({ _id: aid });
+
+    res.status(200).send({
+      message: "Explore One Assignment Query",
+      access: true,
+      one_assignment: one_assignment,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneAssignmentEditQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await Assignment.findByIdAndUpdate(aid, req?.body);
+    res.status(200).send({
+      message: "Explore One Assignment Edit Query",
+      access: true,
     });
   } catch (e) {
     console.log(e);

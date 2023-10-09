@@ -189,7 +189,7 @@ exports.renderNewStudentQuery = async (req, res) => {
     for (var ref of all_student) {
       one_batch.class_student_query.push(ref?._id);
       one_batch.class_student_query_count += 1;
-      ref.class_selected_batch = one_batch?._id;
+      ref.class_selected_batch.push(one_batch?._id);
       await ref.save();
     }
     await one_batch.save();
@@ -335,7 +335,7 @@ exports.renderBatchDestroyQuery = async (req, res) => {
 
     for (var val of one_batch?.class_student_query) {
       var valid_student = await Student.findById({ _id: `${val}` });
-      valid_student.class_selected_batch = null;
+      valid_student.class_selected_batch.pull(one_batch?._id);
       await valid_student.save();
     }
 
@@ -344,6 +344,126 @@ exports.renderBatchDestroyQuery = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore Batch Deletion Operation", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDestroyStudentQuery = async (req, res) => {
+  try {
+    const { bid } = req.params;
+    const { student_arr } = req.body;
+    if (!bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_batch = await Batch.findById({ _id: bid });
+    var all_student = await Student.find({ _id: { $in: student_arr } });
+
+    for (var ref of all_student) {
+      one_batch.class_student_query.pull(ref?._id);
+      if (one_batch.class_student_query_count > 0) {
+        one_batch.class_student_query_count -= 1;
+      }
+      ref.class_selected_batch.pull(one_batch?._id);
+      await ref.save();
+    }
+    await one_batch.save();
+    res.status(200).send({
+      message: "Explore Destroy Student In One Batch Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getAllStudentSubjectQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const { subjectId, today } = req.query;
+    var normal_classes = await Class.findById({ _id: cid })
+      .select(
+        "className classStatus classTitle exams boyCount girlCount studentCount"
+      )
+      .populate({
+        path: "ApproveStudent",
+        select:
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
+        populate: {
+          path: "user class_selected_batch",
+          select: "userLegalName username batchName batchStatus",
+        },
+      })
+      .lean()
+      .exec();
+    if (subjectId && today) {
+      var subject = await Subject.findById(subjectId).populate({
+        path: "attendance",
+        match: {
+          attendDate: { $eq: `${today}` },
+        },
+      });
+
+      var subjectAttend = await Subject.findById(subjectId).populate({
+        path: "attendance",
+      });
+    }
+    var all_students = [];
+
+    for (let stu of normal_classes?.ApproveStudent) {
+      let subjectWise = {
+        presentCount: 0,
+        totalCount: 0,
+        totalPercentage: 0,
+        todayStatus: "",
+      };
+      for (let att of subjectAttend?.attendance) {
+        for (let pre of att?.presentStudent) {
+          if (String(stu._id) === String(pre.student))
+            subjectWise.presentCount += 1;
+        }
+        subjectWise.totalCount += 1;
+      }
+      subjectWise.totalPercentage = (
+        (subjectWise.presentCount * 100) /
+        subjectWise.totalCount
+      ).toFixed(2);
+      for (let att of subject?.attendance) {
+        for (let pre of att?.presentStudent) {
+          if (String(stu._id) === String(pre.student))
+            subjectWise.todayStatus = "P";
+        }
+        for (let pre of att?.absentStudent) {
+          if (String(stu._id) === String(pre.student))
+            subjectWise.todayStatus = "A";
+        }
+      }
+
+      all_students.push({
+        ...stu,
+        todayStatus: subjectWise.todayStatus,
+        totalPercentage: subjectWise.totalPercentage,
+      });
+    }
+    var classes = {
+      className: normal_classes?.className,
+      classStatus: normal_classes?.classStatus,
+      classTitle: normal_classes?.classTitle,
+      exams: normal_classes?.exams,
+      boyCount: normal_classes?.boyCount,
+      girlCount: normal_classes?.girlCount,
+      studentCount: normal_classes?.studentCount,
+      ApproveStudent: all_students,
+    };
+    // console.log(classes)
+    classes?.ApproveStudent?.sort(function (st1, st2) {
+      return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+    });
+    // const cEncrypt = await encryptionPayload(classes);
+    res.status(200).send({ message: "Approve catalog", classes: classes });
   } catch (e) {
     console.log(e);
   }

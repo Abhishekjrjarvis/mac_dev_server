@@ -184,6 +184,9 @@ const subjectSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch",
   },
+  subject_category: {
+    type: String,
+  },
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

@@ -10,7 +10,10 @@ const User = require("../../models/User");
 const DisplayPerson = require("../../models/DisplayPerson");
 const Notification = require("../../models/notification");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
-const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const {
+  designation_alarm,
+  email_sms_designation_alarm,
+} = require("../../WhatsAppSMS/payload");
 const Hostel = require("../../models/Hostel/hostel");
 const Transport = require("../../models/Transport/transport");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
@@ -45,10 +48,13 @@ exports.departmentEdit = async (req, res) => {
     if (req.body?.dName) department.dName = req.body?.dName;
     if (req.body?.dTitle) department.dTitle = req.body?.dTitle;
     if (req.body?.sid) {
-      const previousStaff = await Staff.findById(department.dHead);
-      previousStaff.staffDepartment?.pull(department._id);
-      previousStaff.staffDesignationCount -= 1;
-      previousStaff.recentDesignation = "";
+      if (department?.dHead) {
+        const previousStaff = await Staff.findById(department.dHead);
+        previousStaff.staffDepartment?.pull(department._id);
+        previousStaff.staffDesignationCount -= 1;
+        previousStaff.recentDesignation = "";
+        await previousStaff.save();
+      }
       const staff = await Staff.findById(req.body?.sid);
       var user = await User.findById(staff.user);
       const notify = new Notification({});
@@ -70,12 +76,7 @@ exports.departmentEdit = async (req, res) => {
         user._id,
         user.deviceToken
       );
-      await Promise.all([
-        previousStaff.save(),
-        staff.save(),
-        user.save(),
-        notify.save(),
-      ]);
+      await Promise.all([staff.save(), user.save(), notify.save()]);
     } else {
     }
     await department.save();
@@ -323,10 +324,13 @@ exports.classEdit = async (req, res) => {
         classes.masterClassName
       );
       previousClassMaster?.classDivision?.pull(classes._id);
+      await previousClassMaster.save();
+
       const classMaster = await ClassMaster.findById(req.body?.mcId);
       classMaster?.classDivision?.push(classes._id);
       classes.className = classMaster.className;
-      await Promise.all([previousClassMaster.save(), classMaster.save()]);
+      classes.masterClassName = req.body?.mcId;
+      await classMaster.save();
     }
     classes.finalReportsSettings.aggregatePassingPercentage =
       req.body?.aggregatePassingPercentage;
@@ -335,13 +339,16 @@ exports.classEdit = async (req, res) => {
     if (req.body.classHeadTitle)
       classes.classHeadTitle = req.body?.classHeadTitle;
     if (req.body.classTeacher) {
-      const previousStaff = await Staff.findById(classes.classTeacher);
-      previousStaff.staffClass?.pull(classes._id);
-      previousStaff.staffDesignationCount -= 1;
-      previousStaff.recentDesignation = "";
+      if (classes?.classTeacher) {
+        const previousStaff = await Staff.findById(classes.classTeacher);
+        previousStaff.staffClass?.pull(classes._id);
+        previousStaff.staffDesignationCount -= 1;
+        previousStaff.recentDesignation = "";
+        await previousStaff.save();
+      }
       const staff = await Staff.findById(req.body?.classTeacher);
-      const user = await User.findById(staff.user);
-      const notify = await new Notification({});
+      var user = await User.findById(staff.user);
+      const notify = new Notification({});
       staff.staffClass.push(classes._id);
       staff.staffDesignationCount += 1;
       staff.recentDesignation = classes.classHeadTitle;
@@ -360,12 +367,7 @@ exports.classEdit = async (req, res) => {
         user._id,
         user.deviceToken
       );
-      await Promise.all([
-        previousStaff.save(),
-        staff.save(),
-        user.save(),
-        notify.save(),
-      ]);
+      await Promise.all([staff.save(), user.save(), notify.save()]);
     } else {
     }
     await classes.save();
@@ -493,8 +495,12 @@ exports.subjectDetail = async (req, res) => {
           "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
       })
       .select(
-        "subjectName subjectTitle subjectOptional subjectTeacherName subjectMasterName setting.subjectPassingMarks lecture_analytic practical_analytic tutorial_analytic"
+        "subjectName subject_category subjectTitle subjectOptional subjectTeacherName subjectMasterName setting.subjectPassingMarks lecture_analytic practical_analytic tutorial_analytic selected_batch_query"
       )
+      .populate({
+        path: "selected_batch_query",
+        select: "batchName batchStatus",
+      })
       .lean()
       .exec();
     // const sEncrypt = await encryptionPayload(subject);
@@ -513,6 +519,7 @@ exports.subjectDetail = async (req, res) => {
 exports.subjectEdit = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send subject id to perform task";
+    const { batch_arr, delete_arr } = req.body;
     var subject = await Subject.findById(req.params.sid);
     var classes = await Class.findById({ _id: `${subject?.class}` });
     var institute = await InstituteAdmin.findById(classes?.institute);
@@ -520,16 +527,37 @@ exports.subjectEdit = async (req, res) => {
     if (req.body?.subjectTitle) {
       subject.subjectTitle = req.body?.subjectTitle;
     }
+    if (req.body?.subject_category) {
+      subject.subject_category = req.body?.subject_category;
+    }
+    if (subject?.subjectTeacherName) {
+      const staff = await Staff.findById({ _id: subject?.subjectTeacherName });
+      if (delete_arr?.length > 0) {
+        for (var ref of delete_arr) {
+          staff.staffBatch.pull(ref);
+          subject.selected_batch_query = null;
+        }
+      }
+      if (batch_arr?.length > 0) {
+        for (var ref of batch_arr) {
+          staff.staffBatch.push(ref);
+          subject.selected_batch_query = ref;
+        }
+      }
+      await Promise.all([staff.save(), subject.save()]);
+    }
     subject.setting.subjectPassingMarks = req.body?.subjectPassingMarks;
     if (req.body?.smId) {
       const previousSubjectMaster = await SubjectMaster.findById(
         subject.subjectMasterName
       );
       previousSubjectMaster?.subjects?.pull(subject._id);
+      await previousSubjectMaster.save();
       const subjectMaster = await SubjectMaster.findById(req.body?.smId);
       subject.subjectName = subjectMaster.subjectName;
+      subject.subjectMasterName = req.body?.smId;
       subjectMaster?.subjects?.push(subject._id);
-      await Promise.all([previousSubjectMaster.save(), subjectMaster.save()]);
+      await subjectMaster.save();
     }
     if (req?.body?.lecture_analytic) {
       subject.lecture_analytic = req.body?.lecture_analytic;
@@ -542,13 +570,16 @@ exports.subjectEdit = async (req, res) => {
     }
 
     if (req.body?.sid) {
-      const previousStaff = await Staff.findById(subject.subjectTeacherName);
-      previousStaff.staffSubject?.pull(subject._id);
-      previousStaff.staffDesignationCount -= 1;
-      previousStaff.recentDesignation = "";
+      if (subject?.subjectTeacherName) {
+        const previousStaff = await Staff.findById(subject.subjectTeacherName);
+        previousStaff.staffSubject?.pull(subject._id);
+        previousStaff.staffDesignationCount -= 1;
+        previousStaff.recentDesignation = "";
+        await previousStaff.save();
+      }
       const staff = await Staff.findById(req.body?.sid);
       var user = await User.findById(staff.user);
-      const notify = await new Notification({});
+      const notify = new Notification({});
       staff.staffSubject.push(subject._id);
       staff.staffDesignationCount += 1;
       staff.recentDesignation = subject.subjectTitle;
@@ -567,12 +598,7 @@ exports.subjectEdit = async (req, res) => {
         user._id,
         user.deviceToken
       );
-      await Promise.all([
-        previousStaff.save(),
-        staff.save(),
-        user.save(),
-        notify.save(),
-      ]);
+      await Promise.all([staff.save(), user.save(), notify.save()]);
     } else {
     }
     await subject.save();
@@ -613,7 +639,7 @@ exports.subjectDelete = async (req, res) => {
       path: "class",
       select: "ApproveStudent",
     });
-    if (subject?.ApproveStudent?.length)
+    if (subject?.class?.ApproveStudent?.length)
       throw "You can't delete subject because students existence";
     const subjectMaster = await SubjectMaster.findById(
       subject.subjectMasterName

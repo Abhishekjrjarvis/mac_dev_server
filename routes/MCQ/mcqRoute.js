@@ -136,4 +136,14 @@ router
     catchAsync(mcqController.getStudentOneAssignmentSubmit)
   );
 
+router.get(
+  "/one/:aid/assignment",
+  catchAsync(mcqController.renderOneAssignmentQuery)
+);
+
+router.patch(
+  "/one/:aid/assignment/edit/query",
+  catchAsync(mcqController.renderOneAssignmentEditQuery)
+);
+
 module.exports = router;

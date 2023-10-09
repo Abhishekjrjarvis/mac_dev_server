@@ -134,9 +134,7 @@ exports.allBookByStaffSide = async (req, res) => {
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
     if (
-      req.query?.search ||
-      req.query?.search?.trim() !== "" ||
-      req.query?.search !== undefined
+      !["", undefined, ""]?.includes(req.query?.search)
     ) {
       if (req.query?.flow === "ISSUE_BOOK") {
         const library = await Library.findById(req.params.lid)
@@ -300,8 +298,14 @@ exports.editBookByStaffSide = async (req, res) => {
     book.language = req.body?.language;
     book.totalPage = req.body?.totalPage;
     book.price = req.body?.price;
+    if (req.body?.totalCopies > book.totalCopies) {
+      let num = req.body?.totalCopies - book.totalCopies;
+      book.leftCopies += num;
+    } else {
+      let num = book.totalCopies - req.body?.totalCopies;
+      book.leftCopies -= num;
+    }
     book.totalCopies = req.body?.totalCopies;
-    book.leftCopies = req.body?.leftCopies;
     book.shellNumber = req.body?.shellNumber;
     book.description = req.body?.description;
     if (req.body?.photo) {
@@ -318,7 +322,7 @@ exports.editBookByStaffSide = async (req, res) => {
       message: e.message,
     });
   }
-};
+}
 
 exports.bookIssueByStaffSide = async (req, res) => {
   try {

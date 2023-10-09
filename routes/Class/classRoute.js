@@ -43,5 +43,13 @@ router
 router
   .route("/:bid/destroy/query")
   .delete(catchAsync(classController.renderBatchDestroyQuery));
+
+router
+  .route("/:bid/destroy/student/query")
+  .post(catchAsync(classController.renderDestroyStudentQuery));
 // router.route("/checklist/:cid").post(isLoggedIn,catchAsync(classController.createClassChecklist));
+
+router
+  .route("/:cid/subject/all/student/query")
+  .get(catchAsync(classController.getAllStudentSubjectQuery));
 module.exports = router;

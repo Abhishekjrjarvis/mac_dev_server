@@ -23,10 +23,24 @@ exports.getDayWiseSchedule = async (req, res) => {
         populate: {
           path: "schedule.assignStaff",
           select:
-            "-_id staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
+            "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
         },
         select:
-          "schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff",
+          "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff",
+      })
+      .populate({
+        path: "timetableDayWise",
+        match: { day: { $eq: req.query.status } },
+        populate: {
+          path: "schedule.subject",
+          populate: {
+            path: "selected_batch_query",
+            select: "batchName",
+          },
+          select: "subjectOptional selected_batch_query subject_category",
+        },
+        select:
+          "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff",
       })
       .select("timetableDayWise")
       .lean()
@@ -55,6 +69,7 @@ exports.addDayWiseSchedule = async (req, res) => {
   try {
     if (!req.params.cid || !req.body?.subjectId)
       throw "Please send class id to perform task";
+    const { sfid } = req.query;
     const classes = await Class.findById(req.params.cid).populate({
       path: "timetableDayWise",
       match: { day: { $eq: req.body.day } },
@@ -75,24 +90,37 @@ exports.addDayWiseSchedule = async (req, res) => {
         ],
       });
       classes.timetableDayWise.push(timetable._id);
-      //   console.log(timetable);
       await Promise.all([timetable.save(), classes.save()]);
     } else {
-      // console.log("hi");
-      classes.timetableDayWise[0].schedule.push({
-        from: req.body.from,
-        to: req.body.to,
-        subject: subject._id,
-        subjectName: subject.subjectName,
-        assignStaff: subject.subjectTeacherName,
-      });
-      // for(let itr of classes.timetableDayWise[0].schedule){
-      //   if(String(itr.subject) ===req.body.subjectId){
+      let flag = false;
+      let flagIndex = false;
+      let timet = classes.timetableDayWise[0].schedule;
+      for (let i = 0; i < timet?.length; i++) {
+        if (String(timet[i]._id) === String(sfid)) {
+          flag = true;
+          flagIndex = i;
+          break;
+        }
+      }
+      if (flag) {
+        timet[flagIndex].from = req.body.from;
+        timet[flagIndex].to = req.body.to;
+        timet[flagIndex].subject = subject._id;
+        timet[flagIndex].subjectName = subject.subjectName;
+        timet[flagIndex].assignStaff = subject.subjectTeacherName;
+      } else {
+        classes.timetableDayWise[0].schedule.push({
+          from: req.body.from,
+          to: req.body.to,
+          subject: subject._id,
+          subjectName: subject.subjectName,
+          assignStaff: subject.subjectTeacherName,
+        });
+      }
 
-      //   }
-      // }
       await classes.timetableDayWise[0].save();
       // console.log("hi", classes.timetableDayWise);
+      // console.log("hi", classes.timetableDayWise?.[0]?.schedule[0]);
     }
     res.status(201).send({
       message: "New schedule is added ✔✔",
@@ -110,6 +138,7 @@ exports.addDateWiseSchedule = async (req, res) => {
   try {
     if (!req.params.cid || !req.body?.subjectId)
       throw "Please send class id to perform task";
+    const { sfid } = req.query;
     const classes = await Class.findById(req.params.cid).populate({
       path: "timetableDateWise",
       match: { date: { $eq: req.body.date } },
@@ -134,14 +163,31 @@ exports.addDateWiseSchedule = async (req, res) => {
       //   console.log(timetable);
       await Promise.all([timetable.save(), classes.save()]);
     } else {
-      // console.log("hi");
-      classes.timetableDateWise[0].schedule.push({
-        from: req.body.from,
-        to: req.body.to,
-        subject: subject._id,
-        subjectName: subject.subjectName,
-        assignStaff: subject.subjectTeacherName,
-      });
+      let flag = false;
+      let flagIndex = false;
+      let timet = classes.timetableDateWise[0].schedule;
+      for (let i = 0; i < timet?.length; i++) {
+        if (String(timet[i]._id) === String(sfid)) {
+          flag = true;
+          flagIndex = i;
+          break;
+        }
+      }
+      if (flag) {
+        timet[flagIndex].from = req.body.from;
+        timet[flagIndex].to = req.body.to;
+        timet[flagIndex].subject = subject._id;
+        timet[flagIndex].subjectName = subject.subjectName;
+        timet[flagIndex].assignStaff = subject.subjectTeacherName;
+      } else {
+        classes.timetableDateWise[0].schedule.push({
+          from: req.body.from,
+          to: req.body.to,
+          subject: subject._id,
+          subjectName: subject.subjectName,
+          assignStaff: subject.subjectTeacherName,
+        });
+      }
       await classes.timetableDateWise[0].save();
     }
     res.status(201).send({
@@ -162,10 +208,24 @@ exports.getDateWiseSchedule = async (req, res) => {
         match: { date: { $eq: req.query.date } },
         populate: {
           path: "schedule.assignStaff",
-          select: "-_id staffFirstName staffMiddleName staffLastName",
+          select: "staffFirstName staffMiddleName staffLastName",
         },
         select:
-          "schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff",
+          "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff",
+      })
+      .populate({
+        path: "timetableDayWise",
+        match: { date: { $eq: req.query.date } },
+        populate: {
+          path: "schedule.subject",
+          populate: {
+            path: "selected_batch_query",
+            select: "batchName",
+          },
+          select: "subjectOptional selected_batch_query subject_category",
+        },
+        select:
+          "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff",
       })
       .select("timetableDateWise")
       .lean()
@@ -177,10 +237,25 @@ exports.getDateWiseSchedule = async (req, res) => {
         match: { day: { $eq: req.query.status } },
         populate: {
           path: "schedule.assignStaff",
-          select: "-_id staffFirstName staffMiddleName staffLastName",
+          select:
+            "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
         },
         select:
-          "schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff",
+          "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff",
+      })
+      .populate({
+        path: "timetableDayWise",
+        match: { day: { $eq: req.query.status } },
+        populate: {
+          path: "schedule.subject",
+          populate: {
+            path: "selected_batch_query",
+            select: "batchName",
+          },
+          select: "subjectOptional selected_batch_query subject_category",
+        },
+        select:
+          "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff",
       })
       .select("timetableDayWise")
       .lean()
@@ -189,7 +264,9 @@ exports.getDateWiseSchedule = async (req, res) => {
       for (let daywise of classesDay?.timetableDayWise[0]?.schedule) {
         if (classes?.timetableDateWise?.length) {
           for (let datewise of classes?.timetableDateWise[0]?.schedule) {
-            if (String(daywise.subject) === String(datewise.subject)) {
+            if (
+              String(daywise.subject?._id) === String(datewise.subject?._id)
+            ) {
               // var all_topic = await ChapterTopic.find({ subject: `${datewise.subject}`})
               daywise.from = datewise.from;
               daywise.to = datewise.to;
@@ -586,6 +663,129 @@ exports.getStudentSideDateWise = async (req, res) => {
     res.status(200).send({
       message: "Student side all schedule list",
       studentScheduleList,
+    });
+  } catch (e) {
+    res.status(200).send({ message: e });
+    // console.log(e);
+  }
+};
+
+
+const DayName = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Staurday",
+];
+exports.getSyncWiseStudentQuery = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send class id to perform task";
+    const timetable = await ClassTimetable.find({
+      $and: [{ class: { $eq: req.params.cid } }, { day: { $in: DayName } }],
+    })
+      .populate({
+        path: "schedule.assignStaff",
+        select: "staffFirstName staffMiddleName staffLastName staffGender",
+      })
+      .populate({
+        path: "schedule.subject",
+        populate: {
+          path: "selected_batch_query",
+          select: "batchName",
+        },
+        select: "subjectName subjectOptional subject_category",
+      })
+      .lean()
+      .exec();
+
+    var syncDay = {
+      Monday: null,
+      Tuesday: null,
+      Wednesday: null,
+      Thursday: null,
+      Friday: null,
+      Staurday: null,
+    };
+
+    for (let timet of timetable) {
+      syncDay[timet.day] = timet.schedule;
+    }
+    // const studentEncrypt = await encryptionPayload(syncDay);
+    res.status(200).send({
+      message: "Student side all schedule list",
+      syncScheduleList: syncDay,
+    });
+  } catch (e) {
+    res.status(200).send({ message: e });
+    // console.log(e);
+  }
+};
+
+exports.getSyncWiseStaffQuery = async (req, res) => {
+  try {
+    if (!req.params.sid)
+      throw "Please send staff Id that assign as role of subject teacher";
+    const staff = await Staff.findById(req.params.sid)
+      .select("staffSubject")
+      .lean()
+      .exec();
+
+    const subjects = await Subject.find({ _id: { $in: staff.staffSubject } })
+      .populate({
+        path: "class",
+        populate: {
+          path: "timetableDayWise",
+          match: {
+            day: { $in: DayName },
+          },
+          populate: {
+            path: "schedule.subject",
+            populate: {
+              path: "selected_batch_query",
+              select: "batchName",
+            },
+            select: "subjectName subjectOptional subject_category",
+          },
+          select: "day schedule.from schedule.subject schedule.to",
+        },
+        select: "timetableDayWise className classTitle",
+      })
+      .select("class")
+      .lean()
+      .exec();
+
+    var syncDay = {
+      Monday: [],
+      Tuesday: [],
+      Wednesday: [],
+      Thursday: [],
+      Friday: [],
+      Staurday: [],
+    };
+
+    for (let sub of subjects) {
+      for (let ttable of sub?.class?.timetableDayWise) {
+        let synObj = {
+          className: sub?.class?.className,
+          classTitle: sub?.class?.classTitle,
+          schedule: [],
+        };
+        for (let timet of ttable?.schedule) {
+          if (String(sub?._id) === String(timet?.subject?._id)) {
+            synObj.schedule.push({
+              ...timet,
+            });
+          }
+        }
+        syncDay[ttable.day]?.push(synObj);
+      }
+    }
+    // const studentEncrypt = await encryptionPayload(syncDay);
+    res.status(200).send({
+      message: "Staff side all schedule list",
+      syncScheduleList: syncDay,
     });
   } catch (e) {
     res.status(200).send({ message: e });

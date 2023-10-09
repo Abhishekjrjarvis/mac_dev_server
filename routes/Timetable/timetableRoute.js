@@ -30,4 +30,11 @@ router
   .route("/student/:cid/schedule/list")
   .get(catchAsync(timetable.getStudentSideDateWise));
 
+router
+  .route("/sync/student/:cid/schedule")
+  .get(catchAsync(timetable.getSyncWiseStudentQuery));
+
+router
+  .route("/sync/staff/:sid/schedule")
+  .get(catchAsync(timetable.getSyncWiseStaffQuery));
 module.exports = router;

@@ -787,6 +787,12 @@ exports.retrieveStudentOneFeeReceiptQuery = async (req, res) => {
       "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
     );
 
+    var one_account = await BankAccount.findOne({
+      library: { $in: receipt?.internal_fees?.library },
+    }).select(
+      "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+    );
+
     res.status(200).send({
       message: "Come up with Tea and Snacks",
       access: true,

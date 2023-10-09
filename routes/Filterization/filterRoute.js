@@ -64,7 +64,7 @@ router.get(
   catchAsync(Filter.renderFeeHeadsStructureQuery)
 );
 
-router.get(
+router.patch(
   "/heads/by/:fid/receipt/query",
   // isLoggedIn,
   catchAsync(Filter.renderFeeHeadsStructureReceiptQuery)

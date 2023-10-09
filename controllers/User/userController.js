@@ -1449,7 +1449,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "staffSubject",
-          select: "subjectName subjectTitle subjectStatus selected_batch_query",
+          select:
+            "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional",
           populate: {
             path: "class",
             select: "className classTitle classStatus classHeadTitle",
@@ -1457,6 +1458,15 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
               path: "batch",
               select: "batchName batchStatus",
             },
+          },
+        })
+        .populate({
+          path: "staffSubject",
+          select:
+            "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional",
+          populate: {
+            path: "selected_batch_query",
+            select: "batchName batchStatus",
           },
         })
         .populate({
@@ -1627,7 +1637,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "staffSubject",
-          select: "subjectName subjectTitle subjectStatus selected_batch_query",
+          select:
+            "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional",
           populate: {
             path: "class",
             select: "className classTitle classStatus classHeadTitle",
@@ -1635,6 +1646,15 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
               path: "batch",
               select: "batchName batchStatus",
             },
+          },
+        })
+        .populate({
+          path: "staffSubject",
+          select:
+            "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional",
+          populate: {
+            path: "selected_batch_query",
+            select: "batchName batchStatus",
           },
         })
         .populate({

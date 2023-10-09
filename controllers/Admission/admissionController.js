@@ -76,6 +76,7 @@ const {
   add_all_installment_zero,
   set_fee_head_query_redesign,
   receipt_set_fee_head_query_redesign,
+  set_fee_head_redesign,
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -7952,7 +7953,7 @@ const auto_scholar_query = async (
     });
     const new_receipt = new FeeReceipt({
       fee_payment_mode: fee_payment_mode,
-      fee_payment_amount: fee_payment_amount,
+      fee_payment_amount: amount,
     });
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
@@ -9851,8 +9852,8 @@ exports.renderFindReceiptQuery = async (req, res) => {
     var finance = await Finance.findById({
       _id: `${ins?.financeDepart?.[0]}`,
     });
-    const g_date = new Date(`2023-09-01T00:00:00.000Z`);
-    const l_date = new Date(`2023-10-01T00:00:00.000Z`);
+    const g_date = new Date(`2023-10-01T00:00:00.000Z`);
+    const l_date = new Date(`2023-10-31T00:00:00.000Z`);
     var receipt = await FeeReceipt.find({
       $and: [
         {
@@ -9865,12 +9866,25 @@ exports.renderFindReceiptQuery = async (req, res) => {
           },
         },
       ],
-    }).populate({
-      path: "order_history",
-    });
+    })
+      // .select("fee_payment_amount created_at")
+      // .populate({
+      //   path: "student",
+      //   select:
+      //     "studentFirstName studentLastName studentMiddleName valid_full_name",
+      //   populate: {
+      //     path: "fee_structure",
+      //     select: "unique_structure_name",
+      //   },
+      // })
+      .populate({
+        path: "order_history",
+        // select:
+        //   "paytm_query razor_query razorpay_payment_id payment_mode payment_invoice_number",
+      });
     var num = 0;
     for (var ref of receipt) {
-      ref.invoice_count = `92023${num + 1}`;
+      ref.invoice_count = `102023${num + 1}`;
       if (ref?.order_history) {
         ref.order_history.payment_invoice_number = `${ref.invoice_count}`;
         await ref.order_history.save();
@@ -9880,7 +9894,12 @@ exports.renderFindReceiptQuery = async (req, res) => {
     }
     //   }
     // }
-    res.status(200).send({ message: "Explore New Fee Receipt", access: true });
+    res.status(200).send({
+      message: "Explore New Fee Receipt",
+      access: true,
+      // receipt,
+      count: receipt?.length,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -10015,6 +10034,206 @@ exports.renderFindStudentReceiptQuery = async (req, res) => {
   }
 };
 
+const delete_fee_heads = async (rec, all) => {
+  try {
+    for (var ele of rec?.fee_heads) {
+      if (`${ele?.fee_structure}` === `${all?.fee_structure}`) {
+        ref.fee_heads.pull(ele?._id);
+      } else {
+        console.log("not match");
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelBugQuery = async (req, res) => {
+  try {
+    var all_remain = await RemainingList.findById({
+      _id: "6501a224df2fe86f89505380",
+    });
+    for (var ref of all_remain?.fee_receipts) {
+      const receipt = await FeeReceipt.findById({ _id: `${ref}` });
+      await delete_fee_heads(receipt, all_remain);
+    }
+    res.status(200).send({ message: "Explore Receipt Bug", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStudentStructureBugQuery = async (req, res) => {
+  try {
+    var { cid } = req.query;
+    const classes = await Class.findById(cid);
+    const all_student = await Student.find({
+      _id: { $in: classes?.promoteStudent },
+    });
+
+    // For Fee Structure Collect To OLD
+
+    // for (var ref of all_student) {
+    //   ref.old_fee_structure = ref?.fee_structure;
+    //   await ref.save();
+    // }
+
+    // Assign New Structure To Remaining Card
+
+    for (var ref of all_student) {
+      var struct = await FeeStructure.findById({
+        _id: `${ref?.fee_structure}`,
+      });
+      var remain = await RemainingList.findOne({
+        $and: [
+          { student: `${ref?._id}` },
+          { fee_structure: ref?.old_fee_structure },
+        ],
+      });
+      remain.fee_structure = struct?._id;
+      remain.applicable_fee = struct?.total_admission_fees;
+      await remain.save();
+    }
+
+    // Fee Receipt + Card Amount Re-Order
+
+    // for (var ref of all_student) {
+    //   var remain = await RemainingList.findOne({
+    //     $and: [
+    //       { student: `${ref?._id}` },
+    //       { fee_structure: ref?.fee_structure },
+    //     ],
+    //   });
+    //   for (var ele of remain?.fee_receipts) {
+    //     var receipt = await FeeReceipt.findById({ _id: `${ele}` });
+    //     // if(remain?.status = "Paid"){
+    //     // remain.paid_fee = remain?.
+    //     // }
+    //   }
+    //   remain.fee_structure = struct?._id;
+    //   remain.applicable_fee = struct?.total_admission_fees;
+    //   await remain.save();
+    // }
+
+    //
+    res
+      .status(200)
+      .send({ message: "Explore Student Structure ", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStudentsStructureBugQuery = async (req, res) => {
+  try {
+    const student = await Student.findById({ _id: req?.query.sid });
+    student.fee_structure = req?.query.structure;
+    await student.save();
+    res.status(200).send({ message: "Explore" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStudentDataQuery = async (req, res) => {
+  try {
+    var { cid } = req.query;
+    const classes = await Class.findById(cid);
+    const all_student = await Student.find({
+      _id: { $in: classes?.promoteStudent },
+    }).select("fee_structure");
+
+    var arr = [];
+    for (var ref of all_student) {
+      var remain = await RemainingList.findOne({
+        $and: [
+          { student: `${ref?._id}` },
+          { fee_structure: ref?.fee_structure },
+        ],
+      })
+        .select("applicable_fee remaining_array remaining_fee")
+        // .select("applicable_fee")
+        .populate({
+          path: "fee_receipts",
+          select: "fee_payment_amount fee_heads", //fee_heads
+        })
+        .populate({
+          path: "fee_structure",
+          select: "total_admission_fees one_installments",
+        })
+        .populate({
+          path: "student",
+          select: "valid_full_name",
+        });
+      if (remain?.fee_receipts?.length > 0) {
+      } else {
+        arr.push(remain);
+        //   remain.remaining_fee = remain?.fee_structure?.total_admission_fees;
+        // remain.remaining_array[0].remainAmount =
+        //   remain?.fee_structure?.one_installments?.fees;
+        // await remain.save();
+      }
+    }
+    res
+      .status(200)
+      .send({ message: "Exlplore", access: true, all: arr, num: arr?.length });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStudentDataHeadsQuery = async (req, res) => {
+  try {
+    var { cid } = req.query;
+    const classes = await Class.findById(cid);
+    const all_student = await Student.find({
+      _id: { $in: classes?.promoteStudent },
+    }).populate({
+      path: "fee_structure",
+    });
+
+    // for (var ref of all_student) {
+    //   for (var ele of ref?.active_fee_heads) {
+    //     if (`${ele?.fee_structure}` === `${ref?.old_fee_structure}`) {
+    //       console.log("match");
+    //       ref.active_fee_heads.pull(ele?._id);
+    //     }
+    //   }
+    //   await ref.save();
+    // }
+
+    // for (var ref of all_student) {
+    //   var remain = await RemainingList.findOne({ $and: [{ student: `${ref?._id}`}, { fee_structure: ref?.fee_structure}]})
+    //   for(var ele of remain?.fee_receipts){
+    //     var receipt = await FeeReceipt.findById({ _id: `${ele}`})
+    //     receipt.fee_heads = []
+    //     await receipt.save()
+    //   }
+    // }
+
+    for (var ref of all_student) {
+      var remain = await RemainingList.findOne({
+        $and: [
+          { student: `${ref?._id}` },
+          { fee_structure: ref?.fee_structure },
+        ],
+      });
+      for (var ele of remain?.fee_receipts) {
+        var receipt = await FeeReceipt.findById({ _id: `${ele}` });
+        await set_fee_head_query_redesign(
+          ref,
+          receipt?.fee_payment_amount,
+          receipt?.application,
+          receipt
+        );
+      }
+    }
+    res.status(200).send({ message: "Deleted Fee Heads", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.renderRetroOneStudentStructureQuery = async (req, res) => {
 //   try {
 //     const { new_fee_struct } = req.params;
@@ -10033,3 +10252,110 @@ exports.renderFindStudentReceiptQuery = async (req, res) => {
 //     console.log(e);
 //   }
 // };
+
+exports.renderCardUpdateQuery = async (req, res) => {
+  try {
+    const { id } = req.query;
+    var all_student = await Student.find({ institute: id });
+    for (var ref of all_student) {
+      var all_card = await RemainingList.find({ student: `${ref?._id}` });
+      var count = 0;
+      for (var ele of all_card) {
+        count += ele?.remaining_fee;
+      }
+      ref.admissionRemainFeeCount = count;
+      await ref.save();
+      count = 0;
+    }
+    res
+      .status(200)
+      .send({ message: "Explore Remaining Fees Updated Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderCardFeeHeadsQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { arr, block } = req?.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var array = [];
+    var ins = await InstituteAdmin.findById({ _id: id });
+    // var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
+    const g_date = new Date(`2023-06-01T00:00:00.000Z`);
+    const l_date = new Date(`2023-07-01T00:00:00.000Z`);
+    // var receipt = await RemainingList.find({
+    //   $and: [
+    //     {
+    //       created_at: {
+    //         $gte: g_date,
+    //         $lte: l_date,
+    //       },
+    //     },
+    //     {
+    //       institute: ins?._id,
+    //     },
+    //   ],
+    // }).populate({
+    //   path: "student",
+    //   populate: {
+    //     path: "fee_structure",
+    //   },
+    // });
+    var receipt = await RemainingList.find({
+      _id: { $in: arr },
+    }).populate({
+      path: "student",
+      populate: {
+        path: "fee_structure",
+      },
+    })
+    .populate({
+      path: "fee_structure",
+    });
+    for (var ref of receipt) {
+      if(block){
+        if (ref?.student?.active_fee_heads?.length > 0) {
+          for (var ele of ref?.student?.active_fee_heads) {
+            if (`${ele?.appId}` === `${ref?.appId}`) {
+              console.log("match");
+              ref.student.active_fee_heads.pull(ele?._id);
+            } else {
+              // console.log("Not Match")
+            }
+          }
+          await ref.student.save();
+        }
+      }
+       else {
+        await set_fee_head_redesign(
+          ref?.student,
+          ref?.paid_fee,
+          ref?.appId,
+          ref
+        );
+      }
+    }
+    // // else {
+    //   await set_fee_head_query_redesign(
+    //     student,
+    //     ref?.fee_payment_amount,
+    //     ref?.application,
+    //     ref
+    //   );
+
+    res.status(200).send({
+      message: "Explore All Student Fee Heads Query",
+      access: true,
+      count: receipt?.length,
+      receipt,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

@@ -127,4 +127,9 @@ router
   .route("/notification/seating/:seid")
   .get(catchAsync(Avail.sendNotificationOfAttendance));
 
+router.route("/all/subject/:sid/zip").post(
+  // isLoggedIn,
+  catchAsync(Avail.getAllSubjectExportAttendance)
+);
+
 module.exports = router;

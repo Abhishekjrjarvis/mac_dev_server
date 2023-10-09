@@ -815,6 +815,7 @@ exports.generate_excel_to_json_subject_query = async (file, did) => {
         ],
       });
       val.subjectTitle = val?.SubjectTitle ?? "Subject Teacher";
+      val.subject_category = val?.SubjectCategory;
       val.msid = new_master?._id;
       new_data_query.push(val);
     }

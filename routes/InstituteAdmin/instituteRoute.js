@@ -628,4 +628,16 @@ router.patch(
   catchAsync(Institute.renderSelectMerchantQuery)
 );
 
+router.patch(
+  "/classmaster/edit/:cmid/query",
+  catchAsync(Institute.renderEditClassMasterQuery)
+);
+
+router.patch(
+  "/subjectmaster/edit/:smid/query",
+  catchAsync(Institute.renderEditSubjectMasterQuery)
+);
+
+router.patch("/master/query", catchAsync(Institute.renderExistMasterQuery));
+
 module.exports = router;

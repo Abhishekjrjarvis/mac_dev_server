@@ -263,46 +263,13 @@ exports.markAttendenceClassStudent = async (req, res) => {
       });
     } else {
       const startDateClass = classes?.classStartDate?.split("/");
-      // var currentDate = new Date();
-      // currentDate.setHours(currentDate.getHours() + 5);
-      // currentDate.setMinutes(currentDate.getMinutes() + 30);
-      // const currentDateLocalFormat = currentDate.toISOString().split("-");
       const markDate = req.body.date?.split("/");
-      //this is logic
-      // +markDate[0] === +currentDateLocalFormat[0] &&
-      // +markDate[1] === +currentDateLocalFormat[1] &&
-      // +markDate[2] === +currentDateLocalFormat[2] &&
-      // +markDate[2] >= +startDateClass?.[2] &&
-      // +markDate[1] >= +startDateClass?.[1] &&
-      // +markDate[0] >= +startDateClass?.[0]
       const classyear = +markDate[2] > +startDateClass?.[2];
       const year = +markDate[2] === +startDateClass?.[2];
       const classmonth = +markDate[1] > +startDateClass?.[1];
       const month = +markDate[1] === +startDateClass?.[1];
       const day = +markDate[0] >= +startDateClass?.[0];
-      const fun = () => {
-        if (classyear) {
-          return true;
-        } else if (year) {
-          if (classmonth) {
-            return true;
-          } else if (month) {
-            if (day) {
-              return true;
-            }
-          } else {
-          }
-        } else {
-        }
-      };
-      if (
-        // +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
-        // +markDate[1] === +currentDateLocalFormat[1] &&
-        // +markDate[2] === +currentDateLocalFormat[0] &&
-        // fun()
-        true
-      ) {
-        const attendence = new AttendenceDate({});
+      const attendence = new AttendenceDate({});
         attendence.attendDate = req.body.date;
         attendence.className = classes._id;
         attendence.attendTime = new Date();
@@ -310,22 +277,7 @@ exports.markAttendenceClassStudent = async (req, res) => {
           const student = await Student.findById({
             _id: `${req.body.present[i]}`,
           });
-          // const user = await User.findById({ _id: `${student.user}` });
-          // const notify = new StudentNotification({});
-          // notify.notifyContent = `you're present ${notify_attendence_provider(
-          //   req.body.date
-          // )}`;
-          // notify.notify_hi_content = `आप आज उपस्थित हैं |`;
-          // notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
-          // notify.notifySender = classes._id;
-          // notify.notifyReceiever = user._id;
-          // notify.notifyType = "Student";
-          // notify.notifyPublisher = student._id;
-          // notify.notifyByClassPhoto = classes._id;
-          // notify.notifyCategory = "Student Present";
-          // user.activity_tab.push(notify._id);
-          // student.notification.push(notify._id);
-          // student.attendDate.push(attendence._id);
+          student.attendDate.push(attendence._id);
 
           attendence.presentStudent.push({
             student: student._id,
@@ -333,26 +285,21 @@ exports.markAttendenceClassStudent = async (req, res) => {
             // status: getOnlyTimeCompare(),
             status: "Present",
           });
-          // notify.notifyCategory = "Attendence";
-          // notify.redirectIndex = 3;
-          //
-          // invokeMemberTabNotification(
-          //   "Student Activity",
-          //   notify,
-          //   "Mark Attendence",
-          //   user._id,
-          //   user.deviceToken,
-          //   "Student",
-          //   notify
-          // );
-          //
-          // await Promise.all([student.save(), notify.save(), user.save()]);
+          await student.save();
         }
 
         for (let i = 0; i < req.body.absent.length; i++) {
           const student = await Student.findById({
             _id: `${req.body.absent[i]}`,
           });
+          let gettingDate = req.body.date?.split("/");
+        let gettingDateMod = new Date(
+          `${gettingDate[2]}/${gettingDate[1]}/${gettingDate[0]}`
+        );
+        let todayeDate = new Date();
+        let todayeDateISO = todayeDate.toISOString();
+        let gettingDateISO = gettingDateMod.toISOString();
+        if (todayeDateISO.getDate() === gettingDateISO.getDate()) {
           const user = await User.findById({ _id: `${student.user}` });
           const notify = new StudentNotification({});
           notify.notifyContent = `you're absent ${notify_attendence_provider(
@@ -368,12 +315,6 @@ exports.markAttendenceClassStudent = async (req, res) => {
           notify.notifyByClassPhoto = classes._id;
           user.activity_tab.push(notify._id);
           student.notification.push(notify._id);
-          student.attendDate.push(attendence._id);
-          attendence.absentStudent.push({
-            student: student._id,
-            inTime: getOnlyTime(),
-            status: "Absent",
-          });
           notify.notifyCategory = "Attendence";
           notify.redirectIndex = 3;
           //
@@ -385,20 +326,23 @@ exports.markAttendenceClassStudent = async (req, res) => {
             user.deviceToken,
             "Student",
             notify
-          );
-          //
-          await Promise.all([student.save(), notify.save(), user.save()]);
+            );
+            //
+            await Promise.all([notify.save(), user.save()]);
+          }
+          student.attendDate.push(attendence._id);
+          attendence.absentStudent.push({
+            student: student._id,
+            inTime: getOnlyTime(),
+            status: "Absent",
+          });
+        await student.save()
         }
         classes.attendenceDate.push(attendence._id);
         attendence.presentTotal = req.body.present.length;
         attendence.absentTotal = req.body.absent.length;
         await Promise.all([attendence.save(), classes.save()]);
         res.status(200).send({ message: "Success" });
-      } else {
-        res.status(200).send({
-          message: `Mark attendance after the class start Date after ${classes.classStartDate}`,
-        });
-      }
     }
   } catch (e) {
     console.log(e);
@@ -417,17 +361,6 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
         message: "Attendance not Updated, first make a attendance",
       });
     } else {
-      // console.log(req.body);
-      // var currentDate = new Date();
-      // currentDate.setHours(currentDate.getHours() + 5);
-      // currentDate.setMinutes(currentDate.getMinutes() + 30);
-      // const currentDateLocalFormat = currentDate.toISOString().split("-");
-      // const markDate = req.body.date?.split("/");
-      // if (
-      //   +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
-      //   +markDate[1] === +currentDateLocalFormat[1] &&
-      //   +markDate[2] === +currentDateLocalFormat[0]
-      // ) {
       const studentAttendance = await AttendenceDate.findById(said);
       for (let i = 0; i < req.body.present?.length; i++) {
         let flag = false;
@@ -451,17 +384,6 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
           studentAttendance.presentTotal += 1;
           if (prevLength > nextLength) studentAttendance.absentTotal -= 1;
         }
-
-        // studentAttendance.absentStudent?.pull(req.body.present[i]);
-
-        // const student=await Student.findById(req.body.present[i])
-        // const notify = new StudentNotification({});
-        // notify.notifyContent = `Today is present`;
-        // notify.notifySender = studentAttendance.className;
-        // notify.notifyReceiever = student._id;
-        // notify.notifyByClassPhoto = studentAttendance.className;
-        // student.notification.push(notify._id);
-        // await Promise.all([student.save(), notify.save()]);
       }
       for (let i = 0; i < req.body.absent.length; i++) {
         let flag = false;
@@ -484,32 +406,9 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
           if (prevLength > nextLength) studentAttendance.presentTotal -= 1;
           studentAttendance.absentTotal += 1;
         }
-        // if (studentAttendance.absentStudent?.includes(req.body.absent[i])) {
-        // } else if (
-        //   studentAttendance.presentStudent?.includes(req.body.absent[i])
-        // ) {
-        // studentAttendance.absentStudent?.push(req.body.absent[i]);
-        // studentAttendance.presentStudent?.pull(req.body.absent[i]);
-        // studentAttendance.presentTotal -= 1;
-        // studentAttendance.absentTotal += 1;
-        // const student=await Student.findById(req.body.absent[i])
-        // const notify = new StudentNotification({});
-        // notify.notifyContent = `Today is absent`;
-        // notify.notifySender = studentAttendance.className;
-        // notify.notifyReceiever = student._id;
-        // notify.notifyByClassPhoto = studentAttendance.className;
-        // student.notification.push(notify._id);
-        // await Promise.all([student.save(), notify.save()]);
-        // } else {
-        // }
       }
       await studentAttendance.save();
       res.status(200).send({ message: "Updated attendance" });
-      // } else {
-      //   res
-      //     .status(200)
-      //     .send({ message: "You can not mark attendance this date" });
-      // }
     }
   } catch (e) {
     console.log(e);
@@ -1544,7 +1443,7 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         // notify.notifyCategory = "Student Present";
         // user.activity_tab.push(notify._id);
         // student.notification.push(notify._id);
-        // student.subjectAttendance.push(attendence._id);
+        student.subjectAttendance.push(attendence._id);
 
         attendence.presentStudent.push({
           student: student._id,
@@ -1566,12 +1465,21 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         // );
         //
         // await Promise.all([student.save(), notify.save(), user.save()]);
+        await student.save();
       }
 
       for (let i = 0; i < req.body.absent.length; i++) {
         const student = await Student.findById({
           _id: `${req.body.absent[i]}`,
         });
+        let gettingDate = req.body.date?.split("/");
+        let gettingDateMod = new Date(
+          `${gettingDate[2]}/${gettingDate[1]}/${gettingDate[0]}`
+        );
+        let todayeDate = new Date();
+        let todayeDateISO = todayeDate.toISOString();
+        let gettingDateISO = gettingDateMod.toISOString();
+        if (todayeDateISO.getDate() === gettingDateISO.getDate()) {
         const user = await User.findById({ _id: `${student.user}` });
         const notify = new StudentNotification({});
         notify.notifyContent = `you're absent ${notify_attendence_provider(
@@ -1590,26 +1498,28 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
         user.activity_tab.push(notify._id);
         student.notification.push(notify._id);
+        notify.notifyCategory = "Attendence";
+        notify.redirectIndex = 3;
+        //
+        // invokeMemberTabNotification(
+          //   "Student Activity",
+          //   notify,
+          //   "Mark Attendence",
+          //   user._id,
+          //   user.deviceToken,
+          //   "Student",
+          //   notify
+          // );
+          //
+          await Promise.all([notify.save(), user.save()]);
+        }
         student.subjectAttendance.push(attendence._id);
         attendence.absentStudent.push({
           student: student._id,
           inTime: getOnlyTime(),
           status: "Absent",
         });
-        notify.notifyCategory = "Attendence";
-        notify.redirectIndex = 3;
-        //
-        // invokeMemberTabNotification(
-        //   "Student Activity",
-        //   notify,
-        //   "Mark Attendence",
-        //   user._id,
-        //   user.deviceToken,
-        //   "Student",
-        //   notify
-        // );
-        //
-        await Promise.all([student.save(), notify.save(), user.save()]);
+      await student.save()
       }
       subjects.attendance.push(attendence._id);
       attendence.presentTotal = req.body.present.length;
@@ -1780,10 +1690,12 @@ exports.getAllSubjectOfStudent = async (req, res) => {
       select: "subject",
       populate: {
         path: "subject",
-        select: "subjectOptional subjectName subjectTeacherName",
+        select:
+          "subjectOptional subjectName subjectTeacherName subject_category",
         populate: {
-          path: "subjectTeacherName",
-          select: "staffFirstName staffMiddleName staffLastName",
+          path: "subjectTeacherName selected_batch_query",
+          select:
+            "staffFirstName staffMiddleName staffLastName batchName batchStatus",
         },
       },
     });
@@ -1815,63 +1727,254 @@ exports.getAllClassExportAttendance = async (req, res) => {
       });
     const month = req.query.month;
     const year = req.query.year;
+    const { is_type } = req.query;
+    const { startRange, endRange } = req.body;
     let regularexp = "";
-    if (month) {
-      regularexp = new RegExp(`\/${month}\/${year}$`);
-    } else {
-      regularexp = new RegExp(`\/${year}$`);
-    }
-    const classes = await Class.findById(cid)
-      .populate({
-        path: "ApproveStudent",
-        select:
-          "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave",
-        populate: {
-          path: "leave",
-          match: {
-            date: { $regex: regularexp },
-            status: { $eq: "Accepted" },
-          },
-          select: "date",
-        },
-      })
-      .populate({
-        path: "attendenceDate",
-        match: {
-          attendDate: { $regex: regularexp },
-        },
-        select: "attendDate presentStudent.student absentStudent.student",
-      })
-      .lean()
-      .exec();
-    let students = [];
-    for (let stu of classes?.ApproveStudent) {
-      let obj = {
-        ...stu,
-        availablity: [],
-      };
-      for (let att of classes?.attendenceDate) {
-        let statusObj = {
-          date: att.attendDate,
-          status: "",
-        };
-        for (let pre of att?.presentStudent) {
-          if (String(stu._id) === String(pre.student)) statusObj.status = "P";
-        }
-        for (let abs of att?.absentStudent) {
-          if (String(stu._id) === String(abs.student)) statusObj.status = "A";
-        }
+    if (is_type === "RANGE") {
+      let range1 = startRange;
+      let range2 = endRange;
 
-        obj.availablity.push(statusObj);
+      var classes = await Class.findById(cid)
+        .populate({
+          path: "ApproveStudent",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO",
+          populate: {
+            path: "leave",
+            match: {
+              // date: {
+              //   $and: [
+              //     {
+              //       $gte: range1,
+              //     },
+              //     {
+              //       $lte: range2,
+              //     },
+              //   ],
+              // },
+              status: { $eq: "Accepted" },
+            },
+            select: "date",
+          },
+        })
+        .populate({
+          path: "attendenceDate",
+          // match: {
+          //   attendDate: {
+          //     $and: [
+          //       {
+          //         $gte: range1,
+          //       },
+          //       {
+          //         $lte: range2,
+          //       },
+          //     ],
+          //   },
+          // },
+          select: "attendDate presentStudent.student absentStudent.student",
+        })
+        .lean()
+        .exec();
+
+      let students = [];
+      let range_attendance = [];
+      for (let att of classes?.attendenceDate) {
+        if (att.attendDate >= range1 && att.attendDate <= range2) {
+          range_attendance.push(att);
+        }
       }
-      students.push(obj);
+      for (let stu of classes?.ApproveStudent) {
+        let obj = {
+          ...stu,
+          availablity: [],
+        };
+        for (let att of range_attendance) {
+          let statusObj = {
+            date: att.attendDate,
+            status: "",
+          };
+          for (let pre of att?.presentStudent) {
+            if (String(stu._id) === String(pre.student)) statusObj.status = "P";
+          }
+          for (let abs of att?.absentStudent) {
+            if (String(stu._id) === String(abs.student)) statusObj.status = "A";
+          }
+          obj.availablity.push(statusObj);
+        }
+        students.push(obj);
+      }
+      // console.log(classes);
+      return res.status(200).send({
+        message: "All student zip attendance with ranged based",
+        attendance_zip: students,
+        access: false,
+      });
+    } else if (is_type === "ALL") {
+      var classes = await Class.findById(cid)
+        .populate({
+          path: "ApproveStudent",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO",
+        })
+        .populate({
+          path: "attendenceDate",
+          select: "attendDate presentStudent.student absentStudent.student",
+        })
+        .populate({
+          path: "subject",
+          populate: {
+            path: "selected_batch_query",
+          },
+        })
+        .lean()
+        .exec();
+      let mapSubject = [];
+      for (let sub of classes?.subject) {
+        mapSubject.push({
+          subjectName: `${sub?.subjectName} ${
+            sub?.subject_category ? `(${sub?.subject_category})` : ""
+          } ${
+            sub?.selected_batch_query?.batchName
+              ? `(${sub?.selected_batch_query?.batchName})`
+              : ""
+          } ${
+            sub?.subjectOptional === "Optional"
+              ? `(${sub?.subjectOptional})`
+              : ""
+          }`,
+          subjectId: sub?._id,
+        });
+      }
+      let students = [];
+      for (let stu of classes?.ApproveStudent) {
+        let obj = {
+          ...stu,
+          classWise: {
+            presentCount: 0,
+            totalCount: 0,
+            totalPercentage: 0,
+          },
+          className: `${classes?.className} - ${classes?.classTitle}`,
+          subjects: [],
+        };
+        students.push(obj);
+      }
+
+      for (let stu of students) {
+        for (let att of classes?.attendenceDate) {
+          for (let pre of att?.presentStudent) {
+            if (String(stu._id) === String(pre.student))
+              stu.classWise.presentCount += 1;
+          }
+          stu.classWise.totalCount += 1;
+        }
+        stu.classWise.totalPercentage = (
+          (stu.classWise.presentCount * 100) /
+          stu.classWise.totalCount
+        ).toFixed(2);
+      }
+
+      for (let sub of classes?.subject) {
+        const subjects = await Subject.findById(sub?._id).populate({
+          path: "attendance",
+        });
+
+        for (let stu of students) {
+          let sobj = {
+            subjectName: `${sub?.subjectName} ${
+              sub?.subject_category ? `(${sub?.subject_category})` : ""
+            } ${
+              sub?.selected_batch_query?.batchName
+                ? `(${sub?.selected_batch_query?.batchName})`
+                : ""
+            } ${
+              sub?.subjectOptional === "Optional"
+                ? `(${sub?.subjectOptional})`
+                : ""
+            }`,
+            subjectId: subjects?._id,
+            presentCount: 0,
+            totalCount: 0,
+            totalPercentage: 0,
+          };
+          for (let att of subjects?.attendance) {
+            for (let pre of att?.presentStudent) {
+              if (String(stu._id) === String(pre.student))
+                sobj.presentCount += 1;
+            }
+            sobj.totalCount += 1;
+          }
+          sobj.totalPercentage = (
+            (sobj.presentCount * 100) /
+            sobj.totalCount
+          ).toFixed(2);
+
+          stu.subjects.push(sobj);
+        }
+      }
+
+      return res.status(200).send({
+        message: "All student zip attendance wtih all wise",
+        attendance_zip: {
+          mapSubject,
+          students,
+          className: `${classes?.className} - ${classes?.classTitle}`,
+        },
+        access: false,
+      });
+    } else {
+      regularexp = new RegExp(`\/${month}\/${year}$`);
+      var classes = await Class.findById(cid)
+        .populate({
+          path: "ApproveStudent",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO",
+          populate: {
+            path: "leave",
+            match: {
+              date: { $regex: regularexp },
+              status: { $eq: "Accepted" },
+            },
+            select: "date",
+          },
+        })
+        .populate({
+          path: "attendenceDate",
+          match: {
+            attendDate: { $regex: regularexp },
+          },
+          select: "attendDate presentStudent.student absentStudent.student",
+        })
+        .lean()
+        .exec();
+      let students = [];
+      for (let stu of classes?.ApproveStudent) {
+        let obj = {
+          ...stu,
+          availablity: [],
+        };
+        for (let att of classes?.attendenceDate) {
+          let statusObj = {
+            date: att.attendDate,
+            status: "",
+          };
+          for (let pre of att?.presentStudent) {
+            if (String(stu._id) === String(pre.student)) statusObj.status = "P";
+          }
+          for (let abs of att?.absentStudent) {
+            if (String(stu._id) === String(abs.student)) statusObj.status = "A";
+          }
+
+          obj.availablity.push(statusObj);
+        }
+        students.push(obj);
+      }
+      return res.status(200).send({
+        message: "All student zip attendance",
+        attendance_zip: students,
+        access: false,
+      });
     }
-    // console.log(classes);
-    return res.status(200).send({
-      message: "All student zip attendance",
-      attendance_zip: students,
-      access: false,
-    });
   } catch (e) {
     console.log(e);
   }
@@ -2247,6 +2350,206 @@ exports.sendNotificationOfAttendance = async (req, res) => {
     res.status(200).send({
       message: "notification send to supervisor",
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getAllSubjectExportAttendance = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug regarding to call api",
+        access: false,
+      });
+    const month = req.query.month;
+    const year = req.query.year;
+    const { is_type } = req.query;
+    const { startRange, endRange } = req.body;
+    let regularexp = "";
+    if (is_type === "RANGE") {
+      let range1 = startRange;
+      let range2 = endRange;
+      var subjects = await Subject.findById(sid).populate({
+        path: "attendance",
+        // select: "attendDate presentStudent.student absentStudent.student",
+      });
+      // .lean()
+      // .exec();
+
+      var classes = await Class.findById(subjects?.class)
+        .populate({
+          path: "ApproveStudent",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO",
+          populate: {
+            path: "leave",
+            match: {
+              status: { $eq: "Accepted" },
+            },
+            select: "date",
+          },
+        })
+        .lean()
+        .exec();
+
+      let students = [];
+      let range_attendance = [];
+      for (let att of subjects?.attendance) {
+        if (att.attendDate >= range1 && att.attendDate <= range2) {
+          range_attendance.push(att);
+        }
+      }
+      for (let stu of classes?.ApproveStudent) {
+        let obj = {
+          ...stu,
+          availablity: [],
+        };
+        for (let att of range_attendance) {
+          let statusObj = {
+            date: att.attendDate,
+            status: "",
+          };
+          for (let pre of att?.presentStudent) {
+            if (String(stu._id) === String(pre.student)) statusObj.status = "P";
+          }
+          for (let abs of att?.absentStudent) {
+            if (String(stu._id) === String(abs.student)) statusObj.status = "A";
+          }
+          obj.availablity.push(statusObj);
+        }
+        students.push(obj);
+      }
+      // console.log(classes);
+      return res.status(200).send({
+        message: "All student zip attendance with subject ranged based",
+        attendance_zip: students,
+        access: false,
+      });
+    } else if (is_type === "ALL") {
+      var subjects = await Subject.findById(sid)
+        .populate({
+          path: "attendance",
+        })
+        .populate({
+          path: "selected_batch_query",
+        });
+
+      var classes = await Class.findById(subjects?.class)
+        .populate({
+          path: "ApproveStudent",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO",
+        })
+        .lean()
+        .exec();
+
+      let mapSubject = {
+        subjectName: `${subjects?.subjectName} ${
+          subjects?.subject_category ? `(${subjects?.subject_category})` : ""
+        } ${
+          subjects?.selected_batch_query?.batchName
+            ? `(${subjects?.selected_batch_query?.batchName})`
+            : ""
+        } ${
+          subjects?.subjectOptional === "Optional"
+            ? `(${subjects?.subjectOptional})`
+            : ""
+        }`,
+        subjectId: subjects?._id,
+        // className: `${classes?.className} - ${classes?.classTitle}`,
+      };
+      let students = [];
+      for (let stu of classes?.ApproveStudent) {
+        let obj = {
+          ...stu,
+          subjectWise: {
+            presentCount: 0,
+            totalCount: 0,
+            totalPercentage: 0,
+          },
+        };
+        students.push(obj);
+      }
+      for (let stu of students) {
+        for (let att of subjects?.attendance) {
+          for (let pre of att?.presentStudent) {
+            if (String(stu._id) === String(pre.student))
+              stu.subjectWise.presentCount += 1;
+          }
+          stu.subjectWise.totalCount += 1;
+        }
+        stu.subjectWise.totalPercentage = (
+          (stu.subjectWise.presentCount * 100) /
+          stu.subjectWise.totalCount
+        ).toFixed(2);
+      }
+      return res.status(200).send({
+        message: "All student zip attendance wtih all subject wise",
+        attendance_zip: {
+          mapSubject,
+          students,
+        },
+        access: false,
+      });
+    } else {
+      regularexp = new RegExp(`\/${month}\/${year}$`);
+
+      var subjects = await Subject.findById(sid).populate({
+        path: "attendance",
+        match: {
+          attendDate: { $regex: regularexp },
+        },
+        // select: "attendDate presentStudent.student absentStudent.student",
+      });
+      // .lean()
+      // .exec();
+
+      var classes = await Class.findById(subjects?.class)
+        .populate({
+          path: "ApproveStudent",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO",
+          populate: {
+            path: "leave",
+            match: {
+              date: { $regex: regularexp },
+              status: { $eq: "Accepted" },
+            },
+            select: "date",
+          },
+        })
+        .lean()
+        .exec();
+      let students = [];
+      for (let stu of classes?.ApproveStudent) {
+        let obj = {
+          ...stu,
+          availablity: [],
+        };
+        for (let att of subjects?.attendance) {
+          let statusObj = {
+            date: att.attendDate,
+            status: "",
+          };
+          for (let pre of att?.presentStudent) {
+            if (String(stu._id) === String(pre.student)) statusObj.status = "P";
+          }
+          for (let abs of att?.absentStudent) {
+            if (String(stu._id) === String(abs.student)) statusObj.status = "A";
+          }
+
+          obj.availablity.push(statusObj);
+        }
+        students.push(obj);
+      }
+      return res.status(200).send({
+        message: "All student zip attendance with subject wise",
+        attendance_zip: students,
+        access: false,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

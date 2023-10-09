@@ -398,6 +398,22 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
             "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
           )
           .populate({
+            path: "payment_student",
+            match: {
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
+              studentGRNO: { $regex: `${search}`, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          })
+          .populate({
             path: "payment_fee",
             select: "feeName",
           })
@@ -427,21 +443,6 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           })
           .populate({
             path: "fee_receipt",
-          })
-          .populate({
-            path: "payment_student",
-            match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
-            },
-            select:
-              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
-            populate: {
-              path: "fee_structure hostel_fee_structure",
-              select: "unique_structure_name",
-            },
           });
       } else {
         var order = await OrderPayment.find({
@@ -491,7 +492,7 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           .populate({
             path: "payment_student",
             select:
-              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select: "unique_structure_name",
@@ -533,6 +534,22 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
             "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
           )
           .populate({
+            path: "payment_student",
+            match: {
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
+              studentGRNO: { $regex: `${search}`, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          })
+          .populate({
             path: "payment_fee",
             select: "feeName",
           })
@@ -562,21 +579,6 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           })
           .populate({
             path: "fee_receipt",
-          })
-          .populate({
-            path: "payment_student",
-            match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
-            },
-            select:
-              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
-            populate: {
-              path: "fee_structure hostel_fee_structure",
-              select: "unique_structure_name",
-            },
           });
       } else {
         var order = await OrderPayment.find({
@@ -630,7 +632,7 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           .populate({
             path: "payment_student",
             select:
-              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select: "unique_structure_name",
@@ -687,6 +689,22 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
             "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
           )
           .populate({
+            path: "payment_student",
+            match: {
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
+              studentGRNO: { $regex: `${search}`, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          })
+          .populate({
             path: "payment_fee",
             select: "feeName",
           })
@@ -716,21 +734,6 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           })
           .populate({
             path: "fee_receipt",
-          })
-          .populate({
-            path: "payment_student",
-            match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
-            },
-            select:
-              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
-            populate: {
-              path: "fee_structure hostel_fee_structure",
-              select: "unique_structure_name",
-            },
           });
       } else {
         var order = await OrderPayment.find({
@@ -780,7 +783,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           .populate({
             path: "payment_student",
             select:
-              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select: "unique_structure_name",
@@ -832,6 +835,22 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
             "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
           )
           .populate({
+            path: "payment_student",
+            match: {
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
+              studentGRNO: { $regex: `${search}`, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          })
+          .populate({
             path: "payment_fee",
             select: "feeName",
           })
@@ -861,21 +880,6 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           })
           .populate({
             path: "fee_receipt",
-          })
-          .populate({
-            path: "payment_student",
-            match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
-            },
-            select:
-              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
-            populate: {
-              path: "fee_structure hostel_fee_structure",
-              select: "unique_structure_name",
-            },
           });
       } else {
         var order = await OrderPayment.find({
@@ -931,7 +935,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           .populate({
             path: "payment_student",
             select:
-              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select: "unique_structure_name",
@@ -1008,7 +1012,7 @@ exports.fetchPaymentOneHistory = async (req, res) => {
       .populate({
         path: "payment_student",
         select:
-          "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure",
+          "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
         populate: {
           path: "fee_structure hostel_fee_structure",
           select: "unique_structure_name",

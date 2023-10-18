@@ -32,6 +32,7 @@ exports.generate_excel_to_json = async (file, aid, fid, did) => {
       var b_count = +ref?.batchcount;
       // ref.studentDOB = replace_query(ref?.studentDOB);
       ref.studentAdmissionDate = ref?.admissionDate;
+      ref.student_abc_id = ref?.AbcID;
 
       for (var i = 1; i <= b_count; i++) {
         var i_count = +ref[`instcount_${i}`];
@@ -318,39 +319,44 @@ exports.generate_excel_to_json_direct_staff = async (file) => {
     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
     var new_data_query = [];
     data_query?.map((ref) => {
-      ref.staffDOB = replace_query(ref?.DOB);
-      ref.staffGender = ref?.Gender;
-      ref.staffMotherName = ref?.MotherName;
-      ref.staffPhoneNumber = ref?.PhoneNumber;
-      ref.userPhoneNumber = parseInt(ref?.PhoneNumber);
-      ref.userEmail = ref?.Email ?? "";
-      ref.code = ref?.EmployeeCode ?? "";
-      ref.staffNationality = ref?.Nationality ?? "";
-      ref.staffReligion = ref?.Religion ?? "";
-      ref.staffCast = ref?.Caste ?? "";
-      ref.staffCastCategory = ref?.CasteCategory ?? "";
-      ref.staffMTongue = ref?.MotherTongue ?? "";
-      ref.staffAddress = ref?.Address ?? "";
-      ref.staffAadharNumber = ref?.AadharNumber ?? "";
-      ref.staffPanNumber = ref?.PanNumber ?? "";
-      let name_query = ref?.Name?.split(" ");
-      if (name_query?.length > 2) {
-        new_data_query.push({
-          ...ref,
-          staffFirstName: name_query[0],
-          staffMiddleName: name_query[1],
-          staffLastName: name_query[2],
-          fileArray: [],
-          sample_pic: "",
-        });
-      } else {
-        new_data_query.push({
-          ...ref,
-          staffFirstName: name_query[0],
-          staffLastName: name_query[1],
-          fileArray: [],
-          sample_pic: "",
-        });
+      if (ref?.Name) {
+        // if (ref?.DOB) {
+        //   ref.staffDOB = replace_query(ref?.DOB);
+        // }
+        ref.staffGender = ref?.Gender;
+        ref.staffMotherName = ref?.MotherName;
+        ref.staffPhoneNumber = ref?.PhoneNumber;
+        ref.userPhoneNumber = parseInt(ref?.PhoneNumber);
+        ref.userEmail = ref?.Email ?? "";
+        ref.code = ref?.EmployeeCode ?? "";
+        ref.staffNationality = ref?.Nationality ?? "";
+        ref.staffReligion = ref?.Religion ?? "";
+        ref.staffCast = ref?.Caste ?? "";
+        ref.staffCastCategory = ref?.CasteCategory ?? "";
+        ref.staffMTongue = ref?.MotherTongue ?? "";
+        ref.staffAddress = ref?.Address ?? "";
+        ref.staffAadharNumber = ref?.AadharNumber ?? "";
+        ref.staffPanNumber = ref?.PanNumber ?? "";
+        let name_query = ref?.Name?.split(" ");
+        console.log(name_query);
+        if (name_query?.length > 2) {
+          new_data_query.push({
+            ...ref,
+            staffFirstName: name_query[0],
+            staffMiddleName: name_query[1],
+            staffLastName: name_query[2],
+            fileArray: [],
+            sample_pic: "",
+          });
+        } else {
+          new_data_query.push({
+            ...ref,
+            staffFirstName: name_query[0],
+            staffLastName: name_query[1],
+            fileArray: [],
+            sample_pic: "",
+          });
+        }
       }
     });
     return { staff_array: new_data_query, value: true };
@@ -784,7 +790,7 @@ exports.generate_excel_to_json_class_query = async (file, did) => {
         $and: [
           { department: did },
           {
-            className: { $regex: `${ref?.MasterName}`, $options: "i" },
+            className: { $regex: `${val?.MasterName}`, $options: "i" },
           },
         ],
       });
@@ -810,17 +816,48 @@ exports.generate_excel_to_json_subject_query = async (file, did) => {
         $and: [
           { department: did },
           {
-            subjectName: { $regex: `${ref?.MasterName}`, $options: "i" },
+            subjectName: { $regex: `${val?.MasterName}`, $options: "i" },
           },
         ],
       });
+      if (val?.Batch) {
+        var new_batch = await Batch.findOne({
+          $and: [
+            { department: did },
+            {
+              batchName: { $regex: `${val.Batch}`, $options: "i" },
+            },
+          ],
+        });
+      }
       val.subjectTitle = val?.SubjectTitle ?? "Subject Teacher";
       val.subject_category = val?.SubjectCategory;
+      if (val?.SubjectType === "Full Class") {
+      } else {
+        val.selected_batch = new_batch?._id;
+      }
       val.msid = new_master?._id;
       new_data_query.push(val);
     }
     return { subject_array: new_data_query, value: true };
   } catch (e) {
     console.log("New Subject Excel Query Not Resolved", e);
+  }
+};
+
+exports.generate_excel_to_json_attendence_query = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["MarkPreviousAttendence"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var val of data_query) {
+      val.subjectName = val?.SubjectName;
+      val.subjectType = val?.SubjectType;
+      new_data_query.push(val);
+    }
+    return { subject_master_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("New Subject Master Excel Query Not Resolved", e);
   }
 };

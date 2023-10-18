@@ -100,6 +100,10 @@ const feeReceiptSchema = new mongoose.Schema({
         ref: "FeeMaster",
       },
       original_paid: { type: Number, default: 0 },
+      appId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
     },
   ],
   created_at: {

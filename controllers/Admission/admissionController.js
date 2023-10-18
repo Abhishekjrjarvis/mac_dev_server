@@ -77,6 +77,7 @@ const {
   set_fee_head_query_redesign,
   receipt_set_fee_head_query_redesign,
   set_fee_head_redesign,
+  update_fee_head_query_redesign,
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -88,6 +89,7 @@ const RemainingList = require("../../models/Admission/RemainingList");
 const { dueDateAlarm } = require("../../Service/alarm");
 const { handle_undefined } = require("../../Handler/customError");
 const { set_off_amount } = require("../../Functions/SetOff");
+const { set_fee_head_query_redesign_hostel } = require("../../Functions/hostelInstallment");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -1558,6 +1560,9 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
     status.studentId = student._id;
     status.student = student._id;
     user.applicationStatus.push(status._id);
+    if (user?.applyApplication?.includes(`${apply?._id}`)) {
+      user.applyApplication.pull(apply?._id);
+    }
     status.instituteId = admission_admin?.institute;
     notify.notifyContent = `You have been rejected for ${apply.applicationName}. Best of luck for next time `;
     notify.notifySender = admission_admin?.admissionAdminHead?.user;
@@ -1746,6 +1751,8 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     order.fee_receipt = new_receipt?._id;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
@@ -2180,6 +2187,8 @@ exports.cancelAdmissionApplication = async (req, res) => {
       order.payment_admission = apply._id;
       order.payment_from = student._id;
       order.payment_student = student?._id;
+      order.payment_student_name = student?.valid_full_name;
+      order.payment_student_gr = student?.studentGRNO;
       institute.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
@@ -3124,6 +3133,8 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
@@ -3372,6 +3383,8 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
@@ -3623,6 +3636,8 @@ const request_mode_query_by_student = async (
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     order.payment_invoice_number = new_receipt?.invoice_count;
     order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
@@ -5510,6 +5525,8 @@ exports.renderOneReceiptStatus = async (req, res) => {
       order.payment_admission = one_app._id;
       order.payment_from = student._id;
       order.payment_student = student?._id;
+      order.payment_student_name = student?.valid_full_name;
+      order.payment_student_gr = student?.studentGRNO;
       institute.invoice_count += 1;
       order.payment_invoice_number = one_receipt?.invoice_count;
       user.payment_history.push(order._id);
@@ -6268,6 +6285,8 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
@@ -7686,6 +7705,8 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         order.payment_admission = apply._id;
         order.payment_from = student._id;
         order.payment_student = student?._id;
+        order.payment_student_name = student?.valid_full_name;
+        order.payment_student_gr = student?.studentGRNO;
         institute.invoice_count += 1;
         new_receipt.invoice_count = `${
           new Date().getMonth() + 1
@@ -8017,6 +8038,8 @@ const auto_scholar_query = async (
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
@@ -8550,6 +8573,8 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
       order.payment_admission = apply._id;
       order.payment_from = student._id;
       order.payment_student = student?._id;
+      order.payment_student_name = student?.valid_full_name;
+      order.payment_student_gr = student?.studentGRNO;
       institute.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
@@ -8884,6 +8909,8 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
@@ -9173,7 +9200,7 @@ exports.renderFilterByThreeFunctionQuery = async (req, res) => {
           { applicationBatch: batchId },
           { applicationMaster: masterId },
         ],
-        $or: [{ applicationName: { $regex: search, $options: "i" } }],
+        // $or: [{ applicationName: { $regex: `${search}`, $options: "i" } }],
       })
         .select(
           "applicationName applicationDepartment applicationBatch applicationMaster application_flow applicationType applicationStatus"
@@ -9787,8 +9814,8 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
     var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    const g_date = new Date(`2023-09-22T00:00:00.000Z`);
-    const l_date = new Date(`2023-09-26T00:00:00.000Z`);
+    const g_date = new Date(`2023-09-26T00:00:00.000Z`);
+    const l_date = new Date(`2023-10-17T00:00:00.000Z`);
     var receipt = await FeeReceipt.find({
       $and: [
         {
@@ -9801,28 +9828,43 @@ exports.renderFeeHeadsQuery = async (req, res) => {
           set_off_status: "Not Set off",
         },
         {
+          receipt_generated_from: "BY_HOSTEL_MANAGER",
+        },
+        {
           finance: finance?._id,
         },
       ],
     }).populate({
       path: "student",
       populate: {
-        path: "fee_structure",
+        path: "hostel_fee_structure",
       },
     });
+    // var receipt = await FeeReceipt.findById({
+    //   _id: "6528c827c0da2e507764cf2c",
+    // })
     for (var ref of receipt) {
-      if (ref?.fee_heads?.length > 0) {
-        // ref.fee_heads = [];
-        // ref.save();
-      } else {
-        await set_fee_head_query_redesign(
-          ref?.student,
-          ref?.fee_payment_amount,
-          ref?.application,
-          ref
-        );
-      }
+      // if (ref?.fee_heads?.length > 0) {
+      //   ref.fee_heads = [];
+      //   await ref.save();
+      // } else {
+      await set_fee_head_query_redesign_hostel(
+        ref?.student,
+        ref?.fee_payment_amount,
+        ref?.application,
+        ref
+      );
+      // }
     }
+    // receipt.fee_heads = [];
+    // await receipt.save();
+    // await set_fee_head_query_redesign(
+    //   receipt?.student,
+    //   receipt?.fee_payment_amount,
+    //   receipt?.application,
+    //   receipt
+    // );
+
     // // else {
     //   await set_fee_head_query_redesign(
     //     student,
@@ -9907,10 +9949,13 @@ exports.renderFindReceiptQuery = async (req, res) => {
 
 exports.renderOrder = async (req, res) => {
   try {
-    var all_order = await OrderPayment.find({});
+    var all_order = await OrderPayment.find({}).populate({
+      path: "payment_student",
+    });
     for (var ref of all_order) {
-      if (ref?.payment_from) {
-        ref.payment_student = ref?.payment_from;
+      if (ref?.payment_student) {
+        ref.payment_student_name = ref?.payment_student?.valid_full_name;
+        ref.payment_student_gr = ref?.payment_student?.studentGRNO ?? "";
         await ref.save();
       }
     }
@@ -10309,17 +10354,18 @@ exports.renderCardFeeHeadsQuery = async (req, res) => {
     // });
     var receipt = await RemainingList.find({
       _id: { $in: arr },
-    }).populate({
-      path: "student",
-      populate: {
-        path: "fee_structure",
-      },
     })
-    .populate({
-      path: "fee_structure",
-    });
+      .populate({
+        path: "student",
+        populate: {
+          path: "fee_structure",
+        },
+      })
+      .populate({
+        path: "fee_structure",
+      });
     for (var ref of receipt) {
-      if(block){
+      if (block) {
         if (ref?.student?.active_fee_heads?.length > 0) {
           for (var ele of ref?.student?.active_fee_heads) {
             if (`${ele?.appId}` === `${ref?.appId}`) {
@@ -10331,8 +10377,7 @@ exports.renderCardFeeHeadsQuery = async (req, res) => {
           }
           await ref.student.save();
         }
-      }
-       else {
+      } else {
         await set_fee_head_redesign(
           ref?.student,
           ref?.paid_fee,
@@ -10355,6 +10400,60 @@ exports.renderCardFeeHeadsQuery = async (req, res) => {
       count: receipt?.length,
       receipt,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_remove_dup_heads = async (req, res) => {
+  try {
+    var all_card = await RemainingList.findById({
+      _id: "65146143762226337a0d9c1d",
+    }).populate({
+      path: "fee_receipts",
+    });
+    for (var ref of all_card?.fee_receipts) {
+      for (var ele of ref?.fee_heads) {
+        if (`${ele?.fee_structure}` === `${ref?.fee_structure}`) {
+          console.log("match");
+        } else {
+          // ref.fee_heads.pull(ele?._id)
+          console.log("NOT MATCH");
+        }
+      }
+      await ref.save();
+    }
+    res.status(200).send({ message: "Explore Data", all_card });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_old_data_receipt_query = async (req, res) => {
+  try {
+    // var all_remain_card = await RemainingList.findById({
+    //   _id: "6501a891df2fe86f89506e7b",
+    // });
+    const { id } = req?.query
+    var all_remain_card = await RemainingList.find({ institute: id });
+    for(var val of all_remain_card){
+      for (var ref of val?.fee_receipts) {
+        var receipt = await FeeReceipt.findById({ _id: `${ref}` });
+        for (var ele of receipt?.fee_heads) {
+          if (`${ele?.fee_structure}` === `${val?.fee_structure}`) {
+            console.log("Exist + Match");
+            ele.appId = receipt?.application;
+          } else {
+            console.log("no..............:");
+          }
+        }
+        await receipt.save();
+      }
+    }
+
+    res
+      .status(200)
+      .send({ message: "Explore Remaining Fee Receipt Exporting Query Fixed" });
   } catch (e) {
     console.log(e);
   }

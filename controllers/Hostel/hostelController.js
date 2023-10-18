@@ -1517,6 +1517,8 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
@@ -1919,6 +1921,8 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
       order.payment_admission = apply._id;
       order.payment_from = student._id;
       order.payment_student = student?._id;
+      order.payment_student_name = student?.valid_full_name;
+      order.payment_student_gr = student?.studentGRNO;
       institute.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
@@ -2328,6 +2332,8 @@ exports.renderPaidRemainingFeeStudentQuery = async (req, res) => {
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
@@ -2577,6 +2583,8 @@ exports.renderPaidRemainingFeeStudentRefundBy = async (req, res) => {
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
@@ -2927,6 +2935,8 @@ const hostel_receipt_approve_query = async (
     order.payment_admission = one_app._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     order.payment_invoice_number = one_receipt?.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
@@ -3089,6 +3099,8 @@ const request_hostel_mode_query_by_student = async (
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     order.payment_invoice_number = new_receipt?.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
@@ -3477,6 +3489,8 @@ const hostel_receipt_approve_query_renewal = async (
     order.payment_admission = one_app._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     order.payment_invoice_number = one_receipt?.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
@@ -3625,6 +3639,8 @@ const request_hostel_mode_query_by_student_renewal = async (
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     order.payment_invoice_number = new_receipt?.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
@@ -4673,6 +4689,8 @@ exports.renderPayOfflineHostelFeeRenewal = async (req, res) => {
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
@@ -5162,6 +5180,8 @@ exports.renderCancelHostelRefundRenewalApplicationQuery = async (req, res) => {
       order.payment_admission = apply._id;
       order.payment_from = student._id;
       order.payment_student = student?._id;
+      order.payment_student_name = student?.valid_full_name;
+      order.payment_student_gr = student?.studentGRNO;
       institute.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1

@@ -1462,63 +1462,63 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       _id: `${finance?.institute}`,
     }).select("insName depart");
 
-    if (all_depart === "All") {
-      var sorted_batch = [];
-      if (batch_status === "All") {
-        var all_department = await Department.find({
-          _id: { $in: institute?.depart },
-        }).select("batches");
-        for (var ref of all_department) {
-          sorted_batch.push(...ref?.batches);
-        }
-      } else if (batch_status === "Current") {
-        var all_department = await Department.find({
-          _id: { $in: institute?.depart },
-        }).select("departmentSelectBatch");
-        for (var ref of all_department) {
-          sorted_batch.push(ref?.departmentSelectBatch);
-        }
-      }
-      var all_students = await Student.find({
-        $and: [{ batches: { $in: sorted_batch } }],
-      })
-        .select("studentClass batches department")
-        .populate({
-          path: "fee_structure",
-        });
-      console.log(all_students?.length);
-    } else if (all_depart === "Particular") {
-      var all_students = await Student.find({
-        institute: institute?._id,
-      })
-        .select("studentClass batches department")
-        .populate({
-          path: "fee_structure",
-        });
-      if (depart) {
-        all_students = all_students?.filter((ref) => {
-          if (`${ref?.department}` === `${depart}`) return ref;
-        });
-      }
-      if (batch) {
-        all_students = all_students?.filter((ref) => {
-          if (`${ref?.batches}` === `${batch}`) return ref;
-        });
-      }
-      if (master?.length > 0) {
-        var select_classes = [];
-        const all_master = await ClassMaster.find({
-          _id: { $in: master },
-        }).select("classDivision");
+    // if (all_depart === "All") {
+    //   var sorted_batch = [];
+    //   if (batch_status === "All") {
+    //     var all_department = await Department.find({
+    //       _id: { $in: institute?.depart },
+    //     }).select("batches");
+    //     for (var ref of all_department) {
+    //       sorted_batch.push(...ref?.batches);
+    //     }
+    //   } else if (batch_status === "Current") {
+    //     var all_department = await Department.find({
+    //       _id: { $in: institute?.depart },
+    //     }).select("departmentSelectBatch");
+    //     for (var ref of all_department) {
+    //       sorted_batch.push(ref?.departmentSelectBatch);
+    //     }
+    //   }
+    //   var all_students = await Student.find({
+    //     $and: [{ batches: { $in: sorted_batch } }],
+    //   })
+    //     .select("studentClass batches department")
+    //     .populate({
+    //       path: "fee_structure",
+    //     });
+    //   console.log(all_students?.length);
+    // } else if (all_depart === "Particular") {
+    //   var all_students = await Student.find({
+    //     institute: institute?._id,
+    //   })
+    //     .select("studentClass batches department")
+    //     .populate({
+    //       path: "fee_structure",
+    //     });
+    //   if (depart) {
+    //     all_students = all_students?.filter((ref) => {
+    //       if (`${ref?.department}` === `${depart}`) return ref;
+    //     });
+    //   }
+    //   if (batch) {
+    //     all_students = all_students?.filter((ref) => {
+    //       if (`${ref?.batches}` === `${batch}`) return ref;
+    //     });
+    //   }
+    //   if (master?.length > 0) {
+    //     var select_classes = [];
+    //     const all_master = await ClassMaster.find({
+    //       _id: { $in: master },
+    //     }).select("classDivision");
 
-        for (var ref of all_master) {
-          select_classes.push(...ref?.classDivision);
-        }
-        all_students = all_students?.filter((ref) => {
-          if (select_classes?.includes(`${ref?.studentClass}`)) return ref;
-        });
-      }
-    }
+    //     for (var ref of all_master) {
+    //       select_classes.push(...ref?.classDivision);
+    //     }
+    //     all_students = all_students?.filter((ref) => {
+    //       if (select_classes?.includes(`${ref?.studentClass}`)) return ref;
+    //     });
+    //   }
+    // }
 
     // if (fsid && depart) {
     //   var all_students = await Student.find({
@@ -1537,10 +1537,10 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
     //     $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
     //   }).select("_id fee_receipt");
     // }
-    for (var ref of all_students) {
-      sorted_array.push(ref?._id);
-    }
-    console.log(sorted_array?.length);
+    // for (var ref of all_students) {
+    //   sorted_array.push(ref?._id);
+    // }
+    // console.log(sorted_array?.length);
     if (valid_timeline) {
       const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
       const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
@@ -1554,13 +1554,13 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               $lt: l_date,
             },
           },
-          // {
-          //   receipt_generated_from: "BY_ADMISSION",
-          // },
+          {
+            receipt_generated_from: "BY_ADMISSION",
+          },
           {
             refund_status: "No Refund",
           },
-          { student: { $in: sorted_array } },
+          // { student: { $in: sorted_array } },
         ],
       })
         .sort({ invoice_count: "1" })
@@ -1618,6 +1618,13 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             `${val?.application?.applicationDepartment?.bank_account?._id}` ===
             `${bank}`
           )
+            return val;
+        });
+      }
+      if (all_depart === "All") {
+      } else if (all_depart === "Particular" && depart) {
+        all_receipts = all_receipts?.filter((val) => {
+          if (`${val?.application?.applicationDepartment?._id}` === `${depart}`)
             return val;
         });
       }
@@ -1652,13 +1659,13 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               $lt: l_date,
             },
           },
-          // {
-          //   receipt_generated_from: "BY_ADMISSION",
-          // },
+          {
+            receipt_generated_from: "BY_ADMISSION",
+          },
           {
             refund_status: "No Refund",
           },
-          { student: { $in: sorted_array } },
+          // { student: { $in: sorted_array } },
         ],
       })
         .sort({ invoice_count: "1" })
@@ -1718,6 +1725,13 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             return val;
         });
       }
+      if (all_depart === "All") {
+      } else if (all_depart === "Particular" && depart) {
+        all_receipts = all_receipts?.filter((val) => {
+          if (`${val?.application?.applicationDepartment?._id}` === `${depart}`)
+            return val;
+        });
+      }
     }
     if (all_receipts?.length > 0) {
       res.status(200).send({
@@ -1725,6 +1739,9 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         access: true,
         all_receipts,
         count: all_receipts?.length,
+      });
+      all_receipts.sort(function (st1, st2) {
+        return parseInt(st1?.invoice_count) - parseInt(st2?.invoice_count);
       });
       var head_list = [];
       const buildStructureObject = async (arr) => {
@@ -1759,17 +1776,21 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         var head_array = [];
         if (ref?.fee_heads?.length > 0) {
           for (var val of ref?.fee_heads) {
-            head_array.push({
-              HeadsName: val?.head_name,
-              PaidHeadFees: val?.original_paid,
-            });
+            if (`${val?.appId}` === `${ref?.application?._id}`) {
+              head_array.push({
+                HeadsName: val?.head_name,
+                PaidHeadFees: val?.original_paid,
+              });
+            }
           }
         }
         if (remain_list?.paid_fee - remain_list?.applicable_fee > 0) {
-          head_array.push({
-            HeadsName: "Excess Fees",
-            PaidHeadFees: remain_list?.paid_fee - remain_list?.applicable_fee,
-          });
+          if (`${val?.appId}` === `${ref?.application?._id}`) {
+            head_array.push({
+              HeadsName: "Excess Fees",
+              PaidHeadFees: remain_list?.paid_fee - remain_list?.applicable_fee,
+            });
+          }
         }
         if (ref?.fee_heads?.length > 0) {
           var result = await buildStructureObject(head_array);
@@ -2965,6 +2986,9 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
         all_receipts,
         count: all_receipts?.length,
       });
+      all_receipts.sort(function (st1, st2) {
+        return parseInt(st1?.invoice_count) - parseInt(st2?.invoice_count);
+      });
       var head_list = [];
       const buildStructureObject = async (arr) => {
         var obj = {};
@@ -3151,6 +3175,9 @@ exports.renderFeeHeadsStructureReceiptRePayPriceQuery = async (req, res) => {
             },
           },
           {
+            receipt_generated_from: "BY_ADMISSION",
+          },
+          {
             refund_status: "No Refund",
           },
         ],
@@ -3181,6 +3208,11 @@ exports.renderFeeHeadsStructureReceiptRePayPriceQuery = async (req, res) => {
         });
       }
     }
+    var valid_pay = ["Fee Receipt Not Generated", "Payment Gateway / Online"];
+    all_receipts = all_receipts?.filter((val) => {
+      if (valid_pay?.includes(`${val?.fee_payment_mode}`)) return val;
+    });
+
     if (all_receipts?.length > 0) {
       var price = 0;
       all_receipts?.map((val) => {
@@ -3191,6 +3223,7 @@ exports.renderFeeHeadsStructureReceiptRePayPriceQuery = async (req, res) => {
         access: true,
         count: all_receipts?.length,
         price: price,
+        all_receipts,
       });
     } else {
       res.status(200).send({
@@ -3263,6 +3296,9 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
             },
           },
           {
+            receipt_generated_from: "BY_ADMISSION",
+          },
+          {
             refund_status: "No Refund",
           },
         ],
@@ -3330,6 +3366,9 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
         message: "Explore Fee Receipt Heads Structure Query",
         access: true,
         count: all_receipts?.length,
+      });
+      all_receipts.sort(function (st1, st2) {
+        return parseInt(st1?.invoice_count) - parseInt(st2?.invoice_count);
       });
       const financeUser = await User.findById({
         _id: `${finance?.financeHead?.user}`,

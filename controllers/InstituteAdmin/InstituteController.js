@@ -53,6 +53,7 @@ const { applicable_pending_calc } = require("../../Functions/SetOff");
 const { send_phone_login_query } = require("../../helper/functions");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const Chapter = require("../../models/Academics/Chapter");
+const Attainment = require("../../models/Marks/Attainment");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -3085,7 +3086,7 @@ exports.getFullStudentInfo = async (req, res) => {
     if (isApk) {
       var student = await Student.findById({ _id: id })
         .select(
-          "studentFirstName extraPoints batchCount student_prn_enroll_number student_hostel_cpi student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points studentEmail online_amount_edit_access hostelRemainFeeCount hostelPaidFeeCount exist_linked_hostel studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+          "studentFirstName extraPoints batchCount student_prn_enroll_number student_hostel_cpi profile_percentage student_anti_ragging student_id_card_front student_id_card_back student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points studentEmail online_amount_edit_access hostelRemainFeeCount hostelPaidFeeCount exist_linked_hostel studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
         )
         .populate({
           path: "user",
@@ -3164,11 +3165,23 @@ exports.getFullStudentInfo = async (req, res) => {
           docs.documentName === "identityDocument"
             ? docs.documentKey
             : student.identityDocument;
+        student.student_anti_ragging =
+          docs.documentName === "student_anti_ragging"
+            ? docs.documentKey
+            : student.student_anti_ragging;
+        student.student_id_card_front =
+          docs.documentName === "student_id_card_front"
+            ? docs.documentKey
+            : student.student_id_card_front;
+        student.student_id_card_back =
+          docs.documentName === "student_id_card_back"
+            ? docs.documentKey
+            : student.student_id_card_back;
       }
     } else {
       var student = await Student.findById({ _id: id })
         .select(
-          "studentFirstName extraPoints student_hostel_cpi student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph batchCount studentMiddleName student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points exist_linked_hostel student_prn_enroll_number studentEmail online_amount_edit_access hostelRemainFeeCount hostelPaidFeeCount studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+          "studentFirstName extraPoints student_hostel_cpi profile_percentage student_anti_ragging student_id_card_front student_id_card_back student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph batchCount studentMiddleName student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points exist_linked_hostel student_prn_enroll_number studentEmail online_amount_edit_access hostelRemainFeeCount hostelPaidFeeCount studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
         )
         .populate({
           path: "user",
@@ -3856,7 +3869,7 @@ exports.fetchOneStaffDepartmentInfo = async (req, res) => {
     const { did } = req.params;
     const department = await Department.findById({ _id: did })
       .select(
-        "dName dTitle photoId photo coverId staffCount classCount studentCount cover dAbout dEmail dPhoneNumber dSpeaker dVicePrinciple dAdminClerk dStudentPresident"
+        "dName dTitle photoId photo coverId staffCount classCount studentCount internal_assesment external_assesment cover dAbout dEmail dPhoneNumber dSpeaker dVicePrinciple dAdminClerk dStudentPresident"
       )
       .populate({
         path: "dHead",
@@ -4022,7 +4035,12 @@ exports.retrieveNewClassMaster = async (req, res) => {
 exports.retrieveNewSubjectMaster = async (req, res) => {
   try {
     const { id, did, bid } = req.params;
-    const { subjectName, subjectType } = req.body;
+    const {
+      subjectName,
+      subjectType,
+      co_attainment_count,
+      co_attainment_list,
+    } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const departmentData = await Department.findById({ _id: did });
     const subjectMaster = new SubjectMaster({
@@ -4030,6 +4048,7 @@ exports.retrieveNewSubjectMaster = async (req, res) => {
       institute: institute._id,
       department: did,
       subjectType: subjectType,
+      co_attainment_count: co_attainment_count,
     });
     departmentData.departmentSubjectMasters.push(subjectMaster._id);
     departmentData.subjectMasterCount += 1;
@@ -4039,7 +4058,18 @@ exports.retrieveNewSubjectMaster = async (req, res) => {
       message: "Successfully Created Master Subject",
       subjectMaster,
     });
-  } catch {}
+    for (let list of co_attainment_list) {
+      const attainment = new Attainment({
+        ...list,
+        subject_master: subjectMaster?._id,
+      });
+      subjectMaster.co_attainment.push(attainment?._id);
+      await attainment.save();
+    }
+    await subjectMaster.save();
+  } catch (e){
+    console.log(e)
+  }
 };
 
 exports.retrieveCurrentSelectBatch = async (req, res) => {
@@ -4081,7 +4111,8 @@ exports.retrieveClass = async (req, res) => {
       )
       .populate({
         path: "subject",
-        select: "subjectName subjectTitle subjectStatus subject_category subjectOptional selected_batch_query",
+        select:
+          "subjectName subjectTitle subjectStatus subject_category subjectOptional selected_batch_query",
         populate: {
           path: "subjectTeacherName selected_batch_query",
           select:
@@ -5522,7 +5553,7 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
     var count = 0;
     var one_subject = await Subject.findById({ _id: sid })
       .select(
-        "subjectName subjectStatus subject_category subjectTitle tutorial_analytic lecture_analytic practical_analytic chapter_count topic_count_bifurgate createdAt"
+        "subjectName subjectStatus subject_category subjectTitle tutorial_analytic subjectMasterName lecture_analytic practical_analytic chapter_count topic_count_bifurgate createdAt"
       )
       .populate({
         path: "chapter",
@@ -5537,11 +5568,11 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
         select: "batchName batchStatus",
       });
 
-      if(one_subject?.chapter){
-        for (var ref of one_subject?.chapter) {
-          count += ref?.topic_count;
-        }
+    if (one_subject?.chapter) {
+      for (var ref of one_subject?.chapter) {
+        count += ref?.topic_count;
       }
+    }
     var academic_count =
       one_subject?.topic_count_bifurgate?.early +
       one_subject?.topic_count_bifurgate?.timely +

@@ -70,6 +70,27 @@ const assignmentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  copo_attainment: { type: String },
+  copo_attainment_type: { type: String },
+  assignment_total_mark: { type: Number },
+  inCompleteStudent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  subject_copo: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectAttainment",
+    },
+  ],
+  student_assignment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StudentAssignment",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Assignment", assignmentSchema);

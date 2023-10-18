@@ -51,7 +51,9 @@ exports.departmentEdit = async (req, res) => {
       if (department?.dHead) {
         const previousStaff = await Staff.findById(department.dHead);
         previousStaff.staffDepartment?.pull(department._id);
-        previousStaff.staffDesignationCount -= 1;
+        if (previousStaff?.staffDesignationCount > 0) {
+          previousStaff.staffDesignationCount -= 1;
+        }
         previousStaff.recentDesignation = "";
         await previousStaff.save();
       }
@@ -62,6 +64,15 @@ exports.departmentEdit = async (req, res) => {
       staff.staffDesignationCount += 1;
       staff.recentDesignation = department.dTitle;
       department.dHead = staff._id;
+      if (
+        department?.departmentChatGroup?.length >= 1 &&
+        department?.departmentChatGroup?.includes(`${staff._id}`)
+      ) {
+      } else {
+        department?.departmentChatGroup?.push(staff._id);
+        department.staffCount += 1;
+        await department.save();
+      }
       notify.notifyContent = `you got the designation of ${department.dName} as ${department.dTitle}`;
       notify.notifySender = institute._id;
       notify.notifyCategory = "Department Designation";
@@ -318,6 +329,9 @@ exports.classEdit = async (req, res) => {
   try {
     if (!req.params.cid) throw "Please send Class id to perform task";
     var classes = await Class.findById(req.params.cid);
+    var department = await Department.findById({
+      _id: `${classes?.department}`,
+    });
     var institute = await InstituteAdmin.findById(classes.institute);
     if (req.body.mcId) {
       const previousClassMaster = await ClassMaster.findById(
@@ -342,7 +356,9 @@ exports.classEdit = async (req, res) => {
       if (classes?.classTeacher) {
         const previousStaff = await Staff.findById(classes.classTeacher);
         previousStaff.staffClass?.pull(classes._id);
-        previousStaff.staffDesignationCount -= 1;
+        if (previousStaff?.staffDesignationCount > 0) {
+          previousStaff.staffDesignationCount -= 1;
+        }
         previousStaff.recentDesignation = "";
         await previousStaff.save();
       }
@@ -352,6 +368,15 @@ exports.classEdit = async (req, res) => {
       staff.staffClass.push(classes._id);
       staff.staffDesignationCount += 1;
       staff.recentDesignation = classes.classHeadTitle;
+      if (
+        department?.departmentChatGroup?.length >= 1 &&
+        department?.departmentChatGroup?.includes(`${staff._id}`)
+      ) {
+      } else {
+        department?.departmentChatGroup?.push(staff._id);
+        department.staffCount += 1;
+        await department.save();
+      }
       classes.classTeacher = staff._id;
       notify.notifyContent = `you got the designation of ${classes.className} as ${classes.classTitle}`;
       notify.notifySender = institute._id;
@@ -522,6 +547,9 @@ exports.subjectEdit = async (req, res) => {
     const { batch_arr, delete_arr } = req.body;
     var subject = await Subject.findById(req.params.sid);
     var classes = await Class.findById({ _id: `${subject?.class}` });
+    var department = await Department.findById({
+      _id: `${classes?.department}`,
+    });
     var institute = await InstituteAdmin.findById(classes?.institute);
     // console.log(subject);
     if (req.body?.subjectTitle) {
@@ -573,17 +601,34 @@ exports.subjectEdit = async (req, res) => {
       if (subject?.subjectTeacherName) {
         const previousStaff = await Staff.findById(subject.subjectTeacherName);
         previousStaff.staffSubject?.pull(subject._id);
-        previousStaff.staffDesignationCount -= 1;
+        if (previousStaff?.staffDesignationCount > 0) {
+          previousStaff.staffDesignationCount -= 1;
+        }
         previousStaff.recentDesignation = "";
         await previousStaff.save();
       }
-      const staff = await Staff.findById(req.body?.sid);
+      var staff = await Staff.findById(req.body?.sid);
       var user = await User.findById(staff.user);
       const notify = new Notification({});
       staff.staffSubject.push(subject._id);
       staff.staffDesignationCount += 1;
       staff.recentDesignation = subject.subjectTitle;
+      if (subject?.selected_batch_query) {
+        if (staff?.staffBatch?.includes(`${subject?.selected_batch_query}`)) {
+        } else {
+          staff.staffBatch.push(subject?.selected_batch_query);
+        }
+      }
       subject.subjectTeacherName = staff._id;
+      if (
+        department?.departmentChatGroup?.length >= 1 &&
+        department?.departmentChatGroup?.includes(`${staff?._id}`)
+      ) {
+      } else {
+        department?.departmentChatGroup?.push(staff?._id);
+        department.staffCount += 1;
+        await department.save();
+      }
       notify.notifyContent = `you got the designation of ${subject.subjectName} of ${classes?.className} as ${subject.subjectTitle}`;
       notify.notifySender = institute._id;
       notify.notifyCategory = "Subject Designation";

@@ -729,6 +729,22 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeStructure",
   },
+  student_anti_ragging: {
+    type: String,
+  },
+  student_id_card_front: {
+    type: String,
+  },
+  student_id_card_back: {
+    type: String,
+  },
+  profile_percentage: {
+    type: Number,
+    default: 0,
+  },
+  student_abc_id: {
+    type: String,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

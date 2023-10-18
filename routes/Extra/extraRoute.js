@@ -385,4 +385,9 @@ router.get(
   catchAsync(Extra.renderThreeDesignationQuery)
 );
 
+router.patch(
+  "/excel/to/json/:cid/attendence/query",
+  catchAsync(Extra.renderExcelToJSONAttendenceQuery)
+);
+
 module.exports = router;

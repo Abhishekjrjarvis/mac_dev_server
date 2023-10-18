@@ -187,6 +187,12 @@ const subjectSchema = new mongoose.Schema({
   subject_category: {
     type: String,
   },
+  subject_attainment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectAttainment",
+    },
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

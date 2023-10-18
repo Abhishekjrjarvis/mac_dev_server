@@ -326,6 +326,8 @@ exports.fee_reordering_hostel = async (
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     order.payment_invoice_number = new_receipt?.invoice_count;
     order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);

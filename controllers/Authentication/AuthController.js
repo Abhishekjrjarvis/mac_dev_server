@@ -3264,13 +3264,11 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           student.studentOptionalSubject.push(...studentOptionalSubject);
         }
         if (student?.studentGender?.toLowerCase() === "male") {
-          user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
-          student.studentProfilePhoto =
-            maleAvatar[Math.floor(Math.random() * 8)];
+          user.profilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
+          student.studentProfilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
         } else if (student?.studentGender?.toLowerCase() === "female") {
-          user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
-          student.studentProfilePhoto =
-            femaleAvatar[Math.floor(Math.random() * 8)];
+          user.profilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
+          student.studentProfilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
         } else {
         }
         for (let subjChoose of student?.studentOptionalSubject) {
@@ -3749,7 +3747,7 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
           staffFirstName: ref?.staffFirstName,
           staffMiddleName: ref?.staffMiddleName,
           staffLastName: ref?.staffLastName,
-          staffDOB: ref?.staffDOB,
+          staffDOB: ref?.staffDOB ?? "",
           staffGender: ref?.staffGender,
           staffMotherName: ref?.staffMotherName,
           staffPhoneNumber: ref?.staffPhoneNumber,
@@ -3764,11 +3762,11 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
         });
         staff.photoId = "0";
         if (staff?.staffGender?.toLowerCase() === "male") {
-          staff.staffProfilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
-          user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+          staff.staffProfilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
+          user.profilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
         } else if (staff?.staffGender?.toLowerCase() === "female") {
-          staff.staffProfilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
-          user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+          staff.staffProfilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
+          user.profilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
         } else {
         }
         for (var file of ref?.fileArray) {
@@ -4281,13 +4279,11 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
           student?.studentMiddleName ?? ""
         } ${student?.studentLastName}`;
         if (student?.studentGender?.toLowerCase() === "male") {
-          student.studentProfilePhoto =
-            maleAvatar[Math.floor(Math.random() * 8)];
-          user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+          student.studentProfilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
+          user.profilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
         } else if (student?.studentGender?.toLowerCase() === "female") {
-          student.studentProfilePhoto =
-            femaleAvatar[Math.floor(Math.random() * 8)];
-          user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+          student.studentProfilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
+          user.profilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
         } else {
         }
         const aStatus = new Status({});

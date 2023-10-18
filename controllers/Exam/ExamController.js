@@ -39,6 +39,8 @@ const {
   spi_calculate,
   grade_symbol,
 } = require("../../Utilities/custom_grade");
+const Attainment = require("../../models/Marks/Attainment");
+const SubjectAttainment = require("../../models/Marks/SubjectAttainment");
 
 exports.getClassMaster = async (req, res) => {
   try {
@@ -70,7 +72,7 @@ exports.getSubjectMaster = async (req, res) => {
             path: "subjectMasterName",
             select: "subjectName _id",
           },
-          select: "_id",
+          select: "_id subject_category",
         },
         select: "_id",
       })
@@ -78,11 +80,14 @@ exports.getSubjectMaster = async (req, res) => {
       .lean()
       .exec();
     const arr = [];
-    classMaster.classDivision?.forEach((sub) => {
-      sub.subject?.forEach((subject) => {
-        arr.push(subject);
-      });
-    });
+
+    for (let sub of classMaster.classDivision) {
+      for (let subject of sub.subject) {
+        if (subject?.subject_category === "Theory") {
+          arr.push(subject);
+        }
+      }
+    }
 
     const arr1 = [];
     for (let i = 0; i < arr?.length; i++) {
@@ -106,34 +111,49 @@ exports.getSubjectMaster = async (req, res) => {
 
 exports.createExam = async (req, res) => {
   try {
+    // add two more filed in create exam  req.body
+    // copo_attainment_type,
+    // copo_attainment
+    // copo_list [{attainmentId:"3728782", marks:12}]
+    // const { copo_list } = req.body;
     const batch = await Batch.findById(req.params.bid);
     const department = await Department.findById(batch.department);
     const exam = new Exam(req.body);
     batch.exams.push(exam._id);
     department.exams.push(exam._id);
+    department.exam_weight_left -= req.body?.examWeight ?? 0;
     exam.department = department._id;
     exam.batch = batch._id;
-
+    await Promise.all([exam.save(), batch.save(), department.save()]);
     res.status(201).send({ message: "Exam is created" });
     const allclasses = [
       ...new Set(req.body.allclasses?.map(JSON.stringify)),
     ].map(JSON.parse);
 
     for (let cid of allclasses) {
+      const classes = await Class.findById(cid).select(
+        "ApproveStudent exams _id"
+      );
+      if (classes.exams.includes(exam._id)) {
+      } else {
+        classes.exams.push(exam._id);
+        exam.class.push(cid);
+        await classes.save();
+      }
       for (let sub of req.body.allsubject) {
         for (let subId of sub.subjectIds) {
-          const subject = await Subject.findById(subId).select("class exams");
+          const subject = await Subject.findById(subId);
           if (String(subject.class) === cid) {
-            const classes = await Class.findById(cid).select(
-              "ApproveStudent exams _id"
-            );
-            if (classes.exams.includes(exam._id)) {
-            } else {
-              classes.exams.push(exam._id);
-              exam.class.push(cid);
-              await classes.save();
+            //here add batch student list
+            var all_student = classes.ApproveStudent || [];
+            if (subject?.selected_batch_query) {
+              const subject_batch = await Batch.findById(
+                subject?.selected_batch_query
+              );
+              all_student = subject_batch.class_student_query;
             }
-            for (let stu of classes.ApproveStudent) {
+
+            for (let stu of all_student) {
               const student = await Student.findById(stu);
               const user = await User.findById({ _id: `${student.user}` });
               if (student.exams.includes(exam._id)) {
@@ -145,41 +165,18 @@ exports.createExam = async (req, res) => {
                 student: student._id,
               });
               if (subjectMarks1) {
-                if (exam.examType === "Final") {
-                  let otherWeightage = 0;
-                  for (let weihtage of subjectMarks1?.marks) {
-                    if (weihtage.examType === "Other") {
-                      otherWeightage += weihtage.examWeight;
-                    }
-                  }
-                  subjectMarks1.marks.push({
-                    examId: exam._id,
-                    examName: exam.examName,
-                    examType: exam.examType,
-                    examWeight: otherWeightage,
-                    totalMarks: sub.totalMarks,
-                    date: sub.date,
-                    startTime: sub.startTime,
-                    endTime: sub.endTime,
-                  });
-                } else {
-                  subjectMarks1.marks.push({
-                    examId: exam._id,
-                    examName: exam.examName,
-                    examType: exam.examType,
-                    examWeight: exam.examWeight,
-                    totalMarks: sub.totalMarks,
-                    date: sub.date,
-                    startTime: sub.startTime,
-                    endTime: sub.endTime,
-                  });
-                }
+                subjectMarks1.marks.push({
+                  examId: exam._id,
+                  examName: exam.examName,
+                  examType: exam.examType,
+                  examWeight: exam.examWeight,
+                  totalMarks: sub.totalMarks,
+                  date: sub.date,
+                  startTime: sub.startTime,
+                  endTime: sub.endTime,
+                });
                 await subjectMarks1.save();
               } else {
-                let weight = 0;
-                if (exam.examType === "Final") {
-                  weight = 100;
-                }
                 const subjectMarks = new SubjectMarks({
                   subject: subject._id,
                   subjectName: sub.subjectName,
@@ -189,7 +186,7 @@ exports.createExam = async (req, res) => {
                   examId: exam._id,
                   examName: exam.examName,
                   examType: exam.examType,
-                  examWeight: weight < 1 ? exam.examWeight : weight,
+                  examWeight: exam.examWeight,
                   totalMarks: sub.totalMarks,
                   date: sub.date,
                   startTime: sub.startTime,
@@ -226,7 +223,64 @@ exports.createExam = async (req, res) => {
             if (subject?.exams?.includes(exam._id)) {
             } else {
               subject.exams.push(exam._id);
-              await subject.save();
+            }
+            var subject_copo_id = [];
+            if (exam?.copo_attainment === "YES") {
+              for (let copo of sub?.copo_list) {
+                let copo_weight = (
+                  (copo?.marks * 100) /
+                  sub.totalMarks
+                ).toFixed(2);
+                let copoObj = {
+                  attainment_name: exam?.examName,
+                  attainment_mark: copo?.marks,
+                  attainment_mark_weight: copo_weight,
+                  attainment_assign_type: "EXAM",
+                  examId: exam?._id,
+                  subject_student: all_student,
+                  student_count: all_student?.length,
+                  present_student_count: all_student?.length,
+                  copo_attainment_type: exam?.copo_attainment_type,
+                };
+
+                const is_sub_attainment = await SubjectAttainment.findOne({
+                  attainment: copo?.attainmentId,
+                  subject: subject?._id,
+                });
+                if (is_sub_attainment) {
+                  is_sub_attainment.attainment_assign.push(copoObj);
+                  subject_copo_id.push(is_sub_attainment?._id);
+                  await is_sub_attainment.save();
+                } else {
+                  const attainment = await Attainment.findById(
+                    copo?.attainmentId
+                  );
+
+                  const sub_attainment = new SubjectAttainment({
+                    attainment_name: attainment?.attainment_name,
+                    attainment_type: attainment?.attainment_type,
+                    attainment: attainment?._id,
+                    subject: subject?._id,
+                    class: cid,
+                    attainment_assign: [copoObj],
+                  });
+
+                  if (
+                    attainment.subject_attainment?.includes(sub_attainment?._id)
+                  ) {
+                  } else {
+                    attainment.subject_attainment.push(sub_attainment?._id);
+                  }
+                  subject_copo_id.push(sub_attainment?._id);
+                  if (
+                    subject.subject_attainment?.includes(sub_attainment._id)
+                  ) {
+                  } else {
+                    subject.subject_attainment.push(sub_attainment._id);
+                  }
+                  await Promise.all([sub_attainment.save(), attainment.save()]);
+                }
+              }
             }
             exam.subjects.push({
               subjectId: subject._id,
@@ -236,12 +290,15 @@ exports.createExam = async (req, res) => {
               startTime: sub.startTime,
               endTime: sub.endTime,
               subjectMasterId: sub._id,
+              subject_copo: subject_copo_id,
+              subject_student: all_student,
             });
+            await subject.save();
           }
         }
       }
     }
-    await Promise.all([exam.save(), batch.save(), department.save()]);
+    await exam.save();
   } catch (e) {
     console.log(e);
   }
@@ -4735,6 +4792,183 @@ exports.updateGradeSystem = async (req, res) => {
       message: "Update grade type in department 😋😊",
       access: true,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.createSubjectExam = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const {
+      copo_list,
+      totalMarks,
+      date,
+      startTime,
+      endTime,
+      subject_attachment,
+    } = req.body?.subject;
+    if (!sid) throw "Please send subject teacher id";
+    const subject = await Subject.findById(sid);
+    const classes = await Class.findById(subject?.class);
+    const batch = await Batch.findById(classes?.batch);
+    const department = await Department.findById(batch.department);
+    const exam = new Exam(req.body?.examInfo);
+    exam.exam_created_by = "SUBJECT_TEACHER";
+    batch.exams.push(exam._id);
+    department.exams.push(exam._id);
+    // department.exam_weight_left -= req.body?.examWeight ?? 0;
+    exam.department = department._id;
+    exam.batch = batch._id;
+    await Promise.all([exam.save(), batch.save(), department.save()]);
+    res.status(201).send({ message: "Exam is created" });
+
+    //here add batch student list
+    var all_student = classes.ApproveStudent || [];
+    if (subject?.selected_batch_query) {
+      const subject_batch = await Batch.findById(subject?.selected_batch_query);
+      all_student = subject_batch.class_student_query;
+    }
+    for (let stu of all_student) {
+      const student = await Student.findById(stu);
+      const user = await User.findById({ _id: `${student.user}` });
+      if (student.exams.includes(exam._id)) {
+      } else {
+        student.exams.push(exam._id);
+      }
+      const subjectMarks1 = await SubjectMarks.findOne({
+        subject: subject._id,
+        student: student._id,
+      });
+      if (subjectMarks1) {
+        subjectMarks1.marks.push({
+          examId: exam._id,
+          examName: exam.examName,
+          examType: exam.examType,
+          examWeight: exam.examWeight,
+          totalMarks: totalMarks,
+          date: date,
+          startTime: startTime,
+          endTime: endTime,
+        });
+        await subjectMarks1.save();
+      } else {
+        const subjectMarks = new SubjectMarks({
+          subject: subject._id,
+          subjectName: subject.subjectName,
+          student: student._id,
+        });
+        subjectMarks.marks.push({
+          examId: exam._id,
+          examName: exam.examName,
+          examType: exam.examType,
+          examWeight: exam.examWeight,
+          totalMarks: totalMarks,
+          date: date,
+          startTime: startTime,
+          endTime: endTime,
+        });
+        student.subjectMarks.push(subjectMarks._id);
+        await subjectMarks.save();
+      }
+      const notify = new StudentNotification({});
+      notify.notifyContent = `New ${exam.examName} Exam is created for ${subject.subjectName} , check your members tab`;
+      notify.notifySender = subject._id;
+      notify.notifyReceiever = user._id;
+      notify.examId = exam._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student._id;
+      user.activity_tab.push(notify._id);
+      student.notification.push(notify._id);
+
+      // here to add subject more notification details
+      notify.notifyBySubjectPhoto = subject._id;
+      notify.notifyCategory = "Subject Exam";
+      notify.redirectIndex = 1;
+      //
+      invokeMemberTabNotification(
+        "Student Activity",
+        notify,
+        "New Exam",
+        user._id,
+        user.deviceToken,
+        "Student",
+        notify
+      );
+      //
+      await Promise.all([student.save(), notify.save(), user.save()]);
+    }
+    if (subject?.exams?.includes(exam._id)) {
+    } else {
+      subject.exams.push(exam._id);
+    }
+    var subject_copo_id = [];
+    if (exam?.copo_attainment === "YES") {
+      for (let copo of copo_list) {
+        let copo_weight = ((copo?.marks * 100) / totalMarks).toFixed(2);
+        let copoObj = {
+          attainment_name: exam?.examName,
+          attainment_mark: copo?.marks,
+          attainment_mark_weight: copo_weight,
+          attainment_assign_type: "EXAM",
+          examId: exam?._id,
+          subject_student: all_student,
+          student_count: all_student?.length,
+          present_student_count: all_student?.length,
+          copo_attainment_type: exam?.copo_attainment_type,
+        };
+
+        const is_sub_attainment = await SubjectAttainment.findOne({
+          attainment: copo?.attainmentId,
+          subject: subject?._id,
+        });
+        if (is_sub_attainment) {
+          is_sub_attainment.attainment_assign.push(copoObj);
+          subject_copo_id.push(is_sub_attainment?._id);
+          await is_sub_attainment.save();
+        } else {
+          const attainment = await Attainment.findById(copo?.attainmentId);
+
+          const sub_attainment = new SubjectAttainment({
+            attainment_name: attainment?.attainment_name,
+            attainment_type: attainment?.attainment_type,
+            attainment: attainment?._id,
+            subject: subject?._id,
+            class: classes?._id,
+            attainment_assign: [copoObj],
+          });
+
+          if (attainment.subject_attainment?.includes(sub_attainment?._id)) {
+          } else {
+            attainment.subject_attainment.push(sub_attainment?._id);
+          }
+          subject_copo_id.push(sub_attainment?._id);
+          if (subject.subject_attainment?.includes(sub_attainment._id)) {
+          } else {
+            subject.subject_attainment.push(sub_attainment._id);
+          }
+          await Promise.all([sub_attainment.save(), attainment.save()]);
+        }
+      }
+    }
+
+    await subject.save();
+
+    classes.exams.push(exam._id);
+    exam.class.push(classes?._id);
+    exam.subjects.push({
+      subjectId: subject._id,
+      subjectName: subject.subjectName,
+      totalMarks: totalMarks,
+      date: date,
+      startTime: startTime,
+      endTime: endTime,
+      subjectMasterId: subject.subjectMasterName,
+      subject_copo: subject_copo_id,
+      subject_attachment: subject_attachment,
+      subject_student: all_student,
+    });
+    await Promise.all([classes.save(), exam.save()]);
   } catch (e) {
     console.log(e);
   }

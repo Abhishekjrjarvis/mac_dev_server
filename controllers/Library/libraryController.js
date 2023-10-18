@@ -133,9 +133,7 @@ exports.allBookByStaffSide = async (req, res) => {
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
-    if (
-      !["", undefined, ""]?.includes(req.query?.search)
-    ) {
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
       if (req.query?.flow === "ISSUE_BOOK") {
         const library = await Library.findById(req.params.lid)
           .populate({
@@ -322,7 +320,7 @@ exports.editBookByStaffSide = async (req, res) => {
       message: e.message,
     });
   }
-}
+};
 
 exports.bookIssueByStaffSide = async (req, res) => {
   try {
@@ -450,6 +448,8 @@ exports.bookColletedByStaffSide = async (req, res) => {
       order.payment_admission = library._id;
       order.payment_from = student._id;
       order.payment_student = student?._id;
+      order.payment_student_name = student?.valid_full_name;
+      order.payment_student_gr = student?.studentGRNO;
       institute.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
@@ -924,6 +924,8 @@ exports.renderFineChargesCollectOfflineQuery = async (req, res) => {
     order.payment_admission = lib._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1

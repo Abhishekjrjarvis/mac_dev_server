@@ -104,6 +104,12 @@ const orderPaymentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Student",
   },
+  payment_student_name: {
+    type: String,
+  },
+  payment_student_gr: {
+    type: String,
+  },
   // payment_expense_by_end_user_id: {
   //   type: mongoose.Schema.Types.ObjectId,
   //   ref: "InstituteAdmin",

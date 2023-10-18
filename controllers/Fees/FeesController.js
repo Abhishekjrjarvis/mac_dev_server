@@ -187,6 +187,8 @@ exports.feesPaidByStudent = async (req, res) => {
           order.payment_fee = fData._id;
           order.payment_from = student._id;
           order.payment_student = student?._id;
+          order.payment_student_name = student?.valid_full_name;
+          order.payment_student_gr = student?.studentGRNO;
           institute.invoice_count += 1;
           user.payment_history.push(order._id);
           institute.payment_history.push(order._id);

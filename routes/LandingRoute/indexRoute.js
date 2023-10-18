@@ -120,4 +120,19 @@ router.patch(
 
 router.get("/:id/one/web/profile", catchAsync(Landing.renderOneWebProfile));
 
+router.get(
+  "/:aid/academic/section/query",
+  catchAsync(Landing.renderAcademicSectionQuery)
+);
+
+router.post(
+  "/:id/new/academic/section/query",
+  catchAsync(Landing.renderNewAcademicSectionQuery)
+);
+
+router.patch(
+  "/:aid/exist/academic/section/query",
+  catchAsync(Landing.renderExistAcademicSectionQuery)
+);
+
 module.exports = router;

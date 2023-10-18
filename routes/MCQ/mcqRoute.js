@@ -146,4 +146,9 @@ router.patch(
   catchAsync(mcqController.renderOneAssignmentEditQuery)
 );
 
+router.delete(
+  "/one/:aid/assignment/destroy/query",
+  catchAsync(mcqController.renderOneAssignmentDestroyQuery)
+);
+
 module.exports = router;

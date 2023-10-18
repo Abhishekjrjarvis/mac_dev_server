@@ -227,4 +227,8 @@ router
   .route("/exam/grade/:gid/update")
   .patch(catchAsync(examController.updateGradeSystem));
 
+router
+  .route("/create/subject/:sid/query")
+  .post(catchAsync(examController.createSubjectExam));
+
 module.exports = router;

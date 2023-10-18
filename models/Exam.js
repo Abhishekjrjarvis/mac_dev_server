@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 const examSchema = new mongoose.Schema({
   examName: { type: String, required: true },
-  examType: { type: String, required: true },
-  examMode: { type: String, required: true },
-  examWeight: { type: Number },
+  examType: { type: String, default: "Not spceified" },
+  examMode: { type: String, default: "Not spceified" },
+  examWeight: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
   department: {
     type: mongoose.Schema.Types.ObjectId,
@@ -52,6 +52,25 @@ const examSchema = new mongoose.Schema({
           ref: "Seating",
         },
       ],
+      subject_copo: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "SubjectAttainment",
+        },
+      ],
+      subject_attachment: [
+        {
+          documentName: "",
+          documentKey: "",
+          documentType: "",
+        },
+      ],
+      subject_student: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Student",
+        },
+      ],
     },
   ],
   seating_sequence: [
@@ -84,6 +103,11 @@ const examSchema = new mongoose.Schema({
     type: String,
     default: "Not Send",
   },
+  copo_attainment: { type: String },
+  copo_attainment_type: { type: String },
+
+  // EXAM, SUBJECT_TEACHER  EVALUATION
+  exam_created_by: { type: String, default: "EXAM" },
 });
 
 const Exam = mongoose.model("Exam", examSchema);

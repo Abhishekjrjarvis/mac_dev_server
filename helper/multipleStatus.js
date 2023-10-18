@@ -319,6 +319,8 @@ exports.fee_reordering = async (
     order.payment_admission = apply._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     order.payment_invoice_number = new_receipt?.invoice_count;
     order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
@@ -717,6 +719,8 @@ exports.fee_reordering_direct_student_payload = async (
               order.payment_admission = apply._id;
               order.payment_from = student._id;
               order.payment_student = student?._id;
+              order.payment_student_name = student?.valid_full_name;
+              order.payment_student_gr = student?.studentGRNO;
               institute.invoice_count += 1;
               user.payment_history.push(order._id);
               order.fee_receipt = new_receipt?._id;
@@ -894,6 +898,8 @@ exports.fee_reordering_direct_student_payload = async (
               order.payment_admission = apply._id;
               order.payment_from = student._id;
               order.payment_student = student?._id;
+              order.payment_student_name = student?.valid_full_name;
+              order.payment_student_gr = student?.studentGRNO;
               order.payment_invoice_number = new_receipt?.invoice_count;
               user.payment_history.push(order._id);
               institute.payment_history.push(order._id);
@@ -1106,6 +1112,8 @@ exports.fee_reordering_direct_student_payload_exist_query = async (
               order.payment_admission = apply._id;
               order.payment_from = student._id;
               order.payment_student = student?._id;
+              order.payment_student_name = student?.valid_full_name;
+              order.payment_student_gr = student?.studentGRNO;
               institute.invoice_count += 1;
               user.payment_history.push(order._id);
               order.fee_receipt = new_receipt?._id;
@@ -1283,6 +1291,8 @@ exports.fee_reordering_direct_student_payload_exist_query = async (
               order.payment_admission = apply._id;
               order.payment_from = student._id;
               order.payment_student = student?._id;
+              order.payment_student_name = student?.valid_full_name;
+              order.payment_student_gr = student?.studentGRNO;
               order.payment_invoice_number = new_receipt?.invoice_count;
               user.payment_history.push(order._id);
               institute.payment_history.push(order._id);

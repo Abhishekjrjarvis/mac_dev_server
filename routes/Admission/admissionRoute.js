@@ -618,4 +618,15 @@ router.patch(
   catchAsync(Admission.renderCardFeeHeadsQuery)
 );
 
+router.patch("/remove/dup/card", catchAsync(Admission.render_remove_dup_heads));
+
+// Fixing Old Student Data
+
+router.patch(
+  "/all/old/data/receipt",
+  catchAsync(Admission.render_old_data_receipt_query)
+);
+
+//
+
 module.exports = router;

@@ -4441,6 +4441,8 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
     order.payment_finance = finance?._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     institute.invoice_count += 1;
     order.payment_invoice_number = `${
       new Date().getMonth() + 1

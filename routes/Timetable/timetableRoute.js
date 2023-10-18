@@ -37,4 +37,9 @@ router
 router
   .route("/sync/staff/:sid/schedule")
   .get(catchAsync(timetable.getSyncWiseStaffQuery));
+
+router.delete(
+  "/:tid/destroy/query",
+  catchAsync(timetable.renderDestroyScheduleQuery)
+);
 module.exports = router;

@@ -10,6 +10,7 @@ const {
   // staffSideFromTimeComparison,
 } = require("../../Utilities/timeComparison");
 const { custom_date_time } = require("../../helper/dayTimer");
+const { get_day_wise_sort } = require("./timetableHelper");
 // const Student = require("../../models/Student");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
@@ -46,10 +47,15 @@ exports.getDayWiseSchedule = async (req, res) => {
       .lean()
       .exec();
     if (classes?.timetableDayWise?.[0]) {
+      let modify_obj = {
+        ...classes.timetableDayWise?.[0],
+        schedule: get_day_wise_sort(classes.timetableDayWise?.[0]?.schedule),
+      };
+
       // const cEncrypt = await encryptionPayload(classes.timetableDayWise?.[0]);
       res.status(200).send({
         message: "Day wise all schedule list",
-        dayList: classes.timetableDayWise?.[0],
+        dayList: modify_obj,
       });
     } else {
       res.status(200).send({
@@ -670,7 +676,6 @@ exports.getStudentSideDateWise = async (req, res) => {
   }
 };
 
-
 const DayName = [
   "Monday",
   "Tuesday",
@@ -710,7 +715,7 @@ exports.getSyncWiseStudentQuery = async (req, res) => {
     };
 
     for (let timet of timetable) {
-      syncDay[timet.day] = timet.schedule;
+      syncDay[timet.day] = get_day_wise_sort(timet?.schedule);
     }
     // const studentEncrypt = await encryptionPayload(syncDay);
     res.status(200).send({
@@ -772,13 +777,16 @@ exports.getSyncWiseStaffQuery = async (req, res) => {
           classTitle: sub?.class?.classTitle,
           schedule: [],
         };
+        let not_sort_scheudle = [];
         for (let timet of ttable?.schedule) {
           if (String(sub?._id) === String(timet?.subject?._id)) {
-            synObj.schedule.push({
+            not_sort_scheudle.push({
               ...timet,
             });
           }
         }
+
+        synObj.schedule = get_day_wise_sort(not_sort_scheudle);
         syncDay[ttable.day]?.push(synObj);
       }
     }
@@ -790,5 +798,52 @@ exports.getSyncWiseStaffQuery = async (req, res) => {
   } catch (e) {
     res.status(200).send({ message: e });
     // console.log(e);
+  }
+};
+
+exports.renderDestroyScheduleQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    const { flow, scid } = req?.query;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var valid_table = await ClassTimetable.findById({ _id: tid });
+    var classes = await Class.findById({ _id: `${valid_table?.class}` });
+    if (flow === "ENTIRE") {
+      if (classes?.timetableDayWise?.includes(`${valid_table?._id}`)) {
+        classes.timetableDayWise.pull(valid_table?._id);
+      }
+      if (classes?.timetableDateWise?.includes(`${valid_table?._id}`)) {
+        classes.timetableDateWise.pull(valid_table?._id);
+      }
+      await classes.save();
+      await ClassTimetable.findByIdAndDelete(valid_table?._id);
+      res.status(200).send({
+        message: "Explore Entire Timetable Deletion Operation Completed",
+        access: true,
+      });
+    } else if (flow === "PARTICULAR") {
+      for (var ref of valid_table?.schedule) {
+        if (`${ref?._id}` === `${scid}`) {
+          valid_table.schedule.pull(ref?._id);
+        }
+      }
+      await valid_table.save();
+      res.status(200).send({
+        message: "Explore Particular Timetable Deletion Operation Completed",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "Invalid Flow",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
   }
 };

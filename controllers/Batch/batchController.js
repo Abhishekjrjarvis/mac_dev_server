@@ -205,7 +205,7 @@ exports.preformedStructure = async (req, res) => {
           lecture_analytic: oneSubject?.lecture_analytic,
           practical_analytic: oneSubject?.practical_analytic,
           tutorial_analytic: oneSubject?.tutorial_analytic,
-          subject_category: oneSubject?.subject_category
+          subject_category: oneSubject?.subject_category,
         });
         subjectMaster?.subjects.push(identicalSubject._id);
         subjectMaster.subjectCount += 1;
@@ -1281,45 +1281,86 @@ exports.subjectCreditUpdate = async (req, res) => {
 
 exports.undo = async (req, res) => {
   try {
-    const { cid } = req.query;
+    const { cid, flow } = req.query;
+    const { arr } = req?.body;
     const classes = await Class.findById(cid);
     // var arr = ["6480892ebff5c201991e3297"];
-    for (var stu of classes?.promoteStudent) {
-      // for (var stu of arr) {
-      var student = await Student.findById(stu);
-      var cls = await Class.findById(student?.studentClass);
-      cls.ApproveStudent.pull(student?._id);
-      await cls.save();
-      var prevL = student?.previousYearData?.length - 1;
-      var preStudent = await StudentPreviousData.findById(
-        student.previousYearData[prevL]
-      );
+    if (flow === "FULL_CLASS") {
+      for (var stu of classes?.promoteStudent) {
+        // for (var stu of arr) {
+        var student = await Student.findById(stu);
+        var cls = await Class.findById(student?.studentClass);
+        cls.ApproveStudent.pull(student?._id);
+        await cls.save();
+        var prevL = student?.previousYearData?.length - 1;
+        var preStudent = await StudentPreviousData.findById(
+          student.previousYearData[prevL]
+        );
 
-      student.studentCode = preStudent.studentCode;
-      student.studentClass = preStudent.studentClass;
-      student.batches = preStudent.batches;
-      student.studentROLLNO = preStudent.studentROLLNO;
-      student.studentBehaviour = preStudent.studentBehaviour;
-      student.department = preStudent.department;
-      student.institute = preStudent.institute;
-      var remain_card = await RemainingList.findOne({
-        fee_structure: `${student?.fee_structure}`,
-      });
-      student.remainingFeeList.pull(remain_card?._id);
-      if (student?.remainingFeeList_count > 0) {
-        student.remainingFeeList_count -= 1;
+        student.studentCode = preStudent.studentCode;
+        student.studentClass = preStudent.studentClass;
+        student.batches = preStudent.batches;
+        student.studentROLLNO = preStudent.studentROLLNO;
+        student.studentBehaviour = preStudent.studentBehaviour;
+        student.department = preStudent.department;
+        student.institute = preStudent.institute;
+        var remain_card = await RemainingList.findOne({
+          fee_structure: `${student?.fee_structure}`,
+        });
+        student.remainingFeeList.pull(remain_card?._id);
+        if (student?.remainingFeeList_count > 0) {
+          student.remainingFeeList_count -= 1;
+        }
+        if (student?.admissionRemainFeeCount >= remain_card?.remaining_fee) {
+          student.admissionRemainFeeCount -= remain_card.remaining_fee;
+        }
+        await RemainingList.findByIdAndDelete(remain_card?._id);
+        student.fee_structure = preStudent?.fee_structure;
+        await student.save();
+        var clsPrev = await Class.findById(student?.studentClass);
+        clsPrev.promoteStudent.pull(student?._id);
+        await clsPrev.save();
       }
-      if (student?.admissionRemainFeeCount >= remain_card?.remaining_fee) {
-        student.admissionRemainFeeCount -= remain_card.remaining_fee;
+      res.status(200).send({ message: "UNDO", access: true });
+    } else if (flow === "PARTICULAR_STUDENT") {
+      for (var stu of arr) {
+        var student = await Student.findById(stu);
+        var cls = await Class.findById(student?.studentClass);
+        cls.ApproveStudent.pull(student?._id);
+        await cls.save();
+        var prevL = student?.previousYearData?.length - 1;
+        var preStudent = await StudentPreviousData.findById(
+          student.previousYearData[prevL]
+        );
+
+        student.studentCode = preStudent.studentCode;
+        student.studentClass = preStudent.studentClass;
+        student.batches = preStudent.batches;
+        student.studentROLLNO = preStudent.studentROLLNO;
+        student.studentBehaviour = preStudent.studentBehaviour;
+        student.department = preStudent.department;
+        student.institute = preStudent.institute;
+        var remain_card = await RemainingList.findOne({
+          fee_structure: `${student?.fee_structure}`,
+        });
+        student.remainingFeeList.pull(remain_card?._id);
+        if (student?.remainingFeeList_count > 0) {
+          student.remainingFeeList_count -= 1;
+        }
+        if (student?.admissionRemainFeeCount >= remain_card?.remaining_fee) {
+          student.admissionRemainFeeCount -= remain_card.remaining_fee;
+        }
+        await RemainingList.findByIdAndDelete(remain_card?._id);
+        student.fee_structure = preStudent?.fee_structure;
+        await student.save();
+        var clsPrev = await Class.findById(student?.studentClass);
+        clsPrev.promoteStudent.pull(student?._id);
+        await clsPrev.save();
       }
-      await RemainingList.findByIdAndDelete(remain_card?._id);
-      student.fee_structure = preStudent?.fee_structure;
-      await student.save();
-      var clsPrev = await Class.findById(student?.studentClass);
-      clsPrev.promoteStudent.pull(student?._id);
-      await clsPrev.save();
+      res.status(200).send({ message: "UNDO", access: true });
+    } else {
+      res.status(200).send({ message: "INVALID FLOW", access: false });
     }
-    res.status(200).send({ message: "UNDO" });
   } catch (e) {
     console.log(e);
   }

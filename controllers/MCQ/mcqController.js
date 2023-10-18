@@ -17,6 +17,8 @@ const SubjectMarks = require("../../models/Marks/SubjectMarks");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const Exam = require("../../models/Exam");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
+const SubjectAttainment = require("../../models/Marks/SubjectAttainment");
+const Attainment = require("../../models/Marks/Attainment");
 const {
   dateTimeComparison,
   timeComparison,
@@ -1430,11 +1432,15 @@ exports.getAssignment = async (req, res) => {
 
 exports.createAssignment = async (req, res) => {
   try {
+    const { copo_list: copo, total_mark } = req.body;
     const subject = await Subject.findById(req.params.sid);
     const assignment = new Assignment(req.body);
     // console.log(req.body);
     assignment.subject = req.params.sid;
+    assignment.assignment_total_mark = +total_mark;
     const students = JSON.parse(req.body.students);
+    var copo_list = [];
+    if (copo) copo_list = JSON.parse(copo);
     if (req?.files) {
       for (let file of req?.files) {
         const obj = {
@@ -1473,7 +1479,9 @@ exports.createAssignment = async (req, res) => {
         dueDate: assignment?.dueDate,
         descritpion: assignment?.descritpion,
         files: assignment?.files,
+        assignment_total_mark: +total_mark,
       });
+      assignment.student_assignment.push(studentAssignment?._id);
       for (let test of assignment?.testSet) {
         const testSet = await SubjectMasterTestSet.findById(test);
         const obj = {
@@ -1526,6 +1534,58 @@ exports.createAssignment = async (req, res) => {
         user.save(),
       ]);
     }
+    var subject_copo_id = [];
+    if (assignment?.copo_attainment === "YES") {
+      for (let copo of copo_list) {
+        let copo_weight = ((copo?.marks * 100) / total_mark).toFixed(2);
+        let copoObj = {
+          attainment_name: assignment?.assignmentName,
+          attainment_mark: copo?.marks,
+          attainment_mark_weight: copo_weight,
+          attainment_assign_type: "ASSIGNMENT",
+          assignmentId: assignment?._id,
+          subject_student: students,
+          student_count: students?.length,
+          present_student_count: students?.length,
+          copo_attainment_type: assignment?.copo_attainment_type,
+        };
+
+        const is_sub_attainment = await SubjectAttainment.findOne({
+          attainment: copo?.attainmentId,
+          subject: subject?._id,
+        });
+        if (is_sub_attainment) {
+          is_sub_attainment.attainment_assign.push(copoObj);
+          subject_copo_id.push(is_sub_attainment?._id);
+          await is_sub_attainment.save();
+        } else {
+          const attainment = await Attainment.findById(copo?.attainmentId);
+
+          const sub_attainment = new SubjectAttainment({
+            attainment_name: attainment?.attainment_name,
+            attainment_type: attainment?.attainment_type,
+            attainment: attainment?._id,
+            subject: subject?._id,
+            class: subject?.class,
+            attainment_assign: [copoObj],
+          });
+
+          if (attainment.subject_attainment?.includes(sub_attainment?._id)) {
+          } else {
+            attainment.subject_attainment.push(sub_attainment?._id);
+          }
+          subject_copo_id.push(sub_attainment?._id);
+          if (subject.subject_attainment?.includes(sub_attainment._id)) {
+          } else {
+            subject.subject_attainment.push(sub_attainment._id);
+          }
+          await Promise.all([sub_attainment.save(), attainment.save()]);
+        }
+      }
+    }
+    assignment.subject_copo = subject_copo_id;
+
+    await Promise.all([assignment.save(), subject.save()]);
   } catch (e) {
     console.log(e);
   }
@@ -1641,7 +1701,7 @@ exports.getOneAssignmentOneStudentDetail = async (req, res) => {
           select: "testTotalQuestion testTotalNumber testName",
         },
         select:
-          "assignmentName dueDate studentDescritpion studentFiles submmittedDate testSet assignmentSubmit",
+          "assignmentName dueDate studentDescritpion studentFiles submmittedDate testSet assignmentSubmit assignment_obtain_mark assignment_total_mark",
       })
       .select(
         "studentFirstName studentMiddleName studentLastName studentROLLNO assignments"
@@ -1658,6 +1718,7 @@ exports.getOneAssignmentOneStudentDetail = async (req, res) => {
 
 exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
   try {
+    const { obtain_marks } = req.body;
     const student = await Student.findById(req.params.sid)
       .populate({
         path: "assignments",
@@ -1671,6 +1732,7 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
       student?.assignments[0]._id
     );
     assignment.assignmentSubmit = req.body.assignmentSubmit;
+    assignment.assignment_obtain_mark = obtain_marks;
     const subjectAssignment = await Assignment.findById(
       assignment.assignment
     ).populate({
@@ -1983,6 +2045,60 @@ exports.renderOneAssignmentEditQuery = async (req, res) => {
       message: "Explore One Assignment Edit Query",
       access: true,
     });
+    var assign = await Assignment.findById({ _id: aid });
+    var all_stu_assign = await StudentAssignment.find({ assignment: aid });
+    for (var ref of all_stu_assign) {
+      ref.assignment = assign?._id;
+      ref.assignmentName = assign?.assignmentName;
+      ref.assignment = assign?._id;
+      ref.subject = assign?.subject;
+      ref.dueDate = assign?.dueDate;
+      ref.descritpion = assign?.descritpion;
+      ref.files = assign?.files;
+      await ref.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneAssignmentDestroyQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var assign = await Assignment.findById({ _id: aid });
+    if (assign?.submittedStudent?.length > 0) {
+      res
+        .status(200)
+        .send({ message: "Assignment Can Not Be Deleted", access: false });
+    } else {
+      var subject = await Subject.findById({ _id: `${assign?.subject}` });
+      var stu_assign = await StudentAssignment.find({
+        assignment: assign?._id,
+      });
+      if (subject?.assignments?.includes(`${assign?._id}`)) {
+        subject.assignments.pull(assign?._id);
+      }
+      await subject.save();
+      for (var ref of stu_assign) {
+        var student = await Student.findById({ _id: `${ref?.student}` });
+        if (student?.assignments?.includes(`${ref?._id}`)) {
+          student.assignments.pull(ref?._id);
+        }
+        await student.save();
+        await StudentAssignment.findByIdAndDelete(ref?._id);
+      }
+      await Assignment.findByIdAndDelete(assign?._id);
+      res.status(200).send({
+        message: "Explore Assignment Deletion Operation Completed",
+        access: true,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

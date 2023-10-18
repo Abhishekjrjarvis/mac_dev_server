@@ -153,6 +153,9 @@ exports.render_new_subject_query = async (arr, cid) => {
         subjectMaster.subjects.push(subject._id);
         subjectMaster.subjectCount += 1;
         subject.class = classes._id;
+        if (ref?.selected_batch) {
+          subject.selected_batch_query = ref?.selected_batch;
+        }
         await Promise.all([subjectMaster.save(), subject.save()]);
       }
       await Promise.all([classes.save(), depart.save()]);

@@ -55,6 +55,26 @@ const subjectMasterSchema = new mongoose.Schema({
     type: Number,
     default: 10,
   },
+  co_attainment_count: {
+    type: Number,
+    default: 0,
+  },
+  co_attainment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Attainment",
+    },
+  ],
+  po_attainment_count: {
+    type: Number,
+    default: 0,
+  },
+  po_attainment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Attainment",
+    },
+  ],
 });
 
 const SubjectMaster = mongoose.model("SubjectMaster", subjectMasterSchema);

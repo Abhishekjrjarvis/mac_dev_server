@@ -530,6 +530,8 @@ const instituteAdminSchema = new mongoose.Schema({
       nonCreamyLayerCertificate: { type: Boolean, default: false },
     },
     bankDetails: { type: Boolean, default: false },
+    anti_ragging: { type: Boolean, default: false },
+    id_card: { type: Boolean, default: false },
   },
   staff_category: {
     boyCount: { type: Number, default: 0 },
@@ -606,6 +608,8 @@ const instituteAdminSchema = new mongoose.Schema({
       nonCreamyLayerCertificate: { type: Boolean, default: false },
     },
     bankDetails: { type: Boolean, default: false },
+    anti_ragging: { type: Boolean, default: false },
+    id_card: { type: Boolean, default: false },
   },
   next_date: {
     type: String,
@@ -960,6 +964,13 @@ const instituteAdminSchema = new mongoose.Schema({
       message_type: {
         type: String,
       },
+      from: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff",
+      },
+      from_name: {
+        type: String,
+      },
     },
   ],
   transport_linked_status: {
@@ -967,6 +978,10 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   hostel_linked_status: {
     type: String,
+  },
+  academic_module: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Academic",
   },
 });
 

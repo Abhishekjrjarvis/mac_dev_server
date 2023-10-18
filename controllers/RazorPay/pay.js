@@ -386,10 +386,16 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           ],
           $or: [
             {
-              razorpay_payment_id: { $regex: search, $options: "i" },
+              razorpay_payment_id: { $regex: `${search}`, $options: "i" },
             },
             {
-              payment_invoice_number: { $regex: search, $options: "i" },
+              payment_invoice_number: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_student_name: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_student_gr: { $regex: `${search}`, $options: "i" },
             },
           ],
         })
@@ -399,13 +405,6 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           )
           .populate({
             path: "payment_student",
-            match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
-              studentGRNO: { $regex: `${search}`, $options: "i" },
-            },
             select:
               "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
             populate: {
@@ -522,10 +521,16 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           ],
           $or: [
             {
-              razorpay_payment_id: { $regex: search, $options: "i" },
+              razorpay_payment_id: { $regex: `${search}`, $options: "i" },
             },
             {
-              payment_invoice_number: { $regex: search, $options: "i" },
+              payment_invoice_number: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_student_name: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_student_gr: { $regex: `${search}`, $options: "i" },
             },
           ],
         })
@@ -535,13 +540,6 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           )
           .populate({
             path: "payment_student",
-            match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
-              studentGRNO: { $regex: `${search}`, $options: "i" },
-            },
             select:
               "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
             populate: {
@@ -677,10 +675,16 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           ],
           $or: [
             {
-              razorpay_payment_id: { $regex: search, $options: "i" },
+              razorpay_payment_id: { $regex: `${search}`, $options: "i" },
             },
             {
-              payment_invoice_number: { $regex: search, $options: "i" },
+              payment_invoice_number: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_student_name: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_student_gr: { $regex: `${search}`, $options: "i" },
             },
           ],
         })
@@ -823,10 +827,16 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           ],
           $or: [
             {
-              razorpay_payment_id: { $regex: search, $options: "i" },
+              razorpay_payment_id: { $regex: `${search}`, $options: "i" },
             },
             {
-              payment_invoice_number: { $regex: search, $options: "i" },
+              payment_invoice_number: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_student_name: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_student_gr: { $regex: `${search}`, $options: "i" },
             },
           ],
         })
@@ -836,13 +846,6 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           )
           .populate({
             path: "payment_student",
-            match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
-              studentGRNO: { $regex: `${search}`, $options: "i" },
-            },
             select:
               "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
             populate: {

@@ -1175,6 +1175,8 @@ exports.renderTransportStudentCollect = async (req, res) => {
     order.payment_transport = one_vehicle._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     order.fee_receipt = new_receipt?._id;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
@@ -1441,6 +1443,8 @@ exports.renderTransportStudentExempt = async (req, res) => {
     order.payment_transport = one_vehicle._id;
     order.payment_from = student._id;
     order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     order.fee_receipt = new_receipt?._id;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${
@@ -2725,6 +2729,9 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     order.payment_mode = mode;
     order.payment_transport = one_vehicle._id;
     order.payment_from = student._id;
+    order.payment_student = student?._id;
+    order.payment_student_name = student?.valid_full_name;
+    order.payment_student_gr = student?.studentGRNO;
     order.fee_receipt = new_receipt?._id;
     institute.invoice_count += 1;
     new_receipt.invoice_count = `${

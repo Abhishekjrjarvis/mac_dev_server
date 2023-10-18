@@ -832,105 +832,209 @@ exports.getNotifications = async (req, res) => {
 
 exports.getAllUserActivity = async (req, res) => {
   try {
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const id = req.params.id;
-    const skip = (page - 1) * limit;
-
-    const user = await User.findById({ _id: id }).populate({
+    var page = req.query.page ? parseInt(req.query.page) : 1;
+    var limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    var id = req.params.id;
+    var skip = (page - 1) * limit;
+    var { category } = req?.query;
+    var user = await User.findById({ _id: id }).populate({
       path: "activity_tab",
     });
 
-    const notify = await StudentNotification.find({
-      _id: { $in: user?.activity_tab },
-    })
-      .populate({
-        path: "notifyByInsPhoto",
-        select: "photoId insProfilePhoto name insName",
+    if (category) {
+      var notify = await StudentNotification.find({
+        $and: [
+          {
+            _id: { $in: user?.activity_tab },
+          },
+          {
+            notifyCategory: { $regex: `${category}`, $options: "i" },
+          },
+        ],
       })
-      .populate({
-        path: "notifyByStaffPhoto",
-        select:
-          "photoId staffProfilePhoto staffFirstName staffMiddleName staffLastName",
-      })
-      .populate({
-        path: "notifyByStudentPhoto",
-        select:
-          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
-      })
-      .populate({
-        path: "notifyByDepartPhoto",
-        select: "coverId cover dName",
-      })
-      .populate({
-        path: "notifyByClassPhoto",
-        select: "coverId cover className",
-      })
-      .populate({
-        path: "notifyByFinancePhoto",
-        select: "coverId cover",
-      })
-      .populate({
-        path: "notifyByAdmissionPhoto",
-        select: "coverId cover institute",
-        populate: {
-          path: "institute",
-          select: "insName name photoId insProfilePhoto",
-        },
-      })
-      .populate({
-        path: "notifyByHostelPhoto",
-        select: "coverId cover institute",
-        populate: {
-          path: "institute",
-          select: "insName name photoId insProfilePhoto",
-        },
-      })
-      .populate({
-        path: "notifyByEventManagerPhoto",
-        select: "event_photo photoId",
-      })
-      .populate({
-        path: "election_winner",
-        select:
-          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
-      })
-      .populate({
-        path: "participate_winner",
-        select:
-          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
-      })
-      .populate({
-        path: "queryId",
-      })
-      .populate({
-        path: "seatingId",
-        populate: {
-          path: "seat_block_staff",
+        .populate({
+          path: "notifyByInsPhoto",
+          select: "photoId insProfilePhoto name insName",
+        })
+        .populate({
+          path: "notifyByStaffPhoto",
           select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
-        },
-      })
-      .populate({
-        path: "seatingId",
-        populate: {
-          path: "seat_block_class",
-          select: "className classTitle classStatus classTeacher",
+            "photoId staffProfilePhoto staffFirstName staffMiddleName staffLastName",
+        })
+        .populate({
+          path: "notifyByStudentPhoto",
+          select:
+            "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
+        })
+        .populate({
+          path: "notifyByDepartPhoto",
+          select: "coverId cover dName",
+        })
+        .populate({
+          path: "notifyByClassPhoto",
+          select: "coverId cover className",
+        })
+        .populate({
+          path: "notifyByFinancePhoto",
+          select: "coverId cover",
+        })
+        .populate({
+          path: "notifyByAdmissionPhoto",
+          select: "coverId cover institute",
           populate: {
-            path: "classTeacher",
+            path: "institute",
+            select: "insName name photoId insProfilePhoto",
+          },
+        })
+        .populate({
+          path: "notifyByHostelPhoto",
+          select: "coverId cover institute",
+          populate: {
+            path: "institute",
+            select: "insName name photoId insProfilePhoto",
+          },
+        })
+        .populate({
+          path: "notifyByEventManagerPhoto",
+          select: "event_photo photoId",
+        })
+        .populate({
+          path: "election_winner",
+          select:
+            "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
+        })
+        .populate({
+          path: "participate_winner",
+          select:
+            "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
+        })
+        .populate({
+          path: "queryId",
+        })
+        .populate({
+          path: "seatingId",
+          populate: {
+            path: "seat_block_staff",
             select:
               "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
           },
-        },
+        })
+        .populate({
+          path: "seatingId",
+          populate: {
+            path: "seat_block_class",
+            select: "className classTitle classStatus classTeacher",
+            populate: {
+              path: "classTeacher",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+            },
+          },
+        })
+        .populate({
+          path: "fee_receipt",
+        })
+        .sort("-notifyTime");
+      res.status(200).send({ message: "All Activity", activity: notify });
+    } else {
+      var notify = await StudentNotification.find({
+        $and: [
+          {
+            _id: { $in: user?.activity_tab },
+          },
+          {
+            notifyCategory: { $ne: "Reminder Alert" },
+          },
+        ],
       })
-      .populate({
-        path: "fee_receipt",
-      })
-      .sort("-notifyTime")
-      .limit(limit)
-      .skip(skip);
-    // const aEncrypt = await encryptionPayload(notify);
-    res.status(200).send({ message: "All Activity", activity: notify });
+        .populate({
+          path: "notifyByInsPhoto",
+          select: "photoId insProfilePhoto name insName",
+        })
+        .populate({
+          path: "notifyByStaffPhoto",
+          select:
+            "photoId staffProfilePhoto staffFirstName staffMiddleName staffLastName",
+        })
+        .populate({
+          path: "notifyByStudentPhoto",
+          select:
+            "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
+        })
+        .populate({
+          path: "notifyByDepartPhoto",
+          select: "coverId cover dName",
+        })
+        .populate({
+          path: "notifyByClassPhoto",
+          select: "coverId cover className",
+        })
+        .populate({
+          path: "notifyByFinancePhoto",
+          select: "coverId cover",
+        })
+        .populate({
+          path: "notifyByAdmissionPhoto",
+          select: "coverId cover institute",
+          populate: {
+            path: "institute",
+            select: "insName name photoId insProfilePhoto",
+          },
+        })
+        .populate({
+          path: "notifyByHostelPhoto",
+          select: "coverId cover institute",
+          populate: {
+            path: "institute",
+            select: "insName name photoId insProfilePhoto",
+          },
+        })
+        .populate({
+          path: "notifyByEventManagerPhoto",
+          select: "event_photo photoId",
+        })
+        .populate({
+          path: "election_winner",
+          select:
+            "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
+        })
+        .populate({
+          path: "participate_winner",
+          select:
+            "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
+        })
+        .populate({
+          path: "queryId",
+        })
+        .populate({
+          path: "seatingId",
+          populate: {
+            path: "seat_block_staff",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          },
+        })
+        .populate({
+          path: "seatingId",
+          populate: {
+            path: "seat_block_class",
+            select: "className classTitle classStatus classTeacher",
+            populate: {
+              path: "classTeacher",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+            },
+          },
+        })
+        .populate({
+          path: "fee_receipt",
+        })
+        .sort("-notifyTime")
+        .limit(limit)
+        .skip(skip);
+      // const aEncrypt = await encryptionPayload(notify);
+      res.status(200).send({ message: "All Activity", activity: notify });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -953,6 +1057,18 @@ exports.getAllTotalCount = async (req, res) => {
       $and: [
         { _id: { $in: user?.activity_tab } },
         { notifyViewStatus: "Not View" },
+        {
+          notifyCategory: { $ne: "Reminder Alert" },
+        },
+      ],
+    });
+    const student_message = await StudentNotification.find({
+      $and: [
+        { _id: { $in: user?.activity_tab } },
+        { notifyViewStatus: "Not View" },
+        {
+          notifyCategory: "Reminder Alert",
+        },
       ],
     });
     const announcements = await InsAnnouncement.find({
@@ -973,7 +1089,7 @@ exports.getAllTotalCount = async (req, res) => {
       }
     }
     // total = total + notify?.length + activity?.length + counts;
-    total = total + notify?.length + activity?.length;
+    total = total + notify?.length + activity?.length + student_message?.length;
     // Add Another Encryption
     res.status(200).send({
       message: "Not Viewed Notification & Activity",
@@ -981,6 +1097,7 @@ exports.getAllTotalCount = async (req, res) => {
       notifyCount: notify?.length,
       activityCount: activity?.length,
       announcementCount: counts ? 0 : 0,
+      student_message: student_message?.length,
     });
   } catch (e) {
     console.log(e);
@@ -1012,10 +1129,29 @@ exports.retrieveMarkAllView = async (req, res) => {
         $and: [
           { _id: { $in: user?.activity_tab } },
           { notifyViewStatus: "Not View" },
+          {
+            notifyCategory: { $ne: "Reminder Alert" },
+          },
         ],
       });
       if (activity?.length >= 1) {
         activity.forEach(async (ele) => {
+          ele.notifyViewStatus = "View";
+          await ele.save();
+        });
+      }
+    } else if (type === "STUDENT_MESSAGE") {
+      const student_message = await StudentNotification.find({
+        $and: [
+          { _id: { $in: user?.activity_tab } },
+          { notifyViewStatus: "Not View" },
+          {
+            notifyCategory: "Reminder Alert",
+          },
+        ],
+      });
+      if (student_message?.length >= 1) {
+        student_message.forEach(async (ele) => {
           ele.notifyViewStatus = "View";
           await ele.save();
         });
@@ -1801,7 +1937,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       if (isApk) {
         var student = await Student.findById({ _id: sid })
           .select(
-            "batchCount extraPoints studentFirstName exist_linked_hostel student_hostel_cpi student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points studentEmail form_status online_amount_edit_access library studentBirthPlace studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName department studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode student_prn_enroll_number studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+            "batchCount extraPoints studentFirstName exist_linked_hostel student_hostel_cpi profile_percentage student_anti_ragging student_id_card_front student_id_card_back student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points studentEmail form_status online_amount_edit_access library studentBirthPlace studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName department studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode student_prn_enroll_number studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
           )
           .populate({
             path: "studentClass",
@@ -1917,6 +2053,18 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               docs.documentName === "casteCertificate"
                 ? docs.documentKey
                 : student.casteCertificate;
+            student.student_anti_ragging =
+              docs.documentName === "student_anti_ragging"
+                ? docs.documentKey
+                : student.student_anti_ragging;
+            student.student_id_card_front =
+              docs.documentName === "student_id_card_front"
+                ? docs.documentKey
+                : student.student_id_card_front;
+            student.student_id_card_back =
+              docs.documentName === "student_id_card_back"
+                ? docs.documentKey
+                : student.student_id_card_back;
           }
         }
         const status = await valid_student_form_query(
@@ -1927,7 +2075,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       } else {
         var student = await Student.findById({ _id: sid })
           .select(
-            "batchCount extraPoints studentFirstName exist_linked_hostel student_hostel_cpi student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points studentEmail form_status online_amount_edit_access student_prn_enroll_number studentBirthPlace studentBankAccountHolderName department studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+            "batchCount extraPoints studentFirstName exist_linked_hostel student_hostel_cpi profile_percentage student_anti_ragging student_id_card_front student_id_card_back student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points studentEmail form_status online_amount_edit_access student_prn_enroll_number studentBirthPlace studentBankAccountHolderName department studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
           )
           .populate({
             path: "studentClass",

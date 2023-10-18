@@ -124,6 +124,36 @@ const match_bank_query = (one_student) => {
   };
 };
 
+const match_anti_ragging_query = (one_student) => {
+  if (one_student?.student_anti_ragging) {
+    return {
+      form_status: "Filled",
+      access: true,
+      go_through: "Anti Ragging Details",
+    };
+  }
+  return {
+    form_status: "Not Filled",
+    access: false,
+    go_through: "Anti Ragging Details",
+  };
+};
+
+const match_id_card_query = (one_student) => {
+  if (one_student?.student_id_card_front && one_student?.student_id_card_back) {
+    return {
+      form_status: "Filled",
+      access: true,
+      go_through: "Id Card Details",
+    };
+  }
+  return {
+    form_status: "Not Filled",
+    access: false,
+    go_through: "Id Card Details",
+  };
+};
+
 const document_web = async (arr) => {
   var obj = {};
   for (let i = 0; i < arr.length; i++) {
@@ -466,6 +496,14 @@ exports.valid_student_form_query = async (one_ins, one_student, flow) => {
     if (one_ins?.studentFormSetting?.bankDetails) {
       var bank_query = match_bank_query(one_student);
       status = bank_query?.form_status;
+    }
+    if (one_ins?.studentFormSetting?.anti_ragging) {
+      var anti_query = match_anti_ragging_query(one_student);
+      status = anti_query?.form_status;
+    }
+    if (one_ins?.studentFormSetting?.id_card) {
+      var card_query = match_id_card_query(one_student);
+      status = card_query?.form_status;
     }
     if (
       one_ins?.studentFormSetting?.previousSchoolAndDocument?.incomeCertificate

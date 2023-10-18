@@ -16,6 +16,7 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const LandingTender = require("../../models/LandingModel/Tender/landingTender");
 const Tender = require("../../models/LandingModel/Tender/Tender");
 const { nested_document_limit } = require("../../helper/databaseFunction");
+const Academic = require("../../models/LandingModel/SinglePage/Academic");
 
 exports.uploadGetTouchDetail = async (req, res) => {
   try {
@@ -823,12 +824,240 @@ exports.renderOneWebProfile = async (req, res) => {
       .populate({
         path: "sub_domain",
         select: "sub_domain_path sub_domain_name status",
+      })
+      .populate({
+        path: "academic_module",
+        select: "academic_about",
       });
     res.status(200).send({
       message: "Explore One Institute All Profile Details",
       access: true,
       one_ins: one_ins,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAcademicSectionQuery = async (req, res) => {
+  try {
+    const { aid } = req?.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Thier is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const academic = await Academic.findById({ _id: aid })
+      .populate({
+        path: "institute",
+        select: "insName name",
+      })
+      .populate({
+        path: "academic_head",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffEmail staffPhoneNumber staffROLLNO",
+      });
+
+    res.status(200).send({
+      message: "Explore Master Academic Module Query",
+      access: true,
+      academic: academic,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewAcademicSectionQuery = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    const { academic_about, academic_head, academic_photo } = req?.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var ins = await InstituteAdmin.findById({ _id: id });
+    var n_a = new Academic({});
+    n_a.institute = ins?._id;
+    n_a.academic_about = academic_about;
+    n_a.academic_head = academic_head;
+    n_a.academic_photo = academic_photo;
+    ins.academic_module = n_a?._id;
+    await Promise.all([n_a.save(), ins.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New Academic Module Query", access: true });
+    if (req?.body?.academic_rules?.length > 0) {
+      for (var ref of req?.body?.academic_rules) {
+        n_a.academic_rules.push(ref);
+      }
+    }
+    if (req?.body?.academic_mechanism?.length > 0) {
+      for (var ref of req?.body?.academic_mechanism) {
+        n_a.academic_mechanism.push(ref);
+      }
+    }
+    if (req?.body?.academic_student_feedback?.length > 0) {
+      for (var ref of req?.body?.academic_student_feedback) {
+        n_a.academic_student_feedback.push(ref);
+      }
+    }
+    if (req?.body?.academic_ict_faculty?.length > 0) {
+      for (var ref of req?.body?.academic_ict_faculty) {
+        n_a.academic_ict_faculty.push(ref);
+      }
+    }
+    if (req?.body?.academic_peer?.length > 0) {
+      for (var ref of req?.body?.academic_peer) {
+        n_a.academic_peer.push(ref);
+      }
+    }
+    if (req?.body?.academic_development_courses?.length > 0) {
+      for (var ref of req?.body?.academic_development_courses) {
+        n_a.academic_development_courses.push(ref);
+      }
+    }
+    if (req?.body?.academic_results?.length > 0) {
+      for (var ref of req?.body?.academic_results) {
+        n_a.academic_results.push(ref);
+      }
+    }
+    if (req?.body?.academic_toppers?.length > 0) {
+      for (var ref of req?.body?.academic_toppers) {
+        n_a.academic_toppers.push(ref);
+      }
+    }
+    if (req?.body?.academic_student_survey?.length > 0) {
+      for (var ref of req?.body?.academic_student_survey) {
+        n_a.academic_student_survey.push(ref);
+      }
+    }
+    if (req?.body?.academic_annual_report?.length > 0) {
+      for (var ref of req?.body?.academic_annual_report) {
+        n_a.academic_annual_report.push(ref);
+      }
+    }
+    if (req?.body?.academic_action_plan?.length > 0) {
+      for (var ref of req?.body?.academic_action_plan) {
+        n_a.academic_action_plan.push(ref);
+      }
+    }
+    if (req?.body?.academic_calendar?.length > 0) {
+      for (var ref of req?.body?.academic_calendar) {
+        n_a.academic_calendar.push({
+          calendar_name: ref?.calendar_name,
+          calendar: ref?.calendar,
+        });
+      }
+    }
+    await n_a.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExistAcademicSectionQuery = async (req, res) => {
+  try {
+    const { aid } = req?.params;
+    const { academic_about, academic_head } = req?.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var exist_academic = await Academic.findById({ _id: aid });
+    if (academic_about) {
+      exist_academic.academic_about = academic_about;
+    }
+    if (academic_head) {
+      exist_academic.academic_head = academic_head;
+    }
+    if (academic_photo) {
+      exist_academic.academic_photo = academic_photo;
+    }
+    if (req?.body?.academic_rules?.length > 0) {
+      for (var ref of req?.body?.academic_rules) {
+        exist_academic.academic_rules.push(ref);
+      }
+    }
+    if (req?.body?.academic_mechanism?.length > 0) {
+      for (var ref of req?.body?.academic_mechanism) {
+        exist_academic.academic_mechanism.push(ref);
+      }
+    }
+    if (req?.body?.academic_student_feedback?.length > 0) {
+      for (var ref of req?.body?.academic_student_feedback) {
+        exist_academic.academic_student_feedback.push(ref);
+      }
+    }
+    if (req?.body?.academic_ict_faculty?.length > 0) {
+      for (var ref of req?.body?.academic_ict_faculty) {
+        exist_academic.academic_ict_faculty.push(ref);
+      }
+    }
+    if (req?.body?.academic_peer?.length > 0) {
+      for (var ref of req?.body?.academic_peer) {
+        exist_academic.academic_peer.push(ref);
+      }
+    }
+    if (req?.body?.academic_development_courses?.length > 0) {
+      for (var ref of req?.body?.academic_development_courses) {
+        exist_academic.academic_development_courses.push(ref);
+      }
+    }
+    if (req?.body?.academic_results?.length > 0) {
+      for (var ref of req?.body?.academic_results) {
+        exist_academic.academic_results.push(ref);
+      }
+    }
+    if (req?.body?.academic_toppers?.length > 0) {
+      for (var ref of req?.body?.academic_toppers) {
+        exist_academic.academic_toppers.push(ref);
+      }
+    }
+    if (req?.body?.academic_student_survey?.length > 0) {
+      for (var ref of req?.body?.academic_student_survey) {
+        exist_academic.academic_student_survey.push(ref);
+      }
+    }
+    if (req?.body?.academic_annual_report?.length > 0) {
+      for (var ref of req?.body?.academic_annual_report) {
+        exist_academic.academic_annual_report.push(ref);
+      }
+    }
+    if (req?.body?.academic_action_plan?.length > 0) {
+      for (var ref of req?.body?.academic_action_plan) {
+        exist_academic.academic_action_plan.push(ref);
+      }
+    }
+    if (req?.body?.academic_calendar?.length > 0) {
+      for (var ref of req?.body?.academic_calendar) {
+        exist_academic.academic_calendar.push({
+          calendar_name: ref?.calendar_name,
+          calendar: ref?.calendar,
+        });
+      }
+    }
+    if (req?.body?.academic_suggestion?.length > 0) {
+      for (var ref of req?.body?.academic_suggestion) {
+        exist_academic.academic_suggestion.push({
+          stake_type: ref?.stake_type,
+          name: ref?.name,
+          phone_number: ref?.phone_number,
+          email: ref?.email,
+          subject: ref?.subject,
+          complaint: ref?.complaint,
+        });
+      }
+    }
+    await exist_academic.save();
+    res
+      .status(200)
+      .send({ message: "Explore Updated Academic Module Query", access: true });
   } catch (e) {
     console.log(e);
   }

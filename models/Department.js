@@ -361,6 +361,8 @@ const departmentSchema = new mongoose.Schema({
     bankDetails: { type: Boolean, default: false },
     gate_score: { type: Boolean, default: false },
     marks_and_degree_score: { type: Boolean, default: false },
+    anti_ragging: { type: Boolean, default: false },
+    id_card: { type: Boolean, default: false },
   },
   ug_undertakings_admission: {
     type: Boolean,
@@ -369,6 +371,18 @@ const departmentSchema = new mongoose.Schema({
   pg_undertakings_admission: {
     type: Boolean,
     default: false,
+  },
+  exam_weight_left: {
+    type: Number,
+    default: 100,
+  },
+  internal_assesment: {
+    type: Number,
+    default: 0,
+  },
+  external_assesment: {
+    type: Number,
+    default: 0,
   },
 });
 

@@ -89,7 +89,9 @@ const RemainingList = require("../../models/Admission/RemainingList");
 const { dueDateAlarm } = require("../../Service/alarm");
 const { handle_undefined } = require("../../Handler/customError");
 const { set_off_amount } = require("../../Functions/SetOff");
-const { set_fee_head_query_redesign_hostel } = require("../../Functions/hostelInstallment");
+const {
+  set_fee_head_query_redesign_hostel,
+} = require("../../Functions/hostelInstallment");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -9814,8 +9816,8 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
     var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    const g_date = new Date(`2023-09-26T00:00:00.000Z`);
-    const l_date = new Date(`2023-10-17T00:00:00.000Z`);
+    const g_date = new Date(`2023-10-19T00:00:00.000Z`);
+    const l_date = new Date(`2023-10-20T00:00:00.000Z`);
     var receipt = await FeeReceipt.find({
       $and: [
         {
@@ -9834,7 +9836,14 @@ exports.renderFeeHeadsQuery = async (req, res) => {
           finance: finance?._id,
         },
       ],
-    }).populate({
+    })
+    // .populate({
+    //   path: "student",
+    //   populate: {
+    //     path: "fee_structure",
+    //   },
+    // });
+    .populate({
       path: "student",
       populate: {
         path: "hostel_fee_structure",
@@ -9848,6 +9857,12 @@ exports.renderFeeHeadsQuery = async (req, res) => {
       //   ref.fee_heads = [];
       //   await ref.save();
       // } else {
+      // await set_fee_head_query_redesign(
+      //   ref?.student,
+      //   ref?.fee_payment_amount,
+      //   ref?.application,
+      //   ref
+      // );
       await set_fee_head_query_redesign_hostel(
         ref?.student,
         ref?.fee_payment_amount,
@@ -10434,9 +10449,9 @@ exports.render_old_data_receipt_query = async (req, res) => {
     // var all_remain_card = await RemainingList.findById({
     //   _id: "6501a891df2fe86f89506e7b",
     // });
-    const { id } = req?.query
+    const { id } = req?.query;
     var all_remain_card = await RemainingList.find({ institute: id });
-    for(var val of all_remain_card){
+    for (var val of all_remain_card) {
       for (var ref of val?.fee_receipts) {
         var receipt = await FeeReceipt.findById({ _id: `${ref}` });
         for (var ele of receipt?.fee_heads) {

@@ -983,6 +983,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Academic",
   },
+  nss_module: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "NSS"
+  }
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

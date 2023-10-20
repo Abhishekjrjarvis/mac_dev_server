@@ -135,4 +135,8 @@ router.patch(
   catchAsync(Landing.renderExistAcademicSectionQuery)
 );
 
+router.get("/:nid/nss/query", catchAsync(Landing.renderNSSQuery));
+
+router.post("/:id/new/nss/query", catchAsync(Landing.renderNewNSSQuery));
+
 module.exports = router;

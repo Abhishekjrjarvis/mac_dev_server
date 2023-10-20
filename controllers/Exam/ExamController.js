@@ -4973,3 +4973,161 @@ exports.createSubjectExam = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.examEditOneSubjectMasterQuery = async (req, res) => {
+  try {
+    const { eid, smid } = req.params;
+    const {
+      totalMarks,
+      date,
+      startTime,
+      endTime,
+      subject_attachment,
+      copo_list,
+    } = req.body;
+    if (!eid) throw "Please send subject master id";
+
+    const exam = await Exam.findById(eid).lean().exec();
+    res
+      .status(200)
+      .send({ message: "Exam one subject master edti on processing." });
+
+    if (exam?.subjects?.length > 0) {
+      for (let sub of exam?.subjects) {
+        if (`${sub?.subjectMasterId}` === `${smid}`) {
+          sub.totalMarks = totalMarks;
+          sub.date = date;
+          sub.startTime = startTime;
+          sub.endTime = endTime;
+          sub.subject_attachment = subject_attachment;
+          const subject = await Subject.findById(sub?.subjectId);
+          const classes = await Class.findById(subject?.class);
+          var all_student = classes.ApproveStudent || [];
+          if (subject?.selected_batch_query) {
+            const subject_batch = await Batch.findById(
+              subject?.selected_batch_query
+            );
+            all_student = subject_batch.class_student_query;
+          }
+          for (let copo of copo_list) {
+            let copo_weight = ((copo?.marks * 100) / totalMarks).toFixed(2);
+            let copoObj = {
+              attainment_name: exam?.examName,
+              attainment_mark: copo?.marks,
+              attainment_mark_weight: copo_weight,
+              attainment_assign_type: "EXAM",
+              examId: exam?._id,
+              subject_student: all_student,
+              student_count: all_student?.length,
+              present_student_count: all_student?.length,
+              copo_attainment_type: exam?.copo_attainment_type,
+            };
+
+            const is_sub_attainment = await SubjectAttainment.findOne({
+              attainment: copo?.attainmentId,
+              subject: sub?.subjectId,
+            });
+            if (is_sub_attainment) {
+              for (let is_exist of is_sub_attainment.attainment_assign) {
+                if (is_exist?.attainment_assign_type === "EXAM") {
+                  if (`${is_exist?.examId}` === `${eid}`) {
+                    is_exist.attainment_mark = copo?.marks;
+                    is_exist.attainment_mark_weight = copo_weight;
+                  } else {
+                    is_sub_attainment.attainment_assign.push(copoObj);
+                  }
+                }
+              }
+            }
+            await is_sub_attainment.save();
+          }
+          for (let stu of all_student) {
+            const subjectMarks1 = await SubjectMarks.findOne({
+              subject: subject._id,
+              student: stu,
+            });
+            for (let mark of subjectMarks1?.marks) {
+              if (`${eid}` === `${mark?.examId}`) {
+                mark.totalMarks = totalMarks;
+                mark.date = date;
+                mark.startTime = startTime;
+                mark.endTime = endTime;
+              }
+            }
+            await subjectMarks1.save();
+          }
+        }
+      }
+    }
+    await exam.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.examRemoveOneSubjectMasterQuery = async (req, res) => {
+  try {
+    const { eid, smid } = req.params;
+    if (!eid) throw "Please send subject master id";
+
+    const exam = await Exam.findById(eid).lean().exec();
+    res
+      .status(200)
+      .send({ message: "Exam one subject master delete on processing." });
+    var all_subject = [];
+    if (exam?.subjects?.length > 0) {
+      for (let sub of exam?.subjects) {
+        if (`${sub?.subjectMasterId}` === `${smid}`) {
+          const subject = await Subject.findById(sub?.subjectId).lean().exec();
+          subject.exams.pull(eid);
+          const classes = await Class.findById(subject?.class);
+          var all_student = classes.ApproveStudent || [];
+          if (subject?.selected_batch_query) {
+            const subject_batch = await Batch.findById(
+              subject?.selected_batch_query
+            );
+            all_student = subject_batch.class_student_query;
+          }
+
+          for (let stu of all_student) {
+            const subjectMarks1 = await SubjectMarks.findOne({
+              subject: subject._id,
+              student: stu,
+            })
+              .lean()
+              .exec();
+
+            let mark_list = [];
+            for (let mark of subjectMarks1?.marks) {
+              if (`${mark?.examId}` === `${eid}`) {
+              } else {
+                mark_list.push(mark);
+              }
+            }
+            subjectMarks1.marks = mark_list;
+            await subjectMarks1.save();
+          }
+
+          const is_sub_attainment = await SubjectAttainment.findById(
+            subject?.subject_attainment?.[0]
+          );
+          let copo_unique_list = [];
+          for (let copo of is_sub_attainment?.attainment_assign) {
+            if (`${copo?.examId}` === `${eid}`) {
+            } else {
+              copo_unique_list.push(copo);
+            }
+          }
+          is_sub_attainment.attainment_assign = copo_unique_list;
+          await Promise.all([is_sub_attainment.save(), subject.save()]);
+        } else {
+          all_subject.push(sub);
+        }
+      }
+    }
+    exam.subjects = all_subject;
+    await exam.save();
+  } catch (e) {
+    console.log(e);
+  }
+};

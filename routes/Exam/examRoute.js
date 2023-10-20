@@ -231,4 +231,9 @@ router
   .route("/create/subject/:sid/query")
   .post(catchAsync(examController.createSubjectExam));
 
+router
+  .route("/edit/one/:eid/subject/:smid/query")
+  .patch(catchAsync(examController.examEditOneSubjectMasterQuery))
+  .delete(catchAsync(examController.examRemoveOneSubjectMasterQuery));
+
 module.exports = router;

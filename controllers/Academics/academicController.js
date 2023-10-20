@@ -169,6 +169,10 @@ exports.renderAddNewLectureQuery = async (req, res) => {
     var one_subject = await Subject.findById({ _id: subId });
     await SubjectUpdate.findByIdAndUpdate(sid, req.body);
     var valid_subject = await SubjectUpdate.findById({ _id: sid });
+
+    res
+      .status(200)
+      .send({ message: "Explore New / Add Lecture Query", access: true });
     // var all_topic = await ChapterTopic.find({ _id: { $in: arr } });
     if (arr?.length > 0) {
       for (var val of arr) {
@@ -217,9 +221,6 @@ exports.renderAddNewLectureQuery = async (req, res) => {
     }
 
     await Promise.all([valid_subject.save(), one_subject.save()]);
-    res
-      .status(200)
-      .send({ message: "Explore New / Add Lecture Query", access: true });
   } catch (e) {
     console.log(e);
   }

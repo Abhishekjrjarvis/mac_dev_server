@@ -17,6 +17,7 @@ const LandingTender = require("../../models/LandingModel/Tender/landingTender");
 const Tender = require("../../models/LandingModel/Tender/Tender");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const Academic = require("../../models/LandingModel/SinglePage/Academic");
+const NSS = require("../../models/LandingModel/SinglePage/NSS");
 
 exports.uploadGetTouchDetail = async (req, res) => {
   try {
@@ -962,7 +963,7 @@ exports.renderNewAcademicSectionQuery = async (req, res) => {
 exports.renderExistAcademicSectionQuery = async (req, res) => {
   try {
     const { aid } = req?.params;
-    const { academic_about, academic_head } = req?.body;
+    const { academic_about, academic_head, academic_photo } = req?.body;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -971,13 +972,19 @@ exports.renderExistAcademicSectionQuery = async (req, res) => {
 
     var exist_academic = await Academic.findById({ _id: aid });
     if (academic_about) {
-      exist_academic.academic_about = academic_about;
+      exist_academic.academic_about = academic_about
+        ? academic_about
+        : exist_academic.academic_about;
     }
     if (academic_head) {
-      exist_academic.academic_head = academic_head;
+      exist_academic.academic_head = academic_head
+        ? academic_head
+        : exist_academic.academic_head;
     }
     if (academic_photo) {
-      exist_academic.academic_photo = academic_photo;
+      exist_academic.academic_photo = academic_photo
+        ? academic_photo
+        : exist_academic.academic_photo;
     }
     if (req?.body?.academic_rules?.length > 0) {
       for (var ref of req?.body?.academic_rules) {
@@ -1062,6 +1069,82 @@ exports.renderExistAcademicSectionQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderNSSQuery = async (req, res) => {
+  try {
+    const { nid } = req.params;
+    if (!nid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var nss = await NSS.findById({ _id: nid })
+      .populate({
+        path: "institute",
+        select: "insName name",
+      })
+      .populate({
+        path: "nss_head",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      })
+      .select(
+        "nss_about nss_objective created_at nss_roles nss_commitee_count"
+      );
+
+    res
+      .status(200)
+      .send({ message: "Explore master NSS Query", access: true, nss: nss });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewNSSQuery = async(req, res) => {
+  try{
+    const { id } = req.params
+    const { nss_about, nss_head, nss_photo, nss_objective, nss_roles } = req?.body
+    if(!id) return res.status(200).send({ message: "Their is a bug need to immediately", access: false })
+
+    const ins = await InstituteAdmin.findById({ _id: id })
+    const nss_query = new NSS({})
+
+    ins.nss_module = nss_query?._id
+    nss_query.institute = ins?._id
+    nss_query.nss_about = nss_about;
+    nss_query.nss_head = nss_head;
+    nss_query.nss_photo = nss_photo;
+    nss_query.nss_objective = nss_objective
+    await Promise.all([nss_query.save(), ins.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New NSS Module Query", access: true });
+
+    if(nss_roles?.length > 0){
+      for(var ref of nss_roles){
+        nss_query.nss_roles.push({
+          headline: ref?.headline,
+          headline_description: ref?.headline_description
+        })
+      }
+    }
+    if(nss_commitee?.length > 0){
+      for(var ref of nss_commitee){
+        nss_query.nss_commitee.push({
+          staff: ref?.staff,
+          designation: ref?.designation
+        })
+        nss_query.nss_commitee_count += 1
+      }
+    }
+
+    await nss_query.save()
+  }
+catch(e){
+  console.log(e)
+}
+}
 
 // var is_true = true;
 // setInterval(async () => {

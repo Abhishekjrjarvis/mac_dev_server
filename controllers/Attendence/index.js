@@ -292,6 +292,10 @@ exports.markAttendenceClassStudent = async (req, res) => {
       attendence.attendDate = req.body.date;
       attendence.className = classes._id;
       attendence.attendTime = new Date();
+      await Promise.all([attendence.save(), classes.save()]);
+      res
+        .status(200)
+        .send({ message: "Success", alreadyMark: attendence?._id });
       for (let i = 0; i < req.body.present.length; i++) {
         const student = await Student.findById({
           _id: `${req.body.present[i]}`,
@@ -316,8 +320,8 @@ exports.markAttendenceClassStudent = async (req, res) => {
           `${gettingDate[2]}/${gettingDate[1]}/${gettingDate[0]}`
         );
         let todayeDate = new Date();
-        let todayeDateISO = todayeDate.toISOString();
-        let gettingDateISO = gettingDateMod.toISOString();
+        let todayeDateISO = todayeDate;
+        let gettingDateISO = gettingDateMod;
         if (todayeDateISO.getDate() === gettingDateISO.getDate()) {
           const user = await User.findById({ _id: `${student.user}` });
           const notify = new StudentNotification({});
@@ -361,7 +365,6 @@ exports.markAttendenceClassStudent = async (req, res) => {
       attendence.presentTotal = req.body.present.length;
       attendence.absentTotal = req.body.absent.length;
       await Promise.all([attendence.save(), classes.save()]);
-      res.status(200).send({ message: "Success" });
     }
   } catch (e) {
     console.log(e);
@@ -1440,6 +1443,10 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       attendence.attendDate = req.body.date;
       attendence.subject = subjects._id;
       attendence.attendTime = new Date();
+      await Promise.all([attendence.save(), subjects.save()]);
+      res
+        .status(200)
+        .send({ message: "Success", alreadyMark: attendence?._id });
       for (let i = 0; i < req.body.present.length; i++) {
         const student = await Student.findById({
           _id: `${req.body.present[i]}`,
@@ -1496,8 +1503,8 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
           `${gettingDate[2]}/${gettingDate[1]}/${gettingDate[0]}`
         );
         let todayeDate = new Date();
-        let todayeDateISO = todayeDate.toISOString();
-        let gettingDateISO = gettingDateMod.toISOString();
+        let todayeDateISO = todayeDate;
+        let gettingDateISO = gettingDateMod;
         if (todayeDateISO.getDate() === gettingDateISO.getDate()) {
           const user = await User.findById({ _id: `${student.user}` });
           const notify = new StudentNotification({});
@@ -1544,7 +1551,6 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       attendence.presentTotal = req.body.present.length;
       attendence.absentTotal = req.body.absent.length;
       await Promise.all([attendence.save(), subjects.save()]);
-      res.status(200).send({ message: "Success" });
     }
   } catch (e) {
     console.log(e);
@@ -2204,7 +2210,14 @@ exports.markAttendenceExamStudent = async (req, res) => {
       attendence.exam = exam_today._id;
       attendence.seating = seating_sequence._id;
       attendence.attendTime = new Date();
-
+      await Promise.all([
+        attendence.save(),
+        seating_sequence.save(),
+        exam_today.save(),
+      ]);
+      res
+        .status(200)
+        .send({ message: "Success", alreadyMark: attendence?._id });
       for (let i = 0; i < req.body.present.length; i++) {
         const student = await Student.findById({
           _id: `${req.body.present[i]?.studentId}`,
@@ -2248,7 +2261,6 @@ exports.markAttendenceExamStudent = async (req, res) => {
         seating_sequence.save(),
         exam_today.save(),
       ]);
-      res.status(200).send({ message: "Success" });
     }
   } catch (e) {
     console.log(e);

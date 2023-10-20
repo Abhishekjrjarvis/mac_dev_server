@@ -40,4 +40,9 @@ router.delete(
   catchAsync(Academic.renderOneTopicDestroyQuery)
 );
 
+router.post("/:sid/add/chapter/query", catchAsync(Academic.renderNewChapterQuery))
+
+router.post("/:cid/add/chapter/topic/query", catchAsync(Academic.renderNewChapterTopicQuery))
+
+
 module.exports = router;

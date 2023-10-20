@@ -327,3 +327,49 @@ exports.renderOneTopicDestroyQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderNewChapterQuery = async(req, res) => {
+  try{
+    const { sid } = req.params
+    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const one_subject = await Subject.findById({ _id: sid })
+    const valid_chapter = new Chapter({...req?.body})
+
+    one_subject.chapter.push(valid_chapter?._id)
+    one_subject.chapter_count += 1
+
+    valid_chapter.subject = one_subject?._id
+
+    await Promise.all([ valid_chapter.save(), one_subject.save()])
+
+    res.status(200).send({ message: "Explore New Chapter Query", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderNewChapterTopicQuery = async(req, res) => {
+  try{
+    const { cid } = req.params
+    if(!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const chapter = await Chapter.findById({ _id: cid })
+    const one_subject = await Subject.findById({ _id: `${chapter?.subject}` })
+    const valid_topic = new ChapterTopic({ ...req.body})
+
+    chapter.topic.push(valid_topic?._id)
+    chapter.topic_count += 1
+
+    valid_topic.chapter = chapter?._id
+    valid_topic.subject = one_subject?._id
+
+    await Promise.all([ chapter.save(), valid_topic.save()])
+    res.status(200).send({ message: "Explore New Chapter Topic Query", access: true})
+
+  }
+  catch(e){
+    console.log(e)
+  }
+}

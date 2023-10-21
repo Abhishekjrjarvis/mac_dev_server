@@ -1299,7 +1299,7 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username userBlock user_block_institute last_login profile_modification recoveryMail userPhoneNumber follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userFollowers userFollowing userCircle"
+        "userLegalName username userBlock followerCount followingUICount circleCount user_block_institute last_login profile_modification recoveryMail userPhoneNumber follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userFollowers userFollowing userCircle"
       )
       .populate({
         path: "daily_quote_query.quote",
@@ -2664,21 +2664,21 @@ exports.retrieveUserRoleQuery = async (req, res) => {
     const staff = await Staff.find({ _id: { $in: user?.staff } })
       .sort("staffDesignationCount")
       .select(
-        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
       )
       .populate({
         path: "institute",
-        select: "insName insProfilePhoto photoId name",
+        select: "insName insProfilePhoto photoId name alias_pronounciation",
       });
 
     const student = await Student.find({ _id: { $in: user?.student } })
       .sort("createdAt")
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto student_join_mode student_unit"
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto student_join_mode student_unit studentGRNO"
       )
       .populate({
         path: "institute",
-        select: "insName insProfilePhoto photoId name",
+        select: "insName insProfilePhoto photoId name alias_pronounciation",
       })
       .populate({
         path: "student_unit",

@@ -986,6 +986,15 @@ const instituteAdminSchema = new mongoose.Schema({
   nss_module: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "NSS"
+  },
+  authority: {
+    type: String
+  },
+  authority_signature: {
+    type: String
+  },
+  autority_stamp_profile: {
+    type: String
   }
 });
 

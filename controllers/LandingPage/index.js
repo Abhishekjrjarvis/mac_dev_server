@@ -829,6 +829,10 @@ exports.renderOneWebProfile = async (req, res) => {
       .populate({
         path: "academic_module",
         select: "academic_about",
+      })
+      .populate({
+        path: "nss_module",
+        select: "nss_about",
       });
     res.status(200).send({
       message: "Explore One Institute All Profile Details",

@@ -684,8 +684,8 @@ exports.subjectDelete = async (req, res) => {
       path: "class",
       select: "ApproveStudent",
     });
-    if (subject?.class?.ApproveStudent?.length)
-      throw "You can't delete subject because students existence";
+    // if (subject?.class?.ApproveStudent?.length)
+    //   throw "You can't delete subject because students existence";
     const subjectMaster = await SubjectMaster.findById(
       subject.subjectMasterName
     );

@@ -712,10 +712,7 @@ exports.subjectDelete = async (req, res) => {
       .status(200)
       .send({ message: "Subject deleted successfully👍", deleted: "Yes" });
   } catch (e) {
-    res.status(200).send({
-      message: e,
-      deleted: "No",
-    });
+    console.log(e)
   }
 };
 

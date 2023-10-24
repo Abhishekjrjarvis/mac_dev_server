@@ -520,7 +520,8 @@ exports.generate_excel_to_json_library_offline_book_query = async (file) => {
       val.edition = val?.Edition,
       val.class_number = val?.ClassNumber,
       val.accession_number = val?.AccessionNumber,
-      val.date = val?.Date
+      val.date = val?.Date,
+      val.publisher = val?.Publisher
       new_data_query.push(val);
     }
     return { book_array: new_data_query, value: true };
@@ -818,7 +819,7 @@ exports.generate_excel_to_json_class_query = async (file, did) => {
   }
 };
 
-exports.generate_excel_to_json_subject_query = async (file, did) => {
+exports.generate_excel_to_json_subject_query = async (file, did, cid) => {
   try {
     const w_query = xlsx.read(file.Body);
     const w_sheet = w_query.Sheets["NewSubject"];
@@ -836,7 +837,7 @@ exports.generate_excel_to_json_subject_query = async (file, did) => {
       if (val?.Batch) {
         var new_batch = await Batch.findOne({
           $and: [
-            { department: did },
+            { class_batch_select: cid },
             {
               batchName: { $regex: `${val.Batch}`, $options: "i" },
             },
@@ -852,7 +853,8 @@ exports.generate_excel_to_json_subject_query = async (file, did) => {
       val.msid = new_master?._id;
       new_data_query.push(val);
     }
-    return { subject_array: new_data_query, value: true };
+    console.log(new_data_query)
+    // return { subject_array: new_data_query, value: true };
   } catch (e) {
     console.log("New Subject Excel Query Not Resolved", e);
   }

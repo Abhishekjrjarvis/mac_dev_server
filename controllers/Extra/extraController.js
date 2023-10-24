@@ -3105,7 +3105,7 @@ exports.renderExcelToJSONSubjectQuery = async (req, res) => {
     }
     const val = await simple_object(key);
 
-    const is_converted = await generate_excel_to_json_subject_query(val, depart?._id);
+    const is_converted = await generate_excel_to_json_subject_query(val, depart?._id, classes?._id);
     if (is_converted?.value) {
       await render_new_subject_query(is_converted?.subject_array, cid);
     } else {

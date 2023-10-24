@@ -76,6 +76,9 @@ const bookSchema = new mongoose.Schema({
   },
   date: {
     type: String
+  },
+  publisher: {
+    type: String
   }
 });
 

@@ -111,7 +111,7 @@ const batchSchema = new mongoose.Schema({
   },
   class_batch_select: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Batch",
+    ref: "Class",
   },
 });
 

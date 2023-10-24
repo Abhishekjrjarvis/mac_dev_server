@@ -770,7 +770,8 @@ exports.generate_excel_to_json_subject_master_query = async (file) => {
     var new_data_query = [];
     for (var val of data_query) {
       val.subjectName = val?.SubjectName;
-      val.subjectType = val?.SubjectType;
+      val.subjectType = val?.SubjectType ?? "Mandatory";
+      val.course_code = val?.CourseCode
       new_data_query.push(val);
     }
     return { subject_master_array: new_data_query, value: true };

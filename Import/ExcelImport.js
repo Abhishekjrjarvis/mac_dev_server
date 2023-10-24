@@ -70,6 +70,7 @@ exports.render_new_subject_master_query = async (arr, did) => {
           institute: depart?.institute,
           department: depart?._id,
           subjectType: ref?.subjectType,
+          course_code: ref?.course_code
         });
         depart.departmentSubjectMasters.push(subjectMaster._id);
         depart.subjectMasterCount += 1;

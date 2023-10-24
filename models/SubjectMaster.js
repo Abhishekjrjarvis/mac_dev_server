@@ -75,6 +75,9 @@ const subjectMasterSchema = new mongoose.Schema({
       ref: "Attainment",
     },
   ],
+  course_code: {
+    type: String
+  }
 });
 
 const SubjectMaster = mongoose.model("SubjectMaster", subjectMasterSchema);

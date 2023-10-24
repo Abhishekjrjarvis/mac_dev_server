@@ -525,33 +525,33 @@ exports.promoteStudent = async (req, res) => {
             form_status: student?.form_status,
             fee_receipt: student?.fee_receipt,
           });
-          const notify = new StudentNotification({});
-          notify.notifyContent = `${student.studentFirstName} ${
-            student.studentMiddleName ? student.studentMiddleName : ""
-          } ${student.studentLastName} Your Report Card is Ready `;
-          notify.notifySender = classes._id;
-          notify.notifyReceiever = user._id;
-          notify.classId = classes._id;
-          notify.notifyType = "Student";
-          notify.notifyPublisher = student._id;
-          user.activity_tab.push(notify._id);
-          notify.notifyByClassPhoto = classes._id;
-          notify.notifyCategory = "Report Card";
-          notify.redirectIndex = 20;
-          if (user?.deviceToken) {
-            invokeMemberTabNotification(
-              "Student Activity",
-              notify,
-              "View Report Card",
-              user._id,
-              user.deviceToken,
-              "Student",
-              notify
-            );
-          }
+          // const notify = new StudentNotification({});
+          // notify.notifyContent = `${student.studentFirstName} ${
+          //   student.studentMiddleName ? student.studentMiddleName : ""
+          // } ${student.studentLastName} Your Report Card is Ready `;
+          // notify.notifySender = classes._id;
+          // notify.notifyReceiever = user._id;
+          // notify.classId = classes._id;
+          // notify.notifyType = "Student";
+          // notify.notifyPublisher = student._id;
+          // user.activity_tab.push(notify._id);
+          // notify.notifyByClassPhoto = classes._id;
+          // notify.notifyCategory = "Report Card";
+          // notify.redirectIndex = 20;
+          // if (user?.deviceToken) {
+          //   invokeMemberTabNotification(
+          //     "Student Activity",
+          //     notify,
+          //     "View Report Card",
+          //     user._id,
+          //     user.deviceToken,
+          //     "Student",
+          //     notify
+          //   );
+          // }
           await Promise.all([
             student.save(),
-            notify.save(),
+            // notify.save(),
             user.save(),
             previousData.save(),
           ]);
@@ -841,31 +841,31 @@ exports.promoteStudent = async (req, res) => {
             fee_receipt: student?.fee_receipt,
           });
           // console.log(previousData);
-          const notify = new StudentNotification({});
-          notify.notifyContent = `${student.studentFirstName} ${
-            student.studentMiddleName ? student.studentMiddleName : ""
-          } ${student.studentLastName} Your Report Card is Ready `;
-          notify.notifySender = classes._id;
-          notify.notifyReceiever = user._id;
-          notify.classId = classes._id;
-          notify.notifyType = "Student";
-          notify.notifyPublisher = student._id;
-          user.activity_tab.push(notify._id);
-          notify.notifyByClassPhoto = classes._id;
-          notify.notifyCategory = "Report Card";
-          notify.redirectIndex = 20;
-          invokeMemberTabNotification(
-            "Student Activity",
-            notify,
-            "View Report Card",
-            user._id,
-            user.deviceToken,
-            "Student",
-            notify
-          );
+          // const notify = new StudentNotification({});
+          // notify.notifyContent = `${student.studentFirstName} ${
+          //   student.studentMiddleName ? student.studentMiddleName : ""
+          // } ${student.studentLastName} Your Report Card is Ready `;
+          // notify.notifySender = classes._id;
+          // notify.notifyReceiever = user._id;
+          // notify.classId = classes._id;
+          // notify.notifyType = "Student";
+          // notify.notifyPublisher = student._id;
+          // user.activity_tab.push(notify._id);
+          // notify.notifyByClassPhoto = classes._id;
+          // notify.notifyCategory = "Report Card";
+          // notify.redirectIndex = 20;
+          // invokeMemberTabNotification(
+          //   "Student Activity",
+          //   notify,
+          //   "View Report Card",
+          //   user._id,
+          //   user.deviceToken,
+          //   "Student",
+          //   notify
+          // );
           await Promise.all([
             student.save(),
-            notify.save(),
+            // notify.save(),
             user.save(),
             previousData.save(),
           ]);

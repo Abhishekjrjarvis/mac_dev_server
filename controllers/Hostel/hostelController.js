@@ -372,7 +372,7 @@ exports.renderOneHostelUnitQuery = async (req, res) => {
       )
       .populate({
         path: "hostel",
-        select: "_id",
+        select: "_id institute",
       })
       .populate({
         path: "hostel_unit_head",

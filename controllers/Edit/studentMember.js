@@ -884,3 +884,35 @@ exports.retrieveEmailReplaceQuery = async (arr) => {
     console.log(e);
   }
 };
+
+exports.getPromoteStudentByClassQuery = async (req, res) => {
+  try {
+    const { arr } = req?.body;
+    const classes = await Class.find({ _id: { $in: arr } })
+      .populate({
+        path: "promoteStudent",
+        select: "valid_full_name studentClass",
+        populate: {
+          path: "studentClass fee_structure",
+          select: "className classTitle unique_structure_name",
+        },
+      })
+      .select("promoteStudent")
+      .lean()
+      .exec();
+
+    var all_student = [];
+
+    for (var ref of classes) {
+      all_student.push(...ref?.promoteStudent);
+    }
+    res.status(200).send({
+      message: "All promoted student list",
+      promoteStudent: all_student ?? [],
+      count: all_student?.length,
+    });
+  } catch (e) {
+    res.status(200).send({ message: e, promoteStudent: [] });
+    console.log(e);
+  }
+};

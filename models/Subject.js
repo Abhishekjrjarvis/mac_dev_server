@@ -193,6 +193,12 @@ const subjectSchema = new mongoose.Schema({
       ref: "SubjectAttainment",
     },
   ],
+  subject_attainment_mapping: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectAttainmentMapping",
+    },
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

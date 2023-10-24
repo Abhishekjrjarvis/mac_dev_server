@@ -390,4 +390,29 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONAttendenceQuery)
 );
 
+router.post(
+  "/add/:sid/certificate/query",
+  catchAsync(Extra.renderAddCertificateQuery)
+);
+
+router.get(
+  "/all/:sid/certificate/query",
+  catchAsync(Extra.renderStudentAllCertificateQuery)
+);
+
+router.get(
+  "/all/:id/certificate/query/status",
+  catchAsync(Extra.renderStudentAllCertificateQueryStatus)
+);
+
+router.patch(
+  "/mark/:cid/certificate/query",
+  catchAsync(Extra.renderMarkCertificateQueryStatus)
+);
+
+router.patch(
+  "/update/:id/certificate/fund/query",
+  catchAsync(Extra.renderUpdateCertificateFundQuery)
+);
+
 module.exports = router;

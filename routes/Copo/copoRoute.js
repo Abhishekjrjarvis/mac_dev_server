@@ -20,4 +20,9 @@ router
 router
   .route("/subject/co/attainment/:sid/query")
   .get(catchAsync(copoController.getCoAttainmentTabelQuery));
+
+  router
+  .route("/subject/copo/mapping/:sid/query")
+  .get(catchAsync(copoController.getCopoMappingQuery))
+  .patch(catchAsync(copoController.updateCopoMappingQuery));
 module.exports = router;

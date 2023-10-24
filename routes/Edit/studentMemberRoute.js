@@ -54,4 +54,8 @@ router
   .route("/user/login/query")
   .patch(catchAsync(studentMember.renderStudentUserLoginQuery));
 
+  router
+  .route("/list/query")
+  .get(catchAsync(studentMember.getPromoteStudentByClassQuery));
+
 module.exports = router;

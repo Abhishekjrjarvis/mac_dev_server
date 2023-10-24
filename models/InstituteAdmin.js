@@ -995,7 +995,29 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   autority_stamp_profile: {
     type: String
-  }
+  },
+  certificate_fund_charges: {
+    bona_charges: {
+      type: Number,
+      default: 0,
+    },
+    leaving_charges: {
+      type: Number,
+      default: 0,
+    },
+    transfer_charges: {
+      type: Number,
+      default: 0,
+    },
+    migration_charges: {
+      type: Number,
+      default: 0,
+    },
+  },
+  certificate_issued_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

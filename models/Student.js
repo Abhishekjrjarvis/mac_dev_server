@@ -745,6 +745,16 @@ const studentSchema = new mongoose.Schema({
   student_abc_id: {
     type: String,
   },
+  certificate: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CertificateQuery",
+    },
+  ],
+  certificate_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

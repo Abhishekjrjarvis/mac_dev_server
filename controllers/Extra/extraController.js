@@ -111,6 +111,7 @@ const {
   render_new_subject_query,
 } = require("../../Import/ExcelImport");
 const { render_mark_attendence_query } = require("../Attendence");
+const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -248,12 +249,13 @@ exports.retrieveBonafideGRNO = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto",
+          "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto certificate_issued_count",
       });
     student.studentReason = reason;
     student.student_bona_message = student_bona_message;
     student.studentBonaStatus = "Ready";
     institute.b_certificate_count += 1;
+    institute.certificate_issued_count += 1;
     if (student.certificateBonaFideCopy.trueCopy) {
       if (student.certificateBonaFideCopy.secondCopy) {
         if (student.certificateBonaFideCopy.thirdCopy) {
@@ -317,7 +319,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "insName insAddress insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail",
+          "insName insAddress certificate_issued_count insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail",
       })
       .populate({
         path: "remainingFeeList",
@@ -362,6 +364,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     }
     student.studentCertificateNo = institute.leavingArray.length + 1;
     institute.l_certificate_count += 1;
+    institute.certificate_issued_count += 1;
     student.studentLeavingStatus = "Ready";
     if (institute?.original_copy) {
       student.certificateLeavingCopy.thirdCopy = false;
@@ -3283,6 +3286,181 @@ exports.renderExcelToJSONAttendenceQuery = async (req, res) => {
     } else {
       console.log("false");
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAddCertificateQuery = async (req, res) => {
+  try {
+    const { sid } = req?.params;
+    const { id } = req?.query;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var student = await Student.findById({ _id: sid });
+    var ins = await InstituteAdmin.findById({ _id: id });
+    var new_cert = new CertificateQuery({ ...req?.body });
+    new_cert.student = student?._id;
+    new_cert.institute = ins?._id;
+    student.certificate.push(new_cert?._id);
+    student.certificate_count += 1;
+    await Promise.all([student.save(), new_cert.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New Certificate Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStudentAllCertificateQuery = async (req, res) => {
+  try {
+    const { sid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var student = await Student.findById({ _id: sid }).select(
+      "certificate certificate_count"
+    );
+    var all_cert = await CertificateQuery.find({
+      _id: { $in: student?.certificate },
+    })
+      .sort({ created_at: "-1" })
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "institute",
+        select: "insName name certificate_issued_count",
+      });
+    res.status(200).send({
+      message: "Explore All Certificate Query",
+      access: true,
+      all_cert: all_cert,
+      count: student?.certificate_count,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStudentAllCertificateQueryStatus = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { status } = req?.query;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var ins = await InstituteAdmin.findById({ _id: id });
+    var all_cert = await CertificateQuery.find({
+      $and: [{ institute: ins?._id }, { certificate_status: `${status}` }],
+    })
+      .sort({ created_at: "-1" })
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "institute",
+        select: "insName name certificate_issued_count",
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO studentGender",
+      });
+    res.status(200).send({
+      message: `Explore All ${status} Certificate Query`,
+      access: true,
+      all_cert: all_cert,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderMarkCertificateQueryStatus = async (req, res) => {
+  try {
+    const { cid } = req?.params;
+    var { status, attach } = req?.query;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var valid_cert = await CertificateQuery.findById({ _id: cid });
+    var ins = await InstituteAdmin.findById({
+      _id: `${valid_cert?.institute}`,
+    });
+    if (`${status}` === "Issued") {
+      valid_cert.certificate_status = `${status}`;
+      valid_cert.certificate_issued_date = new Date();
+      valid_cert.certificate_attach = `${attach}`;
+      ins.certificate_issued_count += 1;
+    } else if (`${status}` === "Rejected") {
+      valid_cert.certificate_status = `${status}`;
+    } else {
+    }
+    await valid_cert.save();
+    res
+      .status(200)
+      .send({ message: `Explore New ${status} Query`, access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderUpdateCertificateFundQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      bona_charges,
+      leaving_charges,
+      transfer_charges,
+      migration_charges,
+    } = req?.body;
+    if (!id)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+
+    const ins = await InstituteAdmin.findById({ _id: id });
+    if (bona_charges) {
+      ins.certificate_fund_charges.bona_charges = bona_charges;
+    }
+    if (leaving_charges) {
+      ins.certificate_fund_charges.leaving_charges = leaving_charges;
+    }
+    if (transfer_charges) {
+      ins.certificate_fund_charges.transfer_charges = transfer_charges;
+    }
+    if (migration_charges) {
+      ins.certificate_fund_charges.migration_charges = migration_charges;
+    }
+    await ins.save();
+    res
+      .status(200)
+      .send({
+        message: "Explore New Certificate Fund Charges Query",
+        access: true,
+      });
   } catch (e) {
     console.log(e);
   }

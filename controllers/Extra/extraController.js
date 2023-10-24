@@ -3076,6 +3076,7 @@ exports.renderExcelToJSONSubjectQuery = async (req, res) => {
       });
 
     const classes = await Class.findById({ _id: cid });
+    const depart = await Department.findById({ _id: `${classes?.department}`})
     const one_ins = await InstituteAdmin.findById({
       _id: `${classes?.institute}`,
     });
@@ -3104,7 +3105,7 @@ exports.renderExcelToJSONSubjectQuery = async (req, res) => {
     }
     const val = await simple_object(key);
 
-    const is_converted = await generate_excel_to_json_subject_query(val, did);
+    const is_converted = await generate_excel_to_json_subject_query(val, depart?._id);
     if (is_converted?.value) {
       await render_new_subject_query(is_converted?.subject_array, cid);
     } else {

@@ -41,6 +41,42 @@ const bookSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  subject: {
+    type: String
+  },
+  bill_date: {
+    type: String
+  },
+  bill_number: {
+    type: String
+  },
+  purchase_order_date: {
+    type: String
+  },
+  purchase_order_number: {
+    type: String
+  },
+  supplier: {
+    type: String
+  },
+  publisher_place: {
+    type: String
+  },
+  publication_year: {
+    type: String
+  },
+  edition: {
+    type: String,
+  },
+  class_number: {
+    type: String
+  },
+  accession_number: {
+    type: String
+  },
+  date: {
+    type: String
+  }
 });
 
 module.exports = mongoose.model("Book", bookSchema);

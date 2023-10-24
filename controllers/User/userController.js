@@ -2176,7 +2176,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
         // average_points: cached.average_points,
         student: student,
         status: status,
-        average_points: point,
+        average_points: (point == "0" || 0) ? 0 : parseInt(point),
         re_admission_tab: re_admission_tab ? re_admission_tab : "" || null,
       });
     } else {

@@ -509,6 +509,18 @@ exports.generate_excel_to_json_library_offline_book_query = async (file) => {
       val.description = val?.Description;
       val.price = val?.Amount;
       val.shellNumber = val?.ShellNumber;
+      val.subject = val?.Subject,
+      val.bill_date = val?.BillDate,
+      val.bill_number = val?.BillNumber,
+      val.purchase_order_date = val?.PurchaseOrderDate,
+      val.purchase_order_number = val?.PurchaseOrderNumber,
+      val.supplier = val?.Supplier,
+      val.publisher_place = val?.PublisherPlace,
+      val.publication_year = val?.PublicationYear,
+      val.edition = val?.Edition,
+      val.class_number = val?.ClassNumber,
+      val.accession_number = val?.AccessionNumber,
+      val.date = val?.Date
       new_data_query.push(val);
     }
     return { book_array: new_data_query, value: true };

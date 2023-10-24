@@ -1008,6 +1008,18 @@ exports.renderNewOfflineBookAutoQuery = async (lid, book_array) => {
         price: val?.price ? parseInt(val?.price) : 0,
         description: val?.description,
         shellNumber: val?.shellNumber,
+        subject: val?.Subject,
+      bill_date: val?.bill_date,
+      bill_number: val?.bill_number,
+      purchase_order_date: val?.purchase_order_date,
+      purchase_order_number: val?.purchase_order_number,
+      supplier: val?.supplier,
+      publisher_place: val?.publisher_place,
+      publication_year: val?.publication_year,
+      edition: val?.edition,
+      class_number: val?.class_number,
+      accession_number: val?.accession_number,
+      date: val?.date
       });
       library.books.push(book._id);
       library.bookCount += 1;

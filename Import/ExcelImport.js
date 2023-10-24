@@ -146,7 +146,7 @@ exports.render_new_subject_query = async (arr, cid) => {
           subjectName: subjectMaster?.subjectName,
           subjectMasterName: subjectMaster?._id,
           subjectOptional: subjectMaster?.subjectType,
-          subject_category: subjectMaster?.subject_category,
+          subject_category: ref?.subject_category,
         });
         subject.subjectTeacherName = null;
         classes.subject.push(subject._id);

@@ -853,8 +853,8 @@ exports.generate_excel_to_json_subject_query = async (file, did, cid) => {
       val.msid = new_master?._id;
       new_data_query.push(val);
     }
-    console.log(new_data_query)
-    // return { subject_array: new_data_query, value: true };
+    // console.log(new_data_query)
+    return { subject_array: new_data_query, value: true };
   } catch (e) {
     console.log("New Subject Excel Query Not Resolved", e);
   }

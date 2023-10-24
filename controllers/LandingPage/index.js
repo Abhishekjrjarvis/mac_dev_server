@@ -1108,7 +1108,7 @@ exports.renderNSSQuery = async (req, res) => {
 exports.renderNewNSSQuery = async(req, res) => {
   try{
     const { id } = req.params
-    const { nss_about, nss_head, nss_photo, nss_objective, nss_roles } = req?.body
+    const { nss_about, nss_head, nss_photo, nss_objective, nss_roles, nss_commitee } = req?.body
     if(!id) return res.status(200).send({ message: "Their is a bug need to immediately", access: false })
 
     const ins = await InstituteAdmin.findById({ _id: id })

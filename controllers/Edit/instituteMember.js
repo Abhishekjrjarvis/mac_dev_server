@@ -16,6 +16,7 @@ const {
 } = require("../../WhatsAppSMS/payload");
 const Hostel = require("../../models/Hostel/hostel");
 const Transport = require("../../models/Transport/transport");
+const { handle_undefined } = require("../../Handler/customError");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // const StudentPreviousData = require("../../models/StudentPreviousData");
@@ -684,6 +685,7 @@ exports.subjectDelete = async (req, res) => {
       path: "class",
       select: "ApproveStudent",
     });
+    const valid_subject_teacher = handle_undefined(subject?.subjectTeacherName)
     // if (subject?.class?.ApproveStudent?.length)
     //   throw "You can't delete subject because students existence";
     const subjectMaster = await SubjectMaster.findById(
@@ -694,14 +696,16 @@ exports.subjectDelete = async (req, res) => {
     const classes = await Class.findById(subject.class);
     classes?.subject.pull(subject._id);
     classes.subjectCount -= 1;
-    const subjectTeacherName = await Staff.findById(subject.subjectTeacherName);
-    subjectTeacherName?.staffSubject.pull(subject._id);
-    subjectTeacherName.staffDesignationCount -= 1;
+    if(valid_subject_teacher){
+      const subjectTeacherName = await Staff.findById(subject.subjectTeacherName);
+      subjectTeacherName?.staffSubject.pull(subject._id);
+      subjectTeacherName.staffDesignationCount -= 1;
+      await subjectTeacherName.save()
+    }
 
     await Promise.all([
       subjectMaster.save(),
       classes.save(),
-      subjectTeacherName.save(),
     ]);
     await Subject.findByIdAndDelete(req.params.sid);
     res

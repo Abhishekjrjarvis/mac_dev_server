@@ -507,8 +507,8 @@ exports.generate_excel_to_json_library_offline_book_query = async (file) => {
       val.language = val?.Language;
       val.totalCopies = val?.Copies;
       val.description = val?.Description;
-      val.price = val?.Amount;
-      val.shellNumber = val?.ShellNumber;
+      val.price = val?.Price;
+      val.shellNumber = val?.ShelvesNumber;
       val.subject = val?.Subject,
       val.bill_date = val?.BillDate,
       val.bill_number = val?.BillNumber,
@@ -521,7 +521,8 @@ exports.generate_excel_to_json_library_offline_book_query = async (file) => {
       val.class_number = val?.ClassNumber,
       val.accession_number = val?.AccessionNumber,
       val.date = val?.Date,
-      val.publisher = val?.Publisher
+      val.publisher = val?.Publisher,
+      val.totalPage = val?.Pages
       new_data_query.push(val);
     }
     return { book_array: new_data_query, value: true };
@@ -853,8 +854,8 @@ exports.generate_excel_to_json_subject_query = async (file, did, cid) => {
       val.msid = new_master?._id;
       new_data_query.push(val);
     }
-    // console.log(new_data_query)
-    return { subject_array: new_data_query, value: true };
+    console.log(new_data_query)
+    // return { subject_array: new_data_query, value: true };
   } catch (e) {
     console.log("New Subject Excel Query Not Resolved", e);
   }

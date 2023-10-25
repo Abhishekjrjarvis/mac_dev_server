@@ -827,6 +827,7 @@ exports.generate_excel_to_json_subject_query = async (file, did, cid) => {
     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
     var new_data_query = [];
     for (var val of data_query) {
+      if(val?.MasterName){
       var new_master = await SubjectMaster.findOne({
         $and: [
           { department: did },
@@ -853,6 +854,7 @@ exports.generate_excel_to_json_subject_query = async (file, did, cid) => {
       }
       val.msid = new_master?._id;
       new_data_query.push(val);
+    }
     }
     console.log(new_data_query)
     // return { subject_array: new_data_query, value: true };

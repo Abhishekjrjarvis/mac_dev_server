@@ -1018,6 +1018,26 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  staff_leave_config: {
+    casual_leave: {
+      type: Number,
+      default: 0
+    },
+    medical_leave: {
+      type: Number,
+      default: 0
+    },
+    sick_leave: {
+      type: Number,
+      default: 0
+    }
+  },
+  c_off_leave: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Leave",
+    },
+  ],
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

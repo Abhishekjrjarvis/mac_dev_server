@@ -728,7 +728,7 @@ exports.getStaffLeave = async (req, res) => {
     const staff = await Staff.findById(req.params.sid)
       .populate({
         path: "staffLeave",
-        select: "reason date status",
+        select: "reason date status attach leave_type",
       })
       .select("_id staffLeave");
     // const lEncrypt = await encryptionPayload(staff.staffLeave);
@@ -787,9 +787,13 @@ exports.postStaffLeave = async (req, res) => {
       staff: staff._id,
       institute: institute._id,
     });
+    leave.leave_grant = dateArray?.length
+    leave.leave_type = req?.body?.leave_type
     institute.leave.push(leave._id);
     staff.staffLeave.push(leave._id);
-
+    if(req?.body?.attach){
+      leave.attach = attach
+    }
     const notify = new Notification({});
     notify.notifyContent = `${staff.staffFirstName} ${
       staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
@@ -840,7 +844,7 @@ exports.getStaffOneLeaveDetail = async (req, res) => {
 exports.getStaffOneLeaveDelete = async (req, res) => {
   try {
     const leave = await Leave.findById(req.params.lid).select(
-      "_id staff institute"
+      "_id staff institute leave_type"
     );
     const institute = await InstituteAdmin.findById(leave.institute).select(
       "leave"
@@ -858,19 +862,29 @@ exports.getStaffOneLeaveDelete = async (req, res) => {
 
 exports.getAllStaffLeaveInstitute = async (req, res) => {
   try {
-    const institute = await InstituteAdmin.findById(req.params.id)
-      .populate({
-        path: "leave",
-        populate: {
-          path: "staff",
-          select:
-            "staffProfilePhoto staffFirstName staffMiddleName staffLastName",
-        },
-        select: "reason date status staff",
-      })
-      .select("_id leave");
-    // const allLeaveEncrypt = await encryptionPayload(institute.leave);
-    res.status(200).send({ message: "All leaves", allLeave: institute.leave });
+    const { id } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { status_query } = req?.query
+    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    const ins = await InstituteAdmin.findById({ _id: id})
+    
+    var all_leave = await Leave.find({ $and: [{ _id: { $in: ins?.leave }}, { status: `${status_query}`}] })
+    .sort({ createdAt: -1})
+    .limit(limit)
+    .skip(skip)
+    .populate({
+      path: "staff",
+      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+    })
+    
+    if(all_leave?.length > 0){
+      res.status(200).send({ message: "Their is a bug need to fixed immediately", access: true, all_leave: all_leave})
+    }
+    else{
+      res.status(200).send({ message: "Their is a bug need to fixed immediately", access: true, all_leave: []})
+    }
   } catch (e) {
     console.log(e);
   }
@@ -889,13 +903,36 @@ exports.oneStaffLeaveProcess = async (req, res) => {
           path: "user",
           select: "uNotify activity_tab",
         },
-        select: "user",
+        select: "user casual_leave medical_leave sick_leave",
       })
       .select("staff institute status");
     const user = await User.findById(leave.staff.user._id);
 
     const notify = new StudentNotification({});
     leave.status = req.body.status;
+    if(req?.body?.status === "Issued"){
+      leave.granted_on = new Date()
+    }
+    if(leave?.leave_type === "Casual Leave"){
+      if(leave?.staff?.casual_leave > leave?.leave_grant){
+        leave.staff.casual_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Medical Leave"){
+      if(leave?.staff?.medical_leave > leave?.leave_grant){
+        leave.staff.medical_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Sick Leave"){
+      if(leave?.staff?.sick_leave > leave?.leave_grant){
+        leave.staff.sick_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Compensation Off Leave"){
+      if(leave?.staff?.c_off_leave > leave?.leave_grant){
+        leave.staff.c_off_leave -= leave?.leave_grant
+      }
+    }
     notify.notifyContent = `Your Leave request has been ${req.body.status} by ${leave.institute.insName}`;
     notify.notifySender = leave.institute._id;
     notify.notifyReceiever = user._id;
@@ -916,7 +953,7 @@ exports.oneStaffLeaveProcess = async (req, res) => {
       notify
     );
     //
-    await Promise.all([leave.save(), user.save(), notify.save()]);
+    await Promise.all([leave.save(), user.save(), notify.save(), leave.staff.save()]);
     res.status(200).send({ message: `Leave ${req.body.status} by Institute` });
   } catch (e) {
     console.log(e);
@@ -1327,3 +1364,181 @@ exports.instituteStaffAllTransfer = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderLeaveConfigQuery = async(req, res) => {
+  try{
+    const { id } = req.params
+    const { c_l, m_l, s_l } = req?.body
+    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const ins = await InstituteAdmin.findById({ _id: id})
+    if(c_l){
+      ins.staff_leave_config.casual_leave = c_l
+    }
+    if(m_l){
+      ins.staff_leave_config.medical_leave = m_l
+    }
+    if(s_l){
+      ins.staff_leave_config.sick_leave = s_l
+    }
+    await ins.save()
+    res.status(200).send({ message: "Explore Leave Configuration Query", access: true})
+    var all_staff = await Staff.find({ _id: { $in: ins?.ApproveStaff }})
+    for(var ref of all_staff){
+      ref.casual_leave = ins?.staff_leave_config.casual_leave
+      ref.medical_leave = ins?.staff_leave_config.medical_leave
+      ref.sick_leave = ins?.staff_leave_config.sick_leave
+      await ref.save()
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderStaffLeaveConfigQuery = async(req, res) => {
+  try{
+    const { sid } = req.params
+    const { c_l, m_l, s_l } = req?.body
+    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const staff = await Staff.findById({ _id: sid})
+    if(c_l){
+      staff.casual_leave = c_l
+    }
+    if(m_l){
+      staff.medical_leave = m_l
+    }
+    if(s_l){
+      staff.sick_leave = s_l
+    }
+    await staff.save()
+    res.status(200).send({ message: "Explore One Staff Leave Configuration Query", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.postStaffCoffLeaveQuery = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const currentDateLocalFormat = currentDate.toISOString().split("-");
+    const dateArray = [];
+    req.body.dates.forEach((dat) => {
+      const fdate = dat?.split("/");
+      const classyear = +fdate[2] > +currentDateLocalFormat[0];
+      const year = +fdate[2] === +currentDateLocalFormat[0];
+      const classmonth = +fdate[1] > +currentDateLocalFormat[1];
+      const month = +fdate[1] === +currentDateLocalFormat[1];
+      const day = +fdate[0] >= +currentDateLocalFormat[2].split("T")[0];
+      if (classyear) {
+        dateArray.push(dat);
+      } else if (year) {
+        if (classmonth) {
+          dateArray.push(dat);
+        } else if (month) {
+          if (day) {
+            dateArray.push(dat);
+          }
+        } else {
+        }
+      } else {
+      }
+    });
+
+    if (dateArray?.length === 0) {
+      throw "Please select date range today to next all dates";
+    }
+    const staff = await Staff.findById(req.params.sid)
+      .populate({
+        path: "staffLeave",
+        select: "staffLeave",
+      })
+
+      .select(
+        "staffLeave user institute staffFirstName staffMiddleName staffLastName"
+      );
+
+    const user = await User.findById(staff.user).select("uNotify");
+
+    const institute = await InstituteAdmin.findById(staff.institute);
+    const leave = new Leave({
+      reason: req.body.reason,
+      date: dateArray,
+      staff: staff._id,
+      institute: institute._id,
+    });
+    leave.leave_grant = dateArray?.length
+    leave.leave_type = req?.body?.leave_type
+    institute.c_off_leave.push(leave._id);
+    staff.staffLeave.push(leave._id);
+    if(req?.body?.attach){
+      leave.attach = attach
+    }
+    staff.c_off_leave += 1
+    const notify = new Notification({});
+    notify.notifyContent = `${staff.staffFirstName} ${
+      staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
+    } ${staff.staffLastName} requested for a leave check application`;
+    notify.notifySender = req.params.sid;
+    notify.notifyReceiever = institute._id;
+    institute.iNotify.push(notify._id);
+    notify.notifyByStaffPhoto = staff._id;
+    notify.notifyCategory = "Leave";
+    notify.redirectIndex = 10;
+    notify.instituteId = institute?._id;
+    //
+    invokeMemberTabNotification(
+      "Institute Activity",
+      notify,
+      "Request for Leave",
+      institute._id,
+      institute.deviceToken,
+      "Institute",
+      notify
+    );
+    //
+    await Promise.all([
+      institute.save(),
+      staff.save(),
+      leave.save(),
+      user.save(),
+      notify.save(),
+    ]);
+    res.status(201).send({ message: "request to leave" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStaffCoffLeaveQuery = async(req, res) => {
+  try{
+    const { id } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { status_query } = req?.query
+    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const ins = await InstituteAdmin.findById({ _id: id})
+    var all_leave = await Leave.find({ $and: [{ _id: { $in: ins?.c_off_leave }}, { status: `${status_query}`}] })
+    .sort({ createdAt: -1})
+    .limit(limit)
+    .skip(skip)
+    .populate({
+      path: "staff",
+      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto valid_full_name staffROLLNO"
+    })
+    
+    if(all_leave?.length > 0){
+      res.status(200).send({ message: "Their is a bug need to fixed immediately", access: true, all_leave: all_leave})
+    }
+    else{
+      res.status(200).send({ message: "Their is a bug need to fixed immediately", access: true, all_leave: []})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}

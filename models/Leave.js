@@ -22,6 +22,15 @@ const leaveSchema = new mongoose.Schema({
     type: String,
     default: "Request",
   },
+  attach: {
+    type: String
+  },
+  leave_type: {
+    type: String
+  },
+  granted_on: {
+    type: Date
+  }
 });
 
 const Leave = mongoose.model("Leave", leaveSchema);

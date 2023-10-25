@@ -7935,7 +7935,9 @@ const auto_scholar_query = async (
   type,
   scid,
   rcid,
-  fee_payment_mode
+  fee_payment_mode,
+  date_query,
+  remark_query
 ) => {
   try {
     // const { sid, appId } = req.params;
@@ -7982,10 +7984,11 @@ const auto_scholar_query = async (
     new_receipt.application = apply?._id;
     new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.finance = finance?._id;
-    new_receipt.fee_transaction_date = new Date();
+    new_receipt.fee_transaction_date = new Date(`${date_query}`);
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findById({ _id: rcid });
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
+    remaining_fee_lists.remark = `${remark_query}`
     if (fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
@@ -8328,7 +8331,9 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, scid) => {
             valid_type,
             scid,
             valid_remain?._id,
-            "Government/Scholarship"
+            "Government/Scholarship",
+            ref?.Date,
+            ref?.Remark
           );
         }
       }
@@ -9816,8 +9821,8 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
     var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    const g_date = new Date(`2023-10-19T00:00:00.000Z`);
-    const l_date = new Date(`2023-10-20T00:00:00.000Z`);
+    const g_date = new Date(`2023-10-23T00:00:00.000Z`);
+    const l_date = new Date(`2023-10-26T00:00:00.000Z`);
     var receipt = await FeeReceipt.find({
       $and: [
         {
@@ -9853,23 +9858,23 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     //   _id: "6528c827c0da2e507764cf2c",
     // })
     for (var ref of receipt) {
-      // if (ref?.fee_heads?.length > 0) {
-      //   ref.fee_heads = [];
-      //   await ref.save();
-      // } else {
+      if (ref?.fee_heads?.length > 0) {
+        ref.fee_heads = [];
+        await ref.save();
+      } else {
       // await set_fee_head_query_redesign(
       //   ref?.student,
       //   ref?.fee_payment_amount,
       //   ref?.application,
       //   ref
       // );
-      await set_fee_head_query_redesign_hostel(
-        ref?.student,
-        ref?.fee_payment_amount,
-        ref?.application,
-        ref
-      );
-      // }
+      // await set_fee_head_query_redesign_hostel(
+      //   ref?.student,
+      //   ref?.fee_payment_amount,
+      //   ref?.application,
+      //   ref
+      // );
+      }
     }
     // receipt.fee_heads = [];
     // await receipt.save();

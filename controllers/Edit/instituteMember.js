@@ -697,8 +697,8 @@ exports.subjectDelete = async (req, res) => {
     classes?.subject.pull(subject._id);
     classes.subjectCount -= 1;
     if(valid_subject_teacher){
-      const subjectTeacherName = await Staff.findById(subject.subjectTeacherName);
-      subjectTeacherName?.staffSubject.pull(subject._id);
+      const subjectTeacherName = await Staff.findById(subject?.subjectTeacherName);
+      subjectTeacherName.staffSubject.pull(subject._id);
       subjectTeacherName.staffDesignationCount -= 1;
       await subjectTeacherName.save()
     }
@@ -817,3 +817,35 @@ exports.renderTransportbatchDelete = async (req, res) => {
 //     console.log(e);
 //   }
 // };
+
+exports.subjectDeleteAll = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send subject id to perform task";
+    const classes = await Class.findById({ _id: req?.params?.cid })
+    const subject = await Subject.find({ _id: { $in: classes?.subject }}).populate({
+      path: "class",
+      select: "ApproveStudent",
+    });
+    for(var ref of subject){
+    const subjectMaster = await SubjectMaster.findById(
+      ref?.subjectMasterName
+    );
+    subjectMaster?.subjects.pull(ref?._id);
+    subjectMaster.subjectCount -= 1;
+    const classes = await Class.findById(ref?.class);
+    classes?.subject.pull(ref?._id);
+    classes.subjectCount -= 1;
+
+    await Promise.all([
+      subjectMaster.save(),
+      classes.save(),
+    ]);
+    await Subject.findByIdAndDelete(ref?._id);
+    }
+    res
+      .status(200)
+      .send({ message: "Subject deleted successfully👍", deleted: "Yes" });
+  } catch (e) {
+    console.log(e)
+  }
+};

@@ -422,6 +422,30 @@ const staffSchema = new mongoose.Schema({
       },
     },
   ],
+  casual_leave: {
+    type: Number,
+    default: 0
+  },
+  medical_leave: {
+    type: Number,
+    default: 0
+  },
+  sick_leave: {
+    type: Number,
+    default: 0
+  },
+  off_duty_leave: {
+    type: Number,
+    default: 0
+  },
+  c_off_leave: {
+    type: Number,
+    default: 0
+  },
+  lwp_leave: {
+    type: Number,
+    default: 0
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

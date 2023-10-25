@@ -79,6 +79,10 @@ const bookSchema = new mongoose.Schema({
   },
   publisher: {
     type: String
+  },
+  qviple_book_id: {
+    type: String,
+    unique: true
   }
 });
 

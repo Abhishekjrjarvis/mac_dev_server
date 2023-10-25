@@ -16,6 +16,7 @@ const InternalFees = require("../../models/RazorPay/internalFees");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 const BankAccount = require("../../models/Finance/BankAccount");
 const { nested_document_limit } = require("../../helper/databaseFunction");
+const { randomSixCode } = require("../../Service/close");
 
 //for Institute side Activate library
 exports.activateLibrary = async (req, res) => {
@@ -1025,6 +1026,7 @@ exports.renderNewOfflineBookAutoQuery = async (lid, book_array) => {
       });
       library.books.push(book._id);
       library.bookCount += 1;
+      book.qviple_book_id = `QLB${randomSixCode()}${val?.accession_number}`
       book.library = lid;
       book.leftCopies = book.totalCopies;
       await book.save();

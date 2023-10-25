@@ -286,6 +286,15 @@ exports.all_access_role_ins = () => {
         accessStaff: "",
       },
     },
+    LEAVING_AND_TRANSFER_ACCESS: {
+      role: "LEAVING_AND_TRANSFER_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["ASSIGN LEAVE", "MAKE STAFF TRANSFER"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
   };
   return access_role_ins;
 };

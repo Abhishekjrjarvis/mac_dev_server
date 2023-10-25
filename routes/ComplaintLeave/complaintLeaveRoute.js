@@ -102,6 +102,19 @@ router
   .put(isLoggedIn, catchAsync(complaintController.staffTransferRejected))
   .patch(isLoggedIn, catchAsync(complaintController.staffTransferApproved));
 
+router.patch("/:id/config/leave/assign/query", catchAsync(complaintController.renderLeaveConfigQuery))
+
+router.patch("/:sid/config/staff/leave/assign/query", catchAsync(complaintController.renderStaffLeaveConfigQuery))
+
+router
+  .route("/staff/:sid/coff/query")
+  .post(isLoggedIn, catchAsync(complaintController.postStaffCoffLeaveQuery));
+
+router
+  .route("/staff/:sid/all/coff/query")
+  .get(isLoggedIn, catchAsync(complaintController.renderStaffCoffLeaveQuery));
+
+
 // router
 //   .route("/student/:sid/complaint")
 //   .get(isLoggedIn,catchAsync(complaintController.studentComplaint));

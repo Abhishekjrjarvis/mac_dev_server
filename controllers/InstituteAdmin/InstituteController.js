@@ -3680,6 +3680,12 @@ exports.retrieveNewSubject = async (req, res) => {
     } else {
       subject.subjectTeacherName = null;
     }
+    if (batch_arr?.length > 0) {
+      for (var ref of batch_arr) {
+        // staff.staffBatch.push(ref);
+        subject.selected_batch_query = ref;
+      }
+    }
     classes.subject.push(subject._id);
     classes.subjectCount += 1;
     subjectMaster.subjects.push(subject._id);

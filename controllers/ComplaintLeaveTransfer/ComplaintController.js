@@ -725,15 +725,24 @@ exports.classAllTransfer = async (req, res) => {
 
 exports.getStaffLeave = async (req, res) => {
   try {
+    const { category } = req?.query
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const staff = await Staff.findById(req.params.sid)
     .select("staffLeave")
-    const all_leave = await Leave.find({ _id: {$in: staff?.staffLeave }})
+    if(category){
+      var all_leave = await Leave.find({ $and: [{ _id: {$in: staff?.staffLeave } }, { leave_type: `${category}`}]})
     .sort({ createdAt: -1 })
     .limit(limit)
     .skip(skip)
+    }
+    else{
+      var all_leave = await Leave.find({ _id: {$in: staff?.staffLeave }})
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .skip(skip)
+    }
     // const lEncrypt = await encryptionPayload(staff.staffLeave);
     res.status(200).send({ message: "All leaves", allLeave: all_leave });
   } catch (e) {

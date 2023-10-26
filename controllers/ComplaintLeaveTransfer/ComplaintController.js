@@ -1592,7 +1592,7 @@ exports.renderLeaveOverviewQuery = async(req, res) => {
       total_leave_taken: leave_taken
     }
 
-    res.status(200).send({ message: "Explore All Leave Available + Taken Query", access: true, overview: overview })
+    res.status(200).send({ message: "Explore All Leave Available + Taken Query", access: true, overview: overview, staff: staff })
   }
   catch(e){
     console.log(e)

@@ -111,7 +111,7 @@ router
   .post(isLoggedIn, catchAsync(complaintController.postStaffCoffLeaveQuery));
 
 router
-  .route("/staff/:sid/all/coff/query")
+  .route("/staff/:id/all/coff/query")
   .get(isLoggedIn, catchAsync(complaintController.renderStaffCoffLeaveQuery));
 
 

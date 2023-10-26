@@ -880,10 +880,10 @@ exports.getAllStaffLeaveInstitute = async (req, res) => {
     })
     
     if(all_leave?.length > 0){
-      res.status(200).send({ message: "Their is a bug need to fixed immediately", access: true, all_leave: all_leave})
+      res.status(200).send({ message: "Explore All Leave Query", access: true, all_leave: all_leave})
     }
     else{
-      res.status(200).send({ message: "Their is a bug need to fixed immediately", access: true, all_leave: []})
+      res.status(200).send({ message: "I think you're lost in space", access: true, all_leave: []})
     }
   } catch (e) {
     console.log(e);
@@ -1532,10 +1532,10 @@ exports.renderStaffCoffLeaveQuery = async(req, res) => {
     })
     
     if(all_leave?.length > 0){
-      res.status(200).send({ message: "Their is a bug need to fixed immediately", access: true, all_leave: all_leave})
+      res.status(200).send({ message: "Explore All C-Off Leave Query", access: true, all_leave: all_leave})
     }
     else{
-      res.status(200).send({ message: "Their is a bug need to fixed immediately", access: true, all_leave: []})
+      res.status(200).send({ message: "I think you're lost in space", access: true, all_leave: []})
     }
   }
   catch(e){

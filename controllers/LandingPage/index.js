@@ -18,6 +18,7 @@ const Tender = require("../../models/LandingModel/Tender/Tender");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const Academic = require("../../models/LandingModel/SinglePage/Academic");
 const NSS = require("../../models/LandingModel/SinglePage/NSS");
+const Facilities = require("../../models/LandingModel/SinglePage/facilities");
 
 exports.uploadGetTouchDetail = async (req, res) => {
   try {
@@ -833,6 +834,10 @@ exports.renderOneWebProfile = async (req, res) => {
       .populate({
         path: "nss_module",
         select: "nss_about",
+      })
+      .populate({
+        path: "facilities_module",
+        select: "institute",
       });
     res.status(200).send({
       message: "Explore One Institute All Profile Details",
@@ -1148,6 +1153,90 @@ exports.renderNewNSSQuery = async(req, res) => {
 catch(e){
   console.log(e)
 }
+}
+
+exports.renderFacilitiesQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var fact = await Facilities.findById({ _id: fid })
+      .populate({
+        path: "institute",
+        select: "insName name",
+      })
+
+    res
+      .status(200)
+      .send({ message: "Explore master NSS Query", access: true, fact: fact });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewFacilitiesQuery = async(req, res) => {
+  try{
+    const { id } = req.params
+    const { post_content, content } = req?.body
+    if(!id) return res.status(200).send({ message: "Their is a bug need to immediately", access: false })
+
+    const ins = await InstituteAdmin.findById({ _id: id })
+    const fact = new Facilities({})
+
+    ins.facilities_module = fact?._id
+    fact.institute = ins?._id
+    if(post_content?.attach){
+      fact.facilities_attach.attach = post_content?.attach
+      fact.facilities_attach.title = post_content?.title
+    }
+    if(content?.length > 0){
+      for(var ele of content){
+      fact.facilities_overview.push({
+        headline: ele?.headline,
+        headline_content: ele?.headline_content
+      })
+      }
+    }
+    await Promise.all([fact.save(), ins.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New Facilities Module Query", access: true });
+  }
+catch(e){
+  console.log(e)
+}
+}
+
+exports.renderEditFacilitiesQuery = async(req, res) => {
+  try{
+    const { fid } = req?.params
+    const { post_content, content } = req?.body
+    if(!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const fact = await Facilities.findById({ _id: fid })
+    if(post_content?.attach){
+      fact.facilities_attach.attach = post_content?.attach
+      fact.facilities_attach.title = post_content?.title
+    }
+    if(content?.length > 0){
+      for(var ele of content){
+      fact.facilities_overview.push({
+        headline: ele?.headline,
+        headline_content: ele?.headline_content
+      })
+      }
+    }
+
+    await fact.save()
+    res.status(200).send({ message: "Update Facilities Module Query", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
 }
 
 // var is_true = true;

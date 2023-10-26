@@ -139,4 +139,10 @@ router.get("/:nid/nss/query", catchAsync(Landing.renderNSSQuery));
 
 router.post("/:id/new/nss/query", catchAsync(Landing.renderNewNSSQuery));
 
+router.get("/:fid/facilities/query", catchAsync(Landing.renderFacilitiesQuery));
+
+router.post("/:id/new/facilities/query", catchAsync(Landing.renderNewFacilitiesQuery));
+
+router.patch("/:fid/edit/facilities/query", catchAsync(Landing.renderEditFacilitiesQuery));
+
 module.exports = router;

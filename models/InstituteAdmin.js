@@ -1038,6 +1038,10 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Leave",
     },
   ],
+  facilities_module: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Facilities"
+  }
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

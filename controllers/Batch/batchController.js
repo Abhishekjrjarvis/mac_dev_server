@@ -212,6 +212,7 @@ exports.preformedStructure = async (req, res) => {
           practical_analytic: oneSubject?.practical_analytic,
           tutorial_analytic: oneSubject?.tutorial_analytic,
           subject_category: oneSubject?.subject_category,
+          selected_batch_query: oneSubject?.selected_batch_query
         });
         if(oneSubject?.subjectTeacherName){
           identicalSubject.subjectTeacherName = oneSubject?.subjectTeacherName

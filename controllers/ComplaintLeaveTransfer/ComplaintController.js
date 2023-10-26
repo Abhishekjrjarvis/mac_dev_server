@@ -906,7 +906,7 @@ exports.oneStaffLeaveProcess = async (req, res) => {
           path: "user",
           select: "uNotify activity_tab",
         },
-        select: "user casual_leave medical_leave sick_leave",
+        select: "user casual_leave medical_leave sick_leave leave_taken",
       })
       .select("staff institute status");
     const user = await User.findById(leave.staff.user._id);
@@ -936,6 +936,8 @@ exports.oneStaffLeaveProcess = async (req, res) => {
         leave.staff.c_off_leave -= leave?.leave_grant
       }
     }
+
+    leave.staff.leave_taken += leave?.leave_grant
     notify.notifyContent = `Your Leave request has been ${req.body.status} by ${leave.institute.insName}`;
     notify.notifySender = leave.institute._id;
     notify.notifyReceiever = user._id;

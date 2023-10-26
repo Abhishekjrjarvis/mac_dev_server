@@ -150,9 +150,11 @@ exports.preformedStructure = async (req, res) => {
         batch: identicalBatch?._id,
         department: oneClass?.department,
         classStartDate: date,
+        multiple_batches: oneClass?.multiple_batches,
         // classTeacher: oneClass?.classTeacher,
         finalReportsSettings: oneClass?.finalReportsSettings,
       });
+      identicalClass.multiple_batches_count = oneClass?.multiple_batches?.length
       if(oneClass?.classTeacher){
         identicalClass.classTeacher = oneClass?.classTeacher
       }

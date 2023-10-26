@@ -446,6 +446,10 @@ const staffSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  leave_taken: {
+    type: Number,
+    default: 0
+  }
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

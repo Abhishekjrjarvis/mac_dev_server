@@ -1564,3 +1564,64 @@ exports.renderManageCoffQuery = async(req, res) => {
     console.log(e)
   }
 }
+
+exports.renderLeaveOverviewQuery = async(req, res) => {
+  try{
+    const { sid } = req.params
+    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const staff = await Staff.findById({ _id: sid })
+    .select("casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave leave_taken")
+
+    var total_leave = staff?.casual_leave + staff?.medical_leave + staff?.sick_leave + staff?.off_duty_leave + staff?.lwp_leave + staff?.c_off_leave
+    var leave_taken = staff?.leave_taken
+
+    var overview = {
+      total_leave_available: total_leave,
+      total_leave_taken: leave_taken
+    }
+
+    res.status(200).send({ message: "Explore All Leave Available + Taken Query", access: true, overview: overview })
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderLeaveFilterOverviewQuery = async(req, res) => {
+  try{
+    const { sid } = req.params
+    const { category } = req?.query
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const staff = await Staff.findById({ _id: sid })
+    .select("staffLeave")
+
+    if(category){
+      var all_leave = await Leave.find({ $and: [{ _id: { $in: staff?.staffLeave }},  { leave_type: `${category}` }]})
+    .limit(limit)
+    .skip(skip)
+    .populate({
+      path: "staff",
+      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+    })
+    }
+    else{
+      var all_leave = await Leave.find({ $and: [{ _id: { $in: staff?.staffLeave }}]})
+    .limit(limit)
+    .skip(skip)
+    .populate({
+      path: "staff",
+      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+    })
+    }
+
+    res.status(200).send({ message: "Explore All Leave Available + Taken Query", access: true, all_leave: all_leave })
+  }
+  catch(e){
+    console.log(e)
+  }
+}

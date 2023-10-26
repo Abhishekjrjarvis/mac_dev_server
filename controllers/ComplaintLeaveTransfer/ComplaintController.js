@@ -792,7 +792,7 @@ exports.postStaffLeave = async (req, res) => {
     institute.leave.push(leave._id);
     staff.staffLeave.push(leave._id);
     if(req?.body?.attach){
-      leave.attach = attach
+      leave.attach = req?.body?.attach
     }
     const notify = new Notification({});
     notify.notifyContent = `${staff.staffFirstName} ${
@@ -1474,7 +1474,7 @@ exports.postStaffCoffLeaveQuery = async (req, res) => {
     institute.c_off_leave.push(leave._id);
     staff.staffLeave.push(leave._id);
     if(req?.body?.attach){
-      leave.attach = attach
+      leave.attach = req?.body?.attach
     }
     staff.c_off_leave += 1
     const notify = new Notification({});

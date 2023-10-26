@@ -1457,7 +1457,7 @@ exports.postStaffCoffLeaveQuery = async (req, res) => {
       })
 
       .select(
-        "staffLeave user institute staffFirstName staffMiddleName staffLastName"
+        "staffLeave user institute staffFirstName staffMiddleName staffLastName c_off_leave"
       );
 
     const user = await User.findById(staff.user).select("uNotify");

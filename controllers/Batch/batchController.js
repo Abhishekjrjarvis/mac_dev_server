@@ -139,7 +139,7 @@ exports.preformedStructure = async (req, res) => {
       // console.log("this is staff", staff);
 
       const classMaster = await ClassMaster.findById(oneClass?.masterClassName);
-      const identicalClass = new Class({
+      var identicalClass = new Class({
         classCode: code,
         className: oneClass?.className,
         classTitle: oneClass?.classTitle,
@@ -150,10 +150,12 @@ exports.preformedStructure = async (req, res) => {
         batch: identicalBatch?._id,
         department: oneClass?.department,
         classStartDate: date,
-        classTeacher: oneClass?.classTeacher,
+        // classTeacher: oneClass?.classTeacher,
         finalReportsSettings: oneClass?.finalReportsSettings,
       });
-
+      if(oneClass?.classTeacher){
+        identicalClass.classTeacher = oneClass?.classTeacher
+      }
       classMaster?.classDivision.push(identicalClass._id);
       classMaster.classCount += 1;
       institute?.classRooms.push(identicalClass._id);
@@ -162,31 +164,33 @@ exports.preformedStructure = async (req, res) => {
       department.classCount += 1;
       identicalBatch?.classroom.push(identicalClass._id);
       if (req?.body?.with_designation === "No") {
-        const staff = await Staff.findById(oneClass?.classTeacher);
-        const class_user = await User.findById({ _id: `${staff?.user}` });
-        staff?.staffClass.push(identicalClass._id);
-        staff.staffDesignationCount += 1;
-        staff.recentDesignation = identicalClass?.classHeadTitle;
-        staff.designation_array.push({
-          role: "Class Teacher",
-          role_id: identicalClass?._id,
-        });
-        const notify = new Notification({});
-        notify.notifyContent = `you got the designation of ${identicalClass.className} as ${identicalClass.classHeadTitle}`;
-        notify.notifySender = oneClass?.institute;
-        notify.notifyReceiever = class_user._id;
-        notify.notifyCategory = "Class Designation";
-        class_user.uNotify.push(notify._id);
-        notify.user = class_user._id;
-        notify.notifyByInsPhoto = institute._id;
-        await invokeFirebaseNotification(
-          "Designation Allocation",
-          notify,
-          institute.insName,
-          class_user._id,
-          class_user.deviceToken
-        );
-        await Promise.all([notify.save(), class_user.save(), staff.save()]);
+        if(oneClass?.classTeacher){
+          const staff = await Staff.findById(oneClass?.classTeacher);
+          const class_user = await User.findById({ _id: `${staff?.user}` });
+          staff?.staffClass.push(identicalClass._id);
+          staff.staffDesignationCount += 1;
+          staff.recentDesignation = identicalClass?.classHeadTitle;
+          staff.designation_array.push({
+            role: "Class Teacher",
+            role_id: identicalClass?._id,
+          });
+          const notify = new Notification({});
+          notify.notifyContent = `you got the designation of ${identicalClass.className} as ${identicalClass.classHeadTitle}`;
+          notify.notifySender = oneClass?.institute;
+          notify.notifyReceiever = class_user._id;
+          notify.notifyCategory = "Class Designation";
+          class_user.uNotify.push(notify._id);
+          notify.user = class_user._id;
+          notify.notifyByInsPhoto = institute._id;
+          await invokeFirebaseNotification(
+            "Designation Allocation",
+            notify,
+            institute.insName,
+            class_user._id,
+            class_user.deviceToken
+          );
+          await Promise.all([notify.save(), class_user.save(), staff.save()]);
+        }
       }
 
       for (let oneSubject of oneClass?.subject) {
@@ -194,10 +198,10 @@ exports.preformedStructure = async (req, res) => {
           oneSubject?.subjectMasterName
         );
 
-        const identicalSubject = new Subject({
+        var identicalSubject = new Subject({
           subjectName: oneSubject?.subjectName,
           subjectTitle: oneSubject?.subjectTitle,
-          subjectTeacherName: oneSubject?.subjectTeacherName,
+          // subjectTeacherName: oneSubject?.subjectTeacherName,
           subjectMasterName: oneSubject?.subjectMasterName,
           class: identicalClass._id,
           institute: batch?.institute,
@@ -207,43 +211,48 @@ exports.preformedStructure = async (req, res) => {
           tutorial_analytic: oneSubject?.tutorial_analytic,
           subject_category: oneSubject?.subject_category,
         });
+        if(oneSubject?.subjectTeacherName){
+          identicalSubject.subjectTeacherName = oneSubject?.subjectTeacherName
+        }
         subjectMaster?.subjects.push(identicalSubject._id);
         subjectMaster.subjectCount += 1;
         identicalClass?.subject.push(identicalSubject?._id);
         if (req?.body?.with_designation === "No") {
-          const sujectStaff = await Staff.findById(
-            oneSubject?.subjectTeacherName
-          );
-          const subject_user = await User.findById({
-            _id: `${sujectStaff?.user}`,
-          });
-          sujectStaff?.staffSubject.push(identicalSubject._id);
-          sujectStaff.staffDesignationCount += 1;
-          sujectStaff.recentDesignation = identicalSubject?.subjectTitle;
-          sujectStaff.designation_array.push({
-            role: "Subject Teacher",
-            role_id: identicalSubject?._id,
-          });
-          const notify_subject = new Notification({});
-          notify_subject.notifyContent = `you got the designation of ${identicalSubject.subjectName} as ${identicalSubject.subjectTitle}`;
-          notify_subject.notifySender = batch?.institute;
-          notify_subject.notifyReceiever = subject_user._id;
-          notify_subject.notifyCategory = "Subject Designation";
-          subject_user.uNotify.push(notify_subject._id);
-          notify_subject.user = subject_user._id;
-          notify_subject.notifyByInsPhoto = institute._id;
-          await invokeFirebaseNotification(
-            "Designation Allocation",
-            notify_subject,
-            institute.insName,
-            subject_user._id,
-            subject_user.deviceToken
-          );
-          await Promise.all([
-            notify_subject.save(),
-            sujectStaff.save(),
-            subject_user.save(),
-          ]);
+          if(oneSubject?.subjectTeacherName){
+            const sujectStaff = await Staff.findById(
+              oneSubject?.subjectTeacherName
+            );
+            const subject_user = await User.findById({
+              _id: `${sujectStaff?.user}`,
+            });
+            sujectStaff?.staffSubject.push(identicalSubject._id);
+            sujectStaff.staffDesignationCount += 1;
+            sujectStaff.recentDesignation = identicalSubject?.subjectTitle;
+            sujectStaff.designation_array.push({
+              role: "Subject Teacher",
+              role_id: identicalSubject?._id,
+            });
+            const notify_subject = new Notification({});
+            notify_subject.notifyContent = `you got the designation of ${identicalSubject.subjectName} as ${identicalSubject.subjectTitle}`;
+            notify_subject.notifySender = batch?.institute;
+            notify_subject.notifyReceiever = subject_user._id;
+            notify_subject.notifyCategory = "Subject Designation";
+            subject_user.uNotify.push(notify_subject._id);
+            notify_subject.user = subject_user._id;
+            notify_subject.notifyByInsPhoto = institute._id;
+            await invokeFirebaseNotification(
+              "Designation Allocation",
+              notify_subject,
+              institute.insName,
+              subject_user._id,
+              subject_user.deviceToken
+            );
+            await Promise.all([
+              notify_subject.save(),
+              sujectStaff.save(),
+              subject_user.save(),
+            ]);
+          }
         }
 
         await Promise.all([identicalSubject.save(), subjectMaster.save()]);

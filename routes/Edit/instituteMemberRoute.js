@@ -13,7 +13,7 @@ router
 router
   .route("/batch/:bid")
   .patch(isLoggedIn, catchAsync(instituteMember.batchEdit))
-  .delete(isLoggedIn, catchAsync(instituteMember.batchDelete));
+  .delete(catchAsync(instituteMember.batchDelete));
 
 router
   .route("/classmaster/:cmid")

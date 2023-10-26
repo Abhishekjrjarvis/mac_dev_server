@@ -115,6 +115,8 @@ router
   .get(isLoggedIn, catchAsync(complaintController.renderStaffCoffLeaveQuery));
 
 
+router.patch("/manage/approve/:lid", catchAsync(complaintController.renderManageCoffQuery))
+
 // router
 //   .route("/student/:sid/complaint")
 //   .get(isLoggedIn,catchAsync(complaintController.studentComplaint));

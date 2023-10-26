@@ -725,14 +725,17 @@ exports.classAllTransfer = async (req, res) => {
 
 exports.getStaffLeave = async (req, res) => {
   try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     const staff = await Staff.findById(req.params.sid)
-      .populate({
-        path: "staffLeave",
-        select: "reason date status attach leave_type",
-      })
-      .select("_id staffLeave");
+    .select("staffLeave")
+    const all_leave = await Leave.find({ _id: {$in: staff?.staffLeave }})
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .skip(skip)
     // const lEncrypt = await encryptionPayload(staff.staffLeave);
-    res.status(200).send({ message: "All leaves", allLeave: staff.staffLeave });
+    res.status(200).send({ message: "All leaves", allLeave: all_leave });
   } catch (e) {
     console.log(e);
   }
@@ -1476,7 +1479,6 @@ exports.postStaffCoffLeaveQuery = async (req, res) => {
     if(req?.body?.attach){
       leave.attach = req?.body?.attach
     }
-    staff.c_off_leave += 1
     const notify = new Notification({});
     notify.notifyContent = `${staff.staffFirstName} ${
       staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
@@ -1537,6 +1539,26 @@ exports.renderStaffCoffLeaveQuery = async(req, res) => {
     else{
       res.status(200).send({ message: "I think you're lost in space", access: true, all_leave: []})
     }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderManageCoffQuery = async(req, res) => {
+  try{
+    const { lid } = req?.params
+    const { sid } = req?.body
+    if(!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    var one_leave = await Leave.findById({ _id: lid})
+    var staff = await Staff.findById({ _id: sid })
+
+    one_leave.status = "Accepted"
+    staff.c_off_leave += 1
+
+    await Promise.all([ staff.save(), one_leave.save() ])
+    res.status(200).send({ message: "Explore Manage C-off Leave Query"})
   }
   catch(e){
     console.log(e)

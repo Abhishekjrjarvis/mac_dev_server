@@ -71,6 +71,32 @@ const financeModeratorSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  recommend_staff: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Staff"
+    }
+  ],
+  recommend_staff_count: {
+    type: Number,
+    default: 0
+  },
+  review_staff: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Staff"
+    }
+  ],
+  review_staff_count: {
+    type: Number,
+    default: 0
+  },
+  review_authority_list: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FinanceModerator"
+    }
+  ]
 });
 
 module.exports = mongoose.model("FinanceModerator", financeModeratorSchema);

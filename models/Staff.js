@@ -449,7 +449,19 @@ const staffSchema = new mongoose.Schema({
   leave_taken: {
     type: Number,
     default: 0
-  }
+  },
+  recommend_authority: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FinanceModerator"
+  },
+  review_authority: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FinanceModerator"
+  },
+  sanction_authority: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

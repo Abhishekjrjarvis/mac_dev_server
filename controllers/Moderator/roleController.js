@@ -684,7 +684,7 @@ exports.destroyFinanceModeratorQuery = async (req, res) => {
 exports.addInstituteModeratorQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { mod_role, sid, social_media_password_query, academic_department } =
+    const { mod_role, sid, social_media_password_query, academic_department, staff_array, rev_array } =
       req.body;
     if (!id && !mod_role && !sid)
       return res.status(200).send({
@@ -744,6 +744,30 @@ exports.addInstituteModeratorQuery = async (req, res) => {
     notify.user = user._id;
     notify.notifyPid = "1";
     notify.notifyByInsPhoto = institute._id;
+    if(`${new_mod?.access_role}` === "LEAVE_RECOMMENDATION_ACCESS"){
+      var all_staff = await Staff.find({ _id: { $in: staff_array}})
+      for(var ele of all_staff){
+        ele.recommend_authority = new_mod?._id
+        new_mod.recommend_staff.push(ele?._id)
+        new_mod.recommend_staff_count += 1
+        await ele.save()
+      }
+    } 
+    if(`${new_mod?.access_role}` === "LEAVE_REVIEW_ACCESS"){
+      var all_staff = await Staff.find({ _id: { $in: staff_array}})
+      for(var ele of all_staff){
+        ele.review_authority = new_mod?._id
+        new_mod.review_staff.push(ele?._id)
+        new_mod.review_staff_count += 1
+        await ele.save()
+      }
+    }
+    if(`${new_mod?.access_role}` === "LEAVE_SANCTION_ACCESS"){
+      var all_mods = await FinanceModerator.findById({ _id: { $in: rev_array}})
+      for(var ele of all_mods){
+        new_mod.review_authority_list.push(ele?._id)
+      }
+    }
     await invokeFirebaseNotification(
       "Designation Allocation",
       notify,

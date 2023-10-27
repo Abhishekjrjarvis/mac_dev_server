@@ -295,6 +295,33 @@ exports.all_access_role_ins = () => {
         accessStaff: "",
       },
     },
+    LEAVE_RECOMMENDATION_ACCESS: {
+      role: "LEAVE_RECOMMENDATION_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["HANDLE RECOMMEND LEAVE"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    LEAVE_REVIEW_ACCESS: {
+      role: "LEAVE_REVIEW_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["HANDLE LEAVE VERIFICATION"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    LEAVE_SANCTION_ACCESS: {
+      role: "LEAVE_SANCTION_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["HANDLE LEAVE SANCTION"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
   };
   return access_role_ins;
 };

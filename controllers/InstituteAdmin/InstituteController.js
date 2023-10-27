@@ -3284,6 +3284,7 @@ exports.retrieveDepartmentList = async (req, res) => {
 exports.getOneDepartment = async (req, res) => {
   try {
     const { did } = req.params;
+    const options = { sort: { createdAt: -1 }}
     if (did === "undefined") {
     } else {
       const department = await Department.findById({ _id: did })
@@ -3302,6 +3303,7 @@ exports.getOneDepartment = async (req, res) => {
         .populate({
           path: "batches",
           select: "batchName batchStatus createdAt batch_type designation_send",
+          options
         })
         .populate({
           path: "departmentSelectBatch",

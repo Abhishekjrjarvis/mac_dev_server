@@ -579,7 +579,7 @@ exports.retrieveStudentQuery = async (req, res) => {
       // Add Another Encryption
       // for(var ref of student){
       var all_remain = await RemainingList.find({ student: `${student?._id}` })
-        .select("applicable_fee paid_fee paid_by_government")
+        .select("applicable_fee paid_fee paid_by_government remaining_fee")
         .populate({
           path: "fee_structure",
           select: "applicable_fees",

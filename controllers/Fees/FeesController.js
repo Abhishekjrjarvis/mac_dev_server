@@ -585,13 +585,17 @@ exports.retrieveStudentQuery = async (req, res) => {
           select: "applicable_fees",
         });
       var g_total = 0;
+      var pending = 0
       for (var ele of all_remain) {
         student.applicable_fees_pending +=
           ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
             ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
             : 0;
         g_total += ele?.paid_by_government;
+        pending += ele?.remaining_fee
       }
+      student.admissionRemainFeeCount = pending
+      // await student.save()
       res.status(200).send({
         message: "Student Fee and Checklist",
         student,

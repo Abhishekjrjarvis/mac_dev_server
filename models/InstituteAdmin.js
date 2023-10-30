@@ -1041,7 +1041,18 @@ const instituteAdminSchema = new mongoose.Schema({
   facilities_module: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Facilities"
-  }
+  },
+  student_export_collection: [
+    {
+      excel_file: { type: String },
+      excel_file_name: { type: String },
+      created_at: { type: Date, default: Date.now },
+    },
+  ],
+  student_export_collection_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

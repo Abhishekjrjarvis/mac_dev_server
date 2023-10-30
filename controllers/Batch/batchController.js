@@ -459,6 +459,18 @@ exports.promoteStudent = async (req, res) => {
               });
             }
           }
+          structure = structure?.filter((val) => {
+            if (
+              val?.unique_structure_name?.includes(`SY 2022-23`) ||
+              val?.unique_structure_name?.includes(`SYD 2022-23`)
+            ) {
+            } else {
+              return val;
+            }
+          });
+          numIndex = structure?.findIndex((val) => {
+            if (val?.unique_structure_name?.includes("SY")) return val;
+          });
           const user = await User.findById({ _id: `${student.user}` });
           const previousData = new StudentPreviousData({
             studentCode: student.studentCode,
@@ -601,7 +613,7 @@ exports.promoteStudent = async (req, res) => {
 
           // here assign new fee st
           if (!same_batch_promotion) {
-            student.fee_structure = structure ? structure[0]?._id : null;
+            student.fee_structure = structure ? structure[numIndex]?._id : null;
           }
           // student.active_fee_heads = [];
           /////
@@ -638,26 +650,26 @@ exports.promoteStudent = async (req, res) => {
           if (!same_batch_promotion) {
             var new_remainFee = new RemainingList({
               appId: apply?._id,
-              applicable_fee: structure[0]?.total_admission_fees,
+              applicable_fee: structure[numIndex]?.total_admission_fees,
               institute: institute?._id,
             });
             new_remainFee.access_mode_card = "Installment_Wise";
             new_remainFee.card_type = "Promote";
             new_remainFee.already_made = true;
             var structure_card = {
-              fee_structure: structure[0],
+              fee_structure: structure[numIndex],
             };
             await add_all_installment_zero(
               apply,
               institute._id,
               new_remainFee,
-              structure[0]?.total_admission_fees,
+              structure[numIndex]?.total_admission_fees,
               structure_card
             );
-            new_remainFee.fee_structure = structure[0]?._id;
+            new_remainFee.fee_structure = structure[numIndex]?._id;
             new_remainFee.re_admission_flow =
               `${re_ads}` === "WITH_RE_ADMISSION" ? true : false;
-            new_remainFee.remaining_fee += structure[0]?.total_admission_fees;
+            new_remainFee.remaining_fee += structure[numIndex]?.total_admission_fees;
             student.remainingFeeList.push(new_remainFee?._id);
             new_remainFee.re_admission_class =
               `${re_ads}` === "WITH_RE_ADMISSION" ? classes?._id : null;
@@ -665,9 +677,9 @@ exports.promoteStudent = async (req, res) => {
             new_remainFee.student = student?._id;
             admission.remainingFee.push(student._id);
             student.admissionRemainFeeCount +=
-              structure[0]?.total_admission_fees;
-            apply.remainingFee += structure[0]?.total_admission_fees;
-            admission.remainingFeeCount += structure[0]?.total_admission_fees;
+              structure[numIndex]?.total_admission_fees;
+            apply.remainingFee += structure[numIndex]?.total_admission_fees;
+            admission.remainingFeeCount += structure[numIndex]?.total_admission_fees;
             await Promise.all([
               new_remainFee.save(),
               admission.save(),

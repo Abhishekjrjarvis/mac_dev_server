@@ -22,6 +22,7 @@ const {
   json_to_excel_admission_application_query,
   json_to_excel_hostel_query,
   fee_heads_receipt_json_to_excel_repay_query,
+  json_to_excel_normal_student_promote_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -3575,6 +3576,151 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
         // head_list,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNormalStudentQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const { flow } = req?.query
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+      if(flow === "Normal"){
+        var classes = await Class.findById({ _id: cid }).select(
+          "ApproveStudent className institute"
+        );
+      }
+      else if(flow === "Promote"){
+        var classes = await Class.findById({ _id: cid }).select(
+          "promoteStudent className institute"
+        );
+      }
+      else{
+
+      }
+
+    if (classes?.ApproveStudent?.length > 0 || classes?.promoteStudent?.length > 0) {
+      res.status(200).send({
+        message: `Explore New ${flow} Excel Exports Wait for Some Time To Process`,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        access: false,
+      });
+    }
+
+    if(flow === "Normal"){
+      var searchable = [...classes?.ApproveStudent]
+
+    }
+    else if(flow === "Promote"){
+      var searchable = [...classes?.promoteStudent]
+
+    }
+    const valid_all_students = await Student.find({ _id: { $in: searchable } })
+      .populate({
+        path: "department",
+        select: "dName",
+      })
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName",
+      })
+      .populate({
+        path: "fee_structure hostel_fee_structure",
+        select: "unique_structure_name applicable_fees total_admission_fees category_master batch_master class_master",
+        populate: {
+          path: "category_master batch_master class_master",
+          select: "category_name batchName className",
+        },
+      })
+      valid_all_students.sort(function (st1, st2) {
+        return parseInt(st1?.studentROLLNO) - parseInt(st2?.studentROLLNO);
+      });
+    var excel_list = [];
+    for (var ref of valid_all_students) {
+      var struct = ref?.fee_structure ? ref?.fee_structure?._id : ref?.hostel_fee_structure ? ref?.hostel_fee_structure?._id : ""
+      var valid_card = await RemainingList.find({ $and: [{ student: `${ref?._id}`}]})
+      .populate({
+        path: "fee_structure"
+      })
+      var pending = 0
+      var paid = 0
+      for (var ele of valid_card) {
+        ref.applicable_fees_pending +=
+          ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+            ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+            : 0;
+        pending += ele?.remaining_fee
+        paid += ele?.paid_fee
+      }
+      // if(struct){
+      //   var valid_card = await RemainingList.find({ $and: [{ fee_structure: `${struct}`},{ student: `${ref?._id}`}]})
+      //   .populate({
+      //     path: "fee_structure"
+      //   })
+      // }
+      excel_list.push({
+        RollNo: ref?.studentROLLNO ?? "NA",
+        AbcId: ref?.student_abc_id ?? "#NA",
+        GRNO: ref?.studentGRNO ?? "#NA",
+        Name: `${ref?.studentFirstName} ${
+          ref?.studentMiddleName ? ref?.studentMiddleName : ""
+        } ${ref?.studentLastName}` ?? ref?.valid_full_name,
+        DOB: ref?.studentDOB ?? "#NA",
+        Gender: ref?.studentGender ?? "#NA",
+        Caste: ref?.studentCast ?? "#NA",
+        Religion: ref?.studentReligion ?? "#NA",
+        Nationality: `${ref?.studentNationality}` ?? "#NA",
+        MotherName: `${ref?.studentMotherName}` ?? "#NA",
+        MotherTongue: `${ref?.studentMTongue}` ?? "#NA",
+        CastCategory: `${ref?.studentCastCategory}` ?? "#NA",
+        PreviousSchool: `${ref?.studentPreviousSchool}` ?? "#NA",
+        Address: `${ref?.studentAddress}` ?? "#NA",
+        ParentsName: `${ref?.studentParentsName}` ?? "#NA",
+        ParentsPhoneNumber: `${ref?.studentParentsPhoneNumber}` ?? "#NA",
+        ParentsOccupation: `${ref?.studentParentsOccupation}` ?? "#NA",
+        ParentsIncome: `${ref?.studentParentsAnnualIncom}` ?? "#NA",
+        BloodGroup: `${ref?.student_blood_group}` ?? "#NA",
+        Email: `${ref?.studentEmail}` ?? "#NA",
+        GateScore: `${ref?.student_gate_score}` ?? "#NA",
+        GateYear: `${ref?.student_gate_year}` ?? "#NA",
+        InstituteDegree: `${ref?.student_degree_institute}` ?? "#NA",
+        InstituteDegreeYear: `${ref?.student_degree_year}` ?? "#NA",
+        CPIPercentage: `${ref?.student_percentage_cpi}` ?? "#NA",
+        StudentProgramme: `${ref?.student_programme}` ?? "#NA",
+        StudentBranch: `${ref?.student_branch}` ?? "#NA",
+        SingleSeater: `${ref?.student_single_seater_room}` ?? "#NA",
+        PhysicallyChallenged: `${ref?.student_ph}` ?? "#NA",
+        ProfileCompletion: `${ref?.profile_percentage}` ?? "0",
+        Standard: `${ref?.fee_structure}` ? `${ref?.fee_structure?.class_master?.className}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.class_master?.className}` : "#NA",
+        Batch: `${ref?.fee_structure}` ? `${ref?.fee_structure?.batch_master?.batchName}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.batch_master?.batchName}` : "#NA",
+        ActualFees: `${ref?.fee_structure}` ? `${ref?.fee_structure?.total_admission_fees}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.total_admission_fees}` : "0",
+        ApplicableFees: `${ref?.fee_structure}` ? `${ref?.fee_structure?.applicable_fees}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.applicable_fees}` : "0",
+        TotalRemainingFees: pending ?? "0",
+        TotalPaidFees: paid ?? "0",
+        FeeStructure:
+        `${ref?.fee_structure}` ? `${ref?.fee_structure?.unique_structure_name}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.unique_structure_name}` : "#NA",
+      });
+    }
+    await json_to_excel_normal_student_promote_query(
+      excel_list,
+      classes?.institute,
+      classes?.className,
+      flow
+    );
   } catch (e) {
     console.log(e);
   }

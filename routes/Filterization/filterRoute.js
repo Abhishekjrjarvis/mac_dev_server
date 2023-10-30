@@ -117,4 +117,10 @@ router.patch(
   catchAsync(Filter.renderFeeHeadsStructureReceiptRePayQuery)
 );
 
+router.get(
+  "/by/student/:cid/query",
+  // isLoggedIn,
+  catchAsync(Filter.renderNormalStudentQuery)
+);
+
 module.exports = router;

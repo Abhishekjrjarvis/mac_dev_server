@@ -1217,7 +1217,7 @@ exports.renderEditFacilitiesQuery = async(req, res) => {
     const { post_content, content } = req?.body
     if(!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
-    const fact = await Facilities.findById({ _id: fid })
+    var fact = await Facilities.findById({ _id: fid })
     if(post_content?.attach){
       fact.facilities_attach.attach = post_content?.attach
       fact.facilities_attach.title = post_content?.title

@@ -10478,3 +10478,26 @@ exports.render_old_data_receipt_query = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderArrangeClassQuery = async(req, res) => {
+  try{
+    const { cid } = req?.params
+    if(!cid) return res.status(200).send({  message: "Their is a bug need to fixed immediately", access: false})
+
+    const classes = await Class.findById({ _id: cid })
+
+    const all_student = await Student.find({ _id: { $in: classes?.ApproveStudent}})
+
+    var total = 0
+    for(var ele of all_student){
+      total += 1
+      ele.studentROLLNO = `${total}`
+      ele.studentGRNO = `PH0${total}`
+      await ele.save()
+    }
+    res.status(200).send({ message: "Explore Query", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

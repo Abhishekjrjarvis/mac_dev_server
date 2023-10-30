@@ -415,4 +415,19 @@ router.patch(
   catchAsync(Extra.renderUpdateCertificateFundQuery)
 );
 
+router.get(
+  "/student/section/:id/all/export/excel/array",
+  catchAsync(Extra.renderAllExportExcelArrayQuery)
+);
+
+router.patch(
+  "/student/section/:id/export/excel/:exid/edit",
+  catchAsync(Extra.renderEditOneExcel)
+);
+
+router.delete(
+  "/student/section/:id/export/excel/:exid/destroy/query",
+  catchAsync(Extra.renderDeleteOneExcel)
+);
+
 module.exports = router;

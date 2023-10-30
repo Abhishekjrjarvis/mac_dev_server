@@ -627,6 +627,8 @@ router.patch(
   catchAsync(Admission.render_old_data_receipt_query)
 );
 
+router.patch("/arrange/:cid", catchAsync(Admission.renderArrangeClassQuery))
+
 //
 
 module.exports = router;

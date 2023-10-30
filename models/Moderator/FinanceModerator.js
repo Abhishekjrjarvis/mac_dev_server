@@ -67,6 +67,9 @@ const financeModeratorSchema = new mongoose.Schema({
   social_media_password_query: {
     type: String,
   },
+  social_media_pass: {
+    type: String,
+  },
   academic_department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",

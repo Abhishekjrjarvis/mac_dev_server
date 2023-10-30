@@ -117,7 +117,7 @@ router.patch(
   catchAsync(Filter.renderFeeHeadsStructureReceiptRePayQuery)
 );
 
-router.get(
+router.patch(
   "/by/student/:cid/query",
   // isLoggedIn,
   catchAsync(Filter.renderNormalStudentQuery)

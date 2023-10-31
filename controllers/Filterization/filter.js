@@ -3719,16 +3719,16 @@ exports.renderNormalStudentQuery = async (req, res) => {
         ProfileCompletion: `${ref?.profile_percentage}` ?? "0",
         Standard: `${ref?.fee_structure}` ? `${ref?.fee_structure?.class_master?.className}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.class_master?.className}` : "#NA",
         Batch: `${ref?.fee_structure}` ? `${ref?.fee_structure?.batch_master?.batchName}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.batch_master?.batchName}` : "#NA",
+        FeeStructure:
+        `${ref?.fee_structure}` ? `${ref?.fee_structure?.unique_structure_name}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.unique_structure_name}` : "#NA",
         ActualFees: `${ref?.fee_structure}` ? `${ref?.fee_structure?.total_admission_fees}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.total_admission_fees}` : "0",
         ApplicableFees: `${ref?.fee_structure}` ? `${ref?.fee_structure?.applicable_fees}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.applicable_fees}` : "0",
-        TotalRemainingFees: pending ?? "0",
-        TotalPaidFees: paid ?? "0",
-        TotalApplicablePending: applicable_pending ?? "0",
         CurrentYearPaidFees: currentPaid ?? "0",
         CurrentYearRemainingFees: currentRemain ?? "0",
         CurrentYearApplicableRemainingFees: currentApplicableRemaining ?? "0",
-        FeeStructure:
-        `${ref?.fee_structure}` ? `${ref?.fee_structure?.unique_structure_name}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.unique_structure_name}` : "#NA",
+        TotalPaidFees: paid ?? "0",
+        TotalRemainingFees: pending ?? "0",
+        TotalApplicablePending: applicable_pending ?? "0",
       });
     }
     await json_to_excel_normal_student_promote_query(

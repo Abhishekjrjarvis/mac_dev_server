@@ -3658,20 +3658,32 @@ exports.renderNormalStudentQuery = async (req, res) => {
       })
       var pending = 0
       var paid = 0
+      var applicable_pending = 0
       for (var ele of valid_card) {
-        ref.applicable_fees_pending +=
-          ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
-            ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
-            : 0;
+        // ref.applicable_fees_pending +=
+        //   ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+        //     ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+        //     : 0;
         pending += ele?.remaining_fee
         paid += ele?.paid_fee
+        applicable_pending += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+        ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+        : 0
       }
-      // if(struct){
-      //   var valid_card = await RemainingList.find({ $and: [{ fee_structure: `${struct}`},{ student: `${ref?._id}`}]})
-      //   .populate({
-      //     path: "fee_structure"
-      //   })
-      // }
+      if(struct){
+        var currentPaid = 0
+        var currentRemain = 0
+        var currentApplicableRemaining = 0
+        var valid_card = await RemainingList.findOne({ $and: [{ fee_structure: `${struct}`},{ student: `${ref?._id}`}]})
+        .populate({
+          path: "fee_structure"
+        })
+        currentPaid += valid_card?.paid_fee
+        currentRemain += valid_card?.remaining_fee
+        currentApplicableRemaining += valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee > 0
+        ? valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee
+        : 0
+      }
       excel_list.push({
         RollNo: ref?.studentROLLNO ?? "NA",
         AbcId: ref?.student_abc_id ?? "#NA",
@@ -3711,6 +3723,10 @@ exports.renderNormalStudentQuery = async (req, res) => {
         ApplicableFees: `${ref?.fee_structure}` ? `${ref?.fee_structure?.applicable_fees}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.applicable_fees}` : "0",
         TotalRemainingFees: pending ?? "0",
         TotalPaidFees: paid ?? "0",
+        TotalApplicablePending: applicable_pending ?? "0",
+        CurrentYearPaidFees: currentPaid ?? "0",
+        CurrentYearRemainingFees: currentRemain ?? "0",
+        CurrentYearApplicableRemainingFees: currentApplicableRemaining ?? "0",
         FeeStructure:
         `${ref?.fee_structure}` ? `${ref?.fee_structure?.unique_structure_name}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.unique_structure_name}` : "#NA",
       });

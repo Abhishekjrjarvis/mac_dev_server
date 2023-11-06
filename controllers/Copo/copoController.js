@@ -902,7 +902,9 @@ exports.getCopoMappingQuery = async (req, res) => {
     const { sid } = req.params;
 
     if (!sid) throw "Please send subject id to perform operations";
-    const subject = await Subject.findById(sid);
+    const subject = await Subject.findById(sid).populate({
+      path: "subject_attainment_mapping",
+    });
     const master_attainment = await Attainment.find({
       subject_master: { $eq: `${subject.subjectMasterName}` },
     });
@@ -936,8 +938,16 @@ exports.getCopoMappingQuery = async (req, res) => {
 
     for (let co of other_copo_mapping.co_list_Id) {
       for (let po of other_copo_mapping.po_list_Id) {
+        let co_rel = "";
+        if (subject?.subject_attainment_mapping?.length > 0) {
+          for (let rel of subject?.subject_attainment_mapping[0]?.copo) {
+            if (`${rel?.copoId}` === `${co?._id}${po?._id}`) {
+              co_rel = rel.co_relation;
+            }
+          }
+        }
         copo_mapping[`${co.attainment_name}${po.attainment_name}`] = {
-          co_relation: 14,
+          co_relation: co_rel,
           descriptio: copo_mapping.des[po.attainment_name] ?? "",
           coId: co?._id,
           poId: po?._id,
@@ -959,10 +969,50 @@ exports.getCopoMappingQuery = async (req, res) => {
 exports.updateCopoMappingQuery = async (req, res) => {
   try {
     const { sid } = req.params;
+    const { copo } = req.body;
 
     if (!sid) throw "Please send  subject id to perform operations";
-    const subject = await Subject.findById(sid);
-
+    var mapping = await SubjectAttainmentMapping.findOne({
+      subject: { $eq: `${sid}` },
+    });
+    if (mapping) {
+      for (let bcopo in copo) {
+        let cos = copo[bcopo];
+        if (cos?.value) {
+          for (let mcopo of mapping?.copo) {
+            if (`${mcopo?.copoId}` === `${cos?.key}`) {
+              mcopo.co_relation = cos?.value;
+            } else {
+              mapping?.copo.push({
+                copoId: cos?.key,
+                poId: cos?.poId,
+                coId: cos?.coId,
+                co_relation: cos?.value,
+              });
+            }
+          }
+        }
+      }
+      await mapping.save();
+    } else {
+      const subject = await Subject.findById(sid);
+      var mapping = new SubjectAttainmentMapping({
+        subject: sid,
+      });
+      for (let bcopo in copo) {
+        let cos = copo[bcopo];
+        if (cos?.value) {
+          mapping?.copo.push({
+            copoId: cos?.key,
+            poId: cos?.poId,
+            coId: cos?.coId,
+            co_relation: cos?.value,
+          });
+        }
+      }
+      subject.subject_attainment_mapping.push(mapping?._id);
+      await Promise.all([subject.save(), mapping.save()]);
+    }
     res.status(200).send({
       message: "Co-po-mapping attainment data",
     });

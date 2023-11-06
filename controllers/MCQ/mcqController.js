@@ -1440,7 +1440,7 @@ exports.createAssignment = async (req, res) => {
     assignment.assignment_total_mark = +total_mark;
     const students = JSON.parse(req.body.students);
     var copo_list = [];
-    if (copo) copo_list = JSON.parse(copo);
+    if (copo?.length > 0) copo_list = JSON.parse(copo);;
     if (req?.files) {
       for (let file of req?.files) {
         const obj = {

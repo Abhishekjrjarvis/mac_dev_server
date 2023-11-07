@@ -3684,53 +3684,98 @@ exports.renderNormalStudentQuery = async (req, res) => {
         ? valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee
         : 0
       }
+      const buildStructureObject = async (arr) => {
+        var obj = {};
+        for (let i = 0; i < arr.length; i++) {
+          const { BatchName, Fees } = arr[i];
+          obj[BatchName] = Fees;
+        }
+        return obj;
+      };
+      var all_remain = await RemainingList.find({ $and: [{ student: ref?._id }] })
+      .populate({
+        path: "fee_structure",
+        populate: {
+          path: "batch_master"
+        }
+      })
+      .populate({
+        path: "appId"
+      })
+      // all_remain = all_remain?.filter((val) => {
+      //   if(`${val?.fee_structure?._id}` !== `${ref?.fee_structure?._id}`) return val
+      // })
+      // var obj = {}
+      var pusher = []
+      for(var query of all_remain){
+        pusher.push({
+          BatchName: `${query?.fee_structure?.batch_master?.batchName}-PaidFees`,
+          Fees: query?.paid_fee
+        })
+        pusher.push({
+          BatchName: `${query?.fee_structure?.batch_master?.batchName}-RemainingFees`,
+          Fees: query?.remaining_fee
+        })
+        pusher.push({
+          BatchName: `${query?.fee_structure?.batch_master?.batchName}-ApplicableRemainingFees`,
+          Fees: query?.fee_structure?.applicable_fees - query?.paid_fee > 0
+          ? query?.fee_structure?.applicable_fees - query?.paid_fee
+          : 0
+        })
+      }
+      if (pusher?.length > 0) {
+        var result = await buildStructureObject(pusher);
+      }
       excel_list.push({
-        RollNo: ref?.studentROLLNO ?? "NA",
-        AbcId: ref?.student_abc_id ?? "#NA",
+        // RollNo: ref?.studentROLLNO ?? "NA",
+        // AbcId: ref?.student_abc_id ?? "#NA",
         GRNO: ref?.studentGRNO ?? "#NA",
         Name: `${ref?.studentFirstName} ${
           ref?.studentMiddleName ? ref?.studentMiddleName : ""
         } ${ref?.studentLastName}` ?? ref?.valid_full_name,
-        DOB: ref?.studentDOB ?? "#NA",
-        Gender: ref?.studentGender ?? "#NA",
-        Caste: ref?.studentCast ?? "#NA",
-        Religion: ref?.studentReligion ?? "#NA",
-        Nationality: `${ref?.studentNationality}` ?? "#NA",
-        MotherName: `${ref?.studentMotherName}` ?? "#NA",
-        MotherTongue: `${ref?.studentMTongue}` ?? "#NA",
+        // DOB: ref?.studentDOB ?? "#NA",
+        // Gender: ref?.studentGender ?? "#NA",
+        // Caste: ref?.studentCast ?? "#NA",
+        // Religion: ref?.studentReligion ?? "#NA",
+        // Nationality: `${ref?.studentNationality}` ?? "#NA",
+        // MotherName: `${ref?.studentMotherName}` ?? "#NA",
+        // MotherTongue: `${ref?.studentMTongue}` ?? "#NA",
         CastCategory: `${ref?.studentCastCategory}` ?? "#NA",
-        PreviousSchool: `${ref?.studentPreviousSchool}` ?? "#NA",
-        Address: `${ref?.studentAddress}` ?? "#NA",
-        ParentsName: `${ref?.studentParentsName}` ?? "#NA",
-        ParentsPhoneNumber: `${ref?.studentParentsPhoneNumber}` ?? "#NA",
-        ParentsOccupation: `${ref?.studentParentsOccupation}` ?? "#NA",
-        ParentsIncome: `${ref?.studentParentsAnnualIncom}` ?? "#NA",
-        BloodGroup: `${ref?.student_blood_group}` ?? "#NA",
-        Email: `${ref?.studentEmail}` ?? "#NA",
-        GateScore: `${ref?.student_gate_score}` ?? "#NA",
-        GateYear: `${ref?.student_gate_year}` ?? "#NA",
-        InstituteDegree: `${ref?.student_degree_institute}` ?? "#NA",
-        InstituteDegreeYear: `${ref?.student_degree_year}` ?? "#NA",
-        CPIPercentage: `${ref?.student_percentage_cpi}` ?? "#NA",
-        StudentProgramme: `${ref?.student_programme}` ?? "#NA",
-        StudentBranch: `${ref?.student_branch}` ?? "#NA",
-        SingleSeater: `${ref?.student_single_seater_room}` ?? "#NA",
-        PhysicallyChallenged: `${ref?.student_ph}` ?? "#NA",
-        ProfileCompletion: `${ref?.profile_percentage}` ?? "0",
-        Standard: `${ref?.fee_structure}` ? `${ref?.fee_structure?.class_master?.className}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.class_master?.className}` : "#NA",
-        Batch: `${ref?.fee_structure}` ? `${ref?.fee_structure?.batch_master?.batchName}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.batch_master?.batchName}` : "#NA",
+        // PreviousSchool: `${ref?.studentPreviousSchool}` ?? "#NA",
+        // Address: `${ref?.studentAddress}` ?? "#NA",
+        // ParentsName: `${ref?.studentParentsName}` ?? "#NA",
+        // ParentsPhoneNumber: `${ref?.studentParentsPhoneNumber}` ?? "#NA",
+        // ParentsOccupation: `${ref?.studentParentsOccupation}` ?? "#NA",
+        // ParentsIncome: `${ref?.studentParentsAnnualIncom}` ?? "#NA",
+        // BloodGroup: `${ref?.student_blood_group}` ?? "#NA",
+        // Email: `${ref?.studentEmail}` ?? "#NA",
+        // GateScore: `${ref?.student_gate_score}` ?? "#NA",
+        // GateYear: `${ref?.student_gate_year}` ?? "#NA",
+        // InstituteDegree: `${ref?.student_degree_institute}` ?? "#NA",
+        // InstituteDegreeYear: `${ref?.student_degree_year}` ?? "#NA",
+        // CPIPercentage: `${ref?.student_percentage_cpi}` ?? "#NA",
+        // StudentProgramme: `${ref?.student_programme}` ?? "#NA",
+        // StudentBranch: `${ref?.student_branch}` ?? "#NA",
+        // SingleSeater: `${ref?.student_single_seater_room}` ?? "#NA",
+        // PhysicallyChallenged: `${ref?.student_ph}` ?? "#NA",
+        // ProfileCompletion: `${ref?.profile_percentage}` ?? "0",
+        // Standard: `${ref?.fee_structure}` ? `${ref?.fee_structure?.class_master?.className}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.class_master?.className}` : "#NA",
+        // Batch: `${ref?.fee_structure}` ? `${ref?.fee_structure?.batch_master?.batchName}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.batch_master?.batchName}` : "#NA",
         FeeStructure:
         `${ref?.fee_structure}` ? `${ref?.fee_structure?.unique_structure_name}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.unique_structure_name}` : "#NA",
         ActualFees: `${ref?.fee_structure}` ? `${ref?.fee_structure?.total_admission_fees}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.total_admission_fees}` : "0",
         ApplicableFees: `${ref?.fee_structure}` ? `${ref?.fee_structure?.applicable_fees}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.applicable_fees}` : "0",
-        CurrentYearPaidFees: currentPaid ?? "0",
-        CurrentYearRemainingFees: currentRemain ?? "0",
-        CurrentYearApplicableRemainingFees: currentApplicableRemaining ?? "0",
+        // CurrentYearPaidFees: currentPaid ?? "0",
+        // CurrentYearRemainingFees: currentRemain ?? "0",
+        // CurrentYearApplicableRemainingFees: currentApplicableRemaining ?? "0",
         TotalPaidFees: paid ?? "0",
         TotalRemainingFees: pending ?? "0",
         TotalApplicablePending: applicable_pending ?? "0",
+        ...result,
       });
+      result = []
     }
+    // console.log(excel_list)
     await json_to_excel_normal_student_promote_query(
       excel_list,
       classes?.institute,
@@ -3838,3 +3883,15 @@ exports.renderTallyPriceQuery = async (req, res) => {
 
 // console.log(da());
 // console.log(moment("2023-08-06T11:39:18.835Z").format("YYYY-MM-DD"));
+
+var arr = []
+key = "welcomes"
+var obj = {
+  "hello": "World"
+}
+var obj2 = {
+  [key]: "Qviple"
+}
+
+arr.push(obj, obj2)
+console.log(arr)

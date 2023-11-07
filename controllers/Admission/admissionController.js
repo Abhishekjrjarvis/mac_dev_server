@@ -9821,8 +9821,8 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
     var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    const g_date = new Date(`2023-10-23T00:00:00.000Z`);
-    const l_date = new Date(`2023-10-27T00:00:00.000Z`);
+    const g_date = new Date(`2023-11-01T00:00:00.000Z`);
+    const l_date = new Date(`2023-11-10T00:00:00.000Z`);
     var receipt = await FeeReceipt.find({
       $and: [
         {
@@ -9914,8 +9914,8 @@ exports.renderFindReceiptQuery = async (req, res) => {
     var finance = await Finance.findById({
       _id: `${ins?.financeDepart?.[0]}`,
     });
-    const g_date = new Date(`2023-10-01T00:00:00.000Z`);
-    const l_date = new Date(`2023-10-31T00:00:00.000Z`);
+    const g_date = new Date(`2023-11-01T00:00:00.000Z`);
+    const l_date = new Date(`2023-11-30T00:00:00.000Z`);
     var receipt = await FeeReceipt.find({
       $and: [
         {
@@ -9946,7 +9946,7 @@ exports.renderFindReceiptQuery = async (req, res) => {
       });
     var num = 0;
     for (var ref of receipt) {
-      ref.invoice_count = `102023${num + 1}`;
+      ref.invoice_count = `112023${num + 1}`;
       if (ref?.order_history) {
         ref.order_history.payment_invoice_number = `${ref.invoice_count}`;
         await ref.order_history.save();

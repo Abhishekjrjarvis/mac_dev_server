@@ -3763,8 +3763,8 @@ exports.renderNormalStudentQuery = async (req, res) => {
         // Batch: `${ref?.fee_structure}` ? `${ref?.fee_structure?.batch_master?.batchName}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.batch_master?.batchName}` : "#NA",
         FeeStructure:
         `${ref?.fee_structure}` ? `${ref?.fee_structure?.unique_structure_name}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.unique_structure_name}` : "#NA",
-        ActualFees: `${ref?.fee_structure}` ? `${ref?.fee_structure?.total_admission_fees}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.total_admission_fees}` : "0",
-        ApplicableFees: `${ref?.fee_structure}` ? `${ref?.fee_structure?.applicable_fees}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.applicable_fees}` : "0",
+        // ActualFees: `${ref?.fee_structure}` ? `${ref?.fee_structure?.total_admission_fees}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.total_admission_fees}` : "0",
+        // ApplicableFees: `${ref?.fee_structure}` ? `${ref?.fee_structure?.applicable_fees}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.applicable_fees}` : "0",
         // CurrentYearPaidFees: currentPaid ?? "0",
         // CurrentYearRemainingFees: currentRemain ?? "0",
         // CurrentYearApplicableRemainingFees: currentApplicableRemaining ?? "0",
@@ -3884,14 +3884,14 @@ exports.renderTallyPriceQuery = async (req, res) => {
 // console.log(da());
 // console.log(moment("2023-08-06T11:39:18.835Z").format("YYYY-MM-DD"));
 
-var arr = []
-key = "welcomes"
-var obj = {
-  "hello": "World"
-}
-var obj2 = {
-  [key]: "Qviple"
-}
+// var arr = []
+// key = "welcomes"
+// var obj = {
+//   "hello": "World"
+// }
+// var obj2 = {
+//   [key]: "Qviple"
+// }
 
-arr.push(obj, obj2)
-console.log(arr)
+// arr.push(obj, obj2)
+// console.log(arr)

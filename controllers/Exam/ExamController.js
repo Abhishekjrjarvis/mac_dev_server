@@ -1540,11 +1540,13 @@ exports.oneStudentAllYearAttendance = async (req, res) => {
 exports.oneStudentReletedNecessaryData = async (req, res) => {
   try {
     const student = await Student.findById(req.params.sid)
-      .select("_id studentClass institute batches studentGRNO")
+      .select(
+        "_id studentClass institute batches studentGRNO studentProfilePhoto departments"
+      )
       .populate({
         path: "institute",
         select:
-          "_id insName insDistrict insPincode insPhoneNumber insEmail insProfilePhoto insAddress",
+          "_id insName insDistrict insPincode insPhoneNumber insEmail insProfilePhoto insAddress insEditableText_one insEditableText_two insAffiliated affliatedLogo",
       })
       .populate({
         path: "studentClass",
@@ -1557,14 +1559,17 @@ exports.oneStudentReletedNecessaryData = async (req, res) => {
       .populate({
         path: "batches",
         select: "_id batchName",
+      })
+      .populate({
+        path: "department",
+        select: "_id dName",
       });
     // const studentEncrypt = await encryptionPayload(student);
     res.status(200).send({ student });
   } catch (e) {
     console.log(e);
   }
-};
-
+}
 exports.oneStudentBehaviourReportCard = async (req, res) => {
   try {
     const student = await Student.findById(req.params.sid)

@@ -3722,6 +3722,10 @@ exports.renderNormalStudentQuery = async (req, res) => {
           ? query?.fee_structure?.applicable_fees - query?.paid_fee
           : 0
         })
+        pusher.push({
+          BatchName: `${query?.fee_structure?.batch_master?.batchName}-Remark`,
+          Fees: query?.remark
+        })
       }
       if (pusher?.length > 0) {
         var result = await buildStructureObject(pusher);

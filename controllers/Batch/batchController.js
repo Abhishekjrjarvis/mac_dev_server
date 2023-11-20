@@ -1329,6 +1329,7 @@ exports.undo = async (req, res) => {
         student.studentBehaviour = preStudent.studentBehaviour;
         student.department = preStudent.department;
         student.institute = preStudent.institute;
+        if(student?.fee_structure){
         var remain_card = await RemainingList.findOne({
           $and: [{ fee_structure: `${student?.fee_structure}`}, { student: student?._id }],
         });
@@ -1344,6 +1345,7 @@ exports.undo = async (req, res) => {
         if(remain_card?._id){
         await RemainingList.findByIdAndDelete(remain_card?._id);
         }
+      }
         student.fee_structure = preStudent?.fee_structure;
         await student.save();
         var clsPrev = await Class.findById(student?.studentClass);
@@ -1369,6 +1371,7 @@ exports.undo = async (req, res) => {
         student.studentBehaviour = preStudent.studentBehaviour;
         student.department = preStudent.department;
         student.institute = preStudent.institute;
+        if(student?.fee_structure){
         var remain_card = await RemainingList.findOne({
           $and: [{ fee_structure: `${student?.fee_structure}`}, { student: student?._id }],
         });
@@ -1384,6 +1387,7 @@ exports.undo = async (req, res) => {
         if(remain_card?._id){
         await RemainingList.findByIdAndDelete(remain_card?._id);
         }
+      }
         student.fee_structure = preStudent?.fee_structure;
         await student.save();
         var clsPrev = await Class.findById(student?.studentClass);

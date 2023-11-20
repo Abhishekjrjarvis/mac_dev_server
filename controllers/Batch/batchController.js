@@ -1303,6 +1303,7 @@ exports.subjectCreditUpdate = async (req, res) => {
   }
 };
 
+
 exports.undo = async (req, res) => {
   try {
     const { cid, flow } = req.query;
@@ -1329,16 +1330,20 @@ exports.undo = async (req, res) => {
         student.department = preStudent.department;
         student.institute = preStudent.institute;
         var remain_card = await RemainingList.findOne({
-          fee_structure: `${student?.fee_structure}`,
+          $and: [{ fee_structure: `${student?.fee_structure}`}, { student: student?._id }],
         });
+        if(remain_card?._id){
         student.remainingFeeList.pull(remain_card?._id);
+        }
         if (student?.remainingFeeList_count > 0) {
           student.remainingFeeList_count -= 1;
         }
         if (student?.admissionRemainFeeCount >= remain_card?.remaining_fee) {
           student.admissionRemainFeeCount -= remain_card.remaining_fee;
         }
+        if(remain_card?._id){
         await RemainingList.findByIdAndDelete(remain_card?._id);
+        }
         student.fee_structure = preStudent?.fee_structure;
         await student.save();
         var clsPrev = await Class.findById(student?.studentClass);
@@ -1365,16 +1370,20 @@ exports.undo = async (req, res) => {
         student.department = preStudent.department;
         student.institute = preStudent.institute;
         var remain_card = await RemainingList.findOne({
-          fee_structure: `${student?.fee_structure}`,
+          $and: [{ fee_structure: `${student?.fee_structure}`}, { student: student?._id }],
         });
+        if(remain_card?._id){
         student.remainingFeeList.pull(remain_card?._id);
+        }
         if (student?.remainingFeeList_count > 0) {
           student.remainingFeeList_count -= 1;
         }
         if (student?.admissionRemainFeeCount >= remain_card?.remaining_fee) {
           student.admissionRemainFeeCount -= remain_card.remaining_fee;
         }
+        if(remain_card?._id){
         await RemainingList.findByIdAndDelete(remain_card?._id);
+        }
         student.fee_structure = preStudent?.fee_structure;
         await student.save();
         var clsPrev = await Class.findById(student?.studentClass);

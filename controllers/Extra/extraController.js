@@ -112,6 +112,7 @@ const {
 } = require("../../Import/ExcelImport");
 const { render_mark_attendence_query } = require("../Attendence");
 const CertificateQuery = require("../../models/Certificate/CertificateQuery");
+const Batch = require("../../models/Batch");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -3561,3 +3562,42 @@ exports.renderDeleteOneExcel = async (req, res) => {
     console.log(e);
   }
 };
+
+
+exports.renderShuffledStudentQuery = async(req, res) => {
+  try{
+    const { cid, bid, flow, shuffle_arr } = req.body;
+    if (!flow)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    if(flow === "CLASS_WISE"){
+      const classes = await Class.findById({ _id: cid })
+      classes.ApproveStudent = []
+      await classes.save()
+      res.status(200).send({ message: "Explore Class Wise Shuffling Query", access: true})
+      for(var val of shuffle_arr){
+        classes.ApproveStudent.push(val)
+      }
+      await subject.save()
+    }
+    else if(flow === "BATCH_WISE"){
+      const batch = await Batch.findById({ _id: bid })
+      batch.class_student_query = []
+      await batch.save()
+      res.status(200).send({ message: "Explore Batch Wise Shuffling Query", access: true})
+      for(var val of shuffle_arr){
+        batch.class_student_query.push(val)
+      }
+      await batch.save()
+    }
+    else{
+      res.status(200).send({ message: "Invalid Flow Query", access: false})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}

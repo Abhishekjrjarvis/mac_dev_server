@@ -430,4 +430,9 @@ router.delete(
   catchAsync(Extra.renderDeleteOneExcel)
 );
 
+router.patch(
+  "/shuffled/query",
+  catchAsync(Extra.renderShuffledStudentQuery)
+);
+
 module.exports = router;

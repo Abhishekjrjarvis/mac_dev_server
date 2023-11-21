@@ -3231,6 +3231,7 @@ exports.getFullStudentInfo = async (req, res) => {
     average_points += student.extraPoints / student.batchCount;
     var point = await handle_undefined(average_points);
     await calc_profile_percentage(student)
+    await student.save()
     if (student) {
       // Add Another Encryption
       res.status(200).send({
@@ -4830,7 +4831,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
     const year = +currentDateLocalFormat[0];
     const classes = await Class.findById({ _id: cid })
       .select(
-        "className classStatus classTitle exams boyCount girlCount studentCount"
+        "className classStatus classTitle exams boyCount girlCount studentCount shuffle_on"
       )
       .populate({
         path: "ApproveStudent",
@@ -4856,9 +4857,14 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       .exec();
 
     // console.log(classes)
+    if(classes?.shuffle_on){
+      
+    }
+    else{
     classes?.ApproveStudent?.sort(function (st1, st2) {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
+  }
     // const cEncrypt = await encryptionPayload(classes);
     res.status(200).send({ message: "Approve catalog", classes: classes });
   } catch (e) {

@@ -471,6 +471,9 @@ exports.promoteStudent = async (req, res) => {
           numIndex = structure?.findIndex((val) => {
             if (val?.unique_structure_name?.includes("SY")) return val;
           });
+          if(numIndex < 0){
+            numIndex = 0
+          }
           const user = await User.findById({ _id: `${student.user}` });
           const previousData = new StudentPreviousData({
             studentCode: student.studentCode,

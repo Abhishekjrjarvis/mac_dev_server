@@ -54,6 +54,7 @@ const { send_phone_login_query } = require("../../helper/functions");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const Chapter = require("../../models/Academics/Chapter");
 const Attainment = require("../../models/Marks/Attainment");
+const { calc_profile_percentage } = require("../../Functions/ProfilePercentage");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -3005,7 +3006,7 @@ exports.getFullStaffInfo = async (req, res) => {
     if (isApk) {
       var staff = await Staff.findById({ _id: id })
         .select(
-          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffBatch staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave"
+          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffBatch staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave current_designation"
         )
         .populate({
           path: "user",
@@ -3054,7 +3055,7 @@ exports.getFullStaffInfo = async (req, res) => {
     } else {
       var staff = await Staff.findById({ _id: id })
         .select(
-          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffBatch staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave"
+          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffBatch staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave current_designation"
         )
         .populate({
           path: "user",
@@ -3229,6 +3230,7 @@ exports.getFullStudentInfo = async (req, res) => {
     }
     average_points += student.extraPoints / student.batchCount;
     var point = await handle_undefined(average_points);
+    await calc_profile_percentage(student)
     if (student) {
       // Add Another Encryption
       res.status(200).send({
@@ -5186,7 +5188,7 @@ exports.retrieveCertificateEditableDetailQuery = async (req, res) => {
     const { id } = req.params;
     const detail = await InstituteAdmin.findById(id)
       .select(
-        "insAffiliated insEditableText_one insEditableText_two affliatedLogo authority authority_signature autority_stamp_profile"
+        "insAffiliated insEditableText_one insEditableText_two affliatedLogo authority authority_signature autority_stamp_profile naac_motto"
       )
       .lean()
       .exec();

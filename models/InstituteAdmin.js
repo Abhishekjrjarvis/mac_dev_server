@@ -1053,6 +1053,9 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  naac_motto: {
+    type: String
+  }
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

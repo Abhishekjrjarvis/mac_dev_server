@@ -9821,8 +9821,8 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
     var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    const g_date = new Date(`2023-11-01T00:00:00.000Z`);
-    const l_date = new Date(`2023-11-10T00:00:00.000Z`);
+    const g_date = new Date(`2023-10-01T00:00:00.000Z`);
+    const l_date = new Date(`2023-11-01T00:00:00.000Z`);
     var receipt = await FeeReceipt.find({
       $and: [
         {
@@ -9835,25 +9835,25 @@ exports.renderFeeHeadsQuery = async (req, res) => {
           set_off_status: "Not Set off",
         },
         {
-          receipt_generated_from: "BY_ADMISSION",
+          receipt_generated_from: "BY_HOSTEL_MANAGER",
         },
         {
           finance: finance?._id,
         },
       ],
     })
-    .populate({
-      path: "student",
-      populate: {
-        path: "fee_structure",
-      },
-    })
     // .populate({
     //   path: "student",
     //   populate: {
-    //     path: "hostel_fee_structure",
+    //     path: "fee_structure",
     //   },
-    // });
+    // })
+    .populate({
+      path: "student",
+      populate: {
+        path: "hostel_fee_structure",
+      },
+    });
     // var receipt = await FeeReceipt.findById({
     //   _id: "6528c827c0da2e507764cf2c",
     // })
@@ -9862,18 +9862,18 @@ exports.renderFeeHeadsQuery = async (req, res) => {
       //   ref.fee_heads = [];
       //   await ref.save();
       // } else {
-      await set_fee_head_query_redesign(
-        ref?.student,
-        ref?.fee_payment_amount,
-        ref?.application,
-        ref
-      );
-      // await set_fee_head_query_redesign_hostel(
+      // await set_fee_head_query_redesign(
       //   ref?.student,
       //   ref?.fee_payment_amount,
       //   ref?.application,
       //   ref
       // );
+      await set_fee_head_query_redesign_hostel(
+        ref?.student,
+        ref?.fee_payment_amount,
+        ref?.application,
+        ref
+      );
       // }
     }
     // receipt.fee_heads = [];
@@ -10496,6 +10496,42 @@ exports.renderArrangeClassQuery = async(req, res) => {
       await ele.save()
     }
     res.status(200).send({ message: "Explore Query", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderHostelHistoryQuery = async(req, res) => {
+  try{
+    const { id } = req?.query
+    const g_date = new Date(`2023-10-01T00:00:00.000Z`);
+    const l_date = new Date(`2023-11-01T00:00:00.000Z`);
+    var receipt = await OrderPayment.find({
+      $and: [
+        {
+          created_at: {
+            $gte: g_date,
+            $lte: l_date,
+          },
+        },
+        {
+          payment_to_end_user_id: id,
+        },
+        {
+          "payment_module_type": "Hostel"
+        }
+      ],
+    }).populate({
+      path: "fee_receipt",
+    });
+
+    for(var val of receipt){
+      val.fee_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER"
+      await val.fee_receipt.save()
+    }
+
+    res.status(200).send({ message: "Explore All Hostel History", access: true, count: receipt?.length, receipt})
   }
   catch(e){
     console.log(e)

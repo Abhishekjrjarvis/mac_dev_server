@@ -49,7 +49,7 @@ exports.calc_profile_percentage = async(one_student) => {
     if (one_student?.studentAadharBackCard) real += 1
 
     one_student.profile_percentage = ((real / total) * 100).toFixed(0)
-    await one_student.save()
+    // await one_student.save()
   }
   catch(e){
     console.log(e)

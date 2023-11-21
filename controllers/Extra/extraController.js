@@ -3581,7 +3581,7 @@ exports.renderShuffledStudentQuery = async(req, res) => {
       for(var val of shuffle_arr){
         classes.ApproveStudent.push(val)
       }
-      await subject.save()
+      await classes.save()
     }
     else if(flow === "BATCH_WISE"){
       const batch = await Batch.findById({ _id: bid })

@@ -1,8 +1,8 @@
 const Student = require("../models/Student")
 
-exports.calc_profile_percentage = async(student) => {
+exports.calc_profile_percentage = async(one_student) => {
   try{
-    const one_student = await Student.findById({ _id: `${student?._id}`})
+    // const one_student = await Student.findById({ _id: `${student?._id}`})
     var real = 0
     var total = 36
     if(one_student?.studentFirstName) real += 1
@@ -52,7 +52,7 @@ exports.calc_profile_percentage = async(student) => {
     if (one_student?.studentAadharBackCard) real += 1
 
     one_student.profile_percentage = ((real / total) * 100).toFixed(0)
-    await one_student.save()
+    // await one_student.save()
   }
   catch(e){
     console.log(e)

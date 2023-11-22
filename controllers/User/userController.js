@@ -2172,7 +2172,6 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       //   bind_student
       // );
       await calc_profile_percentage(student)
-      await student.save()
       res.status(200).send({
         message: "All Student Designation Feed from DB 🙌",
         // student: cached.student,

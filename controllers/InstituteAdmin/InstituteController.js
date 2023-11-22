@@ -3231,7 +3231,6 @@ exports.getFullStudentInfo = async (req, res) => {
     average_points += student.extraPoints / student.batchCount;
     var point = await handle_undefined(average_points);
     await calc_profile_percentage(student)
-    await student.save()
     if (student) {
       // Add Another Encryption
       res.status(200).send({

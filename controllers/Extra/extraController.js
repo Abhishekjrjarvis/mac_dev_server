@@ -3577,7 +3577,7 @@ exports.renderShuffledStudentQuery = async(req, res) => {
       if(shuffle_arr?.length > 0){
       const classes = await Class.findById({ _id: cid })
       classes.ApproveStudent = []
-      // await classes.save()
+      await classes.save()
       res.status(200).send({ message: "Explore Class Wise Shuffling Query", access: true})
       var i = 0
       for(var val of shuffle_arr){
@@ -3595,7 +3595,7 @@ exports.renderShuffledStudentQuery = async(req, res) => {
       if(shuffle_arr?.length > 0){
       const batch = await Batch.findById({ _id: bid })
       batch.class_student_query = []
-      // await batch.save()
+      await batch.save()
       res.status(200).send({ message: "Explore Batch Wise Shuffling Query", access: true})
       for(var val of shuffle_arr){
         batch.class_student_query.push(val)

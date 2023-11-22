@@ -3578,7 +3578,6 @@ exports.renderShuffledStudentQuery = async(req, res) => {
       const classes = await Class.findById({ _id: cid })
       classes.ApproveStudent = []
       await classes.save()
-      res.status(200).send({ message: "Explore Class Wise Shuffling Query", access: true})
       var i = 0
       for(var val of shuffle_arr){
         classes.ApproveStudent.push(val)
@@ -3589,6 +3588,7 @@ exports.renderShuffledStudentQuery = async(req, res) => {
       }
       classes.shuffle_on = true
       await classes.save()
+      res.status(200).send({ message: "Explore Class Wise Shuffling Query", access: true})
     }
     }
     else if(flow === "BATCH_WISE"){
@@ -3596,11 +3596,11 @@ exports.renderShuffledStudentQuery = async(req, res) => {
       const batch = await Batch.findById({ _id: bid })
       batch.class_student_query = []
       await batch.save()
-      res.status(200).send({ message: "Explore Batch Wise Shuffling Query", access: true})
       for(var val of shuffle_arr){
         batch.class_student_query.push(val)
       }
       await batch.save()
+      res.status(200).send({ message: "Explore Batch Wise Shuffling Query", access: true})
     }
     }
     else{

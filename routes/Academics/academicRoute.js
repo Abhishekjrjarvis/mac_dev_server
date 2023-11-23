@@ -44,5 +44,7 @@ router.post("/:sid/add/chapter/query", catchAsync(Academic.renderNewChapterQuery
 
 router.post("/:cid/add/chapter/topic/query", catchAsync(Academic.renderNewChapterTopicQuery))
 
+router.patch("/filter/by/date/lecture/query", catchAsync(Academic.renderFilteredLectureQuery))
+
 
 module.exports = router;

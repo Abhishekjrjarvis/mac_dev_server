@@ -3,6 +3,7 @@ const Chapter = require("../../models/Academics/Chapter");
 const ChapterTopic = require("../../models/Academics/ChapterTopic");
 const SubjectUpdate = require("../../models/SubjectUpdate");
 const { custom_date_time } = require("../../helper/dayTimer");
+const AttendenceDate = require("../../models/AttendenceDate");
 
 exports.renderOneSubjectAllChapterQuery = async (req, res) => {
   try {
@@ -159,7 +160,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
 exports.renderAddNewLectureQuery = async (req, res) => {
   try {
     const { sid, subId } = req.params;
-    const { arr, rec_status } = req.body;
+    const { arr, rec_status, extra_lecture } = req.body;
     if (!sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -204,6 +205,7 @@ exports.renderAddNewLectureQuery = async (req, res) => {
               topic: valid_topic?._id,
               status: rec_status,
               current_status: valid_topic.topic_completion_status,
+              extra_lecture: [...extra_lecture]
             });
             await Promise.all([valid_topic.save(), subject.save()]);
             if (`${rec_status}` === "Lecture") {
@@ -368,6 +370,28 @@ exports.renderNewChapterTopicQuery = async(req, res) => {
     await Promise.all([ chapter.save(), valid_topic.save()])
     res.status(200).send({ message: "Explore New Chapter Topic Query", access: true})
 
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderFilteredLectureQuery = async(req, res) => {
+  try{
+    const { sid } = req?.query
+    const { date, flow } = req?.body
+    const subject = await Subject.findById({ _id: sid })
+    const attendance_all = await AttendenceDate.find({
+      $and: [{ subject: subject?._id }, 
+      { attendDate: { $eq: `${date}` }, }, 
+      { attendence_type: `${flow}`}]
+    });
+    if(attendance_all?.length > 0){
+      res.status(200).send({ message: "Explore All Available Attendence Query", access: true, attendance_all: attendance_all})
+    }
+    else{
+      res.status(200).send({ message: "No Available Attendence Query", access: false, attendance_all: []})
+    }
   }
   catch(e){
     console.log(e)

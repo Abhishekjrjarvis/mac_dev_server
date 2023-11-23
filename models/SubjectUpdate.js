@@ -47,6 +47,12 @@ const subjectUpdateSchema = new mongoose.Schema({
       current_status: {
         type: String,
       },
+      extra_lecture: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "AttendenceDate"
+        }
+      ]
     },
   ],
   daily_topic_list: [],

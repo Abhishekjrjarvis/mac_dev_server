@@ -266,7 +266,6 @@ exports.render_mark_attendence_query = async (cid, student_array) => {
 exports.markAttendenceClassStudent = async (req, res) => {
   try {
     const { cid } = req.params;
-    const { flow } = req?.query
     const classes = await Class.findById({ _id: cid });
     const dLeave = await Holiday.findOne({
       department: { $eq: `${classes.department}` },
@@ -276,7 +275,6 @@ exports.markAttendenceClassStudent = async (req, res) => {
       className: { $eq: `${cid}` },
       attendDate: { $eq: `${req.body.date}` },
     });
-    if(flow === "Normal_Lecture"){
       if (dLeave || attendanceone) {
         res.status(200).send({
           message:
@@ -368,97 +366,6 @@ exports.markAttendenceClassStudent = async (req, res) => {
         attendence.absentTotal = req.body.absent.length;
         await Promise.all([attendence.save(), classes.save()]);
       }
-    }
-    else if(flow === "Extra_Lecture"){
-        const startDateClass = classes?.classStartDate?.split("/");
-        const markDate = req.body.date?.split("/");
-        const classyear = +markDate[2] > +startDateClass?.[2];
-        const year = +markDate[2] === +startDateClass?.[2];
-        const classmonth = +markDate[1] > +startDateClass?.[1];
-        const month = +markDate[1] === +startDateClass?.[1];
-        const day = +markDate[0] >= +startDateClass?.[0];
-        const attendence = new AttendenceDate({});
-        attendence.attendDate = req.body.date;
-        attendence.className = classes._id;
-        attendence.attendence_type = "Extra_Lecture"
-        attendence.attendTime = new Date();
-        await Promise.all([attendence.save(), classes.save()]);
-        res
-          .status(200)
-          .send({ message: "Success", alreadyMark: attendence?._id });
-        for (let i = 0; i < req.body.present.length; i++) {
-          const student = await Student.findById({
-            _id: `${req.body.present[i]}`,
-          });
-          student.attendDate.push(attendence._id);
-  
-          attendence.presentStudent.push({
-            student: student._id,
-            inTime: getOnlyTime(),
-            // status: getOnlyTimeCompare(),
-            status: "Present",
-          });
-          await student.save();
-        }
-  
-        for (let i = 0; i < req.body.absent.length; i++) {
-          const student = await Student.findById({
-            _id: `${req.body.absent[i]}`,
-          });
-          let gettingDate = req.body.date?.split("/");
-          let gettingDateMod = new Date(
-            `${gettingDate[2]}/${gettingDate[1]}/${gettingDate[0]}`
-          );
-          let todayeDate = new Date();
-          let todayeDateISO = todayeDate;
-          let gettingDateISO = gettingDateMod;
-          if (todayeDateISO.getDate() === gettingDateISO.getDate()) {
-            const user = await User.findById({ _id: `${student.user}` });
-            const notify = new StudentNotification({});
-            notify.notifyContent = `you're absent ${notify_attendence_provider(
-              req.body.date
-            )}`;
-            notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
-            notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
-            notify.notifySender = classes._id;
-            notify.notifyReceiever = user._id;
-            notify.notifyType = "Student";
-            notify.notifyPublisher = student._id;
-            notify.notifyCategory = "Student Absent";
-            notify.notifyByClassPhoto = classes._id;
-            user.activity_tab.push(notify._id);
-            student.notification.push(notify._id);
-            notify.notifyCategory = "Attendence";
-            notify.redirectIndex = 3;
-            //
-            invokeMemberTabNotification(
-              "Student Activity",
-              notify,
-              "Mark Attendence",
-              user._id,
-              user.deviceToken,
-              "Student",
-              notify
-            );
-            //
-            await Promise.all([notify.save(), user.save()]);
-          }
-          student.attendDate.push(attendence._id);
-          attendence.absentStudent.push({
-            student: student._id,
-            inTime: getOnlyTime(),
-            status: "Absent",
-          });
-          await student.save();
-        }
-        classes.attendenceDate.push(attendence._id);
-        attendence.presentTotal = req.body.present.length;
-        attendence.absentTotal = req.body.absent.length;
-        await Promise.all([attendence.save(), classes.save()]);
-    }
-    else{
-
-    }
   } catch (e) {
     console.log(e);
   }
@@ -1516,6 +1423,7 @@ exports.getAttendSubjectStudent = async (req, res) => {
 exports.markAttendenceSubjectStudent = async (req, res) => {
   try {
     const { sid } = req.params;
+    const { flow } = req?.query
     const subjects = await Subject.findById({ _id: sid }).populate({
       path: "class",
       select: "department",
@@ -1528,6 +1436,7 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       subject: { $eq: `${sid}` },
       attendDate: { $eq: `${req.body.date}` },
     });
+    if(flow === "Normal_Lecture"){
     if (dLeave || attendanceone) {
       res.status(200).send({
         message:
@@ -1647,6 +1556,125 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       attendence.absentTotal = req.body.absent.length;
       await Promise.all([attendence.save(), subjects.save()]);
     }
+  }
+  else if(flow === "Extra_Lecture"){
+      const attendence = new AttendenceDate({});
+      attendence.attendDate = req.body.date;
+      attendence.subject = subjects._id;
+      attendence.attendence_type = "Extra_Lecture"
+      attendence.attendTime = new Date();
+      await Promise.all([attendence.save(), subjects.save()]);
+      res
+        .status(200)
+        .send({ message: "Success", alreadyMark: attendence?._id });
+      for (let i = 0; i < req.body.present.length; i++) {
+        const student = await Student.findById({
+          _id: `${req.body.present[i]}`,
+        });
+        // const user = await User.findById({ _id: `${student.user}` });
+        // const notify = new StudentNotification({});
+        // notify.notifyContent = `you're present ${notify_attendence_provider(
+        //   req.body.date
+        // )}`;
+        // notify.notify_hi_content = `आप आज उपस्थित हैं |`;
+        // notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
+        // notify.notifySender = subjects._id;
+        // notify.notifyReceiever = user._id;
+        // notify.notifyType = "Student";
+        // notify.notifyPublisher = student._id;
+        // notify.notifyBySubjectPhoto.subject_id = subjects?._id;
+        // notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
+        // notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+        // notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
+        // notify.notifyCategory = "Student Present";
+        // user.activity_tab.push(notify._id);
+        // student.notification.push(notify._id);
+        student.subjectAttendance.push(attendence._id);
+
+        attendence.presentStudent.push({
+          student: student._id,
+          inTime: getOnlyTime(),
+          // status: getOnlyTimeCompare(),
+          status: "Present",
+        });
+        // notify.notifyCategory = "Attendence";
+        // notify.redirectIndex = 3;
+        //
+        // invokeMemberTabNotification(
+        //   "Student Activity",
+        //   notify,
+        //   "Mark Attendence",
+        //   user._id,
+        //   user.deviceToken,
+        //   "Student",
+        //   notify
+        // );
+        //
+        // await Promise.all([student.save(), notify.save(), user.save()]);
+        await student.save();
+      }
+
+      for (let i = 0; i < req.body.absent.length; i++) {
+        const student = await Student.findById({
+          _id: `${req.body.absent[i]}`,
+        });
+        let gettingDate = req.body.date?.split("/");
+        let gettingDateMod = new Date(
+          `${gettingDate[2]}/${gettingDate[1]}/${gettingDate[0]}`
+        );
+        let todayeDate = new Date();
+        let todayeDateISO = todayeDate;
+        let gettingDateISO = gettingDateMod;
+        if (todayeDateISO.getDate() === gettingDateISO.getDate()) {
+          const user = await User.findById({ _id: `${student.user}` });
+          const notify = new StudentNotification({});
+          notify.notifyContent = `you're absent ${notify_attendence_provider(
+            req.body.date
+          )}`;
+          notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
+          notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
+          notify.notifySender = subjects._id;
+          notify.notifyReceiever = user._id;
+          notify.notifyType = "Student";
+          notify.notifyPublisher = student._id;
+          notify.notifyCategory = "Student Absent";
+          notify.notifyBySubjectPhoto.subject_id = subjects?._id;
+          notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
+          notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+          notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
+          user.activity_tab.push(notify._id);
+          student.notification.push(notify._id);
+          notify.notifyCategory = "Attendence";
+          notify.redirectIndex = 3;
+          //
+          // invokeMemberTabNotification(
+          //   "Student Activity",
+          //   notify,
+          //   "Mark Attendence",
+          //   user._id,
+          //   user.deviceToken,
+          //   "Student",
+          //   notify
+          // );
+          //
+          await Promise.all([notify.save(), user.save()]);
+        }
+        student.subjectAttendance.push(attendence._id);
+        attendence.absentStudent.push({
+          student: student._id,
+          inTime: getOnlyTime(),
+          status: "Absent",
+        });
+        await student.save();
+      }
+      subjects.attendance.push(attendence._id);
+      attendence.presentTotal = req.body.present.length;
+      attendence.absentTotal = req.body.absent.length;
+      await Promise.all([attendence.save(), subjects.save()]);
+  }
+  else{
+
+  }
   } catch (e) {
     console.log(e);
   }
@@ -1655,9 +1683,11 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
 exports.markAttendenceSubjectStudentUpdate = async (req, res) => {
   try {
     const { said } = req.params;
+    const { flow } = req?.query
     const attendance = await AttendenceDate.findOne({
       _id: { $eq: `${said}` },
       attendDate: { $eq: `${req.body.date}` },
+      attendence_type: `${flow}`
     });
     if (!attendance) {
       res.status(200).send({

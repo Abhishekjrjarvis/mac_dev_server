@@ -74,6 +74,9 @@ const attendenceDateSchema = new mongoose.Schema({
   attendence_type: {
     type: String,
     default: "Normal_Lecture"
+  },
+  attendence_name: {
+    type: String,
   }
 });
 

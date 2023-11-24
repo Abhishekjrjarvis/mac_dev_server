@@ -88,6 +88,14 @@ router
   .get(isLoggedIn, catchAsync(Avail.getAttendSubjectStudent))
   .post(isLoggedIn, catchAsync(Avail.markAttendenceSubjectStudent));
 
+// router
+//   .route("/subject/:sid/student/attendance/extra")
+//   .get(isLoggedIn, catchAsync(Avail.getAttendSubjectStudentExtraQuery))
+
+router
+  .route("/subject/:sid/student/attendance/extra/:aid")
+  .get(isLoggedIn, catchAsync(Avail.getAttendSubjectStudentExtraOneQuery))
+
 router
   .route("/student/subject/update/:said")
   .patch(isLoggedIn, catchAsync(Avail.markAttendenceSubjectStudentUpdate));

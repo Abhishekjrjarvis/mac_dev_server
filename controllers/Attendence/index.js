@@ -1377,7 +1377,7 @@ exports.getAttendSubjectStudent = async (req, res) => {
       regularexp = new RegExp(`${day}\/${month}\/${year}$`);
     }
 
-    const subjects = await Subject.findById(req.params.sid)
+    var subjects = await Subject.findById(req.params.sid)
       .populate({
         path: "attendance",
         match: {
@@ -1389,7 +1389,6 @@ exports.getAttendSubjectStudent = async (req, res) => {
       .select("_id")
       .lean()
       .exec();
-
     if (subjects.attendance?.length > 0) {
       const attend = subjects.attendance[0];
       const present = [];
@@ -1420,13 +1419,95 @@ exports.getAttendSubjectStudent = async (req, res) => {
   }
 };
 
+exports.getAttendSubjectStudentExtraQuery = async (req, res) => {
+  try {
+    const prevDate = req.query.date;
+    let regularexp = "";
+    if (prevDate) {
+      const previousDate = prevDate?.split("/");
+      regularexp = new RegExp(
+        `${previousDate[0]}\/${previousDate[1]}\/${previousDate[2]}$`
+      );
+    } else {
+      var currentDate = new Date();
+      currentDate.setHours(currentDate.getHours() + 5);
+      currentDate.setMinutes(currentDate.getMinutes() + 30);
+      const currentDateLocalFormat = currentDate.toISOString().split("-");
+      const day =
+        +currentDateLocalFormat[2].split("T")[0] > 9
+          ? +currentDateLocalFormat[2].split("T")[0]
+          : `0${+currentDateLocalFormat[2].split("T")[0]}`;
+      const month =
+        +currentDateLocalFormat[1] > 9
+          ? +currentDateLocalFormat[1]
+          : `0${+currentDateLocalFormat[1]}`;
+      const year = +currentDateLocalFormat[0];
+      regularexp = new RegExp(`${day}\/${month}\/${year}$`);
+    }
+
+    var subjects = await Subject.findById(req.params.sid)
+
+    var all_attendence = await AttendenceDate.find({
+      $and: [{ subject: subjects?._id},{ attendDate: { $regex: regularexp } }, { attendence_type: "Extra_Lecture"}]
+    })
+    .select("attendDate presentTotal absentTotal presentStudent absentStudent")
+
+    if (all_attendence?.length > 0) {
+      res.status(200).send({
+        message: "Explore Extra Lecture Attendence Query",
+        all_attendence: all_attendence,
+        access: true
+      });
+    } else {
+      // const classEncrypt = await encryptionPayload(subjects);
+      res.status(200).send({ message: "No Extra Lecture Query", access: false, all_attendence: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
+  try {
+    const { sid, aid } = req?.params
+    const subjects = await Subject.findById({ _id: sid })
+    const attend = await AttendenceDate.findById({ _id: aid })
+    .select("attendDate presentTotal absentTotal presentStudent absentStudent attendence_name")
+    const present = [];
+      const absent = [];
+      attend?.presentStudent?.forEach((st) => present.push(st.student));
+      attend?.absentStudent?.forEach((st) => absent.push(st.student));
+      res.status(200).send({
+        subjects: {
+          _id: subjects._id,
+          attendance: [
+            {
+              _id: attend?._id,
+              presentTotal: attend?.presentTotal,
+              absentTotal: attend?.absentTotal,
+              presentStudent: present,
+              absentStudent: absent,
+              attendDate: attend?.attendDate,
+            },
+          ],
+        },
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.markAttendenceSubjectStudent = async (req, res) => {
   try {
     const { sid } = req.params;
     const { flow } = req?.query
     const subjects = await Subject.findById({ _id: sid }).populate({
       path: "class",
-      select: "department",
+      select: "department masterClassName",
+      populate: {
+        path: "masterClassName",
+        select: "className"
+      }
     });
     const dLeave = await Holiday.findOne({
       department: { $eq: `${subjects.class.department}` },
@@ -1562,6 +1643,7 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       attendence.attendDate = req.body.date;
       attendence.subject = subjects._id;
       attendence.attendence_type = "Extra_Lecture"
+      attendence.attendence_name = `${subjects.class.masterClassName?.className}-${subjects?.subjectName}-ExtraLecture-${req.body.date}`
       attendence.attendTime = new Date();
       await Promise.all([attendence.save(), subjects.save()]);
       res

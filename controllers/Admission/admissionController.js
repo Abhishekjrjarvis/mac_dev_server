@@ -9821,8 +9821,8 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
     var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    const g_date = new Date(`2023-10-01T00:00:00.000Z`);
-    const l_date = new Date(`2023-11-01T00:00:00.000Z`);
+    const g_date = new Date(`2023-11-15T00:00:00.000Z`);
+    const l_date = new Date(`2023-11-30T00:00:00.000Z`);
     var receipt = await FeeReceipt.find({
       $and: [
         {
@@ -9835,25 +9835,25 @@ exports.renderFeeHeadsQuery = async (req, res) => {
           set_off_status: "Not Set off",
         },
         {
-          receipt_generated_from: "BY_HOSTEL_MANAGER",
+          receipt_generated_from: "BY_ADMISSION",
         },
         {
           finance: finance?._id,
         },
       ],
     })
-    // .populate({
-    //   path: "student",
-    //   populate: {
-    //     path: "fee_structure",
-    //   },
-    // })
     .populate({
       path: "student",
       populate: {
-        path: "hostel_fee_structure",
+        path: "fee_structure",
       },
-    });
+    })
+    // .populate({
+    //   path: "student",
+    //   populate: {
+    //     path: "hostel_fee_structure",
+    //   },
+    // });
     // var receipt = await FeeReceipt.findById({
     //   _id: "6528c827c0da2e507764cf2c",
     // })
@@ -9862,18 +9862,18 @@ exports.renderFeeHeadsQuery = async (req, res) => {
       //   ref.fee_heads = [];
       //   await ref.save();
       // } else {
-      // await set_fee_head_query_redesign(
-      //   ref?.student,
-      //   ref?.fee_payment_amount,
-      //   ref?.application,
-      //   ref
-      // );
-      await set_fee_head_query_redesign_hostel(
+      await set_fee_head_query_redesign(
         ref?.student,
         ref?.fee_payment_amount,
         ref?.application,
         ref
       );
+      // await set_fee_head_query_redesign_hostel(
+      //   ref?.student,
+      //   ref?.fee_payment_amount,
+      //   ref?.application,
+      //   ref
+      // );
       // }
     }
     // receipt.fee_heads = [];

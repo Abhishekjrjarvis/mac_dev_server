@@ -58,6 +58,7 @@ exports.createDailyUpdate = async (req, res) => {
     if (!req.params.sid) throw "Please send subject id to perform task";
     const { rec_status, extra_lecture } = req.body;
     var valid_arr = req.body?.arr ? JSON.parse(req.body?.arr) : "";
+    var valid_extra_lecture = extra_lecture ? JSON.parse(extra_lecture) : "";
     const subject = await Subject.findById(req.params.sid)
       .populate({
         path: "subjectTeacherName",
@@ -83,7 +84,7 @@ exports.createDailyUpdate = async (req, res) => {
           topic: val?.topicId,
           status: rec_status,
           current_status: val?.current_status,
-          extra_lecture: extra_lecture
+          extra_lecture: [...valid_extra_lecture]
         });
         if (val?.current_status === "Completed") {
           var valid_date = custom_date_time(0);

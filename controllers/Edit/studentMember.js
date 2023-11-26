@@ -640,6 +640,7 @@ exports.getPromoteStudentByClass = async (req, res) => {
       message: "All promoted student list",
       promoteStudent: classes.promoteStudent ?? [],
       count: count,
+      search: true
     });
   } catch (e) {
     res.status(200).send({ message: e, promoteStudent: [] });
@@ -753,6 +754,7 @@ exports.getNotPromoteStudentByClass = async (req, res) => {
       res.status(200).send({
         message: "All not promoted student list",
         notPromoteStudent: classes?.ApproveStudent ?? [],
+        search: true
       });
     }
   } catch (e) {

@@ -503,7 +503,7 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
         //   if (ref?.payment_amount > 0) return ref;
         // });
         // const oEncrypt = await encryptionPayload(order);
-        res.status(200).send({ message: "User Pay History", history: order });
+        res.status(200).send({ message: "User Pay History", history: order, search: true });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
@@ -647,7 +647,7 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
       // }
       if (order?.length > 0) {
         // const oEncrypt = await encryptionPayload(order);
-        res.status(200).send({ message: "User Pay History", history: order });
+        res.status(200).send({ message: "User Pay History", history: order, search: true });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
@@ -807,7 +807,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
         // var new_order = order?.filter((ref) => {
         //   if (ref?.payment_amount > 0) return ref;
         // });
-        res.status(200).send({ message: "User Pay History", history: order });
+        res.status(200).send({ message: "User Pay History", history: order, search: true });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
@@ -963,7 +963,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       // }
       if (order?.length > 0) {
         // const oEncrypt = await encryptionPayload(order);
-        res.status(200).send({ message: "User Pay History", history: order });
+        res.status(200).send({ message: "User Pay History", history: order, search: true });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }

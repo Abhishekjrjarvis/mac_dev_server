@@ -1055,7 +1055,38 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   naac_motto: {
     type: String
-  }
+  },
+  student_reminder: [
+    {
+      content: {
+        type: String,
+      },
+      student_list: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Student",
+        },
+      ],
+      created_at: {
+        type: Date,
+        default: Date.now,
+      },
+      student_list_count: {
+        type: Number,
+        default: 0,
+      },
+      content_type: {
+        type: String,
+      },
+      from: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff",
+      },
+      from_name: {
+        type: String,
+      },
+    },
+  ],
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

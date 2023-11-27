@@ -123,4 +123,16 @@ router.patch(
   catchAsync(Filter.renderNormalStudentQuery)
 );
 
+router.patch(
+  "/by/student/statistics/:bid/query",
+  // isLoggedIn,
+  catchAsync(Filter.renderStudentStatisticsQuery)
+);
+
+router.patch(
+  "/by/student/statistics/excel/export/query",
+  // isLoggedIn,
+  catchAsync(Filter.renderStudentStatisticsExcelQuery)
+);
+
 module.exports = router;

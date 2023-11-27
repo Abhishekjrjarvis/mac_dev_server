@@ -435,4 +435,9 @@ router.patch(
   catchAsync(Extra.renderShuffledStudentQuery)
 );
 
+router.get(
+  "/all/filtered/alarm/:id/query",
+  catchAsync(Extra.renderAllFilteredAlarmQuery)
+);
+
 module.exports = router;

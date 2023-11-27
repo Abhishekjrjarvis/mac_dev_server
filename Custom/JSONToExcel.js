@@ -302,3 +302,32 @@ exports.json_to_excel_normal_student_promote_query= async (
     console.log(e);
   }
 };
+
+exports.json_to_excel_statistics_promote_query= async (
+  data_query,
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(
+      real_book,
+      real_sheet,
+      `Statistics Data`
+    );
+    var name = `statistics-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+    return results
+    // const valid_ins = await InstituteAdmin.findById({ _id: id})
+    // valid_ins.student_export_collection.push({
+    //   excel_file: results,
+    //   excel_file_name: name,
+    // });
+    // valid_ins.student_export_collection_count += 1;
+    // await valid_ins.save();
+  } catch (e) {
+    console.log(e);
+  }
+};

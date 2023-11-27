@@ -3611,3 +3611,47 @@ exports.renderShuffledStudentQuery = async(req, res) => {
     console.log(e)
   }
 }
+
+exports.renderAllFilteredAlarmQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+      var valid_ins = await InstituteAdmin.findById({ _id: id })
+      .select("student_reminder")
+      .populate({
+        path: "student_reminder",
+        populate: {
+          path: "student from",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
+        },
+      });
+    var all_message = await nested_document_limit(
+      page,
+      limit,
+      valid_ins?.student_reminder?.reverse()
+    );
+
+    if (all_message?.length > 0) {
+      res.status(200).send({
+        message: "Explore New All Alarm Query",
+        access: true,
+        all_message: all_message,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New All Alarm Query",
+        access: false,
+        all_message: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

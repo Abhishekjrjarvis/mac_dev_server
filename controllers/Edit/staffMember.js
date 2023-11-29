@@ -778,7 +778,8 @@ exports.renderStaffUserLoginQuery = async (req, res) => {
       await send_email_authentication_login_query(
         one_user.userEmail,
         one_staff?.institute?.insEmail,
-        name
+        name,
+        one_staff?.institute?.insName
       );
     }
     res.status(200).send({

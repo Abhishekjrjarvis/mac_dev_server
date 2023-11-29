@@ -140,10 +140,10 @@ exports.send_email_authentication = async (email) => {
   return OTP;
 };
 
-exports.send_email_authentication_login_query = (email, i_email, name) => {
+exports.send_email_authentication_login_query = (email, i_email, name, i_name) => {
   const subject = "Qviple ERP Login Details";
   const message = `Hello ${name},
-Qviple is ERP software of Mithkal Minds.
+Qviple is ERP software of ${i_name}.
 You are requested to login to your account with your email ${email} (on which this e-mail is received).
 Stay updated about your fees, exams, events and much more about your school/college.
 

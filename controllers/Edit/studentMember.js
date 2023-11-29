@@ -836,7 +836,8 @@ exports.renderStudentUserLoginQuery = async (req, res) => {
       await send_email_authentication_login_query(
         one_user.userEmail,
         one_student?.institute?.insEmail,
-        name
+        name,
+        one_student?.institute?.insName
       );
     }
     res.status(200).send({
@@ -877,7 +878,8 @@ exports.retrieveEmailReplaceQuery = async (arr) => {
           await send_email_authentication_login_query(
             one_user.userEmail,
             one_student?.institute?.insEmail,
-            name
+            name,
+            one_student?.institute?.insName
           );
         }
       }

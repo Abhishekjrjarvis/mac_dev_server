@@ -10,52 +10,40 @@ exports.execute_ins_social_feed_query = async (
 ) => {
   try {
     if (institute.isUniversal === "Not Assigned") {
-      if (institute?.followers?.length >= 1) {
-        if (post.postStatus === "Anyone") {
-          for (var ele of institute?.followers) {
-            ele.posts.push(post?._id);
-            await ele.save();
-          }
-        } else {
-        }
+      if (post?.postStatus === "Anyone") {
+        await InstituteAdmin.updateMany(
+          { _id: { $in: institute?.followers } },
+          { $push: { posts: post?._id } }
+        );
+        await User.updateMany(
+          { _id: { $in: institute?.userFollowersList } },
+          { $push: { userPosts: post?._id } }
+        );
       }
-      if (institute.userFollowersList.length >= 1) {
-        if (post.postStatus === "Anyone") {
-          for (var ele of institute?.userFollowersList) {
-            ele.userPosts.push(post?._id);
-            await ele.save();
-          }
-        } else {
-          if (institute.joinedUserList.length >= 1) {
-            for (var ele of institute?.joinedUserList) {
-              ele.userPosts.push(post?._id);
-              await ele.save();
-            }
-          }
-        }
+      else{
+        await User.updateMany(
+          { _id: { $in: institute?.joinedUserList } },
+          { $push: { userPosts: post?._id } }
+        );
       }
     } else if (institute.isUniversal === "Universal") {
-      const all = await InstituteAdmin.find({ status: "Approved" });
+      const all = await InstituteAdmin.find({ $and: [{ status: "Approved" }, { isUniversal: "Not Assigned" }] });
       const user = await User.find({ userStatus: "Approved" });
       if (post.postStatus === "Anyone") {
-        for (var el of all) {
-          if (el?._id !== institute?._id) {
-            el.posts.push(post?._id);
-            await el.save();
-          }
-        }
-        for (var el of user) {
-          el.userPosts.push(post?._id);
-          await el.save();
-        }
+        await InstituteAdmin.updateMany(
+          { _id: { $in: all } },
+          { $push: { posts: post?._id } }
+        );
+        await User.updateMany(
+          { _id: { $in: user } },
+          { $push: { userPosts: post?._id } }
+        );
       }
-      if (post.postStatus === "Private") {
-        for (var el of all) {
-          if (el?._id !== institute?._id) {
-            el.posts.push(post?._id);
-            await el.save();
-          }
-        }
+      else{
+        await InstituteAdmin.updateMany(
+          { _id: { $in: all } },
+          { $push: { posts: post?._id } }
+        );
       }
     }
     if (Array.isArray(taggedPeople)) {
@@ -101,44 +89,34 @@ exports.execute_ins_social_feed_question_query = async (
 ) => {
   try {
     if (institute.isUniversal === "Not Assigned") {
-      if (institute?.followers?.length >= 1) {
-        if (post.postStatus === "Anyone") {
-          for (var ele of institute?.followers) {
-            ele.posts.push(post?._id);
-            await ele.save();
-          }
-        } else {
-        }
+      if (post?.postStatus === "Anyone") {
+        await InstituteAdmin.updateMany(
+          { _id: { $in: institute?.followers } },
+          { $push: { posts: post?._id } }
+        );
+        await User.updateMany(
+          { _id: { $in: institute?.userFollowersList } },
+          { $push: { userPosts: post?._id } }
+        );
       }
-      if (institute.userFollowersList.length >= 1) {
-        if (post.postStatus === "Anyone") {
-          for (var ele of institute?.userFollowersList) {
-            ele.userPosts.push(post?._id);
-            await ele.save();
-          }
-        } else {
-          if (institute.joinedUserList.length >= 1) {
-            for (var ele of institute?.joinedUserList) {
-              ele.userPosts.push(post?._id);
-              await ele.save();
-            }
-          }
-        }
+      else{
+        await User.updateMany(
+          { _id: { $in: institute?.joinedUserList } },
+          { $push: { userPosts: post?._id } }
+        );
       }
     } else if (institute.isUniversal === "Universal") {
-      const all = await InstituteAdmin.find({ status: "Approved" });
+      const all = await InstituteAdmin.find({ $and: [{ status: "Approved" }, { isUniversal: "Not Assigned" }] });
       const user = await User.find({ userStatus: "Approved" });
       if (post.postStatus === "Anyone") {
-        for (var el of all) {
-          if (el?._id !== institute?._id) {
-            el.posts.push(post?._id);
-            await el.save();
-          }
-        }
-        for (var el of user) {
-          el.userPosts.push(post?._id);
-          await el.save();
-        }
+        await InstituteAdmin.updateMany(
+          { _id: { $in: all } },
+          { $push: { posts: post?._id } }
+        );
+        await User.updateMany(
+          { _id: { $in: user } },
+          { $push: { userPosts: post?._id } }
+        );
       }
     }
     if (hash?.length > 0) {
@@ -149,13 +127,10 @@ exports.execute_ins_social_feed_question_query = async (
         const users = await User.find({
           _id: { $in: hash?.hashtag_follower },
         });
-        for (var ref of users) {
-          if (ref?.userPosts?.includes(post?._id)) {
-          } else {
-            ref.userPosts.push(post?._id);
-          }
-          await ref.save();
-        }
+        await User.updateMany(
+          { _id: { $in: users } },
+          { $push: { userPosts: post?._id } }
+        );
       }
     }
   } catch (e) {

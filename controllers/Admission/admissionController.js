@@ -9863,7 +9863,7 @@ exports.renderFeeHeadsQuery = async (req, res) => {
     var ins = await InstituteAdmin.findById({ _id: id });
     var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
     const g_date = new Date(`2023-11-15T00:00:00.000Z`);
-    const l_date = new Date(`2023-11-30T00:00:00.000Z`);
+    const l_date = new Date(`2023-12-01T00:00:00.000Z`);
     var receipt = await FeeReceipt.find({
       $and: [
         {
@@ -9876,25 +9876,25 @@ exports.renderFeeHeadsQuery = async (req, res) => {
           set_off_status: "Not Set off",
         },
         {
-          receipt_generated_from: "BY_ADMISSION",
+          receipt_generated_from: "BY_HOSTEL_MANAGER",
         },
         {
           finance: finance?._id,
         },
       ],
     })
-    .populate({
-      path: "student",
-      populate: {
-        path: "fee_structure",
-      },
-    })
     // .populate({
     //   path: "student",
     //   populate: {
-    //     path: "hostel_fee_structure",
+    //     path: "fee_structure",
     //   },
-    // });
+    // })
+    .populate({
+      path: "student",
+      populate: {
+        path: "hostel_fee_structure",
+      },
+    });
     // var receipt = await FeeReceipt.findById({
     //   _id: "6528c827c0da2e507764cf2c",
     // })
@@ -9903,18 +9903,18 @@ exports.renderFeeHeadsQuery = async (req, res) => {
       //   ref.fee_heads = [];
       //   await ref.save();
       // } else {
-      await set_fee_head_query_redesign(
-        ref?.student,
-        ref?.fee_payment_amount,
-        ref?.application,
-        ref
-      );
-      // await set_fee_head_query_redesign_hostel(
+      // await set_fee_head_query_redesign(
       //   ref?.student,
       //   ref?.fee_payment_amount,
       //   ref?.application,
       //   ref
       // );
+      await set_fee_head_query_redesign_hostel(
+        ref?.student,
+        ref?.fee_payment_amount,
+        ref?.application,
+        ref
+      );
       // }
     }
     // receipt.fee_heads = [];
@@ -9955,8 +9955,8 @@ exports.renderFindReceiptQuery = async (req, res) => {
     var finance = await Finance.findById({
       _id: `${ins?.financeDepart?.[0]}`,
     });
-    const g_date = new Date(`2023-11-01T00:00:00.000Z`);
-    const l_date = new Date(`2023-11-30T00:00:00.000Z`);
+    const g_date = new Date(`2023-12-01T00:00:00.000Z`);
+    const l_date = new Date(`2023-12-31T00:00:00.000Z`);
     var receipt = await FeeReceipt.find({
       $and: [
         {
@@ -9987,7 +9987,7 @@ exports.renderFindReceiptQuery = async (req, res) => {
       });
     var num = 0;
     for (var ref of receipt) {
-      ref.invoice_count = `112023${num + 1}`;
+      ref.invoice_count = `122023${num + 1}`;
       if (ref?.order_history) {
         ref.order_history.payment_invoice_number = `${ref.invoice_count}`;
         await ref.order_history.save();

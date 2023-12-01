@@ -77,6 +77,12 @@ exports.createDailyUpdate = async (req, res) => {
       updateDescription: req.body?.updateDescription,
       date: req.body?.date,
     });
+    await dailyUpdate.save();
+    res.status(201).send({
+      message: "Daily updates created successfully 👍",
+      dailyUpdate,
+      access: true,
+    });
     // var all_topic = await ChapterTopic.find({ _id: { $in: valid_arr } });
     if (valid_arr?.length > 0) {
       for (var val of valid_arr) {
@@ -176,11 +182,11 @@ exports.createDailyUpdate = async (req, res) => {
     }
     await Promise.all([dailyUpdate.save(), subject.save()]);
     // const dEncrypt = await encryptionPayload(dailyUpdate);
-    res.status(201).send({
-      message: "Daily updates created successfully 👍",
-      dailyUpdate,
-      access: true,
-    });
+    // res.status(201).send({
+    //   message: "Daily updates created successfully 👍",
+    //   dailyUpdate,
+    //   access: true,
+    // });
 
     subject?.class?.ApproveStudent?.forEach(async (sutId) => {
       const students = await Student.findById(sutId);

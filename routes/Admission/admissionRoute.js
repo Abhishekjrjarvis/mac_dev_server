@@ -324,6 +324,11 @@ router.patch(
   catchAsync(Admission.renderOneReceiptReApply)
 );
 
+router.patch(
+  "/:aid/all/outstanding/query",
+  catchAsync(Admission.renderAllOutstandingQuery)
+);
+
 router.post(
   "/:aid/trigger/alarm",
   catchAsync(Admission.renderTriggerAlarmQuery)

@@ -5652,6 +5652,67 @@ exports.renderOneReceiptReApply = async (req, res) => {
   }
 };
 
+exports.renderAllOutstandingQuery = async(req, res) => {
+  try{
+    const { aid } = req.params;
+    const { all_depart, batch_status, master, depart, batch } = req?.body
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+      const ads_admin = await Admission.findById({ _id: aid }).select(
+        "alarm_count institute"
+      );
+    if(all_depart === "ALL"){
+      var all_dept = await Department.find({ institute: ads_admin?.institute })
+      var all_student = await Student.find({ department: { $in: all_dept }})
+      .select("studentFirstName studentMiddleName studentLastName valid_full_name")
+      .populate({
+        path: "user",
+        select: "deviceToken userEmail",
+      })
+      .populate({
+            path: "institute",
+            select: "insName",
+          });
+    }
+    else if(all_depart === "PARTICULAR"){
+      if(batch_status === "ALL_BATCH"){
+        var valid_dept = await Department.findById({ _id: depart })
+        var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: valid_dept?.batches }, { studentClass: { $in: master }}]})
+        .select("studentFirstName studentMiddleName studentLastName valid_full_name")
+        .populate({
+          path: "user",
+          select: "deviceToken userEmail",
+        })
+        .populate({
+            path: "institute",
+            select: "insName",
+          });
+      }
+      else if(batch_status === "PARTICULAR_BATCH"){
+        var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }, { studentClass: { $in: master }}]})
+        .select("studentFirstName studentMiddleName studentLastName valid_full_name")
+        .populate({
+          path: "user",
+          select: "deviceToken userEmail",
+        })
+        .populate({
+            path: "institute",
+            select: "insName",
+          });
+      }
+    }
+
+    res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 exports.renderTriggerAlarmQuery = async (req, res) => {
   try {
     const { aid } = req.params;

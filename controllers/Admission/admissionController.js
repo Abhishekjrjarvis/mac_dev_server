@@ -5681,7 +5681,7 @@ exports.renderAllOutstandingQuery = async(req, res) => {
     else if(all_depart === "PARTICULAR"){
       if(batch_status === "ALL_BATCH"){
         var valid_dept = await Department.findById({ _id: depart })
-        var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: valid_dept?.batches }, { studentClass: { $in: master }}]})
+        var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: { $in: valid_dept?.batches } }, { studentClass: { $in: master }}]})
         .select("studentFirstName studentMiddleName studentLastName valid_full_name")
         .populate({
           path: "user",
@@ -5717,7 +5717,7 @@ exports.renderTriggerAlarmQuery = async (req, res) => {
   try {
     const { aid } = req.params;
     const { alarm_mode, content } = req.query;
-    const { all_depart, batch_status, master, depart, batch } = req?.body
+    const { all_arr } = req?.body
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",

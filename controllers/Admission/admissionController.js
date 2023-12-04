@@ -5662,7 +5662,7 @@ exports.renderAllOutstandingQuery = async(req, res) => {
         access: false,
       });
 
-      const ads_admin = await Admission.findById({ _id: aid }).select(
+      var ads_admin = await Admission.findById({ _id: aid }).select(
         "alarm_count institute"
       );
     if(all_depart === "ALL"){
@@ -6205,10 +6205,13 @@ exports.renderRefundArrayQuery = async (req, res) => {
             path: "student",
             match: {
               studentFirstName: { $regex: search, $options: "i" },
-              // studentGRNO: { $regex: search, $options: "i" },
+              studentMiddleName: { $regex: search, $options: "i" },
+              studentLastName: { $regex: search, $options: "i" },
+              valid_full_name: { $regex: search, $options: "i" },
+              studentGRNO: { $regex: search, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto studentGRNO",
           },
         });
       for (let data of ads_admin?.refundFeeList) {

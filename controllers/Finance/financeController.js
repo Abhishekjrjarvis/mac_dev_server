@@ -5403,6 +5403,26 @@ exports.renderValidBankQuery = async (req, res) => {
   }
 };
 
+exports.renderValidScholarQuery = async(req, res) => {
+  try{
+    const { num } = req?.query
+    if(!num) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false})
+
+    var valid = await RemainingList.find({ scholar_ship_number: `${num}`})
+    .select("scholar_ship_number")
+
+    if(valid?.length > 0){
+      res.status(200).send({ message: "Scholarship Number Already Exists", access: true, count: valid?.length, exists: valid})
+    }
+    else{
+      res.status(200).send({ message: "Add New Scholar Number", access: false, count: 0, exists: []})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 // exports.updateAlias = async(req, res) => {
 //   try{
 

@@ -519,4 +519,8 @@ router.patch(
   catchAsync(Finance.renderValidBankQuery)
 );
 
+router
+  .route("/valid/scholar/query")
+  .patch(catchAsync(Finance.renderValidScholarQuery))
+  
 module.exports = router;

@@ -5682,7 +5682,7 @@ exports.renderAllOutstandingQuery = async(req, res) => {
     else if(all_depart === "PARTICULAR"){
       if(batch_status === "ALL_BATCH"){
         var valid_dept = await Department.findById({ _id: depart })
-        const all_classes = await ClassMaster.find({ _id: { $in: master }})
+        const all_classes = await Class.find({ masterClassName: { $in: master }})
         var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: { $in: valid_dept?.batches } }, { studentClass: { $in: all_classes }}]})
         .select("studentFirstName studentMiddleName studentLastName valid_full_name")
         .populate({
@@ -5696,7 +5696,7 @@ exports.renderAllOutstandingQuery = async(req, res) => {
           res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student})
       }
       else if(batch_status === "PARTICULAR_BATCH"){
-        const all_classes = await ClassMaster.find({ _id: { $in: master }})
+        const all_classes = await ClassMaster.find({ masterClassName: { $in: master }})
         var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }, { studentClass: { $in: all_classes }}]})
         .select("studentFirstName studentMiddleName studentLastName valid_full_name")
         .populate({
@@ -5730,7 +5730,7 @@ exports.renderTriggerAlarmQuery = async (req, res) => {
       const ads_admin = await Admission.findById({ _id: aid }).select(
         "alarm_count institute"
       );
-      var all_student = await Student.find({ department: { $in: all_dept }})
+      var all_student = await Student.find({ _id: { $in: all_arr }})
       .select("studentFirstName studentMiddleName studentLastName valid_full_name")
       .populate({
         path: "user",

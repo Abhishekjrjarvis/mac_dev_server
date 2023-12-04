@@ -117,20 +117,20 @@ ${ele?.institute?.iName}
           }
         }
       }
-      if(student_arr?.length > 0){
-        var valid_ins = await InstituteAdmin.findOne({ institute: ads_admin?.institute });
-        valid_ins.student_reminder.push({
-          content: `${content}`,
-          student_list: [...student_arr],
-          student_list_count: student_arr?.length,
-          content_type: `${type}`,
-          from_name: "Institute Admin",
-        });
-        await valid_ins.save();
-      }
       ads_admin.alarm_enable_status = "Disable";
       await ads_admin.save();
     } else {
+    }
+    if(student_arr?.length > 0){
+      var valid_ins = await InstituteAdmin.findOne({ institute: ads_admin?.institute });
+      valid_ins.student_reminder.push({
+        content: `${content}`,
+        student_list: [...student_arr],
+        student_list_count: student_arr?.length,
+        content_type: `${type}`,
+        from_name: "Institute Admin",
+      });
+      await valid_ins.save();
     }
     await s_admin.save();
   } catch (e) {

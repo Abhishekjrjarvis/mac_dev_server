@@ -122,7 +122,7 @@ ${ele?.institute?.iName}
     } else {
     }
     if(student_arr?.length > 0){
-      var valid_ins = await InstituteAdmin.findOne({ institute: ads_admin?.institute });
+      var valid_ins = await InstituteAdmin.findById({ _id: ads_admin?.institute });
       valid_ins.student_reminder.push({
         content: `${content}`,
         student_list: [...student_arr],

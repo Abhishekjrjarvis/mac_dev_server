@@ -1304,7 +1304,7 @@ exports.getSubjectStudentList = async (req, res) => {
           select: "userLegalName username",
         })
         .select(
-          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO leave user studentOptionalSubject"
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO leave user studentOptionalSubject student_prn_enroll_number"
         )
         .lean()
         .exec();
@@ -1333,7 +1333,7 @@ exports.getSubjectStudentList = async (req, res) => {
           select: "userLegalName username",
         })
         .select(
-          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO leave user"
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO leave user student_prn_enroll_number"
         )
         .lean()
         .exec();

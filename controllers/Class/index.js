@@ -273,7 +273,7 @@ exports.renderAllBatchStudentQuery = async (req, res) => {
         ],
       })
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO student_prn_enroll_number"
         )
         .populate({
           path: "class_selected_batch",
@@ -286,7 +286,7 @@ exports.renderAllBatchStudentQuery = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO student_prn_enroll_number"
         )
         .populate({
           path: "class_selected_batch",
@@ -391,7 +391,7 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
       .populate({
         path: "ApproveStudent",
         select:
-          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO student_prn_enroll_number",
         populate: {
           path: "user class_selected_batch",
           select: "userLegalName username batchName batchStatus",

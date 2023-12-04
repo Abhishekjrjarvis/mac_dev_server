@@ -5668,7 +5668,7 @@ exports.renderAllOutstandingQuery = async(req, res) => {
     if(all_depart === "ALL"){
       var all_dept = await Department.find({ institute: ads_admin?.institute })
       var all_student = await Student.find({ department: { $in: all_dept }})
-      .select("studentFirstName studentMiddleName studentLastName valid_full_name")
+      .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
       .populate({
         path: "user",
         select: "deviceToken userEmail",
@@ -5684,7 +5684,7 @@ exports.renderAllOutstandingQuery = async(req, res) => {
         var valid_dept = await Department.findById({ _id: depart })
         const all_classes = await Class.find({ masterClassName: { $in: master }})
         var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: { $in: valid_dept?.batches } }, { studentClass: { $in: all_classes }}]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name")
+        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
         .populate({
           path: "user",
           select: "deviceToken userEmail",
@@ -5698,7 +5698,7 @@ exports.renderAllOutstandingQuery = async(req, res) => {
       else if(batch_status === "PARTICULAR_BATCH"){
         const all_classes = await ClassMaster.find({ masterClassName: { $in: master }})
         var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }, { studentClass: { $in: all_classes }}]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name")
+        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
         .populate({
           path: "user",
           select: "deviceToken userEmail",

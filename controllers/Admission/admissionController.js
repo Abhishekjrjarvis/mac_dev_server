@@ -5682,7 +5682,8 @@ exports.renderAllOutstandingQuery = async(req, res) => {
     else if(all_depart === "PARTICULAR"){
       if(batch_status === "ALL_BATCH"){
         var valid_dept = await Department.findById({ _id: depart })
-        var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: { $in: valid_dept?.batches } }, { studentClass: { $in: master }}]})
+        const all_classes = await ClassMaster.find({ _id: { $in: master }})
+        var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: { $in: valid_dept?.batches } }, { studentClass: { $in: all_classes }}]})
         .select("studentFirstName studentMiddleName studentLastName valid_full_name")
         .populate({
           path: "user",
@@ -5695,7 +5696,8 @@ exports.renderAllOutstandingQuery = async(req, res) => {
           res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student})
       }
       else if(batch_status === "PARTICULAR_BATCH"){
-        var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }, { studentClass: { $in: master }}]})
+        const all_classes = await ClassMaster.find({ _id: { $in: master }})
+        var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }, { studentClass: { $in: all_classes }}]})
         .select("studentFirstName studentMiddleName studentLastName valid_full_name")
         .populate({
           path: "user",
@@ -5728,8 +5730,6 @@ exports.renderTriggerAlarmQuery = async (req, res) => {
       const ads_admin = await Admission.findById({ _id: aid }).select(
         "alarm_count institute"
       );
-    if(all_depart === "ALL"){
-      var all_dept = await Department.find({ institute: ads_admin?.institute })
       var all_student = await Student.find({ department: { $in: all_dept }})
       .select("studentFirstName studentMiddleName studentLastName valid_full_name")
       .populate({
@@ -5740,34 +5740,6 @@ exports.renderTriggerAlarmQuery = async (req, res) => {
             path: "institute",
             select: "insName",
           });
-    }
-    else if(all_depart === "PARTICULAR"){
-      if(batch_status === "ALL_BATCH"){
-        var valid_dept = await Department.findById({ _id: depart })
-        var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: valid_dept?.batches }, { studentClass: { $in: master }}]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
-        })
-        .populate({
-            path: "institute",
-            select: "insName",
-          });
-      }
-      else if(batch_status === "PARTICULAR_BATCH"){
-        var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }, { studentClass: { $in: master }}]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
-        })
-        .populate({
-            path: "institute",
-            select: "insName",
-          });
-      }
-    }
 
     // if (alarm_count > 3) {
     //   res.status(200).send({

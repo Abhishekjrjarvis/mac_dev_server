@@ -5677,6 +5677,7 @@ exports.renderAllOutstandingQuery = async(req, res) => {
             path: "institute",
             select: "insName",
           });
+          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student})
     }
     else if(all_depart === "PARTICULAR"){
       if(batch_status === "ALL_BATCH"){
@@ -5691,6 +5692,7 @@ exports.renderAllOutstandingQuery = async(req, res) => {
             path: "institute",
             select: "insName",
           });
+          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student})
       }
       else if(batch_status === "PARTICULAR_BATCH"){
         var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }, { studentClass: { $in: master }}]})
@@ -5703,10 +5705,9 @@ exports.renderAllOutstandingQuery = async(req, res) => {
             path: "institute",
             select: "insName",
           });
+          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student})
       }
     }
-
-    res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student})
   }
   catch(e){
     console.log(e)

@@ -4682,6 +4682,13 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
       var pending_by_student = 0
       var collect_by_government = 0
       var pending_from_government = 0
+      var total_fees_arr = []
+      var total_collect_arr = []
+      var total_pending_arr = []
+      var collect_by_student_arr = []
+      var pending_by_student_arr = []
+      var collect_by_government_arr = []
+      var pending_from_government_arr = []
       var excel_list = []
       if(all_depart === "ALL"){
         var new_departs = []
@@ -4750,7 +4757,35 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   pending_by_student += ele?.admissionRemainFeeCount ?? 0
                   collect_by_government += ele?.paid_by_government
                   pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
+                  if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
+                    total_fees_arr.push(ele?.student)
+                  }
+                  if(ele?.paid_fee + ref?.studentPaidFeeCount > 0){
+                    total_collect_arr.push(ele?.student)
+                  }
+                  if(ele?.remaining_fee + ref?.studentRemainingFeeCount > 0){
+                    total_pending_arr.push(ele?.student)
+                  }
+                  if(ele?.paid_by_student > 0){
+                    collect_by_student_arr.push(ele?.student)
+                  }
+                  if(ele?.admissionRemainFeeCount > 0){
+                    pending_by_student_arr.push(ele?.student)
+                  }
+                  if(ele?.paid_by_government > 0){
+                    collect_by_government_arr.push(ele?.student)
+                  }
+                  if(ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees > 0){
+                    pending_from_government_arr.push(ele?.student)
+                  }
                 }
+                total_fees_arr = remove_duplicated(total_fees_arr)
+                total_collect_arr = remove_duplicated(total_collect_arr)
+                total_pending_arr = remove_duplicated(total_pending_arr)
+                collect_by_student_arr = remove_duplicated(collect_by_student_arr)
+                pending_by_student_arr = remove_duplicated(pending_by_student_arr)
+                collect_by_government_arr = remove_duplicated(collect_by_government_arr)
+                pending_from_government_arr = remove_duplicated(pending_from_government_arr)
               }
               custom_classes.push({
                 className: `${cls?.className}-${cls?.classTitle}`,
@@ -4762,7 +4797,14 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                 pending_by_student: pending_by_student,
                 collect_by_government: collect_by_government,
                 pending_from_government: pending_from_government,
-                classMaster: cls?.masterClassName
+                classMaster: cls?.masterClassName,
+                total_fees_arr: total_fees_arr,
+                total_collect_arr: total_collect_arr,
+                total_pending_arr: total_pending_arr,
+                collect_by_student_arr: collect_by_student_arr,
+                pending_by_student_arr: pending_by_student_arr,
+                collect_by_government_arr: collect_by_government_arr,
+                pending_from_government_arr: pending_from_government_arr,
               })
             }
             obs[one_batch?._id] = {
@@ -4800,21 +4842,24 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
             departs: new_dep_excel,
             ...result_1
           })
+          finance.admission_fees_statistics_filter.department_all = "All"
+        finance.admission_stats = excel_list
+        await finance.save()
       res.status(200).send({ message: "Explore Admission View Query", access: true, excel_list: excel_list})
       }
-      else if(all_depart === "PARTICULAR"){
-        if(batch_status === "ALL_BATCH"){
-          var valid_departs = await Department.findById({ _id: depart })
-          var all_student = await Student.find({ $and: [{ department: valid_departs?._id }, { batches: valid_departs?.batches }, { studentClass: { $in: master }}]})
-        }
-        else if(batch_status === "PARTICULAR_BATCH"){
-          var all_student = await Student.find({ $and: [{ department: valid_departs?._id }, { batches: batch }, { studentClass: { $in: master }}]})
-        }
-      }
-      else if(all_depart === "BY_BANK"){
-        var departs = await Department.find({ bank_account: bank })
-        var all_student = await Student.find({ $and: [{ department: { $in: departs }}]})
-      }
+      // else if(all_depart === "PARTICULAR"){
+      //   if(batch_status === "ALL_BATCH"){
+      //     var valid_departs = await Department.findById({ _id: depart })
+      //     var all_student = await Student.find({ $and: [{ department: valid_departs?._id }, { batches: valid_departs?.batches }, { studentClass: { $in: master }}]})
+      //   }
+      //   else if(batch_status === "PARTICULAR_BATCH"){
+      //     var all_student = await Student.find({ $and: [{ department: valid_departs?._id }, { batches: batch }, { studentClass: { $in: master }}]})
+      //   }
+      // }
+      // else if(all_depart === "BY_BANK"){
+      //   var departs = await Department.find({ bank_account: bank })
+      //   var all_student = await Student.find({ $and: [{ department: { $in: departs }}]})
+      // }
       // res.status(200).send({ message: "Explore Admission View Query"})
     }
     else{
@@ -4895,6 +4940,47 @@ exports.renderOverallStudentFeesStatisticsQuery = async(req, res) => {
       pending_by_student_arr: one_finance?.pending_by_student_arr,
       collect_by_government_arr: one_finance?.collect_by_government_arr,
       pending_from_government_arr: one_finance?.pending_from_government_arr,
+    }
+
+    const fetch_encrypt = await encryptionPayload(fetch_obj)
+    res.status(200).send({ 
+      encrypt: fetch_encrypt,
+      fetch_obj
+    })
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderOverallStudentAdmissionFeesStatisticsQuery = async(req, res) => {
+  try{
+    const { fid } = req?.params
+    if(!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    const one_finance = await Finance.findById({ _id: fid })
+    one_finance.admission_fees_statistics_filter.loading = false
+    await one_finance.save()
+    const fetch_obj = {
+      message: "Refetched Overall Data For Finance Master Query", 
+      access: true,
+      excel_list: one_finance?.admission_stats,
+      // total_fees: one_finance?.total_fees,
+      // total_collect: one_finance?.total_collect,
+      // total_pending: one_finance?.total_pending,
+      // collect_by_student: one_finance?.collect_by_student,
+      // pending_by_student: one_finance?.pending_by_student,
+      // collect_by_government: one_finance?.collect_by_government,
+      // pending_from_government: one_finance?.pending_from_government,
+      last_update: new Date(),
+      loading_status: one_finance?.admission_fees_statistics_filter?.loading,
+      fees_statistics_filter: one_finance?.admission_fees_statistics_filter,
+      // total_fees_arr: one_finance?.total_fees_arr,
+      // total_collect_arr: one_finance?.total_collect_arr,
+      // total_pending_arr: one_finance?.total_pending_arr,
+      // collect_by_student_arr: one_finance?.collect_by_student_arr,
+      // pending_by_student_arr: one_finance?.pending_by_student_arr,
+      // collect_by_government_arr: one_finance?.collect_by_government_arr,
+      // pending_from_government_arr: one_finance?.pending_from_government_arr,
     }
 
     const fetch_encrypt = await encryptionPayload(fetch_obj)

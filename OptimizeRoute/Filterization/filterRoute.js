@@ -147,6 +147,12 @@ router.get(
   catchAsync(Filter.renderOverallStudentFeesStatisticsQuery)
 );
 
+router.get(
+  "/by/overall/admission/fees/statistics/:fid/query",
+  // isLoggedIn,
+  catchAsync(Filter.renderOverallStudentAdmissionFeesStatisticsQuery)
+);
+
 router.patch(
   "/scholar/data/history/:id/query",
   catchAsync(Filter.renderFinanceScholarTransactionHistoryQuery)

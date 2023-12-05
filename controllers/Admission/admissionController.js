@@ -5709,6 +5709,30 @@ exports.renderAllOutstandingQuery = async(req, res) => {
           });
           res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student})
       }
+      if(!batch_status){
+      var valid_dept = await Department.findById({ _id: depart })
+        const all_classes = await Class.find({ masterClassName: { $in: master }})
+        var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { studentClass: { $in: all_classes }}]})
+        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
+        .populate({
+          path: "user",
+          select: "deviceToken userEmail",
+        })
+        .populate({
+            path: "institute",
+            select: "insName",
+          });
+          // all_student = all_student?.filter(async (val) => {
+          //   var all_remain = await RemainingList.find({ student: val?._id })
+          //   .populate({
+          //     path: "fee_structure"
+          //   })
+          //   for(var ref of all_remain){
+          //     if(ref?.paid_fee >= ref?.fee_structure?.applicable_fees) return ref
+          //   }
+          // })
+          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student})
+        }
     }
   }
   catch(e){

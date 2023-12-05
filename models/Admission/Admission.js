@@ -293,6 +293,9 @@ const admissionAdminSchema = new mongoose.Schema({
   member_module_unique: {
     type: String,
     unique: true
+  },
+  admission_stats: {
+    
   }
 });
 

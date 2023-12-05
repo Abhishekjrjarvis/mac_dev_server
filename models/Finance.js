@@ -646,6 +646,22 @@ const financeSchema = new mongoose.Schema(
     pending_by_student_arr: [],
     collect_by_government_arr: [],
     pending_from_government_arr: [],
+    admission_stats: {
+
+    },
+    admission_fees_statistics_filter: {
+      batch_level: [],
+      batch_all: {
+        type: String
+      },
+      department_level: [],
+      department_all: {
+        type: String
+      },
+      bank_level: [],
+      master_level: [],
+      loading: { type: Boolean, default: true}
+    },
   },
   { timestamps: true }
 );

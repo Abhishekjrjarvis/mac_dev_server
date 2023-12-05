@@ -662,6 +662,14 @@ const financeSchema = new mongoose.Schema(
       master_level: [],
       loading: { type: Boolean, default: true}
     },
+    loading_fees: {
+      type: Date,
+      default: Date.now
+    },
+    loading_admission_fees: {
+      type: Date,
+      default: Date.now
+    },
   },
   { timestamps: true }
 );

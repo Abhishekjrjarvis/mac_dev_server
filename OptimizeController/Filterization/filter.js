@@ -4269,6 +4269,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
 
     if(module_type === "OVERALL_VIEW"){
       finance.fees_statistics_filter.loading = true
+      finance.loading_fees = new Date()
       await finance.save()
       res.status(200).send({ message: "Explore Admission View Query", access: true, excel_list: excel_list, loading: finance?.fees_statistics_filter.loading})
       finance.total_fees = 0
@@ -4691,6 +4692,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
       var pending_from_government_arr = []
       var excel_list = []
       if(all_depart === "ALL"){
+        finance.loading_admission_fees = new Date()
         var new_departs = []
         res.status(200).send({ message: "Explore Admission View Query", access: true, loading: true})
         var departs = await Department.find({ institute: finance?.institute })

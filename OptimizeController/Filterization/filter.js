@@ -4692,6 +4692,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
       var excel_list = []
       if(all_depart === "ALL"){
         var new_departs = []
+        res.status(200).send({ message: "Explore Admission View Query", access: true, loading: true})
         var departs = await Department.find({ institute: finance?.institute })
         .select("dName batches departmentClassMasters")
         const buildStructureObject = async (departs) => {
@@ -4752,7 +4753,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                 for(var ele of all_remain){
                   total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
                   total_collect += ele?.paid_fee + ref?.studentPaidFeeCount
-                  total_pending += ele?.remaining_fee + ref?.studentRemainingFeeCount
+                  total_pending += ele?.remaining_fee
                   collect_by_student += ele?.paid_by_student
                   pending_by_student += ele?.admissionRemainFeeCount ?? 0
                   collect_by_government += ele?.paid_by_government
@@ -4845,7 +4846,6 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
           finance.admission_fees_statistics_filter.department_all = "All"
         finance.admission_stats = excel_list
         await finance.save()
-      res.status(200).send({ message: "Explore Admission View Query", access: true, excel_list: excel_list})
       }
       // else if(all_depart === "PARTICULAR"){
       //   if(batch_status === "ALL_BATCH"){

@@ -503,6 +503,149 @@ const financeSchema = new mongoose.Schema(
       batch: [],
       master: [],
     },
+    fees: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Fees"
+      }
+    ],
+    fees_count: {
+      type: Number,
+      default: 0
+    },
+    tab_manage: {
+      all_students: {
+        type: Boolean,
+        default: true
+      },
+      bank_details: {
+        type: Boolean,
+        default: true
+      },
+      pending_fees: {
+        type: Boolean,
+        default: false
+      },
+      incomes: {
+        type: Boolean,
+        default: true
+      },
+      expenses: {
+        type: Boolean,
+        default: true
+      },
+      submit_request: {
+        type: Boolean,
+        default: false
+      },
+      scholarships: {
+        type: Boolean,
+        default: false
+      },
+      exemption: {
+        type: Boolean,
+        default: false
+      },
+      deposits: {
+        type: Boolean,
+        default: false
+      },
+      transaction_history: {
+        type: Boolean,
+        default: false
+      },
+      data_export: {
+        type: Boolean,
+        default: true
+      },
+      finance_mods: {
+        type: Boolean,
+        default: true
+      },
+      fee_statistics: {
+        type: Boolean,
+        default: true
+      }
+    },
+    fees_statistics_filter: {
+      batch_level: [],
+      batch_all: {
+        type: String
+      },
+      department_level: [],
+      department_all: {
+        type: String
+      },
+      bank_level: [],
+      master_level: [],
+      loading: { type: Boolean, default: true}
+    },
+    member_module_unique: {
+      type: String,
+      unique: true
+    },
+    incomes: {
+      type: Number,
+      default: 0
+    },
+    expenses: {
+      type: Number,
+      default: 0
+    },
+    total_deposits: {
+      type: Number,
+      default: 0
+    },
+    excess_fees: {
+      type: Number,
+      default: 0
+    },
+    total_fees: {
+      type: Number,
+      default: 0
+    },
+    total_collect: {
+      type: Number,
+      default: 0
+    },
+    total_pending: {
+      type: Number,
+      default: 0
+    },
+    collect_by_student: {
+      type: Number,
+      default: 0
+    },
+    pending_by_student: {
+      type: Number,
+      default: 0
+    },
+    collect_by_government: {
+      type: Number,
+      default: 0
+    },
+    pending_from_government: {
+      type: Number,
+      default: 0
+    },
+    mismatch_excel: [
+      {
+        excel_file: { type: String },
+        excel_file_name: { type: String },
+        created_at: { type: Date, default: Date.now },
+      },
+    ],
+    mismatch_excel_count: {
+      type: Number,
+      default: 0
+    },
+    total_fees_arr: [],
+    total_collect_arr: [],
+    total_pending_arr: [],
+    collect_by_student_arr: [],
+    pending_by_student_arr: [],
+    collect_by_government_arr: [],
+    pending_from_government_arr: [],
   },
   { timestamps: true }
 );

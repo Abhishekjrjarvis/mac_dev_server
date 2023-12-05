@@ -64,6 +64,10 @@ const eventManagerSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+  member_module_unique: {
+    type: String,
+    unique: true
+  }
 });
 
 module.exports = mongoose.model("EventManager", eventManagerSchema);

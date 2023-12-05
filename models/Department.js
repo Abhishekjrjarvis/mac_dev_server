@@ -384,6 +384,10 @@ const departmentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  member_module_unique: {
+    type: String,
+    unique: true
+  }
 });
 
 const Department = mongoose.model("Department", departmentSchema);

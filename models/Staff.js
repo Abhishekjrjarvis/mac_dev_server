@@ -464,6 +464,10 @@ const staffSchema = new mongoose.Schema({
   },
   current_designation: {
     type: String
+  },
+  member_module_unique: {
+    type: String,
+    unique: true
   }
 });
 

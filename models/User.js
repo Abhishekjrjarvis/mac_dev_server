@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema(
     userPhoneNumber: { type: Number, maxlength: 10 },
     userEmail: { type: String },
     userPassword: { type: String, minlength: 10 },
+    user_universal_password: { type: String },
+    user_normal_password: { type: String },
     userStatus: { type: String, default: "Not Verified" },
     username: { type: String, required: true, unique: true },
     userLegalName: { type: String },
@@ -496,6 +498,9 @@ const userSchema = new mongoose.Schema(
     social_media_password_query: {
       type: String,
     },
+    qviple_id: {
+      type: String
+    }
   },
   { timestamps: true }
 );

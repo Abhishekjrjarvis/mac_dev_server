@@ -217,6 +217,10 @@ const transportSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  member_module_unique: {
+    type: String,
+    unique: true
+  }
 });
 
 module.exports = mongoose.model("Transport", transportSchema);

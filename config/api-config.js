@@ -57,6 +57,29 @@ const academics = require("../routes/Academics/academicRoute");
 const department = require("../routes/Department/departmentRoute");
 const copoRoute = require("../routes/Copo/copoRoute");
 
+
+// V2 
+
+const authNewV2 = require("../OptimizeRoute/Authentication/authRoute");
+const financeNewV2 = require("../OptimizeRoute/Finance/financeRoute");
+const admissionNewV2 = require("../OptimizeRoute/Admission/admissionRoute");
+const guestV2 = require("../OptimizeRoute/GuestOnline/guestRoute");
+const userNewV2 = require("../OptimizeRoute/User/userRoute");
+const extraNewV2 = require("../OptimizeRoute/Extra/extraRoute");
+const uploadRouteV2 = require("../OptimizeRoute/UploadContent/index");
+const departmentV2 = require("../OptimizeRoute/Department/departmentRoute");
+const filterNewV2 = require("../OptimizeRoute/Filterization/filterRoute");
+const instituteNewV2 = require("../OptimizeRoute/InstituteAdmin/instituteRoute");
+const manageV2 = require("../OptimizeRoute/ManageAdmin/manageRoute");
+const examRouteV2 = require("../OptimizeRoute/Exam/examRoute");
+const searchRouteV2 = require("../OptimizeRoute/Search/index");
+const permissionV2 = require("../OptimizeRoute/Moderator/roleRoute");
+const adminNewV2 = require("../OptimizeRoute/SuperAdmin/adminRoute");
+const checkoutV2 = require("../OptimizeRoute/RazorPay/payCheckoutRoute");
+const urlV2 = require("../OptimizeRoute/URL/shortUrlRoute");
+const availNewV2 = require("../OptimizeRoute/Attendence/indexRoute");
+const feesNewV2 = require("../OptimizeRoute/Fees/feesRoute");
+
 // Api Middleware Func
 
 router.use("/api/v1/search", searchRoute);
@@ -115,5 +138,26 @@ router.use("/api/v1/department", department);
 router.use("/api/v1/copo", copoRoute);
 
 router.use("/api/v1/prod/access", prod);
+
+
+router.use("/api/v2/auth", authNewV2);
+router.use("/api/v2/finance", financeNewV2);
+router.use("/api/v2/admission", admissionNewV2);
+router.use("/api/v2/guest/pay/online", guestV2);
+router.use("/api/v2/user", userNewV2);
+router.use("/api/v2/extra", extraNewV2);
+router.use("/api/v2/all-images", uploadRouteV2);
+router.use("/api/v2/department", departmentV2);
+router.use("/api/v2/feed/filter", filterNewV2);
+router.use("/api/v2/ins", instituteNewV2);
+router.use("/api/v2/manage/admin", manageV2);
+router.use("/api/v2/search", searchRouteV2);
+router.use("/api/v2/exam", examRouteV2);
+router.use("/api/v2/role/permission", permissionV2);
+router.use("/api/v2/admin", adminNewV2);
+router.use("/api/v2/pay", checkoutV2);
+router.use("/api/v2/url", urlV2);
+router.use("/api/v2/attendance", availNewV2);
+router.use("/api/v2/fees", feesNewV2);
 
 module.exports = router;

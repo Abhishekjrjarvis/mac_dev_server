@@ -36,6 +36,7 @@ const { handle_undefined } = require("../../Handler/customError");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const QvipleId = require("../../models/Universal/QvipleId");
 const NewApplication = require("../../models/Admission/NewApplication");
+const { calc_profile_percentage } = require("../../Functions/ProfilePercentage");
 
 exports.retrieveProfileData = async (req, res) => {
   try {
@@ -2176,6 +2177,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       //   `Student-Designation-Member-${sid}`,
       //   bind_student
       // );
+      await calc_profile_percentage(student)
       res.status(200).send({
         message: "All Student Designation Feed from DB 🙌",
         // student: cached.student,

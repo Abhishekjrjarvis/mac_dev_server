@@ -4802,6 +4802,84 @@ exports.fetchDeviceToken = async (req, res) => {
   } catch {}
 };
 
+exports.sendAllStudentLoginMessage = async(req, res) => {
+  try{
+    const { id } = req?.query
+    var institute = await InstituteAdmin.findById({ _id: id })
+
+    var all_student = await Student.find({ _id: institute?.ApproveStudent })
+    .populate({
+      path: "user",
+    })
+    .populate({
+      path: "studentClass",
+    })
+    for(var student of all_student){
+      if (institute.sms_lang === "en") {
+      await directESMSQuery(
+        student?.user?.userPhoneNumber,
+        `${student.studentFirstName} ${
+          student.studentMiddleName ? student.studentMiddleName : ""
+        } ${student.studentLastName}`,
+        institute?.insName,
+        student?.classes?.classTitle
+      );
+    }
+    else if (institute.sms_lang === "hi") {
+      await directHSMSQuery(
+        student?.user?.userPhoneNumber,
+        `${student.studentFirstName} ${
+          student.studentMiddleName ? student.studentMiddleName : ""
+        } ${student.studentLastName}`,
+        institute?.insName,
+        student?.classes?.classTitle
+      );
+    }
+    else if (institute.sms_lang === "mr" || institute.sms_lang === "mt") {
+      await directMSMSQuery(
+        student?.user?.userPhoneNumber,
+        `${student.studentFirstName} ${
+          student.studentMiddleName ? student.studentMiddleName : ""
+        } ${student.studentLastName}`,
+        institute?.insName,
+        student?.classes?.classTitle
+      );
+    } else {
+    }
+    const studentName = `${student.studentFirstName} ${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${student.studentLastName}`;
+    whats_app_sms_payload(
+      student?.user?.userPhoneNumber,
+      studentName,
+      institute?.insName,
+      student?.classes?.className,
+      "ADSIS",
+      institute?.insType,
+      0,
+      0,
+      institute?.sms_lang
+    );
+    if (student?.user?.userEmail) {
+      await email_sms_payload_query(
+        student?.user?.userEmail,
+        studentName,
+        institute,
+        "ADSIS",
+        institute?.insType,
+        0,
+        0,
+        institute?.sms_lang
+      );
+    }
+    }
+    
+    res.status(200).send({ message: "Explore All New Messages Sent From Institute To Login Further", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
 
 // exports.renderAllStudentQuery = async (req, res) => {
 //   try {

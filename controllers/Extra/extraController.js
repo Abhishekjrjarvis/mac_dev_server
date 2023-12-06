@@ -2250,7 +2250,7 @@ exports.renderAllFilteredMessageQuery = async (req, res) => {
         .populate({
           path: "student_message",
           populate: {
-            path: "student from",
+            path: "student from student_list",
             select:
               "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
           },
@@ -2266,7 +2266,7 @@ exports.renderAllFilteredMessageQuery = async (req, res) => {
         .populate({
           path: "student_message",
           populate: {
-            path: "student",
+            path: "student student_list",
             select:
               "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name",
           },
@@ -3627,7 +3627,7 @@ exports.renderAllFilteredAlarmQuery = async (req, res) => {
       .populate({
         path: "student_reminder",
         populate: {
-          path: "student from",
+          path: "student from student_list",
           select:
             "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
         },

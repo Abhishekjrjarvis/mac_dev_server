@@ -524,7 +524,7 @@ const financeSchema = new mongoose.Schema(
       },
       pending_fees: {
         type: Boolean,
-        default: false
+        default: true
       },
       incomes: {
         type: Boolean,
@@ -536,23 +536,23 @@ const financeSchema = new mongoose.Schema(
       },
       submit_request: {
         type: Boolean,
-        default: false
+        default: true
       },
       scholarships: {
         type: Boolean,
-        default: false
+        default: true
       },
       exemption: {
         type: Boolean,
-        default: false
+        default: true
       },
       deposits: {
         type: Boolean,
-        default: false
+        default: true
       },
       transaction_history: {
         type: Boolean,
-        default: false
+        default: true
       },
       data_export: {
         type: Boolean,

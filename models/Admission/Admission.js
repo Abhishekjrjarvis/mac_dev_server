@@ -255,7 +255,7 @@ const admissionAdminSchema = new mongoose.Schema({
     },
     admission_enquiry: {
       type: Boolean,
-      default: false
+      default: true
     },
     offline_payment_verification: {
       type: Boolean,
@@ -279,7 +279,7 @@ const admissionAdminSchema = new mongoose.Schema({
     },
     required_documents: {
       type: Boolean,
-      default: false
+      default: true
     },
     data_export: {
       type: Boolean,

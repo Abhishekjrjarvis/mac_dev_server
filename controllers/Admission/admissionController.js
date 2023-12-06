@@ -5704,8 +5704,6 @@ exports.renderAllOutstandingQuery = async(req, res) => {
           }
           all_student = remove_duplicated(arr)
           res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student, count: all_student?.length})
-
-          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student})
     }
     else if(all_depart === "PARTICULAR"){
       if(batch_status === "ALL_BATCH"){
@@ -5741,7 +5739,7 @@ exports.renderAllOutstandingQuery = async(req, res) => {
             }
           }
           all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student})
+          res.status(200).send({ message: "Explore All For All Batch With Standard Student Query", access: true, all_student: all_student, count: all_student?.length})
         }
         var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: { $in: valid_dept?.batches } }]})
         .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
@@ -5771,11 +5769,11 @@ exports.renderAllOutstandingQuery = async(req, res) => {
             }
           }
           all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student})
+          res.status(200).send({ message: "Explore All Student For All Batch Query", access: true, all_student: all_student, count: all_student?.length})
       }
       else if(batch_status === "PARTICULAR_BATCH"){
         var arr = []
-        const all_classes = await ClassMaster.find({ masterClassName: { $in: master }})
+        const all_classes = await Class.find({ masterClassName: { $in: master }})
         if(all_classes?.length > 0){
           var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }, { studentClass: { $in: all_classes }}]})
         .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
@@ -5805,8 +5803,9 @@ exports.renderAllOutstandingQuery = async(req, res) => {
             }
           }
           all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student, count: all_student?.length})
+          res.status(200).send({ message: "Explore All For Particular Batch with Standard Student Query", access: true, all_student: all_student, count: all_student?.length})
         }
+        else{
         var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }]})
         .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
         .populate({
@@ -5835,7 +5834,8 @@ exports.renderAllOutstandingQuery = async(req, res) => {
             }
           }
           all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student, count: all_student?.length})
+          res.status(200).send({ message: "Explore All For Particular Batch Student Query", access: true, all_student: all_student, count: all_student?.length})
+        }
       }
       if(!batch_status){
         var arr = []
@@ -5882,6 +5882,7 @@ exports.renderAllOutstandingQuery = async(req, res) => {
             }
           }
           all_student = remove_duplicated(arr)
+          console.log("Alert")
           res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student, count: all_student?.length})
         }
     }

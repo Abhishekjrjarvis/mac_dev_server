@@ -152,6 +152,12 @@ router.post("/todevice/token", catchAsync(Auth.fetchDeviceToken));
 
 router.patch("/update/pass", catchAsync(gen_pass))
 
+router.patch(
+  "/send/all/login/message/query",
+  catchAsync(Auth.sendAllStudentLoginMessage)
+);
+
+
 // router.patch("/all/student/:id", catchAsync(Auth.renderAllStudentQuery));
 
 module.exports = router;

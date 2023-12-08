@@ -758,6 +758,18 @@ const studentSchema = new mongoose.Schema({
   member_module_unique: {
     type: String,
     unique: true
+  },
+  total_paid_fees: {
+    type: Number,
+    default: 0
+  },
+  total_os_fees: {
+    type: Number,
+    default: 0
+  },
+  applicable_os_fees: {
+    type: Number,
+    default: 0
   }
 });
 

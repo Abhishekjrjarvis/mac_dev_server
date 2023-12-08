@@ -4145,14 +4145,14 @@ exports.renderStudentStatisticsQuery = async(req, res) => {
 
 exports.renderStudentStatisticsExcelQuery = async (req, res) => {
   try {
-    const { all_arr } = req.body;
+    const { all_arr, batch, depart } = req.body;
     if (!all_arr)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
 
-    const valid_all_students = await Student.find({ _id: { $in: all_arr } })
+    var valid_all_students = await Student.find({ _id: { $in: all_arr } })
       .populate({
         path: "department",
         select: "dName",
@@ -4168,6 +4168,54 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
       valid_all_students.sort(function (st1, st2) {
         return parseInt(st1?.studentROLLNO) - parseInt(st2?.studentROLLNO);
       });
+
+    // var applicable_os_fees = 0
+    // var total_fees = 0
+    // var total_os_fees = 0
+    // var government_os_fees = 0
+
+    if(batch & depart){
+    var all_app = await NewApplication.find({ $and: [{ applicationDepartment: depart}, { applicationBatch: batch}]})
+    var one_remain = await RemainingList.findOne({  $and: [{ student: { $in: valid_all_students}}, { appId: { $in: all_app }}]})
+    .populate({
+      path: "fee_structure",
+      populate: {
+        path: "class_master batch_master",
+        select: "className batchName"
+      }
+    })
+    var excel_list = [];
+    for (var ref of valid_all_students) {
+      excel_list.push({
+        RollNo: ref?.studentROLLNO ?? "NA",
+        AbcId: ref?.student_abc_id ?? "#NA",
+        GRNO: ref?.studentGRNO ?? "#NA",
+        Name: `${ref?.studentFirstName} ${
+          ref?.studentMiddleName ? ref?.studentMiddleName : ""
+        } ${ref?.studentLastName}` ?? ref?.valid_full_name,
+        DOB: ref?.studentDOB ?? "#NA",
+        Gender: ref?.studentGender ?? "#NA",
+        TotalFees: one_remain?.applicable_fee ?? 0,
+        TotalOutstandingFees: one_remain?.remaining_fee,
+        TotalApplicableOutstandingFees: one_remain?.paid_fee <= one_remain?.fee_structure?.applicable_fees ? one_remain?.fee_structure?.applicable_fees - one_remain?.paid_fee : 0,
+        Standard: `${one_remain?.fee_structure}` ? `${one_remain?.fee_structure?.class_master?.className}` : "#NA",
+        Batch: `${one_remain?.fee_structure}` ? `${one_remain?.fee_structure?.batch_master?.batchName}` : "#NA",
+        FeeStructure: one_remain?.fee_structure?.unique_structure_name
+      });
+      // result = []
+    }
+    // console.log(excel_list)
+    const data = await json_to_excel_statistics_promote_query(
+      excel_list,
+    );
+
+    res.status(200).send({
+      message: "Explore Statistics with Admission Fee Query",
+      access: true,
+      data: data
+    });
+  }
+  else{
     var excel_list = [];
     for (var ref of valid_all_students) {
       excel_list.push({
@@ -4218,6 +4266,7 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
       access: true,
       data: data
     });
+  }
   } catch (e) {
     console.log(e);
   }
@@ -4761,7 +4810,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                 })
                 .populate({
                   path: "student",
-                  select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO"
+                  select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO total_paid_fees total_os_fees applicable_os_fees"
                 })
                 for(var ele of all_remain){
                   total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
@@ -4771,6 +4820,11 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   pending_by_student += ele?.admissionRemainFeeCount ?? 0
                   collect_by_government += ele?.paid_by_government
                   pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
+                  ele.student.total_paid_fees += ele?.paid_fee
+                  ele.student.total_os_fees += ele?.remaining_fee
+                  ele.student.applicable_os_fees += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+                  ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+                  : 0
                   if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
                     total_fees_arr.push(ele?.student)
                   }
@@ -4923,7 +4977,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   })
                   .populate({
                     path: "student",
-                    select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO"
+                    select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO total_paid_fees total_os_fees applicable_os_fees"
                   })
                   for(var ele of all_remain){
                     total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
@@ -4933,6 +4987,11 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                     pending_by_student += ele?.admissionRemainFeeCount ?? 0
                     collect_by_government += ele?.paid_by_government
                     pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
+                    ele.student.total_paid_fees += ele?.paid_fee
+                  ele.student.total_os_fees += ele?.remaining_fee
+                  ele.student.applicable_os_fees += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+                  ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+                  : 0
                     if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
                       total_fees_arr.push(ele?.student)
                     }
@@ -5087,7 +5146,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                 })
                 .populate({
                   path: "student",
-                  select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO"
+                  select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO total_paid_fees total_os_fees applicable_os_fees"
                 })
                 for(var ele of all_remain){
                   total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
@@ -5097,6 +5156,11 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   pending_by_student += ele?.admissionRemainFeeCount ?? 0
                   collect_by_government += ele?.paid_by_government
                   pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
+                  ele.student.total_paid_fees += ele?.paid_fee
+                  ele.student.total_os_fees += ele?.remaining_fee
+                  ele.student.applicable_os_fees += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+                  ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+                  : 0
                   if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
                     total_fees_arr.push(ele?.student)
                   }

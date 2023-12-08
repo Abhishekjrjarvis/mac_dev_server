@@ -4694,7 +4694,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
       if(all_depart === "ALL"){
         finance.loading_admission_fees = new Date()
         var new_departs = []
-        res.status(200).send({ message: "Explore Admission View Query", access: true, loading: true})
+        res.status(200).send({ message: "Explore Admission View All Query", access: true, loading: true})
         var departs = await Department.find({ institute: finance?.institute })
         .select("dName batches departmentClassMasters")
         const buildStructureObject = async (departs) => {
@@ -4849,20 +4849,328 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
         finance.admission_stats = excel_list
         await finance.save()
       }
-      // else if(all_depart === "PARTICULAR"){
-      //   if(batch_status === "ALL_BATCH"){
-      //     var valid_departs = await Department.findById({ _id: depart })
-      //     var all_student = await Student.find({ $and: [{ department: valid_departs?._id }, { batches: valid_departs?.batches }, { studentClass: { $in: master }}]})
-      //   }
-      //   else if(batch_status === "PARTICULAR_BATCH"){
-      //     var all_student = await Student.find({ $and: [{ department: valid_departs?._id }, { batches: batch }, { studentClass: { $in: master }}]})
-      //   }
-      // }
-      // else if(all_depart === "BY_BANK"){
-      //   var departs = await Department.find({ bank_account: bank })
-      //   var all_student = await Student.find({ $and: [{ department: { $in: departs }}]})
-      // }
-      // res.status(200).send({ message: "Explore Admission View Query"})
+      if(all_depart === "PARTICULAR"){
+          finance.loading_admission_fees = new Date()
+          var new_departs = []
+          res.status(200).send({ message: "Explore Admission View Particular Batch Query", access: true, loading: true})
+          var departs = await Department.find({ institute: finance?.institute })
+          .select("dName batches departmentClassMasters")
+
+          departs = departs?.filter((val) => {
+            if(`${val?._id}` === `${depart}`) return val
+          })
+          const buildStructureObject = async (departs) => {
+            var obj = {};
+            for (let i = 0; i < departs.length; i++) {
+              const { dp, dName } = departs[i];
+              obj[dp] = dName;
+            }
+            return obj;
+          };
+          const buildStructureObject_1 = async (departs) => {
+            var obj = {};
+            for (let i = 0; i < departs.length; i++) {
+              const { dp, dName, batch_query, master_query, nest_classes } = departs[i];
+              // var nest_obj = Object.assign({}, [...nest_classes])
+              obj[dp] = {
+                dName: dName,
+                batches: batch_query,
+                masters: master_query,
+                nest_classes
+                // batches: batch_query?.map((val, index) => {
+                //   const { bp, batchName, dp } = val;
+                //   nest_obj[bp] = batchName
+                //   nest_obj[dp] = dp
+                //   nest_obj = {}
+                //   return nest_obj
+                // })
+              };
+            }
+            return obj;
+          };
+          var nest_classes = []
+          for(var i = 0; i < departs?.length; i++){
+            var batch_query = []
+            var obs = {}
+              const one_batch = await Batch.findById({ _id: batch})
+              if(one_batch?._id){
+              batch_query.push({
+                batchName: one_batch?.batchName,
+                _id: one_batch?._id
+              })
+              var classes = await Class.find({ batch: one_batch?._id })
+              .select("className classTitle masterClassName")
+              var custom_classes = []
+              for(var cls of classes){
+                var all_student = await Student.find({ studentClass: cls?._id })
+                for(var ref of all_student){
+                  var all_remain = await RemainingList.find({ student: ref?._id })
+                  .populate({
+                    path: "fee_structure"
+                  })
+                  .populate({
+                    path: "student",
+                    select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO"
+                  })
+                  for(var ele of all_remain){
+                    total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
+                    total_collect += ele?.paid_fee + ref?.studentPaidFeeCount
+                    total_pending += ele?.remaining_fee
+                    collect_by_student += ele?.paid_by_student
+                    pending_by_student += ele?.admissionRemainFeeCount ?? 0
+                    collect_by_government += ele?.paid_by_government
+                    pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
+                    if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
+                      total_fees_arr.push(ele?.student)
+                    }
+                    if(ele?.paid_fee + ref?.studentPaidFeeCount > 0){
+                      total_collect_arr.push(ele?.student)
+                    }
+                    if(ele?.remaining_fee + ref?.studentRemainingFeeCount > 0){
+                      total_pending_arr.push(ele?.student)
+                    }
+                    if(ele?.paid_by_student > 0){
+                      collect_by_student_arr.push(ele?.student)
+                    }
+                    if(ele?.admissionRemainFeeCount > 0){
+                      pending_by_student_arr.push(ele?.student)
+                    }
+                    if(ele?.paid_by_government > 0){
+                      collect_by_government_arr.push(ele?.student)
+                    }
+                    if(ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees > 0){
+                      pending_from_government_arr.push(ele?.student)
+                    }
+                  }
+                  total_fees_arr = remove_duplicated(total_fees_arr)
+                  total_collect_arr = remove_duplicated(total_collect_arr)
+                  total_pending_arr = remove_duplicated(total_pending_arr)
+                  collect_by_student_arr = remove_duplicated(collect_by_student_arr)
+                  pending_by_student_arr = remove_duplicated(pending_by_student_arr)
+                  collect_by_government_arr = remove_duplicated(collect_by_government_arr)
+                  pending_from_government_arr = remove_duplicated(pending_from_government_arr)
+                }
+                custom_classes.push({
+                  className: `${cls?.className}-${cls?.classTitle}`,
+                  _id: cls?._id,
+                  total_fees: total_fees,
+                  total_collect: total_collect,
+                  total_pending: total_pending,
+                  collect_by_student: collect_by_student,
+                  pending_by_student: pending_by_student,
+                  collect_by_government: collect_by_government,
+                  pending_from_government: pending_from_government,
+                  classMaster: cls?.masterClassName,
+                  total_fees_arr: total_fees_arr,
+                  total_collect_arr: total_collect_arr,
+                  total_pending_arr: total_pending_arr,
+                  collect_by_student_arr: collect_by_student_arr,
+                  pending_by_student_arr: pending_by_student_arr,
+                  collect_by_government_arr: collect_by_government_arr,
+                  pending_from_government_arr: pending_from_government_arr,
+                })
+              }
+              obs[one_batch?._id] = {
+                classes: custom_classes
+              }
+              nest_classes.push({...obs})
+            }
+            var master_query = []
+            for(var j = 0; j < departs[i]?.departmentClassMasters?.length; j++){
+              const one_master = await ClassMaster.findById({ _id: departs[i]?.departmentClassMasters[j]})
+              if(one_master?._id){
+              master_query.push({
+                masterName: one_master?.className,
+                _id: one_master?._id
+              })
+            }
+            }
+            new_departs.push({
+              dName: departs[i]?.dName,
+              dp: `dp${i+1}`,
+              batch_query: [...batch_query],
+              master_query: [...master_query],
+              nest_classes: [...nest_classes]
+            })
+          }
+          // console.log(nest_classes)
+          var result = await buildStructureObject(new_departs);
+          var new_dep_excel = [{...result}]
+          var result_1 = await buildStructureObject_1(new_departs);
+            excel_list.push({
+              depart_row: true,
+              batch_row: true,
+              master_row: true,
+              class_row: true,
+              departs: new_dep_excel,
+              ...result_1
+            })
+            finance.admission_fees_statistics_filter.department_level.push(depart)
+            finance.admission_fees_statistics_filter.batch_level.push(batch)
+            // finance.admission_fees_statistics_filter.master_level.push()
+          finance.admission_stats = excel_list
+          await finance.save()
+      }
+      if(bank){
+        finance.admission_fees_statistics_filter.bank_level.push(bank)
+        finance.loading_admission_fees = new Date()
+        var new_departs = []
+        res.status(200).send({ message: "Explore Admission View Bank Query", access: true, loading: true})
+        var departs = await Department.find({ bank_account: bank })
+        var departs = await Department.find({ institute: finance?.institute })
+        .select("dName batches departmentClassMasters")
+        const buildStructureObject = async (departs) => {
+          var obj = {};
+          for (let i = 0; i < departs.length; i++) {
+            const { dp, dName } = departs[i];
+            obj[dp] = dName;
+          }
+          return obj;
+        };
+        const buildStructureObject_1 = async (departs) => {
+          var obj = {};
+          for (let i = 0; i < departs.length; i++) {
+            const { dp, dName, batch_query, master_query, nest_classes } = departs[i];
+            // var nest_obj = Object.assign({}, [...nest_classes])
+            obj[dp] = {
+              dName: dName,
+              batches: batch_query,
+              masters: master_query,
+              nest_classes
+              // batches: batch_query?.map((val, index) => {
+              //   const { bp, batchName, dp } = val;
+              //   nest_obj[bp] = batchName
+              //   nest_obj[dp] = dp
+              //   nest_obj = {}
+              //   return nest_obj
+              // })
+            };
+          }
+          return obj;
+        };
+        var nest_classes = []
+        for(var i = 0; i < departs?.length; i++){
+          var batch_query = []
+          for(var j = 0; j < departs[i]?.batches?.length; j++){
+            var obs = {}
+            const one_batch = await Batch.findById({ _id: departs[i]?.batches[j]})
+            if(one_batch?._id){
+            batch_query.push({
+              batchName: one_batch?.batchName,
+              _id: one_batch?._id
+            })
+          }
+            var classes = await Class.find({ batch: one_batch?._id })
+            .select("className classTitle masterClassName")
+            var custom_classes = []
+            for(var cls of classes){
+              var all_student = await Student.find({ studentClass: cls?._id })
+              for(var ref of all_student){
+                var all_remain = await RemainingList.find({ student: ref?._id })
+                .populate({
+                  path: "fee_structure"
+                })
+                .populate({
+                  path: "student",
+                  select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO"
+                })
+                for(var ele of all_remain){
+                  total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
+                  total_collect += ele?.paid_fee + ref?.studentPaidFeeCount
+                  total_pending += ele?.remaining_fee
+                  collect_by_student += ele?.paid_by_student
+                  pending_by_student += ele?.admissionRemainFeeCount ?? 0
+                  collect_by_government += ele?.paid_by_government
+                  pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
+                  if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
+                    total_fees_arr.push(ele?.student)
+                  }
+                  if(ele?.paid_fee + ref?.studentPaidFeeCount > 0){
+                    total_collect_arr.push(ele?.student)
+                  }
+                  if(ele?.remaining_fee + ref?.studentRemainingFeeCount > 0){
+                    total_pending_arr.push(ele?.student)
+                  }
+                  if(ele?.paid_by_student > 0){
+                    collect_by_student_arr.push(ele?.student)
+                  }
+                  if(ele?.admissionRemainFeeCount > 0){
+                    pending_by_student_arr.push(ele?.student)
+                  }
+                  if(ele?.paid_by_government > 0){
+                    collect_by_government_arr.push(ele?.student)
+                  }
+                  if(ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees > 0){
+                    pending_from_government_arr.push(ele?.student)
+                  }
+                }
+                total_fees_arr = remove_duplicated(total_fees_arr)
+                total_collect_arr = remove_duplicated(total_collect_arr)
+                total_pending_arr = remove_duplicated(total_pending_arr)
+                collect_by_student_arr = remove_duplicated(collect_by_student_arr)
+                pending_by_student_arr = remove_duplicated(pending_by_student_arr)
+                collect_by_government_arr = remove_duplicated(collect_by_government_arr)
+                pending_from_government_arr = remove_duplicated(pending_from_government_arr)
+              }
+              custom_classes.push({
+                className: `${cls?.className}-${cls?.classTitle}`,
+                _id: cls?._id,
+                total_fees: total_fees,
+                total_collect: total_collect,
+                total_pending: total_pending,
+                collect_by_student: collect_by_student,
+                pending_by_student: pending_by_student,
+                collect_by_government: collect_by_government,
+                pending_from_government: pending_from_government,
+                classMaster: cls?.masterClassName,
+                total_fees_arr: total_fees_arr,
+                total_collect_arr: total_collect_arr,
+                total_pending_arr: total_pending_arr,
+                collect_by_student_arr: collect_by_student_arr,
+                pending_by_student_arr: pending_by_student_arr,
+                collect_by_government_arr: collect_by_government_arr,
+                pending_from_government_arr: pending_from_government_arr,
+              })
+            }
+            obs[one_batch?._id] = {
+              classes: custom_classes
+            }
+            nest_classes.push({...obs})
+          }
+          var master_query = []
+          for(var j = 0; j < departs[i]?.departmentClassMasters?.length; j++){
+            const one_master = await ClassMaster.findById({ _id: departs[i]?.departmentClassMasters[j]})
+            if(one_master?._id){
+            master_query.push({
+              masterName: one_master?.className,
+              _id: one_master?._id
+            })
+          }
+          }
+          new_departs.push({
+            dName: departs[i]?.dName,
+            dp: `dp${i+1}`,
+            batch_query: [...batch_query],
+            master_query: [...master_query],
+            nest_classes: [...nest_classes]
+          })
+        }
+        // console.log(nest_classes)
+        var result = await buildStructureObject(new_departs);
+        var new_dep_excel = [{...result}]
+        var result_1 = await buildStructureObject_1(new_departs);
+          excel_list.push({
+            depart_row: true,
+            batch_row: true,
+            master_row: true,
+            class_row: true,
+            departs: new_dep_excel,
+            ...result_1
+          })
+          // finance.admission_fees_statistics_filter.bank_level.push(bank)
+        finance.admission_stats = excel_list
+        await finance.save()
+      }
     }
     else{
       res.status(200).send({ message: "Invalid Flow / Module Type Query"})
@@ -4877,17 +5185,6 @@ exports.renderOverallStudentFeesStatisticsQuery = async(req, res) => {
   try{
     const { fid } = req?.params
     if(!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
-    // var total_fees = 0
-    // var total_collect = 0
-    // var total_pending = 0
-    // var collect_by_student = 0
-    // var pending_by_student = 0
-    // var collect_by_government = 0
-    // var pending_from_government = 0
-    // var incomes = 0
-    // var expenses = 0
-    // var total_deposits = 0
-    // var excess_fees = 0
     const one_finance = await Finance.findById({ _id: fid })
     .populate({
       path: "deposit_linked_head"
@@ -4895,27 +5192,6 @@ exports.renderOverallStudentFeesStatisticsQuery = async(req, res) => {
     .populate({
       path: "deposit_hostel_linked_head"
     })
-    // const all_student = await Student.find({ $and: [{ institute: one_finance?.institute }, { studentStatus: "Approved"}]})
-    // for(var ref of all_student){
-    //   var all_remain = await RemainingList.find({ student: ref?._id })
-    //   .populate({
-    //     path: "fee_structure"
-    //   })
-    //   for(var ele of all_remain){
-    //     total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
-    //     total_collect += ele?.paid_fee + ref?.studentPaidFeeCount
-    //     total_pending += ele?.remaining_fee + ref?.studentRemainingFeeCount
-    //     collect_by_student += ele?.paid_by_student
-    //     pending_by_student += ele?.admissionRemainFeeCount ?? 0
-    //     collect_by_government += ele?.paid_by_government
-    //     pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
-    //   }
-    // }
-    // incomes += one_finance?.financeIncomeCashBalance + one_finance?.financeIncomeBankBalance
-    // expenses += one_finance?.financeExpenseCashBalance + one_finance?.financeExpenseBankBalance
-    // total_deposits += one_finance?.deposit_linked_head?.master?.deposit_amount + one_finance?.deposit_hostel_linked_head?.master?.deposit_amount
-    // excess_fees += one_finance?.deposit_linked_head?.master?.refund_amount + one_finance?.deposit_hostel_linked_head?.master?.refund_amount
-
     one_finance.fees_statistics_filter.loading = false
     await one_finance.save()
     const fetch_obj = {
@@ -4966,28 +5242,14 @@ exports.renderOverallStudentAdmissionFeesStatisticsQuery = async(req, res) => {
       message: "Refetched Overall Data For Finance Master Query", 
       access: true,
       excel_list: one_finance?.admission_stats,
-      // total_fees: one_finance?.total_fees,
-      // total_collect: one_finance?.total_collect,
-      // total_pending: one_finance?.total_pending,
-      // collect_by_student: one_finance?.collect_by_student,
-      // pending_by_student: one_finance?.pending_by_student,
-      // collect_by_government: one_finance?.collect_by_government,
-      // pending_from_government: one_finance?.pending_from_government,
       last_update: one_finance?.loading_admission_fees,
       loading_status: one_finance?.admission_fees_statistics_filter?.loading,
       fees_statistics_filter: one_finance?.admission_fees_statistics_filter,
-      // total_fees_arr: one_finance?.total_fees_arr,
-      // total_collect_arr: one_finance?.total_collect_arr,
-      // total_pending_arr: one_finance?.total_pending_arr,
-      // collect_by_student_arr: one_finance?.collect_by_student_arr,
-      // pending_by_student_arr: one_finance?.pending_by_student_arr,
-      // collect_by_government_arr: one_finance?.collect_by_government_arr,
-      // pending_from_government_arr: one_finance?.pending_from_government_arr,
     }
 
     const fetch_encrypt = await encryptionPayload(fetch_obj)
     res.status(200).send({ 
-      encrypt: fetch_encrypt,
+      // encrypt: fetch_encrypt,
       fetch_obj
     })
   }

@@ -2252,7 +2252,7 @@ exports.renderAllFilteredMessageQuery = async (req, res) => {
           populate: {
             path: "student from student_list",
             select:
-              "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
+              "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
           },
         });
       var all_message = await nested_document_limit(
@@ -2268,7 +2268,7 @@ exports.renderAllFilteredMessageQuery = async (req, res) => {
           populate: {
             path: "student student_list",
             select:
-              "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name",
+              "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name studentGRNO",
           },
         });
       var all_message = await nested_document_limit(
@@ -3629,7 +3629,7 @@ exports.renderAllFilteredAlarmQuery = async (req, res) => {
         populate: {
           path: "student from student_list",
           select:
-            "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
+            "studentFirstName studentMiddleName studentLastName studentProfilePhoto studentGRNO photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
         },
       });
     var all_message = await nested_document_limit(

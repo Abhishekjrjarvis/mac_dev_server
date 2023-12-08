@@ -468,6 +468,9 @@ const staffSchema = new mongoose.Schema({
   member_module_unique: {
     type: String,
     unique: true
+  },
+  teaching_type: {
+    type: String
   }
 });
 

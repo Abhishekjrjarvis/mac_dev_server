@@ -6372,6 +6372,7 @@ exports.renderRefundArrayQuery = async (req, res) => {
       });
 
     if (search) {
+      console.log("Enter")
       var filter_refund = [];
       var ads_admin = await Admission.findById({ _id: aid })
         .select("refundCount")
@@ -6390,12 +6391,14 @@ exports.renderRefundArrayQuery = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto studentGRNO",
           },
         });
+        console.log(ads_admin?.refundFeeList?.length)
       for (let data of ads_admin?.refundFeeList) {
         if (data.student !== null) {
           filter_refund.push(data);
         }
       }
       var all_refund_list = [...filter_refund];
+      console.log(all_refund_list)
     } else {
       var ads_admin = await Admission.findById({ _id: aid })
         .select("refundCount")
@@ -6431,6 +6434,7 @@ exports.renderRefundArrayQuery = async (req, res) => {
         access: false,
         all_refund_list: [],
         refundCount: 0,
+        list: ads_admin?.refundFeeList
       });
     }
   } catch (e) {

@@ -3564,3 +3564,95 @@ exports.renderDeleteOneExcel = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderShuffledStudentQuery = async(req, res) => {
+  try{
+    const { cid, bid, flow, shuffle_arr } = req.body;
+    if (!flow)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    if(flow === "CLASS_WISE"){
+      if(shuffle_arr?.length > 0){
+      const classes = await Class.findById({ _id: cid })
+      classes.ApproveStudent = []
+      await classes.save()
+      var i = 0
+      for(var val of shuffle_arr){
+        classes.ApproveStudent.push(val)
+        const student = await Student.findById({ _id: `${val}`})
+        student.studentROLLNO = i + 1
+        i += 1
+        await student.save()
+      }
+      classes.shuffle_on = true
+      await classes.save()
+      res.status(200).send({ message: "Explore Class Wise Shuffling Query", access: true})
+    }
+    }
+    else if(flow === "BATCH_WISE"){
+      if(shuffle_arr?.length > 0){
+      const batch = await Batch.findById({ _id: bid })
+      batch.class_student_query = []
+      await batch.save()
+      for(var val of shuffle_arr){
+        batch.class_student_query.push(val)
+      }
+      await batch.save()
+      res.status(200).send({ message: "Explore Batch Wise Shuffling Query", access: true})
+    }
+    }
+    else{
+      res.status(200).send({ message: "Invalid Flow Query", access: false})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderAllFilteredAlarmQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+      var valid_ins = await InstituteAdmin.findById({ _id: id })
+      .select("student_reminder")
+      .populate({
+        path: "student_reminder",
+        populate: {
+          path: "student from student_list",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentProfilePhoto studentGRNO photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
+        },
+      });
+    var all_message = await nested_document_limit(
+      page,
+      limit,
+      valid_ins?.student_reminder?.reverse()
+    );
+
+    if (all_message?.length > 0) {
+      res.status(200).send({
+        message: "Explore New All Alarm Query",
+        access: true,
+        all_message: all_message,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New All Alarm Query",
+        access: false,
+        all_message: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

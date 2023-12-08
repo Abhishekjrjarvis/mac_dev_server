@@ -4184,7 +4184,7 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
         select: "className batchName"
       }
     })
-    // var excel_list = [];
+    var excel_list = [];
     // var head_list = [];
     //   const buildStructureObject = async (arr) => {
     //     var obj = {};

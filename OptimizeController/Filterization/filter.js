@@ -4693,6 +4693,13 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
       var collect_by_government_arr = []
       var pending_from_government_arr = []
       var excel_list = []
+      finance.admission_fees_statistics_filter.batch_level = []
+      finance.admission_fees_statistics_filter.batch_all = ""
+      finance.admission_fees_statistics_filter.department_level = []
+      finance.admission_fees_statistics_filter.department_all = ""
+      finance.admission_fees_statistics_filter.bank_level = []
+      finance.admission_fees_statistics_filter.master_level = ""
+      await finance.save()
       if(all_depart === "ALL"){
         finance.loading_admission_fees = new Date()
         finance.admission_fees_statistics_filter.loading = true

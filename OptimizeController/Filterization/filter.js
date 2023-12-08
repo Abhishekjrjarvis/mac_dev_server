@@ -4268,8 +4268,8 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
     var excess_fees_arr = []
 
     if(module_type === "OVERALL_VIEW"){
-      finance.fees_statistics_filter.loading = true
       finance.loading_fees = new Date()
+      finance.fees_statistics_filter.loading = true
       await finance.save()
       res.status(200).send({ message: "Explore Admission View Query", access: true, excel_list: excel_list, loading: finance?.fees_statistics_filter.loading})
       finance.total_fees = 0
@@ -4674,6 +4674,8 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
         }
         await finance.save()
       }
+      finance.fees_statistics_filter.loading = false
+      await finance.save()
     }
     else if (module_type === "ADMISSION_VIEW"){
       var total_fees = 0
@@ -4693,6 +4695,8 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
       var excel_list = []
       if(all_depart === "ALL"){
         finance.loading_admission_fees = new Date()
+        finance.admission_fees_statistics_filter.loading = true
+        await finance.save()
         var new_departs = []
         res.status(200).send({ message: "Explore Admission View All Query", access: true, loading: true})
         var departs = await Department.find({ institute: finance?.institute })
@@ -4851,6 +4855,8 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
       }
       if(all_depart === "PARTICULAR"){
           finance.loading_admission_fees = new Date()
+          finance.admission_fees_statistics_filter.loading = true
+          await finance.save()
           var new_departs = []
           res.status(200).send({ message: "Explore Admission View Particular Batch Query", access: true, loading: true})
           var departs = await Department.find({ institute: finance?.institute })
@@ -5014,6 +5020,8 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
       if(bank){
         finance.admission_fees_statistics_filter.bank_level.push(bank)
         finance.loading_admission_fees = new Date()
+        finance.admission_fees_statistics_filter.loading = true
+        await finance.save()
         var new_departs = []
         res.status(200).send({ message: "Explore Admission View Bank Query", access: true, loading: true})
         var departs = await Department.find({ bank_account: bank })
@@ -5171,6 +5179,9 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
         finance.admission_stats = excel_list
         await finance.save()
       }
+      finance.admission_fees_statistics_filter.loading = false
+      await finance.save()
+
     }
     else{
       res.status(200).send({ message: "Invalid Flow / Module Type Query"})

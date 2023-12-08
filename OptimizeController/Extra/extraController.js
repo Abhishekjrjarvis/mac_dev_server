@@ -3656,3 +3656,18 @@ exports.renderAllFilteredAlarmQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderAllUniqueIdQuery = async(req, res) => {
+  try{
+    const { id } = req?.params
+    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const one_ins = await InstituteAdmin.findById({ _id: id })
+    .select("ApproveStudent")
+    
+    re.status(200).send({ message: "Explore All Student Unique id", access: true, one_ins: one_ins?.ApproveStudent})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

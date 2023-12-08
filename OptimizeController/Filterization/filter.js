@@ -4810,7 +4810,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                 })
                 .populate({
                   path: "student",
-                  select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO total_paid_fees total_os_fees applicable_os_fees"
+                  select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO total_paid_fees total_os_fees applicable_os_fees government_os_fees"
                 })
                 for(var ele of all_remain){
                   total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
@@ -4977,7 +4977,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   })
                   .populate({
                     path: "student",
-                    select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO total_paid_fees total_os_fees applicable_os_fees"
+                    select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO total_paid_fees total_os_fees applicable_os_fees government_os_fees"
                   })
                   for(var ele of all_remain){
                     total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
@@ -5146,7 +5146,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                 })
                 .populate({
                   path: "student",
-                  select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO total_paid_fees total_os_fees applicable_os_fees"
+                  select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO total_paid_fees total_os_fees applicable_os_fees government_os_fees"
                 })
                 for(var ele of all_remain){
                   total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount

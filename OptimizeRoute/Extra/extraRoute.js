@@ -440,4 +440,9 @@ router.get(
   catchAsync(Extra.renderAllFilteredAlarmQuery)
 );
 
+router.get(
+  "/all/student/unique/:id/query",
+  catchAsync(Extra.renderAllUniqueIdQuery)
+);
+
 module.exports = router;

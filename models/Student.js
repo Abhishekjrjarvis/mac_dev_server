@@ -770,6 +770,10 @@ const studentSchema = new mongoose.Schema({
   applicable_os_fees: {
     type: Number,
     default: 0
+  },
+  government_os_fees: {
+    type: Number,
+    default: 0
   }
 });
 

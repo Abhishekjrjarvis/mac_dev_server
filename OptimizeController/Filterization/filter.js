@@ -4174,7 +4174,7 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
     // var total_os_fees = 0
     // var government_os_fees = 0
 
-    if(batch & depart){
+    if(batch && depart){
     var all_app = await NewApplication.find({ $and: [{ applicationDepartment: depart}, { applicationBatch: batch}]})
     var one_remain = await RemainingList.findOne({  $and: [{ student: { $in: valid_all_students}}, { appId: { $in: all_app }}]})
     .populate({
@@ -4184,7 +4184,38 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
         select: "className batchName"
       }
     })
-    var excel_list = [];
+    // var excel_list = [];
+    // var head_list = [];
+    //   const buildStructureObject = async (arr) => {
+    //     var obj = {};
+    //     for (let i = 0; i < arr.length; i++) {
+    //       const { HeadsName, PaidHeadFees } = arr[i];
+    //       obj[HeadsName] = PaidHeadFees;
+    //     }
+    //     return obj;
+    //   };
+    //   var head_array = [];
+    //     if (ref?.fee_heads?.length > 0) {
+    //       for (var val of ref?.fee_heads) {
+    //         if (`${val?.appId}` === `${ref?.application?._id}`) {
+    //           head_array.push({
+    //             HeadsName: val?.head_name,
+    //             PaidHeadFees: val?.original_paid,
+    //           });
+    //         }
+    //       }
+    //     }
+    //     if (remain_list?.paid_fee - remain_list?.applicable_fee > 0) {
+    //       if (`${val?.appId}` === `${ref?.application?._id}`) {
+    //         head_array.push({
+    //           HeadsName: "Excess Fees",
+    //           PaidHeadFees: remain_list?.paid_fee - remain_list?.applicable_fee,
+    //         });
+    //       }
+    //     }
+    //     if (ref?.fee_heads?.length > 0) {
+    //       var result = await buildStructureObject(head_array);
+    //     }
     for (var ref of valid_all_students) {
       excel_list.push({
         RollNo: ref?.studentROLLNO ?? "NA",

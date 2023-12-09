@@ -5090,7 +5090,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
               .select("className classTitle masterClassName ApproveStudent")
               var custom_classes = []
               for(var cls of classes){
-                var all_student = await Student.find({ _id: { $in: classes?.ApproveStudent} })
+                var all_student = await Student.find({ _id: { $in: cls?.ApproveStudent} })
                 for(var ref of all_student){
                   var all_remain = await RemainingList.find({ student: ref?._id })
                   .populate({

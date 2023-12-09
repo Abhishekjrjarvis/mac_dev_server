@@ -150,7 +150,7 @@ exports.allBookByStaffSide = async (req, res) => {
                       author: { $regex: req.query.search, $options: "i" },
                     },
                     {
-                      publication: { $regex: req.query.search, $options: "i" },
+                      subject: { $regex: req.query.search, $options: "i" },
                     },
                     {
                       accession_number: { $regex: req.query.search, $options: "i" },
@@ -165,7 +165,7 @@ exports.allBookByStaffSide = async (req, res) => {
                 },
               ],
             },
-            select: "bookName photoId photo author language bookStatus",
+            select: "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher",
             skip: dropItem,
             limit: itemPerPage,
           })
@@ -189,14 +189,14 @@ exports.allBookByStaffSide = async (req, res) => {
                   author: { $regex: req.query.search, $options: "i" },
                 },
                 {
-                  publication: { $regex: req.query.search, $options: "i" },
+                  subject: { $regex: req.query.search, $options: "i" },
                 },
                 {
                   accession_number: { $regex: req.query.search, $options: "i" },
                 },
               ],
             },
-            select: "bookName photoId photo author language bookStatus",
+            select: "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher",
             skip: dropItem,
             limit: itemPerPage,
           })
@@ -223,7 +223,7 @@ exports.allBookByStaffSide = async (req, res) => {
                 },
               ],
             },
-            select: "bookName photoId photo author language bookStatus",
+            select: "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher",
             skip: dropItem,
             limit: itemPerPage,
           })
@@ -238,7 +238,7 @@ exports.allBookByStaffSide = async (req, res) => {
         const library = await Library.findById(req.params.lid)
           .populate({
             path: "books",
-            select: "bookName photoId photo author language bookStatus",
+            select: "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher",
             skip: dropItem,
             limit: itemPerPage,
           })

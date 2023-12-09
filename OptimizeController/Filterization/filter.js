@@ -4403,8 +4403,8 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
       await finance.save()
       finance.incomes += finance?.financeIncomeCashBalance + finance?.financeIncomeBankBalance
       finance.expenses += finance?.financeExpenseCashBalance + finance?.financeExpenseBankBalance
-      total_deposits += finance?.deposit_linked_head?.master?.deposit_amount + finance?.deposit_hostel_linked_head?.master?.deposit_amount
-      excess_fees += finance?.deposit_linked_head?.master?.refund_amount + finance?.deposit_hostel_linked_head?.master?.refund_amount
+      finance.total_deposits += finance?.deposit_linked_head?.master?.deposit_amount + finance?.deposit_hostel_linked_head?.master?.deposit_amount
+      finance.excess_fees += finance?.deposit_linked_head?.master?.refund_amount + finance?.deposit_hostel_linked_head?.master?.refund_amount
       finance.internal_fees += fee_price
       if(all_depart === "ALL"){
         finance.fees_statistics_filter.department_all = "ALL"
@@ -5087,10 +5087,10 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                 _id: one_batch?._id
               })
               var classes = await Class.find({ batch: one_batch?._id })
-              .select("className classTitle masterClassName")
+              .select("className classTitle masterClassName ApproveStudent")
               var custom_classes = []
               for(var cls of classes){
-                var all_student = await Student.find({ studentClass: cls?._id })
+                var all_student = await Student.find({ _id: { $in: classes?.ApproveStudent} })
                 for(var ref of all_student){
                   var all_remain = await RemainingList.find({ student: ref?._id })
                   .populate({

@@ -5101,7 +5101,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                     select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO total_paid_fees total_os_fees applicable_os_fees government_os_fees"
                   })
                   for(var ele of all_remain){
-                    total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
+                    total_fees += ele?.fee_structure?.total_admission_fees
                   total_collect += ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government
                   total_pending += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount - ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government
                   collect_by_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee)

@@ -10743,16 +10743,54 @@ exports.renderArrangeClassQuery = async(req, res) => {
     if(!cid) return res.status(200).send({  message: "Their is a bug need to fixed immediately", access: false})
 
     const classes = await Class.findById({ _id: cid })
+    .populate({
+      path: "ApproveStudent"
+    })
 
-    const all_student = await Student.find({ _id: { $in: classes?.ApproveStudent}})
+    // const all_student = await Student.find({ _id: { $in: classes?.ApproveStudent}})
 
     var total = 0
-    for(var ele of all_student){
+    for(var ele of classes?.ApproveStudent){
+      if(ele?.studentGender?.toLowerCase() === "male"){
+        classes.boyCount += 1
+      }
+      else if(ele?.studentGender?.toLowerCase() === "female"){
+        classes.girlCount += 1
+      }
       total += 1
       ele.studentROLLNO = `${total}`
-      ele.studentGRNO = `PH0${total}`
+      // ele.studentGRNO = `PH0${total}`
       await ele.save()
     }
+    classes.strength = total
+    classes.studentCount = total
+    await classes.save()
+    res.status(200).send({ message: "Explore Query", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+exports.renderArrangeClassDepartQuery = async(req, res) => {
+  try{
+    const { did } = req?.params
+    if(!did) return res.status(200).send({  message: "Their is a bug need to fixed immediately", access: false})
+
+    const depart = await Department.findById({ _id: did})
+
+    const all_classes = await Class.find({ department: depart?._id})
+
+    // const all_student = await Student.find({ _id: { $in: classes?.ApproveStudent}})
+
+    var total = 0
+    for(var ele of all_classes){
+      console.log(ele?.studentCount)
+      total += ele?.studentCount
+    }
+    depart.studentCount = total
+    await depart.save()
     res.status(200).send({ message: "Explore Query", access: true})
   }
   catch(e){

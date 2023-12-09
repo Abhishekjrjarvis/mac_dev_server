@@ -5449,7 +5449,7 @@ exports.renderValidBankQuery = async (req, res) => {
       res.status(200).send({
         message: "Explore Valid New Department Bank Account",
         access: true,
-        denied: valid_bank_depart ? false : true,
+        denied: valid_bank_depart?.length ? false : true,
       });
     } else if (flow === "BY_HOSTEL") {
       var apply = await NewApplication.findById({ _id: aid });
@@ -5459,7 +5459,7 @@ exports.renderValidBankQuery = async (req, res) => {
       res.status(200).send({
         message: "Explore Valid New Hostel Bank Account",
         access: true,
-        denied: valid_bank_hostel ? false : true,
+        denied: valid_bank_hostel?.length ? false : true,
       });
     } else if (flow === "BY_LIBRARY") {
       var apply = await Library.findById({ _id: aid });
@@ -5469,7 +5469,7 @@ exports.renderValidBankQuery = async (req, res) => {
       res.status(200).send({
         message: "Explore Valid New Library Bank Account",
         access: true,
-        denied: valid_bank_library ? false : true,
+        denied: valid_bank_library?.length ? false : true,
       });
     } else if (flow === "BY_TRANSPORT") {
       var apply = await Transport.findById({ _id: aid });
@@ -5479,7 +5479,7 @@ exports.renderValidBankQuery = async (req, res) => {
       res.status(200).send({
         message: "Explore Valid New Transport Bank Account",
         access: true,
-        denied: valid_bank_trans ? false : true,
+        denied: valid_bank_trans?.length ? false : true,
       });
     } else {
       res

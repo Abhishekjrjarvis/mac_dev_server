@@ -152,6 +152,9 @@ exports.allBookByStaffSide = async (req, res) => {
                     {
                       publication: { $regex: req.query.search, $options: "i" },
                     },
+                    {
+                      accession_number: { $regex: req.query.search, $options: "i" },
+                    },
                   ],
                 },
                 {
@@ -187,6 +190,9 @@ exports.allBookByStaffSide = async (req, res) => {
                 },
                 {
                   publication: { $regex: req.query.search, $options: "i" },
+                },
+                {
+                  accession_number: { $regex: req.query.search, $options: "i" },
                 },
               ],
             },
@@ -1039,3 +1045,27 @@ exports.renderNewOfflineBookAutoQuery = async (lid, book_array) => {
     console.log(e);
   }
 };
+
+exports.renderDeleteAllBookQuery = async(req, res) => {
+  try{
+    const { lid } = req?.params
+    if(!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    var libs = await Library.findById({ _id: lid})
+    
+    var all_books = await Book.find({ library: libs?._id})
+    res.status(200).send({ message: "Explore All Books Deletion Operation Completed Query", access: true})
+
+    for(var val of all_books){
+      libs.books.pull(val?._id)
+      if(libs?.bookCount > 0){
+        libs.bookCount -= 1
+      }
+      await Book.findByIdAndDelete(val?._id)
+    }
+    await libs.save()
+  }
+  catch(e){
+    console.log(e)
+  }
+}

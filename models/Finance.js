@@ -628,6 +628,22 @@ const financeSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    fees_to_be_collected_student: {
+      type: Number,
+      default: 0
+    },
+    fees_to_be_collected_government: {
+      type: Number,
+      default: 0
+    },
+    internal_fees: {
+      type: Number,
+      default: 0
+    },
+    internal_os_fees: {
+      type: Number,
+      default: 0
+    },
     mismatch_excel: [
       {
         excel_file: { type: String },
@@ -646,6 +662,8 @@ const financeSchema = new mongoose.Schema(
     pending_by_student_arr: [],
     collect_by_government_arr: [],
     pending_from_government_arr: [],
+    fees_to_be_collected_student_arr: [],
+    fees_to_be_collected_government_arr: [],
     admission_stats: {
 
     },

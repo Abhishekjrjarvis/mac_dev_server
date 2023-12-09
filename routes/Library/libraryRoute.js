@@ -74,4 +74,8 @@ router
   .route("/fine/:lid/query/collect/:sid/offline/:bid")
   .patch(catchAsync(libraryController.renderFineChargesCollectOfflineQuery));
 
+router
+  .route("/:lid/delete/all/book/query")
+  .delete(catchAsync(libraryController.renderDeleteAllBookQuery));
+
 module.exports = router;

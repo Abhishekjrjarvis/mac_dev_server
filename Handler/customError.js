@@ -11,3 +11,13 @@ exports.handle_undefined = async (args) => {
     return args;
   }
 };
+
+exports.handle_NAN = async (args) => {
+  if (
+    args === "NaN"
+  ) {
+    return 0;
+  } else {
+    return args;
+  }
+};

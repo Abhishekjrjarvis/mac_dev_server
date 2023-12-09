@@ -46,6 +46,7 @@ const BankAccount = require("../../models/Finance/BankAccount");
 const Admin = require("../../models/superAdmin");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const QvipleId = require("../../models/Universal/QvipleId");
+const Fees = require("../../models/Fees");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -4931,10 +4932,10 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                 })
                 for(var ele of all_remain){
                   total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
-                  total_collect += ele?.paid_fee + ref?.studentPaidFeeCount
-                  total_pending += ele?.remaining_fee
-                  collect_by_student += ele?.paid_by_student
-                  pending_by_student += ele?.admissionRemainFeeCount ?? 0
+                  total_collect += ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government
+                  total_pending += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount - ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government
+                  collect_by_student += ele?.fee_structure?.applicable_fees
+                  pending_by_student += ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
                   collect_by_government += ele?.paid_by_government
                   pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
                   ele.student.total_paid_fees += ele?.paid_fee
@@ -4945,16 +4946,16 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
                     total_fees_arr.push(ele?.student)
                   }
-                  if(ele?.paid_fee + ref?.studentPaidFeeCount > 0){
+                  if(ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government > 0){
                     total_collect_arr.push(ele?.student)
                   }
-                  if(ele?.remaining_fee + ref?.studentRemainingFeeCount > 0){
+                  if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount - ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government > 0){
                     total_pending_arr.push(ele?.student)
                   }
-                  if(ele?.paid_by_student > 0){
+                  if(ele?.fee_structure?.applicable_fees > 0){
                     collect_by_student_arr.push(ele?.student)
                   }
-                  if(ele?.admissionRemainFeeCount > 0){
+                  if((ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) > 0){
                     pending_by_student_arr.push(ele?.student)
                   }
                   if(ele?.paid_by_government > 0){
@@ -5098,38 +5099,38 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   })
                   for(var ele of all_remain){
                     total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
-                    total_collect += ele?.paid_fee + ref?.studentPaidFeeCount
-                    total_pending += ele?.remaining_fee
-                    collect_by_student += ele?.paid_by_student
-                    pending_by_student += ele?.admissionRemainFeeCount ?? 0
-                    collect_by_government += ele?.paid_by_government
-                    pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
+                  total_collect += ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government
+                  total_pending += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount - ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government
+                  collect_by_student += ele?.fee_structure?.applicable_fees
+                  pending_by_student += ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
+                  collect_by_government += ele?.paid_by_government
+                  pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
                     ele.student.total_paid_fees += ele?.paid_fee
                   ele.student.total_os_fees += ele?.remaining_fee
                   ele.student.applicable_os_fees += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
                   ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
                   : 0
-                    if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
-                      total_fees_arr.push(ele?.student)
-                    }
-                    if(ele?.paid_fee + ref?.studentPaidFeeCount > 0){
-                      total_collect_arr.push(ele?.student)
-                    }
-                    if(ele?.remaining_fee + ref?.studentRemainingFeeCount > 0){
-                      total_pending_arr.push(ele?.student)
-                    }
-                    if(ele?.paid_by_student > 0){
-                      collect_by_student_arr.push(ele?.student)
-                    }
-                    if(ele?.admissionRemainFeeCount > 0){
-                      pending_by_student_arr.push(ele?.student)
-                    }
-                    if(ele?.paid_by_government > 0){
-                      collect_by_government_arr.push(ele?.student)
-                    }
-                    if(ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees > 0){
-                      pending_from_government_arr.push(ele?.student)
-                    }
+                  if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
+                    total_fees_arr.push(ele?.student)
+                  }
+                  if(ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government > 0){
+                    total_collect_arr.push(ele?.student)
+                  }
+                  if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount - ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government > 0){
+                    total_pending_arr.push(ele?.student)
+                  }
+                  if(ele?.fee_structure?.applicable_fees > 0){
+                    collect_by_student_arr.push(ele?.student)
+                  }
+                  if((ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) > 0){
+                    pending_by_student_arr.push(ele?.student)
+                  }
+                  if(ele?.paid_by_government > 0){
+                    collect_by_government_arr.push(ele?.student)
+                  }
+                  if(ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees > 0){
+                    pending_from_government_arr.push(ele?.student)
+                  }
                   }
                   total_fees_arr = remove_duplicated(total_fees_arr)
                   total_collect_arr = remove_duplicated(total_collect_arr)
@@ -5267,10 +5268,10 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                 })
                 for(var ele of all_remain){
                   total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
-                  total_collect += ele?.paid_fee + ref?.studentPaidFeeCount
-                  total_pending += ele?.remaining_fee
-                  collect_by_student += ele?.paid_by_student
-                  pending_by_student += ele?.admissionRemainFeeCount ?? 0
+                  total_collect += ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government
+                  total_pending += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount - ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government
+                  collect_by_student += ele?.fee_structure?.applicable_fees
+                  pending_by_student += ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
                   collect_by_government += ele?.paid_by_government
                   pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
                   ele.student.total_paid_fees += ele?.paid_fee
@@ -5281,16 +5282,16 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
                     total_fees_arr.push(ele?.student)
                   }
-                  if(ele?.paid_fee + ref?.studentPaidFeeCount > 0){
+                  if(ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government > 0){
                     total_collect_arr.push(ele?.student)
                   }
-                  if(ele?.remaining_fee + ref?.studentRemainingFeeCount > 0){
+                  if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount - ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government > 0){
                     total_pending_arr.push(ele?.student)
                   }
-                  if(ele?.paid_by_student > 0){
+                  if(ele?.fee_structure?.applicable_fees > 0){
                     collect_by_student_arr.push(ele?.student)
                   }
-                  if(ele?.admissionRemainFeeCount > 0){
+                  if((ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) > 0){
                     pending_by_student_arr.push(ele?.student)
                   }
                   if(ele?.paid_by_government > 0){

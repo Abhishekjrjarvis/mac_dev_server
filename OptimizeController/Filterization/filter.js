@@ -4434,7 +4434,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   finance.pending_by_student += ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0 + ref?.studentRemainingFeeCount
                   finance.collect_by_government += ele?.paid_by_government
                   finance.pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
-                  finance.fees_to_be_collected_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee) + (ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) + ref?.studentPaidFeeCount + studentRemainingFeeCount
+                  finance.fees_to_be_collected_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee) + (ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) + ref?.studentPaidFeeCount + ref?.studentRemainingFeeCount
                   finance.fees_to_be_collected_government += ele?.paid_by_government + ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees              
                   finance.internal_os_fees += ref?.studentRemainingFeeCount
                   if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
@@ -4508,7 +4508,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   finance.pending_by_student += ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0 + ref?.studentRemainingFeeCount
                   finance.collect_by_government += ele?.paid_by_government
                   finance.pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
-                  finance.fees_to_be_collected_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee) + (ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) + ref?.studentPaidFeeCount + studentRemainingFeeCount
+                  finance.fees_to_be_collected_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee) + (ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) + ref?.studentPaidFeeCount + ref?.studentRemainingFeeCount
                   finance.fees_to_be_collected_government += ele?.paid_by_government + ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees              
                   finance.internal_os_fees += ref?.studentRemainingFeeCount
                   if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
@@ -4582,7 +4582,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   finance.pending_by_student += ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0 + ref?.studentRemainingFeeCount
                   finance.collect_by_government += ele?.paid_by_government
                   finance.pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
-                  finance.fees_to_be_collected_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee) + (ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) + ref?.studentPaidFeeCount + studentRemainingFeeCount
+                  finance.fees_to_be_collected_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee) + (ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) + ref?.studentPaidFeeCount + ref?.studentRemainingFeeCount
                   finance.fees_to_be_collected_government += ele?.paid_by_government + ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees              
                   finance.internal_os_fees += ref?.studentRemainingFeeCount
                   if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
@@ -4657,7 +4657,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   finance.pending_by_student += ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0 + ref?.studentRemainingFeeCount
                   finance.collect_by_government += ele?.paid_by_government
                   finance.pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
-                  finance.fees_to_be_collected_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee) + (ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) + ref?.studentPaidFeeCount + studentRemainingFeeCount
+                  finance.fees_to_be_collected_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee) + (ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) + ref?.studentPaidFeeCount + ref?.studentRemainingFeeCount
                   finance.fees_to_be_collected_government += ele?.paid_by_government + ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees              
                   finance.internal_os_fees += ref?.studentRemainingFeeCount
                 if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
@@ -4725,7 +4725,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   finance.pending_by_student += ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0 + ref?.studentRemainingFeeCount
                   finance.collect_by_government += ele?.paid_by_government
                   finance.pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
-                  finance.fees_to_be_collected_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee) + (ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) + ref?.studentPaidFeeCount + studentRemainingFeeCount
+                  finance.fees_to_be_collected_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee) + (ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) + ref?.studentPaidFeeCount + ref?.studentRemainingFeeCount
                   finance.fees_to_be_collected_government += ele?.paid_by_government + ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees              
                   finance.internal_os_fees += ref?.studentRemainingFeeCount
                   if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
@@ -4798,7 +4798,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   finance.pending_by_student += ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0 + ref?.studentRemainingFeeCount
                   finance.collect_by_government += ele?.paid_by_government
                   finance.pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
-                  finance.fees_to_be_collected_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee) + (ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) + ref?.studentPaidFeeCount + studentRemainingFeeCount
+                  finance.fees_to_be_collected_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee) + (ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0) + ref?.studentPaidFeeCount + ref?.studentRemainingFeeCount
                   finance.fees_to_be_collected_government += ele?.paid_by_government + ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees              
                   finance.internal_os_fees += ref?.studentRemainingFeeCount
                   if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){

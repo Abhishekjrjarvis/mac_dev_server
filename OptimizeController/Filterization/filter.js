@@ -5104,7 +5104,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                     total_fees += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount
                   total_collect += ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government
                   total_pending += ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount - ele?.paid_fee + ref?.studentPaidFeeCount + ele?.paid_by_government
-                  collect_by_student += ele?.fee_structure?.applicable_fees
+                  collect_by_student += (ele?.paid_fee >= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees : ele?.paid_fee)
                   pending_by_student += ele?.paid_fee <= ele?.fee_structure?.applicable_fees ? ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
                   collect_by_government += ele?.paid_by_government
                   pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees

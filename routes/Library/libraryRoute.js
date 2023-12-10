@@ -78,4 +78,8 @@ router
   .route("/:lid/delete/all/book/query")
   .delete(catchAsync(libraryController.renderDeleteAllBookQuery));
 
+router
+  .route("/all/book/query")
+  .patch(catchAsync(libraryController.renderAllBookQuery));
+
 module.exports = router;

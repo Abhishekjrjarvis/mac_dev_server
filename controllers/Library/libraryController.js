@@ -1070,3 +1070,20 @@ exports.renderDeleteAllBookQuery = async(req, res) => {
     console.log(e)
   }
 }
+
+exports.renderAllBookQuery = async(req, res) => {
+  try{
+    const all_book = await Book.find({ purchase_order_number: { $regex: "D.Pharm"} })
+    var total = 0
+    for(var val of all_book){
+      total += 1
+      val.qviple_book_id = `QLBD-${total}`
+      val.accession_number = `D-${total}`
+      await val.save()
+    }
+    res.status(200).send({ message: "Explore All Book Query", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

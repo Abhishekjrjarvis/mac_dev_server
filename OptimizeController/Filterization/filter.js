@@ -5090,7 +5090,9 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
               .select("className classTitle masterClassName ApproveStudent")
               var custom_classes = []
               for(var cls of classes){
-                var all_student = await Student.find({ $and: [{ _id: { $in: cls?.ApproveStudent} }, { studentClass: { $ne: cls?._id }}]})
+                console.log(cls?.ApproveStudent)
+                var all_student = await Student.find({ $and: [{ _id: { $in: cls?.ApproveStudent} }]})
+                console.log(all_student?.length)
                 for(var ref of all_student){
                   var all_remain = await RemainingList.find({ student: ref?._id })
                   .populate({
@@ -5113,6 +5115,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   ele.student.applicable_os_fees += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
                   ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
                   : 0
+                  ele.student.government_os_fees += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
                   if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
                     total_fees_arr.push(ele?.student)
                   }

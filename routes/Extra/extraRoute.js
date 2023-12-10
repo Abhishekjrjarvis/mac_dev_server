@@ -334,7 +334,7 @@ router.patch(
 );
 
 router.patch(
-  "/excel/to/json/query/:aid/fees/query",
+  "/excel/to/json/:aid/fees/query",
   catchAsync(Extra.renderExcelToJSONExistFeesQuery)
 );
 

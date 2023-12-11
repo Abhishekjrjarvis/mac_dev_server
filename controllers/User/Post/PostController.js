@@ -1213,7 +1213,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
         else {
           var post = await Post.find({
             // $and: [{ _id: { $in: user.userPosts } }],
-            $and: [{ $and: [{ author: { $in: user?.userInstituteFollowing }}, { author: user?._id }] }],
+            $and: [{ author: { $in: user?.userInstituteFollowing }}, { author: user?._id }],
           })
             .sort("-createdAt")
             .limit(limit)

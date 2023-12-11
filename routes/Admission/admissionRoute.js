@@ -637,6 +637,8 @@ router.patch("/arrange/:cid", catchAsync(Admission.renderArrangeClassQuery))
 router.patch("/arrange/:did/depart", catchAsync(Admission.renderArrangeClassDepartQuery))
 
 router.get("/all/hostel/history", catchAsync(Admission.renderHostelHistoryQuery))
+
+router.get("/setoff/list", catchAsync(Admission.renderSetOffQuery))
 //
 
 module.exports = router;

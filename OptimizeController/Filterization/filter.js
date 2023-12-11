@@ -5332,6 +5332,20 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                 collect_by_government_arr: collect_by_government_arr,
                 pending_from_government_arr: pending_from_government_arr,
               })
+              total_fees = 0
+              total_collect = 0
+              total_pending = 0
+              collect_by_student = 0
+              pending_by_student = 0
+              collect_by_government = 0
+              pending_from_government = 0
+              total_fees_arr = []
+                total_collect_arr = []
+                total_pending_arr = []
+                collect_by_student_arr = []
+                pending_by_student_arr = []
+                collect_by_government_arr = []
+                pending_from_government_arr = []
             }
             obs[one_batch?._id] = {
               classes: custom_classes

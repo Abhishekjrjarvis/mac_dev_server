@@ -4834,7 +4834,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       )
       .populate({
         path: "ApproveStudent",
-        select: "leave",
+        select: "leave student_prn_enroll_number",
         populate: {
           path: "leave",
           match: {
@@ -4846,7 +4846,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       .populate({
         path: "ApproveStudent",
         select:
-          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO student_prn_enroll_number",
         populate: {
           path: "user class_selected_batch",
           select: "userLegalName username batchName batchStatus",

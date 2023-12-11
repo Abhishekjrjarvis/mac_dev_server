@@ -92,6 +92,7 @@ const { set_off_amount } = require("../../Functions/SetOff");
 const {
   set_fee_head_query_redesign_hostel,
 } = require("../../Functions/hostelInstallment");
+const { setoff_json_to_excel_query } = require("../../Custom/JSONToExcel");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -6381,24 +6382,24 @@ exports.renderRefundArrayQuery = async (req, res) => {
           populate: {
             path: "student",
             match: {
-              studentFirstName: { $regex: search, $options: "i" },
-              studentMiddleName: { $regex: search, $options: "i" },
-              studentLastName: { $regex: search, $options: "i" },
-              valid_full_name: { $regex: search, $options: "i" },
-              studentGRNO: { $regex: search, $options: "i" },
+              $or: [
+                { studentFirstName: { $regex: search, $options: "i" }},
+              {studentMiddleName: { $regex: search, $options: "i" }},
+              {studentLastName: { $regex: search, $options: "i" }},
+              {valid_full_name: { $regex: search, $options: "i" }},
+              {studentGRNO: { $regex: search, $options: "i" }},
+              ]
             },
             select:
               "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto studentGRNO",
           },
         });
-        console.log(ads_admin?.refundFeeList?.length)
       for (let data of ads_admin?.refundFeeList) {
-        if (data.student !== null) {
+        if (data.student != null) {
           filter_refund.push(data);
         }
       }
       var all_refund_list = [...filter_refund];
-      console.log(all_refund_list)
     } else {
       var ads_admin = await Admission.findById({ _id: aid })
         .select("refundCount")
@@ -6411,21 +6412,24 @@ exports.renderRefundArrayQuery = async (req, res) => {
           },
         });
 
-      var all_refund_list = await nested_document_limit(
+        var all_refund_list = ads_admin?.refundFeeList?.filter((ref) => {
+          if (ref?.refund > 0) return ref;
+        });
+      all_refund_list = await nested_document_limit(
         page,
         limit,
-        ads_admin?.refundFeeList
+        all_refund_list
       );
     }
 
     if (all_refund_list?.length > 0) {
-      var filtered = all_refund_list?.filter((ref) => {
-        if (ref?.refund > 0) return ref;
-      });
+      // var filtered = all_refund_list?.filter((ref) => {
+      //   if (ref?.refund > 0) return ref;
+      // });
       res.status(200).send({
         message: "Explore All Returns",
         access: true,
-        all_refund_list: filtered,
+        all_refund_list: all_refund_list,
         refundCount: ads_admin?.refundCount,
       });
     } else {
@@ -7817,7 +7821,7 @@ exports.renderAllRefundedArray = async (req, res) => {
         populate: {
           path: "student fee_receipt",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO fee_payment_mode refund_status invoice_count fee_bank_name fee_bank_holder fee_utr_reference fee_payment_acknowledge fee_payment_amount fee_transaction_date ",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO fee_payment_mode refund_status invoice_count fee_bank_name fee_bank_holder fee_utr_reference fee_payment_acknowledge fee_payment_amount fee_transaction_date created_at",
         },
       });
 
@@ -10828,6 +10832,32 @@ exports.renderHostelHistoryQuery = async(req, res) => {
     }
 
     res.status(200).send({ message: "Explore All Hostel History", access: true, count: receipt?.length, receipt})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderSetOffQuery = async(req, res) => {
+  try{
+    const { id } = req?.query
+    var receipts = await FeeReceipt.find({ set_off_status: "Set Off" })
+    .populate({
+      path: "student",
+    })
+    var excel_list = []
+    for(var val of receipts){
+      excel_list.push({
+        GRNO: val?.student?.studentGRNO,
+        ROLLNO: val?.student?.studentROLLNO,
+        Name: val?.student?.valid_full_name,
+        SetOffMode: val?.fee_payment_mode,
+        SetOffAmount: val?.fee_payment_amount,
+      })
+    }
+
+    const data_p = await setoff_json_to_excel_query(excel_list, "SetOff", id)
+    res.status(200).send({ message: "Explore All New Student Set off List", access: true, data_p})
   }
   catch(e){
     console.log(e)

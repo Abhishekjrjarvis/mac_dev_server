@@ -543,10 +543,10 @@ exports.allBookCollectedLogsByStaffSide = async (req, res) => {
       .populate({
         path: "collected",
         populate: {
-          path: "book",
-          select: "bookName photoId photo",
+          path: "book member",
+          select: "bookName photoId photo studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO valid_full_name photoId studentProfilePhoto",
         },
-        select: "book createdAt issuedDate",
+        select: "book createdAt issuedDate fineCharge",
         skip: dropItem,
         limit: itemPerPage,
       })

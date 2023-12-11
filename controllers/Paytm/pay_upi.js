@@ -7,6 +7,7 @@ const OrderPayment = require("../../models/RazorPay/orderPayment");
 const {
   feeInstituteFunction,
   admissionInstituteFunction,
+  libraryInstituteFunction,
 } = require("../RazorPay/paymentModule");
 const { hostelInstituteFunction } = require("../RazorPay/hostelPaymentModule");
 
@@ -86,7 +87,9 @@ exports.initiate = async (req, res) => {
           ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}`
           : type === "Admission"
           ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_1}/card/${payment_card_type}/status/${ad_status_id}`
-          : `${process.env.CALLBACK_URLS}/v1/paytm/callback/hostel/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/install/${payment_installment}/remain/${payment_remain_1}/status/${ad_status_id}`,
+          : type === "Hostel"
+          ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/hostel/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/install/${payment_installment}/remain/${payment_remain_1}/status/${ad_status_id}`
+          : `${process.env.CALLBACK_URLS}/v1/paytm/callback/library/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/book/${payment_book_id}`,
       txnAmount: {
         value: Math.ceil(data),
         currency: "INR",
@@ -442,6 +445,89 @@ exports.callbackHostel = async (req, res) => {
   }
 };
 
+exports.callbackLibrary = async (req, res) => {
+  try {
+    const { moduleId, paidBy, name, paidTo, isApk, price, payment_book_id } = req.params;
+    var paytmParams = {};
+    paytmParams.body = {
+      mid: `${process.env.PAYTM_MID}`,
+      orderId: `${req.body?.ORDERID}`,
+    };
+    PaytmChecksum.generateSignature(
+      JSON.stringify(paytmParams.body),
+      `${process.env.PAYTM_MERCHANT_KEY}`
+    ).then(function (checksum) {
+      paytmParams.head = {
+        signature: checksum,
+      };
+
+      var post_data = JSON.stringify(paytmParams);
+
+      var options = {
+        // hostname: "securegw-stage.paytm.in",
+        hostname: process.env.PAYTM_CALLBACK_URL_APK
+          ? "securegw.paytm.in"
+          : "securegw-stage.paytm.in",
+
+        port: 443,
+        path: "/v3/order/status",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": post_data.length,
+        },
+      };
+
+      var response = "";
+      var post_req = https.request(options, function (post_res) {
+        post_res.on("data", function (chunk) {
+          response += chunk;
+        });
+
+        post_res.on("end", async function () {
+          var status = req?.body?.STATUS;
+          var price_charge = req?.body?.TXNAMOUNT;
+          var txn_id = req?.body?.TXNID;
+          if (status === "TXN_SUCCESS") {
+            var order = await order_history_query(
+              "Library Fees",
+              moduleId,
+              price,
+              paidTo,
+              txn_id,
+              req?.body
+            );
+            var paytm_author = false;
+            await libraryInstituteFunction(
+              order?._id,
+              paidBy,
+              price,
+              price_charge,
+              moduleId,
+              paytm_author,
+              payment_book_id ?? ""
+            );
+            if (isApk === "APK") {
+              res.status(200).send({
+                message: "Success with Library Paytm Fees 😀",
+                check: true,
+              });
+            } else {
+              res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+            }
+          } else {
+            res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+          }
+        });
+      });
+      post_req.write(post_data);
+      post_req.end();
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.callbackStatus = async (req, res) => {
   try {
     const {
@@ -602,6 +688,58 @@ exports.callbackHostelStatus = async (req, res) => {
       if (isApk === "APK") {
         res.status(200).send({
           message: "Success with Hostel Admission Paytm Fees 😀",
+          check: true,
+        });
+      } else {
+        res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+      }
+    } else {
+      res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.callbackLibraryStatus = async (req, res) => {
+  try {
+    const {
+      moduleId,
+      paidBy,
+      name,
+      paidTo,
+      isApk,
+      price,
+      payment_book_id,
+      TXNAMOUNT,
+      STATUS,
+      TXNID,
+      apk_body,
+    } = req.body;
+    var status = STATUS;
+    var price_charge = TXNAMOUNT;
+    if (status === "TXN_SUCCESS") {
+      var order = await order_history_query(
+        "Library Fees",
+        moduleId,
+        price,
+        paidTo,
+        TXNID,
+        apk_body
+      );
+      var paytm_author = false;
+      await libraryInstituteFunction(
+        order?._id,
+        paidBy,
+        price,
+        price_charge,
+        moduleId,
+        paytm_author,
+        payment_book_id ?? ""
+      );
+      if (isApk === "APK") {
+        res.status(200).send({
+          message: "Success with Library Paytm Fees 😀",
           check: true,
         });
       } else {

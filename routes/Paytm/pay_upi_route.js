@@ -10,6 +10,8 @@ const {
   callbackHostel,
   callbackHostelStatus,
   callbackTransportStatus,
+  callbackLibrary,
+  callbackLibraryStatus,
 } = require("../../controllers/Paytm/pay_upi");
 
 router.route("/generateTxnToken").post(initiate);
@@ -31,11 +33,19 @@ router
   )
   .post(callbackHostel);
 
+router
+  .route(
+    "/callback/library/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price/book/:payment_book_id"
+  )
+  .post(callbackLibrary);
+
 router.route("/status/success/internal/query").post(callbackStatus);
 
 router.route("/status/success/admission/query").post(callbackAdmissionStatus);
 
 router.route("/status/success/hostel/query").post(callbackHostelStatus);
+
+router.route("/status/success/library/query").post(callbackLibraryStatus);
 
 router.route("/status/success/transport/query").post(callbackTransportStatus);
 

@@ -3665,7 +3665,7 @@ exports.renderAllUniqueIdQuery = async(req, res) => {
     const one_ins = await InstituteAdmin.findById({ _id: id })
     .select("ApproveStudent")
     
-    re.status(200).send({ message: "Explore All Student Unique id", access: true, one_ins: one_ins?.ApproveStudent})
+    res.status(200).send({ message: "Explore All Student Unique id", access: true, one_ins: one_ins?.ApproveStudent})
   }
   catch(e){
     console.log(e)

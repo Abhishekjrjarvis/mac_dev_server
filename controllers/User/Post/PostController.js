@@ -1214,7 +1214,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
           console.log("Enter In Else with Second")
           var post = await Post.find({
             // $and: [{ _id: { $in: user.userPosts } }],
-            $and: [{ author: { $in: user?.userInstituteFollowing }}, { author: user?._id }],
+            $and: [{ author: { $in: user?.userInstituteFollowing }}],
           })
             .sort("-createdAt")
             .limit(limit)

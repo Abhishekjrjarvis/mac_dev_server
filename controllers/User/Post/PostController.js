@@ -966,9 +966,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
         else {
           var post = await Post.find({
             $and: [
-              // { _id: { $in: user.userPosts } },
-              {author: { $in: user?.userInstituteFollowing }}, 
-              {author: user?._id },
+              { _id: { $in: user.userPosts } },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
@@ -1214,7 +1212,8 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
         //
         else {
           var post = await Post.find({
-            $and: [{ _id: { $in: user.userPosts } }],
+            // $and: [{ _id: { $in: user.userPosts } }],
+            $and: [{ $and: [{ author: { $in: user?.userInstituteFollowing }}, { author: user?._id }] }],
           })
             .sort("-createdAt")
             .limit(limit)
@@ -1314,7 +1313,9 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
         else {
           var post = await Post.find({
             $and: [
-              { _id: { $in: user.userPosts } },
+              // { _id: { $in: user.userPosts } },
+              {author: { $in: user?.userInstituteFollowing }}, 
+              {author: user?._id },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })

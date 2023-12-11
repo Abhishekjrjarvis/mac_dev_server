@@ -51,7 +51,7 @@ exports.postWithText = async (req, res) => {
     // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post is create", post });
     
-    await execute_ins_social_feed_query(institute, post, taggedPeople);
+    // await execute_ins_social_feed_query(institute, post, taggedPeople);
     // if (institute?.isUniversal === "Universal") {
     //   for (var ref of institute?.userFollowersList) {
     //     var notify = new Notification({});

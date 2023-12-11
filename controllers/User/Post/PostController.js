@@ -864,8 +864,9 @@ exports.retrieveAllUserPosts = async (req, res) => {
         }
         //
         else {
+          // _id: { $in: user.userPosts }
           var post = await Post.find({
-            $and: [{ _id: { $in: user.userPosts } }],
+            $and: [{ $and: [{ author: { $in: user?.userInstituteFollowing }}, { author: user?._id }] }],
           })
             .sort("-createdAt")
             .limit(limit)
@@ -965,7 +966,9 @@ exports.retrieveAllUserPosts = async (req, res) => {
         else {
           var post = await Post.find({
             $and: [
-              { _id: { $in: user.userPosts } },
+              // { _id: { $in: user.userPosts } },
+              {author: { $in: user?.userInstituteFollowing }}, 
+              {author: user?._id },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })

@@ -5475,7 +5475,7 @@ exports.renderOverallStudentAdmissionFeesStatisticsQuery = async(req, res) => {
 
     const fetch_encrypt = await encryptionPayload(fetch_obj)
     res.status(200).send({ 
-      // encrypt: fetch_encrypt,
+      encrypt: fetch_encrypt,
       fetch_obj
     })
   }

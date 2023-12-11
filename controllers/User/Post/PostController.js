@@ -1260,7 +1260,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
               select: "hashtag_name hashtag_profile_photo",
             });
             var user_post = await Post.find({
-              $and: [{ _id: { $in: user.userPosts } }, { author: user?.userFollowers }],
+              $and: [{ author: user?.userFollowers }],
             })
               .sort("-createdAt")
               // .limit(limit)

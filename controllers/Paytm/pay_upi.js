@@ -61,6 +61,7 @@ exports.initiate = async (req, res) => {
       payment_remain_1,
       ad_status_id,
       payment_card_id,
+      payment_book_id
     } = req.body;
     let gatewayCharges = (parseInt(amount) * 1) / 100;
     var valid_charge = gatewayCharges >= 100 ? 100 : gatewayCharges;

@@ -1211,6 +1211,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
         }
         //
         else {
+          console.log("Enter In Else with Second")
           var post = await Post.find({
             // $and: [{ _id: { $in: user.userPosts } }],
             $and: [{ author: { $in: user?.userInstituteFollowing }}, { author: user?._id }],
@@ -1311,6 +1312,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
         }
         //
         else {
+          console.log("Enter In Else with fourth")
           var post = await Post.find({
             $and: [
               // { _id: { $in: user.userPosts } },

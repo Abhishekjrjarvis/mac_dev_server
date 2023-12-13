@@ -25,4 +25,14 @@ const chapterSchema = new mongoose.Schema({
   },
 });
 
+chapterSchema.post("findOneAndDelete", async function (doc) {
+  if (doc) {
+    await ChapterTopic.deleteMany({
+      _id: {
+        $in: doc.topic,
+      },
+    });
+  }
+});
+
 module.exports = mongoose.model("Chapter", chapterSchema);

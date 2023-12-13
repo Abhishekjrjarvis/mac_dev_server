@@ -46,5 +46,9 @@ router.post("/:cid/add/chapter/topic/query", catchAsync(Academic.renderNewChapte
 
 router.patch("/filter/by/date/lecture/query", catchAsync(Academic.renderFilteredLectureQuery))
 
+router.delete(
+  "/:cid/delete/chapter",
+  catchAsync(Academic.renderOneChapterDestroyQuery)
+);
 
 module.exports = router;

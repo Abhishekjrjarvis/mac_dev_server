@@ -6449,8 +6449,8 @@ exports.renderRefundArrayQuery = async (req, res) => {
 exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
   try {
     const { sid, appId } = req.params;
-    const { amount, mode, type, scid } = req.body;
-    if (!sid && !appId && !amount && !mode && !type && !scid)
+    const { amount, mode, type, scid, flow } = req.body;
+    if (!sid && !appId && !amount && !mode && !type)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         paid: false,
@@ -6480,15 +6480,21 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
-    const scholar = await ScholarShip.findById({ _id: scid });
-    const corpus = await FundCorpus.findById({
+    if(flow === "BY_FINANCE"){
+
+    }
+    else{
+      var scholar = await ScholarShip.findById({ _id: scid });
+    var corpus = await FundCorpus.findById({
       _id: `${scholar?.fund_corpus}`,
     });
+    }
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
     new_receipt.receipt_generated_from = "BY_ADMISSION";
+    new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP"
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findOne({
@@ -6498,8 +6504,15 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     if (req?.body?.fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
-      scholar.scholarship_candidates.push(new_receipt?._id);
-      scholar.scholarship_candidates_count += 1;
+      if(flow === "BY_FINANCE"){
+        finance.scholarship_candidates.push(new_receipt?._id);
+        finance.scholarship_candidates_count += 1;
+      }
+      else{
+        scholar.scholarship_candidates.push(new_receipt?._id);
+        scholar.scholarship_candidates_count += 1;
+      }
+      
       finance.government_receipt_count += 1;
       if (price >= remaining_fee_lists?.remaining_fee) {
         extra_price += price - remaining_fee_lists?.remaining_fee;
@@ -6628,8 +6641,12 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       }
     } else {
     }
-    if (corpus.unused_corpus >= price) {
-      corpus.unused_corpus -= price;
+    if(flow === "BY_FINANCE"){
+    }
+    else{
+      if (corpus.unused_corpus >= price) {
+        corpus.unused_corpus -= price;
+      }
     }
     if (finance?.financeTotalBalance >= price + extra_price) {
       finance.financeTotalBalance -= price + extra_price;
@@ -6661,6 +6678,22 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
         new_receipt
       );
     }
+    if(flow === "BY_FINANCE"){
+      await Promise.all([
+        admin_ins.save(),
+        student.save(),
+        apply.save(),
+        finance.save(),
+        institute.save(),
+        order.save(),
+        s_admin.save(),
+        remaining_fee_lists.save(),
+        new_receipt.save(),
+        // scholar.save(),
+        // corpus.save(),
+      ]);
+    }
+    else{
     await Promise.all([
       admin_ins.save(),
       student.save(),
@@ -6674,6 +6707,7 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       scholar.save(),
       corpus.save(),
     ]);
+  }
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",
       paid: true,
@@ -7335,16 +7369,23 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req.query;
+    const { search, flow } = req.query;
     if (!sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-    const scholar = await ScholarShip.findById({ _id: sid }).select(
-      "scholarship_candidates scholarship_candidates_count"
-    );
+    if(flow === "BY_FINANCE"){
+      var scholar = await Finance.findById({ _id: sid }).select(
+        "scholarship_candidates scholarship_candidates_count"
+      );
+    }
+    else{
+      var scholar = await ScholarShip.findById({ _id: sid }).select(
+        "scholarship_candidates scholarship_candidates_count"
+      );
+    }
     if (search) {
       var all_exempt = await FeeReceipt.find({
         _id: { $in: scholar?.scholarship_candidates },
@@ -8204,7 +8245,7 @@ const auto_scholar_query = async (
   try {
     // const { sid, appId } = req.params;
     // const { amount, mode, type, scid } = req.body;
-    if (!sid && !appId && !amount && !mode && !type && !scid)
+    if (!sid && !appId && !amount && !mode && !type)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         paid: false,
@@ -9107,7 +9148,7 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
   try {
     const { sid, appId } = req.params;
     const { amount, mode, type, scid, remain_1, rid } = req.body;
-    if (!sid && !appId && !amount && !mode && !type && !scid && !remain_1)
+    if (!sid && !appId && !amount && !mode && !type && !remain_1)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         paid: false,
@@ -9137,15 +9178,21 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
-    const scholar = await ScholarShip.findById({ _id: scid });
-    const corpus = await FundCorpus.findById({
+    if(flow === "BY_FINANCE"){
+
+    }
+    else{
+      var scholar = await ScholarShip.findById({ _id: scid });
+    var corpus = await FundCorpus.findById({
       _id: `${scholar?.fund_corpus}`,
     });
+    }
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
     new_receipt.receipt_generated_from = "BY_ADMISSION";
+    new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP"
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     const notify = new StudentNotification({});
     const valid_remain_list = await RemainingList.findById({
@@ -9155,8 +9202,14 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     if (req?.body?.fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
-      scholar.scholarship_candidates.push(new_receipt?._id);
-      scholar.scholarship_candidates_count += 1;
+      if(flow === "BY_FINANCE"){
+        finance.scholarship_candidates.push(new_receipt?._id);
+      finance.scholarship_candidates_count += 1;
+      }
+      else{
+        scholar.scholarship_candidates.push(new_receipt?._id);
+        scholar.scholarship_candidates_count += 1;
+      }
       finance.government_receipt_count += 1;
       if (price >= valid_remain_list?.remaining_fee) {
         extra_price += price - valid_remain_list?.remaining_fee;
@@ -9342,25 +9395,46 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
       new_receipt.order_history = order?._id;
       order.fee_receipt = new_receipt?._id;
     }
-    if (corpus.unused_corpus >= price) {
+    if(flow === "BY_FINANCE"){
+    }
+    else{
+      if (corpus.unused_corpus >= price) {
       corpus.unused_corpus -= price;
+    }
     }
     if (finance?.financeTotalBalance >= price + extra_price) {
       finance.financeTotalBalance -= price + extra_price;
     }
-    await Promise.all([
-      admin_ins.save(),
-      student.save(),
-      apply.save(),
-      finance.save(),
-      institute.save(),
-      order.save(),
-      s_admin.save(),
-      valid_remain_list.save(),
-      new_receipt.save(),
-      scholar.save(),
-      corpus.save(),
-    ]);
+    if(flow === "BY_FINANCE"){
+      await Promise.all([
+        admin_ins.save(),
+        student.save(),
+        apply.save(),
+        finance.save(),
+        institute.save(),
+        order.save(),
+        s_admin.save(),
+        valid_remain_list.save(),
+        new_receipt.save(),
+        // scholar.save(),
+        // corpus.save(),
+      ]);
+    }
+    else{
+      await Promise.all([
+        admin_ins.save(),
+        student.save(),
+        apply.save(),
+        finance.save(),
+        institute.save(),
+        order.save(),
+        s_admin.save(),
+        valid_remain_list.save(),
+        new_receipt.save(),
+        scholar.save(),
+        corpus.save(),
+      ]);
+    }
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",
       paid: true,

@@ -227,7 +227,7 @@ router.patch(
 );
 
 router.patch(
-  "/excel/to/json/:aid/query/scholarship/:scid",
+  "/excel/to/json/:aid/query/scholarship",
   // isLoggedIn,
   catchAsync(Extra.renderExcelToJSONAdmissionScholarshipQuery)
 );

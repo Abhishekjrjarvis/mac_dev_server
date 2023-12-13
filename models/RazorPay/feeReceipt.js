@@ -156,6 +156,9 @@ const feeReceiptSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "RemainingList",
   },
+  scholarship_status: {
+    type: String,
+  }
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

@@ -688,6 +688,16 @@ const financeSchema = new mongoose.Schema(
       type: Date,
       default: Date.now
     },
+    scholarship_candidates: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt"
+      }
+    ],
+    scholarship_candidates_count: {
+      type: Number,
+      default: 0
+    }
   },
   { timestamps: true }
 );

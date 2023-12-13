@@ -397,3 +397,35 @@ exports.renderFilteredLectureQuery = async(req, res) => {
     console.log(e)
   }
 }
+
+exports.renderOneChapterDestroyQuery = async(req, res) => {
+  try{
+    const { cid } = req?.params
+    if(!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    var valid_delete = false
+    var one_chapter = await Chapter.findById({ _id: cid })
+    var subject = await Subject.findById({ _id: `${one_chapter?.subject}`})
+
+    for(var val of one_chapter?.topic){
+      if(`${val?.topic_completion_date}` && `${val?.topic_completion_status}`){
+        valid_delete = true
+      }
+    }
+
+    if(valid_delete){
+
+    }
+    else{
+      subject.chapter.pull(one_chapter?._id)
+      if(subject?.chapter_count > 0){
+        subject.chapter_count -= 1
+      }
+      await subject.save()
+      await Chapter.findByIdAndDelete(cid)
+    }
+    res.status(200).send({ message: "Explore All Chapter Deletion Operation Completed"})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

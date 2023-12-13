@@ -697,7 +697,25 @@ const financeSchema = new mongoose.Schema(
     scholarship_candidates_count: {
       type: Number,
       default: 0
-    }
+    },
+    offlineFeeCollection: [
+      {
+        fee: { type: Number, default: 0 },
+        feeId: { type: String },
+      },
+    ],
+    exemptFeeCollection: [
+      {
+        fee: { type: Number, default: 0 },
+        feeId: { type: String },
+      },
+    ],
+    onlineFeeCollection: [
+      {
+        fee: { type: Number, default: 0 },
+        feeId: { type: String },
+      },
+    ],
   },
   { timestamps: true }
 );

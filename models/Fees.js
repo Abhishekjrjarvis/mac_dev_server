@@ -71,6 +71,16 @@ const feeSchema = new mongoose.Schema({
   gst_number: { type: String },
   business_name: { type: String },
   business_address: { type: String },
+  classes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Class"
+    }
+  ],
+  classes_count: {
+    type: Number,
+    default: 0
+  }
 });
 
 const Fees = mongoose.model("Fees", feeSchema);

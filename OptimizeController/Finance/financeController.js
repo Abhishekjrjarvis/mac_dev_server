@@ -5507,6 +5507,8 @@ exports.renderNewInternalFeesQuery = async (req, res) => {
     for (let i = 0; i < ClassId?.length; i++) {
       const classes = await Class.findById({ _id: ClassId[i] });
       classes.fee.push(feeData._id);
+      feeData.classes.push(classes?._id)
+      feeData.classes_count += 1
       await classes.save();
     }
 
@@ -5711,6 +5713,34 @@ exports.renderValidScholarQuery = async(req, res) => {
   }
   catch(e){
     console.log(e)
+  }
+}
+
+exports.renderOneInternalFeesQuery = async(req, res) => {
+  try{
+    const { fid } = req?.params
+    if(!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    var sorted_arr = []
+    const one_fees = await Fees.find({ _id: fid })
+
+    const all_classes = await Class.find({ _id: { $in: one_fees?.classes }})
+    for(var val of all_classes){
+      sorted_arr = [...val?.ApproveStudent]
+    }
+
+    var all_students = await Student.find({ _id: { $in: sorted_arr }})
+    .select("studentFirstName studentMiddleName studentLastName photoId valid_full_name studentProfilePhoto studentGRNO studentROLLNO")
+
+    if(all_students?.length > 0){
+      res.status(200).send({ message: "Explore All Students Query", access: true, all_students: all_students, one_fees: one_fees})
+    }
+    else{
+      res.status(200).send({ message: "No All Students Query", access: true, all_students: all_students})
+    }
+  }
+  catch(e){
+    console.log()
   }
 }
 

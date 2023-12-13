@@ -387,10 +387,10 @@ exports.renderFilteredLectureQuery = async(req, res) => {
       { attendence_type: `${flow}`}]
     });
     if(attendance_all?.length > 0){
-      res.status(200).send({ message: "Explore All Available Attendence Query", access: true, attendance_all: attendance_all})
+      res.status(200).send({ message: "Explore All Available Attendence Query", access: true, attendance_all: attendance_all, count: attendance_all?.length})
     }
     else{
-      res.status(200).send({ message: "No Available Attendence Query", access: false, attendance_all: []})
+      res.status(200).send({ message: "No Available Attendence Query", access: false, attendance_all: [], count: 0})
     }
   }
   catch(e){

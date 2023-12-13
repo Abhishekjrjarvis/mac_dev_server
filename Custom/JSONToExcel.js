@@ -388,3 +388,32 @@ exports.setoff_json_to_excel_query = async (
     console.log(e);
   }
 };
+
+exports.internal_fee_heads_receipt_json_to_excel_query = async (
+  data_query,
+  insName,
+  id
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, "Internal Fee Receipt Heads");
+    var name = `Internal-${insName}-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const ins_admin = await InstituteAdmin.findById({
+      _id: id,
+    });
+    ins_admin.export_collection.push({
+      excel_file: results,
+      excel_file_name: name,
+    });
+    ins_admin.export_collection_count += 1;
+    await ins_admin.save();
+  } catch (e) {
+    console.log(e);
+  }
+};

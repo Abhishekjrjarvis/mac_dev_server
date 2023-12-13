@@ -63,4 +63,8 @@ router
   .route("/:fid/edit")
   .patch(catchAsync(feesController.renderFeesEditQuery));
 
+router
+  .route("/finance/:fid/student/fee/:id/all/query")
+  .post(isLoggedIn, catchAsync(feesController.feesPaidByStudentFinanceQuery));
+
 module.exports = router;

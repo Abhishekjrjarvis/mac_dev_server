@@ -25,6 +25,7 @@ const {
   json_to_excel_normal_student_promote_query,
   json_to_excel_statistics_promote_query,
   scholar_transaction_json_to_excel_query,
+  internal_fee_heads_receipt_json_to_excel_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -5768,6 +5769,245 @@ exports.renderClassStudentQuery = async(req, res) => {
     console.log(e)
   }
 }
+
+exports.renderInternalFeeHeadsStructureReceiptQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const {
+      timeline,
+      timeline_content,
+      from,
+      to,
+    } = req.query;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    var valid_timeline = timeline === "false" ? false : true;
+    var g_year;
+    var l_year;
+    var g_month;
+    var l_month;
+
+    if (timeline_content === "Past Week") {
+      const week = custom_date_time_reverse(7);
+      var g_year = new Date(`${week}`).getFullYear();
+      var l_year = new Date().getFullYear();
+      var g_month = new Date(`${week}`).getMonth() + 1;
+      if (g_month < 10) {
+        g_month = `0${g_month}`;
+      }
+      var l_month = new Date().getMonth() + 1;
+      if (l_month < 10) {
+        l_month = `0${l_month}`;
+      }
+    } else if (timeline_content === "Past Month") {
+      const week = custom_month_reverse(1);
+      var g_year = new Date(`${week}`).getFullYear();
+      var l_year = new Date().getFullYear();
+      var g_month = new Date(`${week}`).getMonth() + 1;
+      if (g_month < 10) {
+        g_month = `0${g_month}`;
+      }
+      var l_month = new Date().getMonth() + 1;
+      if (l_month < 10) {
+        l_month = `0${l_month}`;
+      }
+    } else if (timeline_content === "Past Year") {
+      const week = custom_year_reverse(1);
+      var g_year = new Date(`${week}`).getFullYear();
+      var l_year = new Date().getFullYear();
+      var g_month = new Date(`${week}`).getMonth() + 1;
+      if (g_month < 10) {
+        g_month = `0${g_month}`;
+      }
+      var l_month = new Date().getMonth() + 1;
+      if (l_month < 10) {
+        l_month = `0${l_month}`;
+      }
+    }
+    const finance = await Finance.findById({ _id: fid }).select("institute");
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    }).select("insName depart");
+    if (valid_timeline) {
+      const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
+      const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
+      var all_receipts = await FeeReceipt.find({
+        $and: [
+          { finance: fid },
+          {
+            created_at: {
+              $gte: g_date,
+              $lt: l_date,
+            },
+          },
+          {
+            receipt_generated_from: "BY_FINANCE_MANAGER",
+          },
+        ],
+      })
+        .sort({ invoice_count: "1" })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender studentPaidFeeCount studentRemainingFeeCount department",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender studentPaidFeeCount studentRemainingFeeCount department",
+          populate: {
+            path: "batches",
+            select: "batchName",
+          },
+        })
+        .populate({
+          path: "internal_fees",
+          populate: {
+            path: "fees",
+            select: "feeName",
+          },
+        })
+        .lean()
+        .exec();
+    } else {
+      var g_year = new Date(`${from}`).getFullYear();
+      var g_day = new Date(`${from}`).getDate();
+      var l_year = new Date(`${to}`).getFullYear();
+      var l_day = new Date(`${to}`).getDate();
+      var g_month = new Date(`${from}`).getMonth() + 1;
+      if (g_month < 10) {
+        g_month = `0${g_month}`;
+      }
+      if (g_day < 10) {
+        g_day = `0${g_day}`;
+      }
+      var l_month = new Date(`${to}`).getMonth() + 1;
+      if (l_month < 10) {
+        l_month = `0${l_month}`;
+      }
+      if (l_day < 10) {
+        l_day = `0${l_day}`;
+      }
+      const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+      const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
+      var all_receipts = await FeeReceipt.find({
+        $and: [
+          { finance: fid },
+          {
+            created_at: {
+              $gte: g_date,
+              $lt: l_date,
+            },
+          },
+          {
+            receipt_generated_from: "BY_FINANCE_MANAGER",
+          },
+        ],
+      })
+        .sort({ invoice_count: "1" })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender studentPaidFeeCount studentRemainingFeeCount remainingFeeList",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender studentPaidFeeCount studentRemainingFeeCount remainingFeeList",
+          populate: {
+            path: "batches",
+            select: "batchName",
+          },
+        })
+        .populate({
+          path: "internal_fees",
+          populate: {
+            path: "fees",
+            select: "feeName",
+          },
+        })
+        .lean()
+        .exec();
+    }
+    if (all_receipts?.length > 0) {
+      res.status(200).send({
+        message: "Explore Fee Receipt Heads Structure Query",
+        access: true,
+        all_receipts,
+        count: all_receipts?.length,
+      });
+      all_receipts.sort(function (st1, st2) {
+        return parseInt(st1?.invoice_count) - parseInt(st2?.invoice_count);
+      });
+      var head_list = [];
+      for (var ref of all_receipts) {
+          head_list.push({
+            ReceiptNumber: ref?.invoice_count ?? "0",
+            ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
+            TransactionAmount: ref?.fee_payment_amount ?? "0",
+            TransactionDate:
+              moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
+            TransactionMode: ref?.fee_payment_mode ?? "#NA",
+            BankName: ref?.fee_bank_name ?? "#NA",
+            BankHolderName: ref?.fee_bank_holder ?? "#NA",
+            BankUTR: ref?.fee_utr_reference ?? "#NA",
+            GRNO: ref?.student?.studentGRNO ?? "#NA",
+            Name:
+              `${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
+                  ? ref?.student?.studentMiddleName
+                  : ""
+              } ${ref?.student?.studentLastName}` ?? "#NA",
+            Gender: ref?.student?.studentGender ?? "#NA",
+            Class:
+              `${ref?.student?.studentClass?.className}` ?? "#NA",
+            Batch: ref?.student?.batches?.batchName ?? "#NA",
+            TotalPaidFees: ref?.student?.studentPaidFeeCount,
+            TotalOutstanding: ref?.student?.studentRemainingFeeCount,
+            FeesType: `${ref?.internal_fees?.fees?.feeName}`,
+            FeesAmount: `${ref?.internal_fees?.internal_fee_amount}`,
+            Narration: `Being Fees Received By ${
+              ref?.fee_payment_mode
+            } Date ${moment(ref?.fee_transaction_date).format(
+              "DD-MM-YYYY"
+            )} Rs. ${ref?.fee_payment_amount} out of Rs. ${
+              ref?.internal_fees?.internal_fee_amount
+            } Paid By ${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName
+                : ""
+            } ${ref?.student?.studentLastName}.`,
+          });
+      }
+
+      await internal_fee_heads_receipt_json_to_excel_query(
+        head_list,
+        institute?.insName,
+        institute?._id
+      );
+    } else {
+      res.status(200).send({
+        message: "No Fee Receipt Heads Structure Query",
+        access: false,
+        all_students: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 
 exports.renderTallyPriceQuery = async (req, res) => {
   // try {

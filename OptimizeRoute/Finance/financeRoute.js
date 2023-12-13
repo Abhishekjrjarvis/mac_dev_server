@@ -547,5 +547,9 @@ router
   .route("/valid/scholar/query")
   .patch(catchAsync(Finance.renderValidScholarQuery))
 
+router
+  .route("/:fid/one/internal/fees/query")
+  .patch(catchAsync(Finance.renderOneInternalFeesQuery))
+
 
 module.exports = router;

@@ -334,4 +334,10 @@ router.get(
   catchAsync(User.retrievePreciseStudentDesignationArray)
 );
 
+router.delete(
+  "/:uid/destroy/account/query",
+  // isLoggedIn,
+  catchAsync(User.destroyUserAccountQuery)
+);
+
 module.exports = router;

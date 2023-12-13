@@ -160,4 +160,10 @@ router.patch(
 
 router.patch("/:cid/all/student", catchAsync(Filter.renderClassStudentQuery))
 
+router.patch(
+  "/internal/heads/by/:fid/receipt/query",
+  // isLoggedIn,
+  catchAsync(Filter.renderInternalFeeHeadsStructureReceiptQuery)
+);
+
 module.exports = router;

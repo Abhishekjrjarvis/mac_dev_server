@@ -895,6 +895,209 @@ exports.renderFeesEditQuery = async (req, res) => {
   }
 };
 
+exports.feesPaidByStudentFinanceQuery = async (req, res) => {
+  try {
+    const { fid, id } = req.params;
+    const { offlineQuery, exemptQuery } = req.body;
+    let off_status = "Pending";
+    let exe_status = "Pending";
+    // const classes = await Class.findById({ _id: cid }).populate({
+    //   path: "classTeacher",
+    //   select: "user",
+    // });
+    var fData = await Fees.findById({ _id: id });
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
+    const finance = await Finance.findById({
+      _id: fid,
+    });
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    });
+    
+    if (offlineQuery?.length > 0) {
+      for (let off of offlineQuery) {
+        const student = await Student.findById({ _id: `${off}` });
+        var new_internal = await InternalFees.findOne({
+          $and: [{ fees: `${fData?._id}` }, { student: student?._id }],
+        });
+        const user = await User.findById({ _id: `${student.user}` });
+        if (
+          fData.studentsList.length >= 1 &&
+          fData.studentsList.includes(String(student._id))
+        ) {
+        } else {
+          student.studentPaidFeeCount += fData.feeAmount;
+          if (student.studentRemainingFeeCount > 0) {
+            student.studentRemainingFeeCount -= fData.feeAmount;
+          }
+          student.offlineFeeList.push(fData._id);
+          fData.offlineStudentsList.push(student._id);
+          fData.offlineFee += fData.feeAmount;
+          new_internal.internal_fee_status = "Paid";
+          finance.financeCollectedSBalance += fData.feeAmount;
+          finance.offlineFeeCollection.push({
+            fee: fData.feeAmount,
+            feeId: fData._id,
+          });
+          const order = new OrderPayment({});
+          order.payment_module_type = "Internal Fees";
+          order.payment_to_end_user_id = institute._id;
+          order.payment_by_end_user_id = user._id;
+          order.payment_module_id = fData._id;
+          order.payment_amount = fData.feeAmount;
+          order.payment_status = "Captured";
+          order.payment_flag_to = "Credit";
+          order.payment_flag_by = "Debit";
+          order.payment_mode = "Offline";
+          order.payment_fee = fData._id;
+          order.payment_from = student._id;
+          order.payment_student = student?._id;
+          order.payment_student_name = student?.valid_full_name;
+          order.payment_student_gr = student?.studentGRNO;
+          institute.invoice_count += 1;
+          user.payment_history.push(order._id);
+          institute.payment_history.push(order._id);
+          var new_receipt = new FeeReceipt({});
+          new_receipt.fee_payment_amount = new_internal?.internal_fee_amount;
+          new_receipt.fee_payment_mode = "Offline";
+          new_receipt.student = student?._id;
+          new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
+          new_receipt.fee_transaction_date = new Date();
+          new_receipt.finance = finance?._id;
+          new_receipt.invoice_count = `${
+            new Date().getMonth() + 1
+          }${new Date().getFullYear()}${institute?.invoice_count}`;
+          order.payment_invoice_number = new_receipt?.invoice_count;
+          new_receipt.order_history = order?._id;
+          order.fee_receipt = new_receipt?._id;
+          new_internal.fee_receipt = new_receipt?._id;
+          new_receipt.internal_fees = new_internal?._id;
+          const notify = new StudentNotification({});
+          notify.notifyContent = `${student.studentFirstName} ${
+            student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+          } ${student.studentLastName} your transaction is successfull for ${
+            fData?.feeName
+          } ${fData.feeAmount}`;
+          notify.notifySender = finance?._id;
+          notify.notifyReceiever = user._id;
+          notify.notifyType = "Student";
+          notify.notifyPublisher = student._id;
+          user.activity_tab.push(notify._id);
+          notify.notifyByFinancePhoto = finance?._id;
+          notify.notifyCategory = "Offline Fees";
+          notify.redirectIndex = 16;
+          //
+          invokeMemberTabNotification(
+            "Student Activity",
+            notify,
+            "Offline Payment",
+            user._id,
+            user.deviceToken,
+            "Student",
+            notify
+          );
+          await Promise.all([
+            student.save(),
+            user.save(),
+            order.save(),
+            s_admin.save(),
+            notify.save(),
+            new_receipt.save(),
+            new_internal.save(),
+          ]);
+        }
+      }
+      if (fData?.gstSlab > 0) {
+        var business_data = new BusinessTC({});
+        business_data.b_to_c_month = new Date().toISOString();
+        business_data.b_to_c_i_slab = parseInt(fData?.gstSlab) / 2;
+        business_data.b_to_c_s_slab = parseInt(fData?.gstSlab) / 2;
+        business_data.finance = finance._id;
+        finance.gst_format.b_to_c.push(business_data?._id);
+        business_data.b_to_c_total_amount = fData.feeAmount;
+        await business_data.save();
+      }
+      off_status = "Done";
+    }
+    if (exemptQuery?.length > 0) {
+      for (let exe of exemptQuery) {
+        const student = await Student.findById({ _id: `${exe}` });
+        var new_internal = await InternalFees.findOne({
+          $and: [{ fees: `${fData?._id}` }, { student: student?._id }],
+        });
+        const user = await User.findById({ _id: `${student.user}` });
+        if (
+          fData.studentExemptList.length >= 1 &&
+          fData.studentExemptList.includes(String(student._id))
+        ) {
+        } else {
+          student.studentPaidFeeCount += fData.feeAmount;
+          if (student.studentRemainingFeeCount > 0) {
+            student.studentRemainingFeeCount -= fData.feeAmount;
+          }
+          student.exemptFeeList.push(fData._id);
+          fData.exemptList.push(student._id);
+          new_internal.internal_fee_status = "Paid";
+          new_internal.internal_fee_exempt_status = "Exempted";
+          finance.financeExemptBalance += fData.feeAmount;
+          finance.exemptFeeCollection.push({
+            fee: fData.feeAmount,
+            feeId: fData._id,
+          });
+          const notify = new StudentNotification({});
+          notify.notifyContent = `${student.studentFirstName} ${
+            student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+          } ${student.studentLastName} you get exempted ${fData?.feeName} ${
+            fData.feeAmount
+          } on this fee.`;
+          notify.notifySender = finance?._id;
+          notify.notifyReceiever = user._id;
+          notify.notifyType = "Student";
+          notify.notifyPublisher = student._id;
+          user.activity_tab.push(notify._id);
+          notify.notifyByFinancePhoto = finance?._id;
+          notify.notifyCategory = "Exempt Fees";
+          notify.redirectIndex = 16;
+          //
+          invokeMemberTabNotification(
+            "Student Activity",
+            notify,
+            "Offline Payment",
+            user._id,
+            user.deviceToken,
+            "Student",
+            notify
+          );
+          await Promise.all(
+            [student.save(), user.save(), notify.save()],
+            new_internal.save()
+          );
+        }
+      }
+      exe_status = "Done";
+    }
+    await Promise.all([
+      fData.save(),
+      finance.save(),
+      institute.save(),
+    ]);
+    if (off_status === "Done" || exe_status === "Done") {
+      res.status(200).send({
+        message: "Wait for Operation Complete",
+        fee_paid_status: true,
+      });
+    } else {
+      res
+        .status(404)
+        .send({ message: "No Operation Complete", fee_paid_status: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // const data_add = async () => {
 //   var new_internal = new InternalFees({});
 //   new_internal.internal_fee_type = "Backlog";

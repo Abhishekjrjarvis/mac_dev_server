@@ -3242,6 +3242,79 @@ exports.retrievePreciseStudentDesignationArray = async (req, res) => {
   }
 };
 
+exports.destroyUserAccountQuery = async(req, res) => {
+  try {
+    const { uid } = req.params;
+    if (!uid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    // var admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    var one_user = await User.findById({ _id: uid})
+      if(one_user?.staff?.length > 0 || one_user?.student?.length > 0){
+        res
+        .status(200)
+        .send({ message: "Deletion Operation Aborted", access: false, dynamic: `Hello ${one_user?.username}, Looks like you are a student or staff of some institute. Kindly visit your institute, ask them to retive your data in their local systems. Afterwards institutes can delete your account and data from servers.` });
+      }
+      else{
+        var all_ins = await InstituteAdmin.find({ _id: { $in: one_user?.userInstituteFollowing }})
+        res
+        .status(200)
+        .send({ message: "Deletion Operation Completed", access: true });
+        for(var one_ins of all_ins){
+          if (`${one_ins?.isUniversal}` === "Not Assigned") {
+            if (one_ins?.userFollowersList?.includes(`${one_user?._id}`)) {
+              one_ins.userFollowersList.pull(one_user?._id);
+              if (one_ins?.followersCount > 0) {
+                one_ins.followersCount -= 1;
+              }
+            }
+          }
+          if (`${one_ins?.isUniversal}` === "Universal") {
+            if (one_ins?.userFollowersList?.includes(`${one_user?._id}`)) {
+              one_ins.userFollowersList.pull(one_user?._id);
+              if (one_ins?.followersCount > 0) {
+                one_ins.followersCount -= 1;
+              }
+            }
+          }
+          if (one_ins?.joinedUserList?.includes(`${one_user?._id}`)) {
+            one_ins.joinedUserList.pull(one_user?._id);
+          }
+          if (one_ins?.joinedPost?.includes(`${one_user?._id}`)) {
+            one_ins.joinedPost.pull(one_user?._id);
+          }
+    
+          await one_ins.save()
+        }
+        var universal = await InstituteAdmin.findOne({
+          isUniversal: "Universal",
+        });
+        if (universal?.userFollowersList?.includes(`${one_user?._id}`)) {
+          universal.userFollowersList.pull(one_user?._id);
+          if (universal?.followersCount > 0) {
+            universal.followersCount -= 1;
+          }
+        }
+        await universal.save();
+        var all_post = await Post.find({ author: `${one_user?._id}` });
+            for (var ref of all_post) {
+              await Post.findByIdAndDelete(ref?._id);
+            }
+            var all_answer = await Answer.find({ author: `${one_user?._id}` });
+            for (var ref of all_answer) {
+              await Answer.findByIdAndDelete(ref?._id);
+            }
+            await User.findByIdAndDelete(one_user?._id);
+      }
+    
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+
 // exports.getAllThreeCount = async (req, res) => {
 //   try {
 //     const id = req.params.id;

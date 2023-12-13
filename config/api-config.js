@@ -79,6 +79,8 @@ const checkoutV2 = require("../OptimizeRoute/RazorPay/payCheckoutRoute");
 const urlV2 = require("../OptimizeRoute/URL/shortUrlRoute");
 const availNewV2 = require("../OptimizeRoute/Attendence/indexRoute");
 const feesNewV2 = require("../OptimizeRoute/Fees/feesRoute");
+const institutePostRouteV2 = require("../OptimizeRoute/InstituteAdmin/Post/PostRoute");
+const userPostRouteV2 = require("../OptimizeRoute/User/Post/PostRoute");
 
 // Api Middleware Func
 
@@ -159,5 +161,7 @@ router.use("/api/v2/pay", checkoutV2);
 router.use("/api/v2/url", urlV2);
 router.use("/api/v2/attendance", availNewV2);
 router.use("/api/v2/fees", feesNewV2);
+router.use("/api/v2/ins/post", institutePostRouteV2);
+router.use("/api/v2/user/post", userPostRouteV2);
 
 module.exports = router;

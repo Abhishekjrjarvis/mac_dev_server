@@ -867,7 +867,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
         else {
           // _id: { $in: user.userPosts }
           var post = await Post.find({
-            $and: [{ $and: [{ author: { $in: user?.userInstituteFollowing }}, { author: user?._id }] }],
+            $and: [{ _id: { $in: user.userPosts } }],
           })
             .sort("-createdAt")
             .limit(limit)
@@ -1212,10 +1212,10 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
         }
         //
         else {
-          console.log("Enter In Else with Second")
+          // console.log("Enter In Else with Second")
           var ins_post = await Post.find({
-            // $and: [{ _id: { $in: user.userPosts } }],
-            $and: [{ author: { $in: user?.userInstituteFollowing }}],
+            $and: [{ _id: { $in: user.userPosts } }],
+            // $and: [{ author: { $in: user?.userInstituteFollowing }}],
           })
             .sort("-createdAt")
             // .limit(limit)
@@ -1368,9 +1368,9 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
           console.log("Enter In Else with fourth")
           var post = await Post.find({
             $and: [
-              // { _id: { $in: user.userPosts } },
-              {author: { $in: user?.userInstituteFollowing }}, 
-              {author: user?._id },
+              { _id: { $in: user.userPosts } },
+              // {author: { $in: user?.userInstituteFollowing }}, 
+              // {author: user?._id },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })

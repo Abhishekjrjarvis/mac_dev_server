@@ -55,7 +55,8 @@ app.use(
       "https://pay.qviple.com",
       "https://sndpoly.qviple.com",
       "https://kvnpharmacy.qviple.com",
-      "https://beta.qviple.com"
+      "https://beta.qviple.com",
+      "https://qvipleweb.web.app/#/log-in"
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

@@ -158,4 +158,6 @@ router.patch(
   catchAsync(Filter.renderFinanceScholarTransactionHistoryQuery)
 );
 
+router.patch("/:cid/all/student", catchAsync(Filter.renderClassStudentQuery))
+
 module.exports = router;

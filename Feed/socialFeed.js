@@ -27,6 +27,7 @@ exports.execute_ins_social_feed_query = async (
         );
       }
     } else if (institute.isUniversal === "Universal") {
+      console.log("posted by universal")
       const all = await InstituteAdmin.find({ $and: [{ status: "Approved" }, { isUniversal: "Not Assigned" }] });
       const user = await User.find({ userStatus: "Approved" });
       if (post.postStatus === "Anyone") {
@@ -45,6 +46,7 @@ exports.execute_ins_social_feed_query = async (
           { $push: { posts: post?._id } }
         );
       }
+      console.log("end posted by universal")
     }
     if (Array.isArray(taggedPeople)) {
       if (post?.tagPeople?.length) {

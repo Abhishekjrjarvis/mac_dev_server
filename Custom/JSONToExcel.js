@@ -429,7 +429,7 @@ exports.mismatch_scholar_transaction_json_to_excel_query = async (
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 
     xlsx.utils.book_append_sheet(real_book, real_sheet, "Mismatch Scholarship");
-    var name = `${flow}-${access}-${new Date().getHours()}-${new Date().getMinutes()}`;
+    var name = `${flow}-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
     const results = await uploadExcelFile(`${name}.xlsx`);

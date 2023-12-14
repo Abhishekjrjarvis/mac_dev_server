@@ -551,5 +551,9 @@ router
   .route("/:fid/one/internal/fees/query")
   .patch(catchAsync(Finance.renderOneInternalFeesQuery))
 
+router
+  .route("/:fid/all/mismatch/excel/query")
+  .get(catchAsync(Finance.renderAllMismatchQuery))
+
 
 module.exports = router;

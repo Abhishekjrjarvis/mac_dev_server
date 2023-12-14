@@ -1661,7 +1661,8 @@ exports.renderExcelToJSONAdmissionScholarshipQuery = async (req, res) => {
       await renderAdmissionNewScholarNumberAutoQuery(
         aid,
         is_converted?.scholar_array,
-        scid
+        scid,
+        one_ins?._id
       );
     } else {
       console.log("false");

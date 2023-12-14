@@ -4295,7 +4295,7 @@ exports.renderAllExportExcelArrayQuery = async (req, res) => {
     var all_excel = await nested_document_limit(
       page,
       limit,
-      ins_admin?.export_collection.reverse()
+      arr?.reverse()
     );
   }
   else{
@@ -4306,10 +4306,6 @@ exports.renderAllExportExcelArrayQuery = async (req, res) => {
     );
   }
     if (all_excel?.length > 0) {
-      // const obj_excel = {
-        
-      // }
-      // const all_excel_encrypt = await encryptionPayload(obj_excel)
       res.status(200).send({
         message: "Explore All Exported Excel",
         access: true,
@@ -5743,6 +5739,49 @@ exports.renderOneInternalFeesQuery = async(req, res) => {
     console.log()
   }
 }
+
+exports.renderAllMismatchQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const finance = await Finance.findById({ _id: fid })
+    const ins_admin = await InstituteAdmin.findById({ _id: finance?.institute }).select(
+      "export_collection"
+    );
+
+    var arr = ins_admin?.export_collection?.filter((val) => {
+      if(val?.excel_val === "Mismatch_Scholarship") return val
+    })
+    var all_excel = await nested_document_limit(
+      page,
+      limit,
+      arr?.reverse()
+    );
+    if (all_excel?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Exported Excel",
+        access: true,
+        all_excel: all_excel,
+        count: all_excel?.length
+      });
+    } else {
+      res.status(200).send({
+        message: "No Exported Excel Available",
+        access: false,
+        all_excel: [],
+        count: 0,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 
 // exports.updateAlias = async(req, res) => {

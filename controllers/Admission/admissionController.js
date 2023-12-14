@@ -92,7 +92,7 @@ const { set_off_amount } = require("../../Functions/SetOff");
 const {
   set_fee_head_query_redesign_hostel,
 } = require("../../Functions/hostelInstallment");
-const { setoff_json_to_excel_query } = require("../../Custom/JSONToExcel");
+const { setoff_json_to_excel_query, mismatch_scholar_transaction_json_to_excel_query } = require("../../Custom/JSONToExcel");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -8605,8 +8605,9 @@ const type_calc = async (r_args) => {
   }
 };
 
-exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, scid) => {
+exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, scid, id) => {
   try {
+    var num_arr = []
     if (arr?.length > 0) {
       for (var ref of arr) {
         var valid_remain = await RemainingList.findOne({
@@ -8639,7 +8640,11 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, scid) => {
             ref?.Remark
           );
         }
+        else{
+          num_arr.push(ref)
+        }
       }
+      await mismatch_scholar_transaction_json_to_excel_query(num_arr, "Mismatch", id)
     } else {
     }
   } catch (e) {

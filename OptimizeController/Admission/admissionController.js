@@ -94,6 +94,7 @@ const {
 } = require("../../Functions/hostelInstallment");
 const { universal_random_password } = require("../../Custom/universalId");
 const QvipleId = require("../../models/Universal/QvipleId");
+const { mismatch_scholar_transaction_json_to_excel_query } = require("../../Custom/JSONToExcel");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -8000,7 +8001,6 @@ const auto_scholar_query = async (
   amount,
   mode,
   type,
-  scid,
   rcid,
   fee_payment_mode,
   date_query,
@@ -8009,7 +8009,7 @@ const auto_scholar_query = async (
   try {
     // const { sid, appId } = req.params;
     // const { amount, mode, type, scid } = req.body;
-    if (!sid && !appId && !amount && !mode && !type && !scid)
+    if (!sid && !appId && !amount && !mode && !type)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         paid: false,
@@ -8039,10 +8039,6 @@ const auto_scholar_query = async (
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
-    const scholar = await ScholarShip.findById({ _id: scid });
-    const corpus = await FundCorpus.findById({
-      _id: `${scholar?.fund_corpus}`,
-    });
     const new_receipt = new FeeReceipt({
       fee_payment_mode: fee_payment_mode,
       fee_payment_amount: amount,
@@ -8052,6 +8048,7 @@ const auto_scholar_query = async (
     new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date(`${date_query}`);
+    new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP"
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findById({ _id: rcid });
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
@@ -8059,8 +8056,8 @@ const auto_scholar_query = async (
     if (fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
-      scholar.scholarship_candidates.push(new_receipt?._id);
-      scholar.scholarship_candidates_count += 1;
+      finance.scholarship_candidates.push(new_receipt?._id);
+      finance.scholarship_candidates_count += 1;
       finance.government_receipt_count += 1;
       if (price >= remaining_fee_lists?.remaining_fee) {
         extra_price += price - remaining_fee_lists?.remaining_fee;
@@ -8189,9 +8186,6 @@ const auto_scholar_query = async (
       }
     } else {
     }
-    if (corpus.unused_corpus >= price) {
-      corpus.unused_corpus -= price;
-    }
     if (finance?.financeTotalBalance >= price + extra_price) {
       finance.financeTotalBalance -= price + extra_price;
     }
@@ -8232,8 +8226,6 @@ const auto_scholar_query = async (
       s_admin.save(),
       remaining_fee_lists.save(),
       new_receipt.save(),
-      scholar.save(),
-      corpus.save(),
     ]);
     // res.status(200).send({
     //   message: "Balance Pool increasing with price Operation complete",
@@ -8369,8 +8361,9 @@ const type_calc = async (r_args) => {
   }
 };
 
-exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, scid) => {
+exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, id) => {
   try {
+    var num_arr = []
     if (arr?.length > 0) {
       for (var ref of arr) {
         var valid_remain = await RemainingList.findOne({
@@ -8396,14 +8389,17 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, scid) => {
             ref?.Amount,
             "Offline",
             valid_type,
-            scid,
             valid_remain?._id,
             "Government/Scholarship",
             ref?.Date,
             ref?.Remark
           );
         }
+        else{
+          num_arr.push(ref)
+        }
       }
+      await mismatch_scholar_transaction_json_to_excel_query(num_arr, "Mismatch", id)
     } else {
     }
   } catch (e) {

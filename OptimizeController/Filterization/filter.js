@@ -5635,8 +5635,8 @@ exports.renderFinanceScholarTransactionHistoryQuery = async (req, res) => {
           path: "fee_receipt"
         })
         .populate({
-          path: "student",
-          // select: "studentFirstName studentMiddleName studentLastName valid_full_name studentGender"
+          path: "payment_student",
+          select: "studentFirstName studentMiddleName studentLastName valid_full_name studentGender"
         })
         res.status(200).send({
           message: `Explore TimeLine ${timeline_content} Query`,
@@ -5680,8 +5680,8 @@ exports.renderFinanceScholarTransactionHistoryQuery = async (req, res) => {
           path: "fee_receipt"
         })
         .populate({
-          path: "student",
-          // select: "studentFirstName studentMiddleName studentLastName valid_full_name studentGender"
+          path: "payment_student",
+          select: "studentFirstName studentMiddleName studentLastName valid_full_name studentGender"
         })
         res.status(200).send({
           message: "Explore Date From To Query",

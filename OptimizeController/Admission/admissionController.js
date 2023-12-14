@@ -7133,16 +7133,23 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req.query;
+    const { search, flow } = req.query;
     if (!sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-    const scholar = await ScholarShip.findById({ _id: sid }).select(
-      "scholarship_candidates scholarship_candidates_count"
-    );
+    if(flow === "BY_FINANCE"){
+      var scholar = await Finance.findById({ _id: sid }).select(
+        "scholarship_candidates scholarship_candidates_count"
+      );
+    }
+    else{
+      var scholar = await ScholarShip.findById({ _id: sid }).select(
+        "scholarship_candidates scholarship_candidates_count"
+      );
+    }
     if (search) {
       var all_exempt = await FeeReceipt.find({
         _id: { $in: scholar?.scholarship_candidates },

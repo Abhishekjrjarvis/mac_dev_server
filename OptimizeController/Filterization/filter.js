@@ -5711,7 +5711,7 @@ exports.renderFinanceScholarTransactionHistoryQuery = async (req, res) => {
           }).select("userLegalName");
           var qvipleId = await QvipleId.findOne({ user: user?._id })
         }
-        const all_remain = await RemainingList.find({ student: `${ref?.student?._id}`})
+        const all_remain = await RemainingList.find({ student: `${ref?.payment_student?._id}`})
         .populate({
           path: "fee_structure"
         })
@@ -5732,7 +5732,7 @@ exports.renderFinanceScholarTransactionHistoryQuery = async (req, res) => {
             ? user?.userLegalName
             : ref?.payment_by_end_user_id_name,
           PaymentAmount: ref?.payment_amount ?? "#NA",
-          Gender: ref?.student?.studentGender,
+          Gender: ref?.payment_student?.studentGender,
           PaymentType: ref?.payment_module_type ?? "#NA",
           PaymentMode: ref?.fee_receipt?.fee_payment_mode,
           PaymentStatus: ref?.payment_status ?? "#NA",

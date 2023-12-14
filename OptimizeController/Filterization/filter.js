@@ -5686,7 +5686,7 @@ exports.renderFinanceScholarTransactionHistoryQuery = async (req, res) => {
         res.status(200).send({
           message: "Explore Date From To Query",
           access: true,
-          order,
+          // order,
         });
       }
     if (order?.length > 0) {

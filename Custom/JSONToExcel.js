@@ -88,6 +88,7 @@ exports.scholar_transaction_json_to_excel_query = async (
     const results = await uploadExcelFile(`${name}.xlsx`);
 
     const ins_admin = await InstituteAdmin.findById({ _id: id });
+    console.log("Enter")
     ins_admin.export_collection.push({
       excel_file: results,
       excel_file_name: name,

@@ -4289,6 +4289,7 @@ exports.renderAllExportExcelArrayQuery = async (req, res) => {
     );
 
     if(filter === "Scholarship"){
+      console.log("Enter")
     var arr = ins_admin?.export_collection?.filter((val) => {
       if(val?.excel_val === "Scholarship") return val
     })

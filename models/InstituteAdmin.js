@@ -810,6 +810,7 @@ const instituteAdminSchema = new mongoose.Schema({
       excel_file: { type: String },
       excel_file_name: { type: String },
       created_at: { type: Date, default: Date.now },
+      excel_val: { type: String },
     },
   ],
   export_collection_count: {

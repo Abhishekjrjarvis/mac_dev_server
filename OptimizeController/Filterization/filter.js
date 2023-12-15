@@ -4405,8 +4405,8 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
       await finance.save()
       finance.incomes += finance?.financeIncomeCashBalance + finance?.financeIncomeBankBalance
       finance.expenses += finance?.financeExpenseCashBalance + finance?.financeExpenseBankBalance
-      total_deposits += finance?.deposit_linked_head?.master?.deposit_amount + finance?.deposit_hostel_linked_head?.master?.deposit_amount
-      excess_fees += finance?.deposit_linked_head?.master?.refund_amount + finance?.deposit_hostel_linked_head?.master?.refund_amount
+      finance.total_deposits += finance?.deposit_linked_head?.master?.deposit_amount + finance?.deposit_hostel_linked_head?.master?.deposit_amount
+      finance.excess_fees += finance?.deposit_linked_head?.master?.refund_amount + finance?.deposit_hostel_linked_head?.master?.refund_amount
       finance.internal_fees += fee_price
       if(all_depart === "ALL"){
         finance.fees_statistics_filter.department_all = "ALL"

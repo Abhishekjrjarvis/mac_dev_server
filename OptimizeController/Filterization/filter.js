@@ -4326,10 +4326,16 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
     const { all_depart, activity_status, batch_status, master, batch, depart, bank, single_student } = req?.body
     var finance = await Finance.findById({ _id: fid})
     .populate({
-      path: "deposit_linked_head"
+      path: "deposit_linked_head",
+      populate: {
+        path: "master"
+      }
     })
     .populate({
-      path: "deposit_hostel_linked_head"
+      path: "deposit_hostel_linked_head",
+      populate: {
+        path: "master"
+      }
     })
     var all_fees = await Fees.find({ _id: { $in: finance?.fees}})
     // var all_master = await FeeMaster.find({ _id: { $in: finance?.fees}})

@@ -5243,7 +5243,9 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   collect_by_government_arr: collect_by_government_arr,
                   pending_from_government_arr: pending_from_government_arr,
                   excess_fee_arr: excess_fee_arr,
-                  exempted_fee_arr: exempted_fee_arr
+                  exempted_fee_arr: exempted_fee_arr,
+                  excess_fee: excess_fee,
+                  exempted_fee: exempted_fee
                 })
                 console.log("Enter")
                 total_fees = 0

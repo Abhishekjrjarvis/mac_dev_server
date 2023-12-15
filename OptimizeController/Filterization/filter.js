@@ -4864,6 +4864,10 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
       var pending_by_student_arr = []
       var collect_by_government_arr = []
       var pending_from_government_arr = []
+      var excess_fee = 0
+      var excess_fee_arr = []
+      var exempted_fee = 0
+      var exempted_fee_arr = []
       var excel_list = []
       finance.admission_fees_statistics_filter.batch_level = []
       finance.admission_fees_statistics_filter.batch_all = ""
@@ -5179,6 +5183,8 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                     ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
                     : 0
                     ele.student.government_os_fees += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
+                    excess_fee += ele?.paid_fee > ele?.fee_structure?.total_admission_fees ? ele?.paid_fee - ele?.fee_structure?.total_admission_fees : 0
+                    exempted_fee += ele?.exempted_fee
                     if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
                       total_fees_arr.push(ele?.student)
                     }
@@ -5200,6 +5206,12 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                     if(ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees > 0){
                       pending_from_government_arr.push(ele?.student)
                     }
+                    if((ele?.paid_fee > ele?.fee_structure?.total_admission_fees ? ele?.paid_fee - ele?.fee_structure?.total_admission_fees : 0) >= 0){
+                      excess_fee_arr.push(ele?.student)
+                    }
+                    if(ele?.exempted_fee){
+                      exempted_fee_arr.push(ele?.student)
+                    }
                     }
                     total_fees_arr = remove_duplicated(total_fees_arr)
                     total_collect_arr = remove_duplicated(total_collect_arr)
@@ -5208,6 +5220,8 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                     pending_by_student_arr = remove_duplicated(pending_by_student_arr)
                     collect_by_government_arr = remove_duplicated(collect_by_government_arr)
                     pending_from_government_arr = remove_duplicated(pending_from_government_arr)
+                    excess_fee_arr = remove_duplicated(excess_fee_arr)
+                    exempted_fee_arr = remove_duplicated(exempted_fee_arr)
                   }
                 // }
                 custom_classes.push({
@@ -5228,6 +5242,8 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                   pending_by_student_arr: pending_by_student_arr,
                   collect_by_government_arr: collect_by_government_arr,
                   pending_from_government_arr: pending_from_government_arr,
+                  excess_fee_arr: excess_fee_arr,
+                  exempted_fee_arr: exempted_fee_arr
                 })
                 console.log("Enter")
                 total_fees = 0

@@ -549,7 +549,7 @@ router
 
 router
   .route("/:fid/one/internal/fees/query")
-  .patch(catchAsync(Finance.renderOneInternalFeesQuery))
+  .get(catchAsync(Finance.renderOneInternalFeesQuery))
 
 router
   .route("/:fid/all/mismatch/excel/query")

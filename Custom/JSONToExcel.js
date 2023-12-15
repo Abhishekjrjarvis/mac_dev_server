@@ -7,6 +7,8 @@ const Hostel = require("../models/Hostel/hostel");
 const NewApplication = require("../models/Admission/NewApplication");
 const { uploadExcelFile } = require("../S3Configuration");
 const RePay = require("../models/Return/RePay");
+const Library = require("../models/Library/Library");
+
 
 exports.json_to_excel_query = async (
   data_query,
@@ -442,6 +444,36 @@ exports.mismatch_scholar_transaction_json_to_excel_query = async (
     });
     ins_admin.export_collection_count += 1;
     await ins_admin.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.library_json_to_excel = async (
+  lid,
+  list,
+  sheetName,
+  excelType,
+  exportTypeName
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(list);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, sheetName);
+    var name = `library-${exportTypeName}-${new Date().getHours()}-${new Date().getMinutes()}-${new Date().getSeconds()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const library = await Library.findById(lid);
+    library.export_collection.push({
+      excel_type: excelType,
+      excel_file: results,
+      excel_file_name: name,
+    });
+    library.export_collection_count += 1;
+    await library.save();
   } catch (e) {
     console.log(e);
   }

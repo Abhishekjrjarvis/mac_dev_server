@@ -5253,6 +5253,8 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                 pending_by_student = 0
                 collect_by_government = 0
                 pending_from_government = 0
+                excess_fee = 0
+                exempted_fee = 0
                 total_fees_arr = []
                 total_collect_arr = []
                 total_pending_arr = []
@@ -5260,6 +5262,8 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                 pending_by_student_arr = []
                 collect_by_government_arr = []
                 pending_from_government_arr = []
+                excess_fee_arr = []
+                exempted_fee_arr = []
                 console.log("Exit")
               }
               obs[one_batch?._id] = {

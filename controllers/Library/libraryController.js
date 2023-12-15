@@ -18,6 +18,10 @@ const BankAccount = require("../../models/Finance/BankAccount");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const { randomSixCode } = require("../../Service/close");
 
+
+const { library_json_to_excel } = require("../../Custom/JSONToExcel");
+const moment = require("moment");
+
 //for Institute side Activate library
 exports.activateLibrary = async (req, res) => {
   try {
@@ -1087,3 +1091,269 @@ exports.renderAllBookQuery = async(req, res) => {
     console.log(e)
   }
 }
+
+
+
+
+
+
+
+
+
+exports.getAllExcelLibraryQuery = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+    if (!lid) throw "Please send library id to perform task";
+    const library = await Library.findById(lid)
+      .select("export_collection")
+      .lean()
+      .exec();
+    if (library?.export_collection?.length > 0) {
+      res.status(200).send({
+        message: "ALl Library Export list",
+        excel_arr: library?.export_collection,
+      });
+    } else {
+      res.status(200).send({
+        message: "ALl Library Export list",
+        excel_arr: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.getAllBookExport = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    const { from, to } = req.query;
+    if (!lid) throw "Please send library id to perform task";
+    const library = await Library.findById(lid)
+      .populate({
+        path: "books",
+        match: {
+          date: {
+            $gte: from,
+            $lte: to,
+          },
+        },
+      })
+      .lean()
+      .exec();
+    res.status(200).send({
+      message: "Generating excel all books for library",
+    });
+    const excel_list = [];
+    for (let book of library?.books) {
+      excel_list.push({
+        "Book Name": book?.bookName ?? "#NA",
+        "Book Mode": book?.bookStatus ?? "#NA",
+        Author: book?.author ?? "#NA",
+        Publication: book?.publication ?? "#NA",
+        Language: book?.language ?? "#NA",
+        "Total Page": book?.totalPage ?? "#NA",
+        Price: book?.price ?? "#NA",
+        "Total Copies": book?.totalCopies ?? "#NA",
+        "Left Copies": book?.leftCopies ?? "#NA",
+        "Shell Number": book?.shellNumber ?? "#NA",
+        Description: book?.description ?? "#NA",
+        "Created At": book?.createdAt ?? "#NA",
+        Subject: book?.subject ?? "#NA",
+        "Bill Date": book?.bill_date ?? "#NA",
+        "Bill Number": book?.bill_number ?? "#NA",
+        "Purchase Order Date": book?.purchase_order_date ?? "#NA",
+        "Purchase Order Number": book?.purchase_order_number ?? "#NA",
+        Supplier: book?.supplier ?? "#NA",
+        "Publisher Place": book?.publisher_place ?? "#NA",
+        "Publisher Year": book?.publication_year ?? "#NA",
+        Edition: book?.edition ?? "#NA",
+        "Class Number": book?.class_number ?? "#NA",
+        "Accession Number": book?.accession_number ?? "#NA",
+        Date: book?.date ?? "#NA",
+        Publisher: book?.publisher ?? "#NA",
+        "Qviple Book Id": book?.qviple_book_id ?? "#NA",
+      });
+    }
+    if (excel_list?.length > 0)
+      await library_json_to_excel(
+        lid,
+        excel_list,
+        "Books",
+        "LIBRARY_BOOK",
+        "books"
+      );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getAllIssueExport = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    const { from, to } = req.query;
+
+    if (!lid) throw "Please send library id to perform task";
+    const library = await Library.findById(lid)
+      .populate({
+        path: "issued",
+        match: {
+          createdAt: {
+            $gte: from,
+            $lte: to,
+          },
+        },
+        populate: {
+          path: "book member",
+          select:
+            "studentGRNO student_prn_enroll_number studentFirstName studentMiddleName studentLastName bookName bookStatus author language accession_number",
+        },
+        select: "book member createdAt",
+      })
+      .select("issued")
+      .lean()
+      .exec();
+    res.status(200).send({
+      message: "Generating excel all issue books for library",
+      library,
+    });
+    const excel_list = [];
+    for (let exc of library?.issued) {
+      excel_list.push({
+        "Book Name": exc?.book?.bookName ?? "#NA",
+        "Book Mode": exc?.book?.bookStatus ?? "#NA",
+        Author: exc?.book?.author ?? "#NA",
+        Language: exc?.book?.language ?? "#NA",
+        "Accession Number": exc?.book?.accession_number ?? "#NA",
+        GRNO: exc?.member?.studentGRNO ?? "#NA",
+        "Enrollment / Prn Number":
+          exc?.member?.student_prn_enroll_number ?? "#NA",
+        Name: `${exc?.member?.studentFirstName} ${
+          exc?.member?.studentMiddleName
+            ? `${exc?.member?.studentMiddleName} `
+            : " "
+        }${exc?.member?.studentLastName}`,
+        "Issue Date": moment(exc?.createdAt).format("DD/MM/YYYY") ?? "#NA",
+      });
+    }
+    if (excel_list?.length > 0)
+      await library_json_to_excel(
+        lid,
+        excel_list,
+        "Issued",
+        "LIBRARY_ISSUE",
+        "issued"
+      );
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.getAllCollectExport = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    const { from, to } = req.query;
+    if (!lid) throw "Please send library id to perform task";
+    const library = await Library.findById(lid)
+      .populate({
+        path: "collected",
+        match: {
+          createdAt: {
+            $gte: from,
+            $lte: to,
+          },
+        },
+        populate: {
+          path: "book member",
+          select:
+            "studentGRNO student_prn_enroll_number studentFirstName studentMiddleName studentLastName bookName bookStatus author language accession_number",
+        },
+        select:
+          "book member chargeBy paymentType fineCharge issuedDate createdAt",
+      })
+      .select("collected")
+      .lean()
+      .exec();
+    res.status(200).send({
+      message: "Generating excel all collected books for library",
+      library: library.collected,
+    });
+    const excel_list = [];
+    for (let exc of library?.collected) {
+      excel_list.push({
+        "Book Name": exc?.book?.bookName ?? "#NA",
+        "Book Mode": exc?.book?.bookStatus ?? "#NA",
+        Author: exc?.book?.author ?? "#NA",
+        Language: exc?.book?.language ?? "#NA",
+        "Accession Number": exc?.book?.accession_number ?? "#NA",
+        GRNO: exc?.member?.studentGRNO ?? "#NA",
+        "Enrollment / Prn Number":
+          exc?.member?.student_prn_enroll_number ?? "#NA",
+        Name: `${exc?.member?.studentFirstName} ${
+          exc?.member?.studentMiddleName
+            ? `${exc?.member?.studentMiddleName} `
+            : " "
+        }${exc?.member?.studentLastName}`,
+        "Issue Date": moment(exc?.issuedDate).format("DD/MM/YYYY") ?? "#NA",
+        "Collect Date": moment(exc?.createdAt).format("DD/MM/YYYY") ?? "#NA",
+        "Charge By": exc?.chargeBy ?? "#NA",
+        "Payment Type": exc?.paymentType ?? "#NA",
+        "Fine Charge": exc?.fineCharge ?? "#NA",
+      });
+    }
+    if (excel_list?.length > 0)
+      await library_json_to_excel(
+        lid,
+        excel_list,
+        "Collected",
+        "LIBRARY_COLLECT",
+        "collected"
+      );
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.getAllMemberExport = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    if (!lid) throw "Please send library id to perform task";
+    const library = await Library.findById(lid)
+      .populate({
+        path: "members",
+        select:
+          "studentGRNO student_prn_enroll_number studentFirstName studentMiddleName studentLastName",
+      })
+      .select("members")
+      .lean()
+      .exec();
+    res.status(200).send({
+      message: "Generating excel all members for library",
+      library,
+    });
+    const excel_list = [];
+    for (let exc of library?.members) {
+      excel_list.push({
+        GRNO: exc?.studentGRNO ?? "#NA",
+        "Enrollment / Prn Number": exc?.student_prn_enroll_number ?? "#NA",
+        Name: `${exc?.studentFirstName} ${
+          exc?.studentMiddleName ? `${exc?.studentMiddleName} ` : " "
+        }${exc?.studentLastName}`,
+      });
+    }
+    if (excel_list?.length > 0)
+      await library_json_to_excel(
+        lid,
+        excel_list,
+        "Members",
+        "LIBRARY_MEMBER",
+        "members"
+      );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
+

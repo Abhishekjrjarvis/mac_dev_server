@@ -1962,6 +1962,7 @@ exports.getAllClassExportAttendance = async (req, res) => {
     const { is_type } = req.query;
     const { startRange, endRange } = req.body;
     let regularexp = "";
+    var attendaceMappingDate = [];
     if (is_type === "RANGE") {
       let range1 = startRange;
       let range2 = endRange;
@@ -2046,7 +2047,7 @@ exports.getAllClassExportAttendance = async (req, res) => {
         .populate({
           path: "ApproveStudent",
           select:
-            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO",
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
         })
         .populate({
           path: "attendenceDate",
@@ -2151,8 +2152,193 @@ exports.getAllClassExportAttendance = async (req, res) => {
           mapSubject,
           students,
           className: `${classes?.className} - ${classes?.classTitle}`,
+          attendaceMappingDate,
         },
         access: false,
+      });
+    } else if (is_type === "ALL_SUBJECT_SEMESTER") {
+      var classes = await Class.findById(cid)
+        .populate({
+          path: "ApproveStudent",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
+        })
+        .populate({
+          path: "subject",
+          populate: {
+            path: "selected_batch_query",
+          },
+        })
+        .lean()
+        .exec();
+      let mapSubject = [];
+      for (let sub of classes?.subject) {
+        mapSubject.push({
+          subjectName: `${sub?.subjectName} ${
+            sub?.subject_category ? `(${sub?.subject_category})` : ""
+          } ${
+            sub?.selected_batch_query?.batchName
+              ? `(${sub?.selected_batch_query?.batchName})`
+              : ""
+          } ${
+            sub?.subjectOptional === "Optional"
+              ? `(${sub?.subjectOptional})`
+              : ""
+          }`,
+          subjectId: sub?._id,
+        });
+      }
+
+      let students = [];
+      for (let stu of classes?.ApproveStudent) {
+        let obj = {
+          ...stu,
+          subjects: [],
+        };
+        students.push(obj);
+      }
+
+      for (let sub of classes?.subject) {
+        const subjects = await Subject.findById(sub?._id).populate({
+          path: "attendance",
+        });
+
+        for (let stu of students) {
+          let sobj = {
+            subjectName: `${sub?.subjectName} ${
+              sub?.subject_category ? `(${sub?.subject_category})` : ""
+            } ${
+              sub?.selected_batch_query?.batchName
+                ? `(${sub?.selected_batch_query?.batchName})`
+                : ""
+            } ${
+              sub?.subjectOptional === "Optional"
+                ? `(${sub?.subjectOptional})`
+                : ""
+            }`,
+            subjectId: subjects?._id,
+            presentCount: 0,
+            totalCount: 0,
+            totalPercentage: 0,
+          };
+          for (let att of subjects?.attendance) {
+            for (let pre of att?.presentStudent) {
+              if (String(stu._id) === String(pre.student))
+                sobj.presentCount += 1;
+            }
+            sobj.totalCount += 1;
+          }
+          sobj.totalPercentage = (
+            (sobj.presentCount * 100) /
+            sobj.totalCount
+          ).toFixed(2);
+
+          stu.subjects.push(sobj);
+        }
+      }
+
+      return res.status(200).send({
+        message: "All student zip attendance wtih all subject semester wise",
+        attendance_zip: {
+          mapSubject,
+          students,
+          className: `${classes?.className} - ${classes?.classTitle}`,
+        },
+        access: true,
+      });
+    } else if (is_type === "ALL_SUBJECT_MONTHLY") {
+      regularexp = new RegExp(`\/${month}\/${year}$`);
+      var classes = await Class.findById(cid)
+        .populate({
+          path: "ApproveStudent",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
+        })
+        .populate({
+          path: "subject",
+          populate: {
+            path: "selected_batch_query",
+          },
+        })
+        .lean()
+        .exec();
+      let mapSubject = [];
+      for (let sub of classes?.subject) {
+        mapSubject.push({
+          subjectName: `${sub?.subjectName} ${
+            sub?.subject_category ? `(${sub?.subject_category})` : ""
+          } ${
+            sub?.selected_batch_query?.batchName
+              ? `(${sub?.selected_batch_query?.batchName})`
+              : ""
+          } ${
+            sub?.subjectOptional === "Optional"
+              ? `(${sub?.subjectOptional})`
+              : ""
+          }`,
+          subjectId: sub?._id,
+        });
+      }
+
+      let students = [];
+      for (let stu of classes?.ApproveStudent) {
+        let obj = {
+          ...stu,
+          subjects: [],
+        };
+        students.push(obj);
+      }
+
+      for (let sub of classes?.subject) {
+        const subjects = await Subject.findById(sub?._id).populate({
+          path: "attendance",
+          match: {
+            attendDate: { $regex: regularexp },
+          },
+        });
+
+        for (let stu of students) {
+          let sobj = {
+            subjectName: `${sub?.subjectName} ${
+              sub?.subject_category ? `(${sub?.subject_category})` : ""
+            } ${
+              sub?.selected_batch_query?.batchName
+                ? `(${sub?.selected_batch_query?.batchName})`
+                : ""
+            } ${
+              sub?.subjectOptional === "Optional"
+                ? `(${sub?.subjectOptional})`
+                : ""
+            }`,
+            subjectId: subjects?._id,
+            presentCount: 0,
+            totalCount: 0,
+            totalPercentage: 0,
+          };
+          for (let att of subjects?.attendance) {
+            for (let pre of att?.presentStudent) {
+              if (String(stu._id) === String(pre.student))
+                sobj.presentCount += 1;
+            }
+            sobj.totalCount += 1;
+          }
+          sobj.totalPercentage = (
+            (sobj.presentCount * 100) /
+            sobj.totalCount
+          ).toFixed(2);
+
+          stu.subjects.push(sobj);
+        }
+      }
+
+      return res.status(200).send({
+        message: "All student zip attendance wtih all subject monthly wise",
+        attendance_zip: {
+          mapSubject,
+          students,
+          className: `${classes?.className} - ${classes?.classTitle}`,
+        },
+        access: true,
       });
     } else {
       regularexp = new RegExp(`\/${month}\/${year}$`);
@@ -2160,7 +2346,7 @@ exports.getAllClassExportAttendance = async (req, res) => {
         .populate({
           path: "ApproveStudent",
           select:
-            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO",
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number",
           populate: {
             path: "leave",
             match: {
@@ -2180,10 +2366,19 @@ exports.getAllClassExportAttendance = async (req, res) => {
         .lean()
         .exec();
       let students = [];
+
+      for (let att of classes?.attendenceDate) {
+        attendaceMappingDate.push(att?.attendDate);
+      }
       for (let stu of classes?.ApproveStudent) {
         let obj = {
           ...stu,
           availablity: [],
+          classWise: {
+            presentCount: 0,
+            totalCount: 0,
+            totalPercentage: 0,
+          },
         };
         for (let att of classes?.attendenceDate) {
           let statusObj = {
@@ -2191,19 +2386,29 @@ exports.getAllClassExportAttendance = async (req, res) => {
             status: "",
           };
           for (let pre of att?.presentStudent) {
-            if (String(stu._id) === String(pre.student)) statusObj.status = "P";
+            if (String(stu._id) === String(pre.student)) {
+              statusObj.status = "P";
+              obj.classWise.presentCount += 1;
+            }
           }
           for (let abs of att?.absentStudent) {
             if (String(stu._id) === String(abs.student)) statusObj.status = "A";
           }
-
+          obj.classWise.totalCount += 1;
           obj.availablity.push(statusObj);
         }
+        obj.classWise.totalPercentage = (
+          (obj.classWise.presentCount * 100) /
+          obj.classWise.totalCount
+        ).toFixed(2);
         students.push(obj);
       }
       return res.status(200).send({
         message: "All student zip attendance",
-        attendance_zip: students,
+        attendance_zip: {
+          students: students,
+          attendaceMappingDate: attendaceMappingDate,
+        },
         access: false,
       });
     }
@@ -2211,6 +2416,7 @@ exports.getAllClassExportAttendance = async (req, res) => {
     console.log(e);
   }
 };
+
 
 exports.getAllExamAttedance = async (req, res) => {
   try {
@@ -2606,6 +2812,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
     const { is_type } = req.query;
     const { startRange, endRange } = req.body;
     let regularexp = "";
+    var attendaceMappingDate = [];
     if (is_type === "RANGE") {
       let range1 = startRange;
       let range2 = endRange;
@@ -2620,7 +2827,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         .populate({
           path: "ApproveStudent",
           select:
-            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO",
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number",
           populate: {
             path: "leave",
             match: {
@@ -2678,7 +2885,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         .populate({
           path: "ApproveStudent",
           select:
-            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO",
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
         })
         .lean()
         .exec();
@@ -2728,6 +2935,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         attendance_zip: {
           mapSubject,
           students,
+          attendaceMappingDate,
         },
         access: false,
       });
@@ -2748,7 +2956,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         .populate({
           path: "ApproveStudent",
           select:
-            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO",
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number",
           populate: {
             path: "leave",
             match: {
@@ -2761,10 +2969,18 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         .lean()
         .exec();
       let students = [];
+      for (let att of subjects?.attendance) {
+        attendaceMappingDate.push(att?.attendDate);
+      }
       for (let stu of classes?.ApproveStudent) {
         let obj = {
           ...stu,
           availablity: [],
+          subjectWise: {
+            presentCount: 0,
+            totalCount: 0,
+            totalPercentage: 0,
+          },
         };
         for (let att of subjects?.attendance) {
           let statusObj = {
@@ -2772,19 +2988,31 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
             status: "",
           };
           for (let pre of att?.presentStudent) {
-            if (String(stu._id) === String(pre.student)) statusObj.status = "P";
+            if (String(stu._id) === String(pre.student)) {
+              statusObj.status = "P";
+              obj.subjectWise.presentCount += 1;
+            }
           }
           for (let abs of att?.absentStudent) {
-            if (String(stu._id) === String(abs.student)) statusObj.status = "A";
+            if (String(stu._id) === String(abs.student)) {
+              statusObj.status = "A";
+            }
           }
-
+          obj.subjectWise.totalCount += 1;
           obj.availablity.push(statusObj);
         }
+        obj.subjectWise.totalPercentage = (
+          (obj.subjectWise.presentCount * 100) /
+          obj.subjectWise.totalCount
+        ).toFixed(2);
         students.push(obj);
       }
       return res.status(200).send({
-        message: "All student zip attendance with subject wise",
-        attendance_zip: students,
+        message: "All month student zip attendance with subject wise",
+        attendance_zip: {
+          students: students,
+          attendaceMappingDate: attendaceMappingDate,
+        },
         access: false,
       });
     }

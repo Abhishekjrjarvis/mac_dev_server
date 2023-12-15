@@ -82,4 +82,23 @@ router
   .route("/all/book/query")
   .patch(catchAsync(libraryController.renderAllBookQuery));
 
+router
+  .route("/export/:lid/excel/query")
+  .get(catchAsync(libraryController.getAllExcelLibraryQuery));
+router
+  .route("/export/:lid/book/query")
+  .patch(catchAsync(libraryController.getAllBookExport));
+
+router
+  .route("/export/:lid/issue/query")
+  .patch(catchAsync(libraryController.getAllIssueExport));
+
+router
+  .route("/export/:lid/collect/query")
+  .patch(catchAsync(libraryController.getAllCollectExport));
+
+router
+  .route("/export/:lid/member/query")
+  .patch(catchAsync(libraryController.getAllMemberExport));
+
 module.exports = router;

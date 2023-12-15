@@ -134,7 +134,30 @@ const librarySchema = new mongoose.Schema({
   member_module_unique: {
     type: String,
     unique: true
-  }
+  },
+  export_collection: [
+    {
+      excel_type: {
+        type: String,
+        enum: [
+          "LIBRARY_BOOK",
+          "LIBRARY_ISSUE",
+          "LIBRARY_COLLECT",
+          "LIBRARY_MEMBER",
+          "LIBRARY_FINE_OUTSTANDING",
+          "LIBRARY_FINE_RECEIVE",
+        ],
+      },
+      excel_file: { type: String },
+      excel_file_name: { type: String },
+      created_at: { type: Date, default: Date.now },
+    },
+  ],
+  export_collection_count: {
+    type: Number,
+    default: 0,
+  },
+
 });
 
 module.exports = mongoose.model("Library", librarySchema);

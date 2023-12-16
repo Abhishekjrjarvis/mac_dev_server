@@ -5719,13 +5719,16 @@ exports.renderOneInternalFeesQuery = async(req, res) => {
     if(!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     var sorted_arr = []
-    const one_fees = await Fees.find({ _id: fid })
+    const one_fees = await Fees.findById({ _id: fid })
 
     const all_classes = await Class.find({ _id: { $in: one_fees?.classes }})
     for(var val of all_classes){
-      sorted_arr = [...val?.ApproveStudent]
+      for(var ele of val?.ApproveStudent){
+        sorted_arr.push(ele)
+      }
     }
 
+    console.log(sorted_arr)
     var all_students = await Student.find({ _id: { $in: sorted_arr }})
     .select("studentFirstName studentMiddleName studentLastName photoId valid_full_name studentProfilePhoto studentGRNO studentROLLNO")
 

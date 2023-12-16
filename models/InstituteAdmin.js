@@ -1099,6 +1099,9 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  qviple_id: {
+    type: String
+  }
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../../OptimizeController/User/userController");
 const catchAsync = require("../../Utilities/catchAsync");
-const { isLoggedIn } = require("../../middleware");
+const { isLoggedIn, isLimit } = require("../../middleware");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
@@ -337,6 +337,7 @@ router.get(
 router.delete(
   "/:uid/destroy/account/query",
   // isLoggedIn,
+  isLimit,
   catchAsync(User.destroyUserAccountQuery)
 );
 

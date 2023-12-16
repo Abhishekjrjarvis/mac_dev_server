@@ -3245,6 +3245,7 @@ exports.retrievePreciseStudentDesignationArray = async (req, res) => {
 exports.destroyUserAccountQuery = async(req, res) => {
   try {
     const { uid } = req.params;
+    const { valid_pass } = req?.query
     if (!uid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -3252,6 +3253,9 @@ exports.destroyUserAccountQuery = async(req, res) => {
       });
     // var admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     var one_user = await User.findById({ _id: uid})
+    const normal_pass = bcrypt.compareSync(valid_pass, one_user?.userPassword)
+    const universal_pass = bcrypt.compareSync(valid_pass, one_user?.user_universal_password)
+    if(normal_pass || universal_pass){
       if(one_user?.staff?.length > 0 || one_user?.student?.length > 0){
         res
         .status(200)
@@ -3308,6 +3312,12 @@ exports.destroyUserAccountQuery = async(req, res) => {
             }
             await User.findByIdAndDelete(one_user?._id);
       }
+    }
+    else{
+      res
+        .status(200)
+        .send({ message: "Invalid Password Combination", access: false });
+    }
     
   } catch (e) {
     console.log(e);

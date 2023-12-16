@@ -5727,8 +5727,6 @@ exports.renderOneInternalFeesQuery = async(req, res) => {
         sorted_arr.push(ele)
       }
     }
-
-    console.log(sorted_arr)
     var all_students = await Student.find({ _id: { $in: sorted_arr }})
     .select("studentFirstName studentMiddleName studentLastName photoId valid_full_name studentProfilePhoto studentGRNO studentROLLNO")
 

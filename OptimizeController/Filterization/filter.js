@@ -5189,7 +5189,8 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                     ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
                     : 0
                     ele.student.government_os_fees += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
-                    excess_fee += ele?.paid_fee > ele?.fee_structure?.total_admission_fees ? ele?.paid_fee - ele?.fee_structure?.total_admission_fees : 0
+                    excess_fee += ele?.refund_fee
+                    // ele?.paid_fee > ele?.fee_structure?.total_admission_fees ? ele?.paid_fee - ele?.fee_structure?.total_admission_fees : 0
                     exempted_fee += ele?.exempted_fee
                     if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
                       total_fees_arr.push(ele?.student)

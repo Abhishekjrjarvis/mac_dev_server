@@ -1304,7 +1304,7 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username qviple_id userBlock followerCount followingUICount circleCount user_block_institute last_login profile_modification recoveryMail userPhoneNumber follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userFollowers userFollowing userCircle"
+        "userLegalName username qviple_id userBlock followerCount qviple_id followingUICount circleCount user_block_institute last_login profile_modification recoveryMail userPhoneNumber follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userFollowers userFollowing userCircle"
       )
       .populate({
         path: "daily_quote_query.quote",

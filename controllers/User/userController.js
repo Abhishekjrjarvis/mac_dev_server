@@ -34,6 +34,7 @@ const { shuffleArray } = require("../../Utilities/Shuffle");
 const { valid_student_form_query } = require("../../Functions/validForm");
 const { handle_undefined } = require("../../Handler/customError");
 const { calc_profile_percentage } = require("../../Functions/ProfilePercentage");
+const QvipleId = require("../../models/Universal/QvipleId");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.retrieveProfileData = async (req, res) => {
@@ -42,7 +43,7 @@ exports.retrieveProfileData = async (req, res) => {
     var totalUpVote = 0;
     var user = await User.findById({ _id: id })
       .select(
-        "userLegalName photoId show_suggestion last_login profile_modification is_mentor user_block_institute questionCount blockedBy blockCount blockStatus user one_line_about recoveryMail answerQuestionCount profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+        "userLegalName photoId show_suggestion last_login qviple_id profile_modification is_mentor user_block_institute questionCount blockedBy blockCount blockStatus user one_line_about recoveryMail answerQuestionCount profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
       )
       .populate({
         path: "daily_quote_query.quote",
@@ -54,6 +55,8 @@ exports.retrieveProfileData = async (req, res) => {
     if (user && user?.userPosts?.length < 1) {
       var post = [];
     }
+    const qvipleId = await QvipleId.findOne({ user: `${user?._id}`})
+    user.qviple_id = qvipleId?.qviple_id
     // Add Another Encryption
     res.status(200).send({
       message: "Limit User Profile Data ",
@@ -1300,7 +1303,7 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username userBlock followerCount followingUICount circleCount user_block_institute last_login profile_modification recoveryMail userPhoneNumber follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userFollowers userFollowing userCircle"
+        "userLegalName username userBlock followerCount qviple_id followingUICount circleCount user_block_institute last_login profile_modification recoveryMail userPhoneNumber follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userFollowers userFollowing userCircle"
       )
       .populate({
         path: "daily_quote_query.quote",
@@ -1308,6 +1311,8 @@ exports.getDashDataQuery = async (req, res) => {
     if (user?.userPosts && user?.userPosts.length < 1) {
       var post = [];
     }
+    const qvipleId = await QvipleId.findOne({ user: `${user?._id}`})
+    user.qviple_id = qvipleId?.qviple_id
     if (user) {
       // Add Another Encryption
       res.status(200).send({

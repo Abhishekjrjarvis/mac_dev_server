@@ -5213,7 +5213,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                     if(ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees > 0){
                       pending_from_government_arr.push(ele?.student)
                     }
-                    if((ele?.paid_fee > ele?.fee_structure?.total_admission_fees ? ele?.paid_fee - ele?.fee_structure?.total_admission_fees : 0) >= 0){
+                    if((ele?.paid_fee > ele?.fee_structure?.applicable_fees ? ele?.paid_fee - ele?.fee_structure?.applicable_fees : 0) >= 0){
                       excess_fee_arr.push(ele?.student)
                     }
                     if(ele?.exempted_fee){

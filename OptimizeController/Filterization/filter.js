@@ -26,6 +26,7 @@ const {
   json_to_excel_statistics_promote_query,
   scholar_transaction_json_to_excel_query,
   internal_fee_heads_receipt_json_to_excel_query,
+  excess_refund_fees_json_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -5189,8 +5190,7 @@ exports.renderStudentFeesStatisticsQuery = async(req, res) => {
                     ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
                     : 0
                     ele.student.government_os_fees += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
-                    excess_fee += ele?.refund_fee
-                    // ele?.paid_fee > ele?.fee_structure?.total_admission_fees ? ele?.paid_fee - ele?.fee_structure?.total_admission_fees : 0
+                    excess_fee += ele?.paid_fee > ele?.fee_structure?.applicable_fees ? ele?.paid_fee - ele?.fee_structure?.applicable_fees : 0
                     exempted_fee += ele?.exempted_fee
                     if(ele?.fee_structure?.total_admission_fees + ref?.studentRemainingFeeCount > 0){
                       total_fees_arr.push(ele?.student)
@@ -6032,6 +6032,171 @@ exports.renderInternalFeeHeadsStructureReceiptQuery = async (req, res) => {
         message: "No Fee Receipt Heads Structure Query",
         access: false,
         all_students: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStudentExcessFeesExcelQuery = async (req, res) => {
+  try {
+    const { aid } = req.query;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var filter_refund = [];
+      var ads_admin = await Admission.findById({ _id: aid })
+        .select("refundCount")
+        .populate({
+          path: "refundFeeList",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO studentGender",
+          },
+        });
+        res.status(200).send({
+          message: "Explore Excess Fees Query",
+          access: true,
+        });
+      for (let data of ads_admin?.refundFeeList) {
+        if (data.student !== null) {
+          filter_refund.push(data);
+        }
+      }
+      var all_refund_list = [...filter_refund];
+      var filtered = all_refund_list?.filter((ref) => {
+        if (ref?.refund > 0) return ref;
+      });
+    var excel_list = [];
+    filtered.sort(function (st1, st2) {
+      return (
+        parseInt(st1?.student?.studentROLLNO) -
+        parseInt(st2?.student?.studentROLLNO)
+      );
+    });
+    if(filtered?.length > 0){
+      for (var val of filtered) {
+          excel_list.push({
+            RollNo: val?.student?.studentROLLNO ?? "NA",
+            GRNO: val?.student?.studentGRNO ?? "#NA",
+            Name: `${val?.student?.studentFirstName} ${
+              val?.student?.studentMiddleName ? val?.student?.studentMiddleName : ""
+            } ${val?.student?.studentLastName}` ?? val?.student?.valid_full_name,
+            Gender: val?.student?.studentGender ?? "#NA",
+            ExcessFees: val?.refund ?? 0
+          });
+        }
+        const data = await excess_refund_fees_json_query(
+          excel_list,
+          "Excess Fees",
+          aid,
+          "Excess Fees List"
+        );
+    }
+    else{
+      res.status(200).send({
+        message: "No Excess Fees Data Query",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStudentRefundFeesExcelQuery = async (req, res) => {
+  try {
+    const { aid } = req.query;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var filter_refund = [];
+      var ads_admin = await Admission.findById({ _id: aid })
+        .select("refundedCount")
+        .populate({
+          path: "refundedFeeList",
+          populate: {
+            path: "student fee_receipt",
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO fee_payment_mode refund_status invoice_count fee_bank_name fee_bank_holder fee_utr_reference fee_payment_acknowledge fee_payment_amount fee_transaction_date ",
+          },
+        });
+        res.status(200).send({
+          message: "Explore Refunded Fees Query",
+          access: true,
+        });
+      for (let data of ads_admin?.refundedFeeList) {
+        if (data.student !== null) {
+          filter_refund.push(data);
+        }
+      }
+      var all_refund_list = [...filter_refund];
+      all_refund_list.sort(function (st1, st2) {
+        return (
+          parseInt(st1?.student?.studentROLLNO) -
+          parseInt(st2?.student?.studentROLLNO)
+        );
+      });
+    var excel_list = [];
+    if(all_refund_list?.length > 0){
+      for (var val of all_refund_list) {
+        // var one_remain = await RemainingList.find({  $and: [{ student: ref?.student?._id}]})
+        // .populate({
+        //   path: "fee_structure",
+        //   populate: {
+        //     path: "class_master batch_master",
+        //     select: "className batchName"
+        //   }
+        // })
+        // .populate({
+        //   path: "student",
+        // })
+          // for(var val of one_remain){
+          //   if(val?.paid_fee > val?.fee_structure?.applicable_fees){
+              
+          //   }
+          // }
+          excel_list.push({
+            RollNo: val?.student?.studentROLLNO ?? "NA",
+            GRNO: val?.student?.studentGRNO ?? "#NA",
+            ReceiptNumber: val?.fee_receipt?.invoice_count ?? "#NA",
+            // Standard: `${val?.fee_structure}` ? `${val?.fee_structure?.class_master?.className}` : "#NA",
+            // Batch: `${val?.fee_structure}` ? `${val?.fee_structure?.batch_master?.batchName}` : "#NA",
+            // FeeStructure: val?.fee_structure?.unique_structure_name,
+            Name: `${val?.student?.studentFirstName} ${
+              val?.student?.studentMiddleName ? val?.student?.studentMiddleName : ""
+            } ${val?.student?.studentLastName}` ?? val?.student?.valid_full_name,
+            Gender: val?.student?.studentGender ?? "#NA",
+            // TotalFees: val?.applicable_fee ?? 0,
+            // ApplicableFees: val?.fee_structure?.applicable_fees,
+            // TotalOutstandingFees: val?.remaining_fee,
+            // TotalPaidFees: val?.paid_fee,
+            // TotalApplicableOutstandingFees: val?.paid_fee <= val?.fee_structure?.applicable_fees ? val?.fee_structure?.applicable_fees - val?.paid_fee : 0,
+            // PaidByStudent: val?.paid_by_student,
+            // PaidByGovernment: val?.paid_by_government,
+            RefundedFees: val?.fee_receipt?.fee_payment_amount ?? 0,
+            TransactionDate: val?.fee_receipt?.fee_transaction_date ?? "#NA",
+            FeeMode: val?.fee_receipt?.fee_payment_mode
+          });
+        }
+        // console.log(excel_list)
+        const data = await excess_refund_fees_json_query(
+          excel_list,
+          "Refunded Fees",
+          aid,
+          "Refunded Fees List"
+        );
+    }
+    else{
+      res.status(200).send({
+        message: "No Refunded Fees Data Query",
+        access: false,
       });
     }
   } catch (e) {

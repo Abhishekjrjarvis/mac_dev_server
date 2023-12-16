@@ -166,4 +166,16 @@ router.patch(
   catchAsync(Filter.renderInternalFeeHeadsStructureReceiptQuery)
 );
 
+router.patch(
+  "/by/excess/fees/export/query",
+  // isLoggedIn,
+  catchAsync(Filter.renderStudentExcessFeesExcelQuery)
+);
+
+router.patch(
+  "/by/refund/fees/export/query",
+  // isLoggedIn,
+  catchAsync(Filter.renderStudentRefundFeesExcelQuery)
+);
+
 module.exports = router;

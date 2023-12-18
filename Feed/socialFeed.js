@@ -10,6 +10,7 @@ exports.execute_ins_social_feed_query = async (
 ) => {
   try {
     if (institute.isUniversal === "Not Assigned") {
+      console.log("posted by no universal")
       if (post?.postStatus === "Anyone") {
         for(var val of institute?.followers){
           post.post_ins.push(val)

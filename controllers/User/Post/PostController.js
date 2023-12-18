@@ -818,7 +818,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
       if (query_search.trim() === "") {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
-            $and: [{ author: { $in: user.userInstituteFollowing } }],
+            $and: [{ post_arr: { $in: user._id } }],
           })
             .sort("-createdAt")
             .limit(limit)
@@ -867,7 +867,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
         else {
           // _id: { $in: user.userPosts }
           var post = await Post.find({
-            $and: [{ _id: { $in: user.userPosts } }],
+            $and: [{ post_arr: { $in: user._id } }],
           })
             .sort("-createdAt")
             .limit(limit)
@@ -916,7 +916,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
             $and: [
-              { author: { $in: user.userInstituteFollowing } },
+              { post_arr: { $in: user._id } },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
@@ -967,7 +967,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
         else {
           var post = await Post.find({
             $and: [
-              { _id: { $in: user.userPosts } },
+              { post_arr: { $in: user._id } },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
@@ -1015,7 +1015,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             });
         }
       }
-      const postCount = await Post.find({ _id: { $in: user.userPosts } });
+      const postCount = await Post.find({ post_arr: { $in: user._id } });
       if (page * limit >= postCount.length) {
       } else {
         var totalPage = page + 1;
@@ -1165,7 +1165,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
       if (query_search.trim() === "") {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
-            $and: [{ author: { $in: user.userInstituteFollowing } }],
+            $and: [{ post_arr: { $in: user._id } }],
           })
             .sort("-createdAt")
             .limit(limit)
@@ -1213,13 +1213,13 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
         //
         else {
           // console.log("Enter In Else with Second")
-          var ins_post = await Post.find({
-            $and: [{ _id: { $in: user.userPosts } }],
+          var post = await Post.find({
+            $and: [{ post_arr: { $in: user._id } }],
             // $and: [{ author: { $in: user?.userInstituteFollowing }}],
           })
             .sort("-createdAt")
-            // .limit(limit)
-            // .skip(skip)
+            .limit(limit)
+            .skip(skip)
             .select(
               "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
@@ -1259,64 +1259,12 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
               path: "hash_tag",
               select: "hashtag_name hashtag_profile_photo",
             });
-            var user_post = await Post.find({
-              $or: [{ author: user?.userFollowing }, { author: user?.userCircle}]
-            })
-              .sort("-createdAt")
-              // .limit(limit)
-              // .skip(skip)
-              .select(
-                "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
-              )
-              .populate({
-                path: "poll_query",
-              })
-              .populate({
-                path: "rePostAnswer",
-                populate: {
-                  path: "post",
-                  select:
-                    "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
-                },
-              })
-              .populate({
-                path: "needMultiple",
-                select: "username photoId profilePhoto",
-              })
-              .populate({
-                path: "repostMultiple",
-                select: "username photoId profilePhoto",
-              })
-              .populate({
-                path: "new_application",
-                select:
-                  "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationStatus admissionFee applicationName applicationPhoto photoId",
-                populate: {
-                  path: "applicationDepartment",
-                  select: "dName",
-                },
-              })
-              .populate({
-                path: "new_announcement",
-                select: "insAnnTitle insAnnDescription",
-              })
-              .populate({
-                path: "hash_tag",
-                select: "hashtag_name hashtag_profile_photo",
-              });
-              var post = [...ins_post, ...user_post]
-              post.sort(function (st1, st2) {
-                return parseInt(st1?.createdAt) - parseInt(st2?.createdAt);
-              });
-
-              post = await nested_document_limit(page, limit, post)
-
         }
       } else {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
             $and: [
-              { author: { $in: user.userInstituteFollowing } },
+              { post_arr: { $in: user._id } },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
@@ -1368,7 +1316,8 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
           console.log("Enter In Else with fourth")
           var post = await Post.find({
             $and: [
-              { _id: { $in: user.userPosts } },
+              { post_arr: { $in: user._id } },
+              // { _id: { $in: user.userPosts } },
               // {author: { $in: user?.userInstituteFollowing }}, 
               // {author: user?._id },
               { postQuestion: { $regex: query_search, $options: "i" } },
@@ -1418,7 +1367,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
             });
         }
       }
-      const postCount = await Post.find({ _id: { $in: user.userPosts } });
+      const postCount = await Post.find({ post_arr: { $in: user._id } });
       if (page * limit >= postCount.length) {
       } else {
         var totalPage = page + 1;

@@ -148,4 +148,9 @@ router.delete(
 
 // router.patch("/all/student/:id", catchAsync(Auth.renderAllStudentQuery));
 
+router.patch(
+  "/generate/qviple/id",
+  catchAsync(Auth.renderQvipleIdQuery)
+);
+
 module.exports = router;

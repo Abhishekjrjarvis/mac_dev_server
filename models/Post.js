@@ -168,6 +168,18 @@ const postSchema = new mongoose.Schema({
   video_cover: {
     type: String,
   },
+  post_ins: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InstituteAdmin"
+    }
+  ],
+  post_user: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }
+  ]
   //
 });
 

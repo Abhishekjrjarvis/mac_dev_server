@@ -22,9 +22,9 @@ exports.postWithText = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
-      .populate({ path: "followers" })
-      .populate({ path: "userFollowersList" })
-      .populate({ path: "joinedUserList" });
+      // .populate({ path: "followers" })
+      // .populate({ path: "userFollowersList" })
+      // .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
     const taggedPeople = req.body?.people ? JSON?.parse(req.body?.people) : "";
     if (Array.isArray(taggedPeople)) {
@@ -81,9 +81,9 @@ exports.postWithImage = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
-      .populate({ path: "followers" })
-      .populate({ path: "userFollowersList" })
-      .populate({ path: "joinedUserList" });
+      // .populate({ path: "followers" })
+      // .populate({ path: "userFollowersList" })
+      // .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
     const taggedPeople = req.body?.people ? JSON.parse(req.body?.people) : "";
     if (Array.isArray(taggedPeople)) {
@@ -146,9 +146,9 @@ exports.postWithImageAPK = async (req, res) => {
     const { id } = req.params;
     const { postImageCount } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id })
-      .populate({ path: "followers" })
-      .populate({ path: "userFollowersList" })
-      .populate({ path: "joinedUserList" });
+      // .populate({ path: "followers" })
+      // .populate({ path: "userFollowersList" })
+      // .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
     const taggedPeople = req.body?.people ? JSON.parse(req.body?.people) : "";
     if (Array.isArray(taggedPeople)) {
@@ -214,9 +214,9 @@ exports.postWithVideo = async (req, res) => {
     const { id } = req.params;
     const { video_cover } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id })
-      .populate({ path: "followers" })
-      .populate({ path: "userFollowersList" })
-      .populate({ path: "joinedUserList" });
+      // .populate({ path: "followers" })
+      // .populate({ path: "userFollowersList" })
+      // .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
     const taggedPeople = req.body?.people ? JSON.parse(req.body?.people) : "";
     if (Array.isArray(taggedPeople)) {
@@ -727,7 +727,7 @@ exports.retrieveAllPosts = async (req, res) => {
     if (institute && institute.posts.length >= 1) {
       if (p_types !== "") {
         var post = await Post.find({
-          $and: [{ _id: { $in: institute.posts } }, { postType: p_types }],
+          $and: [{ post_ins: { $in: [institute?._id] } }, { postType: p_types }],
         })
           .sort("-createdAt")
           .limit(limit)

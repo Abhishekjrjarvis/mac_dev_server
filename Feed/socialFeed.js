@@ -11,40 +11,34 @@ exports.execute_ins_social_feed_query = async (
   try {
     if (institute.isUniversal === "Not Assigned") {
       if (post?.postStatus === "Anyone") {
-        await InstituteAdmin.updateMany(
-          { _id: { $in: institute?.followers } },
-          { $push: { posts: post?._id } }
-        );
-        await User.updateMany(
-          { _id: { $in: institute?.userFollowersList } },
-          { $push: { userPosts: post?._id } }
-        );
+        for(var val of institute?.followers){
+          post.post_ins.push(val)
+        }
+        for(var val of institute?.userFollowersList){
+          post.post_user.push(val)
+        }
       }
       else{
-        await User.updateMany(
-          { _id: { $in: institute?.joinedUserList } },
-          { $push: { userPosts: post?._id } }
-        );
+        for(var val of institute?.joinedUserList){
+          post.post_user.push(val)
+        }
       }
     } else if (institute.isUniversal === "Universal") {
       console.log("posted by universal")
       const all = await InstituteAdmin.find({ $and: [{ status: "Approved" }, { isUniversal: "Not Assigned" }] });
       const user = await User.find({ userStatus: "Approved" });
       if (post.postStatus === "Anyone") {
-        await InstituteAdmin.updateMany(
-          { _id: { $in: all } },
-          { $push: { posts: post?._id } }
-        );
-        await User.updateMany(
-          { _id: { $in: user } },
-          { $push: { userPosts: post?._id } }
-        );
+        for(var val of all){
+          post.post_ins.push(val)
+        }
+        for(var val of user){
+          post.post_user.push(val)
+        }
       }
       else{
-        await InstituteAdmin.updateMany(
-          { _id: { $in: all } },
-          { $push: { posts: post?._id } }
-        );
+        for(var val of all){
+          post.post_ins.push(val)
+        }
       }
       console.log("end posted by universal")
     }
@@ -52,8 +46,8 @@ exports.execute_ins_social_feed_query = async (
       if (post?.tagPeople?.length) {
         for (let instit of taggedPeople) {
           const institTag = await InstituteAdmin.findById(instit.tagId)
-            .populate({ path: "followers" })
-            .populate({ path: "userFollowersList" });
+            // .populate({ path: "followers" })
+            // .populate({ path: "userFollowersList" });
           if (institTag?.posts.includes(post._id)) {
           } else {
             institTag.posts?.push(post._id);
@@ -61,24 +55,17 @@ exports.execute_ins_social_feed_query = async (
           institTag.tag_post?.push(post._id);
           if (post.postStatus === "Anyone") {
             for (var ele of institTag?.followers) {
-              if (ele?.posts?.includes(post?._id)) {
-              } else {
-                ele.posts.push(post?._id);
-                await ele.save();
-              }
+              post.post_ins.push(ele)
             }
             for (var ele of institTag?.userFollowersList) {
-              if (ele?.userPosts?.includes(post?._id)) {
-              } else {
-                ele.userPosts.push(post?._id);
-                await ele.save();
-              }
+              post.post_user.push(ele)
             }
           }
           await institTag.save();
         }
       }
     }
+    await post.save()
   } catch (e) {
     console.log(e);
   }

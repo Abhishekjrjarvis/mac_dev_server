@@ -75,6 +75,8 @@ const FeeStructure = require("../../models/Finance/FeesStructure");
 const RemainingList = require("../../models/Admission/RemainingList");
 const Hostel = require("../../models/Hostel/hostel");
 const FinanceModerator = require("../../models/Moderator/FinanceModerator");
+const QvipleId = require("../../models/Universal/QvipleId");
+const { universal_random_password } = require("../../Custom/universalId");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -4580,3 +4582,29 @@ exports.renderOneInstituteAllUnApprovedStudentQuery = async (req, res) => {
 //     console.log(e);
 //   }
 // };
+
+
+exports.renderQvipleIdQuery = async(req, res) => {
+  try{
+    // const all_user = await User.find({})
+    const all_ins = await InstituteAdmin.find({})
+    // for(var val of all_user){
+    //   const uqid = universal_random_password()
+    //   var qvipleId = new QvipleId({})
+    //   qvipleId.user = val?._id
+    //   qvipleId.qviple_id = `${uqid}`
+    //   await qvipleId.save()
+    // }
+    for(var val of all_ins){
+      const uqid = universal_random_password()
+      var qvipleId = new QvipleId({})
+      qvipleId.institute = val?._id
+      qvipleId.qviple_id = `${uqid}`
+      await qvipleId.save()
+    }
+    res.status(200).send({ message: "All New Qviple ID Query", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

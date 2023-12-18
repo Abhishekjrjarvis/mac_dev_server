@@ -26,7 +26,7 @@ exports.postWithText = async (req, res) => {
       // .populate({ path: "userFollowersList" })
       // .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
-    const taggedPeople = req.body?.people != "" ? JSON?.parse(req.body?.people) : "";
+    const taggedPeople = req.body?.people ? JSON?.parse(req.body?.people) : "";
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {
         post.tagPeople.push({
@@ -727,7 +727,7 @@ exports.retrieveAllPosts = async (req, res) => {
     if (institute && institute.posts.length >= 1) {
       if (p_types !== "") {
         var post = await Post.find({
-          $and: [{ post_ins: { $in: [institute?._id] } }, { postType: p_types }],
+          $and: [{ post_ins: institute?._id }, { postType: p_types }],
         })
           .sort("-createdAt")
           .limit(limit)
@@ -753,7 +753,7 @@ exports.retrieveAllPosts = async (req, res) => {
           });
       } else {
         var post = await Post.find({
-          $and: [{  post_ins: { $in: [institute?._id] } }],
+          $and: [{  post_ins: institute?._id }],
         })
           .sort("-createdAt")
           .limit(limit)
@@ -779,7 +779,7 @@ exports.retrieveAllPosts = async (req, res) => {
           });
       }
       if (institute.posts.length >= 1) {
-        const postCount = await Post.find({ post_ins: { $in: [institute?._id] } });
+        const postCount = await Post.find({ post_ins: institute?._id });
         if (page * limit >= postCount.length) {
         } else {
           var totalPage = page + 1;

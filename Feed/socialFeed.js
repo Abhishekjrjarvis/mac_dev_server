@@ -13,15 +13,15 @@ exports.execute_ins_social_feed_query = async (
       console.log("posted by no universal")
       if (post?.postStatus === "Anyone") {
         for(var val of institute?.followers){
-          post.post_ins.push(val)
+          post.post_arr.push(val)
         }
         for(var val of institute?.userFollowersList){
-          post.post_user.push(val)
+          post.post_arr.push(val)
         }
       }
       else{
         for(var val of institute?.joinedUserList){
-          post.post_user.push(val)
+          post.post_arr.push(val)
         }
       }
     } else if (institute.isUniversal === "Universal") {
@@ -30,15 +30,15 @@ exports.execute_ins_social_feed_query = async (
       const user = await User.find({ userStatus: "Approved" });
       if (post.postStatus === "Anyone") {
         for(var val of all){
-          post.post_ins.push(val)
+          post.post_arr.push(val)
         }
         for(var val of user){
-          post.post_user.push(val)
+          post.post_arr.push(val)
         }
       }
       else{
         for(var val of all){
-          post.post_ins.push(val)
+          post.post_arr.push(val)
         }
       }
       console.log("end posted by universal")
@@ -56,10 +56,10 @@ exports.execute_ins_social_feed_query = async (
           institTag.tag_post?.push(post._id);
           if (post.postStatus === "Anyone") {
             for (var ele of institTag?.followers) {
-              post.post_ins.push(ele)
+              post.post_arr.push(ele)
             }
             for (var ele of institTag?.userFollowersList) {
-              post.post_user.push(ele)
+              post.post_arr.push(ele)
             }
           }
           await institTag.save();

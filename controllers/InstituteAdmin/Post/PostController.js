@@ -724,10 +724,10 @@ exports.retrieveAllPosts = async (req, res) => {
     const institute = await InstituteAdmin.findById(id)
       .select("id")
       .populate({ path: "posts" });
-    if (institute && institute.posts.length >= 1) {
+    if (institute) {
       if (p_types !== "") {
         var post = await Post.find({
-          $and: [{ post_ins: { $elemMatch: institute?._id }}, { postType: p_types }],
+          $and: [{ post_arr: institute?._id }, { postType: p_types }],
         })
           .sort("-createdAt")
           .limit(limit)
@@ -753,7 +753,7 @@ exports.retrieveAllPosts = async (req, res) => {
           });
       } else {
         var post = await Post.find({
-          $and: [{  post_ins: { $elemMatch: institute?._id }  }],
+          $and: [{ post_arr: { $in: institute?._id} }],
         })
           .sort("-createdAt")
           .limit(limit)
@@ -778,8 +778,8 @@ exports.retrieveAllPosts = async (req, res) => {
             select: "insAnnTitle insAnnDescription",
           });
       }
-      if (institute.posts.length >= 1) {
-        const postCount = await Post.find({ post_ins: { $elemMatch: institute?._id} });
+      if (post?.length >= 1) {
+        const postCount = await Post.find({ post_arr: institute?._id });
         if (page * limit >= postCount.length) {
         } else {
           var totalPage = page + 1;
@@ -791,6 +791,9 @@ exports.retrieveAllPosts = async (req, res) => {
           postCount: postCount.length,
           totalPage: totalPage,
         });
+      }
+      else{
+        console.log("BUG")
       }
     } else {
       res.status(204).send({ message: "No Posts Yet..." });

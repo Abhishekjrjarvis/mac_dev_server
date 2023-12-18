@@ -753,7 +753,7 @@ exports.retrieveAllPosts = async (req, res) => {
           });
       } else {
         var post = await Post.find({
-          $and: [{ _id: { $in: institute.posts } }],
+          $and: [{  post_ins: { $in: [institute?._id] } }],
         })
           .sort("-createdAt")
           .limit(limit)
@@ -779,7 +779,7 @@ exports.retrieveAllPosts = async (req, res) => {
           });
       }
       if (institute.posts.length >= 1) {
-        const postCount = await Post.find({ _id: { $in: institute.posts } });
+        const postCount = await Post.find({ post_ins: { $in: [institute?._id] } });
         if (page * limit >= postCount.length) {
         } else {
           var totalPage = page + 1;

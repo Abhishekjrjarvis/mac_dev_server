@@ -9,6 +9,7 @@ exports.execute_ins_social_feed_query = async (
   taggedPeople
 ) => {
   try {
+    post.post_arr.push(institute?._id)
     if (institute.isUniversal === "Not Assigned") {
       console.log("posted by no universal")
       if (post?.postStatus === "Anyone") {

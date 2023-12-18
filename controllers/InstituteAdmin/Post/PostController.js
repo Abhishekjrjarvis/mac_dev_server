@@ -727,7 +727,7 @@ exports.retrieveAllPosts = async (req, res) => {
     if (institute) {
       if (p_types !== "") {
         var post = await Post.find({
-          $and: [{ post_arr: institute?._id }, { postType: p_types }],
+          $and: [{ post_arr: { $in: institute?._id} }, { postType: p_types }],
         })
           .sort("-createdAt")
           .limit(limit)
@@ -779,7 +779,7 @@ exports.retrieveAllPosts = async (req, res) => {
           });
       }
       if (post?.length >= 1) {
-        const postCount = await Post.find({ post_arr: institute?._id });
+        const postCount = await Post.find({ post_arr: { $in: institute?._id} });
         if (page * limit >= postCount.length) {
         } else {
           var totalPage = page + 1;

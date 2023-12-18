@@ -70,7 +70,7 @@ exports.getDashOneQuery = async (req, res) => {
         mod_id
       );
     }
-    const qvipleId = await QvipleId.findOne({ institute: `${user?._id}`})
+    const qvipleId = await QvipleId.findOne({ institute: `${institute?._id}`})
       institute.qviple_id = qvipleId?.qviple_id
     res.status(200).send({
       message: "limit Ins Data",
@@ -105,7 +105,7 @@ exports.getProfileOneQuery = async (req, res) => {
       })
       .lean()
       .exec();
-      const qvipleId = await QvipleId.findOne({ institute: `${user?._id}`})
+      const qvipleId = await QvipleId.findOne({ institute: `${institute?._id}`})
       institute.qviple_id = qvipleId?.qviple_id
     const encrypt = await encryptionPayload(institute);
     res.status(200).send({

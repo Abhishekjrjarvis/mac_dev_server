@@ -818,7 +818,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
       if (query_search.trim() === "") {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
-            $and: [{ post_arr: { $in: user._id } }],
+            $and: [{ author: { $in: user.userInstituteFollowing } }],
           })
             .sort("-createdAt")
             .limit(limit)
@@ -865,9 +865,8 @@ exports.retrieveAllUserPosts = async (req, res) => {
         }
         //
         else {
-          // _id: { $in: user.userPosts }
           var post = await Post.find({
-            $and: [{ post_arr: { $in: user._id } }],
+            $and: [{ _id: { $in: user.userPosts } }],
           })
             .sort("-createdAt")
             .limit(limit)
@@ -916,7 +915,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
             $and: [
-              { post_arr: { $in: user._id } },
+              { author: { $in: user.userInstituteFollowing } },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
@@ -967,7 +966,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
         else {
           var post = await Post.find({
             $and: [
-              { post_arr: { $in: user._id } },
+              { _id: { $in: user.userPosts } },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
@@ -1015,7 +1014,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             });
         }
       }
-      const postCount = await Post.find({ post_arr: { $in: user._id } });
+      const postCount = await Post.find({ _id: { $in: user.userPosts } });
       if (page * limit >= postCount.length) {
       } else {
         var totalPage = page + 1;

@@ -812,7 +812,7 @@ exports.retreiveAllProfilePosts = async (req, res) => {
     const institute = await InstituteAdmin.findById(id)
       .select("id ")
       .populate({ path: "posts" });
-    const post = await Post.find({ author: id })
+    const post = await Post.find({ post_arr: { $in: institute?._id} })
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
@@ -835,8 +835,8 @@ exports.retreiveAllProfilePosts = async (req, res) => {
         path: "new_announcement",
         select: "insAnnTitle insAnnDescription",
       });
-    if (institute && institute?.posts?.length >= 1) {
-      var postCount = await Post.find({ _id: { $in: institute.posts } });
+    if (post?.length >= 1) {
+      var postCount = await Post.find({ post_arr: { $in: institute?._id} });
       if (page * limit >= postCount.length) {
       } else {
         var totalPage = page + 1;

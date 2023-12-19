@@ -11,7 +11,7 @@ exports.execute_ins_social_feed_query = async (
   try {
     post.post_arr.push(institute?._id)
     if (institute.isUniversal === "Not Assigned") {
-      console.log("posted by no universal")
+      // console.log("posted by no universal")
       if (post?.postStatus === "Anyone") {
         for(var val of institute?.followers){
           post.post_arr.push(val)
@@ -26,11 +26,10 @@ exports.execute_ins_social_feed_query = async (
         }
       }
     } else if (institute.isUniversal === "Universal") {
-      console.log("posted by universal")
+      // console.log("posted by universal")
       const all = await InstituteAdmin.find({ $and: [{ status: "Approved" }, { isUniversal: "Not Assigned" }] });
       const user = await User.find({ userStatus: "Approved" });
       if (post.postStatus === "Anyone") {
-        console.log("In For Loop")
         for(var val of all){
             for(var ele of val?.followers){
               console.log("FO")
@@ -53,7 +52,7 @@ exports.execute_ins_social_feed_query = async (
           }
         }
       }
-      console.log("end posted by universal")
+      // console.log("end posted by universal")
     }
     if (Array.isArray(taggedPeople)) {
       if (post?.tagPeople?.length) {

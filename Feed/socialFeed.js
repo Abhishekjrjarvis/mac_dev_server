@@ -31,7 +31,12 @@ exports.execute_ins_social_feed_query = async (
       const user = await User.find({ userStatus: "Approved" });
       if (post.postStatus === "Anyone") {
         for(var val of all){
-          post.post_arr.push(val)
+            for(var ele of val?.followers){
+              post.post_arr.push(ele)
+            }
+            for(var ele of val?.userFollowersList){
+              post.post_arr.push(ele)
+            }
         }
         for(var val of user){
           post.post_arr.push(val)
@@ -39,7 +44,9 @@ exports.execute_ins_social_feed_query = async (
       }
       else{
         for(var val of all){
-          post.post_arr.push(val)
+          for(var ele of val?.joinedUserList){
+            post.post_arr.push(ele)
+          }
         }
       }
       console.log("end posted by universal")

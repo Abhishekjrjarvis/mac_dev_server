@@ -49,6 +49,7 @@ exports.postWithText = async (req, res) => {
     post.authorOneLine = institute.one_line_about;
     post.authorFollowersCount = institute.followersCount;
     post.isInstitute = "institute";
+    post.post_arr.push(institute?._id)
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
@@ -115,6 +116,7 @@ exports.postWithImage = async (req, res) => {
     post.authorOneLine = institute.one_line_about;
     post.authorFollowersCount = institute.followersCount;
     post.isInstitute = "institute";
+    post.post_arr.push(institute?._id)
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
@@ -185,6 +187,7 @@ exports.postWithImageAPK = async (req, res) => {
     post.authorOneLine = institute.one_line_about;
     post.authorFollowersCount = institute.followersCount;
     post.isInstitute = "institute";
+    post.post_arr.push(institute?._id)
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
@@ -252,6 +255,7 @@ exports.postWithVideo = async (req, res) => {
     post.authorOneLine = institute.one_line_about;
     post.authorFollowersCount = institute.followersCount;
     post.isInstitute = "institute";
+    post.post_arr.push(institute?._id)
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
     await unlinkFile(file.path);

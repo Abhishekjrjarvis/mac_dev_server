@@ -9,7 +9,6 @@ exports.execute_ins_social_feed_query = async (
   taggedPeople
 ) => {
   try {
-    post.post_arr.push(institute?._id)
     if (institute.isUniversal === "Not Assigned") {
       // console.log("posted by no universal")
       if (post?.postStatus === "Anyone") {
@@ -91,33 +90,43 @@ exports.execute_ins_social_feed_question_query = async (
   try {
     if (institute.isUniversal === "Not Assigned") {
       if (post?.postStatus === "Anyone") {
-        await InstituteAdmin.updateMany(
-          { _id: { $in: institute?.followers } },
-          { $push: { posts: post?._id } }
-        );
-        await User.updateMany(
-          { _id: { $in: institute?.userFollowersList } },
-          { $push: { userPosts: post?._id } }
-        );
+        for(var val of institute?.followers){
+          post.post_arr.push(val)
+        }
+        for(var val of institute?.userFollowersList){
+          post.post_arr.push(val)
+        }
       }
       else{
-        await User.updateMany(
-          { _id: { $in: institute?.joinedUserList } },
-          { $push: { userPosts: post?._id } }
-        );
+        for(var val of institute?.joinedUserList){
+          post.post_arr.push(val)
+        }
       }
     } else if (institute.isUniversal === "Universal") {
       const all = await InstituteAdmin.find({ $and: [{ status: "Approved" }, { isUniversal: "Not Assigned" }] });
       const user = await User.find({ userStatus: "Approved" });
       if (post.postStatus === "Anyone") {
-        await InstituteAdmin.updateMany(
-          { _id: { $in: all } },
-          { $push: { posts: post?._id } }
-        );
-        await User.updateMany(
-          { _id: { $in: user } },
-          { $push: { userPosts: post?._id } }
-        );
+        for(var val of all){
+            for(var ele of val?.followers){
+              console.log("FO")
+              post.post_arr.push(ele)
+            }
+            for(var ele of val?.userFollowersList){
+              console.log("UFO")
+              post.post_arr.push(ele)
+            }
+        }
+        for(var val of user){
+          console.log("USER")
+          post.post_arr.push(val?._id)
+        }
+      }
+      else{
+        for(var val of all){
+          for(var ele of val?.joinedUserList){
+            post.post_arr.push(ele)
+          }
+        }
       }
     }
     if (hash?.length > 0) {
@@ -134,6 +143,7 @@ exports.execute_ins_social_feed_question_query = async (
         );
       }
     }
+    await post.save()
   } catch (e) {
     console.log(e);
   }

@@ -54,6 +54,7 @@ exports.postQuestionText = async (req, res) => {
     post.authorFollowersCount = institute.followersCount;
     post.isInstitute = "institute";
     post.postType = "Question";
+    post.post_arr.push(institute?._id)
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
@@ -144,6 +145,7 @@ exports.retrievePollQuestionText = async (req, res) => {
       post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
       post.poll_query = poll;
       poll.duration_date = Close.end_poll(req.body.day);
+      post.post_arr.push(institute?._id)
       await Promise.all([institute.save(), post.save(), poll.save()]);
       // Add Another Encryption
       res.status(201).send({ message: "poll is created", poll, post });

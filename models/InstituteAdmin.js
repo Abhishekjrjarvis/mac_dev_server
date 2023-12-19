@@ -1101,7 +1101,18 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   qviple_id: {
     type: String
-  }
+  },
+  institute_id_setting: {
+    affiliated: String,
+    name: String,
+    address: String,
+    institute_logo: String,
+    affiliated_logo: String,
+    issue_date: String,
+    valid_date: String,
+    authority_signature: String,
+    institute_bg_cover: String,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

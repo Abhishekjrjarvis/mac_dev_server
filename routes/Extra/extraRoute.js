@@ -440,4 +440,9 @@ router.get(
   catchAsync(Extra.renderAllFilteredAlarmQuery)
 );
 
+router
+  .route("/:id/institute/idcard/required/field")
+  .get(catchAsync(Extra.instituteidCardRequiredField))
+  .patch(catchAsync(Extra.instituteidCardRequiredFieldUpdate));
+
 module.exports = router;

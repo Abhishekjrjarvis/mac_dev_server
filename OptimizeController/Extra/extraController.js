@@ -3671,3 +3671,44 @@ exports.renderAllUniqueIdQuery = async(req, res) => {
     console.log(e)
   }
 }
+
+exports.instituteidCardRequiredField = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const institute = await InstituteAdmin.findById({ _id: id }).select(
+      "institute_id_setting"
+    );
+
+    res.status(200).send({
+      message: "Explore id card setting",
+      access: true,
+      institute_id_setting: institute?.institute_id_setting,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.instituteidCardRequiredFieldUpdate = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    await InstituteAdmin.findByIdAndUpdate(id, req.body);
+
+    res.status(200).send({
+      message: "Institute id card field is updated.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

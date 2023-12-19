@@ -30,16 +30,20 @@ exports.execute_ins_social_feed_query = async (
       const all = await InstituteAdmin.find({ $and: [{ status: "Approved" }, { isUniversal: "Not Assigned" }] });
       const user = await User.find({ userStatus: "Approved" });
       if (post.postStatus === "Anyone") {
+        console.log("In For Loop")
         for(var val of all){
             for(var ele of val?.followers){
+              console.log("FO")
               post.post_arr.push(ele)
             }
             for(var ele of val?.userFollowersList){
+              console.log("UFO")
               post.post_arr.push(ele)
             }
         }
         for(var val of user){
-          post.post_arr.push(val)
+          console.log("USER")
+          post.post_arr.push(val?._id)
         }
       }
       else{

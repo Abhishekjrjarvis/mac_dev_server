@@ -15,7 +15,7 @@ router.get(
 
 router.get(
   "/v2/:id/all/user/posts",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Post.retrieveAllUserPostsWeb)
 );
 

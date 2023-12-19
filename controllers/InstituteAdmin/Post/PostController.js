@@ -805,7 +805,13 @@ exports.retrieveAllPosts = async (req, res) => {
         });
       }
       else{
-        console.log("BUG")
+        res.status(200).send({
+          message: "Failure",
+          post,
+          postCount: postCount.length ?? 0,
+          totalPage: totalPage ?? 0,
+        });
+        // console.log("BUG")
       }
     } else {
       res.status(204).send({ message: "No Posts Yet..." });

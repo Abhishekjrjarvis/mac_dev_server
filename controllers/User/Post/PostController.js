@@ -592,7 +592,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
       if (query_search.trim() === "") {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
-            $and: [{ author: { $in: user.userInstituteFollowing } }],
+            $and: [{ post_arr: { $in: user.userInstituteFollowing } }],
           })
             .sort("-createdAt")
             .limit(limit)
@@ -689,7 +689,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
             $and: [
-              { author: { $in: user.userInstituteFollowing } },
+              { post_arr: { $in: user.userInstituteFollowing } },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
@@ -937,8 +937,9 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
       //
       if (query_search.trim() === "") {
         if (user.ageRestrict === "Yes") {
+          // console.log("Enter In Restrict Mode")
           var post = await Post.find({
-            $and: [{ author: { $in: user.userInstituteFollowing } }],
+            $and: [{ post_arr: { $in: user.userInstituteFollowing } }],
           })
             .sort("-createdAt")
             .limit(limit)
@@ -986,6 +987,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
         //
         else {
           // console.log("Enter In Else with Second")
+          // console.log("Enter In Else Restrict Mode")
           var post = await Post.find({
             // $and: [{ author: { $in: user.userInstituteFollowing } }],
             $and: [{ post_arr: { $in: user?._id }}],
@@ -1035,9 +1037,10 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
         }
       } else {
         if (user.ageRestrict === "Yes") {
+          // console.log("Enter In Normal Restrict Mode")
           var post = await Post.find({
             $and: [
-              { author: { $in: user.userInstituteFollowing } },
+              { post_arr: { $in: user.userInstituteFollowing } },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })

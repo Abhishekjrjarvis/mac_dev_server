@@ -22,16 +22,20 @@ const {
 } = require("../../../config/redis-config");
 const encryptionPayload = require("../../../Utilities/Encrypt/payload");
 const { nested_document_limit } = require("../../../helper/databaseFunction");
+const { execute_user_social_feed_query } = require("../../../Feed/userFeed");
 
 exports.postWithText = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
-      .populate({ path: "userFollowers" })
-      .populate({ path: "userCircle" });
+      // .populate({ path: "userFollowers" })
+      // .populate({ path: "userCircle" });
     const post = new Post({ ...req.body });
-    if (Array.isArray(req.body?.people)) {
-      for (let val of req.body?.people) {
+    const taggedPeople = ["", "", null, undefined]?.includes(req.body?.people)
+      ? JSON.parse(req.body?.people)
+      : [];
+    if (Array.isArray(taggedPeople)) {
+      for (let val of taggedPeople) {
         post.tagPeople.push({
           tagId: val.tagId,
           tagUserName: val.tagUserName,
@@ -51,71 +55,11 @@ exports.postWithText = async (req, res) => {
     post.authorFollowersCount = user.followerCount;
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
+    post.post_arr.push(user?._id)
     await Promise.all([user.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post is create", post });
-    if (user.userFollowers.length >= 1) {
-      if (post.postStatus === "Anyone") {
-        user.userFollowers.forEach(async (ele) => {
-          if (ele.userPosts.includes(post._id)) {
-          } else {
-            ele.userPosts.push(post._id);
-            await ele.save();
-          }
-        });
-      } else {
-      }
-    }
-    if (user.userCircle.length >= 1) {
-      user.userCircle.forEach(async (ele) => {
-        if (ele.userPosts.includes(post._id)) {
-        } else {
-          ele.userPosts.push(post._id);
-          await ele.save();
-        }
-      });
-    }
-    if (Array.isArray(req.body?.people)) {
-      if (post?.tagPeople?.length) {
-        for (let instit of req.body?.people) {
-          if (instit.tagType === "User") {
-            const userTag = await User.findById(instit.tagId)
-              .populate({ path: "userFollowers" })
-              .populate({ path: "userCircle" });
-            userTag.tag_post?.push(post._id);
-            if (userTag?.userPosts.includes(post._id)) {
-            } else {
-              userTag.userPosts?.push(post._id);
-            }
-            if (post.postStatus === "Anyone") {
-              userTag?.userFollowers?.forEach(async (ele) => {
-                if (ele?.userPosts?.includes(post._id)) {
-                } else {
-                  ele.userPosts.push(post._id);
-                  await ele.save();
-                }
-              });
-              userTag?.userCircle?.forEach(async (ele) => {
-                if (ele?.userPosts?.includes(post._id)) {
-                } else {
-                  ele.userPosts.push(post._id);
-                  await ele.save();
-                }
-              });
-            }
-            await userTag.save();
-          } else {
-            const institTag = await InstituteAdmin.findById(instit.tagId);
-            if (institTag?.posts.includes(post._id)) {
-            } else {
-              institTag.posts?.push(post._id);
-            }
-            institTag.tag_post?.push(post._id);
-            await institTag.save();
-          }
-        }
-      }
-    }
+    await execute_user_social_feed_query(user, post, taggedPeople)
     // if (req.body?.hashtag?.length > 0) {
     //   for (let hash of req.body?.hashtag) {
     //     const hTag = await HashTag.findById({ _id: `${hash}` });
@@ -140,7 +84,9 @@ exports.postWithText = async (req, res) => {
     //     });
     //   });
     // }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.postWithTextFile = async (req, res) => {
@@ -161,9 +107,11 @@ exports.postWithImage = async (req, res) => {
     const { id } = req.params;
     const post = new Post({ ...req.body });
     const user = await User.findById({ _id: id })
-      .populate({ path: "userFollowers" })
-      .populate({ path: "userCircle" });
-    const taggedPeople = req.body?.people ? JSON.parse(req.body?.people) : "";
+      // .populate({ path: "userFollowers" })
+      // .populate({ path: "userCircle" });
+      const taggedPeople = ["", "", null, undefined]?.includes(req.body?.people)
+      ? JSON.parse(req.body?.people)
+      : [];
 
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {
@@ -191,71 +139,11 @@ exports.postWithImage = async (req, res) => {
     post.authorFollowersCount = user.followerCount;
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
+    post.post_arr.push(user?._id)
     await Promise.all([user.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post is create", post });
-    if (user.userFollowers.length >= 1) {
-      if (post.postStatus === "Anyone") {
-        user.userFollowers.forEach(async (ele) => {
-          if (ele.userPosts.includes(post._id)) {
-          } else {
-            ele.userPosts.push(post._id);
-            await ele.save();
-          }
-        });
-      } else {
-      }
-    }
-    if (user.userCircle.length >= 1) {
-      user.userCircle.forEach(async (ele) => {
-        if (ele.userPosts.includes(post._id)) {
-        } else {
-          ele.userPosts.push(post._id);
-          await ele.save();
-        }
-      });
-    }
-    if (Array.isArray(taggedPeople)) {
-      if (post?.tagPeople?.length) {
-        for (let instit of taggedPeople) {
-          if (instit.tagType === "User") {
-            const userTag = await User.findById(instit.tagId)
-              .populate({ path: "userFollowers" })
-              .populate({ path: "userCircle" });
-            if (userTag?.userPosts.includes(post._id)) {
-            } else {
-              userTag.userPosts?.push(post._id);
-            }
-            userTag.tag_post?.push(post._id);
-            if (post.postStatus === "Anyone") {
-              userTag?.userFollowers?.forEach(async (ele) => {
-                if (ele?.userPosts?.includes(post._id)) {
-                } else {
-                  ele.userPosts.push(post._id);
-                  await ele.save();
-                }
-              });
-              userTag?.userCircle?.forEach(async (ele) => {
-                if (ele?.userPosts?.includes(post._id)) {
-                } else {
-                  ele.userPosts.push(post._id);
-                  await ele.save();
-                }
-              });
-            }
-            await userTag.save();
-          } else {
-            const institTag = await InstituteAdmin.findById(instit.tagId);
-            if (institTag?.posts.includes(post._id)) {
-            } else {
-              institTag.posts?.push(post._id);
-            }
-            institTag.tag_post?.push(post._id);
-            await institTag.save();
-          }
-        }
-      }
-    }
+    await execute_user_social_feed_query(user, post, taggedPeople)
   } catch {
     console.log(e);
   }
@@ -267,9 +155,11 @@ exports.postWithImageAPK = async (req, res) => {
     const { postImageCount } = req.body;
     const post = new Post({ ...req.body });
     const user = await User.findById({ _id: id })
-      .populate({ path: "userFollowers" })
-      .populate({ path: "userCircle" });
-    const taggedPeople = req.body?.people ? JSON.parse(req.body?.people) : "";
+      // .populate({ path: "userFollowers" })
+      // .populate({ path: "userCircle" });
+      const taggedPeople = ["", "", null, undefined]?.includes(req.body?.people)
+      ? JSON.parse(req.body?.people)
+      : [];
 
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {
@@ -300,71 +190,12 @@ exports.postWithImageAPK = async (req, res) => {
     post.authorFollowersCount = user.followerCount;
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
+    post.post_arr.push(user?._id)
     await Promise.all([user.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post is create", post });
-    if (user.userFollowers.length >= 1) {
-      if (post.postStatus === "Anyone") {
-        user.userFollowers.forEach(async (ele) => {
-          if (ele.userPosts.includes(post._id)) {
-          } else {
-            ele.userPosts.push(post._id);
-            await ele.save();
-          }
-        });
-      } else {
-      }
-    }
-    if (user.userCircle.length >= 1) {
-      user.userCircle.forEach(async (ele) => {
-        if (ele.userPosts.includes(post._id)) {
-        } else {
-          ele.userPosts.push(post._id);
-          await ele.save();
-        }
-      });
-    }
-    if (Array.isArray(taggedPeople)) {
-      if (post?.tagPeople?.length) {
-        for (let instit of taggedPeople) {
-          if (instit.tagType === "User") {
-            const userTag = await User.findById(instit.tagId)
-              .populate({ path: "userFollowers" })
-              .populate({ path: "userCircle" });
-            if (userTag?.userPosts.includes(post._id)) {
-            } else {
-              userTag.userPosts?.push(post._id);
-            }
-            userTag.tag_post?.push(post._id);
-            if (post.postStatus === "Anyone") {
-              userTag?.userFollowers?.forEach(async (ele) => {
-                if (ele?.userPosts?.includes(post._id)) {
-                } else {
-                  ele.userPosts.push(post._id);
-                  await ele.save();
-                }
-              });
-              userTag?.userCircle?.forEach(async (ele) => {
-                if (ele?.userPosts?.includes(post._id)) {
-                } else {
-                  ele.userPosts.push(post._id);
-                  await ele.save();
-                }
-              });
-            }
-            await userTag.save();
-          } else {
-            const institTag = await InstituteAdmin.findById(instit.tagId);
-            if (institTag?.posts.includes(post._id)) {
-            } else {
-              institTag.posts?.push(post._id);
-            }
-            institTag.tag_post?.push(post._id);
-            await institTag.save();
-          }
-        }
-      }
-    }
+    await execute_user_social_feed_query(user, post, taggedPeople)
+
   } catch (e) {
     console.log(e);
   }
@@ -375,10 +206,12 @@ exports.postWithVideo = async (req, res) => {
     const { id } = req.params;
     const { video_cover } = req.body;
     const user = await User.findById({ _id: id })
-      .populate({ path: "userFollowers" })
-      .populate({ path: "userCircle" });
+      // .populate({ path: "userFollowers" })
+      // .populate({ path: "userCircle" });
     const post = new Post({ ...req.body });
-    const taggedPeople = req.body?.people ? JSON.parse(req.body?.people) : "";
+    const taggedPeople = ["", "", null, undefined]?.includes(req.body?.people)
+      ? JSON.parse(req.body?.people)
+      : [];
 
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {
@@ -406,72 +239,13 @@ exports.postWithVideo = async (req, res) => {
     post.authorFollowersCount = user.followerCount;
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
+    post.post_arr.push(user?._id)
     await Promise.all([user.save(), post.save()]);
     await unlinkFile(file.path);
     // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post created", post });
-    if (user.userFollowers.length >= 1) {
-      if (post.postStatus === "Anyone") {
-        user.userFollowers.forEach(async (ele) => {
-          if (ele.userPosts.includes(post._id)) {
-          } else {
-            ele.userPosts.push(post._id);
-            await ele.save();
-          }
-        });
-      } else {
-      }
-    }
-    if (user.userCircle.length >= 1) {
-      user.userCircle.forEach(async (ele) => {
-        if (ele.userPosts.includes(post._id)) {
-        } else {
-          ele.userPosts.push(post._id);
-          await ele.save();
-        }
-      });
-    }
-    if (Array.isArray(taggedPeople)) {
-      if (post?.tagPeople?.length) {
-        for (let instit of taggedPeople) {
-          if (instit.tagType === "User") {
-            const userTag = await User.findById(instit.tagId)
-              .populate({ path: "userFollowers" })
-              .populate({ path: "userCircle" });
-            if (userTag?.userPosts.includes(post._id)) {
-            } else {
-              userTag.userPosts?.push(post._id);
-            }
-            userTag.tag_post?.push(post._id);
-            if (post.postStatus === "Anyone") {
-              userTag?.userFollowers?.forEach(async (ele) => {
-                if (ele?.userPosts?.includes(post._id)) {
-                } else {
-                  ele.userPosts.push(post._id);
-                  await ele.save();
-                }
-              });
-              userTag?.userCircle?.forEach(async (ele) => {
-                if (ele?.userPosts?.includes(post._id)) {
-                } else {
-                  ele.userPosts.push(post._id);
-                  await ele.save();
-                }
-              });
-            }
-            await userTag.save();
-          } else {
-            const institTag = await InstituteAdmin.findById(instit.tagId);
-            if (institTag?.posts.includes(post._id)) {
-            } else {
-              institTag.posts?.push(post._id);
-            }
-            institTag.tag_post?.push(post._id);
-            await institTag.save();
-          }
-        }
-      }
-    }
+    await execute_user_social_feed_query(user, post, taggedPeople)
+
   } catch (e) {
     console.log(e);
   }
@@ -866,7 +640,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
         //
         else {
           var post = await Post.find({
-            $and: [{ _id: { $in: user.userPosts } }],
+            $and: [{ post_arr: { $in: user?._id} }],
           })
             .sort("-createdAt")
             .limit(limit)
@@ -966,7 +740,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
         else {
           var post = await Post.find({
             $and: [
-              { _id: { $in: user.userPosts } },
+              { post_arr: { $in: user?._id} },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
@@ -1014,7 +788,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             });
         }
       }
-      const postCount = await Post.find({ _id: { $in: user.userPosts } });
+      const postCount = await Post.find({ post_arr: { $in: user?._id} });
       if (page * limit >= postCount.length) {
       } else {
         var totalPage = page + 1;
@@ -1164,7 +938,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
       if (query_search.trim() === "") {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
-            $and: [{ post_arr: { $in: user._id } }],
+            $and: [{ author: { $in: user.userInstituteFollowing } }],
           })
             .sort("-createdAt")
             .limit(limit)
@@ -1213,8 +987,8 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
         else {
           // console.log("Enter In Else with Second")
           var post = await Post.find({
-            $and: [{ post_arr: { $in: user._id } }],
-            // $and: [{ author: { $in: user?.userInstituteFollowing }}],
+            // $and: [{ author: { $in: user.userInstituteFollowing } }],
+            $and: [{ post_arr: { $in: user?._id }}],
           })
             .sort("-createdAt")
             .limit(limit)
@@ -1263,7 +1037,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
             $and: [
-              { post_arr: { $in: user._id } },
+              { author: { $in: user.userInstituteFollowing } },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
@@ -1316,9 +1090,6 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
           var post = await Post.find({
             $and: [
               { post_arr: { $in: user._id } },
-              // { _id: { $in: user.userPosts } },
-              // {author: { $in: user?.userInstituteFollowing }}, 
-              // {author: user?._id },
               { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
@@ -1832,7 +1603,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
             select: "insAnnTitle insAnnDescription",
           });
       }
-      const postCount = await Post.find({ _id: { $in: user.userPosts } });
+      const postCount = await Post.find({ post_arr: { $in: user?._id } });
       if (page * limit >= postCount.length) {
       } else {
         var totalPage = page + 1;

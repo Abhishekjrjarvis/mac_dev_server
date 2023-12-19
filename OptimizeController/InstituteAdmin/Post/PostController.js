@@ -22,12 +22,15 @@ exports.postWithText = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
-      .populate({ path: "followers" })
-      .populate({ path: "userFollowersList" })
-      .populate({ path: "joinedUserList" });
+      // .populate({ path: "followers" })
+      // .populate({ path: "userFollowersList" })
+      // .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
-    if (Array.isArray(req.body?.people)) {
-      for (let val of req.body?.people) {
+    const taggedPeople = ["", "", null, undefined]?.includes(req.body?.people)
+      ? JSON.parse(req.body?.people)
+      : [];
+    if (Array.isArray(taggedPeople)) {
+      for (let val of taggedPeople) {
         post.tagPeople.push({
           tagId: val.tagId,
           tagUserName: val.tagUserName,
@@ -46,6 +49,7 @@ exports.postWithText = async (req, res) => {
     post.authorOneLine = institute.one_line_about;
     post.authorFollowersCount = institute.followersCount;
     post.isInstitute = "institute";
+    post.post_arr.push(institute?._id)
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
@@ -80,11 +84,13 @@ exports.postWithImage = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
-      .populate({ path: "followers" })
-      .populate({ path: "userFollowersList" })
-      .populate({ path: "joinedUserList" });
+      // .populate({ path: "followers" })
+      // .populate({ path: "userFollowersList" })
+      // .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
-    const taggedPeople = req.body?.people ? JSON.parse(req.body?.people) : "";
+    const taggedPeople = ["", "", null, undefined]?.includes(req.body?.people)
+      ? JSON.parse(req.body?.people)
+      : [];
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {
         post.tagPeople.push({
@@ -110,6 +116,7 @@ exports.postWithImage = async (req, res) => {
     post.authorOneLine = institute.one_line_about;
     post.authorFollowersCount = institute.followersCount;
     post.isInstitute = "institute";
+    post.post_arr.push(institute?._id)
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
@@ -145,11 +152,13 @@ exports.postWithImageAPK = async (req, res) => {
     const { id } = req.params;
     const { postImageCount } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id })
-      .populate({ path: "followers" })
-      .populate({ path: "userFollowersList" })
-      .populate({ path: "joinedUserList" });
+      // .populate({ path: "followers" })
+      // .populate({ path: "userFollowersList" })
+      // .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
-    const taggedPeople = req.body?.people ? JSON.parse(req.body?.people) : "";
+    const taggedPeople = ["", "", null, undefined]?.includes(req.body?.people)
+      ? JSON.parse(req.body?.people)
+      : [];
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {
         post.tagPeople.push({
@@ -178,6 +187,7 @@ exports.postWithImageAPK = async (req, res) => {
     post.authorOneLine = institute.one_line_about;
     post.authorFollowersCount = institute.followersCount;
     post.isInstitute = "institute";
+    post.post_arr.push(institute?._id)
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
@@ -213,11 +223,13 @@ exports.postWithVideo = async (req, res) => {
     const { id } = req.params;
     const { video_cover } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id })
-      .populate({ path: "followers" })
-      .populate({ path: "userFollowersList" })
-      .populate({ path: "joinedUserList" });
+      // .populate({ path: "followers" })
+      // .populate({ path: "userFollowersList" })
+      // .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
-    const taggedPeople = req.body?.people ? JSON.parse(req.body?.people) : "";
+    const taggedPeople = ["", "", null, undefined]?.includes(req.body?.people)
+      ? JSON.parse(req.body?.people)
+      : [];
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {
         post.tagPeople.push({
@@ -243,6 +255,7 @@ exports.postWithVideo = async (req, res) => {
     post.authorOneLine = institute.one_line_about;
     post.authorFollowersCount = institute.followersCount;
     post.isInstitute = "institute";
+    post.post_arr.push(institute?._id)
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
     await unlinkFile(file.path);
@@ -723,7 +736,7 @@ exports.retrieveAllPosts = async (req, res) => {
     const institute = await InstituteAdmin.findById(id)
       .select("id")
       .populate({ path: "posts" });
-    if (institute && institute.posts.length >= 1) {
+    if (institute) {
       if (p_types !== "") {
         var post = await Post.find({
           $and: [{ post_arr: { $in: institute?._id} }, { postType: p_types }],
@@ -752,7 +765,7 @@ exports.retrieveAllPosts = async (req, res) => {
           });
       } else {
         var post = await Post.find({
-          $and: [{ post_arr: { $in: institute?._id}}],
+          $and: [{ post_arr: { $in: institute?._id} }],
         })
           .sort("-createdAt")
           .limit(limit)
@@ -791,6 +804,9 @@ exports.retrieveAllPosts = async (req, res) => {
           totalPage: totalPage,
         });
       }
+      else{
+        console.log("BUG")
+      }
     } else {
       res.status(204).send({ message: "No Posts Yet..." });
     }
@@ -808,7 +824,7 @@ exports.retreiveAllProfilePosts = async (req, res) => {
     const institute = await InstituteAdmin.findById(id)
       .select("id ")
       .populate({ path: "posts" });
-    const post = await Post.find({ author: id })
+    const post = await Post.find({ post_arr: { $in: institute?._id} })
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
@@ -831,8 +847,8 @@ exports.retreiveAllProfilePosts = async (req, res) => {
         path: "new_announcement",
         select: "insAnnTitle insAnnDescription",
       });
-    if (institute && institute?.posts?.length >= 1) {
-      var postCount = await Post.find({ _id: { $in: institute.posts } });
+    if (post?.length >= 1) {
+      var postCount = await Post.find({ post_arr: { $in: institute?._id} });
       if (page * limit >= postCount.length) {
       } else {
         var totalPage = page + 1;

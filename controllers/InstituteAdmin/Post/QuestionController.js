@@ -19,9 +19,9 @@ exports.postQuestionText = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
-      .populate({ path: "followers" })
-      .populate({ path: "userFollowersList" })
-      .populate({ path: "joinedUserList" });
+      // .populate({ path: "followers" })
+      // .populate({ path: "userFollowersList" })
+      // .populate({ path: "joinedUserList" });
 
     const post = new Post({ ...req.body });
     post.imageId = "1";
@@ -109,9 +109,9 @@ exports.retrievePollQuestionText = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
-      .populate({ path: "followers" })
-      .populate({ path: "userFollowersList" })
-      .populate({ path: "joinedUserList" });
+      // .populate({ path: "followers" })
+      // .populate({ path: "userFollowersList" })
+      // .populate({ path: "joinedUserList" });
     if (req.body.pollAnswer.length >= 2 && req.body.pollAnswer.length <= 5) {
       const post = new Post({ ...req.body });
       var poll = new Poll({ ...req.body });

@@ -15,13 +15,14 @@ const {
   connect_redis_hit,
   connect_redis_miss,
 } = require("../../../config/redis-config");
+const { execute_user_social_feed_question_query } = require("../../../Feed/userFeed");
 
 exports.postQuestionText = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
-      .populate({ path: "userFollowers" })
-      .populate({ path: "userCircle" });
+      // .populate({ path: "userFollowers" })
+      // .populate({ path: "userCircle" });
     const post = new Post({ ...req.body });
     post.imageId = "1";
     if (req.files?.length >= 1) {
@@ -54,36 +55,11 @@ exports.postQuestionText = async (req, res) => {
     post.isUser = "user";
     post.postType = "Question";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
+    post.post_arr.push(user?._id)
     await Promise.all([user.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post question is create", post });
-    if (user.userFollowers.length >= 1) {
-      user.userFollowers.forEach(async (ele) => {
-        ele.userPosts.push(post._id);
-        await ele.save();
-      });
-    }
-    if (user.userCircle.length >= 1) {
-      user.userCircle.forEach(async (ele) => {
-        ele.userPosts.push(post._id);
-        await ele.save();
-      });
-    }
-    if (req.body?.hashtag && req.body?.hashtag?.length > 0) {
-      req.body?.hashtag?.forEach(async (ele) => {
-        const hash = await HashTag.findById({ _id: `${ele}` }).select(
-          "hashtag_follower"
-        );
-        const users = await User.find({ _id: { $in: hash?.hashtag_follower } });
-        users?.forEach(async (user) => {
-          if (user.userPosts?.includes(post._id)) {
-          } else {
-            user.userPosts.push(post._id);
-          }
-          await user.save();
-        });
-      });
-    }
+    await execute_user_social_feed_question_query(user, post, req?.body?.hashtag)
   } catch (e) {
     console.log(e);
   }
@@ -519,8 +495,8 @@ exports.rePostQuestionAnswer = async (req, res) => {
       }
       if (req.tokenData && req.tokenData.userId) {
         var user = await User.findById({ _id: `${req.tokenData.userId}` })
-          .populate({ path: "userFollowers" })
-          .populate({ path: "userCircle" });
+          // .populate({ path: "userFollowers" })
+          // .populate({ path: "userCircle" });
         if (user.staff.length >= 1) {
           answers.isMentor = "yes";
         }
@@ -561,6 +537,7 @@ exports.rePostQuestionAnswer = async (req, res) => {
       rePost.postType = "Repost";
       rePost.rePostAnswer = answers;
       rePost.post_url = `https://qviple.com/q/${rePost.authorUserName}/profile`;
+      rePost.post_arr.push(user?._id)
       await Promise.all([
         rePost.save(),
         answers.save(),
@@ -605,41 +582,7 @@ exports.rePostQuestionAnswer = async (req, res) => {
       //
       // const repostEncrypt = await encryptionPayload(repost);
       res.status(200).send({ message: "RePosted Answer", rePost });
-      if (user.userFollowers.length >= 1) {
-        user.userFollowers.forEach(async (ele) => {
-          if (ele.userPosts.includes(rePost._id)) {
-          } else {
-            ele.userPosts.push(rePost._id);
-            await ele.save();
-          }
-        });
-      }
-      if (user.userCircle.length >= 1) {
-        user.userCircle.forEach(async (ele) => {
-          if (ele.userPosts.includes(rePost._id)) {
-          } else {
-            ele.userPosts.push(rePost._id);
-            await ele.save();
-          }
-        });
-      }
-      if (parseHash && parseHash?.length > 0) {
-        parseHash?.forEach(async (ele) => {
-          const hash = await HashTag.findById({ _id: `${ele}` }).select(
-            "hashtag_follower"
-          );
-          const users = await User.find({
-            _id: { $in: hash?.hashtag_follower },
-          });
-          users?.forEach(async (user) => {
-            if (user.userPosts?.includes(rePost._id)) {
-            } else {
-              user.userPosts.push(rePost._id);
-            }
-            await user.save();
-          });
-        });
-      }
+      await execute_user_social_feed_question_query(user, rePost, parseHash)
     } else {
       res.status(203).send({ message: "Access Denied By Post Type" });
     }
@@ -709,27 +652,32 @@ exports.rePostAnswerLike = async (req, res) => {
 
         if (rePost?.postType === "Repost") {
           const upVoteUser = await User.findById({ _id: `${user_session}` })
-            .populate("userFollowers")
-            .populate("userCircle");
+            // .populate("userFollowers")
+            // .populate("userCircle");
           // if (`${rePost.author}` === `${upVoteUser._id}`) {
           //   console.log('true')
           // } else {
           // console.log('rendered')
-          upVoteUser.userFollowers.forEach(async (ele) => {
-            if (ele?.userPosts?.includes(rePost._id)) {
-            } else {
-              ele.userPosts.push(rePost._id);
-              await ele.save();
-            }
-          });
-
-          upVoteUser.userCircle.forEach(async (ele) => {
-            if (ele?.userPosts?.includes(rePost._id)) {
-            } else {
-              ele.userPosts.push(rePost._id);
-              await ele.save();
-            }
-          });
+          for(var val of upVoteUser?.userFollowers){
+            rePost.post_arr.push(val)
+          }
+          // upVoteUser.userFollowers.forEach(async (ele) => {
+          //   if (ele?.userPosts?.includes(rePost._id)) {
+          //   } else {
+          //     ele.userPosts.push(rePost._id);
+          //     await ele.save();
+          //   }
+          // });
+          for(var val of upVoteUser?.userCircle){
+            rePost.post_arr.push(val)
+          }
+          // upVoteUser.userCircle.forEach(async (ele) => {
+          //   if (ele?.userPosts?.includes(rePost._id)) {
+          //   } else {
+          //     ele.userPosts.push(rePost._id);
+          //     await ele.save();
+          //   }
+          // });
           // }
         }
       }
@@ -787,25 +735,30 @@ exports.retrieveHelpQuestion = async (req, res) => {
 
         if (post_ques?.postType === "Question") {
           const isNeedUser = await User.findById({ _id: `${user_session}` })
-            .populate("userFollowers")
-            .populate("userCircle");
+            // .populate("userFollowers")
+            // .populate("userCircle");
           if (`${post_ques.author}` === `${isNeedUser._id}`) {
           } else {
-            isNeedUser.userFollowers.forEach(async (ele) => {
-              if (ele?.userPosts?.includes(post_ques._id)) {
-              } else {
-                ele.userPosts.push(post_ques._id);
-                await ele.save();
-              }
-            });
-
-            isNeedUser.userCircle.forEach(async (ele) => {
-              if (ele?.userPosts?.includes(post_ques._id)) {
-              } else {
-                ele.userPosts.push(post_ques._id);
-                await ele.save();
-              }
-            });
+            for(var val of isNeedUser?.userFollowers){
+              post_ques.post_arr.push(val)
+            }
+            // isNeedUser.userFollowers.forEach(async (ele) => {
+            //   if (ele?.userPosts?.includes(post_ques._id)) {
+            //   } else {
+            //     ele.userPosts.push(post_ques._id);
+            //     await ele.save();
+            //   }
+            // });
+            for(var val of isNeedUser?.userCircle){
+              post_ques.post_arr.push(val)
+            }
+            // isNeedUser.userCircle.forEach(async (ele) => {
+            //   if (ele?.userPosts?.includes(post_ques._id)) {
+            //   } else {
+            //     ele.userPosts.push(post_ques._id);
+            //     await ele.save();
+            //   }
+            // });
           }
         }
       }

@@ -725,6 +725,10 @@ exports.fetchExportStudentIdCardQuery = async (req, res) => {
         select: "className classTitle classStatus",
       })
       .populate({
+        path: "batches",
+        select: "batchName",
+      })
+      .populate({
         path: "institute",
         select: "insName name",
       });

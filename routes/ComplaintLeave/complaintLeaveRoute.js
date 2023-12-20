@@ -121,6 +121,13 @@ router.get("/:sid/leave/overview/query", catchAsync(complaintController.renderLe
 
 router.get("/:sid/leave/overview/filter/query", catchAsync(complaintController.renderLeaveFilterOverviewQuery))
 
+router.patch("/:lid/config/rules/query", catchAsync(complaintController.renderLeaveConfigRulesQuery))
+
+router.get("/:id/teaching/type/query", catchAsync(complaintController.renderTeachingTypeQuery))
+
+router.get("/:id/leave/config/query", catchAsync(complaintController.renderOneLeaveConfigQuery))
+
+router.post("/teaching", catchAsync(complaintController.renderTeachingQuery))
 
 // router
 //   .route("/student/:sid/complaint")

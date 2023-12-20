@@ -1,4 +1,5 @@
 const moment = require("moment");
+const { eachDayOfInterval, getDay, format } = require('date-fns');
 
 exports.custom_date_time = (arg) => {
   const date = new Date(new Date());
@@ -324,3 +325,42 @@ exports.custom_date_time_receipt = (arg) => {
   const date_pattern = `${year}-${month}`;
   return date_pattern;
 };
+
+exports.months_helper = [
+  { m: "Janurary", last: 31, code: "01" },
+  { m: "Feburary", last: 28, code: "02", leap: 29},
+  { m: "March", last: 31, code: "03" },
+  { m: "April", last: 30, code: "04" },
+  { m: "May", last: 31, code: "05" },
+  { m: "June", last: 30, code: "06" },
+  { m: "July", last: 31, code: "07" },
+  { m: "August", last: 31, code: "08" },
+  { m: "Spetember", last: 30, code: "09" },
+  { m: "October", last: 31, code: "10" },
+  { m: "November", last: 30, code: "11" },
+  { m: "December", last: 31, code: "12" },
+]
+
+
+
+exports.getSundaysInYear = (year, new_year) => {
+  const startDate = new Date(year, 3, 1); // January 1st of the given year
+  const endDate = new Date(new_year, 2, 31); // December 31st of the given year
+  const allDays = eachDayOfInterval({ start: startDate, end: endDate });
+  const sundays = allDays.filter(day => getDay(day) === 0);
+  const saturdays = allDays.filter(day => getDay(day) === 6)
+
+  // Format the dates as strings (e.g., '2023-01-01')
+  const formattedSundays = sundays.map(sunday => format(sunday, 'yyyy-MM-dd'));
+  const formattedSaturdays = saturdays.map(sat => format(sat, 'yyyy-MM-dd'));
+
+  return {
+    formattedSundays: formattedSundays,
+    formattedSaturdays: formattedSaturdays
+  };
+}
+// const sundaysInYear = getSundaysInYear(2023, 2024);
+
+// console.log(`Sundays in 2023 - 2024:`);
+// console.log(sundaysInYear?.formattedSundays);
+// console.log(sundaysInYear?.formattedSaturdays)

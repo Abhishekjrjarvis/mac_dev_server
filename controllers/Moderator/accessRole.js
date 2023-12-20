@@ -196,6 +196,17 @@ exports.all_access_role_finance = () => {
         appArray: [],
       },
     },
+    SCHOLARSHIP_ACCESS: {
+      role: "SCHOLARSHIP_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["Scholarship"],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
   };
   return access_role_finance;
 };

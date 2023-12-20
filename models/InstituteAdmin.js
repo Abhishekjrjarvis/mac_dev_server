@@ -508,6 +508,7 @@ const instituteAdminSchema = new mongoose.Schema({
       nonCreamyLayerCertificate: { type: Boolean, default: false },
     },
     bankDetails: { type: Boolean, default: false },
+    experience: { type: Boolean, default: false}
   },
   studentFormSetting: {
     personalInfo: { type: Boolean, default: true },
@@ -1039,6 +1040,10 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Leave",
     },
   ],
+  leave_config: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "LeaveConfig"
+  },
   facilities_module: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Facilities"

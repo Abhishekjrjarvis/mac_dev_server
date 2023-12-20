@@ -48,6 +48,7 @@ exports.photoEditByStaff = async (req, res) => {
 
 exports.formEditByInstitute = async (req, res) => {
   try {
+    const { experience } = req?.body
     if (!req.params.sid) throw "Please send staff id to perform task";
     const old_data = {
       gender: "",
@@ -86,6 +87,7 @@ exports.formEditByInstitute = async (req, res) => {
     for (let staffObj in req.body?.staff) {
       staffs[`${staffObj}`] = req.body?.staff[staffObj];
     }
+    staffs.experience = [...experience]
     await staffs.save();
     new_data.gender = staffs?.staffGender;
     new_data.caste = staffs?.staffCastCategory;

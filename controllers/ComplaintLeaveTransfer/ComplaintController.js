@@ -29,6 +29,8 @@ const Library = require("../../models/Library/Library");
 const Admission = require("../../models/Admission/Admission");
 const Transport = require("../../models/Transport/transport");
 const Vehicle = require("../../models/Transport/vehicle");
+const LeaveConfig = require("../../models/Leave/LeaveConfig");
+const { months_helper } = require("../../helper/dayTimer");
 
 //=======================================For the students related controller=========================================
 
@@ -1382,26 +1384,50 @@ exports.instituteStaffAllTransfer = async (req, res) => {
 exports.renderLeaveConfigQuery = async(req, res) => {
   try{
     const { id } = req.params
-    const { c_l, m_l, s_l } = req?.body
+    const { c_l, m_l, s_l, cm_l, ma_l, pa_l, q_l, hp_l, std_l, sb_l, sd_l, wv_l, sv_l, ch_l, b_l } = req?.body
     if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     const ins = await InstituteAdmin.findById({ _id: id})
-    if(c_l){
-      ins.staff_leave_config.casual_leave = c_l
-    }
-    if(m_l){
-      ins.staff_leave_config.medical_leave = m_l
-    }
-    if(s_l){
-      ins.staff_leave_config.sick_leave = s_l
-    }
-    await ins.save()
+    const new_leave_config = await LeaveConfig.findOne({ institute: ins?._id})
+    new_leave_config.staff_leave_config.casual_leave = c_l ?? 0
+    new_leave_config.staff_leave_config.medical_leave = m_l ?? 0
+    new_leave_config.staff_leave_config.sick_leave = s_l ?? 0
+
+    new_leave_config.staff_leave_config.commuted_leave = cm_l ?? 0
+    new_leave_config.staff_leave_config.maternity_leave = ma_l ?? 0
+    new_leave_config.staff_leave_config.paternity_leave = pa_l ?? 0
+
+    new_leave_config.staff_leave_config.quarantine_leave = q_l ?? 0
+    new_leave_config.staff_leave_config.half_pay_leave = hp_l ?? 0
+    new_leave_config.staff_leave_config.study_leave = std_l ?? 0
+
+    new_leave_config.staff_leave_config.sabbatical_leave = sb_l ?? 0
+    new_leave_config.staff_leave_config.special_disability_leave = sd_l ?? 0
+    new_leave_config.staff_leave_config.winter_vacation_leave = wv_l ?? 0
+
+    new_leave_config.staff_leave_config.summer_vacation_leave = sv_l ?? 0
+    new_leave_config.staff_leave_config.child_adoption_leave = ch_l ?? 0
+    new_leave_config.staff_leave_config.bereavement_leave = b_l ?? 0
+
+    await Promise.all([ ins.save(), new_leave_config.save() ])
     res.status(200).send({ message: "Explore Leave Configuration Query", access: true})
     var all_staff = await Staff.find({ _id: { $in: ins?.ApproveStaff }})
     for(var ref of all_staff){
-      ref.casual_leave = ins?.staff_leave_config.casual_leave
-      ref.medical_leave = ins?.staff_leave_config.medical_leave
-      ref.sick_leave = ins?.staff_leave_config.sick_leave
+      ref.casual_leave = new_leave_config?.staff_leave_config.casual_leave
+      ref.medical_leave = new_leave_config?.staff_leave_config.medical_leave
+      ref.sick_leave = new_leave_config?.staff_leave_config.sick_leave
+      ref.commuted_leave = new_leave_config?.staff_leave_config.commuted_leave
+      ref.maternity_leave = new_leave_config?.staff_leave_config.maternity_leave
+      ref.paternity_leave = new_leave_config?.staff_leave_config.paternity_leave
+      ref.quarantine_leave = new_leave_config?.staff_leave_config.quarantine_leave
+      ref.half_pay_leave = new_leave_config?.staff_leave_config.half_pay_leave
+      ref.study_leave = new_leave_config?.staff_leave_config.study_leave
+      ref.sabbatical_leave = new_leave_config?.staff_leave_config.sabbatical_leave
+      ref.special_disability_leave = new_leave_config?.staff_leave_config.special_disability_leave
+      ref.winter_vacation_leave = new_leave_config?.staff_leave_config.winter_vacation_leave
+      ref.summer_vacation_leave = new_leave_config?.staff_leave_config.summer_vacation_leave
+      ref.child_adoption_leave = new_leave_config?.staff_leave_config.child_adoption_leave
+      ref.bereavement_leave = new_leave_config?.staff_leave_config.bereavement_leave
       await ref.save()
     }
   }
@@ -1413,19 +1439,25 @@ exports.renderLeaveConfigQuery = async(req, res) => {
 exports.renderStaffLeaveConfigQuery = async(req, res) => {
   try{
     const { sid } = req.params
-    const { c_l, m_l, s_l } = req?.body
+    const { c_l, m_l, s_l, cm_l, ma_l, pa_l, q_l, hp_l, std_l, sb_l, sd_l, wv_l, sv_l, ch_l, b_l } = req?.body
     if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     const staff = await Staff.findById({ _id: sid})
-    if(c_l){
-      staff.casual_leave = c_l
-    }
-    if(m_l){
-      staff.medical_leave = m_l
-    }
-    if(s_l){
-      staff.sick_leave = s_l
-    }
+    staff.casual_leave = c_l ?? 0
+    staff.medical_leave = m_l ?? 0
+    staff.sick_leave = s_l ?? 0
+    staff.commuted_leave = cm_l ?? 0
+    staff.maternity_leave = ma_l ?? 0
+    staff.paternity_leave = pa_l ?? 0
+    staff.quarantine_leave = q_l ?? 0
+    staff.half_pay_leave = hp_l ?? 0
+    staff.study_leave = std_l ?? 0
+    staff.sabbatical_leave = sb_l ?? 0
+    staff.special_disability_leave = sd_l ?? 0
+    staff.winter_vacation_leave = wv_l ?? 0
+    staff.summer_vacation_leave = sv_l ?? 0
+    staff.child_adoption_leave = ch_l ?? 0
+    staff.bereavement_leave = b_l ?? 0
     await staff.save()
     res.status(200).send({ message: "Explore One Staff Leave Configuration Query", access: true})
   }
@@ -1631,6 +1663,110 @@ exports.renderLeaveFilterOverviewQuery = async(req, res) => {
     }
 
     res.status(200).send({ message: "Explore All Leave Available + Taken Query", access: true, all_leave: all_leave })
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderLeaveConfigRulesQuery = async(req, res) => {
+  try{
+    const { lid } = req?.params
+    const { flow, year, date, month, int_month } = req?.query
+    if(!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    if(flow === "Leave_Start"){
+      var int_num = parseInt(int_month)
+      var valid_month = (month + 1 > 12) ? (month + 1) - 12 : month + 1
+      num = months_helper?.filter((val) => {
+        if(`${val?.code}` === `0${int_num - 1}`) return val
+      })
+      const leave_config = await LeaveConfig.findById({ _id: lid })
+      leave_config.leave_start_academic_year = new Date(`${year}-${month}-${date}`)
+      leave_config.leave_end_academic_year = new Date(`${year + 1}-${num[0]?.code}-${num[0]?.last}`)
+      await leave_config.save()
+    }
+    await LeaveConfig.findByIdAndUpdate(lid, req?.body)
+
+    res.status(200).send({ message: "Explore All Leave Config Rules Query", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderTeachingTypeQuery = async(req, res) => {
+  try{
+    const { id } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { type, search } = req?.query
+    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    if(search){
+      var all_staff = await Staff.find({ 
+      $and: [
+        { institute: id }, 
+        { staffStatus: "Approved"}, 
+        { teaching_type: `${type}`}
+      ], 
+      $or: [
+        { staffFirstName: { $regex: `${search}`, $options: "i"}},
+        { staffMiddleName: { $regex: `${search}`, $options: "i"}},
+        { staffLastName: { $regex: `${search}`, $options: "i"}},
+      ]})
+      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO")
+    }
+    else{
+      var all_staff = await Staff.find({ $and: [{ institute: id }, { staffStatus: "Approved"}, { teaching_type: `${type}`}]})
+      .limit(limit)
+      .skip(skip)
+      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO")
+    }
+
+    if(all_staff?.length > 0){
+      res.status(200).send({ message: `${type} Staff Query`, access: true, all_staff: all_staff})
+    }
+    else{
+      res.status(200).send({ message: `No Staff Query`, access: false, all_staff: []})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderOneLeaveConfigQuery = async(req, res) => {
+  try{
+    const { id } = req?.params
+    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const leave_config = await LeaveConfig.findOne({ institute: id})
+    if(leave_config?._id){
+      res.status(200).send({ message: `One Leave Query`, access: true, leave_config: leave_config})
+    }
+    else{
+      res.status(200).send({ message: `No Leave Query`, access: false})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderTeachingQuery = async(req, res) => {
+  try{
+    const all_ins = await InstituteAdmin.find({})
+    for(var val of all_ins){
+      if(val?.insPhoneNumber && val?.insEmail){
+      const new_l = new LeaveConfig()
+      new_l.institute = val?._id
+      val.leave_config = new_l?._id
+      await Promise.all([ val.save(), new_l.save()])
+      }
+    }
+    res.status(200).send({ message: `Leave Query`, access: true})
   }
   catch(e){
     console.log(e)

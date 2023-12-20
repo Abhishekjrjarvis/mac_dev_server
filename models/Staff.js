@@ -398,6 +398,13 @@ const staffSchema = new mongoose.Schema({
       ref: "Batch",
     },
   ],
+  experience: [
+    {
+      college_name: { type: String },
+      college_year: { type: String },
+      course_field: { type: String }
+    }
+  ],
   student_message: [
     {
       message: {
@@ -447,6 +454,54 @@ const staffSchema = new mongoose.Schema({
     default: 0
   },
   leave_taken: {
+    type: Number,
+    default: 0
+  },
+  commuted_leave: {
+    type: Number,
+    default: 0
+  },
+  maternity_leave: {
+    type: Number,
+    default: 0
+  },
+  paternity_leave: {
+    type: Number,
+    default: 0
+  },
+  study_leave: {
+    type: Number,
+    default: 0
+  },
+  half_pay_leave: {
+    type: Number,
+    default: 0
+  },
+  quarantine_leave: {
+    type: Number,
+    default: 0
+  },
+  sabbatical_leave: {
+    type: Number,
+    default: 0
+  },
+  special_disability_leave: {
+    type: Number,
+    default: 0
+  },
+  winter_vacation_leave: {
+    type: Number,
+    default: 0
+  },
+  summer_vacation_leave: {
+    type: Number,
+    default: 0
+  },
+  child_adoption_leave: {
+    type: Number,
+    default: 0
+  },
+  bereavement_leave: {
     type: Number,
     default: 0
   },

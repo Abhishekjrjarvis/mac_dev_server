@@ -1021,6 +1021,7 @@ exports.printedBySuperAdmin = async (req, res) => {
 exports.fillStaffForm = async (req, res) => {
   try {
     const { uid, id } = req.params;
+    const { experience } = req?.body
     const institute = await InstituteAdmin.findById({ _id: id });
     const user = await User.findById({ _id: uid });
     const staff = new Staff({ ...req.body });
@@ -1041,6 +1042,11 @@ exports.fillStaffForm = async (req, res) => {
           documentKey: file.key,
           documentType: file.type,
         });
+      }
+    }
+    if(experience?.length > 0){
+      for(var val of experience){
+        staff.experience.push(val)
       }
     }
     const notify = new Notification({});
@@ -3000,7 +3006,7 @@ exports.getFullStaffInfo = async (req, res) => {
     if (isApk) {
       var staff = await Staff.findById({ _id: id })
         .select(
-          "staffFirstName staffDesignationCount staffMiddleName teaching_type staffDepartment staffClass staffSubject staffBatch staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave"
+          "staffFirstName staffDesignationCount staffMiddleName teaching_type experience staffDepartment staffClass staffSubject staffBatch staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave"
         )
         .populate({
           path: "user",

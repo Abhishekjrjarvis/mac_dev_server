@@ -808,8 +808,8 @@ exports.retrieveAllPosts = async (req, res) => {
         res.status(200).send({
           message: "Failure",
           post,
-          postCount: postCount.length ?? 0,
-          totalPage: totalPage ?? 0,
+          postCount: 0,
+          totalPage: 0,
         });
         // console.log("BUG")
       }

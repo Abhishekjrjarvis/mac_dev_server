@@ -241,4 +241,8 @@ router
   .patch(catchAsync(examController.examEditOneSubjectMasterQuery))
   .delete(catchAsync(examController.examRemoveOneSubjectMasterQuery));
 
+router
+  .route("/add/subject/master/direct/co/mapping")
+  .patch(catchAsync(examController.examDirectCoMappingQuery));
+
 module.exports = router;

@@ -30,7 +30,7 @@ const Admission = require("../../models/Admission/Admission");
 const Transport = require("../../models/Transport/transport");
 const Vehicle = require("../../models/Transport/vehicle");
 const LeaveConfig = require("../../models/Leave/LeaveConfig");
-const { months_helper } = require("../../helper/dayTimer");
+const { months_helper, getSundaysInYear } = require("../../helper/dayTimer");
 
 //=======================================For the students related controller=========================================
 
@@ -1689,6 +1689,51 @@ exports.renderLeaveConfigRulesQuery = async(req, res) => {
     await LeaveConfig.findByIdAndUpdate(lid, req?.body)
 
     res.status(200).send({ message: "Explore All Leave Config Rules Query", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderLeaveSetOffConfigRulesQuery = async(req, res) => {
+  try{
+    const { lid } = req?.params
+    if(!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    await LeaveConfig.findByIdAndUpdate(lid, req?.body)
+
+    res.status(200).send({ message: "Set Off Rules Updated Successfully", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderLeaveConfigHolidayQuery = async(req, res) => {
+  try{
+    const { lid } = req?.params
+    const { date_arr, mark_status } = req?.body
+    if(!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const leave = await LeaveConfig.findById({ _id: lid})
+    for(var val of date_arr){
+      leave.holiday_config.dDate.push(val)
+    }
+    if(mark_status === "ALL_SUNDAYS"){
+      const sundaysInYear = getSundaysInYear(2023, 2024);
+      for(var val of sundaysInYear?.formattedSundays){
+        leave.holiday_config.dDate.push(val)
+      }
+    }
+    if(mark_status === "ALL_SATURDAYS"){
+      const sundaysInYear = getSundaysInYear(2023, 2024);
+      for(var val of sundaysInYear?.formattedSaturdays){
+        leave.holiday_config.dDate.push(val)
+      }
+    }
+    
+    await leave.save()
+    res.status(200).send({ message: "Explore All Holidays In a year", access: true})
   }
   catch(e){
     console.log(e)

@@ -5297,3 +5297,85 @@ exports.examRemoveOneSubjectMasterQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.examDirectCoMappingQuery = async (req, res) => {
+  try {
+    const { eid, smid } = req.query;
+    if (!eid && !smid) throw "Please send subject master id";
+    const { copo_list, totalMarks, subjectIds } = req.body;
+    const exam = await Exam.findById(eid);
+    for (let subId of subjectIds) {
+      const subject = await Subject.findById(subId);
+      const classes = await Class.findById(subject?.class).select(
+        "ApproveStudent _id"
+      );
+      var all_student = classes.ApproveStudent || [];
+      if (subject?.selected_batch_query) {
+        const subject_batch = await Batch.findById(
+          subject?.selected_batch_query
+        );
+        all_student = subject_batch.class_student_query;
+      }
+      var subject_copo_id = [];
+      for (let copo of copo_list) {
+        let copo_weight = ((copo?.marks * 100) / totalMarks).toFixed(2);
+        let copoObj = {
+          attainment_name: exam?.examName,
+          attainment_mark: copo?.marks,
+          attainment_mark_weight: copo_weight,
+          attainment_assign_type: "EXAM",
+          examId: exam?._id,
+          subject_student: all_student,
+          student_count: all_student?.length,
+          present_student_count: all_student?.length,
+          // here some doubt
+          copo_attainment_type: exam?.copo_attainment_type,
+          mapping_type: "DIRECT",
+        };
+
+        const is_sub_attainment = await SubjectAttainment.findOne({
+          attainment: copo?.attainmentId,
+          subject: subject?._id,
+        });
+        if (is_sub_attainment) {
+          is_sub_attainment.attainment_assign.push(copoObj);
+          subject_copo_id.push(is_sub_attainment?._id);
+          await is_sub_attainment.save();
+        } else {
+          const attainment = await Attainment.findById(copo?.attainmentId);
+
+          const sub_attainment = new SubjectAttainment({
+            attainment_name: attainment?.attainment_name,
+            attainment_type: attainment?.attainment_type,
+            attainment: attainment?._id,
+            subject: subject?._id,
+            class: classes?._id,
+            attainment_assign: [copoObj],
+          });
+
+          if (attainment.subject_attainment?.includes(sub_attainment?._id)) {
+          } else {
+            attainment.subject_attainment.push(sub_attainment?._id);
+          }
+          subject_copo_id.push(sub_attainment?._id);
+          if (subject.subject_attainment?.includes(sub_attainment._id)) {
+          } else {
+            subject.subject_attainment.push(sub_attainment._id);
+          }
+          await Promise.all([sub_attainment.save(), attainment.save()]);
+        }
+      }
+
+      for (let ex of exam.subjects) {
+        if (String(ex?.subjectId) === `${subId}`) {
+          ex.subject_copo = subject_copo_id;
+          ex.mapping_type = "DIRECT";
+        }
+      }
+    }
+    await exam.save();
+    res.status(200).send({ message: "direct co mapping is updated" });
+  } catch (e) {
+    console.log(e);
+  }
+};

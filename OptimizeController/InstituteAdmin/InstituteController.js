@@ -1237,7 +1237,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender"
+          "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation staffLastName teaching_type photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender"
         )
         .populate({
           path: "user",
@@ -1261,7 +1261,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
           _id: { $in: staff_ins?.ApproveStaff },
         })
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation staffDesignationCount staffLastName teaching_type photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
           .populate({
             path: "user",
@@ -1291,7 +1291,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
           _id: { $in: staff_ins?.ApproveStaff },
         })
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation staffDesignationCount staffLastName teaching_type photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
           .populate({
             path: "user",

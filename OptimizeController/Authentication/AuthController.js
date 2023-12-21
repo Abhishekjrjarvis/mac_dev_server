@@ -538,14 +538,22 @@ exports.getOtpAtIns = async (req, res) => {
 exports.verifyOtpByUser = async (req, res) => {
   try {
     var account_linked = [];
+    const { u_name } = req?.query
     const { id } = req.params;
     const valid_otp = await OTPCode.findOne({ otp_number: `${id}` });
     const valid_otp_email = await OTPCode.findOne({ otp_email: `${id}` });
     const valid_otp_qviple = await OTPCode.findOne({ otp_qid: `${id}` });
     if (valid_otp) {
+      if(u_name){
+        var all_account = await User.find({ userPhoneNumber: `${u_name}` }).select(
+          "userLegalName username profilePhoto userPassword"
+        );
+      }
+      else{
       var all_account = await User.find({ userPhoneNumber: id }).select(
         "userLegalName username profilePhoto userPassword"
       );
+      }
       if (all_account?.length > 0) {
         for (let all of all_account) {
           const token = generateAccessToken(
@@ -563,9 +571,16 @@ exports.verifyOtpByUser = async (req, res) => {
     } else if (valid_otp_email) {
       // var low_id = id?.toLowerCase();
       // var high_id = id?.toUpperCase();
+      if(u_name){
+        var all_account_email = await User.find({
+          userEmail: { $regex: `${u_name}`, $options: "i" },
+        }).select("userLegalName username profilePhoto userPassword");
+      }
+      else{
       var all_account_email = await User.find({
         userEmail: { $regex: id, $options: "i" },
       }).select("userLegalName username profilePhoto userPassword");
+    }
       if (all_account_email?.length > 0) {
         for (let all of all_account_email) {
           const token = generateAccessToken(
@@ -1251,7 +1266,9 @@ module.exports.authentication = async (req, res) => {
               profilePhoto: user?.profilePhoto,
               is_universal: checkUserUniversalPass ? true : false,
               code_arr: code_arr,
-              _id: user?._id
+              _id: user?._id,
+              userPhoneNumber: user?.userPhoneNumber,
+              userEmail: user?.Email
             }
             const admin_encrypt = {
               token: `Bearer ${token}`,
@@ -1286,7 +1303,9 @@ module.exports.authentication = async (req, res) => {
               profilePhoto: user?.profilePhoto,
               is_universal: checkUserUniversalPass ? true : false,
               code_arr: code_arr,
-              _id: user?._id
+              _id: user?._id,
+              userPhoneNumber: user?.userPhoneNumber,
+              userEmail: user?.Email
             }
             const admin_encrypt = {
               token: `Bearer ${token}`,

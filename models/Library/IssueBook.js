@@ -13,6 +13,10 @@ const issueBookSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Library",
   },
+  staff_member: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Student",
+  },
   // bookName: { type: String, required: true },
   // author: { type: String, required: true },
   // language: { type: String, required: true },

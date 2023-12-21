@@ -101,4 +101,8 @@ router
   .route("/export/:lid/member/query")
   .patch(catchAsync(libraryController.getAllMemberExport));
 
+router
+  .route("/staff/issued/:lid")
+  .patch(catchAsync(libraryController.bookIssueByStaffSideQuery));
+
 module.exports = router;

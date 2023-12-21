@@ -384,18 +384,18 @@ exports.allBookIssueByStaffSide = async (req, res) => {
           path: "book",
           select: "bookName author language photoId photo",
         },
-        select: "book member createdAt",
+        select: "book member staff_member createdAt",
         skip: dropItem,
         limit: itemPerPage,
       })
       .populate({
         path: "issued",
         populate: {
-          path: "member",
+          path: "member staff_member",
           select:
-            "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO",
+            "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
         },
-        select: "book member createdAt",
+        select: "book member staff_member createdAt",
         skip: dropItem,
         limit: itemPerPage,
       })
@@ -1354,6 +1354,40 @@ exports.getAllMemberExport = async (req, res) => {
   }
 };
 
-
-
-
+exports.bookIssueByStaffSideQuery = async (req, res) => {
+  try {
+    if (!req.params.lid) throw "Please send library id to perform task";
+    const { memberId, bookId } = req.body;
+    if (!memberId || !bookId)
+      throw "Please send bookId id and memberId to perform task";
+    const library = await Library.findById(req.params.lid);
+    const staff = await Staff.findById(memberId);
+    const book = await Book.findById(bookId);
+    if (!book.leftCopies && book.bookStatus === "Offline")
+      throw "No copy available for this book 😊";
+    if (book.bookStatus === "Offline") book.leftCopies -= 1;
+    const issue = new IssueBook({
+      staff_member: memberId,
+      book: bookId,
+      library: library._id,
+    });
+    staff?.borrow?.push(issue._id);
+    library?.issued?.push(issue._id);
+    if (library?.staff_members?.includes(memberId)) {
+    } else {
+      library?.staff_members?.push(memberId);
+      library.staff_members_count += 1;
+    }
+    await Promise.all([
+      issue.save(),
+      staff.save(),
+      library.save(),
+      book.save(),
+    ]);
+    res.status(200).send({ message: "staff book is issued 😎😎" });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+  }
+};

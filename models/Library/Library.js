@@ -157,7 +157,11 @@ const librarySchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-
+  staff_members: [{ type: mongoose.Schema.Types.ObjectId, ref: "Staff" }],
+  staff_members_count: {
+    type: Number,
+    default: 0
+  }
 });
 
 module.exports = mongoose.model("Library", librarySchema);

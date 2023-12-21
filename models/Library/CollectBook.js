@@ -27,6 +27,10 @@ const collectBookSchema = new mongoose.Schema({
     type: Date,
   },
   createdAt: { type: Date, default: Date.now },
+  staff_member: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Student",
+  },
 });
 
 module.exports = mongoose.model("CollectBook", collectBookSchema);

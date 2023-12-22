@@ -1982,6 +1982,8 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
           staff.experience.push(val)
         }
       }
+      const code = universal_random_password()
+      staff.member_module_unique = `${code}`
       const notify = new Notification({});
       const aStatus = new Status({});
       institute.staff.push(staff._id);
@@ -2982,6 +2984,8 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
         staff.experience.push(val)
       }
     }
+    const code = universal_random_password()
+    staff.member_module_unique = `${code}`
     const notify = new Notification({});
     const aStatus = new Status({});
     user.staff.push(staff._id);
@@ -4044,7 +4048,8 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
           staff.photoId = "0";
           staff.staffProfilePhoto = ref?.sample_pic;
         }
-
+        const code = universal_random_password()
+        staff.member_module_unique = `${code}`
         const notify = new Notification({});
         const aStatus = new Status({});
         user.staff.push(staff._id);

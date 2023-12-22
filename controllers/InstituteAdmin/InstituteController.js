@@ -56,6 +56,7 @@ const Chapter = require("../../models/Academics/Chapter");
 const Attainment = require("../../models/Marks/Attainment");
 const { calc_profile_percentage } = require("../../Functions/ProfilePercentage");
 const QvipleId = require("../../models/Universal/QvipleId");
+const { universal_random_password } = require("../../Custom/universalId");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -1050,6 +1051,8 @@ exports.fillStaffForm = async (req, res) => {
         staff.experience.push(val)
       }
     }
+    const code = universal_random_password()
+    staff.member_module_unique = `${code}`
     const notify = new Notification({});
     const aStatus = new Status({});
     institute.staff.push(staff._id);

@@ -55,6 +55,7 @@ const { nested_document_limit } = require("../../helper/databaseFunction");
 const Chapter = require("../../models/Academics/Chapter");
 const Attainment = require("../../models/Marks/Attainment");
 const QvipleId = require("../../models/Universal/QvipleId");
+const { universal_random_password } = require("../../Custom/universalId");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -1049,6 +1050,8 @@ exports.fillStaffForm = async (req, res) => {
         staff.experience.push(val)
       }
     }
+    const code = universal_random_password()
+    staff.member_module_unique = `${code}`
     const notify = new Notification({});
     const aStatus = new Status({});
     institute.staff.push(staff._id);

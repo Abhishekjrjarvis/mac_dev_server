@@ -413,7 +413,7 @@ exports.renderOneChapterDestroyQuery = async(req, res) => {
     }
 
     if(valid_delete){
-
+      res.status(200).send({ message: "Chapter Deletion Operation Aborted", access: false})
     }
     else{
       subject.chapter.pull(one_chapter?._id)
@@ -422,8 +422,8 @@ exports.renderOneChapterDestroyQuery = async(req, res) => {
       }
       await subject.save()
       await Chapter.findByIdAndDelete(cid)
+      res.status(200).send({ message: "Explore All Chapter Deletion Operation Completed", access: true})
     }
-    res.status(200).send({ message: "Explore All Chapter Deletion Operation Completed"})
   }
   catch(e){
     console.log(e)

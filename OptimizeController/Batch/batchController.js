@@ -30,6 +30,7 @@ const Admission = require("../../models/Admission/Admission");
 const { add_all_installment_zero } = require("../../helper/Installment");
 const FeeCategory = require("../../models/Finance/FeesCategory");
 const Finance = require("../../models/Finance");
+const { universal_random_password } = require("../../Custom/universalId");
 
 exports.preformedStructure = async (req, res) => {
   try {
@@ -154,6 +155,8 @@ exports.preformedStructure = async (req, res) => {
         // classTeacher: oneClass?.classTeacher,
         finalReportsSettings: oneClass?.finalReportsSettings,
       });
+      const codes = universal_random_password()
+      identicalClass.member_module_unique = `${codes}`
       identicalClass.multiple_batches_count = oneClass?.multiple_batches?.length
       if(oneClass?.classTeacher){
         identicalClass.classTeacher = oneClass?.classTeacher
@@ -214,6 +217,8 @@ exports.preformedStructure = async (req, res) => {
           subject_category: oneSubject?.subject_category,
           selected_batch_query: oneSubject?.selected_batch_query
         });
+        const codess = universal_random_password()
+        identicalSubject.member_module_unique = `${codess}`
         if(oneSubject?.subjectTeacherName){
           identicalSubject.subjectTeacherName = oneSubject?.subjectTeacherName
         }

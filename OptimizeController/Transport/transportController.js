@@ -43,6 +43,7 @@ const FeeMaster = require("../../models/Finance/FeeMaster");
 const { handle_undefined } = require("../../Handler/customError");
 const FeeStructure = require("../../models/Finance/FeesStructure");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
+const { universal_random_password } = require("../../Custom/universalId");
 
 exports.renderNewTransportManager = async (req, res) => {
   try {
@@ -54,6 +55,8 @@ exports.renderNewTransportManager = async (req, res) => {
       });
     var institute = await InstituteAdmin.findById({ _id: id });
     var transport = new Transport({});
+    const codess = universal_random_password()
+    transport.member_module_unique = `${codess}`
     if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });

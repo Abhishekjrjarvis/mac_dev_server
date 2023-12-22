@@ -1525,6 +1525,8 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
         _id: `${classes?.institute}`,
       });
       const student = new Student({ ...req.body });
+      const codess = universal_random_password()
+      student.member_module_unique = `${codess}`
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;
@@ -1930,6 +1932,8 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         });
       }
       const student = new Student({ ...req.body });
+      const codess = universal_random_password()
+      student.member_module_unique = `${codess}`
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;
@@ -2150,6 +2154,8 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
         });
       }
       const student = new Student({ ...req.body });
+      const codess = universal_random_password()
+      student.member_module_unique = `${codess}`
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;
@@ -2390,6 +2396,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       _id: `${institute?.financeDepart[0]}`,
     });
     const student = new Student({ ...req.body });
+    const codess = universal_random_password()
+    student.member_module_unique = `${codess}`
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
@@ -2972,6 +2980,8 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       var user = await User.findById({ _id: `${existing}` });
     }
     const student = new Student({ ...req.body });
+    const codess = universal_random_password()
+    student.member_module_unique = `${codess}`
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
@@ -3251,6 +3261,8 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           _id: `${institute?.financeDepart[0]}`,
         });
         const student = new Student({ ...query });
+        const codess = universal_random_password()
+        student.member_module_unique = `${codess}`
         student.valid_full_name = `${student?.studentFirstName} ${
           student?.studentMiddleName ?? ""
         } ${student?.studentLastName}`;
@@ -4297,6 +4309,8 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
           student_prn_enroll_number: ref.student_prn_enroll_number,
           student_join_mode: "ADMISSION_PROCESS",
         });
+        const codess = universal_random_password()
+        student.member_module_unique = `${codess}`
         student.valid_full_name = `${student?.studentFirstName} ${
           student?.studentMiddleName ?? ""
         } ${student?.studentLastName}`;

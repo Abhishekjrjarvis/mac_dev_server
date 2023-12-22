@@ -17,6 +17,7 @@ const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 const BankAccount = require("../../models/Finance/BankAccount");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const { randomSixCode } = require("../../Service/close");
+const { universal_random_password } = require("../../Custom/universalId");
 
 //for Institute side Activate library
 exports.activateLibrary = async (req, res) => {
@@ -28,6 +29,8 @@ exports.activateLibrary = async (req, res) => {
       institute: institute._id,
       coverId: "2",
     });
+    const codess = universal_random_password()
+    library.member_module_unique = `${codess}`
     if (sid) {
       var staff = await Staff.findById(sid);
       var user = await User.findById({ _id: `${staff?.user}` });

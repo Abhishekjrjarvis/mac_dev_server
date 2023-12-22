@@ -131,10 +131,10 @@ const librarySchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  // member_module_unique: {
-  //   type: String,
-  //   unique: true
-  // },
+  member_module_unique: {
+    type: String,
+    unique: true
+  },
   export_collection: [
     {
       excel_type: {

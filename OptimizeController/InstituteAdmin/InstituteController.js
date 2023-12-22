@@ -776,6 +776,8 @@ exports.getNewDepartment = async (req, res) => {
     const { sid } = req.body;
     var institute = await InstituteAdmin.findById({ _id: id });
     var department = new Department({ ...req.body });
+    const code = universal_random_password()
+    department.member_module_unique = `${code}`
     institute.depart.push(department._id);
     institute.departmentCount += 1;
     department.institute = institute._id;
@@ -1106,6 +1108,8 @@ exports.fillStudentForm = async (req, res) => {
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
     student.student_join_mode = "ADMISSION_PROCESS";
+    const codess = universal_random_password()
+    student.member_module_unique = `${codess}`
     const classes = await Class.findOne({ classCode: req.body.studentCode });
     const classStaff = await Staff.findById({ _id: `${classes.classTeacher}` });
     const classUser = await User.findById({ _id: `${classStaff.user}` });
@@ -3483,6 +3487,8 @@ exports.retrieveNewClass = async (req, res) => {
         },
         optionalSubjectCount: optionalSubjectCount,
       });
+      const code = universal_random_password()
+      classRoom.member_module_unique = `${code}`
       if (sid) {
         var staff = await Staff.findById({ _id: sid }).populate({
           path: "user",
@@ -3612,6 +3618,8 @@ exports.retrieveNewSubject = async (req, res) => {
       tutorial_analytic: tutorial_analytic,
       subject_category: subject_category,
     });
+    const codess = universal_random_password()
+    subject.member_module_unique = `${codess}`
     if (sid) {
       var staff = await Staff.findById({ _id: sid }).populate({
         path: "user",

@@ -93,6 +93,7 @@ const {
   set_fee_head_query_redesign_hostel,
 } = require("../../Functions/hostelInstallment");
 const { setoff_json_to_excel_query, mismatch_scholar_transaction_json_to_excel_query } = require("../../Custom/JSONToExcel");
+const { universal_random_password } = require("../../Custom/universalId");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -105,6 +106,8 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
       });
     var institute = await InstituteAdmin.findById({ _id: id });
     var admission = new Admission({});
+    const codess = universal_random_password()
+    admission.member_module_unique = `${codess}`
     if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });
@@ -646,6 +649,8 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;
       student.student_join_mode = "ADMISSION_PROCESS";
+      const codess = universal_random_password()
+      student.member_module_unique = `${codess}`
       const apply = await NewApplication.findById({ _id: aid });
       const admission = await Admission.findById({
         _id: `${apply.admissionAdmin}`,

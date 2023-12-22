@@ -35,6 +35,7 @@ const { handle_undefined } = require("../../Handler/customError");
 const Election = require("../../models/Elections/Election");
 const Participate = require("../../models/ParticipativeEvent/participate");
 const { date_renew, generate_date } = require("../../helper/dayTimer");
+const { universal_random_password } = require("../../Custom/universalId");
 
 exports.renderNewEventManagerQuery = async (req, res) => {
   try {
@@ -42,6 +43,8 @@ exports.renderNewEventManagerQuery = async (req, res) => {
     const { sid } = req.body;
     var institute = await InstituteAdmin.findById({ _id: id });
     var event_manager = new EventManager({});
+    const codess = universal_random_password()
+    event_manager.member_module_unique = `${codess}`
     if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });

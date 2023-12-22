@@ -32,12 +32,15 @@ const {
 } = require("../../config/redis-config");
 const { handle_undefined } = require("../../Handler/customError");
 const { generate_hash_pass } = require("../../helper/functions");
+const { universal_random_password } = require("../../Custom/universalId");
 
 exports.renderNewAluminiQuery = async (req, res) => {
   try {
     const { id, sid } = req.params;
     var institute = await InstituteAdmin.findById({ _id: id });
     var alumini = new Alumini({ ...req.body });
+    const codess = universal_random_password()
+    alumini.member_module_unique = `${codess}`
     if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });

@@ -96,6 +96,7 @@ const {
   insert_multiple_hostel_status,
 } = require("../../helper/hostelMultipleStatus");
 const FeeMaster = require("../../models/Finance/FeeMaster");
+const { universal_random_password } = require("../../Custom/universalId");
 
 exports.renderActivateHostelQuery = async (req, res) => {
   try {
@@ -103,6 +104,8 @@ exports.renderActivateHostelQuery = async (req, res) => {
     const { sid } = req.body;
     var institute = await InstituteAdmin.findById({ _id: id });
     var hostel = new Hostel({});
+    const codess = universal_random_password()
+      hostel.member_module_unique = `${codess}`
     if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });
@@ -952,6 +955,8 @@ exports.renderHostelReceievedApplication = async (req, res) => {
       });
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
+    const codess = universal_random_password()
+    student.member_module_unique = `${codess}`
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
@@ -6666,6 +6671,8 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       var user = await User.findById({ _id: `${existing}` });
     }
     const student = new Student({ ...req.body });
+    const codess = universal_random_password()
+    student.member_module_unique = `${codess}`
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
@@ -6917,6 +6924,8 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         studentPhoneNumber: ref?.studentPhoneNumber,
         student_join_mode: "HOSTEL_PROCESS",
       });
+      const codess = universal_random_password()
+      student.member_module_unique = `${codess}`
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;

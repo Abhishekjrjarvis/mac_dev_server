@@ -40,6 +40,7 @@ const Renewal = require("../../models/Hostel/renewal");
 const { custom_month_query } = require("../../helper/dayTimer");
 const BankAccount = require("../../models/Finance/BankAccount");
 const Batch = require("../../models/Batch");
+const { universal_random_password } = require("../../Custom/universalId");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
   try {
@@ -1682,6 +1683,8 @@ exports.directAdmissionInstituteFunction = async (
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
     student.student_join_mode = "ADMISSION_PROCESS";
+    const codess = universal_random_password()
+    student.member_module_unique = `${codess}`
     const studentOptionalSubject = body?.optionalSubject
       ? body?.optionalSubject
       : [];

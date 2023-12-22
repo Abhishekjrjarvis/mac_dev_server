@@ -105,6 +105,8 @@ exports.renderActivateHostelQuery = async (req, res) => {
     const { sid } = req.body;
     var institute = await InstituteAdmin.findById({ _id: id });
     var hostel = new Hostel({});
+    const codess = universal_random_password()
+      hostel.member_module_unique = `${codess}`
     if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });
@@ -958,6 +960,8 @@ exports.renderHostelReceievedApplication = async (req, res) => {
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
     student.student_join_mode = "HOSTEL_PROCESS";
+    const codess = universal_random_password()
+    student.member_module_unique = `${codess}`
     const apply = await NewApplication.findById({ _id: aid });
     const valid_unit = await HostelUnit.findById({
       _id: `${apply?.applicationUnit}`,
@@ -6676,6 +6680,8 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
     student.student_join_mode = "HOSTEL_PROCESS";
+    const codess = universal_random_password()
+    student.member_module_unique = `${codess}`
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
       : [];
@@ -6927,6 +6933,8 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         studentPhoneNumber: ref?.studentPhoneNumber,
         student_join_mode: "HOSTEL_PROCESS",
       });
+      const codess = universal_random_password()
+      student.member_module_unique = `${codess}`
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;

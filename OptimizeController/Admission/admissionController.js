@@ -107,6 +107,8 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
       });
     var institute = await InstituteAdmin.findById({ _id: id });
     var admission = new Admission({});
+    const codess = universal_random_password()
+    admission.member_module_unique = `${codess}`
     if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });
@@ -685,6 +687,8 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;
+      const codess = universal_random_password()
+      student.member_module_unique = `${codess}`
       student.student_join_mode = "ADMISSION_PROCESS";
       const apply = await NewApplication.findById({ _id: aid });
       const admission = await Admission.findById({

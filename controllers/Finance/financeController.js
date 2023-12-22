@@ -63,6 +63,7 @@ const {
 const NewApplication = require("../../models/Admission/NewApplication");
 const Transport = require("../../models/Transport/transport");
 const Vehicle = require("../../models/Transport/vehicle");
+const { universal_random_password } = require("../../Custom/universalId");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -70,6 +71,8 @@ exports.getFinanceDepart = async (req, res) => {
     const { sid } = req.body;
     var institute = await InstituteAdmin.findById({ _id: id });
     var finance = new Finance({});
+    const codess = universal_random_password()
+      finance.member_module_unique = `${codess}`
     if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });

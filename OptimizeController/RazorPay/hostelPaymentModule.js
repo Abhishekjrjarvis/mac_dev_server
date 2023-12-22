@@ -39,6 +39,7 @@ const Hostel = require("../../models/Hostel/hostel");
 const Renewal = require("../../models/Hostel/renewal");
 const { custom_month_query } = require("../../helper/dayTimer");
 const BankAccount = require("../../models/Finance/BankAccount");
+const { universal_random_password } = require("../../Custom/universalId");
 
 exports.hostelInstituteFunction = async (
   order,
@@ -508,6 +509,8 @@ exports.directHostelInstituteFunction = async (
     var status = new Status({});
     // var notify = new StudentNotification({});
     var student = new Student({ ...body });
+    const codess = universal_random_password()
+    student.member_module_unique = `${codess}`
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;

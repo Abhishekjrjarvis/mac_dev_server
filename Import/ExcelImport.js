@@ -8,6 +8,7 @@ const Batch = require("../models/Batch");
 const ExamFeeStructure = require("../models/BacklogStudent/ExamFeeStructure");
 const { generate_random_code } = require("../helper/functions");
 const { todayDate } = require("../Utilities/timeComparison");
+const { universal_random_password } = require("../Custom/universalId");
 
 exports.render_new_department_query = async (arr, id) => {
   try {
@@ -21,6 +22,8 @@ exports.render_new_department_query = async (arr, id) => {
         institute.depart.push(department._id);
         institute.departmentCount += 1;
         department.institute = institute._id;
+        const code = universal_random_password()
+        department.member_module_unique = `${code}`
         department.dHead = null;
         await department.save();
         const new_exam_fee = new ExamFeeStructure({
@@ -107,6 +110,8 @@ exports.render_new_class_query = async (arr, did) => {
             classCode: `${result}`,
             classStartDate: date,
           });
+          const code = universal_random_password()
+          classRoom.member_module_unique = `${code}`
           classRoom.classTeacher = null;
           institute.classCodeList.push(`${result}`);
           institute.classRooms.push(classRoom._id);
@@ -148,6 +153,8 @@ exports.render_new_subject_query = async (arr, cid) => {
           subjectOptional: subjectMaster?.subjectType,
           subject_category: ref?.subject_category,
         });
+        const codess = universal_random_password()
+        subject.member_module_unique = `${codess}`
         subject.subjectTeacherName = null;
         classes.subject.push(subject._id);
         classes.subjectCount += 1;

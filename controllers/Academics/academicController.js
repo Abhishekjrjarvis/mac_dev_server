@@ -407,7 +407,7 @@ exports.renderOneChapterDestroyQuery = async(req, res) => {
     var subject = await Subject.findById({ _id: `${one_chapter?.subject}`})
 
     for(var val of one_chapter?.topic){
-      if(`${val?.topic_completion_date}` && `${val?.topic_completion_status}`){
+      if(`${val?.topic_completion_date}` && `${val?.topic_completion_status}` !== "Pending"){
         valid_delete = true
       }
     }

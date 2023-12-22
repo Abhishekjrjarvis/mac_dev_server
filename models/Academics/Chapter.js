@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ChapterTopic = require("./ChapterTopic");
 
 const chapterSchema = new mongoose.Schema({
   chapter_name: {

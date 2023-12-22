@@ -520,10 +520,10 @@ const staffSchema = new mongoose.Schema({
   current_designation: {
     type: String
   },
-  member_module_unique: {
-    type: String,
-    unique: true
-  },
+  // member_module_unique: {
+  //   type: String,
+  //   unique: true
+  // },
   teaching_type: {
     type: String
   },

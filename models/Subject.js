@@ -205,10 +205,10 @@ const subjectSchema = new mongoose.Schema({
       ref: "Student"
     }
   ],
-  member_module_unique: {
-    type: String,
-    unique: true
-  }
+  // member_module_unique: {
+  //   type: String,
+  //   unique: true
+  // }
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

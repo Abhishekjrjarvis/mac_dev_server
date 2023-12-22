@@ -290,10 +290,10 @@ const admissionAdminSchema = new mongoose.Schema({
       default: true
     },
   },
-  member_module_unique: {
-    type: String,
-    unique: true
-  },
+  // member_module_unique: {
+  //   type: String,
+  //   unique: true
+  // },
   admission_stats: {
     
   }

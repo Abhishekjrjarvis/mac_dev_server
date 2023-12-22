@@ -580,10 +580,10 @@ const financeSchema = new mongoose.Schema(
       master_level: [],
       loading: { type: Boolean, default: true}
     },
-    member_module_unique: {
-      type: String,
-      unique: true
-    },
+    // member_module_unique: {
+    //   type: String,
+    //   unique: true
+    // },
     incomes: {
       type: Number,
       default: 0

@@ -3253,8 +3253,12 @@ exports.destroyUserAccountQuery = async(req, res) => {
       });
     // var admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     var one_user = await User.findById({ _id: uid})
-    const normal_pass = bcrypt.compareSync(valid_pass, one_user?.userPassword)
-    const universal_pass = bcrypt.compareSync(valid_pass, one_user?.user_universal_password)
+    if(one_user?.userPassword){
+      var normal_pass = bcrypt.compareSync(valid_pass, one_user?.userPassword)
+    }
+    if(one_user?.user_universal_password){
+      var universal_pass = bcrypt.compareSync(valid_pass, one_user?.user_universal_password)
+    }
     if(normal_pass || universal_pass){
       if(one_user?.staff?.length > 0 || one_user?.student?.length > 0){
         res

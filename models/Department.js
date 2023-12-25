@@ -398,7 +398,9 @@ const departmentSchema = new mongoose.Schema({
       ref: "Attainment",
     },
   ],
-
+  last_update: {
+    type: Date
+  }
 });
 
 const Department = mongoose.model("Department", departmentSchema);

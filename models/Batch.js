@@ -113,6 +113,14 @@ const batchSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Class",
   },
+  collect_by_government: {
+    type: Number,
+    default: 0
+  },
+  pending_from_government: {
+    type: Number,
+    default: 0
+  }
 });
 
 const Batch = mongoose.model("Batch", batchSchema);

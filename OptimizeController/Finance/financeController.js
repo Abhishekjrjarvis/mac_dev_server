@@ -5788,6 +5788,115 @@ exports.renderAllMismatchQuery = async (req, res) => {
   }
 };
 
+const remove_duplicated = (arr) => {
+  jsonObject = arr.map(JSON.stringify);
+  uniqueSet = new Set(jsonObject);
+  uniqueArray = Array.from(uniqueSet).map(JSON.parse);
+  return uniqueArray
+}
+
+exports.renderRefreshScholarshipFundsQuery = async(req, res) => {
+  try{
+    const { did } = req?.body
+    if(!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    
+    const depart = await Department.findById({ _id: did })
+    var custom_classes = []
+    res.status(200).send({ message: "Explore All Scholarship Funds Query", access: true})
+    for(var val of depart?.batches){
+      var collect_by_government = 0
+      var pending_from_government = 0
+      var collect_by_government_arr = []
+      var pending_from_government_arr = []
+      var one_batch = await Batch.findById({ _id: `${val}` })
+      var classes = await Class.find({ batch: one_batch?._id })
+      .select("className classTitle masterClassName ApproveStudent")
+              for(var cls of classes){
+                var all_student = await Student.find({ $and: [{ _id: { $in: cls?.ApproveStudent} }]})
+                var structure = await FeeStructure.find({ $and: [{ department: depart?._id}, { batch_master: one_batch?._id}] })
+                  for(var ref of all_student){
+                    var all_remain = await RemainingList.find({  $and: [{ student: ref?._id}, { fee_structure: { $in: structure }}]})
+                    .populate({
+                      path: "fee_structure"
+                    })
+                    .populate({
+                      path: "student",
+                      select: "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO total_paid_fees total_os_fees applicable_os_fees government_os_fees"
+                    })
+                    for(var ele of all_remain){
+                    collect_by_government += ele?.paid_by_government
+                    pending_from_government += ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees
+                    
+                    // if(ele?.paid_by_government > 0){
+                    //   collect_by_government_arr.push(ele?.student)
+                    // }
+                    // if(ele?.fee_structure?.total_admission_fees - ele?.fee_structure?.applicable_fees > 0){
+                    //   pending_from_government_arr.push(ele?.student)
+                    // }
+                    }
+                    // collect_by_government_arr = remove_duplicated(collect_by_government_arr)
+                    // pending_from_government_arr = remove_duplicated(pending_from_government_arr)
+                  }
+                // }
+              }
+              custom_classes.push({
+                collect_by_government: collect_by_government,
+                pending_from_government: pending_from_government,
+                // collect_by_government_arr: collect_by_government_arr,
+                // pending_from_government_arr: pending_from_government_arr,
+                batch: one_batch?.batchName,
+                department: depart?.dName
+              })
+              one_batch.collect_by_government = collect_by_government
+              one_batch.pending_from_government = pending_from_government
+              await one_batch.save()
+              collect_by_government = 0
+              pending_from_government = 0
+              // collect_by_government_arr = []
+              // pending_from_government_arr = []
+    }
+    depart.last_update = new Date()
+    await depart.save()
+    // if(custom_classes?.length > 0){
+    //   res.status(200).send({ message: "Explore All Scholarship Funds Query", access: true, custom_classes: custom_classes})
+    // }
+    // else{
+    //   res.status(200).send({ message: "No Scholarship Funds Query", access: false, custom_classes: []})
+    // }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderScholarshipFundsQuery = async(req, res) => {
+  try{
+    const { did } = req?.query
+    if(!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    
+    const depart = await Department.findById({ _id: did })
+    var custom_classes = []
+    for(var val of depart?.batches){
+      var one_batch = await Batch.findById({ _id: `${val}` })
+              custom_classes.push({
+                collect_by_government: one_batch?.collect_by_government,
+                pending_from_government: one_batch?.pending_from_government,
+                batch: one_batch?.batchName,
+                department: depart?.dName
+              })
+    }
+    if(custom_classes?.length > 0){
+      res.status(200).send({ message: "Explore All Scholarship Funds Query", access: true, custom_classes: custom_classes, last_update: depart?.last_update})
+    }
+    else{
+      res.status(200).send({ message: "No Scholarship Funds Query", access: false, custom_classes: []})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 
 // exports.updateAlias = async(req, res) => {
 //   try{

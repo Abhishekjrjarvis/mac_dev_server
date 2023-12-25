@@ -555,5 +555,13 @@ router
   .route("/:fid/all/mismatch/excel/query")
   .get(catchAsync(Finance.renderAllMismatchQuery))
 
+router
+  .route("/refresh/scholarship/funds/query")
+  .patch(catchAsync(Finance.renderRefreshScholarshipFundsQuery))
+
+router
+  .route("/scholarship/funds/query")
+  .get(catchAsync(Finance.renderScholarshipFundsQuery))
+
 
 module.exports = router;

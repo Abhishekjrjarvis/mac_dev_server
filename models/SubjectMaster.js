@@ -65,19 +65,13 @@ const subjectMasterSchema = new mongoose.Schema({
       ref: "Attainment",
     },
   ],
-  po_attainment_count: {
-    type: Number,
-    default: 0,
-  },
-  po_attainment: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Attainment",
-    },
-  ],
   course_code: {
     type: String
-  }
+  },
+  course_passing_credit: {
+    type: Number,
+  },
+
 });
 
 const SubjectMaster = mongoose.model("SubjectMaster", subjectMasterSchema);

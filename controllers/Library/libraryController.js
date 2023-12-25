@@ -22,6 +22,7 @@ const { randomSixCode } = require("../../Service/close");
 const { library_json_to_excel } = require("../../Custom/JSONToExcel");
 const moment = require("moment");
 const { universal_random_password } = require("../../Custom/universalId");
+const Department = require("../../models/Department");
 
 //for Institute side Activate library
 exports.activateLibrary = async (req, res) => {
@@ -1080,12 +1081,15 @@ exports.renderDeleteAllBookQuery = async(req, res) => {
 
 exports.renderAllBookQuery = async(req, res) => {
   try{
-    const all_book = await Book.find({ purchase_order_number: { $regex: "D.Pharm"} })
+    const { did } = req?.query
+    const depart = await Department.findById({ _id: did})
+    const all_book = await Book.find({ accession_number: { $regex: "B-"} })
     var total = 0
     for(var val of all_book){
-      total += 1
-      val.qviple_book_id = `QLBD-${total}`
-      val.accession_number = `D-${total}`
+      // total += 1
+      // val.qviple_book_id = `QLBD-${total}`
+      // val.accession_number = `D-${total}`
+      val.department = depart?._id
       await val.save()
     }
     res.status(200).send({ message: "Explore All Book Query", access: true})

@@ -54,4 +54,9 @@ router
 
 router.route("/undo").patch(catchAsync(batchController.undo));
 
+router
+  .route("/subject/:smid/passing/credit/update")
+  .patch(isLoggedIn, catchAsync(batchController.subjectPassingCreditUpdate));
+
+
 module.exports = router;

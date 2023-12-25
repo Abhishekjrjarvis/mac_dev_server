@@ -1410,3 +1410,26 @@ exports.undo = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.subjectPassingCreditUpdate = async (req, res) => {
+  try {
+    const { smid } = req.params;
+    if (!smid)
+      return res.status(200).send({
+        message:
+          "Their is a bug to call api of batch related! need to fix it soon.",
+        access: true,
+      });
+    const sub_master = await SubjectMaster.findById(smid);
+    sub_master.course_passing_credit = req.body?.course_passing_credit;
+    for (let subId of sub_master?.subjects) {
+      const subject = await Subject.findById(subId);
+      subject.course_passing_credit = req.body?.course_passing_credit ?? 0;
+      await subject.save();
+    }
+    await sub_master.save();
+    res.status(200).send({ message: "Subject passing credit is updated" });
+  } catch (e) {
+    console.log(e);
+  }
+};

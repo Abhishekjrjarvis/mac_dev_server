@@ -7,35 +7,62 @@ const Class = require("../../models/Class");
 const Student = require("../../models/Student");
 const Department = require("../../models/Department");
 const Batch = require("../../models/Batch");
+const InstituteAdmin = require("../../models/InstituteAdmin");
+const {
+  generate_excel_to_json_department_po_query,
+  generate_excel_to_json_subject_master_co_query,
+} = require("../../Custom/excelToJSON");
+const { simple_object } = require("../../S3Configuration");
 
 exports.getAllAttainmentQuery = async (req, res) => {
   try {
     const { smid } = req.params;
-    const { flow } = req.query;
+    const { flow, filter_by } = req.query;
     if (!smid) throw "Please send subject master id to perform operations";
-    if (flow === "MARKING_COPO") {
+    if (filter_by === "DEPARTMENT") {
       var attainment = await Attainment.find({
-        subject_master: { $eq: `${smid}` },
-        attainment_type: { $eq: `CO` },
+        department: { $eq: `${smid}` },
+        attainment_type: { $eq: `PO` },
+      });
+
+      let po_count = 0;
+      for (let att of attainment) {
+        if (att?.attainment_type === "PO") {
+          po_count += 1;
+        }
+      }
+      res.status(200).send({
+        message: "All list of copo in subjects",
+        attainment: attainment ? attainment : [],
+        attainment_count: attainment?.length,
+        attainment_po_count: po_count,
       });
     } else {
-      var attainment = await Attainment.find({
-        subject_master: { $eq: `${smid}` },
+      if (flow === "MARKING_COPO") {
+        var attainment = await Attainment.find({
+          subject_master: { $eq: `${smid}` },
+          attainment_type: { $eq: `CO` },
+        });
+      } else {
+        var attainment = await Attainment.find({
+          subject_master: { $eq: `${smid}` },
+          attainment_type: { $eq: `CO` },
+        });
+      }
+
+      let po_count = 0;
+      for (let att of attainment) {
+        if (att?.attainment_type === "PO") {
+          po_count += 1;
+        }
+      }
+      res.status(200).send({
+        message: "All list of copo in subjects",
+        attainment: attainment ? attainment : [],
+        attainment_count: attainment?.length,
+        attainment_po_count: po_count,
       });
     }
-
-    let po_count = 0;
-    for (let att of attainment) {
-      if (att?.attainment_type === "PO") {
-        po_count += 1;
-      }
-    }
-    res.status(200).send({
-      message: "All list of copo in subjects",
-      attainment: attainment ? attainment : [],
-      attainment_count: attainment?.length,
-      attainment_po_count: po_count,
-    });
   } catch (e) {
     res.status(200).send({
       message: e,
@@ -50,18 +77,22 @@ exports.addAttainmentQuery = async (req, res) => {
     if (!smid) throw "Please send subject master id to perform operations";
 
     const attainment = new Attainment(req.body);
-    attainment.subject_master = smid;
     attainment.attainment_type = req.body?.attainment_type;
-    const subject_master = await SubjectMaster.findById(smid);
     if (req.body?.attainment_type === "CO") {
+      attainment.subject_master = smid;
+      const subject_master = await SubjectMaster.findById(smid);
       subject_master.co_attainment.push(attainment?._id);
       subject_master.co_attainment_count += 1;
+      await subject_master.save();
     } else {
-      subject_master.po_attainment.push(attainment?._id);
-      subject_master.po_attainment_count += 1;
+      attainment.department = smid;
+      const department = await Department.findById(smid);
+      department.po_attainment.push(attainment?._id);
+      department.po_attainment_count += 1;
+      await department.save();
     }
 
-    await Promise.all([attainment.save(), subject_master.save()]);
+    await attainment.save();
     res.status(201).send({
       message: "Attainment created by subject master",
     });
@@ -82,11 +113,12 @@ exports.editAttainmentQuery = async (req, res) => {
       message: "Attainment is edited success.",
     });
     const attainment = await Attainment.findById(atid);
-
-    for (let satid of attainment?.subject_attainment) {
-      const sub_attainment = await SubjectAttainment.findById(satid);
-      attainment.attainment_name = req.body?.attainment_name;
-      await sub_attainment.save();
+    if (attainment.attainment_type === "CO") {
+      for (let satid of attainment?.subject_attainment) {
+        const sub_attainment = await SubjectAttainment.findById(satid);
+        sub_attainment.attainment_name = req.body?.attainment_name;
+        await sub_attainment.save();
+      }
     }
   } catch (e) {
     res.status(200).send({
@@ -107,17 +139,19 @@ exports.destroyAttainmentQuery = async (req, res) => {
           "Attainment is not deleted because it now added somewhere for evaluation.",
       });
     } else {
-      const sub_master = await SubjectMaster.findById(
-        attainment?.subject_master
-      );
       if (attainment.attainment_type === "CO") {
+        const sub_master = await SubjectMaster.findById(
+          attainment?.subject_master
+        );
         sub_master.co_attainment.pull(attainment?._id);
         sub_master.co_attainment_count -= 1;
+        await sub_master.save();
       } else {
-        sub_master.po_attainment.pull(attainment?._id);
-        sub_master.po_attainment_count -= 1;
+        const department = await Department.findById(attainment?.department);
+        department.po_attainment.pull(attainment?._id);
+        department.po_attainment_count -= 1;
+        await department.save();
       }
-      await sub_master.save();
       await Attainment.findByIdAndDelete(atid);
       res.status(201).send({
         message: "Attainment is deleted successfully.",
@@ -1024,22 +1058,129 @@ exports.updateCopoMappingQuery = async (req, res) => {
   }
 };
 
-// exports.getAllAttainmentQuery = async (req, res) => {
-//   try {
-//   } catch (e) {
-//     res.status(200).send({
-//       message: e,
-//     });
-//     console.log(e);
-//   }
-// };
+exports.getDepartmentPoExcelQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    const { excel_file } = req.body;
+    if (!did) throw "Please send department id to perform operations";
+    const department = await Department.findById(did);
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${department?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      departId: department?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "PO Excel Update To Backend Wait for Operation Completed",
+      access: true,
+    });
 
-// exports.getAllAttainmentQuery = async (req, res) => {
-//   try {
-//   } catch (e) {
-//     res.status(200).send({
-//       message: e,
-//     });
-//     console.log(e);
-//   }
-// };
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${department?.institute}`,
+    });
+    var key;
+
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.departId}` === `${department?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+
+    const val = await simple_object(key);
+    const is_converted = await generate_excel_to_json_department_po_query(val);
+    if (is_converted?.value) {
+      for (let attain of is_converted?.po_list) {
+        const attainment = new Attainment({
+          attainment_name: attain?.attainment_name,
+          attainment_type: "PO",
+          attainment_description: attain?.attainment_description,
+          department: department?._id,
+        });
+        department.po_attainment.push(attainment?._id);
+        department.po_attainment_count += 1;
+        await attainment.save();
+      }
+      await department.save();
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+
+exports.getSubjectCoExcelQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    const { excel_file } = req.body;
+    if (!did) throw "Please send department id to perform operations";
+    const department = await Department.findById(did);
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${department?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      departId: department?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "CO Excel Update To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${department?.institute}`,
+    });
+    var key;
+
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.departId}` === `${department?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+
+    const val = await simple_object(key);
+    const is_converted = await generate_excel_to_json_subject_master_co_query(
+      val
+    );
+    if (is_converted?.value) {
+      for (let attain of is_converted?.co_list) {
+        const sub_master = await SubjectMaster.findOne({
+          course_code: { $eq: `${attain?.attainment_code}` },
+        });
+        // console.log("sub_master", sub_master?.course_code);
+        const attainment = new Attainment({
+          attainment_name: attain?.attainment_name,
+          attainment_type: "CO",
+          attainment_description: attain?.attainment_description,
+          attainment_target: attain?.attainment_target,
+          attainment_code: attain?.attainment_code,
+          subject_master: sub_master?._id,
+        });
+        sub_master.co_attainment.push(attainment?._id);
+        sub_master.co_attainment_count += 1;
+        await Promise.all([attainment.save(), sub_master.save()]);
+      }
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};

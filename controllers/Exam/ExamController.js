@@ -41,6 +41,9 @@ const {
 } = require("../../Utilities/custom_grade");
 const Attainment = require("../../models/Marks/Attainment");
 const SubjectAttainment = require("../../models/Marks/SubjectAttainment");
+const QuestionEvaluation = require("../../models/Marks/Evaluation/QuestionEvaluation");
+const StudentQuestionEvaluation = require("../../models/Marks/Evaluation/StudentQuestionEvaluation");
+
 
 exports.getClassMaster = async (req, res) => {
   try {
@@ -175,8 +178,8 @@ exports.createExam = async (req, res) => {
                   examWeight: exam.examWeight,
                   totalMarks: sub.totalMarks,
                   date: sub.date,
-                  startTime: sub.startTime,
-                  endTime: sub.endTime,
+                  startTime: sub.startTime ?? "",
+                  endTime: sub.endTime ?? "",
                 });
                 await subjectMarks1.save();
               } else {
@@ -192,8 +195,8 @@ exports.createExam = async (req, res) => {
                   examWeight: exam.examWeight,
                   totalMarks: sub.totalMarks,
                   date: sub.date,
-                  startTime: sub.startTime,
-                  endTime: sub.endTime,
+                  startTime: sub.startTime ?? "",
+                  endTime: sub.endTime ?? "",
                 });
                 student.subjectMarks.push(subjectMarks._id);
                 await subjectMarks.save();
@@ -244,6 +247,7 @@ exports.createExam = async (req, res) => {
                   student_count: all_student?.length,
                   present_student_count: all_student?.length,
                   copo_attainment_type: exam?.copo_attainment_type,
+                  mapping_type: "DIRECT",
                 };
 
                 const is_sub_attainment = await SubjectAttainment.findOne({
@@ -295,6 +299,7 @@ exports.createExam = async (req, res) => {
               subjectMasterId: sub._id,
               subject_copo: subject_copo_id,
               subject_student: all_student,
+              mapping_type: "DIRECT",
             });
             await subject.save();
           }
@@ -306,6 +311,7 @@ exports.createExam = async (req, res) => {
     console.log(e);
   }
 };
+
 
 exports.allExam = async (req, res) => {
   const exam = await Exam.find({
@@ -1569,7 +1575,8 @@ exports.oneStudentReletedNecessaryData = async (req, res) => {
   } catch (e) {
     console.log(e);
   }
-}
+};
+
 exports.oneStudentBehaviourReportCard = async (req, res) => {
   try {
     const student = await Student.findById(req.params.sid)
@@ -4924,6 +4931,7 @@ exports.createSubjectExam = async (req, res) => {
           student_count: all_student?.length,
           present_student_count: all_student?.length,
           copo_attainment_type: exam?.copo_attainment_type,
+          mapping_type: "DIRECT",
         };
 
         const is_sub_attainment = await SubjectAttainment.findOne({
@@ -4975,12 +4983,14 @@ exports.createSubjectExam = async (req, res) => {
       subject_copo: subject_copo_id,
       subject_attachment: subject_attachment,
       subject_student: all_student,
+      mapping_type: "DIRECT",
     });
     await Promise.all([classes.save(), exam.save()]);
   } catch (e) {
     console.log(e);
   }
 };
+
 
 exports.examEditOneSubjectMasterQuery = async (req, res) => {
   try {
@@ -5029,6 +5039,7 @@ exports.examEditOneSubjectMasterQuery = async (req, res) => {
               student_count: all_student?.length,
               present_student_count: all_student?.length,
               copo_attainment_type: exam?.copo_attainment_type,
+              mapping_type: "DIRECT",
             };
 
             const is_sub_attainment = await SubjectAttainment.findOne({
@@ -5072,6 +5083,7 @@ exports.examEditOneSubjectMasterQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 
 exports.examRemoveOneSubjectMasterQuery = async (req, res) => {
   try {
@@ -5379,3 +5391,355 @@ exports.examDirectCoMappingQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+
+exports.oneStudentReportCardClassTeacherModify = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.sid)
+      .populate({
+        path: "subjectMarks",
+      })
+      .populate({
+        path: "studentClass",
+        populate: {
+          path: "subject",
+          populate: {
+            path: "subject_mark_list",
+            select: "marks_list subjectMaster",
+          },
+          select:
+            "subject_mark_list subjectMasterName setting.subjectPassingMarks",
+        },
+        select:
+          "subject finalReportsSettings.aggregatePassingPercentage finalReportsSettings.gradeMarks masterClassName batch",
+      })
+      .select("_id subjectMarks studentClass department");
+
+    // console.log()
+    const department = await Department.findById(student?.department).populate({
+      path: "grade_system",
+      select: "grades custom_grade grade_name grade_type grade_count",
+    });
+
+    let s_with_max = [];
+    for (let sub of student.studentClass.subject) {
+      let arr = [];
+      let m_id = "";
+      for (let sub_a of sub.subject_mark_list) {
+        for (let sub_b of sub_a.marks_list) {
+          arr.push(sub_b.totalNumber);
+        }
+        m_id = sub_a.subjectMaster;
+      }
+      let maxValue = Math.max(...arr);
+      s_with_max.push({
+        subjectMaster: m_id,
+        maxValue: maxValue,
+        passing: sub?.setting?.subjectPassingMarks,
+      });
+    }
+
+    const db_standard_mark = await StandardMarkList.findOne({
+      classMaster: student.studentClass.masterClassName,
+      batch: student.studentClass?.batch,
+    });
+
+    let st_arr = [];
+    if (db_standard_mark) {
+      for (let st_mark of db_standard_mark?.marks_list) {
+        st_arr.push(st_mark.totalMarks);
+      }
+    }
+    let standard_max = Math.max(...st_arr);
+    let standard_max_value = Math.ceil(
+      (standard_max * 100) / (100 * student.studentClass.subject?.length)
+    );
+
+    const subjects = [];
+    const total = {
+      finalTotal: 0,
+      otherTotal: 0,
+      graceTotal: 0,
+      allSubjectTotal: 0,
+      totalCutoff: student?.studentClass?.finalReportsSettings
+        ?.aggregatePassingPercentage
+        ? student?.studentClass?.finalReportsSettings
+            ?.aggregatePassingPercentage
+        : 0,
+      showGradeTotal: "",
+      spi: 0,
+      totalCredit: 0,
+      earnedGradePoint: 0,
+      totalEarnedGradePoint: 0,
+      resultStatus: "PASS",
+    };
+
+    for (let submarks of student?.subjectMarks) {
+      const su_matser = await Subject.findById(submarks.subject);
+      const course_c = await SubjectMaster.findById(
+        su_matser.subjectMasterName
+      );
+      const obj = {
+        _id: submarks.subject,
+        subjectName: submarks.subjectName,
+        finalTotalMarks: 0,
+        finalObtainMarks: 0,
+        otherTotalMarks: 0,
+        otherObtainMarks: 0,
+        subjectWiseTotal: submarks.graceMarks,
+        graceMarks: submarks.graceMarks,
+        subjectCutoff: 0,
+        showGrade: "",
+        course_credit: su_matser?.course_credit ?? 10,
+        course_code: course_c?.course_code ?? "",
+        finalObtainCredit: 0,
+        gradeWithCredit: 0,
+      };
+      for (let cut of student?.studentClass?.subject) {
+        if (String(submarks.subject) === String(cut?._id))
+          obj.subjectCutoff = cut.setting.subjectPassingMarks;
+      }
+
+      for (let eachmarks of submarks?.marks) {
+        let obtain_add =
+          eachmarks.examWeight > 0
+            ? Math.ceil(
+                (eachmarks.obtainMarks * eachmarks.examWeight) /
+                  eachmarks.totalMarks
+              )
+            : eachmarks.obtainMarks;
+
+        // here start for other
+        obj.finalTotalMarks += eachmarks.totalMarks;
+        obj.finalObtainMarks += obtain_add;
+        // obj.finalObtainMarks += eachmarks.obtainMarks;
+        // here add marks to one subject all total
+        // obj.subjectWiseTotal += obtain_add;
+      }
+
+      // for total convert to 100 of
+      let cov_100 = (
+        (obj.finalObtainMarks * 100) /
+        obj.finalTotalMarks
+      ).toFixed(2);
+      obj.subjectWiseTotal += +cov_100;
+
+      if (student?.studentClass?.finalReportsSettings?.gradeMarks) {
+        if (department.grade_system?.[0]) {
+          for (let m_val of s_with_max) {
+            if (`${su_matser.subjectMasterName}` === `${m_val.subjectMaster}`) {
+              obj.showGrade = grade_calculate(
+                m_val.maxValue,
+                department.grade_system?.[0],
+                m_val.passing,
+                obj.subjectWiseTotal ?? 30
+              );
+            }
+          }
+        }
+      }
+      obj.finalObtainCredit = obj.showGrade ? grade_point(obj.showGrade) : 0;
+      if (obj.finalObtainCredit === "F") {
+        total.resultStatus = "FAIL";
+      }
+      obj.gradeWithCredit = obj.showGrade
+        ? grade_point(obj.showGrade) * obj.course_credit
+        : 0;
+      total.totalCredit += obj.finalObtainCredit;
+      total.earnedGradePoint += obj.gradeWithCredit;
+      total.finalTotal = total.finalTotal + obj.finalObtainMarks;
+      total.otherTotal = total.otherTotal + obj.otherObtainMarks;
+      total.graceTotal = total.graceTotal + submarks.graceMarks;
+      total.allSubjectTotal = total.allSubjectTotal + obj.subjectWiseTotal;
+      subjects.push(obj);
+    }
+
+    const totalPercantage = Math.ceil(
+      (total.allSubjectTotal * 100) / (100 * subjects.length)
+    );
+    if (department.grade_system?.[0]) {
+      total.showGradeTotal = grade_calculate(
+        standard_max_value,
+        department.grade_system?.[0],
+        student?.studentClass?.finalReportsSettings.aggregatePassingPercentage,
+        totalPercantage
+      );
+    }
+    if (student?.studentClass?.finalReportsSettings?.gradeMarks) {
+      // h=5*10=50
+      // e=8*5=80
+      // m=9*5=90   ==220/30=7.33
+      let gpc = [];
+      let credits = [];
+      for (let subj of subjects) {
+        gpc.push(
+          grade_point_with_credit(
+            grade_point(subj.showGrade),
+            subj.course_credit
+          )
+        );
+        credits.push(subj.course_credit);
+      }
+      let spi = spi_calculate(gpc, credits);
+      total.showGradeTotal = grade_symbol(Math.ceil(spi));
+      total.spi = spi;
+    }
+
+    // Add Another Encryption
+    res.status(200).send({
+      subjects,
+      total,
+      totalPercantage,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.examQuestionEvaluationCoMappingQuery = async (req, res) => {
+  try {
+    const { eid, smid } = req.params;
+    if (!eid && !smid) throw "Please call api with proper knowledge.";
+    const { total_main_question, main_questions, subjectIds } = req.body;
+    const exam = await Exam.findById(eid);
+
+    for (let subId of subjectIds) {
+      const classes = await Class.findById(subject?.class).select(
+        "ApproveStudent _id"
+      );
+      var all_student = classes.ApproveStudent || [];
+      if (subject?.selected_batch_query) {
+        const subject_batch = await Batch.findById(
+          subject?.selected_batch_query
+        );
+        all_student = subject_batch.class_student_query;
+      }
+      const question_evaluation = new QuestionEvaluation({
+        exam: eid,
+        subjectMasterId: smid,
+        subject: subId,
+        class: classes?._id,
+        total_main_question: total_main_question,
+      });
+      for (let mq of main_questions) {
+        let main_obj = null;
+        if (mq?.attainmentId) {
+          main_obj = {
+            question_index: Number,
+            question_content: String,
+            attainment_mark: {
+              type: Number,
+            },
+          };
+        } else {
+          main_obj = {
+            question_index: mq?.question_index,
+            question_content: mq?.question_content,
+            attainment_mark: mq?.attainment_mark,
+          };
+          for (let sq of mq?.sub_questions) {
+            let sub_obj = null;
+            if (sq?.attainmentId) {
+              sub_obj = {
+                question_index: Number,
+                question_content: String,
+                attainment_mark: {
+                  type: Number,
+                },
+              };
+            } else {
+              sub_obj = {
+                question_index: sq?.question_index,
+                question_content: sq?.question_content,
+                attainment_mark: sq?.attainment_mark,
+              };
+              for (let tq of sq?.topic_questions) {
+                let topic_obj = null;
+                if (tq?.attainmentId) {
+                  topic_obj = {
+                    question_index: tq?.question_index,
+                    question_content: tq?.question_content,
+                    attainment_mark: tq?.attainment_mark,
+                  };
+
+                  var subject_copo_id = [];
+
+                  const is_sub_attainment = await SubjectAttainment.findOne({
+                    attainment: tq?.attainmentId,
+                    subject: subject?._id,
+                  });
+                  for (let copo of copo_list) {
+                    let copoObj = {
+                      attainment_name: exam?.examName,
+                      attainment_mark: tq?.attainment_mark,
+                      attainment_mark_weight: 100,
+                      attainment_assign_type: "EXAM",
+                      examId: exam?._id,
+                      subject_student: all_student,
+                      student_count: all_student?.length,
+                      present_student_count: all_student?.length,
+                      // here some doubt
+                      copo_attainment_type: exam?.copo_attainment_type,
+                      mapping_type: "QPEVALUATE",
+                    };
+
+                    if (is_sub_attainment) {
+                      is_sub_attainment.attainment_assign.push(copoObj);
+                      subject_copo_id.push(is_sub_attainment?._id);
+                      await is_sub_attainment.save();
+                    } else {
+                      const attainment = await Attainment.findById(
+                        copo?.attainmentId
+                      );
+
+                      const sub_attainment = new SubjectAttainment({
+                        attainment_name: attainment?.attainment_name,
+                        attainment_type: attainment?.attainment_type,
+                        attainment: attainment?._id,
+                        subject: subject?._id,
+                        class: classes?._id,
+                        attainment_assign: [copoObj],
+                      });
+
+                      if (
+                        attainment.subject_attainment?.includes(
+                          sub_attainment?._id
+                        )
+                      ) {
+                      } else {
+                        attainment.subject_attainment.push(sub_attainment?._id);
+                      }
+                      subject_copo_id.push(sub_attainment?._id);
+                      if (
+                        subject.subject_attainment?.includes(sub_attainment._id)
+                      ) {
+                      } else {
+                        subject.subject_attainment.push(sub_attainment._id);
+                      }
+                      await Promise.all([
+                        sub_attainment.save(),
+                        attainment.save(),
+                      ]);
+                    }
+                  }
+                } else {
+                  topic_obj = {
+                    question_index: tq?.question_index,
+                    question_content: tq?.question_content,
+                    attainment_mark: tq?.attainment_mark,
+                  };
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    await exam.save();
+    res.status(200).send({ message: "direct co mapping is updated" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+

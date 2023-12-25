@@ -71,6 +71,14 @@ const examSchema = new mongoose.Schema({
           ref: "Student",
         },
       ],
+      mapping_type: {
+        type: String,
+        // enum: ["DIRECT", "QPEVALUATE"],
+      },
+      question_evaluation: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "QuestionEvaluation",
+      },
     },
   ],
   seating_sequence: [

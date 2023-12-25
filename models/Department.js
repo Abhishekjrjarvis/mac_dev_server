@@ -387,7 +387,18 @@ const departmentSchema = new mongoose.Schema({
   member_module_unique: {
     type: String,
     unique: true
-  }
+  },
+  po_attainment_count: {
+    type: Number,
+    default: 0,
+  },
+  po_attainment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Attainment",
+    },
+  ],
+
 });
 
 const Department = mongoose.model("Department", departmentSchema);

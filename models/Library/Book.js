@@ -83,6 +83,10 @@ const bookSchema = new mongoose.Schema({
   qviple_book_id: {
     type: String,
     unique: true
+  },
+  department: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Department"
   }
 });
 

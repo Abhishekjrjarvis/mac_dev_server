@@ -64,7 +64,7 @@ router
   .post(isLoggedIn, catchAsync(examController.oneStudentBehaviourClassTeacher));
 router.route("/class/student/:sid/report").get(
   // isLoggedIn,
-  catchAsync(examController.oneStudentReportCardClassTeacher)
+  catchAsync(examController.oneStudentReportCardClassTeacherModify)
 );
 
 router
@@ -244,5 +244,10 @@ router
 router
   .route("/add/subject/master/direct/co/mapping")
   .patch(catchAsync(examController.examDirectCoMappingQuery));
+
+router
+  .route("/add/subject/master/qpevaluation/co/mapping")
+  .patch(catchAsync(examController.examQuestionEvaluationCoMappingQuery));
+
 
 module.exports = router;

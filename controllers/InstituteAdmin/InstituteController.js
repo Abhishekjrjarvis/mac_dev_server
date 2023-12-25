@@ -3759,7 +3759,9 @@ exports.retrieveSubjectMaster = async (req, res) => {
           },
         ],
       })
-        .select("subjectName subjects subjectType course_credit")
+        .select(
+          "subjectName subjects subjectType course_credit course_passing_credit"
+        )
         .lean()
         .exec();
       if (subjectMaster?.length > 0) {
@@ -3778,7 +3780,9 @@ exports.retrieveSubjectMaster = async (req, res) => {
       }
     } else {
       const subjectMaster = await SubjectMaster.find({ department: did })
-        .select("subjectName subjects subjectType course_credit")
+        .select(
+          "subjectName subjects subjectType course_credit course_passing_credit"
+        )
         .lean()
         .exec();
       if (subjectMaster?.length > 0) {
@@ -3800,6 +3804,7 @@ exports.retrieveSubjectMaster = async (req, res) => {
     console.log(e);
   }
 };
+
 
 exports.retrieveClassArray = async (req, res) => {
   try {
@@ -4983,7 +4988,7 @@ exports.retrieveDepartmentStaffArray = async (req, res) => {
       .populate({
         path: "departmentChatGroup",
         select:
-          "staffFirstName staff_biometric_id staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          "staffFirstName staff_biometric_id staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO current_designation teaching_type",
         populate: {
           path: "user",
           select: "username userLegalName photoId profilePhoto",

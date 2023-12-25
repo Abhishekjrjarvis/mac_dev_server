@@ -25,4 +25,12 @@ router
   .route("/subject/copo/mapping/:sid/query")
   .get(catchAsync(copoController.getCopoMappingQuery))
   .patch(catchAsync(copoController.updateCopoMappingQuery));
+
+  router
+  .route("/department/:did/po/excel/upload")
+  .patch(catchAsync(copoController.getDepartmentPoExcelQuery));
+router
+  .route("/subject/:did/course/co/excel/upload")
+  .patch(catchAsync(copoController.getSubjectCoExcelQuery));
+
 module.exports = router;

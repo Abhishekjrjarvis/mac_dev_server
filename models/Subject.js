@@ -208,7 +208,11 @@ const subjectSchema = new mongoose.Schema({
   member_module_unique: {
     type: String,
     unique: true
-  }
+  },
+  course_passing_credit: {
+    type: Number,
+  },
+
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

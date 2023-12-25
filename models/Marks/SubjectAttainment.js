@@ -64,8 +64,17 @@ const subjectAttainmentSchema = new mongoose.Schema({
         type: Number,
         default: 0,
       },
+      mapping_type: {
+        type: String,
+        // enum: ["DIRECT", "QPEVALUATE"],
+      },
+      question_evaluation: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "QuestionEvaluation",
+      },
     },
   ],
+
   created_at: {
     type: Date,
     default: Date.now,

@@ -1,19 +1,19 @@
 const mongoose = require("mongoose");
 
 const subjectMarksSchema = new mongoose.Schema({
-  subject: { type: mongoose.Schema.Types.ObjectId, required: true },
-  subjectName: { type: String, required: true },
-  student: { type: mongoose.Schema.Types.ObjectId, required: true },
+  subject: { type: mongoose.Schema.Types.ObjectId },
+  subjectName: { type: String },
+  student: { type: mongoose.Schema.Types.ObjectId },
   marks: [
     {
-      examId: { type: String, required: true },
-      examName: { type: String, required: true },
-      examType: { type: String, required: true },
-      examWeight: { type: Number, required: true },
-      totalMarks: { type: Number, required: true },
-      date: { type: String, required: true },
-      startTime: { type: String, required: true },
-      endTime: { type: String, required: true },
+      examId: { type: String },
+      examName: { type: String },
+      examType: { type: String },
+      examWeight: { type: Number },
+      totalMarks: { type: Number },
+      date: { type: String },
+      startTime: { type: String },
+      endTime: { type: String },
       duration: { type: String, default: 0 },
       obtainMarks: { type: Number, default: 0 },
       testSetId: {
@@ -47,10 +47,15 @@ const subjectMarksSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Seating",
       },
+      student_question_evaluation: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "StudentQuestionEvaluation",
+      },
     },
   ],
   graceMarks: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });
+
 
 module.exports = mongoose.model("SubjectMarks", subjectMarksSchema);

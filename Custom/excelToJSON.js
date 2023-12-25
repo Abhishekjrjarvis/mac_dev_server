@@ -881,3 +881,40 @@ exports.generate_excel_to_json_attendence_query = async (file) => {
     console.log("New Subject Master Excel Query Not Resolved", e);
   }
 };
+
+exports.generate_excel_to_json_department_po_query = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["po"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var val of data_query) {
+      val.attainment_name = val?.Name;
+      val.attainment_description = val?.Description;
+      new_data_query.push(val);
+    }
+    return { po_list: new_data_query, value: true };
+  } catch (e) {
+    console.log("Department PO Excel Query Not Resolved", e);
+  }
+};
+
+exports.generate_excel_to_json_subject_master_co_query = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["co"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var val of data_query) {
+      val.attainment_name = val?.Name;
+      val.attainment_description = val?.Description;
+      val.attainment_target = val?.Target;
+      val.attainment_code = val?.Code;
+      new_data_query.push(val);
+    }
+    return { co_list: new_data_query, value: true };
+  } catch (e) {
+    console.log("Subject Master CO Excel Query Not Resolved", e);
+  }
+};
+

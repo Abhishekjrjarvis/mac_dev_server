@@ -32,6 +32,11 @@ const attainmentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  department: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Department",
+  },
+
   //   exam: [
   //     {
   //       type: mongoose.Schema.Types.ObjectId,

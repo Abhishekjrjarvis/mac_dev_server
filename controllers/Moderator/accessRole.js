@@ -333,6 +333,15 @@ exports.all_access_role_ins = () => {
         accessStaff: "",
       },
     },
+    INSTITUTE_ADMIN: {
+      role: "INSTITUTE_ADMIN",
+      permission: {
+        allow: true,
+        bound: ["INSTITUTE ADMIN FULL READ ACCESS"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
   };
   return access_role_ins;
 };

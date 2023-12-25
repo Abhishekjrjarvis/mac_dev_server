@@ -88,7 +88,9 @@ exports.formEditByInstitute = async (req, res) => {
       staffs[`${staffObj}`] = req.body?.staff[staffObj];
     }
     if(experience && experience?.length > 0){
-      staffs.experience = [...experience]
+      for(var val of experience){
+        staffs.experience.push(val)
+      }
     }
     await staffs.save();
     new_data.gender = staffs?.staffGender;

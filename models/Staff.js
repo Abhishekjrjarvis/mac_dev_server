@@ -529,6 +529,9 @@ const staffSchema = new mongoose.Schema({
   },
   borrow: [{ type: mongoose.Schema.Types.ObjectId, ref: "IssueBook" }],
   deposite: [{ type: mongoose.Schema.Types.ObjectId, ref: "CollectBook" }],
+  staff_pf_number: {
+    type: String
+  }
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

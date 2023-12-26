@@ -3486,9 +3486,8 @@ exports.retrieveNewClass = async (req, res) => {
           aggregatePassingPercentage: aggregatePassingPercentage,
         },
         optionalSubjectCount: optionalSubjectCount,
+        member_module_unique: universal_random_password()
       });
-      const code = universal_random_password()
-      classRoom.member_module_unique = `${code}`
       if (sid) {
         var staff = await Staff.findById({ _id: sid }).populate({
           path: "user",

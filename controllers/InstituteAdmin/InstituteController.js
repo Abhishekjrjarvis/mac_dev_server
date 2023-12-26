@@ -3533,6 +3533,8 @@ exports.retrieveNewClass = async (req, res) => {
     var depart = await Department.findById({ _id: did }).populate({
       path: "dHead",
     });
+    const code = universal_random_password()
+    console.log("Code")
     if (institute.classCodeList.includes(`${result}`)) {
     } else {
       const date = await todayDate();
@@ -3547,7 +3549,7 @@ exports.retrieveNewClass = async (req, res) => {
           aggregatePassingPercentage: aggregatePassingPercentage,
         },
         optionalSubjectCount: optionalSubjectCount,
-        member_module_unique: universal_random_password()
+        member_module_unique: `${code}`
       });
       if (sid) {
         var staff = await Staff.findById({ _id: sid }).populate({

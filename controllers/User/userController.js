@@ -35,6 +35,7 @@ const { valid_student_form_query } = require("../../Functions/validForm");
 const { handle_undefined } = require("../../Handler/customError");
 const { calc_profile_percentage } = require("../../Functions/ProfilePercentage");
 const QvipleId = require("../../models/Universal/QvipleId");
+const { generateAccessInsToken } = require("../../helper/functions");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.retrieveProfileData = async (req, res) => {
@@ -1704,10 +1705,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "instituteModeratorDepartment",
-          select: "institute access_role academic_department",
+          select: "institute access_role academic_department staff_institute_admin",
           populate: {
-            path: "academic_department",
-            select: "departmentSelectBatch dName dTitle",
+            path: "academic_department institute",
+            select: "departmentSelectBatch dName dTitle insName name insPassword",
           },
         })
         .populate({
@@ -1892,10 +1893,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "instituteModeratorDepartment",
-          select: "institute access_role academic_department",
+          select: "institute access_role academic_department staff_institute_admin",
           populate: {
-            path: "academic_department",
-            select: "departmentSelectBatch dName dTitle",
+            path: "academic_department institute",
+            select: "departmentSelectBatch dName dTitle insName name insPassword",
           },
         })
         .populate({
@@ -1914,10 +1915,28 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     //   `Staff-Designation-Member-${sid}`,
     //   staff
     // );
+    var token_list = []
+    staff?.instituteModeratorDepartment?.filter((val) => {
+      if(`${val?.access_role}` === "INSTITUTE_ADMIN") {
+        const token = generateAccessInsToken(
+          val?.institute?.name,
+          val?.institute?._id,
+          val?.institute?.insPassword
+        );
+        token_list.push({
+          token: token,
+          _id: val?.institute?._id,
+          name: val?.institute?.name,
+          mods_id: val?._id,
+          access_by: val?.access_role
+        })
+      }
+    })
     res.status(200).send({
       message: "All Staff Designation Feed from DB 🙌",
       // staff: cached.staff,
       staff: staff,
+      token_list: token_list
     });
   } catch (e) {
     console.log(e);

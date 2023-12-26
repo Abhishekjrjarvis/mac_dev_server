@@ -50,7 +50,7 @@ const { announcement_feed_query } = require("../../Post/announceFeed");
 const { handle_undefined } = require("../../Handler/customError");
 const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
 const { applicable_pending_calc } = require("../../Functions/SetOff");
-const { send_phone_login_query } = require("../../helper/functions");
+const { send_phone_login_query, generateAccessToken } = require("../../helper/functions");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const Chapter = require("../../models/Academics/Chapter");
 const Attainment = require("../../models/Marks/Attainment");
@@ -61,7 +61,7 @@ const { universal_random_password } = require("../../Custom/universalId");
 exports.getDashOneQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { mod_id } = req.query;
+    const { mod_id, user_mod_id } = req.query;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
       "insName name insAbout photoId qviple_id blockStatus profile_modification leave_config random_institute_code merchant_options staff_leave_config certificate_fund_charges certificate_issued_count name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus"
     );
@@ -74,11 +74,35 @@ exports.getDashOneQuery = async (req, res) => {
     }
     const qvipleId = await QvipleId.findOne({ institute: `${institute?._id}`})
     institute.qviple_id = qvipleId?.qviple_id
+    var token_list = []
+    if(user_mod_id){
+      const mods = await FinanceModerator.findById({ _id: `${user_mod_id}`})
+      .populate({
+        path: "access_staff",
+        select: "user",
+        populate: {
+          path: "user",
+          select: "username userLegalName userPassword"
+        }
+      })
+      token_list.push({
+        token: generateAccessToken(
+          mods?.access_staff?.user?.username,
+          mods?.access_staff?.user?._id,
+          mods?.access_staff?.user?.userPassword
+        ),
+        _id: mods?.access_staff?.user?._id,
+        username: mods?.access_staff?.user?.username,
+        userLegalName: mods?.access_staff?.user?.userLegalName,
+        staffId: mods?.access_staff?._id,
+      })
+    }
     res.status(200).send({
       message: "limit Ins Data",
       institute: institute,
       roles: req?.query?.mod_id ? value : null,
       profile_modification: institute?.profile_modification,
+      token_list: token_list
       // eData: encrypt,
     });
   } catch (e) {
@@ -89,6 +113,7 @@ exports.getDashOneQuery = async (req, res) => {
 exports.getProfileOneQuery = async (req, res) => {
   try {
     const { id } = req.params;
+    const { user_mod_id } = req?.query
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
         "insName status photoId insProfilePhoto qviple_id hostelDepart leave_config insEditableText_one insEditableText_two profile_modification merchant_options name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo random_institute_code last_login gr_initials online_amount_edit_access sub_domain_link_up_status application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by block_institute blockedBy"
@@ -109,12 +134,36 @@ exports.getProfileOneQuery = async (req, res) => {
       .exec();
       const qvipleId = await QvipleId.findOne({ institute: `${institute?._id}`})
       institute.qviple_id = qvipleId?.qviple_id
-    const encrypt = await encryptionPayload(institute);
+    // const encrypt = await encryptionPayload(institute);
+    var token_list = []
+    if(user_mod_id){
+      const mods = await FinanceModerator.findById({ _id: `${user_mod_id}`})
+      .populate({
+        path: "access_staff",
+        select: "user",
+        populate: {
+          path: "user",
+          select: "username userLegalName userPassword"
+        }
+      })
+      token_list.push({
+        token: generateAccessToken(
+          mods?.access_staff?.user?.username,
+          mods?.access_staff?.user?._id,
+          mods?.access_staff?.user?.userPassword
+        ),
+        _id: mods?.access_staff?.user?._id,
+        username: mods?.access_staff?.user?.username,
+        userLegalName: mods?.access_staff?.user?.userLegalName,
+        staffId: mods?.access_staff?._id,
+      })
+    }
     res.status(200).send({
       message: "Limit Post Ins",
       institute,
-      eData: encrypt,
+      // eData: encrypt,
       profile_modification: institute?.profile_modification,
+      token_list: token_list
     });
   } catch (e) {
     console.log(e);

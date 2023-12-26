@@ -286,7 +286,11 @@ const classSchema = new mongoose.Schema({
   shuffle_on: {
     type: Boolean,
     default: false
-  }
+  },
+  member_module_unique: {
+    type: String,
+    unique: true
+  },
 });
 
 const Class = mongoose.model("Class", classSchema);

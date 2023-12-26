@@ -1679,11 +1679,16 @@ exports.renderLeaveConfigRulesQuery = async(req, res) => {
       var int_num = parseInt(int_month)
       var valid_month = (month + 1 > 12) ? (month + 1) - 12 : month + 1
       num = months_helper?.filter((val) => {
-        if(`${val?.code}` === `0${int_num - 1}`) return val
+        if(int_num - 1 >= 10){
+          if(`${val?.code}` === `${int_num - 1}`) return val
+        }
+        else{
+          if(`${val?.code}` === `0${int_num - 1}`) return val
+        }
       })
       const leave_config = await LeaveConfig.findById({ _id: lid })
       leave_config.leave_start_academic_year = new Date(`${year}-${month}-${date}`)
-      leave_config.leave_end_academic_year = new Date(`${year + 1}-${num[0]?.code}-${num[0]?.last}`)
+      leave_config.leave_end_academic_year = new Date(`${parseInt(year) + 1}-${num[0]?.code}-${num[0]?.last}`)
       await leave_config.save()
     }
     await LeaveConfig.findByIdAndUpdate(lid, req?.body)

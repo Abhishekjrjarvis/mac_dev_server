@@ -531,7 +531,7 @@ const staffSchema = new mongoose.Schema({
   deposite: [{ type: mongoose.Schema.Types.ObjectId, ref: "CollectBook" }],
   staff_pf_number: {
     type: String
-  }
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

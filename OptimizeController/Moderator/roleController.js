@@ -716,6 +716,10 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       user.social_media_password_query = hash_user_pass;
       new_mod.social_media_password_query = hash_user_pass;
     }
+    if(`${mod_role}` === "INSTITUTE_ADMIN"){
+      new_mod.staff_institute_admin = institute?._id
+      institute.moderator_list.push(new_mod?._id)
+    }
     if (`${mod_role}` === "ACADEMIC_ADMINISTRATOR_ACCESS") {
       new_mod.academic_department = academic_department;
     }
@@ -869,7 +873,7 @@ exports.renderInstituteAllAppModeratorArray = async (req, res) => {
 exports.updateInstituteAppModeratorQuery = async (req, res) => {
   try {
     const { mid } = req.params;
-    const { role, staffId, social_media_password_query, academic_department } =
+    const { role, staffId, social_media_password_query, academic_department, insId } =
       req.body;
     if (!mid)
       return res.status(200).send({
@@ -965,6 +969,14 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
         ? academic_department
         : null;
     }
+    if(`${one_moderator?.access_role}` === "INSTITUTE_ADMIN"){
+      if(insId){
+        const ins = await InstituteAdmin.findById({ _id: insId })
+        one_moderator.staff_institute_admin = ins?._id
+        ins.moderator_list.push(one_moderator?._id)
+        await ins.save()
+      }
+    }
     await one_moderator.save();
     // await FinanceModerator.findByIdAndUpdate(mid, req?.body);
     res.status(200).send({ message: "Explore Update Role", access: true });
@@ -989,6 +1001,7 @@ exports.destroyInstituteModeratorQuery = async (req, res) => {
       "moderator_role"
     );
     institute.moderator_role.pull(mid);
+    institute.moderator_list.pull(mid)
     one_staff.instituteModeratorDepartment.pull(mid);
     if (institute.moderator_role_count > 0) {
       institute.moderator_role_count -= 1;

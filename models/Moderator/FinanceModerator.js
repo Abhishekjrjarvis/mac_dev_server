@@ -99,7 +99,11 @@ const financeModeratorSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "FinanceModerator"
     }
-  ]
+  ],
+  staff_institute_admin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteAdmin"
+  }
 });
 
 module.exports = mongoose.model("FinanceModerator", financeModeratorSchema);

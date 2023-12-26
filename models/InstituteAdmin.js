@@ -1118,6 +1118,12 @@ const instituteAdminSchema = new mongoose.Schema({
     authority_signature: String,
     institute_bg_cover: String,
   },
+  moderator_list: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FinanceModerator"
+    }
+  ]
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

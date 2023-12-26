@@ -86,11 +86,11 @@ exports.getDashOneQuery = async (req, res) => {
         }
       })
       token_list.push({
-        token: generateAccessToken(
+        token: `Bearer ${generateAccessToken(
           mods?.access_staff?.user?.username,
           mods?.access_staff?.user?._id,
           mods?.access_staff?.user?.userPassword
-        ),
+        )}`,
         _id: mods?.access_staff?.user?._id,
         username: mods?.access_staff?.user?.username,
         userLegalName: mods?.access_staff?.user?.userLegalName,
@@ -147,11 +147,11 @@ exports.getProfileOneQuery = async (req, res) => {
         }
       })
       token_list.push({
-        token: generateAccessToken(
+        token: `Bearer ${generateAccessToken(
           mods?.access_staff?.user?.username,
           mods?.access_staff?.user?._id,
           mods?.access_staff?.user?.userPassword
-        ),
+        )}`,
         _id: mods?.access_staff?.user?._id,
         username: mods?.access_staff?.user?.username,
         userLegalName: mods?.access_staff?.user?.userLegalName,

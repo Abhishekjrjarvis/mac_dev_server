@@ -1924,7 +1924,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
           val?.institute?.insPassword
         );
         token_list.push({
-          token: token,
+          token: `Bearer ${token}`,
           _id: val?.institute?._id,
           name: val?.institute?.name,
           mods_id: val?._id,

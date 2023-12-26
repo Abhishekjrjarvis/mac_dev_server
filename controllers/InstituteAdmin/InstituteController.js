@@ -3534,7 +3534,7 @@ exports.retrieveNewClass = async (req, res) => {
       path: "dHead",
     });
     const code = universal_random_password()
-    console.log("Code")
+    console.log("Code", code)
     if (institute.classCodeList.includes(`${result}`)) {
     } else {
       const date = await todayDate();

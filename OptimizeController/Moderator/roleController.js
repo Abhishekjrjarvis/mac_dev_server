@@ -873,7 +873,7 @@ exports.renderInstituteAllAppModeratorArray = async (req, res) => {
 exports.updateInstituteAppModeratorQuery = async (req, res) => {
   try {
     const { mid } = req.params;
-    const { role, staffId, social_media_password_query, academic_department, insId } =
+    const { role, staffId, social_media_password_query, academic_department } =
       req.body;
     if (!mid)
       return res.status(200).send({
@@ -970,8 +970,8 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
         : null;
     }
     if(`${one_moderator?.access_role}` === "INSTITUTE_ADMIN"){
-      if(insId){
-        const ins = await InstituteAdmin.findById({ _id: insId })
+      if(one_moderator?.institute?._id){
+        const ins = await InstituteAdmin.findById({ _id: one_moderator?.institute?._id })
         one_moderator.staff_institute_admin = ins?._id
         ins.moderator_list.push(one_moderator?._id)
         await ins.save()

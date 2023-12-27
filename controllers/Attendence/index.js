@@ -1500,7 +1500,7 @@ exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
 exports.markAttendenceSubjectStudent = async (req, res) => {
   try {
     const { sid } = req.params;
-    const { flow } = req?.query
+    const { flow, from, to } = req?.query
     const subjects = await Subject.findById({ _id: sid }).populate({
       path: "class",
       select: "department masterClassName",
@@ -1528,6 +1528,12 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       attendence.attendDate = req.body.date;
       attendence.subject = subjects._id;
       attendence.attendTime = new Date();
+      if(from){
+        attendence.from = from
+      }
+      if(to){
+        attendence.to = to
+      }
       await Promise.all([attendence.save(), subjects.save()]);
       res
         .status(200)
@@ -1642,6 +1648,12 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       const attendence = new AttendenceDate({});
       attendence.attendDate = req.body.date;
       attendence.subject = subjects._id;
+      if(from){
+        attendence.from = from
+      }
+      if(to){
+        attendence.to = to
+      }
       attendence.attendence_type = "Extra_Lecture"
       attendence.attendence_name = `${subjects.class.masterClassName?.className}-${subjects?.subjectName}-ExtraLecture-${req.body.date}`
       attendence.attendTime = new Date();
@@ -1753,6 +1765,12 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       attendence.presentTotal = req.body.present.length;
       attendence.absentTotal = req.body.absent.length;
       await Promise.all([attendence.save(), subjects.save()]);
+      const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subjects?.class?._id}`}, { date: { $eq: date } }] })
+      time_table?.schedule?.filter((val) => {
+        val.from = from
+        val.to = to
+      })
+      await time_table.save()
   }
   else{
 

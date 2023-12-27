@@ -77,6 +77,12 @@ const attendenceDateSchema = new mongoose.Schema({
   },
   attendence_name: {
     type: String,
+  },
+  from: {
+    type: String,
+  },
+  to: {
+    type: String
   }
 });
 

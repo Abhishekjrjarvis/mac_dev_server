@@ -209,7 +209,9 @@ exports.updateUserFollowIns = async (req, res) => {
             $and: [{ author: sinstitute._id, postStatus: "Anyone" }],
           });
           post.forEach(async (ele) => {
+            ele.post_arr.push(user?._id)
             user.userPosts.push(ele);
+            await ele.save()
           });
           await user.save();
         } else {
@@ -261,7 +263,9 @@ exports.removeUserFollowIns = async (req, res) => {
             $and: [{ author: sinstitute._id, postStatus: "Anyone" }],
           });
           post.forEach(async (ele) => {
+            ele.post_arr.pull(user?._id)
             user.userPosts.pull(ele);
+            await ele.save()
           });
           await user.save();
         } else {
@@ -334,7 +338,9 @@ exports.updateUserFollow = async (req, res) => {
           //
           if (user?.userPosts?.includes(ele)) {
           } else {
+            ele.post_arr.push(user?._id)
             user.userPosts.push(ele);
+            await ele.save()
           }
           //
         });
@@ -376,6 +382,8 @@ exports.updateUserUnFollow = async (req, res) => {
       });
       post.forEach(async (ele) => {
         user.userPosts.pull(ele);
+        ele.post_arr.pull(user?._id)
+        await ele.save()
       });
       await user.save();
       //
@@ -447,7 +455,9 @@ exports.updateUserCircle = async (req, res) => {
         post.forEach(async (ele) => {
           if (user && user.userPosts?.includes(`${ele}`)) {
           } else {
+            ele.post_arr.push(user?._id)
             user.userPosts.push(ele);
+            await ele.save()
           }
         });
         await user.save();
@@ -458,6 +468,8 @@ exports.updateUserCircle = async (req, res) => {
           if (suser && suser.userPosts?.includes(`${ele}`)) {
           } else {
             suser.userPosts.push(ele);
+            ele.post_arr.push(suser?._id)
+            await ele.save()
           }
         });
         await suser.save();
@@ -1917,7 +1929,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     // );
     var token_list = []
     staff?.instituteModeratorDepartment?.filter((val) => {
-      if(`${val?.access_role}` === "INSTITUTE_ADMIN") {
+      if(`${val?.access_role}` === "INSTITUTE_ADMIN" || `${val?.access_role}` === "SOCIAL_MEDIA_ACCESS") {
         const token = generateAccessInsToken(
           val?.institute?.name,
           val?.institute?._id,
@@ -1938,7 +1950,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
       message: "All Staff Designation Feed from DB 🙌",
       // staff: cached.staff,
       staff: staff,
-      token_list: token_list
+      token_list: token_list,
     });
   } catch (e) {
     console.log(e);

@@ -11,6 +11,7 @@ const {
 } = require("../../Utilities/timeComparison");
 const { custom_date_time } = require("../../helper/dayTimer");
 const { get_day_wise_sort } = require("./timetableHelper");
+const AttendenceDate = require("../../models/AttendenceDate");
 // const Student = require("../../models/Student");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
@@ -847,3 +848,76 @@ exports.renderDestroyScheduleQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.getSubjectDateWiseScheduleQuery = async(req, res) => {
+  try{
+    const { sid } = req?.params
+    const { date } = req?.query
+    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const subject = await Subject.findById({ _id: sid })
+    const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subject?.class}`}, { date: { $eq: date } }] })
+
+    var list = time_table?.schedule?.filter((val) => {
+      if(`${val?.subject}` === `${subject?._id}`) return val
+    })
+
+    res.status(200).send({ message: "Explore One Subject Time Table Query", access: true, list: list})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.getSubjectDateWiseScheduleAttendenceQuery = async(req, res) => {
+  try{
+    const { sid } = req?.params
+    const { date, from, to } = req?.query
+    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const subject = await Subject.findById({ _id: sid })
+    const attend = await AttendenceDate.find({
+      $and: [{
+        subject: `${subject?._id}`
+      },
+    {
+      attendDate: { $eq: `${date}` },
+    },
+  {
+    from: `${from}`
+  }, 
+  {
+    to: `${to}`
+  }]
+    })
+
+    res.status(200).send({ message: "Explore One Subject Time Table Query", access: true, attend: attend, attendence_exist: attend?.length, dynamic: attend?.length > 0 ? "Attendence Already Marked At This Timestamp" : "mark New Attendence At This Timestamp"})
+
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.getSubjectDateWiseScheduleUpdateTimeTableQuery = async(req, res) => {
+  try{
+    const { sid } = req?.params
+    const { date, from, to } = req?.query
+    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const subject = await Subject.findById({ _id: sid })
+    const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subject?.class}`}, { date: { $eq: date } }] })
+
+    time_table?.schedule?.filter((val) => {
+      if(`${val?.subject}` === `${subject?._id}`){
+        val.from = `${from}`
+        val.to = `${to}`
+      }
+    })
+
+    res.status(200).send({ message: "Explore One Subject Time Table Query", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

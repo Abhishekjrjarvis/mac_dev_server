@@ -56,25 +56,6 @@ exports.postWithText = async (req, res) => {
     res.status(201).send({ message: "post is create", post });
     
     await execute_ins_social_feed_query(institute, post, taggedPeople);
-    // if (institute?.isUniversal === "Universal") {
-    //   for (var ref of institute?.userFollowersList) {
-    //     var notify = new Notification({});
-    //     notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
-    //     notify.notifySender = institute?._id;
-    //     notify.notifyReceiever = ref._id;
-    //     notify.notifyCategory = "Post Feed";
-    //     ref.uNotify.push(notify._id);
-    //     notify.notifyByInsPhoto = institute._id;
-    //     await invokeFirebaseNotification(
-    //       "New To Post Feed",
-    //       notify,
-    //       institute.insName,
-    //       ref._id,
-    //       ref.deviceToken
-    //     );
-    //     await Promise.all([notify.save(), ref.save()]);
-    //   }
-    // }
   } catch (e) {
     console.log(e);
   }

@@ -618,7 +618,9 @@ exports.updateFollowIns = async (req, res) => {
             $and: [{ author: sinstitute._id, postStatus: "Anyone" }],
           });
           post.forEach(async (pt) => {
+            pt.post_arr.push(institutes?._id)
             institutes.posts.push(pt);
+            await pt.save()
           });
           await institutes.save();
         } else {
@@ -662,6 +664,8 @@ exports.removeFollowIns = async (req, res) => {
           });
           post.forEach(async (pt) => {
             institutes.posts.pull(pt);
+            pt.post_arr.pull(institutes?._id)
+            await pt.save()
           });
           await institutes.save();
         } else {

@@ -140,4 +140,8 @@ router.route("/all/subject/:sid/zip").post(
   catchAsync(Avail.getAllSubjectExportAttendance)
 );
 
+router
+  .route("/subject/:sid/student/attendance/exist/query")
+  .post(isLoggedIn, catchAsync(Avail.markAttendenceSubjectStudentExistQuery));
+
 module.exports = router;

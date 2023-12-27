@@ -42,4 +42,18 @@ router.delete(
   "/:tid/destroy/query",
   catchAsync(timetable.renderDestroyScheduleQuery)
 );
+
+//Get Timetable By Subject
+router
+  .route("/subject/:sid/date/schedule/list")
+  .get(catchAsync(timetable.getSubjectDateWiseScheduleQuery));
+
+router
+  .route("/subject/:sid/date/schedule/list/update/timetable")
+  .patch(catchAsync(timetable.getSubjectDateWiseScheduleUpdateTimeTableQuery));
+
+router
+  .route("/subject/:sid/date/schedule/list/update/attendence")
+  .patch(catchAsync(timetable.getSubjectDateWiseScheduleAttendenceQuery));
+
 module.exports = router;

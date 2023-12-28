@@ -852,11 +852,18 @@ exports.renderDestroyScheduleQuery = async (req, res) => {
 exports.getSubjectDateWiseScheduleQuery = async(req, res) => {
   try{
     const { sid } = req?.params
-    const { date } = req?.query
+    const { date, status } = req?.query
     if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     const subject = await Subject.findById({ _id: sid })
-    const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subject?.class}`}, { date: { $eq: date } }] })
+    const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subject?.class}`}, { date: { $eq: date } }], $or:[
+      {
+        class: `${subject?.class}`,
+      },
+      {
+        day: `${status}`
+      }
+    ] })
 
     var list = time_table?.schedule?.filter((val) => {
       if(`${val?.subject}` === `${subject?._id}`) return val
@@ -902,11 +909,20 @@ exports.getSubjectDateWiseScheduleAttendenceQuery = async(req, res) => {
 exports.getSubjectDateWiseScheduleUpdateTimeTableQuery = async(req, res) => {
   try{
     const { sid } = req?.params
-    const { date, from, to } = req?.query
+    const { date, from, to, status } = req?.query
     if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     const subject = await Subject.findById({ _id: sid })
-    const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subject?.class}`}, { date: { $eq: date } }] })
+    const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subject?.class}`}, { date: { $eq: date } }],
+    $or:[
+      {
+        class: `${subject?.class}`,
+      },
+      {
+        day: `${status}`
+      }
+    ]
+  })
 
     time_table?.schedule?.filter((val) => {
       if(`${val?.subject}` === `${subject?._id}`){

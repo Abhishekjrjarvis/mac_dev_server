@@ -2,6 +2,8 @@ const InstituteAdmin = require("../models/InstituteAdmin");
 const User = require("../models/User");
 const Post = require("../models/Post");
 const HashTag = require("../models/HashTag/hashTag");
+const Notification = require("../models/notification");
+const invokeFirebaseNotification = require("../Firebase/firebase");
 
 exports.execute_ins_social_feed_query = async (
   institute,
@@ -77,6 +79,29 @@ exports.execute_ins_social_feed_query = async (
       }
     }
     await post.save()
+    const ins = await InstituteAdmin.findById({ _id: institute?._id})
+    .populate({
+      path: "userFollowersList"
+    })
+    if (ins?.isUniversal === "Universal") {
+      for (var ref of ins?.userFollowersList) {
+        var notify = new Notification({});
+        notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
+        notify.notifySender = ins?._id;
+        notify.notifyReceiever = ref._id;
+        notify.notifyCategory = "Post Feed";
+        ref.uNotify.push(notify._id);
+        notify.notifyByInsPhoto = ins._id;
+        invokeFirebaseNotification(
+          "New To Post Feed",
+          notify,
+          ins.insName,
+          ref._id,
+          ref.deviceToken
+        );
+        await Promise.all([notify.save(), ref.save()]);
+      }
+    }
   } catch (e) {
     console.log(e);
   }
@@ -144,6 +169,29 @@ exports.execute_ins_social_feed_question_query = async (
       }
     }
     await post.save()
+    const ins = await InstituteAdmin.findById({ _id: institute?._id})
+    .populate({
+      path: "userFollowersList"
+    })
+    if (ins?.isUniversal === "Universal") {
+      for (var ref of ins?.userFollowersList) {
+        var notify = new Notification({});
+        notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
+        notify.notifySender = ins?._id;
+        notify.notifyReceiever = ref._id;
+        notify.notifyCategory = "Post Feed";
+        ref.uNotify.push(notify._id);
+        notify.notifyByInsPhoto = ins._id;
+        invokeFirebaseNotification(
+          "New To Post Feed",
+          notify,
+          ins.insName,
+          ref._id,
+          ref.deviceToken
+        );
+        await Promise.all([notify.save(), ref.save()]);
+      }
+    }
   } catch (e) {
     console.log(e);
   }

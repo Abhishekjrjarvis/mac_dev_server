@@ -856,14 +856,16 @@ exports.getSubjectDateWiseScheduleQuery = async(req, res) => {
     if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     const subject = await Subject.findById({ _id: sid })
-    const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subject?.class}`}, { date: { $eq: date } }], $or:[
+    const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subject?.class}`}], $or:[
       {
-        class: `${subject?.class}`,
+        date: { $eq: date }
       },
       {
         day: `${status}`
       }
     ] })
+
+    console.log(time_table)
 
     var list = time_table?.schedule?.filter((val) => {
       if(`${val?.subject}` === `${subject?._id}`) return val
@@ -913,10 +915,10 @@ exports.getSubjectDateWiseScheduleUpdateTimeTableQuery = async(req, res) => {
     if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     const subject = await Subject.findById({ _id: sid })
-    const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subject?.class}`}, { date: { $eq: date } }],
+    const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subject?.class}`}],
     $or:[
       {
-        class: `${subject?.class}`,
+        date: { $eq: date }
       },
       {
         day: `${status}`

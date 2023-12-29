@@ -79,29 +79,29 @@ exports.execute_ins_social_feed_query = async (
       }
     }
     await post.save()
-    const ins = await InstituteAdmin.findById({ _id: institute?._id})
-    .populate({
-      path: "userFollowersList"
-    })
-    if (ins?.isUniversal === "Universal") {
-      for (var ref of ins?.userFollowersList) {
-        var notify = new Notification({});
-        notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
-        notify.notifySender = ins?._id;
-        notify.notifyReceiever = ref._id;
-        notify.notifyCategory = "Post Feed";
-        ref.uNotify.push(notify._id);
-        notify.notifyByInsPhoto = ins._id;
-        invokeFirebaseNotification(
-          "New To Post Feed",
-          notify,
-          ins.insName,
-          ref._id,
-          ref.deviceToken
-        );
-        await Promise.all([notify.save(), ref.save()]);
-      }
-    }
+    // const ins = await InstituteAdmin.findById({ _id: institute?._id})
+    // .populate({
+    //   path: "userFollowersList"
+    // })
+    // if (ins?.isUniversal === "Universal") {
+    //   for (var ref of ins?.userFollowersList) {
+    //     var notify = new Notification({});
+    //     notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
+    //     notify.notifySender = ins?._id;
+    //     notify.notifyReceiever = ref._id;
+    //     notify.notifyCategory = "Post Feed";
+    //     ref.uNotify.push(notify._id);
+    //     notify.notifyByInsPhoto = ins._id;
+    //     invokeFirebaseNotification(
+    //       "New To Post Feed",
+    //       notify,
+    //       ins.insName,
+    //       ref._id,
+    //       ref.deviceToken
+    //     );
+    //     await Promise.all([notify.save(), ref.save()]);
+    //   }
+    // }
   } catch (e) {
     console.log(e);
   }
@@ -169,29 +169,29 @@ exports.execute_ins_social_feed_question_query = async (
       }
     }
     await post.save()
-    const ins = await InstituteAdmin.findById({ _id: institute?._id})
-    .populate({
-      path: "userFollowersList"
-    })
-    if (ins?.isUniversal === "Universal") {
-      for (var ref of ins?.userFollowersList) {
-        var notify = new Notification({});
-        notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
-        notify.notifySender = ins?._id;
-        notify.notifyReceiever = ref._id;
-        notify.notifyCategory = "Post Feed";
-        ref.uNotify.push(notify._id);
-        notify.notifyByInsPhoto = ins._id;
-        invokeFirebaseNotification(
-          "New To Post Feed",
-          notify,
-          ins.insName,
-          ref._id,
-          ref.deviceToken
-        );
-        await Promise.all([notify.save(), ref.save()]);
-      }
-    }
+    // const ins = await InstituteAdmin.findById({ _id: institute?._id})
+    // .populate({
+    //   path: "userFollowersList"
+    // })
+    // if (ins?.isUniversal === "Universal") {
+    //   for (var ref of ins?.userFollowersList) {
+    //     var notify = new Notification({});
+    //     notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
+    //     notify.notifySender = ins?._id;
+    //     notify.notifyReceiever = ref._id;
+    //     notify.notifyCategory = "Post Feed";
+    //     ref.uNotify.push(notify._id);
+    //     notify.notifyByInsPhoto = ins._id;
+    //     invokeFirebaseNotification(
+    //       "New To Post Feed",
+    //       notify,
+    //       ins.insName,
+    //       ref._id,
+    //       ref.deviceToken
+    //     );
+    //     await Promise.all([notify.save(), ref.save()]);
+    //   }
+    // }
   } catch (e) {
     console.log(e);
   }

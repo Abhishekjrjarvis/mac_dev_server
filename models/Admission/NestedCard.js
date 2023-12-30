@@ -54,6 +54,10 @@ const nestedCardSchema = new mongoose.Schema({
       status: {
         type: String,
         default: "Not Paid"
+      },
+      excess_fee: {
+        type: Number,
+        default: 0
       }
 })
 

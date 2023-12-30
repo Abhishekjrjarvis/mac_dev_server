@@ -95,6 +95,8 @@ const {
 const { universal_random_password } = require("../../Custom/universalId");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { mismatch_scholar_transaction_json_to_excel_query } = require("../../Custom/JSONToExcel");
+const NestedCard = require("../../models/Admission/NestedCard");
+const { render_new_fees_card } = require("../../Functions/FeesCard");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -1008,6 +1010,102 @@ exports.fetchAllSelectApplication = async (req, res) => {
   }
 };
 
+exports.fetchAllFeeCollectedApplication = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (search) {
+      const filter_select = [];
+      const apply = await NewApplication.findById({ _id: aid })
+        .select("fee_collect_count")
+        .populate({
+          path: "FeeCollectionApplication",
+          populate: {
+            path: "student",
+            match: {
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+              populate: {
+                path: "category_master",
+                select: "category_name",
+              },
+            },
+          },
+        });
+      for (let data of apply.FeeCollectionApplication) {
+        if (data.student !== null) {
+          filter_select.push(data);
+        }
+      }
+      if (filter_select?.length > 0) {
+        // const selectEncrypt = await encryptionPayload(apply);
+        res.status(200).send({
+          message:
+            "Lots of Fees Collection required make sure you come up with Tea and Snack from DB 🙌",
+          fees: filter_select?.reverse(),
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          fees: [],
+        });
+      }
+    } else {
+      var apply = await NewApplication.findById({ _id: aid })
+        .select("fee_collect_count")
+        .populate({
+          path: "FeeCollectionApplication",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+              populate: {
+                path: "category_master",
+                select: "category_name",
+              },
+            },
+          },
+        });
+      var all_select_query = nested_document_limit(
+        page,
+        limit,
+        apply?.FeeCollectionApplication?.reverse()
+      );
+      if (all_select_query?.length > 0) {
+        // const selectEncrypt = await encryptionPayload(apply);
+        res.status(200).send({
+          message:
+            "Lots of Fees Collection Selection required make sure you come up with Tea and Snack from DB 🙌",
+          fees: all_select_query,
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          fees: [],
+        });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.fetchAllConfirmApplication = async (req, res) => {
   try {
     const { aid } = req.params;
@@ -1177,6 +1275,102 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
         res.status(200).send({
           message: "Go To Outside for Dinner",
           confirm: [],
+        });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.fetchAllReviewApplication = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (search) {
+      const filter_confirm = [];
+      const apply = await NewApplication.findById({ _id: aid })
+        .select("review_count")
+        .populate({
+          path: "reviewApplication",
+          populate: {
+            path: "student",
+            match: {
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+              populate: {
+                path: "category_master",
+                select: "category_name",
+              },
+            },
+          },
+        });
+      for (let data of apply.reviewApplication) {
+        if (data.student !== null) {
+          filter_confirm.push(data);
+        }
+      }
+      if (filter_confirm?.length > 0) {
+        // const confirmEncrypt = await encryptionPayload(apply);
+        res.status(200).send({
+          message:
+            "Lots of Reviewing and class allot required make sure you come up with Tea and Snack from DB 🙌",
+          review: filter_confirm?.reverse(),
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          review: [],
+        });
+      }
+    } else {
+      const apply = await NewApplication.findById({ _id: aid })
+        .select("review_count")
+        .populate({
+          path: "reviewApplication",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt institute",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+              populate: {
+                path: "category_master",
+                select: "category_name",
+              },
+            },
+          },
+        });
+      var all_confirm_query = nested_document_limit(
+        page,
+        limit,
+        apply?.reviewApplication?.reverse()
+      );
+      if (all_confirm_query?.length > 0) {
+        // const confirmEncrypt = await encryptionPayload(apply);
+        res.status(200).send({
+          message:
+            "Lots of Reviewing and class allot required make sure you come up with Tea and Snack from DB 🙌",
+          review: all_confirm_query,
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          review: [],
         });
       }
     }
@@ -1744,317 +1938,237 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
 };
 
 exports.payOfflineAdmissionFee = async (req, res) => {
-  try {
-    const { sid, aid } = req.params;
-    const { receipt_status } = req.query;
-    const { amount, mode } = req.body;
-    if (!sid && !aid && !amount && !mode)
-      return res.status(200).send({
-        message: "Their is a bug need to fix immediately 😡",
-        confirm_status: false,
-      });
-    var price = parseInt(amount);
-    const s_admin = await Admin.findById({
-      _id: `${process.env.S_ADMIN_ID}`,
-    }).select("invoice_count");
-    const apply = await NewApplication.findById({ _id: aid });
-    const admission = await Admission.findById({
-      _id: `${apply.admissionAdmin}`,
-    }).populate({
-      path: "admissionAdminHead",
-      select: "user",
-    });
-    var institute = await InstituteAdmin.findById({
-      _id: `${admission.institute}`,
-    });
-    var finance = await Finance.findById({
-      _id: `${institute.financeDepart[0]}`,
-    });
-    const student = await Student.findById({ _id: sid }).populate({
-      path: "fee_structure",
-    });
-    const user = await User.findById({ _id: `${student.user}` });
-    const status = new Status({});
-    const order = new OrderPayment({});
-    const notify = new StudentNotification({});
-    const new_receipt = new FeeReceipt({ ...req.body });
-    new_receipt.student = student?._id;
-    new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
-    new_receipt.application = apply?._id;
-    new_receipt.receipt_generated_from = "BY_ADMISSION";
-    new_receipt.finance = finance?._id;
-    new_receipt.receipt_status = receipt_status
-      ? receipt_status
-      : "Already Generated";
-    order.payment_module_type = "Admission Fees";
-    order.payment_to_end_user_id = institute?._id;
-    order.payment_by_end_user_id = user._id;
-    order.payment_module_id = apply._id;
-    order.payment_amount = price;
-    order.payment_status = "Captured";
-    order.payment_flag_to = "Credit";
-    order.payment_flag_by = "Debit";
-    order.payment_mode = mode;
-    order.payment_admission = apply._id;
-    order.payment_from = student._id;
-    order.payment_student = student?._id;
-    order.payment_student_name = student?.valid_full_name;
-    order.payment_student_gr = student?.studentGRNO;
-    order.fee_receipt = new_receipt?._id;
-    institute.invoice_count += 1;
-    new_receipt.invoice_count = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count;
-    user.payment_history.push(order._id);
-    institute.payment_history.push(order._id);
-    var total_amount = await add_total_installment(student);
-    var is_install;
-    if (
-      price <= student?.fee_structure?.total_admission_fees &&
-      price <= student?.fee_structure?.one_installments?.fees
-    ) {
-      is_install = true;
-    } else {
-      is_install = false;
-    }
-    if (price > 0 && is_install) {
-      admission.remainingFee.push(student._id);
-      student.admissionRemainFeeCount += total_amount - price;
-      apply.remainingFee += total_amount - price;
-      admission.remainingFeeCount += total_amount - price;
-      var new_remainFee = new RemainingList({
-        appId: apply._id,
-        applicable_fee: total_amount,
-        institute: institute?._id,
-      });
-      new_remainFee.access_mode_card = "Installment_Wise";
-      new_remainFee.remaining_array.push({
-        remainAmount: price,
-        appId: apply._id,
-        status: "Paid",
-        instituteId: institute._id,
-        installmentValue: "First Installment",
-        mode: mode,
-        isEnable: true,
-        fee_receipt: new_receipt?._id,
-      });
-      new_remainFee.active_payment_type = "First Installment";
-      new_remainFee.paid_fee += price;
-      new_remainFee.fee_structure = student?.fee_structure?._id;
-      new_remainFee.remaining_fee += total_amount - price;
-      student.remainingFeeList.push(new_remainFee?._id);
-      student.remainingFeeList_count += 1;
-      new_remainFee.student = student?._id;
-      new_remainFee.fee_receipts.push(new_receipt?._id);
-      if (new_remainFee.remaining_fee > 0) {
-        await add_all_installment(
-          apply,
-          institute._id,
-          new_remainFee,
-          price,
-          student
-        );
-      }
-      if (
-        new_remainFee.remaining_fee > 0 &&
-        `${student?.fee_structure?.total_installments}` === "1"
-      ) {
-        new_remainFee.remaining_array.push({
-          remainAmount: new_remainFee?.remaining_fee,
-          appId: apply._id,
-          instituteId: institute._id,
-          installmentValue: "Installment Remain",
-          isEnable: true,
-        });
-      }
-    } else if (price > 0 && !is_install) {
-      var new_remainFee = new RemainingList({
-        appId: apply._id,
-        applicable_fee: student?.fee_structure?.total_admission_fees,
-        institute: institute?._id,
-      });
-      new_remainFee.access_mode_card = "One_Time_Wise";
-      new_remainFee.remaining_array.push({
-        remainAmount: price,
-        appId: apply._id,
-        status: "Paid",
-        instituteId: institute._id,
-        installmentValue: "One Time Fees",
-        mode: mode,
-        isEnable: true,
-        fee_receipt: new_receipt?._id,
-      });
-      new_remainFee.active_payment_type = "One Time Fees";
-      new_remainFee.paid_fee += price;
-      new_remainFee.fee_structure = student?.fee_structure?._id;
-      new_remainFee.remaining_fee +=
-        student?.fee_structure?.total_admission_fees - price;
-      student.remainingFeeList.push(new_remainFee?._id);
-      student.remainingFeeList_count += 1;
-      new_remainFee.student = student?._id;
-      new_remainFee.fee_receipts.push(new_receipt?._id);
-      admission.remainingFee.push(student._id);
-      student.admissionRemainFeeCount +=
-        student?.fee_structure?.total_admission_fees - price;
-      apply.remainingFee +=
-        student?.fee_structure?.total_admission_fees - price;
-      admission.remainingFeeCount +=
-        student?.fee_structure?.total_admission_fees - price;
-      const valid_one_time_fees =
-        student?.fee_structure?.total_admission_fees - price == 0
-          ? true
-          : false;
-      if (valid_one_time_fees) {
-        admission.remainingFee.pull(student._id);
-      } else {
-        new_remainFee.remaining_array.push({
-          remainAmount: student?.fee_structure?.total_admission_fees - price,
-          appId: apply._id,
-          status: "Not Paid",
-          instituteId: institute._id,
-          installmentValue: "One Time Fees Remain",
-          isEnable: true,
-        });
-      }
-    }
-    if (mode === "Offline") {
-      admission.offlineFee += price;
-      apply.collectedFeeCount += price;
-      apply.offlineFee += price;
-      admission.collected_fee += price;
-      finance.financeAdmissionBalance += price;
-      finance.financeTotalBalance += price;
-      finance.financeSubmitBalance += price;
-    } else if (mode === "Online") {
-      admission.onlineFee += price;
-      apply.collectedFeeCount += price;
-      apply.onlineFee += price;
-      finance.financeAdmissionBalance += price;
-      finance.financeTotalBalance += price;
-      finance.financeBankBalance += price;
-    } else {
-    }
-    if (req.body?.fee_payment_mode === "Government/Scholarship") {
-      // New Logic
-    } else {
-      console.log("Enter");
-      await set_fee_head_query(student, price, apply, new_receipt);
-      console.log("Exit");
-    }
-    if (new_remainFee?.remaining_fee > 0) {
-    } else {
-      new_remainFee.status = "Paid";
-    }
-    await lookup_applicable_grant(
-      req.body?.fee_payment_mode,
-      price,
-      new_remainFee,
-      new_receipt
-    );
-    if (is_install) {
-      apply.confirmedApplication.push({
-        student: student._id,
-        payment_status: mode,
-        install_type: "First Installment Paid",
-        fee_remain: total_amount - price,
-      });
-    } else {
-      apply.confirmedApplication.push({
-        student: student._id,
-        payment_status: mode,
-        install_type: "One Time Fees Paid",
-        fee_remain: student?.fee_structure?.total_admission_fees - price,
-      });
-    }
-    apply.confirmCount += 1;
-    for (let app of apply.selectedApplication) {
-      if (`${app.student}` === `${student._id}`) {
-        if (app?.status_id) {
-          const valid_status = await Status.findById({
-            _id: `${app?.status_id}`,
-          });
-          valid_status.isPaid = "Paid";
-          await valid_status.save();
-        }
-        apply.selectedApplication.pull(app?._id);
-      } else {
-      }
-    }
-    student.admissionPaidFeeCount += price;
-    student.paidFeeList.push({
-      paidAmount: price,
-      appId: apply._id,
-    });
-    status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
-    status.applicationId = apply._id;
-    user.applicationStatus.push(status._id);
-    status.instituteId = institute._id;
-    status.fee_receipt = new_receipt?._id;
-    notify.notifyContent = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
-    notify.notifySender = admission?.admissionAdminHead?.user;
-    notify.notifyReceiever = user?._id;
-    notify.notifyType = "Student";
-    notify.notifyPublisher = student?._id;
-    notify.fee_receipt = new_receipt?._id;
-    user.activity_tab.push(notify?._id);
-    notify.notifyByAdmissionPhoto = admission?._id;
-    notify.notifyCategory = "Status Alert";
-    notify.redirectIndex = 29;
-    if (
-      `${new_receipt?.fee_payment_mode}` === "Demand Draft" ||
-      `${new_receipt?.fee_payment_mode}` === "Cheque"
-    ) {
-      status.receipt_status = "Requested";
-      status.receipt = new_receipt?._id;
-      if (admission?.request_array?.includes(`${new_receipt?._id}`)) {
-      } else {
-        admission.request_array.push(new_receipt?._id);
-        admission.fee_receipt_request.push({
-          receipt: new_receipt?._id,
-          demand_cheque_status: "Requested",
-        });
-      }
-    }
-    await Promise.all([
-      admission.save(),
-      apply.save(),
-      student.save(),
-      finance.save(),
-      user.save(),
-      order.save(),
-      institute.save(),
-      // s_admin.save(),
-      new_remainFee.save(),
-      new_receipt.save(),
-      status.save(),
-      notify.save(),
-    ]);
-    res.status(200).send({
-      message: "Look like a party mood",
-      confirm_status: true,
-    });
-    invokeMemberTabNotification(
-      "Admission Status",
-      status.content,
-      "Application Status",
-      user._id,
-      user.deviceToken
-    );
-    if (apply?.gstSlab > 0) {
-      var business_data = new BusinessTC({});
-      business_data.b_to_c_month = new Date().toISOString();
-      business_data.b_to_c_i_slab = parseInt(apply?.gstSlab) / 2;
-      business_data.b_to_c_s_slab = parseInt(apply?.gstSlab) / 2;
-      business_data.finance = finance._id;
-      business_data.b_to_c_name = "Admission Fees";
-      finance.gst_format.b_to_c.push(business_data?._id);
-      business_data.b_to_c_total_amount = price;
-      await Promise.all([finance.save(), business_data.save()]);
-    }
-  } catch (e) {
-    console.log(e);
+  try{
+    res.status(200).send({ message: "Wait This API is Under Maintainence", access: true})
   }
+  catch(e){
+
+  }
+  // try {
+  //   const { sid, aid } = req.params;
+  //   const { receipt_status } = req.query;
+  //   const { amount, mode } = req.body;
+  //   if (!sid && !aid && !amount && !mode)
+  //     return res.status(200).send({
+  //       message: "Their is a bug need to fix immediately 😡",
+  //       confirm_status: false,
+  //     });
+  //   var price = parseInt(amount);
+  //   const s_admin = await Admin.findById({
+  //     _id: `${process.env.S_ADMIN_ID}`,
+  //   }).select("invoice_count");
+  //   const apply = await NewApplication.findById({ _id: aid });
+  //   const admission = await Admission.findById({
+  //     _id: `${apply.admissionAdmin}`,
+  //   }).populate({
+  //     path: "admissionAdminHead",
+  //     select: "user",
+  //   });
+  //   var institute = await InstituteAdmin.findById({
+  //     _id: `${admission.institute}`,
+  //   });
+  //   var finance = await Finance.findById({
+  //     _id: `${institute.financeDepart[0]}`,
+  //   });
+  //   const student = await Student.findById({ _id: sid }).populate({
+  //     path: "fee_structure",
+  //   });
+  //   const user = await User.findById({ _id: `${student.user}` });
+  //   const status = new Status({});
+  //   const order = new OrderPayment({});
+  //   const notify = new StudentNotification({});
+  //   const new_receipt = new FeeReceipt({ ...req.body });
+  //   new_receipt.student = student?._id;
+  //   new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+  //   new_receipt.application = apply?._id;
+  //   new_receipt.receipt_generated_from = "BY_ADMISSION";
+  //   new_receipt.finance = finance?._id;
+  //   new_receipt.receipt_status = receipt_status
+  //     ? receipt_status
+  //     : "Already Generated";
+  //   order.payment_module_type = "Admission Fees";
+  //   order.payment_to_end_user_id = institute?._id;
+  //   order.payment_by_end_user_id = user._id;
+  //   order.payment_module_id = apply._id;
+  //   order.payment_amount = price;
+  //   order.payment_status = "Captured";
+  //   order.payment_flag_to = "Credit";
+  //   order.payment_flag_by = "Debit";
+  //   order.payment_mode = mode;
+  //   order.payment_admission = apply._id;
+  //   order.payment_from = student._id;
+  //   order.payment_student = student?._id;
+  //   order.payment_student_name = student?.valid_full_name;
+  //   order.payment_student_gr = student?.studentGRNO;
+  //   order.fee_receipt = new_receipt?._id;
+  //   institute.invoice_count += 1;
+  //   new_receipt.invoice_count = `${
+  //     new Date().getMonth() + 1
+  //   }${new Date().getFullYear()}${institute.invoice_count}`;
+  //   order.payment_invoice_number = new_receipt?.invoice_count;
+  //   user.payment_history.push(order._id);
+  //   institute.payment_history.push(order._id);
+  //   if (price > 0) {
+  //     var new_remainFee = new RemainingList({
+  //       appId: apply._id,
+  //       applicable_fee: student?.fee_structure?.total_admission_fees,
+  //       institute: institute?._id,
+  //     });
+  //     new_remainFee.access_mode_card = "One_Time_Wise";
+  //     new_remainFee.active_payment_type = "One Time Fees";
+  //     new_remainFee.paid_fee += price;
+  //     new_remainFee.remaining_fee +=
+  //       student?.fee_structure?.total_admission_fees - price;
+  //     new_remainFee.fee_receipts.push(new_receipt?._id);
+  //     student.admissionRemainFeeCount +=
+  //       student?.fee_structure?.total_admission_fees - price;
+  //     apply.remainingFee +=
+  //       student?.fee_structure?.total_admission_fees - price;
+  //     admission.remainingFeeCount +=
+  //       student?.fee_structure?.total_admission_fees - price;
+  //       var valid_one_time_fees =
+  //       student?.fee_structure?.total_admission_fees - price == 0
+  //         ? true
+  //         : false;
+  //         if (valid_one_time_fees) {
+  //           admission.remainingFee.pull(student._id);
+  //         } else {
+  //           nest_card.remaining_array.push({
+  //             remainAmount: student?.fee_structure?.total_admission_fees - price,
+  //             appId: apply._id,
+  //             status: "Not Paid",
+  //             instituteId: institute._id,
+  //             installmentValue: "One Time Fees Remain",
+  //             isEnable: true,
+  //           });
+  //         }
+  //   }
+  //   if (mode === "Offline") {
+  //     admission.offlineFee += price;
+  //     apply.collectedFeeCount += price;
+  //     apply.offlineFee += price;
+  //     admission.collected_fee += price;
+  //     finance.financeAdmissionBalance += price;
+  //     finance.financeTotalBalance += price;
+  //     finance.financeSubmitBalance += price;
+  //   } else if (mode === "Online") {
+  //     admission.onlineFee += price;
+  //     apply.collectedFeeCount += price;
+  //     apply.onlineFee += price;
+  //     finance.financeAdmissionBalance += price;
+  //     finance.financeTotalBalance += price;
+  //     finance.financeBankBalance += price;
+  //   } else {
+  //   }
+  //   if (req.body?.fee_payment_mode === "Government/Scholarship") {
+  //     // New Logic
+  //   } else {
+  //     console.log("Enter");
+  //     await set_fee_head_query(student, price, apply, new_receipt);
+  //     console.log("Exit");
+  //   }
+  //   if (new_remainFee?.remaining_fee > 0) {
+  //   } else {
+  //     new_remainFee.status = "Paid";
+  //   }
+  //   await lookup_applicable_grant(
+  //     req.body?.fee_payment_mode,
+  //     price,
+  //     new_remainFee,
+  //     new_receipt
+  //   );
+  //   if (is_install) {
+  //     apply.confirmedApplication.push({
+  //       student: student._id,
+  //       payment_status: mode,
+  //       install_type: "First Installment Paid",
+  //       fee_remain: total_amount - price,
+  //     });
+  //   } else {
+  //     apply.confirmedApplication.push({
+  //       student: student._id,
+  //       payment_status: mode,
+  //       install_type: "One Time Fees Paid",
+  //       fee_remain: student?.fee_structure?.total_admission_fees - price,
+  //     });
+  //   }
+  //   apply.confirmCount += 1;
+  //   for (let app of apply.FeeCollectionApplication) {
+  //     if (`${app.student}` === `${student._id}`) {
+  //       if (app?.status_id) {
+  //         const valid_status = await Status.findById({
+  //           _id: `${app?.status_id}`,
+  //         });
+  //         valid_status.isPaid = "Paid";
+  //         await valid_status.save();
+  //       }
+  //       apply.FeeCollectionApplication.pull(app?._id);
+  //     } else {
+  //     }
+  //   }
+  //   student.admissionPaidFeeCount += price;
+  //   student.paidFeeList.push({
+  //     paidAmount: price,
+  //     appId: apply._id,
+  //   });
+  //   status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
+  //   status.applicationId = apply._id;
+  //   user.applicationStatus.push(status._id);
+  //   status.instituteId = institute._id;
+  //   status.fee_receipt = new_receipt?._id;
+  //   notify.notifyContent = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
+  //   notify.notifySender = admission?.admissionAdminHead?.user;
+  //   notify.notifyReceiever = user?._id;
+  //   notify.notifyType = "Student";
+  //   notify.notifyPublisher = student?._id;
+  //   notify.fee_receipt = new_receipt?._id;
+  //   user.activity_tab.push(notify?._id);
+  //   notify.notifyByAdmissionPhoto = admission?._id;
+  //   notify.notifyCategory = "Status Alert";
+  //   notify.redirectIndex = 29;
+  //   if (
+  //     `${new_receipt?.fee_payment_mode}` === "Demand Draft" ||
+  //     `${new_receipt?.fee_payment_mode}` === "Cheque"
+  //   ) {
+  //     status.receipt_status = "Requested";
+  //     status.receipt = new_receipt?._id;
+  //     if (admission?.request_array?.includes(`${new_receipt?._id}`)) {
+  //     } else {
+  //       admission.request_array.push(new_receipt?._id);
+  //       admission.fee_receipt_request.push({
+  //         receipt: new_receipt?._id,
+  //         demand_cheque_status: "Requested",
+  //       });
+  //     }
+  //   }
+  //   await Promise.all([
+  //     admission.save(),
+  //     apply.save(),
+  //     student.save(),
+  //     finance.save(),
+  //     user.save(),
+  //     order.save(),
+  //     institute.save(),
+  //     // s_admin.save(),
+  //     new_remainFee.save(),
+  //     new_receipt.save(),
+  //     status.save(),
+  //     notify.save(),
+  //   ]);
+  //   res.status(200).send({
+  //     message: "Look like a party mood",
+  //     confirm_status: true,
+  //   });
+  //   invokeMemberTabNotification(
+  //     "Admission Status",
+  //     status.content,
+  //     "Application Status",
+  //     user._id,
+  //     user.deviceToken
+  //   );
+  // } catch (e) {
+  //   console.log(e);
+  // }
 };
 // Same Params in body + remain params exist
 exports.cancelAdmissionApplication = async (req, res) => {
@@ -4366,7 +4480,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
 exports.retrieveAdmissionCollectDocs = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { mode, type, amount } = req.body;
+    const { mode, type, amount, nest } = req.body;
     if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -4391,14 +4505,35 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     var user = await User.findById({ _id: `${student?.user}` });
     var status = new Status({});
     var notify = new StudentNotification({});
-    for (let app of apply.selectedApplication) {
-      if (`${app.student}` === `${student._id}`) {
-        app.docs_collect = "Collected";
-        app.status_id = status?._id;
-        app.edited_struct = false;
-      } else {
-      }
+    if(structure?.applicable_fees <= 0){
+      apply.confirmedApplication.push({
+        student: student._id,
+        payment_status: "Zero Applicable Fees",
+        install_type: "No Installment Required For Payment",
+        fee_remain: structure?.applicable_fees,
+      })
+      apply.confirmCount += 1
     }
+    else{
+      apply.FeeCollectionApplication.push({
+        student: student?._id,
+        fee_remain: structure?.applicable_fees,
+      })
+      apply.fee_collect_count += 1
+    }
+    apply.selectedApplication.pull(nest?._id)
+    if(apply?.selectCount >= 0){
+      apply.selectCount -= 1
+    }
+    await render_new_fees_card(student?._id, apply?._id, structure?._id)
+    // for (let app of apply.selectedApplication) {
+    //   if (`${app.student}` === `${student._id}`) {
+    //     app.docs_collect = "Collected";
+    //     app.status_id = status?._id;
+    //     app.edited_struct = false;
+    //   } else {
+    //   }
+    // }
     status.content = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
@@ -10576,6 +10711,30 @@ exports.renderManageTabQuery = async(req, res) => {
 
     await Admission.findByIdAndUpdate(aid, req?.body)
     res.status(200).send({ message: "Explore Available Tabs Queyr", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderReviewStudentQuery = async(req, res) => {
+  try{
+    const { aid } = req?.params
+    const { student_arr } = req?.body
+    if(!aid && !student_arr) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    const app = await NewApplication.findById({ _id: aid })
+    if(student_arr?.length > 0){
+      for(var val of student_arr){
+        app.reviewApplication.push({
+          student: val,
+          review_status: "Reviewed By Admission Admin"
+        })
+        app.review_count += 1
+      }
+      await app.save()
+    }
+    res.status(200).send({ message: "Explore Student Review Status Query", access: true})
   }
   catch(e){
     console.log(e)

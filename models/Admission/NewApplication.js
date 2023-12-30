@@ -41,6 +41,8 @@ const newApplicationSchema = new mongoose.Schema({
   receievedCount: { type: Number, default: 0 },
   selectCount: { type: Number, default: 0 },
   confirmCount: { type: Number, default: 0 },
+  review_count: { type: Number, default: 0},
+  fee_collect_count: { type: Number, default: 0},
   cancelCount: { type: Number, default: 0 },
   allotCount: { type: Number, default: 0 },
   collectedFeeCount: { type: Number, default: 0 },
@@ -107,6 +109,39 @@ const newApplicationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "NewApplication",
       },
+    },
+  ],
+  FeeCollectionApplication: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      apply_on: { type: Date, default: Date.now },
+      payment_status: { type: String, default: "Pending" },
+      fee_remain: { type: Number, default: 0 },
+      paid_status: { type: "String" },
+      install_type: { type: String },
+      second_pay_mode: { type: "String" },
+      status_id: { type: mongoose.Schema.Types.ObjectId, ref: "Status" },
+      transfer_status: {
+        type: String,
+        default: "Not Transferred",
+      },
+      transfer_from_app: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
+    },
+  ],
+  reviewApplication: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      review_on: { type: Date, default: Date.now },
+      review_status: { type: String, default: "Pending" },
     },
   ],
   allottedApplication: [
@@ -189,6 +224,8 @@ const newApplicationSchema = new mongoose.Schema({
   select_array: [],
   request_array: [],
   cancel_array: [],
+  confirm_fee_array: [],
+  review_array: []
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

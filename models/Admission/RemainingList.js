@@ -18,33 +18,14 @@ const remainingFeeListSchema = new mongoose.Schema({
   exempted_fee: { type: Number, default: 0 },
   paid_fee: { type: Number, default: 0 },
   refund_fee: { type: Number, default: 0 },
-  remaining_array: [
-    {
-      appId: { type: mongoose.Schema.Types.ObjectId, ref: "NewApplication" },
-      vehicleId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Vehicle",
-      },
-      remainAmount: { type: Number, default: 0 },
-      status: { type: String, default: "Not Paid" },
-      instituteId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "InstituteAdmin",
-      },
-      installmentValue: { type: String },
-      isEnable: { type: Boolean, default: false },
-      mode: { type: String },
-      originalFee: { type: Number, default: 0 },
-      dueDate: { type: String },
-      exempt_status: { type: String, default: "Not Exempted" },
-      fee_receipt: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "FeeReceipt",
-      },
-      refund_status: { type: String, default: "Not Refunded" },
-      reject_reason: { type: String },
-    },
-  ],
+  applicable_card: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "NestedCard"
+  },
+  government_card: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "NestedCard"
+  },
   fee_receipts: [
     {
       type: mongoose.Schema.Types.ObjectId,

@@ -90,6 +90,11 @@ router.get(
   catchAsync(Admission.fetchAllSelectApplication)
 );
 
+router.get(
+  "/:aid/fee/collected/application",
+  catchAsync(Admission.fetchAllFeeCollectedApplication)
+);
+
 // All Confirmed Application
 router.get(
   "/:aid/confirmed/application",
@@ -101,6 +106,12 @@ router.get(
   "/:aid/confirmed/application/all/payload",
   // isLoggedIn,
   catchAsync(Admission.fetchAllConfirmApplicationPayload)
+);
+
+router.get(
+  "/:aid/review/application",
+  // isLoggedIn,
+  catchAsync(Admission.fetchAllReviewApplication)
 );
 
 // All Allotted Application
@@ -632,5 +643,7 @@ router.patch("/arrange/:cid", catchAsync(Admission.renderArrangeClassQuery))
 router
   .route("/manage/tab/:aid")
   .patch(catchAsync(Admission.renderManageTabQuery));
+
+router.patch("/:aid/student/review/query", catchAsync(Admission.renderReviewStudentQuery))
 
 module.exports = router;

@@ -4407,6 +4407,9 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         },
       })
       .populate({
+        path: "applicable_card government_card",
+      })
+      .populate({
         path: "student",
         select: "studentFirstName studentMiddleName studentLastName",
         populate: {
@@ -4483,6 +4486,9 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
           path: "category_master class_master",
           select: "category_name className",
         },
+      })
+      .populate({
+        path: "applicable_card government_card",
       })
       .populate({
         path: "student",

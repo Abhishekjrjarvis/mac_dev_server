@@ -54,13 +54,15 @@ exports.render_new_fees_card = async (sid, appId, struct) => {
         nest_card_gov.parent_card = new_remainFee?._id
         new_remainFee.government_card = nest_card_gov?._id
         nest_card_gov.remaining_fee = structure?.total_admission_fees - structure?.applicable_fees;
-        nest_card_gov.remaining_array.push({
-          remainAmount: structure?.total_admission_fees - structure?.applicable_fees,
-          appId: apply._id,
-          instituteId: institute._id,
-          installmentValue: "Government Installment",
-          isEnable: true,
-        });
+        if((structure?.total_admission_fees - structure?.applicable_fees) > 0){
+            nest_card_gov.remaining_array.push({
+            remainAmount: structure?.total_admission_fees - structure?.applicable_fees,
+            appId: apply._id,
+            instituteId: institute._id,
+            installmentValue: "Government Installment",
+            isEnable: true,
+            });
+        }
         await nest_card_gov.save()
       }
       new_remainFee.fee_structure = structure?._id;

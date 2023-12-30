@@ -268,7 +268,7 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationTypeStatus receievedApplication selectedApplication confirmedApplication admissionAdmin selectCount confirmCount receievedCount applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch gr_initials"
+        "applicationName applicationEndDate applicationTypeStatus receievedApplication selectedApplication confirmedApplication admissionAdmin selectCount confirmCount receievedCount allottedApplication allotCount applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch gr_initials cancelApplication cancelCount reviewApplication review_count FeeCollectionApplication fee_collect_count"
       )
       .populate({
         path: "applicationDepartment",
@@ -297,6 +297,10 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
         ref.selectCount = ref?.selectedApplication?.length;
         ref.confirmCount = ref?.confirmedApplication?.length;
         ref.receievedCount = ref?.receievedApplication?.length;
+        ref.allotCount = ref?.allottedApplication?.length;
+        ref.cancelCount = ref?.cancelApplication?.length;
+        ref.review_count = ref?.reviewApplication?.length;
+        ref.fee_collect_count = ref?.FeeCollectionApplication?.length;
       }
       const ads_obj = {
         message: "All Ongoing Application from DB 🙌",
@@ -307,7 +311,8 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
       }
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
-        encrypt: adsEncrypt
+        encrypt: adsEncrypt,
+        ads_obj
       });
     } else {
       const ads_obj = {
@@ -4374,12 +4379,12 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
           },
         },
       })
-      .populate({
-        path: "remaining_array",
-        populate: {
-          path: "fee_receipt",
-        },
-      })
+      // .populate({
+      //   path: "remaining_array",
+      //   populate: {
+      //     path: "fee_receipt",
+      //   },
+      // })
       .populate({
         path: "student",
         select: "studentFirstName studentMiddleName studentLastName",
@@ -4408,6 +4413,12 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       })
       .populate({
         path: "applicable_card government_card",
+        populate: {
+          path: "remaining_array",
+          populate: {
+            path: "fee_receipt",
+          },
+        },
       })
       .populate({
         path: "student",
@@ -4455,12 +4466,12 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
           },
         },
       })
-      .populate({
-        path: "remaining_array",
-        populate: {
-          path: "fee_receipt",
-        },
-      })
+      // .populate({
+      //   path: "remaining_array",
+      //   populate: {
+      //     path: "fee_receipt",
+      //   },
+      // })
       .populate({
         path: "student",
         select: "studentFirstName studentMiddleName studentLastName",
@@ -4489,6 +4500,12 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       })
       .populate({
         path: "applicable_card government_card",
+        populate: {
+          path: "remaining_array",
+          populate: {
+            path: "fee_receipt",
+          },
+        },
       })
       .populate({
         path: "student",
@@ -4542,7 +4559,8 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       }
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
-        encrypt: adsEncrypt
+        encrypt: adsEncrypt,
+        ads_obj
       });
     } else {
       const ads_obj = {
@@ -4605,7 +4623,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       })
       apply.fee_collect_count += 1
     }
-    apply.selectedApplication.pull(nest?._id)
+    apply.selectedApplication.pull(nest)
     if(apply?.selectCount >= 0){
       apply.selectCount -= 1
     }

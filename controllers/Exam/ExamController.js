@@ -1568,7 +1568,7 @@ exports.oneStudentReletedNecessaryData = async (req, res) => {
       })
       .populate({
         path: "department",
-        select: "_id dName",
+        select: "_id dName department_programme_name",
       });
     // const studentEncrypt = await encryptionPayload(student);
     res.status(200).send({ student });

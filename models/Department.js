@@ -400,7 +400,13 @@ const departmentSchema = new mongoose.Schema({
   ],
   last_update: {
     type: Date
-  }
+  },
+  course_passing_credit: {
+    type: Number,
+  },
+  department_programme_name: {
+    type: String,
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

@@ -773,7 +773,7 @@ exports.renderAllExamCountQuery = async (req, res) => {
       });
 
     const depart = await Department.findById({ _id: did }).select(
-      "classCount departmentSelectBatch dName batches departmentSubjectMasters"
+      "classCount departmentSelectBatch dName batches departmentSubjectMasters course_passing_credit department_programme_name"
     );
     const s_master = await SubjectMaster.findOne({
       department: depart?._id,
@@ -789,6 +789,8 @@ exports.renderAllExamCountQuery = async (req, res) => {
         batches: depart?.batches,
         name: depart?.dName,
         subjectMaster: depart?.departmentSubjectMasters?.length,
+        course_passing_credit: depart?.course_passing_credit,
+        department_programme_name: depart?.department_programme_name,
       },
     });
   } catch (e) {

@@ -1413,22 +1413,48 @@ exports.undo = async (req, res) => {
 
 exports.subjectPassingCreditUpdate = async (req, res) => {
   try {
-    const { smid } = req.params;
-    if (!smid)
+    const { did } = req.params;
+    let passing = req.body?.course_passing_credit ?? 0;
+    if (!did)
       return res.status(200).send({
         message:
           "Their is a bug to call api of batch related! need to fix it soon.",
         access: true,
       });
-    const sub_master = await SubjectMaster.findById(smid);
-    sub_master.course_passing_credit = req.body?.course_passing_credit;
-    for (let subId of sub_master?.subjects) {
-      const subject = await Subject.findById(subId);
-      subject.course_passing_credit = req.body?.course_passing_credit ?? 0;
-      await subject.save();
-    }
-    await sub_master.save();
+    const department = await Department.findById(did);
+    department.course_passing_credit = req.body?.course_passing_credit;
+    await department.save();
     res.status(200).send({ message: "Subject passing credit is updated" });
+
+    // console.log("department", department.departmentSubjectMasters);
+    for (let smid of department?.departmentSubjectMasters) {
+      const sub_master = await SubjectMaster.findById(smid);
+      sub_master.course_passing_credit = passing;
+      for (let subId of sub_master?.subjects) {
+        const subject = await Subject.findById(subId);
+        subject.course_passing_credit = passing;
+        await subject.save();
+      }
+      await sub_master.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.departmentProgrammeNameQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did)
+      return res.status(200).send({
+        message:
+          "Their is a bug to call api of batch related! need to fix it soon.",
+        access: true,
+      });
+    const department = await Department.findById(did);
+    department.department_programme_name = req.body?.department_programme_name;
+    await department.save();
+    res.status(200).send({ message: "Programme name is updated" });
   } catch (e) {
     console.log(e);
   }

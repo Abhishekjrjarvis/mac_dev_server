@@ -7,7 +7,7 @@ const FeesStructure = require("../models/Finance/FeesStructure");
 const InstituteAdmin = require("../models/InstituteAdmin");
 const Student = require("../models/Student");
 
-exports.render_new_fees_card = async (sid, appId, struct) => {
+exports.render_new_fees_card = async (sid, appId, struct, flow) => {
     try {
       var student = await Student.findById({ _id: sid });
       var apply = await NewApplication.findById({ _id: appId });
@@ -74,6 +74,9 @@ exports.render_new_fees_card = async (sid, appId, struct) => {
       student.admissionRemainFeeCount += structure?.total_admission_fees;
       apply.remainingFee += structure?.total_admission_fees;
       admission.remainingFeeCount += structure?.total_admission_fees;
+      if(flow === "By_Admission_Admin_After_Docs_Collect"){
+        student.offline_collect_admission_query.push(new_remainFee?._id)
+      }
       await Promise.all([
         new_remainFee.save(),
         admission.save(),

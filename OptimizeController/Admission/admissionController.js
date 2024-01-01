@@ -1039,7 +1039,7 @@ exports.fetchAllFeeCollectedApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name",
             populate: {
-              path: "fee_structure hostel_fee_structure",
+              path: "fee_structure hostel_fee_structure offline_collect_admission_query",
               select:
                 "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {
@@ -1077,7 +1077,7 @@ exports.fetchAllFeeCollectedApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
-              path: "fee_structure hostel_fee_structure",
+              path: "fee_structure hostel_fee_structure offline_collect_admission_query",
               select:
                 "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {
@@ -4627,7 +4627,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     if(apply?.selectCount >= 0){
       apply.selectCount -= 1
     }
-    await render_new_fees_card(student?._id, apply?._id, structure?._id)
+    await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect")
     // for (let app of apply.selectedApplication) {
     //   if (`${app.student}` === `${student._id}`) {
     //     app.docs_collect = "Collected";

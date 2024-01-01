@@ -774,7 +774,13 @@ const studentSchema = new mongoose.Schema({
   government_os_fees: {
     type: Number,
     default: 0
-  }
+  },
+  offline_collect_admission_query: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RemainingList"
+    }
+  ]
 });
 
 const Student = mongoose.model("Student", studentSchema);

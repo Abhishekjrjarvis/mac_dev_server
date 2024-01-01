@@ -10825,14 +10825,18 @@ exports.renderReviewStudentQuery = async(req, res) => {
     const { student_arr } = req?.body
     if(!aid && !student_arr) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
-    const app = await NewApplication.findById({ _id: aid })
+    var app = await NewApplication.findById({ _id: aid })
     if(student_arr?.length > 0){
       for(var val of student_arr){
         app.reviewApplication.push({
-          student: val,
+          student: val?.sid,
           review_status: "Reviewed By Admission Admin"
         })
         app.review_count += 1
+        app.confirmedApplication.pull(val?.cid)
+        if(app?.confirmCount >= 0){
+          app.confirmCount -= 1
+        }
       }
       await app.save()
     }

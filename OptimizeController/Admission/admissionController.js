@@ -3369,6 +3369,10 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       if(nest_card?.remaining_fee >= price){
         nest_card.remaining_fee -= price
       }
+      else{
+        nest_card.remaining_fee -= price
+        nest_card.excess_fee += nest_card.remaining_fee - price
+      }
       if(student.admissionRemainFeeCount >= price){
         student.admissionRemainFeeCount -= price
       }

@@ -683,13 +683,13 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
         status: false,
       });
     const user = await User.findById({ _id: uid });
-    // if (user?.applyApplication?.includes(`${aid}`)) {
-    //   res.status(200).send({
-    //     message: "You have already applied for this application",
-    //     status: false,
-    //     denied: true,
-    //   });
-    // } else {
+    if (user?.applyApplication?.includes(`${aid}`)) {
+      res.status(200).send({
+        message: "You have already applied for this application",
+        status: false,
+        denied: true,
+      });
+    } else {
       const student = new Student({ ...req.body });
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
@@ -828,7 +828,7 @@ Note: Stay tuned for further updates.`;
         user._id,
         user.deviceToken
       );
-    // }
+    }
   } catch (e) {
     console.log(e);
   }
@@ -3431,6 +3431,23 @@ exports.paidRemainingFeeStudent = async (req, res) => {
               nest_card
             );
         }
+        if(type === "First Installment"){
+        for(var val of apply?.FeeCollectionApplication){
+          if(`${val?.student}` === `${student?._id}`){
+            apply.confirmedApplication.push({
+              student: student._id,
+              payment_status: mode,
+              install_type: "First Installment Paid",
+              fee_remain: nest_card.remaining_fee ?? 0,
+            });
+            apply.confirmCount += 1
+            apply.FeeCollectionApplication.pull(val?._id)
+            if(apply?.fee_collect_count > 0){
+              apply.fee_collect_count -= 1
+            }
+          }
+        }
+      }
     }
     if (admin_ins?.remainingFeeCount >= price) {
       admin_ins.remainingFeeCount -= price;

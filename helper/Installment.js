@@ -124,6 +124,83 @@ exports.add_all_installment = async (arg1, arg2, arg3, amount, arg4) => {
   }
 };
 
+const first_payable = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args,
+  app_args,
+  ins_args,
+  arg6
+) => {
+  try {
+    var flex_two = 0;
+    if (arg6?.remaining_array?.length > 0) {
+      arg6?.remaining_array.forEach(async (ele) => {
+        if (
+          arg4?.newApplication?.includes(`${ele.appId}`) &&
+          ele.installmentValue == "First Installment"
+        ) {
+          ele.status = "Paid";
+          flex_two = ele.remainAmount - amount;
+          ele.remainAmount = amount;
+          ele.mode = mode;
+          ele.originalFee = arg2.total_admission_fees;
+          ele.isEnable = true;
+          ele.fee_receipt = receipt_args?._id;
+          arg1.active_payment_type = "First Installment";
+          arg6.active_payment_type = "First Installment"
+        }
+        if (
+          arg4?.newApplication?.includes(`${ele.appId}`) &&
+          ele.installmentValue == "Second Installment"
+        ) {
+          ele.remainAmount = ele.remainAmount + flex_two;
+          ele.isEnable = true;
+        }
+      });
+    }
+    if (arg2.total_installments == "2") {
+      if (arg6.remaining_fee > 0) {
+        arg6.remaining_array.push({
+          remainAmount: flex_two,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args?._id,
+          installmentValue: "Installment Remain",
+          isEnable: true,
+        });
+      } else {
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+      }
+      if (
+        arg2.two_installments.fees != amount &&
+        arg5.admissionRemainFeeCount >= amount
+      ) {
+      }
+    } else {
+      var num = await remaining_card_initiate_query(arg6);
+      if (arg6.remaining_fee > 0 && num == 0) {
+        arg6.remaining_array.push({
+          remainAmount: flex_two,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args?._id,
+          installmentValue: "Installment Remain",
+          isEnable: true,
+        });
+      }
+    }
+    await Promise.all([arg5.save(), arg4.save(), arg1.save(), arg6.save()]);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const second_payable = async (
   arg1,
   arg2,
@@ -1034,7 +1111,21 @@ exports.render_installment = async (
   nest
 ) => {
   try {
-    if (type === "Second Installment") {
+    if (type === "First Installment") {
+      await first_payable(
+        remainList,
+        structure,
+        mode,
+        price,
+        admin_ins,
+        student,
+        receipt,
+        apply,
+        institute,
+        nest
+      );
+    }
+    else if (type === "Second Installment") {
       await second_payable(
         remainList,
         structure,

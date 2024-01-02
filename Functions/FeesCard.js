@@ -74,15 +74,20 @@ exports.render_new_fees_card = async (sid, appId, struct, flow) => {
       student.admissionRemainFeeCount += structure?.total_admission_fees;
       apply.remainingFee += structure?.total_admission_fees;
       admission.remainingFeeCount += structure?.total_admission_fees;
-      if(flow === "By_Admission_Admin_After_Docs_Collect"){
-        student.offline_collect_admission_query.push(new_remainFee?._id)
-      }
+    //   if(flow === "By_Admission_Admin_After_Docs_Collect"){
+    //     student.offline_collect_admission_query.push(new_remainFee?._id)
+    //   }
       await Promise.all([
         new_remainFee.save(),
         admission.save(),
         apply.save(),
         student.save(),
       ]);
+      return {
+        card: new_remainFee?._id,
+        app_card: new_remainFee?.applicable_card ?? null,
+        gov_card: new_remainFee?.government_card ?? null
+      }
     } catch (e) {
       console.log(e);
     }

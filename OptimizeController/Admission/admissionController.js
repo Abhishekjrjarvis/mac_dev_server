@@ -1029,24 +1029,24 @@ exports.fetchAllFeeCollectedApplication = async (req, res) => {
         .populate({
           path: "FeeCollectionApplication",
           populate: {
-            path: "student",
+            path: "student payment_flow app_card gov_card",
             match: {
               studentFirstName: { $regex: `${search}`, $options: "i" },
               studentMiddleName: { $regex: `${search}`, $options: "i" },
               studentLastName: { $regex: `${search}`, $options: "i" },
               valid_full_name: { $regex: `${search}`, $options: "i" },
             },
-            select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name",
-            populate: {
-              path: "fee_structure hostel_fee_structure offline_collect_admission_query",
-              select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-              populate: {
-                path: "category_master",
-                select: "category_name",
-              },
-            },
+            // select:
+            //   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name",
+            // populate: {
+            //   path: "fee_structure",
+            //   select:
+            //     "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+            //   populate: {
+            //     path: "category_master",
+            //     select: "category_name",
+            //   },
+            // },
           },
         });
       for (let data of apply.FeeCollectionApplication) {
@@ -1073,18 +1073,18 @@ exports.fetchAllFeeCollectedApplication = async (req, res) => {
         .populate({
           path: "FeeCollectionApplication",
           populate: {
-            path: "student",
-            select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber",
-            populate: {
-              path: "fee_structure hostel_fee_structure offline_collect_admission_query",
-              select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-              populate: {
-                path: "category_master",
-                select: "category_name",
-              },
-            },
+            path: "student payment_flow app_card gov_card",
+            // select:
+            //   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber",
+            // populate: {
+            //   path: "fee_structure",
+            //   select:
+            //     "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+            //   populate: {
+            //     path: "category_master",
+            //     select: "category_name",
+            //   },
+            // },
           },
         });
       var all_select_query = nested_document_limit(
@@ -4560,7 +4560,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
         encrypt: adsEncrypt,
-        ads_obj
+        // ads_obj
       });
     } else {
       const ads_obj = {
@@ -4607,6 +4607,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     var user = await User.findById({ _id: `${student?.user}` });
     var status = new Status({});
     var notify = new StudentNotification({});
+    var c_num = await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect")
     if(structure?.applicable_fees <= 0){
       apply.confirmedApplication.push({
         student: student._id,
@@ -4620,6 +4621,9 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       apply.FeeCollectionApplication.push({
         student: student?._id,
         fee_remain: structure?.applicable_fees,
+        payment_flow: c_num?.card,
+        app_card: c_num?.app_card,
+        gov_card: c_num?.gov_card
       })
       apply.fee_collect_count += 1
     }
@@ -4627,7 +4631,6 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     if(apply?.selectCount >= 0){
       apply.selectCount -= 1
     }
-    await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect")
     // for (let app of apply.selectedApplication) {
     //   if (`${app.student}` === `${student._id}`) {
     //     app.docs_collect = "Collected";

@@ -132,6 +132,18 @@ const newApplicationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "NewApplication",
       },
+      payment_flow: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "RemainingList"
+      },
+      app_card: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NestedCard"
+      },
+      gov_card: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NestedCard"
+      }
     },
   ],
   reviewApplication: [

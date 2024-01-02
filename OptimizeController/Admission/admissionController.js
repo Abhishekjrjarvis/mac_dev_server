@@ -2039,14 +2039,14 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           if (valid_one_time_fees) {
             admission.remainingFee.pull(student._id);
           } else {
-            nest_card.remaining_array.push({
-              remainAmount: student?.fee_structure?.applicable_fees - price,
-              appId: apply._id,
-              status: "Not Paid",
-              instituteId: institute._id,
-              installmentValue: "One Time Fees Remain",
-              isEnable: true,
-            });
+            // nest_card.remaining_array.push({
+            //   remainAmount: student?.fee_structure?.applicable_fees - price,
+            //   appId: apply._id,
+            //   status: "Not Paid",
+            //   instituteId: institute._id,
+            //   installmentValue: "One Time Fees Remain",
+            //   isEnable: true,
+            // });
           }
         var extra_price = 0
         for(var val of nest_card?.remaining_array){
@@ -2054,6 +2054,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
             val.remainAmount = price >= val?.remainAmount ? val?.remainAmount : val?.remainAmount - price
             val.mode = mode
             val.fee_receipt = new_receipt?._id
+            val.status = "Paid"
             extra_price += price >= val?.remainAmount ? price - val?.remainAmount : 0
           }
         }

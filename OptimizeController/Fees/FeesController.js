@@ -519,7 +519,7 @@ exports.retrieveStudentQuery = async (req, res) => {
     const { sid } = req.params;
     const student = await Student.findById({ _id: sid })
       .select(
-        "id onlineFeeList offlineFeeList exemptFeeList applicable_fees_pending studentAdmissionDate admissionRemainFeeCount admissionPaidFeeCount onlineCheckList offlineCheckList studentRemainingFeeCount backlog_exam_fee studentPaidFeeCount hostelRemainFeeCount hostelPaidFeeCount"
+        "id onlineFeeList offlineFeeList exemptFeeList applicable_fees_pending studentAdmissionDate admissionRemainFeeCount admissionPaidFeeCount onlineCheckList offlineCheckList studentRemainingFeeCount backlog_exam_fee studentPaidFeeCount hostelRemainFeeCount hostelPaidFeeCount admission_amount_stats"
       )
       .populate({
         path: "institute",
@@ -582,7 +582,13 @@ exports.retrieveStudentQuery = async (req, res) => {
         .select("applicable_fee paid_fee paid_by_government remaining_fee")
         .populate({
           path: "fee_structure",
-          select: "applicable_fees",
+          select: "applicable_fees total_admission_fees",
+        })
+        .populate({
+          path: "applicable_card",
+        })
+        .populate({
+          path: "government_card",
         });
       var g_total = 0;
       var pending = 0
@@ -593,6 +599,15 @@ exports.retrieveStudentQuery = async (req, res) => {
             : 0;
         g_total += ele?.paid_by_government;
         pending += ele?.remaining_fee
+        student.admission_amount_stats.total_fees += ele?.applicable_fee
+        student.admission_amount_stats.total_paid_fees += ele?.paid_fee
+        student.admission_amount_stats.total_os_fees += ele?.remaining_fee
+        student.admission_amount_stats.total_app_fees += ele?.applicable_card?.applicable_fees
+        student.admission_amount_stats.total_app_paid_fees += ele?.applicable_card?.paid_fee
+        student.admission_amount_stats.total_app_os_fees += ele?.applicable_card?.remaining_fee
+        student.admission_amount_stats.total_gov_fees += ele?.government_card?.applicable_fee
+        student.admission_amount_stats.total_gov_paid_fees += ele?.government_card?.paid_fee
+        student.admission_amount_stats.total_gov_os_fees += ele?.government_card?.remaining_fee
       }
       student.admissionRemainFeeCount = pending
       // await student.save()

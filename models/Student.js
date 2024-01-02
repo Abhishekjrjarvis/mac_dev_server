@@ -780,7 +780,46 @@ const studentSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "RemainingList"
     }
-  ]
+  ],
+  admission_amount_stats: {
+    total_fees: {
+      type: Number,
+      default: 0
+    },
+    total_paid_fees: {
+      type: Number,
+      default: 0
+    },
+    total_os_fees: {
+      type: Number,
+      default: 0
+    },
+    total_app_fees: {
+      type: Number,
+      default: 0
+    },
+    total_app_paid_fees: {
+      type: Number,
+      default: 0
+    },
+    total_app_os_fees: {
+      type: Number,
+      default: 0
+    },
+    total_gov_fees: {
+      type: Number,
+      default: 0
+    },
+    total_gov_paid_fees: {
+      type: Number,
+      default: 0
+    },
+    total_gov_os_fees: {
+      type: Number,
+      default: 0
+    },
+
+  }
 });
 
 const Student = mongoose.model("Student", studentSchema);

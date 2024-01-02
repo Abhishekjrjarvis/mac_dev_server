@@ -2080,6 +2080,12 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           await set_fee_head_query(student, price, apply, new_receipt);
           console.log("Exit");
         }
+        apply.confirmedApplication.push({
+          student: student._id,
+          payment_status: mode,
+          install_type: "First Installment Paid",
+          fee_remain: nest_card.remaining_fee ?? 0,
+        });
     }
     if (`${new_remainFee?.government_card?._id}` === `${card_id}`) {
       const nest_card = await NestedCard.findById({ _id: `${card_id}`})
@@ -2160,21 +2166,15 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       new_remainFee,
       new_receipt
     );
-    if (is_install) {
-      apply.confirmedApplication.push({
-        student: student._id,
-        payment_status: mode,
-        install_type: "First Installment Paid",
-        fee_remain: total_amount - price,
-      });
-    } else {
-      apply.confirmedApplication.push({
-        student: student._id,
-        payment_status: mode,
-        install_type: "One Time Fees Paid",
-        fee_remain: student?.fee_structure?.total_admission_fees - price,
-      });
-    }
+    // if (is_install) {
+    // } else {
+    //   apply.confirmedApplication.push({
+    //     student: student._id,
+    //     payment_status: mode,
+    //     install_type: "One Time Fees Paid",
+    //     fee_remain: student?.fee_structure?.total_admission_fees - price,
+    //   });
+    // }
     apply.confirmCount += 1;
     for (let app of apply.FeeCollectionApplication) {
       if (`${app.student}` === `${student._id}`) {

@@ -2128,14 +2128,14 @@ exports.payOfflineAdmissionFee = async (req, res) => {
               val.fee_receipt = new_receipt?._id
               }
             }
-            nest_card.remaining_array.push({
-              remainAmount: student?.fee_structure?.applicable_fees - price,
-              appId: apply._id,
-              status: "Not Paid",
-              instituteId: institute._id,
-              installmentValue: "One Time Fees Remain",
-              isEnable: true,
-            });
+            // nest_card.remaining_array.push({
+            //   remainAmount: student?.fee_structure?.applicable_fees - price,
+            //   appId: apply._id,
+            //   status: "Not Paid",
+            //   instituteId: institute._id,
+            //   installmentValue: "Government Installment Remain",
+            //   isEnable: true,
+            // });
           }
         await nest_card.save()
     }
@@ -3287,7 +3287,7 @@ exports.oneStudentViewRemainingFee = async (req, res) => {
 exports.paidRemainingFeeStudent = async (req, res) => {
   try {
     const { aid, sid, appId } = req.params;
-    const { amount, mode, type } = req.body;
+    const { amount, mode, type, card_id, rid, raid, raid_1 } = req.body;
     const { receipt_status } = req.query;
     if (!sid && !aid && !appId && !amount && !mode && !type)
       return res.status(200).send({
@@ -3326,49 +3326,14 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       ? receipt_status
       : "Already Generated";
     const notify = new StudentNotification({});
-    const remaining_fee_lists = await RemainingList.findOne({
-      $and: [{ student: student?._id }, { appId: apply?._id }],
-    });
+    var remaining_fee_lists = await RemainingList.findById({ _id: rid })
+    .populate({
+      path: "applicable_card"
+    })
+    .populate({
+      path: "government_card"
+    })
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
-    if (req?.body?.fee_payment_mode === "Government/Scholarship") {
-      finance.government_receipt.push(new_receipt?._id);
-      finance.financeGovernmentScholarBalance += price;
-      finance.government_receipt_count += 1;
-      if (price >= remaining_fee_lists?.remaining_fee) {
-        extra_price += price - remaining_fee_lists?.remaining_fee;
-        price = remaining_fee_lists?.remaining_fee;
-        remaining_fee_lists.paid_fee += extra_price;
-        student.admissionPaidFeeCount += extra_price;
-        for (var stu of student.paidFeeList) {
-          if (`${stu.appId}` === `${apply._id}`) {
-            stu.paidAmount += extra_price;
-          }
-        }
-        await remain_one_time_query_government(
-          admin_ins,
-          remaining_fee_lists,
-          apply,
-          institute,
-          student,
-          price + extra_price,
-          new_receipt
-        );
-      } else {
-        if (type === "One Time Fees Remain") {
-        } else {
-          await remain_government_installment(
-            admin_ins,
-            remaining_fee_lists,
-            apply,
-            institute,
-            student,
-            price,
-            new_receipt,
-            type
-          );
-        }
-      }
-    }
     var order = new OrderPayment({});
     order.payment_module_type = "Admission Fees";
     order.payment_to_end_user_id = institute._id;
@@ -3392,41 +3357,76 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     order.fee_receipt = new_receipt?._id;
-    if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
-      await exempt_installment(
-        req?.body?.fee_payment_mode,
-        remaining_fee_lists,
-        student,
-        admin_ins,
-        apply,
-        finance,
-        price,
-        new_receipt
-      );
-    } else {
-      if (req?.body?.fee_payment_mode === "Government/Scholarship") {
-        remaining_fee_lists.paid_fee += price;
-        if (remaining_fee_lists.remaining_fee >= price) {
-          remaining_fee_lists.remaining_fee -= price;
-        }
-      } else {
-        remaining_fee_lists.paid_fee += price;
-        if (remaining_fee_lists.remaining_fee >= price) {
-          remaining_fee_lists.remaining_fee -= price;
-        }
-        await render_installment(
-          type,
-          student,
-          mode,
-          price,
-          admin_ins,
-          student?.fee_structure,
-          remaining_fee_lists,
-          new_receipt,
-          apply,
-          institute
-        );
+    if (`${remaining_fee_lists?.applicable_card?._id}` === `${card_id}`) {
+      const nest_card = await NestedCard.findById({ _id: `${card_id}`})
+      remaining_fee_lists.active_payment_type = `${type}`;
+      nest_card.active_payment_type = `${type}`;
+      remaining_fee_lists.paid_fee += price;
+      nest_card.paid_fee += price;
+      if(remaining_fee_lists?.remaining_fee >= price){
+        remaining_fee_lists.remaining_fee -= price
       }
+      if(nest_card?.remaining_fee >= price){
+        nest_card.remaining_fee -= price
+      }
+      if(student.admissionRemainFeeCount >= price){
+        student.admissionRemainFeeCount -= price
+      }
+      if(apply.remainingFee >= price){
+        apply.remainingFee -= price
+      }
+      if(admin_ins.remainingFeeCount >= price){
+        admin_ins.remainingFeeCount -= price
+      }
+        var valid_one_time_fees =
+        student?.fee_structure?.applicable_fees - price == 0
+          ? true
+          : false;
+          if (valid_one_time_fees) {
+            admin_ins.remainingFee.pull(student._id);
+          } else {
+            // nest_card.remaining_array.push({
+            //   remainAmount: student?.fee_structure?.applicable_fees - price,
+            //   appId: apply._id,
+            //   status: "Not Paid",
+            //   instituteId: institute._id,
+            //   installmentValue: "One Time Fees Remain",
+            //   isEnable: true,
+            // });
+          }
+        var extra_price = 0
+        await nest_card.save()
+        if (req?.body?.fee_payment_mode === "Government/Scholarship") {
+        } else {
+          await update_fee_head_query(student, price, apply, new_receipt);
+        }
+        if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
+          await exempt_installment(
+            req?.body?.fee_payment_mode,
+            remaining_fee_lists,
+            student,
+            admin_ins,
+            apply,
+            finance,
+            price,
+            new_receipt,
+            nest_card
+          );
+        } else {
+            await render_installment(
+              type,
+              student,
+              mode,
+              price,
+              admin_ins,
+              student?.fee_structure,
+              remaining_fee_lists,
+              new_receipt,
+              apply,
+              institute,
+              nest_card
+            );
+        }
     }
     if (admin_ins?.remainingFeeCount >= price) {
       admin_ins.remainingFeeCount -= price;
@@ -3456,10 +3456,6 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     } else {
     }
     // await set_fee_head_query(student, price, apply);
-    if (req?.body?.fee_payment_mode === "Government/Scholarship") {
-    } else {
-      await update_fee_head_query(student, price, apply, new_receipt);
-    }
     await lookup_applicable_grant(
       req?.body?.fee_payment_mode,
       price,
@@ -3470,17 +3466,6 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
       }
-    }
-    if (type === "One Time Fees Remain") {
-      await remain_one_time_query(
-        admin_ins,
-        remaining_fee_lists,
-        apply,
-        institute,
-        student,
-        price,
-        new_receipt
-      );
     }
     await Promise.all([
       admin_ins.save(),
@@ -3562,17 +3547,6 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         }
       });
       await apply.save();
-    }
-    if (apply?.gstSlab > 0) {
-      var business_data = new BusinessTC({});
-      business_data.b_to_c_month = new Date().toISOString();
-      business_data.b_to_c_i_slab = parseInt(apply?.gstSlab) / 2;
-      business_data.b_to_c_s_slab = parseInt(apply?.gstSlab) / 2;
-      business_data.finance = finance._id;
-      business_data.b_to_c_name = "Admission Fees";
-      finance.gst_format.b_to_c.push(business_data?._id);
-      business_data.b_to_c_total_amount = price + extra_price;
-      await Promise.all([finance.save(), business_data.save()]);
     }
   } catch (e) {
     console.log(e);

@@ -133,12 +133,13 @@ const second_payable = async (
   arg5,
   receipt_args,
   app_args,
-  ins_args
+  ins_args,
+  arg6
 ) => {
   try {
     var flex_two = 0;
-    if (arg1?.remaining_array?.length > 0) {
-      arg1?.remaining_array.forEach(async (ele) => {
+    if (arg6?.remaining_array?.length > 0) {
+      arg6?.remaining_array.forEach(async (ele) => {
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
           ele.installmentValue == "Second Installment"
@@ -151,6 +152,7 @@ const second_payable = async (
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Second Installment";
+          arg6.active_payment_type = "Second Installment"
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -162,8 +164,8 @@ const second_payable = async (
       });
     }
     if (arg2.total_installments == "2") {
-      if (arg1.remaining_fee > 0) {
-        arg1.remaining_array.push({
+      if (arg6.remaining_fee > 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_two,
           appId: app_args._id,
           status: "Not Paid",
@@ -181,9 +183,9 @@ const second_payable = async (
       ) {
       }
     } else {
-      var num = await remaining_card_initiate_query(arg1);
-      if (arg1.remaining_fee > 0 && num == 0) {
-        arg1.remaining_array.push({
+      var num = await remaining_card_initiate_query(arg6);
+      if (arg6.remaining_fee > 0 && num == 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_two,
           appId: app_args._id,
           status: "Not Paid",
@@ -193,7 +195,7 @@ const second_payable = async (
         });
       }
     }
-    await Promise.all([arg5.save(), arg4.save(), arg1.save()]);
+    await Promise.all([arg5.save(), arg4.save(), arg1.save(), arg6.save()]);
   } catch (e) {
     console.log(e);
   }
@@ -208,12 +210,13 @@ const third_payable = async (
   arg5,
   receipt_args,
   app_args,
-  ins_args
+  ins_args,
+  arg6
 ) => {
   try {
     var flex_three = 0;
-    if (arg1?.remaining_array?.length > 0) {
-      arg1?.remaining_array.forEach(async (ele) => {
+    if (arg6?.remaining_array?.length > 0) {
+      arg6?.remaining_array.forEach(async (ele) => {
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
           ele.installmentValue == "Third Installment"
@@ -226,6 +229,7 @@ const third_payable = async (
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Third Installment";
+          arg6.active_payment_type = "Third Installment"
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -237,8 +241,8 @@ const third_payable = async (
       });
     }
     if (arg2.total_installments == "3") {
-      if (arg1.remaining_fee > 0) {
-        arg1.remaining_array.push({
+      if (arg6.remaining_fee > 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_three,
           appId: app_args._id,
           status: "Not Paid",
@@ -251,9 +255,9 @@ const third_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      var num = await remaining_card_initiate_query(arg1);
-      if (arg1.remaining_fee > 0 && num == 0) {
-        arg1.remaining_array.push({
+      var num = await remaining_card_initiate_query(arg6);
+      if (arg6.remaining_fee > 0 && num == 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_three,
           appId: app_args._id,
           status: "Not Paid",
@@ -268,7 +272,7 @@ const third_payable = async (
       arg5.admissionRemainFeeCount >= amount
     ) {
     }
-    await Promise.all([arg5.save(), arg1.save(), arg4.save()]);
+    await Promise.all([arg5.save(), arg1.save(), arg4.save(), arg6.save()]);
   } catch (e) {
     console.log(e);
   }
@@ -283,12 +287,13 @@ const four_payable = async (
   arg5,
   receipt_args,
   app_args,
-  ins_args
+  ins_args,
+  arg6
 ) => {
   try {
     var flex_four = 0;
-    if (arg1?.remaining_array?.length > 0) {
-      arg1?.remaining_array.forEach(async (ele) => {
+    if (arg6?.remaining_array?.length > 0) {
+      arg6?.remaining_array.forEach(async (ele) => {
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
           ele.installmentValue == "Four Installment"
@@ -301,6 +306,7 @@ const four_payable = async (
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Four Installment";
+          arg6.active_payment_type = "Four Installment"
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -312,8 +318,8 @@ const four_payable = async (
       });
     }
     if (arg2.total_installments == "4") {
-      if (arg1.remaining_fee > 0) {
-        arg1.remaining_array.push({
+      if (arg6.remaining_fee > 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_four,
           appId: app_args._id,
           status: "Not Paid",
@@ -326,9 +332,9 @@ const four_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      var num = await remaining_card_initiate_query(arg1);
-      if (arg1.remaining_fee > 0 && num == 0) {
-        arg1.remaining_array.push({
+      var num = await remaining_card_initiate_query(arg6);
+      if (arg6.remaining_fee > 0 && num == 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_four,
           appId: app_args._id,
           status: "Not Paid",
@@ -343,7 +349,7 @@ const four_payable = async (
       arg5.admissionRemainFeeCount >= amount
     ) {
     }
-    await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
+    await Promise.all([arg1.save(), arg5.save(), arg4.save(), arg6.save()]);
   } catch (e) {
     console.log(e);
   }
@@ -358,12 +364,13 @@ const five_payable = async (
   arg5,
   receipt_args,
   app_args,
-  ins_args
+  ins_args,
+  arg6
 ) => {
   try {
     var flex_five = 0;
-    if (arg1?.remaining_array?.length > 0) {
-      arg1?.remaining_array.forEach(async (ele) => {
+    if (arg6?.remaining_array?.length > 0) {
+      arg6?.remaining_array.forEach(async (ele) => {
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
           ele.installmentValue == "Five Installment"
@@ -376,6 +383,7 @@ const five_payable = async (
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Five Installment";
+          arg6.active_payment_type = "Five Installment"
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -387,8 +395,8 @@ const five_payable = async (
       });
     }
     if (arg2.total_installments == "5") {
-      if (arg1.remaining_fee > 0) {
-        arg1.remaining_array.push({
+      if (arg6.remaining_fee > 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_five,
           appId: app_args._id,
           status: "Not Paid",
@@ -401,9 +409,9 @@ const five_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      var num = await remaining_card_initiate_query(arg1);
-      if (arg1.remaining_fee > 0 && num == 0) {
-        arg1.remaining_array.push({
+      var num = await remaining_card_initiate_query(arg6);
+      if (arg6.remaining_fee > 0 && num == 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_five,
           appId: app_args._id,
           status: "Not Paid",
@@ -418,7 +426,7 @@ const five_payable = async (
       arg5.admissionRemainFeeCount >= amount
     ) {
     }
-    await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
+    await Promise.all([arg1.save(), arg5.save(), arg4.save(), arg6.save()]);
   } catch (e) {
     console.log(e);
   }
@@ -433,12 +441,13 @@ const six_payable = async (
   arg5,
   receipt_args,
   app_args,
-  ins_args
+  ins_args,
+  arg6
 ) => {
   try {
     var flex_six = 0;
-    if (arg1?.remaining_array?.length > 0) {
-      arg1?.remaining_array.forEach(async (ele) => {
+    if (arg6?.remaining_array?.length > 0) {
+      arg6?.remaining_array.forEach(async (ele) => {
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
           ele.installmentValue == "Six Installment"
@@ -451,6 +460,7 @@ const six_payable = async (
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Six Installment";
+          arg6.active_payment_type = "Six Installment"
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -462,8 +472,8 @@ const six_payable = async (
       });
     }
     if (arg2.total_installments == "6") {
-      if (arg1.remaining_fee > 0) {
-        arg1.remaining_array.push({
+      if (arg6.remaining_fee > 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_six,
           appId: app_args._id,
           status: "Not Paid",
@@ -476,9 +486,9 @@ const six_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      var num = await remaining_card_initiate_query(arg1);
-      if (arg1.remaining_fee > 0 && num == 0) {
-        arg1.remaining_array.push({
+      var num = await remaining_card_initiate_query(arg6);
+      if (arg6.remaining_fee > 0 && num == 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_six,
           appId: app_args._id,
           status: "Not Paid",
@@ -493,7 +503,7 @@ const six_payable = async (
       arg5.admissionRemainFeeCount >= amount
     ) {
     }
-    await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
+    await Promise.all([arg1.save(), arg5.save(), arg4.save(), arg6.save()]);
   } catch (e) {
     console.log(e);
   }
@@ -508,12 +518,13 @@ const seven_payable = async (
   arg5,
   receipt_args,
   app_args,
-  ins_args
+  ins_args,
+  arg6
 ) => {
   try {
     var flex_seven = 0;
-    if (arg1?.remaining_array?.length > 0) {
-      arg1?.remaining_array.forEach(async (ele) => {
+    if (arg6?.remaining_array?.length > 0) {
+      arg6?.remaining_array.forEach(async (ele) => {
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
           ele.installmentValue == "Seven Installment"
@@ -526,6 +537,7 @@ const seven_payable = async (
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Seven Installment";
+          arg6.active_payment_type = "Seven Installment"
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -537,8 +549,8 @@ const seven_payable = async (
       });
     }
     if (arg2.total_installments == "7") {
-      if (arg1.remaining_fee > 0) {
-        arg1.remaining_array.push({
+      if (arg6.remaining_fee > 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_seven,
           appId: app_args._id,
           status: "Not Paid",
@@ -551,9 +563,9 @@ const seven_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      var num = await remaining_card_initiate_query(arg1);
-      if (arg1.remaining_fee > 0 && num == 0) {
-        arg1.remaining_array.push({
+      var num = await remaining_card_initiate_query(arg6);
+      if (arg6.remaining_fee > 0 && num == 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_seven,
           appId: app_args._id,
           status: "Not Paid",
@@ -568,7 +580,7 @@ const seven_payable = async (
       arg5.admissionRemainFeeCount >= amount
     ) {
     }
-    await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
+    await Promise.all([arg1.save(), arg5.save(), arg4.save(), arg6.save()]);
   } catch (e) {
     console.log(e);
   }
@@ -583,12 +595,13 @@ const eight_payable = async (
   arg5,
   receipt_args,
   app_args,
-  ins_args
+  ins_args,
+  arg6
 ) => {
   try {
     var flex_eight = 0;
-    if (arg1?.remaining_array?.length > 0) {
-      arg1?.remaining_array.forEach(async (ele) => {
+    if (arg6?.remaining_array?.length > 0) {
+      arg6?.remaining_array.forEach(async (ele) => {
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
           ele.installmentValue == "Eight Installment"
@@ -601,6 +614,7 @@ const eight_payable = async (
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Eight Installment";
+          arg6.active_payment_type = "Eight Installment"
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -612,8 +626,8 @@ const eight_payable = async (
       });
     }
     if (arg2.total_installments == "8") {
-      if (arg1.remaining_fee > 0) {
-        arg1.remaining_array.push({
+      if (arg6.remaining_fee > 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_eight,
           appId: app_args._id,
           status: "Not Paid",
@@ -626,9 +640,9 @@ const eight_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      var num = await remaining_card_initiate_query(arg1);
-      if (arg1.remaining_fee > 0 && num == 0) {
-        arg1.remaining_array.push({
+      var num = await remaining_card_initiate_query(arg6);
+      if (arg6.remaining_fee > 0 && num == 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_eight,
           appId: app_args._id,
           status: "Not Paid",
@@ -643,7 +657,7 @@ const eight_payable = async (
       arg5.admissionRemainFeeCount >= amount
     ) {
     }
-    await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
+    await Promise.all([arg1.save(), arg5.save(), arg4.save(), arg6.save()]);
   } catch (e) {
     console.log(e);
   }
@@ -658,12 +672,13 @@ const nine_payable = async (
   arg5,
   receipt_args,
   app_args,
-  ins_args
+  ins_args,
+  arg6
 ) => {
   try {
     var flex_nine = 0;
-    if (arg1?.remaining_array?.length > 0) {
-      arg1?.remaining_array.forEach(async (ele) => {
+    if (arg6?.remaining_array?.length > 0) {
+      arg6?.remaining_array.forEach(async (ele) => {
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
           ele.installmentValue == "Nine Installment"
@@ -676,6 +691,7 @@ const nine_payable = async (
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Nine Installment";
+          arg6.active_payment_type = "Nine Installment"
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -687,8 +703,8 @@ const nine_payable = async (
       });
     }
     if (arg2.total_installments == "9") {
-      if (arg1.remaining_fee > 0) {
-        arg1.remaining_array.push({
+      if (arg6.remaining_fee > 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_nine,
           appId: app_args._id,
           status: "Not Paid",
@@ -701,9 +717,9 @@ const nine_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      var num = await remaining_card_initiate_query(arg1);
-      if (arg1.remaining_fee > 0 && num == 0) {
-        arg1.remaining_array.push({
+      var num = await remaining_card_initiate_query(arg6);
+      if (arg6.remaining_fee > 0 && num == 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_nine,
           appId: app_args._id,
           status: "Not Paid",
@@ -718,7 +734,7 @@ const nine_payable = async (
       arg5.admissionRemainFeeCount >= amount
     ) {
     }
-    await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
+    await Promise.all([arg1.save(), arg5.save(), arg4.save(), arg6.save()]);
   } catch (e) {
     console.log(e);
   }
@@ -733,12 +749,13 @@ const ten_payable = async (
   arg5,
   receipt_args,
   app_args,
-  ins_args
+  ins_args,
+  arg6
 ) => {
   try {
     var flex_ten = 0;
-    if (arg1?.remaining_array?.length > 0) {
-      arg1?.remaining_array.forEach(async (ele) => {
+    if (arg6?.remaining_array?.length > 0) {
+      arg6?.remaining_array.forEach(async (ele) => {
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
           ele.installmentValue == "Ten Installment"
@@ -751,6 +768,7 @@ const ten_payable = async (
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Ten Installment";
+          arg6.active_payment_type = "Ten Installment"
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -762,8 +780,8 @@ const ten_payable = async (
       });
     }
     if (arg2.total_installments == "10") {
-      if (arg1.remaining_fee > 0) {
-        arg1.remaining_array.push({
+      if (arg6.remaining_fee > 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_ten,
           appId: app_args._id,
           status: "Not Paid",
@@ -776,9 +794,9 @@ const ten_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      var num = await remaining_card_initiate_query(arg1);
-      if (arg1.remaining_fee > 0 && num == 0) {
-        arg1.remaining_array.push({
+      var num = await remaining_card_initiate_query(arg6);
+      if (arg6.remaining_fee > 0 && num == 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_ten,
           appId: app_args._id,
           status: "Not Paid",
@@ -793,7 +811,7 @@ const ten_payable = async (
       arg5.admissionRemainFeeCount >= amount
     ) {
     }
-    await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
+    await Promise.all([arg1.save(), arg5.save(), arg4.save(), arg6.save()]);
   } catch (e) {
     console.log(e);
   }
@@ -808,12 +826,13 @@ const eleven_payable = async (
   arg5,
   receipt_args,
   app_args,
-  ins_args
+  ins_args,
+  arg6
 ) => {
   try {
     var flex_eleven = 0;
-    if (arg1?.remaining_array?.length > 0) {
-      arg1?.remaining_array.forEach(async (ele) => {
+    if (arg6?.remaining_array?.length > 0) {
+      arg6?.remaining_array.forEach(async (ele) => {
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
           ele.installmentValue == "Eleven Installment"
@@ -826,6 +845,7 @@ const eleven_payable = async (
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Eleven Installment";
+          arg6.active_payment_type = "Eleven Installment"
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -837,8 +857,8 @@ const eleven_payable = async (
       });
     }
     if (arg2.total_installments == "11") {
-      if (arg1.remaining_fee > 0) {
-        arg1.remaining_array.push({
+      if (arg6.remaining_fee > 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_eleven,
           appId: app_args._id,
           status: "Not Paid",
@@ -851,9 +871,9 @@ const eleven_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      var num = await remaining_card_initiate_query(arg1);
-      if (arg1.remaining_fee > 0 && num == 0) {
-        arg1.remaining_array.push({
+      var num = await remaining_card_initiate_query(arg6);
+      if (arg6.remaining_fee > 0 && num == 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_eleven,
           appId: app_args._id,
           status: "Not Paid",
@@ -868,7 +888,7 @@ const eleven_payable = async (
       arg5.admissionRemainFeeCount >= amount
     ) {
     }
-    await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
+    await Promise.all([arg1.save(), arg5.save(), arg4.save(), arg6.save()]);
   } catch (e) {
     console.log(e);
   }
@@ -883,12 +903,13 @@ const tweleve_payable = async (
   arg5,
   receipt_args,
   app_args,
-  ins_args
+  ins_args,
+  arg6
 ) => {
   try {
     var flex_tweleve = 0;
-    if (arg1?.remaining_array?.length > 0) {
-      arg1?.remaining_array.forEach(async (ele) => {
+    if (arg6?.remaining_array?.length > 0) {
+      arg6?.remaining_array.forEach(async (ele) => {
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
           ele.installmentValue == "Tweleve Installment"
@@ -900,13 +921,14 @@ const tweleve_payable = async (
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Tweleve Installment";
+          arg6.active_payment_type = "Tweleve Installment"
         }
         flex_tweleve = ele.remainAmount - amount;
       });
     }
     if (arg2.total_installments == "12") {
-      if (arg1.remaining_fee > 0) {
-        arg1.remaining_array.push({
+      if (arg6.remaining_fee > 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_tweleve,
           appId: app_args._id,
           status: "Not Paid",
@@ -919,9 +941,9 @@ const tweleve_payable = async (
         arg1.status = "Paid";
       }
     } else {
-      var num = await remaining_card_initiate_query(arg1);
-      if (arg1.remaining_fee > 0 && num == 0) {
-        arg1.remaining_array.push({
+      var num = await remaining_card_initiate_query(arg6);
+      if (arg6.remaining_fee > 0 && num == 0) {
+        arg6.remaining_array.push({
           remainAmount: flex_tweleve,
           appId: app_args._id,
           status: "Not Paid",
@@ -936,7 +958,7 @@ const tweleve_payable = async (
       arg5.admissionRemainFeeCount >= amount
     ) {
     }
-    await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
+    await Promise.all([arg1.save(), arg5.save(), arg4.save(), arg6.save()]);
   } catch (e) {
     console.log(e);
   }
@@ -951,10 +973,11 @@ const installment_remain = async (
   arg5,
   receipt_args,
   app_args,
-  ins_args
+  ins_args,
+  arg6
 ) => {
   try {
-    const filter_student_install = arg1?.remaining_array?.filter((stu) => {
+    const filter_student_install = arg6?.remaining_array?.filter((stu) => {
       if (
         `${stu.appId}` === `${app_args._id}` &&
         stu.status === "Not Paid" &&
@@ -965,7 +988,7 @@ const installment_remain = async (
 
     for (var ref of filter_student_install) {
       if (amount < ref?.remainAmount) {
-        arg1.remaining_array.push({
+        arg6.remaining_array.push({
           remainAmount: ref.remainAmount - amount,
           appId: app_args._id,
           status: "Not Paid",
@@ -979,6 +1002,7 @@ const installment_remain = async (
         ref.mode = mode;
         ref.fee_receipt = receipt_args?._id;
         arg1.active_payment_type = "Installment Paid";
+        arg6.active_payment_type = "Installment Paid"
       } else {
         ref.status = "Paid";
         ref.installmentValue = "All Installment Paid";
@@ -986,10 +1010,11 @@ const installment_remain = async (
         arg4.remainingFee.pull(arg5._id);
         arg1.status = "Paid";
         arg1.active_payment_type = "All Installment Paid";
+        arg6.active_payment_type = "All Installment Paid"
         ref.fee_receipt = receipt_args?._id;
       }
     }
-    await Promise.all([arg1.save(), arg4.save()]);
+    await Promise.all([arg1.save(), arg4.save(), arg6.save()]);
   } catch (e) {
     console.log(e);
   }
@@ -1005,7 +1030,8 @@ exports.render_installment = async (
   remainList,
   receipt,
   apply,
-  institute
+  institute,
+  nest
 ) => {
   try {
     if (type === "Second Installment") {
@@ -1018,7 +1044,8 @@ exports.render_installment = async (
         student,
         receipt,
         apply,
-        institute
+        institute,
+        nest
       );
     } else if (type === "Third Installment") {
       await third_payable(
@@ -1030,7 +1057,8 @@ exports.render_installment = async (
         student,
         receipt,
         apply,
-        institute
+        institute,
+        nest
       );
     } else if (type === "Four Installment") {
       await four_payable(
@@ -1042,7 +1070,8 @@ exports.render_installment = async (
         student,
         receipt,
         apply,
-        institute
+        institute,
+        nest
       );
     } else if (type === "Five Installment") {
       await five_payable(
@@ -1054,7 +1083,8 @@ exports.render_installment = async (
         student,
         receipt,
         apply,
-        institute
+        institute,
+        nest
       );
     } else if (type === "Six Installment") {
       await six_payable(
@@ -1065,7 +1095,8 @@ exports.render_installment = async (
         admin_ins,
         student,
         apply,
-        institute
+        institute,
+        nest
       );
     } else if (type === "Seven Installment") {
       await seven_payable(
@@ -1077,7 +1108,8 @@ exports.render_installment = async (
         student,
         receipt,
         apply,
-        institute
+        institute,
+        nest
       );
     } else if (type === "Eight Installment") {
       await eight_payable(
@@ -1089,7 +1121,8 @@ exports.render_installment = async (
         student,
         receipt,
         apply,
-        institute
+        institute,
+        nest
       );
     } else if (type === "Nine Installment") {
       await nine_payable(
@@ -1101,10 +1134,22 @@ exports.render_installment = async (
         student,
         receipt,
         apply,
-        institute
+        institute,
+        nest
       );
     } else if (type === "Ten Installment") {
-      await ten_payable(remainList, structure, mode, price, admin_ins, student);
+      await ten_payable(
+        remainList,
+        structure,
+        mode,
+        price,
+        admin_ins,
+        student,
+        receipt,
+        apply,
+        institute,
+        nest
+        );
     } else if (type === "Eleven Installment") {
       await eleven_payable(
         remainList,
@@ -1115,7 +1160,8 @@ exports.render_installment = async (
         student,
         receipt,
         apply,
-        institute
+        institute,
+        nest
       );
     } else if (type === "Tweleve Installment") {
       await tweleve_payable(
@@ -1127,7 +1173,8 @@ exports.render_installment = async (
         student,
         receipt,
         apply,
-        institute
+        institute,
+        nest
       );
     } else if (type === "Installment Remain") {
       await installment_remain(
@@ -1139,7 +1186,8 @@ exports.render_installment = async (
         student,
         receipt,
         apply,
-        institute
+        institute,
+        nest
       );
     } else {
     }
@@ -1344,12 +1392,13 @@ exports.exempt_installment = async (
   apply_args,
   finance_args,
   price,
-  receipt_args
+  receipt_args,
+  nest_args
 ) => {
   try {
     var real_price = 0;
     var imagine_price = 0;
-    const filter_student_install = remain_args?.remaining_array?.filter(
+    const filter_student_install = nest_args?.remaining_array?.filter(
       (stu) => {
         if (`${stu.appId}` === `${apply_args._id}` && stu.status === "Not Paid")
           return stu;
@@ -1378,6 +1427,9 @@ exports.exempt_installment = async (
     }
     remain_args.exempted_fee += real_price;
     remain_args.status = "Paid";
+    if (nest_card?.remaining_fee >= real_price) {
+      nest_card.remaining_fee -= real_price;
+    }
     if (remain_args?.remaining_fee >= real_price) {
       remain_args.remaining_fee -= real_price;
     }
@@ -1393,6 +1445,7 @@ exports.exempt_installment = async (
       apply_args.save(),
       receipt_args.save(),
       remain_args.save(),
+      nest_args.save()
     ]);
   } catch (e) {
     console.log(e);

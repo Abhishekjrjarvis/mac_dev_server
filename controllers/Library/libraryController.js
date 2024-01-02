@@ -287,9 +287,9 @@ exports.getStaffOneBookDetail = async (req, res) => {
   try {
     if (!req.params.bid) throw "Please send book id to perform task";
     const book = await Book.findById(req.params.bid)
-      .select(
-        "bookName bookStatus author publication language totalPage price leftCopies totalCopies shellNumber description attachment.documentKey attachment.documentType attachment.documentName photoId photo"
-      )
+      // .select(
+      //   "bookName bookStatus author publication language totalPage price leftCopies totalCopies shellNumber description attachment.documentKey attachment.documentType attachment.documentName photoId photo"
+      // )
       .lean()
       .exec();
     res.status(200).send({ message: "book all details", book });

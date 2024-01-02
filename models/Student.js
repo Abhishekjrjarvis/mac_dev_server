@@ -818,8 +818,33 @@ const studentSchema = new mongoose.Schema({
       type: Number,
       default: 0
     },
-
-  }
+  },
+  promote_with_backlog: [
+    {
+      backlog_credit: Number,
+      subject: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subject",
+      },
+      class: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class",
+      },
+    },
+  ],
+  promote_with_backlog_credit: {
+    type: Number,
+    default: 0,
+  },
+  promote_with_pass: [
+    {
+      resultStatus: String,
+      class: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class",
+      },
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

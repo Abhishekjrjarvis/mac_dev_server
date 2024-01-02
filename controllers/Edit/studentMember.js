@@ -694,7 +694,7 @@ exports.getPromoteStudentByClass = async (req, res) => {
 exports.getNotPromoteStudentByClass = async (req, res) => {
   try {
     const { cid } = req.params;
-    const { valid_app_fee } = req.query;
+    const { valid_app_fee, is_backlog } = req.query;
     if (!cid) throw "Please call proper api with all *required details";
     if (valid_app_fee === "Yes") {
       const classes_promote = await Class.findById(cid);
@@ -705,7 +705,7 @@ exports.getNotPromoteStudentByClass = async (req, res) => {
             _id: { $nin: classes_promote.promoteStudent },
           },
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto fee_structure studentROLLNO studentGRNO",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto fee_structure studentROLLNO studentGRNO promote_with_backlog_credit promote_with_pass",
           populate: {
             path: "fee_structure remainingFeeList",
             select: "applicable_fees paid_fee",
@@ -714,8 +714,30 @@ exports.getNotPromoteStudentByClass = async (req, res) => {
         .select("ApproveStudent")
         .lean()
         .exec();
+
+      var list = [];
+
+      if (is_backlog === "BACKLOG_OF_MAXIMUM") {
+        for (let stu of classes?.ApproveStudent) {
+          if (stu?.promote_with_backlog_credit <= 9) list.push(stu);
+        }
+      } else if (is_backlog === "RESULT_OF_PASS") {
+        for (let stu of classes?.ApproveStudent) {
+          if (stu?.promote_with_pass?.length) {
+            for (let pas of stu?.promote_with_pass)
+              if (
+                String(pas?.class) === String(cid) &&
+                pas.resultStatus === "PASS"
+              ) {
+                list.push(stu);
+                break;
+              }
+          } else list.push(stu);
+        }
+      } else list = classes?.ApproveStudent;
+
       var filtered_sorted = [];
-      for (var ref of classes?.ApproveStudent) {
+      for (var ref of list) {
         const one_remain = await RemainingList.findOne({
           $and: [
             { student: ref?._id },
@@ -729,6 +751,7 @@ exports.getNotPromoteStudentByClass = async (req, res) => {
           filtered_sorted.push(ref);
         }
       }
+
       res.status(200).send({
         message: "All not promoted student list",
         notPromoteStudent: filtered_sorted ?? [],
@@ -742,7 +765,7 @@ exports.getNotPromoteStudentByClass = async (req, res) => {
             _id: { $nin: classes_promote.promoteStudent },
           },
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto fee_structure studentROLLNO studentGRNO",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto fee_structure studentROLLNO studentGRNO promote_with_backlog_credit promote_with_pass",
           populate: {
             path: "fee_structure remainingFeeList",
             select: "applicable_fees paid_fee",
@@ -751,11 +774,40 @@ exports.getNotPromoteStudentByClass = async (req, res) => {
         .select("ApproveStudent")
         .lean()
         .exec();
-      res.status(200).send({
-        message: "All not promoted student list",
-        notPromoteStudent: classes?.ApproveStudent ?? [],
-        search: true
-      });
+
+      if (is_backlog === "BACKLOG_OF_MAXIMUM") {
+        var list = [];
+        for (let stu of classes?.ApproveStudent) {
+          if (stu?.promote_with_backlog_credit <= 9) list.push(stu);
+        }
+        res.status(200).send({
+          message: "All not promoted student list",
+          notPromoteStudent: list,
+        });
+      } else if (is_backlog === "RESULT_OF_PASS") {
+        var list = [];
+        for (let stu of classes?.ApproveStudent) {
+          if (stu?.promote_with_pass?.length) {
+            for (let pas of stu?.promote_with_pass)
+              if (
+                String(pas?.class) === String(cid) &&
+                pas.resultStatus === "PASS"
+              ) {
+                list.push(stu);
+                break;
+              }
+          } else list.push(stu);
+        }
+        res.status(200).send({
+          message: "All not promoted student list",
+          notPromoteStudent: list,
+        });
+      } else {
+        res.status(200).send({
+          message: "All not promoted student list",
+          notPromoteStudent: classes?.ApproveStudent ?? [],
+        });
+      }
     }
   } catch (e) {
     res.status(200).send({ message: e, notPromoteStudent: [] });

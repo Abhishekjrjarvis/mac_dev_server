@@ -5494,6 +5494,8 @@ exports.oneStudentReportCardClassTeacherModify = async (req, res) => {
         course_code: course_c?.course_code ?? "",
         finalObtainCredit: 0,
         gradeWithCredit: 0,
+        resultStatus: "PASS",
+        backlogCredit: 0,
       };
       for (let cut of student?.studentClass?.subject) {
         if (String(submarks.subject) === String(cut?._id))
@@ -5538,12 +5540,21 @@ exports.oneStudentReportCardClassTeacherModify = async (req, res) => {
           }
         }
       }
-      obj.finalObtainCredit = obj.showGrade ? grade_point(obj.showGrade) : 0;
-      if (obj.finalObtainCredit === "F") {
+      obj.finalObtainCredit = obj.showGrade
+        ? Math.ceil((grade_point(obj.showGrade) * 10 * obj.course_credit) / 100)
+        : 0;
+      if (obj.showGrade === "F") {
         total.resultStatus = "FAIL";
+        obj.resultStatus = "FAIL";
+        obj.backlogCredit = obj.course_credit;
       }
+
+      // some changes due new type credit
+      // obj.gradeWithCredit = obj.showGrade
+      //   ? grade_point(obj.showGrade) * obj.course_credit
+      //   : 0;
       obj.gradeWithCredit = obj.showGrade
-        ? grade_point(obj.showGrade) * obj.course_credit
+        ? obj.finalObtainCredit * obj.course_credit
         : 0;
       total.totalCredit += obj.finalObtainCredit;
       total.earnedGradePoint += obj.gradeWithCredit;
@@ -5595,6 +5606,7 @@ exports.oneStudentReportCardClassTeacherModify = async (req, res) => {
     console.log(e);
   }
 };
+
 
 exports.examQuestionEvaluationCoMappingQuery = async (req, res) => {
   try {
@@ -5743,3 +5755,153 @@ exports.examQuestionEvaluationCoMappingQuery = async (req, res) => {
   }
 };
 
+exports.oneStudentReportCardFinalizeModify = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.sid).select(
+      "_id finalReport finalReportStatus studentClass backlog"
+    );
+    if (student.finalReportStatus === "Yes") {
+      throw "Report card is already finalize";
+    }
+    const finalize = new FinalReport({
+      student: student._id,
+      classId: student.studentClass,
+      totalFinalExam: req.body.totalFinalExam,
+      totalOtherExam: req.body.totalOtherExam,
+      totalGraceExam: req.body.totalGraceExam,
+      totalTotalExam: req.body.totalTotalExam,
+      totalPercentage: req.body.totalPercentage,
+      attendance: req.body.attendance,
+      attendanceTotal: req.body.attendanceTotal,
+      attendancePercentage: req.body.attendancePercentage,
+      behaviourStar: req.body.behaviourStar,
+      behaviourImprovement: req.body.behaviourImprovement,
+      behaviourLack: req.body.behaviourLack,
+      totalCutoff: req.body.totalCutoff,
+      passStatus:
+        req.body.totalCutoff > Math.ceil(req.body.totalPercentage)
+          ? "FAIL"
+          : "PASS",
+      showGradeTotal: req.body.showGradeTotal,
+      spi: req.body.spi,
+      totalCredit: req.body.totalCredit,
+      earnedGradePoint: req.body.earnedGradePoint,
+      totalEarnedGradePoint: req.body.totalEarnedGradePoint,
+      resultStatus: req.body.resultStatus,
+    });
+    student.finalReport.push(finalize._id);
+    student.finalReportStatus = "Yes";
+    student.promote_with_pass.push({
+      resultStatus: req.body.resultStatus,
+      class: student.studentClass,
+    });
+    for (let subject of req.body?.subjects) {
+      if (!subject.finalExamObtain || !subject.finalExamTotal) {
+        throw "All Final Exam Marks is not updated";
+      }
+
+      // reason due to remove type other
+      // if (!subject.otherExamObtain || !subject.otherExamTotal) {
+      //   throw "All Other Exam Marks is not updated";
+      // }
+      const backlogSub = await Subject.findById(subject._id);
+      finalize.subjects.push({
+        subject: subject._id,
+        subjectName: subject.subjectName,
+        finalExamTotal: subject.finalExamTotal,
+        finalExamObtain: subject.finalExamObtain,
+        otherExamTotal: subject.otherExamTotal,
+        otherExamObtain: subject.otherExamObtain,
+        graceMarks: subject.graceMarks,
+        totalMarks: subject.totalMarks,
+        obtainTotalMarks: subject.obtainTotalMarks,
+        subjectCutoff: subject.subjectCutoff,
+        subjectPassStatus:
+          subject.subjectCutoff > Math.ceil(subject.obtainTotalMarks)
+            ? "FAIL"
+            : "PASS",
+        showGrade: subject?.showGrade,
+        course_credit: subject?.course_credit,
+        course_code: subject?.course_code,
+        finalObtainCredit: subject?.finalObtainCredit,
+        gradeWithCredit: subject?.gradeWithCredit,
+        resultStatus: subject?.resultStatus,
+        backlogCredit: subject?.backlogCredit,
+      });
+      if (subject?.resultStatus === "FAIL")
+        student.promote_with_backlog.push({
+          backlog_credit: subject?.backlogCredit,
+          subject: subject._id,
+          class: student.studentClass,
+        });
+      student.promote_with_backlog_credit += subject?.backlogCredit;
+      const backlogSubMaster = await SubjectMaster.findById({
+        _id: backlogSub?.subjectMasterName,
+      });
+      if (subject.subjectCutoff > Math.ceil(subject.obtainTotalMarks)) {
+        const new_backlog = new Backlog({});
+        new_backlog.backlog_subject = backlogSub?._id;
+        new_backlog.backlog_class = student?.studentClass;
+        new_backlog.backlog_batch = student?.batches;
+        backlogSubMaster.backlog.push(new_backlog?._id);
+        backlogSubMaster.backlogStudentCount += 1;
+        /// for see backlog student
+        new_backlog.backlog_students = req.params.sid;
+        student.backlog.push(new_backlog._id);
+        await Promise.all([
+          backlogSubMaster.save(),
+          new_backlog.save(),
+          student.save(),
+        ]);
+      } else {
+        backlogSub.pass.push(req.params.sid);
+      }
+      await backlogSub.save();
+    }
+    const classes = await Class.findById(student?.studentClass);
+    if (req.body.totalCutoff > Math.ceil(req.body.totalPercentage))
+      classes.fail.push(req.params.sid);
+    else classes.pass.push(req.params.sid);
+    finalize.is_grade = classes.finalReportsSettings.gradeMarks;
+    await Promise.all([finalize.save(), student.save(), classes.save()]);
+    res.status(201).send({ message: "Finalize successfully" });
+    //for standard wise all list of passing grade
+    const db_standard_mark = await StandardMarkList.findOne({
+      classMaster: classes.masterClassName,
+      batch: classes?.batch,
+    });
+    if (db_standard_mark) {
+      db_standard_mark.marks.push({
+        student: student._id,
+        related_class: classes._id,
+        totalMarks: req.body.totalTotalExam,
+      });
+      db_standard_mark.marks_list.push({
+        student: student._id,
+        totalMarks: req.body.totalTotalExam,
+      });
+      // console.log(db_standard_mark);
+      await db_standard_mark.save();
+    } else {
+      const db_cls_master = await ClassMaster.findById(classes.masterClassName);
+      const standard_mark = new StandardMarkList({
+        classMaster: db_cls_master?._id,
+        batch: classes?.batch,
+      });
+      standard_mark.marks.push({
+        student: student._id,
+        related_class: classes._id,
+        totalMarks: req.body.totalTotalExam,
+      });
+      standard_mark.marks_list.push({
+        student: student._id,
+        totalMarks: req.body.totalTotalExam,
+      });
+      db_cls_master.standard_mark_list.push(standard_mark?._id);
+      await Promise.all([standard_mark.save(), db_cls_master.save()]);
+    }
+  } catch (e) {
+    // console.log(e);
+    res.status(200).send({ message: e });
+  }
+};

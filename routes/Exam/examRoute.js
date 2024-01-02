@@ -76,7 +76,7 @@ router
   .get(isLoggedIn, catchAsync(examController.oneStudentReletedNecessaryData));
 router
   .route("/class/student/:sid/report/finalize")
-  .post(isLoggedIn, catchAsync(examController.oneStudentReportCardFinalize));
+  .post(isLoggedIn, catchAsync(examController.oneStudentReportCardFinalizeModify));
 
 router
   .route("/class/student/:sid/report/grace/update")

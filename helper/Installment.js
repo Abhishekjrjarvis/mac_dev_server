@@ -163,7 +163,7 @@ const first_payable = async (
         }
       });
     }
-    if (arg2.total_installments == "2") {
+    if (arg2.total_installments == "1") {
       if (arg6.remaining_fee > 0) {
         arg6.remaining_array.push({
           remainAmount: flex_two,

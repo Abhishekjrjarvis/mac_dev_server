@@ -3417,6 +3417,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
             nest_card
           );
         } else {
+            console.log("Enter")
             await render_installment(
               type,
               student,
@@ -3430,8 +3431,10 @@ exports.paidRemainingFeeStudent = async (req, res) => {
               institute,
               nest_card
             );
+            console.log("Exit")
         }
         if(type === "First Installment"){
+          console.log("Enter")
         for(var val of apply?.FeeCollectionApplication){
           if(`${val?.student}` === `${student?._id}`){
             apply.confirmedApplication.push({

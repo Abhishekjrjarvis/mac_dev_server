@@ -3402,7 +3402,8 @@ exports.paidRemainingFeeStudent = async (req, res) => {
           }
         var extra_price = 0
         await nest_card.save()
-        if (req?.body?.fee_payment_mode === "Government/Scholarship") {
+        if (type === "First Installment") {
+          await set_fee_head_query(student, price, apply, new_receipt);
         } else {
           await update_fee_head_query(student, price, apply, new_receipt);
         }

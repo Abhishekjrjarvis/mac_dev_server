@@ -8750,48 +8750,7 @@ exports.renderAddFeesCardStudentQuery = async (req, res) => {
         access: false,
       });
 
-    var student = await Student.findById({ _id: sid });
-    var apply = await NewApplication.findById({ _id: appId });
-    var admission = await Admission.findById({
-      _id: `${apply?.admissionAdmin}`,
-    });
-    var institute = await InstituteAdmin.findById({
-      _id: `${admission?.institute}`,
-    });
-    var structure = await FeeStructure.findById({ _id: struct });
-    var new_remainFee = new RemainingList({
-      appId: apply?._id,
-      applicable_fee: structure?.total_admission_fees,
-      institute: institute?._id,
-    });
-    new_remainFee.access_mode_card = "Installment_Wise";
-    new_remainFee.card_type = "Normal";
-    new_remainFee.already_made = true;
-    var structure_card = {
-      fee_structure: structure,
-    };
-    await add_all_installment_zero(
-      apply,
-      institute._id,
-      new_remainFee,
-      structure?.total_admission_fees,
-      structure_card
-    );
-    new_remainFee.fee_structure = structure?._id;
-    new_remainFee.remaining_fee += structure?.total_admission_fees;
-    student.remainingFeeList.push(new_remainFee?._id);
-    student.remainingFeeList_count += 1;
-    new_remainFee.student = student?._id;
-    admission.remainingFee.push(student._id);
-    student.admissionRemainFeeCount += structure?.total_admission_fees;
-    apply.remainingFee += structure?.total_admission_fees;
-    admission.remainingFeeCount += structure?.total_admission_fees;
-    await Promise.all([
-      new_remainFee.save(),
-      admission.save(),
-      apply.save(),
-      student.save(),
-    ]);
+    await render_new_fees_card(sid, appId, struct, "")
     res
       .status(200)
       .send({ message: "Explore New Remaining Fees Card Query", access: true });

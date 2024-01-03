@@ -4623,7 +4623,8 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         app_card: c_num?.app_card,
         gov_card: c_num?.gov_card,
         status_id: status?._id,
-        revert_request_status: revert_status
+        revert_request_status: revert_status,
+        fee_struct: c_num?.fee_struct
       })
       apply.fee_collect_count += 1
     }

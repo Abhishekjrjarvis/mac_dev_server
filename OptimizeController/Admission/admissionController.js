@@ -9748,10 +9748,10 @@ exports.retrieveAdmissionCollectDocsRevertedQuery = async (req, res) => {
     user.applicationStatus.pull(status?._id);
     await Status.findByIdAndDelete(statusId);
     if(remain_card?.applicable_card){
-      await NestedCard.findByIdAndDelete(app_card?._id)
+      await NestedCard.findByIdAndDelete(remain_card?.applicable_card)
     }
     if(remain_card?.government_card){
-      await NestedCard.findByIdAndDelete(gov_card?._id)
+      await NestedCard.findByIdAndDelete(remain_card?.government_card)
     }
     await RemainingList.findByIdAndDelete(remain_card?._id)
     await Promise.all([apply.save(), user.save()]);

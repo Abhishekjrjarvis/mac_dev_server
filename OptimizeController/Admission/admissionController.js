@@ -9730,7 +9730,7 @@ exports.retrieveAdmissionCollectDocsRevertedQuery = async (req, res) => {
     var user = await User.findById({ _id: `${student?.user}` });
     var status = await Status.findById({ _id: statusId });
     var remain_card = await RemainingList.findById({_id: rid })
-    if(remain_card?.paid_fee > 0){
+    if(remain_card?.paid_fee >= 0){
     apply.FeeCollectionApplication.pull(fcid)
     if(apply?.fee_collect_count > 0){
       apply.fee_collect_count -= 1

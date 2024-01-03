@@ -1029,7 +1029,7 @@ exports.fetchAllFeeCollectedApplication = async (req, res) => {
         .populate({
           path: "FeeCollectionApplication",
           populate: {
-            path: "student payment_flow app_card gov_card",
+            path: "student payment_flow app_card gov_card fee_struct",
             match: {
               studentFirstName: { $regex: `${search}`, $options: "i" },
               studentMiddleName: { $regex: `${search}`, $options: "i" },
@@ -1073,7 +1073,7 @@ exports.fetchAllFeeCollectedApplication = async (req, res) => {
         .populate({
           path: "FeeCollectionApplication",
           populate: {
-            path: "student payment_flow app_card gov_card",
+            path: "student payment_flow app_card gov_card fee_struct",
             // select:
             //   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber",
             // populate: {

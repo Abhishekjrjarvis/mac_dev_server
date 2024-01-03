@@ -86,7 +86,8 @@ exports.render_new_fees_card = async (sid, appId, struct, flow) => {
       return {
         card: new_remainFee?._id,
         app_card: new_remainFee?.applicable_card ?? null,
-        gov_card: new_remainFee?.government_card ?? null
+        gov_card: new_remainFee?.government_card ?? null,
+        fee_struct: structure?._id
       }
     } catch (e) {
       console.log(e);

@@ -154,7 +154,7 @@ const newApplicationSchema = new mongoose.Schema({
       },
       fee_struct: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "FeesStructure"
+        ref: "FeeStructure"
       }
     },
   ],

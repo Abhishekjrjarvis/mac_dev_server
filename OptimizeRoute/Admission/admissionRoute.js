@@ -212,11 +212,6 @@ router.get(
   catchAsync(Admission.retrieveAdmissionApplicableRemainingArray)
 );
 
-router.get(
-  "/:aid/all/remaining/query",
-  catchAsync(Admission.retrieveAdmissionApplicableQuery)
-);
-
 // One Student Fee
 router.get(
   "/:sid/student/view/fee",

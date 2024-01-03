@@ -109,6 +109,10 @@ const newApplicationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "NewApplication",
       },
+      revert_request_status: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Status",
+      },
     },
   ],
   FeeCollectionApplication: [
@@ -143,7 +147,11 @@ const newApplicationSchema = new mongoose.Schema({
       gov_card: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "NestedCard"
-      }
+      },
+      revert_request_status: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Status",
+      },
     },
   ],
   reviewApplication: [

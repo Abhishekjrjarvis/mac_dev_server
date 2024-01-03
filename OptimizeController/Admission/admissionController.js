@@ -3163,12 +3163,6 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
     );
     if (search) {
       var student = [];
-      var depart = await Department.findOne({
-        dName: { $regex: search, $options: "i" },
-      });
-      var batch = await Batch.findOne({
-        batchName: { $regex: search, $options: "i" },
-      });
       var all_remain = await RemainingList.find({
         student: { $in: admin_ins?.remainingFee },
       })
@@ -3189,8 +3183,8 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
               { studentCast: { $regex: search, $options: "i" } },
               { studentCastCategory: { $regex: search, $options: "i" } },
               { studentGender: { $regex: search, $options: "i" } },
-              { department: depart?._id },
-              { batches: batch?._id },
+              // { department: depart?._id },
+              // { batches: batch?._id },
             ],
           },
           select:
@@ -3263,68 +3257,6 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
     console.log(e);
   }
 };
-
-// exports.retrieveAdmissionApplicableQuery = async (req, res) => {
-//   try {
-//     const { aid } = req.params;
-//     const page = req.query.page ? parseInt(req.query.page) : 1;
-//     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-//     const skip = (page - 1) * limit;
-//     const { search } = req.query;
-//     const admin_ins = await Admission.findById({ _id: aid }).select(
-//       "remainingFee active_tab_index"
-//     );
-//     if (search) {
-//       var all_app = await NestedCard.find({ student: { $in: admin_ins?.remainingFee}})
-//       .populate({
-//         path: "parent_card",
-//       })
-//       .populate({
-//         path: "student",
-//         match: {
-//           studentFirstName: { $regex: `${search}`, $options: "i"},
-//           studentMiddleName: { $regex: `${search}`, $options: "i"},
-//           studentLastName: { $regex: `${search}`, $options: "i"},
-//           valid_full_name: { $regex: `${search}`, $options: "i"},
-//         },
-//         select:
-//           "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount valid_full_name admission_amount_stats",
-//         populate: {
-//           path: "department",
-//           select: "dName",
-//         },
-//       });
-//     } else {
-//       var all_app = await Student.find({
-//         student: { $in: admin_ins?.remainingFee },
-//       })
-//       .populate({
-//         path: "fee_structure",
-//         select:
-//           "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount valid_full_name admission_amount_stats",
-//         populate: {
-//           path: "department",
-//           select: "dName",
-//         },
-//       });
-//       for(var val of all_app){
-
-//       }
-//       student = await nested_document_limit(page, limit, student);
-//     }
-//     admin_ins.active_tab_index = "Applicable_Fees_Query";
-//     await admin_ins.save();
-//     // if (student?.length > 0) {
-//     res.status(200).send({
-//       message: "Its a party time from DB 🙌",
-//       remain: student,
-//       remainCount: student?.length,
-//     });
-//     // }
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
 
 exports.oneStudentViewRemainingFee = async (req, res) => {
   try {
@@ -4646,7 +4578,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
 exports.retrieveAdmissionCollectDocs = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { mode, type, amount, nest } = req.body;
+    const { mode, type, amount, nest, revert_status } = req.body;
     if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -4678,6 +4610,8 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         payment_status: "Zero Applicable Fees",
         install_type: "No Installment Required For Payment",
         fee_remain: structure?.applicable_fees,
+        status_id: status?._id,
+        revert_request_status: revert_status
       })
       apply.confirmCount += 1
     }
@@ -4687,7 +4621,9 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         fee_remain: structure?.applicable_fees,
         payment_flow: c_num?.card,
         app_card: c_num?.app_card,
-        gov_card: c_num?.gov_card
+        gov_card: c_num?.gov_card,
+        status_id: status?._id,
+        revert_request_status: revert_status
       })
       apply.fee_collect_count += 1
     }
@@ -9783,7 +9719,7 @@ exports.retrieveAdmissionSelectedRevertedApplication = async (req, res) => {
 exports.retrieveAdmissionCollectDocsRevertedQuery = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { statusId } = req.body;
+    const { statusId, fcid, rid, revert_status } = req.body;
     if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -9793,21 +9729,43 @@ exports.retrieveAdmissionCollectDocsRevertedQuery = async (req, res) => {
     var student = await Student.findById({ _id: sid });
     var user = await User.findById({ _id: `${student?.user}` });
     var status = await Status.findById({ _id: statusId });
-    for (let app of apply.selectedApplication) {
-      if (`${app.student}` === `${student._id}`) {
-        app.docs_collect = "Not Collected";
-        app.status_id = null;
-        app.edited_struct = true;
-      } else {
-      }
+    var remain_card = await RemainingList.findById({_id: rid })
+    if(remain_card?.paid_fee > 0){
+    apply.FeeCollectionApplication.pull(fcid)
+    if(apply?.fee_collect_count > 0){
+      apply.fee_collect_count -= 1
+    }
+    apply.selectedApplication.push({
+      student: student?._id,
+      fee_remain: remain_card?.applicable_fee,
+      revert_request_status: revert_status
+    })
+    apply.selectCount += 1
+    student.remainingFeeList.pull(remain_card?._id)
+    if(student?.remainingFeeList_count > 0){
+      student.remainingFeeList_count -= 1
     }
     user.applicationStatus.pull(status?._id);
     await Status.findByIdAndDelete(statusId);
+    if(remain_card?.applicable_card){
+      await NestedCard.findByIdAndDelete(app_card?._id)
+    }
+    if(remain_card?.government_card){
+      await NestedCard.findByIdAndDelete(gov_card?._id)
+    }
+    await RemainingList.findByIdAndDelete(remain_card?._id)
     await Promise.all([apply.save(), user.save()]);
     res.status(200).send({
       message: "Look like a party mood Reverted Query",
       access: true,
     });
+    }
+    else{
+      res.status(200).send({
+        message: "Fees Already Collected By Admission Admin Revert Opts Not Working",
+        access: false,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

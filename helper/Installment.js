@@ -145,7 +145,7 @@ const first_payable = async (
           ele.installmentValue == "First Installment"
         ) {
           ele.status = "Paid";
-          flex_two = ele.remainAmount - amount;
+          flex_two = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
@@ -222,7 +222,7 @@ const second_payable = async (
           ele.installmentValue == "Second Installment"
         ) {
           ele.status = "Paid";
-          flex_two = ele.remainAmount - amount;
+          flex_two = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
@@ -299,7 +299,7 @@ const third_payable = async (
           ele.installmentValue == "Third Installment"
         ) {
           ele.status = "Paid";
-          flex_three = ele.remainAmount - amount;
+          flex_three = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
@@ -376,7 +376,7 @@ const four_payable = async (
           ele.installmentValue == "Four Installment"
         ) {
           ele.status = "Paid";
-          flex_four = ele.remainAmount - amount;
+          flex_four = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
@@ -453,7 +453,7 @@ const five_payable = async (
           ele.installmentValue == "Five Installment"
         ) {
           ele.status = "Paid";
-          flex_five = ele.remainAmount - amount;
+          flex_five = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
@@ -530,7 +530,7 @@ const six_payable = async (
           ele.installmentValue == "Six Installment"
         ) {
           ele.status = "Paid";
-          flex_six = ele.remainAmount - amount;
+          flex_six = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
@@ -607,7 +607,7 @@ const seven_payable = async (
           ele.installmentValue == "Seven Installment"
         ) {
           ele.status = "Paid";
-          flex_seven = ele.remainAmount - amount;
+          flex_seven = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
@@ -684,7 +684,7 @@ const eight_payable = async (
           ele.installmentValue == "Eight Installment"
         ) {
           ele.status = "Paid";
-          flex_eight = ele.remainAmount - amount;
+          flex_eight = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
@@ -761,7 +761,7 @@ const nine_payable = async (
           ele.installmentValue == "Nine Installment"
         ) {
           ele.status = "Paid";
-          flex_nine = ele.remainAmount - amount;
+          flex_nine = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
@@ -838,7 +838,7 @@ const ten_payable = async (
           ele.installmentValue == "Ten Installment"
         ) {
           ele.status = "Paid";
-          flex_ten = ele.remainAmount - amount;
+          flex_ten = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
@@ -915,7 +915,7 @@ const eleven_payable = async (
           ele.installmentValue == "Eleven Installment"
         ) {
           ele.status = "Paid";
-          flex_eleven = ele.remainAmount - amount;
+          flex_eleven = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
@@ -1000,7 +1000,7 @@ const tweleve_payable = async (
           arg1.active_payment_type = "Tweleve Installment";
           arg6.active_payment_type = "Tweleve Installment"
         }
-        flex_tweleve = ele.remainAmount - amount;
+        flex_tweleve = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
       });
     }
     if (arg2.total_installments == "12") {

@@ -3264,6 +3264,68 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
   }
 };
 
+// exports.retrieveAdmissionApplicableQuery = async (req, res) => {
+//   try {
+//     const { aid } = req.params;
+//     const page = req.query.page ? parseInt(req.query.page) : 1;
+//     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+//     const skip = (page - 1) * limit;
+//     const { search } = req.query;
+//     const admin_ins = await Admission.findById({ _id: aid }).select(
+//       "remainingFee active_tab_index"
+//     );
+//     if (search) {
+//       var all_app = await NestedCard.find({ student: { $in: admin_ins?.remainingFee}})
+//       .populate({
+//         path: "parent_card",
+//       })
+//       .populate({
+//         path: "student",
+//         match: {
+//           studentFirstName: { $regex: `${search}`, $options: "i"},
+//           studentMiddleName: { $regex: `${search}`, $options: "i"},
+//           studentLastName: { $regex: `${search}`, $options: "i"},
+//           valid_full_name: { $regex: `${search}`, $options: "i"},
+//         },
+//         select:
+//           "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount valid_full_name admission_amount_stats",
+//         populate: {
+//           path: "department",
+//           select: "dName",
+//         },
+//       });
+//     } else {
+//       var all_app = await Student.find({
+//         student: { $in: admin_ins?.remainingFee },
+//       })
+//       .populate({
+//         path: "fee_structure",
+//         select:
+//           "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount valid_full_name admission_amount_stats",
+//         populate: {
+//           path: "department",
+//           select: "dName",
+//         },
+//       });
+//       for(var val of all_app){
+
+//       }
+//       student = await nested_document_limit(page, limit, student);
+//     }
+//     admin_ins.active_tab_index = "Applicable_Fees_Query";
+//     await admin_ins.save();
+//     // if (student?.length > 0) {
+//     res.status(200).send({
+//       message: "Its a party time from DB 🙌",
+//       remain: student,
+//       remainCount: student?.length,
+//     });
+//     // }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
 exports.oneStudentViewRemainingFee = async (req, res) => {
   try {
     const { sid } = req.params;

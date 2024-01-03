@@ -381,16 +381,31 @@ exports.renderFilteredLectureQuery = async(req, res) => {
     const { sid } = req?.query
     const { date, flow } = req?.body
     const subject = await Subject.findById({ _id: sid })
-    const attendance_all = await AttendenceDate.find({
-      $and: [{ subject: subject?._id }, 
-      { attendDate: { $eq: `${date}` }, }, 
-      { attendence_type: `${flow}`}]
-    });
-    if(attendance_all?.length > 0){
-      res.status(200).send({ message: "Explore All Available Attendence Query", access: true, attendance_all: attendance_all, count: attendance_all?.length})
+    if(flow === "Extra_Lecture"){
+      const attendance_all = await AttendenceDate.find({
+        $and: [{ subject: subject?._id }, 
+        { attendDate: { $eq: `${date}` }, }, 
+        { attendence_type: `${flow}`}]
+      });
+      if(attendance_all?.length > 0){
+        res.status(200).send({ message: "Explore All Available Attendence Query", access: true, attendance_all: attendance_all, count: attendance_all?.length})
+      }
+      else{
+        res.status(200).send({ message: "No Available Attendence Query", access: false, attendance_all: [], count: 0})
+      }
     }
     else{
-      res.status(200).send({ message: "No Available Attendence Query", access: false, attendance_all: [], count: 0})
+      const attendance_all = await AttendenceDate.find({
+        $and: [{ subject: subject?._id }, 
+        { attendDate: { $eq: `${date}` }, }, 
+        { attendence_type: `Normal_Lecture`}]
+      });
+      if(attendance_all?.length > 0){
+        res.status(200).send({ message: "Explore All Available Attendence Query", access: true, attendance_all: attendance_all, count: attendance_all?.length})
+      }
+      else{
+        res.status(200).send({ message: "No Available Attendence Query", access: false, attendance_all: [], count: 0})
+      }
     }
   }
   catch(e){

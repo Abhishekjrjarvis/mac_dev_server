@@ -316,8 +316,8 @@ exports.callbackAdmission = async (req, res) => {
               paidTo,
               payment_installment,
               paytm_author,
-              // valid_card,
-              // payment_remain_1,
+              valid_card,
+              payment_remain_1,
               payment_card_id,
               valid_status
               // Boolean(ad_install)

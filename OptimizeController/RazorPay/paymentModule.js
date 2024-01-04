@@ -356,6 +356,8 @@ exports.admissionInstituteFunction = async (
     console.log("paidTo", paidTo)
     console.log("type", type)
     console.log("is_author", is_author)
+    console.log("payment_type", payment_type)
+    console.log("remain_1", remain_1)
     console.log("payment_card_id", payment_card_id)
     console.log("statusId", statusId)
     var student = await Student.findById({ _id: paidBy }).populate({

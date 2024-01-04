@@ -149,6 +149,7 @@ const first_payable = async (
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
+          ele.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "First Installment";
@@ -226,6 +227,7 @@ const second_payable = async (
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
+          ele.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Second Installment";
@@ -303,6 +305,7 @@ const third_payable = async (
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
+          ele.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Third Installment";
@@ -380,6 +383,7 @@ const four_payable = async (
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
+          ele.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Four Installment";
@@ -457,6 +461,7 @@ const five_payable = async (
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
+          ele.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Five Installment";
@@ -534,6 +539,7 @@ const six_payable = async (
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
+          ele.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Six Installment";
@@ -611,6 +617,7 @@ const seven_payable = async (
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
+          ele.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Seven Installment";
@@ -688,6 +695,7 @@ const eight_payable = async (
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
+          ele.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Eight Installment";
@@ -765,6 +773,7 @@ const nine_payable = async (
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
+          ele.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Nine Installment";
@@ -842,6 +851,7 @@ const ten_payable = async (
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
+          ele.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Ten Installment";
@@ -919,6 +929,7 @@ const eleven_payable = async (
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
+          ele.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Eleven Installment";
@@ -995,6 +1006,7 @@ const tweleve_payable = async (
           ele.remainAmount = amount;
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
+          ele.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
           arg1.active_payment_type = "Tweleve Installment";
@@ -1076,6 +1088,7 @@ const installment_remain = async (
         ref.status = "Paid";
         ref.remainAmount = amount;
         ref.installmentValue = "Installment Paid";
+        ref.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
         ref.mode = mode;
         ref.fee_receipt = receipt_args?._id;
         arg1.active_payment_type = "Installment Paid";
@@ -1083,6 +1096,7 @@ const installment_remain = async (
       } else {
         ref.status = "Paid";
         ref.installmentValue = "All Installment Paid";
+        ref.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
         ref.mode = mode;
         arg4.remainingFee.pull(arg5._id);
         arg1.status = "Paid";

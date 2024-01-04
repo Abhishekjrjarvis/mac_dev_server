@@ -38,6 +38,12 @@ const nestedCardSchema = new mongoose.Schema({
           },
           refund_status: { type: String, default: "Not Refunded" },
           reject_reason: { type: String },
+          receipt_status: {
+            type: String
+          },
+        reason: {
+            type: String
+          }
         },
       ],
     parent_card: {

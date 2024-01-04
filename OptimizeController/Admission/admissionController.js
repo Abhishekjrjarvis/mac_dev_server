@@ -3430,7 +3430,21 @@ exports.paidRemainingFeeStudent = async (req, res) => {
               institute,
               nest_card
             );
-            console.log("Exit")
+          console.log("Exit")
+          if (
+            `${new_receipt?.fee_payment_mode}` === "Demand Draft" ||
+            `${new_receipt?.fee_payment_mode}` === "Cheque"
+          ) {
+            if (admin_ins?.request_array?.includes(`${new_receipt?._id}`)) {
+            } else {
+              admin_ins.request_array.push(new_receipt?._id);
+              admin_ins.fee_receipt_request.push({
+                receipt: new_receipt?._id,
+                demand_cheque_status: "Requested",
+                nested_card: nest_card?._id
+              });
+            }
+          }
         }
         if(type === "First Installment"){
           console.log("Enter")
@@ -9781,6 +9795,14 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
     if (status === "Approved") {
       for (var ele of ads_admin?.fee_receipt_request) {
         if (`${ele._id}` === `${reqId}`) {
+          if (ele?.nested_card) {
+            const nest_card = await NestedCard.findById({ _id: `${ele?.nested_card}` })
+            for (var val of nest_card?.remaining_array) {
+              if (`${val?.receipt_status}` === "Requested") {
+                val.receipt_status = "Approved"
+              }
+            } 
+          }
           ads_admin.fee_receipt_request.pull(reqId);
         }
       }
@@ -9797,6 +9819,15 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
     } else if (status === "Rejected") {
       for (var ele of ads_admin?.fee_receipt_request) {
         if (`${ele._id}` === `${reqId}`) {
+          if (ele?.nested_card) {
+            const nest_card = await NestedCard.findById({ _id: `${ele?.nested_card}` })
+            for (var val of nest_card?.remaining_array) {
+              if (`${val?.receipt_status}` === "Requested") {
+                val.receipt_status = "Rejected"
+                val.reason = reason
+              }
+            } 
+          }
           ads_admin.fee_receipt_request.pull(reqId);
         }
       }
@@ -9814,6 +9845,14 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
     } else if (status === "Over_Rejection") {
       for (var ele of ads_admin?.fee_receipt_reject) {
         if (`${ele._id}` === `${reqId}`) {
+          if (ele?.nested_card) {
+            const nest_card = await NestedCard.findById({ _id: `${ele?.nested_card}` })
+            for (var val of nest_card?.remaining_array) {
+              if (`${val?.receipt_status}` === "Requested") {
+                val.receipt_status = "Approved"
+              }
+            } 
+          }
           ads_admin.fee_receipt_reject.pull(reqId);
         }
       }
@@ -9836,6 +9875,15 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
       one_receipt.re_apply = false;
       for (var ele of ads_admin?.fee_receipt_reject) {
         if (`${ele._id}` === `${reqId}`) {
+          if (ele?.nested_card) {
+            const nest_card = await NestedCard.findById({ _id: `${ele?.nested_card}` })
+            for (var val of nest_card?.remaining_array) {
+              if (`${val?.receipt_status}` === "Requested") {
+                val.receipt_status = "Rejected"
+                val.reason = reason
+              }
+            } 
+          }
           ele.reason = reason;
         }
       }

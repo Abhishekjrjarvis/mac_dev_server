@@ -122,6 +122,10 @@ const admissionAdminSchema = new mongoose.Schema({
       status: { type: String, default: "Pending" },
       created_at: { type: Date, default: Date.now },
       demand_cheque_status: { type: String, default: "Pending" },
+      nested_card: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NestedCard"
+      },
     },
   ],
   fee_receipt_approve: [

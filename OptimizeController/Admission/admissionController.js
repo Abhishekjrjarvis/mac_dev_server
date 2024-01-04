@@ -3357,6 +3357,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       nest_card.active_payment_type = `${type}`;
       remaining_fee_lists.paid_fee += price;
       nest_card.paid_fee += price;
+      
       if(remaining_fee_lists?.remaining_fee >= price){
         remaining_fee_lists.remaining_fee -= price
       }
@@ -3448,15 +3449,6 @@ exports.paidRemainingFeeStudent = async (req, res) => {
           }
         }
       }
-    }
-    if (admin_ins?.remainingFeeCount >= price) {
-      admin_ins.remainingFeeCount -= price;
-    }
-    if (apply?.remainingFee >= price) {
-      apply.remainingFee -= price;
-    }
-    if (student?.admissionRemainFeeCount >= price) {
-      student.admissionRemainFeeCount -= price;
     }
     student.admissionPaidFeeCount += price;
     if (mode === "Online") {

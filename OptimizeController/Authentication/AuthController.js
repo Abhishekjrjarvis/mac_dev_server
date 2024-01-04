@@ -3152,11 +3152,6 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       });
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const apply = await NewApplication.findById({ _id: aid });
-    var new_receipt = new FeeReceipt({ ...req.body });
-    new_receipt.fee_transaction_date = new Date(
-      `${req.body?.transaction_date}`
-    );
-    new_receipt.receipt_generated_from = "BY_ADMISSION";
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
     });
@@ -3166,7 +3161,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     const finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
-    const structure = await FeeStructure.findById({ _id: fee_struct });
+    // const structure = await FeeStructure.findById({ _id: fee_struct });
     if (!existing) {
       var valid = await filter_unique_username(
         req.body.studentFirstName,
@@ -3249,7 +3244,6 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     user.student.push(student._id);
     user.applyApplication.push(apply._id);
     student.user = user._id;
-    student.fee_structure = fee_struct;
     apply.receievedApplication.push({
       student: student._id,
       fee_remain: 0,
@@ -3262,25 +3256,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       institute,
       student?._id,
       finance,
-      structure,
-      new_receipt
     );
-    // apply.receievedCount += 1;
-    // apply.selectCount += 1;
-    // apply.confirmCount += 1;
-    // await fee_reordering(
-    //   type,
-    //   mode,
-    //   parseInt(amount),
-    //   student,
-    //   apply,
-    //   institute,
-    //   finance,
-    //   admission,
-    //   admins,
-    //   new_receipt,
-    //   user
-    // );
     if (institute.userFollowersList.includes(user?._id)) {
     } else {
       user.userInstituteFollowing.push(institute._id);
@@ -3288,7 +3264,6 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       institute.userFollowersList.push(user?._id);
       institute.followersCount += 1;
     }
-    // await insert_multiple_status(apply, user, institute, student?._id);
     await Promise.all([
       student.save(),
       user.save(),

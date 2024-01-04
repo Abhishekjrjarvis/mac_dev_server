@@ -82,7 +82,6 @@ const feesNewV2 = require("../OptimizeRoute/Fees/feesRoute");
 const institutePostRouteV2 = require("../OptimizeRoute/InstituteAdmin/Post/PostRoute");
 const userPostRouteV2 = require("../OptimizeRoute/User/Post/PostRoute");
 const paytmV2 = require("../OptimizeRoute/Paytm/pay_upi_route");
-const checkoutV2 = require("../OptimizeRoute/RazorPay/payCheckoutRoute");
 
 
 // Api Middleware Func

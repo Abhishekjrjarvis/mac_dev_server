@@ -34,13 +34,13 @@ exports.insert_multiple_status = async (
       departments: { $in: args?.applicationDepartment },
     });
     const statusArray = [
-      {
-        content: `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`,
-        applicationId: args?._id,
-        instituteId: iargs?._id,
-        student: sid,
-        fee_receipt: receipt?._id,
-      },
+      // {
+      //   content: `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`,
+      //   applicationId: args?._id,
+      //   instituteId: iargs?._id,
+      //   student: sid,
+      //   fee_receipt: receipt?._id,
+      // },
       {
         content: `Your application for ${args?.applicationName} have been filled successfully.
 

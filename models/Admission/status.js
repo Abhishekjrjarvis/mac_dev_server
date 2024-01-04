@@ -85,6 +85,18 @@ const statusSchema = new mongoose.Schema({
     type: String,
     default: "Not Edited",
   },
+  grouping: {
+    grouping_type: {
+      type: String
+    },
+    grouping_content: {
+      type: String
+    },
+    filled_status: {
+      type: Boolean,
+      default: true
+    }
+  }
 });
 
 module.exports = mongoose.model("Status", statusSchema);

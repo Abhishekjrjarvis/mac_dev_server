@@ -302,7 +302,7 @@ router.get(
 // User Switch Boolean
 router.get(
   "/:uid/staff/student/role/query/format",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(User.retrieveUserRoleQueryFormat)
 );
 

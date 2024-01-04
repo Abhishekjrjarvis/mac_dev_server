@@ -3250,6 +3250,11 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     user.applyApplication.push(apply._id);
     student.user = user._id;
     student.fee_structure = fee_struct;
+    apply.receievedApplication.push({
+      student: student._id,
+      fee_remain: 0,
+    });
+    apply.receievedCount += 1;
     await student.save();
     await insert_multiple_status(
       apply,
@@ -3260,22 +3265,22 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       structure,
       new_receipt
     );
-    apply.receievedCount += 1;
-    apply.selectCount += 1;
-    apply.confirmCount += 1;
-    await fee_reordering(
-      type,
-      mode,
-      parseInt(amount),
-      student,
-      apply,
-      institute,
-      finance,
-      admission,
-      admins,
-      new_receipt,
-      user
-    );
+    // apply.receievedCount += 1;
+    // apply.selectCount += 1;
+    // apply.confirmCount += 1;
+    // await fee_reordering(
+    //   type,
+    //   mode,
+    //   parseInt(amount),
+    //   student,
+    //   apply,
+    //   institute,
+    //   finance,
+    //   admission,
+    //   admins,
+    //   new_receipt,
+    //   user
+    // );
     if (institute.userFollowersList.includes(user?._id)) {
     } else {
       user.userInstituteFollowing.push(institute._id);

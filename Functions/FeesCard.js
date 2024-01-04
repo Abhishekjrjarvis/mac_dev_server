@@ -59,7 +59,7 @@ exports.render_new_fees_card = async (sid, appId, struct, flow) => {
             remainAmount: structure?.total_admission_fees - structure?.applicable_fees,
             appId: apply._id,
             instituteId: institute._id,
-            installmentValue: "Government Installment",
+            installmentValue: "First Installment",
             isEnable: true,
             });
         }

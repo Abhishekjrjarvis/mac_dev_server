@@ -12,7 +12,7 @@ const {
   callbackTransportStatus,
   callbackLibrary,
   callbackLibraryStatus,
-} = require("../../controllers/Paytm/pay_upi");
+} = require("../../OptimizeController/Paytm/pay_upi");
 
 router.route("/generateTxnToken").post(initiate);
 router

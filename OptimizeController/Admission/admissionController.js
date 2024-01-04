@@ -6688,8 +6688,8 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       s_admin.save(),
       remaining_fee_lists.save(),
       new_receipt.save(),
-      scholar.save(),
-      corpus.save(),
+      // scholar.save(),
+      // corpus.save(),
     ]);
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",

@@ -2053,14 +2053,11 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         var extra_price = 0
         for(var val of nest_card?.remaining_array){
           if(`${val?._id}` === `${raid}`){
-            val.remainAmount = price >= val?.remainAmount ? price : val?.remainAmount - price
             val.mode = mode
             val.fee_receipt = new_receipt?._id
             val.status = "Paid"
-            console.log(price)
-            console.log(val?.remainAmount)
             extra_price += price >= val?.remainAmount ? price - val?.remainAmount : 0
-            console.log("Exist In Extra price", extra_price)
+            val.remainAmount = price >= val?.remainAmount ? price : val?.remainAmount - price
           }
         }
         if (extra_price > 0) {

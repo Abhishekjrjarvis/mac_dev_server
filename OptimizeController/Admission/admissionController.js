@@ -4125,10 +4125,6 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
         select: "dName studentFormSetting",
       })
       .populate({
-        path: "applicationMaster",
-        select: "className",
-      })
-      .populate({
         path: "applicationBatch",
         select: "batchName",
       })

@@ -4125,6 +4125,10 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
         select: "dName studentFormSetting",
       })
       .populate({
+        path: "applicationMaster",
+        select: "className",
+      })
+      .populate({
         path: "applicationBatch",
         select: "batchName",
       })
@@ -10878,20 +10882,32 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
     if (!rid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var remain_list = await RemainingList.findById({ _id: rid })
-    // if (remain_list?.government_card) {
-    //   var nest_gov_card = await NestedCard.findById({ _id: `${remain_list?.government_card}` })
-    //   var nest_app_card = await NestedCard.findById({ _id: `${remain_list?.applicable_card}`})
-    //   for (var val of nest_gov_card?.remaining_array) {
-    //     if (`${val?.status}` === "Not Paid") {
-          
-    //     }
-    //   }
-    //   for (var val of nest_gov_card?.remaining_array) {
-    //     if (`${val?.status}` === "Not Paid") {
-          
-    //     }
-    //   }
-    // }
+    if (remain_list?.government_card) {
+      var nest_gov_card = await NestedCard.findById({ _id: `${remain_list?.government_card}` })
+      var nest_app_card = await NestedCard.findById({ _id: `${remain_list?.applicable_card}` })
+      var shift_num = 0
+      for (var val of nest_gov_card?.remaining_array) {
+        if (`${val?.status}` === "Not Paid") {
+          shift_num += val?.remainAmount
+          val.status = "Paid"
+          val.revert_status = "Government Fees Shifted To Applicable Fees"
+        }
+      }
+      if (nest_app_card?.remaining_array[-1]?.status === "Not Paid") {
+        nest_app_card?.remaining_array[-1].remainAmount += shift_num
+      }
+      else {
+        nest_app_card.remaining_array.push({
+          remainAmount: shift_num,
+          appId: remain_list?.appId,
+          instituteId: remain_list?.institute,
+          installmentValue: "Installment Remain",
+          isEnable: true,
+        })
+        nest_app_card.remaining_fee += shift_num
+      }
+      await Promise.all([ nest_gov_card.save(), nest_app_card.save() ])
+    }
   }
   catch (e) {
     console.log(e)

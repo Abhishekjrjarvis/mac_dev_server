@@ -10908,6 +10908,7 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
       }
       await Promise.all([ nest_gov_card.save(), nest_app_card.save() ])
     }
+    res.status(200).send({ message: "Explore New Shifted Card Back To Applicable Fees Section", access: true})
   }
   catch (e) {
     console.log(e)

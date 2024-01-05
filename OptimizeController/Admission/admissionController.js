@@ -2078,7 +2078,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
             }
           }
         }
-        else{ß
+        else{
           if (nest_card?.remaining_fee <= 0) {
             if (extra_price > 0) {
               nest_card.excess_fee += extra_price

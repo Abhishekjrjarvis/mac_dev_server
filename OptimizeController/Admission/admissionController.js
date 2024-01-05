@@ -2059,9 +2059,10 @@ exports.payOfflineAdmissionFee = async (req, res) => {
             val.status = "Paid"
             console.log(price >= val?.remainAmount ? price - val?.remainAmount : 0)
             extra_price += price >= val?.remainAmount ? price - val?.remainAmount : 0
+            console.log("Exist In Extra price", extra_price)
           }
         }
-      if (extra_price > 0) {
+        if (extra_price > 0) {
           console.log(extra_price)
           for(var val of nest_card?.remaining_array){
             if(val?.remainAmount <= extra_price){
@@ -2077,9 +2078,11 @@ exports.payOfflineAdmissionFee = async (req, res) => {
             }
           }
         }
-        else{
-          if(extra_price > 0){
-            nest_card.excess_fee += extra_price
+        else{ß
+          if (nest_card?.remaining_fee <= 0) {
+            if (extra_price > 0) {
+              nest_card.excess_fee += extra_price
+            }
           }
         }
         await nest_card.save()
@@ -2097,57 +2100,57 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           fee_remain: nest_card.remaining_fee ?? 0,
         });
     }
-    if (`${new_remainFee?.government_card?._id}` === `${card_id}`) {
-      const nest_card = await NestedCard.findById({ _id: `${card_id}`})
-      new_remainFee.active_payment_type = `${type}`;
-      nest_card.active_payment_type = `${type}`;
-      new_remainFee.paid_fee += price;
-      nest_card.paid_fee += price;
-      if(new_remainFee?.remaining_fee >= price){
-        new_remainFee.remaining_fee -= price
-      }
-      if(nest_card?.remaining_fee >= price){
-        nest_card.remaining_fee -= price
-      }
-      if(student.admissionRemainFeeCount >= price){
-        student.admissionRemainFeeCount -= price
-      }
-      if(apply.remainingFee >= price){
-        apply.remainingFee -= price
-      }
-      if(admission.remainingFeeCount >= price){
-        admission.remainingFeeCount -= price
-      }
-        var valid_one_time_fees = price >= (student?.fee_structure?.total_admission_fees - student?.fee_structure?.applicable_fees)
-          ? true
-          : false;
-          if (valid_one_time_fees) {
-            for(var val of nest_card?.remaining_array){
-              if(`${val?._id}` === `${raid}`){
-              val.remainAmount = price
-              val.mode = mode
-              val.fee_receipt = new_receipt?._id
-              }
-            }
-          } else {
-            for(var val of nest_card?.remaining_array){
-              if(`${val?._id}` === `${raid}`){
-              val.remainAmount = (student?.fee_structure?.total_admission_fees - student?.fee_structure?.applicable_fees) - price
-              val.mode = mode
-              val.fee_receipt = new_receipt?._id
-              }
-            }
-            // nest_card.remaining_array.push({
-            //   remainAmount: student?.fee_structure?.applicable_fees - price,
-            //   appId: apply._id,
-            //   status: "Not Paid",
-            //   instituteId: institute._id,
-            //   installmentValue: "Government Installment Remain",
-            //   isEnable: true,
-            // });
-          }
-        await nest_card.save()
-    }
+    // if (`${new_remainFee?.government_card?._id}` === `${card_id}`) {
+    //   const nest_card = await NestedCard.findById({ _id: `${card_id}`})
+    //   new_remainFee.active_payment_type = `${type}`;
+    //   nest_card.active_payment_type = `${type}`;
+    //   new_remainFee.paid_fee += price;
+    //   nest_card.paid_fee += price;
+    //   if(new_remainFee?.remaining_fee >= price){
+    //     new_remainFee.remaining_fee -= price
+    //   }
+    //   if(nest_card?.remaining_fee >= price){
+    //     nest_card.remaining_fee -= price
+    //   }
+    //   if(student.admissionRemainFeeCount >= price){
+    //     student.admissionRemainFeeCount -= price
+    //   }
+    //   if(apply.remainingFee >= price){
+    //     apply.remainingFee -= price
+    //   }
+    //   if(admission.remainingFeeCount >= price){
+    //     admission.remainingFeeCount -= price
+    //   }
+    //     var valid_one_time_fees = price >= (student?.fee_structure?.total_admission_fees - student?.fee_structure?.applicable_fees)
+    //       ? true
+    //       : false;
+    //       if (valid_one_time_fees) {
+    //         for(var val of nest_card?.remaining_array){
+    //           if(`${val?._id}` === `${raid}`){
+    //           val.remainAmount = price
+    //           val.mode = mode
+    //           val.fee_receipt = new_receipt?._id
+    //           }
+    //         }
+    //       } else {
+    //         for(var val of nest_card?.remaining_array){
+    //           if(`${val?._id}` === `${raid}`){
+    //           val.remainAmount = (student?.fee_structure?.total_admission_fees - student?.fee_structure?.applicable_fees) - price
+    //           val.mode = mode
+    //           val.fee_receipt = new_receipt?._id
+    //           }
+    //         }
+    //         // nest_card.remaining_array.push({
+    //         //   remainAmount: student?.fee_structure?.applicable_fees - price,
+    //         //   appId: apply._id,
+    //         //   status: "Not Paid",
+    //         //   instituteId: institute._id,
+    //         //   installmentValue: "Government Installment Remain",
+    //         //   isEnable: true,
+    //         // });
+    //       }
+    //     await nest_card.save()
+    // }
     new_remainFee.fee_receipts.push(new_receipt?._id);
     if (mode === "Offline") {
       admission.offlineFee += price;

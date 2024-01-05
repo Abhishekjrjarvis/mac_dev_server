@@ -131,6 +131,10 @@ const admissionAdminSchema = new mongoose.Schema({
       }
     },
   ],
+  fee_receipt_request_count: {
+    type: Number,
+    default: 0
+  },
   fee_receipt_approve: [
     {
       receipt: {
@@ -143,6 +147,10 @@ const admissionAdminSchema = new mongoose.Schema({
       demand_cheque_status: { type: String, default: "Pending" },
     },
   ],
+  fee_receipt_approve_count: {
+    type: Number,
+    default: 0
+  },
   fee_receipt_reject: [
     {
       receipt: {
@@ -155,6 +163,10 @@ const admissionAdminSchema = new mongoose.Schema({
       reason: { type: String },
     },
   ],
+  fee_receipt_reject_count: {
+    type: Number,
+    default: 0
+  },
   alarm_count: {
     type: Number,
     default: 0,

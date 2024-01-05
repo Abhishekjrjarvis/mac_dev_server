@@ -645,4 +645,6 @@ router
 
 router.patch("/:aid/student/review/query", catchAsync(Admission.renderReviewStudentQuery))
 
+router.patch("/:rid/shift/government/to/applicable/query", catchAsync(Admission.renderShiftGovernmentApplicableQuery))
+
 module.exports = router;

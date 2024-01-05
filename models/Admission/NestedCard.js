@@ -41,7 +41,10 @@ const nestedCardSchema = new mongoose.Schema({
           receipt_status: {
             type: String
           },
-        reason: {
+          reason: {
+            type: String
+        },
+        revert_status: {
             type: String
           }
         },

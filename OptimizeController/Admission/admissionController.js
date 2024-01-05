@@ -195,7 +195,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   });
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber enable_protection tab_manage moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status active_tab_index alarm_enable alarm_enable_status"
+        "admissionAdminEmail admissionAdminPhoneNumber enable_protection tab_manage fee_receipt_request_count fee_receipt_approve_count fee_receipt_reject_count moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status active_tab_index alarm_enable alarm_enable_status refundedCount"
       )
       .populate({
         path: "admissionAdminHead",
@@ -1925,6 +1925,7 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
           receipt: receipt?._id,
           status: "Requested",
         });
+        admin_ins.fee_receipt_request_count += 1
         status.receipt_status = "Requested";
       }
       institute.invoice_count += 1;
@@ -2224,6 +2225,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           receipt: new_receipt?._id,
           demand_cheque_status: "Requested",
         });
+        admission.fee_receipt_request_count += 1
       }
     }
     await Promise.all([
@@ -3444,6 +3446,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
                 nested_card: nest_card?._id,
                 nest_remain: raid
               });
+              admin_ins.fee_receipt_request_count += 1
             }
           }
         }
@@ -5500,6 +5503,9 @@ exports.renderOneReceiptStatus = async (req, res) => {
       for (var ele of ads_admin?.fee_receipt_request) {
         if (`${ele._id}` === `${reqId}`) {
           ads_admin.fee_receipt_request.pull(reqId);
+          if (ads_admin?.fee_receipt_request_count > 0) {
+            ads_admin.fee_receipt_request_count -= 1
+          }
         }
       }
       ads_admin?.request_array.pull(rid);
@@ -5507,6 +5513,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         receipt: one_receipt?._id,
         status: "Approved",
       });
+      ads_admin.fee_receipt_approve_count += 1
       if (one_status) {
         one_status.receipt_status = "Approved";
       }
@@ -5531,6 +5538,9 @@ exports.renderOneReceiptStatus = async (req, res) => {
       for (var ele of ads_admin?.fee_receipt_request) {
         if (`${ele._id}` === `${reqId}`) {
           ads_admin.fee_receipt_request.pull(reqId);
+          if (ads_admin?.fee_receipt_request_count > 0) {
+            ads_admin.fee_receipt_request_count -= 1
+          }
         }
       }
       ads_admin?.request_array.pull(rid);
@@ -5539,6 +5549,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         status: "Rejected",
         reason: reason,
       });
+      ada_admin.fee_receipt_reject_count += 1
       if (remaining_lists) {
         for (var ref of remaining_lists?.remaining_array) {
           if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
@@ -5563,6 +5574,9 @@ exports.renderOneReceiptStatus = async (req, res) => {
       for (var ele of ads_admin?.fee_receipt_reject) {
         if (`${ele._id}` === `${reqId}`) {
           ads_admin.fee_receipt_reject.pull(reqId);
+          if (ads_admin?.fee_receipt_request_count > 0) {
+            ads_admin.fee_receipt_request_count -= 1
+          }
         }
       }
       ads_admin?.request_array.pull(rid);
@@ -5571,6 +5585,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         status: "Approved",
         over_status: "After Rejection Approved By Admission Admin",
       });
+      ads_admin.fee_receipt_approve_count += 1
       if (one_status) {
         one_status.receipt_status = "Approved";
       }
@@ -7826,7 +7841,7 @@ exports.renderAllRefundedArray = async (req, res) => {
         populate: {
           path: "student fee_receipt",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO fee_payment_mode refund_status invoice_count fee_bank_name fee_bank_holder fee_utr_reference fee_payment_acknowledge fee_payment_amount fee_transaction_date ",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO fee_payment_mode refund_status invoice_count fee_bank_name fee_bank_holder fee_utr_reference fee_payment_acknowledge fee_payment_amount fee_transaction_date created_at",
         },
       });
 
@@ -10853,6 +10868,32 @@ exports.renderReviewStudentQuery = async(req, res) => {
     res.status(200).send({ message: "Explore Student Review Status Query", access: true})
   }
   catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
+  try {
+    const { rid } = req?.params
+    if (!rid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var remain_list = await RemainingList.findById({ _id: rid })
+    // if (remain_list?.government_card) {
+    //   var nest_gov_card = await NestedCard.findById({ _id: `${remain_list?.government_card}` })
+    //   var nest_app_card = await NestedCard.findById({ _id: `${remain_list?.applicable_card}`})
+    //   for (var val of nest_gov_card?.remaining_array) {
+    //     if (`${val?.status}` === "Not Paid") {
+          
+    //     }
+    //   }
+    //   for (var val of nest_gov_card?.remaining_array) {
+    //     if (`${val?.status}` === "Not Paid") {
+          
+    //     }
+    //   }
+    // }
+  }
+  catch (e) {
     console.log(e)
   }
 }

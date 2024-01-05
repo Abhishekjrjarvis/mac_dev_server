@@ -2060,10 +2060,15 @@ exports.payOfflineAdmissionFee = async (req, res) => {
             extra_price += price >= val?.remainAmount ? price - val?.remainAmount : 0
           }
         }
-        if(raid_1){
+        if(extra_price > 0){
           for(var val of nest_card?.remaining_array){
-            if(`${val?._id}` === `${raid_1}`){
-              if(val?.remainAmount >= extra_price){
+            if(val?.remainAmount <= extra_price){
+              val.status = "Paid"
+              val.mode = mode
+              val.fee_receipt = new_receipt?._id
+            }
+            else {
+              if(val?.remainAmount > extra_price){
                 val.remainAmount -= extra_price
                 val.isEnable = true
               }

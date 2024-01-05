@@ -10891,6 +10891,9 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
           shift_num += val?.remainAmount
           val.status = "Paid"
           val.revert_status = "Government Fees Shifted To Applicable Fees"
+          if (nest_gov_card?.remaining_fee >= val?.remainAmount) {
+            nest_gov_card.remaining_fee -= val?.remainAmount
+          }
         }
       }
       if (nest_app_card?.remaining_array[-1]?.status === "Not Paid") {

@@ -3441,7 +3441,8 @@ exports.paidRemainingFeeStudent = async (req, res) => {
               admin_ins.fee_receipt_request.push({
                 receipt: new_receipt?._id,
                 demand_cheque_status: "Requested",
-                nested_card: nest_card?._id
+                nested_card: nest_card?._id,
+                nest_remain: raid
               });
             }
           }
@@ -9798,7 +9799,7 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
           if (ele?.nested_card) {
             const nest_card = await NestedCard.findById({ _id: `${ele?.nested_card}` })
             for (var val of nest_card?.remaining_array) {
-              if (`${val?.receipt_status}` === "Requested") {
+              if (`${val?._id}` === `${ele?.nest_remain}`) {
                 val.receipt_status = "Approved"
               }
             } 
@@ -9823,7 +9824,7 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
           if (ele?.nested_card) {
             const nest_card = await NestedCard.findById({ _id: `${ele?.nested_card}` })
             for (var val of nest_card?.remaining_array) {
-              if (`${val?.receipt_status}` === "Requested") {
+              if (`${val?._id}` === `${ele?.nest_remain}`) {
                 val.receipt_status = "Rejected"
                 val.reason = reason
               }
@@ -9850,7 +9851,7 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
           if (ele?.nested_card) {
             const nest_card = await NestedCard.findById({ _id: `${ele?.nested_card}` })
             for (var val of nest_card?.remaining_array) {
-              if (`${val?.receipt_status}` === "Requested") {
+              if (`${val?._id}` === `${ele?.nest_remain}`) {
                 val.receipt_status = "Approved"
               }
             } 
@@ -9881,7 +9882,7 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
           if (ele?.nested_card) {
             const nest_card = await NestedCard.findById({ _id: `${ele?.nested_card}` })
             for (var val of nest_card?.remaining_array) {
-              if (`${val?.receipt_status}` === "Requested") {
+              if (`${val?._id}` === `${ele?.nest_remain}`) {
                 val.receipt_status = "Rejected"
                 val.reason = reason
               }

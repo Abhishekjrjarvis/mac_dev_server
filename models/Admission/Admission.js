@@ -126,6 +126,9 @@ const admissionAdminSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "NestedCard"
       },
+      nest_remain: {
+        type: String
+      }
     },
   ],
   fee_receipt_approve: [

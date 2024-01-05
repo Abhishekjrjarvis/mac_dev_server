@@ -2061,16 +2061,18 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           }
         }
         if (extra_price > 0) {
-          for(var val of nest_card?.remaining_array){
-            if(val?.remainAmount <= extra_price){
-              val.status = "Paid"
-              val.mode = mode
-              val.fee_receipt = new_receipt?._id
-            }
-            else {
-              if(val?.remainAmount > extra_price){
-                val.remainAmount -= extra_price
-                val.isEnable = true
+          for (var val of nest_card?.remaining_array) {
+            if (val?.status === "Not Paid") {
+              if (val?.remainAmount <= extra_price) {
+                val.status = "Paid"
+                val.mode = mode
+                val.fee_receipt = new_receipt?._id
+              }
+              else {
+                if (val?.remainAmount > extra_price) {
+                  val.remainAmount -= extra_price
+                  val.isEnable = true
+                }
               }
             }
           }

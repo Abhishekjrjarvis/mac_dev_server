@@ -3584,7 +3584,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
 exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
   try {
     const { aid, sid, appId } = req.params;
-    const { amount, mode } = req.body;
+    const { amount, mode, rid } = req.body;
     if (!sid && !aid && !appId && !amount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -3617,8 +3617,8 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     const notify = new StudentNotification({});
-    const remaining_fee_lists = await RemainingList.findOne({
-      $and: [{ student: student?._id }, { appId: apply?._id }],
+    const remaining_fee_lists = await RemainingList.findById({
+      _id: rid
     });
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     var order = new OrderPayment({});
@@ -9802,6 +9802,7 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
                 val.receipt_status = "Approved"
               }
             } 
+            await nest_card.save()
           }
           ads_admin.fee_receipt_request.pull(reqId);
         }
@@ -9826,7 +9827,8 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
                 val.receipt_status = "Rejected"
                 val.reason = reason
               }
-            } 
+            }
+            await nest_card.save()
           }
           ads_admin.fee_receipt_request.pull(reqId);
         }
@@ -9852,6 +9854,7 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
                 val.receipt_status = "Approved"
               }
             } 
+            await nest_card.save()
           }
           ads_admin.fee_receipt_reject.pull(reqId);
         }
@@ -9882,7 +9885,8 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
                 val.receipt_status = "Rejected"
                 val.reason = reason
               }
-            } 
+            }
+            await nest_card.save()
           }
           ele.reason = reason;
         }

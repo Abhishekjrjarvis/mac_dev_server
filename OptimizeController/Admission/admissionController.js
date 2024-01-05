@@ -3621,6 +3621,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     const remaining_fee_lists = await RemainingList.findById({
       _id: rid
     });
+    const nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.applicable_card}`})
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     var order = new OrderPayment({});
     order.payment_module_type = "Expense";
@@ -3708,7 +3709,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     //     }
     //   }
     // }
-    remaining_fee_lists.remaining_array.push({
+    nest_card.remaining_array.push({
       appId: apply?._id,
       remainAmount: price,
       status: "Paid",
@@ -3752,6 +3753,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
       s_admin.save(),
       remaining_fee_lists.save(),
       new_receipt.save(),
+      nest_card.save()
     ]);
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",

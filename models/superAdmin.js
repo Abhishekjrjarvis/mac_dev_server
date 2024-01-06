@@ -313,6 +313,16 @@ const superAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  charges: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Charges"
+    }
+  ],
+  charges_count: {
+    type: Number,
+    default: 0
+  }
 });
 
 const Admin = mongoose.model("Admin", superAdminSchema);

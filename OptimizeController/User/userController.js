@@ -37,6 +37,7 @@ const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const QvipleId = require("../../models/Universal/QvipleId");
 const NewApplication = require("../../models/Admission/NewApplication");
 const { calc_profile_percentage } = require("../../Functions/ProfilePercentage");
+const Status = require("../../models/Admission/status")
 
 exports.retrieveProfileData = async (req, res) => {
   try {

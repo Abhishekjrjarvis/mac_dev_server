@@ -2,12 +2,24 @@ const mongoose = require("mongoose")
 
 const chargesSchema = new mongoose.Schema({
     platform_charges: {
-        type: Number,
-        default: 0
+        maximum: {
+            type: Number,
+            default: 0
+        },
+        percentage: {
+            type: Number,
+            default: 0
+        }
     },
     transaction_charges: {
-        type: Number,
-        default: 0
+        maximum: {
+            type: Number,
+            default: 100
+        },
+        percentage: {
+            type: Number,
+            default: 1
+        }
     },
     application_charges: {
         type: Number,

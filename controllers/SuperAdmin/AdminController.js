@@ -24,6 +24,7 @@ const {
 } = require("../../config/redis-config");
 const BankAccount = require("../../models/Finance/BankAccount");
 const { generate_random_code } = require("../../helper/functions");
+const Charges = require("../../models/SuperAdmin/charges");
 
 var AdminOTP = "";
 
@@ -1521,3 +1522,58 @@ exports.renderRepayAutoQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderOneInsChargesQuery = async (req, res) => {
+  try {
+    const { id } = req?.params
+    if (!id) return res.status(200).send({
+      message: "Their is a bug need to fixed immediately",
+      access: false
+    })
+
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` })
+    const institute = await InstituteAdmin.findById({ _id: id })
+    console.log(req?.body)
+    const new_charges = new Charges({ ...req?.body })
+    admin.charges.push(new_charges?._id)
+    admin.charges_count += 1
+    institute.charges = new_charges?._id
+    new_charges.institute = institute?._id
+    new_charges.admin = admin?._id
+    await Promise.all([ admin.save(), institute.save(), new_charges.save()])
+    res.status(200).send({ message: "Explore One Institute New Charges Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderOneInsEditChargesQuery = async (req, res) => {
+  try {
+    const { cid } = req?.params
+    if (!cid) return res.status(200).send({
+      message: "Their is a bug need to fixed immediately",
+      access: false
+    })
+    await Charges.findByIdAndUpdate(cid, req?.body)
+    res.status(200).send({ message: "Explore One Institute Edit Charges Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderInstituteChargesQuery = async (req, res) => {
+  try {
+    const { id } = req?.params
+    if (!id) return res.status(200).send({
+      message: "Their is a bug need to fixed immediately",
+      access: false
+    })
+    const new_charges = await Charges.findOne({ institute: id })
+    res.status(200).send({ message: "Explore One Institute Charges Query", access: true, new_charges: new_charges})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

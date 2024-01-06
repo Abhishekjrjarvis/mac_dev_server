@@ -259,4 +259,19 @@ router.post(
   catchAsync(Admin.renderRepayAutoQuery)
 );
 
+router.post(
+  "/one/institute/new/charges/:id/query",
+  catchAsync(Admin.renderOneInsChargesQuery)
+);
+
+router.patch(
+  "/one/institute/edit/charges/:cid/query",
+  catchAsync(Admin.renderOneInsEditChargesQuery)
+);
+
+router.get(
+  "/one/institute/charges/:id/query",
+  catchAsync(Admin.renderInstituteChargesQuery)
+);
+
 module.exports = router;

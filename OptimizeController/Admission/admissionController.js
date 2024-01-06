@@ -2048,39 +2048,57 @@ exports.payOfflineAdmissionFee = async (req, res) => {
             // });
           }
         var extra_price = 0
-        for(var val of nest_card?.remaining_array){
-          if(`${val?._id}` === `${raid}`){
-            val.mode = mode
-            val.fee_receipt = new_receipt?._id
-            val.status = "Paid"
-            extra_price += price >= val?.remainAmount ? price - val?.remainAmount : 0
-            val.remainAmount = price >= val?.remainAmount ? price : val?.remainAmount - price
-          }
-        }
-        if (extra_price > 0) {
-          for (var val of nest_card?.remaining_array) {
-            if (val?.status === "Not Paid") {
-              if (val?.remainAmount <= extra_price) {
-                val.status = "Paid"
-                val.mode = mode
-                val.fee_receipt = new_receipt?._id
-              }
-              else {
-                if (val?.remainAmount > extra_price) {
-                  val.remainAmount -= extra_price
-                  val.isEnable = true
-                }
-              }
-            }
-          }
-        }
-        else{
-          if (nest_card?.remaining_fee <= 0) {
-            if (extra_price > 0) {
-              nest_card.excess_fee += extra_price
-            }
-          }
-        }
+        // for(var val of nest_card?.remaining_array){
+        //   if(`${val?._id}` === `${raid}`){
+        //     val.mode = mode
+        //     val.fee_receipt = new_receipt?._id
+        //     val.status = "Paid"
+        //     extra_price += price >= val?.remainAmount ? price - val?.remainAmount : 0
+        //     val.remainAmount = price >= val?.remainAmount ? price : val?.remainAmount - price
+        //   }
+        // }
+        // if (extra_price > 0) {
+        //   for (var val of nest_card?.remaining_array) {
+        //     if (val?.status === "Not Paid") {
+        //       if (val?.remainAmount < extra_price) {
+        //         val.status = "Paid"
+        //         val.mode = mode
+        //         val.fee_receipt = new_receipt?._id
+        //       }
+        //       else if(val?.remainAmount > extra_price) {
+        //           val.remainAmount -= extra_price
+        //           val.isEnable = true
+        //           extra_price -= val?.remainAmount
+        //       }
+        //       else if (val?.remainAmount == extra_price) {
+        //         val.remainAmount -= extra_price
+        //         val.isEnable = true
+        //         extra_price -= val?.remainAmount
+        //       }
+              
+        //     }
+        //   }
+        // }
+        // else{
+        //   if (nest_card?.remaining_fee <= 0) {
+        //     if (extra_price > 0) {
+        //       nest_card.excess_fee += extra_price
+        //     }
+        //   }
+        // }
+        await render_installment(
+          type,
+          student,
+          mode,
+          price,
+          admission,
+          student?.fee_structure,
+          new_remainFee,
+          new_receipt,
+          apply,
+          institute,
+          nest_card
+        );
         await nest_card.save()
         if (req.body?.fee_payment_mode === "Government/Scholarship") {
           // New Logic

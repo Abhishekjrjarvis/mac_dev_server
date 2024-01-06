@@ -46,7 +46,17 @@ const nestedCardSchema = new mongoose.Schema({
         },
         revert_status: {
             type: String
+        },
+        component: {
+          app: {
+            type: Number,
+            default: 0
+          },
+          gov: {
+            type: Number,
+            default: 0
           }
+        }
         },
       ],
     parent_card: {

@@ -6302,7 +6302,7 @@ const review_sorted_by_both_gender_and_aplha = async (arr) => {
 exports.renderReviewApplicationFilter = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { sort_query } = req.query;
+    const { sort_query, search } = req.query;
     var student_arr = []
     const apply = await NewApplication.findById({ _id: aid }).select(
       "reviewApplication"

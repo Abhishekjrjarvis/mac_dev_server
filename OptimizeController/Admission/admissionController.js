@@ -1297,44 +1297,49 @@ exports.fetchAllReviewApplication = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const { search } = req.query;
-    if (search) {
-      const filter_confirm = [];
+    const filter_confirm = [];
       const apply = await NewApplication.findById({ _id: aid })
-        .select("review_count")
-        .populate({
-          path: "reviewApplication",
-          populate: {
-            path: "student",
-            match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
-            },
-            select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute",
-            populate: {
-              path: "fee_structure hostel_fee_structure",
-              select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-              populate: {
-                path: "category_master",
-                select: "category_name",
-              },
-            },
-          },
-        });
+        .select("review_count reviewApplication")
       for (let data of apply.reviewApplication) {
         if (data.student !== null) {
-          filter_confirm.push(data);
+          filter_confirm.push(data?.student);
         }
       }
-      if (filter_confirm?.length > 0) {
+    if (search) {
+
+      var all_student = await Student.find({
+        $and: [{ _id: { $in: filter_confirm } }],
+        $or: [
+          {
+            studentFirstName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            valid_full_name: { $regex: `${search}`, $options: "i" },
+          }
+        ]
+      })
+        .select("studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute")
+      .populate({
+        path: "fee_structure hostel_fee_structure",
+        select:
+          "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+        populate: {
+          path: "category_master",
+          select: "category_name",
+        },
+      })
+      if (all_student?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);
         res.status(200).send({
           message:
             "Lots of Reviewing and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          review: filter_confirm?.reverse(),
+          review: all_student,
         });
       } else {
         res.status(200).send({
@@ -1343,36 +1348,27 @@ exports.fetchAllReviewApplication = async (req, res) => {
         });
       }
     } else {
-      const apply = await NewApplication.findById({ _id: aid })
-        .select("review_count")
-        .populate({
-          path: "reviewApplication",
-          populate: {
-            path: "student",
-            select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt institute",
-            populate: {
-              path: "fee_structure hostel_fee_structure",
-              select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-              populate: {
-                path: "category_master",
-                select: "category_name",
-              },
-            },
-          },
-        });
-      var all_confirm_query = nested_document_limit(
-        page,
-        limit,
-        apply?.reviewApplication?.reverse()
-      );
-      if (all_confirm_query?.length > 0) {
+      var all_student = await Student.find({
+        $and: [{ _id: { $in: filter_confirm } }],
+      })
+        .limit(limit)
+        .skip(skip)
+        .select("studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute")
+      .populate({
+        path: "fee_structure hostel_fee_structure",
+        select:
+          "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+        populate: {
+          path: "category_master",
+          select: "category_name",
+        },
+      })
+      if (all_student?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);
         res.status(200).send({
           message:
             "Lots of Reviewing and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          review: all_confirm_query,
+          review: all_student,
         });
       } else {
         res.status(200).send({
@@ -2439,6 +2435,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
         fee_receipt: new_receipt?._id,
         refund_status: "Refunded",
       });
+      all_remain_fee_list.status = "Cancel"
       order.payment_module_type = "Expense";
       order.payment_to_end_user_id = institute._id;
       order.payment_by_end_user_id = user._id;

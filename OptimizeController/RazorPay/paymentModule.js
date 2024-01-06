@@ -348,18 +348,6 @@ exports.admissionInstituteFunction = async (
   statusId
 ) => {
   try {
-    console.log("order", order)
-    console.log("paidBy", paidBy)
-    console.log("tx_amount_ad", tx_amount_ad)
-    console.log("tx_amount_ad_charges", tx_amount_ad_charges)
-    console.log("moduleId", moduleId)
-    console.log("paidTo", paidTo)
-    console.log("type", type)
-    console.log("is_author", is_author)
-    console.log("payment_type", payment_type)
-    console.log("remain_1", remain_1)
-    console.log("payment_card_id", payment_card_id)
-    console.log("statusId", statusId)
     var student = await Student.findById({ _id: paidBy }).populate({
       path: "fee_structure",
     });
@@ -383,6 +371,7 @@ exports.admissionInstituteFunction = async (
       path: "financeHead",
       select: "user",
     });
+    var all_status = await Status.find({ $and: [{ applicationId: apply?._id}, { student: student?._id }, { payment_status: "Not Paid"}]})
     var finance_user = await User.findById({
       _id: `${finance?.financeHead?.user}`,
     });
@@ -530,6 +519,7 @@ exports.admissionInstituteFunction = async (
         const aStatus = new Status({});
         const notify = new StudentNotification({});
         aStatus.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`;
+        aStatus.group_by = "Admission_Confirmation"
       aStatus.applicationId = apply._id;
       aStatus.document_visible = false;
       user.applicationStatus.push(aStatus._id);
@@ -611,6 +601,11 @@ exports.admissionInstituteFunction = async (
         }
         student.studentROLLNO = classes.ApproveStudent?.length + 1;
         await Promise.all([classes.save(), batch.save(), depart.save()]);
+      }
+      for (var val of all_status) {
+        val.payment_status = "Paid"
+        val.fee_receipt = new_receipt?._id
+        await val.save()
       }
       await Promise.all([
         admission.save(),
@@ -1506,6 +1501,7 @@ exports.directAdmissionInstituteFunction = async (
     await set_fee_head_query(student, price, apply, new_receipt);
     if (apply?.direct_attach_class?._id) {
       status.content = `Your Payment (Rs. ${price}/) for Admission ${apply?.applicationName} Receieved successfully & your admission has been confirmed. You have been allotted to your ${apply?.direct_attach_class?.className}-${apply?.direct_attach_class?.classTitle}. Enjoy your learning.`;
+      status.group_by = "Admission_Class_Allotment"
     } else {
       status.content = `Your Payment (Rs. ${price}/) for Admission ${apply?.applicationName} Receieved successfully & your admission has been confirmed.`;
     }

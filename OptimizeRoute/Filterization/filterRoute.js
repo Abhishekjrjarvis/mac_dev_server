@@ -178,4 +178,9 @@ router.patch(
   catchAsync(Filter.renderStudentRefundFeesExcelQuery)
 );
 
+router.get(
+  "/by/review/array/:aid",
+  catchAsync(Filter.renderReviewApplicationFilter)
+);
+
 module.exports = router;

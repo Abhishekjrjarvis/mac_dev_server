@@ -34,13 +34,6 @@ exports.insert_multiple_status = async (
       departments: { $in: args?.applicationDepartment },
     });
     const statusArray = [
-      // {
-      //   content: `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`,
-      //   applicationId: args?._id,
-      //   instituteId: iargs?._id,
-      //   student: sid,
-      //   fee_receipt: receipt?._id,
-      // },
       {
         content: `Your application for ${args?.applicationName} have been filled successfully.
 
@@ -61,43 +54,19 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 7. For cancellation and refund, contact the admission department.
 
 Note: Stay tuned for further updates. Tap here to see username ${uargs?.username}`,
-        // content: `You have applied for ${args.applicationName} has been filled successfully.Stay updated to check status of your application.Tap here to see username ${uargs?.username}`,
         applicationId: args?._id,
         instituteId: iargs?._id,
         document_visible: true,
         finance: finance?._id,
         bank_account: filtered_account?._id,
         student: sid,
+        group_by: "Admission_Application_Applied"
       },
-      // {
-      //   content: `You have been selected for ${args.applicationName}. Visit ${iargs.insName} with required documents & fees. Your Fee Structure is ${structure?.structure_name}. Available payment modes.`,
-      //   applicationId: args?._id,
-      //   instituteId: iargs?._id,
-      //   for_selection: "No",
-      //   studentId: sid,
-      //   admissionFee: args.admissionFee,
-      //   finance: finance?._id,
-      //   payMode: "offline",
-      //   isPaid: "Paid",
-      // },
-      // {
-      //   content: `Your admission is on hold please visit ${iargs.insName}, ${iargs.insDistrict}. with required fees & documents or contact institute if neccessory`,
-      //   applicationId: args?._id,
-      //   instituteId: iargs?._id,
-      // },
-      // {
-      //   content: `Your documents have been verified and submitted successfully. Confirm your admission by paying applicable fees Rs.${structure?.applicable_fees}`,
-      //   applicationId: args?._id,
-      //   instituteId: iargs?._id,
-      //   document_visible: true,
-      // },
     ];
 
     Status.insertMany(statusArray)
       .then((value) => {
-        // for (var val of value) {
         uargs.applicationStatus.push(...value);
-        // }
       })
       .catch((e) => {
         console.log("Not Saved Status");

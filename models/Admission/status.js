@@ -85,17 +85,11 @@ const statusSchema = new mongoose.Schema({
     type: String,
     default: "Not Edited",
   },
-  grouping: {
-    grouping_type: {
-      type: String
-    },
-    grouping_content: {
-      type: String
-    },
-    filled_status: {
-      type: Boolean,
-      default: true
-    }
+  group_by: {
+    type: String
+  },
+  payment_status: {
+    type: String
   }
 });
 

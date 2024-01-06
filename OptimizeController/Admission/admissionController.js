@@ -765,6 +765,7 @@ Note: Stay tuned for further updates.`;
       status.instituteId = institute._id;
       status.finance = institute?.financeDepart?.[0];
       status.student = student?._id;
+      status.group_by = "Admission_Application_Applied"
       user.student.push(student._id);
       status.bank_account = filtered_account?._id;
       user.applyApplication.push(apply._id);
@@ -1626,12 +1627,10 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     status.content = `You have been selected for ${apply.applicationName}. 
 Your fee structure will be ${structure?.structure_name}. And required documents are 'click here for details'.   
 Start your admission process by confirming below.`;
-    // status.content = `You have been selected for ${apply.applicationName}. Visit ${institute?.insName} with required documents & fees. Your Fee Structure is ${structure?.structure_name}. Available payment modes.`;
     status.applicationId = apply._id;
-    // status.for_selection = "Yes";
     status.for_docs = "Yes";
-    // status.docs_status
     status.studentId = student._id;
+    status.group_by = "Admission_Document_Verification"
     status.student = student._id;
     status.admissionFee = structure.total_admission_fees;
     status.instituteId = admission_admin?.institute;
@@ -2207,6 +2206,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       appId: apply._id,
     });
     status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
+    status.group_by = "Admission_Confirmation"
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
@@ -2633,18 +2633,12 @@ exports.retrieveClassAllotQuery = async (req, res) => {
         if (apply?.allot_array?.includes(`${sid}`)) {
         } else {
           const student = await Student.findById({ _id: sid });
-          const remain_list = await RemainingList.findOne({
-            $and: [
-              { _id: { $in: student?.remainingFeeList } },
-              { appId: apply?._id },
-            ],
-          });
           const user = await User.findById({ _id: `${student.user}` });
           const notify = new Notification({});
           const aStatus = new Status({});
-          for (let app of apply.confirmedApplication) {
+          for (let app of apply.reviewApplication) {
             if (`${app.student}` === `${student._id}`) {
-              apply.confirmedApplication.pull(app._id);
+              apply.reviewApplication.pull(app._id);
             } else {
             }
           }
@@ -2657,7 +2651,6 @@ exports.retrieveClassAllotQuery = async (req, res) => {
             paid_status:
               student.admissionRemainFeeCount == 0 ? "Paid" : "Not Paid",
           });
-          remain_list.batchId = batch?._id;
           apply.allotCount += 1;
           // student.confirmApplication.pull(apply._id)
           student.studentStatus = "Approved";
@@ -2704,6 +2697,7 @@ exports.retrieveClassAllotQuery = async (req, res) => {
           notify.notifyByStudentPhoto = student._id;
           notify.notifyCategory = "Approve Student";
           aStatus.content = `Welcome to ${depart.dName} ${classes.classTitle} Enjoy your Learning.`;
+          aStatus.group_by = "Admission_Class_Allotment"
           aStatus.applicationId = apply._id;
           user.applicationStatus.push(aStatus._id);
           aStatus.instituteId = institute._id;
@@ -2718,7 +2712,6 @@ exports.retrieveClassAllotQuery = async (req, res) => {
             depart.save(),
             batch.save(),
             notify.save(),
-            remain_list.save(),
           ]);
           if (student.studentGender === "Male") {
             classes.boyCount += 1;
@@ -4665,6 +4658,8 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     status.content = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
+    status.group_by = "Admission_Fees_Payment"
+    status.payment_status = "Not Paid"
     status.finance = institute?.financeDepart?.[0];
     status.feeStructure = structure?._id;
     status.for_selection = "Yes";
@@ -5875,6 +5870,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
       order.fee_receipt = one_receipt?._id;
       institute.payment_history.push(order._id);
       status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
+      status.group_by = "Admission_Confirmation"
       status.applicationId = one_app._id;
       user.applicationStatus.push(status._id);
       status.instituteId = institute._id;

@@ -6204,6 +6204,184 @@ exports.renderStudentRefundFeesExcelQuery = async (req, res) => {
   }
 };
 
+const review_sort_student_by_alpha = async (arr) => {
+  var send_filter = [];
+  const students = await Student.find({
+    _id: { $in: arr },
+  })
+    .sort({ studentFirstName: 1, studentMiddleName: 1, studentLastName: 1 })
+    .select("_id");
+
+  for (let i = 0; i < students.length; i++) {
+    const stu = await Student.findById({ _id: students[i]._id })
+      .select(
+        "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto studentROLLNO studentGender studentPhoneNumber studentParentsPhoneNumber studentEmail application_print fee_receipt paidFeeList"
+      )
+      .populate({
+        path: "fee_structure",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username userPhoneNumber userEmail",
+      });
+    await stu.save();
+    send_filter.push(stu);
+  }
+  return send_filter;
+};
+
+const review_sorted_by_gender = async (arr) => {
+  var sorted_data = [];
+  const studentFemale = await Student.find({
+    $and: [{ _id: { $in: arr } }, { studentGender: "Female" }],
+  }).select("_id");
+  const studentMale = await Student.find({
+    $and: [{ _id: { $in: arr } }, { studentGender: "Male" }],
+  }).select("_id");
+
+  const studentOther = await Student.find({
+    $and: [{ _id: { $in: arr } }, { studentGender: "Other" }],
+  }).select("_id");
+  const data = [...studentFemale, ...studentMale, ...studentOther];
+  for (let i = 0; i < data.length; i++) {
+    const stu = await Student.findById({ _id: data[i]._id })
+    .select(
+      "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto studentROLLNO studentGender studentPhoneNumber studentParentsPhoneNumber studentEmail application_print fee_receipt paidFeeList"
+    )
+    .populate({
+      path: "fee_structure",
+    })
+    .populate({
+      path: "user",
+      select: "userLegalName username userPhoneNumber userEmail",
+    });
+    await stu.save();
+    sorted_data.push(stu);
+  }
+  return sorted_data;
+};
+
+const review_sorted_by_both_gender_and_aplha = async (arr) => {
+  var sorted_ga = [];
+  const studentFemale = await Student.find({
+    $and: [{ _id: { $in: arr } }, { studentGender: "Female" }],
+  })
+    .sort({ studentFirstName: 1, studentMiddleName: 1, studentLastName: 1 })
+    .select("_id");
+  const studentMale = await Student.find({
+    $and: [{ _id: { $in: arr } }, { studentGender: "Male" }],
+  })
+    .sort({ studentFirstName: 1, studentMiddleName: 1, studentLastName: 1 })
+    .select("_id");
+
+  const studentOther = await Student.find({
+    $and: [{ _id: { $in: arr } }, { studentGender: "Other" }],
+  })
+    .sort({ studentFirstName: 1, studentMiddleName: 1, studentLastName: 1 })
+    .select("_id");
+
+  var data = [...studentFemale, ...studentMale, ...studentOther];
+  for (let i = 0; i < data.length; i++) {
+    const stu = await Student.findById({ _id: data[i]._id })
+    .select(
+      "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto studentROLLNO studentGender studentPhoneNumber studentParentsPhoneNumber studentEmail application_print fee_receipt paidFeeList"
+    )
+    .populate({
+      path: "fee_structure",
+    })
+    .populate({
+      path: "user",
+      select: "userLegalName username userPhoneNumber userEmail",
+    });
+    await stu.save();
+    sorted_ga.push(stu);
+  }
+  return sorted_ga;
+};
+
+exports.renderReviewApplicationFilter = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { sort_query } = req.query;
+    var student_arr = []
+    const apply = await NewApplication.findById({ _id: aid }).select(
+      "reviewApplication"
+    );
+
+    for (var val of apply?.reviewApplication) {
+      student_arr.push(val?.student)
+    }
+
+    if (sort_query === "Alpha") {
+      const sortedA = await review_sort_student_by_alpha(
+        student_arr,
+      );
+      res.status(200).send({
+        message: "Sorted By Alphabetical Order",
+        apply,
+        students: sortedA,
+        access: true,
+      });
+    } else if (sort_query === "Gender") {
+      const sortedG = await review_sorted_by_gender(
+        student_arr
+      );
+      res.status(200).send({
+        message: "Sorted By Gender Order",
+        apply,
+        students: sortedG,
+        access: true,
+      });
+    } else if (sort_query === "Gender_Alpha") {
+      const sortedGA = await review_sorted_by_both_gender_and_aplha(
+        student_arr
+      );r
+      res.status(200).send({
+        message: "Sorted By Gender & Alpha Order",
+        apply,
+        students: sortedGA,
+        access: true,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "You're breaking sorting rules 😡", access: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// exports.renderReviewShuffledStudentQuery = async(req, res) => {
+//   try{
+//     const { cid, shuffle_arr } = req.body;
+//     if (!shuffle_arr?.length)
+//       return res.status(200).send({
+//         message: "Their is a bug need to fixed immediatley",
+//         access: false,
+//       });
+//       if(shuffle_arr?.length > 0){
+//       const classes = await Class.findById({ _id: cid })
+//       classes.ApproveStudent = []
+//       await classes.save()
+//       var i = 0
+//       for(var val of shuffle_arr){
+//         classes.ApproveStudent.push(val)
+//         const student = await Student.findById({ _id: `${val}`})
+//         student.studentROLLNO = i + 1
+//         i += 1
+//         await student.save()
+//       }
+//       classes.shuffle_on = true
+//       await classes.save()
+//       res.status(200).send({ message: "Explore Class Wise Shuffling Query", access: true})
+//     }
+//   }
+//   catch(e){
+//     console.log(e)
+//   }
+// }
+
 
 exports.renderTallyPriceQuery = async (req, res) => {
   // try {

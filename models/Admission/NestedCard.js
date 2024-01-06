@@ -12,7 +12,11 @@ const nestedCardSchema = new mongoose.Schema({
     applicable_fee: {
         type: Number,
         default: 0
-    },
+  },
+  refund_fee: {
+    type: Number,
+    default: 0
+  },
     remaining_array: [
         {
           appId: { type: mongoose.Schema.Types.ObjectId, ref: "NewApplication" },

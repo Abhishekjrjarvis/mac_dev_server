@@ -2270,7 +2270,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
 exports.cancelAdmissionApplication = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { amount, mode, remainAmount } = req.body;
+    const { amount, mode, remainAmount, struct } = req.body;
     if (!sid && !aid && !amount && !remainAmount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2399,29 +2399,36 @@ exports.cancelAdmissionApplication = async (req, res) => {
         refund_from: apply?._id,
       });
       const all_remain_fee_list = await RemainingList.findOne({
-        $and: [{ student: student?._id }, { appId: apply?._id }],
+        $and: [{ fee_structure: struct }, { student: student?._id}]
+      });
+      const nest_app_card = await NestedCard.findById({
+        _id: `${all_remain_fee_list?.applicable_card}`
       });
       const filter_student_install =
-        all_remain_fee_list?.remaining_array?.filter((stu) => {
+      nest_app_card?.remaining_array?.filter((stu) => {
           if (`${stu.appId}` === `${apply._id}` && stu.status === "Not Paid")
             return stu;
         });
       for (var can = 0; can < filter_student_install?.length; can++) {
-        all_remain_fee_list?.remaining_array.pull(filter_student_install[can]);
+        nest_app_card?.remaining_array.pull(filter_student_install[can]);
       }
       all_remain_fee_list.fee_receipts.push(new_receipt?._id);
       all_remain_fee_list.refund_fee += price;
       if (all_remain_fee_list.paid_fee >= price) {
         all_remain_fee_list.paid_fee -= price;
       }
+      if (nest_app_card.paid_fee >= price) {
+        nest_app_card.paid_fee -= price;
+      }
       all_remain_fee_list.remaining_fee = 0;
+      nest_app_card.remaining_fee = 0
       for (var ele of student?.active_fee_heads) {
         if (`${ele?.appId}` === `${apply?._id}`) {
           ele.paid_fee = 0;
           ele.remain_fee = 0;
         }
       }
-      all_remain_fee_list.remaining_array.push({
+      nest_app_card.remaining_array.push({
         remainAmount: price,
         appId: apply._id,
         status: "Paid",
@@ -2467,6 +2474,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
         all_remain_fee_list.save(),
         new_receipt.save(),
         notify.save(),
+        nest_app_card.save()
       ]);
       res.status(200).send({
         message: "Refund & Cancellation of Admission",
@@ -2479,10 +2487,10 @@ exports.cancelAdmissionApplication = async (req, res) => {
         user._id,
         user.deviceToken
       );
-      if (apply.confirmedApplication?.length > 0) {
-        for (let app of apply.confirmedApplication) {
+      if (apply.reviewApplication?.length > 0) {
+        for (let app of apply.reviewApplication) {
           if (`${app.student}` === `${student._id}`) {
-            apply.confirmedApplication.pull(app._id);
+            apply.reviewApplication.pull(app._id);
           } else {
           }
         }
@@ -3785,17 +3793,6 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
       user.deviceToken
     );
     await Promise.all([user.save(), notify.save()]);
-    if (apply?.gstSlab > 0) {
-      var business_data = new BusinessTC({});
-      business_data.b_to_c_month = new Date().toISOString();
-      business_data.b_to_c_i_slab = parseInt(apply?.gstSlab) / 2;
-      business_data.b_to_c_s_slab = parseInt(apply?.gstSlab) / 2;
-      business_data.finance = finance._id;
-      business_data.b_to_c_name = "Admission Fees";
-      finance.gst_format.b_to_c.push(business_data?._id);
-      business_data.b_to_c_total_amount = price;
-      await Promise.all([finance.save(), business_data.save()]);
-    }
   } catch (e) {
     console.log(e);
   }
@@ -10911,8 +10908,8 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
           isEnable: true,
           revert_status: "Government Fees (Pay By Student)"
         })
-        nest_app_card.remaining_fee += shift_num
       }
+      nest_app_card.remaining_fee += shift_num
       await Promise.all([ nest_gov_card.save(), nest_app_card.save() ])
     }
     res.status(200).send({ message: "Explore New Shifted Card Back To Applicable Fees Section", access: true})

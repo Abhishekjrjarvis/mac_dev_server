@@ -1825,18 +1825,18 @@ exports.renderAllStudentAccessFeesEditableQuery = async (req, res) => {
       });
 
     if (flow === "Institute_Admin") {
-      var valid_institute = await InstituteAdmin.findById({ _id: id }).select(
-        "ApproveStudent online_amount_edit_access"
+      var ads_admin = await InstituteAdmin.findById({ _id: id }).select(
+        "student online_amount_edit_access"
       );
 
-      valid_institute.online_amount_edit_access = online_amount_edit_access;
-      await valid_institute.save();
+      ads_admin.online_amount_edit_access = online_amount_edit_access;
+      await ads_admin.save();
       res.status(200).send({
         message: "Explore Institute Editable Fee Access to all",
         access: true,
       });
       var all_student = await Student.find({
-        _id: { $in: valid_institute?.ApproveStudent },
+        _id: { $in: ads_admin?.student },
       });
 
       for (var ref of all_student) {

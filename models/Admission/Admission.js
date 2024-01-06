@@ -313,6 +313,16 @@ const admissionAdminSchema = new mongoose.Schema({
     type: String,
     unique: true
   },
+  online_amount_edit_access: {
+    type: String,
+    default: "Not Granted",
+  },
+  student: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student"
+    }
+  ],
   admission_stats: {
     
   }

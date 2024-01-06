@@ -24,7 +24,7 @@ const {
 } = require("../../config/redis-config");
 const BankAccount = require("../../models/Finance/BankAccount");
 const { generate_random_code } = require("../../helper/functions");
-const Charges = require("../../models/SuperAdmin/charges");
+const Charges = require("../../models/SuperAdmin/Charges");
 
 var AdminOTP = "";
 

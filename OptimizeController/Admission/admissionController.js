@@ -79,6 +79,7 @@ const {
   set_fee_head_redesign,
   update_fee_head_query_redesign,
   render_government_installment_query,
+  all_installment_paid,
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -2082,9 +2083,22 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         //     }
         //   }
       // }
-      // if (pay_remain) {
-          
-      //   }
+      if (pay_remain) {
+        await all_installment_paid(
+          new_remainFee,
+          student?.fee_structure,
+          mode,
+          price,
+          admission,
+          student,
+          new_receipt,
+          apply,
+          institute,
+          nest_card,
+          type
+        )
+      }
+      else {
         await render_installment(
           type,
           student,
@@ -2098,6 +2112,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           institute,
           nest_card
         );
+      }
         await nest_card.save()
         if (req.body?.fee_payment_mode === "Government/Scholarship") {
           // New Logic
@@ -3300,7 +3315,7 @@ exports.oneStudentViewRemainingFee = async (req, res) => {
 exports.paidRemainingFeeStudent = async (req, res) => {
   try {
     const { aid, sid, appId } = req.params;
-    const { amount, mode, type, card_id, rid, raid, raid_1 } = req.body;
+    const { amount, mode, type, card_id, rid, raid, pay_remain } = req.body;
     const { receipt_status } = req.query;
     if (!sid && !aid && !appId && !amount && !mode && !type)
       return res.status(200).send({
@@ -3434,7 +3449,23 @@ exports.paidRemainingFeeStudent = async (req, res) => {
             nest_card
           );
         } else {
-            console.log("Enter")
+          console.log("Enter")
+          if (pay_remain) {
+            await all_installment_paid(
+              remaining_fee_lists,
+              student?.fee_structure,
+              mode,
+              price,
+              admin_ins,
+              student,
+              new_receipt,
+              apply,
+              institute,
+              nest_card,
+              type
+            )
+          }
+          else {
             await render_installment(
               type,
               student,
@@ -3448,6 +3479,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
               institute,
               nest_card
             );
+          }
           console.log("Exit")
           if (
             `${new_receipt?.fee_payment_mode}` === "Demand Draft" ||

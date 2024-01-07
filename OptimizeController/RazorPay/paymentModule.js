@@ -34,6 +34,7 @@ const {
   remain_one_time_query,
   update_fee_head_query,
   lookup_applicable_grant,
+  all_installment_paid,
 } = require("../../helper/Installment");
 const Hostel = require("../../models/Hostel/hostel");
 const Renewal = require("../../models/Hostel/renewal");
@@ -345,6 +346,7 @@ exports.admissionInstituteFunction = async (
   payment_type,
   remain_1,
   payment_card_id,
+  pay_remain,
   statusId
 ) => {
   try {
@@ -445,21 +447,36 @@ exports.admissionInstituteFunction = async (
           } else {
             await update_fee_head_query(student, parseInt(tx_amount_ad), apply, new_receipt);
           }
-              console.log("Enter")
-              await render_installment(
-                type,
-                student,
-                "Online",
-                parseInt(tx_amount_ad),
-                admission,
-                student?.fee_structure,
-                remaining_fee_lists,
-                new_receipt,
-                apply,
-                ins,
-                nest_card
-              );
-              console.log("Exit")
+        if (pay_remain) {
+          await all_installment_paid(
+            remaining_fee_lists,
+            student?.fee_structure,
+            "Online",
+            parseInt(tx_amount_ad),
+            admission,
+            student,
+            new_receipt,
+            apply,
+            ins,
+            nest_card,
+            type
+          )
+        }
+        else {
+          await render_installment(
+            type,
+            student,
+            "Online",
+            parseInt(tx_amount_ad),
+            admission,
+            student?.fee_structure,
+            remaining_fee_lists,
+            new_receipt,
+            apply,
+            ins,
+            nest_card
+          );
+        }
           if(type === "First Installment"){
             console.log("Enter")
           for(var val of apply?.FeeCollectionApplication){

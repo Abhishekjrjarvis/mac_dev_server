@@ -60,6 +60,9 @@ const nestedCardSchema = new mongoose.Schema({
             type: Number,
             default: 0
           }
+        },
+        cover_status: {
+          type: String
         }
         },
       ],

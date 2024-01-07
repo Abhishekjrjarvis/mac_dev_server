@@ -60,9 +60,11 @@ exports.initiate = async (req, res) => {
       payment_remain_1,
       ad_status_id,
       payment_card_id,
+      payment_remain_fees,
+      charge
     } = req.body;
-    let gatewayCharges = (parseInt(amount) * 1) / 100;
-    var valid_charge = gatewayCharges >= 100 ? 100 : gatewayCharges;
+    let gatewayCharges = (parseInt(amount) * charge?.num_pecent) / 100;
+    var valid_charge = gatewayCharges >= 100 ? charge?.num_max : gatewayCharges;
     let gst = (+valid_charge * 18) / 100;
     let data = parseInt(amount) + parseInt(valid_charge) + gst;
     // let gatewayCharges = (parseInt(amount) * 2.1) / 100;
@@ -85,7 +87,7 @@ exports.initiate = async (req, res) => {
           : type === "Fees"
           ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}`
           : type === "Admission"
-          ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/status/${ad_status_id}`
+          ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_fees}/status/${ad_status_id}`
           : `${process.env.CALLBACK_URLS}/v2/paytm/callback/hostel/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/install/${payment_installment}/remain/${payment_remain_1}/status/${ad_status_id}`,
       txnAmount: {
         value: Math.ceil(data),
@@ -252,6 +254,7 @@ exports.callbackAdmission = async (req, res) => {
       payment_remain_1,
       ad_status_id,
       payment_card_id,
+      payment_remain_fees,
       price,
     } = req.params;
     var paytmParams = {};
@@ -307,6 +310,7 @@ exports.callbackAdmission = async (req, res) => {
             var valid_status = ad_status_id === "null" ? "" : ad_status_id;
             var valid_card =
               payment_card_type === "null" ? "" : payment_card_type;
+            var pay_remain = payment_remain_fees === "false" ? false : true
             await admissionInstituteFunction(
               order?._id,
               paidBy,
@@ -319,6 +323,7 @@ exports.callbackAdmission = async (req, res) => {
               valid_card,
               payment_remain_1,
               payment_card_id,
+              pay_remain,
               valid_status
               // Boolean(ad_install)
             );
@@ -505,6 +510,7 @@ exports.callbackAdmissionStatus = async (req, res) => {
       payment_remain_1,
       ad_status_id,
       payment_card_id,
+      payment_remain_fees,
       price,
       TXNAMOUNT,
       STATUS,
@@ -525,6 +531,7 @@ exports.callbackAdmissionStatus = async (req, res) => {
       var paytm_author = false;
       var valid_status = ad_status_id === "null" ? "" : ad_status_id;
       var valid_card = payment_card_type === "null" ? "" : payment_card_type;
+      var pay_remain = payment_remain_fees === "false" ? false : true
       await admissionInstituteFunction(
         order?._id,
         paidBy,
@@ -537,6 +544,7 @@ exports.callbackAdmissionStatus = async (req, res) => {
         valid_card,
         payment_remain_1,
         payment_card_id,
+        pay_remain,
         valid_status
         // Boolean(ad_install)
       );

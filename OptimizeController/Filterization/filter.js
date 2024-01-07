@@ -6315,7 +6315,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       apply.reviewApplication = []
       await apply.save()
       for(var val of sortedA){
-        apply.reviewApplication.push(val)
+        apply.reviewApplication.unshift(val)
       }
       await apply.save()
       res.status(200).send({
@@ -6330,7 +6330,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       apply.reviewApplication = []
       await apply.save()
       for(var val of sortedG){
-        apply.reviewApplication.push(val)
+        apply.reviewApplication.unshift(val)
       }
       await apply.save()
       res.status(200).send({
@@ -6345,7 +6345,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       apply.reviewApplication = []
       await apply.save()
       for(var val of sortedGA){
-        apply.reviewApplication.push(val)
+        apply.reviewApplication.unshift(val)
       }
       await apply.save()
       res.status(200).send({

@@ -2019,6 +2019,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       if(nest_card?.remaining_fee >= price){
         nest_card.remaining_fee -= price
       }
+      else {
+        nest_card.remaining_fee = 0
+      }
       if(student.admissionRemainFeeCount >= price){
         student.admissionRemainFeeCount -= price
       }
@@ -2035,54 +2038,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           if (valid_one_time_fees) {
             admission.remainingFee.pull(student._id);
           } else {
-            // nest_card.remaining_array.push({
-            //   remainAmount: student?.fee_structure?.applicable_fees - price,
-            //   appId: apply._id,
-            //   status: "Not Paid",
-            //   instituteId: institute._id,
-            //   installmentValue: "One Time Fees Remain",
-            //   isEnable: true,
-            // });
           }
-        var extra_price = 0
-        // for(var val of nest_card?.remaining_array){
-        //   if(`${val?._id}` === `${raid}`){
-        //     val.mode = mode
-        //     val.fee_receipt = new_receipt?._id
-        //     val.status = "Paid"
-        //     extra_price += price >= val?.remainAmount ? price - val?.remainAmount : 0
-        //     val.remainAmount = price >= val?.remainAmount ? price : val?.remainAmount - price
-        //   }
-        // }
-        // if (extra_price > 0) {
-        //   for (var val of nest_card?.remaining_array) {
-        //     if (val?.status === "Not Paid") {
-        //       if (val?.remainAmount < extra_price) {
-        //         val.status = "Paid"
-        //         val.mode = mode
-        //         val.fee_receipt = new_receipt?._id
-        //       }
-        //       else if(val?.remainAmount > extra_price) {
-        //           val.remainAmount -= extra_price
-        //           val.isEnable = true
-        //           extra_price -= val?.remainAmount
-        //       }
-        //       else if (val?.remainAmount == extra_price) {
-        //         val.remainAmount -= extra_price
-        //         val.isEnable = true
-        //         extra_price -= val?.remainAmount
-        //       }
-              
-        //     }
-        //   }
-        // }
-        // else{
-        //   if (nest_card?.remaining_fee <= 0) {
-        //     if (extra_price > 0) {
-        //       nest_card.excess_fee += extra_price
-        //     }
-        //   }
-      // }
       if (pay_remain) {
         await all_installment_paid(
           new_remainFee,
@@ -3398,11 +3354,8 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       if(nest_card?.remaining_fee >= price){
         nest_card.remaining_fee -= price
       }
-      else{
-        // if(nest_card?.remaining_fee > 0){
-          nest_card.remaining_fee = price - nest_card?.remaining_fee
-          nest_card.excess_fee += price - nest_card?.remaining_fee
-        // }
+      else {
+        nest_card.remaining_fee = 0
       }
       if(student.admissionRemainFeeCount >= price){
         student.admissionRemainFeeCount -= price

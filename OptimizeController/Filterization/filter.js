@@ -6225,7 +6225,7 @@ const review_sort_student_by_alpha = async (arr) => {
         select: "userLegalName username userPhoneNumber userEmail",
       });
     await stu.save();
-    send_filter.push(stu);
+    send_filter.push(stu?._id);
   }
   return send_filter;
 };
@@ -6256,7 +6256,7 @@ const review_sorted_by_gender = async (arr) => {
       select: "userLegalName username userPhoneNumber userEmail",
     });
     await stu.save();
-    sorted_data.push(stu);
+    sorted_data.push(stu?._id);
   }
   return sorted_data;
 };
@@ -6294,7 +6294,7 @@ const review_sorted_by_both_gender_and_aplha = async (arr) => {
       select: "userLegalName username userPhoneNumber userEmail",
     });
     await stu.save();
-    sorted_ga.push(stu);
+    sorted_ga.push(stu?._id);
   }
   return sorted_ga;
 };
@@ -6312,11 +6312,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       const sortedA = await review_sort_student_by_alpha(
         apply?.reviewApplication,
       );
-      apply.reviewApplication = []
-      await apply.save()
-      for(var val of sortedA){
-        apply.reviewApplication.unshift(val?._id)
-      }
+      apply.reviewApplication = [...sortedA]
       await apply.save()
       res.status(200).send({
         message: "Sorted By Alphabetical Order",
@@ -6327,11 +6323,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       const sortedG = await review_sorted_by_gender(
         apply?.reviewApplication
       );
-      apply.reviewApplication = []
-      await apply.save()
-      for(var val of sortedG){
-        apply.reviewApplication.unshift(val?._id)
-      }
+      apply.reviewApplication = [...sortedG]
       await apply.save()
       res.status(200).send({
         message: "Sorted By Gender Order",
@@ -6342,11 +6334,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       const sortedGA = await review_sorted_by_both_gender_and_aplha(
         apply?.reviewApplication
       );
-      apply.reviewApplication = []
-      await apply.save()
-      for(var val of sortedGA){
-        apply.reviewApplication.unshift(val?._id)
-      }
+      apply.reviewApplication = [...sortedGA]
       await apply.save()
       res.status(200).send({
         message: "Sorted By Gender & Alpha Order",

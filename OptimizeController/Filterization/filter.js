@@ -6304,17 +6304,13 @@ exports.renderReviewApplicationFilter = async (req, res) => {
     const { aid } = req.params;
     const { sort_query } = req.query;
     var student_arr = []
-    const apply = await NewApplication.findById({ _id: aid }).select(
+    var apply = await NewApplication.findById({ _id: aid }).select(
       "reviewApplication"
     );
 
-    for (var val of apply?.reviewApplication) {
-      student_arr.push(val?.student)
-    }
-
     if (sort_query === "Alpha") {
       const sortedA = await review_sort_student_by_alpha(
-        student_arr,
+        apply?.reviewApplication,
       );
       apply.reviewApplication = []
       await apply.save()
@@ -6329,7 +6325,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       });
     } else if (sort_query === "Gender") {
       const sortedG = await review_sorted_by_gender(
-        student_arr
+        apply?.reviewApplication
       );
       apply.reviewApplication = []
       await apply.save()
@@ -6344,7 +6340,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       });
     } else if (sort_query === "Gender_Alpha") {
       const sortedGA = await review_sorted_by_both_gender_and_aplha(
-        student_arr
+        apply?.reviewApplication
       );
       apply.reviewApplication = []
       await apply.save()

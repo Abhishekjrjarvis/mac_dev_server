@@ -10941,6 +10941,7 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
             //   remain_list.paid_fee -= valid_count
             // }
             nest_app_card.remaining_fee += shift_num - valid_count
+            remain_list.status = "Not Paid"
           }
           else {
           
@@ -10956,6 +10957,7 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
             revert_status: "Government Fees (Pay By Student)"
           })
           nest_app_card.remaining_fee += shift_num
+          remain_list.status = "Not Paid"
         }
         nest_app_card.applicable_fee += shift_num
       }

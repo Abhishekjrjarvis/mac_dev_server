@@ -6302,7 +6302,7 @@ const review_sorted_by_both_gender_and_aplha = async (arr) => {
 exports.renderReviewApplicationFilter = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { sort_query, search } = req.query;
+    const { sort_query } = req.query;
     var student_arr = []
     const apply = await NewApplication.findById({ _id: aid }).select(
       "reviewApplication"
@@ -6316,9 +6316,14 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       const sortedA = await review_sort_student_by_alpha(
         student_arr,
       );
+      apply.reviewApplication = []
+      await apply.save()
+      for(var val of sortedA){
+        apply.reviewApplication.push(val)
+      }
+      await apply.save()
       res.status(200).send({
         message: "Sorted By Alphabetical Order",
-        apply,
         students: sortedA,
         access: true,
       });
@@ -6326,19 +6331,29 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       const sortedG = await review_sorted_by_gender(
         student_arr
       );
+      apply.reviewApplication = []
+      await apply.save()
+      for(var val of sortedG){
+        apply.reviewApplication.push(val)
+      }
+      await apply.save()
       res.status(200).send({
         message: "Sorted By Gender Order",
-        apply,
         students: sortedG,
         access: true,
       });
     } else if (sort_query === "Gender_Alpha") {
       const sortedGA = await review_sorted_by_both_gender_and_aplha(
         student_arr
-      );r
+      );
+      apply.reviewApplication = []
+      await apply.save()
+      for(var val of sortedGA){
+        apply.reviewApplication.push(val)
+      }
+      await apply.save()
       res.status(200).send({
         message: "Sorted By Gender & Alpha Order",
-        apply,
         students: sortedGA,
         access: true,
       });

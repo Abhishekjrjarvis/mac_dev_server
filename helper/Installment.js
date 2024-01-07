@@ -1140,13 +1140,13 @@ exports.all_installment_paid = async (
       } else {
         ref.status = "Paid";
         if (type === ref?.installmentValue) {
-          ref.fee_receipt = receipt_args?._id;
         }
         else {
           ref.cover_status = `${ref?.installmentValue} Amount Covered in ${type}`
         }
         ref.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
         ref.mode = mode;
+        ref.fee_receipt = receipt_args?._id;
         arg4.remainingFee.pull(arg5._id);
         arg1.status = "Paid";
         arg1.active_payment_type = "All Installment Paid";

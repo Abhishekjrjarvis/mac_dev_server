@@ -3351,6 +3351,9 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       if(remaining_fee_lists?.remaining_fee >= price){
         remaining_fee_lists.remaining_fee -= price
       }
+      else {
+        remaining_fee_lists.remaining_fee = 0
+      }
       if(nest_card?.remaining_fee >= price){
         nest_card.remaining_fee -= price
       }
@@ -8590,17 +8593,17 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, id) => {
           path: "fee_structure",
         });
         if (valid_remain) {
-          if (valid_remain?.access_mode_card === "One_Time_Wise") {
-            var valid_type =
-              valid_remain?.active_payment_type === "No Process"
-                ? "One Time Fees"
-                : valid_remain?.active_payment_type === "One Time Fees"
-                ? "One Time Fees Remain"
-                : "";
-          } else if (valid_remain?.access_mode_card === "Installment_Wise") {
-            var valid_type = await type_calc(valid_remain);
-          } else {
-          }
+          // if (valid_remain?.access_mode_card === "One_Time_Wise") {
+          //   var valid_type =
+          //     valid_remain?.active_payment_type === "No Process"
+          //       ? "One Time Fees"
+          //       : valid_remain?.active_payment_type === "One Time Fees"
+          //       ? "One Time Fees Remain"
+          //       : "";
+          // } else if (valid_remain?.access_mode_card === "Installment_Wise") {
+          //   var valid_type = await type_calc(valid_remain);
+          // } else {
+          // }s
           await auto_scholar_query(
             valid_remain?.student,
             valid_remain?.appId,

@@ -1140,6 +1140,7 @@ exports.all_installment_paid = async (
       } else {
         ref.status = "Paid";
         if (type === ref?.installmentValue) {
+          ref.remainAmount = amount
         }
         else {
           ref.cover_status = `${ref?.installmentValue} Amount Covered in ${type}`

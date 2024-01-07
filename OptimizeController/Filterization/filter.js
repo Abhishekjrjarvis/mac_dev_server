@@ -6312,6 +6312,8 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       const sortedA = await review_sort_student_by_alpha(
         apply?.reviewApplication,
       );
+      apply.reviewApplication = []
+      await apply.save()
       apply.reviewApplication = [...sortedA]
       await apply.save()
       res.status(200).send({
@@ -6323,6 +6325,8 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       const sortedG = await review_sorted_by_gender(
         apply?.reviewApplication
       );
+      apply.reviewApplication = []
+      await apply.save()
       apply.reviewApplication = [...sortedG]
       await apply.save()
       res.status(200).send({
@@ -6334,6 +6338,8 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       const sortedGA = await review_sorted_by_both_gender_and_aplha(
         apply?.reviewApplication
       );
+      apply.reviewApplication = []
+      await apply.save()
       apply.reviewApplication = [...sortedGA]
       await apply.save()
       res.status(200).send({

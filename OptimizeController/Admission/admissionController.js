@@ -10917,7 +10917,7 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
                 revert_status: "Government Fees (Pay By Student)",
                 mode: nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.mode,
                 fee_receipt: nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.fee_receipt,
-                cover_status: nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.cover_status = `${nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.cover_status} - Government Fees Set Off With the Excess Fees ${shift_num}`
+                cover_status: `${nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.cover_status} - Government Fees Set Off With the Excess Fees ${shift_num}`
               })
               if (remain_list.paid_fee > valid_count) {
                 remain_list.paid_fee -= valid_count

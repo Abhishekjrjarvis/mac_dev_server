@@ -1299,18 +1299,12 @@ exports.fetchAllReviewApplication = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const { search } = req.query;
-    const filter_confirm = [];
-      const apply = await NewApplication.findById({ _id: aid })
+      var apply = await NewApplication.findById({ _id: aid })
         .select("review_count reviewApplication")
-      for (let data of apply.reviewApplication) {
-        if (data.student !== null) {
-          filter_confirm.push(data?.student);
-        }
-      }
     if (search) {
 
       var all_student = await Student.find({
-        $and: [{ _id: { $in: filter_confirm } }],
+        $and: [{ _id: { $in: apply?.reviewApplication } }],
         $or: [
           {
             studentFirstName: { $regex: `${search}`, $options: "i" },
@@ -1351,7 +1345,7 @@ exports.fetchAllReviewApplication = async (req, res) => {
       }
     } else {
       var all_student = await Student.find({
-        $and: [{ _id: { $in: filter_confirm } }],
+        $and: [{ _id: { $in: apply?.reviewApplication } }],
       })
         .limit(limit)
         .skip(skip)
@@ -2508,12 +2502,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
         user.deviceToken
       );
       if (apply.reviewApplication?.length > 0) {
-        for (let app of apply.reviewApplication) {
-          if (`${app.student}` === `${student._id}`) {
-            apply.reviewApplication.pull(app._id);
-          } else {
-          }
-        }
+        apply.reviewApplication.pull(student._id);
         apply.cancelApplication.push({
           student: student._id,
           payment_status: "Refund",
@@ -2664,12 +2653,7 @@ exports.retrieveClassAllotQuery = async (req, res) => {
           const user = await User.findById({ _id: `${student.user}` });
           const notify = new Notification({});
           const aStatus = new Status({});
-          for (let app of apply.reviewApplication) {
-            if (`${app.student}` === `${student._id}`) {
-              apply.reviewApplication.pull(app._id);
-            } else {
-            }
-          }
+          apply.reviewApplication.pull(student._id);
           apply.allottedApplication.push({
             student: student._id,
             payment_status: "offline",
@@ -10886,10 +10870,7 @@ exports.renderReviewStudentQuery = async(req, res) => {
     var app = await NewApplication.findById({ _id: aid })
     if(student_arr?.length > 0){
       for(var val of student_arr){
-        app.reviewApplication.push({
-          student: val?.sid,
-          review_status: "Reviewed By Admission Admin"
-        })
+        app.reviewApplication.push(val?.sid)
         app.review_count += 1
         app.confirmedApplication.pull(val?.cid)
         if(app?.confirmCount >= 0){

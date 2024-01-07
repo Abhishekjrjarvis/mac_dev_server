@@ -1111,62 +1111,62 @@ const installment_remain = async (
   }
 };
 
-// const all_installment_paid = async (
-//   arg1,
-//   arg2,
-//   mode,
-//   amount,
-//   arg4,
-//   arg5,
-//   receipt_args,
-//   app_args,
-//   ins_args,
-//   arg6
-// ) => {
-//   try {
-//     const filter_student_install = arg6?.remaining_array?.filter((stu) => {
-//       if (
-//         `${stu.appId}` === `${app_args._id}` &&
-//         stu.status === "Not Paid" &&
-//       )
-//         return stu;
-//     });
+const all_installment_paid = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args,
+  app_args,
+  ins_args,
+  arg6
+) => {
+  try {
+    const filter_student_install = arg6?.remaining_array?.filter((stu) => {
+      if (
+        `${stu.appId}` === `${app_args._id}` &&
+        stu.status === "Not Paid"
+      )
+        return stu;
+    });
 
-//     for (var ref of filter_student_install) {
-//       if (amount < ref?.remainAmount) {
-//         arg6.remaining_array.push({
-//           remainAmount: ref.remainAmount - amount,
-//           appId: app_args._id,
-//           status: "Not Paid",
-//           instituteId: ins_args?._id,
-//           installmentValue: "Installment Remain",
-//           isEnable: true,
-//         });
-//         ref.status = "Paid";
-//         ref.remainAmount = amount;
-//         ref.installmentValue = "Installment Paid";
-//         ref.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
-//         ref.mode = mode;
-//         ref.fee_receipt = receipt_args?._id;
-//         arg1.active_payment_type = "Installment Paid";
-//         arg6.active_payment_type = "Installment Paid"
-//       } else {
-//         ref.status = "Paid";
-//         ref.installmentValue = "All Installment Paid";
-//         ref.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
-//         ref.mode = mode;
-//         arg4.remainingFee.pull(arg5._id);
-//         arg1.status = "Paid";
-//         arg1.active_payment_type = "All Installment Paid";
-//         arg6.active_payment_type = "All Installment Paid"
-//         ref.fee_receipt = receipt_args?._id;
-//       }
-//     }
-//     await Promise.all([arg1.save(), arg4.save(), arg6.save()]);
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
+    for (var ref of filter_student_install) {
+      if (amount < ref?.remainAmount) {
+        arg6.remaining_array.push({
+          remainAmount: ref.remainAmount - amount,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args?._id,
+          installmentValue: "Installment Remain",
+          isEnable: true,
+        });
+        ref.status = "Paid";
+        ref.remainAmount = amount;
+        ref.installmentValue = "Installment Paid";
+        ref.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
+        ref.mode = mode;
+        ref.fee_receipt = receipt_args?._id;
+        arg1.active_payment_type = "Installment Paid";
+        arg6.active_payment_type = "Installment Paid"
+      } else {
+        ref.status = "Paid";
+        ref.installmentValue = "All Installment Paid";
+        ref.receipt_status = receipt_args?.fee_payment_mode === "Demand Draft" || receipt_args?.fee_payment_mode === "Cheque" ? "Requested" : ""
+        ref.mode = mode;
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+        arg1.active_payment_type = "All Installment Paid";
+        arg6.active_payment_type = "All Installment Paid"
+        ref.fee_receipt = receipt_args?._id;
+      }
+    }
+    await Promise.all([arg1.save(), arg4.save(), arg6.save()]);
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_installment = async (
   type,

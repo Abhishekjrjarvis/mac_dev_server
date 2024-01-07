@@ -160,12 +160,8 @@ const newApplicationSchema = new mongoose.Schema({
   ],
   reviewApplication: [
     {
-      student: {
-        type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
         ref: "Student",
-      },
-      review_on: { type: Date, default: Date.now },
-      review_status: { type: String, default: "Pending" },
     },
   ],
   allottedApplication: [

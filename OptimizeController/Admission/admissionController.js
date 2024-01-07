@@ -10895,6 +10895,9 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
           if (nest_gov_card?.remaining_fee >= val?.remainAmount) {
             nest_gov_card.remaining_fee -= val?.remainAmount
           }
+          if (nest_gov_card?.applicable_fee >= val?.remainAmount) {
+            nest_gov_card.applicable_fee -= val?.remainAmount
+          }
         }
       }
       if (nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length -  1]?.status === "Not Paid") {
@@ -10954,6 +10957,7 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
           })
           nest_app_card.remaining_fee += shift_num
         }
+        nest_app_card.applicable_fee += shift_num
       }
       await Promise.all([ nest_gov_card.save(), nest_app_card.save(), remain_list.save() ])
     }

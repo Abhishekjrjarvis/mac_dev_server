@@ -4437,7 +4437,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         populate: {
           path: "hostel_fee_structure",
           select:
-            "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments category_master structure_month batch_master",
+            "total_admission_fees structure_name department unique_structure_name total_installments applicable_fees one_installments category_master structure_month batch_master",
           populate: {
             path: "category_master class_master",
             select: "category_name className",
@@ -4451,7 +4451,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .populate({
         path: "fee_structure",
         select:
-          "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments structure_month category_master batch_master",
+          "total_admission_fees structure_name department unique_structure_name total_installments applicable_fees one_installments structure_month category_master batch_master",
         populate: {
           path: "category_master class_master",
           select: "category_name className",
@@ -4524,7 +4524,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         populate: {
           path: "hostel_fee_structure",
           select:
-            "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments category_master structure_month batch_master",
+            "total_admission_fees structure_name department unique_structure_name total_installments applicable_fees one_installments category_master structure_month batch_master",
           populate: {
             path: "category_master class_master",
             select: "category_name className",
@@ -4538,7 +4538,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .populate({
         path: "fee_structure",
         select:
-          "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments structure_month category_master batch_master",
+          "total_admission_fees structure_name department unique_structure_name total_installments applicable_fees one_installments structure_month category_master batch_master",
         populate: {
           path: "category_master class_master",
           select: "category_name className",

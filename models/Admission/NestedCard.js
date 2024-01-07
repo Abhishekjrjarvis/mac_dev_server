@@ -63,6 +63,10 @@ const nestedCardSchema = new mongoose.Schema({
         },
         cover_status: {
           type: String
+        },
+        set_off: {
+          type: Number,
+          default: 0
         }
         },
       ],

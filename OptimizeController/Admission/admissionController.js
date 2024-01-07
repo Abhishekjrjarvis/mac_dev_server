@@ -4354,7 +4354,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       ],
     })
       .select(
-        "applicable_fee scholar_ship_number card_type applicable_fees_pending remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
+        "applicable_fee scholar_ship_number card_type applicable_fees_pending excess_fee remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
       )
       .populate({
         path: "appId",
@@ -4441,7 +4441,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       ],
     })
       .select(
-        "applicable_fee scholar_ship_number card_type applicable_fees_pending remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
+        "applicable_fee scholar_ship_number card_type applicable_fees_pending excess_fee remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
       )
       .populate({
         path: "appId",
@@ -4541,6 +4541,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0
           ? ref?.fee_structure?.applicable_fees - ref?.paid_fee
           : 0;
+      ref.excess_fee = ref?.paid_fee > ref?.applicable_card?.applicable_fee ? ref?.paid_fee - ref?.applicable_card?.applicable_fee : 0
     }
     for (var ref of valid_remain) {
       ref.setOffPrice = count;
@@ -10902,17 +10903,59 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
         nest_app_card.remaining_array[nest_app_card?.remaining_array?.length -  1].remainAmount += shift_num
       }
       else {
-        nest_app_card.remaining_array.push({
-          remainAmount: shift_num,
-          appId: remain_list?.appId,
-          instituteId: remain_list?.institute,
-          installmentValue: "Installment Remain",
-          isEnable: true,
-          revert_status: "Government Fees (Pay By Student)"
-        })
+        var valid_count = remain_list?.paid_fee > nest_app_card?.applicable_fee ? remain_list?.paid_fee - nest_app_card?.applicable_fee : 0
+        if (valid_count > 0) {
+          if (valid_count > shift_num) {
+            if (nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.cover_status) {
+              nest_app_card.remaining_array.push({
+                remainAmount: shift_num,
+                appId: remain_list?.appId,
+                instituteId: remain_list?.institute,
+                installmentValue: "Installment Remain",
+                isEnable: true,
+                status: "Paid",
+                revert_status: "Government Fees (Pay By Student)",
+                mode: nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.mode,
+                fee_receipt: nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.fee_receipt,
+                cover_status: nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.cover_status = `${nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.cover_status} - Government Fees Set Off With the Excess Fees ${shift_num}`
+              })
+              if (remain_list.paid_fee > valid_count) {
+                remain_list.paid_fee -= valid_count
+              }
+            }
+          }
+          else if (valid_count < shift_num) {
+            nest_app_card.remaining_array.push({
+              remainAmount: shift_num - valid_count,
+              appId: remain_list?.appId,
+              instituteId: remain_list?.institute,
+              installmentValue: "Installment Remain",
+              isEnable: true,
+              revert_status: "Government Fees (Pay By Student)",
+              set_off: valid_count
+            })
+            if (remain_list.paid_fee > valid_count) {
+              remain_list.paid_fee -= valid_count
+            }
+            nest_app_card.remaining_fee += shift_num - valid_count
+          }
+          else {
+          
+          }
+        }
+        else {
+          nest_app_card.remaining_array.push({
+            remainAmount: shift_num,
+            appId: remain_list?.appId,
+            instituteId: remain_list?.institute,
+            installmentValue: "Installment Remain",
+            isEnable: true,
+            revert_status: "Government Fees (Pay By Student)"
+          })
+          nest_app_card.remaining_fee += shift_num
+        }
       }
-      nest_app_card.remaining_fee += shift_num
-      await Promise.all([ nest_gov_card.save(), nest_app_card.save() ])
+      await Promise.all([ nest_gov_card.save(), nest_app_card.save(), remain_list.save() ])
     }
     res.status(200).send({ message: "Explore New Shifted Card Back To Applicable Fees Section", access: true})
   }

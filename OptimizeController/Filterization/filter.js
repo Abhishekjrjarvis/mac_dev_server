@@ -6319,6 +6319,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       res.status(200).send({
         message: "Sorted By Alphabetical Order",
         students: sortedA,
+        apply: apply?.reviewApplication,
         access: true,
       });
     } else if (sort_query === "Gender") {
@@ -6332,6 +6333,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       res.status(200).send({
         message: "Sorted By Gender Order",
         students: sortedG,
+        apply: apply?.reviewApplication,
         access: true,
       });
     } else if (sort_query === "Gender_Alpha") {
@@ -6345,6 +6347,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       res.status(200).send({
         message: "Sorted By Gender & Alpha Order",
         students: sortedGA,
+        apply: apply?.reviewApplication,
         access: true,
       });
     } else {

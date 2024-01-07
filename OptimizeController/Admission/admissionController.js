@@ -10922,9 +10922,9 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
                 fee_receipt: nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.fee_receipt,
                 cover_status: `${nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.cover_status} - Government Fees Set Off With the Excess Fees ${shift_num}`
               })
-              if (remain_list.paid_fee > valid_count) {
-                remain_list.paid_fee -= valid_count
-              }
+              // if (remain_list.paid_fee > valid_count) {
+              //   remain_list.paid_fee -= valid_count
+              // }
             }
           }
           else if (valid_count < shift_num) {
@@ -10937,9 +10937,9 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
               revert_status: "Government Fees (Pay By Student)",
               set_off: valid_count
             })
-            if (remain_list.paid_fee > valid_count) {
-              remain_list.paid_fee -= valid_count
-            }
+            // if (remain_list.paid_fee > valid_count) {
+            //   remain_list.paid_fee -= valid_count
+            // }
             nest_app_card.remaining_fee += shift_num - valid_count
           }
           else {

@@ -69,7 +69,7 @@ exports.initiate = async (req, res) => {
     let gatewayCharges = (parseInt(total_price) * charge?.num_trans_pecent) / 100;
     var valid_charge = gatewayCharges >= 100 ? charge?.num_trans_max : gatewayCharges;
     let gst = (+valid_charge * 18) / 100;
-    let data = parseInt(amount) + parseInt(valid_platform_charge) + parseInt(valid_charge) + +charge?.num_app_max + gst;
+    let data = +amount + +valid_platform_charge + +valid_charge + +charge?.num_app_max + gst;
     console.log("PC", platform_charge)
     console.log("OA", amount)
     console.log("TC", valid_charge)

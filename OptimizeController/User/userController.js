@@ -2375,6 +2375,11 @@ exports.retrieveUserOneApplicationQuery = async(req, res) => {
     const { uid, aid } = req.params;
     var user = await User.findById({ _id: uid })
 
+    var admission_application = []
+    var document_verification = []
+    var fees_payment = []
+    var admission_confirmation = []
+    var class_allotment = []
     var app_status = await Status.find({ $and: [{ _id: { $in: user?.applicationStatus}}, { applicationId: aid }]})
     .sort({ createdAt: -1})
     .populate({
@@ -2417,9 +2422,31 @@ exports.retrieveUserOneApplicationQuery = async(req, res) => {
           "studentFirstName studentMiddleName studentLastName valid_full_name studentStatus application_print",
       });
     // const appEncrypt = await encryptionPayload(user.applicationStatus);
+    for (var val of app_status) {
+      if (val?.group_by === "Admission_Application_Applied") {
+        admission_application.push(val)
+      }
+      if (val?.group_by === "Admission_Document_Verification") {
+        document_verification.push(val)
+      }
+      if (val?.group_by === "Admission_Fees_Payment") {
+        fees_payment.push(val)
+      }
+      if (val?.group_by === "Admission_Confirmation") {
+        admission_confirmation.push(val)
+      }
+      if (val?.group_by === "Admission_Class_Allotment") {
+        class_allotment.push(val)
+      }
+    }
     res.status(200).send({
       message: "user Application Status",
-      status: app_status,
+      // status: app_status,
+      admission_application: admission_application,
+      document_verification: document_verification,
+      fees_payment: fees_payment,
+      admission_confirmation: admission_confirmation,
+      class_allotment: class_allotment
     });
   } catch (e) {
     console.log(e);

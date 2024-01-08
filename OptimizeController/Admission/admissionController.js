@@ -10944,7 +10944,9 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
       if (nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length -  1]?.status === "Not Paid") {
         nest_app_card.remaining_array[nest_app_card?.remaining_array?.length -  1].component.app = nest_app_card.remaining_array[nest_app_card?.remaining_array?.length -  1].remainAmount
         nest_app_card.remaining_array[nest_app_card?.remaining_array?.length -  1].component.gov = shift_num
-        nest_app_card.remaining_array[nest_app_card?.remaining_array?.length -  1].remainAmount += shift_num
+        nest_app_card.remaining_array[nest_app_card?.remaining_array?.length - 1].remainAmount += shift_num
+        nest_app_card.applicable_fee += shift_num
+        nest_app_card.remaining_fee += shift_num
       }
       else {
         var valid_count = remain_list?.paid_fee > nest_app_card?.applicable_fee ? remain_list?.paid_fee - nest_app_card?.applicable_fee : 0

@@ -63,10 +63,13 @@ exports.initiate = async (req, res) => {
       payment_remain_fees,
       charge
     } = req.body;
-    let gatewayCharges = (parseInt(amount) * charge?.num_pecent) / 100;
-    var valid_charge = gatewayCharges >= 100 ? charge?.num_max : gatewayCharges;
+    let platform_charge = (parseInt(amount) * charge?.num_platform_percent) / 100;
+    var valid_platform_charge = platform_charge >= 100 ? charge?.num_platform_max : platform_charge;
+    let total_price = parseInt(amount) + parseInt(valid_platform_charge)
+    let gatewayCharges = (parseInt(total_price) * charge?.num_trans_pecent) / 100;
+    var valid_charge = gatewayCharges >= 100 ? charge?.num_trans_max : gatewayCharges;
     let gst = (+valid_charge * 18) / 100;
-    let data = parseInt(amount) + parseInt(valid_charge) + gst;
+    let data = parseInt(amount) + parseInt(valid_platform_charge) + parseInt(valid_charge) + +charge?.num_app_max + gst;
     // let gatewayCharges = (parseInt(amount) * 2.1) / 100;
     // let gst = (+gatewayCharges * 18) / 100;
     // let withGst = gatewayCharges + gst;

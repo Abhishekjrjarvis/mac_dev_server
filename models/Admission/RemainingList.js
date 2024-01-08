@@ -45,9 +45,7 @@ const remainingFeeListSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeStructure",
   },
-  remark: {
-    type: String,
-  },
+  remark: [],
   remaining_flow: {
     type: String,
     default: "Admission Application",

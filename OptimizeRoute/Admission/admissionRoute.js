@@ -652,4 +652,19 @@ router.patch(
   catchAsync(Admission.renderAllOutstandingQuery)
 );
 
+router.get(
+  "/one/institute/charges/:id/query",
+  catchAsync(Admission.renderInstituteChargesQuery)
+);
+
+router.patch(
+  "/:fid/all/fee/structures",
+  catchAsync(Admission.renderAllFeeStructureQuery)
+);
+
+router.patch(
+  "/:aid/all/student/query",
+  catchAsync(Admission.renderAllStudentQuery)
+);
+
 module.exports = router;

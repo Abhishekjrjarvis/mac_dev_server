@@ -90,6 +90,10 @@ const statusSchema = new mongoose.Schema({
   },
   payment_status: {
     type: String
+  },
+  classes: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Class"
   }
 });
 

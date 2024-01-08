@@ -658,6 +658,8 @@ router.patch(
   catchAsync(Admission.renderAllOutstandingQuery)
 );
 
+router.patch("/:fid/readmission/student/:sid/query", catchAsync(Admission.renderReAdmissionQuery))
+
 router.get(
   "/one/institute/charges/:id/query",
   catchAsync(Admission.renderInstituteChargesQuery)

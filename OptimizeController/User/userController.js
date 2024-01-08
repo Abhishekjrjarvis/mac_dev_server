@@ -2420,6 +2420,11 @@ exports.retrieveUserOneApplicationQuery = async(req, res) => {
         path: "student",
         select:
           "studentFirstName studentMiddleName studentLastName valid_full_name studentStatus application_print",
+      })
+      .populate({
+        path: "classes",
+        select:
+          "className classTitle",
       });
     // const appEncrypt = await encryptionPayload(user.applicationStatus);
     for (var val of app_status) {

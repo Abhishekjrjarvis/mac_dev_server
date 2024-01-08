@@ -2771,6 +2771,7 @@ exports.retrieveClassAllotQuery = async (req, res) => {
           notify.notifyCategory = "Approve Student";
           aStatus.content = `Welcome to ${depart.dName} ${classes.classTitle} Enjoy your Learning.`;
           aStatus.group_by = "Admission_Class_Allotment"
+          aStatus.classes = classes?._id
           aStatus.applicationId = apply._id;
           user.applicationStatus.push(aStatus._id);
           aStatus.instituteId = institute._id;
@@ -4701,7 +4702,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     var user = await User.findById({ _id: `${student?.user}` });
     var status = new Status({});
     var notify = new StudentNotification({});
-    var c_num = await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect")
+    var c_num = await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect", "")
     if(structure?.applicable_fees <= 0){
       apply.confirmedApplication.push({
         student: student._id,
@@ -8794,7 +8795,7 @@ exports.renderAddFeesCardStudentQuery = async (req, res) => {
         access: false,
       });
 
-    await render_new_fees_card(sid, appId, struct, "")
+    await render_new_fees_card(sid, appId, struct, "", "")
     res
       .status(200)
       .send({ message: "Explore New Remaining Fees Card Query", access: true });
@@ -11249,6 +11250,28 @@ exports.renderAllOutstandingQuery = async(req, res) => {
     }
   }
   catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderReAdmissionQuery = async (req, res) => {
+  try {
+    const { fid, sid } = req?.params
+    if (!fid && !sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const remain_card = await RemainingList.findOne({ $and: [{ fee_structure: fid }, { student: sid }] })
+    .populate({
+      path: "fee_structure"
+    })
+    .populate({
+      path: "applicable_card"
+    })
+      .populate({
+      path: "government_card"
+    })
+    res.status(200).send({ message: "Explore New One Re-Admission Fee Structure Query", access: true, remain_card: remain_card})
+  }
+  catch (e) {
     console.log(e)
   }
 }

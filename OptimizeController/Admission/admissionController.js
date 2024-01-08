@@ -4743,6 +4743,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.group_by = "Admission_Fees_Payment"
+    status.remaining_list = c_num?.card
     status.payment_status = "Not Paid"
     status.finance = institute?.financeDepart?.[0];
     status.feeStructure = structure?._id;

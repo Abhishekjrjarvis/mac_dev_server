@@ -2425,6 +2425,12 @@ exports.retrieveUserOneApplicationQuery = async(req, res) => {
         path: "classes",
         select:
           "className classTitle",
+      })
+      .populate({
+        path: "remaining_list",
+        populate: {
+          path: "applicable_card"
+        }
       });
     // const appEncrypt = await encryptionPayload(user.applicationStatus);
     for (var val of app_status) {

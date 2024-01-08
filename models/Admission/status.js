@@ -94,6 +94,10 @@ const statusSchema = new mongoose.Schema({
   classes: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Class"
+  },
+  remaining_list: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "RemainingList"
   }
 });
 

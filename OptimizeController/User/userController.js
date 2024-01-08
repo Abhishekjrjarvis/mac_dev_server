@@ -2429,7 +2429,7 @@ exports.retrieveUserOneApplicationQuery = async(req, res) => {
       .populate({
         path: "remaining_list",
         populate: {
-          path: "applicable_card"
+          path: "applicable_card fee_structure"
         }
       });
     // const appEncrypt = await encryptionPayload(user.applicationStatus);

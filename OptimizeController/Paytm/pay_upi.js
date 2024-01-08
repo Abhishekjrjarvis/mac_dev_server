@@ -63,6 +63,7 @@ exports.initiate = async (req, res) => {
       payment_remain_fees,
       charge
     } = req.body;
+    console.log(req?.body)
     let platform_charge = (parseInt(amount) * charge?.num_platform_percent) / 100;
     var valid_platform_charge = platform_charge >= 100 ? charge?.num_platform_max : platform_charge;
     let total_price = parseInt(amount) + parseInt(valid_platform_charge)

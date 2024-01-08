@@ -7,7 +7,7 @@ const FeesStructure = require("../models/Finance/FeesStructure");
 const InstituteAdmin = require("../models/InstituteAdmin");
 const Student = require("../models/Student");
 
-exports.render_new_fees_card = async (sid, appId, struct, flow) => {
+exports.render_new_fees_card = async (sid, appId, struct, flow, re_ads, classes) => {
     try {
       var student = await Student.findById({ _id: sid });
       var apply = await NewApplication.findById({ _id: appId });
@@ -24,11 +24,20 @@ exports.render_new_fees_card = async (sid, appId, struct, flow) => {
         institute: institute?._id,
       });
       new_remainFee.access_mode_card = "Installment_Wise";
-      new_remainFee.card_type = "Normal";
       new_remainFee.already_made = true;
       var structure_card = {
         fee_structure: structure,
       };
+      if (flow === "BATCH_PROMOTE") {
+        new_remainFee.card_type = "Promote";
+        new_remainFee.re_admission_flow =
+              `${re_ads}` === "WITH_RE_ADMISSION" ? true : false;
+        new_remainFee.re_admission_class =
+          `${re_ads}` === "WITH_RE_ADMISSION" ? classes?._id : null;
+      }
+      else {
+        new_remainFee.card_type = "Normal";
+      }
       if(structure?.applicable_fees >= 0){
         var nest_card = new NestedCard({
             applicable_fee: structure?.applicable_fees,

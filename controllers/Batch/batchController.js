@@ -31,6 +31,7 @@ const { add_all_installment_zero } = require("../../helper/Installment");
 const FeeCategory = require("../../models/Finance/FeesCategory");
 const Finance = require("../../models/Finance");
 const { universal_random_password } = require("../../Custom/universalId");
+const { render_new_fees_card } = require("../../Functions/FeesCard");
 
 exports.preformedStructure = async (req, res) => {
   try {
@@ -656,43 +657,14 @@ exports.promoteStudent = async (req, res) => {
           student.form_status = "Not Filled";
           // student.fee_receipt = [];
           if (!same_batch_promotion) {
-            var new_remainFee = new RemainingList({
-              appId: apply?._id,
-              applicable_fee: structure[numIndex]?.total_admission_fees,
-              institute: institute?._id,
-            });
-            new_remainFee.access_mode_card = "Installment_Wise";
-            new_remainFee.card_type = "Promote";
-            new_remainFee.already_made = true;
-            var structure_card = {
-              fee_structure: structure[numIndex],
-            };
-            await add_all_installment_zero(
-              apply,
-              institute._id,
-              new_remainFee,
-              structure[numIndex]?.total_admission_fees,
-              structure_card
-            );
-            new_remainFee.fee_structure = structure[numIndex]?._id;
-            new_remainFee.re_admission_flow =
-              `${re_ads}` === "WITH_RE_ADMISSION" ? true : false;
-            new_remainFee.remaining_fee += structure[numIndex]?.total_admission_fees;
-            student.remainingFeeList.push(new_remainFee?._id);
-            new_remainFee.re_admission_class =
-              `${re_ads}` === "WITH_RE_ADMISSION" ? classes?._id : null;
-            student.remainingFeeList_count += 1;
-            new_remainFee.student = student?._id;
-            admission.remainingFee.push(student._id);
-            student.admissionRemainFeeCount +=
-              structure[numIndex]?.total_admission_fees;
-            apply.remainingFee += structure[numIndex]?.total_admission_fees;
-            admission.remainingFeeCount += structure[numIndex]?.total_admission_fees;
-            await Promise.all([
-              new_remainFee.save(),
-              admission.save(),
-              apply.save(),
-            ]);
+            await render_new_fees_card(
+              student?._id,
+              apply?._id,
+              structure[numIndex]?._id,
+              "BATCH_PROMOTE",
+              re_ads,
+              classes
+            )
           }
           roll += 1;
           if (`${re_ads}` === "WITH_RE_ADMISSION") {

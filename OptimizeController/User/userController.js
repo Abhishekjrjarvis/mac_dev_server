@@ -2419,7 +2419,7 @@ exports.retrieveUserOneApplicationQuery = async(req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentLastName valid_full_name studentStatus application_print",
+          "studentFirstName studentMiddleName studentLastName valid_full_name studentStatus application_print online_amount_edit_access",
       })
       .populate({
         path: "classes",

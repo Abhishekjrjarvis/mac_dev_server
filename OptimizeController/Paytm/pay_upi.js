@@ -70,6 +70,12 @@ exports.initiate = async (req, res) => {
     var valid_charge = gatewayCharges >= 100 ? charge?.num_trans_max : gatewayCharges;
     let gst = (+valid_charge * 18) / 100;
     let data = parseInt(amount) + parseInt(valid_platform_charge) + parseInt(valid_charge) + +charge?.num_app_max + gst;
+    console.log("PC", platform_charge)
+    console.log("OA", amount)
+    console.log("TC", valid_charge)
+    console.log("AC", +charge?.num_app_max)
+    console.log("GST", gst)
+    console.log("CEIL", data, Math.ceil(data))
     // let gatewayCharges = (parseInt(amount) * 2.1) / 100;
     // let gst = (+gatewayCharges * 18) / 100;
     // let withGst = gatewayCharges + gst;

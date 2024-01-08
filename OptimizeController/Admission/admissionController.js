@@ -1382,6 +1382,93 @@ exports.fetchAllReviewApplication = async (req, res) => {
   }
 };
 
+exports.fetchAllReviewApplicationPayload = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (search) {
+      var apply = await NewApplication.findById({ _id: aid })
+        .select("review_count")
+        .populate({
+          path: "reviewApplication",
+          match: {
+            $or: [
+              {
+                studentFirstName: { $regex: `${search}`, $options: "i" },
+              },
+              {
+                studentMiddleName: { $regex: `${search}`, $options: "i" },
+              },
+              {
+                studentLastName: { $regex: `${search}`, $options: "i" },
+              },
+              {
+                valid_full_name: { $regex: `${search}`, $options: "i" },
+              }
+            ]
+          },
+          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute",
+          populate: {
+            path: "fee_structure hostel_fee_structure",
+            select:
+              "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+            populate: {
+              path: "category_master",
+              select: "category_name",
+            },
+          }
+      })
+      if (apply?.reviewApplication?.length > 0) {
+        // const confirmEncrypt = await encryptionPayload(apply);
+        res.status(200).send({
+          message:
+            "Lots of Reviewing and class allot required make sure you come up with Tea and Snack from DB 🙌",
+          review: apply?.reviewApplication,
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          review: [],
+        });
+      }
+    } else {
+      var apply = await NewApplication.findById({ _id: aid })
+        .select("review_count")
+        .populate({
+          path: "reviewApplication",
+          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute",
+          populate: {
+            path: "fee_structure hostel_fee_structure",
+            select:
+              "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+            populate: {
+              path: "category_master",
+              select: "category_name",
+            },
+          }
+        })
+      if (all_student?.length > 0) {
+        // const confirmEncrypt = await encryptionPayload(apply);
+        res.status(200).send({
+          message:
+            "Lots of Reviewing OPT and class allot required make sure you come up with Tea and Snack from DB 🙌",
+          review: all_student,
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          review: [],
+        });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.fetchAllAllotApplication = async (req, res) => {
   try {
     const { aid } = req.params;

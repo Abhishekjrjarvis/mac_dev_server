@@ -114,6 +114,12 @@ router.get(
   catchAsync(Admission.fetchAllReviewApplication)
 );
 
+router.get(
+  "/:aid/review/application/all/payload",
+  // isLoggedIn,
+  catchAsync(Admission.fetchAllReviewApplicationPayload)
+);
+
 // All Allotted Application
 router.get(
   "/:aid/allotted/application",

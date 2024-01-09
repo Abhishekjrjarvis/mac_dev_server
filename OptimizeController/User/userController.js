@@ -2425,6 +2425,10 @@ exports.retrieveUserOneApplicationQuery = async(req, res) => {
         path: "classes",
         select:
           "className classTitle",
+        populate: {
+          path: "department",
+          select: "dName"
+        }
       })
       .populate({
         path: "remaining_list",

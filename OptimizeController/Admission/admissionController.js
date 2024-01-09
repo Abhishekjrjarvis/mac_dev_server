@@ -11214,7 +11214,11 @@ exports.renderReAdmissionQuery = async (req, res) => {
     
     const remain_card = await RemainingList.findOne({ $and: [{ fee_structure: fid }, { student: sid }] })
     .populate({
-      path: "fee_structure"
+      path: "fee_structure",
+      populate: {
+        path: "category_master",
+        select: "category_name"
+      }
     })
     .populate({
       path: "applicable_card"

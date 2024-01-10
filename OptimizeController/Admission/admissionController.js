@@ -8400,10 +8400,7 @@ const auto_scholar_query = async (
       nest_card.remaining_fee -= price
     }
     else{
-      // if(nest_card?.remaining_fee > 0){
-        nest_card.remaining_fee = price - nest_card?.remaining_fee
-        nest_card.excess_fee += price - nest_card?.remaining_fee
-      // }
+      nest_card.remaining_fee = 0
     }
     if(student.admissionRemainFeeCount >= price){
       student.admissionRemainFeeCount -= price
@@ -11248,6 +11245,73 @@ exports.renderInstituteChargesQuery = async (req, res) => {
   }
 }
 
+exports.government_card_removal_query = async (req, res) => {
+  try {
+    // const { aid } = req?.params
+    // if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
+    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine} }, { total_installments: "1" }] }) 
+    // var nums = ["6480b66abff5c20199216d26"]
+    // var all_remain = await RemainingList.find({ _id: { $in: nums } })
+    // .populate({
+    //   path: "fee_structure"
+    // })
+
+    var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct }})
+    .populate({
+      path: "fee_structure"
+    })
+    
+    var i = 0
+    for (var val of all_remain) {
+      if(val?.applicable_card){
+        var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
+          .populate({
+            path: "remaining_array",
+            populate: {
+              path: "fee_receipt"
+            }
+        })
+        for (var ele of n_app?.remaining_array) {
+          // if (ele?.fee_receipt?.fee_payment_mode === "Government/Scholarship" && ele?.installmentValue === "One Time Fees") {
+          //   if (n_app?.paid_fee >= ele?.remainAmount) {
+          //     n_app.paid_fee -= ele?.remainAmount
+          //   }
+          //   if (val?.paid_fee >= ele?.remainAmount) {
+          //     val.paid_fee -= ele?.remainAmount
+          //   }
+          //   n_app.remaining_array.pull(ele?._id)
+          // }
+          if (ele?.installmentValue === "One Time Fees Remain" && ele?.status === "Not Paid") {
+            if (n_app?.paid_fee == n_app?.applicable_fee) {
+              
+            }
+            n_app.remaining_array.pull(ele?._id)
+            if (n_app?.remaining_fee >= ele?.remainAmount) {
+              n_app.remaining_fee -= ele?.remainAmount
+            }
+            if (val?.remaining_fee >= ele?.remainAmount) {
+              val.remaining_fee -= ele?.remainAmount
+            }
+          }
+        }
+        if (val?.remaining_fee <= 0) {
+          val.status = "Paid"
+        }
+        await n_app.save()
+      }
+      await val.save()
+      console.log(i)
+      i += 1
+    }
+    res.status(200).send({ message: "Explore All Student Nested Government Remaining Card + Installment Modify + Clear", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+
 exports.renderAllFeeStructureListQuery = async (req, res) => {
   try {
     const { fid } = req?.params
@@ -11280,22 +11344,16 @@ exports.renderAllFeeStructureListQuery = async (req, res) => {
 exports.renderAllStudentQuery = async (req, res) => {
   try {
     const { aid } = req?.params
-    const { fee_arr } = req?.body
+    // const { fee_arr } = req?.body
     if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     // 648144d2bff5c2019924603f, 64814215bff5c20199240782
-    var all_struct = await FeeStructure.find({ $and: [{ finance: "644a09d6d1679fcd6e76e5ef" }, { total_installments: "1" }, { document_update: true}] })
-    
-    var nums = []
-    // const exist_app = await NewApplication.findById({ _id: aid })
-    for (var val of all_struct) {
-      nums.push(val?._id)
-    }
-
-    // var all_remain = await RemainingList.find({ fee_structure: { $in: nums } })
-    //   .populate({
-    //   path: "fee_structure"
-    //   })
-      var all_remain = await RemainingList.find({ fee_structure: { $in: nums }})
+    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
+    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine} }, { total_installments: "1" }] }) 
+    // var nums = []
+    // for (var val of all_struct) {
+    //   nums.push(val?._id)
+    // }
+      var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct }})
       .populate({
       path: "fee_structure"
     })
@@ -11307,35 +11365,96 @@ exports.renderAllStudentQuery = async (req, res) => {
       // var n_gov = await NestedCard.findById({ _id: `${val?.government_card}` })
         if (val?.fee_structure?.total_installments === "1") {
           for (var ele of n_app.remaining_array) {
-            if (`${ele?.installmentValue}` === "First Installment" && ele?.remainAmount < val?.fee_structure?.one_installments?.fees) {
-              n_app.remaining_array.push({
-                remainAmount: val?.fee_structure?.one_installments?.fees - ele?.remainAmount,
-                isEnable: true,
-                instituteId: val?.institute,
-                appId: val?.appId,
-                installmentValue: "Installment Remain"
-              })
+            if (ele?.status === "Paid") {
+              
             }
-            if (`${ele?.installmentValue}` === "Second Installment") {
-              n_app.remaining_array.pull(ele?._id)
-              if (n_app?.remaining_fee >= ele?.remainAmount) {
-                n_app.remaining_fee -= ele?.remainAmount
+            else {
+              // if (`${ele?.installmentValue}` === "First Installment") {
+              //   n_app.remaining_array.push({
+              //     remainAmount: val?.fee_structure?.one_installments?.fees - ele?.remainAmount,
+              //     isEnable: true,
+              //     instituteId: val?.institute,
+              //     appId: val?.appId,
+              //     installmentValue: "Installment Remain"
+              //   })
+              // }
+              if (n_app?.paid_fee == n_app?.applicable_fee) {
+                if (`${ele?.installmentValue}` === "Second Installment") {
+                  n_app.remaining_array.pull(ele?._id)
+                  if (n_app?.remaining_fee >= ele?.remainAmount) {
+                    n_app.remaining_fee -= ele?.remainAmount
+                  }
+                  if (val?.remaining_fee >= ele?.remainAmount) {
+                    val.remaining_fee -= ele?.remainAmount
+                  }
+                  if (val?.remaining_fee <= 0) {
+                    val.status = "Paid"
+                  }
+                  else {
+                    val.status = "Not Paid"
+                  }
+                }
+                if (`${ele?.installmentValue}` === "Installment Remain") {
+                  n_app.remaining_array.pull(ele?._id)
+                  if (n_app?.remaining_fee >= ele?.remainAmount) {
+                    n_app.remaining_fee -= ele?.remainAmount
+                  }
+                  if (val?.remaining_fee >= ele?.remainAmount) {
+                    val.remaining_fee -= ele?.remainAmount
+                  }
+                  if (val?.remaining_fee <= 0) {
+                    val.status = "Paid"
+                  }
+                  else {
+                    // val.status = "Not Paid"
+                  }
+                }
               }
-              if (val?.remaining_fee >= ele?.remainAmount) {
-                val.remaining_fee -= ele?.remainAmount
+              else if (n_app?.paid_fee >= n_app?.applicable_fee) {
+                if (`${ele?.installmentValue}` === "Second Installment") {
+                  n_app.remaining_array.pull(ele?._id)
+                  if (n_app?.remaining_fee >= ele?.remainAmount) {
+                    n_app.remaining_fee -= ele?.remainAmount
+                  }
+                  if (val?.remaining_fee >= ele?.remainAmount) {
+                    val.remaining_fee -= ele?.remainAmount
+                  }
+                  if (val?.remaining_fee <= 0) {
+                    val.status = "Paid"
+                  }
+                  else {
+                    // val.status = "Not Paid"
+                  }
+                }
+                if (`${ele?.installmentValue}` === "Installment Remain") {
+                  n_app.remaining_array.pull(ele?._id)
+                  if (n_app?.remaining_fee >= ele?.remainAmount) {
+                    n_app.remaining_fee -= ele?.remainAmount
+                  }
+                  if (val?.remaining_fee >= ele?.remainAmount) {
+                    val.remaining_fee -= ele?.remainAmount
+                  }
+                  if (val?.remaining_fee <= 0) {
+                    val.status = "Paid"
+                  }
+                  else {
+                    // val.status = "Not Paid"
+                  }
+                }
               }
-              if (val?.remaining_fee >= 0) {
-                val.status = "Paid"
+              else if (n_app?.paid_fee <= n_app?.applicable_fee) {
+
               }
             }
           }
         }
+        await n_app.save()
       }
-      await Promise.all([n_app.save(), val.save()])
+      await val.save()
       console.log(i)
       i += 1
     }
-    res.status(200).send({ message: "Explore All Student Remaining Card Clear", access: true})
+    res.status(200).send({ message: "Explore All Student Nested Remaining Card Modify + Clear", access: true})
   }
   catch (e) {
     console.log(e)
@@ -11381,6 +11500,58 @@ exports.renderAllStudentStatusQuery = async (req, res) => {
       i += 1
     }
     res.status(200).send({ message: "Explore Student Admission Amount Status Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderAllStudentQueryNestedRemove = async (req, res) => {
+  try {
+    // const { aid } = req?.params
+    // if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    // var ins = ["64b63a46c1b160cdcedbb85d", "6449c83598fec071fbffd3ad"]
+    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
+    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }}, { total_installments: "1" }]})
+    var nums = []
+    var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
+
+    var i = 0
+    for (var val of all_remain) {
+      if(val?.applicable_card){
+        // var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
+        // if (n_app?.remaining_array?.length > 0) {
+          
+        // }
+        // else {
+        //   n_app.remaining_fee = val?.paid_fee >= val?.applicable_fee ? val?.paid_fee - val?.applicable_fee : val?.applicable_fee - val?.paid_fee;
+        //   for (var ele of val?.remaining_array) {
+        //     n_app.remaining_array.push(ele)
+        //   }
+        //   await n_app.save()
+        // }
+      }
+      else {
+        // var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
+        // if (n_app?.remaining_array?.length > 0) {
+          
+        // }
+        // else {
+          await render_new_fees_card_install(val?.fee_structure, val)
+          // n_app.remaining_fee = val?.paid_fee >= val?.applicable_fee ? val?.paid_fee - val?.applicable_fee : val?.applicable_fee - val?.paid_fee;
+          // for (var ele of val?.remaining_array) {
+          //   n_app.remaining_array.push(ele)
+          // }
+          // await n_app.save()
+        // }
+        nums.push(val)
+        console.log(i)
+      i += 1
+      }
+      // await Promise.all([n_app.save(), val.save()])
+      
+    }
+    res.status(200).send({ message: "Explore All Student Nested Remaining Card Clear", access: true, nums, count: nums?.length})
   }
   catch (e) {
     console.log(e)

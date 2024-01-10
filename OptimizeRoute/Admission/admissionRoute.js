@@ -675,6 +675,18 @@ router.patch(
   catchAsync(Admission.renderAllStudentQuery)
 );
 
+router.patch(
+  "/all/student/query/list",
+  catchAsync(Admission.renderAllStudentQueryNestedRemove)
+);
+
+router.patch(
+  "/all/government/card/query",
+  catchAsync(Admission.government_card_removal_query)
+);
+
+
+
 
 // For Moving Outer Array To Inner Nested Card Array
 

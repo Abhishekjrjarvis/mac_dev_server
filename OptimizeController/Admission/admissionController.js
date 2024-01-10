@@ -8602,7 +8602,7 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, id) => {
             valid_remain?.appId,
             ref?.Amount,
             "Offline",
-            valid_type,
+            "First Installment",
             valid_remain?._id,
             "Government/Scholarship",
             ref?.Date,

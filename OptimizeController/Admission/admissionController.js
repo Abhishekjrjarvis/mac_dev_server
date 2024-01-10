@@ -8615,6 +8615,7 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, id) => {
       }
       await mismatch_scholar_transaction_json_to_excel_query(num_arr, "Mismatch", id)
     } else {
+      console.log("Bug In Excel")
     }
   } catch (e) {
     console.log(e);

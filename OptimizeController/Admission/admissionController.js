@@ -98,7 +98,7 @@ const { universal_random_password } = require("../../Custom/universalId");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { mismatch_scholar_transaction_json_to_excel_query } = require("../../Custom/JSONToExcel");
 const NestedCard = require("../../models/Admission/NestedCard");
-const { render_new_fees_card } = require("../../Functions/FeesCard");
+const { render_new_fees_card, render_new_fees_card_install } = require("../../Functions/FeesCard");
 const Charges = require("../../models/SuperAdmin/Charges");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
@@ -11248,18 +11248,23 @@ exports.renderInstituteChargesQuery = async (req, res) => {
   }
 }
 
-exports.renderAllFeeStructureQuery = async (req, res) => {
+exports.renderAllFeeStructureListQuery = async (req, res) => {
   try {
     const { fid } = req?.params
     if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    const all_struct = await FeeStructure.find({ $and: [{ finance: fid }, { total_installments: "2" }, {document_update: true}] })
-    
-    for (var val of all_struct) {
-      val.total_installments = "1"
-      val.two_installments.fees = 0
-      await val.save()
-    }
+    // const all_struct = await FeeStructure.findById({ _id: "6480700bbff5c201991d438f"})
+    //   all_struct.total_installments = "1"
+    //   all_struct.two_installments.fees = 0
+    //   await all_struct.save()
+
+    const all_struct = await FeeStructure.find({ $and: [{ finance: fid }, { total_installments: "1" }, { document_update: true}] })
+    .select("structure_name unique_structure_name total_installments")
+    // for (var val of all_struct) {
+    //   val.total_installments = "1"
+    //   val.two_installments.fees = 0
+    //   await val.save()
+    // }
     if (all_struct?.length > 0) {
       res.status(200).send({ message: "Explore All Fee Structures greater than 2 or equal ", access: true, all_struct: all_struct, count: all_struct?.length})
     }
@@ -11275,41 +11280,129 @@ exports.renderAllFeeStructureQuery = async (req, res) => {
 exports.renderAllStudentQuery = async (req, res) => {
   try {
     const { aid } = req?.params
+    const { fee_arr } = req?.body
     if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    // 648144d2bff5c2019924603f, 64814215bff5c20199240782
+    var all_struct = await FeeStructure.find({ $and: [{ finance: "644a09d6d1679fcd6e76e5ef" }, { total_installments: "1" }, { document_update: true}] })
     
     var nums = []
-    const exist_app = await NewApplication.findById({ _id: aid })
-    for (var val of exist_app?.allottedApplication) {
-      nums.push(val?.student)
+    // const exist_app = await NewApplication.findById({ _id: aid })
+    for (var val of all_struct) {
+      nums.push(val?._id)
     }
 
-    var all_remain = await RemainingList.find({ student: { $in: nums } })
+    // var all_remain = await RemainingList.find({ fee_structure: { $in: nums } })
+    //   .populate({
+    //   path: "fee_structure"
+    //   })
+      var all_remain = await RemainingList.find({ fee_structure: { $in: nums }})
       .populate({
       path: "fee_structure"
     })
     
+    var i = 0
     for (var val of all_remain) {
+      if(val?.applicable_card){
       var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
-      var n_gov = await NestedCard.findById({ _id: `${val?.government_card}` })
-      if (val?.fee_structure?.total_installments === "1") {
-        for (var ele of n_app.remaining_array) {
-          if (`${ele?.installmentValue}` === "First Installment" && ele?.remainAmount < val?.fee_structure?.one_installments?.fees) {
-            n_app.remaining_array.push({
-              remainAmount: val?.fee_structure?.one_installments?.fees - ele?.remainAmount,
-              isEnable: true,
-              instituteId: val?.institute,
-              appId: val?.appId,
-              installmentValue: "Installment Remain"
-            })
-          }
-          if (`${ele?.installmentValue}` === "Second Installment") {
-            n_app.remaining_array.pull(ele?._id)
+      // var n_gov = await NestedCard.findById({ _id: `${val?.government_card}` })
+        if (val?.fee_structure?.total_installments === "1") {
+          for (var ele of n_app.remaining_array) {
+            if (`${ele?.installmentValue}` === "First Installment" && ele?.remainAmount < val?.fee_structure?.one_installments?.fees) {
+              n_app.remaining_array.push({
+                remainAmount: val?.fee_structure?.one_installments?.fees - ele?.remainAmount,
+                isEnable: true,
+                instituteId: val?.institute,
+                appId: val?.appId,
+                installmentValue: "Installment Remain"
+              })
+            }
+            if (`${ele?.installmentValue}` === "Second Installment") {
+              n_app.remaining_array.pull(ele?._id)
+              if (n_app?.remaining_fee >= ele?.remainAmount) {
+                n_app.remaining_fee -= ele?.remainAmount
+              }
+              if (val?.remaining_fee >= ele?.remainAmount) {
+                val.remaining_fee -= ele?.remainAmount
+              }
+              if (val?.remaining_fee >= 0) {
+                val.status = "Paid"
+              }
+            }
           }
         }
       }
-      await Promise.all([ n_app.save(), n_gov.save(), val.save()])
+      await Promise.all([n_app.save(), val.save()])
+      console.log(i)
+      i += 1
     }
     res.status(200).send({ message: "Explore All Student Remaining Card Clear", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderTransferAllCardQuery = async (req, res) => {
+  try {
+    var ins = ["64b63a46c1b160cdcedbb85d", "6449c83598fec071fbffd3ad"]
+    const all_remain = await RemainingList.find({ institute: { $in: ins } })
+    var i = 0 
+    for (var val of all_remain) {
+        // await render_new_fees_card_install(val?.fee_structure, val)
+        await val.save()
+        console.log(i)
+        i += 1
+    }
+    res.status(200).send({ message: "Explore One Fees Card Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderAllStudentStatusQuery = async (req, res) => {
+  try {
+    var ins = ["64b63a46c1b160cdcedbb85d", "6449c83598fec071fbffd3ad"]
+    const all_student = await Student.find({ institute: { $in: ins }})
+
+    var i = 0 
+    for (var val of all_student) {
+      val.admission_amount_stats.total_fees = 0
+        val.admission_amount_stats.total_paid_fees = 0 
+        val.admission_amount_stats.total_os_fees = 0 
+        val.admission_amount_stats.total_app_fees = 0 
+        val.admission_amount_stats.total_app_paid_fees = 0 
+        val.admission_amount_stats.total_app_os_fees = 0 
+        val.admission_amount_stats.total_gov_fees = 0
+        val.admission_amount_stats.total_gov_paid_fees = 0
+      val.admission_amount_stats.total_gov_os_fees = 0
+      await val.save()
+      console.log(i)
+      i += 1
+    }
+    res.status(200).send({ message: "Explore Student Admission Amount Status Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderChargesCardQuery = async (req, res) => {
+  try {
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}`})
+    const all_ins = await InstituteAdmin.find({ status: "Approved" })
+    
+    for (var val of all_ins) {
+      const new_charge = new Charges({})
+      new_charge.institute = val?._id
+      new_charge.admin = admin?._id
+      admin.charges.push(new_charge?._id)
+      val.charges = new_charge?._id
+      admin.charges_count += 1
+      await Promise.all([ val.save(), new_charge.save()])
+    }
+    await admin.save()
+    res.status(200).send({ message: "Put Institute Charges In Queue", access: true})
   }
   catch (e) {
     console.log(e)

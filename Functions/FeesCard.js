@@ -101,4 +101,47 @@ exports.render_new_fees_card = async (sid, appId, struct, flow, re_ads, classes)
     } catch (e) {
       console.log(e);
     }
-  };
+};
+  
+
+exports.render_new_fees_card_install = async (struct, new_remainFee) => {
+  try {
+    var structure = await FeesStructure.findById({ _id: struct });
+    if(structure?.applicable_fees >= 0){
+      var nest_card = new NestedCard({
+          applicable_fee: structure?.applicable_fees,
+      })
+      nest_card.access_mode_card = "Installment_Wise";
+      nest_card.parent_card = new_remainFee?._id
+      new_remainFee.applicable_card = nest_card?._id
+      nest_card.paid_fee = new_remainFee?.paid_fee
+      nest_card.remaining_fee = new_remainFee?.paid_fee >= new_remainFee?.applicable_fee ? new_remainFee?.paid_fee - new_remainFee?.applicable_fee : new_remainFee?.applicable_fee - new_remainFee?.paid_fee;
+      for (var ele of new_remainFee?.remaining_array) {
+        nest_card.remaining_array.push(ele) 
+      }
+      await nest_card.save()
+    }
+    if((structure?.total_admission_fees - structure?.applicable_fees) >= 0){
+      var nest_card_gov = new NestedCard({
+          applicable_fee: structure?.total_admission_fees - structure?.applicable_fees,
+      })
+      nest_card_gov.access_mode_card = "Installment_Wise";
+      nest_card_gov.parent_card = new_remainFee?._id
+      new_remainFee.government_card = nest_card_gov?._id
+      nest_card_gov.remaining_fee = structure?.total_admission_fees - structure?.applicable_fees;
+      if((structure?.total_admission_fees - structure?.applicable_fees) > 0){
+          nest_card_gov.remaining_array.push({
+          remainAmount: structure?.total_admission_fees - structure?.applicable_fees,
+          appId: new_remainFee?.appId,
+          instituteId: new_remainFee?.institute,
+          installmentValue: "First Installment",
+          isEnable: true,
+          });
+      }
+      await nest_card_gov.save()
+    }
+    await new_remainFee.save()
+  } catch (e) {
+    console.log(e);
+  }
+};

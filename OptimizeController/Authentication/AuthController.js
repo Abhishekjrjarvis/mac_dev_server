@@ -1268,7 +1268,7 @@ module.exports.authentication = async (req, res) => {
               code_arr: code_arr,
               _id: user?._id,
               userPhoneNumber: user?.userPhoneNumber,
-              userEmail: user?.Email
+              userEmail: user?.userEmail
             }
             const admin_encrypt = {
               token: `Bearer ${token}`,
@@ -1305,7 +1305,7 @@ module.exports.authentication = async (req, res) => {
               code_arr: code_arr,
               _id: user?._id,
               userPhoneNumber: user?.userPhoneNumber,
-              userEmail: user?.Email
+              userEmail: user?.userEmail
             }
             const admin_encrypt = {
               token: `Bearer ${token}`,

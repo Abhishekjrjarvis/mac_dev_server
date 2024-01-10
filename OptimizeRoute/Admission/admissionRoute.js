@@ -667,12 +667,34 @@ router.get(
 
 router.patch(
   "/:fid/all/fee/structures",
-  catchAsync(Admission.renderAllFeeStructureQuery)
+  catchAsync(Admission.renderAllFeeStructureListQuery)
 );
 
 router.patch(
   "/:aid/all/student/query",
   catchAsync(Admission.renderAllStudentQuery)
+);
+
+
+// For Moving Outer Array To Inner Nested Card Array
+
+router.patch(
+  "/all/card/query",
+  catchAsync(Admission.renderTransferAllCardQuery)
+);
+
+// Student Admissio Amount Status API
+
+router.patch(
+  "/all/student/status/query",
+  catchAsync(Admission.renderAllStudentStatusQuery)
+);
+
+// Remove Government Card API
+
+router.patch(
+  "/charges/add/all/query",
+  catchAsync(Admission.renderChargesCardQuery)
 );
 
 module.exports = router;

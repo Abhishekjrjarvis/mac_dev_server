@@ -8385,7 +8385,7 @@ const auto_scholar_query = async (
     order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
-    if (req?.body?.fee_payment_mode === "Government/Scholarship") {
+    if (new_receipt?.fee_payment_mode === "Government/Scholarship") {
       remaining_fee_lists.paid_fee += price;
       if (remaining_fee_lists.remaining_fee >= price) {
         remaining_fee_lists.remaining_fee -= price;
@@ -8456,7 +8456,7 @@ const auto_scholar_query = async (
       finance.financeTotalBalance -= price + extra_price;
     }
     await lookup_applicable_grant(
-      fee_payment_mode,
+      new_receipt?.fee_payment_mode,
       price,
       remaining_fee_lists,
       new_receipt

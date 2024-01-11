@@ -6691,7 +6691,10 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       remaining_fee_lists.active_payment_type = `${type}`;
       nest_card.active_payment_type = `${type}`;
       nest_card.paid_fee += price;
-      if(nest_card?.remaining_fee >= price){
+      if (nest_card?.remaining_fee >= price) {
+        if(remaining_fee_lists?.remaining_fee >= price){
+          remaining_fee_lists.remaining_fee -= price
+        }
         nest_card.remaining_fee -= price
       }
       else {
@@ -8401,7 +8404,10 @@ const auto_scholar_query = async (
     remaining_fee_lists.active_payment_type = `${type}`;
     nest_card.active_payment_type = `${type}`;
     nest_card.paid_fee += price;
-    if(nest_card?.remaining_fee >= price){
+    if (nest_card?.remaining_fee >= price) {
+      if(remaining_fee_lists?.remaining_fee >= price){
+        remaining_fee_lists.remaining_fee -= price
+      }
       nest_card.remaining_fee -= price
     }
     else {

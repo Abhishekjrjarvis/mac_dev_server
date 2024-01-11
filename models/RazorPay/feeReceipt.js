@@ -158,6 +158,9 @@ const feeReceiptSchema = new mongoose.Schema({
   },
   scholarship_status: {
     type: String,
+  },
+  txn_id: {
+    type: String
   }
 });
 

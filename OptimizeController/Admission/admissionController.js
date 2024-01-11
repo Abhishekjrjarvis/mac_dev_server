@@ -8269,7 +8269,8 @@ const auto_scholar_query = async (
   rcid,
   fee_payment_mode,
   date_query,
-  remark_query
+  remark_query,
+  txn_id
 ) => {
   try {
     // const { sid, appId } = req.params;
@@ -8317,47 +8318,48 @@ const auto_scholar_query = async (
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findById({ _id: rcid });
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
-    remaining_fee_lists.remark = `${remaining_fee_lists.remark} ${remark_query}`
+    remaining_fee_lists.remark = remaining_fee_lists?.remark ? `${remaining_fee_lists.remark} ${remark_query}` : `${remark_query}`
+    new_receipt.txn_id = txn_id
     if (fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
       finance.scholarship_candidates.push(new_receipt?._id);
       finance.scholarship_candidates_count += 1;
       finance.government_receipt_count += 1;
-      if (price >= remaining_fee_lists?.remaining_fee) {
-        extra_price += price - remaining_fee_lists?.remaining_fee;
-        price = remaining_fee_lists?.remaining_fee;
-        remaining_fee_lists.paid_fee += extra_price;
-        student.admissionPaidFeeCount += extra_price;
-        for (var stu of student.paidFeeList) {
-          if (`${stu.appId}` === `${apply._id}`) {
-            stu.paidAmount += extra_price;
-          }
-        }
-        await remain_one_time_query_government(
-          admin_ins,
-          remaining_fee_lists,
-          apply,
-          institute,
-          student,
-          price + extra_price,
-          new_receipt
-        );
-      } else {
-        if (type === "One Time Fees Remain") {
-        } else {
-          await remain_government_installment(
-            admin_ins,
-            remaining_fee_lists,
-            apply,
-            institute,
-            student,
-            price,
-            new_receipt,
-            type
-          );
-        }
-      }
+      // if (price >= remaining_fee_lists?.remaining_fee) {
+      //   extra_price += price - remaining_fee_lists?.remaining_fee;
+      //   price = remaining_fee_lists?.remaining_fee;
+      //   remaining_fee_lists.paid_fee += extra_price;
+      //   student.admissionPaidFeeCount += extra_price;
+      //   for (var stu of student.paidFeeList) {
+      //     if (`${stu.appId}` === `${apply._id}`) {
+      //       stu.paidAmount += extra_price;
+      //     }
+      //   }
+      //   await remain_one_time_query_government(
+      //     admin_ins,
+      //     remaining_fee_lists,
+      //     apply,
+      //     institute,
+      //     student,
+      //     price + extra_price,
+      //     new_receipt
+      //   );
+      // } else {
+      //   if (type === "One Time Fees Remain") {
+      //   } else {
+      //     await remain_government_installment(
+      //       admin_ins,
+      //       remaining_fee_lists,
+      //       apply,
+      //       institute,
+      //       student,
+      //       price,
+      //       new_receipt,
+      //       type
+      //     );
+      //   }
+      // }
     }
     var order = new OrderPayment({});
     order.payment_module_type = "Admission Fees";
@@ -8384,9 +8386,9 @@ const auto_scholar_query = async (
     institute.payment_history.push(order._id);
     if (new_receipt?.fee_payment_mode === "Government/Scholarship") {
       remaining_fee_lists.paid_fee += price;
-      if (remaining_fee_lists.remaining_fee >= price) {
-        remaining_fee_lists.remaining_fee -= price;
-      }
+      // if (remaining_fee_lists.remaining_fee >= price) {
+      //   remaining_fee_lists.remaining_fee -= price;
+      // }
     }
   if (remaining_fee_lists?.government_card) {
     const nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.government_card}`})
@@ -8410,17 +8412,6 @@ const auto_scholar_query = async (
     }
       await nest_card.save()
     console.log("Enter")
-    // console.log("Type", type,
-    //   "Student", student,
-    //   "Mode", mode,
-    //   "Price", price,
-    //   "Admission", admin_ins,
-    //   "Fee Structure", student?.fee_structure,
-    //   "Remaining List", remaining_fee_lists,
-    //   "New Receipt", new_receipt,
-    //   "Apply", apply,
-    //   "Institute", institute,
-    //   "Nest Card",nest_card)
           await render_government_installment_query(
             type,
             student,
@@ -8594,6 +8585,8 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, id) => {
           path: "fee_structure",
         });
         if (valid_remain) {
+          const num_type = ref?.InstallmentValue ?? "First Installment"
+          const num_id = ref?.TXNID ?? ""
           // if (valid_remain?.access_mode_card === "One_Time_Wise") {
           //   var valid_type =
           //     valid_remain?.active_payment_type === "No Process"
@@ -8610,11 +8603,12 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, id) => {
             valid_remain?.appId,
             ref?.Amount,
             "Offline",
-            "First Installment",
+            num_type,
             valid_remain?._id,
             "Government/Scholarship",
             ref?.Date,
-            ref?.Remark
+            ref?.Remark,
+            num_id
           );
         }
         else{

@@ -3364,6 +3364,7 @@ const installment_remain_government = async (
         ref.installmentValue = "All Installment Paid";
         ref.mode = mode;
         arg4.remainingFee.pull(arg5._id);
+        ref.remainAmount = ref.remainAmount >= amount ? ref?.remainAmount : amount
         arg1.status = "Paid";
         arg1.active_payment_type = "All Installment Paid";
         arg6.active_payment_type = "All Installment Paid"

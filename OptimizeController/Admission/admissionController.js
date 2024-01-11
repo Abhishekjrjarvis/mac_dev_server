@@ -3085,6 +3085,9 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             select: "applicable_fees",
           })
           .populate({
+            path: "applicable_card"
+          })
+          .populate({
             path: "student",
             match: {
               $or: [
@@ -3111,8 +3114,8 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
         for (var ele of all_remain) {
           if (ele?.student != null) {
             ele.student.applicable_fees_pending +=
-              ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
-                ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+              ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee > 0
+                ? ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee
                 : 0;
             if (student?.includes(ele?.student)) {
             } else {
@@ -3134,6 +3137,9 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             select: "applicable_fees",
           })
           .populate({
+            path: "applicable_card"
+          })
+          .populate({
             path: "student",
             select:
               "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
@@ -3144,8 +3150,8 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           });
         for (var ele of all_remain) {
           ele.student.applicable_fees_pending +=
-            ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
-              ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+            ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee > 0
+              ? ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee
               : 0;
           if (student?.includes(ele?.student)) {
           } else {
@@ -3197,6 +3203,9 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
           select: "applicable_fees",
         })
         .populate({
+          path: "applicable_card"
+        })
+        .populate({
           path: "student",
           match: {
             $or: [
@@ -3223,8 +3232,8 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
       for (var ele of all_remain) {
         if (ele?.student != null) {
           ele.student.applicable_fees_pending +=
-            ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
-              ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+            ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee > 0
+              ? ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee
               : 0;
           if (student?.includes(ele?.student)) {
           } else {
@@ -3246,6 +3255,9 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
           select: "applicable_fees",
         })
         .populate({
+          path: "applicable_card"
+        })
+        .populate({
           path: "student",
           select:
             "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
@@ -3256,8 +3268,8 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
         });
       for (var ele of all_remain) {
         ele.student.applicable_fees_pending +=
-          ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
-            ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+          ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee > 0
+            ? ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee
             : 0;
         if (student?.includes(ele?.student)) {
         } else {
@@ -4582,8 +4594,8 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       } else {
       }
       ref.applicable_fees_pending +=
-        ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0
-          ? ref?.fee_structure?.applicable_fees - ref?.paid_fee
+        ref?.fee_structure?.applicable_fees - ref?.applicable_card?.paid_fee > 0
+          ? ref?.fee_structure?.applicable_fees - ref?.applicable_card?.paid_fee
           : 0;
       ref.excess_fee = ref?.paid_fee > ref?.applicable_card?.applicable_fee ? ref?.paid_fee - ref?.applicable_card?.applicable_fee : 0
     }

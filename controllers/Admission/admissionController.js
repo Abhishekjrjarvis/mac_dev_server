@@ -8659,7 +8659,7 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, scid, id) =>
 
 exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
   try {
-    // if (arr?.length > 0) {
+    if (arr?.length > 0) {
     for (var ref of arr) {
       var one_student = await Student.findOne({
         studentGRNO: `${ref?.GRNO}`,
@@ -8669,17 +8669,19 @@ exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
       }).populate({
         path: "fee_structure",
       });
+      console.log(all_remain)
       for (var ele of all_remain) {
         if (`${ele?.fee_structure?.batch_master}` === `${ref?.batchId?._id}`) {
           ele.scholar_ship_number = `${ref?.ScholarNumber}`;
           await ele.save();
-          // console.log("Add");
+          console.log("Add");
         }
       }
-      // console.log("push")
+      console.log("push")
     }
-    // } else {
-    // }
+    } else {
+      console.log("Add Fees Query")
+    }
   } catch (e) {
     console.log(e);
   }

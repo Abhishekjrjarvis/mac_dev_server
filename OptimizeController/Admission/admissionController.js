@@ -8634,7 +8634,6 @@ exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
       }).populate({
         path: "fee_structure",
       });
-      console.log(all_remain)
       for (var ele of all_remain) {
         if (`${ele?.fee_structure?.batch_master}` === `${ref?.batchId?._id}`) {
           ele.scholar_ship_number = `${ref?.ScholarNumber}`;
@@ -8645,7 +8644,7 @@ exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
       console.log("push")
     }
     } else {
-      console.log("All Array Empty Query", access: true)
+
     }
   } catch (e) {
     console.log(e);

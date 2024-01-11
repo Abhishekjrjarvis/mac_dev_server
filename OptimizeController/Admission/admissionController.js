@@ -6694,14 +6694,14 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       if(nest_card?.remaining_fee >= price){
         nest_card.remaining_fee -= price
       }
-      else{
+      else {
+        if(remaining_fee_lists?.remaining_fee >= nest_card.remaining_fee){
+          remaining_fee_lists.remaining_fee -= nest_card.remaining_fee
+        }
+        else{
+          remaining_fee_lists.remaining_fee = 0
+        }
         nest_card.remaining_fee = 0
-      }
-      if(remaining_fee_lists?.remaining_fee >= nest_card.remaining_fee){
-        remaining_fee_lists.remaining_fee -= nest_card.remaining_fee
-      }
-      else{
-        remaining_fee_lists.remaining_fee = 0
       }
       if(student.admissionRemainFeeCount >= price){
         student.admissionRemainFeeCount -= price
@@ -8404,14 +8404,14 @@ const auto_scholar_query = async (
     if(nest_card?.remaining_fee >= price){
       nest_card.remaining_fee -= price
     }
-    else{
+    else {
+      if(remaining_fee_lists?.remaining_fee >= nest_card.remaining_fee){
+        remaining_fee_lists.remaining_fee -= nest_card.remaining_fee
+      }
+      else{
+        remaining_fee_lists.remaining_fee = 0
+      }
       nest_card.remaining_fee = 0
-    }
-    if(remaining_fee_lists?.remaining_fee >= nest_card.remaining_fee){
-      remaining_fee_lists.remaining_fee -= nest_card.remaining_fee
-    }
-    else{
-      remaining_fee_lists.remaining_fee = 0
     }
     if(student.admissionRemainFeeCount >= price){
       student.admissionRemainFeeCount -= price

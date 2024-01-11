@@ -601,7 +601,7 @@ exports.retrieveStudentQuery = async (req, res) => {
         pending += ele?.remaining_fee
         student.admission_amount_stats.total_fees += ele?.applicable_fee
         student.admission_amount_stats.total_paid_fees += ele?.paid_fee
-        student.admission_amount_stats.total_os_fees += ele?.remaining_fee
+        student.admission_amount_stats.total_os_fees += ele?.government_card?.remaining_fee + ele?.applicable_card?.remaining_fee 
         student.admission_amount_stats.total_app_fees += ele?.applicable_card?.applicable_fee
         student.admission_amount_stats.total_app_paid_fees += ele?.applicable_card?.paid_fee
         student.admission_amount_stats.total_app_os_fees += ele?.applicable_card?.remaining_fee

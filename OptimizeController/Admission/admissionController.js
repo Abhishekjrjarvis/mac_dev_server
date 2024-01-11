@@ -8412,7 +8412,18 @@ const auto_scholar_query = async (
       admin_ins.remainingFeeCount -= price
     }
       await nest_card.save()
-          console.log("Enter")
+    console.log("Enter")
+    // console.log("Type", type,
+    //   "Student", student,
+    //   "Mode", mode,
+    //   "Price", price,
+    //   "Admission", admin_ins,
+    //   "Fee Structure", student?.fee_structure,
+    //   "Remaining List", remaining_fee_lists,
+    //   "New Receipt", new_receipt,
+    //   "Apply", apply,
+    //   "Institute", institute,
+    //   "Nest Card",nest_card)
           await render_government_installment_query(
             type,
             student,

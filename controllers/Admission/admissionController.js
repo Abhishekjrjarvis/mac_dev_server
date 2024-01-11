@@ -8661,9 +8661,11 @@ exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
   try {
     // if (arr?.length > 0) {
     for (var ref of arr) {
+      console.log(ref)
       var one_student = await Student.findOne({
         studentGRNO: `${ref?.GRNO}`,
       });
+      console.log(one_student?._id)
       var all_remain = await RemainingList.find({
         student: `${one_student?._id}`,
       }).populate({

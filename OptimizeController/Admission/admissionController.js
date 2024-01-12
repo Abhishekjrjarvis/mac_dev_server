@@ -8618,7 +8618,7 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, id) => {
           path: "fee_structure",
         });
         if (valid_remain) {
-          const num_type = ref?.InstallmentValue ?? "First Installment"
+          const num_type = ref?.InstallmentValue === "1" ? "First Installment" : "Installment Remain"
           const num_id = ref?.TXNID ?? ""
           // if (valid_remain?.access_mode_card === "One_Time_Wise") {
           //   var valid_type =

@@ -2682,7 +2682,9 @@ const first_payable_government = async (
               if (`${ele?.status}` === "Not Paid") {
                 ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
                 ele.status = num_amount > ele?.remainAmount ? "Paid" : "Not Paid"
-                ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount}`
+                ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
+                ele.component.app = ele.remainAmount
+                  ele.component.gov = ref?.remainAmount - amount
                 if (arg7?.remaining_fee >= num_amount) {
                   arg7.remaining_fee -= num_amount
                 }
@@ -2700,6 +2702,15 @@ const first_payable_government = async (
                 }
               }
             }
+            arg6.remaining_array.push({
+              remainAmount: ref?.remainAmount - amount,
+              appId: app_args._id,
+              status: "Paid",
+              instituteId: ins_args?._id,
+              installmentValue: "All Installment Paid",
+              cover_status: "Excess Government/Scholarship Transfer To Applicable Fees",
+              isEnable: true,
+            });
           }
           ele.status = "Paid";
           flex_two = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
@@ -2777,7 +2788,9 @@ const installment_remain_government = async (
             if (`${ele?.status}` === "Not Paid") {
               ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
               ele.status = num_amount > ele?.remainAmount ? "Paid" : "Not Paid"
-              ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount}`
+              ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
+              ele.component.app = ele.remainAmount
+                ele.component.gov = ref?.remainAmount - amount
               if (arg7?.remaining_fee >= num_amount) {
                 arg7.remaining_fee -= num_amount
               }
@@ -2795,6 +2808,15 @@ const installment_remain_government = async (
               }
             }
           }
+          arg6.remaining_array.push({
+            remainAmount: ref?.remainAmount - amount,
+            appId: app_args._id,
+            status: "Paid",
+            instituteId: ins_args?._id,
+            installmentValue: "All Installment Paid",
+            cover_status: "Excess Government/Scholarship Transfer To Applicable Fees",
+            isEnable: true,
+          });
         }
         ref.remainAmount = amount;
         ref.installmentValue = "Installment Paid";
@@ -2809,7 +2831,9 @@ const installment_remain_government = async (
             if (`${ele?.status}` === "Not Paid") {
               ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
               ele.status = num_amount > ele?.remainAmount ? "Paid" : "Not Paid"
-              ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount}`
+              ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
+              ele.component.app = ele.remainAmount
+                ele.component.gov = ref?.remainAmount - amount
               if (arg7?.remaining_fee >= num_amount) {
                 arg7.remaining_fee -= num_amount
               }
@@ -2827,6 +2851,15 @@ const installment_remain_government = async (
               }
             }
           }
+          arg6.remaining_array.push({
+            remainAmount: ref?.remainAmount - amount,
+            appId: app_args._id,
+            status: "Paid",
+            instituteId: ins_args?._id,
+            installmentValue: "All Installment Paid",
+            cover_status: "Excess Government/Scholarship Transfer To Applicable Fees",
+            isEnable: true,
+          });
         }
         ref.status = "Paid";
         ref.installmentValue = "All Installment Paid";

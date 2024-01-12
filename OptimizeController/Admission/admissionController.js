@@ -7520,11 +7520,11 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
           select: "applicationName",
         });
     } else {
-      var all_exempt = await FeeReceipt.find({
+      var all_exempt_query = await FeeReceipt.find({
         _id: { $in: scholar?.scholarship_candidates },
       })
-        .limit(limit)
-        .skip(skip)
+        // .limit(limit)
+        // .skip(skip)
         .populate({
           path: "student",
           select:
@@ -7561,6 +7561,8 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
           path: "application",
           select: "applicationName",
         });
+      
+      var all_exempt = await nested_document_limit(page, limit, all_exempt_query?.reverse())
     }
     if (all_exempt?.length > 0) {
       res.status(200).send({

@@ -6702,7 +6702,10 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
         // }
       }
     if (remaining_fee_lists?.government_card) {
-      const nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.government_card}`})
+      const nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.government_card}` })
+      if (remaining_fee_lists?.applicable_card) {
+        var nest_app = await NestedCard.findById({ _id: `${remaining_fee_lists?.applicable_card}` })
+      }
       remaining_fee_lists.active_payment_type = `${type}`;
       nest_card.active_payment_type = `${type}`;
       nest_card.paid_fee += price;
@@ -6743,7 +6746,8 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
               new_receipt,
               apply,
               institute,
-              nest_card
+              nest_card,
+              nest_app
             );
             console.log("Exit")
     }
@@ -8416,6 +8420,9 @@ const auto_scholar_query = async (
     }
   if (remaining_fee_lists?.government_card) {
     const nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.government_card}`})
+    if (remaining_fee_lists?.applicable_card) {
+      var nest_app = await NestedCard.findById({ _id: `${remaining_fee_lists?.applicable_card}` })
+    }
     remaining_fee_lists.active_payment_type = `${type}`;
     nest_card.active_payment_type = `${type}`;
     nest_card.paid_fee += price;
@@ -8456,7 +8463,8 @@ const auto_scholar_query = async (
             new_receipt,
             apply,
             institute,
-            nest_card
+            nest_card,
+            nest_app
           );
           console.log("Exit")
   }

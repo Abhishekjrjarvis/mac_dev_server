@@ -75,7 +75,7 @@ exports.render_new_fees_card = async (sid, appId, struct, flow, re_ads, classes)
         await nest_card_gov.save()
       }
       new_remainFee.fee_structure = structure?._id;
-      new_remainFee.remaining_fee += structure?.total_admission_fees;
+      new_remainFee.remaining_fee += structure?.applicable_fees;
       student.remainingFeeList.push(new_remainFee?._id);
       student.remainingFeeList_count += 1;
       new_remainFee.student = student?._id;

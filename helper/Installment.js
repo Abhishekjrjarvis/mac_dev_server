@@ -2697,6 +2697,7 @@ const first_payable_government = async (
                 else {
                   arg7.remaining_fee = 0
                 }
+                arg7.paid_fee += ele?.remainAmount > amount ? ele?.remainAmount - amount : amount
                 if (arg1?.remaining_fee >= amount) {
                   arg1.remaining_fee -= amount
                 }
@@ -2789,6 +2790,7 @@ const installment_remain_government = async (
               else {
                 arg7.remaining_fee = 0
               }
+              arg7.paid_fee += ele?.remainAmount > amount ? ele?.remainAmount - amount : amount
               if (arg1?.remaining_fee >= amount) {
                 arg1.remaining_fee -= amount
               }
@@ -2815,6 +2817,7 @@ const installment_remain_government = async (
               else {
                 arg7.remaining_fee = 0
               }
+              arg7.paid_fee += ele?.remainAmount > amount ? ele?.remainAmount - amount : amount
               if (arg1?.remaining_fee >= amount) {
                 arg1.remaining_fee -= amount
               }

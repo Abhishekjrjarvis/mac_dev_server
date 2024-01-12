@@ -3789,6 +3789,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
         status: "Paid",
         instituteId: institute?._id,
         installmentValue: "All Installment Paid",
+        refund_status: "Refunded",
         cover_status: "Excess Government/Scholarship Transfer To Applicable Fees",
         isEnable: true,
       });

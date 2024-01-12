@@ -3681,9 +3681,11 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     const remaining_fee_lists = await RemainingList.findById({
       _id: rid
     });
-    const nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.applicable_card}` })
     if (remaining_fee_lists?.government_card) {
       var nest_gov = await NestedCard.findById({ _id: `${remaining_fee_lists?.government_card}` })
+    }
+    if (remaining_fee_lists?.applicable_card) {
+      var nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.applicable_card}` })
     }
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     var order = new OrderPayment({});
@@ -3772,10 +3774,24 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     //     }
     //   }
     // }
-
-    var app_count = nest_card?.paid_fee >= nest_card?.applicable_fee ? nest_card?.paid_fee - nest_card?.applicable_fee : 0
-    if (nest_card?.paid_fee >= app_count) {
-      nest_card.paid_fee -= app_count;
+    if (nest_card) {
+      var app_count = nest_card?.paid_fee >= nest_card?.applicable_fee ? nest_card?.paid_fee - nest_card?.applicable_fee : 0
+      if (nest_card?.paid_fee >= app_count) {
+        nest_card.paid_fee -= app_count;
+      }
+      if (app_count > 0) {
+        nest_card.remaining_array.push({
+          appId: apply?._id,
+          remainAmount: price,
+          status: "Paid",
+          instituteId: institute?._id,
+          installmentValue: "Refund From Admission Admin",
+          isEnable: true,
+          refund_status: "Refunded",
+          fee_receipt: new_receipt?._id,
+        });
+      }
+      await nest_card.save()
     }
 
     if (nest_gov) {
@@ -3783,28 +3799,20 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
       if (nest_gov?.paid_fee >= gov_count) {
         nest_gov.paid_fee -= gov_count;
       }
-      nest_gov.remaining_array.push({
-        remainAmount: 0 - gov_count,
-        appId: apply?._id,
-        status: "Paid",
-        instituteId: institute?._id,
-        installmentValue: "All Installment Paid",
-        refund_status: "Refunded",
-        cover_status: "Excess Government/Scholarship Transfer To Applicable Fees",
-        isEnable: true,
-      });
+      if (gov_count > 0) {
+        nest_gov.remaining_array.push({
+          remainAmount: 0 - gov_count,
+          appId: apply?._id,
+          status: "Paid",
+          instituteId: institute?._id,
+          installmentValue: "All Installment Paid",
+          refund_status: "Refunded",
+          cover_status: "Excess Government/Scholarship Transfer To Applicable Fees",
+          isEnable: true,
+        });
+      }
       await nest_gov.save()
     }
-    nest_card.remaining_array.push({
-      appId: apply?._id,
-      remainAmount: price,
-      status: "Paid",
-      instituteId: institute?._id,
-      installmentValue: "Refund From Admission Admin",
-      isEnable: true,
-      refund_status: "Refunded",
-      fee_receipt: new_receipt?._id,
-    });
     const filter_student_refund = admin_ins?.refundFeeList?.filter((stu) => {
       if (`${stu.student}` === `${student?._id}`) return stu;
     });
@@ -3839,7 +3847,6 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
       s_admin.save(),
       remaining_fee_lists.save(),
       new_receipt.save(),
-      nest_card.save()
     ]);
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",

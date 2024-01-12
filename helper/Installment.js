@@ -2802,15 +2802,6 @@ const installment_remain_government = async (
           }
         }
       } else {
-        ref.status = "Paid";
-        ref.installmentValue = "All Installment Paid";
-        ref.mode = mode;
-        arg4.remainingFee.pull(arg5._id);
-        ref.remainAmount = ref.remainAmount >= amount ? ref?.remainAmount : amount
-        // arg1.status = "Paid";
-        arg1.active_payment_type = "All Installment Paid";
-        arg6.active_payment_type = "All Installment Paid"
-        ref.fee_receipt = receipt_args?._id;
         if (amount > ref?.remainAmount) {
           console.log("Inserted")
           for (var ele of arg7?.remaining_array) {
@@ -2836,6 +2827,15 @@ const installment_remain_government = async (
             }
           }
         }
+        ref.status = "Paid";
+        ref.installmentValue = "All Installment Paid";
+        ref.mode = mode;
+        arg4.remainingFee.pull(arg5._id);
+        ref.remainAmount = ref.remainAmount >= amount ? ref?.remainAmount : amount
+        // arg1.status = "Paid";
+        arg1.active_payment_type = "All Installment Paid";
+        arg6.active_payment_type = "All Installment Paid"
+        ref.fee_receipt = receipt_args?._id;
       }
     }
     await Promise.all([arg1.save(), arg4.save(), arg6.save(), arg7.save()]);

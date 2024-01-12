@@ -2685,7 +2685,7 @@ const first_payable_government = async (
                   num.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
                 }
                 num.remainAmount = num?.remainAmount > num_amount ? num?.remainAmount - num_amount : num_amount
-                num.status = num_amount > num?.remainAmount ? "Paid" : "Not Paid"
+                num.status = num_amount >= num?.remainAmount ? "Paid" : "Not Paid"
                   num.component.gov = ele?.remainAmount - amount
                 if (arg7?.remaining_fee >= num_amount) {
                   arg7.remaining_fee -= num_amount
@@ -2789,7 +2789,7 @@ const installment_remain_government = async (
                 ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
               }
               ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
-              ele.status = num_amount > ele?.remainAmount ? "Paid" : "Not Paid"
+              ele.status = num_amount >= ele?.remainAmount ? "Paid" : "Not Paid"
                 ele.component.gov = ref?.remainAmount - amount
               if (arg7?.remaining_fee >= num_amount) {
                 arg7.remaining_fee -= num_amount
@@ -2830,7 +2830,7 @@ const installment_remain_government = async (
                 ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
               }
               ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
-              ele.status = num_amount > ele?.remainAmount ? "Paid" : "Not Paid"
+              ele.status = num_amount >= ele?.remainAmount ? "Paid" : "Not Paid"
                 ele.component.gov = ref?.remainAmount - amount
               if (arg7?.remaining_fee >= num_amount) {
                 arg7.remaining_fee -= num_amount

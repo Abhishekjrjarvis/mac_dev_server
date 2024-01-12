@@ -2676,30 +2676,21 @@ const first_payable_government = async (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
           ele.installmentValue == "First Installment"
         ) {
-          ele.status = "Paid";
-          flex_two = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
-          ele.remainAmount = amount;
-          ele.mode = mode;
-          ele.originalFee = arg2.total_admission_fees;
-          ele.isEnable = true;
-          ele.fee_receipt = receipt_args?._id;
-          arg1.active_payment_type = "First Installment";
-          arg6.active_payment_type = "First Installment"
           if (amount > ref?.remainAmount) {
+            var num_amount = amount - ref?.remainAmount
             for (var ele of arg7?.remaining_array) {
               if (`${ele?.status}` === "Not Paid") {
-                ele.remainAmount = ele?.remainAmount > amount ? ele?.remainAmount - amount : amount
-                ele.status = amount > ele?.remainAmount ? "Paid" : "Not Paid"
-                ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${ele?.remainAmount > amount ? ele?.remainAmount - amount : amount}`
-                if (arg7?.remaining_fee >= amount) {
-                  arg7.remaining_fee -= amount
+                ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
+                ele.status = num_amount > ele?.remainAmount ? "Paid" : "Not Paid"
+                ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount}`
+                if (arg7?.remaining_fee >= num_amount) {
+                  arg7.remaining_fee -= num_amount
                 }
                 else {
                   arg7.remaining_fee = 0
                 }
-                arg7.paid_fee += ele?.remainAmount > amount ? ele?.remainAmount - amount : amount
-                if (arg1?.remaining_fee >= amount) {
-                  arg1.remaining_fee -= amount
+                if (arg1?.remaining_fee >= num_amount) {
+                  arg1.remaining_fee -= num_amount
                 }
                 else {
                   arg1.remaining_fee = 0
@@ -2710,6 +2701,15 @@ const first_payable_government = async (
               }
             }
           }
+          ele.status = "Paid";
+          flex_two = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
+          ele.remainAmount = amount;
+          ele.mode = mode;
+          ele.originalFee = arg2.total_admission_fees;
+          ele.isEnable = true;
+          ele.fee_receipt = receipt_args?._id;
+          arg1.active_payment_type = "First Installment";
+          arg6.active_payment_type = "First Installment"
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -2771,28 +2771,21 @@ const installment_remain_government = async (
           isEnable: true,
         });
         ref.status = "Paid";
-        ref.remainAmount = amount;
-        ref.installmentValue = "Installment Paid";
-        ref.mode = mode;
-        ref.fee_receipt = receipt_args?._id;
-        arg1.active_payment_type = "Installment Paid";
-        arg6.active_payment_type = "Installment Paid"
         if (amount > ref?.remainAmount) {
-          console.log("Inserted")
+          var num_amount = amount - ref?.remainAmount
           for (var ele of arg7?.remaining_array) {
             if (`${ele?.status}` === "Not Paid") {
-              ele.remainAmount = ele?.remainAmount > amount ? ele?.remainAmount - amount : amount
-              ele.status = amount > ele?.remainAmount ? "Paid" : "Not Paid"
-              ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${ele?.remainAmount > amount ? ele?.remainAmount - amount : amount}`
-              if (arg7?.remaining_fee >= amount) {
-                arg7.remaining_fee -= amount
+              ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
+              ele.status = num_amount > ele?.remainAmount ? "Paid" : "Not Paid"
+              ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount}`
+              if (arg7?.remaining_fee >= num_amount) {
+                arg7.remaining_fee -= num_amount
               }
               else {
                 arg7.remaining_fee = 0
               }
-              arg7.paid_fee += ele?.remainAmount > amount ? ele?.remainAmount - amount : amount
-              if (arg1?.remaining_fee >= amount) {
-                arg1.remaining_fee -= amount
+              if (arg1?.remaining_fee >= num_amount) {
+                arg1.remaining_fee -= num_amount
               }
               else {
                 arg1.remaining_fee = 0
@@ -2803,23 +2796,28 @@ const installment_remain_government = async (
             }
           }
         }
+        ref.remainAmount = amount;
+        ref.installmentValue = "Installment Paid";
+        ref.mode = mode;
+        ref.fee_receipt = receipt_args?._id;
+        arg1.active_payment_type = "Installment Paid";
+        arg6.active_payment_type = "Installment Paid"
       } else {
         if (amount > ref?.remainAmount) {
-          console.log("Inserted")
+          var num_amount = amount - ref?.remainAmount
           for (var ele of arg7?.remaining_array) {
             if (`${ele?.status}` === "Not Paid") {
-              ele.remainAmount = ele?.remainAmount > amount ? ele?.remainAmount - amount : amount
-              ele.status = amount > ele?.remainAmount ? "Paid" : "Not Paid"
-              ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${ele?.remainAmount > amount ? ele?.remainAmount - amount : amount}`
-              if (arg7?.remaining_fee >= amount) {
-                arg7.remaining_fee -= amount
+              ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
+              ele.status = num_amount > ele?.remainAmount ? "Paid" : "Not Paid"
+              ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount}`
+              if (arg7?.remaining_fee >= num_amount) {
+                arg7.remaining_fee -= num_amount
               }
               else {
                 arg7.remaining_fee = 0
               }
-              arg7.paid_fee += ele?.remainAmount > amount ? ele?.remainAmount - amount : amount
-              if (arg1?.remaining_fee >= amount) {
-                arg1.remaining_fee -= amount
+              if (arg1?.remaining_fee >= num_amount) {
+                arg1.remaining_fee -= num_amount
               }
               else {
                 arg1.remaining_fee = 0

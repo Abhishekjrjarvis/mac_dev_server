@@ -2676,15 +2676,15 @@ const first_payable_government = async (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
           ele.installmentValue == "First Installment"
         ) {
-          if (amount > ref?.remainAmount) {
-            var num_amount = amount - ref?.remainAmount
-            for (var ele of arg7?.remaining_array) {
-              if (`${ele?.status}` === "Not Paid") {
-                ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
-                ele.status = num_amount > ele?.remainAmount ? "Paid" : "Not Paid"
-                ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
-                ele.component.app = ele.remainAmount
-                  ele.component.gov = ref?.remainAmount - amount
+          if (amount > ele?.remainAmount) {
+            var num_amount = amount - ele?.remainAmount
+            for (var num of arg7?.remaining_array) {
+              if (`${num?.status}` === "Not Paid") {
+                num.component.app = num.remainAmount
+                num.remainAmount = num?.remainAmount > num_amount ? num?.remainAmount - num_amount : num_amount
+                num.status = num_amount > num?.remainAmount ? "Paid" : "Not Paid"
+                num.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
+                  num.component.gov = ele?.remainAmount - amount
                 if (arg7?.remaining_fee >= num_amount) {
                   arg7.remaining_fee -= num_amount
                 }
@@ -2700,20 +2700,8 @@ const first_payable_government = async (
                 if (arg1?.remaining_fee <= 0) {
                   arg1.status = "Paid"
                 }
-                if (arg6?.paid_fee >= num_amount) {
-                  arg6.paid_fee -= num_amount
-                }
               }
             }
-            arg6.remaining_array.push({
-              remainAmount: ref?.remainAmount - amount,
-              appId: app_args._id,
-              status: "Paid",
-              instituteId: ins_args?._id,
-              installmentValue: "All Installment Paid",
-              cover_status: "Excess Government/Scholarship Transfer To Applicable Fees",
-              isEnable: true,
-            });
           }
           ele.status = "Paid";
           flex_two = ele.remainAmount >= amount ? ele.remainAmount - amount : amount - ele.remainAmount;
@@ -2789,10 +2777,10 @@ const installment_remain_government = async (
           var num_amount = amount - ref?.remainAmount
           for (var ele of arg7?.remaining_array) {
             if (`${ele?.status}` === "Not Paid") {
+              ele.component.app = ele.remainAmount
               ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
               ele.status = num_amount > ele?.remainAmount ? "Paid" : "Not Paid"
               ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
-              ele.component.app = ele.remainAmount
                 ele.component.gov = ref?.remainAmount - amount
               if (arg7?.remaining_fee >= num_amount) {
                 arg7.remaining_fee -= num_amount
@@ -2809,20 +2797,8 @@ const installment_remain_government = async (
               if (arg1?.remaining_fee <= 0) {
                 arg1.status = "Paid"
               }
-              if (arg6?.paid_fee >= num_amount) {
-                arg6.paid_fee -= num_amount
-              }
             }
           }
-          arg6.remaining_array.push({
-            remainAmount: ref?.remainAmount - amount,
-            appId: app_args._id,
-            status: "Paid",
-            instituteId: ins_args?._id,
-            installmentValue: "All Installment Paid",
-            cover_status: "Excess Government/Scholarship Transfer To Applicable Fees",
-            isEnable: true,
-          });
         }
         ref.remainAmount = amount;
         ref.installmentValue = "Installment Paid";
@@ -2835,10 +2811,10 @@ const installment_remain_government = async (
           var num_amount = amount - ref?.remainAmount
           for (var ele of arg7?.remaining_array) {
             if (`${ele?.status}` === "Not Paid") {
+              ele.component.app = ele.remainAmount
               ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
               ele.status = num_amount > ele?.remainAmount ? "Paid" : "Not Paid"
               ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
-              ele.component.app = ele.remainAmount
                 ele.component.gov = ref?.remainAmount - amount
               if (arg7?.remaining_fee >= num_amount) {
                 arg7.remaining_fee -= num_amount
@@ -2855,20 +2831,8 @@ const installment_remain_government = async (
               if (arg1?.remaining_fee <= 0) {
                 arg1.status = "Paid"
               }
-              if (arg6?.paid_fee >= num_amount) {
-                arg6.paid_fee -= num_amount
-              }
             }
           }
-          arg6.remaining_array.push({
-            remainAmount: ref?.remainAmount - amount,
-            appId: app_args._id,
-            status: "Paid",
-            instituteId: ins_args?._id,
-            installmentValue: "All Installment Paid",
-            cover_status: "Excess Government/Scholarship Transfer To Applicable Fees",
-            isEnable: true,
-          });
         }
         ref.status = "Paid";
         ref.installmentValue = "All Installment Paid";

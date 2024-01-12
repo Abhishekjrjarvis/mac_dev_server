@@ -2777,6 +2777,7 @@ const installment_remain_government = async (
         arg1.active_payment_type = "Installment Paid";
         arg6.active_payment_type = "Installment Paid"
         if (amount > ref?.remainAmount) {
+          console.log("Inserted")
           for (var ele of arg7?.remaining_array) {
             if (`${ele?.status}` === "Not Paid") {
               ele.remainAmount = ele?.remainAmount > amount ? ele?.remainAmount - amount : amount
@@ -2811,6 +2812,7 @@ const installment_remain_government = async (
         arg6.active_payment_type = "All Installment Paid"
         ref.fee_receipt = receipt_args?._id;
         if (amount > ref?.remainAmount) {
+          console.log("Inserted")
           for (var ele of arg7?.remaining_array) {
             if (`${ele?.status}` === "Not Paid") {
               ele.remainAmount = ele?.remainAmount > amount ? ele?.remainAmount - amount : amount

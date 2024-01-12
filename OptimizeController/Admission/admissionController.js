@@ -4597,7 +4597,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         ref?.fee_structure?.applicable_fees - ref?.applicable_card?.paid_fee > 0
           ? ref?.fee_structure?.applicable_fees - ref?.applicable_card?.paid_fee
           : 0;
-      ref.excess_fee = ref?.paid_fee > ref?.applicable_card?.applicable_fee ? ref?.paid_fee - ref?.applicable_card?.applicable_fee : 0
+      ref.excess_fee = (ref?.applicable_card?.paid_fee > ref?.applicable_card?.applicable_fee ? ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee : 0) + (ref?.government_card?.paid_fee > ref?.government_card?.applicable_fee ? ref?.government_card?.paid_fee - ref?.government_card?.applicable_fee : 0)
     }
     for (var ref of valid_remain) {
       ref.setOffPrice = count;

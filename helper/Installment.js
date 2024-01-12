@@ -2831,7 +2831,6 @@ const installment_remain_government = async (
               }
               ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
               ele.status = num_amount > ele?.remainAmount ? "Paid" : "Not Paid"
-              ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
                 ele.component.gov = ref?.remainAmount - amount
               if (arg7?.remaining_fee >= num_amount) {
                 arg7.remaining_fee -= num_amount

@@ -8378,7 +8378,7 @@ const auto_scholar_query = async (
     const remaining_fee_lists = await RemainingList.findById({ _id: rcid });
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     remaining_fee_lists.remark = remaining_fee_lists?.remark ? `${remaining_fee_lists.remark} ${remark_query}` : `${remark_query}`
-    new_receipt.txn_id = txn_id
+    new_receipt.txn_id = txn_id ?? ""
     if (fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;

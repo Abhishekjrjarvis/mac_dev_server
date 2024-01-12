@@ -6704,7 +6704,7 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     if (remaining_fee_lists?.government_card) {
       const nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.government_card}` })
       if (remaining_fee_lists?.applicable_card) {
-        var nest_app = await NestedCard.findById({ _id: `${remaining_fee_lists?.applicable_card}` })
+        var nest_app = await NestedCard.findById({ _id: `${remaining_fee_lists?.applicable_card?._id}` })
       }
       remaining_fee_lists.active_payment_type = `${type}`;
       nest_card.active_payment_type = `${type}`;

@@ -2700,6 +2700,9 @@ const first_payable_government = async (
                 if (arg1?.remaining_fee <= 0) {
                   arg1.status = "Paid"
                 }
+                if (arg6?.paid_fee >= num_amount) {
+                  arg6.paid_fee -= num_amount
+                }
               }
             }
             arg6.remaining_array.push({
@@ -2806,6 +2809,9 @@ const installment_remain_government = async (
               if (arg1?.remaining_fee <= 0) {
                 arg1.status = "Paid"
               }
+              if (arg6?.paid_fee >= num_amount) {
+                arg6.paid_fee -= num_amount
+              }
             }
           }
           arg6.remaining_array.push({
@@ -2848,6 +2854,9 @@ const installment_remain_government = async (
               }
               if (arg1?.remaining_fee <= 0) {
                 arg1.status = "Paid"
+              }
+              if (arg6?.paid_fee >= num_amount) {
+                arg6.paid_fee -= num_amount
               }
             }
           }

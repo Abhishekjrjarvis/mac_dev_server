@@ -3769,8 +3769,8 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     //     }
     //   }
     // }
-    if (nest_card?.applicable_card?.paid_fee >= price) {
-      nest_card.applicable_card.paid_fee -= price;
+    if (nest_card?.paid_fee >= price) {
+      nest_card.paid_fee -= price;
     }
     nest_card.remaining_array.push({
       appId: apply?._id,

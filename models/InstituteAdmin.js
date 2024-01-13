@@ -1127,7 +1127,7 @@ const instituteAdminSchema = new mongoose.Schema({
   charges:{
       type: mongoose.Schema.Types.ObjectId,
       ref: "Charges"
-    }
+  }
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

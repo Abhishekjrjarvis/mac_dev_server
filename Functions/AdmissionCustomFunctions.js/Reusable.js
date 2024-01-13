@@ -1,8 +1,12 @@
-// exports.set_applicable_query = async (remaining_fee_lists, card_id, student, apply, admin_ins, price, new_receipt, type, mode, institute, body, finance) => {
-//     try{
-        
-//     }
-//     catch(e){
-//         console.log(e)
-//     }
-// }
+exports.fee_receipt_count_query = (ins, receipt, order) => {
+    try {
+        ins.invoice_count += 1;
+        receipt.invoice_count = `${ins?.random_institute_code}${
+        new Date().getMonth() + 1
+        }${new Date().getFullYear()}${ins?.invoice_count}`;
+        order.payment_invoice_number = receipt?.invoice_count;
+    }
+    catch (e) {
+        console.log(e)
+    }
+}

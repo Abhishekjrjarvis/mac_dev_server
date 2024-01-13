@@ -100,6 +100,7 @@ const { mismatch_scholar_transaction_json_to_excel_query } = require("../../Cust
 const NestedCard = require("../../models/Admission/NestedCard");
 const { render_new_fees_card, render_new_fees_card_install } = require("../../Functions/FeesCard");
 const Charges = require("../../models/SuperAdmin/Charges");
+const { fee_receipt_count_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -2089,11 +2090,12 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     order.payment_student_name = student?.valid_full_name;
     order.payment_student_gr = student?.studentGRNO;
     order.fee_receipt = new_receipt?._id;
-    institute.invoice_count += 1;
-    new_receipt.invoice_count = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count;
+    fee_receipt_count_query(institute, new_receipt, order)
+    // institute.invoice_count += 1;
+    // new_receipt.invoice_count = `${
+    //   new Date().getMonth() + 1
+    // }${new Date().getFullYear()}${institute.invoice_count}`;
+    // order.payment_invoice_number = new_receipt?.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (`${new_remainFee?.applicable_card?._id}` === `${card_id}`) {

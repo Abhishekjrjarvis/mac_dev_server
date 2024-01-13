@@ -35,7 +35,7 @@ const order_history_query = async (
     if (body) {
       order_payment.paytm_query.push(body);
     }
-    order_payment.payment_invoice_number = `${
+    order_payment.payment_invoice_number = `${institute?.random_institute_code}${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${institute?.invoice_count}`;
     await Promise.all([order_payment.save(), institute.save()]);

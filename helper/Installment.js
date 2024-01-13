@@ -2678,7 +2678,8 @@ const first_payable_government = async (
         ) {
           if (amount > ele?.remainAmount) {
             var num_amount = amount - ele?.remainAmount
-            for (var num of arg7?.remaining_array) {
+            var filtered_arr = arg7?.remaining_array[arg7?.remaining_array?.length - 1]
+            for (var num of filtered_arr) {
               if (`${num?.status}` === "Not Paid") {
                 num.component.app = num.remainAmount
                 if (num_amount > num.remainAmount){
@@ -2782,7 +2783,8 @@ const installment_remain_government = async (
         ref.status = "Paid";
         if (amount > ref?.remainAmount) {
           var num_amount = amount - ref?.remainAmount
-          for (var ele of arg7?.remaining_array) {
+          var filtered_arr = arg7?.remaining_array[arg7?.remaining_array?.length - 1]
+          for (var ele of filtered_arr) {
             if (`${ele?.status}` === "Not Paid") {
               ele.component.app = ele.remainAmount
               if (num_amount > ele.remainAmount){
@@ -2823,7 +2825,8 @@ const installment_remain_government = async (
       } else {
         if (amount > ref?.remainAmount) {
           var num_amount = amount - ref?.remainAmount
-          for (var ele of arg7?.remaining_array) {
+          var filtered_arr = arg7?.remaining_array[arg7?.remaining_array?.length - 1]
+          for (var ele of filtered_arr) {
             if (`${ele?.status}` === "Not Paid") {
               ele.component.app = ele.remainAmount
               if (num_amount > ele.remainAmount){

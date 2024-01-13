@@ -145,7 +145,7 @@ exports.verifyRazorPayment = async (req, res) => {
       order_payment.payment_amount = refactor_amount_nocharges;
       order_payment.payment_status = "Captured";
       institute.invoice_count += 1;
-      order_payment.payment_invoice_number = `${
+      order_payment.payment_invoice_number = `${institute?.random_institute_code}${
         new Date().getMonth() + 1
       }${new Date().getFullYear()}${institute.invoice_count}`;
       var valid_pay = await oneRazorPayment(`${razorpay_payment_id}`);

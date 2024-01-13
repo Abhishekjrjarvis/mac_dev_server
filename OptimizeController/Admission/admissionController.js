@@ -2476,11 +2476,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
       order.payment_student = student?._id;
       order.payment_student_name = student?.valid_full_name;
       order.payment_student_gr = student?.studentGRNO;
-      institute.invoice_count += 1;
-      new_receipt.invoice_count = `${
-        new Date().getMonth() + 1
-      }${new Date().getFullYear()}${institute.invoice_count}`;
-      order.payment_invoice_number = new_receipt?.invoice_count;
+      fee_receipt_count_query(institute, new_receipt, order)
       order.fee_receipt = new_receipt?._id;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
@@ -3383,11 +3379,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     order.payment_student = student?._id;
     order.payment_student_name = student?.valid_full_name;
     order.payment_student_gr = student?.studentGRNO;
-    institute.invoice_count += 1;
-    new_receipt.invoice_count = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count;
+    fee_receipt_count_query(institute, new_receipt, order)
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     order.fee_receipt = new_receipt?._id;
@@ -3705,11 +3697,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     order.payment_student = student?._id;
     order.payment_student_name = student?.valid_full_name;
     order.payment_student_gr = student?.studentGRNO;
-    institute.invoice_count += 1;
-    new_receipt.invoice_count = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count;
+    fee_receipt_count_query(institute, new_receipt, order)
     order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
@@ -6719,11 +6707,7 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     order.payment_student = student?._id;
     order.payment_student_name = student?.valid_full_name;
     order.payment_student_gr = student?.studentGRNO;
-    institute.invoice_count += 1;
-    new_receipt.invoice_count = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count;
+    fee_receipt_count_query(institute, new_receipt, order)
     user.payment_history.push(order._id);
     order.fee_receipt = new_receipt?._id;
     institute.payment_history.push(order._id);
@@ -8105,11 +8089,7 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         order.payment_student = student?._id;
         order.payment_student_name = student?.valid_full_name;
         order.payment_student_gr = student?.studentGRNO;
-        institute.invoice_count += 1;
-        new_receipt.invoice_count = `${
-          new Date().getMonth() + 1
-        }${new Date().getFullYear()}${institute.invoice_count}`;
-        order.payment_invoice_number = new_receipt?.invoice_count;
+        fee_receipt_count_query(institute, new_receipt, order)
         user.payment_history.push(order._id);
         institute.payment_history.push(order._id);
         order.fee_receipt = new_receipt?._id;
@@ -8439,11 +8419,7 @@ const auto_scholar_query = async (
     order.payment_student = student?._id;
     order.payment_student_name = student?.valid_full_name;
     order.payment_student_gr = student?.studentGRNO;
-    institute.invoice_count += 1;
-    new_receipt.invoice_count = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${institute.invoice_count}`;
-    order.payment_invoice_number = new_receipt?.invoice_count;
+    fee_receipt_count_query(institute, new_receipt, order)
     order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);

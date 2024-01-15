@@ -818,7 +818,7 @@ exports.renderInstituteAllAppModeratorArray = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search, flow } = req.query;
+    const { search, flow, role } = req.query;
     if (!id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -860,7 +860,6 @@ exports.renderInstituteAllAppModeratorArray = async (req, res) => {
             path: "academic_department",
           });
       }
-      console.log(all_mods)
       if (all_mods?.length > 0) {
         // const allEncrypt = await encryptionPayload(all_mods);
         res.status(200).send({
@@ -921,6 +920,55 @@ exports.renderInstituteAllAppModeratorArray = async (req, res) => {
         });
       }
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderInstituteAllAppReviewModeratorArray = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { role } = req.query;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const institute = await InstituteAdmin.findById({ _id: id }).select(
+      "leave_moderator_role"
+    );
+        var all_mods = await FinanceModerator.find({
+          $and: [{institute: institute?._id }, { access_role: role}]
+        })
+          .sort("-1")
+          .limit(limit)
+          .skip(skip)
+          .populate({
+            path: "access_staff",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          })
+          .populate({
+            path: "academic_department",
+          });
+      if (all_mods?.length > 0) {
+        // const allEncrypt = await encryptionPayload(all_mods);
+        res.status(200).send({
+          message: "All Leave & Transfer Role Admin / Moderator List 😀",
+          all_mods,
+          access: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No Leave & Transfer Role Admin / Moderator List 😀",
+          all_mods: [],
+          access: false,
+        });
+      }
   } catch (e) {
     console.log(e);
   }

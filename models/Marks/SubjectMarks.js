@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
 const subjectMarksSchema = new mongoose.Schema({
-  subject: { type: mongoose.Schema.Types.ObjectId },
+  subject: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
   subjectName: { type: String },
-  student: { type: mongoose.Schema.Types.ObjectId },
+  student: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
   marks: [
     {
       examId: { type: String },

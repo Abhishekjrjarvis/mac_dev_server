@@ -1,4 +1,10 @@
-exports.grade_calculate = (percentage, grade_system, passing = 0, marks) => {
+exports.grade_calculate = (
+  percentage = 0,
+  grade_system,
+  passing = 0,
+  marks_obtain
+) => {
+  var marks = Math.ceil(marks_obtain);
   if (grade_system?.grade_type === "Slab based") {
     let g = [];
     for (let i = 0; i < grade_system.grade_count - 1; i++) {
@@ -20,6 +26,7 @@ exports.grade_calculate = (percentage, grade_system, passing = 0, marks) => {
     return gr;
   } else {
     if (percentage === 100) {
+      // if (percentage === 150) {
       let range = (percentage - passing) / grade_system.grade_count;
       let g = [];
       for (let i = 0; i < grade_system.grade_count - 1; i++) {
@@ -38,31 +45,45 @@ exports.grade_calculate = (percentage, grade_system, passing = 0, marks) => {
           gr = obj.key;
         }
       }
-      return gr;
-    } else if (percentage > 83.33 && percentage < 100) {
-      let range = (percentage - passing) / grade_system.grade_count;
+      return {
+        showGrade: gr,
+        showGradeValue: grade_equivalent[gr],
+        showGradeRange: range,
+      };
+      // } else if (percentage >= 125 && percentage < 150) {
+    } else if (percentage >= 83.33 && percentage < 100) {
+      let range = Math.ceil((percentage - passing) / grade_system.grade_count);
       let g = [];
       let gd_revers = grade_system.grades;
+      let g_start = 83.33;
       for (let i = 0; i <= grade_system.grade_count - 1; i++) {
+        // let obj = {
+        //   key: gd_revers[5 - i].grade_symbol,
+        //   value:
+        //     i === 0
+        //       ? [passing, passing + range - 1]
+        //       : i === 5
+        //       ? // ? [passing + range * i, 100]
+        //         // : [passing + range * i, passing + range * (i + 1) - 1],
+        //         [83.33, 100]
+        //       : [
+        //           passing + range * i,
+        //           gd_revers[5 - i].grade_symbol === "A"
+        //             ? passing + range * (i + 1) - 1 >= 83.33
+        //               ? 83
+        //               : // : passing + range * (i + 1) - 1
+        //                 83
+        //             : passing + range * (i + 1) - 1,
+        //         ],
+        // };
         let obj = {
-          key: gd_revers[5 - i].grade_symbol,
+          key: gd_revers[i].grade_symbol,
           value:
             i === 0
-              ? [passing, passing + range - 1]
-              : i === 5
-              ? // ? [passing + range * i, 100]
-                // : [passing + range * i, passing + range * (i + 1) - 1],
-                [83.33, 100]
-              : [
-                  passing + range * i,
-                  gd_revers[5 - i].grade_symbol === "A"
-                    ? passing + range * (i + 1) - 1 >= 83.33
-                      ? 83
-                      : // : passing + range * (i + 1) - 1
-                        83
-                    : passing + range * (i + 1) - 1,
-                ],
+              ? [g_start, 100]
+              : [g_start - range * i, g_start - range * (i - 1) - 0.01],
         };
+
         g.push(obj);
       }
       let gr = "F";
@@ -71,11 +92,21 @@ exports.grade_calculate = (percentage, grade_system, passing = 0, marks) => {
           gr = obj.key;
         }
       }
-      return gr;
+      // console.log("gd_revers", percentage, g);
+
+      return {
+        showGrade: gr,
+        showGradeValue: grade_equivalent[gr],
+        showGradeRange: range,
+        passing: passing,
+        percentage: percentage,
+        gradCount: 6,
+      };
     } else {
       let range = Math.ceil(
         (percentage - passing) / (grade_system.grade_count - 1)
       );
+      // console.log("with esle ", range, passing);
       let g = [];
       let gd_revers = grade_system.grades;
       for (let i = 0; i < grade_system.grade_count - 1; i++) {
@@ -94,11 +125,17 @@ exports.grade_calculate = (percentage, grade_system, passing = 0, marks) => {
       let gr = "F";
       for (let obj of g) {
         if (obj.value[0] <= marks && marks <= obj.value[1]) {
-          // console.log(obj);
           gr = obj.key;
         }
       }
-      return gr;
+      return {
+        showGrade: gr,
+        showGradeValue: grade_equivalent_without_s[gr],
+        showGradeRange: range,
+        passing: passing,
+        percentage: percentage,
+        gradCount: 5,
+      };
     }
   }
 };
@@ -110,6 +147,14 @@ const grade_equivalent = {
   C: 7,
   D: 6,
   E: 5,
+  F: 0,
+};
+const grade_equivalent_without_s = {
+  A: 10,
+  B: 9,
+  C: 8,
+  D: 7,
+  E: 6,
   F: 0,
 };
 exports.grade_point = (symbol) => {
@@ -129,6 +174,9 @@ exports.grade_symbol = (gp) => {
 exports.grade_point_with_credit = (gp, credit) => {
   return gp * credit;
 };
+// exports.grade_point_with_credit = (gp, credit) => {
+//   return (gp * 10) / credit;
+// };
 
 exports.spi_calculate = (gpc = [], credits = []) => {
   let gpc_total = 0;

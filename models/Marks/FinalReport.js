@@ -32,7 +32,7 @@ const finalReportSchema = new mongoose.Schema({
   earnedGradePoint: Number,
   totalEarnedGradePoint: Number,
   resultStatus: String,
-  reportType: String,
+  totalGradeWithCredit: Number,
 
   subjects: [
     {
@@ -61,9 +61,16 @@ const finalReportSchema = new mongoose.Schema({
       course_credit: Number,
       course_code: String,
       finalObtainCredit: Number,
+      finalObtainCredit_backend_only: Number,
+      showGradeValue: Number,
+      showGradeRange: Number,
       gradeWithCredit: Number,
-      backlogCredit: Number,
       resultStatus: String,
+      backlogCredit: Number,
+      subjectCategory: String,
+      passing: Number,
+      percentage: Number,
+      gradCount: Number,
     },
   ],
   is_grade: Boolean,

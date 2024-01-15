@@ -832,6 +832,19 @@ const studentSchema = new mongoose.Schema({
       },
     },
   ],
+  promote_with_backlog: [
+    {
+      backlog_credit: Number,
+      subject: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subject",
+      },
+      class: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class",
+      },
+    },
+  ],
   promote_with_backlog_credit: {
     type: Number,
     default: 0,

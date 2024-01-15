@@ -71,7 +71,23 @@ const subjectMasterSchema = new mongoose.Schema({
   course_passing_credit: {
     type: Number,
   },
-
+  max_obtain: [
+    {
+      batch: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Batch",
+      },
+      obtain_value: {
+        type: Number,
+        default: 0,
+      },
+      // max_value: {
+      //   type: Number,
+      //   default: 0,
+      // },
+      // subject_category: String,
+    },
+  ],
 });
 
 const SubjectMaster = mongoose.model("SubjectMaster", subjectMasterSchema);

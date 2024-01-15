@@ -64,7 +64,9 @@ router
   .post(isLoggedIn, catchAsync(examController.oneStudentBehaviourClassTeacher));
 router.route("/class/student/:sid/report").get(
   // isLoggedIn,
-  catchAsync(examController.oneStudentReportCardClassTeacherModify)
+  catchAsync(examController.oneStudentReportCardClassTeacherModify2)
+  // catchAsync(examController.oneStudentReportCardClassTeacherModify)
+  // catchAsync(examController.oneStudentReportCardClassTeacher)
 );
 
 router
@@ -76,7 +78,11 @@ router
   .get(isLoggedIn, catchAsync(examController.oneStudentReletedNecessaryData));
 router
   .route("/class/student/:sid/report/finalize")
-  .post(isLoggedIn, catchAsync(examController.oneStudentReportCardFinalizeModify));
+  .post(
+    isLoggedIn,
+    catchAsync(examController.oneStudentReportCardFinalizeModify)
+  );
+// .post(isLoggedIn, catchAsync(examController.oneStudentReportCardFinalize));
 
 router
   .route("/class/student/:sid/report/grace/update")

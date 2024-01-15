@@ -82,6 +82,10 @@ const feesNewV2 = require("../OptimizeRoute/Fees/feesRoute");
 const institutePostRouteV2 = require("../OptimizeRoute/InstituteAdmin/Post/PostRoute");
 const userPostRouteV2 = require("../OptimizeRoute/User/Post/PostRoute");
 const paytmV2 = require("../OptimizeRoute/Paytm/pay_upi_route");
+const instituteMemberRouteV2 = require("../OptimizeRoute/Edit/instituteMemberRoute");
+const staffMemberRouteV2 = require("../OptimizeRoute/Edit/staffMemberRoute");
+const studentMemberRouteV2 = require("../OptimizeRoute/Edit/studentMemberRoute");
+const userMemberRouteV2 = require("../OptimizeRoute/Edit/userMemberRoute");
 
 
 // Api Middleware Func
@@ -167,5 +171,9 @@ router.use("/api/v2/ins/post", institutePostRouteV2);
 router.use("/api/v2/user/post", userPostRouteV2);
 router.use("/api/v2/paytm", paytmV2);
 router.use("/api/v2/pay", checkoutV2);
+router.use("/api/v2/edit/institute", instituteMemberRouteV2);
+router.use("/api/v2/edit/staff", staffMemberRouteV2);
+router.use("/api/v2/edit/student", studentMemberRouteV2);
+router.use("/api/v2/edit/user", userMemberRouteV2);
 
 module.exports = router;

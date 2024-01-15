@@ -19,7 +19,7 @@ const subjectMarkListSchema = new mongoose.Schema({
         ref: "Exam",
       },
       examWeight: { type: Number },
-      examType: { type: String, required: true },
+      examType: { type: String},
       is_backlog: {
         type: String,
         default: "No",
@@ -33,7 +33,7 @@ const subjectMarkListSchema = new mongoose.Schema({
           },
           related_class: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },
           totalMarks: Number,
-          maximumMarks: { type: Number, required: true },
+          maximumMarks: { type: Number},
         },
       ],
     },

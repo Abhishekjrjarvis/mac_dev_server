@@ -772,7 +772,7 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       institute.leave_moderator_role_count += 1;
     }
     if(`${new_mod?.access_role}` === "LEAVE_SANCTION_ACCESS"){
-      var all_mods = await FinanceModerator.findById({ _id: { $in: rev_array}})
+      var all_mods = await FinanceModerator.find({ _id: { $in: rev_array}})
       for(var ele of all_mods){
         new_mod.review_authority_list.push(ele?._id)
       }

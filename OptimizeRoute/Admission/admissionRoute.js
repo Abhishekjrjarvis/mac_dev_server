@@ -702,6 +702,8 @@ router.patch(
   catchAsync(Admission.renderAllStudentStatusQuery)
 );
 
+router.patch("/all/student/outstanding/query", catchAsync(Admission.renderAllStudentArray))
+
 // Remove Government Card API
 
 router.patch(

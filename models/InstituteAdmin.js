@@ -828,6 +828,16 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  leave_moderator_role: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FinanceModerator",
+    },
+  ],
+  leave_moderator_role_count: {
+    type: Number,
+    default: 0,
+  },
   original_copy: {
     type: Boolean,
     default: false,

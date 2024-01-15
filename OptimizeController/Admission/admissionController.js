@@ -11659,6 +11659,67 @@ exports.renderAllStudentQueryNestedRemove = async (req, res) => {
   }
 }
 
+exports.renderAllStudentArray = async (req, res) => {
+  try {
+    const { arr } = req?.body
+    // 64bd56efac3512e4520fb9fa
+    // 644a09d6d1679fcd6e76e5ef
+    // var fine = ["644a09d6d1679fcd6e76e5ef"]
+    // var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }}, { total_installments: "1" }]})
+    // var nums = []
+    // var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
+
+    var all_remain = await RemainingList.find({ _id: { $in: arr } })
+
+    var i = 0
+    for (var val of all_remain) {
+      if(val?.applicable_card){
+        var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
+        // if (n_app?.paid_fee >= n_app?.applicable_fee && n_app?.remaining_fee > 0) {
+          // n_app.remaining_fee = 0
+          // val.remaining_fee = 0
+          // if (val?.remaining_fee <= 0) {
+          //   val.status = "Paid"
+          // }
+          // await n_app.save()
+        // }
+        // if (n_app?.paid_fee < n_app?.applicable_fee && n_app?.remaining_fee > 0 && val?.status === "Paid") {
+          // n_app.paid_fee += n_app.remaining_fee
+          // n_app.remaining_fee = 0
+          // val.remaining_fee = 0
+          // if (val?.remaining_fee <= 0) {
+          //   val.status = "Paid"
+          // }
+          // await n_app.save()
+          // nums.push(val)
+        //   console.log("I", i)
+        //   i+= 1
+        // }
+        n_app.remaining_array.push({
+              remainAmount: n_app?.remaining_fee,
+              isEnable: true,
+              instituteId: val?.institute,
+              appId: val?.appId,
+              installmentValue: "Installment Remain"
+        })
+        await n_app.save()
+           console.log("I", i)
+          i+= 1
+        // if (n_app?.paid_fee < n_app?.applicable_fee && n_app?.remaining_fee > 0 && val?.status === "Not Paid") {
+        //   for (var stu of n_app?.remaining_array) {
+            
+        //   }
+        // }
+      }
+      // await val.save()
+    }
+    res.status(200).send({ message: "Explore All Student Outstanding Fees Matching Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.renderChargesCardQuery = async (req, res) => {
   try {
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}`})

@@ -720,8 +720,13 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       new_mod.academic_department = academic_department;
     }
     new_mod.institute = institute?._id;
-    institute.moderator_role.push(new_mod?._id);
-    institute.moderator_role_count += 1;
+    if (`${new_mod?.access_role}` === "LEAVE_RECOMMENDATION_ACCESS" || `${new_mod?.access_role}` === "LEAVE_REVIEW_ACCESS" || `${new_mod?.access_role}` === "LEAVE_SANCTION_ACCESS") {
+      
+    }
+    else {
+      institute.moderator_role.push(new_mod?._id);
+      institute.moderator_role_count += 1; 
+    }
     staff.instituteModeratorDepartment.push(new_mod?._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = `Institute Admin Moderator - ${mod_role}`;
@@ -752,6 +757,8 @@ exports.addInstituteModeratorQuery = async (req, res) => {
         new_mod.recommend_staff_count += 1
         await ele.save()
       }
+      institute.leave_moderator_role.push(new_mod?._id);
+      institute.leave_moderator_role_count += 1;
     } 
     if(`${new_mod?.access_role}` === "LEAVE_REVIEW_ACCESS"){
       var all_staff = await Staff.find({ _id: { $in: staff_array}})
@@ -761,12 +768,16 @@ exports.addInstituteModeratorQuery = async (req, res) => {
         new_mod.review_staff_count += 1
         await ele.save()
       }
+      institute.leave_moderator_role.push(new_mod?._id);
+      institute.leave_moderator_role_count += 1;
     }
     if(`${new_mod?.access_role}` === "LEAVE_SANCTION_ACCESS"){
       var all_mods = await FinanceModerator.findById({ _id: { $in: rev_array}})
       for(var ele of all_mods){
         new_mod.review_authority_list.push(ele?._id)
       }
+      institute.leave_moderator_role.push(new_mod?._id);
+      institute.leave_moderator_role_count += 1;
     }
     await invokeFirebaseNotification(
       "Designation Allocation",
@@ -807,7 +818,7 @@ exports.renderInstituteAllAppModeratorArray = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req.query;
+    const { search, flow } = req.query;
     if (!id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -815,51 +826,100 @@ exports.renderInstituteAllAppModeratorArray = async (req, res) => {
       });
 
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "moderator_role"
+      "moderator_role leave_moderator_role"
     );
 
-    if (search) {
-      var all_mods = await FinanceModerator.find({
-        $and: [{ _id: { $in: institute?.moderator_role } }],
-        $or: [{ access_role: { $regex: search, $options: "i" } }],
-      })
-        .populate({
-          path: "access_staff",
-          select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+    var roles = ["LEAVE_RECOMMENDATION_ACCESS", "LEAVE_REVIEW_ACCESS", "LEAVE_SANCTION_ACCESS"]
+    if (flow === "LeaveAndTransfer") {
+      if (search) {
+        var all_mods = await FinanceModerator.find({
+          $and: [{ _id: { $in: institute?.leave_moderator_role } }, { access_role: { $in: roles}}],
+          $or: [{ access_role: { $regex: search, $options: "i" } }],
         })
-        .populate({
-          path: "academic_department",
-        });
-    } else {
-      var all_mods = await FinanceModerator.find({
-        _id: { $in: institute?.moderator_role },
-      })
-        .sort("-1")
-        .limit(limit)
-        .skip(skip)
-        .populate({
-          path: "access_staff",
-          select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          .populate({
+            path: "access_staff",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          })
+          .populate({
+            path: "academic_department",
+          });
+      } else {
+        var all_mods = await FinanceModerator.find({
+          $and: [{_id: { $in: institute?.leave_moderator_role }}, { access_role: { $in: roles}}]
         })
-        .populate({
-          path: "academic_department",
+          .sort("-1")
+          .limit(limit)
+          .skip(skip)
+          .populate({
+            path: "access_staff",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          })
+          .populate({
+            path: "academic_department",
+          });
+      }
+      console.log(all_mods)
+      if (all_mods?.length > 0) {
+        // const allEncrypt = await encryptionPayload(all_mods);
+        res.status(200).send({
+          message: "All Leave & Transfer Admin / Moderator List 😀",
+          all_mods,
+          access: true,
         });
+      } else {
+        res.status(200).send({
+          message: "No Leave & Transfer Admin / Moderator List 😀",
+          all_mods: [],
+          access: false,
+        });
+      }
     }
-    if (all_mods?.length > 0) {
-      // const allEncrypt = await encryptionPayload(all_mods);
-      res.status(200).send({
-        message: "All Admin / Moderator List 😀",
-        all_mods,
-        access: true,
-      });
-    } else {
-      res.status(200).send({
-        message: "No Admin / Moderator List 😀",
-        all_mods: [],
-        access: false,
-      });
+    else {
+      if (search) {
+        var all_mods = await FinanceModerator.find({
+          $and: [{ _id: { $in: institute?.moderator_role } }],
+          $or: [{ access_role: { $regex: search, $options: "i" } }],
+        })
+          .populate({
+            path: "access_staff",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          })
+          .populate({
+            path: "academic_department",
+          });
+      } else {
+        var all_mods = await FinanceModerator.find({
+          _id: { $in: institute?.moderator_role },
+        })
+          .sort("-1")
+          .limit(limit)
+          .skip(skip)
+          .populate({
+            path: "access_staff",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          })
+          .populate({
+            path: "academic_department",
+          });
+      }
+      if (all_mods?.length > 0) {
+        // const allEncrypt = await encryptionPayload(all_mods);
+        res.status(200).send({
+          message: "All Admin / Moderator List 😀",
+          all_mods,
+          access: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No Admin / Moderator List 😀",
+          all_mods: [],
+          access: false,
+        });
+      }
     }
   } catch (e) {
     console.log(e);

@@ -119,6 +119,8 @@ router.patch("/manage/approve/:lid", catchAsync(complaintController.renderManage
 
 router.patch("/add/:mid/staff/to/authority", catchAsync(complaintController.renderAddStaffToAuthorityQuery))
 
+router.patch("/remove/:mid/staff/to/authority", catchAsync(complaintController.renderRemoveStaffToAuthorityQuery))
+
 router.get("/all/leave/request/:mid/query", catchAsync(complaintController.renderAllLeaveRequestQuery))
 
 router.get("/all/leave/history/:mid/query", catchAsync(complaintController.renderAllLeaveHistoryQuery))

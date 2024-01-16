@@ -1925,6 +1925,48 @@ exports.renderAddStaffToAuthorityQuery = async (req, res) => {
   }
 }
 
+exports.renderRemoveStaffToAuthorityQuery = async (req, res) => {
+  try {
+    const { mid } = req?.params
+    const { flow, staff_arr } = req?.body
+    if (!mid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var mods = await FinanceModerator.findById({ _id: mid })
+    if (flow === "Recommend_Section") {
+      var all_staff = await Staff.find({ _id: { $in: staff_arr}})
+      for(var ele of all_staff){
+        ele.recommend_authority = null
+        mods.recommend_staff.pull(ele?._id)
+        if (mods.recommend_staff_count > 0) {
+          mods.recommend_staff_count -= 1
+        }
+        await ele.save()
+      }
+      await mods.save()
+      res.status(200).send({ message: "Flow Redirect To Recommend Section", access: true})
+    }
+    else if (flow === "Review_Section") {
+      var all_staff = await Staff.find({ _id: { $in: staff_arr}})
+      for(var ele of all_staff){
+        ele.review_authority = null
+        mods.review_staff.pull(ele?._id)
+        if (mods.review_staff_count > 0) {
+          mods.review_staff_count -= 1
+        }
+        await ele.save()
+      }
+      await mods.save()
+      res.status(200).send({ message: "Flow Redirect To Review Section", access: true})
+    }
+    else {
+      res.status(200).send({ message: "Invalid Flow", access: true})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.renderAllLeaveRequestQuery = async (req, res) => {
   try {
     const { mid } = req?.params

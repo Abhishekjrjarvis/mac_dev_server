@@ -22,7 +22,7 @@ exports.applicable_pending_calc = async (arr) => {
     for (var s_args of arr) {
       if (s_args?.remainingFeeList?.length > 0) {
         for (var r_args of s_args?.remainingFeeList) {
-          s_args.applicable_fees_pending += r_args?.remaining_fee
+          s_args.applicable_fees_pending += r_args?.applicable_card?.remaining_fee
         }
       }
     }

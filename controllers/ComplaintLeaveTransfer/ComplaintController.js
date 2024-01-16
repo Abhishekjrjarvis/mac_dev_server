@@ -917,7 +917,7 @@ exports.oneStaffLeaveProcess = async (req, res) => {
           path: "user",
           select: "uNotify activity_tab",
         },
-        select: "user casual_leave medical_leave sick_leave leave_taken",
+        select: "user casual_leave medical_leave sick_leave leave_taken commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave",
       })
       .select("staff institute status");
     const user = await User.findById(leave.staff.user._id);
@@ -942,12 +942,71 @@ exports.oneStaffLeaveProcess = async (req, res) => {
         leave.staff.sick_leave -= leave?.leave_grant
       }
     }
+    if(leave?.leave_type === "Commuted Leave"){
+      if(leave?.staff?.commuted_leave > leave?.leave_grant){
+        leave.staff.commuted_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Maternity Leave"){
+      if(leave?.staff?.maternity_leave > leave?.leave_grant){
+        leave.staff.maternity_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Paternity Leave"){
+      if(leave?.staff?.paternity_leave > leave?.leave_grant){
+        leave.staff.paternity_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Study Leave"){
+      if(leave?.staff?.study_leave > leave?.leave_grant){
+        leave.staff.study_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Half Pay Leave"){
+      if(leave?.staff?.half_pay_leave > leave?.leave_grant){
+        leave.staff.half_pay_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Quarantine Leave"){
+      if(leave?.staff?.quarantine_leave > leave?.leave_grant){
+        leave.staff.quarantine_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Sabbatical Leave"){
+      if(leave?.staff?.sabbatical_leave > leave?.leave_grant){
+        leave.staff.sabbatical_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Special Disability Leave"){
+      if(leave?.staff?.special_disability_leave > leave?.leave_grant){
+        leave.staff.special_disability_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Winter Vacation Leave"){
+      if(leave?.staff?.winter_vacation_leave > leave?.leave_grant){
+        leave.staff.winter_vacation_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Summer Vacation Leave"){
+      if(leave?.staff?.summer_vacation_leave > leave?.leave_grant){
+        leave.staff.summer_vacation_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Child Adoption Leave"){
+      if(leave?.staff?.child_adoption_leave > leave?.leave_grant){
+        leave.staff.child_adoption_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Bereavement Leave"){
+      if(leave?.staff?.bereavement_leave > leave?.leave_grant){
+        leave.staff.bereavement_leave -= leave?.leave_grant
+      }
+    }
     if(leave?.leave_type === "Compensation Off Leave"){
       if(leave?.staff?.c_off_leave > leave?.leave_grant){
         leave.staff.c_off_leave -= leave?.leave_grant
       }
     }
-
     leave.staff.leave_taken += leave?.leave_grant
     notify.notifyContent = `Your Leave request has been ${req.body.status} by ${leave.institute.insName}`;
     notify.notifySender = leave.institute._id;

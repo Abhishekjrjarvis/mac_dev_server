@@ -70,6 +70,10 @@ const leaveSchema = new mongoose.Schema({
       default: "Request"
     }
   },
+  leave_grant: {
+    type: Number,
+    default: 0
+  }
 });
 
 const Leave = mongoose.model("Leave", leaveSchema);

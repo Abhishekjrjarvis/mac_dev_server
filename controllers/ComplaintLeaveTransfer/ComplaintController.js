@@ -1813,10 +1813,6 @@ exports.renderAllLeaveRequestQuery = async (req, res) => {
           path: "staff",
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
-        .populate({
-          path: "recommend.recommend_staff",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-        })
       if (all_leave?.length > 0) {
         res.status(200).send({ message: "Flow Redirect To Recommend Section + All Leave", access: true, all_leave: all_leave})
       }
@@ -1835,10 +1831,6 @@ exports.renderAllLeaveRequestQuery = async (req, res) => {
         })
         .populate({
           path: "recommend.recommend_staff",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-        })
-        .populate({
-          path: "review.review_staff",
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
       if (all_leave?.length > 0) {
@@ -1863,10 +1855,6 @@ exports.renderAllLeaveRequestQuery = async (req, res) => {
         })
         .populate({
           path: "review.review_staff",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-        })
-        .populate({
-          path: "sanction.sanction_staff",
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
       if (all_leave?.length > 0) {

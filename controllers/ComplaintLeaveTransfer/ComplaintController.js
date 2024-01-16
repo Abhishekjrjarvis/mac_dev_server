@@ -969,6 +969,7 @@ exports.oneStaffLeaveProcess = async (req, res) => {
       })
       .select("staff institute status recommend review sanction");
     
+    leave.leave_grant = leave?.date?.length
       var user = await User.findById(leave?.staff?.user?._id);
       var notify = new StudentNotification({});
     if (leave_from === "Recommend_Section") {

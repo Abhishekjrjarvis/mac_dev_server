@@ -832,21 +832,21 @@ exports.postStaffLeave = async (req, res) => {
         await recommend_mods.save()
       }
     }
-    if (institute?.leave_mods_access?.review) {
+    else if (institute?.leave_mods_access?.review) {
       if (staff?.review_authority) {
         const review_mods = await FinanceModerator.findById({ _id: `${staff?.review_authority}` })
         review_mods.review_request.push(leave?._id)
         await review_mods.save()
       }
     }
-    if (institute?.leave_mods_access?.sanction) {
+    else if (institute?.leave_mods_access?.sanction) {
       if (staff?.sanction_authority) {
         const sanction_mods = await FinanceModerator.findById({ _id: `${staff?.sanction_authority}` })
         sanction_mods.sanction_request.push(leave?._id)
         await sanction_mods.save()
       }
     }
-    if (!institute?.leave_mods_access?.recommend && !institute?.leave_mods_access?.review && !institute?.leave_mods_access?.sanction) {
+    else {
       institute.leave.push(leave._id);
     }
     leave.leave_grant = dateArray?.length
@@ -965,14 +965,19 @@ exports.oneStaffLeaveProcess = async (req, res) => {
           path: "user",
           select: "uNotify activity_tab",
         },
-        select: "user casual_leave medical_leave sick_leave leave_taken commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave",
+        select: "user casual_leave medical_leave sick_leave recommend_authority review_authority sanction_authority leave_taken commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave",
       })
       .select("staff institute status recommend review sanction");
     
       var user = await User.findById(leave?.staff?.user?._id);
       var notify = new StudentNotification({});
     if (leave_from === "Recommend_Section") {
-      const recommend_mods = await FinanceModerator.findById({ _id: `${staff_mod}`})
+      const recommend_mods = await FinanceModerator.findById({ _id: `${staff_mod}` })
+      if (leave?.staff?.review_authority && req?.body?.status === "Accepted") {
+        const review_mods = await FinanceModerator.findById({ _id: `${leave?.staff?.review_authority}` })
+        review_mods.review_request.push(leave?._id)
+        await review_mods.save()
+      }
       notify.notifyContent = `Your Leave request has been ${req?.body?.status} by Recommended Authority - From ${leave?.institute?.insName}`;
     notify.notifySender = leave?.institute?._id;
     notify.notifyReceiever = user._id;
@@ -1000,7 +1005,12 @@ exports.oneStaffLeaveProcess = async (req, res) => {
       await Promise.all([ notify.save(), user.save(), leave.save(), recommend_mods.save()])
     }
     else if (leave_from === "Review_Section") {
-      const review_mods = await FinanceModerator.findById({ _id: `${staff_mod}`})
+      const review_mods = await FinanceModerator.findById({ _id: `${staff_mod}` })
+      if (leave?.staff?.sanction_authority && req?.body?.status === "Accepted") {
+        const sanction_mods = await FinanceModerator.findById({ _id: `${leave?.staff?.sanction_authority}` })
+        sanction_mods.sanction_history.push(leave?._id)
+        await sanction_mods.save()
+      }
       notify.notifyContent = `Your Leave request has been ${req?.body?.status} by Review Authority - From ${leave?.institute?.insName}`;
     notify.notifySender = leave?.institute?._id;
     notify.notifyReceiever = user._id;

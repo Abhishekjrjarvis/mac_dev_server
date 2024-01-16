@@ -2013,7 +2013,7 @@ exports.renderAllLeaveRequestQuery = async (req, res) => {
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
         .populate({
-          path: "recommend.recommend_staff",
+          path: "recommend.recommend_by",
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
       if (all_leave?.length > 0) {
@@ -2033,11 +2033,11 @@ exports.renderAllLeaveRequestQuery = async (req, res) => {
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
         .populate({
-          path: "recommend.recommend_staff",
+          path: "recommend.recommend_by",
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
         .populate({
-          path: "review.review_staff",
+          path: "review.review_by",
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
       if (all_leave?.length > 0) {

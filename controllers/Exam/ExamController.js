@@ -3695,7 +3695,7 @@ const one_student_report_change_data_format = async (
     showGradeTotal: total?.showGradeTotal,
     spi: +total?.spi,
     totalCredit: +total?.totalCredit,
-    earnedGradePoint: +otal?.earnedGradePoint,
+    earnedGradePoint: +total?.earnedGradePoint,
     totalEarnedGradePoint: +total?.totalEarnedGradePoint,
     resultStatus: total?.resultStatus,
     totalGradeWithCredit: +total?.totalGradeWithCredit,

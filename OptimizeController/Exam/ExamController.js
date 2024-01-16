@@ -143,7 +143,7 @@ exports.createExam = async (req, res) => {
         exam.class.push(cid);
         await classes.save();
       }
-      for (let sub of req.body.allsubject) {
+      for (let sub of req?.body?.allsubject) {
         for (let subId of sub.subjectIds) {
           const subject = await Subject.findById(subId);
           if (String(subject.class) === cid) {

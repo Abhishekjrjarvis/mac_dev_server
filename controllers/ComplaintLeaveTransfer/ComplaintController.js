@@ -967,9 +967,9 @@ exports.oneStaffLeaveProcess = async (req, res) => {
         },
         select: "user casual_leave medical_leave sick_leave recommend_authority review_authority sanction_authority leave_taken commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave",
       })
-      .select("staff institute status recommend review sanction");
+      .select("staff institute status recommend review sanction leave_grant");
     
-    leave.leave_grant = leave?.date?.length
+    // leave.leave_grant = leave?.date?.length
       var user = await User.findById(leave?.staff?.user?._id);
       var notify = new StudentNotification({});
     if (leave_from === "Recommend_Section") {

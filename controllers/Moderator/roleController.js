@@ -775,7 +775,7 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       var all_mods = await FinanceModerator.find({ _id: { $in: rev_array}})
       for(var ele of all_mods){
         new_mod.review_authority_list.push(ele?._id)
-        var all_staff = await Staff.find({ _id: { $in: ele?.recommend_staff}})
+        var all_staff = await Staff.find({ _id: { $in: ele?.review_staff}})
         for(var stu of all_staff){
           stu.sanction_authority = new_mod?._id
           await stu.save()

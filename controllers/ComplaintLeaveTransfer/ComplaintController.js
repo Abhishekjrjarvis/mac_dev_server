@@ -1008,7 +1008,7 @@ exports.oneStaffLeaveProcess = async (req, res) => {
       const review_mods = await FinanceModerator.findById({ _id: `${staff_mod}` })
       if (leave?.staff?.sanction_authority && req?.body?.status === "Accepted") {
         const sanction_mods = await FinanceModerator.findById({ _id: `${leave?.staff?.sanction_authority}` })
-        sanction_mods.sanction_history.push(leave?._id)
+        sanction_mods.sanction_request.push(leave?._id)
         await sanction_mods.save()
       }
       notify.notifyContent = `Your Leave request has been ${req?.body?.status} by Review Authority - From ${leave?.institute?.insName}`;

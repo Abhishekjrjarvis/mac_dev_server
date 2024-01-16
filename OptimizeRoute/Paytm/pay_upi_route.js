@@ -10,6 +10,8 @@ const {
   callbackHostel,
   callbackHostelStatus,
   callbackTransportStatus,
+  callbackCertificate,
+  callbackCertificateStatus
   // callbackLibrary,
   // callbackLibraryStatus,
 } = require("../../OptimizeController/Paytm/pay_upi");
@@ -33,6 +35,12 @@ router
   )
   .post(callbackHostel);
 
+router
+  .route(
+    "/callback/certificate/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price"
+  )
+  .post(callbackCertificate);
+
 // router
 //   .route(
 //     "/callback/library/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price/book/:payment_book_id"
@@ -44,6 +52,8 @@ router.route("/status/success/internal/query").post(callbackStatus);
 router.route("/status/success/admission/query").post(callbackAdmissionStatus);
 
 router.route("/status/success/hostel/query").post(callbackHostelStatus);
+
+router.route("/status/success/certificate/query").post(callbackCertificateStatus);
 
 // router.route("/status/success/library/query").post(callbackLibraryStatus);
 

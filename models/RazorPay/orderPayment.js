@@ -110,6 +110,10 @@ const orderPaymentSchema = new mongoose.Schema({
   payment_student_gr: {
     type: String,
   },
+  payment_certificate: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "CertificateQuery",
+  },
   // payment_expense_by_end_user_id: {
   //   type: mongoose.Schema.Types.ObjectId,
   //   ref: "InstituteAdmin",

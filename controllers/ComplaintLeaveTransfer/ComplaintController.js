@@ -737,13 +737,37 @@ exports.getStaffLeave = async (req, res) => {
       var all_leave = await Leave.find({ $and: [{ _id: {$in: staff?.staffLeave } }, { leave_type: `${category}`}]})
     .sort({ createdAt: -1 })
     .limit(limit)
-    .skip(skip)
+        .skip(skip)
+        .populate({
+          path: "recommend.recommend_by",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "review.review_by",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "sanction.sanction_by",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
     }
     else{
       var all_leave = await Leave.find({ _id: {$in: staff?.staffLeave }})
     .sort({ createdAt: -1 })
     .limit(limit)
-    .skip(skip)
+        .skip(skip)
+        .populate({
+          path: "recommend.recommend_by",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "review.review_by",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "sanction.sanction_by",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
     }
     // const lEncrypt = await encryptionPayload(staff.staffLeave);
     res.status(200).send({ message: "All leaves", allLeave: all_leave });
@@ -1892,6 +1916,10 @@ exports.renderAllLeaveHistoryQuery = async (req, res) => {
           path: "staff",
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
+        .populate({
+          path: "recommend.recommend_by",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
       if (all_leave?.length > 0) {
         res.status(200).send({ message: "Flow Redirect To Recommend Section + All Leave", access: true, all_leave: all_leave})
       }
@@ -1909,7 +1937,11 @@ exports.renderAllLeaveHistoryQuery = async (req, res) => {
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
         .populate({
-          path: "recommend.recommend_staff",
+          path: "recommend.recommend_by",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "review.review_by",
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
       if (all_leave?.length > 0) {
@@ -1929,11 +1961,15 @@ exports.renderAllLeaveHistoryQuery = async (req, res) => {
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
         .populate({
-          path: "recommend.recommend_staff",
+          path: "recommend.recommend_by",
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
         .populate({
-          path: "review.review_staff",
+          path: "review.review_by",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "sanction.sanction_by",
           select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
         })
       if (all_leave?.length > 0) {

@@ -37,7 +37,7 @@ router
 
 router
   .route(
-    "/callback/certificate/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price"
+    "/callback/certificate/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price/type/:cert_type/content/:cert_content"
   )
   .post(callbackCertificate);
 

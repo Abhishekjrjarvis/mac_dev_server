@@ -103,7 +103,43 @@ const financeModeratorSchema = new mongoose.Schema({
   staff_institute_admin: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin"
-  }
+  },
+  recommend_request: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Leave"
+    }
+  ],
+  recommend_history: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Leave"
+    }
+  ],
+  review_request: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Leave"
+    }
+  ],
+  review_history: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Leave"
+    }
+  ],
+  sanction_request: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Leave"
+    }
+  ],
+  sanction_history: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Leave"
+    }
+  ]
 });
 
 module.exports = mongoose.model("FinanceModerator", financeModeratorSchema);

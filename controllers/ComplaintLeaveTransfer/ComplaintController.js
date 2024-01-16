@@ -789,21 +789,42 @@ exports.postStaffLeave = async (req, res) => {
       })
 
       .select(
-        "staffLeave user institute staffFirstName staffMiddleName staffLastName"
+        "staffLeave user institute staffFirstName staffMiddleName staffLastName recommend_authority review_authority sanction_authority"
       );
 
     const user = await User.findById(staff.user).select("uNotify");
 
-    const institute = await InstituteAdmin.findById(staff.institute);
+    const institute = await InstituteAdmin.findById(staff?.institute);
     const leave = new Leave({
       reason: req.body.reason,
       date: dateArray,
       staff: staff._id,
       institute: institute._id,
     });
+    if (institute?.leave_mods_access?.recommend) {
+      if (staff?.recommend_authority) {
+        const recommend_mods = await FinanceModerator.findById({ _id: `${staff?.recommend_authority}` })
+        recommend_mods.recommend_request.push(leave?._id)
+        await recommend_mods.save()
+      }
+    }
+    if (institute?.leave_mods_access?.review) {
+      if (staff?.review_authority) {
+        const review_mods = await FinanceModerator.findById({ _id: `${staff?.review_authority}` })
+        review_mods.review_request.push(leave?._id)
+        await review_mods.save()
+      }
+    }
+    if (institute?.leave_mods_access?.sanction) {
+      if (staff?.sanction_authority) {
+        const sanction_mods = await FinanceModerator.findById({ _id: `${staff?.sanction_authority}` })
+        sanction_mods.sanction_request.push(leave?._id)
+        await sanction_mods.save()
+      }
+    }
     leave.leave_grant = dateArray?.length
     leave.leave_type = req?.body?.leave_type
-    institute.leave.push(leave._id);
+    // institute.leave.push(leave._id);
     staff.staffLeave.push(leave._id);
     if(req?.body?.attach){
       leave.attach = req?.body?.attach
@@ -906,7 +927,8 @@ exports.getAllStaffLeaveInstitute = async (req, res) => {
 
 exports.oneStaffLeaveProcess = async (req, res) => {
   try {
-    const leave = await Leave.findById(req.params.id)
+    const { leave_from, staff_mod } = req?.body
+    var leave = await Leave.findById(req.params.id)
       .populate({
         path: "institute",
         select: "insName",
@@ -919,10 +941,68 @@ exports.oneStaffLeaveProcess = async (req, res) => {
         },
         select: "user casual_leave medical_leave sick_leave leave_taken commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave",
       })
-      .select("staff institute status");
-    const user = await User.findById(leave.staff.user._id);
-
-    const notify = new StudentNotification({});
+      .select("staff institute status recommend review sanction");
+    
+      var user = await User.findById(leave?.staff?.user?._id);
+      var notify = new StudentNotification({});
+    if (leave_from === "Recommend_Section") {
+      const recommend_mods = await FinanceModerator.findById({ _id: `${staff_mod}`})
+      notify.notifyContent = `Your Leave request has been ${req?.body?.status} by Recommended Authority - From ${leave?.institute?.insName}`;
+    notify.notifySender = leave?.institute?._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyType = "Staff";
+    notify.notifyPublisher = leave?.staff?._id;
+    user.activity_tab.push(notify._id);
+    notify.notifyByInsPhoto = leave?.institute?._id;
+    notify.notifyCategory = "Leave Status";
+      notify.redirectIndex = 10;
+      leave.recommend.recommend_by = recommend_mods?.access_staff
+      leave.recommend.recommend_on = new Date()
+      leave.recommend.recommend_status = req?.body?.status
+      recommend_mods.recommend_request.pull(leave?._id)
+      recommend_mods.recommend_history.push(leave?._id)
+    //
+    invokeMemberTabNotification(
+      "Staff Activity",
+      notify,
+      `Recommend Leave Application ${req.body.status}`,
+      user._id,
+      user.deviceToken,
+      "Staff",
+      notify
+    );
+      await Promise.all([ notify.save(), user.save(), leave.save(), recommend_mods.save()])
+    }
+    else if (leave_from === "Review_Section") {
+      const review_mods = await FinanceModerator.findById({ _id: `${staff_mod}`})
+      notify.notifyContent = `Your Leave request has been ${req?.body?.status} by Review Authority - From ${leave?.institute?.insName}`;
+    notify.notifySender = leave?.institute?._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyType = "Staff";
+    notify.notifyPublisher = leave?.staff?._id;
+    user.activity_tab.push(notify._id);
+    notify.notifyByInsPhoto = leave?.institute?._id;
+    notify.notifyCategory = "Leave Status";
+      notify.redirectIndex = 10;
+      leave.review.review_by = review_mods?.access_staff
+      leave.review.review_on = new Date()
+      leave.review.review_status = req?.body?.status
+      review_mods.review_request.pull(leave?._id)
+      review_mods.review_history.push(leave?._id)
+    //
+    invokeMemberTabNotification(
+      "Staff Activity",
+      notify,
+      `Review Leave Application ${req.body.status}`,
+      user._id,
+      user.deviceToken,
+      "Staff",
+      notify
+    );
+      await Promise.all([ notify.save(), user.save(), leave.save(), review_mods.save()])
+    }
+    else if (leave_from === "Sanction_Section") {
+    const sanction_mods = await FinanceModerator.findById({ _id: `${staff_mod}`})
     leave.status = req.body.status;
     if(req?.body?.status === "Issued"){
       leave.granted_on = new Date()
@@ -1008,7 +1088,7 @@ exports.oneStaffLeaveProcess = async (req, res) => {
       }
     }
     leave.staff.leave_taken += leave?.leave_grant
-    notify.notifyContent = `Your Leave request has been ${req.body.status} by ${leave.institute.insName}`;
+    notify.notifyContent = `Your Leave request has been ${req.body.status} by Sanction Authority - From ${leave.institute.insName}`;
     notify.notifySender = leave.institute._id;
     notify.notifyReceiever = user._id;
     notify.notifyType = "Staff";
@@ -1016,19 +1096,28 @@ exports.oneStaffLeaveProcess = async (req, res) => {
     user.activity_tab.push(notify._id);
     notify.notifyByInsPhoto = leave.institute._id;
     notify.notifyCategory = "Leave Status";
-    notify.redirectIndex = 10;
+      notify.redirectIndex = 10;
+      leave.sanction.sanction_by = sanction_mods?.access_staff
+      leave.sanction.sanction_on = new Date()
+      leave.sanction.sanction_status = req?.body?.status
+      sanction_mods.sanction_request.pull(leave?._id)
+      sanction_mods.sanction_history.push(leave?._id)
     //
     invokeMemberTabNotification(
       "Staff Activity",
       notify,
-      `Leave Application ${req.body.status}`,
+      `Sanction Leave Application ${req.body.status}`,
       user._id,
       user.deviceToken,
       "Staff",
       notify
     );
     //
-    await Promise.all([leave.save(), user.save(), notify.save(), leave.staff.save()]);
+    await Promise.all([leave.save(), user.save(), notify.save(), leave.staff.save(), sanction_mods.save()]);
+    }
+    else {
+      
+    }
     res.status(200).send({ message: `Leave ${req.body.status} by Institute` });
   } catch (e) {
     console.log(e);
@@ -1667,15 +1756,280 @@ exports.renderManageCoffQuery = async(req, res) => {
   }
 }
 
+exports.renderAddStaffToAuthorityQuery = async (req, res) => {
+  try {
+    const { mid } = req?.params
+    const { flow, staff_arr } = req?.body
+    if (!mid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var mods = await FinanceModerator.findById({ _id: mid })
+    if (flow === "Recommend_Section") {
+      var all_staff = await Staff.find({ _id: { $in: staff_arr}})
+      for(var ele of all_staff){
+        ele.recommend_authority = mods?._id
+        mods.recommend_staff.push(ele?._id)
+        mods.recommend_staff_count += 1
+        await ele.save()
+      }
+      await mods.save()
+      res.status(200).send({ message: "Flow Redirect To Recommend Section", access: true})
+    }
+    else if (flow === "Review_Section") {
+      var all_staff = await Staff.find({ _id: { $in: staff_arr}})
+      for(var ele of all_staff){
+        ele.review_authority = mods?._id
+        mods.review_staff.push(ele?._id)
+        mods.review_staff_count += 1
+        await ele.save()
+      }
+      await mods.save()
+      res.status(200).send({ message: "Flow Redirect To Review Section", access: true})
+    }
+    else {
+      res.status(200).send({ message: "Invalid Flow", access: true})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderAllLeaveRequestQuery = async (req, res) => {
+  try {
+    const { mid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { flow } = req?.query
+    if (!mid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+
+    var mods = await FinanceModerator.findById({ _id: mid })
+    if (flow === "Recommend_Section") {
+      var all_leave = await Leave.find({ _id: { $in: mods?.recommend_request } })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "recommend.recommend_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+      if (all_leave?.length > 0) {
+        res.status(200).send({ message: "Flow Redirect To Recommend Section + All Leave", access: true, all_leave: all_leave})
+      }
+      else {
+        res.status(200).send({ message: "Flow Redirect To Recommend Section + No Leave", access: true, all_leave:[] }) 
+      }
+    }
+    else if (flow === "Review_Section") {
+      var all_leave = await Leave.find({ _id: { $in: mods?.review_request } })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "recommend.recommend_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "review.review_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+      if (all_leave?.length > 0) {
+        res.status(200).send({ message: "Flow Redirect To Review Section + All Leave", access: true, all_leave: all_leave})
+      }
+      else {
+        res.status(200).send({ message: "Flow Redirect To Review Section + No Leave", access: true, all_leave:[] }) 
+      }
+    }
+    else if (flow === "Sanction_Section") {
+      var all_leave = await Leave.find({ _id: { $in: mods?.sanction_request } })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "recommend.recommend_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "review.review_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "sanction.sanction_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+      if (all_leave?.length > 0) {
+        res.status(200).send({ message: "Flow Redirect To Sanction Section + All Leave", access: true, all_leave: all_leave})
+      }
+      else {
+        res.status(200).send({ message: "Flow Redirect To Sanction Section + No Leave", access: true, all_leave:[] }) 
+      }
+    }
+    else {
+      res.status(200).send({ message: "Invalid Flow", access: true})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderAllLeaveHistoryQuery = async (req, res) => {
+  try {
+    const { mid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { flow } = req?.query
+    if (!mid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+
+    var mods = await FinanceModerator.findById({ _id: mid })
+    if (flow === "Recommend_Section") {
+      var all_leave = await Leave.find({ _id: { $in: mods?.recommend_history } })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "recommend.recommend_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+      if (all_leave?.length > 0) {
+        res.status(200).send({ message: "Flow Redirect To Recommend Section + All Leave", access: true, all_leave: all_leave})
+      }
+      else {
+        res.status(200).send({ message: "Flow Redirect To Recommend Section + No Leave", access: true, all_leave:[] }) 
+      }
+    }
+    else if (flow === "Review_Section") {
+      var all_leave = await Leave.find({ _id: { $in: mods?.review_history } })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "recommend.recommend_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "review.review_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+      if (all_leave?.length > 0) {
+        res.status(200).send({ message: "Flow Redirect To Review Section + All Leave", access: true, all_leave: all_leave})
+      }
+      else {
+        res.status(200).send({ message: "Flow Redirect To Review Section + No Leave", access: true, all_leave:[] }) 
+      }
+    }
+    else if (flow === "Sanction_Section") {
+      var all_leave = await Leave.find({ _id: { $in: mods?.sanction_history } })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "recommend.recommend_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "review.review_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+        .populate({
+          path: "sanction.sanction_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        })
+      if (all_leave?.length > 0) {
+        res.status(200).send({ message: "Flow Redirect To Sanction Section + All Leave", access: true, all_leave: all_leave})
+      }
+      else {
+        res.status(200).send({ message: "Flow Redirect To Sanction Section + No Leave", access: true, all_leave:[] }) 
+      }
+    }
+    else {
+      res.status(200).send({ message: "Invalid Flow", access: true})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderAllStudentQuery = async (req, res) => {
+  try {
+    const { mid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { flow } = req?.query
+    if (!mid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+
+    var mods = await FinanceModerator.findById({ _id: mid })
+    if (flow === "Recommend_Section") {
+      var all_staff = await Staff.find({ _id: { $in: mods?.recommend_staff } })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO teaching_type")
+      if (all_staff?.length > 0) {
+        res.status(200).send({ message: "Flow Redirect To Recommend Section + All Staff", access: true, all_staff: all_staff})
+      }
+      else {
+        res.status(200).send({ message: "Flow Redirect To Recommend Section + No Staff", access: true, all_staff:[] }) 
+      }
+    }
+    else if (flow === "Review_Section") {
+      var all_staff = await Staff.find({ _id: { $in: mods?.review_staff } })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO teaching_type")
+      if (all_staff?.length > 0) {
+        res.status(200).send({ message: "Flow Redirect To Review Section + All Staff", access: true, all_staff: all_staff})
+      }
+      else {
+        res.status(200).send({ message: "Flow Redirect To Review Section + No Staff", access: true, all_staff:[] }) 
+      }
+    }
+    else {
+      res.status(200).send({ message: "Invalid Flow", access: true})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.renderLeaveOverviewQuery = async(req, res) => {
   try{
     const { sid } = req.params
     if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     const staff = await Staff.findById({ _id: sid })
-    .select("casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave leave_taken")
+    .select("casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave leave_taken commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave")
 
-    var total_leave = staff?.casual_leave + staff?.medical_leave + staff?.sick_leave + staff?.off_duty_leave + staff?.lwp_leave + staff?.c_off_leave
+    var total_leave = staff?.casual_leave + staff?.medical_leave + staff?.sick_leave + staff?.off_duty_leave + staff?.lwp_leave + staff?.c_off_leave + staff?.commuted_leave + staff?.maternity_leave + staff?.paternity_leave + staff?.study_leave + staff?.half_pay_leave + staff?.quarantine_leave + staff?.sabbatical_leave + staff?.special_disability_leave + staff?.winter_vacation_leave + staff?.summer_vacation_leave + staff?.child_adoption_leave + staff?.bereavement_leave
     var leave_taken = staff?.leave_taken
 
     var overview = {
@@ -1851,9 +2205,11 @@ exports.renderOneLeaveConfigQuery = async(req, res) => {
     const { id } = req?.params
     if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
+    const institute = await InstituteAdmin.findById({ _id: id })
+    .select("leave_mods_access")
     const leave_config = await LeaveConfig.findOne({ institute: id})
     if(leave_config?._id){
-      res.status(200).send({ message: `One Leave Query`, access: true, leave_config: leave_config})
+      res.status(200).send({ message: `One Leave Query`, access: true, leave_config: leave_config, mods_control: institute?.leave_mods_access})
     }
     else{
       res.status(200).send({ message: `No Leave Query`, access: false})

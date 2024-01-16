@@ -1661,7 +1661,9 @@ exports.certificateInstituteFunction = async (
   tx_amount,
   tx_amount_charges,
   moduleId,
-  is_author
+  is_author,
+  cert_type,
+  cert_content
 ) => {
   // try {
   //   const student = await Student.findById({ _id: paidBy });
@@ -1697,7 +1699,9 @@ exports.certificateInstituteFunction = async (
   //   new_receipt.internal_fees = new_internal?._id;
     
 
-  //   var new_cert = new CertificateQuery({ ...req?.body });
+  //   var new_cert = new CertificateQuery({});
+  //   new_cert.certificate_type = cert_type
+  //   new_cert.query_content = cert_content
   //   new_cert.student = student?._id;
   //   new_cert.institute = ins?._id;
   //   student.certificate.push(new_cert?._id);

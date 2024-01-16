@@ -1137,6 +1137,20 @@ const instituteAdminSchema = new mongoose.Schema({
   charges:{
       type: mongoose.Schema.Types.ObjectId,
       ref: "Charges"
+  },
+  leave_mods_access: {
+    recommend: {
+      type: Boolean,
+      default: true
+    },
+    review: {
+      type: Boolean,
+      default: true
+    },
+    sanction: {
+      type: Boolean,
+      default: true
+    }
   }
 });
 

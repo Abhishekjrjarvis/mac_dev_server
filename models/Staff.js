@@ -515,7 +515,7 @@ const staffSchema = new mongoose.Schema({
   },
   sanction_authority: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Staff"
+    ref: "FinanceModerator"
   },
   current_designation: {
     type: String

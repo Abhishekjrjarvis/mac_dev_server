@@ -2236,6 +2236,18 @@ exports.renderLeaveFilterOverviewQuery = async(req, res) => {
       path: "staff",
       select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
     })
+    .populate({
+      path: "recommend.recommend_by",
+      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+    })
+    .populate({
+      path: "review.review_by",
+      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+    })
+    .populate({
+      path: "sanction.sanction_by",
+      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+    })
     }
     else{
       var all_leave = await Leave.find({ $and: [{ _id: { $in: staff?.staffLeave }}]})
@@ -2243,6 +2255,18 @@ exports.renderLeaveFilterOverviewQuery = async(req, res) => {
     .skip(skip)
     .populate({
       path: "staff",
+      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+    })
+    .populate({
+      path: "recommend.recommend_by",
+      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+    })
+    .populate({
+      path: "review.review_by",
+      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+    })
+    .populate({
+      path: "sanction.sanction_by",
       select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
     })
     }

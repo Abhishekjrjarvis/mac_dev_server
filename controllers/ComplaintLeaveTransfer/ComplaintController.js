@@ -846,9 +846,11 @@ exports.postStaffLeave = async (req, res) => {
         await sanction_mods.save()
       }
     }
+    if (!institute?.leave_mods_access?.recommend && !institute?.leave_mods_access?.review && !institute?.leave_mods_access?.sanction) {
+      institute.leave.push(leave._id);
+    }
     leave.leave_grant = dateArray?.length
     leave.leave_type = req?.body?.leave_type
-    // institute.leave.push(leave._id);
     staff.staffLeave.push(leave._id);
     if(req?.body?.attach){
       leave.attach = req?.body?.attach
@@ -1140,7 +1142,112 @@ exports.oneStaffLeaveProcess = async (req, res) => {
     await Promise.all([leave.save(), user.save(), notify.save(), leave.staff.save(), sanction_mods.save()]);
     }
     else {
-      
+    leave.status = req.body.status;
+    if(req?.body?.status === "Issued"){
+      leave.granted_on = new Date()
+    }
+    if(leave?.leave_type === "Casual Leave"){
+      if(leave?.staff?.casual_leave > leave?.leave_grant){
+        leave.staff.casual_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Medical Leave"){
+      if(leave?.staff?.medical_leave > leave?.leave_grant){
+        leave.staff.medical_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Sick Leave"){
+      if(leave?.staff?.sick_leave > leave?.leave_grant){
+        leave.staff.sick_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Commuted Leave"){
+      if(leave?.staff?.commuted_leave > leave?.leave_grant){
+        leave.staff.commuted_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Maternity Leave"){
+      if(leave?.staff?.maternity_leave > leave?.leave_grant){
+        leave.staff.maternity_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Paternity Leave"){
+      if(leave?.staff?.paternity_leave > leave?.leave_grant){
+        leave.staff.paternity_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Study Leave"){
+      if(leave?.staff?.study_leave > leave?.leave_grant){
+        leave.staff.study_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Half Pay Leave"){
+      if(leave?.staff?.half_pay_leave > leave?.leave_grant){
+        leave.staff.half_pay_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Quarantine Leave"){
+      if(leave?.staff?.quarantine_leave > leave?.leave_grant){
+        leave.staff.quarantine_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Sabbatical Leave"){
+      if(leave?.staff?.sabbatical_leave > leave?.leave_grant){
+        leave.staff.sabbatical_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Special Disability Leave"){
+      if(leave?.staff?.special_disability_leave > leave?.leave_grant){
+        leave.staff.special_disability_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Winter Vacation Leave"){
+      if(leave?.staff?.winter_vacation_leave > leave?.leave_grant){
+        leave.staff.winter_vacation_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Summer Vacation Leave"){
+      if(leave?.staff?.summer_vacation_leave > leave?.leave_grant){
+        leave.staff.summer_vacation_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Child Adoption Leave"){
+      if(leave?.staff?.child_adoption_leave > leave?.leave_grant){
+        leave.staff.child_adoption_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Bereavement Leave"){
+      if(leave?.staff?.bereavement_leave > leave?.leave_grant){
+        leave.staff.bereavement_leave -= leave?.leave_grant
+      }
+    }
+    if(leave?.leave_type === "Compensation Off Leave"){
+      if(leave?.staff?.c_off_leave > leave?.leave_grant){
+        leave.staff.c_off_leave -= leave?.leave_grant
+      }
+    }
+    leave.staff.leave_taken += leave?.leave_grant
+    notify.notifyContent = `Your Leave request has been ${req.body.status} by Leave & Transfer Authority - From ${leave.institute.insName}`;
+    notify.notifySender = leave.institute._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyType = "Staff";
+    notify.notifyPublisher = leave.staff._id;
+    user.activity_tab.push(notify._id);
+    notify.notifyByInsPhoto = leave.institute._id;
+    notify.notifyCategory = "Leave Status";
+      notify.redirectIndex = 10;
+    //
+    invokeMemberTabNotification(
+      "Staff Activity",
+      notify,
+      `Leave Application ${req.body.status}`,
+      user._id,
+      user.deviceToken,
+      "Staff",
+      notify
+    );
+    //
+    await Promise.all([leave.save(), user.save(), notify.save(), leave.staff.save()]);
     }
     res.status(200).send({ message: `Leave ${req.body.status} by Institute` });
   } catch (e) {

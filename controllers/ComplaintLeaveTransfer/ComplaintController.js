@@ -1674,12 +1674,14 @@ exports.instituteStaffAllTransfer = async (req, res) => {
 exports.renderLeaveConfigQuery = async(req, res) => {
   try{
     const { id } = req.params
+    const { flow } = req?.query
     const { c_l, m_l, s_l, cm_l, ma_l, pa_l, q_l, hp_l, std_l, sb_l, sd_l, wv_l, sv_l, ch_l, b_l } = req?.body
     if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     const ins = await InstituteAdmin.findById({ _id: id})
-    const new_leave_config = await LeaveConfig.findOne({ institute: ins?._id})
-    new_leave_config.staff_leave_config.casual_leave = c_l ?? 0
+    const new_leave_config = await LeaveConfig.findOne({ institute: ins?._id })
+    if (flow === "TEACHING_FACULTY") {
+      new_leave_config.staff_leave_config.casual_leave = c_l ?? 0
     new_leave_config.staff_leave_config.medical_leave = m_l ?? 0
     new_leave_config.staff_leave_config.sick_leave = s_l ?? 0
 
@@ -1701,7 +1703,7 @@ exports.renderLeaveConfigQuery = async(req, res) => {
 
     await Promise.all([ ins.save(), new_leave_config.save() ])
     res.status(200).send({ message: "Explore Leave Configuration Query", access: true})
-    var all_staff = await Staff.find({ _id: { $in: ins?.ApproveStaff }})
+    var all_staff = await Staff.find({ $and: [{ _id: { $in: ins?.ApproveStaff }}, { teaching_type: "Teaching Faculty"}]})
     for(var ref of all_staff){
       ref.casual_leave = new_leave_config?.staff_leave_config.casual_leave
       ref.medical_leave = new_leave_config?.staff_leave_config.medical_leave
@@ -1719,6 +1721,50 @@ exports.renderLeaveConfigQuery = async(req, res) => {
       ref.child_adoption_leave = new_leave_config?.staff_leave_config.child_adoption_leave
       ref.bereavement_leave = new_leave_config?.staff_leave_config.bereavement_leave
       await ref.save()
+    } 
+    }
+    else if (flow === "NON_TEACHING_FACULTY") {
+      new_leave_config.staff_leave_config_non_teaching.casual_leave = c_l ?? 0
+    new_leave_config.staff_leave_config_non_teaching.medical_leave = m_l ?? 0
+    new_leave_config.staff_leave_config_non_teaching.sick_leave = s_l ?? 0
+
+    new_leave_config.staff_leave_config_non_teaching.commuted_leave = cm_l ?? 0
+    new_leave_config.staff_leave_config_non_teaching.maternity_leave = ma_l ?? 0
+    new_leave_config.staff_leave_config_non_teaching.paternity_leave = pa_l ?? 0
+
+    new_leave_config.staff_leave_config_non_teaching.quarantine_leave = q_l ?? 0
+    new_leave_config.staff_leave_config_non_teaching.half_pay_leave = hp_l ?? 0
+    new_leave_config.staff_leave_config_non_teaching.study_leave = std_l ?? 0
+
+    new_leave_config.staff_leave_config_non_teaching.sabbatical_leave = sb_l ?? 0
+    new_leave_config.staff_leave_config_non_teaching.special_disability_leave = sd_l ?? 0
+    new_leave_config.staff_leave_config_non_teaching.winter_vacation_leave = wv_l ?? 0
+
+    new_leave_config.staff_leave_config_non_teaching.summer_vacation_leave = sv_l ?? 0
+    new_leave_config.staff_leave_config_non_teaching.child_adoption_leave = ch_l ?? 0
+    new_leave_config.staff_leave_config_non_teaching.bereavement_leave = b_l ?? 0
+
+    await Promise.all([ ins.save(), new_leave_config.save() ])
+    res.status(200).send({ message: "Explore Leave Configuration Query", access: true})
+    var all_staff = await Staff.find({ $and: [{ _id: { $in: ins?.ApproveStaff }}, { teaching_type: "Non-Teaching Faculty"}]})
+    for(var ref of all_staff){
+      ref.casual_leave = new_leave_config?.staff_leave_config_non_teaching.casual_leave
+      ref.medical_leave = new_leave_config?.staff_leave_config_non_teaching.medical_leave
+      ref.sick_leave = new_leave_config?.staff_leave_config_non_teaching.sick_leave
+      ref.commuted_leave = new_leave_config?.staff_leave_config_non_teaching.commuted_leave
+      ref.maternity_leave = new_leave_config?.staff_leave_config_non_teaching.maternity_leave
+      ref.paternity_leave = new_leave_config?.staff_leave_config_non_teaching.paternity_leave
+      ref.quarantine_leave = new_leave_config?.staff_leave_config_non_teaching.quarantine_leave
+      ref.half_pay_leave = new_leave_config?.staff_leave_config_non_teaching.half_pay_leave
+      ref.study_leave = new_leave_config?.staff_leave_config_non_teaching.study_leave
+      ref.sabbatical_leave = new_leave_config?.staff_leave_config_non_teaching.sabbatical_leave
+      ref.special_disability_leave = new_leave_config?.staff_leave_config_non_teaching.special_disability_leave
+      ref.winter_vacation_leave = new_leave_config?.staff_leave_config_non_teaching.winter_vacation_leave
+      ref.summer_vacation_leave = new_leave_config?.staff_leave_config_non_teaching.summer_vacation_leave
+      ref.child_adoption_leave = new_leave_config?.staff_leave_config_non_teaching.child_adoption_leave
+      ref.bereavement_leave = new_leave_config?.staff_leave_config_non_teaching.bereavement_leave
+      await ref.save()
+    }
     }
   }
   catch(e){

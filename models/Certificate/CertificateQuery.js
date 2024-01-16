@@ -33,6 +33,10 @@ const certificateQuerySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+  fee_receipt: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeReceipt"
+  }
 });
 
 module.exports = mongoose.model("CertificateQuery", certificateQuerySchema);

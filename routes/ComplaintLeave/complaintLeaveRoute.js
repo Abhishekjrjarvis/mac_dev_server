@@ -123,7 +123,7 @@ router.get("/all/leave/request/:mid/query", catchAsync(complaintController.rende
 
 router.get("/all/leave/history/:mid/query", catchAsync(complaintController.renderAllLeaveHistoryQuery))
 
-router.get("/all/student/:mid/query", catchAsync(complaintController.renderAllStudentQuery))
+router.get("/all/staff/:mid/query", catchAsync(complaintController.renderAllStaffQuery))
 
 router.get("/:sid/leave/overview/query", catchAsync(complaintController.renderLeaveOverviewQuery))
 

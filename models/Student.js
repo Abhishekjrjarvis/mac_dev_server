@@ -858,6 +858,10 @@ const studentSchema = new mongoose.Schema({
       },
     },
   ],
+  studentCertificatePaidAmount: {
+    type: Number,
+    default: 0
+  }
 });
 
 const Student = mongoose.model("Student", studentSchema);

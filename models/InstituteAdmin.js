@@ -1151,7 +1151,13 @@ const instituteAdminSchema = new mongoose.Schema({
       type: Boolean,
       default: true
     }
-  }
+  },
+  certificate_fund_collection: {
+    online: {
+      type: Number,
+      default: 0,
+    },
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

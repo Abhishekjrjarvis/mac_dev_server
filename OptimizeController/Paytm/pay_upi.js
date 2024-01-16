@@ -27,7 +27,7 @@ const order_history_query = async (
     order_payment.payment_to_end_user_id = to_end_user_id;
     order_payment.payment_flag_by = "Debit";
     order_payment.payment_flag_to = "Credit";
-    order_payment.payment_module_id = module_id;
+    order_payment.payment_module_id = module_id ?? "";
     order_payment.payment_mode = "Paytm Payment Gateway - (PG)";
     order_payment.payment_amount = amount_nocharges;
     order_payment.payment_status = "Captured";
@@ -512,7 +512,7 @@ exports.callbackCertificate = async (req, res) => {
               paidBy,
               price,
               price_charge,
-              moduleId,
+              // moduleId,
               paytm_author,
               cert_type,
               cert_content
@@ -807,7 +807,7 @@ exports.callbackCertificateStatus = async (req, res) => {
         paidBy,
         price,
         price_charge,
-        moduleId,
+        // moduleId,
         paytm_author,
         cert_type,
         cert_content

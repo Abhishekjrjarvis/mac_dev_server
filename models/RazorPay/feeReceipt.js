@@ -130,6 +130,10 @@ const feeReceiptSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InternalFees",
   },
+  certificate: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "CertificateQuery"
+  },
   set_off_status: {
     type: String,
     default: "Not Set off",

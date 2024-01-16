@@ -1660,111 +1660,116 @@ exports.certificateInstituteFunction = async (
   paidBy,
   tx_amount,
   tx_amount_charges,
-  moduleId,
+  // moduleId,
   is_author,
   cert_type,
   cert_content
 ) => {
-  // try {
-  //   const student = await Student.findById({ _id: paidBy });
-  //   const studentUser = await User.findById({ _id: `${student?.user}` });
-  //   const institute = await InstituteAdmin.findById({
-  //     _id: `${student?.institute}`,
-  //   });
-  //   const finance = await Finance.findById({
-  //     _id: `${institute?.financeDepart[0]}`,
-  //   }).populate({
-  //     path: "financeHead",
-  //     select: "user",
-  //   });
-  //   const user = await User.findById({
-  //     _id: `${finance.financeHead.user}`,
-  //   });
-  //   const orderPay = await OrderPayment.findById({ _id: order });
-  //   var new_internal = await InternalFees.findById({ _id: moduleId });
-  //   const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-  //   var notify = new StudentNotification({});
-  //   var new_receipt = new FeeReceipt({});
-  //   new_receipt.fee_payment_amount = new_internal?.internal_fee_amount;
-  //   new_receipt.receipt_generated_from = "BY_CERTIFICATE_AUTHORITY";
-  //   new_receipt.fee_payment_mode = "Payment Gateway - PG";
-  //   new_receipt.student = student?._id;
-  //   new_receipt.fee_transaction_date = new Date();
-  //   new_receipt.finance = finance?._id;
-  //   new_receipt.invoice_count = orderPay?.payment_invoice_number;
-  //   new_receipt.order_history = orderPay?._id;
-  //   orderPay.fee_receipt = new_receipt?._id;
-  //   orderPay.payment_student = student?._id;
-  //   new_internal.fee_receipt = new_receipt?._id;
-  //   new_receipt.internal_fees = new_internal?._id;
+  try {
+    const student = await Student.findById({ _id: paidBy });
+    const studentUser = await User.findById({ _id: `${student?.user}` });
+    const institute = await InstituteAdmin.findById({
+      _id: `${student?.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    }).populate({
+      path: "financeHead",
+      select: "user",
+    });
+    const user = await User.findById({
+      _id: `${finance.financeHead.user}`,
+    });
+    const orderPay = await OrderPayment.findById({ _id: order });
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    var notify = new StudentNotification({});
+    var new_receipt = new FeeReceipt({});
+    if (cert_type === "Leaving") {
+      new_receipt.fee_payment_amount = institute?.certificate_fund_charges?.leaving_charges;
+    }
+    else if (cert_type === "Bonafide") {
+      new_receipt.fee_payment_amount = institute?.certificate_fund_charges?.bona_charges;
+    }
+    else if (cert_type === "Transfer") {
+      new_receipt.fee_payment_amount = institute?.certificate_fund_charges?.transfer_charges;
+    }
+    else if (cert_type === "Migration") {
+      new_receipt.fee_payment_amount = institute?.certificate_fund_charges?.migration_charges;
+    }
+    new_receipt.receipt_generated_from = "BY_CERTIFICATE_AUTHORITY";
+    new_receipt.fee_payment_mode = "Payment Gateway - PG";
+    new_receipt.student = student?._id;
+    new_receipt.fee_transaction_date = new Date();
+    new_receipt.finance = finance?._id;
+    new_receipt.invoice_count = orderPay?.payment_invoice_number;
+    new_receipt.order_history = orderPay?._id;
+    orderPay.fee_receipt = new_receipt?._id;
+    orderPay.payment_student = student?._id;
+    new_receipt.certificate = new_cert?._id;
     
 
-  //   var new_cert = new CertificateQuery({});
-  //   new_cert.certificate_type = cert_type
-  //   new_cert.query_content = cert_content
-  //   new_cert.student = student?._id;
-  //   new_cert.institute = ins?._id;
-  //   student.certificate.push(new_cert?._id);
-  //   student.certificate_count += 1;
-  //         student.studentPaidFeeCount += fData.feeAmount;
-  //         if (student.studentRemainingFeeCount >= fData.feeAmount) {
-  //           student.studentRemainingFeeCount -= fData.feeAmount;
-  //         }
-  //         if (is_author) {
-  //           finance.financeBankBalance =
-  //             finance.financeBankBalance + parseInt(tx_amount);
-  //           finance.financeTotalBalance =
-  //             finance.financeTotalBalance + parseInt(tx_amount);
-  //           institute.insBankBalance =
-  //             institute.insBankBalance + parseInt(tx_amount);
-  //         } else {
-  //           institute.adminRepayAmount =
-  //             institute.adminRepayAmount + parseInt(tx_amount);
-  //           admin.returnAmount += parseInt(tx_amount_charges);
-  //         }
-  //         // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount);
-  //         notify.notifyContent = `${student.studentFirstName} ${
-  //           student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-  //         } ${student.studentLastName} paid the ${
-  //           new_cert?.certificate_type
-  //         }/ (Rs.${parseInt(tx_amount)}) successfully`;
-  //         notify.notify_hi_content = `${student.studentFirstName} ${
-  //           student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-  //         } ${student.studentLastName} ने ${new_cert?.certificate_type}/ (Rs.${parseInt(
-  //           tx_amount
-  //         )}) का सफलतापूर्वक पेमेंट किया |`;
-  //         notify.notify_mr_content = `${student.studentFirstName} ${
-  //           student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-  //         } ${student.studentLastName} ने ${new_cert?.certificate_type}/ (रु.${parseInt(
-  //           tx_amount
-  //         )}) यशस्वीरित्या भरले`;
-  //         notify.notifySender = student._id;
-  //         notify.notifyReceiever = user._id;
-  //         notify.notifyCategory = "Online Fee";
-  //         user.activity_tab.push(notify._id);
-  //         notify.user = user._id;
-  //         notify.notifyByStudentPhoto = student._id;
-  //         studentUser.payment_history.push(order);
-  //         institute.payment_history.push(order);
-  //         orderPay.payment_certificate = fData._id;
-  //         orderPay.payment_by_end_user_id = studentUser._id;
-  //         await Promise.all([
-  //           student.save(),
-  //           fData.save(),
-  //           finance.save(),
-  //           institute.save(),
-  //           user.save(),
-  //           notify.save(),
-  //           admin.save(),
-  //           studentUser.save(),
-  //           orderPay.save(),
-  //           new_internal.save(),
-  //           new_receipt.save(),
-  //           depart.save(),
-  //           account.save(),
-  //         ]);
-  //   return `${studentUser?.username}`;
-  // } catch (e) {
-  //   console.log(e);
-  // }
+    var new_cert = new CertificateQuery({});
+    new_cert.certificate_type = cert_type
+    new_cert.query_content = cert_content
+    new_cert.student = student?._id;
+    new_cert.institute = ins?._id;
+    new_cert.fee_receipt = new_receipt?._id
+    student.certificate.push(new_cert?._id);
+    student.certificate_count += 1;
+    student.studentCertificatePaidAmount += parseInt(tx_amount);
+    institute.certificate_fund_collection.online += parseInt(tx_amount);
+          if (is_author) {
+            finance.financeBankBalance =
+              finance.financeBankBalance + parseInt(tx_amount);
+            finance.financeTotalBalance =
+              finance.financeTotalBalance + parseInt(tx_amount);
+            institute.insBankBalance =
+              institute.insBankBalance + parseInt(tx_amount);
+          } else {
+            institute.adminRepayAmount =
+              institute.adminRepayAmount + parseInt(tx_amount);
+            admin.returnAmount += parseInt(tx_amount_charges);
+          }
+          // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount);
+          notify.notifyContent = `${student.studentFirstName} ${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} paid the ${
+            new_cert?.certificate_type
+          }/ (Rs.${parseInt(tx_amount)}) successfully`;
+          notify.notify_hi_content = `${student.studentFirstName} ${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} ने ${new_cert?.certificate_type}/ (Rs.${parseInt(
+            tx_amount
+          )}) का सफलतापूर्वक पेमेंट किया |`;
+          notify.notify_mr_content = `${student.studentFirstName} ${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} ने ${new_cert?.certificate_type}/ (रु.${parseInt(
+            tx_amount
+          )}) यशस्वीरित्या भरले`;
+          notify.notifySender = student._id;
+          notify.notifyReceiever = user._id;
+          notify.notifyCategory = "Online Fee";
+          user.activity_tab.push(notify._id);
+          notify.user = user._id;
+          notify.notifyByStudentPhoto = student._id;
+          studentUser.payment_history.push(order);
+          institute.payment_history.push(order);
+          orderPay.payment_certificate = fData._id;
+          orderPay.payment_by_end_user_id = studentUser._id;
+          await Promise.all([
+            student.save(),
+            finance.save(),
+            institute.save(),
+            user.save(),
+            notify.save(),
+            admin.save(),
+            studentUser.save(),
+            orderPay.save(),
+            new_cert.save(),
+            new_receipt.save(),
+          ]);
+    return `${studentUser?.username}`;
+  } catch (e) {
+    console.log(e);
+  }
 };

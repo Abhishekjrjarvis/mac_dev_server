@@ -1976,7 +1976,7 @@ exports.renderAllLeaveHistoryQuery = async (req, res) => {
   }
 }
 
-exports.renderAllStudentQuery = async (req, res) => {
+exports.renderAllStaffQuery = async (req, res) => {
   try {
     const { mid } = req?.params
     const page = req.query.page ? parseInt(req.query.page) : 1;

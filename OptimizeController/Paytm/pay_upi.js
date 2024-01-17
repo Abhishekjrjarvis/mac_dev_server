@@ -75,10 +75,10 @@ exports.initiate = async (req, res) => {
     var valid_charge = gatewayCharges >= 100 ? charge?.num_trans_max : gatewayCharges;
     let gst = (+valid_charge * 18) / 100;
     if (type === "Admission") {
-      let data = +amount + +valid_platform_charge + +valid_charge + +charge?.num_app_max + gst; 
+      var data = +amount + +valid_platform_charge + +valid_charge + +charge?.num_app_max + gst; 
     }
     else {
-      let data = +amount + +valid_platform_charge + +valid_charge + gst;
+      var data = +amount + +valid_platform_charge + +valid_charge + gst;
     }
     // let gatewayCharges = (parseInt(amount) * 2.1) / 100;
     // let gst = (+gatewayCharges * 18) / 100;

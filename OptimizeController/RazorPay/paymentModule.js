@@ -43,6 +43,7 @@ const BankAccount = require("../../models/Finance/BankAccount");
 const Batch = require("../../models/Batch");
 const { universal_random_password } = require("../../Custom/universalId");
 const NestedCard = require("../../models/Admission/NestedCard");
+const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
   try {

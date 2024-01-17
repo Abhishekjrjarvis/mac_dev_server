@@ -6371,6 +6371,7 @@ exports.renderCertificateFilterQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
+    var excel_list = []
       var ins = await InstituteAdmin.findById({ _id: id });
     if (flow === "Request") {
       var all_cert = await CertificateQuery.find({

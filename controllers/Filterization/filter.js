@@ -4263,12 +4263,13 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
 exports.renderCertificateFilterQuery = async (req, res) => {
   try {
     const { id } = req.query;
-    const {flow} = req?.body
+    const { flow } = req?.body
     if (!id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
+    var excel_list = []
       var ins = await InstituteAdmin.findById({ _id: id });
     if (flow === "Request") {
       var all_cert = await CertificateQuery.find({

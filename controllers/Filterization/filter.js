@@ -44,6 +44,7 @@ const RePay = require("../../models/Return/RePay");
 const invokeSpecificRegister = require("../../Firebase/specific");
 const BankAccount = require("../../models/Finance/BankAccount");
 const Admin = require("../../models/superAdmin");
+const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {

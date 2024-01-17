@@ -51,6 +51,7 @@ const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const QvipleId = require("../../models/Universal/QvipleId");
 const Fees = require("../../models/Fees");
 const { handle_NAN } = require("../../Handler/customError");
+const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {

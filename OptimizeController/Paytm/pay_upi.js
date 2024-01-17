@@ -62,7 +62,10 @@ exports.initiate = async (req, res) => {
       ad_status_id,
       payment_card_id,
       payment_remain_fees,
-      charge
+      charge,
+      cert_type,
+      cert_content,
+      is_original
     } = req.body;
     console.log(req?.body)
     let platform_charge = (parseInt(amount) * charge?.num_platform_percent) / 100;
@@ -94,7 +97,7 @@ exports.initiate = async (req, res) => {
           : type === "Admission"
           ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_fees}/status/${ad_status_id}`
           : type === "Certificate"
-          ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/certificate/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/type/${cert_type}/content/${cert_content}`
+          ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/certificate/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/type/${cert_type}/content/${cert_content}/original/${is_original}`
           : `${process.env.CALLBACK_URLS}/v2/paytm/callback/hostel/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/install/${payment_installment}/remain/${payment_remain_1}/status/${ad_status_id}`,
       txnAmount: {
         value: Math.ceil(data),
@@ -456,7 +459,7 @@ exports.callbackHostel = async (req, res) => {
 
 exports.callbackCertificate = async (req, res) => {
   try {
-    const { moduleId, paidBy, name, paidTo, isApk, price, cert_type, cert_content } = req.params;
+    const { moduleId, paidBy, name, paidTo, isApk, price, cert_type, cert_content, is_original } = req.params;
     var paytmParams = {};
     paytmParams.body = {
       mid: `${process.env.PAYTM_MID}`,
@@ -515,7 +518,8 @@ exports.callbackCertificate = async (req, res) => {
               // moduleId,
               paytm_author,
               cert_type,
-              cert_content
+              cert_content,
+              is_original
             );
             if (isApk === "APK") {
               res.status(200).send({
@@ -788,7 +792,8 @@ exports.callbackCertificateStatus = async (req, res) => {
       TXNID,
       apk_body,
       cert_type,
-      cert_content
+      cert_content,
+      is_original
     } = req.body;
     var status = STATUS;
     var price_charge = TXNAMOUNT;
@@ -810,7 +815,8 @@ exports.callbackCertificateStatus = async (req, res) => {
         // moduleId,
         paytm_author,
         cert_type,
-        cert_content
+        cert_content,
+        is_original
       );
       if (isApk === "APK") {
         res.status(200).send({

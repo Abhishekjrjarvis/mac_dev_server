@@ -1663,7 +1663,8 @@ exports.certificateInstituteFunction = async (
   // moduleId,
   is_author,
   cert_type,
-  cert_content
+  cert_content,
+  is_original
 ) => {
   try {
     const student = await Student.findById({ _id: paidBy });
@@ -1711,6 +1712,7 @@ exports.certificateInstituteFunction = async (
     var new_cert = new CertificateQuery({});
     new_cert.certificate_type = cert_type
     new_cert.query_content = cert_content
+    new_cert.is_original = is_original === "false" ? false : true
     new_cert.student = student?._id;
     new_cert.institute = ins?._id;
     new_cert.fee_receipt = new_receipt?._id

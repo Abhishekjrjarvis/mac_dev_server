@@ -183,4 +183,9 @@ router.patch(
   catchAsync(Filter.renderReviewApplicationFilter)
 );
 
+router.patch(
+  "/by/certificate/query",
+  catchAsync(Filter.renderCertificateFilterQuery)
+);
+
 module.exports = router;

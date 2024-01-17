@@ -1715,7 +1715,7 @@ exports.certificateInstituteFunction = async (
     new_cert.query_content = cert_content
     new_cert.is_original = is_original === "false" ? false : true
     new_cert.student = student?._id;
-    new_cert.institute = ins?._id;
+    new_cert.institute = institute?._id;
     new_cert.fee_receipt = new_receipt?._id
     student.certificate.push(new_cert?._id);
     student.certificate_count += 1;

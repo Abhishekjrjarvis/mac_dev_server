@@ -4292,9 +4292,18 @@ exports.renderAllExportExcelArrayQuery = async (req, res) => {
     );
 
     if(filter === "Scholarship"){
-      console.log("Enter")
     var arr = ins_admin?.export_collection?.filter((val) => {
       if(val?.excel_val === "Scholarship") return val
+    })
+    var all_excel = await nested_document_limit(
+      page,
+      limit,
+      arr?.reverse()
+    );
+    }
+    else if(filter === "Certificate"){
+    var arr = ins_admin?.export_collection?.filter((val) => {
+      if(val?.excel_val === "Certificate") return val
     })
     var all_excel = await nested_document_limit(
       page,

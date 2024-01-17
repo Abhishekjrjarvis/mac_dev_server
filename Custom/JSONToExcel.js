@@ -528,7 +528,7 @@ exports.certificate_json_query = async (
     ins_admin.export_collection.push({
       excel_file: results,
       excel_file_name: name,
-      excel_val: `${flow}`
+      excel_val: `Certificate`
     });
     ins_admin.export_collection_count += 1;
     await ins_admin.save();

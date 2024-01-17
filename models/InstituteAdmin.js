@@ -1157,6 +1157,10 @@ const instituteAdminSchema = new mongoose.Schema({
       type: Number,
       default: 0,
     },
+    offline: {
+      type: Number,
+      default: 0,
+    },
   },
 });
 

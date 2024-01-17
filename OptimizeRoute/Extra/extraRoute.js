@@ -450,4 +450,9 @@ router
   .get(catchAsync(Extra.instituteidCardRequiredField))
   .patch(catchAsync(Extra.instituteidCardRequiredFieldUpdate));
 
+
+router.get(
+    "/institute/:id/all/fund/charges",
+    catchAsync(Extra.renderAllInstituteFundChargesQuery)
+  );
 module.exports = router;

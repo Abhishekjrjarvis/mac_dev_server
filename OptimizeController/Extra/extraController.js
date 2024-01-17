@@ -3712,3 +3712,17 @@ exports.instituteidCardRequiredFieldUpdate = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderAllInstituteFundChargesQuery = async (req, res) => {
+  try {
+    const { id } = req?.params
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const ins = await InstituteAdmin.findById({ _id: id })
+      .select("certificate_fund_collection certificate_fund_charges")
+    res.status(200).send({ message: "Explore All Institute Fund Charges + Collection", access: true, certificate: ins})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

@@ -3348,6 +3348,11 @@ exports.renderStudentAllCertificateQuery = async (req, res) => {
       .populate({
         path: "institute",
         select: "insName name certificate_issued_count",
+      })
+      .populate({
+        path: "fee_receipt",
+        select:
+          "fee_payment_amount fee_payment_mode invoice_count",
       });
     res.status(200).send({
       message: "Explore All Certificate Query",
@@ -3388,6 +3393,11 @@ exports.renderStudentAllCertificateQueryStatus = async (req, res) => {
         path: "student",
         select:
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO studentGender",
+      })
+      .populate({
+        path: "fee_receipt",
+        select:
+          "fee_payment_amount fee_payment_mode invoice_count",
       });
     res.status(200).send({
       message: `Explore All ${status} Certificate Query`,

@@ -135,4 +135,9 @@ router.patch(
   catchAsync(Filter.renderStudentStatisticsExcelQuery)
 );
 
+router.patch(
+  "/by/certificate/query",
+  catchAsync(Filter.renderCertificateFilterQuery)
+);
+
 module.exports = router;

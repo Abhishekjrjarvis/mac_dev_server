@@ -24,6 +24,7 @@ const {
   fee_heads_receipt_json_to_excel_repay_query,
   json_to_excel_normal_student_promote_query,
   json_to_excel_statistics_promote_query,
+  certificate_json_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -4253,6 +4254,106 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
       access: true,
       data: data
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderCertificateFilterQuery = async (req, res) => {
+  try {
+    const { id } = req.query;
+    const {flow} = req?.body
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+      var ins = await InstituteAdmin.findById({ _id: id });
+    if (flow === "Request") {
+      var all_cert = await CertificateQuery.find({
+        $and: [{ institute: ins?._id }, { certificate_status: "Requested" }],
+      })
+        .populate({
+        path: "student"
+        })
+      if (all_cert?.length > 0) {
+        res.status(200).send({
+          message: "Explore Requested Certificate Query",
+          access: true,
+        });
+      }
+      else {
+        res.status(200).send({
+          message: "No Requested Certificate Query",
+          access: false,
+        });
+      }
+      if(all_cert?.length > 0){
+        for (var val of all_cert) {
+            excel_list.push({
+              RollNo: val?.student?.studentROLLNO ?? "NA",
+              GRNO: val?.student?.studentGRNO ?? "#NA",
+              Name: `${val?.student?.studentFirstName} ${
+                val?.student?.studentMiddleName ? val?.student?.studentMiddleName : ""
+              } ${val?.student?.studentLastName}` ?? val?.student?.valid_full_name,
+              Gender: val?.student?.studentGender ?? "#NA",
+              Type: val?.is_original,
+              Status: val?.certificate_status ?? "#NA",
+              // PaymentMode: val?.fee_receipt?.fee_payment_mode
+            });
+          }
+          const data = await certificate_json_query(
+            excel_list,
+            "Request-Certificate",
+            id,
+            "Requested Certificate List"
+          );
+      }
+    }
+    else if (flow === "Issued") {
+      var all_cert = await CertificateQuery.find({
+        $and: [{ institute: ins?._id }, { certificate_status: "Issued" }],
+      })
+      if (all_cert?.length > 0) {
+        res.status(200).send({
+          message: "Explore Issued Certificate Query",
+          access: true,
+        });
+      }
+      else {
+        res.status(200).send({
+          message: "No Issued Certificate Query",
+          access: false,
+        });
+      }
+      if(all_cert?.length > 0){
+        for (var val of all_cert) {
+            excel_list.push({
+              RollNo: val?.student?.studentROLLNO ?? "NA",
+              GRNO: val?.student?.studentGRNO ?? "#NA",
+              Name: `${val?.student?.studentFirstName} ${
+                val?.student?.studentMiddleName ? val?.student?.studentMiddleName : ""
+              } ${val?.student?.studentLastName}` ?? val?.student?.valid_full_name,
+              Gender: val?.student?.studentGender ?? "#NA",
+              Type: val?.is_original,
+              Status: val?.certificate_status ?? "#NA",
+              // PaymentMode: val?.fee_receipt?.fee_payment_mode
+            });
+          }
+          const data = await certificate_json_query(
+            excel_list,
+            "Issued-Certificate",
+            id,
+            "Issued Certificate List"
+          );
+      }
+    }
+    else {
+      res.status(200).send({
+        message: "No Certificate Query",
+        access: false,
+      }); 
+    }
   } catch (e) {
     console.log(e);
   }

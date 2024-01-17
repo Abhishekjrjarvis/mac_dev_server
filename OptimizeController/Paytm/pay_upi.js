@@ -74,7 +74,12 @@ exports.initiate = async (req, res) => {
     let gatewayCharges = (parseInt(total_price) * charge?.num_trans_pecent) / 100;
     var valid_charge = gatewayCharges >= 100 ? charge?.num_trans_max : gatewayCharges;
     let gst = (+valid_charge * 18) / 100;
-    let data = +amount + +valid_platform_charge + +valid_charge + +charge?.num_app_max + gst;
+    if (type === "Admission") {
+      let data = +amount + +valid_platform_charge + +valid_charge + +charge?.num_app_max + gst; 
+    }
+    else {
+      let data = +amount + +valid_platform_charge + +valid_charge + gst;
+    }
     // let gatewayCharges = (parseInt(amount) * 2.1) / 100;
     // let gst = (+gatewayCharges * 18) / 100;
     // let withGst = gatewayCharges + gst;

@@ -1757,7 +1757,7 @@ exports.certificateInstituteFunction = async (
           notify.notifyByStudentPhoto = student._id;
           studentUser.payment_history.push(order);
           institute.payment_history.push(order);
-          orderPay.payment_certificate = fData._id;
+          orderPay.payment_certificate = new_cert?._id
           orderPay.payment_by_end_user_id = studentUser._id;
           await Promise.all([
             student.save(),

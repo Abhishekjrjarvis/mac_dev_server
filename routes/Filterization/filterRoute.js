@@ -142,7 +142,7 @@ router.patch(
 
 router.patch(
   "/:id/all/student/message/filter/query",
-  catchAsync(Admission.renderAllStudentMessageQuery)
+  catchAsync(Filter.renderAllStudentMessageQuery)
 );
 
 module.exports = router;

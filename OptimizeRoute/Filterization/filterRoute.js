@@ -188,4 +188,9 @@ router.patch(
   catchAsync(Filter.renderCertificateFilterQuery)
 );
 
+router.patch(
+  "/:id/all/student/message/filter/query",
+  catchAsync(Filter.renderAllStudentMessageQuery)
+);
+
 module.exports = router;

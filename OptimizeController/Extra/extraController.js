@@ -2270,7 +2270,7 @@ exports.renderAllFilteredMessageQuery = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .populate({
-          path: "student from student_list",
+          path: "from student_list",
             select:
               "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
         });
@@ -2282,7 +2282,7 @@ exports.renderAllFilteredMessageQuery = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .populate({
-          path: "student from student_list",
+          path: "from student_list",
             select:
               "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
         });

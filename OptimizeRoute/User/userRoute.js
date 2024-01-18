@@ -110,6 +110,8 @@ router.get(
 //
 router.get("/:id/activity", isLoggedIn, catchAsync(User.getAllUserActivity));
 
+router.get("/:id/student/message", catchAsync(User.getAllUserStudentMessage));
+
 router.get(
   "/:id/activity/total/notify",
   // isLoggedIn,

@@ -113,6 +113,7 @@ const {
 const { render_mark_attendence_query } = require("../Attendence");
 const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 const Batch = require("../../models/Batch");
+const StudentMessage = require("../../models/Content/StudentMessage");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {

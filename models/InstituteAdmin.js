@@ -956,35 +956,14 @@ const instituteAdminSchema = new mongoose.Schema({
   ],
   student_message: [
     {
-      message: {
-        type: String,
-      },
-      student_list: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Student",
-        },
-      ],
-      created_at: {
-        type: Date,
-        default: Date.now,
-      },
-      student_list_count: {
-        type: Number,
-        default: 0,
-      },
-      message_type: {
-        type: String,
-      },
-      from: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Staff",
-      },
-      from_name: {
-        type: String,
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StudentMessage"
     },
   ],
+  student_message_count: {
+    type: Number,
+    default: 0
+  },
   transport_linked_status: {
     type: String,
   },

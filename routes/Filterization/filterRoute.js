@@ -140,4 +140,9 @@ router.patch(
   catchAsync(Filter.renderCertificateFilterQuery)
 );
 
+router.patch(
+  "/:id/all/student/message/filter/query",
+  catchAsync(Admission.renderAllStudentMessageQuery)
+);
+
 module.exports = router;

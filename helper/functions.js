@@ -446,6 +446,13 @@ exports.generate_random_code = async () => {
   return pass;
 };
 
+exports.remove_duplicated_arr = (arr) => {
+  jsonObject = arr.map(JSON.stringify);
+  uniqueSet = new Set(jsonObject);
+  uniqueArray = Array.from(uniqueSet).map(JSON.parse);
+  return uniqueArray
+}
+
 // console.log(
 //   send_email_authentication_promotional("pankajphad.stuff@gmail.com")
 // );

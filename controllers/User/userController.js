@@ -36,6 +36,7 @@ const { handle_undefined } = require("../../Handler/customError");
 const { calc_profile_percentage } = require("../../Functions/ProfilePercentage");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { generateAccessInsToken } = require("../../helper/functions");
+const StudentMessage = require("../../models/Content/StudentMessage");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.retrieveProfileData = async (req, res) => {
@@ -1051,6 +1052,41 @@ exports.getAllUserActivity = async (req, res) => {
         .skip(skip);
       // const aEncrypt = await encryptionPayload(notify);
       res.status(200).send({ message: "All Activity", activity: notify });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getAllUserStudentMessage = async (req, res) => {
+  try {
+    const { id } = req?.params
+    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    var page = req.query.page ? parseInt(req.query.page) : 1;
+    var limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    var skip = (page - 1) * limit;
+    var user = await User.findById({ _id: id }).select("student_message");
+    var all_message = await StudentMessage.find({ _id: { $in: user?.student_message } })
+    .sort({ created_at: -1 })
+    .limit(limit)
+    .skip(skip)
+    .populate({
+      path: "student from student_list",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
+    });
+    if (all_message?.length > 0) {
+      res.status(200).send({
+        message: "Explore New All Message Query",
+        access: true,
+        all_message: all_message,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New All Message Query",
+        access: false,
+        all_message: [],
+      });
     }
   } catch (e) {
     console.log(e);

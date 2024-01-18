@@ -448,6 +448,15 @@ router
 router.get(
     "/institute/:id/all/fund/charges",
     catchAsync(Extra.renderAllInstituteFundChargesQuery)
-  );
+);
+  
+
+
+// Transform Older Student Message To New Student Message Schema
+
+router.patch(
+  "/send/old/message",
+  catchAsync(Extra.renderOldMessageQuery)
+);
 
 module.exports = router;

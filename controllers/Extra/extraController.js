@@ -113,6 +113,7 @@ const {
 const { render_mark_attendence_query } = require("../Attendence");
 const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 const Batch = require("../../models/Batch");
+const StudentMessage = require("../../models/Content/StudentMessage");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -2133,7 +2134,7 @@ exports.renderAllClassMatesQuery = async (req, res) => {
 
 exports.renderFilteredMessageQuery = async (req, res) => {
   try {
-    const { filtered_arr, message, from, type, flow } = req.body;
+    const { filtered_arr, message, from, type, flow, m_title, m_doc } = req.body;
     const { id } = req.query;
     if (!filtered_arr)
       return res.status(200).send({
@@ -2145,14 +2146,19 @@ exports.renderFilteredMessageQuery = async (req, res) => {
 
     if (flow === "INSTITUTE_ADMIN") {
       var valid_ins = await InstituteAdmin.findById({ _id: `${from}` });
-      valid_ins.student_message.push({
+      const new_message = new StudentMessage({
         message: `${message}`,
         student_list: [...filtered_arr],
         student_list_count: filtered_arr?.length,
         message_type: `${type}`,
         from_name: "Institute Admin",
-      });
-      await valid_ins.save();
+        message_title: m_title,
+        message_document: m_doc,
+        institute: valid_ins?._id
+      })
+      valid_ins.student_message.push(new_message?._id);
+      valid_ins.student_message_count += 1
+      await Promise.all([new_message.save(), valid_ins.save()]);
       res
         .status(200)
         .send({ message: "Explore Filtered Message Query", access: true });
@@ -2168,9 +2174,11 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         notify.notifyType = "Student";
         notify.notifyPublisher = ref?._id;
         user.activity_tab.push(notify?._id);
+        user.student_message.push(new_message?._id)
         notify.notifyByInsPhoto = valid_ins?._id;
         notify.notifyCategory = "Reminder Alert";
         notify.redirectIndex = 59;
+        notify.student_message = new_message?._id
         await Promise.all([user.save(), notify.save()]);
         invokeSpecificRegister(
           "Specific Notification",
@@ -2184,14 +2192,19 @@ exports.renderFilteredMessageQuery = async (req, res) => {
     } else {
       var valid_staff = await Staff.findById({ _id: `${from}` });
       var institute = await InstituteAdmin.findById({ _id: id });
-      institute.student_message.push({
+      const new_message = new StudentMessage({
         message: `${message}`,
         student_list: [...filtered_arr],
         student_list_count: filtered_arr?.length,
         message_type: `${type}`,
         from: valid_staff?._id,
-      });
-      await institute.save();
+        message_title: m_title,
+        message_document: m_doc,
+        institute: institute?._id
+      })
+      institute.student_message.push(new_message?._id);
+      institute.student_message_count += 1
+      await Promise.all([new_message.save(), institute.save()]);
       res
         .status(200)
         .send({ message: "Explore Filtered Message Query", access: true });
@@ -2209,9 +2222,11 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         notify.notifyType = "Student";
         notify.notifyPublisher = ref?._id;
         user.activity_tab.push(notify?._id);
+        user.student_message.push(new_message?._id)
         notify.notifyByStaffPhoto = valid_staff?._id;
         notify.notifyCategory = "Reminder Alert";
         notify.redirectIndex = 59;
+        notify.student_message = new_message?._id
         await Promise.all([user.save(), notify.save()]);
         invokeSpecificRegister(
           "Specific Notification",
@@ -2244,6 +2259,7 @@ exports.renderAllFilteredMessageQuery = async (req, res) => {
     const { flow } = req.query;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     if (!sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -2252,35 +2268,27 @@ exports.renderAllFilteredMessageQuery = async (req, res) => {
     if (flow === "INSTITUTE_ADMIN") {
       var valid_ins = await InstituteAdmin.findById({ _id: sid })
         .select("student_message")
+      var all_message = await StudentMessage.find({ _id: { $in: valid_ins?.student_message } })
+        .sort({ created_at: -1 })
+        .limit(limit)
+        .skip(skip)
         .populate({
-          path: "student_message",
-          populate: {
-            path: "student from student_list",
+          path: "student from student_list",
             select:
               "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
-          },
         });
-      var all_message = await nested_document_limit(
-        page,
-        limit,
-        valid_ins?.student_message?.reverse()
-      );
     } else {
       var valid_staff = await Staff.findById({ _id: sid })
         .select("student_message")
+        var all_message = await StudentMessage.find({ _id: { $in: valid_staff?.student_message } })
+        .sort({ created_at: -1 })
+        .limit(limit)
+        .skip(skip)
         .populate({
-          path: "student_message",
-          populate: {
-            path: "student student_list",
+          path: "student from student_list",
             select:
-              "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name studentGRNO",
-          },
+              "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
         });
-      var all_message = await nested_document_limit(
-        page,
-        limit,
-        valid_staff?.student_message?.reverse()
-      );
     }
 
     if (all_message?.length > 0) {
@@ -3124,7 +3132,7 @@ exports.renderExcelToJSONSubjectQuery = async (req, res) => {
 
 exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
   try {
-    const { sid, message, from, type, flow } = req.body;
+    const { sid, message, from, type, flow, m_title, m_doc } = req.body;
     const { id } = req?.query;
     if (!sid)
       return res.status(200).send({
@@ -3138,14 +3146,19 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       var user = await User.findById({
         _id: `${student?.user}`,
       });
-      valid_ins.student_message.push({
+      const new_message = new StudentMessage({
         message: `${message}`,
         student_list: [sid],
         student_list_count: 1,
         message_type: `${type}`,
         from_name: "Institute Admin",
-      });
-      await valid_ins.save();
+        message_title: m_title,
+        message_document: m_doc,
+        institute: valid_ins?._id
+      })
+      valid_ins.student_message.push(new_message?._id);
+      valid_ins.student_message_count += 1
+      await Promise.all([ new_message.save(), valid_ins.save()]);
       res
         .status(200)
         .send({ message: "Explore Filtered Message Query", access: true });
@@ -3157,9 +3170,11 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       notify.notifyType = "Student";
       notify.notifyPublisher = student?._id;
       user.activity_tab.push(notify?._id);
+      user.student_message.push(new_message?._id)
       notify.notifyByInsPhoto = valid_ins?._id;
       notify.notifyCategory = "Reminder Alert";
       notify.redirectIndex = 59;
+      notify.student_message = new_message?._id
       await Promise.all([user.save(), notify.save()]);
       invokeSpecificRegister(
         "Specific Notification",
@@ -3176,14 +3191,19 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       var user = await User.findById({
         _id: `${student?.user}`,
       });
-      institute.student_message.push({
+      const new_message = new StudentMessage({
         message: `${message}`,
         student_list: [sid],
         student_list_count: 1,
         message_type: `${type}`,
         from: valid_staff?._id,
-      });
-      await institute.save();
+        message_title: m_title,
+        message_document: m_doc,
+        institute: institute?._id
+      })
+      institute.student_message.push(new_message?._id);
+      institute.student_message_count += 1
+      await Promise.all([ new_message.save(), institute.save() ]);
       res
         .status(200)
         .send({ message: "Explore Filtered Message Query", access: true });
@@ -3197,9 +3217,11 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       notify.notifyType = "Student";
       notify.notifyPublisher = student?._id;
       user.activity_tab.push(notify?._id);
+      user.student_message.push(new_message?._id)
       notify.notifyByStaffPhoto = valid_staff?._id;
       notify.notifyCategory = "Reminder Alert";
       notify.redirectIndex = 59;
+      notify.student_message = new_message?._id
       await Promise.all([user.save(), notify.save()]);
       invokeSpecificRegister(
         "Specific Notification",
@@ -3725,3 +3747,75 @@ exports.renderAllInstituteFundChargesQuery = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.renderOldMessageQuery = async (req, res) => {
+  try {
+    const { id, flow } = req.query;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      })
+
+    if (flow === "INSTITUTE_ADMIN") {
+      var valid_ins = await InstituteAdmin.findById({ _id: `${id}` });
+
+      for (var val of valid_ins?.student_message) {
+        const new_message = new StudentMessage({
+          message: `${val?.message}`,
+          student_list: [...val?.student_list],
+          student_list_count: val?.student_list_count,
+          message_type: `${val?.message_type}`,
+          from_name: val?.from_name,
+          institute: valid_ins?._id
+        })
+        valid_ins.student_message.push(new_message?._id);
+        valid_ins.student_message_count += 1
+        await new_message.save()
+        const all_student = await Student.find({ _id: { $in: val?.student_list}})
+        for (var ref of all_student) {
+          var user = await User.findById({
+            _id: `${ref?.user}`,
+          });
+          user.student_message.push(new_message?._id)
+          await user.save()
+        }
+      }
+      await valid_ins.save()
+      res
+        .status(200)
+        .send({ message: "Explore Institute Side Filtered Message Query", access: true });
+    } else {
+      var valid_staff = await Staff.findById({ _id: `${id}` });
+      var institute = await InstituteAdmin.findById({ _id: valid_staff?.institute });
+      for (var val of valid_staff?.student_message) {
+        const new_message = new StudentMessage({
+          message: `${val?.message}`,
+          student_list: [...val?.student_list],
+          student_list_count: val?.student_list_count,
+          message_type: `${val?.message_type}`,
+          from_name: val?.from_name,
+          institute: institute?._id,
+          from: val?.from,
+        })
+        institute.student_message.push(new_message?._id);
+        institute.student_message_count += 1
+        await new_message.save()
+          const all_student = await Student.find({ _id: { $in: val?.student_list } })
+        for (var ref of all_student) {
+          var user = await User.findById({
+            _id: `${ref?.user}`,
+          });
+          user.student_message.push(new_message?._id)
+          await user.save()
+        }
+      }
+      await institute.save()
+      res
+          .status(200)
+          .send({ message: "Explore Staff Side Filtered Message Query", access: true });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

@@ -500,7 +500,13 @@ const userSchema = new mongoose.Schema(
     },
     qviple_id: {
       type: String
-    }
+    },
+    student_message: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "StudentMessage"
+      }
+    ]
   },
   { timestamps: true }
 );

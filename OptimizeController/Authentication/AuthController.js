@@ -4401,6 +4401,142 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
   }
 };
 
+exports.renderAllStudentToUnApprovedCatalogQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const { unapprove } = req.body;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+      var classes = await Class.findById({ _id: cid });
+      var batch = await Batch.findById({ _id: `${classes?.batch}` });
+      var depart = await Department.findById({ _id: `${batch?.department}` });
+      var institute = await InstituteAdmin.findById({
+        _id: `${depart?.institute}`,
+      });
+      var admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+      for (var ref of unapprove) {
+        var student = await Student.findById({ _id: `${ref}` }).populate({
+          path: "user",
+        });
+        var user = await User.findById({ _id: `${student.user._id}` });
+        for (let subjChoose of student?.studentOptionalSubject) {
+          const subject = await Subject.findById(subjChoose);
+          subject.optionalStudent.push(student?._id);
+          await subject.save();
+        }
+        student.studentStatus = "Not Approved";
+        institute.ApproveStudent.pull(student._id);
+        institute.UnApprovedStudent.push(student._id);
+        admins.studentArray.pull(student._id);
+        if (admins.studentCount > 0) {
+          admins.studentCount -= 1; 
+        }
+        if (institute.studentCount > 0) {
+          institute.studentCount -= 1
+        }
+        if (classes.strength > 0) {
+          classes.strength -= 1
+        }
+        classes.ApproveStudent.pull(student._id);
+        classes.student.push(student._id);
+        if (classes.studentCount > 0) {
+          classes.studentCount -= 1
+        }
+        student.studentGRNO = "";
+        student.studentROLLNO = "";
+        student.studentClass = null;
+        student.studentAdmissionDate = ""
+        depart.ApproveStudent.pull(student._id);
+        if (depart.studentCount > 0) {
+          depart.studentCount -= 1
+        }
+        student.department = null;
+        batch.ApproveStudent.pull(student._id);
+        student.batches = null;
+        if (student.batchCount > 0) {
+          student.batchCount -= 1
+        }
+        await Promise.all([
+          student.save(),
+          user.save(),
+        ]);
+        if (student.studentGender === "Male") {
+          if (classes.boyCount > 0) {
+            classes.boyCount -= 1
+          }
+          if (batch.student_category.boyCount > 0) {
+            batch.student_category.boyCount -= 1
+          }
+        } else if (student.studentGender === "Female") {
+          if (classes.girlCount > 0) {
+            classes.girlCount -= 1
+          }
+          if (batch.student_category.girlCount > 0) {
+            batch.student_category.girlCount -= 1
+          }
+        } else if (student.studentGender === "Other") {
+          if (classes.otherCount > 0) {
+            classes.otherCount -= 1
+          }
+          if (batch.student_category.otherCount > 0) {
+            batch.student_category.otherCount -= 1
+          }
+        } else {
+        }
+        if (student.studentCastCategory === "General") {
+          if (batch.student_category.generalCount > 0) {
+            batch.student_category.generalCount -= 1
+          }
+        } else if (student.studentCastCategory === "OBC") {
+          if (batch.student_category.obcCount > 0) {
+            batch.student_category.obcCount -= 1
+          }
+        } else if (student.studentCastCategory === "SC") {
+          if (batch.student_category.scCount > 0) {
+            batch.student_category.scCount -= 1
+          }
+        } else if (student.studentCastCategory === "ST") {
+          if (batch.student_category.stCount > 0) {
+            batch.student_category.stCount -= 1
+          }
+        } else if (student.studentCastCategory === "NT-A") {
+          if (batch.student_category.ntaCount > 0) {
+            batch.student_category.ntaCount -= 1
+          }
+        } else if (student.studentCastCategory === "NT-B") {
+          if (batch.student_category.ntbCount > 0) {
+            batch.student_category.ntbCount -= 1
+          }
+        } else if (student.studentCastCategory === "NT-C") {
+          if (batch.student_category.ntcCount > 0) {
+            batch.student_category.ntcCount -= 1
+          }
+        } else if (student.studentCastCategory === "NT-D") {
+          if (batch.student_category.ntdCount > 0) {
+            batch.student_category.ntdCount -= 1
+          }
+        } else if (student.studentCastCategory === "VJ") {
+          if (batch.student_category.vjCount > 0) {
+            batch.student_category.vjCount -= 1
+          }
+        } else {
+        }
+      }
+      await Promise.all([
+        admins.save(),
+        classes.save(),
+        depart.save(),
+        batch.save(),
+        institute.save(),
+      ]);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
   try {
     var maleAvatar = [

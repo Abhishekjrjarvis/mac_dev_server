@@ -142,6 +142,13 @@ router.delete(
   catchAsync(Auth.renderOneInstituteAllStudentQuery)
 );
 
+
+router.patch(
+  "/remove/student/to/un/approve/catalog/:cid/query",
+  catchAsync(Auth.renderAllStudentToUnApprovedCatalogQuery)
+);
+
+
 router.delete(
   "/remove/platform/one/institute/:id/all/unapproved/student/query",
   catchAsync(Auth.renderOneInstituteAllUnApprovedStudentQuery)

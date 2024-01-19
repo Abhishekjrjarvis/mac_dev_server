@@ -6060,8 +6060,8 @@ exports.renderOneReceiptReApply = async (req, res) => {
 exports.renderTriggerAlarmQuery = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { alarm_mode, content } = req.query;
-    const { all_arr } = req?.body
+    const { alarm_mode } = req.query;
+    const { all_arr, title, doc, content } = req?.body
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -6090,9 +6090,9 @@ exports.renderTriggerAlarmQuery = async (req, res) => {
     //   });
     // } else {
     if (alarm_mode === "APP_NOTIFICATION") {
-      await dueDateAlarm(aid, alarm_mode, content, all_student);
+      await dueDateAlarm(aid, alarm_mode, content, all_student, title, doc);
     } else if (alarm_mode === "EMAIL_NOTIFICATION") {
-      await dueDateAlarm(aid, alarm_mode, content, all_student);
+      await dueDateAlarm(aid, alarm_mode, content, all_student, title, doc);
     } else if (alarm_mode === "SMS_NOTIFICATION") {
     } else {
     }

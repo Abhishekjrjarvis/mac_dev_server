@@ -1055,7 +1055,7 @@ exports.getAllUserStudentMessage = async (req, res) => {
     var limit = req.query.limit ? parseInt(req.query.limit) : 10;
     var skip = (page - 1) * limit;
     var user = await User.findById({ _id: id }).select("student_message");
-    var all_message = await StudentMessage.find({ _id: { $in: user?.student_message } })
+    var all_message = await StudentMessage.find({ $and: [{ _id: { $in: user?.student_message } }] })
     .sort({ created_at: -1 })
     .limit(limit)
     .skip(skip)

@@ -37,7 +37,10 @@ const studentMessageSchema = new mongoose.Schema({
     institute: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "InstituteAdmin"
-      }
+  },
+  message_mode: {
+      type: String
+    }
 })
 
 module.exports = mongoose.model("StudentMessage", studentMessageSchema)

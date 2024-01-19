@@ -2154,7 +2154,8 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         from_name: "Institute Admin",
         message_title: m_title,
         message_document: m_doc,
-        institute: valid_ins?._id
+        institute: valid_ins?._id,
+        message_mode: "STUDENT_MESSAGE"
       })
       valid_ins.student_message.push(new_message?._id);
       valid_ins.student_message_count += 1
@@ -2200,7 +2201,8 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         from: valid_staff?._id,
         message_title: m_title,
         message_document: m_doc,
-        institute: institute?._id
+        institute: institute?._id,
+        message_mode: "STUDENT_MESSAGE"
       })
       institute.student_message.push(new_message?._id);
       institute.student_message_count += 1
@@ -2268,24 +2270,24 @@ exports.renderAllFilteredMessageQuery = async (req, res) => {
     if (flow === "INSTITUTE_ADMIN") {
       var valid_ins = await InstituteAdmin.findById({ _id: sid })
         .select("student_message")
-      var all_message = await StudentMessage.find({ _id: { $in: valid_ins?.student_message } })
+      var all_message = await StudentMessage.find({ $and:[{ _id: { $in: valid_ins?.student_message } }, { message_mode: "STUDENT_MESSAGE"}] })
         .sort({ created_at: -1 })
         .limit(limit)
         .skip(skip)
         .populate({
-          path: "student from student_list",
+          path: "from student_list",
             select:
               "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
         });
     } else {
       var valid_staff = await Staff.findById({ _id: sid })
         .select("student_message")
-        var all_message = await StudentMessage.find({ _id: { $in: valid_staff?.student_message } })
+        var all_message = await StudentMessage.find({ $and: [{ _id: { $in: valid_staff?.student_message } }, { message_mode: "STUDENT_MESSAGE"}] })
         .sort({ created_at: -1 })
         .limit(limit)
         .skip(skip)
         .populate({
-          path: "student from student_list",
+          path: "from student_list",
             select:
               "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
         });
@@ -3154,7 +3156,8 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
         from_name: "Institute Admin",
         message_title: m_title,
         message_document: m_doc,
-        institute: valid_ins?._id
+        institute: valid_ins?._id,
+        message_mode: "STUDENT_MESSAGE"
       })
       valid_ins.student_message.push(new_message?._id);
       valid_ins.student_message_count += 1
@@ -3199,7 +3202,8 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
         from: valid_staff?._id,
         message_title: m_title,
         message_document: m_doc,
-        institute: institute?._id
+        institute: institute?._id,
+        message_mode: "STUDENT_MESSAGE"
       })
       institute.student_message.push(new_message?._id);
       institute.student_message_count += 1
@@ -3654,6 +3658,7 @@ exports.renderAllFilteredAlarmQuery = async (req, res) => {
     const { id } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     if (!id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -3661,19 +3666,15 @@ exports.renderAllFilteredAlarmQuery = async (req, res) => {
       });
       var valid_ins = await InstituteAdmin.findById({ _id: id })
       .select("student_reminder")
+    var all_message = await StudentMessage.find({ $and: [{ _id: { $in: valid_ins?.student_reminder } }, { message_mode: "STUDENT_REMINDER"}] })
+      .sort({ created_at: -1 })
+      .limit(limit)
+      .skip(skip)
       .populate({
-        path: "student_reminder",
-        populate: {
-          path: "student from student_list",
+        path: "from student_list",
           select:
-            "studentFirstName studentMiddleName studentLastName studentProfilePhoto studentGRNO photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
-        },
+            "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
       });
-    var all_message = await nested_document_limit(
-      page,
-      limit,
-      valid_ins?.student_reminder?.reverse()
-    );
 
     if (all_message?.length > 0) {
       res.status(200).send({
@@ -3767,7 +3768,8 @@ exports.renderOldMessageQuery = async (req, res) => {
           student_list_count: val?.student_list_count,
           message_type: `${val?.message_type}`,
           from_name: val?.from_name,
-          institute: valid_ins?._id
+          institute: valid_ins?._id,
+          message_mode: "STUDENT_MESSAGE"
         })
         valid_ins.student_message.push(new_message?._id);
         valid_ins.student_message_count += 1
@@ -3797,6 +3799,7 @@ exports.renderOldMessageQuery = async (req, res) => {
           from_name: val?.from_name,
           institute: institute?._id,
           from: val?.from,
+          message_mode: "STUDENT_MESSAGE"
         })
         institute.student_message.push(new_message?._id);
         institute.student_message_count += 1

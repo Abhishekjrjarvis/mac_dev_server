@@ -11,8 +11,9 @@ const axios = require("axios");
 const Admin = require("../models/superAdmin");
 const StudentNotification = require("../models/Marks/StudentNotification");
 const InstituteAdmin = require("../models/InstituteAdmin");
+const StudentMessage = require("../models/Content/StudentMessage");
 
-exports.dueDateAlarm = async (aid, type, content, student_arr) => {
+exports.dueDateAlarm = async (aid, type, content, student_arr, title, doc) => {
   try {
     var ads_admin = await Admission.findById({ _id: aid }).populate({
       path: "admissionAdminHead",
@@ -21,20 +22,37 @@ exports.dueDateAlarm = async (aid, type, content, student_arr) => {
     if (ads_admin?.alarm_enable_status === "Enable") {
       var valid_date = custom_date_time(3);
       ads_admin.alarm_enable = new Date(`${valid_date}`);
+      if(student_arr?.length > 0){
+        var valid_ins = await InstituteAdmin.findById({ _id: ads_admin?.institute });
+        const new_message = new StudentMessage({
+          message: `${content}`,
+          student_list: [...student_arr],
+          student_list_count: student_arr?.length,
+          message_type: `${type}`,
+          from_name: "Institute Admin",
+          message_title: title,
+          message_document: doc,
+          institute: valid_ins?._id,
+          message_mode: "STUDENT_REMINDER"
+        })
+        valid_ins.student_reminder.push(new_message?._id);
+        valid_ins.student_reminder_count += 1
+        await Promise.all([ new_message.save(), valid_ins.save()]);
+      }
       for (var ele of student_arr) {
         var all_remains = await RemainingList.find({
           student: ele?._id,
         })
           .populate({
-            path: "fee_structure",
+            path: "fee_structure applicable_card",
           })
           var valid_price = 0
           for(var remind of all_remains){
             if (remind?.status === "Not Paid") {
               valid_price +=
-              remind?.paid_fee >= remind?.fee_structure?.applicable_fees
+              remind?.applicable_card?.paid_fee >= remind?.fee_structure?.applicable_fees
                 ? 0
-                : remind?.fee_structure?.applicable_fees - remind?.paid_fee;
+                : remind?.fee_structure?.applicable_fees - remind?.applicable_card?.paid_fee;
             }
           }
         // for (let set of remind.remaining_array) {
@@ -56,6 +74,7 @@ exports.dueDateAlarm = async (aid, type, content, student_arr) => {
             notify.notifyType = "Student";
             notify.notifyPublisher = ele?._id;
             user.activity_tab.push(notify?._id);
+            user.student_message.push(new_message?._id)
             notify.notifyByAdmissionPhoto = aid;
             notify.notifyCategory = "Outstanding Reminder Alert";
             notify.redirectIndex = 39;
@@ -99,6 +118,7 @@ ${ele?.institute?.iName}
             notify.notifyType = "Student";
             notify.notifyPublisher = ele?._id;
             user.activity_tab.push(notify?._id);
+            user.student_message.push(new_message?._id)
             notify.notifyByAdmissionPhoto = aid;
             notify.notifyCategory = "Outstanding Reminder Alert";
             notify.redirectIndex = 39;
@@ -121,17 +141,23 @@ ${ele?.institute?.iName}
       await ads_admin.save();
     } else {
     }
-    if(student_arr?.length > 0){
-      var valid_ins = await InstituteAdmin.findById({ _id: ads_admin?.institute });
-      valid_ins.student_reminder.push({
-        content: `${content}`,
-        student_list: [...student_arr],
-        student_list_count: student_arr?.length,
-        content_type: `${type}`,
-        from_name: "Institute Admin",
-      });
-      await valid_ins.save();
-    }
+    // if(student_arr?.length > 0){
+    //   var valid_ins = await InstituteAdmin.findById({ _id: ads_admin?.institute });
+    //   const new_message = new StudentMessage({
+    //     message: `${content}`,
+    //     student_list: [...student_arr],
+    //     student_list_count: student_arr?.length,
+    //     message_type: `${type}`,
+    //     from_name: "Institute Admin",
+    //     message_title: title,
+    //     message_document: doc,
+    //     institute: valid_ins?._id,
+    //     message_mode: "STUDENT_REMINDER"
+    //   })
+    //   valid_ins.student_reminder.push(new_message?._id);
+    //   valid_ins.student_reminder_count += 1
+    //   await Promise.all([ new_message.save(), valid_ins.save()]);
+    // }
     await s_admin.save();
   } catch (e) {
     console.log(e);

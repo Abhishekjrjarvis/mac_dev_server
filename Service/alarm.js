@@ -24,7 +24,7 @@ exports.dueDateAlarm = async (aid, type, content, student_arr, title, doc) => {
       ads_admin.alarm_enable = new Date(`${valid_date}`);
       if(student_arr?.length > 0){
         var valid_ins = await InstituteAdmin.findById({ _id: ads_admin?.institute });
-        const new_message = new StudentMessage({
+        var new_message = new StudentMessage({
           message: `${content}`,
           student_list: [...student_arr],
           student_list_count: student_arr?.length,

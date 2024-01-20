@@ -4532,6 +4532,7 @@ exports.renderAllStudentToUnApprovedCatalogQuery = async (req, res) => {
         batch.save(),
         institute.save(),
       ]);
+    res.status(200).send({ message: "Explore Approve Student To Un Approve Student Query", access: true})
   } catch (e) {
     console.log(e);
   }

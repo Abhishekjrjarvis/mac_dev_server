@@ -144,4 +144,9 @@ router
   .route("/subject/:sid/student/attendance/exist/query")
   .post(isLoggedIn, catchAsync(Avail.markAttendenceSubjectStudentExistQuery));
 
+  router
+  .route("/set/subject/:sid/attendace/time/slot")
+  .patch(catchAsync(Avail.subjectTodaySetAttendanceTimeQuery));
+
+
 module.exports = router;

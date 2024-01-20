@@ -291,6 +291,19 @@ const classSchema = new mongoose.Schema({
     type: String,
     unique: true
   },
+  attendance_time_slot: [
+    {
+      date: String,
+      from: String,
+      to: String,
+      register_subject: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subject",
+      },
+      is_mark: Boolean,
+    },
+  ],
+
 });
 
 const Class = mongoose.model("Class", classSchema);

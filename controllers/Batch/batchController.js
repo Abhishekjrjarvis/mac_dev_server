@@ -1203,19 +1203,22 @@ exports.batchCompleteAndUncomplete = async (req, res) => {
             const subject = await Subject.findById(subId);
             if (subject.subjectStatus !== "Completed") {
               subject.subjectStatus = "Completed";
-              const subStaff = await Staff.findById(
-                subject?.subjectTeacherName
-              );
-              if (subStaff.staffDesignationCount >= 1) {
-                subStaff.staffDesignationCount -= 1;
+              if (subject?.subjectTeacherName) {
+                const subStaff = await Staff.findById(
+                  subject?.subjectTeacherName
+                );
+                if (subStaff.staffDesignationCount > 0) {
+                  subStaff.staffDesignationCount -= 1;
+                }
+                subStaff.previousStaffSubject?.push(subject._id);
+                subStaff.staffSubject.pull(subject._id);
+                await subStaff.save()
               }
-              subStaff.previousStaffSubject?.push(subject._id);
-              subStaff.staffSubject.pull(subject._id);
-              await Promise.all([subStaff.save(), subject.save()]);
+              await subject.save()
             }
           }
           const staff = await Staff.findById(classes?.classTeacher);
-          if (staff.staffDesignationCount >= 1) {
+          if (staff.staffDesignationCount > 0) {
             staff.staffDesignationCount -= 1;
           }
           staff.previousStaffClass?.push(clsId);

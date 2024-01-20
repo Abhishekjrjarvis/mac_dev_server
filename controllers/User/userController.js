@@ -1071,9 +1071,9 @@ exports.getAllUserStudentMessage = async (req, res) => {
     .limit(limit)
     .skip(skip)
     .populate({
-      path: "from student_list",
+      path: "from student_list institute",
         select:
-          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
+          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO insName name photoId insProfilePhoto",
     });
     if (all_message?.length > 0) {
       res.status(200).send({

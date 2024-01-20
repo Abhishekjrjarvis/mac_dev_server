@@ -4441,7 +4441,7 @@ exports.renderAllStudentToUnApprovedCatalogQuery = async (req, res) => {
           classes.strength -= 1
         }
         classes.ApproveStudent.pull(student._id);
-        classes.student.push(student._id);
+        classes.UnApproveStudent.push(student._id);
         if (classes.studentCount > 0) {
           classes.studentCount -= 1
         }

@@ -1160,7 +1160,7 @@ const government_fees_query = async(
     new_receipt.fee_transaction_date = new Date();
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     finance.government_receipt.push(new_receipt?._id);
-    finance.financeGovernmentScholarBalance += price;
+    finance.financeGovernmentScholarBalance += price_gov;
     finance.scholarship_candidates.push(new_receipt?._id);
     finance.scholarship_candidates_count += 1;
     finance.government_receipt_count += 1;

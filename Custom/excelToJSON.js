@@ -676,6 +676,7 @@ exports.generate_excel_to_json_fee_query = async (file, aid, fid) => {
           ],
         });
         if (new_appId?._id) {
+          console.log("push")
           batch_set.push({
             appId: new_appId?._id,
             fee_struct: new_fee_struct?._id,
@@ -686,7 +687,7 @@ exports.generate_excel_to_json_fee_query = async (file, aid, fid) => {
           });
         }
       }
-
+      console.log(batch_set?.length)
       batch_set = batch_set.filter((value) => JSON.stringify(value) !== "{}");
 
         new_data_query.push({

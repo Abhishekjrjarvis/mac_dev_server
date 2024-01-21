@@ -4380,7 +4380,6 @@ exports.retrieveInstituteDirectJoinPayloadFeesQuery = async (
         var finance = await Finance.findById({
           _id: `${institute?.financeDepart?.[0]}`,
         });
-        console.log(finance)
         // student.fee_structure =
         //   query?.is_remain === "No"
         //     ? query?.fee_struct
@@ -4391,7 +4390,6 @@ exports.retrieveInstituteDirectJoinPayloadFeesQuery = async (
             student,
             institute,
             query?.batch_set,
-            user,
             finance,
             ads_admin
           );

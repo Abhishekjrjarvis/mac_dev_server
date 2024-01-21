@@ -1147,7 +1147,6 @@ const government_fees_query = async(
   fee_structure
 ) => {
   try {
-    console.log(finance, "G/S")
     var extra_price = 0;
     var order = new OrderPayment({});
     const new_receipt = new FeeReceipt({});

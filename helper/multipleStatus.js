@@ -1350,7 +1350,7 @@ exports.fee_reordering_direct_student_payload_exist_query = async (
             finance,
             institute,
             new_remainFee,
-            mode_gov,
+            price_gov,
             mode_student,
             structure
           )

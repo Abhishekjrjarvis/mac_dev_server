@@ -88,6 +88,10 @@ const nestedCardSchema = new mongoose.Schema({
       excess_fee: {
         type: Number,
         default: 0
+  },
+  created_at: {
+    type: Date,
+    default: Date.now
       }
 })
 

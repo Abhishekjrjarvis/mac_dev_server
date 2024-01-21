@@ -695,7 +695,8 @@ exports.generate_excel_to_json_fee_query = async (file, aid, fid) => {
           batch_set,
         });
     }
-    return { student_array: new_data_query, value: true };
+    console.log(new_data_query)
+    // return { student_array: new_data_query, value: true }; 
     // fs.writeFileSync(
     //   "../studentJSON.json",
     //   JSON.stringify(new_data_query, null, 2)

@@ -4372,7 +4372,6 @@ exports.retrieveInstituteDirectJoinPayloadFeesQuery = async (
     for (var query of student_array) {
       if (query?.GRNO) {
         var student = await Student.findOne({ studentGRNO: `${query?.GRNO}` });
-        var user = await User.findById({ _id: `${student?.user}` });
         const ads_admin = await Admission.findById({ _id: aid });
         const institute = await InstituteAdmin.findById({
           _id: `${ads_admin?.institute}`,

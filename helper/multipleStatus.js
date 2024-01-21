@@ -1113,10 +1113,7 @@ const applicable_fees_query = async (
       new_receipt
     );
     student.admissionPaidFeeCount += price;
-    student.paidFeeList.push({
-      paidAmount: price,
-      appId: apply._id,
-    });
+    user.applyApplication.push(apply._id);
     await Promise.all([
       admission.save(),
       apply.save(),
@@ -1244,11 +1241,6 @@ const government_fees_query = async(
       remaining_fee_lists,
       new_receipt
     );
-    for (var stu of student?.paidFeeList) {
-      if (`${stu.appId}` === `${apply._id}`) {
-        stu.paidAmount += price_gov;
-      }
-    }
     await Promise.all([
       admin_ins.save(),
       student.save(),
@@ -1312,6 +1304,11 @@ exports.fee_reordering_direct_student_payload_exist_query = async (
         .populate({
           path: "government_card"
         })
+        students.paidFeeList.push({
+          paidAmount: price_student > 0 || price_gov > 0 ? price_student + price_gov : 0,
+          appId: apply._id,
+        });
+        new_remainFee.remark = new_remainFee?.remark ? `${new_remainFee.remark} ${ref?.remark}` : `${ref?.remark}`
         // var pay_remain = new_remainFee?.
         if (price_student > 0) {
           await applicable_fees_query(
@@ -1355,9 +1352,6 @@ exports.fee_reordering_direct_student_payload_exist_query = async (
             structure
           )
         }
-        new_remainFee.remark = new_remainFee?.remark ? `${new_remainFee.remark} ${ref?.remark}` : `${ref?.remark}`
-        user.applyApplication.push(apply._id);
-        await Promise.all([ new_remainFee.save(), user.save() ])
       }
       else {
         console.log("Problem in Fees Card Creation")

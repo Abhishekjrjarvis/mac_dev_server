@@ -1086,7 +1086,7 @@ const applicable_fees_query = async (
       // }
         await nest_card.save()
           console.log("Enter");
-          await set_fee_head_query(student, price, apply, new_receipt);
+          await set_fee_head_query(student, price, apply, new_receipt, fee_structure);
           console.log("Exit");
         apply.allottedApplication.push({
           student: student._id,

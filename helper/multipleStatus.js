@@ -1011,8 +1011,8 @@ const applicable_fees_query = async (
         institute.payment_history.push(order._id);
     if (new_remainFee?.applicable_card?._id) {
       const nest_card = await NestedCard.findById({ _id: `${new_remainFee?.applicable_card?._id}`})
-      new_remainFee.active_payment_type = `${type}`;
-      nest_card.active_payment_type = `${type}`;
+      new_remainFee.active_payment_type = "First Installment";
+      nest_card.active_payment_type = "First Installment";
       new_remainFee.paid_fee += price;
       nest_card.paid_fee += price;
       if(new_remainFee?.remaining_fee >= price){
@@ -1071,7 +1071,7 @@ const applicable_fees_query = async (
       // }
       // else {
         await render_installment(
-          type,
+          "First Installment",
           student,
           mode,
           price,
@@ -1188,8 +1188,8 @@ const government_fees_query = async(
       }
     if (remaining_fee_lists?.government_card?._id) {
       const nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.government_card?._id}` })
-      remaining_fee_lists.active_payment_type = `${type}`;
-      nest_card.active_payment_type = `${type}`;
+      remaining_fee_lists.active_payment_type = "First Installment";
+      nest_card.active_payment_type = "First Installment";
       nest_card.paid_fee += price_gov;
       if (nest_card?.remaining_fee >= price_gov) {
         nest_card.remaining_fee -= price_gov
@@ -1210,7 +1210,7 @@ const government_fees_query = async(
       console.log("Enter")
       // console.log(nest_app)
             await render_government_installment_query(
-              type,
+              "First Installment",
               student,
               mode_gov,
               price_gov,

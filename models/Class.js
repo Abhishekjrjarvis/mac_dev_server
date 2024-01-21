@@ -301,6 +301,7 @@ const classSchema = new mongoose.Schema({
         ref: "Subject",
       },
       is_mark: Boolean,
+      is_Extra: Boolean
     },
   ],
 

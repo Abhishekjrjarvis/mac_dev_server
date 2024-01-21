@@ -675,10 +675,10 @@ exports.generate_excel_to_json_fee_query = async (file, aid, fid) => {
             { applicationBatch: new_fee_struct?.batch_master}
           ],
         });
-        console.log(new_appId?.applicationDepartment, new_appId?.applicationBatch, new_appId?.applicationMaster)
-        console.log(new_fee_struct?.department, new_fee_struct?.batch_master, new_fee_struct?.class_master)
+        // console.log(new_appId?.applicationDepartment, new_appId?.applicationBatch, new_appId?.applicationMaster)
+        // console.log(new_fee_struct?.department, new_fee_struct?.batch_master, new_fee_struct?.class_master)
         if (new_appId?._id) {
-          console.log("push")
+          // console.log("push")
           batch_set.push({
             appId: new_appId?._id,
             fee_struct: new_fee_struct?._id,
@@ -689,7 +689,7 @@ exports.generate_excel_to_json_fee_query = async (file, aid, fid) => {
           });
         }
       }
-      console.log(batch_set?.length)
+      // console.log(batch_set?.length)
       batch_set = batch_set.filter((value) => JSON.stringify(value) !== "{}");
 
         new_data_query.push({
@@ -697,8 +697,8 @@ exports.generate_excel_to_json_fee_query = async (file, aid, fid) => {
           batch_set,
         });
     }
-    console.log(new_data_query)
-    // return { student_array: new_data_query, value: true }; 
+    // console.log(new_data_query)
+    return { student_array: new_data_query, value: true }; 
     // fs.writeFileSync(
     //   "../studentJSON.json",
     //   JSON.stringify(new_data_query, null, 2)

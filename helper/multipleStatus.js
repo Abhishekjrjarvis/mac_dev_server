@@ -1244,7 +1244,7 @@ const government_fees_query = async(
       remaining_fee_lists,
       new_receipt
     );
-    for (var stu of student.paidFeeList) {
+    for (var stu of student?.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price_gov;
       }
@@ -1351,7 +1351,7 @@ exports.fee_reordering_direct_student_payload_exist_query = async (
             institute,
             new_remainFee,
             price_gov,
-            mode_student,
+            mode_gov,
             structure
           )
         }

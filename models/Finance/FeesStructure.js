@@ -134,6 +134,10 @@ const feeStructureSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Transport",
   },
+  fee_structure_code: {
+    type: String,
+    unique: true
+  }
 });
 
 module.exports = mongoose.model("FeeStructure", feeStructureSchema);

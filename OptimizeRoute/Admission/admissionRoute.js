@@ -711,4 +711,8 @@ router.patch(
   catchAsync(Admission.renderChargesCardQuery)
 );
 
+router
+  .route("/validate/structure/query")
+  .patch(catchAsync(Admission.renderValidateAppQuery));
+
 module.exports = router;

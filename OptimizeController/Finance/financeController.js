@@ -54,6 +54,7 @@ const RemainingList = require("../../models/Admission/RemainingList");
 const {
   generate_hash_pass,
   installment_checker_query,
+  generate_random_code_structure,
 } = require("../../helper/functions");
 const { render_finance_current_role } = require("../Moderator/roleController");
 const {
@@ -2859,6 +2860,7 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
 
     var finance = await Finance.findById({ _id: fid });
     if (flow === "Finance_Manager") {
+      const new_code = generate_random_code_structure()
       const depart = await Department.findById({ _id: did });
       const struct_query = new FeeStructure({ ...req.body });
       const category = await FeeCategory.findById({
@@ -2870,6 +2872,7 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
       const batch_master = await Batch.findById({
         _id: `${req.body?.batch_master}`,
       });
+      struct_query.fee_structure_code = `${new_code}`
       struct_query.finance = finance?._id;
       struct_query.department = depart?._id;
       struct_query.unique_structure_name = `${category?.category_name} - ${depart?.dName} - ${batch_master?.batchName} - ${class_master?.className} / ${req.body?.structure_name}`;
@@ -2891,6 +2894,7 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
         access: true,
       });
     } else if (flow === "Hostel_Manager") {
+      const new_code = generate_random_code_structure()
       const hostel = await Hostel.findById({ _id: hid });
       const struct_query = new FeeStructure({ ...req.body });
       const category = await FeeCategory.findById({
@@ -2909,6 +2913,7 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
       const batch_master = await Batch.findById({
         _id: `${req.body?.batch_master}`,
       });
+      struct_query.fee_structure_code = `${new_code}`
       struct_query.batch_master = batch_master?._id;
       struct_query.class_master = class_master ? class_master?._id : null;
       struct_query.unit_master = unit_master ? unit_master?._id : null;
@@ -2937,6 +2942,7 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
         access: true,
       });
     } else if (flow === "Transport_Manager") {
+      const new_code = generate_random_code_structure()
       const trans = await Transport.findById({ _id: tid });
       const struct_query = new FeeStructure({ ...req.body });
       const category = await FeeCategory.findById({
@@ -2955,6 +2961,7 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
       const batch_master = await Batch.findById({
         _id: `${req.body?.batch_master}`,
       });
+      struct_query.fee_structure_code = `${new_code}`
       struct_query.batch_master = batch_master?._id;
       struct_query.class_master = class_master ? class_master?._id : null;
       struct_query.vehicle_master = vehicle_master ? vehicle_master?._id : null;
@@ -3007,6 +3014,7 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
         _id: `${ref?.StandardId}`,
       });
       var batch_master = await Batch.findById({ _id: `${ref?.batchId}` });
+      const new_code = generate_random_code_structure()
       const struct_query = new FeeStructure({
         category_master: ref?.CategoryId,
         class_master: ref?.StandardId,
@@ -3028,6 +3036,7 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
         eleven_installments: ref?.eleven_installments,
         tweleve_installments: ref?.tweleve_installments,
         batch_master: batch_master?._id,
+        fee_structure_code: `${new_code}`
       });
       struct_query.finance = finance?._id;
       struct_query.department = depart?._id;
@@ -3069,6 +3078,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
       });
 
     if (flow === "Finance_Manager") {
+      const new_code = generate_random_code_structure()
       const previous_struct = await FeeStructure.findById({ _id: fsid });
       const finance = await Finance.findById({
         _id: `${previous_struct?.finance}`,
@@ -3086,6 +3096,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
       const batch_master = await Batch.findById({
         _id: `${req.body?.batch_master}`,
       });
+      struct_query.fee_structure_code = `${new_code}`
       struct_query.finance = finance?._id;
       struct_query.department = depart?._id;
       struct_query.unique_structure_name = `${category?.category_name} - ${depart?.dName} - ${batch_master?.batchName} - ${class_master?.className} / ${req.body?.structure_name}`;
@@ -3113,6 +3124,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
         access: true,
       });
     } else if (flow === "Hostel_Manager") {
+      const new_code = generate_random_code_structure()
       const previous_struct = await FeeStructure.findById({ _id: fsid });
       const finance = await Finance.findById({
         _id: `${previous_struct?.finance}`,
@@ -3137,6 +3149,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
       const batch_master = await Batch.findById({
         _id: `${req.body?.batch_master}`,
       });
+      struct_query.fee_structure_code = `${new_code}`
       struct_query.batch_master = batch_master?._id;
       struct_query.class_master = class_master ? class_master?._id : null;
       struct_query.unit_master = unit_master ? unit_master : null;
@@ -3171,6 +3184,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
         access: true,
       });
     } else if (flow === "Transport_Manager") {
+      const new_code = generate_random_code_structure()
       const previous_struct = await FeeStructure.findById({ _id: fsid });
       const finance = await Finance.findById({
         _id: `${previous_struct?.finance}`,
@@ -3195,6 +3209,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
       const batch_master = await Batch.findById({
         _id: `${req.body?.batch_master}`,
       });
+      struct_query.fee_structure_code = `${new_code}`
       struct_query.batch_master = batch_master?._id;
       struct_query.class_master = class_master ? class_master?._id : null;
       struct_query.vehicle_master = vehicle_master ? vehicle_master : null;
@@ -5902,6 +5917,24 @@ exports.renderScholarshipFundsQuery = async(req, res) => {
     }
   }
   catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderFeeStructureCodeQuery = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var struct = await FeeStructure.find({ finance: fid })
+    for (var v of struct) {
+      const new_code = generate_random_code_structure()
+      v.fee_structure_code = `${new_code}`
+      await v.save()
+    }
+    res.status(200).send({ message: "Explore New Fee Structure Code", access: true })
+  }
+  catch (e) {
     console.log(e)
   }
 }

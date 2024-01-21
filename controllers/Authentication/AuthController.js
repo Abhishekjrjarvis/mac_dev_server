@@ -4380,21 +4380,21 @@ exports.retrieveInstituteDirectJoinPayloadFeesQuery = async (
         var finance = await Finance.findById({
           _id: `${institute?.financeDepart[0]}`,
         });
-        student.fee_structure =
-          query?.is_remain === "No"
-            ? query?.fee_struct
-            : query?.batch_set[0]?.fee_struct;
-        await student.save();
+        // student.fee_structure =
+        //   query?.is_remain === "No"
+        //     ? query?.fee_struct
+        //     : query?.batch_set[0]?.fee_struct;
+        // await student.save();
         if (query?.batch_set?.length > 0) {
           await fee_reordering_direct_student_payload_exist_query(
             student,
             institute,
             query?.batch_set,
             user,
-            finance
+            finance,
+            ads_admin
           );
         }
-        await Promise.all([student.save(), institute.save(), user.save()]);
       } else {
         console.log("Problem in Account Creation");
         // return false

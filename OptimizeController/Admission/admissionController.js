@@ -6697,7 +6697,7 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     order.payment_to_end_user_id = institute._id;
     order.payment_by_end_user_id = user._id;
     order.payment_module_id = apply._id;
-    order.payment_amount = extra_price;
+    order.payment_amount = price;
     order.payment_status = "Captured";
     order.payment_flag_to = "Credit";
     order.payment_flag_by = "Debit";
@@ -11738,6 +11738,31 @@ exports.renderChargesCardQuery = async (req, res) => {
     res.status(200).send({ message: "Put Institute Charges In Queue", access: true})
   }
   catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderValidateAppQuery = async(req, res) => {
+  try{
+    const exist_app = await NewApplication.find({ $and: [{ applicationDepartment: `${req.body?.depart}`}, { applicationMaster: `${req.body?.master}`}, { applicationBatch: `${req.body?.batch}`}]})
+    if(exist_app?.length > 0){
+      res.status(200).send({
+        message: "Fee Application Already Exists",
+        access: false,
+        avail_app: exist_app?.length,
+        exist_app: exist_app
+      });
+    }
+    else{
+      res.status(200).send({
+        message: "Proceed with new Application",
+        access: true,
+        avail_app: 0,
+        exist_app: []
+      });
+    }
+  }
+  catch(e){
     console.log(e)
   }
 }

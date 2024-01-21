@@ -648,92 +648,51 @@ exports.generate_excel_to_json_fee_query = async (file, aid, fid) => {
       dateNF: "yyyy-mm-dd",
     });
 
-    const w_sheet = w_query.Sheets["ExistStudentFees"];
+    const w_sheet = w_query.Sheets["StudentFees"];
 
     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
     var new_data_query = [];
     for (var ref of data_query) {
       var batch_set = [];
-      var remain_array = [];
-      var b_count = +ref?.batchcount;
-
+      var b_count = +ref?.Count;
       for (var i = 1; i <= b_count; i++) {
-        var i_count = +ref[`instcount_${i}`];
-        for (var j = 1; j <= i_count; j++) {
-          remain_array.push({
-            amount: ref[`paid${i}_${j}`],
-            mode: ref[`mode${i}_${j}`],
-          });
-        }
-        var new_appId = await NewApplication.findOne({
-          $and: [
-            { admissionAdmin: aid },
-            {
-              applicationName: {
-                $regex: `${ref[`appId_${i}`]}`,
-                $options: "i",
-              },
-            },
-          ],
-        });
         var new_fee_struct = await FeeStructure.findOne({
           $and: [
             { finance: fid },
             {
-              unique_structure_name: {
-                $regex: `${ref[`fee_struct_${i}`]}`,
+              fee_structure_code: {
+                $regex: `${ref[`StructureCode_${i}`]}`,
                 $options: "i",
               },
             },
           ],
         });
-        var new_batchId = await Batch.findById({
-          _id: `${new_fee_struct?.batch_master}`,
+        var new_appId = await NewApplication.findOne({
+          $and: [
+            { admissionAdmin: aid },
+            { applicationDepartment: new_fee_struct?.department },
+            { applicationMaster: new_fee_struct?.class_master },
+            { applicationBatch: new_fee_struct?.batch_master}
+          ],
         });
-        batch_set.push({
-          batchId: new_batchId?._id,
-          appId: new_appId?._id,
-          fee_struct: new_fee_struct?._id,
-          amount: ref[`amount${i}`],
-          remark: ref[`remark${i}`],
-          remain_array: [...remain_array],
-        });
-        remain_array = [];
+        if (new_appId?._id) {
+          batch_set.push({
+            appId: new_appId?._id,
+            fee_struct: new_fee_struct?._id,
+            amount_student: ref[`PaidByStudent_${i}`],
+            amount_gov: ref[`PaidByGovernment_${i}`],
+            amount_exempt: ref[`Exempted_${i}`],
+            remark: ref[`Remark_${i}`],
+          });
+        }
       }
-
-      remain_array = remain_array.filter(
-        (value) => JSON.stringify(value) !== "{}"
-      );
 
       batch_set = batch_set.filter((value) => JSON.stringify(value) !== "{}");
 
-      let name_query = ref?.name?.split(" ");
-      if (name_query?.length > 2) {
         new_data_query.push({
           ...ref,
           batch_set,
-          studentFirstName: name_query[0],
-          studentMiddleName: name_query[1],
-          studentLastName: name_query[2],
-          fee_struct: ref?.fee_struct,
-          is_remain: ref?.isremain,
-          fileArray: [],
-          sample_pic: "",
-          fee_struct: ref?.fee_struct,
         });
-      } else {
-        new_data_query.push({
-          ...ref,
-          batch_set,
-          studentFirstName: name_query[0],
-          studentLastName: name_query[1],
-          fee_struct: ref?.fee_struct,
-          is_remain: ref?.isremain,
-          fileArray: [],
-          sample_pic: "",
-          fee_struct: ref?.fee_struct,
-        });
-      }
     }
     return { student_array: new_data_query, value: true };
     // fs.writeFileSync(

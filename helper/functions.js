@@ -453,6 +453,19 @@ exports.remove_duplicated_arr = (arr) => {
   return uniqueArray
 }
 
+exports.generate_random_code_structure = () => {
+  let rand1 = Math.floor(Math.random() * 9);
+  let rand2 = Math.floor(Math.random() * 9);
+  let rand3 = Math.floor(Math.random() * 9);
+  let rand4 = Math.floor(Math.random() * 9);
+  let rand5 = Math.floor(Math.random() * 9);
+  let rand6 = Math.floor(Math.random() * 9);
+  let rand7 = Math.floor(Math.random() * 9);
+  let rand8 = Math.floor(Math.random() * 9);
+  var pass = `${rand1}${rand3}${rand2}${rand4}${rand6}${rand7}${rand5}${rand8}`;
+  return pass;
+};
+
 // console.log(
 //   send_email_authentication_promotional("pankajphad.stuff@gmail.com")
 // );

@@ -563,5 +563,7 @@ router
   .route("/scholarship/funds/query")
   .get(catchAsync(Finance.renderScholarshipFundsQuery))
 
+router.patch("/fee/structure/code/:fid/query", catchAsync(Finance.renderFeeStructureCodeQuery))
+
 
 module.exports = router;

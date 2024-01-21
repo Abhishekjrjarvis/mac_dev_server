@@ -675,6 +675,7 @@ exports.generate_excel_to_json_fee_query = async (file, aid, fid) => {
             { applicationBatch: new_fee_struct?.batch_master}
           ],
         });
+        console.log(new_appId?.applicationName)
         if (new_appId?._id) {
           console.log("push")
           batch_set.push({

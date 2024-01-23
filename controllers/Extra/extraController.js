@@ -3751,73 +3751,24 @@ exports.renderAllInstituteFundChargesQuery = async (req, res) => {
 
 exports.renderOldMessageQuery = async (req, res) => {
   try {
-    const { id, flow } = req.query;
-    if (!id)
-      return res.status(200).send({
-        message: "Their is a bug need to fixed immediately",
-        access: false,
-      })
-
-    if (flow === "INSTITUTE_ADMIN") {
-      var valid_ins = await InstituteAdmin.findById({ _id: `${id}` });
-
-      for (var val of valid_ins?.student_message) {
-        const new_message = new StudentMessage({
-          message: `${val?.message}`,
-          student_list: [...val?.student_list],
-          student_list_count: val?.student_list_count,
-          message_type: `${val?.message_type}`,
-          from_name: val?.from_name,
-          institute: valid_ins?._id,
-          message_mode: "STUDENT_MESSAGE"
-        })
-        valid_ins.student_message.push(new_message?._id);
-        valid_ins.student_message_count += 1
-        await new_message.save()
-        const all_student = await Student.find({ _id: { $in: val?.student_list}})
-        for (var ref of all_student) {
-          var user = await User.findById({
-            _id: `${ref?.user}`,
-          });
-          user.student_message.push(new_message?._id)
-          await user.save()
-        }
+    var valid_ins = await InstituteAdmin.find({ status: "Approved"})
+      .select("ApproveStaff")
+    
+    var i = 0
+    for (var val of valid_ins) {
+      var all_staff = await Staff.find({ _id: { $in: val?.ApproveStaff } })
+      for (var ele of all_staff) {
+        ele.student_message = []
+        await ele.save()
       }
-      await valid_ins.save()
+      console.log(i)
+      i+= 1
+      val.student_message = []
+      await val.save()
+    }
       res
         .status(200)
         .send({ message: "Explore Institute Side Filtered Message Query", access: true });
-    } else {
-      var valid_staff = await Staff.findById({ _id: `${id}` });
-      var institute = await InstituteAdmin.findById({ _id: valid_staff?.institute });
-      for (var val of valid_staff?.student_message) {
-        const new_message = new StudentMessage({
-          message: `${val?.message}`,
-          student_list: [...val?.student_list],
-          student_list_count: val?.student_list_count,
-          message_type: `${val?.message_type}`,
-          from_name: val?.from_name,
-          institute: institute?._id,
-          from: val?.from,
-          message_mode: "STUDENT_MESSAGE"
-        })
-        institute.student_message.push(new_message?._id);
-        institute.student_message_count += 1
-        await new_message.save()
-          const all_student = await Student.find({ _id: { $in: val?.student_list } })
-        for (var ref of all_student) {
-          var user = await User.findById({
-            _id: `${ref?.user}`,
-          });
-          user.student_message.push(new_message?._id)
-          await user.save()
-        }
-      }
-      await institute.save()
-      res
-          .status(200)
-          .send({ message: "Explore Staff Side Filtered Message Query", access: true });
-    }
   } catch (e) {
     console.log(e);
   }

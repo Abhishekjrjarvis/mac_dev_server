@@ -15,7 +15,7 @@ const issueBookSchema = new mongoose.Schema({
   },
   staff_member: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Student",
+    ref: "Staff",
   },
   // bookName: { type: String, required: true },
   // author: { type: String, required: true },

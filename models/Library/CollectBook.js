@@ -29,7 +29,7 @@ const collectBookSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   staff_member: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Student",
+    ref: "Staff",
   },
   collect_as: {
     type: String,

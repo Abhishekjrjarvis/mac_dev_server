@@ -1217,14 +1217,16 @@ exports.batchCompleteAndUncomplete = async (req, res) => {
               await subject.save()
             }
           }
-          const staff = await Staff.findById(classes?.classTeacher);
-          if (staff.staffDesignationCount > 0) {
-            staff.staffDesignationCount -= 1;
+          if (classes?.classTeacher) {
+            const staff = await Staff.findById(classes?.classTeacher);
+            if (staff.staffDesignationCount > 0) {
+              staff.staffDesignationCount -= 1;
+            }
+            staff.previousStaffClass?.push(clsId);
+            staff.staffClass.pull(clsId);
+            classes.classStatus = "Completed";
+            await Promise.all([staff.save(), classes.save()]);
           }
-          staff.previousStaffClass?.push(clsId);
-          staff.staffClass.pull(clsId);
-          classes.classStatus = "Completed";
-          await Promise.all([staff.save(), classes.save()]);
         }
       }
       batch.batchStatus = "Locked";

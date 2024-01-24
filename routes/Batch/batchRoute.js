@@ -46,7 +46,7 @@ router
 
 router
   .route("/batch/:bid/complete/uncomplete/action")
-  .patch(isLoggedIn, catchAsync(batchController.batchCompleteAndUncomplete));
+  .patch( catchAsync(batchController.batchCompleteAndUncomplete));
 
 router
   .route("/subject/:smid/update/course/credit")

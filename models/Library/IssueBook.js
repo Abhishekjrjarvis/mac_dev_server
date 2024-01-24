@@ -23,6 +23,10 @@ const issueBookSchema = new mongoose.Schema({
   // photoId: { type: String },
   // photoId: { type: String },
   createdAt: { type: Date, default: Date.now },
+  issue_as: {
+    type: String,
+    default: "Normal",
+  },
 });
 
 module.exports = mongoose.model("IssueBook", issueBookSchema);

@@ -20,6 +20,7 @@ const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { notify_attendence_provider } = require("../../helper/dayTimer");
 const Subject = require("../../models/Subject");
 const moment = require("moment");
+const ClassAttendanceTimeSlot = require("../../models/Timetable/ClassAttendanceTimeSlot");
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
   const institute = await Student.findById(req.params.sid);
@@ -275,97 +276,97 @@ exports.markAttendenceClassStudent = async (req, res) => {
       className: { $eq: `${cid}` },
       attendDate: { $eq: `${req.body.date}` },
     });
-      if (dLeave || attendanceone) {
-        res.status(200).send({
-          message:
-            "Today will be holiday Provided by department Admin or already marked attendance",
+    if (dLeave || attendanceone) {
+      res.status(200).send({
+        message:
+          "Today will be holiday Provided by department Admin or already marked attendance",
+      });
+    } else {
+      const startDateClass = classes?.classStartDate?.split("/");
+      const markDate = req.body.date?.split("/");
+      const classyear = +markDate[2] > +startDateClass?.[2];
+      const year = +markDate[2] === +startDateClass?.[2];
+      const classmonth = +markDate[1] > +startDateClass?.[1];
+      const month = +markDate[1] === +startDateClass?.[1];
+      const day = +markDate[0] >= +startDateClass?.[0];
+      const attendence = new AttendenceDate({});
+      attendence.attendDate = req.body.date;
+      attendence.className = classes._id;
+      attendence.attendTime = new Date();
+      await Promise.all([attendence.save(), classes.save()]);
+      res
+        .status(200)
+        .send({ message: "Success", alreadyMark: attendence?._id });
+      for (let i = 0; i < req.body.present.length; i++) {
+        const student = await Student.findById({
+          _id: `${req.body.present[i]}`,
         });
-      } else {
-        const startDateClass = classes?.classStartDate?.split("/");
-        const markDate = req.body.date?.split("/");
-        const classyear = +markDate[2] > +startDateClass?.[2];
-        const year = +markDate[2] === +startDateClass?.[2];
-        const classmonth = +markDate[1] > +startDateClass?.[1];
-        const month = +markDate[1] === +startDateClass?.[1];
-        const day = +markDate[0] >= +startDateClass?.[0];
-        const attendence = new AttendenceDate({});
-        attendence.attendDate = req.body.date;
-        attendence.className = classes._id;
-        attendence.attendTime = new Date();
-        await Promise.all([attendence.save(), classes.save()]);
-        res
-          .status(200)
-          .send({ message: "Success", alreadyMark: attendence?._id });
-        for (let i = 0; i < req.body.present.length; i++) {
-          const student = await Student.findById({
-            _id: `${req.body.present[i]}`,
-          });
-          student.attendDate.push(attendence._id);
-  
-          attendence.presentStudent.push({
-            student: student._id,
-            inTime: getOnlyTime(),
-            // status: getOnlyTimeCompare(),
-            status: "Present",
-          });
-          await student.save();
-        }
-  
-        for (let i = 0; i < req.body.absent.length; i++) {
-          const student = await Student.findById({
-            _id: `${req.body.absent[i]}`,
-          });
-          let gettingDate = req.body.date?.split("/");
-          let gettingDateMod = new Date(
-            `${gettingDate[2]}/${gettingDate[1]}/${gettingDate[0]}`
-          );
-          let todayeDate = new Date();
-          let todayeDateISO = todayeDate;
-          let gettingDateISO = gettingDateMod;
-          if (todayeDateISO.getDate() === gettingDateISO.getDate()) {
-            const user = await User.findById({ _id: `${student.user}` });
-            const notify = new StudentNotification({});
-            notify.notifyContent = `you're absent ${notify_attendence_provider(
-              req.body.date
-            )}`;
-            notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
-            notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
-            notify.notifySender = classes._id;
-            notify.notifyReceiever = user._id;
-            notify.notifyType = "Student";
-            notify.notifyPublisher = student._id;
-            notify.notifyCategory = "Student Absent";
-            notify.notifyByClassPhoto = classes._id;
-            user.activity_tab.push(notify._id);
-            student.notification.push(notify._id);
-            notify.notifyCategory = "Attendence";
-            notify.redirectIndex = 3;
-            //
-            invokeMemberTabNotification(
-              "Student Activity",
-              notify,
-              "Mark Attendence",
-              user._id,
-              user.deviceToken,
-              "Student",
-              notify
-            );
-            //
-            await Promise.all([notify.save(), user.save()]);
-          }
-          student.attendDate.push(attendence._id);
-          attendence.absentStudent.push({
-            student: student._id,
-            inTime: getOnlyTime(),
-            status: "Absent",
-          });
-          await student.save();
-        }
-        classes.attendenceDate.push(attendence._id);
-        attendence.presentTotal = req.body.present.length;
-        attendence.absentTotal = req.body.absent.length;
-        await Promise.all([attendence.save(), classes.save()]);
+        student.attendDate.push(attendence._id);
+
+        attendence.presentStudent.push({
+          student: student._id,
+          inTime: getOnlyTime(),
+          // status: getOnlyTimeCompare(),
+          status: "Present",
+        });
+        await student.save();
       }
+
+      for (let i = 0; i < req.body.absent.length; i++) {
+        const student = await Student.findById({
+          _id: `${req.body.absent[i]}`,
+        });
+        let gettingDate = req.body.date?.split("/");
+        let gettingDateMod = new Date(
+          `${gettingDate[2]}/${gettingDate[1]}/${gettingDate[0]}`
+        );
+        let todayeDate = new Date();
+        let todayeDateISO = todayeDate;
+        let gettingDateISO = gettingDateMod;
+        if (todayeDateISO.getDate() === gettingDateISO.getDate()) {
+          const user = await User.findById({ _id: `${student.user}` });
+          const notify = new StudentNotification({});
+          notify.notifyContent = `you're absent ${notify_attendence_provider(
+            req.body.date
+          )}`;
+          notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
+          notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
+          notify.notifySender = classes._id;
+          notify.notifyReceiever = user._id;
+          notify.notifyType = "Student";
+          notify.notifyPublisher = student._id;
+          notify.notifyCategory = "Student Absent";
+          notify.notifyByClassPhoto = classes._id;
+          user.activity_tab.push(notify._id);
+          student.notification.push(notify._id);
+          notify.notifyCategory = "Attendence";
+          notify.redirectIndex = 3;
+          //
+          invokeMemberTabNotification(
+            "Student Activity",
+            notify,
+            "Mark Attendence",
+            user._id,
+            user.deviceToken,
+            "Student",
+            notify
+          );
+          //
+          await Promise.all([notify.save(), user.save()]);
+        }
+        student.attendDate.push(attendence._id);
+        attendence.absentStudent.push({
+          student: student._id,
+          inTime: getOnlyTime(),
+          status: "Absent",
+        });
+        await student.save();
+      }
+      classes.attendenceDate.push(attendence._id);
+      attendence.presentTotal = req.body.present.length;
+      attendence.absentTotal = req.body.absent.length;
+      await Promise.all([attendence.save(), classes.save()]);
+    }
   } catch (e) {
     console.log(e);
   }
@@ -374,11 +375,11 @@ exports.markAttendenceClassStudent = async (req, res) => {
 exports.markAttendenceClassStudentUpdate = async (req, res) => {
   try {
     const { said } = req.params;
-    const { flow } = req?.query
+    const { flow } = req?.query;
     const attendance = await AttendenceDate.findOne({
       _id: { $eq: `${said}` },
       attendDate: { $eq: `${req.body.date}` },
-      attendence_type: `${flow}`
+      attendence_type: `${flow}`,
     });
     if (!attendance) {
       res.status(200).send({
@@ -1385,7 +1386,7 @@ exports.getAttendSubjectStudent = async (req, res) => {
           attendDate: { $regex: regularexp },
         },
         select:
-          "attendDate presentTotal absentTotal presentStudent absentStudent",
+          "attendDate presentTotal absentTotal presentStudent absentStudent from to",
       })
       .populate({
         path: "class",
@@ -1396,7 +1397,8 @@ exports.getAttendSubjectStudent = async (req, res) => {
           },
           select: "schedule.from schedule.to schedule.subject",
         },
-        select: "timetableDayWise attendance_time_slot",
+        select: "timetableDayWise",
+        // select: "timetableDayWise attendance_time_slot",
       })
       .select("_id")
       .lean()
@@ -1404,45 +1406,70 @@ exports.getAttendSubjectStudent = async (req, res) => {
     let obj = {
       // to: "09:30 Am",
       // from: "09:06 Am",
-      to: "",
-      from: "",
-      is_mark: false,
+      to: subjects.attendance[0]?.to ?? "",
+      from: subjects.attendance[0]?.from ?? "",
+      is_mark: subjects.attendance[0]?._id ? true : false,
       already_slot_mark: false,
+      subject: null,
     };
     // console.log(subjects?.class);
-    if (subjects?.class?.attendance_time_slot?.length > 0) {
-      for (let t_slot of subjects?.class?.attendance_time_slot) {
-        if (
-          `${t_slot?.register_subject}` === `${req.params.sid}` &&
-          !is_extra
-        ) {
-          obj.to = t_slot.to;
-          obj.from = t_slot.from;
-          obj.is_mark = t_slot.is_mark;
-          break;
-        }
-      }
-    }
+    if (!subjects.attendance[0]?._id) {
+      const slot_based = await ClassAttendanceTimeSlot.findOne({
+        $and: [
+          {
+            date: { $eq: prevDate },
+          },
+          {
+            class: { $eq: `${subjects?.class?._id}` },
+          },
+        ],
+      });
 
-    if (!obj?.to && !obj?.from) {
-      for (let time_table of subjects?.class?.timetableDayWise?.[0]?.schedule ??
-        []) {
-        if (`${time_table?.subject}` === `${req.params.sid}`) {
-          obj.to = time_table.to;
-          obj.from = time_table.from;
-          break;
+      if (slot_based?.slot?.length > 0) {
+        for (let t_slot of slot_based?.slot) {
+          if (
+            `${t_slot?.register_subject}` === `${req.params.sid}` &&
+            !t_slot?.is_extra
+          ) {
+            obj.to = t_slot.to;
+            obj.from = t_slot.from;
+            obj.is_mark = t_slot.is_mark;
+            break;
+          }
         }
       }
-    }
-    for (let t_slot of subjects?.class?.attendance_time_slot) {
-      // if (`${req.params.sid}` === `${t_slot.register_subject}`) {
-      // } else
-      if (!t_slot.is_mark) {
-      } else {
-        if (obj.from >= t_slot.to || obj.to <= t_slot.from) {
+
+      // here start for time table
+      if (!obj?.to && !obj?.from) {
+        for (let time_table of subjects?.class?.timetableDayWise?.[0]
+          ?.schedule ?? []) {
+          if (`${time_table?.subject}` === `${req.params.sid}`) {
+            obj.to = time_table.to;
+            obj.from = time_table.from;
+            break;
+          }
+        }
+      }
+
+      for (let t_slot of slot_based?.slot ?? []) {
+        // if (`${req.params.sid}` === `${t_slot.register_subject}`) {
+        // } else
+        if (!t_slot.is_mark) {
         } else {
-          obj.already_slot_mark = true;
-          break;
+          if (obj.from >= t_slot.to || obj.to <= t_slot.from) {
+          } else {
+            const subject = await Subject.findById(t_slot.register_subject)
+              .populate({
+                path: "subjectTeacherName",
+                select: "staffFirstName staffLastName staffMiddleName",
+              })
+              .select("subjectName subjectTeacherName")
+              .lean()
+              .exec();
+            obj.already_slot_mark = true;
+            obj.subject = subject;
+            break;
+          }
         }
       }
     }
@@ -1485,8 +1512,6 @@ exports.getAttendSubjectStudent = async (req, res) => {
   }
 };
 
-
-
 exports.getAttendSubjectStudentExtraQuery = async (req, res) => {
   try {
     const prevDate = req.query.date;
@@ -1513,22 +1538,31 @@ exports.getAttendSubjectStudentExtraQuery = async (req, res) => {
       regularexp = new RegExp(`${day}\/${month}\/${year}$`);
     }
 
-    var subjects = await Subject.findById(req.params.sid)
+    var subjects = await Subject.findById(req.params.sid);
 
     var all_attendence = await AttendenceDate.find({
-      $and: [{ subject: subjects?._id},{ attendDate: { $regex: regularexp } }, { attendence_type: "Extra_Lecture"}]
-    })
-    .select("attendDate presentTotal absentTotal presentStudent absentStudent")
+      $and: [
+        { subject: subjects?._id },
+        { attendDate: { $regex: regularexp } },
+        { attendence_type: "Extra_Lecture" },
+      ],
+    }).select(
+      "attendDate presentTotal absentTotal presentStudent absentStudent"
+    );
 
     if (all_attendence?.length > 0) {
       res.status(200).send({
         message: "Explore Extra Lecture Attendence Query",
         all_attendence: all_attendence,
-        access: true
+        access: true,
       });
     } else {
       // const classEncrypt = await encryptionPayload(subjects);
-      res.status(200).send({ message: "No Extra Lecture Query", access: false, all_attendence: [] });
+      res.status(200).send({
+        message: "No Extra Lecture Query",
+        access: false,
+        all_attendence: [],
+      });
     }
   } catch (e) {
     console.log(e);
@@ -1543,14 +1577,14 @@ exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
       select: "attendance_time_slot",
     });
     const attend = await AttendenceDate.findById({ _id: aid }).select(
-      "attendDate presentTotal absentTotal presentStudent absentStudent attendence_name"
+      "attendDate presentTotal absentTotal presentStudent absentStudent attendence_name to from"
     );
     const present = [];
     const absent = [];
     let obj = {
       to: attend?.to ?? "",
       from: attend?.from ?? "",
-      is_mark: false,
+      is_mark: true,
       already_slot_mark: false,
     };
     attend?.presentStudent?.forEach((st) => present.push(st.student));
@@ -1576,18 +1610,17 @@ exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
   }
 };
 
-
 // exports.markAttendenceSubjectStudent = async (req, res) => {
 //   try {
 //     const { sid } = req.params;
-//     const { flow, from, to } = req?.query
+//     const { flow, from, to } = req?.query;
 //     const subjects = await Subject.findById({ _id: sid }).populate({
 //       path: "class",
 //       select: "department masterClassName",
 //       populate: {
 //         path: "masterClassName",
-//         select: "className"
-//       }
+//         select: "className",
+//       },
 //     });
 //     const dLeave = await Holiday.findOne({
 //       department: { $eq: `${subjects.class.department}` },
@@ -1597,264 +1630,263 @@ exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
 //       subject: { $eq: `${sid}` },
 //       attendDate: { $eq: `${req.body.date}` },
 //     });
-//     if(flow === "Normal_Lecture"){
-//     if (dLeave || attendanceone) {
-//       res.status(200).send({
-//         message:
-//           "Today will be holiday Provided by department Admin or already marked attendance",
+//     if (flow === "Normal_Lecture") {
+//       if (dLeave || attendanceone) {
+//         res.status(200).send({
+//           message:
+//             "Today will be holiday Provided by department Admin or already marked attendance",
+//         });
+//       } else {
+//         const attendence = new AttendenceDate({});
+//         attendence.attendDate = req.body.date;
+//         attendence.subject = subjects._id;
+//         attendence.attendTime = new Date();
+//         if (from) {
+//           attendence.from = from;
+//         }
+//         if (to) {
+//           attendence.to = to;
+//         }
+//         await Promise.all([attendence.save(), subjects.save()]);
+//         res
+//           .status(200)
+//           .send({ message: "Success", alreadyMark: attendence?._id });
+//         for (let i = 0; i < req.body.present.length; i++) {
+//           const student = await Student.findById({
+//             _id: `${req.body.present[i]}`,
+//           });
+//           // const user = await User.findById({ _id: `${student.user}` });
+//           // const notify = new StudentNotification({});
+//           // notify.notifyContent = `you're present ${notify_attendence_provider(
+//           //   req.body.date
+//           // )}`;
+//           // notify.notify_hi_content = `आप आज उपस्थित हैं |`;
+//           // notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
+//           // notify.notifySender = subjects._id;
+//           // notify.notifyReceiever = user._id;
+//           // notify.notifyType = "Student";
+//           // notify.notifyPublisher = student._id;
+//           // notify.notifyBySubjectPhoto.subject_id = subjects?._id;
+//           // notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
+//           // notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+//           // notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
+//           // notify.notifyCategory = "Student Present";
+//           // user.activity_tab.push(notify._id);
+//           // student.notification.push(notify._id);
+//           student.subjectAttendance.push(attendence._id);
+
+//           attendence.presentStudent.push({
+//             student: student._id,
+//             inTime: getOnlyTime(),
+//             // status: getOnlyTimeCompare(),
+//             status: "Present",
+//           });
+//           // notify.notifyCategory = "Attendence";
+//           // notify.redirectIndex = 3;
+//           //
+//           // invokeMemberTabNotification(
+//           //   "Student Activity",
+//           //   notify,
+//           //   "Mark Attendence",
+//           //   user._id,
+//           //   user.deviceToken,
+//           //   "Student",
+//           //   notify
+//           // );
+//           //
+//           // await Promise.all([student.save(), notify.save(), user.save()]);
+//           await student.save();
+//         }
+
+//         for (let i = 0; i < req.body.absent.length; i++) {
+//           const student = await Student.findById({
+//             _id: `${req.body.absent[i]}`,
+//           });
+//           let gettingDate = req.body.date?.split("/");
+//           let gettingDateMod = new Date(
+//             `${gettingDate[2]}/${gettingDate[1]}/${gettingDate[0]}`
+//           );
+//           let todayeDate = new Date();
+//           let todayeDateISO = todayeDate;
+//           let gettingDateISO = gettingDateMod;
+//           if (todayeDateISO.getDate() === gettingDateISO.getDate()) {
+//             const user = await User.findById({ _id: `${student.user}` });
+//             const notify = new StudentNotification({});
+//             notify.notifyContent = `you're absent ${notify_attendence_provider(
+//               req.body.date
+//             )}`;
+//             notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
+//             notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
+//             notify.notifySender = subjects._id;
+//             notify.notifyReceiever = user._id;
+//             notify.notifyType = "Student";
+//             notify.notifyPublisher = student._id;
+//             notify.notifyCategory = "Student Absent";
+//             notify.notifyBySubjectPhoto.subject_id = subjects?._id;
+//             notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
+//             notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+//             notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
+//             user.activity_tab.push(notify._id);
+//             student.notification.push(notify._id);
+//             notify.notifyCategory = "Attendence";
+//             notify.redirectIndex = 3;
+//             //
+//             // invokeMemberTabNotification(
+//             //   "Student Activity",
+//             //   notify,
+//             //   "Mark Attendence",
+//             //   user._id,
+//             //   user.deviceToken,
+//             //   "Student",
+//             //   notify
+//             // );
+//             //
+//             await Promise.all([notify.save(), user.save()]);
+//           }
+//           student.subjectAttendance.push(attendence._id);
+//           attendence.absentStudent.push({
+//             student: student._id,
+//             inTime: getOnlyTime(),
+//             status: "Absent",
+//           });
+//           await student.save();
+//         }
+//         subjects.attendance.push(attendence._id);
+//         attendence.presentTotal = req.body.present.length;
+//         attendence.absentTotal = req.body.absent.length;
+//         await Promise.all([attendence.save(), subjects.save()]);
+//       }
+//     } else if (flow === "Extra_Lecture") {
+//       const attendence = new AttendenceDate({});
+//       attendence.attendDate = req.body.date;
+//       attendence.subject = subjects._id;
+//       if (from) {
+//         attendence.from = from;
+//       }
+//       if (to) {
+//         attendence.to = to;
+//       }
+//       attendence.attendence_type = "Extra_Lecture";
+//       attendence.attendence_name = `${subjects.class.masterClassName?.className}-${subjects?.subjectName}-ExtraLecture-${req.body.date}`;
+//       attendence.attendTime = new Date();
+//       await Promise.all([attendence.save(), subjects.save()]);
+//       res
+//         .status(200)
+//         .send({ message: "Success", alreadyMark: attendence?._id });
+//       for (let i = 0; i < req.body.present.length; i++) {
+//         const student = await Student.findById({
+//           _id: `${req.body.present[i]}`,
+//         });
+//         // const user = await User.findById({ _id: `${student.user}` });
+//         // const notify = new StudentNotification({});
+//         // notify.notifyContent = `you're present ${notify_attendence_provider(
+//         //   req.body.date
+//         // )}`;
+//         // notify.notify_hi_content = `आप आज उपस्थित हैं |`;
+//         // notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
+//         // notify.notifySender = subjects._id;
+//         // notify.notifyReceiever = user._id;
+//         // notify.notifyType = "Student";
+//         // notify.notifyPublisher = student._id;
+//         // notify.notifyBySubjectPhoto.subject_id = subjects?._id;
+//         // notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
+//         // notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+//         // notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
+//         // notify.notifyCategory = "Student Present";
+//         // user.activity_tab.push(notify._id);
+//         // student.notification.push(notify._id);
+//         student.subjectAttendance.push(attendence._id);
+
+//         attendence.presentStudent.push({
+//           student: student._id,
+//           inTime: getOnlyTime(),
+//           // status: getOnlyTimeCompare(),
+//           status: "Present",
+//         });
+//         // notify.notifyCategory = "Attendence";
+//         // notify.redirectIndex = 3;
+//         //
+//         // invokeMemberTabNotification(
+//         //   "Student Activity",
+//         //   notify,
+//         //   "Mark Attendence",
+//         //   user._id,
+//         //   user.deviceToken,
+//         //   "Student",
+//         //   notify
+//         // );
+//         //
+//         // await Promise.all([student.save(), notify.save(), user.save()]);
+//         await student.save();
+//       }
+
+//       for (let i = 0; i < req.body.absent.length; i++) {
+//         const student = await Student.findById({
+//           _id: `${req.body.absent[i]}`,
+//         });
+//         let gettingDate = req.body.date?.split("/");
+//         let gettingDateMod = new Date(
+//           `${gettingDate[2]}/${gettingDate[1]}/${gettingDate[0]}`
+//         );
+//         let todayeDate = new Date();
+//         let todayeDateISO = todayeDate;
+//         let gettingDateISO = gettingDateMod;
+//         if (todayeDateISO.getDate() === gettingDateISO.getDate()) {
+//           const user = await User.findById({ _id: `${student.user}` });
+//           const notify = new StudentNotification({});
+//           notify.notifyContent = `you're absent ${notify_attendence_provider(
+//             req.body.date
+//           )}`;
+//           notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
+//           notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
+//           notify.notifySender = subjects._id;
+//           notify.notifyReceiever = user._id;
+//           notify.notifyType = "Student";
+//           notify.notifyPublisher = student._id;
+//           notify.notifyCategory = "Student Absent";
+//           notify.notifyBySubjectPhoto.subject_id = subjects?._id;
+//           notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
+//           notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+//           notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
+//           user.activity_tab.push(notify._id);
+//           student.notification.push(notify._id);
+//           notify.notifyCategory = "Attendence";
+//           notify.redirectIndex = 3;
+//           //
+//           // invokeMemberTabNotification(
+//           //   "Student Activity",
+//           //   notify,
+//           //   "Mark Attendence",
+//           //   user._id,
+//           //   user.deviceToken,
+//           //   "Student",
+//           //   notify
+//           // );
+//           //
+//           await Promise.all([notify.save(), user.save()]);
+//         }
+//         student.subjectAttendance.push(attendence._id);
+//         attendence.absentStudent.push({
+//           student: student._id,
+//           inTime: getOnlyTime(),
+//           status: "Absent",
+//         });
+//         await student.save();
+//       }
+//       subjects.attendance.push(attendence._id);
+//       attendence.presentTotal = req.body.present.length;
+//       attendence.absentTotal = req.body.absent.length;
+//       await Promise.all([attendence.save(), subjects.save()]);
+//       const time_table = await ClassTimetable.findOne({
+//         $and: [{ class: `${subjects?.class?._id}` }, { date: { $eq: date } }],
 //       });
-//     } else {
-//       const attendence = new AttendenceDate({});
-//       attendence.attendDate = req.body.date;
-//       attendence.subject = subjects._id;
-//       attendence.attendTime = new Date();
-//       if(from){
-//         attendence.from = from
-//       }
-//       if(to){
-//         attendence.to = to
-//       }
-//       await Promise.all([attendence.save(), subjects.save()]);
-//       res
-//         .status(200)
-//         .send({ message: "Success", alreadyMark: attendence?._id });
-//       for (let i = 0; i < req.body.present.length; i++) {
-//         const student = await Student.findById({
-//           _id: `${req.body.present[i]}`,
-//         });
-//         // const user = await User.findById({ _id: `${student.user}` });
-//         // const notify = new StudentNotification({});
-//         // notify.notifyContent = `you're present ${notify_attendence_provider(
-//         //   req.body.date
-//         // )}`;
-//         // notify.notify_hi_content = `आप आज उपस्थित हैं |`;
-//         // notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
-//         // notify.notifySender = subjects._id;
-//         // notify.notifyReceiever = user._id;
-//         // notify.notifyType = "Student";
-//         // notify.notifyPublisher = student._id;
-//         // notify.notifyBySubjectPhoto.subject_id = subjects?._id;
-//         // notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
-//         // notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
-//         // notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
-//         // notify.notifyCategory = "Student Present";
-//         // user.activity_tab.push(notify._id);
-//         // student.notification.push(notify._id);
-//         student.subjectAttendance.push(attendence._id);
-
-//         attendence.presentStudent.push({
-//           student: student._id,
-//           inTime: getOnlyTime(),
-//           // status: getOnlyTimeCompare(),
-//           status: "Present",
-//         });
-//         // notify.notifyCategory = "Attendence";
-//         // notify.redirectIndex = 3;
-//         //
-//         // invokeMemberTabNotification(
-//         //   "Student Activity",
-//         //   notify,
-//         //   "Mark Attendence",
-//         //   user._id,
-//         //   user.deviceToken,
-//         //   "Student",
-//         //   notify
-//         // );
-//         //
-//         // await Promise.all([student.save(), notify.save(), user.save()]);
-//         await student.save();
-//       }
-
-//       for (let i = 0; i < req.body.absent.length; i++) {
-//         const student = await Student.findById({
-//           _id: `${req.body.absent[i]}`,
-//         });
-//         let gettingDate = req.body.date?.split("/");
-//         let gettingDateMod = new Date(
-//           `${gettingDate[2]}/${gettingDate[1]}/${gettingDate[0]}`
-//         );
-//         let todayeDate = new Date();
-//         let todayeDateISO = todayeDate;
-//         let gettingDateISO = gettingDateMod;
-//         if (todayeDateISO.getDate() === gettingDateISO.getDate()) {
-//           const user = await User.findById({ _id: `${student.user}` });
-//           const notify = new StudentNotification({});
-//           notify.notifyContent = `you're absent ${notify_attendence_provider(
-//             req.body.date
-//           )}`;
-//           notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
-//           notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
-//           notify.notifySender = subjects._id;
-//           notify.notifyReceiever = user._id;
-//           notify.notifyType = "Student";
-//           notify.notifyPublisher = student._id;
-//           notify.notifyCategory = "Student Absent";
-//           notify.notifyBySubjectPhoto.subject_id = subjects?._id;
-//           notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
-//           notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
-//           notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
-//           user.activity_tab.push(notify._id);
-//           student.notification.push(notify._id);
-//           notify.notifyCategory = "Attendence";
-//           notify.redirectIndex = 3;
-//           //
-//           // invokeMemberTabNotification(
-//           //   "Student Activity",
-//           //   notify,
-//           //   "Mark Attendence",
-//           //   user._id,
-//           //   user.deviceToken,
-//           //   "Student",
-//           //   notify
-//           // );
-//           //
-//           await Promise.all([notify.save(), user.save()]);
-//         }
-//         student.subjectAttendance.push(attendence._id);
-//         attendence.absentStudent.push({
-//           student: student._id,
-//           inTime: getOnlyTime(),
-//           status: "Absent",
-//         });
-//         await student.save();
-//       }
-//       subjects.attendance.push(attendence._id);
-//       attendence.presentTotal = req.body.present.length;
-//       attendence.absentTotal = req.body.absent.length;
-//       await Promise.all([attendence.save(), subjects.save()]);
-//     }
-//   }
-//   else if(flow === "Extra_Lecture"){
-//       const attendence = new AttendenceDate({});
-//       attendence.attendDate = req.body.date;
-//       attendence.subject = subjects._id;
-//       if(from){
-//         attendence.from = from
-//       }
-//       if(to){
-//         attendence.to = to
-//       }
-//       attendence.attendence_type = "Extra_Lecture"
-//       attendence.attendence_name = `${subjects.class.masterClassName?.className}-${subjects?.subjectName}-ExtraLecture-${req.body.date}`
-//       attendence.attendTime = new Date();
-//       await Promise.all([attendence.save(), subjects.save()]);
-//       res
-//         .status(200)
-//         .send({ message: "Success", alreadyMark: attendence?._id });
-//       for (let i = 0; i < req.body.present.length; i++) {
-//         const student = await Student.findById({
-//           _id: `${req.body.present[i]}`,
-//         });
-//         // const user = await User.findById({ _id: `${student.user}` });
-//         // const notify = new StudentNotification({});
-//         // notify.notifyContent = `you're present ${notify_attendence_provider(
-//         //   req.body.date
-//         // )}`;
-//         // notify.notify_hi_content = `आप आज उपस्थित हैं |`;
-//         // notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
-//         // notify.notifySender = subjects._id;
-//         // notify.notifyReceiever = user._id;
-//         // notify.notifyType = "Student";
-//         // notify.notifyPublisher = student._id;
-//         // notify.notifyBySubjectPhoto.subject_id = subjects?._id;
-//         // notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
-//         // notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
-//         // notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
-//         // notify.notifyCategory = "Student Present";
-//         // user.activity_tab.push(notify._id);
-//         // student.notification.push(notify._id);
-//         student.subjectAttendance.push(attendence._id);
-
-//         attendence.presentStudent.push({
-//           student: student._id,
-//           inTime: getOnlyTime(),
-//           // status: getOnlyTimeCompare(),
-//           status: "Present",
-//         });
-//         // notify.notifyCategory = "Attendence";
-//         // notify.redirectIndex = 3;
-//         //
-//         // invokeMemberTabNotification(
-//         //   "Student Activity",
-//         //   notify,
-//         //   "Mark Attendence",
-//         //   user._id,
-//         //   user.deviceToken,
-//         //   "Student",
-//         //   notify
-//         // );
-//         //
-//         // await Promise.all([student.save(), notify.save(), user.save()]);
-//         await student.save();
-//       }
-
-//       for (let i = 0; i < req.body.absent.length; i++) {
-//         const student = await Student.findById({
-//           _id: `${req.body.absent[i]}`,
-//         });
-//         let gettingDate = req.body.date?.split("/");
-//         let gettingDateMod = new Date(
-//           `${gettingDate[2]}/${gettingDate[1]}/${gettingDate[0]}`
-//         );
-//         let todayeDate = new Date();
-//         let todayeDateISO = todayeDate;
-//         let gettingDateISO = gettingDateMod;
-//         if (todayeDateISO.getDate() === gettingDateISO.getDate()) {
-//           const user = await User.findById({ _id: `${student.user}` });
-//           const notify = new StudentNotification({});
-//           notify.notifyContent = `you're absent ${notify_attendence_provider(
-//             req.body.date
-//           )}`;
-//           notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
-//           notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
-//           notify.notifySender = subjects._id;
-//           notify.notifyReceiever = user._id;
-//           notify.notifyType = "Student";
-//           notify.notifyPublisher = student._id;
-//           notify.notifyCategory = "Student Absent";
-//           notify.notifyBySubjectPhoto.subject_id = subjects?._id;
-//           notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
-//           notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
-//           notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
-//           user.activity_tab.push(notify._id);
-//           student.notification.push(notify._id);
-//           notify.notifyCategory = "Attendence";
-//           notify.redirectIndex = 3;
-//           //
-//           // invokeMemberTabNotification(
-//           //   "Student Activity",
-//           //   notify,
-//           //   "Mark Attendence",
-//           //   user._id,
-//           //   user.deviceToken,
-//           //   "Student",
-//           //   notify
-//           // );
-//           //
-//           await Promise.all([notify.save(), user.save()]);
-//         }
-//         student.subjectAttendance.push(attendence._id);
-//         attendence.absentStudent.push({
-//           student: student._id,
-//           inTime: getOnlyTime(),
-//           status: "Absent",
-//         });
-//         await student.save();
-//       }
-//       subjects.attendance.push(attendence._id);
-//       attendence.presentTotal = req.body.present.length;
-//       attendence.absentTotal = req.body.absent.length;
-//       await Promise.all([attendence.save(), subjects.save()]);
-//       const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subjects?.class?._id}`}, { date: { $eq: date } }] })
 //       time_table?.schedule?.filter((val) => {
-//         val.from = from
-//         val.to = to
-//       })
-//       await time_table.save()
-//   }
-//   else{
-
-//   }
+//         val.from = from;
+//         val.to = to;
+//       });
+//       await time_table.save();
+//     } else {
+//     }
 //   } catch (e) {
 //     console.log(e);
 //   }
@@ -1879,9 +1911,19 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
     });
 
     if (flow === "Normal_Lecture") {
+      const slot_based = await ClassAttendanceTimeSlot.findOne({
+        $and: [
+          {
+            date: { $eq: req.body.date },
+          },
+          {
+            class: { $eq: `${subjects?.class?._id}` },
+          },
+        ],
+      });
       let flag = false;
 
-      for (let t_slot of subjects?.class?.attendance_time_slot) {
+      for (let t_slot of slot_based?.slot) {
         if (!t_slot.is_mark) {
         } else {
           if (from >= t_slot.to || to <= t_slot.from) {
@@ -1904,8 +1946,9 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         attendence.attendTime = new Date();
         attendence.from = from;
         attendence.to = to;
-        for (let t_slot of subjects?.class?.attendance_time_slot) {
-          if (`${sid}` === `${t_slot.register_subject}`) {
+
+        for (let t_slot of slot_based?.slot) {
+          if (`${sid}` === `${t_slot.register_subject}` && !t_slot.is_extra) {
             t_slot.is_mark = true;
             break;
           }
@@ -2026,9 +2069,19 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         // res.status(200).send({ message: "Success" });
       }
     } else if (flow === "Extra_Lecture") {
+      const slot_based = await ClassAttendanceTimeSlot.findOne({
+        $and: [
+          {
+            date: { $eq: req.body.date },
+          },
+          {
+            class: { $eq: `${subjects?.class?._id}` },
+          },
+        ],
+      });
       let flag = false;
 
-      for (let t_slot of subjects?.class?.attendance_time_slot) {
+      for (let t_slot of slot_based?.slot) {
         if (!t_slot.is_mark) {
         } else {
           if (from >= t_slot.to || to <= t_slot.from) {
@@ -2052,7 +2105,7 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       attendence.attendence_type = "Extra_Lecture";
       attendence.attendence_name = `${subjects.class.masterClassName?.className}-${subjects?.subjectName}-ExtraLecture-${req.body.date}`;
       attendence.attendTime = new Date();
-      for (let t_slot of subjects?.class?.attendance_time_slot) {
+      for (let t_slot of slot_based?.slot) {
         if (`${sid}` === `${t_slot.register_subject}` && t_slot.is_extra) {
           t_slot.is_mark = true;
           break;
@@ -2177,18 +2230,14 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
   }
 };
 
-
-
-
-
 exports.markAttendenceSubjectStudentUpdate = async (req, res) => {
   try {
     const { said } = req.params;
-    const { flow } = req?.query
+    const { flow } = req?.query;
     const attendance = await AttendenceDate.findOne({
       _id: { $eq: `${said}` },
       attendDate: { $eq: `${req.body.date}` },
-      attendence_type: `${flow}`
+      attendence_type: `${flow}`,
     });
     if (!attendance) {
       res.status(200).send({
@@ -2836,7 +2885,6 @@ exports.getAllClassExportAttendance = async (req, res) => {
   }
 };
 
-
 exports.getAllExamAttedance = async (req, res) => {
   try {
     const { eid, seid } = req.params;
@@ -3440,27 +3488,43 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
   }
 };
 
-
 exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
   try {
     const { sid } = req.params;
     const { date, from, to, cid, flow } = req.body;
-    const cls = await Class.findById(cid);
+
+    const slot_based = await ClassAttendanceTimeSlot.findOne({
+      $and: [
+        {
+          date: { $eq: date },
+        },
+        {
+          class: { $eq: `${cid}` },
+        },
+      ],
+    });
     let already_slot_mark = false;
     var subject = null;
-    if (cls?.attendance_time_slot?.[0]?.date !== date) {
-      cls.attendance_time_slot = [];
-      cls?.attendance_time_slot.push({
+    if (!slot_based?._id) {
+      const cls = await Class.findById(cid);
+      const slt = new ClassAttendanceTimeSlot({
         date: date,
-        from: from,
-        to: to,
-        register_subject: sid,
-        is_mark: false,
-        is_extra: flow === "Normal_Lecture" ? false : true,
+        class: cid,
+        slot: [
+          {
+            date: date,
+            from: from,
+            to: to,
+            register_subject: sid,
+            is_mark: false,
+            is_extra: flow === "Normal_Lecture" ? false : true,
+          },
+        ],
       });
-      await cls.save();
+      cls?.attendance_time_slot?.push(slt?._id);
+      await Promise.all([slt.save(), cls.save()]);
     } else {
-      for (let t_slot of cls?.attendance_time_slot) {
+      for (let t_slot of slot_based?.slot) {
         // if (`${sid}` === `${t_slot.register_subject}`) {
         // } else
         if (!t_slot.is_mark) {
@@ -3482,11 +3546,11 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
       }
       if (!already_slot_mark) {
         let flag = true;
-        for (let t_slot of cls?.attendance_time_slot) {
+        for (let t_slot of slot_based?.slot) {
           if (
             `${t_slot?.register_subject}` === `${sid}` &&
             flow === "Normal_Lecture" &&
-            !is_extra
+            !t_slot?.is_extra
           ) {
             t_slot.date = date;
             t_slot.from = from;
@@ -3497,7 +3561,7 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
         }
 
         if (flag) {
-          cls?.attendance_time_slot.push({
+          slot_based?.slot.push({
             date: date,
             from: from,
             to: to,
@@ -3506,7 +3570,7 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
             is_extra: flow === "Normal_Lecture" ? false : true,
           });
         }
-        await cls.save();
+        await slot_based.save();
       }
     }
     if (already_slot_mark)
@@ -3523,3 +3587,96 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
+//   try {
+//     const { sid } = req.params;
+//     const { date, from, to, cid, flow } = req.body;
+//     // const cls = await Class.findById(cid);
+//     const cls = await ClassAttendanceTimeSlot.findOne({
+//       $and: [
+//         {
+//           date: { $eq: date },
+//         },
+//         {
+//           class: { $eq: `${cid}` },
+//         },
+//       ],
+//     });
+//     let already_slot_mark = false;
+//     var subject = null;
+//     if (cls?.attendance_time_slot?.[0]?.date !== date) {
+//       cls.attendance_time_slot = [];
+//       cls?.attendance_time_slot.push({
+//         date: date,
+//         from: from,
+//         to: to,
+//         register_subject: sid,
+//         is_mark: false,
+//         is_extra: flow === "Normal_Lecture" ? false : true,
+//       });
+//       await cls.save();
+//     } else {
+//       for (let t_slot of cls?.attendance_time_slot) {
+//         // if (`${sid}` === `${t_slot.register_subject}`) {
+//         // } else
+//         if (!t_slot.is_mark) {
+//         } else {
+//           if (from >= t_slot.to || to <= t_slot.from) {
+//           } else {
+//             subject = await Subject.findById(t_slot.register_subject)
+//               .populate({
+//                 path: "subjectTeacherName",
+//                 select: "staffFirstName staffLastName staffMiddleName",
+//               })
+//               .select("subjectName subjectTeacherName")
+//               .lean()
+//               .exec();
+//             already_slot_mark = true;
+//             break;
+//           }
+//         }
+//       }
+//       if (!already_slot_mark) {
+//         let flag = true;
+//         for (let t_slot of cls?.attendance_time_slot) {
+//           if (
+//             `${t_slot?.register_subject}` === `${sid}` &&
+//             flow === "Normal_Lecture" &&
+//             !t_slot?.is_extra
+//           ) {
+//             t_slot.date = date;
+//             t_slot.from = from;
+//             t_slot.to = to;
+//             flag = false;
+//             break;
+//           }
+//         }
+
+//         if (flag) {
+//           cls?.attendance_time_slot.push({
+//             date: date,
+//             from: from,
+//             to: to,
+//             register_subject: sid,
+//             is_mark: false,
+//             is_extra: flow === "Normal_Lecture" ? false : true,
+//           });
+//         }
+//         await cls.save();
+//       }
+//     }
+//     if (already_slot_mark)
+//       res.status(200).send({
+//         already_slot_mark,
+//         subject: subject,
+//         message: "For this time slot attendace has marked.",
+//       });
+//     else
+//       res.status(200).send({
+//         message: "Subject attendace time is set for taken attendance",
+//       });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };

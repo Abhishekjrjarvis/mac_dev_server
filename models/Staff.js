@@ -518,6 +518,13 @@ const staffSchema = new mongoose.Schema({
   staff_pf_number: {
     type: String
   },
+  library_qr_code: String,
+  library_in_out: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LibraryInOut",
+    },
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

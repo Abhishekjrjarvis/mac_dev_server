@@ -105,4 +105,39 @@ router
   .route("/staff/issued/:lid")
   .patch(catchAsync(libraryController.bookIssueByStaffSideQuery));
 
+
+  router
+  .route("/staff/collect/:lid")
+  .patch(catchAsync(libraryController.bookColletedByStaffSideQuery));
+
+router
+  .route("/generate/member/qr/:lid")
+  .patch(catchAsync(libraryController.generateAllMemberQrCodeQuery));
+
+router
+  .route("/generate/book/qr/:lid")
+  .patch(catchAsync(libraryController.generateAllBookQrCodeQuery));
+
+router
+  .route("/book/qr/list/:lid")
+  .patch(catchAsync(libraryController.getAllBookQrCodeQuery));
+
+router
+  .route("/student/in/out/:sid/query")
+  .patch(catchAsync(libraryController.getInOutStudentQuery));
+
+router
+  .route("/student/in/out/:sid/history/query")
+  .get(catchAsync(libraryController.getInOutStudentHistoryQuery));
+
+router
+  .route("/staff/in/out/:sid/query")
+  .patch(catchAsync(libraryController.getInOutStaffQuery));
+
+router
+  .route("/staff/in/out/:sid/history/query")
+  .get(catchAsync(libraryController.getInOutStaffHistoryQuery));
+
+router.route("/qr").get(catchAsync(libraryController.getLibraryQrCode));
+
 module.exports = router;

@@ -861,7 +861,14 @@ const studentSchema = new mongoose.Schema({
   studentCertificatePaidAmount: {
     type: Number,
     default: 0
-  }
+  },
+  library_qr_code: String,
+  library_in_out: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LibraryInOut",
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

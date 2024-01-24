@@ -161,7 +161,8 @@ const librarySchema = new mongoose.Schema({
   staff_members_count: {
     type: Number,
     default: 0
-  }
+  },
+  qr_code: String,
 });
 
 module.exports = mongoose.model("Library", librarySchema);

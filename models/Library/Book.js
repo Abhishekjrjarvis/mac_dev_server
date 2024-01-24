@@ -87,7 +87,8 @@ const bookSchema = new mongoose.Schema({
   department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department"
-  }
+  },
+  book_qr_code: String,
 });
 
 module.exports = mongoose.model("Book", bookSchema);

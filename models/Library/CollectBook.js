@@ -31,6 +31,10 @@ const collectBookSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Student",
   },
+  collect_as: {
+    type: String,
+    default: "Normal",
+  },
 });
 
 module.exports = mongoose.model("CollectBook", collectBookSchema);

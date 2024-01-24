@@ -18,12 +18,14 @@ const BankAccount = require("../../models/Finance/BankAccount");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const { randomSixCode } = require("../../Service/close");
 
-
 const { library_json_to_excel } = require("../../Custom/JSONToExcel");
 const moment = require("moment");
 const { universal_random_password } = require("../../Custom/universalId");
 const Department = require("../../models/Department");
 
+const { generate_qr } = require("../../Utilities/qrGeneration/qr_generation");
+const LibraryInOut = require("../../models/Library/LibraryInOut");
+const moment = require("moment");
 //for Institute side Activate library
 exports.activateLibrary = async (req, res) => {
   try {
@@ -34,8 +36,8 @@ exports.activateLibrary = async (req, res) => {
       institute: institute._id,
       coverId: "2",
     });
-    const codess = universal_random_password()
-    library.member_module_unique = `${codess}`
+    const codess = universal_random_password();
+    library.member_module_unique = `${codess}`;
     if (sid) {
       var staff = await Staff.findById(sid);
       var user = await User.findById({ _id: `${staff?.user}` });
@@ -93,6 +95,17 @@ exports.activateLibrary = async (req, res) => {
     institute.library.push(library._id);
     await Promise.all([library.save(), institute.save()]);
     res.status(201).send({ message: "Library Head is assign", status: true });
+
+    let library_qr = {
+      libraryId: library?._id,
+      instituteId: institute?._id,
+    };
+    let imageKey = await generate_qr({
+      fileName: "initial-library-qr",
+      object_contain: library_qr,
+    });
+    library.qr_code = imageKey;
+    await library.save();
   } catch (e) {
     console.log(e);
   }
@@ -110,7 +123,7 @@ exports.libraryByStaffSide = async (req, res) => {
           "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
       })
       .select(
-        "libraryHead libraryHeadTitle emailId phoneNumber about photoId photo coverId cover bookCount memberCount totalFine collectedFine requestStatus offlineFine onlineFine remainFine"
+        "libraryHead libraryHeadTitle emailId phoneNumber about photoId photo coverId cover bookCount memberCount totalFine collectedFine requestStatus offlineFine onlineFine remainFine qr_code"
       )
       .lean()
       .exec();
@@ -161,7 +174,10 @@ exports.allBookByStaffSide = async (req, res) => {
                       subject: { $regex: req.query.search, $options: "i" },
                     },
                     {
-                      accession_number: { $regex: req.query.search, $options: "i" },
+                      accession_number: {
+                        $regex: req.query.search,
+                        $options: "i",
+                      },
                     },
                   ],
                 },
@@ -173,7 +189,8 @@ exports.allBookByStaffSide = async (req, res) => {
                 },
               ],
             },
-            select: "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher",
+            select:
+              "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher",
             skip: dropItem,
             limit: itemPerPage,
           })
@@ -204,7 +221,8 @@ exports.allBookByStaffSide = async (req, res) => {
                 },
               ],
             },
-            select: "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher",
+            select:
+              "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher",
             skip: dropItem,
             limit: itemPerPage,
           })
@@ -231,7 +249,8 @@ exports.allBookByStaffSide = async (req, res) => {
                 },
               ],
             },
-            select: "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher",
+            select:
+              "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher",
             skip: dropItem,
             limit: itemPerPage,
           })
@@ -246,7 +265,8 @@ exports.allBookByStaffSide = async (req, res) => {
         const library = await Library.findById(req.params.lid)
           .populate({
             path: "books",
-            select: "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher",
+            select:
+              "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher",
             skip: dropItem,
             limit: itemPerPage,
           })
@@ -276,6 +296,18 @@ exports.createBookByStaffSide = async (req, res) => {
     if (req.body?.attachment?.length) book.attachment = req.body?.attachment;
     await Promise.all([book.save(), library.save()]);
     res.status(201).send({ message: "book is created" });
+
+    let book_qr = {
+      libraryId: library?._id,
+      instituteId: library?.institute,
+      bookId: book?._id,
+    };
+    let imageKey = await generate_qr({
+      fileName: "initial-book-qr",
+      object_contain: book_qr,
+    });
+    book.book_qr_code = imageKey;
+    await book.save();
   } catch (e) {
     res.status(200).send({
       message: e.message,
@@ -340,7 +372,7 @@ exports.editBookByStaffSide = async (req, res) => {
 exports.bookIssueByStaffSide = async (req, res) => {
   try {
     if (!req.params.lid) throw "Please send library id to perform task";
-    const { memberId, bookId } = req.body;
+    const { memberId, bookId, flow } = req.body;
     if (!memberId || !bookId)
       throw "Please send bookId id and memberId to perform task";
     const library = await Library.findById(req.params.lid);
@@ -353,6 +385,7 @@ exports.bookIssueByStaffSide = async (req, res) => {
       member: memberId,
       book: bookId,
       library: library._id,
+      issue_as: flow === "QR" ? "QR" : "Normal",
     });
     student?.borrow?.push(issue._id);
     library?.issued?.push(issue._id);
@@ -442,6 +475,7 @@ exports.bookColletedByStaffSide = async (req, res) => {
       fineCharge: price || 0,
       paymentType: req.body?.paymentType,
       issuedDate: issue.createdAt,
+      collect_as: req.body?.flow === "QR" ? "QR" : "Normal",
     });
     student?.borrow?.pull(issue._id);
     student?.deposite?.push(collect._id);
@@ -552,7 +586,8 @@ exports.allBookCollectedLogsByStaffSide = async (req, res) => {
         path: "collected",
         populate: {
           path: "book member",
-          select: "bookName photoId photo studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO valid_full_name photoId studentProfilePhoto",
+          select:
+            "bookName photoId photo studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO valid_full_name photoId studentProfilePhoto",
         },
         select: "book createdAt issuedDate fineCharge",
         skip: dropItem,
@@ -1024,24 +1059,24 @@ exports.renderNewOfflineBookAutoQuery = async (lid, book_array) => {
         description: val?.description,
         shellNumber: val?.shellNumber,
         subject: val?.Subject,
-      bill_date: val?.bill_date,
-      bill_number: val?.bill_number,
-      purchase_order_date: val?.purchase_order_date,
-      purchase_order_number: val?.purchase_order_number,
-      supplier: val?.supplier,
-      publisher_place: val?.publisher_place,
-      publication_year: val?.publication_year,
-      edition: val?.edition,
-      class_number: val?.class_number,
-      accession_number: val?.accession_number,
-      date: val?.date,
-      publisher: val?.publisher,
-      totalPage: val?.totalPage,
-      depart: val?.depart
+        bill_date: val?.bill_date,
+        bill_number: val?.bill_number,
+        purchase_order_date: val?.purchase_order_date,
+        purchase_order_number: val?.purchase_order_number,
+        supplier: val?.supplier,
+        publisher_place: val?.publisher_place,
+        publication_year: val?.publication_year,
+        edition: val?.edition,
+        class_number: val?.class_number,
+        accession_number: val?.accession_number,
+        date: val?.date,
+        publisher: val?.publisher,
+        totalPage: val?.totalPage,
+        depart: val?.depart,
       });
       library.books.push(book._id);
       library.bookCount += 1;
-      book.qviple_book_id = `QLB${randomSixCode()}${val?.accession_number}`
+      book.qviple_book_id = `QLB${randomSixCode()}${val?.accession_number}`;
       book.library = lid;
       book.leftCopies = book.totalCopies;
       await book.save();
@@ -1055,57 +1090,54 @@ exports.renderNewOfflineBookAutoQuery = async (lid, book_array) => {
   }
 };
 
-exports.renderDeleteAllBookQuery = async(req, res) => {
-  try{
-    const { lid } = req?.params
-    if(!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.renderDeleteAllBookQuery = async (req, res) => {
+  try {
+    const { lid } = req?.params;
+    if (!lid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var libs = await Library.findById({ _id: lid})
-    
-    var all_books = await Book.find({ library: libs?._id})
-    res.status(200).send({ message: "Explore All Books Deletion Operation Completed Query", access: true})
+    var libs = await Library.findById({ _id: lid });
 
-    for(var val of all_books){
-      libs.books.pull(val?._id)
-      if(libs?.bookCount > 0){
-        libs.bookCount -= 1
+    var all_books = await Book.find({ library: libs?._id });
+    res.status(200).send({
+      message: "Explore All Books Deletion Operation Completed Query",
+      access: true,
+    });
+
+    for (var val of all_books) {
+      libs.books.pull(val?._id);
+      if (libs?.bookCount > 0) {
+        libs.bookCount -= 1;
       }
-      await Book.findByIdAndDelete(val?._id)
+      await Book.findByIdAndDelete(val?._id);
     }
-    await libs.save()
+    await libs.save();
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.renderAllBookQuery = async(req, res) => {
-  try{
-    const { did } = req?.query
-    const depart = await Department.findById({ _id: did})
-    const all_book = await Book.find({ accession_number: { $regex: "B-"} })
-    var total = 0
-    for(var val of all_book){
+exports.renderAllBookQuery = async (req, res) => {
+  try {
+    const { did } = req?.query;
+    const depart = await Department.findById({ _id: did });
+    const all_book = await Book.find({ accession_number: { $regex: "B-" } });
+    var total = 0;
+    for (var val of all_book) {
       // total += 1
       // val.qviple_book_id = `QLBD-${total}`
       // val.accession_number = `D-${total}`
-      val.department = depart?._id
-      await val.save()
+      val.department = depart?._id;
+      await val.save();
     }
-    res.status(200).send({ message: "Explore All Book Query", access: true})
+    res.status(200).send({ message: "Explore All Book Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
-
-
-
-
-
-
-
-
+};
 
 exports.getAllExcelLibraryQuery = async (req, res) => {
   try {
@@ -1364,7 +1396,7 @@ exports.getAllMemberExport = async (req, res) => {
 exports.bookIssueByStaffSideQuery = async (req, res) => {
   try {
     if (!req.params.lid) throw "Please send library id to perform task";
-    const { memberId, bookId } = req.body;
+    const { memberId, bookId, flow } = req.body;
     if (!memberId || !bookId)
       throw "Please send bookId id and memberId to perform task";
     const library = await Library.findById(req.params.lid);
@@ -1377,6 +1409,7 @@ exports.bookIssueByStaffSideQuery = async (req, res) => {
       staff_member: memberId,
       book: bookId,
       library: library._id,
+      issue_as: flow === "QR" ? "QR" : "Normal",
     });
     staff?.borrow?.push(issue._id);
     library?.issued?.push(issue._id);
@@ -1398,3 +1431,323 @@ exports.bookIssueByStaffSideQuery = async (req, res) => {
     });
   }
 };
+
+exports.bookColletedByStaffSideQuery = async (req, res) => {
+  try {
+    if (!req.params.lid) throw "Please send issued id to perform task";
+    const issue = await IssueBook.findById(req.params.lid);
+    const library = await Library.findById(issue.library);
+    const book = await Book.findById(issue.book);
+    const staff = await Staff.findById(issue.staff_member);
+    const collect = new CollectBook({
+      staff_member: issue.staff_member,
+      book: issue.book,
+      library: library._id,
+      chargeBy: "",
+      fineCharge: price || 0,
+      issuedDate: issue.createdAt,
+      collect_as: req.body?.flow === "QR" ? "QR" : "Normal",
+    });
+    staff?.borrow?.pull(issue._id);
+    staff?.deposite?.push(collect._id);
+    library?.issued?.pull(issue._id);
+    library?.collected?.push(collect._id);
+    if (book.bookStatus === "Offline") book.leftCopies += 1;
+    await Promise.all([
+      collect.save(),
+      staff.save(),
+      book.save(),
+      library.save(),
+    ]);
+    res.status(201).send({ message: "book collected by librarian 😊😊" });
+  } catch (e) {
+    res.status(200).send({
+      message: e.message,
+    });
+  }
+};
+
+exports.getLibraryQrCode = async (req, res) => {
+  try {
+    // const library=await Library.findById("")
+    let library = {
+      lid: "rohini",
+      instituteId: "ram and sita",
+    };
+
+    let imageKey = await generate_qr({
+      fileName: "library",
+      object_contain: library,
+    });
+    res
+      .status(200)
+      .send({ message: "qr geenrated", file: "uploads/library.png", imageKey });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.generateAllMemberQrCodeQuery = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    const { flow } = req.query;
+    if (!lid) throw "Please send library id to perform task";
+    const library = await Library.findById(lid).populate({
+      path: "institute",
+      select: "ApproveStaff ApproveStudent",
+    });
+    res.status(200).send({
+      message: "Library qr code generation processing",
+      access: true,
+    });
+
+    if (flow === "STAFF") {
+      for (let sid of library?.institute?.ApproveStaff) {
+        const staff = await Staff.findById(sid);
+        if (staff?.library_qr_code) {
+        } else {
+          let book_qr = {
+            libraryId: library?._id,
+            instituteId: library?.institute?._id,
+            staffId: sid,
+          };
+          let imageKey = await generate_qr({
+            fileName: "initial-staff-qr",
+            object_contain: book_qr,
+          });
+          staff.library_qr_code = imageKey;
+          await staff.save();
+        }
+      }
+    } else {
+      for (let sid of library?.institute?.ApproveStudent) {
+        const student = await Student.findById(sid);
+        if (student?.library_qr_code) {
+        } else {
+          let book_qr = {
+            libraryId: library?._id,
+            instituteId: library?.institute?._id,
+            studentId: sid,
+          };
+          let imageKey = await generate_qr({
+            fileName: "initial-student-qr",
+            object_contain: book_qr,
+          });
+          student.library_qr_code = imageKey;
+          await student.save();
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.generateAllBookQrCodeQuery = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    if (!lid) throw "Please send library id to perform task";
+    const library = await Library.findById(lid);
+    res.status(200).send({
+      message: "Library qr code book generation processing",
+      access: true,
+    });
+
+    for (let bid of library?.books) {
+      const book = await Book.findById(bid);
+      if (book?.book_qr_code) {
+      } else {
+        let book_qr = {
+          libraryId: library?._id,
+          instituteId: library?.institute,
+          bookId: book?._id,
+        };
+        let imageKey = await generate_qr({
+          fileName: "initial-book-qr",
+          object_contain: book_qr,
+        });
+        book.book_qr_code = imageKey;
+        await book.save();
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.getAllBookQrCodeQuery = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    if (!lid) throw "Please send library id to perform task";
+    const library = await Library.findById(lid)
+      .populate({
+        path: "books",
+        select: "book_qr_code qviple_book_id bookName",
+      })
+      .select("books")
+      .lean()
+      .exec();
+
+    res.status(200).send({
+      message: "Library qr code book generation processing",
+      access: true,
+      book_qr: library?.books ?? [],
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.getInOutStudentQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { inId, lid } = req.query;
+    if (!sid) throw "Please send student id to perform task";
+    var currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() + 5);
+    currentDate.setMinutes(currentDate.getMinutes() + 30);
+    if (!inId) {
+      const student = await Student.findById(sid);
+      const inout = new LibraryInOut({
+        student: sid,
+        library: lid,
+        in_time: moment(currentDate).format("hh:mm:ss a"),
+        hour_in_24: moment(currentDate).format("H"),
+        minute_in: moment(currentDate).format("m"),
+        second_in: moment(currentDate).format("s"),
+      });
+      student.library_in_out?.push(inout?._id);
+      await Promise.all([inout.save(), student.save()]);
+    } else {
+      const inout = await LibraryInOut.findById(inId);
+      inout.out_time = moment(currentDate).format("hh:mm:ss a");
+      inout.hour_out_24 = moment(currentDate).format("H");
+      inout.minute_out = moment(currentDate).format("m");
+      inout.second_out = moment(currentDate).format("s");
+      inout.is_valid = "Yes";
+      await inout.save();
+    }
+    res.status(200).send({
+      message: "Library visit history saved.",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.getInOutStudentHistoryQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) throw "Please send student id to perform task";
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+    const inout = await LibraryInOut.find({
+      student: `${inId}`,
+    })
+      .sort({
+        created_at: -1,
+      })
+      .skip(dropItem)
+      .limit(itemPerPage)
+      .lean()
+      .exec();
+
+    res.status(200).send({
+      message: "Library visit history list.",
+      history: inout ?? [],
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.getInOutStaffQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { inId, lid } = req.query;
+    if (!sid) throw "Please send student id to perform task";
+    var currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() + 5);
+    currentDate.setMinutes(currentDate.getMinutes() + 30);
+    if (!inId) {
+      const staff = await Staff.findById(sid);
+      const inout = new LibraryInOut({
+        staff: sid,
+        library: lid,
+        in_time: moment(currentDate).format("hh:mm:ss a"),
+        hour_in_24: moment(currentDate).format("H"),
+        minute_in: moment(currentDate).format("m"),
+        second_in: moment(currentDate).format("s"),
+      });
+      staff.library_in_out?.push(inout?._id);
+      await Promise.all([inout.save(), staff.save()]);
+    } else {
+      const inout = await LibraryInOut.findById(inId);
+      inout.out_time = moment(currentDate).format("hh:mm:ss a");
+      inout.hour_out_24 = moment(currentDate).format("H");
+      inout.minute_out = moment(currentDate).format("m");
+      inout.second_out = moment(currentDate).format("s");
+      inout.is_valid = "Yes";
+      await inout.save();
+    }
+    res.status(200).send({
+      message: "Library visit history saved.",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.getInOutStaffHistoryQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) throw "Please send student id to perform task";
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+    const inout = await LibraryInOut.find({
+      staff: `${inId}`,
+    })
+      .sort({
+        created_at: -1,
+      })
+      .skip(dropItem)
+      .limit(itemPerPage)
+      .lean()
+      .exec();
+
+    res.status(200).send({
+      message: "Library visit history list.",
+      history: inout ?? [],
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+

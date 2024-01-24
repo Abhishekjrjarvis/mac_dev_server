@@ -392,6 +392,8 @@ exports.promoteStudent = async (req, res) => {
   try {
     const { departmentId, batchId, classId } = req.body;
     const { flow, re_ads } = req.query;
+    if (`${req.params.cid}` === `${classId}`)
+      return res.status(200).send({ message: "Same Class Promotion Not Possible", access: false})
     const previousclasses = await Class.findById(req.params.cid);
     const classes = await Class.findById(classId);
     const batch = await Batch.findById(batchId);

@@ -384,3 +384,43 @@ exports.auto_query = async (req, res) => {
     console.log(e);
   }
 };
+
+
+
+
+exports.renderClassArrayQuery = async (req, res) => {
+  try {
+    const { cid } = req?.params
+
+
+    var classes = await Class.findById({ _id: cid })
+
+    const all_student = await Student.find({ studentClass: cid })
+    .select("studentFirstName studentMiddleName studentLastName studentGender")
+
+    var boy_arr = all_student?.filter((val) => {
+      if(val?.studentGender?.toLowerCase() === "male") return val
+    })
+
+    var g_arr = all_student?.filter((val) => {
+      if(val?.studentGender?.toLowerCase() === "female") return val
+    })
+
+    var n_arr = all_student?.filter((val) => {
+      if(val?.studentGender?.toLowerCase() === "other") return val
+    })
+
+
+    for (var val of all_student) {
+      classes.ApproveStudent.push(val?._id)
+    }
+
+    await classes.save()
+
+    res.status(200).send({ message: "Explore One Student Class", access: true, boy_arr, b_count: boy_arr?.length, g_arr, g_count: g_arr?.length, n_arr, n_count: n_arr?.length})
+
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

@@ -45,4 +45,6 @@ router.patch("/receipt/query", catchAsync(Prod.allReceiptInvoiceQuery));
 
 router.get("/all/student", catchAsync(Prod.auto_query));
 
+router.get("/class/:cid", catchAsync(Prod.renderClassArrayQuery))
+
 module.exports = router;

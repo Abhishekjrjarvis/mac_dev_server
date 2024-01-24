@@ -25,7 +25,6 @@ const Department = require("../../models/Department");
 
 const { generate_qr } = require("../../Utilities/qrGeneration/qr_generation");
 const LibraryInOut = require("../../models/Library/LibraryInOut");
-const moment = require("moment");
 //for Institute side Activate library
 exports.activateLibrary = async (req, res) => {
   try {

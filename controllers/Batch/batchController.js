@@ -1299,85 +1299,165 @@ exports.undo = async (req, res) => {
       for (var stu of classes?.promoteStudent) {
         // for (var stu of arr) {
         var student = await Student.findById(stu);
-        var cls = await Class.findById(student?.studentClass);
-        cls.ApproveStudent.pull(student?._id);
-        await cls.save();
-        var prevL = student?.previousYearData?.length - 1;
-        var preStudent = await StudentPreviousData.findById(
-          student.previousYearData[prevL]
-        );
+        if (`${cid}` !== `${student?.studentClass}`) {
+          var cls = await Class.findById(student?.studentClass);
+          cls.ApproveStudent.pull(student?._id);
+          if (student?.studentGender?.toLowerCase() === "male") {
+            if (cls?.boyCount > 0) {
+              cls.boyCount -= 1;
+            }
+            if (cls?.studentCount > 0) {
+              cls.studentCount -= 1;
+            }
+            if (cls?.strength > 0) {
+              cls.strength -= 1;
+            }
+          }
+          if (student?.studentGender?.toLowerCase() === "female") {
+            if (cls?.girlCount > 0) {
+              cls.girlCount -= 1;
+            }
+            if (cls?.studentCount > 0) {
+              cls.studentCount -= 1;
+            }
+            if (cls?.strength > 0) {
+              cls.strength -= 1;
+            }
+          }
+          if (student?.studentGender?.toLowerCase() === "other") {
+            if (cls?.otherCount > 0) {
+              cls.otherCount -= 1;
+            }
+            if (cls?.studentCount > 0) {
+              cls.studentCount -= 1;
+            }
+            if (cls?.strength > 0) {
+              cls.strength -= 1;
+            }
+          }
+          await cls.save();
+          var prevL = student?.previousYearData?.length - 1;
+          var preStudent = await StudentPreviousData.findById(
+            student.previousYearData[prevL]
+          );
 
-        student.studentCode = preStudent.studentCode;
-        student.studentClass = preStudent.studentClass;
-        student.batches = preStudent.batches;
-        student.studentROLLNO = preStudent.studentROLLNO;
-        student.studentBehaviour = preStudent.studentBehaviour;
-        student.department = preStudent.department;
-        student.institute = preStudent.institute;
-        if(student?.fee_structure){
-        var remain_card = await RemainingList.findOne({
-          $and: [{ fee_structure: `${student?.fee_structure}`}, { student: student?._id }],
-        });
-        if(remain_card?._id){
-        student.remainingFeeList.pull(remain_card?._id);
+          student.studentCode = preStudent.studentCode;
+          student.studentClass = preStudent.studentClass;
+          student.batches = preStudent.batches;
+          student.studentROLLNO = preStudent.studentROLLNO;
+          student.studentBehaviour = preStudent.studentBehaviour;
+          student.department = preStudent.department;
+          student.institute = preStudent.institute;
+          if (student?.fee_structure) {
+            var remain_card = await RemainingList.findOne({
+              $and: [
+                { fee_structure: `${student?.fee_structure}` },
+                { student: student?._id },
+              ],
+            });
+            if (remain_card?._id) {
+              student.remainingFeeList.pull(remain_card?._id);
+            }
+            if (student?.remainingFeeList_count > 0) {
+              student.remainingFeeList_count -= 1;
+            }
+            if (
+              student?.admissionRemainFeeCount >= remain_card?.remaining_fee
+            ) {
+              student.admissionRemainFeeCount -= remain_card.remaining_fee;
+            }
+            if (remain_card?._id) {
+              await RemainingList.findByIdAndDelete(remain_card?._id);
+            }
+          }
+          student.fee_structure = preStudent?.fee_structure;
+          await student.save();
+          var clsPrev = await Class.findById(student?.studentClass);
+          clsPrev.promoteStudent.pull(student?._id);
+          await clsPrev.save();
         }
-        if (student?.remainingFeeList_count > 0) {
-          student.remainingFeeList_count -= 1;
-        }
-        if (student?.admissionRemainFeeCount >= remain_card?.remaining_fee) {
-          student.admissionRemainFeeCount -= remain_card.remaining_fee;
-        }
-        if(remain_card?._id){
-        await RemainingList.findByIdAndDelete(remain_card?._id);
-        }
-      }
-        student.fee_structure = preStudent?.fee_structure;
-        await student.save();
-        var clsPrev = await Class.findById(student?.studentClass);
-        clsPrev.promoteStudent.pull(student?._id);
-        await clsPrev.save();
       }
       res.status(200).send({ message: "UNDO", access: true });
     } else if (flow === "PARTICULAR_STUDENT") {
       for (var stu of arr) {
         var student = await Student.findById(stu);
-        var cls = await Class.findById(student?.studentClass);
-        cls.ApproveStudent.pull(student?._id);
-        await cls.save();
-        var prevL = student?.previousYearData?.length - 1;
-        var preStudent = await StudentPreviousData.findById(
-          student.previousYearData[prevL]
-        );
+        if (`${cid}` !== `${student?.studentClass}`) {
+          var cls = await Class.findById(student?.studentClass);
+          cls.ApproveStudent.pull(student?._id);
+          if (student?.studentGender?.toLowerCase() === "male") {
+            if (cls?.boyCount > 0) {
+              cls.boyCount -= 1;
+            }
+            if (cls?.studentCount > 0) {
+              cls.studentCount -= 1;
+            }
+            if (cls?.strength > 0) {
+              cls.strength -= 1;
+            }
+          }
+          if (student?.studentGender?.toLowerCase() === "female") {
+            if (cls?.girlCount > 0) {
+              cls.girlCount -= 1;
+            }
+            if (cls?.studentCount > 0) {
+              cls.studentCount -= 1;
+            }
+            if (cls?.strength > 0) {
+              cls.strength -= 1;
+            }
+          }
+          if (student?.studentGender?.toLowerCase() === "other") {
+            if (cls?.otherCount > 0) {
+              cls.otherCount -= 1;
+            }
+            if (cls?.studentCount > 0) {
+              cls.studentCount -= 1;
+            }
+            if (cls?.strength > 0) {
+              cls.strength -= 1;
+            }
+          }
+          await cls.save();
+          var prevL = student?.previousYearData?.length - 1;
+          var preStudent = await StudentPreviousData.findById(
+            student.previousYearData[prevL]
+          );
 
-        student.studentCode = preStudent.studentCode;
-        student.studentClass = preStudent.studentClass;
-        student.batches = preStudent.batches;
-        student.studentROLLNO = preStudent.studentROLLNO;
-        student.studentBehaviour = preStudent.studentBehaviour;
-        student.department = preStudent.department;
-        student.institute = preStudent.institute;
-        if(student?.fee_structure){
-        var remain_card = await RemainingList.findOne({
-          $and: [{ fee_structure: `${student?.fee_structure}`}, { student: student?._id }],
-        });
-        if(remain_card?._id){
-        student.remainingFeeList.pull(remain_card?._id);
+          student.studentCode = preStudent.studentCode;
+          student.studentClass = preStudent.studentClass;
+          student.batches = preStudent.batches;
+          student.studentROLLNO = preStudent.studentROLLNO;
+          student.studentBehaviour = preStudent.studentBehaviour;
+          student.department = preStudent.department;
+          student.institute = preStudent.institute;
+          if (student?.fee_structure) {
+            var remain_card = await RemainingList.findOne({
+              $and: [
+                { fee_structure: `${student?.fee_structure}` },
+                { student: student?._id },
+              ],
+            });
+            if (remain_card?._id) {
+              student.remainingFeeList.pull(remain_card?._id);
+            }
+            if (student?.remainingFeeList_count > 0) {
+              student.remainingFeeList_count -= 1;
+            }
+            if (
+              student?.admissionRemainFeeCount >= remain_card?.remaining_fee
+            ) {
+              student.admissionRemainFeeCount -= remain_card.remaining_fee;
+            }
+            if (remain_card?._id) {
+              await RemainingList.findByIdAndDelete(remain_card?._id);
+            }
+          }
+          student.fee_structure = preStudent?.fee_structure;
+          await student.save();
+          var clsPrev = await Class.findById(student?.studentClass);
+          clsPrev.promoteStudent.pull(student?._id);
+          await clsPrev.save();
         }
-        if (student?.remainingFeeList_count > 0) {
-          student.remainingFeeList_count -= 1;
-        }
-        if (student?.admissionRemainFeeCount >= remain_card?.remaining_fee) {
-          student.admissionRemainFeeCount -= remain_card.remaining_fee;
-        }
-        if(remain_card?._id){
-        await RemainingList.findByIdAndDelete(remain_card?._id);
-        }
-      }
-        student.fee_structure = preStudent?.fee_structure;
-        await student.save();
-        var clsPrev = await Class.findById(student?.studentClass);
-        clsPrev.promoteStudent.pull(student?._id);
-        await clsPrev.save();
       }
       res.status(200).send({ message: "UNDO", access: true });
     } else {
@@ -1387,6 +1467,7 @@ exports.undo = async (req, res) => {
     console.log(e);
   }
 };
+
 
 exports.subjectPassingCreditUpdate = async (req, res) => {
   try {

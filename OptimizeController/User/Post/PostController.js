@@ -1084,9 +1084,9 @@ exports.retrieveAllUserPosts = async (req, res) => {
           needUser: [],
         };
         if (page == 1) {
-          // post.splice(3, 0, data_u_s);
+          post.splice(3, 0, data_u_s);
           // post.splice(5, 0, data_i_s);
-          // post.splice(2, 0, hash_tag_ads);
+          post.splice(2, 0, hash_tag_ads);
         }
         post.splice(
           Math.floor(Math.random() * (post.length - 6) + 6),
@@ -1430,9 +1430,9 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
           needUser: [],
         };
         if (page == 1) {
-          // post.splice(3, 0, data_u_s);
+          post.splice(3, 0, data_u_s);
           // post.splice(5, 0, data_i_s);
-          // post.splice(2, 0, hash_tag_ads);
+          post.splice(2, 0, hash_tag_ads);
         }
         // post.splice(
         //   Math.floor(Math.random() * (post.length - 6) + 6),

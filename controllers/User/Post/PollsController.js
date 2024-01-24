@@ -3,15 +3,14 @@ const Post = require("../../../models/Post");
 const Poll = require("../../../models/Question/Poll");
 const Close = require("../../../Service/close");
 const HashTag = require("../../../models/HashTag/hashTag");
-const { execute_user_social_feed_question_query } = require("../../../Feed/userFeed");
 // const encryptionPayload = require("../../../Utilities/Encrypt/payload");
 
 exports.retrievePollQuestionText = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
-      // .populate({ path: "userFollowers" })
-      // .populate({ path: "userCircle" });
+      .populate({ path: "userFollowers" })
+      .populate({ path: "userCircle" });
     if (req.body.pollAnswer.length >= 2 && req.body.pollAnswer.length <= 5) {
       var post = new Post({ ...req.body });
       var poll = new Poll({ ...req.body });
@@ -45,11 +44,38 @@ exports.retrievePollQuestionText = async (req, res) => {
       post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
       post.poll_query = poll;
       poll.duration_date = Close.end_poll(req.body.day);
-      post.post_arr.push(user?._id)
       await Promise.all([user.save(), post.save(), poll.save()]);
       // Add Another Encryption
       res.status(201).send({ message: "Poll is create", poll, post });
-      await execute_user_social_feed_question_query(user, post, req?.body?.hashtag)
+      if (user.userFollowers.length >= 1) {
+        user.userFollowers.forEach(async (ele) => {
+          ele.userPosts.push(post._id);
+          await ele.save();
+        });
+      }
+      if (user.userCircle.length >= 1) {
+        user.userCircle.forEach(async (ele) => {
+          ele.userPosts.push(post._id);
+          await ele.save();
+        });
+      }
+      if (req.body?.hashtag?.length > 0) {
+        req.body?.hashtag?.forEach(async (ele) => {
+          const hash = await HashTag.findById({ _id: `${ele}` }).select(
+            "hashtag_follower"
+          );
+          const users = await User.find({
+            _id: { $in: hash?.hashtag_follower },
+          });
+          users?.forEach(async (user) => {
+            if (user.userPosts?.includes(post._id)) {
+            } else {
+              user.userPosts.push(post._id);
+            }
+            await user.save();
+          });
+        });
+      }
     } else {
       res
         .status(422)
@@ -104,30 +130,25 @@ exports.pollLike = async (req, res) => {
         //
         if (post?.postType === "Poll") {
           const poll_user = await User.findById({ _id: `${user_session}` })
-            // .populate("userFollowers")
-            // .populate("userCircle");
+            .populate("userFollowers")
+            .populate("userCircle");
           if (`${post.author}` === `${poll_user._id}`) {
           } else {
-            for(var val of poll_user?.userFollowers){
-              post.post_arr.push(val)
-            }
-            // poll_user.userFollowers.forEach(async (ele) => {
-            //   if (ele?.userPosts?.includes(post._id)) {
-            //   } else {
-            //     ele.userPosts.push(post._id);
-            //     await ele.save();
-            //   }
-            // });
-            for(var val of poll_user?.userCircle){
-              post.post_arr.push(val)
-            }
-            // poll_user.userCircle.forEach(async (ele) => {
-            //   if (ele?.userPosts?.includes(post._id)) {
-            //   } else {
-            //     ele.userPosts.push(post._id);
-            //     await ele.save();
-            //   }
-            // });
+            poll_user.userFollowers.forEach(async (ele) => {
+              if (ele?.userPosts?.includes(post._id)) {
+              } else {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              }
+            });
+
+            poll_user.userCircle.forEach(async (ele) => {
+              if (ele?.userPosts?.includes(post._id)) {
+              } else {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              }
+            });
           }
         }
         //

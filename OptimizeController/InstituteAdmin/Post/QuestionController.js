@@ -10,9 +10,6 @@ const Close = require("../../../Service/close");
 const HashTag = require("../../../models/HashTag/hashTag");
 const invokeFirebaseNotification = require("../../../Firebase/firebase");
 const Notification = require("../../../models/notification");
-const {
-  execute_ins_social_feed_question_query,
-} = require("../../../Feed/socialFeed");
 // const encryptionPayload = require("../../../Utilities/Encrypt/payload");
 
 exports.postQuestionText = async (req, res) => {
@@ -58,12 +55,72 @@ exports.postQuestionText = async (req, res) => {
     await Promise.all([institute.save(), post.save()]);
     // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post Question is created", post });
-
-    await execute_ins_social_feed_question_query(
-      institute,
-      post,
-      req?.body?.hashtag
-    );
+    if (institute.isUniversal === "Not Assigned") {
+      if (institute.followers.length >= 1) {
+        if (post.postStatus === "Anyone") {
+          institute.followers.forEach(async (ele) => {
+            ele.posts.push(post._id);
+            await ele.save();
+          });
+        } else {
+        }
+      }
+      if (institute.userFollowersList.length >= 1) {
+        if (post.postStatus === "Anyone") {
+          institute.userFollowersList.forEach(async (ele) => {
+            ele.userPosts.push(post._id);
+            await ele.save();
+          });
+        } else {
+          if (institute.joinedUserList.length >= 1) {
+            institute.joinedUserList.forEach(async (ele) => {
+              ele.userPosts.push(post._id);
+              await ele.save();
+            });
+          }
+        }
+      }
+    } else if (institute.isUniversal === "Universal") {
+      const all = await InstituteAdmin.find({ status: "Approved" });
+      const user = await User.find({ userStatus: "Approved" });
+      if (post.postStatus === "Anyone") {
+        all.forEach(async (el) => {
+          if (el._id !== institute._id) {
+            el.posts.push(post._id);
+            await el.save();
+          }
+        });
+        user.forEach(async (el) => {
+          el.userPosts.push(post._id);
+          await el.save();
+        });
+      }
+      if (req.body?.hashtag && req.body?.hashtag?.length > 0) {
+        req.body?.hashtag?.forEach(async (ele) => {
+          const hash = await HashTag.findById({ _id: `${ele}` }).select(
+            "hashtag_follower"
+          );
+          const users = await User.find({
+            _id: { $in: hash?.hashtag_follower },
+          });
+          users?.forEach(async (user) => {
+            if (user.userPosts?.includes(post._id)) {
+            } else {
+              user.userPosts.push(post._id);
+            }
+            await user.save();
+          });
+        });
+      }
+      //   if (post.postStatus === "Private") {
+      //     all.forEach(async (el) => {
+      //       if (el._id !== institute._id) {
+      //         el.posts.push(post._id);
+      //         await el.save();
+      //       }
+      //     });
+      //   }
+    }
     // if (institute?.isUniversal === "Universal") {
     //   for (var ref of institute?.userFollowersList) {
     //     var notify = new Notification({});
@@ -147,12 +204,65 @@ exports.retrievePollQuestionText = async (req, res) => {
       await Promise.all([institute.save(), post.save(), poll.save()]);
       // Add Another Encryption
       res.status(201).send({ message: "poll is created", poll, post });
-
-      await execute_ins_social_feed_question_query(
-        institute,
-        post,
-        req?.body?.hashtag
-      );
+      if (institute.isUniversal === "Not Assigned") {
+        if (institute.followers.length >= 1) {
+          if (post.postStatus === "Anyone") {
+            institute.followers.forEach(async (ele) => {
+              ele.posts.push(post._id);
+              await ele.save();
+            });
+          } else {
+          }
+        }
+        if (institute.userFollowersList.length >= 1) {
+          if (post.postStatus === "Anyone") {
+            institute.userFollowersList.forEach(async (ele) => {
+              ele.userPosts.push(post._id);
+              await ele.save();
+            });
+          } else {
+            if (institute.joinedUserList.length >= 1) {
+              institute.joinedUserList.forEach(async (ele) => {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              });
+            }
+          }
+        }
+      } else if (institute.isUniversal === "Universal") {
+        const all = await InstituteAdmin.find({ status: "Approved" });
+        const user = await User.find({ userStatus: "Approved" });
+        if (post.postStatus === "Anyone") {
+          all.forEach(async (el) => {
+            if (el._id !== institute._id) {
+              el.posts.push(post._id);
+              await el.save();
+            }
+          });
+          user.forEach(async (el) => {
+            el.userPosts.push(post._id);
+            await el.save();
+          });
+        }
+      } else {
+      }
+      if (req.body?.hashtag?.length > 0) {
+        req.body?.hashtag?.forEach(async (ele) => {
+          const hash = await HashTag.findById({ _id: `${ele}` }).select(
+            "hashtag_follower"
+          );
+          const users = await User.find({
+            _id: { $in: hash?.hashtag_follower },
+          });
+          users?.forEach(async (user) => {
+            if (user.userPosts?.includes(post._id)) {
+            } else {
+              user.userPosts.push(post._id);
+            }
+            await user.save();
+          });
+        });
+      }
       // if (institute?.isUniversal === "Universal") {
       //   for (var ref of institute?.userFollowersList) {
       //     var notify = new Notification({});

@@ -57,7 +57,8 @@ app.use(
       "https://kvnpharmacy.qviple.com",
       "https://beta.qviple.com",
       "https://qvipleweb.web.app",
-      "http://54.237.4.164"
+      "http://54.237.4.164",
+      "https://spesiop.qviple.com"
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

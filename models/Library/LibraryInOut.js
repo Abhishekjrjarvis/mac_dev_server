@@ -25,7 +25,10 @@ const libraryInOutSchema = new mongoose.Schema({
   hour_out_24: Number,
   minute_out: Number,
   second_out: Number,
-  is_valid: "No",
+  is_valid: {
+    type: String,
+    default: 'No'
+  },
 });
 
 module.exports = mongoose.model("LibraryInOut", libraryInOutSchema);

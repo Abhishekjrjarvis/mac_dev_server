@@ -1655,7 +1655,7 @@ exports.getInOutStudentHistoryQuery = async (req, res) => {
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
     const inout = await LibraryInOut.find({
-      student: `${inId}`,
+      student: `${sid}`,
     })
       .sort({
         created_at: -1,
@@ -1727,7 +1727,7 @@ exports.getInOutStaffHistoryQuery = async (req, res) => {
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
     const inout = await LibraryInOut.find({
-      staff: `${inId}`,
+      staff: `${sid}`,
     })
       .sort({
         created_at: -1,

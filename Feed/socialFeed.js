@@ -201,6 +201,7 @@ exports.execute_ins_social_feed_question_query = async (
 exports.send_global_notification_query = async (institute, post) => {
   try {
     
+    console.log("NOTIFICATION TRIGGERED")
       for (var ref of institute?.userFollowersList) {
         var notify = new Notification({});
         notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;

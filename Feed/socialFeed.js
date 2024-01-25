@@ -198,13 +198,12 @@ exports.execute_ins_social_feed_question_query = async (
   }
 };
 
-exports.send_global_notification_query = async (institute, post) => {
+exports.send_global_notification_query = async (institute, post, type) => {
   try {
-    
-    console.log("NOTIFICATION TRIGGERED")
+    if (post?.postType === "Question") {
       for (var ref of institute?.userFollowersList) {
         var notify = new Notification({});
-        notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
+        notify.notifyContent = `${institute?.name} has a new question for you`;
         notify.notifySender = institute?._id;
         notify.notifyReceiever = ref._id;
         notify.notifyCategory = "Post Feed";
@@ -212,13 +211,55 @@ exports.send_global_notification_query = async (institute, post) => {
         notify.notifyByInsPhoto = institute._id;
         invokeSpecificRegister(
           "Specific Notification",
-          notify,
-          institute.insName,
-          ref._id,
-          ref.deviceToken
+          notify?.notifyContent,
+          institute?.insName,
+          ref?._id,
+          ref?.deviceToken
+        );
+        await Promise.all([notify.save(), ref.save()]);
+      } 
+    }
+    else if (post?.postType === "Poll") {
+      for (var ref of institute?.userFollowersList) {
+        var notify = new Notification({});
+        notify.notifyContent = `New quiz from ${institute?.name}, give your valuable vote`;
+        notify.notifySender = institute?._id;
+        notify.notifyReceiever = ref._id;
+        notify.notifyCategory = "Post Feed";
+        ref.uNotify.push(notify._id);
+        notify.notifyByInsPhoto = institute._id;
+        invokeSpecificRegister(
+          "Specific Notification",
+          notify?.notifyContent,
+          institute?.insName,
+          ref?._id,
+          ref?.deviceToken
         );
         await Promise.all([notify.save(), ref.save()]);
       }
+    }
+    else if (post?.postType === "Post") {
+      for (var ref of institute?.userFollowersList) {
+        var notify = new Notification({});
+        notify.notifyContent = `${institute?.name} has new info to share, know what it is`;
+        notify.notifySender = institute?._id;
+        notify.notifyReceiever = ref._id;
+        notify.notifyCategory = "Post Feed";
+        ref.uNotify.push(notify._id);
+        notify.notifyByInsPhoto = institute._id;
+        invokeSpecificRegister(
+          "Specific Notification",
+          notify?.notifyContent,
+          institute?.insName,
+          ref?._id,
+          ref?.deviceToken
+        );
+        await Promise.all([notify.save(), ref.save()]);
+      }
+    }
+    else {
+      
+    }
   }
   catch (e) {
     console.log(e)
@@ -240,10 +281,10 @@ exports.send_global_announcement_notification_query = async (new_q, announcement
       notify.notifyByInsPhoto = institute._id;
       invokeSpecificRegister(
         "Specific Notification",
-        notify,
-        institute.insName,
-        ref._id,
-        ref.deviceToken
+        notify?.notifyContent,
+        institute?.insName,
+        ref?._id,
+        ref?.deviceToken
       );
       await Promise.all([notify.save(), ref.save()]);
     }

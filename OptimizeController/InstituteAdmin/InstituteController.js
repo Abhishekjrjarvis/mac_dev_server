@@ -56,6 +56,7 @@ const Chapter = require("../../models/Academics/Chapter");
 const Attainment = require("../../models/Marks/Attainment");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
+const { send_global_announcement_notification_query } = require("../../Feed/socialFeed");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -454,6 +455,7 @@ exports.getUpdateAnnouncement = async (req, res) => {
         }
       }
     }
+    await send_global_announcement_notification_query(institute, announcements)
   } catch (e) {
     console.log(e);
   }
@@ -507,6 +509,7 @@ exports.getUpdateAnnouncementApk = async (req, res) => {
         }
       }
     }
+    await send_global_announcement_notification_query(institute, announcements)
   } catch (e) {
     console.log(e);
   }

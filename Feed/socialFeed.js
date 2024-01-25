@@ -4,6 +4,7 @@ const Post = require("../models/Post");
 const HashTag = require("../models/HashTag/hashTag");
 const Notification = require("../models/notification");
 const invokeFirebaseNotification = require("../Firebase/firebase");
+const invokeSpecificRegister = require("../Firebase/specific");
 
 exports.execute_ins_social_feed_query = async (
   institute,
@@ -196,3 +197,57 @@ exports.execute_ins_social_feed_question_query = async (
     console.log(e);
   }
 };
+
+exports.send_global_notification_query = async (institute, post) => {
+  try {
+    
+      for (var ref of institute?.userFollowersList) {
+        var notify = new Notification({});
+        notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
+        notify.notifySender = institute?._id;
+        notify.notifyReceiever = ref._id;
+        notify.notifyCategory = "Post Feed";
+        ref.uNotify.push(notify._id);
+        notify.notifyByInsPhoto = institute._id;
+        invokeSpecificRegister(
+          "Specific Notification",
+          notify,
+          institute.insName,
+          ref._id,
+          ref.deviceToken
+        );
+        await Promise.all([notify.save(), ref.save()]);
+      }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.send_global_announcement_notification_query = async (new_q, announcements) => {
+  try {
+    var institute = await InstituteAdmin.findById({ _id: new_q?._id })
+    .populate({ path: "userFollowersList" })
+    .populate({ path: "joinedUserList" });
+    for (var ref of institute?.userFollowersList) {
+      var notify = new Notification({});
+      notify.notifyContent = `Qviple Universal posted an announcement: ${announcements?.insAnnTitle}`;
+      notify.notifySender = institute?._id;
+      notify.notifyReceiever = ref._id;
+      notify.notifyCategory = "Announcement Feed";
+      ref.uNotify.push(notify._id);
+      notify.notifyByInsPhoto = institute._id;
+      invokeSpecificRegister(
+        "Specific Notification",
+        notify,
+        institute.insName,
+        ref._id,
+        ref.deviceToken
+      );
+      await Promise.all([notify.save(), ref.save()]);
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

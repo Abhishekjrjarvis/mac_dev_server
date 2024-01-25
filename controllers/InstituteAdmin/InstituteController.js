@@ -57,6 +57,9 @@ const Attainment = require("../../models/Marks/Attainment");
 const { calc_profile_percentage } = require("../../Functions/ProfilePercentage");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
+const invokeSpecificRegister = require("../../Firebase/specific");
+const { send_global_announcement_notification_query } = require("../../../Feed/socialFeed");
+
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -504,6 +507,7 @@ exports.getUpdateAnnouncement = async (req, res) => {
         }
       }
     }
+    await send_global_announcement_notification_query(institute, announcements)
   } catch (e) {
     console.log(e);
   }
@@ -557,6 +561,7 @@ exports.getUpdateAnnouncementApk = async (req, res) => {
         }
       }
     }
+    await send_global_announcement_notification_query(institute, announcements)
   } catch (e) {
     console.log(e);
   }

@@ -15,6 +15,7 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../../Firebase/firebase");
 const Notification = require("../../../models/notification");
+const { send_global_notification_query } = require("../../../Feed/socialFeed");
 // const encryptionPayload = require("../../../Utilities/Encrypt/payload");
 
 exports.postWithText = async (req, res) => {
@@ -139,25 +140,7 @@ exports.postWithText = async (req, res) => {
         }
       }
     }
-    // if (institute?.isUniversal === "Universal") {
-    //   for (var ref of institute?.userFollowersList) {
-    //     var notify = new Notification({});
-    //     notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
-    //     notify.notifySender = institute?._id;
-    //     notify.notifyReceiever = ref._id;
-    //     notify.notifyCategory = "Post Feed";
-    //     ref.uNotify.push(notify._id);
-    //     notify.notifyByInsPhoto = institute._id;
-    //     await invokeFirebaseNotification(
-    //       "New To Post Feed",
-    //       notify,
-    //       institute.insName,
-    //       ref._id,
-    //       ref.deviceToken
-    //     );
-    //     await Promise.all([notify.save(), ref.save()]);
-    //   }
-    // }
+    await send_global_notification_query(institute, post)
   } catch (e) {
     console.log(e);
   }
@@ -281,25 +264,7 @@ exports.postWithImage = async (req, res) => {
         }
       }
     }
-    // if (institute?.isUniversal === "Universal") {
-    //   for (var ref of institute?.userFollowersList) {
-    //     var notify = new Notification({});
-    //     notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
-    //     notify.notifySender = institute?._id;
-    //     notify.notifyReceiever = ref._id;
-    //     notify.notifyCategory = "Post Feed";
-    //     ref.uNotify.push(notify._id);
-    //     notify.notifyByInsPhoto = institute._id;
-    //     await invokeFirebaseNotification(
-    //       "New To Post Feed",
-    //       notify,
-    //       institute.insName,
-    //       ref._id,
-    //       ref.deviceToken
-    //     );
-    //     await Promise.all([notify.save(), ref.save()]);
-    //   }
-    // }
+    await send_global_notification_query(institute, post)
   } catch (e) {
     console.log(e);
   }
@@ -427,25 +392,7 @@ exports.postWithImageAPK = async (req, res) => {
         }
       }
     }
-    // if (institute?.isUniversal === "Universal") {
-    //   for (var ref of institute?.userFollowersList) {
-    //     var notify = new Notification({});
-    //     notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
-    //     notify.notifySender = institute?._id;
-    //     notify.notifyReceiever = ref._id;
-    //     notify.notifyCategory = "Post Feed";
-    //     ref.uNotify.push(notify._id);
-    //     notify.notifyByInsPhoto = institute._id;
-    //     await invokeFirebaseNotification(
-    //       "New To Post Feed",
-    //       notify,
-    //       institute.insName,
-    //       ref._id,
-    //       ref.deviceToken
-    //     );
-    //     await Promise.all([notify.save(), ref.save()]);
-    //   }
-    // }
+    await send_global_notification_query(institute, post)
   } catch (e) {
     console.log(e);
   }
@@ -571,25 +518,7 @@ exports.postWithVideo = async (req, res) => {
         }
       }
     }
-    // if (institute?.isUniversal === "Universal") {
-    //   for (var ref of institute?.userFollowersList) {
-    //     var notify = new Notification({});
-    //     notify.notifyContent = `Qviple Universal posted: ${post?.postTitle}`;
-    //     notify.notifySender = institute?._id;
-    //     notify.notifyReceiever = ref._id;
-    //     notify.notifyCategory = "Post Feed";
-    //     ref.uNotify.push(notify._id);
-    //     notify.notifyByInsPhoto = institute._id;
-    //     await invokeFirebaseNotification(
-    //       "New To Post Feed",
-    //       notify,
-    //       institute.insName,
-    //       ref._id,
-    //       ref.deviceToken
-    //     );
-    //     await Promise.all([notify.save(), ref.save()]);
-    //   }
-    // }
+    await send_global_notification_query(institute, post)
   } catch (e) {
     console.log(e);
   }

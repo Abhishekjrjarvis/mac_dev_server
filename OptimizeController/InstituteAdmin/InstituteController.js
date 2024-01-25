@@ -56,7 +56,7 @@ const Chapter = require("../../models/Academics/Chapter");
 const Attainment = require("../../models/Marks/Attainment");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
-const { send_global_announcement_notification_query } = require("../../../Feed/socialFeed");
+const { send_global_announcement_notification_query } = require("../../Feed/socialFeed");
 
 exports.getDashOneQuery = async (req, res) => {
   try {

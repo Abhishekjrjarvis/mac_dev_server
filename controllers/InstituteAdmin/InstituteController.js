@@ -58,7 +58,7 @@ const { calc_profile_percentage } = require("../../Functions/ProfilePercentage")
 const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
 const invokeSpecificRegister = require("../../Firebase/specific");
-const { send_global_announcement_notification_query } = require("../../../Feed/socialFeed");
+const { send_global_announcement_notification_query } = require("../../Feed/socialFeed");
 
 
 exports.getDashOneQuery = async (req, res) => {

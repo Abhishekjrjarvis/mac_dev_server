@@ -434,7 +434,7 @@ exports.getUpdateAnnouncement = async (req, res) => {
     await Promise.all([institute.save(), announcements.save()]);
     // const aEncrypt = await encryptionPayload(announcements);
     res.status(200).send({ message: "Successfully Created", announcements });
-    // await announcement_feed_query(institute?._id, announcements?._id);
+    await announcement_feed_query(institute?._id, announcements);
     for (var num of institute.userFollowersList) {
       const user = await User.findById({ _id: `${num}` });
       if (user) {
@@ -455,7 +455,6 @@ exports.getUpdateAnnouncement = async (req, res) => {
         }
       }
     }
-    await send_global_announcement_notification_query(institute, announcements)
   } catch (e) {
     console.log(e);
   }
@@ -488,7 +487,7 @@ exports.getUpdateAnnouncementApk = async (req, res) => {
     await Promise.all([institute.save(), announcements.save()]);
     // const aEncrypt = await encryptionPayload(announcements);
     res.status(200).send({ message: "Successfully Created", announcements });
-    // await announcement_feed_query(institute?._id, announcements?._id);
+    await announcement_feed_query(institute?._id, announcements);
     for (var num of institute.userFollowersList) {
       const user = await User.findById({ _id: `${num}` });
       if (user) {
@@ -509,7 +508,6 @@ exports.getUpdateAnnouncementApk = async (req, res) => {
         }
       }
     }
-    await send_global_announcement_notification_query(institute, announcements)
   } catch (e) {
     console.log(e);
   }

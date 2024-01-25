@@ -1,6 +1,7 @@
 const InstituteAdmin = require("../models/InstituteAdmin");
 const User = require("../models/User");
 const Post = require("../models/Post");
+const { send_global_announcement_notification_query } = require("../Feed/socialFeed");
 
 exports.announcement_feed_query = async (one_ins, announce) => {
   try {
@@ -21,7 +22,7 @@ exports.announcement_feed_query = async (one_ins, announce) => {
     post.authorFollowersCount = institute?.followersCount;
     post.isInstitute = "institute";
     post.postType = "Announcement";
-    post.new_announcement = announce;
+    post.new_announcement = announce?._id;
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([post.save(), institute.save()]);
     //Feed Insertion Process
@@ -83,6 +84,7 @@ exports.announcement_feed_query = async (one_ins, announce) => {
         });
       }
     }
+    await send_global_announcement_notification_query(institute, announcements)
   } catch (e) {
     console.log(e);
   }

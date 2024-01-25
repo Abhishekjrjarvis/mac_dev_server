@@ -273,7 +273,7 @@ exports.send_global_announcement_notification_query = async (new_q, announcement
     .populate({ path: "joinedUserList" });
     for (var ref of institute?.userFollowersList) {
       var notify = new Notification({});
-      notify.notifyContent = `Qviple Universal posted an announcement: ${announcements?.insAnnTitle}`;
+      notify.notifyContent = `Announcement: ${announcements?.insAnnTitle}`;
       notify.notifySender = institute?._id;
       notify.notifyReceiever = ref._id;
       notify.notifyCategory = "Announcement Feed";

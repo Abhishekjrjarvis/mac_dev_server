@@ -89,6 +89,16 @@ const bookSchema = new mongoose.Schema({
     ref: "Department"
   },
   book_qr_code: String,
+  book_remark: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LibraryBookRemark",
+    },
+  ],
+  book_remark_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Book", bookSchema);

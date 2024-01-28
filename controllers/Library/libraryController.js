@@ -25,6 +25,9 @@ const Department = require("../../models/Department");
 
 const { generate_qr } = require("../../Utilities/qrGeneration/qr_generation");
 const LibraryInOut = require("../../models/Library/LibraryInOut");
+const LibraryModerator = require("../../models/Library/LibraryModerator");
+const LibraryStocktake = require("../../models/Library/LibraryStocktake");
+const LibraryBookRemark = require("../../models/Library/LibraryBookRemark");
 //for Institute side Activate library
 exports.activateLibrary = async (req, res) => {
   try {
@@ -1443,7 +1446,7 @@ exports.bookColletedByStaffSideQuery = async (req, res) => {
       book: issue.book,
       library: library._id,
       chargeBy: "",
-      fineCharge: price || 0,
+      fineCharge: 0,
       issuedDate: issue.createdAt,
       collect_as: req.body?.flow === "QR" ? "QR" : "Normal",
     });
@@ -1468,16 +1471,18 @@ exports.bookColletedByStaffSideQuery = async (req, res) => {
 
 exports.getLibraryQrCode = async (req, res) => {
   try {
-    // const library=await Library.findById("")
+    const libd = await Library.findById("651beb5a08e427c667ee2721");
     let library = {
-      lid: "rohini",
-      instituteId: "ram and sita",
+      lid: "651beb5a08e427c667ee2721",
+      instituteId: libd.institute,
     };
 
     let imageKey = await generate_qr({
       fileName: "library",
       object_contain: library,
     });
+    libd.qr_code = imageKey;
+    await libd.save();
     res
       .status(200)
       .send({ message: "qr geenrated", file: "uploads/library.png", imageKey });
@@ -1499,49 +1504,52 @@ exports.generateAllMemberQrCodeQuery = async (req, res) => {
       message: "Library qr code generation processing",
       access: true,
     });
-
     if (flow === "STAFF") {
       for (let sid of library?.institute?.ApproveStaff) {
         const staff = await Staff.findById(sid);
-        if (staff?.library_qr_code) {
-        } else {
-          let book_qr = {
-            libraryId: library?._id,
-            instituteId: library?.institute?._id,
-            staffId: sid,
-          };
-          let imageKey = await generate_qr({
-            fileName: "initial-staff-qr",
-            object_contain: book_qr,
-          });
-          staff.library_qr_code = imageKey;
-          await staff.save();
+        if (staff) {
+          if (staff?.library_qr_code) {
+          } else {
+            let book_qr = {
+              libraryId: library?._id,
+              instituteId: library?.institute?._id,
+              staffId: sid,
+            };
+            let imageKey = await generate_qr({
+              fileName: "initial-staff-qr",
+              object_contain: book_qr,
+            });
+            staff.library_qr_code = imageKey;
+            await staff.save();
+          }
         }
       }
     } else {
       for (let sid of library?.institute?.ApproveStudent) {
         const student = await Student.findById(sid);
-        if (student?.library_qr_code) {
-        } else {
-          let book_qr = {
-            libraryId: library?._id,
-            instituteId: library?.institute?._id,
-            studentId: sid,
-          };
-          let imageKey = await generate_qr({
-            fileName: "initial-student-qr",
-            object_contain: book_qr,
-          });
-          student.library_qr_code = imageKey;
-          await student.save();
+        if (student) {
+          if (student?.library_qr_code) {
+          } else {
+            let book_qr = {
+              libraryId: library?._id,
+              instituteId: library?.institute?._id,
+              studentId: sid,
+            };
+            let imageKey = await generate_qr({
+              fileName: "initial-student-qr",
+              object_contain: book_qr,
+            });
+            student.library_qr_code = imageKey;
+            await student.save();
+          }
         }
       }
     }
   } catch (e) {
     console.log(e);
-    res.status(200).send({
-      message: e,
-    });
+    // res.status(200).send({
+    //   message: e,
+    // });
   }
 };
 
@@ -1609,16 +1617,27 @@ exports.getAllBookQrCodeQuery = async (req, res) => {
 exports.getInOutStudentQuery = async (req, res) => {
   try {
     const { sid } = req.params;
-    const { inId, lid } = req.query;
+    const { lid, date } = req.query;
     if (!sid) throw "Please send student id to perform task";
     var currentDate = new Date();
     currentDate.setHours(currentDate.getHours() + 5);
     currentDate.setMinutes(currentDate.getMinutes() + 30);
-    if (!inId) {
+    const inout_g = await LibraryInOut.find({
+      $and: [
+        {
+          student: { $eq: `${sid}` },
+        },
+        {
+          date: { $eq: `${date}` },
+        },
+      ],
+    });
+    if (!inout_g?.[0]?._id) {
       const student = await Student.findById(sid);
       const inout = new LibraryInOut({
         student: sid,
         library: lid,
+        date: date,
         in_time: moment(currentDate).format("hh:mm:ss a"),
         hour_in_24: moment(currentDate).format("H"),
         minute_in: moment(currentDate).format("m"),
@@ -1627,13 +1646,22 @@ exports.getInOutStudentQuery = async (req, res) => {
       student.library_in_out?.push(inout?._id);
       await Promise.all([inout.save(), student.save()]);
     } else {
-      const inout = await LibraryInOut.findById(inId);
-      inout.out_time = moment(currentDate).format("hh:mm:ss a");
-      inout.hour_out_24 = moment(currentDate).format("H");
-      inout.minute_out = moment(currentDate).format("m");
-      inout.second_out = moment(currentDate).format("s");
-      inout.is_valid = "Yes";
-      await inout.save();
+      if (inout_g?.[0]?._id) {
+        const inout = await LibraryInOut.findById(inout_g?.[0]?._id);
+        inout.out_time = moment(currentDate).format("hh:mm:ss a");
+        inout.hour_out_24 = moment(currentDate).format("H");
+        inout.minute_out = moment(currentDate).format("m");
+        inout.second_out = moment(currentDate).format("s");
+        inout.is_valid = "Yes";
+        let x = moment(inout?.created_at);
+        let y = moment(currentDate);
+        var duration = moment.duration(y.diff(x));
+        let hr = duration.get("hours");
+        let mit = duration.get("minutes");
+        let sec = duration.get("seconds");
+        inout.total_spent_time = `${hr}:${mit}:${sec}`;
+        await inout.save();
+      }
     }
     res.status(200).send({
       message: "Library visit history saved.",
@@ -1750,3 +1778,485 @@ exports.getInOutStaffHistoryQuery = async (req, res) => {
   }
 };
 
+exports.getInOutLibraryHistoryQuery = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    if (!lid) throw "Please send library id to perform task";
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+    const inout = await LibraryInOut.find({
+      library: `${lid}`,
+    })
+      .populate({
+        path: "student staff",
+        select:
+          "studentFirstName studentLastName studentMiddleName studentGRNO studentROLLNO staffFirstName staffLastName staffMiddleName staffROLLNO",
+      })
+      .sort({
+        created_at: -1,
+      })
+      .skip(dropItem)
+      .limit(itemPerPage)
+      .lean()
+      .exec();
+
+    res.status(200).send({
+      message: "Librarian visit history list.",
+      history: inout ?? [],
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+// library moderator
+exports.getLibraryModeratorList = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    if (!lid) throw "Please send library id to perform task";
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+    const moderator = await LibraryModerator.find({
+      library: `${lid}`,
+    })
+      .populate({
+        path: "access_staff department",
+        select:
+          "staffFirstName staffLastName staffMiddleName staffROLLNO dName",
+      })
+      .sort({
+        created_at: -1,
+      })
+      .skip(dropItem)
+      .limit(itemPerPage)
+      .select("access_role created_at")
+      .lean()
+      .exec();
+
+    res.status(200).send({
+      message: "Librarian moderator list.",
+      moderator: moderator ?? [],
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+exports.getLibraryCreateModerator = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    const { mod_role, sid, depart } = req.body;
+    if (!lid && !sid && !mod_role)
+      throw "Please send library id and staff id to perform task";
+    const library = await Library.findById(lid);
+    const institute = await InstituteAdmin.findById({
+      _id: `${library?.institute}`,
+    });
+    const staff = await Staff.findById({ _id: sid });
+    const user = await User.findById({ _id: `${staff?.user}` });
+    const notify = new Notification({});
+    const new_mod = new LibraryModerator({
+      access_role: mod_role,
+      access_staff: sid,
+      library: lid,
+      institute: library?.institute,
+      department: depart ?? [],
+    });
+    library.moderator?.push(new_mod?._id);
+    library.moderator_count += 1;
+
+    staff.libraryModeratorDepartment.push(new_mod?._id);
+    staff.staffDesignationCount += 1;
+    staff.recentDesignation = `Library Manager Moderator - ${mod_role}`;
+    staff.designation_array.push({
+      role: "Library Manager Moderator",
+      role_id: new_mod?._id,
+    });
+    notify.notifyContent = `you got the designation of Library Manager Moderator for ${mod_role} 🎉🎉`;
+    notify.notifySender = institute?._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Library Moderator Designation";
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyPid = "1";
+    notify.notifyByInsPhoto = institute._id;
+    await invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      institute.insName,
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([
+      new_mod.save(),
+      staff.save(),
+      library.save(),
+      user.save(),
+      notify.save(),
+    ]);
+    res.status(200).send({
+      message: "Successfully Assigned Library Moderator Staff",
+      library: library._id,
+      access: true,
+    });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "LIBRARY_MODERATOR",
+      institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+exports.getLibraryUpdateModerator = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    const { role, sid, depart } = req.body;
+    if (!lid && !sid && !role)
+      throw "Please send library id and staff id to perform task";
+    const library = await Library.findById(lid).populate({
+      path: "institute",
+      select: "insName sms_lang",
+    });
+    const one_moderator = await LibraryModerator.findById({
+      _id: lid,
+    });
+    one_moderator.access_role = role;
+    one_moderator.department = depart ?? [];
+
+    if (sid !== `${one_moderator?.access_staff}`) {
+      var one_staff = await Staff.findById({
+        _id: `${one_moderator?.access_staff}`,
+      });
+      one_staff.libraryModeratorDepartment.pull(one_moderator?._id);
+      one_staff.recentDesignation = "";
+      if (one_staff?.staffDesignationCount > 0) {
+        one_staff.staffDesignationCount -= 1;
+      }
+      await one_staff.save();
+
+      var new_staff = await Staff.findById({ _id: sid });
+      new_staff.libraryModeratorDepartment.push(one_moderator?._id);
+      new_staff.recentDesignation = `Library Manager Moderator - ${one_moderator?.access_role}`;
+      new_staff.staffDesignationCount += 1;
+      one_moderator.access_staff = new_staff?._id;
+      const notify = new Notification({});
+      var user = await User.findById({ _id: `${new_staff?.user}` });
+      notify.notifyContent = `you got the designation of Library Manager Moderator 🎉🎉`;
+      notify.notifySender = library?._id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Library Moderator Designation";
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByInsPhoto = library?.institute?._id;
+      await invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        library?.institute?.insName,
+        user._id,
+        user.deviceToken
+      );
+      designation_alarm(
+        user?.userPhoneNumber,
+        "LIBRARY_MODERATOR",
+        library?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+      await Promise.all([new_staff.save(), user.save(), notify.save()]);
+    }
+    await one_moderator.save();
+    res.status(200).send({ message: "Explore Update Role", access: true });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+exports.getLibraryRemoveModerator = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    if (!lid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const one_moderator = await LibraryModerator.findById({ _id: lid });
+    const library = await Library.findById(one_moderator?.library);
+    const one_staff = await Staff.findById({
+      _id: `${one_moderator?.access_staff}`,
+    });
+    library.moderator.pull(lid);
+    one_staff.libraryModeratorDepartment.pull(lid);
+    if (library.moderator_count > 0) {
+      library.moderator_count -= 1;
+    }
+    if (one_staff.staffDesignationCount > 0) {
+      one_staff.staffDesignationCount -= 1;
+    }
+    one_staff.recentDesignation = "";
+    await Promise.all([one_staff.save(), library.save()]);
+    await LibraryModerator.findByIdAndDelete(lid);
+    res.status(200).send({
+      message: "Deletion Operation Completed 👍",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// for stocktake
+exports.getStocktakeLibraryHistoryQuery = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    if (!lid) throw "Please send library id to perform task";
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+    const stocktake = await LibraryStocktake.find({
+      library: `${lid}`,
+    })
+      .sort({
+        created_at: -1,
+      })
+      .skip(dropItem)
+      .limit(itemPerPage)
+      .select(
+        "created_at book_isssue_count library book_lost_count book_at_library_count book_missing_count"
+      )
+      .lean()
+      .exec();
+
+    res.status(200).send({
+      message: "Librarian stocktake history list.",
+      stocktake: stocktake ?? [],
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.getStocktakeBookHistoryQuery = async (req, res) => {
+  try {
+    const { stid } = req.params;
+    const { flow } = req.query;
+    // flow:  "book_isssue"|| "book_lost" ||"book_at_library" || "book_missing"
+    if (!stid && !flow) throw "Please send library id to perform task";
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+    var stocktake = [];
+    if (flow === "book_missing") {
+      stocktake = await LibraryStocktake.findById(stid)
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .populate({
+          path: "book_missing",
+          populate: {
+            path: "book",
+            select:
+              "bookName author bookStatus language qviple_book_id book_qr_code",
+          },
+        })
+        .lean()
+        .exec();
+    } else {
+      stocktake = await LibraryStocktake.findById(stid)
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .populate({
+          path: `${flow}`,
+          select:
+            "bookName author bookStatus language qviple_book_id book_qr_code",
+        })
+        .lean()
+        .exec();
+    }
+
+    res.status(200).send({
+      message: "Librarian stocktake history list.",
+      stocktake_list: stocktake[flow] ?? [],
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.getStocktakeLibraryUpdateRecordQuery = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    const { bookIds } = req.body;
+    if (!lid && bookIds?.length <= 0)
+      throw "Please send library id to perform task";
+    const library = await Library.findById(lid);
+    const stocktake = new LibraryStocktake({
+      library: lid,
+      book_at_library_count: bookIds?.length,
+      book_at_library: bookIds,
+    });
+
+    library.stocktake_count += 1;
+    library.stocktake?.push(stocktake?._id);
+    await Promise.all([stocktake.save(), library.save()]);
+    res.status(200).send({
+      message: "Librarian stocktake added successfully.",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+// for book remark
+exports.getLibraryBookRemarkListQuery = async (req, res) => {
+  try {
+    const { bid } = req.params;
+    if (!bid) throw "Please send book id to perform task";
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+    const book = await Book.findById(bid);
+    const remark = await LibraryBookRemark.find({
+      _id: { $in: book?.book_remark },
+    })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentLastName studentMiddleName studentGRNO studentProfilePhotot photoId",
+      })
+      .sort({
+        created_at: -1,
+      })
+      .skip(dropItem)
+      .limit(itemPerPage)
+      .select("title description rating created_at student")
+      .lean()
+      .exec();
+
+    res.status(200).send({
+      message: "Book remark list",
+      stocktake: remark ?? [],
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.getLibraryUpdateBookRemarkQuery = async (req, res) => {
+  s;
+  try {
+    const { bid } = req.params;
+    const { title, description, rating, sid } = req.body;
+    if (!bid && !sid)
+      throw "Please send book id and student id to perform task";
+
+    const prev_remark = await LibraryBookRemark.findOne({
+      $and: [
+        {
+          book: { $eq: `${bid}` },
+        },
+        {
+          student: { $eq: `${sid}` },
+        },
+      ],
+    });
+    if (prev_remark?._id) {
+      await LibraryBookRemark.findByIdAndUpdate(prev_remark?._id, req.body);
+      res.status(200).send({
+        message: "Book Remark updated successfully.",
+        access: true,
+      });
+    } else {
+      const book = await Book.findById(bid);
+      const remark = new LibraryBookRemark({
+        title: title ?? "",
+        description: description ?? "",
+        rating: rating ?? "",
+        book: book?._id,
+        library: book?.library,
+        student: sid,
+      });
+      book.book_remark?.push(remark?._id);
+      book.book_remark_count += 1;
+      await Promise.all([remark.save(), book.save()]);
+      res.status(200).send({
+        message: "Book Remark added successfully.",
+        access: true,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.getLibraryRemoveBookRemarkQuery = async (req, res) => {
+  try {
+    const { bid } = req.params;
+    const { sid } = req.query;
+    if (!bid && !sid)
+      throw "Please send book id and student id to perform task";
+
+    const prev_remark = await LibraryBookRemark.findOne({
+      $and: [
+        {
+          book: { $eq: `${bid}` },
+        },
+        {
+          student: { $eq: `${sid}` },
+        },
+      ],
+    });
+    const book = await Book.findById(bid);
+    if (book.book_remark_count > 0) {
+      book.book_remark_count -= 1;
+    }
+    book.book_remark?.pull(prev_remark?._id);
+    await book.save();
+    await LibraryBookRemark.findByIdAndDelete(prev_remark?._id);
+    res.status(200).send({
+      message: "Book Remark deleted successfully.",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};

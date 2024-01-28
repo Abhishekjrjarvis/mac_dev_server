@@ -163,6 +163,26 @@ const librarySchema = new mongoose.Schema({
     default: 0
   },
   qr_code: String,
+  moderator: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LibraryModerator",
+    },
+  ],
+  moderator_count: {
+    type: Number,
+    default: 0,
+  },
+  stocktake: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LibraryStocktake",
+    },
+  ],
+  stocktake_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Library", librarySchema);

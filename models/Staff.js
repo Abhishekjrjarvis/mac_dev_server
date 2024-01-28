@@ -525,6 +525,12 @@ const staffSchema = new mongoose.Schema({
       ref: "LibraryInOut",
     },
   ],
+  libraryModeratorDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LibraryModerator",
+    },
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

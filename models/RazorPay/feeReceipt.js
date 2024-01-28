@@ -165,6 +165,10 @@ const feeReceiptSchema = new mongoose.Schema({
   },
   txn_id: {
     type: String
+  },
+  fee_update: {
+    type: Boolean,
+    default: false
   }
 });
 

@@ -80,6 +80,8 @@ const {
   update_fee_head_query_redesign,
   render_government_installment_query,
   all_installment_paid,
+  set_fee_head_query2,
+  update_fee_head_query2,
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -100,7 +102,7 @@ const { mismatch_scholar_transaction_json_to_excel_query } = require("../../Cust
 const NestedCard = require("../../models/Admission/NestedCard");
 const { render_new_fees_card, render_new_fees_card_install } = require("../../Functions/FeesCard");
 const Charges = require("../../models/SuperAdmin/Charges");
-const { fee_receipt_count_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
+const { fee_receipt_count_query, fee_receipt_count_query_new } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -11322,7 +11324,7 @@ exports.government_card_removal_query = async (req, res) => {
     
     var i = 0
     for (var val of all_remain) {
-      if(val?.applicable_card){
+      if(val?.applicable_card && `${val?.access_mode_card}` === "Installment_Wise" && val?.status === "Paid"){
         var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
           // .populate({
           //   path: "remaining_array",
@@ -11330,41 +11332,31 @@ exports.government_card_removal_query = async (req, res) => {
           //     path: "fee_receipt"
           //   }
           // })
-        if (n_app?.paid_fee == n_app?.applicable_fee) {
-          n_app.remaining_fee = 0
-          val.remaining_fee = 0
+        if (n_app?.paid_fee > 0 && n_app?.paid_fee < n_app?.applicable_fee) {
+          // n_app.remaining_fee = 0
+          // val.remaining_fee = 0
           console.log(i)
           i += 1
         }
         // for (var ele of n_app?.remaining_array) {
-        //   // if (ele?.fee_receipt?.fee_payment_mode === "Government/Scholarship" && ele?.installmentValue === "One Time Fees") {
-        //   //   if (n_app?.paid_fee >= ele?.remainAmount) {
-        //   //     n_app.paid_fee -= ele?.remainAmount
-        //   //   }
-        //   //   if (val?.paid_fee >= ele?.remainAmount) {
-        //   //     val.paid_fee -= ele?.remainAmount
-        //   //   }
-        //   //   n_app.remaining_array.pull(ele?._id)
-        //   // }
-        //   // if (ele?.installmentValue === "One Time Fees Remain" && ele?.status === "Not Paid") {
-        //   //   if (n_app?.paid_fee == n_app?.applicable_fee) {
-              
-        //   //   }
-        //   //   n_app.remaining_array.pull(ele?._id)
-        //   //   if (n_app?.remaining_fee >= ele?.remainAmount) {
-        //   //     n_app.remaining_fee -= ele?.remainAmount
-        //   //   }
-        //   //   if (val?.remaining_fee >= ele?.remainAmount) {
-        //   //     val.remaining_fee -= ele?.remainAmount
-        //   //   }
-        //   // }
+        //   if (ele?.fee_receipt?.fee_payment_mode === "Government/Scholarship") {
+        //     if (n_app?.paid_fee >= ele?.remainAmount) {
+        //       n_app.paid_fee -= ele?.remainAmount
+        //     }
+        //     if (val?.paid_fee >= ele?.remainAmount) {
+        //       val.paid_fee -= ele?.remainAmount
+        //     }
+        //     n_app.remaining_array.pull(ele?._id)
+        //       console.log(i)
+        //       i += 1
+        //   }
         // }
-        if (val?.remaining_fee <= 0) {
-          val.status = "Paid"
-        }
-        await n_app.save()
+        // if (val?.remaining_fee <= 0) {
+        //   val.status = "Paid"
+        // }
+        // await n_app.save()
       }
-      await val.save()
+      // await val.save()
     }
     res.status(200).send({ message: "Explore All Student Nested Government Remaining Card + Installment Modify + Clear", access: true})
   }
@@ -11405,12 +11397,12 @@ exports.renderAllFeeStructureListQuery = async (req, res) => {
 
 exports.renderAllStudentQuery = async (req, res) => {
   try {
-    const { aid } = req?.params
+    // const { aid } = req?.params
     // const { fee_arr } = req?.body
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    // if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     // 648144d2bff5c2019924603f, 64814215bff5c20199240782
     // var nums = ["64809b0dbff5c201991f3aed"]
-    var fine = ["64bd56efac3512e4520fb9fa"]
+    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
     var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine} }, { total_installments: "1" }] }) 
     // var nums = []
     // for (var val of all_struct) {
@@ -11429,133 +11421,142 @@ exports.renderAllStudentQuery = async (req, res) => {
     var i = 0
     for (var val of all_remain) {
       if(val?.applicable_card){
-      var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
-      // var n_gov = await NestedCard.findById({ _id: `${val?.government_card}` })
-        if (val?.fee_structure?.total_installments === "1") {
-          for (var ele of n_app.remaining_array) {
-            if (ele?.status === "Paid") {
-              
+        var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
+        
+        if (n_app?.paid_fee <= n_app?.applicable_fee) {
+          if (`${val?.access_mode_card}` === "One_Time_Wise") {
+            console.log("INSERTED IR")
+            const numss = n_app?.applicable_fee - n_app?.paid_fee
+            if (numss > 0) {
+              // ele.remainAmount = numss
+              n_app.remaining_array.push({
+                remainAmount: numss,
+                isEnable: true,
+                instituteId: val?.institute,
+                appId: val?.appId,
+                installmentValue: "Installment Remain"
+              })
+            }
+              n_app.remaining_fee = n_app?.applicable_fee - n_app?.paid_fee
+              val.remaining_fee = n_app?.applicable_fee - n_app?.paid_fee
+            if (val?.remaining_fee <= 0) {
+              val.status = "Paid"
             }
             else {
-              // if (`${ele?.installmentValue}` === "First Installment") {
-              //   n_app.remaining_array.push({
-              //     remainAmount: val?.fee_structure?.one_installments?.fees - ele?.remainAmount,
-              //     isEnable: true,
-              //     instituteId: val?.institute,
-              //     appId: val?.appId,
-              //     installmentValue: "Installment Remain"
-              //   })
-              // }
-              if (n_app?.paid_fee == n_app?.applicable_fee) {
-                if (`${ele?.installmentValue}` === "Second Installment") {
-                  console.log("INSERTED SI")
-                  n_app.remaining_array.pull(ele?._id)
-                  if (n_app?.remaining_fee >= ele?.remainAmount) {
-                    n_app.remaining_fee -= ele?.remainAmount
-                  }
-                  if (val?.remaining_fee >= ele?.remainAmount) {
-                    val.remaining_fee -= ele?.remainAmount
-                  }
-                  if (val?.remaining_fee <= 0) {
-                    val.status = "Paid"
-                  }
-                  else {
-                    val.status = "Not Paid"
-                  }
-                }
-                if (`${ele?.installmentValue}` === "Installment Remain") {
-                  console.log("INSERTED IR")
-                  n_app.remaining_array.pull(ele?._id)
-                  if (n_app?.remaining_fee >= ele?.remainAmount) {
-                    n_app.remaining_fee -= ele?.remainAmount
-                  }
-                  if (val?.remaining_fee >= ele?.remainAmount) {
-                    val.remaining_fee -= ele?.remainAmount
-                  }
-                  if (val?.remaining_fee <= 0) {
-                    val.status = "Paid"
-                  }
-                  else {
-                    // val.status = "Not Paid"
-                  }
-                }
-              }
-              else if (n_app?.paid_fee >= n_app?.applicable_fee) {
-                if (`${ele?.installmentValue}` === "Second Installment") {
-                  console.log("INSERTED SI")
-                  n_app.remaining_array.pull(ele?._id)
-                  if (n_app?.remaining_fee >= ele?.remainAmount) {
-                    n_app.remaining_fee -= ele?.remainAmount
-                  }
-                  if (val?.remaining_fee >= ele?.remainAmount) {
-                    val.remaining_fee -= ele?.remainAmount
-                  }
-                  if (val?.remaining_fee <= 0) {
-                    val.status = "Paid"
-                  }
-                  else {
-                    // val.status = "Not Paid"
-                  }
-                }
-                if (`${ele?.installmentValue}` === "Installment Remain") {
-                  console.log("INSERTED IR")
-                  n_app.remaining_array.pull(ele?._id)
-                  if (n_app?.remaining_fee >= ele?.remainAmount) {
-                    n_app.remaining_fee -= ele?.remainAmount
-                  }
-                  if (val?.remaining_fee >= ele?.remainAmount) {
-                    val.remaining_fee -= ele?.remainAmount
-                  }
-                  if (val?.remaining_fee <= 0) {
-                    val.status = "Paid"
-                  }
-                  else {
-                    // val.status = "Not Paid"
-                  }
-                }
-              }
-              else if (n_app?.paid_fee <= n_app?.applicable_fee) {
-                if (`${ele?.installmentValue}` === "Second Installment") {
-                  console.log("INSERTED SI")
-                  const numss = n_app?.applicable_fee - n_app?.paid_fee
-                  if (numss > 0) {
-                    ele.remainAmount = numss
-                  }
-                    n_app.remaining_fee = n_app?.applicable_fee - n_app?.paid_fee
-                    val.remaining_fee = n_app?.applicable_fee - n_app?.paid_fee
-                  if (val?.remaining_fee <= 0) {
-                    val.status = "Paid"
-                  }
-                  else {
-                    val.status = "Not Paid"
-                  }
-                }
-                if (`${ele?.installmentValue}` === "Installment Remain") {
-                  console.log("INSERTED IR")
-                  const numss = n_app?.applicable_fee - n_app?.paid_fee
-                  if (numss > 0) {
-                    ele.remainAmount = numss
-                  }
-                    n_app.remaining_fee = n_app?.applicable_fee - n_app?.paid_fee
-                    val.remaining_fee = n_app?.applicable_fee - n_app?.paid_fee
-                  if (val?.remaining_fee <= 0) {
-                    val.status = "Paid"
-                  }
-                  else {
-                    val.status = "Not Paid"
-                  }
-                }
-                console.log(i)
-                i += 1
-              }
+              val.status = "Not Paid"
             }
+            console.log(i)
+          i += 1
           }
+          // if (`${ele?.installmentValue}` === "Installment Remain") {
+          //   console.log("INSERTED IR")
+          //   const numss = n_app?.applicable_fee - n_app?.paid_fee
+          //   if (numss > 0) {
+          //     ele.remainAmount = numss
+          //   }
+          //     n_app.remaining_fee = n_app?.applicable_fee - n_app?.paid_fee
+          //     val.remaining_fee = n_app?.applicable_fee - n_app?.paid_fee
+          //   if (val?.remaining_fee <= 0) {
+          //     val.status = "Paid"
+          //   }
+          //   else {
+          //     val.status = "Not Paid"
+          //   }
+          // }
         }
+      // var n_gov = await NestedCard.findById({ _id: `${val?.government_card}` })
+        // if (val?.fee_structure?.total_installments === "1") {
+        //   // for (var ele of n_app.remaining_array) {
+        //   //   // if (ele?.status === "Paid") {
+              
+        //   //   // }
+        //   //   // else {
+        //   //   //   // if (`${ele?.installmentValue}` === "First Installment") {
+        //   //   //   //   n_app.remaining_array.push({
+        //   //   //   //     remainAmount: val?.fee_structure?.one_installments?.fees - ele?.remainAmount,
+        //   //   //   //     isEnable: true,
+        //   //   //   //     instituteId: val?.institute,
+        //   //   //   //     appId: val?.appId,
+        //   //   //   //     installmentValue: "Installment Remain"
+        //   //   //   //   })
+        //   //   //   // }
+        //   //   //   // if (n_app?.paid_fee == n_app?.applicable_fee) {
+        //   //   //   //   if (`${ele?.installmentValue}` === "Second Installment") {
+        //   //   //   //     console.log("INSERTED SI")
+        //   //   //   //     n_app.remaining_array.pull(ele?._id)
+        //   //   //   //     if (n_app?.remaining_fee >= ele?.remainAmount) {
+        //   //   //   //       n_app.remaining_fee -= ele?.remainAmount
+        //   //   //   //     }
+        //   //   //   //     if (val?.remaining_fee >= ele?.remainAmount) {
+        //   //   //   //       val.remaining_fee -= ele?.remainAmount
+        //   //   //   //     }
+        //   //   //   //     if (val?.remaining_fee <= 0) {
+        //   //   //   //       val.status = "Paid"
+        //   //   //   //     }
+        //   //   //   //     else {
+        //   //   //   //       val.status = "Not Paid"
+        //   //   //   //     }
+        //   //   //   //   }
+        //   //   //   //   if (`${ele?.installmentValue}` === "Installment Remain") {
+        //   //   //   //     console.log("INSERTED IR")
+        //   //   //   //     n_app.remaining_array.pull(ele?._id)
+        //   //   //   //     if (n_app?.remaining_fee >= ele?.remainAmount) {
+        //   //   //   //       n_app.remaining_fee -= ele?.remainAmount
+        //   //   //   //     }
+        //   //   //   //     if (val?.remaining_fee >= ele?.remainAmount) {
+        //   //   //   //       val.remaining_fee -= ele?.remainAmount
+        //   //   //   //     }
+        //   //   //   //     if (val?.remaining_fee <= 0) {
+        //   //   //   //       val.status = "Paid"
+        //   //   //   //     }
+        //   //   //   //     else {
+        //   //   //   //       // val.status = "Not Paid"
+        //   //   //   //     }
+        //   //   //   //   }
+        //   //   //   // }
+        //   //   //   // else if (n_app?.paid_fee >= n_app?.applicable_fee) {
+        //   //   //   //   if (`${ele?.installmentValue}` === "Second Installment") {
+        //   //   //   //     console.log("INSERTED SI")
+        //   //   //   //     n_app.remaining_array.pull(ele?._id)
+        //   //   //   //     if (n_app?.remaining_fee >= ele?.remainAmount) {
+        //   //   //   //       n_app.remaining_fee -= ele?.remainAmount
+        //   //   //   //     }
+        //   //   //   //     if (val?.remaining_fee >= ele?.remainAmount) {
+        //   //   //   //       val.remaining_fee -= ele?.remainAmount
+        //   //   //   //     }
+        //   //   //   //     if (val?.remaining_fee <= 0) {
+        //   //   //   //       val.status = "Paid"
+        //   //   //   //     }
+        //   //   //   //     else {
+        //   //   //   //       // val.status = "Not Paid"
+        //   //   //   //     }
+        //   //   //   //   }
+        //   //   //   //   if (`${ele?.installmentValue}` === "Installment Remain") {
+        //   //   //   //     console.log("INSERTED IR")
+        //   //   //   //     n_app.remaining_array.pull(ele?._id)
+        //   //   //   //     if (n_app?.remaining_fee >= ele?.remainAmount) {
+        //   //   //   //       n_app.remaining_fee -= ele?.remainAmount
+        //   //   //   //     }
+        //   //   //   //     if (val?.remaining_fee >= ele?.remainAmount) {
+        //   //   //   //       val.remaining_fee -= ele?.remainAmount
+        //   //   //   //     }
+        //   //   //   //     if (val?.remaining_fee <= 0) {
+        //   //   //   //       val.status = "Paid"
+        //   //   //   //     }
+        //   //   //   //     else {
+        //   //   //   //       // val.status = "Not Paid"
+        //   //   //   //     }
+        //   //   //   //   }
+        //   //   //   // }
+              
+        //   //   // }
+        //   // }
+        // }
         await n_app.save()
       }
       await val.save()
     }
-    res.status(200).send({ message: "Explore All Student Nested Remaining Card Modify + Clear", access: true})
+    res.status(200).send({ message: "Explore All Student Nested Remaining Card Modify + Clear + One", access: true})
   }
   catch (e) {
     console.log(e)
@@ -11763,6 +11764,132 @@ exports.renderValidateAppQuery = async(req, res) => {
     }
   }
   catch(e){
+    console.log(e)
+  }
+}
+
+// exports.renderRemainingCardQuery = async (req, res) => {
+//   try {
+//     const { sid } = req?.query
+//     const arr = ["652793596e3e6e615a0eae74", "648141adbff5c2019923f9ac"]
+//     const remain_all = await RemainingList.find({ _id: { $in: arr }})
+//       .populate({
+//       path: "fee_structure"
+//       })
+//       .populate({
+//         path: "student"
+//       })
+//       .populate({
+//         path: "applicable_card"
+//       })
+
+//     var  i = 0
+//     for (var val of remain_all) {
+//       console.log(i)
+//       i+=1
+//       // if (val?.student?.active_fee_heads?.length > 0) {
+//       //   console.log("Fee Heads Exists")
+//       //   val.student.active_fee_heads = []
+//       //   await val.student.save()
+//       // }
+//       // if {
+//         console.log("Fee Heads Added New")
+//         for (var ele of val?.applicable_card?.remaining_array) {
+//           if (`${ele?.status}` === "Paid" && String(ele?._id) === String(val?.applicable_card?.remaining_array?.[0]?._id)) {
+//             console.log("Enter & Set");
+//             await set_fee_head_query2(val?.student, ele?.remainAmount, val?.appId, val?.fee_structure);
+//             console.log("Exit & Set");
+//           }
+//           else {
+//             if (`${ele?.status}` === "Paid") {
+//               console.log("Update & Enter")
+//               await update_fee_head_query2(val?.student, ele?.remainAmount, val?.appId);
+//               console.log("Update & Exit")
+//             }
+//           }
+//         }
+//       }
+//     // }
+
+//     res.status(200).send({ message: "Fee Heads Insertion"})
+//   }
+//   catch (e) {
+//     console.log(e)
+//   }
+// }
+
+exports.renderRemainingCardQuery = async (req, res) => {
+  try {
+    const remain_all = await RemainingList.find({})
+
+    var  i = 0
+    for (var val of remain_all) {
+      if (val?.remaining_fee <= 0) {
+        val.status = "Paid"
+      }
+      await val.save()
+      console.log(i)
+      i += 1
+    }
+
+    res.status(200).send({ message: "Fee Heads Insertion"})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderGovernmentCardUpdateQuery = async (req, res) => {
+  try {
+    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
+    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }}, { total_installments: "1" }]})
+    var nums = []
+    var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
+      .populate({
+        path: "institute",
+        select: "financeDepart invoice_count random_institute_code"
+    })
+
+    var i = 0
+    for (var val of all_remain) {
+      if (val?.government_card) {
+        var nest_gov = await NestedCard.findById({ _id: val?.government_card })
+        if (nest_gov?.paid_fee > 0 && nest_gov?.applicable_fee <= 0) {
+          const new_receipt = new FeeReceipt({})
+          new_receipt.fee_payment_amount = nest_gov?.paid_fee
+          new_receipt.paid_by_government = nest_gov?.paid_fee
+          new_receipt.fee_payment_mode = "Government/Scholarship"
+          new_receipt.student = val?.student;
+          new_receipt.fee_transaction_date = new Date();
+          new_receipt.application = val?.appId;
+          new_receipt.receipt_generated_from = "BY_ADMISSION";
+          new_receipt.finance = val?.institute?.financeDepart?.[0];
+          new_receipt.receipt_status = "Already Generated";
+          new_receipt.fee_update = true
+          await fee_receipt_count_query_new(val?.institute, new_receipt)
+          nest_gov.remaining_array.push({
+            remainAmount: nest_gov?.paid_fee,
+            appId: val?.appId,
+            status: "Paid",
+            instituteId: val?.institute?._id,
+            installmentValue: "First Installment",
+            isEnable: true,
+            fee_update: true,
+            fee_receipt: new_receipt?._id,
+            mode: "Government/Scholarship"
+          });
+          nest_gov.fee_update = true
+          await nest_gov.save()
+          // nums.push(val?._id)
+          console.log(i)
+          i+= 1
+        }
+      }
+
+    }
+    res.status(200).send({ message: "Explore All Paid Government Card Fees Update Query", access: true, all_remain: all_remain, count: all_remain?.length })
+  }
+  catch (e) {
     console.log(e)
   }
 }

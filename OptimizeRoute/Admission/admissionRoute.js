@@ -671,7 +671,7 @@ router.patch(
 );
 
 router.patch(
-  "/:aid/all/student/query",
+  "/all/student/query",
   catchAsync(Admission.renderAllStudentQuery)
 );
 
@@ -714,5 +714,14 @@ router.patch(
 router
   .route("/validate/structure/query")
   .patch(catchAsync(Admission.renderValidateAppQuery));
+
+router
+  .route("/all/remaining/card/update")
+  .patch(catchAsync(Admission.renderRemainingCardQuery));
+
+
+router
+  .route("/all/government/card/update/query")
+  .patch(catchAsync(Admission.renderGovernmentCardUpdateQuery));
 
 module.exports = router;

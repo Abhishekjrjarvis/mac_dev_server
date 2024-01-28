@@ -67,7 +67,11 @@ const nestedCardSchema = new mongoose.Schema({
         set_off: {
           type: Number,
           default: 0
-        }
+        },
+        fee_update: {
+          type: Boolean,
+          default: false
+        },
         },
       ],
     parent_card: {
@@ -92,7 +96,11 @@ const nestedCardSchema = new mongoose.Schema({
   created_at: {
     type: Date,
     default: Date.now
-      }
+  },
+  fee_update: {
+    type: Boolean,
+    default: false
+  },
 })
 
 module.exports = mongoose.model("NestedCard", nestedCardSchema)

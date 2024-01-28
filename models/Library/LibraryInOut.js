@@ -29,6 +29,10 @@ const libraryInOutSchema = new mongoose.Schema({
     type: String,
     default: 'No'
   },
+  total_spent_time: {
+    type: String
+  },
+  date: String,
 });
 
 module.exports = mongoose.model("LibraryInOut", libraryInOutSchema);

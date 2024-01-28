@@ -140,4 +140,33 @@ router
 
 router.route("/qr").get(catchAsync(libraryController.getLibraryQrCode));
 
+router
+  .route("/in/out/:lid/history/query")
+  .get(catchAsync(libraryController.getInOutLibraryHistoryQuery));
+
+router
+  .route("/moderator/:lid/query")
+  .get(catchAsync(libraryController.getLibraryModeratorList))
+  .post(catchAsync(libraryController.getLibraryCreateModerator))
+  .patch(catchAsync(libraryController.getLibraryUpdateModerator))
+  .delete(catchAsync(libraryController.getLibraryRemoveModerator));
+
+router
+  .route("/stocktake/:lid/list/query")
+  .get(catchAsync(libraryController.getStocktakeLibraryHistoryQuery));
+
+router
+  .route("/stocktake/:stid/card/query")
+  .get(catchAsync(libraryController.getStocktakeBookHistoryQuery));
+
+router
+  .route("/stocktake/:lid/record/query")
+  .patch(catchAsync(libraryController.getStocktakeLibraryUpdateRecordQuery));
+
+router
+  .route("/remark/book/:bid/query")
+  .get(catchAsync(libraryController.getLibraryBookRemarkListQuery))
+  .patch(catchAsync(libraryController.getLibraryUpdateBookRemarkQuery))
+  .delete(catchAsync(libraryController.getLibraryRemoveBookRemarkQuery));
+
 module.exports = router;

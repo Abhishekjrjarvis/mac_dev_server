@@ -1756,6 +1756,14 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
           path: "staffBatch",
           select: "batchName batchStatus",
         })
+        .populate({
+          path: "libraryModeratorDepartment",
+          select: "library access_role",
+          populate: {
+            path: "department",
+            select: "dName",
+          },
+        })
         .lean()
         .exec();
       if (staff?.staffDocuments?.length > 0) {
@@ -1943,6 +1951,14 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "staffBatch",
           select: "batchName batchStatus",
+        })
+        .populate({
+          path: "libraryModeratorDepartment",
+          select: "library access_role",
+          populate: {
+            path: "department",
+            select: "dName",
+          },
         })
         .lean()
         .exec();

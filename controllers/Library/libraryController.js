@@ -124,8 +124,12 @@ exports.libraryByStaffSide = async (req, res) => {
         select:
           "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
       })
+      .populate({
+        path: "institute",
+        select: "financeDepart admissionDepart",
+      })
       .select(
-        "libraryHead libraryHeadTitle emailId phoneNumber about photoId photo coverId cover bookCount memberCount totalFine collectedFine requestStatus offlineFine onlineFine remainFine qr_code filter_by"
+        "libraryHead institute libraryHeadTitle emailId phoneNumber about photoId photo coverId cover bookCount memberCount totalFine collectedFine requestStatus offlineFine onlineFine remainFine qr_code filter_by"
       )
       .lean()
       .exec();
@@ -151,7 +155,6 @@ exports.libraryByStaffSide = async (req, res) => {
 //     });
 //   }
 // };
-
 exports.allBookByStaffSide = async (req, res) => {
   try {
     if (!req.params.lid) throw "Please send Library id to perform task";
@@ -160,11 +163,11 @@ exports.allBookByStaffSide = async (req, res) => {
     const dropItem = (getPage - 1) * itemPerPage;
     if (!["", undefined, ""]?.includes(req.query?.search)) {
       if (req.query?.flow === "ISSUE_BOOK") {
-        var library = await Library.findById(req.params.lid)
+        var library = await Library.findById(req.params.lid);
         if (library?.filter_by?.department?.length > 0) {
           var all_book = await Book.find({
             $and: [
-            {_id: { $in: library?.books }},
+              { _id: { $in: library?.books } },
               {
                 $or: [
                   {
@@ -191,18 +194,19 @@ exports.allBookByStaffSide = async (req, res) => {
                 leftCopies: { $gt: 0 },
               },
               {
-                department: { $in: library?.filter_by?.department}
-              }
+                department: { $in: library?.filter_by?.department },
+              },
             ],
           })
-            .select("bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher")
+            .select(
+              "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher publication"
+            )
             .limit(itemPerPage)
-            .skip(dropItem)
-        }
-        else {
+            .skip(dropItem);
+        } else {
           var all_book = await Book.find({
             $and: [
-            {_id: { $in: library?.books }},
+              { _id: { $in: library?.books } },
               {
                 $or: [
                   {
@@ -230,30 +234,28 @@ exports.allBookByStaffSide = async (req, res) => {
               },
             ],
           })
-            .select("bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher")
+            .select(
+              "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher publication"
+            )
             .limit(itemPerPage)
-            .skip(dropItem)
+            .skip(dropItem);
         }
         if (all_book?.length > 0) {
           res.status(200).send({
             message: "List of All Books with pagination search",
             books: all_book?.length ? all_book : [],
           });
-        }
-        else {
+        } else {
           res.status(200).send({
             message: "List of All Books with pagination search",
             books: all_book?.length ? all_book : [],
           });
         }
-        
       } else {
-        var library = await Library.findById(req.params.lid)
-          
+        var library = await Library.findById(req.params.lid);
+
         var all_book = await Book.find({
-          $and: [
-            {_id: { $in: library?.books }},
-          ],
+          $and: [{ _id: { $in: library?.books } }],
           $or: [
             {
               bookName: { $regex: req.query.search, $options: "i" },
@@ -269,9 +271,11 @@ exports.allBookByStaffSide = async (req, res) => {
             },
           ],
         })
-          .select("bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher")
+          .select(
+            "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher publication"
+          )
           .limit(itemPerPage)
-          .skip(dropItem)
+          .skip(dropItem);
         res.status(200).send({
           message: "List of All Books with pagination search",
           books: all_book?.length ? all_book : [],
@@ -279,8 +283,8 @@ exports.allBookByStaffSide = async (req, res) => {
       }
     } else {
       if (req.query?.flow === "ISSUE_BOOK") {
-        var library = await Library.findById(req.params.lid)
-          
+        var library = await Library.findById(req.params.lid);
+
         if (library?.filter_by?.department?.length > 0) {
           var all_book = await Book.find({
             $and: [
@@ -292,15 +296,16 @@ exports.allBookByStaffSide = async (req, res) => {
                 leftCopies: { $gt: 0 },
               },
               {
-                department: { $in: library?.filter_by?.department}
-              }
-            ]
+                department: { $in: library?.filter_by?.department },
+              },
+            ],
           })
-            .select("bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher")
+            .select(
+              "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher publication"
+            )
             .limit(itemPerPage)
-            .skip(dropItem)
-        }
-        else {
+            .skip(dropItem);
+        } else {
           var all_book = await Book.find({
             $and: [
               { _id: { $in: library?.books } },
@@ -310,57 +315,58 @@ exports.allBookByStaffSide = async (req, res) => {
               {
                 leftCopies: { $gt: 0 },
               },
-            ]
+            ],
           })
-            .select("bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher")
+            .select(
+              "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher publication"
+            )
             .limit(itemPerPage)
-            .skip(dropItem)
+            .skip(dropItem);
         }
         if (all_book?.length > 0) {
           res.status(200).send({
             message: "List of All Books",
             books: all_book?.length ? all_book : [],
           });
-        }
-        else {
+        } else {
           res.status(200).send({
             message: "List of All Books",
             books: all_book?.length ? all_book : [],
           });
         }
       } else {
-        var library = await Library.findById(req.params.lid)
-        
+        var library = await Library.findById(req.params.lid);
+
         if (library?.filter_by?.department?.length > 0) {
           var all_book = await Book.find({
             $and: [
               { _id: { $in: library?.books } },
               {
-                department: { $in: library?.filter_by?.department}
-              }
-            ]
+                department: { $in: library?.filter_by?.department },
+              },
+            ],
           })
-            .select("bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher")
+            .select(
+              "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher publication"
+            )
             .limit(itemPerPage)
-            .skip(dropItem)
-        }
-        else {
+            .skip(dropItem);
+        } else {
           var all_book = await Book.find({
-            $and: [
-              { _id: { $in: library?.books } },
-            ]
+            $and: [{ _id: { $in: library?.books } }],
           })
-            .select("bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher")
+            .select(
+              "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher publication"
+            )
             .limit(itemPerPage)
-            .skip(dropItem)
+            .skip(dropItem);
         }
         if (all_book?.length > 0) {
           res.status(200).send({
             message: "List of All Books",
             books: all_book?.length ? all_book : [],
           });
-        }
-        else {
+        } else {
           res.status(200).send({
             message: "List of All Books",
             books: all_book?.length ? all_book : [],
@@ -409,6 +415,10 @@ exports.getStaffOneBookDetail = async (req, res) => {
   try {
     if (!req.params.bid) throw "Please send book id to perform task";
     const book = await Book.findById(req.params.bid)
+      .populate({
+        path: "department",
+        select: "dName",
+      })
       // .select(
       //   "bookName bookStatus author publication language totalPage price leftCopies totalCopies shellNumber description attachment.documentKey attachment.documentType attachment.documentName photoId photo"
       // )
@@ -433,6 +443,7 @@ exports.editBookByStaffSide = async (req, res) => {
     book.language = req.body?.language;
     book.totalPage = req.body?.totalPage;
     book.price = req.body?.price;
+    book.department = req.body?.department ?? null;
     if (req.body?.totalCopies > book.totalCopies) {
       let num = req.body?.totalCopies - book.totalCopies;
       book.leftCopies += num;
@@ -450,6 +461,21 @@ exports.editBookByStaffSide = async (req, res) => {
       book.photoId = "1";
     }
     if (req.body.attachment?.length) book.attachment = req.body.attachment;
+
+    book.subject = req.body?.subject;
+    book.bill_date = req.body?.bill_date;
+    book.bill_number = req.body?.bill_number;
+    book.purchase_order_date = req.body?.purchase_order_date;
+    book.purchase_order_number = req.body?.purchase_order_number;
+    book.supplier = req.body?.supplier;
+    book.publisher_place = req.body?.publisher_place;
+    book.publication_year = req.body?.publication_year;
+    book.edition = req.body?.edition;
+    book.class_number = req.body?.class_number;
+    book.accession_number = req.body?.accession_number;
+    book.date = req.body?.date;
+    book.publisher = req.body?.publisher;
+    book.qviple_book_id = req.body?.qviple_book_id;
     await book.save();
     res.status(200).send({ message: "book is updated successfully 😪😪" });
   } catch (e) {
@@ -462,7 +488,7 @@ exports.editBookByStaffSide = async (req, res) => {
 exports.bookIssueByStaffSide = async (req, res) => {
   try {
     if (!req.params.lid) throw "Please send library id to perform task";
-    const { memberId, bookId, flow } = req.body;
+    const { memberId, bookId, flow, day_overdue_charge, for_days } = req.body;
     if (!memberId || !bookId)
       throw "Please send bookId id and memberId to perform task";
     const library = await Library.findById(req.params.lid);
@@ -476,6 +502,8 @@ exports.bookIssueByStaffSide = async (req, res) => {
       book: bookId,
       library: library._id,
       issue_as: flow === "QR" ? "QR" : "Normal",
+      day_overdue_charge: day_overdue_charge,
+      for_days: for_days,
     });
     student?.borrow?.push(issue._id);
     library?.issued?.push(issue._id);
@@ -522,7 +550,8 @@ exports.allBookIssueByStaffSide = async (req, res) => {
           select:
             "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
         },
-        select: "book member staff_member createdAt",
+        select:
+          "book member staff_member createdAt day_overdue_charge for_days",
         skip: dropItem,
         limit: itemPerPage,
       })
@@ -566,6 +595,8 @@ exports.bookColletedByStaffSide = async (req, res) => {
       paymentType: req.body?.paymentType,
       issuedDate: issue.createdAt,
       collect_as: req.body?.flow === "QR" ? "QR" : "Normal",
+      day_overdue_charge: issue?.day_overdue_charge,
+      for_days: issue?.for_days,
     });
     student?.borrow?.pull(issue._id);
     student?.deposite?.push(collect._id);
@@ -590,8 +621,9 @@ exports.bookColletedByStaffSide = async (req, res) => {
       order.payment_student_name = student?.valid_full_name;
       order.payment_student_gr = student?.studentGRNO;
       institute.invoice_count += 1;
-      new_receipt.invoice_count = `${new Date().getMonth() + 1
-        }${new Date().getFullYear()}${institute.invoice_count}`;
+      new_receipt.invoice_count = `${
+        new Date().getMonth() + 1
+      }${new Date().getFullYear()}${institute.invoice_count}`;
       order.payment_invoice_number = new_receipt?.invoice_count;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
@@ -617,7 +649,11 @@ exports.bookColletedByStaffSide = async (req, res) => {
     }
     if (book.bookStatus === "Offline") book.leftCopies += 1;
 
-    if (req.body?.chargeBy === "Damaged" || req.body?.chargeBy === "Lost" || req.body?.chargeBy === "Overdue_Fines") {
+    if (
+      req.body?.chargeBy === "Damaged" ||
+      req.body?.chargeBy === "Lost" ||
+      req.body?.chargeBy === "Overdue_Fines"
+    ) {
       library.charge_history.push(collect?._id);
       if (req.body?.paymentType === "Offline") {
         // library.exemptFine +=req.body?.exemptFine
@@ -629,7 +665,10 @@ exports.bookColletedByStaffSide = async (req, res) => {
         new_internal.internal_fee_type = "Library Fees";
         new_internal.internal_fee_amount = price;
         new_internal.library = library?._id;
-        new_internal.internal_fee_reason = req.body?.chargeBy === "Overdue_Fines" ? `Book Overdue Fines` : `${req.body?.chargeBy} Book Fine`;
+        new_internal.internal_fee_reason =
+          req.body?.chargeBy === "Overdue_Fines"
+            ? `Book Overdue Fines`
+            : `${req.body?.chargeBy} Book Fine`;
         new_internal.student = student?._id;
         new_internal.book = book?._id;
         student.studentRemainingFeeCount += price;
@@ -678,7 +717,8 @@ exports.allBookCollectedLogsByStaffSide = async (req, res) => {
           select:
             "bookName photoId photo studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO valid_full_name photoId studentProfilePhoto",
         },
-        select: "book createdAt issuedDate fineCharge",
+        select:
+          "book createdAt issuedDate fineCharge day_overdue_charge for_days",
         skip: dropItem,
         limit: itemPerPage,
       })
@@ -709,7 +749,9 @@ exports.oneBookCollectedLogsByStaffSide = async (req, res) => {
         select:
           "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO",
       })
-      .select("book member issuedDate createdAt")
+      .select(
+        "book member issuedDate createdAt day_overdue_charge for_days fineCharge"
+      )
       .lean()
       .exec();
     res.status(200).send({
@@ -1682,7 +1724,7 @@ exports.getAllBookQrCodeQuery = async (req, res) => {
     const library = await Library.findById(lid)
       .populate({
         path: "books",
-        select: "book_qr_code qviple_book_id bookName",
+        select: "book_qr_code qviple_book_id bookName accession_number",
       })
       .select("books")
       .lean()
@@ -1878,7 +1920,7 @@ exports.getInOutLibraryHistoryQuery = async (req, res) => {
       .populate({
         path: "student staff",
         select:
-          "studentFirstName studentLastName studentMiddleName studentGRNO studentROLLNO staffFirstName staffLastName staffMiddleName staffROLLNO",
+          "studentFirstName studentLastName studentMiddleName studentGRNO studentROLLNO photoId studentProfilePhoto staffFirstName staffLastName staffMiddleName staffROLLNO photoId staffProfilePhoto",
       })
       .sort({
         created_at: -1,
@@ -1915,7 +1957,7 @@ exports.getLibraryModeratorList = async (req, res) => {
       .populate({
         path: "access_staff department",
         select:
-          "staffFirstName staffLastName staffMiddleName staffROLLNO dName",
+          "staffFirstName staffLastName staffMiddleName staffROLLNO photoId staffProfilePhoto dName",
       })
       .sort({
         created_at: -1,
@@ -2263,7 +2305,6 @@ exports.getLibraryBookRemarkListQuery = async (req, res) => {
 };
 
 exports.getLibraryUpdateBookRemarkQuery = async (req, res) => {
-  s;
   try {
     const { bid } = req.params;
     const { title, description, rating, sid } = req.body;
@@ -2291,7 +2332,7 @@ exports.getLibraryUpdateBookRemarkQuery = async (req, res) => {
       const remark = new LibraryBookRemark({
         title: title ?? "",
         description: description ?? "",
-        rating: rating ?? "",
+        rating: rating ?? 0,
         book: book?._id,
         library: book?.library,
         student: sid,
@@ -2345,5 +2386,170 @@ exports.getLibraryRemoveBookRemarkQuery = async (req, res) => {
     res.status(200).send({
       message: e,
     });
+  }
+};
+
+exports.allBookByModetatorStaffSide = async (req, res) => {
+  try {
+    if (!req.params.mid)
+      throw "Please send Library moderator id to perform task";
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    const l_mod = await LibraryModerator.findById(req.params.mid);
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      if (req.query?.flow === "ISSUE_BOOK") {
+        var all_book = await Book.find({
+          $and: [
+            { library: { $eq: l_mod?.library } },
+            {
+              $or: [
+                {
+                  bookName: { $regex: req.query.search, $options: "i" },
+                },
+                {
+                  author: { $regex: req.query.search, $options: "i" },
+                },
+                {
+                  subject: { $regex: req.query.search, $options: "i" },
+                },
+                {
+                  accession_number: {
+                    $regex: req.query.search,
+                    $options: "i",
+                  },
+                },
+              ],
+            },
+            {
+              bookStatus: "Offline",
+            },
+            {
+              leftCopies: { $gt: 0 },
+            },
+            {
+              department: { $in: l_mod?.department },
+            },
+          ],
+        })
+          .select(
+            "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher"
+          )
+          .limit(itemPerPage)
+          .skip(dropItem);
+        if (all_book?.length > 0) {
+          res.status(200).send({
+            message:
+              "Library Moderator List of All Books with pagination search",
+            books: all_book?.length ? all_book : [],
+          });
+        } else {
+          res.status(200).send({
+            message:
+              "Library Moderator List of All Books with pagination search",
+            books: all_book?.length ? all_book : [],
+          });
+        }
+      } else {
+        var all_book = await Book.find({
+          $and: [
+            { library: { $eq: l_mod?.library } },
+            {
+              $or: [
+                {
+                  bookName: { $regex: req.query.search, $options: "i" },
+                },
+                {
+                  author: { $regex: req.query.search, $options: "i" },
+                },
+                {
+                  subject: { $regex: req.query.search, $options: "i" },
+                },
+                {
+                  accession_number: {
+                    $regex: req.query.search,
+                    $options: "i",
+                  },
+                },
+              ],
+            },
+            {
+              department: { $in: l_mod?.department },
+            },
+          ],
+        })
+          .select(
+            "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher"
+          )
+          .limit(itemPerPage)
+          .skip(dropItem);
+        res.status(200).send({
+          message: "Library Moderator List of All Books with pagination search",
+          books: all_book?.length ? all_book : [],
+        });
+      }
+    } else {
+      if (req.query?.flow === "ISSUE_BOOK") {
+        var all_book = await Book.find({
+          $and: [
+            { library: { $eq: l_mod?.library } },
+            {
+              bookStatus: "Offline",
+            },
+            {
+              leftCopies: { $gt: 0 },
+            },
+            {
+              department: { $in: l_mod?.department },
+            },
+          ],
+        })
+          .select(
+            "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher"
+          )
+          .limit(itemPerPage)
+          .skip(dropItem);
+        if (all_book?.length > 0) {
+          res.status(200).send({
+            message: "Library Moderator List of All Books",
+            books: all_book?.length ? all_book : [],
+          });
+        } else {
+          res.status(200).send({
+            message: "Library Moderator List of All Books",
+            books: all_book?.length ? all_book : [],
+          });
+        }
+      } else {
+        var all_book = await Book.find({
+          $and: [
+            { library: { $eq: l_mod?.library } },
+            {
+              department: { $in: l_mod?.department },
+            },
+          ],
+        })
+          .select(
+            "bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher"
+          )
+          .limit(itemPerPage)
+          .skip(dropItem);
+        if (all_book?.length > 0) {
+          res.status(200).send({
+            message: "Library Moderator List of All Books",
+            books: all_book?.length ? all_book : [],
+          });
+        } else {
+          res.status(200).send({
+            message: "Library Moderator List of All Books",
+            books: all_book?.length ? all_book : [],
+          });
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e);
   }
 };

@@ -6706,7 +6706,12 @@ exports.renderFilterByDepartmentQuery = async (req, res) => {
     var lib = await Library.findById({ _id: lid })
     if (department?.length > 0) {
       for (var val of department) {
-        lib.filter_by.department.push(val)
+        if (lib.filter_by.department?.includes(`${val}`)) {
+          
+        }
+        else {
+          lib.filter_by.department.push(val) 
+        }
       }
       await lib.save()
     }

@@ -169,4 +169,8 @@ router
   .patch(catchAsync(libraryController.getLibraryUpdateBookRemarkQuery))
   .delete(catchAsync(libraryController.getLibraryRemoveBookRemarkQuery));
 
+  router
+  .route("/moderator/department/books/:mid")
+  .get(catchAsync(libraryController.allBookByModetatorStaffSide));
+
 module.exports = router;

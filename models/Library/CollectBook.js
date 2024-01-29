@@ -35,6 +35,13 @@ const collectBookSchema = new mongoose.Schema({
     type: String,
     default: "Normal",
   },
+  day_overdue_charge: {
+    type: Number,
+    default: 0,
+  },
+  for_days: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("CollectBook", collectBookSchema);

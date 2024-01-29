@@ -4,6 +4,7 @@ const Post = require("../models/Post");
 const HashTag = require("../models/HashTag/hashTag");
 const Notification = require("../models/notification");
 const invokeSpecificRegister = require("../Firebase/specific");
+const { promise_all_query } = require("../Global/HandleMongoDB");
 
 exports.execute_user_social_feed_query = async (
   user,
@@ -127,7 +128,9 @@ exports.send_user_global_notification_query = async (user, post, type) => {
           ref?._id,
           ref?.deviceToken
         );
-        await Promise.all([notify.save(), ref.save()]);
+        var func_arr = [notify, ref]
+        await promise_all_query(func_arr)
+        // await Promise.all([notify.save(), ref.save()]);
       }
     }
     else if (post?.postType === "Post") {

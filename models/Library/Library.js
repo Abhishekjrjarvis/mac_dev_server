@@ -183,6 +183,11 @@ const librarySchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  filter_by: {
+    department: [],
+    batch: [],
+    master: []
+  }
 });
 
 module.exports = mongoose.model("Library", librarySchema);

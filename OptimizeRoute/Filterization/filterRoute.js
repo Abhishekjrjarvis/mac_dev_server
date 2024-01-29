@@ -193,4 +193,9 @@ router.patch(
   catchAsync(Filter.renderAllStudentMessageQuery)
 );
 
+router.patch(
+  "/:lid/by/department/query",
+  catchAsync(Filter.renderFilterByDepartmentQuery)
+);
+
 module.exports = router;

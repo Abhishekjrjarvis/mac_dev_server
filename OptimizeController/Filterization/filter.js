@@ -53,6 +53,8 @@ const Fees = require("../../models/Fees");
 const { handle_NAN } = require("../../Handler/customError");
 const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 const { remove_duplicated_arr } = require("../../helper/functions");
+const Library = require("../../models/Library/Library");
+
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -6691,6 +6693,30 @@ exports.renderAllStudentMessageQuery = async(req, res) => {
     }
   }
   catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderFilterByDepartmentQuery = async (req, res) => {
+  try {
+    const { lid } = req?.params
+    const { department, clear_status } = req?.body
+    if (!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var lib = await Library.findById({ _id: lid })
+    if (department?.length > 0) {
+      for (var val of department) {
+        lib.filter_by.department.push(val)
+      }
+      await lib.save()
+    }
+    if (clear_status === "CLEAR_FILTER") {
+      lib.filter_by.department = []
+      await lib.save()
+    }
+    res.status(200).send({ message: "Explore new department Query", access: true})
+  }
+  catch (e) {
     console.log(e)
   }
 }

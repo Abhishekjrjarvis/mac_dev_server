@@ -21,6 +21,7 @@ const {
   connect_redis_miss,
 } = require("../../../config/redis-config");
 const encryptionPayload = require("../../../Utilities/Encrypt/payload");
+const { send_user_global_notification_query } = require("../../../Feed/userFeed");
 
 exports.postWithText = async (req, res) => {
   try {
@@ -115,6 +116,7 @@ exports.postWithText = async (req, res) => {
         }
       }
     }
+    await send_user_global_notification_query(user, post)
     // if (req.body?.hashtag?.length > 0) {
     //   for (let hash of req.body?.hashtag) {
     //     const hTag = await HashTag.findById({ _id: `${hash}` });
@@ -255,6 +257,7 @@ exports.postWithImage = async (req, res) => {
         }
       }
     }
+    await send_user_global_notification_query(user, post)
   } catch {
     console.log(e);
   }
@@ -364,6 +367,7 @@ exports.postWithImageAPK = async (req, res) => {
         }
       }
     }
+    await send_user_global_notification_query(user, post)
   } catch (e) {
     console.log(e);
   }
@@ -471,6 +475,7 @@ exports.postWithVideo = async (req, res) => {
         }
       }
     }
+    await send_user_global_notification_query(user, post)
   } catch (e) {
     console.log(e);
   }

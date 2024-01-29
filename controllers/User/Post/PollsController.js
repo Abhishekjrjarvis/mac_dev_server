@@ -3,6 +3,7 @@ const Post = require("../../../models/Post");
 const Poll = require("../../../models/Question/Poll");
 const Close = require("../../../Service/close");
 const HashTag = require("../../../models/HashTag/hashTag");
+const { send_user_global_notification_query } = require("../../../Feed/userFeed");
 // const encryptionPayload = require("../../../Utilities/Encrypt/payload");
 
 exports.retrievePollQuestionText = async (req, res) => {
@@ -76,6 +77,7 @@ exports.retrievePollQuestionText = async (req, res) => {
           });
         });
       }
+      await send_user_global_notification_query(user, post)
     } else {
       res
         .status(422)

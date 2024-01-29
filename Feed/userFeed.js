@@ -2,6 +2,8 @@ const InstituteAdmin = require("../models/InstituteAdmin");
 const User = require("../models/User");
 const Post = require("../models/Post");
 const HashTag = require("../models/HashTag/hashTag");
+const Notification = require("../models/notification");
+const invokeSpecificRegister = require("../Firebase/specific");
 
 exports.execute_user_social_feed_query = async (
   user,
@@ -87,3 +89,71 @@ exports.execute_user_social_feed_question_query = async (
     console.log(e);
   }
 };
+
+exports.send_user_global_notification_query = async (user, post, type) => {
+  try {
+    if (post?.postType === "Question") {
+      for (var ref of user?.userFollowers) {
+        var notify = new Notification({});
+        notify.notifyContent = `${user?.username} has a new question for you`;
+        notify.notifySender = user?._id;
+        notify.notifyReceiever = ref._id;
+        notify.notifyCategory = "Post Feed";
+        ref.uNotify.push(notify._id);
+        notify.notifyByPhoto = user._id;
+        invokeSpecificRegister(
+          "Specific Notification",
+          notify?.notifyContent,
+          user?.username,
+          ref?._id,
+          ref?.deviceToken
+        );
+        await Promise.all([notify.save(), ref.save()]);
+      } 
+    }
+    else if (post?.postType === "Poll") {
+      for (var ref of user?.userFollowers) {
+        var notify = new Notification({});
+        notify.notifyContent = `New quiz from ${user?.username}, give your valuable vote`;
+        notify.notifySender = user?._id;
+        notify.notifyReceiever = ref._id;
+        notify.notifyCategory = "Post Feed";
+        ref.uNotify.push(notify._id);
+        notify.notifyByPhoto = user._id;
+        invokeSpecificRegister(
+          "Specific Notification",
+          notify?.notifyContent,
+          user?.username,
+          ref?._id,
+          ref?.deviceToken
+        );
+        await Promise.all([notify.save(), ref.save()]);
+      }
+    }
+    else if (post?.postType === "Post") {
+      for (var ref of user?.userFollowers) {
+        var notify = new Notification({});
+        notify.notifyContent = `${user?.username} has new info to share, know what it is`;
+        notify.notifySender = user?._id;
+        notify.notifyReceiever = ref._id;
+        notify.notifyCategory = "Post Feed";
+        ref.uNotify.push(notify._id);
+        notify.notifyByPhoto = user._id;
+        invokeSpecificRegister(
+          "Specific Notification",
+          notify?.notifyContent,
+          user?.username,
+          ref?._id,
+          ref?.deviceToken
+        );
+        await Promise.all([notify.save(), ref.save()]);
+      }
+    }
+    else {
+      
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

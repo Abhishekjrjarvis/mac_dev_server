@@ -15,6 +15,7 @@ const {
   connect_redis_hit,
   connect_redis_miss,
 } = require("../../../config/redis-config");
+const { send_user_global_notification_query } = require("../../../Feed/userFeed");
 
 exports.postQuestionText = async (req, res) => {
   try {
@@ -84,6 +85,7 @@ exports.postQuestionText = async (req, res) => {
         });
       });
     }
+    await send_user_global_notification_query(user, post)
   } catch (e) {
     console.log(e);
   }

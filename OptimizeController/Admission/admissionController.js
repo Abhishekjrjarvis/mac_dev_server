@@ -11055,7 +11055,7 @@ exports.renderShiftApplicableToGovernmentQuery = async (req, res) => {
           if (nest_app_card?.applicable_fee >= amount) {
             nest_app_card.applicable_fee -= amount
           }
-          nest_gov_card.applicable_fee += val?.amount
+          nest_gov_card.applicable_fee += amount
           if (remain_list?.remaining_fee <= 0) {
             remain_list.status = "Paid"
           }

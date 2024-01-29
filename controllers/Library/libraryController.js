@@ -191,7 +191,7 @@ exports.allBookByStaffSide = async (req, res) => {
                 leftCopies: { $gt: 0 },
               },
               {
-                department: { $in: library?.filter_by?.department?.length}
+                department: { $in: library?.filter_by?.department}
               }
             ],
           })
@@ -292,7 +292,7 @@ exports.allBookByStaffSide = async (req, res) => {
                 leftCopies: { $gt: 0 },
               },
               {
-                department: { $in: library?.filter_by?.department?.length}
+                department: { $in: library?.filter_by?.department}
               }
             ]
           })
@@ -335,6 +335,9 @@ exports.allBookByStaffSide = async (req, res) => {
           var all_book = await Book.find({
             $and: [
               { _id: { $in: library?.books } },
+              {
+                department: { $in: library?.filter_by?.department}
+              }
             ]
           })
             .select("bookName photoId photo author language bookStatus subject bill_date bill_number purchase_order_date purchase_order_number supplier publisher_place publication_year edition accession_number publisher")

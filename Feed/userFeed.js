@@ -102,6 +102,7 @@ exports.send_user_global_notification_query = async (user, post, type) => {
         notify.notifyCategory = "Post Feed";
         ref.uNotify.push(notify._id);
         notify.notifyByPhoto = user._id;
+        await Promise.all([notify.save(), ref.save()]);
         invokeSpecificRegister(
           "Specific Notification",
           notify?.notifyContent,
@@ -109,7 +110,6 @@ exports.send_user_global_notification_query = async (user, post, type) => {
           ref?._id,
           ref?.deviceToken
         );
-        await Promise.all([notify.save(), ref.save()]);
       } 
     }
     else if (post?.postType === "Poll") {
@@ -121,6 +121,7 @@ exports.send_user_global_notification_query = async (user, post, type) => {
         notify.notifyCategory = "Post Feed";
         ref.uNotify.push(notify._id);
         notify.notifyByPhoto = user._id;
+        await Promise.all([notify.save(), ref.save()]);
         invokeSpecificRegister(
           "Specific Notification",
           notify?.notifyContent,
@@ -128,9 +129,8 @@ exports.send_user_global_notification_query = async (user, post, type) => {
           ref?._id,
           ref?.deviceToken
         );
-        var func_arr = [notify, ref]
-        await promise_all_query(func_arr)
-        // await Promise.all([notify.save(), ref.save()]);
+        // var func_arr = [notify, ref]
+        // await promise_all_query(func_arr)
       }
     }
     else if (post?.postType === "Post") {
@@ -142,6 +142,7 @@ exports.send_user_global_notification_query = async (user, post, type) => {
         notify.notifyCategory = "Post Feed";
         ref.uNotify.push(notify._id);
         notify.notifyByPhoto = user._id;
+        await Promise.all([notify.save(), ref.save()]);
         invokeSpecificRegister(
           "Specific Notification",
           notify?.notifyContent,
@@ -149,7 +150,6 @@ exports.send_user_global_notification_query = async (user, post, type) => {
           ref?._id,
           ref?.deviceToken
         );
-        await Promise.all([notify.save(), ref.save()]);
       }
     }
     else {

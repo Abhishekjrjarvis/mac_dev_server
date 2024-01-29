@@ -653,6 +653,8 @@ router.patch("/:aid/student/review/query", catchAsync(Admission.renderReviewStud
 
 router.patch("/:rid/shift/government/to/applicable/query", catchAsync(Admission.renderShiftGovernmentApplicableQuery))
 
+router.patch("/:rid/shift/applicable/to/government/query", catchAsync(Admission.renderShiftApplicableToGovernmentQuery))
+
 router.patch(
   "/:aid/all/outstanding/query",
   catchAsync(Admission.renderAllOutstandingQuery)

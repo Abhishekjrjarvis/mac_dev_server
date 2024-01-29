@@ -68,6 +68,9 @@ const nestedCardSchema = new mongoose.Schema({
           type: Number,
           default: 0
         },
+        set_off_message: {
+          type: String
+        },
         fee_update: {
           type: Boolean,
           default: false

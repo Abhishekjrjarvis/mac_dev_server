@@ -11024,6 +11024,52 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
   }
 }
 
+exports.renderShiftApplicableToGovernmentQuery = async (req, res) => {
+  try {
+    const { rid } = req?.params
+    const { raid, amount } = req?.body
+    if (!rid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var remain_list = await RemainingList.findById({ _id: rid })
+    if (remain_list?.government_card) {
+      var nest_gov_card = await NestedCard.findById({ _id: `${remain_list?.government_card}` })
+      var nest_app_card = await NestedCard.findById({ _id: `${remain_list?.applicable_card}` })
+      for (var val of nest_app_card?.remaining_array) {
+        if (`${val?.status}` === "Not Paid" && `${val?._id}` === `${raid}`) {
+          if (val?.remainAmount - amount > 0) {
+            val.status = "Not Paid" 
+          }
+          else {
+            val.status = "Paid"
+          }
+          val.remainAmount -= amount
+          val.revert_status = "Applicable Fees Shifted To Government Fees"
+          val.set_off = amount
+          val.set_off_message = `Applicable Fees set off ${amount} with government fees`
+          if (nest_app_card?.remaining_fee >= amount) {
+            nest_app_card.remaining_fee -= amount
+          }
+          if (remain_list?.remaining_fee >= amount) {
+            remain_list.remaining_fee -= amount
+          }
+          if (nest_app_card?.applicable_fee >= amount) {
+            nest_app_card.applicable_fee -= amount
+          }
+          nest_gov_card.applicable_fee += val?.amount
+          if (remain_list?.remaining_fee <= 0) {
+            remain_list.status = "Paid"
+          }
+        }
+      }
+      await Promise.all([ nest_gov_card.save(), nest_app_card.save(), remain_list.save() ])
+    }
+    res.status(200).send({ message: "Explore New Shifted Card Back To Government Fees Section", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 const remove_duplicated = (arr) => {
   jsonObject = arr.map(JSON.stringify);
   uniqueSet = new Set(jsonObject);

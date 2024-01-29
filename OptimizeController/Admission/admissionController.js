@@ -11045,7 +11045,7 @@ exports.renderShiftApplicableToGovernmentQuery = async (req, res) => {
           val.remainAmount -= amount
           val.revert_status = "Applicable Fees Shifted To Government Fees"
           val.set_off += amount
-          val.set_off_message = `Applicable Fees set off ${amount} with government fees`
+          val.set_off_message = `Applicable Fees set off ${val.set_off} with government fees`
           if (nest_app_card?.remaining_fee >= amount) {
             nest_app_card.remaining_fee -= amount
           }

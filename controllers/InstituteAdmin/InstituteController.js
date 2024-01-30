@@ -1406,10 +1406,9 @@ exports.retrieveApproveStudentList = async (req, res) => {
         })
         .populate({
           path: "remainingFeeList",
-          select: "paid_fee fee_structure",
+          select: "paid_fee fee_structure applicable_card",
           populate: {
-            path: "fee_structure",
-            select: "applicable_fees",
+            path: "fee_structure applicable_card",
           },
         });
       if (studentIns) {
@@ -1450,10 +1449,9 @@ exports.retrieveApproveStudentList = async (req, res) => {
         })
         .populate({
           path: "remainingFeeList",
-          select: "paid_fee fee_structure",
+          select: "paid_fee fee_structure applicable_card",
           populate: {
-            path: "fee_structure",
-            select: "applicable_fees",
+            path: "fee_structure applicable_card",
           },
         });
       if (studentIns) {

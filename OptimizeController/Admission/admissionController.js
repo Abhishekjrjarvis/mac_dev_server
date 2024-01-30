@@ -11357,7 +11357,7 @@ exports.government_card_removal_query = async (req, res) => {
     // if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
     var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine} }, { total_installments: "1" }] }) 
-    // var nums = ["6480b66abff5c20199216d26"]
+    var nums = []
     // var all_remain = await RemainingList.find({ _id: { $in: nums } })
     // .populate({
     //   path: "fee_structure"
@@ -11370,33 +11370,34 @@ exports.government_card_removal_query = async (req, res) => {
     
     var i = 0
     for (var val of all_remain) {
-      if(val?.applicable_card && `${val?.access_mode_card}` === "Installment_Wise" && val?.status === "Paid"){
+      if(val?.applicable_card && `${val?.access_mode_card}` === "Installment_Wise" && val?.status === "Not Paid"){
         var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
-          // .populate({
-          //   path: "remaining_array",
-          //   populate: {
-          //     path: "fee_receipt"
-          //   }
-          // })
-        if (n_app?.paid_fee > 0 && n_app?.paid_fee < n_app?.applicable_fee) {
-          // n_app.remaining_fee = 0
-          // val.remaining_fee = 0
-          console.log(i)
-          i += 1
-        }
-        // for (var ele of n_app?.remaining_array) {
-        //   if (ele?.fee_receipt?.fee_payment_mode === "Government/Scholarship") {
-        //     if (n_app?.paid_fee >= ele?.remainAmount) {
-        //       n_app.paid_fee -= ele?.remainAmount
-        //     }
-        //     if (val?.paid_fee >= ele?.remainAmount) {
-        //       val.paid_fee -= ele?.remainAmount
-        //     }
-        //     n_app.remaining_array.pull(ele?._id)
-        //       console.log(i)
-        //       i += 1
-        //   }
+          .populate({
+            path: "remaining_array",
+            populate: {
+              path: "fee_receipt"
+            }
+          })
+        // if (n_app?.paid_fee > 0 && n_app?.paid_fee < n_app?.applicable_fee) {
+        //   // n_app.remaining_fee = 0
+        //   // val.remaining_fee = 0
+        //   console.log(i)
+        //   i += 1
         // }
+        for (var ele of n_app?.remaining_array) {
+          if (ele?.fee_receipt?.fee_payment_mode === "Government/Scholarship") {
+            // if (n_app?.paid_fee >= ele?.remainAmount) {
+            //   n_app.paid_fee -= ele?.remainAmount
+            // }
+            // if (val?.paid_fee >= ele?.remainAmount) {
+            //   val.paid_fee -= ele?.remainAmount
+            // }
+            // n_app.remaining_array.pull(ele?._id)
+            nums.push(val?.student)
+              console.log(i)
+              i += 1
+          }
+        }
         // if (val?.remaining_fee <= 0) {
         //   val.status = "Paid"
         // }
@@ -11404,7 +11405,7 @@ exports.government_card_removal_query = async (req, res) => {
       }
       // await val.save()
     }
-    res.status(200).send({ message: "Explore All Student Nested Government Remaining Card + Installment Modify + Clear", access: true})
+    res.status(200).send({ message: "Explore All Student Nested Government Remaining Card + Installment Modify + Clear", access: true, nums: nums, count: nums?.length})
   }
   catch (e) {
     console.log(e)

@@ -96,6 +96,14 @@ exports.dynamic_designation = (name, title, cTitle) => {
       extension: ".png",
       content: "SMS_Assests/event-manager-role.jpeg",
     },
+    {
+      type: "LMS",
+      e_text: "you got the designation of as LMS Administrator",
+      h_text: "आपको एलएमएस प्रशासक के रूप में पदनाम मिला",
+      m_text: "तुम्हाला LMS प्रशासक म्हणून पद मिळाले आहे",
+      extension: ".png",
+      content: "SMS_Assests/finance-role.png",
+    },
   ];
   return array;
 };

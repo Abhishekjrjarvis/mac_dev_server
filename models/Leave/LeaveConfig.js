@@ -177,7 +177,11 @@ const leaveConfigSchema = new mongoose.Schema({
 },
     holiday_config: {
         dDate: [{ type: String }],
-    }
+  },
+  lms: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "LMS"
+},
 })
 
 module.exports = mongoose.model("LeaveConfig", leaveConfigSchema)

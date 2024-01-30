@@ -78,7 +78,6 @@ const FinanceModerator = require("../../models/Moderator/FinanceModerator");
 const { universal_random_password } = require("../../Custom/universalId");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { number_query } = require("../../Custom/phoneNumber");
-const LeaveConfig = require("../../models/Leave/LeaveConfig");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -135,9 +134,6 @@ exports.getRegisterIns = async (req, res) => {
       } else {
         const uqid = universal_random_password()
         const institute = new InstituteAdmin({ ...req.body });
-        const new_leave_config = new LeaveConfig({})
-        new_leave_config.institute = institute?._id
-        institute.leave_config = new_leave_config?._id
         var qvipleId = new QvipleId({})
       qvipleId.institute = institute?._id
       qvipleId.qviple_id = `${uqid}`
@@ -172,7 +168,7 @@ exports.getRegisterIns = async (req, res) => {
         }`;
         admins.instituteList.push(institute);
         admins.requestInstituteCount += 1;
-        await Promise.all([admins.save(), institute.save(), qvipleId.save(), new_leave_config.save()]);
+        await Promise.all([admins.save(), institute.save(), qvipleId.save()]);
         const ins_obj = {
           message: "Institute", 
           institute: institute

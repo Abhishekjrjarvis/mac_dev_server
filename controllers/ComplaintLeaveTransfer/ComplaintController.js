@@ -31,6 +31,7 @@ const Transport = require("../../models/Transport/transport");
 const Vehicle = require("../../models/Transport/vehicle");
 const LeaveConfig = require("../../models/Leave/LeaveConfig");
 const { months_helper, getSundaysInYear } = require("../../helper/dayTimer");
+const LMS = require("../../models/Leave/LMS");
 
 //=======================================For the students related controller=========================================
 
@@ -819,27 +820,29 @@ exports.postStaffLeave = async (req, res) => {
     const user = await User.findById(staff.user).select("uNotify");
 
     const institute = await InstituteAdmin.findById(staff?.institute);
+    const lms = await LMS.findById({ _id: institute?.lms_depart?.[0]});
     const leave = new Leave({
       reason: req.body.reason,
       date: dateArray,
       staff: staff._id,
       institute: institute._id,
+      lms: lms?._id
     });
-    if (institute?.leave_mods_access?.recommend) {
+    if (lms?.leave_mods_access?.recommend) {
       if (staff?.recommend_authority) {
         const recommend_mods = await FinanceModerator.findById({ _id: `${staff?.recommend_authority}` })
         recommend_mods.recommend_request.push(leave?._id)
         await recommend_mods.save()
       }
     }
-    else if (institute?.leave_mods_access?.review) {
+    else if (lms?.leave_mods_access?.review) {
       if (staff?.review_authority) {
         const review_mods = await FinanceModerator.findById({ _id: `${staff?.review_authority}` })
         review_mods.review_request.push(leave?._id)
         await review_mods.save()
       }
     }
-    else if (institute?.leave_mods_access?.sanction) {
+    else if (lms?.leave_mods_access?.sanction) {
       if (staff?.sanction_authority) {
         const sanction_mods = await FinanceModerator.findById({ _id: `${staff?.sanction_authority}` })
         sanction_mods.sanction_request.push(leave?._id)
@@ -847,7 +850,7 @@ exports.postStaffLeave = async (req, res) => {
       }
     }
     else {
-      institute.leave.push(leave._id);
+      lms.leave.push(leave._id);
     }
     leave.leave_grant = dateArray?.length
     leave.leave_type = req?.body?.leave_type
@@ -883,6 +886,7 @@ exports.postStaffLeave = async (req, res) => {
       leave.save(),
       user.save(),
       notify.save(),
+      lms.save()
     ]);
     res.status(201).send({ message: "request to leave" });
   } catch (e) {
@@ -1845,15 +1849,17 @@ exports.postStaffCoffLeaveQuery = async (req, res) => {
     const user = await User.findById(staff.user).select("uNotify");
 
     const institute = await InstituteAdmin.findById(staff.institute);
+    const lms = await LMS.findById({ _id: institute?.lms_depart?.[0]});
     const leave = new Leave({
       reason: req.body.reason,
       date: dateArray,
       staff: staff._id,
       institute: institute._id,
+      lms: lms?._id
     });
     leave.leave_grant = dateArray?.length
     leave.leave_type = req?.body?.leave_type
-    institute.c_off_leave.push(leave._id);
+    lms.c_off_leave.push(leave._id);
     staff.staffLeave.push(leave._id);
     if(req?.body?.attach){
       leave.attach = req?.body?.attach
@@ -1886,6 +1892,7 @@ exports.postStaffCoffLeaveQuery = async (req, res) => {
       leave.save(),
       user.save(),
       notify.save(),
+      lms.save()
     ]);
     res.status(201).send({ message: "request to leave" });
   } catch (e) {

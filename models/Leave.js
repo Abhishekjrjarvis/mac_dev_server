@@ -73,6 +73,10 @@ const leaveSchema = new mongoose.Schema({
   leave_grant: {
     type: Number,
     default: 0
+  },
+  lms: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "LMS"
   }
 });
 

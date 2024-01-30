@@ -1764,6 +1764,11 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
             select: "dName",
           },
         })
+        .populate({
+          path: "lms_department",
+          select:
+            "id",
+        })
         .lean()
         .exec();
       if (staff?.staffDocuments?.length > 0) {
@@ -1959,6 +1964,11 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
             path: "department",
             select: "dName",
           },
+        })
+        .populate({
+          path: "lms_department",
+          select:
+            "id",
         })
         .lean()
         .exec();
@@ -3249,6 +3259,11 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
         .populate({
           path: "staffBatch",
           select: "batchName batchStatus",
+        })
+        .populate({
+          path: "lms_department",
+          select:
+            "id",
         })
         .lean()
         .exec();

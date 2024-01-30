@@ -175,12 +175,6 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
-  leave: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Leave",
-    },
-  ],
   transfer: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -828,16 +822,6 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  leave_moderator_role: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "FinanceModerator",
-    },
-  ],
-  leave_moderator_role_count: {
-    type: Number,
-    default: 0,
-  },
   original_copy: {
     type: Boolean,
     default: false,
@@ -1023,16 +1007,6 @@ const instituteAdminSchema = new mongoose.Schema({
       default: 0
     }
   },
-  c_off_leave: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Leave",
-    },
-  ],
-  leave_config: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "LeaveConfig"
-  },
   facilities_module: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Facilities"
@@ -1096,20 +1070,6 @@ const instituteAdminSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Charges"
   },
-  leave_mods_access: {
-    recommend: {
-      type: Boolean,
-      default: true
-    },
-    review: {
-      type: Boolean,
-      default: true
-    },
-    sanction: {
-      type: Boolean,
-      default: true
-    }
-  },
   certificate_fund_collection: {
     online: {
       type: Number,
@@ -1120,6 +1080,16 @@ const instituteAdminSchema = new mongoose.Schema({
       default: 0,
     },
   },
+  lms_depart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LMS"
+    }
+  ],
+  lms_status: {
+    type: String,
+    default: "Disable"
+  }
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

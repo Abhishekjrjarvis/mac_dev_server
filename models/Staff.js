@@ -531,6 +531,12 @@ const staffSchema = new mongoose.Schema({
       ref: "LibraryModerator",
     },
   ],
+  lms_department: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LMS"
+    }
+  ]
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

@@ -139,7 +139,11 @@ const financeModeratorSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Leave"
     }
-  ]
+  ],
+  lms: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "LMS"
+  }
 });
 
 module.exports = mongoose.model("FinanceModerator", financeModeratorSchema);

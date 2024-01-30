@@ -77,7 +77,6 @@ const Hostel = require("../../models/Hostel/hostel");
 const FinanceModerator = require("../../models/Moderator/FinanceModerator");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
-const LeaveConfig = require("../../models/Leave/LeaveConfig");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -133,9 +132,6 @@ exports.getRegisterIns = async (req, res) => {
         res.send({ message: "Institute Existing with this Username" });
       } else {
         const institute = new InstituteAdmin({ ...req.body });
-        const new_leave_config = new LeaveConfig({})
-        new_leave_config.institute = institute?._id
-        institute.leave_config = new_leave_config?._id
         institute.staffJoinCode = await randomSixCode();
         if (req.body.userId !== "") {
           const user = await User.findOne({ username: req.body.userId });
@@ -167,7 +163,7 @@ exports.getRegisterIns = async (req, res) => {
         }`;
         admins.instituteList.push(institute);
         admins.requestInstituteCount += 1;
-        await Promise.all([admins.save(), institute.save(), new_leave_config.save()]);
+        await Promise.all([admins.save(), institute.save()]);
         // const iEncrypt = await encryptionPayload(institute);
         res.status(201).send({ message: "Institute", institute });
         const uInstitute = await InstituteAdmin.findOne({

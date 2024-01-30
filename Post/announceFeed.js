@@ -84,7 +84,7 @@ exports.announcement_feed_query = async (one_ins, announce) => {
         });
       }
     }
-    await send_global_announcement_notification_query(institute, announcements)
+    await send_global_announcement_notification_query(institute, announce)
   } catch (e) {
     console.log(e);
   }

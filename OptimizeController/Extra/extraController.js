@@ -2180,9 +2180,9 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         await Promise.all([user.save(), notify.save()]);
         invokeSpecificRegister(
           "Specific Notification",
-          `${message} - From ${type},
+          `${m_title} - ${type},
       Institute Admin`,
-          "Student Message Alert",
+          "Student Alert",
           user._id,
           user.deviceToken
         );
@@ -2229,11 +2229,11 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         await Promise.all([user.save(), notify.save()]);
         invokeSpecificRegister(
           "Specific Notification",
-          `${message} - From ${type},
+          `${m_title} - ${type},
       ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${
             valid_staff?.staffLastName
           }`,
-          "Student Message Alert",
+          "Student Alert",
           user._id,
           user.deviceToken
         );
@@ -3178,9 +3178,9 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       await Promise.all([user.save(), notify.save()]);
       invokeSpecificRegister(
         "Specific Notification",
-        `${message} - From ${type},
+        `${m_title} - ${type},
     Institute Admin`,
-        "Student Message Alert",
+        "Student Alert",
         user._id,
         user.deviceToken
       );
@@ -3226,11 +3226,11 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       await Promise.all([user.save(), notify.save()]);
       invokeSpecificRegister(
         "Specific Notification",
-        `${message} - From ${type},
+        `${m_title} - ${type},
       ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${
           valid_staff?.staffLastName
         }`,
-        "Student Message Alert",
+        "Student Alert",
         user._id,
         user.deviceToken
       );

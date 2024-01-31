@@ -118,25 +118,54 @@ exports.activateLibrary = async (req, res) => {
 exports.libraryByStaffSide = async (req, res) => {
   try {
     if (!req.params.lid) throw "Please send library id to perform task";
-    const library = await Library.findById(req.params.lid)
-      .populate({
-        path: "libraryHead",
-        select:
-          "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
-      })
-      .populate({
-        path: "institute",
-        select: "financeDepart admissionDepart",
-      })
-      .select(
-        "libraryHead institute libraryHeadTitle emailId phoneNumber about photoId photo coverId cover bookCount memberCount totalFine collectedFine requestStatus offlineFine onlineFine remainFine qr_code filter_by"
-      )
-      .lean()
-      .exec();
+    const { mid } = req.query;
+    if (mid) {
+      const library = await Library.findById(req.params.lid)
+        .populate({
+          path: "libraryHead",
+          select:
+            "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
+        })
+        .populate({
+          path: "institute",
+          select: "financeDepart admissionDepart",
+        })
+        .populate({
+          path: "moderator",
+          match: {
+            _id: { $eq: `${mid}` },
+          },
+        })
+        .select(
+          "libraryHead institute libraryHeadTitle emailId phoneNumber about photoId photo coverId cover bookCount memberCount totalFine collectedFine requestStatus offlineFine onlineFine remainFine qr_code filter_by"
+        )
+        .lean()
+        .exec();
 
-    res
-      .status(200)
-      .send({ message: "library profile is data", library: library });
+      res
+        .status(200)
+        .send({ message: "library profile is data", library: library });
+    } else {
+      const library = await Library.findById(req.params.lid)
+        .populate({
+          path: "libraryHead",
+          select:
+            "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
+        })
+        .populate({
+          path: "institute",
+          select: "financeDepart admissionDepart",
+        })
+        .select(
+          "libraryHead institute libraryHeadTitle emailId phoneNumber about photoId photo coverId cover bookCount memberCount totalFine collectedFine requestStatus offlineFine onlineFine remainFine qr_code filter_by"
+        )
+        .lean()
+        .exec();
+
+      res
+        .status(200)
+        .send({ message: "library profile is data", library: library });
+    }
   } catch (e) {
     res.status(200).send({
       message: e.message,
@@ -713,9 +742,9 @@ exports.allBookCollectedLogsByStaffSide = async (req, res) => {
       .populate({
         path: "collected",
         populate: {
-          path: "book member",
+          path: "book member staff_member",
           select:
-            "bookName photoId photo studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO valid_full_name photoId studentProfilePhoto",
+            "bookName photoId photo accession_number studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO valid_full_name photoId studentProfilePhoto staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
         },
         select:
           "book createdAt issuedDate fineCharge day_overdue_charge for_days",
@@ -1393,7 +1422,6 @@ exports.getAllIssueExport = async (req, res) => {
     for (let exc of library?.issued) {
       excel_list.push({
         "Book Name": exc?.book?.bookName ?? "#NA",
-        "Book Mode": exc?.book?.bookStatus ?? "#NA",
         Author: exc?.book?.author ?? "#NA",
         Language: exc?.book?.language ?? "#NA",
         "Accession Number": exc?.book?.accession_number ?? "#NA",
@@ -1406,6 +1434,7 @@ exports.getAllIssueExport = async (req, res) => {
             : " "
         }${exc?.member?.studentLastName}`,
         "Issue Date": moment(exc?.createdAt).format("DD/MM/YYYY") ?? "#NA",
+        "Issue Time": moment(exc?.createdAt).format("hh:mm:ss A") ?? "#NA",
       });
     }
     if (excel_list?.length > 0)
@@ -1453,7 +1482,6 @@ exports.getAllCollectExport = async (req, res) => {
     for (let exc of library?.collected) {
       excel_list.push({
         "Book Name": exc?.book?.bookName ?? "#NA",
-        "Book Mode": exc?.book?.bookStatus ?? "#NA",
         Author: exc?.book?.author ?? "#NA",
         Language: exc?.book?.language ?? "#NA",
         "Accession Number": exc?.book?.accession_number ?? "#NA",
@@ -1466,7 +1494,9 @@ exports.getAllCollectExport = async (req, res) => {
             : " "
         }${exc?.member?.studentLastName}`,
         "Issue Date": moment(exc?.issuedDate).format("DD/MM/YYYY") ?? "#NA",
+        "Issue Time": moment(exc?.issuedDate).format("hh:mm:ss A") ?? "#NA",
         "Collect Date": moment(exc?.createdAt).format("DD/MM/YYYY") ?? "#NA",
+        "Collect Time": moment(exc?.createdAt).format("hh:mm:ss A") ?? "#NA",
         "Charge By": exc?.chargeBy ?? "#NA",
         "Payment Type": exc?.paymentType ?? "#NA",
         "Fine Charge": exc?.fineCharge ?? "#NA",
@@ -2206,7 +2236,7 @@ exports.getStocktakeBookHistoryQuery = async (req, res) => {
           populate: {
             path: "book",
             select:
-              "bookName author bookStatus language qviple_book_id book_qr_code",
+              "bookName author bookStatus language qviple_book_id book_qr_code accession_number photo",
           },
         })
         .lean()
@@ -2218,7 +2248,7 @@ exports.getStocktakeBookHistoryQuery = async (req, res) => {
         .populate({
           path: `${flow}`,
           select:
-            "bookName author bookStatus language qviple_book_id book_qr_code",
+            "bookName author bookStatus language qviple_book_id book_qr_code accession_number photo",
         })
         .lean()
         .exec();
@@ -2254,9 +2284,68 @@ exports.getStocktakeLibraryUpdateRecordQuery = async (req, res) => {
     library.stocktake?.push(stocktake?._id);
     await Promise.all([stocktake.save(), library.save()]);
     res.status(200).send({
-      message: "Librarian stocktake added successfully.",
+      message:
+        "Librarian stocktake added successfully and other process started.",
       access: true,
     });
+
+    const other_book_id = library?.books?.filter((bd) => {
+      if (bookIds?.includes(bd)) return null;
+      else {
+        return bd;
+      }
+    });
+
+    const issue = await IssueBook.find({
+      _id: { $in: library.issued ?? [] },
+    });
+    let ib_arr = [];
+    if (issue?.length > 0) {
+      for (let it of issue) {
+        ib_arr.push(it?.book);
+      }
+      stocktake.book_isssue = ib_arr;
+      stocktake.book_isssue_count = ib_arr?.length;
+    }
+
+    const obi = other_book_id?.filter((bd) => {
+      if (ib_arr?.includes(bd)) return null;
+      else {
+        return bd;
+      }
+    });
+
+    const lost = await CollectBook.find({
+      chargeBy: { $eq: `Lost` },
+    });
+    let l_arr = [];
+    if (lost?.length > 0) {
+      for (let it of lost) {
+        l_arr.push(it?.book);
+      }
+      stocktake.book_lost = l_arr;
+      stocktake.book_lost_count = l_arr?.length;
+    }
+
+    const missing_arr = obi?.filter((bd) => {
+      if (l_arr?.includes(bd)) return null;
+      else {
+        return bd;
+      }
+    });
+    if (missing_arr?.length > 0) {
+      let arr = [];
+      for (let mt of missing_arr) {
+        arr.push({
+          book: mt,
+          status: "None",
+        });
+      }
+      stocktake.book_missing = arr;
+      stocktake.book_missing_count = arr?.length;
+    }
+
+    await stocktake.save();
   } catch (e) {
     console.log(e);
     res.status(200).send({

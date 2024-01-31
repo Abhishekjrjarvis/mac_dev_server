@@ -1954,6 +1954,7 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
           }
         }
         await Promise.all([
+          slot_based.save(),
           attendence.save(),
           subjects.save(),
           subjects.class.save(),
@@ -2112,6 +2113,7 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         }
       }
       await Promise.all([
+        slot_based.save(),
         attendence.save(),
         subjects.save(),
         subjects.class.save(),

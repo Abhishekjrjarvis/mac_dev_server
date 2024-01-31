@@ -838,7 +838,7 @@ exports.fetchExportStudentAllQuery = async (req, res) => {
         });
       
         var all_studentsv2 = await Student.find({
-          $and: [{ batches: { $nin: sorted_batch } }],
+          $and: [{ batches: { $nin: sorted_batch } }, { institute: institute?._id }, { studentStatus: "Approved"}],
         })
           .select(
             "studentClass batches department studentGender studentCastCategory"

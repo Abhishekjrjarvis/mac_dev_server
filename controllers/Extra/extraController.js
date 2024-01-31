@@ -827,7 +827,7 @@ exports.fetchExportStudentAllQuery = async (req, res) => {
           sorted_batch.push(ref?.departmentSelectBatch);
         }
       }
-      var all_students = await Student.find({
+      var all_studentsv1 = await Student.find({
         $and: [{ batches: { $in: sorted_batch } }],
       })
         .select(
@@ -836,6 +836,18 @@ exports.fetchExportStudentAllQuery = async (req, res) => {
         .populate({
           path: "fee_structure",
         });
+      
+        var all_studentsv2 = await Student.find({
+          $and: [{ batches: { $nin: sorted_batch } }],
+        })
+          .select(
+            "studentClass batches department studentGender studentCastCategory"
+          )
+          .populate({
+            path: "fee_structure",
+          });
+      
+      var all_students = [...all_studentsv1, ...all_studentsv2]
     } else if (all_depart === "Particular") {
       var all_students = await Student.find({
         $and: [{ _id: { $in: institute?.ApproveStudent } }],

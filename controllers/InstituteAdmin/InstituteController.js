@@ -59,6 +59,7 @@ const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
 const invokeSpecificRegister = require("../../Firebase/specific");
 const { send_global_announcement_notification_query } = require("../../Feed/socialFeed");
+const { postWithDeletedFromAnnouncement } = require("./Post/PostController");
 
 
 exports.getDashOneQuery = async (req, res) => {
@@ -582,6 +583,51 @@ exports.getAnnouncement = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.render_destroy_announcement_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var announce = await InsAnnouncement.findById({ _id: aid })
+    var ins = await InstituteAdmin.findById({ _id: `${announce?.institute}` })
+    var post = await Post.findOne({ new_announcement: `${announce?._id}` })
+    ins.announcement.pull(announce?._id)
+    if (ins?.announcementCount > 0) {
+      ins.announcementCount -= 1
+    }
+    if (announce?.announcementDocument) {
+      await InsDocument.findByIdAndDelete(announce?.announcementDocument)
+    }
+    await ins.save()
+    res.status(200).send({ message: "Annoucement Deletion Operation Completed", access: true })
+    for (var num of ins?.userFollowersList) {
+      const user = await User.findById({ _id: `${num}` });
+      if (user) {
+        if (user?.followInsAnnouncement?.includes(announce?._id)) {
+          user.followInsAnnouncement.pull(announce?._id);
+          await user.save();
+        }
+      }
+    }
+    for (var arr of ins?.joinedUserList) {
+      const user = await User.findById({ _id: `${arr}` });
+      if (user) {
+        if (user?.followInsAnnouncement?.includes(announce?._id)) {
+          user.followInsAnnouncement.pull(announce?._id);
+          await user.save();
+        } 
+      }
+    }
+    await InsAnnouncement.findByIdAndDelete(announce?._id)
+    if (post?._id) {
+      await postWithDeletedFromAnnouncement(ins?._id, post?._id)
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
 
 exports.updateFollowIns = async (req, res) => {
   try {

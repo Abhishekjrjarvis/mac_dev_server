@@ -125,6 +125,11 @@ router.get(
   catchAsync(Institute.getAnnouncement)
 );
 
+router.delete(
+  "/destroy/announcement/:aid",
+  catchAsync(Institute.render_destroy_announcement_query)
+);
+
 router.patch("/follow", isLoggedIn, catchAsync(Institute.updateFollowIns));
 
 router.patch("/unfollow", isLoggedIn, catchAsync(Institute.removeFollowIns));

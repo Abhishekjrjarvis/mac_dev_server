@@ -1552,3 +1552,134 @@ exports.commentReplyDelete = async (req, res) => {
     });
   }
 };
+
+exports.postWithDeletedFromAnnouncement = async (
+  id,
+  pid
+) => {
+  try {
+    const institute = await InstituteAdmin.findById({ _id: id }).select(
+      "postCount pollCount isUniversal"
+    );
+    const post = await Post.findById({ _id: pid })
+      .select("postType")
+      .populate({ path: "poll_query", select: "id" });
+    await InstituteAdmin.findByIdAndUpdate(id, { $pull: { posts: pid } });
+    await InstituteAdmin.findByIdAndUpdate(id, {
+      $pull: { institute_saved_post: pid },
+    });
+    await InstituteAdmin.findByIdAndUpdate(id, { $pull: { tag_post: pid } });
+    if (institute.postCount >= 1) {
+      institute.postCount -= 1;
+    }
+    if (post && post.postType === "Poll" && post.poll_query !== "") {
+      await Poll.findByIdAndDelete(post?.poll_query?._id);
+      if (institute.pollCount >= 1) {
+        institute.pollCount -= 1;
+      }
+    }
+    await Post.findByIdAndDelete({ _id: pid });
+    await institute.save();
+    //
+    const deleted_ins_post = await InstituteAdmin.findById({
+      _id: institute?._id,
+    })
+      .select("isUniversal")
+      .populate({
+        path: "followers",
+        select: "posts institute_saved_post tag_post",
+      })
+      .populate({
+        path: "userFollowersList",
+        select: "userPosts user_saved_post tag_post",
+      })
+      .populate({
+        path: "joinedUserList",
+        select: "userPosts user_saved_post tag_post",
+      });
+
+    if (deleted_ins_post?.isUniversal === "Universal") {
+      const all_ins = await InstituteAdmin.find({}).select(
+        "posts institute_saved_post tag_post"
+      );
+      const all_user = await User.find({}).select(
+        "userPosts user_saved_post tag_post"
+      );
+      all_ins?.forEach(async (ins) => {
+        if (ins?.posts?.includes(`${post._id}`)) {
+          ins?.posts?.pull(post._id);
+          await ins.save();
+        }
+        if (ins?.institute_saved_post?.includes(`${post._id}`)) {
+          ins?.institute_saved_post?.pull(post._id);
+          await ins.save();
+        }
+        if (ins?.tag_post?.includes(`${post._id}`)) {
+          ins?.tag_post?.pull(post._id);
+          await ins.save();
+        }
+      });
+      all_user?.forEach(async (user) => {
+        if (user?.userPosts?.includes(`${post._id}`)) {
+          user?.userPosts?.pull(post._id);
+          await user.save();
+        }
+        if (user?.user_saved_post?.includes(`${post._id}`)) {
+          user?.user_saved_post?.pull(post._id);
+          await user.save();
+        }
+        if (user?.tag_post?.includes(`${post._id}`)) {
+          user?.tag_post?.pull(post._id);
+          await user.save();
+        }
+      });
+    } else if (deleted_ins_post?.isUniversal === "Not Assigned") {
+      deleted_ins_post?.followers?.forEach(async (del_ins) => {
+        if (del_ins?.posts?.includes(`${post?._id}`)) {
+          del_ins?.posts?.pull(post._id);
+          await del_ins.save();
+        }
+        if (del_ins?.institute_saved_post?.includes(`${post?._id}`)) {
+          del_ins?.institute_saved_post?.pull(post._id);
+          await del_ins.save();
+        }
+        if (del_ins?.tag_post?.includes(`${post?._id}`)) {
+          del_ins?.tag_post?.pull(post._id);
+          await del_ins.save();
+        }
+      });
+      deleted_ins_post?.userFollowersList?.forEach(async (del_user) => {
+        if (del_user?.userPosts?.includes(`${post?._id}`)) {
+          del_user?.userPosts?.pull(post._id);
+          await del_user.save();
+        }
+        if (del_user?.user_saved_post?.includes(`${post?._id}`)) {
+          del_user?.user_saved_post?.pull(post._id);
+          await del_user.save();
+        }
+        if (del_user?.tag_post?.includes(`${post?._id}`)) {
+          del_user?.tag_post?.pull(post._id);
+          await del_user.save();
+        }
+      });
+      deleted_ins_post?.joinedUserList?.forEach(async (del_suser) => {
+        if (del_suser?.userPosts?.includes(`${post?._id}`)) {
+          del_suser?.userPosts?.pull(post._id);
+          await del_suser.save();
+        }
+        if (del_suser?.user_saved_post?.includes(`${post?._id}`)) {
+          del_suser?.user_saved_post?.pull(post._id);
+          await del_suser.save();
+        }
+        if (del_suser?.tag_post?.includes(`${post?._id}`)) {
+          del_suser?.tag_post?.pull(post._id);
+          await del_suser.save();
+        }
+      });
+    } else {
+    }
+    //
+  } catch (e) {
+    console.log(e);
+  }
+};

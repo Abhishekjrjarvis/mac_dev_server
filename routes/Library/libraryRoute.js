@@ -171,6 +171,20 @@ router
 
   router
   .route("/moderator/department/books/:mid")
-  .get(catchAsync(libraryController.allBookByModetatorStaffSide));
+    .get(catchAsync(libraryController.allBookByModetatorStaffSide));
+  
+router
+  .route("/timing/update/:lid/query")
+  .patch(catchAsync(libraryController.getLibraryUpdateTimeQuery));
+
+router
+  .route("/stocktake/:stid/missing/book/status/query")
+  .patch(
+    catchAsync(libraryController.getStocktakeLibraryMissingBookUpdateQuery)
+  );
+
+router
+  .route("/student/total/library/:sid/time")
+  .get(catchAsync(libraryController.getStudentTotalLibraryTimeQuery));
 
 module.exports = router;

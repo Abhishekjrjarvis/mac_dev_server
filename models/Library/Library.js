@@ -187,7 +187,17 @@ const librarySchema = new mongoose.Schema({
     department: [],
     batch: [],
     master: []
-  }
+  },
+  timing: {
+    from: {
+      type: String,
+      default: "09:00 am",
+    },
+    to: {
+      type: String,
+      default: "05:00 pm",
+    },
+  },
 });
 
 module.exports = mongoose.model("Library", librarySchema);

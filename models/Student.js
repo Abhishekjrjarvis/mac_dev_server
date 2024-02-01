@@ -869,6 +869,20 @@ const studentSchema = new mongoose.Schema({
       ref: "LibraryInOut",
     },
   ],
+  library_total_time_spent: {
+    hours: {
+      type: Number,
+      default: 0,
+    },
+    minutes: {
+      type: Number,
+      default: 0,
+    },
+    seconds: {
+      type: Number,
+      default: 0,
+    },
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

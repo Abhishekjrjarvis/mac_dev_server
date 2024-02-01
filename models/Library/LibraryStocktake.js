@@ -56,6 +56,11 @@ const libraryStocktakeSchema = new mongoose.Schema({
       },
     },
   ],
+  // flow:  "book_isssue"|| "book_lost" ||"book_at_library" || "book_missing"
+  is_process: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 module.exports = mongoose.model("LibraryStocktake", libraryStocktakeSchema);

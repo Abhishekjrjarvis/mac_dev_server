@@ -11,8 +11,8 @@ const bookSchema = new mongoose.Schema({
   language: { type: String, required: true },
   totalPage: { type: Number, default: 0 },
   price: { type: Number, default: 0 },
-  totalCopies: { type: Number, default: 0 },
-  leftCopies: { type: Number, default: 0 },
+  totalCopies: { type: Number, default: 1 },
+  leftCopies: { type: Number, default: 1 },
   shellNumber: { type: String },
   description: { type: String },
   attachment: [
@@ -98,6 +98,10 @@ const bookSchema = new mongoose.Schema({
   book_remark_count: {
     type: Number,
     default: 0,
+  },
+  status: {
+    type: String,
+    default: "Available",
   },
 });
 

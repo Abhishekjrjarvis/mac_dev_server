@@ -145,7 +145,7 @@ router.use("/api/v1/guest/pay/online", guest);
 router.use("/api/v1/academic/analytics", academics);
 router.use("/api/v1/department", department);
 router.use("/api/v1/copo", copoRoute);
-router.use("/api/v1/lms", lmsRoute);
+router.use("/api/v2/lms", lmsRoute);
 
 router.use("/api/v1/prod/access", prod);
 

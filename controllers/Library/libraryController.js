@@ -2713,29 +2713,34 @@ exports.getStocktakeLibraryMissingBookUpdateQuery = async (req, res) => {
       stocktake.book_isssue?.push(bookId);
       stocktake.book_isssue_count += 1;
       stocktake.book_missing_count -= 1;
-      for (let lt of stocktake?.book_missing) {
-        if (`${lt?._id}` === `${card_id}`) {
-          lt.status = "ISSUE_STUDENT";
-        }
-      }
+      stocktake?.book_missing.pull(card_id);
+      // for (let lt of stocktake?.book_missing) {
+      //   if (${lt?._id} === ${card_id}) {
+      //     lt.status = "ISSUE_STUDENT";
+      //   }
+      // }
     } else if (status === "book_at_library") {
       stocktake.book_at_library?.push(bookId);
       stocktake.book_at_library_count += 1;
       stocktake.book_missing_count -= 1;
-      for (let lt of stocktake?.book_missing) {
-        if (`${lt?._id}` === `${card_id}`) {
-          lt.status = "FOUNDED_AT_LIBRARY";
-        }
-      }
+      stocktake?.book_missing.pull(card_id);
+
+      // for (let lt of stocktake?.book_missing) {
+      //   if (${lt?._id} === ${card_id}) {
+      //     lt.status = "FOUNDED_AT_LIBRARY";
+      //   }
+      // }
     } else if (status === "book_lost") {
       stocktake.book_lost?.push(bookId);
       stocktake.book_lost_count += 1;
       stocktake.book_missing_count -= 1;
-      for (let lt of stocktake?.book_missing) {
-        if (`${lt?._id}` === `${card_id}`) {
-          lt.status = "LOST";
-        }
-      }
+      stocktake?.book_missing.pull(card_id);
+
+      // for (let lt of stocktake?.book_missing) {
+      //   if (${lt?._id} === ${card_id}) {
+      //     lt.status = "LOST";
+      //   }
+      // }
     } else {
     }
 
@@ -2751,6 +2756,7 @@ exports.getStocktakeLibraryMissingBookUpdateQuery = async (req, res) => {
     });
   }
 };
+
 exports.getStudentTotalLibraryTimeQuery = async (req, res) => {
   try {
     const { sid } = req.params;

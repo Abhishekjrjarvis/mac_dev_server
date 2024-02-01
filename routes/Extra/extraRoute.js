@@ -459,4 +459,9 @@ router.patch(
   catchAsync(Extra.renderOldMessageQuery)
 );
 
+router.patch(
+  "/staff/shuffled/query",
+  catchAsync(Extra.renderShuffledStaffQuery)
+);
+
 module.exports = router;

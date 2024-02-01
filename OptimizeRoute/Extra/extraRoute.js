@@ -454,5 +454,11 @@ router
 router.get(
     "/institute/:id/all/fund/charges",
     catchAsync(Extra.renderAllInstituteFundChargesQuery)
-  );
+);
+  
+router.patch(
+  "/staff/shuffled/query",
+  catchAsync(Extra.renderShuffledStaffQuery)
+);
+
 module.exports = router;

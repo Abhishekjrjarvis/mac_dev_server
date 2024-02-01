@@ -3749,3 +3749,32 @@ exports.renderAllInstituteFundChargesQuery = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.renderShuffledStaffQuery = async(req, res) => {
+  try{
+    const { id, shuffle_arr } = req.body;
+    if (!shuffle_arr)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+      if(shuffle_arr?.length > 0){
+      const institute = await InstituteAdmin.findById({ _id: id })
+      institute.ApproveStaff = []
+      await institute.save()
+      var i = 0
+      for(var val of shuffle_arr){
+        institute.ApproveStaff.push(val)
+        const staff = await Staff.findById({ _id: `${val}`})
+        staff.staffROLLNO = i + 1
+        i += 1
+        await staff.save()
+      }
+      await institute.save()
+      res.status(200).send({ message: "Explore Institute Wise Shuffling Query", access: true})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}

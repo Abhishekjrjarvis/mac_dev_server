@@ -53,6 +53,11 @@ router.get(
   catchAsync(Role.renderInstituteAllAppModeratorArray)
 );
 
+router.get(
+  "/:id/all/ins/moderator/review/query",
+  catchAsync(Role.renderInstituteAllAppReviewModeratorArray)
+);
+
 router.patch(
   "/update/ins/mod/:mid",
   catchAsync(Role.updateInstituteAppModeratorQuery)

@@ -45,6 +45,14 @@ router.patch("/:id/config/leave/assign/query", catchAsync(LMSV2.renderLeaveConfi
 
 router.patch("/:sid/config/staff/leave/assign/query", catchAsync(LMSV2.renderStaffLeaveConfigQuery))
 
+router
+  .route("/staff/:sid/coff/query")
+  .post(isLoggedIn, catchAsync(LMSV2.postStaffCoffLeaveQuery));
+
+router
+  .route("/staff/:id/all/coff/query")
+  .get(isLoggedIn, catchAsync(LMSV2.renderStaffCoffLeaveQuery));
+
 router.patch("/manage/approve/:lid", catchAsync(LMSV2.renderManageCoffQuery))
 
 router.patch("/add/:mid/staff/to/authority", catchAsync(LMSV2.renderAddStaffToAuthorityQuery))

@@ -461,4 +461,6 @@ router.patch(
   catchAsync(Extra.renderShuffledStaffQuery)
 );
 
+router.patch("/excel/to/json/:lmid/biometric/staff/query", catchAsync(Extra.renderExcelToJSONLMSBiometricQuery))
+
 module.exports = router;

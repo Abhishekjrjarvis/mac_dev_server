@@ -124,7 +124,13 @@ const lmsSchema = new mongoose.Schema({
           type: mongoose.Schema.Types.ObjectId,
           ref: "Leave",
         },
-    ],
+  ],
+  biometric_staff: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Staff"
+    }  
+  ],
     leave_manage: {
         casual_leave: { type: Boolean, default: true },
         medical_leave: { type: Boolean, default: true },
@@ -145,7 +151,8 @@ const lmsSchema = new mongoose.Schema({
         summer_vacation_leave: { type: Boolean, default: true },
         child_adoption_leave: { type: Boolean, default: true },
         bereavement_leave: { type: Boolean, default: true },
-    }
+    },
+    
 })
 
 module.exports = mongoose.model("LMS", lmsSchema)

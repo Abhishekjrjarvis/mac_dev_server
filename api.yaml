@@ -32367,3 +32367,90 @@ paths:
       responses:
         "200":
           description: OK
+
+
+
+  /api/v1/extra/excel/to/json/{lmid}/biometric/staff/query:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File To Directly LMS For Biometric Linking (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lmid
+          required: true
+          type: string
+          description: This LMS Module ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
+      responses:
+        "200":
+          description: OK
+#LMS
+  /api/v2/lms/biometric/linking/query:
+    post:
+      tags:
+        - LMS Module
+      summary: Link Staff ID To Biometric Machine ID (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              sid:
+                type: string
+                description: Enter Staff ID
+                required: true
+              mcid:
+                type: string
+                description: Enter Machine ID
+                required: true
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v2/lms/{lmid}/all/linked/staff/query:
+    get:
+      tags:
+        - LMS Module
+      summary: All Staff Biometric -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lmid
+          required: true
+          type: string
+          description: This LMS Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK

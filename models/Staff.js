@@ -536,7 +536,10 @@ const staffSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "LMS"
     }
-  ]
+  ],
+  staff_emp_code: {
+    type: String
+  }
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

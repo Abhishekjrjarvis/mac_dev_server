@@ -700,6 +700,10 @@ const instituteAdminSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Department",
       },
+      lmsId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "LMS",
+      },
     },
   ],
   careerStatus: {

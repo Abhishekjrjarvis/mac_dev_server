@@ -1,5 +1,6 @@
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { designation_alarm, email_sms_designation_alarm } = require("../../WhatsAppSMS/payload");
+const { nested_document_limit } = require("../../helper/databaseFunction");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const LMS = require("../../models/Leave/LMS");
 const LeaveConfig = require("../../models/Leave/LeaveConfig");
@@ -198,4 +199,86 @@ exports.render_leave_manage = async(req, res) => {
     catch(e){
       console.log(e)
     }
+}
+
+exports.render_biometric_linking_query = async (req, res) => {
+  try {
+    const { sid, mcid } = req?.body
+    if (!sid && !mcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const one_staff = await Staff.findById({ _id: sid })
+    const one_institute = await InstituteAdmin.findById({ _id: `${one_staff?.institute}` })
+    const one_lms = await LMS.findById({ _id: `${one_institute?.lms_depart?.[0]}`})
+    one_staff.staff_biometric_id = `${mcid}`
+    if (one_lms.biometric_staff?.includes(`${one_staff?._id}`)) {
+      
+    }
+    else {
+      one_lms.biometric_staff.push(one_staff?._id)
+      await one_lms.save()
+    }
+    await one_staff.save()
+
+    res.status(200).send({ message: "Explore One Staff Biometric Linking Process Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.fetchBiometricStaffQuery = async (
+  lmid,
+  staff_ref
+) => {
+  try {
+    if (staff_ref?.length > 0) {
+      const one_lms = await LMS.findById({ _id: lmid})
+      staff_ref?.forEach(async (ele) => {
+        const staff = await Staff.findById({ staff_emp_code: `${ele?.EmployeeCode}` });
+        staff.staff_biometric_id = ele?.MachineCode;
+        if (one_lms.biometric_staff?.includes(`${staff?._id}`)) {
+      
+        }
+        else {
+          one_lms.biometric_staff.push(staff?._id)
+          await one_lms.save()
+        }
+        await staff.save();
+      });
+      res
+        .status(200)
+        .send({ message: "All Staff Get Unique Biometric Id", status: true });
+    } else {
+      res.status(200).send({ message: "Need a staff", status: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_all_linked_staff_query = async (req, res) => {
+  try {
+    const { lmid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    if (!lmid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const lms = await LMS.findById({ _id: lmid })
+      .select("biometric_staff")
+      .populate({
+        path: "biometric_staff",
+        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffROLLNO staff_biometric_id teaching_type current_designation staff_emp_code"
+    })
+    
+    var all_staff = await nested_document_limit(page, limit, lms?.biometric_staff?.reverse())
+    if (all_staff?.length > 0) {
+      res.status(200).send({ message: "Explore All Linked Staff Query", access: true, all_staff: all_staff})
+    }
+    else {
+      res.status(200).send({ message: "No Linked Staff Query", access: false, all_staff: []})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
 }

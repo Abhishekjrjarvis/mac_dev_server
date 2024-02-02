@@ -80,6 +80,10 @@ router.get("/:id/leave/config/query", catchAsync(LMSV2.renderOneLeaveConfigQuery
 router.post("/:lid/holiday/query", catchAsync(LMSV2.renderLeaveConfigHolidayQuery))
     
 router.post("/teaching", catchAsync(LMSV2.renderTeachingQuery))
+
+router.post("/biometric/linking/query", catchAsync(LMS.render_biometric_linking_query))
+  
+router.get("/:lmid/all/linked/staff/query", catchAsync(LMS.render_all_linked_staff_query))
   
 
 module.exports = router;

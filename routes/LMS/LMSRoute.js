@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const LMS = require("../../controllers/LMS/LMSController");
+const LMSV2 = require("../../controllers/ComplaintLeaveTransfer/ComplaintController");
 const catchAsync = require("../../Utilities/catchAsync");
 const { isLoggedIn } = require("../../middleware");
 
@@ -24,6 +25,53 @@ router
 router
     .route("/manage/leave/:lmid")
     .get(catchAsync(LMS.render_leave_manage));
+
+router
+    .route("/staff/:sid")
+    .get(isLoggedIn, catchAsync(LMSV2.getStaffLeave))
+    .post(isLoggedIn, catchAsync(LMSV2.postStaffLeave));
+
+router
+    .route("/staff/leave/:lid")
+    .get(isLoggedIn, catchAsync(LMSV2.getStaffOneLeaveDetail))
+    .delete(isLoggedIn, catchAsync(LMSV2.getStaffOneLeaveDelete));
+
+router
+    .route("/institute/:id")
+    .get(isLoggedIn, catchAsync(LMSV2.getAllStaffLeaveInstitute))
+    .patch(isLoggedIn, catchAsync(LMSV2.oneStaffLeaveProcess));
+
+router.patch("/:id/config/leave/assign/query", catchAsync(LMSV2.renderLeaveConfigQuery))
+
+router.patch("/:sid/config/staff/leave/assign/query", catchAsync(LMSV2.renderStaffLeaveConfigQuery))
+
+router.patch("/manage/approve/:lid", catchAsync(LMSV2.renderManageCoffQuery))
+
+router.patch("/add/:mid/staff/to/authority", catchAsync(LMSV2.renderAddStaffToAuthorityQuery))
+    
+router.patch("/remove/:mid/staff/to/authority", catchAsync(LMSV2.renderRemoveStaffToAuthorityQuery))
+    
+router.get("/all/leave/request/:mid/query", catchAsync(LMSV2.renderAllLeaveRequestQuery))
+    
+router.get("/all/leave/history/:mid/query", catchAsync(LMSV2.renderAllLeaveHistoryQuery))
+    
+router.get("/all/staff/:mid/query", catchAsync(LMSV2.renderAllStaffQuery))
+    
+router.get("/:sid/leave/overview/query", catchAsync(LMSV2.renderLeaveOverviewQuery))
+    
+router.get("/:sid/leave/overview/filter/query", catchAsync(LMSV2.renderLeaveFilterOverviewQuery))
+    
+router.patch("/:lid/config/rules/query", catchAsync(LMSV2.renderLeaveConfigRulesQuery))
+    
+router.patch("/:lid/config/setoff/rules/query", catchAsync(LMSV2.renderLeaveSetOffConfigRulesQuery))
+    
+router.get("/:id/teaching/type/query", catchAsync(LMSV2.renderTeachingTypeQuery))
+    
+router.get("/:id/leave/config/query", catchAsync(LMSV2.renderOneLeaveConfigQuery))
+    
+router.post("/:lid/holiday/query", catchAsync(LMSV2.renderLeaveConfigHolidayQuery))
+    
+router.post("/teaching", catchAsync(LMSV2.renderTeachingQuery))
   
 
 module.exports = router;

@@ -65,7 +65,35 @@ const lmsSchema = new mongoose.Schema({
         data_export: {
           type: Boolean,
           default: true
-        }
+      },
+      request_leave: {
+        type: Boolean,
+        default: true
+      },
+      issued_leave: {
+        type: Boolean,
+        default: true
+      },
+      leave_allottment: {
+        type: Boolean,
+        default: true
+      },
+      leave_set_off_rule: {
+        type: Boolean,
+        default: true
+      },
+      holiday: {
+        type: Boolean,
+        default: true
+      },
+      all_leave: {
+        type: Boolean,
+        default: true
+      },
+      biometric_linking: {
+        type: Boolean,
+        default: true
+      }
     },
     leave: [
         {

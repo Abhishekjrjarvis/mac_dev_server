@@ -32370,7 +32370,7 @@ paths:
 
 
 
-  /api/v1/extra/excel/to/json/{lmid}/biometric/staff/query:
+  /api/v2/extra/excel/to/json/{lmid}/biometric/staff/query:
     patch:
       tags:
         - Process Excel + Database Processing

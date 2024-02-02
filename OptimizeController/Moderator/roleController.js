@@ -685,7 +685,7 @@ exports.destroyFinanceModeratorQuery = async (req, res) => {
 exports.addInstituteModeratorQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { mod_role, sid, social_media_password_query, academic_department, staff_array, rev_array } =
+    const { mod_role, sid, lmid, social_media_password_query, academic_department, staff_array, rev_array } =
       req.body;
     if (!id && !mod_role && !sid)
       return res.status(200).send({
@@ -717,16 +717,17 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       user.social_media_password_query = hash_user_pass;
       new_mod.social_media_password_query = hash_user_pass;
     }
-    if(`${mod_role}` === "INSTITUTE_ADMIN"){
-      new_mod.staff_institute_admin = institute?._id
-      institute.moderator_list.push(new_mod?._id)
-    }
     if (`${mod_role}` === "ACADEMIC_ADMINISTRATOR_ACCESS") {
       new_mod.academic_department = academic_department;
     }
     new_mod.institute = institute?._id;
-    institute.moderator_role.push(new_mod?._id);
-    institute.moderator_role_count += 1;
+    if (`${new_mod?.access_role}` === "LEAVE_RECOMMENDATION_ACCESS" || `${new_mod?.access_role}` === "LEAVE_REVIEW_ACCESS" || `${new_mod?.access_role}` === "LEAVE_SANCTION_ACCESS") {
+      
+    }
+    else {
+      institute.moderator_role.push(new_mod?._id);
+      institute.moderator_role_count += 1; 
+    }
     staff.instituteModeratorDepartment.push(new_mod?._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = `Institute Admin Moderator - ${mod_role}`;
@@ -749,7 +750,8 @@ exports.addInstituteModeratorQuery = async (req, res) => {
     notify.user = user._id;
     notify.notifyPid = "1";
     notify.notifyByInsPhoto = institute._id;
-    if(`${new_mod?.access_role}` === "LEAVE_RECOMMENDATION_ACCESS"){
+    if (`${new_mod?.access_role}` === "LEAVE_RECOMMENDATION_ACCESS") {
+      var lms = await LMS.findById({ _id: lmid})
       var all_staff = await Staff.find({ _id: { $in: staff_array}})
       for(var ele of all_staff){
         ele.recommend_authority = new_mod?._id
@@ -757,8 +759,13 @@ exports.addInstituteModeratorQuery = async (req, res) => {
         new_mod.recommend_staff_count += 1
         await ele.save()
       }
+      lms.leave_moderator_role.push(new_mod?._id);
+      lms.leave_moderator_role_count += 1;
+      new_mod.lms = lms?._id
+      await lms.save()
     } 
-    if(`${new_mod?.access_role}` === "LEAVE_REVIEW_ACCESS"){
+    if (`${new_mod?.access_role}` === "LEAVE_REVIEW_ACCESS") {
+      var lms = await LMS.findById({ _id: lmid})
       var all_staff = await Staff.find({ _id: { $in: staff_array}})
       for(var ele of all_staff){
         ele.review_authority = new_mod?._id
@@ -766,12 +773,26 @@ exports.addInstituteModeratorQuery = async (req, res) => {
         new_mod.review_staff_count += 1
         await ele.save()
       }
+      lms.leave_moderator_role.push(new_mod?._id);
+      lms.leave_moderator_role_count += 1;
+      new_mod.lms = lms?._id
+      await lms.save()
     }
-    if(`${new_mod?.access_role}` === "LEAVE_SANCTION_ACCESS"){
-      var all_mods = await FinanceModerator.findById({ _id: { $in: rev_array}})
+    if (`${new_mod?.access_role}` === "LEAVE_SANCTION_ACCESS") {
+      var lms = await LMS.findById({ _id: lmid})
+      var all_mods = await FinanceModerator.find({ _id: { $in: rev_array}})
       for(var ele of all_mods){
         new_mod.review_authority_list.push(ele?._id)
+        var all_staff = await Staff.find({ _id: { $in: ele?.review_staff}})
+        for(var stu of all_staff){
+          stu.sanction_authority = new_mod?._id
+          await stu.save()
+        }
       }
+      lms.leave_moderator_role.push(new_mod?._id);
+      lms.leave_moderator_role_count += 1;
+      new_mod.lms = lms?._id
+      await lms.save()
     }
     await invokeFirebaseNotification(
       "Designation Allocation",
@@ -989,6 +1010,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
 exports.destroyInstituteModeratorQuery = async (req, res) => {
   try {
     const { id, mid } = req.params;
+    const { flow, lmid } = req?.query
     if (!id && !mid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -1001,12 +1023,23 @@ exports.destroyInstituteModeratorQuery = async (req, res) => {
     var institute = await InstituteAdmin.findById({ _id: id }).select(
       "moderator_role"
     );
-    institute.moderator_role.pull(mid);
-    institute.moderator_list.pull(mid)
-    one_staff.instituteModeratorDepartment.pull(mid);
-    if (institute.moderator_role_count > 0) {
-      institute.moderator_role_count -= 1;
+    if (flow === "LMS") {
+      var lms = await LMS.findById({ _id: lmid }).select(
+        "leave_moderator_role"
+      );
+      lms.leave_moderator_role.pull(mid);
+      if (lms.leave_moderator_role > 0) {
+        lms.leave_moderator_role -= 1;
+      }
+      await lms.save()
     }
+    else {
+      institute.moderator_role.pull(mid);
+      if (institute.moderator_role_count > 0) {
+        institute.moderator_role_count -= 1;
+      }
+    }
+    one_staff.instituteModeratorDepartment.pull(mid);
     if (one_staff.staffDesignationCount > 0) {
       one_staff.staffDesignationCount -= 1;
     }

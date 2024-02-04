@@ -10959,6 +10959,8 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
       }
       else {
         var valid_count = remain_list?.paid_fee > nest_app_card?.applicable_fee ? remain_list?.paid_fee - nest_app_card?.applicable_fee : 0
+        console.log(valid_count)
+        console.log(shift_num)
         if (valid_count > 0) {
           if (valid_count > shift_num) {
             if (nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.cover_status) {
@@ -10977,6 +10979,19 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
               // if (remain_list.paid_fee > valid_count) {
               //   remain_list.paid_fee -= valid_count
               // }
+            }
+            else {
+              nest_app_card.remaining_array.push({
+                remainAmount: shift_num,
+                appId: remain_list?.appId,
+                instituteId: remain_list?.institute,
+                installmentValue: "Installment Remain",
+                isEnable: true,
+                revert_status: "Government Fees (Pay By Student)",
+              })
+              nest_app_card.remaining_fee += shift_num
+              remain_list.remaining_fee += shift_num
+              remain_list.status = "Not Paid"
             }
           }
           else if (valid_count < shift_num) {

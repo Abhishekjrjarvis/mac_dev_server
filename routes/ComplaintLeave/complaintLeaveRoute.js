@@ -144,4 +144,60 @@ router
 //   .route("/class/student/:sid/report/finalize/grace/update")
 //   .patch(catchAsync(examController.oneStudentReportCardFinalizeGraceUpdate));
 
+router
+    .route("/staff/:sid")
+    .get(isLoggedIn, catchAsync(complaintController.getStaffLeave))
+    .post(isLoggedIn, catchAsync(complaintController.postStaffLeave));
+
+router
+    .route("/staff/leave/:lid")
+    .get(isLoggedIn, catchAsync(complaintController.getStaffOneLeaveDetail))
+    .delete(isLoggedIn, catchAsync(complaintController.getStaffOneLeaveDelete));
+
+router
+    .route("/institute/:id")
+    .get(isLoggedIn, catchAsync(complaintController.getAllStaffLeaveInstitute))
+  .patch(isLoggedIn, catchAsync(complaintController.oneStaffLeaveProcess));
+    
+router.patch("/:id/config/leave/assign/query", catchAsync(complaintController.renderLeaveConfigQuery))
+
+router.patch("/:sid/config/staff/leave/assign/query", catchAsync(complaintController.renderStaffLeaveConfigQuery))
+
+router
+  .route("/staff/:sid/coff/query")
+  .post(isLoggedIn, catchAsync(complaintController.postStaffCoffLeaveQuery));
+
+router
+  .route("/staff/:id/all/coff/query")
+  .get(isLoggedIn, catchAsync(complaintController.renderStaffCoffLeaveQuery));
+
+router.patch("/manage/approve/:lid", catchAsync(complaintController.renderManageCoffQuery))
+
+router.patch("/add/:mid/staff/to/authority", catchAsync(complaintController.renderAddStaffToAuthorityQuery))
+    
+router.patch("/remove/:mid/staff/to/authority", catchAsync(complaintController.renderRemoveStaffToAuthorityQuery))
+    
+router.get("/all/leave/request/:mid/query", catchAsync(complaintController.renderAllLeaveRequestQuery))
+    
+router.get("/all/leave/history/:mid/query", catchAsync(complaintController.renderAllLeaveHistoryQuery))
+    
+router.get("/all/staff/:mid/query", catchAsync(complaintController.renderAllStaffQuery))
+    
+router.get("/:sid/leave/overview/query", catchAsync(complaintController.renderLeaveOverviewQuery))
+    
+router.get("/:sid/leave/overview/filter/query", catchAsync(complaintController.renderLeaveFilterOverviewQuery))
+    
+router.patch("/:lid/config/rules/query", catchAsync(complaintController.renderLeaveConfigRulesQuery))
+    
+router.patch("/:lid/config/setoff/rules/query", catchAsync(complaintController.renderLeaveSetOffConfigRulesQuery))
+    
+router.get("/:id/teaching/type/query", catchAsync(complaintController.renderTeachingTypeQuery))
+    
+router.get("/:id/leave/config/query", catchAsync(complaintController.renderOneLeaveConfigQuery))
+    
+router.post("/:lid/holiday/query", catchAsync(complaintController.renderLeaveConfigHolidayQuery))
+    
+router.post("/teaching", catchAsync(complaintController.renderTeachingQuery))
+
+
 module.exports = router;

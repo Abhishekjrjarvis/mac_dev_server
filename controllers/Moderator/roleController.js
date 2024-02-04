@@ -1050,7 +1050,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
 exports.destroyInstituteModeratorQuery = async (req, res) => {
   try {
     const { id, mid } = req.params;
-    const { flow, lmid } = req?.query
+    const { flow } = req?.query
     if (!id && !mid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -1063,22 +1063,10 @@ exports.destroyInstituteModeratorQuery = async (req, res) => {
     var institute = await InstituteAdmin.findById({ _id: id }).select(
       "moderator_role"
     );
-    if (flow === "LMS") {
-      var lms = await LMS.findById({ _id: lmid }).select(
-        "leave_moderator_role"
-      );
-      lms.leave_moderator_role.pull(mid);
-      if (lms.leave_moderator_role > 0) {
-        lms.leave_moderator_role -= 1;
-      }
-      await lms.save()
-    }
-    else {
       institute.moderator_role.pull(mid);
       if (institute.moderator_role_count > 0) {
         institute.moderator_role_count -= 1;
       }
-    }
     one_staff.instituteModeratorDepartment.pull(mid);
     if (one_staff.staffDesignationCount > 0) {
       one_staff.staffDesignationCount -= 1;

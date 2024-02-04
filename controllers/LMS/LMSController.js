@@ -105,6 +105,11 @@ exports.render_lms_dashboard_master = async (req, res) => {
           path: "active_staff",
           select:
             "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        })
+        .populate({
+          path: "leave_config",
+          select:
+            "_id",
         });
       res.status(200).send({
         message: "Explore LMS Dashboard master query",

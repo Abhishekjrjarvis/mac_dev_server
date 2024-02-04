@@ -58,4 +58,8 @@ router
   .route("/alumini/staff/:osid")
   .patch(isLoggedIn, catchAsync(staffMember.renderAluminiStaffQuery));
 
+router
+  .route("/lms/staff/:osid")
+  .patch(isLoggedIn, catchAsync(staffMember.renderLMSStaffQuery));
+
 module.exports = router;

@@ -11373,6 +11373,7 @@ exports.government_card_removal_query = async (req, res) => {
     var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
     var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine} }, { total_installments: "1" }] }) 
     var nums = []
+    var cards = []
     // var all_remain = await RemainingList.find({ _id: { $in: nums } })
     // .populate({
     //   path: "fee_structure"
@@ -11381,6 +11382,10 @@ exports.government_card_removal_query = async (req, res) => {
     var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct }})
     .populate({
       path: "fee_structure"
+    })
+    .populate({
+      path: "student",
+      select: "studentFirstName studentMiddleName studentLastName"
     })
     
     var i = 0
@@ -11409,6 +11414,7 @@ exports.government_card_removal_query = async (req, res) => {
             // }
             // n_app.remaining_array.pull(ele?._id)
             nums.push(val?.student)
+            cards.push(val?._id)
               console.log(i)
               i += 1
           }
@@ -11420,7 +11426,7 @@ exports.government_card_removal_query = async (req, res) => {
       }
       // await val.save()
     }
-    res.status(200).send({ message: "Explore All Student Nested Government Remaining Card + Installment Modify + Clear", access: true, nums: nums, count: nums?.length})
+    res.status(200).send({ message: "Explore All Student Nested Government Remaining Card + Installment Modify + Clear", access: true, nums: nums, count: nums?.length, cards})
   }
   catch (e) {
     console.log(e)

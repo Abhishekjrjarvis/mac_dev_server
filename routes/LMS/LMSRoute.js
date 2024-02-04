@@ -24,7 +24,7 @@ router
 
 router
     .route("/manage/leave/:lmid")
-    .get(catchAsync(LMS.render_leave_manage));
+    .patch(catchAsync(LMS.render_leave_manage));
 
 router
     .route("/staff/:sid")

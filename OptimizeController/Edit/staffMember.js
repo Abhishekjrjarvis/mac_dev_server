@@ -27,6 +27,7 @@ const {
 const Hostel = require("../../models/Hostel/hostel");
 const { handle_undefined } = require("../../Handler/customError");
 const Alumini = require("../../models/Alumini/Alumini");
+const LMS = require("../../models/Leave/LMS");
 
 exports.photoEditByStaff = async (req, res) => {
   try {
@@ -869,3 +870,83 @@ exports.renderAluminiStaffQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+
+exports.renderLMSStaffQuery = async (req, res) => {
+  try {
+    const { osid } = req.params;
+    const { nsid } = req.query;
+    if (!osid && !nsid && osid !== nsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        status: false,
+      });
+    const oldStaff = await Staff.findById({ _id: osid }).populate({
+      path: "institute",
+      select: "lms_depart",
+    });
+    const newStaff = await Staff.findById({ _id: nsid });
+    const user = await User.findById({ _id: `${newStaff.user}` });
+    const lms = await LMS.findById({
+      _id: `${oldStaff?.institute?.lms_depart[0]}`,
+    }).populate({
+      path: "institute",
+      select: "insName sms_lang",
+    });
+    const notify = new Notification({});
+    newStaff.lms_department.push(lms._id);
+    newStaff.staffDesignationCount += 1;
+    newStaff.recentDesignation = "LMS Administrator";
+    lms.active_staff = newStaff._id;
+    oldStaff.lms_department.pull(lms._id);
+    if (oldStaff.staffDesignationCount > 0) {
+      oldStaff.staffDesignationCount -= 1;
+    }
+    oldStaff.recentDesignation = "";
+    notify.notifyContent = `you got the designation of as LMS Administrator`;
+    notify.notifySender = lms.institute._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "LMS Designation";
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByInsPhoto = lms.institute._id;
+    await invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      lms.institute.insName,
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([
+      oldStaff.save(),
+      lms.save(),
+      user.save(),
+      notify.save(),
+      newStaff.save(),
+    ]);
+    res.status(200).send({
+      message: "Successfully Assigned LMS Administrator",
+      status: true,
+    });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "LMS",
+      lms?.institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "LMS",
+        lms?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}

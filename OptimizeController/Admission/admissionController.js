@@ -11389,65 +11389,77 @@ exports.renderInstituteChargesQuery = async (req, res) => {
 
 exports.government_card_removal_query = async (req, res) => {
   try {
+    const { card_arr } = req?.body
     // const { aid } = req?.params
     // if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
-    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine} }, { total_installments: "1" }] }) 
-    var nums = []
-    var cards = []
-    // var all_remain = await RemainingList.find({ _id: { $in: nums } })
+    // var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
+    // var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine} }, { total_installments: "1" }] }) 
+    // var nums = []
+    // var cards = []
+    // // var all_remain = await RemainingList.find({ _id: { $in: nums } })
     // .populate({
     //   path: "fee_structure"
     // })
 
-    var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct }})
+    var all_remain = await RemainingList.find({ _id: { $in: card_arr }})
     .populate({
       path: "fee_structure"
     })
-    .populate({
-      path: "student",
-      select: "studentFirstName studentMiddleName studentLastName"
-    })
+    // .populate({
+    //   path: "student",
+    //   select: "studentFirstName studentMiddleName studentLastName"
+    // })
     
     var i = 0
     for (var val of all_remain) {
-      if(val?.applicable_card && `${val?.access_mode_card}` === "Installment_Wise"){
+      if(val?.applicable_card){
         var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
-          .populate({
-            path: "remaining_array",
-            populate: {
-              path: "fee_receipt"
-            }
-          })
+        n_app.remaining_array.push({
+          remainAmount: n_app?.remaining_fee,
+          isEnable: true,
+          instituteId: val?.institute,
+          appId: val?.appId,
+          installmentValue: "Installment Remain"
+        })
+        val.remaining_fee = n_app?.remaining_fee
+        if (val?.remaining_fee > 0) {
+          val.status = "Not Paid"
+        }
+          // .populate({
+          //   path: "remaining_array",
+          //   populate: {
+          //     path: "fee_receipt"
+          //   }
+          // })
         // if (n_app?.paid_fee > 0 && n_app?.paid_fee < n_app?.applicable_fee) {
         //   // n_app.remaining_fee = 0
         //   // val.remaining_fee = 0
-        //   console.log(i)
-        //   i += 1
+          console.log(i)
+          i += 1
         // }
-        for (var ele of n_app?.remaining_array) {
-          if (ele?.fee_receipt?.fee_payment_mode === "Government/Scholarship") {
-            // if (n_app?.paid_fee >= ele?.remainAmount) {
-            //   n_app.paid_fee -= ele?.remainAmount
-            // }
-            // if (val?.paid_fee >= ele?.remainAmount) {
-            //   val.paid_fee -= ele?.remainAmount
-            // }
-            // n_app.remaining_array.pull(ele?._id)
-            nums.push(val?.student)
-            cards.push(val?._id)
-              console.log(i)
-              i += 1
-          }
-        }
+        // for (var ele of n_app?.remaining_array) {
+        //   if (ele?.fee_receipt?.fee_payment_mode === "Government/Scholarship") {
+        //     // if (n_app?.paid_fee >= ele?.remainAmount) {
+        //     //   n_app.paid_fee -= ele?.remainAmount
+        //     // }
+        //     // if (val?.paid_fee >= ele?.remainAmount) {
+        //     //   val.paid_fee -= ele?.remainAmount
+        //     // }
+        //     // n_app.remaining_array.pull(ele?._id)
+        //     nums.push(val?.student)
+        //     cards.push(val?._id)
+        //       console.log(i)
+        //       i += 1
+        //   }
+        // }
         // if (val?.remaining_fee <= 0) {
         //   val.status = "Paid"
         // }
-        // await n_app.save()
+        await n_app.save()
       }
-      // await val.save()
+      await val.save()
     }
-    res.status(200).send({ message: "Explore All Student Nested Government Remaining Card + Installment Modify + Clear", access: true, nums: nums, count: nums?.length, cards})
+    res.status(200).send({ message: "Explore All Student Nested Government Remaining Card + Installment Modify + Clear", access: true})
   }
   catch (e) {
     console.log(e)

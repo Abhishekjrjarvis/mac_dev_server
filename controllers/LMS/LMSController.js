@@ -287,3 +287,19 @@ exports.render_all_linked_staff_query = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.render_leave_manage_query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const ins = await InstituteAdmin.findById({ _id: id })
+    const lms = await LMS.findById({ _id: `${ins?.lms_depart?.[0]}` })
+      .select("leave_manage")
+    
+    res.status(200).send({ message: "Explore Leave Dynamic Toggle Query", access: true, lms})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

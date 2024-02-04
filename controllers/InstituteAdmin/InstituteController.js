@@ -3132,7 +3132,11 @@ exports.getFullStaffInfo = async (req, res) => {
         })
         .populate({
           path: "institute",
-          select: "insName",
+          select: "insName lms_depart",
+          populate: {
+            path: "lms_depart",
+            select: "leave_manage"
+          }
         })
         .lean()
         .exec();
@@ -3181,7 +3185,11 @@ exports.getFullStaffInfo = async (req, res) => {
         })
         .populate({
           path: "institute",
-          select: "insName",
+          select: "insName lms_depart",
+          populate: {
+            path: "lms_depart",
+            select: "leave_manage"
+          }
         })
         .lean()
         .exec();

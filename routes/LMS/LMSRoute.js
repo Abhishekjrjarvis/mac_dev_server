@@ -85,5 +85,6 @@ router.post("/biometric/linking/query", catchAsync(LMS.render_biometric_linking_
   
 router.get("/:lmid/all/linked/staff/query", catchAsync(LMS.render_all_linked_staff_query))
   
+router.get("/:id/leave/manage/query", catchAsync(LMS.render_leave_manage_query))
 
 module.exports = router;

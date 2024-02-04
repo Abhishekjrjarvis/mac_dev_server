@@ -883,6 +883,10 @@ const studentSchema = new mongoose.Schema({
       default: 0,
     },
   },
+  refund: {
+    type: Number,
+    default: 0
+  }
 });
 
 const Student = mongoose.model("Student", studentSchema);

@@ -731,4 +731,9 @@ router.patch(
   catchAsync(Admission.one_fees_card_query)
 );
 
+router.post(
+  "/:sid/allotted/student/:aid/pay/refund",
+  catchAsync(Admission.cancelAllottedAdmissionApplication)
+);
+
 module.exports = router;

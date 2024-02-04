@@ -6551,7 +6551,16 @@ exports.renderRefundArrayQuery = async (req, res) => {
               // studentGRNO: { $regex: search, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO remainingFeeList refund",
+              populate: {
+                path: "remainingFeeList",
+                select:
+                  "applicable_card government_card",
+                  populate: {
+                    path: "applicable_card government_card",
+                    select: "paid_fee applicable_fee"
+                  },
+              },
           },
         });
       for (let data of ads_admin?.refundFeeList) {
@@ -6568,7 +6577,16 @@ exports.renderRefundArrayQuery = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO remainingFeeList refund",
+              populate: {
+                path: "remainingFeeList",
+                select:
+                  "applicable_card government_card",
+                  populate: {
+                    path: "applicable_card government_card",
+                    select: "paid_fee applicable_fee"
+                  },
+              },
           },
         });
 
@@ -6578,15 +6596,18 @@ exports.renderRefundArrayQuery = async (req, res) => {
         ads_admin?.refundFeeList
       );
     }
-
+    
     if (all_refund_list?.length > 0) {
-      var filtered = all_refund_list?.filter((ref) => {
-        if (ref?.refund > 0) return ref;
-      });
+      for (var stu of all_refund_list) {
+        for (var val of stu?.student?.remainingFeeList) {
+          stu.student.refund += (val?.applicable_card?.paid_fee > val?.applicable_card?.applicable_fee ? val?.applicable_card?.paid_fee - val?.applicable_card?.applicable_fee : 0) + (val?.government_card?.paid_fee > val?.government_card?.applicable_fee ? val?.government_card?.paid_fee - val?.government_card?.applicable_fee : 0)
+        }
+        stu.refund = stu.student.refund
+      }
       res.status(200).send({
         message: "Explore All Returns",
         access: true,
-        all_refund_list: filtered,
+        all_refund_list: all_refund_list,
         refundCount: ads_admin?.refundCount,
       });
     } else {
@@ -11961,6 +11982,244 @@ exports.renderGovernmentCardUpdateQuery = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.cancelAllottedAdmissionApplication = async (req, res) => {
+  try {
+    const { sid, aid } = req.params;
+    const { amount, mode, remainAmount, struct, classId } = req.body;
+    if (!sid && !aid && !amount && !remainAmount && !mode)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        refund_status: false,
+      });
+    var price = parseInt(amount);
+    var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const student = await Student.findById({ _id: sid });
+    const user = await User.findById({ _id: `${student.user}` });
+    const apply = await NewApplication.findById({ _id: aid }).populate({
+      path: "applicationDepartment",
+      select: "dName",
+    });
+    const admission = await Admission.findById({
+      _id: `${apply.admissionAdmin}`,
+    }).populate({
+      path: "admissionAdminHead",
+      select: "user",
+    });
+    const institute = await InstituteAdmin.findById({
+      _id: `${admission.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${institute.financeDepart[0]}`,
+    });
+    const aStatus = new Status({});
+    const notify = new StudentNotification({});
+    const new_receipt = new FeeReceipt({ ...req.body });
+    new_receipt.refund_status = "Refunded";
+    new_receipt.student = student?._id;
+    new_receipt.application = apply?._id;
+    new_receipt.receipt_generated_from = "BY_ADMISSION";
+    new_receipt.finance = finance?._id;
+    new_receipt.fee_transaction_date = new Date();
+    if (
+      price &&
+      mode === "Offline" &&
+      price > finance.financeTotalBalance &&
+      price > admission.offlineFee &&
+      price > finance.financeSubmitBalance
+    ) {
+      res.status(200).send({
+        message:
+          "insufficient Cash Balance in Finance Department to make refund",
+      });
+    } else if (
+      price &&
+      mode === "Online" &&
+      price > finance.financeTotalBalance &&
+      price > admission.onlineFee &&
+      price > finance.financeBankBalance
+    ) {
+      res.status(200).send({
+        message:
+          "insufficient Bank Balance in Finance Department to make refund",
+      });
+    } else {
+      const order = new OrderPayment({});
+      apply.cancelCount += 1;
+      if (apply.remainingFee >= parseInt(remainAmount)) {
+        apply.remainingFee -= parseInt(remainAmount);
+      }
+      if (mode === "Offline") {
+        if (finance.financeAdmissionBalance >= price) {
+          finance.financeAdmissionBalance -= price;
+        }
+        if (finance.financeTotalBalance >= price) {
+          finance.financeTotalBalance -= price;
+        }
+        if (finance.financeSubmitBalance >= price) {
+          finance.financeSubmitBalance -= price;
+        }
+        if (admission.offlineFee >= price) {
+          admission.offlineFee -= price;
+        }
+        if (admission.collected_fee >= price) {
+          admission.collected_fee -= price;
+        }
+        if (apply.offlineFee >= price) {
+          apply.offlineFee -= price;
+        }
+        if (apply.collectedFeeCount >= price) {
+          apply.collectedFeeCount -= price;
+        }
+      } else if (mode === "Online") {
+        if (admission.onlineFee >= price) {
+          admission.onlineFee -= price;
+        }
+        if (apply.onlineFee >= price) {
+          apply.onlineFee -= price;
+        }
+        if (apply.collectedFeeCount >= price) {
+          apply.collectedFeeCount -= price;
+        }
+        if (finance.financeAdmissionBalance >= price) {
+          finance.financeAdmissionBalance -= price;
+        }
+        if (finance.financeTotalBalance >= price) {
+          finance.financeTotalBalance -= price;
+        }
+        if (finance.financeBankBalance >= price) {
+          finance.financeBankBalance -= price;
+        }
+      }
+      if (admission.remainingFeeCount >= parseInt(remainAmount)) {
+        admission.remainingFeeCount -= parseInt(remainAmount);
+      }
+      aStatus.content = `your admission has been cancelled successfully with refund of Rs. ${price}`;
+      aStatus.applicationId = apply._id;
+      user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
+      notify.notifyContent = `your admission has been cancelled successfully with refund of Rs. ${price}`;
+      notify.notifySender = admission?.admissionAdminHead?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByAdmissionPhoto = admission?._id;
+      notify.notifyCategory = "Status Alert";
+      notify.redirectIndex = 29;
+      student.admissionRemainFeeCount = 0;
+      student.refundAdmission.push({
+        refund_status: "Refund",
+        refund_reason: "Cancellation of Admission",
+        refund_amount: price,
+        refund_from: apply?._id,
+      });
+      const all_remain_fee_list = await RemainingList.findOne({
+        $and: [{ fee_structure: struct }, { student: student?._id}]
+      });
+      const nest_app_card = await NestedCard.findById({
+        _id: `${all_remain_fee_list?.applicable_card}`
+      });
+      const filter_student_install =
+      nest_app_card?.remaining_array?.filter((stu) => {
+          if (`${stu.appId}` === `${apply._id}` && stu.status === "Not Paid")
+            return stu;
+        });
+      for (var can = 0; can < filter_student_install?.length; can++) {
+        nest_app_card?.remaining_array.pull(filter_student_install[can]);
+      }
+      all_remain_fee_list.fee_receipts.push(new_receipt?._id);
+      all_remain_fee_list.refund_fee += price;
+      if (all_remain_fee_list.paid_fee >= price) {
+        all_remain_fee_list.paid_fee -= price;
+      }
+      if (nest_app_card.paid_fee >= price) {
+        nest_app_card.paid_fee -= price;
+      }
+      all_remain_fee_list.remaining_fee = 0;
+      nest_app_card.remaining_fee = 0
+      for (var ele of student?.active_fee_heads) {
+        if (`${ele?.appId}` === `${apply?._id}`) {
+          ele.paid_fee = 0;
+          ele.remain_fee = 0;
+        }
+      }
+      nest_app_card.remaining_array.push({
+        remainAmount: price,
+        appId: apply._id,
+        status: "Paid",
+        instituteId: institute._id,
+        installmentValue: "Cancellation & Refunded",
+        mode: mode,
+        isEnable: true,
+        fee_receipt: new_receipt?._id,
+        refund_status: "Refunded",
+      });
+      all_remain_fee_list.status = "Cancel"
+      order.payment_module_type = "Expense";
+      order.payment_to_end_user_id = institute._id;
+      order.payment_by_end_user_id = user._id;
+      order.payment_module_id = apply._id;
+      order.payment_amount = price;
+      order.payment_status = "Captured";
+      order.payment_flag_to = "Debit";
+      order.payment_flag_by = "Credit";
+      order.payment_mode = mode;
+      order.payment_admission = apply._id;
+      order.payment_from = student._id;
+      order.payment_student = student?._id;
+      order.payment_student_name = student?.valid_full_name;
+      order.payment_student_gr = student?.studentGRNO;
+      fee_receipt_count_query(institute, new_receipt, order)
+      order.fee_receipt = new_receipt?._id;
+      user.payment_history.push(order._id);
+      institute.payment_history.push(order._id);
+      await Promise.all([
+        apply.save(),
+        student.save(),
+        finance.save(),
+        admission.save(),
+        aStatus.save(),
+        user.save(),
+        order.save(),
+        institute.save(),
+        s_admin.save(),
+        all_remain_fee_list.save(),
+        new_receipt.save(),
+        notify.save(),
+        nest_app_card.save()
+      ]);
+      res.status(200).send({
+        message: "Refund & Cancellation of Admission",
+        refund_status: true,
+      });
+      invokeMemberTabNotification(
+        "Admission Status",
+        aStatus.content,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
+      if (apply.reviewApplication?.length > 0) {
+        apply.reviewApplication.pull(student._id);
+        apply.cancelApplication.push({
+          student: student._id,
+          payment_status: "Refund",
+          refund_amount: price,
+        });
+        await apply.save();
+      }
+      if (admission?.remainingFee?.length > 0) {
+        if (admission.remainingFee?.includes(`${student._id}`)) {
+          admission.remainingFee.pull(student._id);
+        }
+        await admission.save();
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.one_fees_card_query = async (req, res) => {
   try {

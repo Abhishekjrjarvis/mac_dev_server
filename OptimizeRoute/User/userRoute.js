@@ -343,4 +343,9 @@ router.delete(
   catchAsync(User.destroyUserAccountQuery)
 );
 
+router.get(
+  "/specific/mods/:uid",
+  catchAsync(User.render_specific_mods_query)
+);
+
 module.exports = router;

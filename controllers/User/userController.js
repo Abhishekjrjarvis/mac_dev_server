@@ -37,6 +37,7 @@ const { calc_profile_percentage } = require("../../Functions/ProfilePercentage")
 const QvipleId = require("../../models/Universal/QvipleId");
 const { generateAccessInsToken } = require("../../helper/functions");
 const StudentMessage = require("../../models/Content/StudentMessage");
+const FinanceModerator = require("../../models/Moderator/FinanceModerator");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.retrieveProfileData = async (req, res) => {
@@ -2992,6 +2993,54 @@ exports.renderMode = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.render_specific_mods_query = async (req, res) => {
+  try {
+    const { uid } = req?.params
+    if (!uid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var user = await User.findById({ _id: uid })
+
+    var roles = ["SOCIAL_MEDIA_ACCESS", "INSTITUTE_ADMIN"]
+    if (user?.staff?.length > 0) {        
+      var all_staff = await FinanceModerator.find({ $and: [{ access_staff: { $in: user?.staff } }, { access_role: { $in: roles }}] })
+      .select("access_role")
+      .populate({
+        path: "access_staff",
+        select: "staffFirstName staffMiddleName staffLastName"
+      })
+      .populate({
+        path: "institute",
+        select: "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart"
+      })
+    
+      var token_list = []
+      for (var val of all_staff) {
+            const token = generateAccessInsToken(
+              val?.institute?.name,
+              val?.institute?._id,
+              val?.institute?.insPassword
+            );
+            token_list.push({
+              token: `Bearer ${token}`,
+              _id: val?.institute?._id,
+              name: val?.institute?.name,
+              mods_id: val?._id,
+              access_by: val?.access_role,
+              financeDepart: val?.institute?.financeDepart?.[0],
+              admissionDepart: val?.institute?.admissionDepart?.[0],
+            })
+      }
+      res.status(200).send({ message: "Explore Social / Institute Admin Mods Available", access: true, token_list: token_list})
+    }
+    else {
+      res.status(200).send({ message: "No Social / Institute Admin Mods Available", access: false, staff: []})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
 
 // exports.getAllThreeCount = async (req, res) => {
 //   try {

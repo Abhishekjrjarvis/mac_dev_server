@@ -416,7 +416,17 @@ bereavement_leave_forward: {
     default: false
 },
     holiday_config: {
-        dDate: [{ type: String }],
+      dDate: [{ type: String }],
+      mark_sunday: {
+        status: {
+          type: String
+        }
+      },
+      mark_saturday: {
+        status: {
+          type: String
+        }
+      }
   },
   lms: {
     type: mongoose.Schema.Types.ObjectId,

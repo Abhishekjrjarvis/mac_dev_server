@@ -1753,7 +1753,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "instituteModeratorDepartment",
-          select: "institute access_role academic_department staff_institute_admin",
+          select: "institute access_role academic_department staff_institute_admin lms",
           populate: {
             path: "academic_department institute",
             select: "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart",
@@ -1962,7 +1962,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "instituteModeratorDepartment",
-          select: "institute access_role academic_department staff_institute_admin",
+          select: "institute access_role academic_department staff_institute_admin lms",
           populate: {
             path: "academic_department institute",
             select: "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart",

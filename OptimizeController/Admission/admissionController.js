@@ -11385,7 +11385,7 @@ exports.government_card_removal_query = async (req, res) => {
     
     var i = 0
     for (var val of all_remain) {
-      if(val?.applicable_card && `${val?.access_mode_card}` === "Installment_Wise" && val?.status === "Not Paid"){
+      if(val?.applicable_card && `${val?.access_mode_card}` === "Installment_Wise"){
         var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
           .populate({
             path: "remaining_array",

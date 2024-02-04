@@ -933,9 +933,9 @@ exports.getAllStaffLeaveInstitute = async (req, res) => {
     const skip = (page - 1) * limit;
     const { status_query } = req?.query
     if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
-    const ins = await InstituteAdmin.findById({ _id: id})
-    
-    var all_leave = await Leave.find({ $and: [{ _id: { $in: ins?.leave }}, { status: `${status_query}`}] })
+    const ins = await InstituteAdmin.findById({ _id: id })
+    const lms = await LMS.findById({ _id: `${ins?.lms_depart?.[0]}`})
+    var all_leave = await Leave.find({ $and: [{ _id: { $in: lms?.leave }}, { status: `${status_query}`}] })
     .sort({ createdAt: -1})
     .limit(limit)
     .skip(skip)

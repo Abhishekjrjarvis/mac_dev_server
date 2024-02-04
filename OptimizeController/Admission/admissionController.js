@@ -10997,7 +10997,7 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
             remain_list.status = "Not Paid"
           }
           else {
-          
+          console.log("Bug Generated")
           }
         }
         else {

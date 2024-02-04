@@ -10959,8 +10959,8 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
       }
       else {
         var valid_count = remain_list?.paid_fee > nest_app_card?.applicable_fee ? remain_list?.paid_fee - nest_app_card?.applicable_fee : 0
-        console.log(valid_count)
-        console.log(shift_num)
+        // console.log(valid_count)
+        // console.log(shift_num)
         if (valid_count > 0) {
           if (valid_count > shift_num) {
             if (nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.cover_status) {
@@ -11950,6 +11950,15 @@ exports.renderGovernmentCardUpdateQuery = async (req, res) => {
 
     }
     res.status(200).send({ message: "Explore All Paid Government Card Fees Update Query", access: true, all_remain: all_remain, count: all_remain?.length })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.one_fees_card_query = async (req, res) => {
+  try {
+    
   }
   catch (e) {
     console.log(e)

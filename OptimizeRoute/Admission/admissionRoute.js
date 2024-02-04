@@ -726,4 +726,9 @@ router
   .route("/all/government/card/update/query")
   .patch(catchAsync(Admission.renderGovernmentCardUpdateQuery));
 
+router.patch(
+  "/all/one/fees/card/query",
+  catchAsync(Admission.one_fees_card_query)
+);
+
 module.exports = router;

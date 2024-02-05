@@ -2512,11 +2512,16 @@ exports.cancelAdmissionApplication = async (req, res) => {
         user.deviceToken
       );
       if (apply.reviewApplication?.length > 0) {
-        apply.reviewApplication.pull(student._id);
+        for (var val of apply.reviewApplication) {
+          if (`${val?.student}` === `${student?._id}`) {
+            apply.reviewApplication.pull(val?._id);   
+          }
+        }
         apply.cancelApplication.push({
           student: student._id,
           payment_status: "Refund",
           refund_amount: price,
+          from: "Cancel_Tab"
         });
         await apply.save();
       }
@@ -12217,7 +12222,11 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
         user.deviceToken
       );
       if (apply.allottedApplication?.length > 0) {
-        apply.allottedApplication.pull(student._id);
+        for (var val of apply.allottedApplication) {
+          if (`${val?.student}` === `${student?._id}`) {
+            apply.allottedApplication.pull(val?._id);   
+          }
+        }
         apply.cancelApplication.push({
           student: student._id,
           payment_status: "Refund",

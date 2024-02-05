@@ -1503,14 +1503,15 @@ exports.fetchAllAllotApplication = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentGRNO studentParentsPhoneNumber fee_receipt valid_full_name",
-            populate: {
-              path: "student_bed_number",
-              select: "bed_number hostelRoom",
               populate: {
-                path: "hostelRoom",
-                select: "room_name",
-              },
-            },
+                path: "fee_structure hostel_fee_structure",
+                select:
+                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+                populate: {
+                  path: "category_master",
+                  select: "category_name",
+                },
+              }
           },
         });
       for (let data of apply.allottedApplication) {
@@ -1538,14 +1539,15 @@ exports.fetchAllAllotApplication = async (req, res) => {
             path: "student",
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt",
-            populate: {
-              path: "student_bed_number",
-              select: "bed_number hostelRoom",
               populate: {
-                path: "hostelRoom",
-                select: "room_name",
-              },
-            },
+                path: "fee_structure hostel_fee_structure",
+                select:
+                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+                populate: {
+                  path: "category_master",
+                  select: "category_name",
+                },
+              }
           },
         });
       var all_allot_query = nested_document_limit(

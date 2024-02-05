@@ -103,6 +103,7 @@ const NestedCard = require("../../models/Admission/NestedCard");
 const { render_new_fees_card, render_new_fees_card_install } = require("../../Functions/FeesCard");
 const Charges = require("../../models/SuperAdmin/Charges");
 const { fee_receipt_count_query, fee_receipt_count_query_new } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
+const { renderAllStudentToUnApprovedAutoCatalogQuery } = require("../Authentication/AuthController");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -12186,6 +12187,7 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
       order.fee_receipt = new_receipt?._id;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
+      await renderAllStudentToUnApprovedAutoCatalogQuery(student?.studentClass, [sid])
       await Promise.all([
         apply.save(),
         student.save(),
@@ -12212,12 +12214,13 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
         user._id,
         user.deviceToken
       );
-      if (apply.reviewApplication?.length > 0) {
-        apply.reviewApplication.pull(student._id);
+      if (apply.allottedApplication?.length > 0) {
+        apply.allottedApplication.pull(student._id);
         apply.cancelApplication.push({
           student: student._id,
           payment_status: "Refund",
           refund_amount: price,
+          from: "Allotted_Tab"
         });
         await apply.save();
       }
@@ -12235,7 +12238,31 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
 
 exports.one_fees_card_query = async (req, res) => {
   try {
-    
+    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
+    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }}, { total_installments: "1" }]})
+    var nums = []
+    var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
+      .populate({
+        path: "institute",
+        select: "financeDepart invoice_count random_institute_code"
+      })
+      .populate({
+        path: "student",
+        select: "studentFirstName studentMiddleName studentLastName"
+    })
+
+    var i = 0
+    for (var val of all_remain) {
+      if (val?.applicable_card) {
+        var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
+        if (n_app?.applicable_fee - n_app?.paid_fee == 1) {
+          nums.push(val?.student)
+          console.log(i)
+          i+= 1
+        }
+      }
+    }
+    res.status(200).send({ message: "Explore 1 Rs. diff Card", access: true, nums})
   }
   catch (e) {
     console.log(e)

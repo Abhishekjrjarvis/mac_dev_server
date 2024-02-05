@@ -189,6 +189,9 @@ const newApplicationSchema = new mongoose.Schema({
       cancel_on: { type: Date, default: Date.now },
       payment_status: { type: String, default: "Pending" },
       refund_amount: { type: Number, default: 0 },
+      from: {
+        type: String
+      }
     },
   ],
   gstSlab: { type: Number, default: 0 },

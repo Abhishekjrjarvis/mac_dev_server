@@ -1679,31 +1679,92 @@ exports.renderLeaveConfigQuery = async(req, res) => {
   try{
     const { id } = req.params
     const { flow } = req?.query
-    const { c_l, m_l, s_l, cm_l, ma_l, pa_l, q_l, hp_l, std_l, sb_l, sd_l, wv_l, sv_l, ch_l, b_l } = req?.body
+    const {
+      casual,
+      medical,
+      sick,
+      commuted,
+      maternity,
+      paternity,
+      quarantine,
+      half,
+      study,
+      sabbatical,
+      special,
+      winter,
+      summer,
+      child,
+      bereavement,
+      earned
+    } = req?.body
     if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     const ins = await InstituteAdmin.findById({ _id: id})
     const new_leave_config = await LeaveConfig.findOne({ institute: ins?._id })
     if (flow === "TEACHING_FACULTY") {
-      new_leave_config.staff_leave_config.casual_leave = c_l ?? 0
-    new_leave_config.staff_leave_config.medical_leave = m_l ?? 0
-    new_leave_config.staff_leave_config.sick_leave = s_l ?? 0
+      new_leave_config.staff_leave_config.casual_leave = casual?.leave ?? 0
+      new_leave_config.staff_leave_config.casual_leave_approval = casual?.approval
+      new_leave_config.staff_leave_config.casual_leave_forward = casual?.forward
 
-    new_leave_config.staff_leave_config.commuted_leave = cm_l ?? 0
-    new_leave_config.staff_leave_config.maternity_leave = ma_l ?? 0
-    new_leave_config.staff_leave_config.paternity_leave = pa_l ?? 0
+      new_leave_config.staff_leave_config.medical_leave = medical?.leave ?? 0
+      new_leave_config.staff_leave_config.medical_leave_approval = medical?.approval
+      new_leave_config.staff_leave_config.medical_leave_forward = medical?.forward
 
-    new_leave_config.staff_leave_config.quarantine_leave = q_l ?? 0
-    new_leave_config.staff_leave_config.half_pay_leave = hp_l ?? 0
-    new_leave_config.staff_leave_config.study_leave = std_l ?? 0
+      new_leave_config.staff_leave_config.sick_leave = sick?.leave ?? 0
+      new_leave_config.staff_leave_config.sick_leave_approval = sick?.approval
+      new_leave_config.staff_leave_config.sick_leave_forward = sick?.forward
 
-    new_leave_config.staff_leave_config.sabbatical_leave = sb_l ?? 0
-    new_leave_config.staff_leave_config.special_disability_leave = sd_l ?? 0
-    new_leave_config.staff_leave_config.winter_vacation_leave = wv_l ?? 0
+      new_leave_config.staff_leave_config.commuted_leave = commuted?.leave ?? 0
+      new_leave_config.staff_leave_config.commuted_leave_approval = commuted?.approval
+      new_leave_config.staff_leave_config.commuted_leave_forward = commuted?.forward
 
-    new_leave_config.staff_leave_config.summer_vacation_leave = sv_l ?? 0
-    new_leave_config.staff_leave_config.child_adoption_leave = ch_l ?? 0
-    new_leave_config.staff_leave_config.bereavement_leave = b_l ?? 0
+      new_leave_config.staff_leave_config.maternity_leave = maternity?.leave ?? 0
+      new_leave_config.staff_leave_config.maternity_leave_approval = maternity?.approval
+      new_leave_config.staff_leave_config.maternity_leave_forward = maternity?.forward
+
+      new_leave_config.staff_leave_config.paternity_leave = paternity?.leave ?? 0
+      new_leave_config.staff_leave_config.paternity_leave_approval = paternity?.approval
+      new_leave_config.staff_leave_config.paternity_leave_forward = paternity?.forward
+
+      new_leave_config.staff_leave_config.quarantine_leave = quarantine?.leave ?? 0
+      new_leave_config.staff_leave_config.quarantine_leave_approval = quarantine?.approval
+      new_leave_config.staff_leave_config.quarantine_leave_forward = quarantine?.forward
+
+      new_leave_config.staff_leave_config.half_pay_leave = half?.leave ?? 0
+      new_leave_config.staff_leave_config.half_pay_leave_approval = half?.approval
+      new_leave_config.staff_leave_config.half_pay_leave_forward = half?.forward
+
+      new_leave_config.staff_leave_config.study_leave = study?.leave ?? 0
+      new_leave_config.staff_leave_config.study_leave_approval = study?.approval
+      new_leave_config.staff_leave_config.study_leave_forward = study?.forward
+
+      new_leave_config.staff_leave_config.sabbatical_leave = sabbatical?.leave ?? 0
+      new_leave_config.staff_leave_config.sabbatical_leave_approval = sabbatical?.approval
+      new_leave_config.staff_leave_config.sabbatical_leave_forward = sabbatical?.forward
+
+      new_leave_config.staff_leave_config.special_disability_leave = special?.leave ?? 0
+      new_leave_config.staff_leave_config.special_disability_leave_approval = special?.approval
+      new_leave_config.staff_leave_config.special_disability_leave_forward = special?.forward
+
+      new_leave_config.staff_leave_config.winter_vacation_leave = winter?.leave ?? 0
+      new_leave_config.staff_leave_config.winter_vacation_leave_approval = winter?.approval
+      new_leave_config.staff_leave_config.winter_vacation_leave_forward = winter?.forward
+
+      new_leave_config.staff_leave_config.summer_vacation_leave = summer?.leave ?? 0
+      new_leave_config.staff_leave_config.summer_vacation_leave_approval = summer?.approval
+      new_leave_config.staff_leave_config.summer_vacation_leave_forward = summer?.forward
+
+      new_leave_config.staff_leave_config.child_adoption_leave = child?.leave ?? 0
+      new_leave_config.staff_leave_config.child_adoption_leave_approval = child?.approval
+      new_leave_config.staff_leave_config.child_adoption_leave_forward = child?.forward
+
+      new_leave_config.staff_leave_config.bereavement_leave = bereavement?.leave ?? 0
+      new_leave_config.staff_leave_config.bereavement_leave_approval = bereavement?.approval
+      new_leave_config.staff_leave_config.bereavement_leave_forward = bereavement?.forward
+
+      new_leave_config.staff_leave_config.earned_leave = earned?.leave ?? 0
+      new_leave_config.staff_leave_config.earned_leave_approval = earned?.approval
+      new_leave_config.staff_leave_config.earned_leave_forward = earned?.forward
 
     await Promise.all([ ins.save(), new_leave_config.save() ])
     res.status(200).send({ message: "Explore Leave Configuration Query", access: true})
@@ -1724,29 +1785,74 @@ exports.renderLeaveConfigQuery = async(req, res) => {
       ref.summer_vacation_leave = new_leave_config?.staff_leave_config.summer_vacation_leave
       ref.child_adoption_leave = new_leave_config?.staff_leave_config.child_adoption_leave
       ref.bereavement_leave = new_leave_config?.staff_leave_config.bereavement_leave
+      ref.earned_leave = new_leave_config?.staff_leave_config.earned_leave
       await ref.save()
     } 
     }
     else if (flow === "NON_TEACHING_FACULTY") {
-      new_leave_config.staff_leave_config_non_teaching.casual_leave = c_l ?? 0
-    new_leave_config.staff_leave_config_non_teaching.medical_leave = m_l ?? 0
-    new_leave_config.staff_leave_config_non_teaching.sick_leave = s_l ?? 0
+      new_leave_config.staff_leave_config_non_teaching.casual_leave = casual?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.casual_leave_approval = casual?.approval
+      new_leave_config.staff_leave_config_non_teaching.casual_leave_forward = casual?.forward
 
-    new_leave_config.staff_leave_config_non_teaching.commuted_leave = cm_l ?? 0
-    new_leave_config.staff_leave_config_non_teaching.maternity_leave = ma_l ?? 0
-    new_leave_config.staff_leave_config_non_teaching.paternity_leave = pa_l ?? 0
+      new_leave_config.staff_leave_config_non_teaching.medical_leave = medical?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.medical_leave_approval = medical?.approval
+      new_leave_config.staff_leave_config_non_teaching.medical_leave_forward = medical?.forward
 
-    new_leave_config.staff_leave_config_non_teaching.quarantine_leave = q_l ?? 0
-    new_leave_config.staff_leave_config_non_teaching.half_pay_leave = hp_l ?? 0
-    new_leave_config.staff_leave_config_non_teaching.study_leave = std_l ?? 0
+      new_leave_config.staff_leave_config_non_teaching.sick_leave = sick?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.sick_leave_approval = sick?.approval
+      new_leave_config.staff_leave_config_non_teaching.sick_leave_forward = sick?.forward
 
-    new_leave_config.staff_leave_config_non_teaching.sabbatical_leave = sb_l ?? 0
-    new_leave_config.staff_leave_config_non_teaching.special_disability_leave = sd_l ?? 0
-    new_leave_config.staff_leave_config_non_teaching.winter_vacation_leave = wv_l ?? 0
+      new_leave_config.staff_leave_config_non_teaching.commuted_leave = commuted?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.commuted_leave_approval = commuted?.approval
+      new_leave_config.staff_leave_config_non_teaching.commuted_leave_forward = commuted?.forward
 
-    new_leave_config.staff_leave_config_non_teaching.summer_vacation_leave = sv_l ?? 0
-    new_leave_config.staff_leave_config_non_teaching.child_adoption_leave = ch_l ?? 0
-    new_leave_config.staff_leave_config_non_teaching.bereavement_leave = b_l ?? 0
+      new_leave_config.staff_leave_config_non_teaching.maternity_leave = maternity?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.maternity_leave_approval = maternity?.approval
+      new_leave_config.staff_leave_config_non_teaching.maternity_leave_forward = maternity?.forward
+
+      new_leave_config.staff_leave_config_non_teaching.paternity_leave = paternity?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.paternity_leave_approval = paternity?.approval
+      new_leave_config.staff_leave_config_non_teaching.paternity_leave_forward = paternity?.forward
+
+      new_leave_config.staff_leave_config_non_teaching.quarantine_leave = quarantine?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.quarantine_leave_approval = quarantine?.approval
+      new_leave_config.staff_leave_config_non_teaching.quarantine_leave_forward = quarantine?.forward
+
+      new_leave_config.staff_leave_config_non_teaching.half_pay_leave = half?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.half_pay_leave_approval = half?.approval
+      new_leave_config.staff_leave_config_non_teaching.half_pay_leave_forward = half?.forward
+
+      new_leave_config.staff_leave_config_non_teaching.study_leave = study?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.study_leave_approval = study?.approval
+      new_leave_config.staff_leave_config_non_teaching.study_leave_forward = study?.forward
+
+      new_leave_config.staff_leave_config_non_teaching.sabbatical_leave = sabbatical?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.sabbatical_leave_approval = sabbatical?.approval
+      new_leave_config.staff_leave_config_non_teaching.sabbatical_leave_forward = sabbatical?.forward
+
+      new_leave_config.staff_leave_config_non_teaching.special_disability_leave = special?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.special_disability_leave_approval = special?.approval
+      new_leave_config.staff_leave_config_non_teaching.special_disability_leave_forward = special?.forward
+
+      new_leave_config.staff_leave_config_non_teaching.winter_vacation_leave = winter?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.winter_vacation_leave_approval = winter?.approval
+      new_leave_config.staff_leave_config_non_teaching.winter_vacation_leave_forward = winter?.forward
+
+      new_leave_config.staff_leave_config_non_teaching.summer_vacation_leave = summer?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.summer_vacation_leave_approval = summer?.approval
+      new_leave_config.staff_leave_config_non_teaching.summer_vacation_leave_forward = summer?.forward
+
+      new_leave_config.staff_leave_config_non_teaching.child_adoption_leave = child?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.child_adoption_leave_approval = child?.approval
+      new_leave_config.staff_leave_config_non_teaching.child_adoption_leave_forward = child?.forward
+
+      new_leave_config.staff_leave_config_non_teaching.bereavement_leave = bereavement?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.bereavement_leave_approval = bereavement?.approval
+      new_leave_config.staff_leave_config_non_teaching.bereavement_leave_forward = bereavement?.forward
+
+      new_leave_config.staff_leave_config_non_teaching.earned_leave = earned?.leave ?? 0
+      new_leave_config.staff_leave_config_non_teaching.earned_leave_approval = earned?.approval
+      new_leave_config.staff_leave_config_non_teaching.earned_leave_forward = earned?.forward
 
     await Promise.all([ ins.save(), new_leave_config.save() ])
     res.status(200).send({ message: "Explore Leave Configuration Query", access: true})
@@ -1767,6 +1873,7 @@ exports.renderLeaveConfigQuery = async(req, res) => {
       ref.summer_vacation_leave = new_leave_config?.staff_leave_config_non_teaching.summer_vacation_leave
       ref.child_adoption_leave = new_leave_config?.staff_leave_config_non_teaching.child_adoption_leave
       ref.bereavement_leave = new_leave_config?.staff_leave_config_non_teaching.bereavement_leave
+      ref.earned_leave = new_leave_config?.staff_leave_config_non_teaching.earned_leave
       await ref.save()
     }
     }
@@ -1779,25 +1886,43 @@ exports.renderLeaveConfigQuery = async(req, res) => {
 exports.renderStaffLeaveConfigQuery = async(req, res) => {
   try{
     const { sid } = req.params
-    const { c_l, m_l, s_l, cm_l, ma_l, pa_l, q_l, hp_l, std_l, sb_l, sd_l, wv_l, sv_l, ch_l, b_l } = req?.body
+    const { 
+      casual,
+      medical,
+      sick,
+      commuted,
+      maternity,
+      paternity,
+      quarantine,
+      half,
+      study,
+      sabbatical,
+      special,
+      winter,
+      summer,
+      child,
+      bereavement,
+      earned
+    } = req?.body
     if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     const staff = await Staff.findById({ _id: sid})
-    staff.casual_leave = c_l ?? 0
-    staff.medical_leave = m_l ?? 0
-    staff.sick_leave = s_l ?? 0
-    staff.commuted_leave = cm_l ?? 0
-    staff.maternity_leave = ma_l ?? 0
-    staff.paternity_leave = pa_l ?? 0
-    staff.quarantine_leave = q_l ?? 0
-    staff.half_pay_leave = hp_l ?? 0
-    staff.study_leave = std_l ?? 0
-    staff.sabbatical_leave = sb_l ?? 0
-    staff.special_disability_leave = sd_l ?? 0
-    staff.winter_vacation_leave = wv_l ?? 0
-    staff.summer_vacation_leave = sv_l ?? 0
-    staff.child_adoption_leave = ch_l ?? 0
-    staff.bereavement_leave = b_l ?? 0
+    staff.casual_leave = casual?.leave ?? 0
+    staff.medical_leave = medical?.leave ?? 0
+    staff.sick_leave = sick?.leave ?? 0
+    staff.commuted_leave = commuted?.leave ?? 0
+    staff.maternity_leave = maternity?.leave ?? 0
+    staff.paternity_leave = paternity?.leave ?? 0
+    staff.quarantine_leave = quarantine?.leave ?? 0
+    staff.half_pay_leave = half?.leave ?? 0
+    staff.study_leave = study?.leave ?? 0
+    staff.sabbatical_leave = sabbatical?.leave ?? 0
+    staff.special_disability_leave = special?.leave ?? 0
+    staff.winter_vacation_leave = winter?.leave ?? 0
+    staff.summer_vacation_leave = summer?.leave ?? 0
+    staff.child_adoption_leave = child?.leave ?? 0
+    staff.bereavement_leave = bereavement?.leave ?? 0
+    staff.earned_leave = earned?.leave ?? 0
     await staff.save()
     res.status(200).send({ message: "Explore One Staff Leave Configuration Query", access: true})
   }
@@ -2338,7 +2463,7 @@ exports.renderLeaveConfigRulesQuery = async(req, res) => {
     if(!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     if(flow === "Leave_Start"){
-      var int_num = parseInt(int_month)
+      var int_num = parseInt(int_month) + 1
       var valid_month = (month + 1 > 12) ? (month + 1) - 12 : month + 1
       num = months_helper?.filter((val) => {
         if (int_num - 1 >= 10) {
@@ -2346,17 +2471,14 @@ exports.renderLeaveConfigRulesQuery = async(req, res) => {
           if(`${val?.code}` === `${int_num - 1}`) return val
         }
         else {
-          console.log("E", val)
+          console.log("E")
           if(`${val?.code}` === `0${int_num - 1}`) return val
         }
       })
-      console.log(year)
-      console.log(num[0])
-      console.log(new Date(`${parseInt(year) + 1}-${num[0]?.code}-${num[0]?.last}`))
       const leave_config = await LeaveConfig.findById({ _id: lid })
-      // leave_config.leave_start_academic_year = new Date(`${year}-${month}-${date}`)
-      // leave_config.leave_end_academic_year = new Date(`${parseInt(year) + 1}-${num[0]?.code}-${num[0]?.last}`)
-      // await leave_config.save()
+      leave_config.leave_start_academic_year = new Date(`${year}-${month}-${date}`)
+      leave_config.leave_end_academic_year = new Date(`${parseInt(year) + 1}-${num[0]?.code}-${num[0]?.last}`)
+      await leave_config.save()
     }
     // await LeaveConfig.findByIdAndUpdate(lid, req?.body)
 
@@ -2384,23 +2506,35 @@ exports.renderLeaveSetOffConfigRulesQuery = async(req, res) => {
 exports.renderLeaveConfigHolidayQuery = async(req, res) => {
   try{
     const { lid } = req?.params
-    const { date_arr, mark_status } = req?.body
+    const { date_arr, mark_sunday, mark_saturday } = req?.body
     if(!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     const leave = await LeaveConfig.findById({ _id: lid})
     for(var val of date_arr){
       leave.holiday_config.dDate.push(val)
     }
-    if(mark_status === "ALL_SUNDAYS"){
-      const sundaysInYear = getSundaysInYear(2023, 2024);
+    if(mark_sunday?.status === "ALL_SUNDAYS"){
+      const sundaysInYear = getSundaysInYear(2024, 2025);
       for(var val of sundaysInYear?.formattedSundays){
         leave.holiday_config.dDate.push(val)
       }
     }
-    if(mark_status === "ALL_SATURDAYS"){
-      const sundaysInYear = getSundaysInYear(2023, 2024);
+    else {
+      const sundaysInYear = getSundaysInYear(2024, 2025);
+      for(var val of sundaysInYear?.formattedSundays){
+        leave.holiday_config.dDate.pull(val)
+      }
+    }
+    if(mark_saturday?.status === "ALL_SATURDAYS"){
+      const sundaysInYear = getSundaysInYear(2024, 2025);
       for(var val of sundaysInYear?.formattedSaturdays){
         leave.holiday_config.dDate.push(val)
+      }
+    }
+    else {
+      const sundaysInYear = getSundaysInYear(2024, 2025);
+      for(var val of sundaysInYear?.formattedSaturdays){
+        leave.holiday_config.dDate.pull(val)
       }
     }
     
@@ -2468,6 +2602,37 @@ exports.renderOneLeaveConfigQuery = async(req, res) => {
     else{
       res.status(200).send({ message: `No Leave Query`, access: false})
     }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderAutoStaffLeaveConfigQuery = async (
+  staff_arr
+) => {
+  try{
+    for (var val of staff_arr) {
+      const staff = await Staff.findOne({ staff_emp_code: `${val?.EmployeeCode}` })
+      staff.casual_leave = val?.CasualLeave ?? 0
+      staff.medical_leave = val?.MedicalLeave ?? 0
+      staff.sick_leave = val?.SickLeave ?? 0
+      staff.commuted_leave = val?.CommutedLeave ?? 0
+      staff.maternity_leave = val?.MaternityLeave ?? 0
+      staff.paternity_leave = val?.PaternityLeave ?? 0
+      staff.quarantine_leave = val?.QuarantineLeave ?? 0
+      staff.half_pay_leave = val?.HalfLeave ?? 0
+      staff.study_leave = val?.StudyLeave ?? 0
+      staff.sabbatical_leave = val?.SabbaticalLeave ?? 0
+      staff.special_disability_leave = val?.SpecialLeave ?? 0
+      staff.winter_vacation_leave = val?.WinterLeave ?? 0
+      staff.summer_vacation_leave = val?.SummerLeave ?? 0
+      staff.child_adoption_leave = val?.ChildLeave ?? 0
+      staff.bereavement_leave = val?.BereavementLeave ?? 0
+      staff.earned_leave = val?.EarnedLeave ?? 0
+      await staff.save()
+    }
+    res.status(200).send({ message: "Explore Staff Leave Configuration Query", access: true})
   }
   catch(e){
     console.log(e)

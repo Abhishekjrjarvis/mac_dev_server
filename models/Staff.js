@@ -491,6 +491,10 @@ const staffSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  earned_leave: {
+    type: Number,
+    default: 0
+  },
   recommend_authority: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "FinanceModerator"

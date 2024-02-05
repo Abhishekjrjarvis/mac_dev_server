@@ -54,6 +54,7 @@ const {
   generate_excel_to_json_subject_query,
   generate_excel_to_json_attendence_query,
   generate_excel_to_json_biometric_query,
+  generate_excel_to_json_staff_leave_query,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -117,6 +118,7 @@ const Batch = require("../../models/Batch");
 const StudentMessage = require("../../models/Content/StudentMessage");
 const LMS = require("../../models/Leave/LMS");
 const { fetchBiometricStaffQuery } = require("../../controllers/LMS/LMSController");
+const { renderAutoStaffLeaveConfigQuery } = require("../../controllers/ComplaintLeaveTransfer/ComplaintController");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -3826,6 +3828,58 @@ exports.renderExcelToJSONLMSBiometricQuery = async (req, res) => {
       await fetchBiometricStaffQuery(
         lmid,
         is_converted?.biometric_array,
+      );
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONLMSStaffLeaveQuery = async (req, res) => {
+  try {
+    const { lmid } = req.params;
+    const { excel_file, } = req.body;
+    if (!lmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_lms = await LMS.findById({ _id: lmid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${one_lms?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      lmsId: one_lms?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${one_lms?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.lmsId}` === `${one_lms?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_staff_leave_query(val);
+    if (is_converted?.value) {
+      await renderAutoStaffLeaveConfigQuery(
+        is_converted?.staff_array,
       );
     } else {
       console.log("false");

@@ -182,6 +182,18 @@ const leaveConfigSchema = new mongoose.Schema({
       type: Boolean,
       default: false
     },
+    earned_leave: {
+      type: Number,
+      default: 0
+},
+earned_leave_approval: {
+type: Boolean,
+default: false
+},
+earned_leave_forward: {
+type: Boolean,
+default: false
+},
   },
   staff_leave_config_non_teaching: {
     casual_leave: {
@@ -363,6 +375,18 @@ bereavement_leave_approval: {
 bereavement_leave_forward: {
   type: Boolean,
   default: false
+    },
+    earned_leave: {
+      type: Number,
+      default: 0
+},
+earned_leave_approval: {
+type: Boolean,
+default: false
+},
+earned_leave_forward: {
+type: Boolean,
+default: false
 },
   },
     c_off_leave: [

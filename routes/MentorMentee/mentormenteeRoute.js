@@ -83,4 +83,6 @@ router.get("/:mid/all/meeting/query", catchAsync(Mentor.renderAllMeetingQuery));
 
 router.get("/one/meet/:meid/query", catchAsync(Mentor.renderOneMeetDetail));
 
+router.post("/all/mentor/add/:did/query", catchAsync(Mentor.renderAllMentorAddQuery));
+
 module.exports = router;

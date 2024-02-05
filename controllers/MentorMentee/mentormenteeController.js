@@ -1200,6 +1200,65 @@ exports.renderOneMeetDetail = async (req, res) => {
   }
 };
 
+exports.renderAllMentorAddQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did })
+    //   .populate({
+    //     path: "mentor",
+    //     select: "mentor_head"
+    // })
+
+    // var filtered_staff = depart?.mentor((val) => {
+    //   if(`${val?.mentor}`)
+    // })
+    for (var val of depart?.departmentChatGroup) {
+      const staff = await Staff.findById({ _id: `${val}` });
+      const user = await User.findById({ _id: staff?.user });
+      const mentor_query = new Mentor({});
+      const notify = new Notification({});
+      mentor_query.mentor_head = staff?._id;
+      depart.mentor.push(mentor_query?._id);
+      depart.mentor_count += 1;
+      mentor_query.department = depart?._id;
+      staff.mentorDepartment.push(mentor_query?._id);
+      staff.staffDesignationCount += 1;
+      staff.recentDesignation = "Mentor";
+      notify.notifyContent = `you got the designation of as Mentor`;
+      notify.notifySender = depart?._id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Mentor Designation";
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByDepartPhoto = depart?._id;
+      await invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        depart?.dName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([
+        user.save(),
+        notify.save(),
+        staff.save(),
+        mentor_query.save(),
+      ]);
+    }
+    await depart.save()
+    res.status(200).send({ message: "Explore new designation", access: true });
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 // Rating By Student IS Pending & Display Rating Query
 
 // exports.renderOneStudentGiveFeedbackQuery = async (req, res) => {

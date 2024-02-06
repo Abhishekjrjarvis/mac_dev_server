@@ -2509,9 +2509,11 @@ exports.renderLeaveConfigHolidayQuery = async(req, res) => {
     const { date_arr, mark_sunday, mark_saturday } = req?.body
     if(!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
-    const leave = await LeaveConfig.findById({ _id: lid})
-    for(var val of date_arr){
-      leave.holiday_config.dDate.push(val)
+    const leave = await LeaveConfig.findById({ _id: lid })
+    if (date_arr?.length > 0) {
+      for(var val of date_arr){
+        leave.holiday_config.dDate.push(val)
+      } 
     }
     if(mark_sunday?.status === "ALL_SUNDAYS"){
       const sundaysInYear = getSundaysInYear(2024, 2025);

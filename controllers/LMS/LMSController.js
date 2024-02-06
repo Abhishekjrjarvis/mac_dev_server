@@ -250,11 +250,8 @@ exports.fetchBiometricStaffQuery = async (
         }
         await staff.save();
       });
-      res
-        .status(200)
-        .send({ message: "All Staff Get Unique Biometric Id", status: true });
     } else {
-      res.status(200).send({ message: "Need a staff", status: false });
+      console.log("false")
     }
   } catch (e) {
     console.log(e);

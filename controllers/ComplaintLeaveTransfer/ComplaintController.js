@@ -2550,8 +2550,8 @@ exports.renderLeaveConfigHolidayQuery = async(req, res) => {
       }
     }
     
-    leave.holiday_config.mark_sunday = mark_sunday?.status
-    leave.holiday_config.mark_saturday = mark_saturday?.status
+    leave.holiday_config.mark_sunday.status = mark_sunday?.status
+    leave.holiday_config.mark_saturday.status = mark_saturday?.status
     await leave.save()
     res.status(200).send({ message: "Explore All Holidays In a year", access: true})
   }

@@ -239,7 +239,7 @@ exports.fetchBiometricStaffQuery = async (
     if (staff_ref?.length > 0) {
       const one_lms = await LMS.findById({ _id: lmid})
       staff_ref?.forEach(async (ele) => {
-        const staff = await Staff.findById({ staff_emp_code: `${ele?.EmployeeCode}` });
+        const staff = await Staff.findOne({ staff_emp_code: `${ele?.EmployeeCode}` });
         staff.staff_biometric_id = ele?.MachineCode;
         if (one_lms.biometric_staff?.includes(`${staff?._id}`)) {
       

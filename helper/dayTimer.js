@@ -344,8 +344,8 @@ exports.months_helper = [
 
 
 exports.getSundaysInYear = (year, new_year) => {
-  const startDate = new Date(year, 3, 1); // January 1st of the given year
-  const endDate = new Date(new_year, 2, 31); // December 31st of the given year
+  const startDate = new Date(year, 1, 1); // January 1st of the given year
+  const endDate = new Date(new_year, 1, 31); // December 31st of the given year
   const allDays = eachDayOfInterval({ start: startDate, end: endDate });
   const sundays = allDays.filter(day => getDay(day) === 0);
   const saturdays = allDays.filter(day => getDay(day) === 6)

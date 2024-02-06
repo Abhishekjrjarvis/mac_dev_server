@@ -351,8 +351,8 @@ exports.getSundaysInYear = (year, new_year) => {
   const saturdays = allDays.filter(day => getDay(day) === 6)
 
   // Format the dates as strings (e.g., '2023-01-01')
-  const formattedSundays = sundays.map(sunday => format(sunday, 'yyyy-MM-dd'));
-  const formattedSaturdays = saturdays.map(sat => format(sat, 'yyyy-MM-dd'));
+  const formattedSundays = sundays.map(sunday => format(sunday, 'dd/mm/yyyy'));
+  const formattedSaturdays = saturdays.map(sat => format(sat, 'dd/mm/yyyy'));
 
   return {
     formattedSundays: formattedSundays,

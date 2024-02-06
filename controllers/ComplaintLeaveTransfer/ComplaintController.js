@@ -2516,7 +2516,7 @@ exports.renderLeaveConfigHolidayQuery = async(req, res) => {
       } 
     }
     if(mark_sunday?.status === "ALL_SUNDAYS"){
-      const sundaysInYear = getSundaysInYear(2023, 2024);
+      const sundaysInYear = getSundaysInYear(2024, 2025);
       for(var val of sundaysInYear?.formattedSundays){
         if (leave.holiday_config.dDate.includes(`${val}`)) {
           
@@ -2527,13 +2527,13 @@ exports.renderLeaveConfigHolidayQuery = async(req, res) => {
       }
     }
     else {
-      const sundaysInYear = getSundaysInYear(2023, 2024);
+      const sundaysInYear = getSundaysInYear(2024, 2025);
       for(var val of sundaysInYear?.formattedSundays){
         leave.holiday_config.dDate.pull(val)
       }
     }
     if(mark_saturday?.status === "ALL_SATURDAYS"){
-      const sundaysInYear = getSundaysInYear(2023, 2024);
+      const sundaysInYear = getSundaysInYear(2024, 2025);
       for(var val of sundaysInYear?.formattedSaturdays){
         if (leave.holiday_config.dDate.includes(`${val}`)) {
           
@@ -2544,7 +2544,7 @@ exports.renderLeaveConfigHolidayQuery = async(req, res) => {
       }
     }
     else {
-      const sundaysInYear = getSundaysInYear(2023, 2024);
+      const sundaysInYear = getSundaysInYear(2024, 2025);
       for(var val of sundaysInYear?.formattedSaturdays){
         leave.holiday_config.dDate.pull(val)
       }

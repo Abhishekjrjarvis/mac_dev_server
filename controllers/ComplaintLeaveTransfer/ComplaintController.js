@@ -2518,7 +2518,12 @@ exports.renderLeaveConfigHolidayQuery = async(req, res) => {
     if(mark_sunday?.status === "ALL_SUNDAYS"){
       const sundaysInYear = getSundaysInYear(2024, 2025);
       for(var val of sundaysInYear?.formattedSundays){
-        leave.holiday_config.dDate.push(val)
+        if (leave.holiday_config.dDate.includes(`${val}`)) {
+          
+        }
+        else {
+          leave.holiday_config.dDate.push(val)
+        }
       }
     }
     else {
@@ -2530,7 +2535,12 @@ exports.renderLeaveConfigHolidayQuery = async(req, res) => {
     if(mark_saturday?.status === "ALL_SATURDAYS"){
       const sundaysInYear = getSundaysInYear(2024, 2025);
       for(var val of sundaysInYear?.formattedSaturdays){
-        leave.holiday_config.dDate.push(val)
+        if (leave.holiday_config.dDate.includes(`${val}`)) {
+          
+        }
+        else {
+          leave.holiday_config.dDate.push(val)
+        }
       }
     }
     else {

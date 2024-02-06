@@ -263,16 +263,44 @@ exports.render_all_linked_staff_query = async (req, res) => {
     const { lmid } = req?.params
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req?.query
     if (!lmid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    const lms = await LMS.findById({ _id: lmid })
-      .select("biometric_staff")
-      .populate({
-        path: "biometric_staff",
-        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffROLLNO staff_biometric_id teaching_type current_designation staff_emp_code"
-    })
-    
-    var all_staff = await nested_document_limit(page, limit, lms?.biometric_staff?.reverse())
+    if (search) {
+      var lms = await LMS.findById({ _id: lmid })
+      var all_staff = await Staff.find({
+        $and: [{
+          _id: { $in: lms?.biometric_staff }
+        }],
+        $or: [
+          {
+            staffFirstName: { $regex: `${search}`, $options: "i"}
+          },
+          {
+            staffMiddleName: { $regex: `${search}`, $options: "i"}
+          },
+          {
+            staffLastName: { $regex: `${search}`, $options: "i"}
+          },
+          {
+            staff_emp_code: { $regex: `${search}`, $options: "i"}
+          },
+        ]
+      })
+      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffROLLNO staff_biometric_id teaching_type current_designation staff_emp_code")
+    }
+    else {
+      const lms = await LMS.findById({ _id: lmid })
+      var all_staff = await Staff.find({
+        $and: [{
+          _id: { $in: lms?.biometric_staff }
+        }],
+      })
+      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffROLLNO staff_biometric_id teaching_type current_designation staff_emp_code")
+        .limit(limit)
+      .skip(skip)
+    }
     if (all_staff?.length > 0) {
       res.status(200).send({ message: "Explore All Linked Staff Query", access: true, all_staff: all_staff})
     }

@@ -975,3 +975,44 @@ exports.getPromoteStudentByClassQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.getStudentSubjectQuery = async (req, res) => {
+  try {
+    const { sid } = req?.params;
+    const { cid } = req?.query;
+    if (!sid || !cid)
+      throw "Please send student id and class id to perform task";
+    const subject = await Subject.find({ class: { $eq: `${cid}` } })
+      .populate({
+        path: "selected_batch_query",
+        select: "class_student_query batchName",
+      })
+      .select("subjectName")
+      .lean()
+      .exec();
+
+    var all_subject = [];
+
+    for (var ref of subject) {
+      if (ref?.selected_batch_query) {
+        if (ref?.selected_batch_query?.class_student_query?.length > 0) {
+          for (let ele of ref?.selected_batch_query?.class_student_query) {
+            if (`${ele}` === `${sid}`) {
+              all_subject.push(ref);
+            }
+          }
+        }
+      } else {
+        all_subject.push(ref);
+      }
+    }
+    res.status(200).send({
+      message: "All student side subject list",
+      all_subject: all_subject,
+      subject: subject,
+    });
+  } catch (e) {
+    res.status(200).send({ message: e });
+    console.log(e);
+  }
+};

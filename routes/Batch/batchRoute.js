@@ -60,7 +60,15 @@ router
 
   router
   .route("/department/:did/programme/name/query")
-  .patch(isLoggedIn, catchAsync(batchController.departmentProgrammeNameQuery));
+    .patch(isLoggedIn, catchAsync(batchController.departmentProgrammeNameQuery));
+  
+    router
+  .route("/remove/:bid/staff/designation")
+  .patch(
+    isLoggedIn,
+    catchAsync(batchController.batchStaffRemoveDesignationQuery)
+  );
+
 
 
 module.exports = router;

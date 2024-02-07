@@ -568,7 +568,7 @@ exports.allBookIssueByStaffSide = async (req, res) => {
       .populate({
         path: "book member staff_member",
         select:
-          "bookName author language photoId photo photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          "bookName author language accession_number photoId photo photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
       })
       .select("book member staff_member createdAt day_overdue_charge for_days")
       .sort({
@@ -830,9 +830,9 @@ exports.oneMemberIssuedByStaffSide = async (req, res) => {
         path: "borrow",
         populate: {
           path: "book",
-          select: "bookName author createdAt language photo photoId",
+          select: "bookName author language photo photoId accession_number",
         },
-        select: "book",
+        select: "book createdAt for_days day_overdue_charge",
         skip: dropItem,
         limit: itemPerPage,
       })
@@ -1634,7 +1634,7 @@ exports.bookColletedByStaffSideQuery = async (req, res) => {
 
 exports.getLibraryQrCode = async (req, res) => {
   try {
-    const libd = await Library.findById("653f6d8c95aa77a6ee62c69a");
+    const libd = await Library.findById("63e126819ee9a3d11a823593");
     let library = {
       lid: libd?._id,
       instituteId: libd.institute,
@@ -1671,41 +1671,41 @@ exports.generateAllMemberQrCodeQuery = async (req, res) => {
       for (let sid of library?.institute?.ApproveStaff) {
         const staff = await Staff.findById(sid);
         if (staff) {
-          if (staff?.library_qr_code) {
-          } else {
-            let book_qr = {
-              libraryId: library?._id,
-              instituteId: library?.institute?._id,
-              staffId: sid,
-            };
-            let imageKey = await generate_qr({
-              fileName: "initial-staff-qr",
-              object_contain: book_qr,
-            });
-            staff.library_qr_code = imageKey;
-            await staff.save();
-          }
+          // if (staff?.library_qr_code) {
+          // } else {
+          let book_qr = {
+            libraryId: library?._id,
+            instituteId: library?.institute?._id,
+            staffId: sid,
+          };
+          let imageKey = await generate_qr({
+            fileName: "initial-staff-qr",
+            object_contain: book_qr,
+          });
+          staff.library_qr_code = imageKey;
+          await staff.save();
+          // }
         }
       }
     } else {
       for (let sid of library?.institute?.ApproveStudent) {
         const student = await Student.findById(sid);
         if (student) {
-          if (student?.library_qr_code) {
-          } else {
-            let book_qr = {
-              libraryId: library?._id,
-              instituteId: library?.institute?._id,
-              studentId: sid,
-            };
-            let imageKey = await generate_qr({
-              fileName: "initial-student-qr",
-              object_contain: book_qr,
-            });
-            student.library_qr_code = imageKey;
-            await student.save();
-          }
+          // if (student?.library_qr_code) {
+          // } else {
+          let book_qr = {
+            libraryId: library?._id,
+            instituteId: library?.institute?._id,
+            studentId: sid,
+          };
+          let imageKey = await generate_qr({
+            fileName: "initial-student-qr",
+            object_contain: book_qr,
+          });
+          student.library_qr_code = imageKey;
+          await student.save();
         }
+        // }
       }
     }
   } catch (e) {
@@ -1728,20 +1728,20 @@ exports.generateAllBookQrCodeQuery = async (req, res) => {
 
     for (let bid of library?.books) {
       const book = await Book.findById(bid);
-      if (book?.book_qr_code) {
-      } else {
-        let book_qr = {
-          libraryId: library?._id,
-          instituteId: library?.institute,
-          bookId: book?._id,
-        };
-        let imageKey = await generate_qr({
-          fileName: "initial-book-qr",
-          object_contain: book_qr,
-        });
-        book.book_qr_code = imageKey;
-        await book.save();
-      }
+      // if (book?.book_qr_code) {
+      // } else {
+      let book_qr = {
+        libraryId: library?._id,
+        instituteId: library?.institute,
+        bookId: book?._id,
+      };
+      let imageKey = await generate_qr({
+        fileName: "initial-book-qr",
+        object_contain: book_qr,
+      });
+      book.book_qr_code = imageKey;
+      await book.save();
+      // }
     }
   } catch (e) {
     console.log(e);
@@ -2715,7 +2715,7 @@ exports.getStocktakeLibraryMissingBookUpdateQuery = async (req, res) => {
       stocktake.book_missing_count -= 1;
       stocktake?.book_missing.pull(card_id);
       // for (let lt of stocktake?.book_missing) {
-      //   if (${lt?._id} === ${card_id}) {
+      //   if (`${lt?._id}` === `${card_id}`) {
       //     lt.status = "ISSUE_STUDENT";
       //   }
       // }
@@ -2726,7 +2726,7 @@ exports.getStocktakeLibraryMissingBookUpdateQuery = async (req, res) => {
       stocktake?.book_missing.pull(card_id);
 
       // for (let lt of stocktake?.book_missing) {
-      //   if (${lt?._id} === ${card_id}) {
+      //   if (`${lt?._id}` === `${card_id}`) {
       //     lt.status = "FOUNDED_AT_LIBRARY";
       //   }
       // }
@@ -2737,7 +2737,7 @@ exports.getStocktakeLibraryMissingBookUpdateQuery = async (req, res) => {
       stocktake?.book_missing.pull(card_id);
 
       // for (let lt of stocktake?.book_missing) {
-      //   if (${lt?._id} === ${card_id}) {
+      //   if (`${lt?._id}` === `${card_id}`) {
       //     lt.status = "LOST";
       //   }
       // }
@@ -2756,7 +2756,6 @@ exports.getStocktakeLibraryMissingBookUpdateQuery = async (req, res) => {
     });
   }
 };
-
 exports.getStudentTotalLibraryTimeQuery = async (req, res) => {
   try {
     const { sid } = req.params;

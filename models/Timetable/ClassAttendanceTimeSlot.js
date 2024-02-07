@@ -17,6 +17,12 @@ const classAttendanceTimeSlotSchema = new mongoose.Schema({
       },
       is_mark: Boolean,
       is_extra: Boolean,
+      student: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Student",
+        },
+      ],
     },
   ],
 });

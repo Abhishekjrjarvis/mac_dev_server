@@ -56,6 +56,12 @@ router
 
   router
   .route("/list/query")
-  .get(catchAsync(studentMember.getPromoteStudentByClassQuery));
+    .get(catchAsync(studentMember.getPromoteStudentByClassQuery));
+  
+    router
+  .route("/subject/:sid/list/query")
+  // isLoggedIn,
+  .get(catchAsync(studentMember.getStudentSubjectQuery));
+
 
 module.exports = router;

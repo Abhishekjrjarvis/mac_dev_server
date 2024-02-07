@@ -1233,7 +1233,8 @@ exports.batchCompleteAndUncomplete = async (req, res) => {
       }
       batch.batchStatus = "Locked";
       await batch.save();
-    } else {
+    }
+    else {
       for (let clsId of batch?.classroom) {
         const classes = await Class.findById(clsId);
         if (classes.classStatus === "Completed") {
@@ -1241,21 +1242,27 @@ exports.batchCompleteAndUncomplete = async (req, res) => {
             const subject = await Subject.findById(subId);
             if (subject.subjectStatus === "Completed") {
               subject.subjectStatus = "UnCompleted";
-              const subStaff = await Staff.findById(
-                subject?.subjectTeacherName
-              );
-              subStaff.staffDesignationCount += 1;
-              subStaff.previousStaffSubject?.pull(subject._id);
-              subStaff.staffSubject.push(subject._id);
-              await Promise.all([subStaff.save(), subject.save()]);
+              if (subject?.subjectTeacherName) {
+                const subStaff = await Staff.findById(
+                  subject?.subjectTeacherName
+                );
+                subStaff.staffDesignationCount += 1;
+                subStaff.previousStaffSubject?.pull(subject._id);
+                subStaff.staffSubject.push(subject._id);
+                await subStaff.save();
+              }
+              await subject.save();
             }
           }
-          const staff = await Staff.findById(classes?.classTeacher);
-          staff.staffDesignationCount += 1;
-          staff.previousStaffClass?.pull(clsId);
-          staff.staffClass.push(clsId);
+          if (classes?.classTeacher) {
+            const staff = await Staff.findById(classes?.classTeacher);
+            staff.staffDesignationCount += 1;
+            staff.previousStaffClass?.pull(clsId);
+            staff.staffClass.push(clsId);
+            await staff.save();
+          }
           classes.classStatus = "UnCompleted";
-          await Promise.all([staff.save(), classes.save()]);
+          await classes.save();
         }
       }
       batch.batchStatus = "UnLocked";
@@ -1515,6 +1522,49 @@ exports.departmentProgrammeNameQuery = async (req, res) => {
     department.department_programme_name = req.body?.department_programme_name;
     await department.save();
     res.status(200).send({ message: "Programme name is updated" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.batchStaffRemoveDesignationQuery = async (req, res) => {
+  try {
+    const { bid } = req.params;
+    if (!bid)
+      return res.status(200).send({
+        message:
+          "Their is a bug to call api of batch related! need to fix it soon.",
+        access: true,
+      });
+    const batch = await Batch.findById(bid);
+
+    for (let clsId of batch?.classroom) {
+      const classes = await Class.findById(clsId);
+      for (let subId of classes?.subject) {
+        const subject = await Subject.findById(subId);
+        if (subject?.subjectTeacherName) {
+          const subStaff = await Staff.findById(subject?.subjectTeacherName);
+          if (subStaff.staffDesignationCount > 0) {
+            subStaff.staffDesignationCount -= 1;
+          }
+          subStaff.previousStaffSubject?.push(subject._id);
+          subStaff.staffSubject.pull(subject._id);
+          await subStaff.save();
+        }
+      }
+      if (classes?.classTeacher) {
+        const staff = await Staff.findById(classes?.classTeacher);
+        if (staff.staffDesignationCount > 0) {
+          staff.staffDesignationCount -= 1;
+        }
+        staff.previousStaffClass?.push(clsId);
+        staff.staffClass.pull(clsId);
+        await staff.save();
+      }
+    }
+    batch.batchStatus = "UnLocked";
+    await batch.save();
+    res.status(200).send({ message: "Remove designation from staff side." });
   } catch (e) {
     console.log(e);
   }

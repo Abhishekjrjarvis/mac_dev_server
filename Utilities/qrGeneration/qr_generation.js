@@ -14,7 +14,7 @@ exports.generate_qr = async (data) => {
     let file = {
       path: `uploads/${name}.png`,
       filename: `${name}.png`,
-      mimetype: "png",
+      mimetype: "image/png",
     };
     const results = await uploadDocsFile(file);
     const qrKey = results.Key;

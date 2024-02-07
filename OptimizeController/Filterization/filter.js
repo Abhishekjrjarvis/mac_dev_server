@@ -6490,25 +6490,25 @@ exports.renderAllStudentMessageQuery = async(req, res) => {
             path: "institute",
             select: "insName",
           });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated_arr(arr)
-          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student, count: all_student?.length})
+          // var all_remain = await RemainingList.find({ student: { $in: all_student } })
+          // .populate({
+          //   path: "fee_structure"
+          // })
+          // .populate({
+          //   path: "student",
+          //   select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+          //   populate: {
+          //     path: "user",
+          //     select: "userEmail deviceToken"
+          //   }
+          // })
+          // for(var ref of all_remain){
+          //   if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
+          //     arr.push(ref?.student)
+          //   }
+          // }
+          // all_student = remove_duplicated_arr(arr)
+          res.status(200).send({ message: "Explore All Department Student Query", access: true, all_student: all_student, count: all_student?.length})
     }
     else if(all_depart === "PARTICULAR"){
       if(batch_status === "ALL_BATCH"){
@@ -6538,12 +6538,12 @@ exports.renderAllStudentMessageQuery = async(req, res) => {
               select: "userEmail deviceToken"
             }
           })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated_arr(arr)
+          // for(var ref of all_remain){
+          //   if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
+          //     arr.push(ref?.student)
+          //   }
+          // }
+          // all_student = remove_duplicated_arr(arr)
           res.status(200).send({ message: "Explore All For All Batch With Standard Student Query", access: true, all_student: all_student, count: all_student?.length})
         }
         var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: { $in: valid_dept?.batches } }]})
@@ -6568,12 +6568,12 @@ exports.renderAllStudentMessageQuery = async(req, res) => {
               select: "userEmail deviceToken"
             }
           })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated_arr(arr)
+          // for(var ref of all_remain){
+          //   if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
+          //     arr.push(ref?.student)
+          //   }
+          // }
+          // all_student = remove_duplicated_arr(arr)
           res.status(200).send({ message: "Explore All Student For All Batch Query", access: true, all_student: all_student, count: all_student?.length})
       }
       else if(batch_status === "PARTICULAR_BATCH"){
@@ -6602,12 +6602,12 @@ exports.renderAllStudentMessageQuery = async(req, res) => {
               select: "userEmail deviceToken"
             }
           })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated_arr(arr)
+          // for(var ref of all_remain){
+          //   if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
+          //     arr.push(ref?.student)
+          //   }
+          // }
+          // all_student = remove_duplicated_arr(arr)
           res.status(200).send({ message: "Explore All For Particular Batch with Standard Student Query", access: true, all_student: all_student, count: all_student?.length})
         }
         else{
@@ -6633,12 +6633,12 @@ exports.renderAllStudentMessageQuery = async(req, res) => {
               select: "userEmail deviceToken"
             }
           })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated_arr(arr)
+          // for(var ref of all_remain){
+          //   if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
+          //     arr.push(ref?.student)
+          //   }
+          // }
+          // all_student = remove_duplicated_arr(arr)
           res.status(200).send({ message: "Explore All For Particular Batch Student Query", access: true, all_student: all_student, count: all_student?.length})
         }
       }
@@ -6681,12 +6681,12 @@ exports.renderAllStudentMessageQuery = async(req, res) => {
               select: "userEmail deviceToken"
             }
           })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated_arr(arr)
+          // for(var ref of all_remain){
+          //   if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
+          //     arr.push(ref?.student)
+          //   }
+          // }
+          // all_student = remove_duplicated_arr(arr)
           console.log("Alert")
           res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student, count: all_student?.length})
         }

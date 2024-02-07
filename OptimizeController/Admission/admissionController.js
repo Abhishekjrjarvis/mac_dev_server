@@ -860,10 +860,19 @@ exports.fetchAllRequestApplication = async (req, res) => {
           populate: {
             path: "student",
             match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
+              $or: [
+                {studentFirstName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentMiddleName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentLastName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  valid_full_name: { $regex: `${search}`, $options: "i" },
+                },
+              ]
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name",
@@ -945,10 +954,19 @@ exports.fetchAllSelectApplication = async (req, res) => {
           populate: {
             path: "student",
             match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
+              $or: [
+                {studentFirstName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentMiddleName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentLastName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  valid_full_name: { $regex: `${search}`, $options: "i" },
+                },
+              ]
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name",
@@ -1041,10 +1059,19 @@ exports.fetchAllFeeCollectedApplication = async (req, res) => {
           populate: {
             path: "student payment_flow app_card gov_card fee_struct",
             match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
+              $or: [
+                {studentFirstName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentMiddleName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentLastName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  valid_full_name: { $regex: `${search}`, $options: "i" },
+                },
+              ]
             },
             // select:
             //   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name",
@@ -1137,10 +1164,19 @@ exports.fetchAllConfirmApplication = async (req, res) => {
           populate: {
             path: "student",
             match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
+              $or: [
+                {studentFirstName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentMiddleName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentLastName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  valid_full_name: { $regex: `${search}`, $options: "i" },
+                },
+              ]
             },
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute",
@@ -1495,11 +1531,22 @@ exports.fetchAllAllotApplication = async (req, res) => {
           populate: {
             path: "student",
             match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
-              studentGRNO: { $regex: `${search}`, $options: "i" },
+              $or: [
+                {studentFirstName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentMiddleName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentLastName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  valid_full_name: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentGRNO: { $regex: `${search}`, $options: "i" },
+                }
+              ]
             },
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentGRNO studentParentsPhoneNumber fee_receipt valid_full_name",
@@ -1600,13 +1647,25 @@ exports.fetchAllCancelApplication = async (req, res) => {
           populate: {
             path: "student",
             match: {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-              studentLastName: { $regex: `${search}`, $options: "i" },
-              valid_full_name: { $regex: `${search}`, $options: "i" },
+              $or: [
+                {studentFirstName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentMiddleName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentLastName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  valid_full_name: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentGRNO: { $regex: `${search}`, $options: "i" },
+                }
+              ]
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name",
+              "studentFirstName studentMiddleName studentLastName studentGRNO paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name",
             populate: {
               path: "user",
               select: "userPhoneNumber userEmail",

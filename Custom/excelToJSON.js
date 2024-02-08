@@ -328,6 +328,7 @@ exports.generate_excel_to_json_direct_staff = async (file) => {
         ref.staffPhoneNumber = ref?.PhoneNumber;
         ref.userPhoneNumber = parseInt(ref?.PhoneNumber);
         ref.current_designation = ref?.Designation ?? "NA";
+        ref.teaching_type = ref?.Type ?? "NA";
         ref.userEmail = ref?.Email ?? "";
         ref.code = ref?.EmployeeCode ?? "";
         ref.staffNationality = ref?.Nationality ?? "";

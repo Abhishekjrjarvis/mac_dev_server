@@ -162,7 +162,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
     if (sid) {
       var valid_subject = await Subject.findById({ _id: sid });
       for (var val of chapter_array) {
-        var new_chapter_exist = await Chapter.findOne({ $and: [{ subject: valid_subject?._id }, { chapter_name: `${val?.chapter_name}` }] })
+        var new_chapter_exist = await Chapter.findOne({ $and: [{ subject: valid_subject?._id }, { chapter_name: { $regex: `${val?.chapter_name}`} }] })
         console.log(new_chapter_exist)
         if (new_chapter_exist?._id) {
           console.log("EXIST")
@@ -180,7 +180,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
           new_chapter_exist.topic_count += 1;
           new_topic.subject = valid_subject?._id;
           new_topic.chapter = new_chapter_exist?._id;
-          // await Promise.all([ new_topic.save(), new_chapter_exist.save()])
+          await Promise.all([ new_topic.save(), new_chapter_exist.save()])
         }
         else {
           console.log("NEW ADDED")

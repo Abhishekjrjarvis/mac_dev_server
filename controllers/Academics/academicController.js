@@ -168,8 +168,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
           console.log("EXIST")
           var new_topic = new ChapterTopic({
             topic_name: val?.topic_name,
-            topic_last_date: val?.topic_last_date,
-            planning_date: val?.planning_date,
+            topic_last_date: val?.planning_date,
             execution_date: val?.execution_date,
             course_outcome: val?.course_outcome,
             learning_outcome: val?.learning_outcome,
@@ -190,8 +189,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
           });
           var new_topic = new ChapterTopic({
             topic_name: val?.topic_name,
-            topic_last_date: val?.topic_last_date,
-            planning_date: val?.planning_date,
+            topic_last_date: val?.planning_date,
             execution_date: val?.execution_date,
             course_outcome: val?.course_outcome,
             learning_outcome: val?.learning_outcome,

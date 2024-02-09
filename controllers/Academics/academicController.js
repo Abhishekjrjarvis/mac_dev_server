@@ -180,6 +180,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
           new_chapter_exist.topic_count += 1;
           new_topic.subject = valid_subject?._id;
           new_topic.chapter = new_chapter_exist?._id;
+          new_chapter.subject = valid_subject?._id
           await Promise.all([ new_topic.save(), new_chapter_exist.save()])
         }
         else {
@@ -204,6 +205,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
           await new_topic.save();
           valid_subject.chapter.push(new_chapter?._id);
           valid_subject.chapter_count += 1;
+          new_chapter.subject = valid_subject?._id
           await new_chapter.save();
         }
       }

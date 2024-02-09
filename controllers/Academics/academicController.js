@@ -162,7 +162,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
     if (sid) {
       var valid_subject = await Subject.findById({ _id: sid });
       for (var val of chapter_array) {
-        var new_chapter_exist = new Chapter.findOne({ $and: [{ subject: valid_subject?._id }, { chapter_name: `${val?.chapter_name}`}]})
+        var new_chapter_exist = await Chapter.findOne({ $and: [{ subject: valid_subject?._id }, { chapter_name: `${val?.chapter_name}`}]})
         if (new_chapter_exist?._id) {
           var new_topic = new ChapterTopic({
             topic_name: val?.topic_name,

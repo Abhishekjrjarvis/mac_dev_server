@@ -129,6 +129,7 @@ exports.renderEditOneChapterTopicQuery = async (req, res) => {
 
 exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
   try {
+    console.log(chapter_array)
     if (sid) {
       var valid_subject = await Subject.findById({ _id: sid });
       for (var val of chapter_array) {

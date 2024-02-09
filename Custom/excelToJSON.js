@@ -631,13 +631,6 @@ exports.generate_excel_to_json_subject_chapter_query = async (file) => {
       ref.learning_outcome = ref?.LearningOutcome ?? "";
       ref.hours = ref?.Hours ?? "";
       ref.minutes = ref?.Minutes ?? "";
-      // var valid_count = ref?.count ? parseInt(ref?.count) : d1;
-      // for (var i = 1; i <= valid_count; i++) {
-      //   chap_arr.push({
-      //     topic_name: ref?.[`Name${i}`],
-      //     topic_last_date: ref?.[`LastDate${i}`],
-      //   });
-      // }
       if (ref?.chapter_name) {
         new_data_query.push({
           ...ref

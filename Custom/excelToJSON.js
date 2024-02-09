@@ -622,21 +622,29 @@ exports.generate_excel_to_json_subject_chapter_query = async (file) => {
     var new_data_query = [];
     for (var ref of data_query) {
       var chap_arr = [];
-      ref.chapter_name = ref?.ChapterName;
-      var valid_count = ref?.count ? parseInt(ref?.count) : 1;
-      for (var i = 1; i <= valid_count; i++) {
-        chap_arr.push({
-          topic_name: ref?.[`Name${i}`],
-          topic_last_date: ref?.[`LastDate${i}`],
-        });
-      }
+      ref.chapter_name = ref?.Topic ?? "";
+      ref.topic_name = ref?.SubTopic ?? "";
+      ref.topic_last_date = ref?.LastDate ?? "";
+      ref.planning_date = ref?.PlanningDate ?? "";
+      ref.execution_date = ref?.ExecutionDate ?? "";
+      ref.course_outcome = ref?.CourseOutcome ?? "";
+      ref.learning_outcome = ref?.LearningOutcome ?? "";
+      ref.hours = ref?.Hours ?? "";
+      ref.minutes = ref?.Minutes ?? "";
+      // var valid_count = ref?.count ? parseInt(ref?.count) : d1;
+      // for (var i = 1; i <= valid_count; i++) {
+      //   chap_arr.push({
+      //     topic_name: ref?.[`Name${i}`],
+      //     topic_last_date: ref?.[`LastDate${i}`],
+      //   });
+      // }
       if (ref?.chapter_name) {
         new_data_query.push({
-          chapter_name: ref?.chapter_name,
-          topic_array: [...chap_arr],
+          ...ref
         });
       }
     }
+    console.log(new_data_query)
     return { chapter_array: new_data_query, value: true };
   } catch (e) {
     console.log("Subject Chapter Excel Query Not Resolved", e);

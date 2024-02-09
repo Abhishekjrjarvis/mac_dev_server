@@ -127,30 +127,85 @@ exports.renderEditOneChapterTopicQuery = async (req, res) => {
   }
 };
 
+// exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
+//   try {
+//     if (sid) {
+//       var valid_subject = await Subject.findById({ _id: sid });
+//       for (var val of chapter_array) {
+//         var new_chapter = new Chapter({
+//           chapter_name: val?.chapter_name,
+//         });
+//         for (var ref of val?.topic_array) {
+//           var new_topic = new ChapterTopic({
+//             topic_name: ref?.topic_name,
+//             topic_last_date: ref?.topic_last_date,
+//           });
+//           new_chapter.topic.push(new_topic?._id);
+//           new_chapter.topic_count += 1;
+//           new_topic.subject = valid_subject?._id;
+//           new_topic.chapter = new_chapter?._id;
+//           await new_topic.save();
+//         }
+//         valid_subject.chapter.push(new_chapter?._id);
+//         valid_subject.chapter_count += 1;
+//         await new_chapter.save();
+//       }
+//       await valid_subject.save();
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
 exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
   try {
-    console.log(chapter_array)
     if (sid) {
       var valid_subject = await Subject.findById({ _id: sid });
       for (var val of chapter_array) {
-        var new_chapter = new Chapter({
-          chapter_name: val?.chapter_name,
-        });
-        console.log(val?.topic_array)
-        for (var ref of val?.topic_array) {
+        var new_chapter_exist = new Chapter.findOne({ $and: [{ subject: valid_subject?._id }, { chapter_name: `${val?.chapter_name}`}]})
+        if (new_chapter_exist?._id) {
           var new_topic = new ChapterTopic({
-            topic_name: ref?.topic_name,
-            topic_last_date: ref?.topic_last_date,
+            topic_name: val?.topic_name,
+            topic_last_date: val?.topic_last_date,
+            planning_date: val?.planning_date,
+            execution_date: val?.execution_date,
+            course_outcome: val?.course_outcome,
+            learning_outcome: val?.learning_outcome,
           });
+          new_topic.timing.hours = val?.hours
+          new_topic.timing.minutes = val?.minutes
+          new_chapter_exist.topic.push(new_topic?._id);
+          new_chapter_exist.topic_count += 1;
+          new_topic.subject = valid_subject?._id;
+          new_topic.chapter = new_chapter_exist?._id;
+          await new_topic.save();
+          valid_subject.chapter.push(new_chapter_exist?._id);
+          valid_subject.chapter_count += 1;
+          await new_chapter_exist.save();
+        }
+        else {
+          var new_chapter = new Chapter({
+            chapter_name: val?.chapter_name,
+          });
+          var new_topic = new ChapterTopic({
+            topic_name: val?.topic_name,
+            topic_last_date: val?.topic_last_date,
+            planning_date: val?.planning_date,
+            execution_date: val?.execution_date,
+            course_outcome: val?.course_outcome,
+            learning_outcome: val?.learning_outcome,
+          });
+          new_topic.timing.hours = val?.hours
+          new_topic.timing.minutes = val?.minutes
           new_chapter.topic.push(new_topic?._id);
           new_chapter.topic_count += 1;
           new_topic.subject = valid_subject?._id;
           new_topic.chapter = new_chapter?._id;
           await new_topic.save();
+          valid_subject.chapter.push(new_chapter?._id);
+          valid_subject.chapter_count += 1;
+          await new_chapter.save();
         }
-        valid_subject.chapter.push(new_chapter?._id);
-        valid_subject.chapter_count += 1;
-        await new_chapter.save();
       }
       await valid_subject.save();
     }

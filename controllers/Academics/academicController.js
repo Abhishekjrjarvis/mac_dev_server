@@ -164,6 +164,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
       for (var val of chapter_array) {
         var new_chapter_exist = await Chapter.findOne({ $and: [{ subject: valid_subject?._id }, { chapter_name: `${val?.chapter_name}`}]})
         if (new_chapter_exist?._id) {
+          console.log("EXIST")
           var new_topic = new ChapterTopic({
             topic_name: val?.topic_name,
             topic_last_date: val?.topic_last_date,
@@ -181,6 +182,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
           await Promise.all([ new_topic.save(), new_chapter_exist.save()])
         }
         else {
+          console.log("NEW ADDED")
           var new_chapter = new Chapter({
             chapter_name: val?.chapter_name,
           });

@@ -136,6 +136,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
         var new_chapter = new Chapter({
           chapter_name: val?.chapter_name,
         });
+        console.log(topic_array)
         for (var ref of val?.topic_array) {
           var new_topic = new ChapterTopic({
             topic_name: ref?.topic_name,

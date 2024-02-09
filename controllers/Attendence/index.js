@@ -28,6 +28,24 @@ exports.viewClassStudent = async (req, res) => {
   res.status(200).send({ institute });
 };
 
+const time_convertor = (data) => {
+  let splt = data?.split(" ");
+  let nt = splt?.[0]?.split(":");
+  let hr = 0;
+  let total_min = 0;
+  if (splt?.[1] === "Pm" || splt?.[1] === "pm") {
+    if (+nt?.[0] === 12) {
+      hr = +nt?.[0];
+    } else {
+      hr = +nt?.[0] + 12;
+    }
+  } else {
+    hr = +nt?.[0];
+  }
+  total_min = hr * 60 + +nt?.[1];
+  return total_min;
+};
+
 // const
 exports.addClassWeeklyTime = async (req, res) => {
   try {
@@ -1893,14 +1911,16 @@ exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
 //   }
 // };
 
+
 exports.markAttendenceSubjectStudent = async (req, res) => {
   try {
     const { sid } = req.params;
     const { from, to, present, absent } = req.body;
-       var body_student = [];
+    var from_minutes = time_convertor(from);
+    var to_minutes = time_convertor(to);
+    var body_student = [];
     if (present?.length > 0) body_student = [...body_student, ...present];
     if (present?.length > 0) body_student = [...body_student, ...absent];
-
 
     const { flow } = req?.query;
     const subjects = await Subject.findById({ _id: sid }).populate({
@@ -1936,7 +1956,22 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       for (let t_slot of slot_based?.slot) {
         if (!t_slot.is_mark) {
         } else {
-          if (from >= t_slot.to || to <= t_slot.from) {
+          let slot_to = +t_slot?.to_minutes - 5;
+          let come_to_minutes = +to_minutes - 5;
+          // if (
+          //   from_minutes >= 5 - +t_slot.to_minutes ||
+          //   +to_minutes - 5 <= t_slot.from_minutes
+          // ) {
+          if (from_minutes >= slot_to) {
+            // console.log("slot", from_minutes, t_slot?.to_minutes);
+          } else if (come_to_minutes <= +t_slot?.from_minutes) {
+            // console.log(
+            //   "slot else if ",
+            //   +slot_to,
+            //   +t_slot?.from_minutes,
+            //   from_minutes,
+            //   come_to_minutes
+            // );
           } else {
             if (subjects?.selected_batch_query) {
               if (t_slot?.student?.length > 0) {
@@ -2120,7 +2155,10 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       for (let t_slot of slot_based?.slot) {
         if (!t_slot.is_mark) {
         } else {
-          if (from >= t_slot.to || to <= t_slot.from) {
+          let slot_to = +t_slot?.to_minutes - 5;
+          let come_to_minutes = +to_minutes - 5;
+          if (from_minutes >= slot_to) {
+          } else if (come_to_minutes <= +t_slot?.from_minutes) {
           } else {
             if (subjects?.selected_batch_query) {
               if (t_slot?.student?.length > 0) {
@@ -2289,6 +2327,7 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
     console.log(e);
   }
 };
+
 
 
 exports.markAttendenceSubjectStudentUpdate = async (req, res) => {
@@ -3566,6 +3605,8 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
     });
     let already_slot_mark = false;
     var subject = null;
+    var from_minutes = time_convertor(from);
+    var to_minutes = time_convertor(to);
     if (!slot_based?._id) {
       const cls = await Class.findById(cid);
       const slt = new ClassAttendanceTimeSlot({
@@ -3575,7 +3616,9 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
           {
             date: date,
             from: from,
+            from_minutes: from_minutes,
             to: to,
+            to_minutes: to_minutes,
             register_subject: sid,
             is_mark: false,
             is_extra: flow === "Normal_Lecture" ? false : true,
@@ -3590,8 +3633,31 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
         // } else
         if (!t_slot.is_mark) {
         } else {
-          if (from >= t_slot.to || to <= t_slot.from) {
+          // if (
+          //   from_minutes >= 5 - +t_slot?.to_minutes ||
+          //   +to_minutes - 5 <= t_slot?.from_minutes
+          // ) {
+          // if (from_minutes >= 5 - +t_slot?.to_minutes) {
+          let slot_to = +t_slot?.to_minutes - 5;
+          let come_to_minutes = +to_minutes - 5;
+          if (from_minutes >= slot_to) {
+            // console.log("slot", from_minutes, t_slot?.to_minutes);
+          } else if (come_to_minutes <= +t_slot?.from_minutes) {
+            // console.log(
+            //   "slot else if ",
+            //   +slot_to,
+            //   +t_slot?.from_minutes,
+            //   from_minutes,
+            //   come_to_minutes
+            // );
           } else {
+            // console.log(
+            //   "slot else ",
+            //   +slot_to,
+            //   +t_slot?.from_minutes,
+            //   from_minutes,
+            //   come_to_minutes
+            // );
             if (subjects?.selected_batch_query) {
             } else {
               subject = await Subject.findById(t_slot.register_subject)
@@ -3619,6 +3685,8 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
             t_slot.date = date;
             t_slot.from = from;
             t_slot.to = to;
+            t_slot.from_minutes = from_minutes;
+            t_slot.to_minutes = to_minutes;
             flag = false;
             break;
           }
@@ -3629,6 +3697,8 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
             date: date,
             from: from,
             to: to,
+            from_minutes: from_minutes,
+            to_minutes: to_minutes,
             register_subject: sid,
             is_mark: false,
             is_extra: flow === "Normal_Lecture" ? false : true,
@@ -3651,6 +3721,29 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+
+exports.subjectTimeSlotFormatQuery = async (req, res) => {
+  try {
+    const ts = await ClassAttendanceTimeSlot.find({});
+
+    for (let ct of ts) {
+      for (let st of ct?.slot) {
+        let from_minutes = time_convertor(st?.from);
+        let to_minutes = time_convertor(st?.to);
+        st.from_minutes = from_minutes;
+        st.to_minutes = to_minutes;
+      }
+      await ct.save();
+    }
+    res.status(200).send({
+      message: "Subject attendace time is set for taken attendance",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 
 
 

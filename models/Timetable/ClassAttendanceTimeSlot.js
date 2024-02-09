@@ -11,6 +11,8 @@ const classAttendanceTimeSlotSchema = new mongoose.Schema({
       date: String,
       from: String,
       to: String,
+      from_minutes: String,
+      to_minutes: String,
       register_subject: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Subject",

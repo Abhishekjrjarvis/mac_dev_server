@@ -1993,6 +1993,16 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
                 }
               }
             } else {
+              subject_taken = await Subject.findById({
+                _id: t_slot?.register_subject,
+              })
+                .populate({
+                  path: "subjectTeacherName",
+                  select: "staffFirstName staffLastName staffMiddleName",
+                })
+                .select("subjectName subjectTeacherName")
+                .lean()
+                .exec();
               flag = true;
               break;
             }
@@ -2180,6 +2190,16 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
                 }
               }
             } else {
+              subject_taken = await Subject.findById({
+                _id: t_slot?.register_subject,
+              })
+                .populate({
+                  path: "subjectTeacherName",
+                  select: "staffFirstName staffLastName staffMiddleName",
+                })
+                .select("subjectName subjectTeacherName")
+                .lean()
+                .exec();
               flag = true;
               break;
             }

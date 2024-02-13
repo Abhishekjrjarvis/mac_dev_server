@@ -331,7 +331,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "insName insAddress certificate_issued_count insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail",
+          "insName insAddress certificate_issued_count insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail leave_certificate_selection",
       })
       .populate({
         path: "remainingFeeList",

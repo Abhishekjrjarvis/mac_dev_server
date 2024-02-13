@@ -72,7 +72,6 @@ const studentSchema = new mongoose.Schema({
   studentLeavingInsDate: { type: String },
   studentLeavingRemark: { type: String },
   studentBookNo: { type: String },
-  studentCertificateNo: { type: String },
   studentROLLNO: { type: String },
   studentGRNO: { type: String },
   studentLeavingBehaviour: { type: String },

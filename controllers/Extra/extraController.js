@@ -318,7 +318,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentLeavingPreviousYear studentEmail leaving_guide_name leaving_project_work elective_subject_second elective_subject_one leaving_course_duration leaving_since_date leaving_degree leaving_date instituteJoinDate duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount"
+        "studentFirstName studentLeavingPreviousYear studentEmail leaving_guide_name student_prn_enroll_number studentCertificateNo studentLeavingStudy studentLeavingReason studentRemark leaving_project_work elective_subject_second elective_subject_one leaving_course_duration leaving_since_date leaving_degree leaving_date instituteJoinDate duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount"
       )
       .populate({
         path: "studentClass",

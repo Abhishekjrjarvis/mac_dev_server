@@ -1093,7 +1093,17 @@ const instituteAdminSchema = new mongoose.Schema({
   lms_status: {
     type: String,
     default: "Disable"
-  }
+  },
+  student_feedback: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StudentFeedback",
+    },
+  ],
+  student_feedback_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

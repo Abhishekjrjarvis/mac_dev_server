@@ -3764,6 +3764,88 @@ exports.subjectTimeSlotFormatQuery = async (req, res) => {
   }
 };
 
+exports.subjectTimeSlotFormatQuery = async (req, res) => {
+  try {
+    const ts = await ClassAttendanceTimeSlot.find({});
+
+    for (let ct of ts) {
+      for (let st of ct?.slot) {
+        let from_minutes = time_convertor(st?.from);
+        let to_minutes = time_convertor(st?.to);
+        st.from_minutes = from_minutes;
+        st.to_minutes = to_minutes;
+      }
+      await ct.save();
+    }
+    res.status(200).send({
+      message: "Subject attendace time is set for taken attendance",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.timetableQueryReset = async (req, res) => {
+  try {
+    console.log("Dsf");
+    const ts = await ClassTimetable.find({
+      $and: [{ day: { $eq: "Firday" } }],
+    });
+
+    // for (let ct of ts) {
+    //   for (let st of ct?.slot) {
+    //     let from_minutes = time_convertor(st?.from);
+    //     let to_minutes = time_convertor(st?.to);
+    //     st.from_minutes = from_minutes;
+    //     st.to_minutes = to_minutes;
+    //   }
+    //   await ct.save();
+    // }
+    res.status(200).send({
+      message: "time tabe",
+      ts,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+exports.subjectDeleteTodayAttendanceQuery = async (req, res) => {
+  try {
+    const { said } = req.params;
+    const studentAttendance = await AttendenceDate.findById(said);
+    var i = 0;
+    for (let ct of studentAttendance?.presentStudent) {
+      i += 1;
+      const student = await Student.findById(ct?.student);
+      student.subjectAttendance.pull(said);
+      await student.save();
+      console.log("number exist: ", i, "Id ", student?._id);
+    }
+    for (let ct of studentAttendance?.absentStudent) {
+      i += 1;
+      const student = await Student.findById(ct?.student);
+      student.subjectAttendance.pull(said);
+      await student.save();
+      console.log("number exist absent : ", i, "Id ", student?._id);
+    }
+    const subject = await Subject.findById(studentAttendance?.subject);
+    subject.attendance.pull(said);
+    await subject.save();
+    await AttendenceDate.findByIdAndDelete(said);
+    res.status(200).send({
+      message: "attendance is deleted",
+      i,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
 
 
 

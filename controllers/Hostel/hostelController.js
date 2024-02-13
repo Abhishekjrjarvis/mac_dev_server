@@ -7826,6 +7826,44 @@ exports.renderPass = async(req, res) => {
   }
 }
 
+exports.renderHostelCardQuery = async(req, res) => {
+  try{
+    var all_card = await RemainingList.find({ remaining_flow: "Hostel Application" })
+    .populate({
+      path: "student",
+      select: "hostel_fee_structure",
+      populate: {
+        path: "hostel_fee_structure",
+        select: "total_admission_fees finance",
+        populate: {
+          path: "finance",
+          select: "institute"
+        }
+      }
+    })
+    var i = 0
+    for (var val of all_card) {
+      if (val?.remaining_fee > 0) {
+        val.remaining_array.push({
+          remainAmount: val?.remaining_fee,
+          appId: val?.appId,
+          status: "Not Paid",
+          instituteId: val?.hostel_fee_structure?.finance?.institute,
+          installmentValue: "Installment Remain",
+          isEnable: true,
+        }) 
+      }
+      console.log(i)
+      await val.save()
+      i+= 1
+    }
+    res.status(200).send({ message: "Pass In Hostel", count: all_card?.length})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 // exports.renderHostelAllAppsQuery = async (req, res) => {
 //   try {
 //     const { hid } = req.params;

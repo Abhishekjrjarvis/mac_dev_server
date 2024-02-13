@@ -146,7 +146,19 @@ router
 
   router
   .route("/set/subject/:sid/attendace/time/slot")
-  .patch(catchAsync(Avail.subjectTodaySetAttendanceTimeQuery));
+    .patch(catchAsync(Avail.subjectTodaySetAttendanceTimeQuery));
+  
+    router
+  .route("/set/time/slot")
+  .get(catchAsync(Avail.subjectTimeSlotFormatQuery));
+
+router
+  .route("/delete/:said/today")
+  .patch(catchAsync(Avail.subjectDeleteTodayAttendanceQuery));
+
+router
+  .route("/timetable/all/day/check")
+  .patch(catchAsync(Avail.timetableQueryReset));
 
 
 module.exports = router;

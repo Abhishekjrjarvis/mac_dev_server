@@ -7,6 +7,7 @@ const staffAttendenceDateSchema = new mongoose.Schema({
   },
   staffAttendTime: {
     type: Date,
+    default: Date.now,
   },
   presentTotal: {
     type: Number,

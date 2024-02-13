@@ -1104,6 +1104,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  leave_certificate_selection: {
+    type: String,
+    default: "Standard"
+  }
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

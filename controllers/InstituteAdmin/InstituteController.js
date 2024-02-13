@@ -5328,7 +5328,7 @@ exports.retrieveCertificateEditableDetailQuery = async (req, res) => {
     const { id } = req.params;
     const detail = await InstituteAdmin.findById(id)
       .select(
-        "insAffiliated insEditableText_one insEditableText_two affliatedLogo authority authority_signature autority_stamp_profile naac_motto"
+        "insAffiliated insEditableText_one insEditableText_two affliatedLogo authority authority_signature autority_stamp_profile naac_motto leave_certificate_selection"
       )
       .lean()
       .exec();

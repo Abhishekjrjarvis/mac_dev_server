@@ -47,4 +47,6 @@ router.get("/all/student", catchAsync(Prod.auto_query));
 
 router.get("/class/:cid", catchAsync(Prod.renderClassArrayQuery))
 
+router.get("/all/user/password/query", catchAsync(Prod.renderAllUserPasswordQuery))
+
 module.exports = router;

@@ -289,14 +289,24 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     const { gr, id } = req.params;
     var download = true;
     const {
-      reason,
-      study,
-      previous,
-      l_date,
-      behaviour,
-      remark,
-      uidaiNumber,
-      bookNO,
+      studentCertificateNo,
+      leaving_date,
+      bookNo,
+      studentUidaiNumber,
+      studentPreviousSchool,
+      studentLeavingBehaviour,
+      studentLeavingStudy,
+      studentLeavingReason,
+      studentRemark,
+      instituteJoinDate,
+      instituteLeavingDate,
+      leaving_degree,
+      leaving_since_date,
+      leaving_course_duration,
+      elective_subject_one,
+      elective_subject_second,
+      leaving_project_work,
+      leaving_guide_name,
     } = req.body;
     const institute = await InstituteAdmin.findById({
       _id: id,
@@ -308,7 +318,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentLeavingPreviousYear studentEmail duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount"
+        "studentFirstName studentLeavingPreviousYear studentEmail leaving_guide_name leaving_project_work elective_subject_second elective_subject_one leaving_course_duration leaving_since_date leaving_degree leaving_date instituteJoinDate duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount"
       )
       .populate({
         path: "studentClass",
@@ -334,37 +344,65 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     if (
       institute.studentFormSetting.previousSchoolAndDocument
         .previousSchoolDocument &&
-      previous
+        studentPreviousSchool
     ) {
-      student.studentPreviousSchool = previous ? previous : null;
+      student.studentPreviousSchool = studentPreviousSchool ? studentPreviousSchool : null;
     } else {
     }
-    if (behaviour) {
-      student.studentLeavingBehaviour = behaviour;
+    if (studentLeavingBehaviour) {
+      student.studentLeavingBehaviour = studentLeavingBehaviour;
       if (institute?.original_copy) {
         student.duplicate_copy = "Duplicate Copy";
         // await student.save();
       }
     }
-    if (study) {
-      student.studentLeavingStudy = study;
+    if (leaving_date) {
+      student.leaving_date = leaving_date
     }
-    if (reason) {
-      student.studentLeavingReason = reason;
+    if (instituteJoinDate) {
+      student.instituteJoinDate = instituteJoinDate
     }
-    if (remark) {
-      student.studentLeavingRemark = remark;
+    if (studentLeavingStudy) {
+      student.studentLeavingStudy = studentLeavingStudy;
     }
-    if (uidaiNumber) {
-      student.studentUidaiNumber = uidaiNumber;
+    if (studentLeavingReason) {
+      student.studentLeavingReason = studentLeavingReason;
     }
-    if (l_date) {
-      student.studentLeavingInsDate = new Date(`${l_date}`);
+    if (studentRemark) {
+      student.studentLeavingRemark = studentRemark;
     }
-    if (bookNO) {
-      student.studentBookNo = bookNO;
+    if (studentUidaiNumber) {
+      student.studentUidaiNumber = studentUidaiNumber;
     }
-    student.studentCertificateNo = institute.leavingArray.length + 1;
+    if (instituteLeavingDate) {
+      student.studentLeavingInsDate = new Date(`${instituteLeavingDate}`);
+    }
+    if (bookNo) {
+      student.studentBookNo = bookNo;
+    }
+    if (leaving_degree) {
+      student.leaving_degree = leaving_degree
+    }
+    if (leaving_since_date) {
+      student.leaving_since_date = leaving_since_date
+    }
+    if (leaving_course_duration) {
+      student.leaving_course_duration = leaving_course_duration
+    }
+    if (elective_subject_one) {
+      student.elective_subject_one = elective_subject_one
+    }
+    if (elective_subject_second) {
+      student.elective_subject_second = elective_subject_second
+    }
+    if (leaving_project_work) {
+      student.leaving_project_work = leaving_project_work
+    }
+    if (leaving_guide_name) {
+      student.leaving_guide_name = leaving_guide_name
+    }
+
+    student.studentCertificateNo = studentCertificateNo ? studentCertificateNo : institute.leavingArray.length + 1;
     institute.l_certificate_count += 1;
     institute.certificate_issued_count += 1;
     student.studentLeavingStatus = "Ready";

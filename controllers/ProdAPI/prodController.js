@@ -424,3 +424,16 @@ exports.renderClassArrayQuery = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.renderAllUserPasswordQuery = async (req, res) => {
+  try {
+    var all_user = await User.find({})
+    for (var val of all_user) {
+      // const code = 
+      // val.user_normal_password
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

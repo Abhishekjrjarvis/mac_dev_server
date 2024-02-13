@@ -886,6 +886,33 @@ const studentSchema = new mongoose.Schema({
   refund: {
     type: Number,
     default: 0
+  },
+  leaving_date: {
+    type: String
+  },
+  instituteJoinDate: {
+    type: String
+  },
+  leaving_degree: {
+    type: String
+  },
+  leaving_since_date: {
+    type: String
+  },
+  leaving_course_duration: {
+    type: String
+  },
+  elective_subject_one: {
+    type: String
+  },
+  elective_subject_second: {
+    type: String
+  },
+  leaving_project_work: {
+    type: String
+  },
+  leaving_guide_name: {
+    type: String
   }
 });
 

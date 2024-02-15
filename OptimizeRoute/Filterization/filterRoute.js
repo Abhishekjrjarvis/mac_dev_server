@@ -198,4 +198,9 @@ router.patch(
   catchAsync(Filter.renderFilterByDepartmentQuery)
 );
 
+// router.patch(
+//   "/:did/all/depart",
+//   catchAsync(Filter.renderFilterByDepartmentQuery)
+// );
+
 module.exports = router;

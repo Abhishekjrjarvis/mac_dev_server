@@ -10,6 +10,11 @@ const OrderPayment = require("../../models/RazorPay/orderPayment");
 const FeeStructure = require("../../models/Finance/FeesStructure");
 const RemainingList = require("../../models/Admission/RemainingList");
 const Department = require("../../models/Department");
+const { universal_random_password } = require("../../Custom/universalId");
+const bcrypt = require("bcryptjs");
+const { generate_excel_to_json_accession_query } = require("../../Custom/excelToJSON");
+const { simple_object } = require("../../S3Configuration");
+const Book = require("../../models/Library/Book");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // exports.allUsers = async (req, res) => {
@@ -428,12 +433,63 @@ exports.renderClassArrayQuery = async (req, res) => {
 exports.renderAllUserPasswordQuery = async (req, res) => {
   try {
     var all_user = await User.find({})
+    var i = 0
     for (var val of all_user) {
-      // const code = 
-      // val.user_normal_password
+      console.log(i)
+      const code = "qviple@161028520"
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+      val.user_normal_password = `${code}`
+      val.user_universal_password = `${hash_user_pass}`
+      await val.save()
+      i+= 1
     }
   }
   catch (e) {
     console.log(e)
   }
 }
+
+const new_accession = async (acc) => {
+  try {
+    if (acc?.length > 0) {
+      var i = 0
+      for (var val of acc) {
+        console.log(i)
+        const old_book = await Book.findOne({ accession_number: `` })
+        old_book.accession_number = `${val?.accession_number}`
+        await old_book.save()
+        i+= 1
+      }
+      console.log("DONE")
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderExcelToJSONEmailReplaceQuery = async (req, res) => {
+  try {
+    // const { excel_file } = req.body;
+
+    // const val = await simple_object(excel_file);
+
+    // res.status(200).send({ message: "Email Replace " });
+    // const is_converted = await generate_excel_to_json_accession_query(val);
+    // if (is_converted?.value) {
+    //   await new_accession(is_converted?.email_array);
+    // } else {
+    //   console.log("false");
+    // }
+    var old_book = await Book.find({ department: "6527a0b16e3e6e615a0ee53a" })
+      for (var val = 1; val <= old_book?.length; val ++) {
+        old_book[val].accession_number = `D-${val+1}`
+        await old_book[val].save()
+        console.log(val)
+      }
+      console.log("DONE")
+  } catch (e) {
+    console.log(e);
+  }
+};

@@ -903,3 +903,20 @@ exports.generate_excel_to_json_staff_leave_query = async (file) => {
     console.log("Staff Leave Excel Query Not Resolved", e);
   }
 };
+
+exports.generate_excel_to_json_accession_query = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["NewAccession"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var ref of data_query) {
+      ref.accession_number = ref?.New;
+      new_data_query.push(ref);
+    }
+    console.log(new_data_query)
+    // return { email_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("Accession Number Excel Query Not Resolved", e);
+  }
+}

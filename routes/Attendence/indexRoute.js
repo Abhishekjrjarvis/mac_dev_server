@@ -160,5 +160,9 @@ router
   .route("/timetable/all/day/check")
   .patch(catchAsync(Avail.timetableQueryReset));
 
+  router
+  .route("/subject/already/slot/mark/class/:cid")
+  .get(catchAsync(Avail.subjectTimeSlotMarkListQuery));
+
 
 module.exports = router;

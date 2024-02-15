@@ -1370,6 +1370,7 @@ exports.getSubjectStudentList = async (req, res) => {
     console.log(e);
   }
 };
+
 exports.getAttendSubjectStudent = async (req, res) => {
   try {
     const prevDate = req.query.date;
@@ -1429,6 +1430,7 @@ exports.getAttendSubjectStudent = async (req, res) => {
       is_mark: subjects.attendance[0]?._id ? true : false,
       already_slot_mark: false,
       subject: null,
+      is_timetable: false,
     };
     // console.log(subjects?.class);
     if (!subjects.attendance[0]?._id) {
@@ -1456,7 +1458,6 @@ exports.getAttendSubjectStudent = async (req, res) => {
           }
         }
       }
-
       // here start for time table
       if (!obj?.to && !obj?.from) {
         for (let time_table of subjects?.class?.timetableDayWise?.[0]
@@ -1464,6 +1465,7 @@ exports.getAttendSubjectStudent = async (req, res) => {
           if (`${time_table?.subject}` === `${req.params.sid}`) {
             obj.to = time_table.to;
             obj.from = time_table.from;
+            obj.is_timetable = true;
             break;
           }
         }
@@ -1529,6 +1531,7 @@ exports.getAttendSubjectStudent = async (req, res) => {
     console.log(e);
   }
 };
+
 
 
 exports.getAttendSubjectStudentExtraQuery = async (req, res) => {
@@ -1605,6 +1608,7 @@ exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
       from: attend?.from ?? "",
       is_mark: true,
       already_slot_mark: false,
+      is_timetable: false,
     };
     attend?.presentStudent?.forEach((st) => present.push(st.student));
     attend?.absentStudent?.forEach((st) => absent.push(st.student));
@@ -1628,6 +1632,7 @@ exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 
 // exports.markAttendenceSubjectStudent = async (req, res) => {
 //   try {
@@ -1912,6 +1917,46 @@ exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
 // };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 exports.markAttendenceSubjectStudent = async (req, res) => {
   try {
     const { sid } = req.params;
@@ -1952,59 +1997,61 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         ],
       });
       let flag = false;
-
-      for (let t_slot of slot_based?.slot) {
-        if (!t_slot.is_mark) {
-        } else {
-          let slot_to = +t_slot?.to_minutes - 5;
-          let come_to_minutes = +to_minutes - 5;
-          // if (
-          //   from_minutes >= 5 - +t_slot.to_minutes ||
-          //   +to_minutes - 5 <= t_slot.from_minutes
-          // ) {
-          if (from_minutes >= slot_to) {
-            // console.log("slot", from_minutes, t_slot?.to_minutes);
-          } else if (come_to_minutes <= +t_slot?.from_minutes) {
-            // console.log(
-            //   "slot else if ",
-            //   +slot_to,
-            //   +t_slot?.from_minutes,
-            //   from_minutes,
-            //   come_to_minutes
-            // );
+      if (slot_based?.slot?.length > 0) {
+        for (let t_slot of slot_based?.slot) {
+          if (!t_slot.is_mark) {
           } else {
-            if (subjects?.selected_batch_query) {
-              if (t_slot?.student?.length > 0) {
-                for (let gt of t_slot?.student) {
-                  if (body_student?.includes(`${gt}`)) {
-                    subject_taken = await Subject.findById({
-                      _id: t_slot?.register_subject,
-                    })
-                      .populate({
-                        path: "subjectTeacherName",
-                        select: "staffFirstName staffLastName staffMiddleName",
+            let slot_to = +t_slot?.to_minutes - 5;
+            let come_to_minutes = +to_minutes - 5;
+            // if (
+            //   from_minutes >= 5 - +t_slot.to_minutes ||
+            //   +to_minutes - 5 <= t_slot.from_minutes
+            // ) {
+            if (from_minutes >= slot_to) {
+              // console.log("slot", from_minutes, t_slot?.to_minutes);
+            } else if (come_to_minutes <= +t_slot?.from_minutes) {
+              // console.log(
+              //   "slot else if ",
+              //   +slot_to,
+              //   +t_slot?.from_minutes,
+              //   from_minutes,
+              //   come_to_minutes
+              // );
+            } else {
+              if (subjects?.selected_batch_query) {
+                if (t_slot?.student?.length > 0) {
+                  for (let gt of t_slot?.student) {
+                    if (body_student?.includes(`${gt}`)) {
+                      subject_taken = await Subject.findById({
+                        _id: t_slot?.register_subject,
                       })
-                      .select("subjectName subjectTeacherName")
-                      .lean()
-                      .exec();
-                    flag = true;
-                    break;
+                        .populate({
+                          path: "subjectTeacherName",
+                          select:
+                            "staffFirstName staffLastName staffMiddleName",
+                        })
+                        .select("subjectName subjectTeacherName")
+                        .lean()
+                        .exec();
+                      flag = true;
+                      break;
+                    }
                   }
                 }
-              }
-            } else {
-              subject_taken = await Subject.findById({
-                _id: t_slot?.register_subject,
-              })
-                .populate({
-                  path: "subjectTeacherName",
-                  select: "staffFirstName staffLastName staffMiddleName",
+              } else {
+                subject_taken = await Subject.findById({
+                  _id: t_slot?.register_subject,
                 })
-                .select("subjectName subjectTeacherName")
-                .lean()
-                .exec();
-              flag = true;
-              break;
+                  .populate({
+                    path: "subjectTeacherName",
+                    select: "staffFirstName staffLastName staffMiddleName",
+                  })
+                  .select("subjectName subjectTeacherName")
+                  .lean()
+                  .exec();
+                flag = true;
+                break;
+              }
             }
           }
         }
@@ -2162,50 +2209,54 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       });
       let flag = false;
 
-      for (let t_slot of slot_based?.slot) {
-        if (!t_slot.is_mark) {
-        } else {
-          let slot_to = +t_slot?.to_minutes - 5;
-          let come_to_minutes = +to_minutes - 5;
-          if (from_minutes >= slot_to) {
-          } else if (come_to_minutes <= +t_slot?.from_minutes) {
+      if (slot_based?.slot?.length > 0) {
+        for (let t_slot of slot_based?.slot) {
+          if (!t_slot.is_mark) {
           } else {
-            if (subjects?.selected_batch_query) {
-              if (t_slot?.student?.length > 0) {
-                for (let gt of t_slot?.student) {
-                  if (body_student?.includes(`${gt}`)) {
-                    subject_taken = await Subject.findById({
-                      _id: t_slot?.register_subject,
-                    })
-                      .populate({
-                        path: "subjectTeacherName",
-                        select: "staffFirstName staffLastName staffMiddleName",
+            let slot_to = +t_slot?.to_minutes - 5;
+            let come_to_minutes = +to_minutes - 5;
+            if (from_minutes >= slot_to) {
+            } else if (come_to_minutes <= +t_slot?.from_minutes) {
+            } else {
+              if (subjects?.selected_batch_query) {
+                if (t_slot?.student?.length > 0) {
+                  for (let gt of t_slot?.student) {
+                    if (body_student?.includes(`${gt}`)) {
+                      subject_taken = await Subject.findById({
+                        _id: t_slot?.register_subject,
                       })
-                      .select("subjectName subjectTeacherName")
-                      .lean()
-                      .exec();
-                    flag = true;
-                    break;
+                        .populate({
+                          path: "subjectTeacherName",
+                          select:
+                            "staffFirstName staffLastName staffMiddleName",
+                        })
+                        .select("subjectName subjectTeacherName")
+                        .lean()
+                        .exec();
+                      flag = true;
+                      break;
+                    }
                   }
                 }
-              }
-            } else {
-              subject_taken = await Subject.findById({
-                _id: t_slot?.register_subject,
-              })
-                .populate({
-                  path: "subjectTeacherName",
-                  select: "staffFirstName staffLastName staffMiddleName",
+              } else {
+                subject_taken = await Subject.findById({
+                  _id: t_slot?.register_subject,
                 })
-                .select("subjectName subjectTeacherName")
-                .lean()
-                .exec();
-              flag = true;
-              break;
+                  .populate({
+                    path: "subjectTeacherName",
+                    select: "staffFirstName staffLastName staffMiddleName",
+                  })
+                  .select("subjectName subjectTeacherName")
+                  .lean()
+                  .exec();
+                flag = true;
+                break;
+              }
             }
           }
         }
       }
+
       if (flag) {
         res.status(200).send({
           already_slot_mark: flag,
@@ -2347,6 +2398,7 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
     console.log(e);
   }
 };
+
 
 
 
@@ -3843,6 +3895,56 @@ exports.subjectDeleteTodayAttendanceQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.subjectTimeSlotMarkListQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug regarding to call api",
+        access: false,
+      });
+    const { date } = req.query;
+    const slot_based = await ClassAttendanceTimeSlot.findOne({
+      $and: [
+        {
+          date: { $eq: date },
+        },
+        {
+          class: { $eq: `${cid}` },
+        },
+      ],
+    });
+
+    let slots = [];
+    for (let st of slot_based?.slot ?? []) {
+      if (st?.is_mark) {
+        let subject = await Subject.findById(st?.register_subject)
+          .populate({
+            path: "subjectTeacherName",
+            select:
+              "staffFirstName staffLastName staffMiddleName staffROLLNO photoId staffProfilePhoto",
+          })
+          .select("subjectName subjectTeacherName");
+
+        slots.push({
+          from: st?.from,
+          to: st?.to,
+          is_mark: st?.is_mark,
+          is_extra: st?.is_extra,
+          subject: subject,
+        });
+      }
+    }
+    res.status(200).send({
+      slots,
+      message: "Already marked attendace list of subject",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 
 
 

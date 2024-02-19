@@ -5923,14 +5923,17 @@ exports.renderScholarshipFundsQuery = async(req, res) => {
 
 exports.renderFeeStructureCodeQuery = async (req, res) => {
   try {
-    const { fid } = req?.params
-    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    // const { fid } = req?.params
+    // if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    var struct = await FeeStructure.find({ finance: fid })
+    var struct = await FeeStructure.find({})
+    var i = 0
     for (var v of struct) {
       const new_code = generate_random_code_structure()
       v.fee_structure_code = `${new_code}`
       await v.save()
+      console.log(i)
+      i+= 1
     }
     res.status(200).send({ message: "Explore New Fee Structure Code", access: true })
   }

@@ -25,6 +25,14 @@ const classAttendanceTimeSlotSchema = new mongoose.Schema({
           ref: "Student",
         },
       ],
+      which_lecture: {
+        type: String,
+        default: "0",
+      },
+      which_extra_lecture: {
+        type: String,
+        default: "0",
+      },
     },
   ],
 });

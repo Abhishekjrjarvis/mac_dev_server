@@ -1107,7 +1107,17 @@ const instituteAdminSchema = new mongoose.Schema({
   leave_certificate_selection: {
     type: String,
     default: "Standard"
-  }
+  },
+  governance_depart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Governance"
+    }
+  ],
+  governance_status: {
+    type: String,
+    default: "Disable"
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

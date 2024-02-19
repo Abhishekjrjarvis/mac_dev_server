@@ -544,20 +544,13 @@ const staffSchema = new mongoose.Schema({
   staff_emp_code: {
     type: String
   },
-  student_give_feedback: [
+  student_feedback: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "StudentGiveFeedback",
+      ref: "StaffStudentFeedback",
     },
   ],
-  student_give_feedback_count: {
-    type: Number,
-    default: 0,
-  },
-  avg_student_give_feedback: {
-    type: Number,
-    default: 0,
-  },
+
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

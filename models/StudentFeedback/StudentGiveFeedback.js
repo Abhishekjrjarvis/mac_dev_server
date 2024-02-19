@@ -4,10 +4,10 @@ const studentGiveFeedbackSchema = new mongoose.Schema({
   feedback_name: {
     type: String,
   },
-  // Range or Other
+  // Range or Other or Normal
   feedback_type: {
     type: String,
-    default: "Other",
+    default: "Range",
   },
   institute: {
     type: mongoose.Schema.Types.ObjectId,
@@ -20,6 +20,14 @@ const studentGiveFeedbackSchema = new mongoose.Schema({
   subject_teacher: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff",
+  },
+  subject_master: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SubjectMaster",
+  },
+  student_class: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Class",
   },
   institute_feedback: {
     type: mongoose.Schema.Types.ObjectId,
@@ -57,6 +65,10 @@ const studentGiveFeedbackSchema = new mongoose.Schema({
   },
   avg_point: {
     type: String,
+  },
+  feedback_rating: {
+    type: Number,
+    default: 0,
   },
 });
 

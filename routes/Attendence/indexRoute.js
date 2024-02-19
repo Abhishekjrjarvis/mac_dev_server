@@ -162,7 +162,16 @@ router
 
   router
   .route("/subject/already/slot/mark/class/:cid")
-  .get(catchAsync(Avail.subjectTimeSlotMarkListQuery));
+    .get(catchAsync(Avail.subjectTimeSlotMarkListQuery));
+  
+    router
+  .route("/update/subject/:sid/attendace/set/time/slot")
+  .patch(catchAsync(Avail.subjectTodayUpdateAttendanceTimeQuery));
+
+router
+  .route("/today/subject/:sid/added/lecture")
+  .get(catchAsync(Avail.getSubjectAttednaceLectureQuery))
+  .post(catchAsync(Avail.subjectAttednaceAddLectureQuery));
 
 
 module.exports = router;

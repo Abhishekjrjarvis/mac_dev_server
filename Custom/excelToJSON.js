@@ -672,7 +672,6 @@ exports.generate_excel_to_json_fee_query = async (file, aid, fid) => {
           $and: [
             { admissionAdmin: aid },
             { applicationDepartment: new_fee_struct?.department },
-            { applicationMaster: new_fee_struct?.class_master },
             { applicationBatch: new_fee_struct?.batch_master}
           ],
         });

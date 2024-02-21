@@ -2022,7 +2022,7 @@ exports.renderActiveDesignationRoleQuery = async (req, res) => {
 exports.renderExcelToJSONSubjectChapterQuery = async (req, res) => {
   try {
     const { sid } = req.params;
-    const { excel_file } = req.body;
+    const { excel_file, excel_count } = req.body;
     if (!sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -2059,7 +2059,7 @@ exports.renderExcelToJSONSubjectChapterQuery = async (req, res) => {
     // }
     // const val = await simple_object(key);
 
-    const is_converted = await generate_excel_to_json_subject_chapter_query(excel_file);
+    const is_converted = await generate_excel_to_json_subject_chapter_query(excel_file, excel_count);
     if (is_converted?.value) {
       await renderNewOneChapterTopicQuery(sid, is_converted?.chapter_array);
     } else {

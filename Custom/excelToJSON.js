@@ -614,34 +614,56 @@ exports.generate_excel_to_json_un_approved = async (file, aid, fid, did) => {
   }
 };
 
-exports.generate_excel_to_json_subject_chapter_query = async (file) => {
+// exports.generate_excel_to_json_subject_chapter_query = async (file) => {
+//   try {
+//     const w_query = xlsx.read(file.Body);
+//     const w_sheet = w_query.Sheets["SubjectChapter"];
+//     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+//     var new_data_query = [];
+//     for (var ref of data_query) {
+//       var chap_arr = [];
+//       ref.chapter_name = ref?.Topic ?? "";
+//       ref.topic_name = ref?.SubTopic ?? "";
+//       ref.topic_last_date = ref?.LastDate ?? "";
+//       ref.planning_date = ref?.PlanningDate ?? "";
+//       ref.execution_date = ref?.ExecutionDate ?? "";
+//       ref.course_outcome = ref?.CourseOutcome ?? "";
+//       ref.learning_outcome = ref?.LearningOutcome ?? "";
+//       ref.hours = ref?.Hours ?? "";
+//       ref.minutes = ref?.Minutes ?? "";
+//       if (ref?.chapter_name) {
+//         new_data_query.push({
+//           ...ref
+//         });
+//       }
+//     }
+//     return { chapter_array: new_data_query, value: true };
+//   } catch (e) {
+//     console.log("Subject Chapter Excel Query Not Resolved", e);
+//   }
+// };
+
+exports.generate_excel_to_json_subject_chapter_query = async (excel_arr, excel_count) => {
   try {
-    const w_query = xlsx.read(file.Body);
-    const w_sheet = w_query.Sheets["SubjectChapter"];
-    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
     var new_data_query = [];
-    for (var ref of data_query) {
-      var chap_arr = [];
-      ref.chapter_name = ref?.Topic ?? "";
-      ref.topic_name = ref?.SubTopic ?? "";
-      ref.topic_last_date = ref?.LastDate ?? "";
-      ref.planning_date = ref?.PlanningDate ?? "";
-      ref.execution_date = ref?.ExecutionDate ?? "";
-      ref.course_outcome = ref?.CourseOutcome ?? "";
-      ref.learning_outcome = ref?.LearningOutcome ?? "";
-      ref.hours = ref?.Hours ?? "";
-      ref.minutes = ref?.Minutes ?? "";
-      if (ref?.chapter_name) {
-        new_data_query.push({
-          ...ref
-        });
+    var obj = {}
+    for (var ref of excel_arr) {
+      for (var val = 0; val < excel_count; val++){
+        if (ref[`key${val}`]) {
+          obj[ref[`key${val}`].db_key] = ref[`key${val}`]?.value
+        }
       }
+      new_data_query.push({
+        ...obj
+      });
     }
     return { chapter_array: new_data_query, value: true };
   } catch (e) {
     console.log("Subject Chapter Excel Query Not Resolved", e);
   }
 };
+
+// console.log(generate_excel_to_json_subject_chapter_query(data_set, 2))
 
 exports.generate_excel_to_json_fee_query = async (file, aid, fid) => {
   try {

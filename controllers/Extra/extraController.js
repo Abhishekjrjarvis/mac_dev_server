@@ -2029,39 +2029,37 @@ exports.renderExcelToJSONSubjectChapterQuery = async (req, res) => {
         access: false,
       });
 
-    const one_subject = await Subject.findById({ _id: sid });
-    const one_class = await Class.findById({ _id: `${one_subject?.class}` });
-    const one_ins = await InstituteAdmin.findById({
-      _id: `${one_class?.institute}`,
-    });
-    one_ins.excel_data_query.push({
-      excel_file: excel_file,
-      subjectId: one_subject?._id,
-      status: "Uploaded",
-    });
-    await one_ins.save();
+    // const one_subject = await Subject.findById({ _id: sid });
+    // const one_class = await Class.findById({ _id: `${one_subject?.class}` });
+    // const one_ins = await InstituteAdmin.findById({
+    //   _id: `${one_class?.institute}`,
+    // });
+    // one_ins.excel_data_query.push({
+    //   excel_file: excel_file,
+    //   subjectId: one_subject?._id,
+    //   status: "Uploaded",
+    // });
+    // await one_ins.save();
     res.status(200).send({
       message: "Update Excel To Backend Wait for Operation Completed",
       access: true,
     });
 
-    const update_ins = await InstituteAdmin.findById({
-      _id: `${one_class?.institute}`,
-    });
-    var key;
-    for (var ref of update_ins?.excel_data_query) {
-      if (
-        `${ref.status}` === "Uploaded" &&
-        `${ref?.subjectId}` === `${one_subject?._id}`
-      ) {
-        key = ref?.excel_file;
-      }
-    }
-    const val = await simple_object(key);
+    // const update_ins = await InstituteAdmin.findById({
+    //   _id: `${one_class?.institute}`,
+    // });
+    // var key;
+    // for (var ref of update_ins?.excel_data_query) {
+    //   if (
+    //     `${ref.status}` === "Uploaded" &&
+    //     `${ref?.subjectId}` === `${one_subject?._id}`
+    //   ) {
+    //     key = ref?.excel_file;
+    //   }
+    // }
+    // const val = await simple_object(key);
 
-    const is_converted = await generate_excel_to_json_subject_chapter_query(
-      val
-    );
+    const is_converted = await generate_excel_to_json_subject_chapter_query(excel_file);
     if (is_converted?.value) {
       await renderNewOneChapterTopicQuery(sid, is_converted?.chapter_array);
     } else {

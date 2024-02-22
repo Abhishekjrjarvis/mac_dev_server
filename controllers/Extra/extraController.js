@@ -307,6 +307,12 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       elective_subject_second,
       leaving_project_work,
       leaving_guide_name,
+      lcRegNo,
+      lcCaste,
+      lcBirth,
+      lcDOB,
+      lcAdmissionDate,
+      lcInstituteDate
     } = req.body;
     const institute = await InstituteAdmin.findById({
       _id: id,
@@ -318,7 +324,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentLeavingPreviousYear studentEmail leaving_guide_name studentLeavingInsDate studentRemark student_prn_enroll_number studentCertificateNo studentLeavingStudy studentLeavingReason studentRemark leaving_project_work elective_subject_second elective_subject_one leaving_course_duration leaving_since_date leaving_degree leaving_date instituteJoinDate duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount"
+        "studentFirstName studentLeavingPreviousYear studentEmail leaving_guide_name studentLeavingInsDate studentRemark student_prn_enroll_number studentCertificateNo studentLeavingStudy studentLeavingReason studentRemark leaving_project_work elective_subject_second elective_subject_one leaving_course_duration leaving_since_date leaving_degree leaving_date instituteJoinDate duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount lcRegNo lcCaste lcBirth lcDOB lcAdmissionDate lcInstituteDate studentLeavingRemark"
       )
       .populate({
         path: "studentClass",
@@ -398,8 +404,23 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     if (leaving_project_work) {
       student.leaving_project_work = leaving_project_work
     }
-    if (leaving_guide_name) {
-      student.leaving_guide_name = leaving_guide_name
+    if (lcRegNo) {
+      student.lcRegNo = lcRegNo
+    }
+    if (lcCaste) {
+      student.lcCaste = lcCaste
+    }
+    if (lcDOB) {
+      student.lcDOB = lcDOB
+    }
+    if (lcBirth) {
+      student.lcBirth = lcBirth
+    }
+    if (lcAdmissionDate) {
+      student.lcAdmissionDate = lcAdmissionDate
+    }
+    if (lcInstituteDate) {
+      student.lcInstituteDate = lcInstituteDate
     }
 
     student.studentCertificateNo = studentCertificateNo ? studentCertificateNo : institute.leavingArray.length + 1;

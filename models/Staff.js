@@ -550,7 +550,6 @@ const staffSchema = new mongoose.Schema({
       ref: "StaffStudentFeedback",
     },
   ],
-
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

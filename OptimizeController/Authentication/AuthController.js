@@ -5178,8 +5178,34 @@ exports.renderAllStudentToUnApprovedAutoCatalogQuery = async (
   }
 };
 
+
 // exports.renderStaffToUnApprovedQuery = async (req, res) => {
 //   try {
+//     var replace_staff = {
+//       staffDepartment: [],
+//       staffClass: [],
+//       staffSubject: [],
+//       financeDepartment: [],
+//       admissionDepartment: [],
+//       transportDepartment: [],
+//       vehicle: [],
+//       mentorDepartment: [],
+//       eventManagerDepartment: [],
+//       aluminiDepartment: [],
+//       hostelDepartment: [],
+//       hostelUnitDepartment: [],
+//       sportDepartment: [],
+//       staffSportClass: [],
+//       elearning: [],
+//       library: [],
+//       admissionModeratorDepartment: [],
+//       financeModeratorDepartment: [],
+//       instituteModeratorDepartment: [],
+//       hostelModeratorDepartment: [],
+//       staffBatch: [],
+//       libraryModeratorDepartment: [],
+//       lms_department: []
+//     }
 //     const { status, previousStaff, assignedStaff } = req.body;
 //     const transfer = await Transfer.findById(req.params.tid);
 //     const institute = await InstituteAdmin.findById(
@@ -5195,6 +5221,7 @@ exports.renderAllStudentToUnApprovedAutoCatalogQuery = async (
 //     });
 //     const staffNew = await Staff.findById(assignedStaff);
 //     const transferStaff = await Staff.findById(previousStaff);
+//     replace_staff.
 //     transfer.transferStatus = status;
 //     transfer.replaceBystaff = assignedStaff;
 //     await transfer.save();

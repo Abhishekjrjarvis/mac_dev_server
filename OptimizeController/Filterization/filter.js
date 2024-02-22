@@ -29,6 +29,7 @@ const {
   excess_refund_fees_json_query,
   certificate_json_query,
   json_to_excel_structure_code_query,
+  json_to_excel_timetable_export_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -55,6 +56,7 @@ const { handle_NAN } = require("../../Handler/customError");
 const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 const { remove_duplicated_arr } = require("../../helper/functions");
 const Library = require("../../models/Library/Library");
+const ClassTimetable = require("../../models/Timetable/ClassTimetable");
 
 
 var trendingQuery = (trends, cat, type, page) => {
@@ -6781,20 +6783,52 @@ exports.renderFeeStructureQuery = async (req, res) => {
   }
 };
 
-// exports.renderTimeTableFilterByDepartmentQuery = async (req, res) => {
-//   try {
-//     const { did } = req?.params
-//     if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+exports.renderTimeTableFilterByDepartmentQuery = async (req, res) => {
+  try {
+    const { did } = req?.params
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-//     var one_depart = await Department.findById({ _id: did })
-//       .select("class")
+    var one_depart = await Department.findById({ _id: did })
+      .select("class dName")
     
-//     var all_classes = await ClassTimetable.find({ class: { $in: one_depart?.class }})
-//   }
-//   catch (e) {
-//     console.log(e)
-//   }
-// }
+    var all_classes = await ClassTimetable.find({ class: { $in: one_depart?.class } })
+      .populate({
+        path: "schedule",
+        populate: {
+          path: "subject"
+        }
+    })
+    
+    var excel_list = []
+    for (var val of all_classes) {
+      for (var ele of val?.schedule) {
+        excel_list.push({
+          Subject: ele?.subject?.subjectName ?? "#NA",
+          Monday: val?.day === "Monday" ? `${ele?.from}-${ele?.to}` : "#NA",
+          Tuesday: val?.day === "Tuesday" ? `${ele?.from}-${ele?.to}` : "#NA",
+          Wednesday: val?.day === "Wednesday" ? `${ele?.from}-${ele?.to}` : "#NA",
+          Thursday: val?.day === "Thursday" ? `${ele?.from}-${ele?.to}` : "#NA",
+          Friday: val?.day === "Friday" ? `${ele?.from}-${ele?.to}` : "#NA",
+          Saturday: val?.day === "Saturday" ? `${ele?.from}-${ele?.to}` : "#NA",
+          Sunday: val?.day === "Sunday" ? `${ele?.from}-${ele?.to}` : "#NA"
+        })
+      }
+    }
+
+    const data = await json_to_excel_timetable_export_query(
+      one_depart?.dName,
+      excel_list,
+    );
+    res.status(200).send({
+      message: "Explore Timetable Export Query",
+      access: true,
+      data: data
+    });
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
 
 // exports.renderReviewShuffledStudentQuery = async(req, res) => {
 //   try{

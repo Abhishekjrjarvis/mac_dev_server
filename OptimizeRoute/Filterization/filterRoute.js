@@ -204,9 +204,9 @@ router.patch(
   catchAsync(Filter.renderFeeStructureQuery)
 );
 
-// router.patch(
-//   "/:did/all/timetable/export/query",
-//   catchAsync(Filter.renderTimeTableFilterByDepartmentQuery)
-// );
+router.patch(
+  "/:did/all/timetable/export/query",
+  catchAsync(Filter.renderTimeTableFilterByDepartmentQuery)
+);
 
 module.exports = router;

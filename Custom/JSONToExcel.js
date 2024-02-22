@@ -560,3 +560,27 @@ exports.json_to_excel_structure_code_query = async (
     console.log(e);
   }
 };
+
+exports.json_to_excel_timetable_export_query = async (
+  d_name,
+  data_query,
+) => {
+  try {
+    var s_name = d_name?.split(" ")
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(
+      real_book,
+      real_sheet,
+      `${s_name[0]} Timetable List`
+    );
+    var name = `${s_name[0]}-timetable-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+    return results
+  } catch (e) {
+    console.log(e);
+  }
+};

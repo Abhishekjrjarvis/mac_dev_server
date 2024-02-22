@@ -912,6 +912,24 @@ const studentSchema = new mongoose.Schema({
   },
   leaving_guide_name: {
     type: String
+  },
+  lcRegNo: {
+    type: String
+  },
+  lcCaste: {
+    type: String
+  },
+  lcBirth: {
+    type: String
+  },
+  lcDOB: {
+    type: String
+  },
+  lcAdmissionDate: {
+    type: String
+  },
+  lcInstituteDate: {
+    type: String
   }
 });
 

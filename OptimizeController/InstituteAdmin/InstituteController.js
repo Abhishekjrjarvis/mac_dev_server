@@ -5804,7 +5804,7 @@ exports.renderApproveStaffShuffleQuery = async (req, res) => {
     var one_ins = await InstituteAdmin.findById({ _id: id })
       .select("ApproveStaff")
       .populate({
-        path: "ApporveStaff",
+        path: "ApproveStaff",
         select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender teaching_type current_designation staffROLLNO staffDesignationCount"
     })
     

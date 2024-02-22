@@ -5888,12 +5888,13 @@ exports.renderApproveStaffShuffleQuery = async (req, res) => {
     
     var one_ins = await InstituteAdmin.findById({ _id: id })
       .select("ApproveStaff")
+      .populate({
+        path: "ApporveStaff",
+        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender teaching_type current_designation staffROLLNO staffDesignationCount"
+    })
     
-    var all_staff = await Staff.find({ _id: { $in: one_ins?.ApproveStaff } })
-    .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender teaching_type current_designation staffROLLNO staffDesignationCount")
-    
-    if (all_staff?.length > 0) {
-      res.status(200).send({ message: "Explore All Staff Query", access: true, all_staff: all_staff})
+    if (one_ins?.ApproveStaff?.length > 0) {
+      res.status(200).send({ message: "Explore All Staff Query", access: true, all_staff: one_ins?.ApproveStaff})
     }
     else {
       res.status(200).send({ message: "No Staff Query", access: true, all_staff: []})

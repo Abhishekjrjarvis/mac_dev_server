@@ -4136,6 +4136,117 @@ exports.getSubjectAttednaceLectureQuery = async (req, res) => {
   }
 };
 
+exports.assignAttendanceToDefaultParameterQuery = async (req, res) => {
+  try {
+    const attednance = await AttendenceDate.find({
+      $and: [
+        {
+          attendence_type: { $eq: "Normal_Lecture" },
+        },
+        // {
+        //   which_lecture: { $nin: ["1", "2", "3", "4", "5", "6", "7", "8"] },
+        // },
+      ],
+    }).select("subject className which_lecture");
+
+    let count = 0;
+    for (let st of attednance) {
+      if (st?.subject) {
+        if (st?.which_lecture) {
+          if (+st?.which_lecture < 2) {
+            st.which_lecture = "1";
+            await st.save();
+          }
+        } else {
+          st.which_lecture = "1";
+          await st.save();
+        }
+      }
+      // st.which_lecture = "1";
+      // await st.save();
+      console.log(count);
+      ++count;
+    }
+    res.status(200).send({
+      message: "Default parameter is inserted",
+      count: count,
+      attednance: attednance,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.getInstituteStaffMarkExcelQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let regularexp = "";
+    var currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() + 5);
+    currentDate.setMinutes(currentDate.getMinutes() + 30);
+    const currentDateLocalFormat = currentDate.toISOString().split("-");
+    const day =
+      +currentDateLocalFormat[2].split("T")[0] > 9
+        ? +currentDateLocalFormat[2].split("T")[0]
+        : `0${+currentDateLocalFormat[2].split("T")[0]}`;
+    const month =
+      +currentDateLocalFormat[1] > 9
+        ? +currentDateLocalFormat[1]
+        : `0${+currentDateLocalFormat[1]}`;
+    const year = +currentDateLocalFormat[0];
+    regularexp = new RegExp(`${month}\/${year}$`);
+    const staff = await Staff.find({
+      institute: { $eq: `${id}` },
+    }).select(
+      "staffSubject staffFirstName staffLastName staffMiddleName staff_emp_code staffROLLNO"
+    );
+
+    let all_staff = [];
+    for (let st of staff ?? []) {
+      let dt_obj = {};
+      for (let i = 1; i <= day; i++) {
+        dt_obj[`${i > 9 ? i : `0${i}`}/${month}/${year}`] = "No";
+      }
+      if (st?.staffSubject?.length > 0) {
+        const attednance = await AttendenceDate.find({
+          $and: [
+            {
+              attendDate: { $regex: regularexp },
+            },
+            {
+              subject: { $in: st?.staffSubject },
+            },
+          ],
+        }).select("attendDate");
+        for (let at of attednance ?? []) {
+          if (dt_obj[at?.attendDate]) dt_obj[at?.attendDate] = "Yes";
+        }
+        all_staff.push({
+          staffFirstName: st?.staffFirstName,
+          staffLastName: st?.staffLastName,
+          staffMiddleName: st?.staffMiddleName,
+          staff_emp_code: st?.staff_emp_code,
+          staffROLLNO: st?.staffROLLNO,
+          dt_obj: dt_obj,
+        });
+      }
+    }
+
+    res.status(200).send({
+      message: "Marked staff attendance",
+      all_staff: all_staff,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
 
 
 

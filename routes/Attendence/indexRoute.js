@@ -173,5 +173,12 @@ router
   .get(catchAsync(Avail.getSubjectAttednaceLectureQuery))
   .post(catchAsync(Avail.subjectAttednaceAddLectureQuery));
 
+  router
+  .route("/inject/default/parameter")
+  .get(catchAsync(Avail.assignAttendanceToDefaultParameterQuery));
+router
+  .route("/staff/mark/:id/list/excel")
+  .patch(catchAsync(Avail.getInstituteStaffMarkExcelQuery));
+
 
 module.exports = router;

@@ -638,7 +638,7 @@ router.patch(
   catchAsync(Institute.renderEditSubjectMasterQuery)
 );
 
-router.patch("/:id/all/approve-staff/shuffle/query", catchAsync(Institute.renderApproveStaffShuffleQuery));
+router.get("/:id/all/approve-staff/shuffle/query", catchAsync(Institute.renderApproveStaffShuffleQuery));
 
 router.patch("/master/query", catchAsync(Institute.renderExistMasterQuery));
 

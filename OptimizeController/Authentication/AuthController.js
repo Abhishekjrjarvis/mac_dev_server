@@ -5178,6 +5178,231 @@ exports.renderAllStudentToUnApprovedAutoCatalogQuery = async (
   }
 };
 
+// exports.renderStaffToUnApprovedQuery = async (req, res) => {
+//   try {
+//     const { status, previousStaff, assignedStaff } = req.body;
+//     const transfer = await Transfer.findById(req.params.tid);
+//     const institute = await InstituteAdmin.findById(
+//       transfer.institute
+//     ).populate({
+//       path: "depart",
+//       populate: {
+//         path: "batches",
+//         populate: {
+//           path: "batchStaff",
+//         },
+//       },
+//     });
+//     const staffNew = await Staff.findById(assignedStaff);
+//     const transferStaff = await Staff.findById(previousStaff);
+//     transfer.transferStatus = status;
+//     transfer.replaceBystaff = assignedStaff;
+//     await transfer.save();
+//     for (let i = 0; i < transferStaff.staffDepartment?.length; i++) {
+//       const department = await Department.findById(
+//         transferStaff.staffDepartment[i]
+//       );
+//       department.dHead = staffNew?._id;
+//       staffNew.staffDepartment.push(department._id);
+//       transferStaff.previousStaffDepartment.push(department._id);
+//       await department.save();
+//     }
+//     for (let i = 0; i < transferStaff.staffClass?.length; i++) {
+//       const classes = await Class.findById(transferStaff.staffClass[i]);
+//       classes.classTeacher = staffNew?._id;
+//       staffNew.staffClass.push(classes._id);
+//       transferStaff.previousStaffClass.push(classes._id);
+//       await classes.save();
+//     }
+//     for (let i = 0; i < transferStaff.staffSubject?.length; i++) {
+//       const subject = await Subject.findById(transferStaff.staffSubject[i]);
+//       subject.subjectTeacherName = staffNew?._id;
+//       staffNew.staffSubject.push(subject._id);
+//       transferStaff.previousStaffSubject.push(subject._id);
+//       await subject.save();
+//     }
+//     for (let i = 0; i < transferStaff.financeDepartment?.length; i++) {
+//       const finance = await Finance.findById(
+//         transferStaff.financeDepartment[i]
+//       );
+//       finance.financeHead = staffNew?._id;
+//       staffNew.financeDepartment.push(finance._id);
+//       transferStaff.previousFinanceDepartment.push(finance._id);
+//       await finance.save();
+//     }
+//     for (let i = 0; i < transferStaff.library?.length; i++) {
+//       const library = await Library.findById(transferStaff.library[i]);
+//       library.libraryHead = staffNew?._id;
+//       staffNew.library.push(library._id);
+//       transferStaff.previousLibrary.push(library._id);
+//       await library.save();
+//     }
+//     for (let i = 0; i < transferStaff.admissionDepartment?.length; i++) {
+//       const admissionDepartment = await Admission.findById(
+//         transferStaff.admissionDepartment[i]
+//       );
+//       admissionDepartment.admissionAdminHead = staffNew?._id;
+//       staffNew.admissionDepartment.push(admissionDepartment._id);
+//       transferStaff.previousAdmissionDepartment.push(admissionDepartment._id);
+//       await admissionDepartment.save();
+//     }
+//     for (let i = 0; i < transferStaff.transportDepartment?.length; i++) {
+//       const transportDepartment = await Transport.findById(
+//         transferStaff.transportDepartment[i]
+//       );
+//       transportDepartment.transport_manager = staffNew?._id;
+//       staffNew.transportDepartment.push(transportDepartment._id);
+//       transferStaff.previousTransportDepartment.push(transportDepartment._id);
+//       await transportDepartment.save();
+//     }
+//     for (let i = 0; i < transferStaff.vehicle?.length; i++) {
+//       const vehicle = await Vehicle.findById(transferStaff.vehicle[i]);
+//       vehicle.vehicle_driver = staffNew?._id;
+//       staffNew.vehicle.push(vehicle._id);
+//       transferStaff.previousVehicle.push(vehicle._id);
+//       await vehicle.save();
+//     }
+//     for (let i = 0; i < transferStaff.mentorDepartment?.length; i++) {
+//       const mentorDepartment = await Mentor.findById(
+//         transferStaff.mentorDepartment[i]
+//       );
+//       mentorDepartment.mentor_head = staffNew?._id;
+//       staffNew.mentorDepartment.push(mentorDepartment._id);
+//       transferStaff.previousMentor.push(mentorDepartment._id);
+//       await mentorDepartment.save();
+//     }
+//     for (let i = 0; i < transferStaff.eventManagerDepartment?.length; i++) {
+//       const eventManagerDepartment = await EventManager.findById(
+//         transferStaff.eventManagerDepartment[i]
+//       );
+//       eventManagerDepartment.event_head = staffNew?._id;
+//       staffNew.eventManagerDepartment.push(eventManagerDepartment._id);
+//       transferStaff.previousEventManager.push(eventManagerDepartment._id);
+//       await eventManagerDepartment.save();
+//     }
+//     for (let i = 0; i < transferStaff.aluminiDepartment?.length; i++) {
+//       const aluminiDepartment = await Alumini.findById(
+//         transferStaff.aluminiDepartment[i]
+//       );
+//       aluminiDepartment.alumini_head = staffNew?._id;
+//       staffNew.aluminiDepartment.push(aluminiDepartment._id);
+//       transferStaff.previousAlumini.push(aluminiDepartment._id);
+//       await aluminiDepartment.save();
+//     }
+//     for (let i = 0; i < transferStaff.hostelDepartment?.length; i++) {
+//       const hostelDepartment = await Hostel.findById(
+//         transferStaff.hostelDepartment[i]
+//       );
+//       hostelDepartment.hostel_manager = staffNew?._id;
+//       staffNew.hostelDepartment.push(hostelDepartment._id);
+//       transferStaff.previousHostel.push(hostelDepartment._id);
+//       await hostelDepartment.save();
+//     }
+//     for (let i = 0; i < transferStaff.hostelUnitDepartment?.length; i++) {
+//       const hostelUnitDepartment = await HostelUnit.findById(
+//         transferStaff.hostelUnitDepartment[i]
+//       );
+//       hostelUnitDepartment.hostel_unit_head = staffNew?._id;
+//       staffNew.hostelUnitDepartment.push(hostelUnitDepartment._id);
+//       transferStaff.previousHostelUnit.push(hostelUnitDepartment._id);
+//       await hostelUnitDepartment.save();
+//     }
+
+//     for (
+//       let i = 0;
+//       i < transferStaff.admissionModeratorDepartment?.length;
+//       i++
+//     ) {
+//       const admissionModeratorDepartment = await AdmissionModerator.findById(
+//         transferStaff.admissionModeratorDepartment[i]
+//       );
+//       admissionModeratorDepartment.access_staff = staffNew?._id;
+//       staffNew.admissionModeratorDepartment.push(
+//         admissionModeratorDepartment._id
+//       );
+
+//       transferStaff.previousAdmissionModerator.push(
+//         admissionModeratorDepartment._id
+//       );
+//       await admissionModeratorDepartment.save();
+//     }
+//     for (let i = 0; i < transferStaff.hostelModeratorDepartment?.length; i++) {
+//       const hostelModeratorDepartment = await AdmissionModerator.findById(
+//         transferStaff.hostelModeratorDepartment[i]
+//       );
+//       hostelModeratorDepartment.access_staff = staffNew?._id;
+//       staffNew.hostelModeratorDepartment.push(hostelModeratorDepartment._id);
+//       transferStaff.previousHostelModerator.push(hostelModeratorDepartment._id);
+//       await hostelModeratorDepartment.save();
+//     }
+//     for (let i = 0; i < transferStaff.financeModeratorDepartment?.length; i++) {
+//       const financeModeratorDepartment = await FinanceModerator.findById(
+//         transferStaff.financeModeratorDepartment[i]
+//       );
+//       financeModeratorDepartment.access_staff = staffNew?._id;
+//       staffNew.financeModeratorDepartment.push(financeModeratorDepartment._id);
+
+//       transferStaff.previousFinanceModerator.push(
+//         financeModeratorDepartment._id
+//       );
+//       await financeModeratorDepartment.save();
+//     }
+
+//     for (
+//       let i = 0;
+//       i < transferStaff.instituteModeratorDepartment?.length;
+//       i++
+//     ) {
+//       const instituteModeratorDepartment = await FinanceModerator.findById(
+//         transferStaff.instituteModeratorDepartment[i]
+//       );
+//       instituteModeratorDepartment.access_staff = staffNew?._id;
+//       staffNew.instituteModeratorDepartment.push(
+//         instituteModeratorDepartment._id
+//       );
+
+//       transferStaff.previousInstituteModerator.push(
+//         instituteModeratorDepartment._id
+//       );
+//       await instituteModeratorDepartment.save();
+//     }
+
+//     if (institute.ApproveStaff.length >= 1) {
+//       institute.staffCount -= 1;
+//       institute.ApproveStaff.pull(transferStaff._id);
+//       institute.previousApproveStaff.push(transferStaff._id);
+//       transferStaff.staffDepartment = [];
+//       transferStaff.staffClass = [];
+//       transferStaff.staffSubject = [];
+//       transferStaff.financeDepartment = [];
+//       transferStaff.library = [];
+//       transferStaff.admissionDepartment = [];
+//       transferStaff.transportDepartment = [];
+//       transferStaff.vehicle = [];
+//       transferStaff.mentorDepartment = [];
+//       transferStaff.eventManagerDepartment = [];
+//       transferStaff.aluminiDepartment = [];
+//       transferStaff.hostelDepartment = [];
+//       transferStaff.hostelUnitDepartment = [];
+//       transferStaff.admissionModeratorDepartment = [];
+//       transferStaff.hostelModeratorDepartment = [];
+//       transferStaff.financeModeratorDepartment = [];
+//       transferStaff.instituteModeratorDepartment = [];
+//       transferStaff.staff_replacement = "Transfered";
+//       await Promise.all([
+//         institute.save(),
+//         transferStaff.save(),
+//         staffNew.save(),
+//       ]);
+//     } else {
+//       // console.log("Not To Leave");
+//     }
+//     res.status(200).send({ message: "Transfer Granted" });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
 // exports.renderAllStudentQuery = async (req, res) => {
 //   try {
 //     const { id } = req.params;

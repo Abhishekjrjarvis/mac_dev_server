@@ -6781,6 +6781,21 @@ exports.renderFeeStructureQuery = async (req, res) => {
   }
 };
 
+// exports.renderTimeTableFilterByDepartmentQuery = async (req, res) => {
+//   try {
+//     const { did } = req?.params
+//     if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+//     var one_depart = await Department.findById({ _id: did })
+//       .select("class")
+    
+//     var all_classes = await ClassTimetable.find({ class: { $in: one_depart?.class }})
+//   }
+//   catch (e) {
+//     console.log(e)
+//   }
+// }
+
 // exports.renderReviewShuffledStudentQuery = async(req, res) => {
 //   try{
 //     const { cid, shuffle_arr } = req.body;

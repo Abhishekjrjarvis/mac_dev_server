@@ -205,8 +205,8 @@ router.patch(
 );
 
 // router.patch(
-//   "/:did/all/depart",
-//   catchAsync(Filter.renderFilterByDepartmentQuery)
+//   "/:did/all/timetable/export/query",
+//   catchAsync(Filter.renderTimeTableFilterByDepartmentQuery)
 // );
 
 module.exports = router;

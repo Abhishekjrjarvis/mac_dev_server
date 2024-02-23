@@ -3788,7 +3788,8 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
           staffAadharNumber: ref?.staffAadharNumber,
           staffPanNumber: ref?.staffPanNumber,
           current_designation: ref?.current_designation,
-          staff_emp_code: ref?.code
+          staff_emp_code: ref?.code,
+          teaching_type: ref?.teaching_type
         });
         staff.photoId = "0";
         if (staff?.staffGender?.toLowerCase() === "male") {

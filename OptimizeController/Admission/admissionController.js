@@ -4541,7 +4541,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
             "total_admission_fees structure_name department unique_structure_name total_installments applicable_fees one_installments category_master structure_month batch_master",
           populate: {
             path: "category_master class_master",
-            select: "category_name className",
+            select: "category_name scholarship_applicable className",
           },
         },
       })
@@ -4555,7 +4555,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
           "total_admission_fees structure_name department unique_structure_name total_installments applicable_fees one_installments structure_month category_master batch_master",
         populate: {
           path: "category_master class_master",
-          select: "category_name className",
+          select: "category_name scholarship_applicable className",
         },
       })
       .populate({
@@ -4628,7 +4628,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
             "total_admission_fees structure_name department unique_structure_name total_installments applicable_fees one_installments category_master structure_month batch_master",
           populate: {
             path: "category_master class_master",
-            select: "category_name className",
+            select: "category_name scholarship_applicable className",
           },
         },
       })
@@ -4642,7 +4642,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
           "total_admission_fees structure_name department unique_structure_name total_installments applicable_fees one_installments structure_month category_master batch_master",
         populate: {
           path: "category_master class_master",
-          select: "category_name className",
+          select: "category_name scholarship_applicable className",
         },
       })
       .populate({

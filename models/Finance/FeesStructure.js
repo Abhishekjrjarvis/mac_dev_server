@@ -98,7 +98,7 @@ const feeStructureSchema = new mongoose.Schema({
   due_date: {
     type: String,
   },
-  fees_heads: [
+  applicable_fees_heads: [
     {
       head_name: { type: String },
       head_amount: { type: Number, default: 0 },
@@ -109,7 +109,22 @@ const feeStructureSchema = new mongoose.Schema({
       },
     },
   ],
-  fees_heads_count: {
+  government_fees_heads: [
+    {
+      head_name: { type: String },
+      head_amount: { type: Number, default: 0 },
+      created_at: { type: Date, default: Date.now },
+      master: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
+    },
+  ],
+  applicable_fees_heads_count: {
+    type: Number,
+    default: 0,
+  },
+  government_fees_heads_count: {
     type: Number,
     default: 0,
   },

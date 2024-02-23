@@ -29,6 +29,10 @@ const feeCategorySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeCategory",
   },
+  scholarship_applicable: {
+    type: Boolean,
+    default: false
+  }
 });
 
 module.exports = mongoose.model("FeeCategory", feeCategorySchema);

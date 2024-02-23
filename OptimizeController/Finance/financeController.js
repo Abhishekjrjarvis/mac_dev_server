@@ -2847,6 +2847,20 @@ exports.renderFinanceFeeCategoryDeleteQuery = async (req, res) => {
   }
 };
 
+exports.renderFinanceMarkScholarApplicableQuery = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    await FeeCategory.findByIdAndUpdate(fcid, req?.body)
+
+    res.status(200).send({ message: "Explore All Finance Category Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.renderFinanceAddFeeStructure = async (req, res) => {
   try {
     const { fid } = req.params;
@@ -2880,12 +2894,25 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
       depart.fees_structures_count += 1;
       if (heads?.length > 0) {
         for (var ref of heads) {
-          struct_query.fees_heads.push({
-            head_name: ref?.head_name,
-            head_amount: ref?.head_amount,
-            master: ref?.master,
-          });
-          struct_query.fees_heads_count += 1;
+          if (`${ref?.head_type}` === "BY_APPLICABLE") {
+            struct_query.applicable_fees_heads.push({
+              head_name: ref?.head_name,
+              head_amount: ref?.head_amount,
+              master: ref?.master,
+            });
+            struct_query.applicable_fees_heads_count += 1;
+          }
+          else if (`${ref?.head_type}` === "BY_GOVERNMENT") {
+            struct_query.government_fees_heads.push({
+              head_name: ref?.head_name,
+              head_amount: ref?.head_amount,
+              master: ref?.master,
+            });
+            struct_query.government_fees_heads_count += 1;
+          }
+          else {
+            
+          }
         }
       }
       await Promise.all([depart.save(), struct_query.save()]);
@@ -2928,12 +2955,25 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
       hostel.fees_structures_count += 1;
       if (heads?.length > 0) {
         for (var ref of heads) {
-          struct_query.fees_heads.push({
-            head_name: ref?.head_name,
-            head_amount: ref?.head_amount,
-            master: ref?.master,
-          });
-          struct_query.fees_heads_count += 1;
+          if (`${ref?.head_type}` === "BY_APPLICABLE") {
+            struct_query.applicable_fees_heads.push({
+              head_name: ref?.head_name,
+              head_amount: ref?.head_amount,
+              master: ref?.master,
+            });
+            struct_query.applicable_fees_heads_count += 1;
+          }
+          else if (`${ref?.head_type}` === "BY_GOVERNMENT") {
+            struct_query.government_fees_heads.push({
+              head_name: ref?.head_name,
+              head_amount: ref?.head_amount,
+              master: ref?.master,
+            });
+            struct_query.government_fees_heads_count += 1;
+          }
+          else {
+            
+          }
         }
       }
       await Promise.all([hostel.save(), struct_query.save()]);
@@ -2976,12 +3016,25 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
       trans.fees_structures_count += 1;
       if (heads?.length > 0) {
         for (var ref of heads) {
-          struct_query.fees_heads.push({
-            head_name: ref?.head_name,
-            head_amount: ref?.head_amount,
-            master: ref?.master,
-          });
-          struct_query.fees_heads_count += 1;
+          if (`${ref?.head_type}` === "BY_APPLICABLE") {
+            struct_query.applicable_fees_heads.push({
+              head_name: ref?.head_name,
+              head_amount: ref?.head_amount,
+              master: ref?.master,
+            });
+            struct_query.applicable_fees_heads_count += 1;
+          }
+          else if (`${ref?.head_type}` === "BY_GOVERNMENT") {
+            struct_query.government_fees_heads.push({
+              head_name: ref?.head_name,
+              head_amount: ref?.head_amount,
+              master: ref?.master,
+            });
+            struct_query.government_fees_heads_count += 1;
+          }
+          else {
+            
+          }
         }
       }
       await Promise.all([trans.save(), struct_query.save()]);
@@ -3047,13 +3100,27 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
           var valid_name = await handle_undefined(val?.head_name);
           var valid_amount = await handle_undefined(val?.head_amount);
           var valid_master = await handle_undefined(val?.master);
-          if (valid_name && valid_amount && valid_master) {
-            struct_query.fees_heads.push({
-              head_name: valid_name,
-              head_amount: valid_amount,
-              master: valid_master,
-            });
-            struct_query.fees_heads_count += 1;
+          var valid_type = await handle_undefined(val?.head_type)
+          if (valid_name && valid_amount && valid_master && valid_type) {
+            if (`${valid_type}` === "APPLICABLE") {
+              struct_query.applicable_fees_heads.push({
+                head_name: ref?.head_name,
+                head_amount: ref?.head_amount,
+                master: ref?.master,
+              });
+              struct_query.applicable_fees_heads_count += 1;
+            }
+            else if (`${valid_type}` === "GOVERNMENT") {
+              struct_query.government_fees_heads.push({
+                head_name: ref?.head_name,
+                head_amount: ref?.head_amount,
+                master: ref?.master,
+              });
+              struct_query.government_fees_heads_count += 1;
+            }
+            else {
+              
+            }
           } else {
           }
         }
@@ -3106,12 +3173,25 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
       previous_struct.migrate_to.push(struct_query?._id);
       if (heads?.length > 0) {
         for (var ref of heads) {
-          struct_query.fees_heads.push({
-            head_name: ref?.head_name,
-            head_amount: ref?.head_amount,
-            master: ref?.master,
-          });
-          struct_query.fees_heads_count += 1;
+          if (`${ref?.head_type}` === "BY_APPLICABLE") {
+            struct_query.applicable_fees_heads.push({
+              head_name: ref?.head_name,
+              head_amount: ref?.head_amount,
+              master: ref?.master,
+            });
+            struct_query.applicable_fees_heads_count += 1;
+          }
+          else if (`${ref?.head_type}` === "BY_GOVERNMENT") {
+            struct_query.government_fees_heads.push({
+              head_name: ref?.head_name,
+              head_amount: ref?.head_amount,
+              master: ref?.master,
+            });
+            struct_query.government_fees_heads_count += 1;
+          }
+          else {
+            
+          }
         }
       }
       await Promise.all([
@@ -3166,12 +3246,25 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
       previous_struct.migrate_to.push(struct_query?._id);
       if (heads?.length > 0) {
         for (var ref of heads) {
-          struct_query.fees_heads.push({
-            head_name: ref?.head_name,
-            head_amount: ref?.head_amount,
-            master: ref?.master,
-          });
-          struct_query.fees_heads_count += 1;
+          if (`${ref?.head_type}` === "BY_APPLICABLE") {
+            struct_query.applicable_fees_heads.push({
+              head_name: ref?.head_name,
+              head_amount: ref?.head_amount,
+              master: ref?.master,
+            });
+            struct_query.applicable_fees_heads_count += 1;
+          }
+          else if (`${ref?.head_type}` === "BY_GOVERNMENT") {
+            struct_query.government_fees_heads.push({
+              head_name: ref?.head_name,
+              head_amount: ref?.head_amount,
+              master: ref?.master,
+            });
+            struct_query.government_fees_heads_count += 1;
+          }
+          else {
+            
+          }
         }
       }
       await Promise.all([
@@ -3226,12 +3319,25 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
       previous_struct.migrate_to.push(struct_query?._id);
       if (heads?.length > 0) {
         for (var ref of heads) {
-          struct_query.fees_heads.push({
-            head_name: ref?.head_name,
-            head_amount: ref?.head_amount,
-            master: ref?.master,
-          });
-          struct_query.fees_heads_count += 1;
+          if (`${ref?.head_type}` === "BY_APPLICABLE") {
+            struct_query.applicable_fees_heads.push({
+              head_name: ref?.head_name,
+              head_amount: ref?.head_amount,
+              master: ref?.master,
+            });
+            struct_query.applicable_fees_heads_count += 1;
+          }
+          else if (`${ref?.head_type}` === "BY_GOVERNMENT") {
+            struct_query.government_fees_heads.push({
+              head_name: ref?.head_name,
+              head_amount: ref?.head_amount,
+              master: ref?.master,
+            });
+            struct_query.government_fees_heads_count += 1;
+          }
+          else {
+            
+          }
         }
       }
       await Promise.all([

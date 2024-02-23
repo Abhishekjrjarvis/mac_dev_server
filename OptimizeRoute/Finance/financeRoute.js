@@ -322,6 +322,12 @@ router.delete(
   catchAsync(Finance.renderFinanceFeeCategoryDeleteQuery)
 );
 
+router.patch(
+  "/:fcid/mark/scholar/applicable/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceMarkScholarApplicableQuery)
+);
+
 router.post(
   "/:fid/fee/structure/new",
   // isLoggedIn,

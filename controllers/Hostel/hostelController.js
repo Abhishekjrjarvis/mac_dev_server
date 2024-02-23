@@ -56,6 +56,7 @@ const {
   filter_unique_username,
   generateAccessToken,
   generate_hash_pass,
+  generate_random_code_structure,
 } = require("../../helper/functions");
 const {
   custom_date_time,
@@ -1377,6 +1378,7 @@ exports.renderHostelSelectedQuery = async (req, res) => {
         tweleve_installments: structure?.tweleve_installments,
         fees_heads: [...structure?.fees_heads],
         fees_heads_count: structure?.fees_heads_count,
+        fee_structure_code: generate_random_code_structure()
       });
       new_structure.structure_month = valid_month;
       await structure_pricing_query(new_structure, valid_month);
@@ -4571,6 +4573,7 @@ exports.renderHostelSelectedRenewalQuery = async (req, res) => {
         tweleve_installments: structure?.tweleve_installments,
         fees_heads: [...structure?.fees_heads],
         fees_heads_count: structure?.fees_heads_count,
+        fee_structure_code: generate_random_code_structure()
       });
       new_structure.structure_month = valid_month;
       await structure_pricing_query(new_structure, valid_month);
@@ -5435,6 +5438,7 @@ exports.renderHostelPayModeRenewal = async (req, res) => {
         tweleve_installments: structure?.tweleve_installments,
         fees_heads: [...structure?.fees_heads],
         fees_heads_count: structure?.fees_heads_count,
+        fee_structure_code: generate_random_code_structure()
       });
       new_structure.structure_month = valid_month;
       await structure_pricing_query(new_structure, valid_month);
@@ -6735,6 +6739,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
         tweleve_installments: structure?.tweleve_installments,
         fees_heads: [...structure?.fees_heads],
         fees_heads_count: structure?.fees_heads_count,
+        fee_structure_code: generate_random_code_structure()
       });
       new_structure.structure_month = valid_month;
       await structure_pricing_query(new_structure, valid_month);
@@ -6992,6 +6997,7 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
           tweleve_installments: structure?.tweleve_installments,
           fees_heads: [...structure?.fees_heads],
           fees_heads_count: structure?.fees_heads_count,
+          fee_structure_code: generate_random_code_structure()
         });
         new_structure.structure_month = valid_month;
         await structure_pricing_query(new_structure, valid_month);

@@ -615,6 +615,7 @@ exports.getGivenFeedbackStudentListQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
   try {
     const { ifid } = req.params;
@@ -650,6 +651,18 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
               multiply: 1,
               percentage: 0,
             };
+            question["excellent"] = {
+              percentage: 0,
+              multiply: 2,
+              arr: [],
+              factor: 0,
+            };
+            question["poor"] = {
+              percentage: 0,
+              multiply: 1,
+              arr: [],
+              factor: 0,
+            };
           } else if (feedback?.how_many_question_option === 3) {
             question[qe?.question_sno]["excellent"] = {
               count: 0,
@@ -665,6 +678,24 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
               count: 0,
               multiply: 1,
               percentage: 0,
+            };
+            question["excellent"] = {
+              percentage: 0,
+              multiply: 3,
+              arr: [],
+              factor: 0,
+            };
+            question["satisfaction"] = {
+              percentage: 0,
+              multiply: 2,
+              arr: [],
+              factor: 0,
+            };
+            question["poor"] = {
+              percentage: 0,
+              multiply: 1,
+              arr: [],
+              factor: 0,
             };
           } else if (feedback?.how_many_question_option === 4) {
             question[qe?.question_sno]["excellent"] = {
@@ -686,6 +717,29 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
               count: 0,
               multiply: 1,
               percentage: 0,
+            };
+            question["excellent"] = {
+              percentage: 0,
+              multiply: 4,
+              arr: [],
+              factor: 0,
+            };
+            question["good"] = {
+              count: 0,
+              multiply: 3,
+              percentage: 0,
+            };
+            question["satisfaction"] = {
+              percentage: 0,
+              multiply: 2,
+              arr: [],
+              factor: 0,
+            };
+            question["poor"] = {
+              percentage: 0,
+              multiply: 1,
+              arr: [],
+              factor: 0,
             };
           } else {
             question[qe?.question_sno]["excellent"] = {
@@ -713,42 +767,70 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
               multiply: 1,
               percentage: 0,
             };
+            question["excellent"] = {
+              percentage: 0,
+              multiply: 5,
+              arr: [],
+              factor: 0,
+            };
+            question["good"] = {
+              count: 0,
+              multiply: 4,
+              percentage: 0,
+            };
+            question["satisfaction"] = {
+              percentage: 0,
+              multiply: 3,
+              arr: [],
+              factor: 0,
+            };
+            question["average"] = {
+              count: 0,
+              multiply: 2,
+              percentage: 0,
+            };
+            question["poor"] = {
+              percentage: 0,
+              multiply: 1,
+              arr: [],
+              factor: 0,
+            };
           }
         }
         let ana = {
           ...question,
           staffId: st?.staff,
           subjectMaster: mt,
-          excellent: {
-            percentage: 0,
-            multiply: 5,
-            arr: [],
-            factor: 0,
-          },
-          good: {
-            percentage: 0,
-            multiply: 4,
-            arr: [],
-            factor: 0,
-          },
-          satisfaction: {
-            percentage: 0,
-            multiply: 3,
-            arr: [],
-            factor: 0,
-          },
-          poor: {
-            percentage: 0,
-            multiply: 1,
-            arr: [],
-            factor: 0,
-          },
-          average: {
-            percentage: 0,
-            multiply: 2,
-            arr: [],
-            factor: 0,
-          },
+          // excellent: {
+          //   percentage: 0,
+          //   multiply: 5,
+          //   arr: [],
+          //   factor: 0,
+          // },
+          // good: {
+          //   percentage: 0,
+          //   multiply: 4,
+          //   arr: [],
+          //   factor: 0,
+          // },
+          // satisfaction: {
+          //   percentage: 0,
+          //   multiply: 3,
+          //   arr: [],
+          //   factor: 0,
+          // },
+          // poor: {
+          //   percentage: 0,
+          //   multiply: 1,
+          //   arr: [],
+          //   factor: 0,
+          // },
+          // average: {
+          //   percentage: 0,
+          //   multiply: 2,
+          //   arr: [],
+          //   factor: 0,
+          // },
           avg_percentage_arr: [],
           avg_percentage: 0,
         };
@@ -817,8 +899,8 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
             for (let cate of category) {
               if (obj[cate]) {
                 obj[cate]["percentage"] = Math.floor(
-                  // (obj[cate]["count"] / feedback?.question_count) * 100
                   (obj[cate]["count"] / given_feedback?.length) * 100
+                  // (obj[cate]["count"] / feedback?.question_count) * 100
                 );
                 ana[cate]["arr"].push(obj[cate]["percentage"]);
               }
@@ -868,6 +950,7 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 exports.getOneStaffAnalyticQuery = async (req, res) => {
   try {
     const { ifid, sid } = req.params;

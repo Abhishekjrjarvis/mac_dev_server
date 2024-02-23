@@ -1340,25 +1340,22 @@ exports.retrieveApproveStaffList = async (req, res) => {
       const skip = (page - 1) * limit;
       const staff_ins = await InstituteAdmin.findById({ _id: id }).select(
         "ApproveStaff insName"
-      );
-      const staffIns = await Staff.find({
-        _id: { $in: staff_ins?.ApproveStaff },
-      })
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender"
-        )
+      )
         .populate({
-          path: "user",
-          select: "userLegalName userEmail userPhoneNumber",
-        });
-      if (staffIns) {
+          path: "ApproveStaff",
+          select: "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+          populate: {
+            path: "user",
+            select: "userLegalName userEmail userPhoneNumber"
+          }
+        })
+      if (staff_ins?.ApproveStaff?.length > 0) {
         // const sEncrypt = await encryptionPayload(staffIns);
-        staffIns.sort(function (st1, st2) {
-          return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
-        });
-        res.status(200).send({ message: "All Staff With Limit ", staffIns });
+        // staff_ins?.ApproveStaff.sort(function (st1, st2) {
+        //   return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+        // });
+        var all_staff = await nested_document_limit(page, limit, staff_ins?.ApproveStaff)
+        res.status(200).send({ message: "All Staff With Limit ", staffIns: all_staff });
       } else {
         res.status(404).send({ message: "Failure", staffIns: [] });
       }
@@ -1366,53 +1363,55 @@ exports.retrieveApproveStaffList = async (req, res) => {
       if (req.query.date) {
         const staff_ins = await InstituteAdmin.findById({ _id: id }).select(
           "ApproveStaff insName"
-        );
-        const staffIns = await Staff.find({
-          _id: { $in: staff_ins?.ApproveStaff },
-        })
-          .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
-          )
-          .populate({
+        )
+        .populate({
+          path: "ApproveStaff",
+          select: "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+          populate: {
             path: "user",
-            select: "userLegalName userEmail userPhoneNumber",
-          })
-          .populate({
+            select: "userLegalName userEmail userPhoneNumber"
+          }
+        })
+        .populate({
+          path: "ApproveStaff",
+          select: "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+          populate: {
             path: "staffLeave",
             match: {
               date: { $eq: req.query?.date },
             },
             select: "_id date",
-          });
-        if (staffIns) {
-          // const sEncrypt = await encryptionPayload(staffIns);
-          staffIns.sort(function (st1, st2) {
-            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
-          });
-          res.status(200).send({ message: "Without Limit", staffIns });
+          }
+        })
+        if (staff_ins?.ApproveStaff?.length > 0) {
+          // const sEncrypt = await encryptionPayload(staff_ins);
+          // staff_ins?.ApproveStaff.sort(function (st1, st2) {
+          //   return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+          // });
+          var all_staff = await nested_document_limit(page, limit, staff_ins?.ApproveStaff)
+          res.status(200).send({ message: "Without Limit", staffIns: all_staff });
         } else {
           res.status(404).send({ message: "Failure", staffIns: [] });
         }
       } else {
         const staff_ins = await InstituteAdmin.findById({ _id: id }).select(
           "ApproveStaff insName"
-        );
-        const staffIns = await Staff.find({
-          _id: { $in: staff_ins?.ApproveStaff },
-        })
-          .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
-          )
-          .populate({
+        )
+        .populate({
+          path: "ApproveStaff",
+          select: "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+          populate: {
             path: "user",
-            select: "userLegalName userEmail userPhoneNumber",
-          });
-        if (staffIns) {
-          // const sEncrypt = await encryptionPayload(staffIns);
-          staffIns.sort(function (st1, st2) {
-            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
-          });
-          res.status(200).send({ message: "Without Limit", staffIns });
+            select: "userLegalName userEmail userPhoneNumber"
+          }
+        })
+        if (staff_ins?.ApproveStaff?.length > 0) {
+          // const sEncrypt = await encryptionPayload(staff_ins);
+          // staff_ins?.ApproveStaff?.sort(function (st1, st2) {
+          //   return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+          // });
+          var all_staff = await nested_document_limit(page, limit, staff_ins?.ApproveStaff)
+          res.status(200).send({ message: "Without Limit", staffIns: all_staff });
         } else {
           res.status(404).send({ message: "Failure", staffIns: [] });
         }

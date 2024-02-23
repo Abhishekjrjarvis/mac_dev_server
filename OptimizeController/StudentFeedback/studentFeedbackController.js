@@ -725,9 +725,10 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
               factor: 0,
             };
             question["good"] = {
-              count: 0,
-              multiply: 3,
               percentage: 0,
+              multiply: 3,
+              arr: [],
+              factor: 0,
             };
             question["satisfaction"] = {
               percentage: 0,
@@ -774,9 +775,10 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
               factor: 0,
             };
             question["good"] = {
-              count: 0,
-              multiply: 4,
               percentage: 0,
+              multiply: 4,
+              arr: [],
+              factor: 0,
             };
             question["satisfaction"] = {
               percentage: 0,
@@ -785,9 +787,10 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
               factor: 0,
             };
             question["average"] = {
-              count: 0,
-              multiply: 2,
               percentage: 0,
+              multiply: 2,
+              arr: [],
+              factor: 0,
             };
             question["poor"] = {
               percentage: 0,
@@ -902,6 +905,7 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
                   (obj[cate]["count"] / given_feedback?.length) * 100
                   // (obj[cate]["count"] / feedback?.question_count) * 100
                 );
+                // console.log("ana[cate]", ana[cate]);
                 ana[cate]["arr"].push(obj[cate]["percentage"]);
               }
             }
@@ -950,6 +954,7 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 
 exports.getOneStaffAnalyticQuery = async (req, res) => {
   try {

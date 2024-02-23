@@ -817,7 +817,8 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
             for (let cate of category) {
               if (obj[cate]) {
                 obj[cate]["percentage"] = Math.floor(
-                  (obj[cate]["count"] / feedback?.question_count) * 100
+                  // (obj[cate]["count"] / feedback?.question_count) * 100
+                  (obj[cate]["count"] / given_feedback?.length) * 100
                 );
                 ana[cate]["arr"].push(obj[cate]["percentage"]);
               }

@@ -2756,7 +2756,7 @@ exports.renderFinanceAllFeeCategoryQuery = async (req, res) => {
     })
       // .limit(limit)
       // .skip(skip)
-      .select("category_name created_at")
+      .select("category_name created_at scholarship_applicable")
       .populate({
         path: "secondary_category",
       });
@@ -4095,7 +4095,7 @@ exports.renderOneFeeStructure = async (req, res) => {
 
     const structure = await FeeStructure.findById({ _id: fsid })
       .select(
-        "one_installments two_installments structure_name unique_structure_name applicable_fees three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments total_admission_fees due_date fees_heads structure_month"
+        "one_installments two_installments structure_name unique_structure_name applicable_fees three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments total_admission_fees due_date fees_heads applicable_fees_heads government_fees_heads structure_month"
       )
       .populate({
         path: "category_master",

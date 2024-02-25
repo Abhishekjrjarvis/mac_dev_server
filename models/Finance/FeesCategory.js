@@ -31,7 +31,7 @@ const feeCategorySchema = new mongoose.Schema({
   },
   scholarship_applicable: {
     type: Boolean,
-    default: false
+    default: true
   }
 });
 

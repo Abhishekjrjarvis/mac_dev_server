@@ -11084,6 +11084,7 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
                   isEnable: true,
                   status: "Paid",
                   revert_status: "Government Fees (Pay By Student)",
+                  set_off_message: "Govt/Scholarship transferred to applicable adjusted against fees paid",
                   set_off: shift_num
                 })
 

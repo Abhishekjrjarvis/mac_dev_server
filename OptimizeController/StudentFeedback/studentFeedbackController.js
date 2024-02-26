@@ -405,15 +405,17 @@ exports.feedbackTakenByInstituteQuery = async (req, res) => {
             feedback.feedback_notify?.push(notify?._id);
             feedback.feedback_notify_count += 1;
 
-            invokeMemberTabNotification(
-              "Student Activity",
-              notify,
-              "Staff Feedback",
-              user._id,
-              user.deviceToken,
-              "Student",
-              notify
-            );
+            if (user?.deviceToken) {
+              invokeMemberTabNotification(
+                "Student Activity",
+                notify,
+                "Staff Feedback",
+                user._id,
+                user.deviceToken,
+                "Student",
+                notify
+              );
+            }
             await Promise.all([notify.save(), user.save()]);
           }
         }

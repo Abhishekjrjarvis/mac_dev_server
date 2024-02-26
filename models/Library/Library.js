@@ -198,6 +198,36 @@ const librarySchema = new mongoose.Schema({
       default: "05:00 pm",
     },
   },
+  generated_qr_book: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Book",
+    },
+  ],
+  generated_qr_staff: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Staff",
+    },
+  ],
+  generated_qr_student: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  is_generated_qr_book: {
+    type: Boolean,
+    default: false,
+  },
+  is_generated_qr_staff: {
+    type: Boolean,
+    default: false,
+  },
+  is_generated_qr_student: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("Library", librarySchema);

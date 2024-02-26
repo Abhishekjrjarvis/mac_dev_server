@@ -1620,13 +1620,13 @@ exports.set_fee_head_query = async (
     var price_query = price;
     if (direct_args) {
       var parent_head = {
-        ...direct_args?.fees_heads,
-        count: direct_args?.fees_heads?.length,
+        ...direct_args?.applicable_fees_heads,
+        count: direct_args?.applicable_fees_heads?.length,
       };
     } else {
       var parent_head = {
-        ...student_args.fee_structure?.fees_heads,
-        count: student_args.fee_structure?.fees_heads?.length,
+        ...student_args.fee_structure?.applicable_fees_heads,
+        count: student_args.fee_structure?.applicable_fees_heads?.length,
       };
     }
     var exist_filter_student_heads = student_args?.active_fee_heads?.filter(
@@ -1818,13 +1818,13 @@ exports.set_fee_head_query_retro = async (
     var price_query = price;
     if (direct_args) {
       var parent_head = {
-        ...direct_args?.fees_heads,
-        count: direct_args?.fees_heads?.length,
+        ...direct_args?.applicable_fees_heads,
+        count: direct_args?.applicable_fees_heads?.length,
       };
     } else {
       var parent_head = {
-        ...student_args.fee_structure?.fees_heads,
-        count: student_args.fee_structure?.fees_heads?.length,
+        ...student_args.fee_structure?.applicable_fees_heads,
+        count: student_args.fee_structure?.applicable_fees_heads?.length,
       };
     }
     for (var i = 0; i < parent_head?.count; i++) {
@@ -2193,8 +2193,8 @@ exports.retro_student_heads_sequencing_query = async (
     var price_query = r_args?.paid_fee;
     if (direct_args) {
       var parent_head = {
-        ...direct_args?.fees_heads,
-        count: direct_args?.fees_heads?.length,
+        ...direct_args?.applicable_fees_heads,
+        count: direct_args?.applicable_fees_heads?.length,
       };
     }
     for (var i = 0; i < parent_head?.count; i++) {
@@ -2287,8 +2287,8 @@ exports.set_fee_head_query_redesign = async (
   try {
     var price_query = price;
     var parent_head = {
-      ...student_args.fee_structure?.fees_heads,
-      count: student_args.fee_structure?.fees_heads?.length,
+      ...student_args.fee_structure?.applicable_fees_heads,
+      count: student_args.fee_structure?.applicable_fees_heads?.length,
     };
     var exist_filter_student_heads = student_args?.active_fee_heads?.filter(
       (stu) => {
@@ -2493,8 +2493,8 @@ exports.receipt_set_fee_head_query_redesign = async (
   try {
     var price_query = price;
     var parent_head = {
-      ...receipt_args.fee_structure?.fees_heads,
-      count: receipt_args.fee_structure?.fees_heads?.length,
+      ...receipt_args.fee_structure?.applicable_fees_heads,
+      count: receipt_args.fee_structure?.applicable_fees_heads?.length,
     };
     var exist_filter_student_heads = student_args?.active_fee_heads?.filter(
       (stu) => {
@@ -2605,8 +2605,8 @@ exports.set_fee_head_redesign = async (
   try {
     var price_query = price;
     var parent_head = {
-      ...card.fee_structure?.fees_heads,
-      count: card.fee_structure?.fees_heads?.length,
+      ...card.fee_structure?.applicable_fees_heads,
+      count: card.fee_structure?.applicable_fees_heads?.length,
     };
     var exist_filter_student_heads = student_args?.active_fee_heads?.filter(
       (stu) => {
@@ -2937,13 +2937,13 @@ exports.set_fee_head_query2 = async (
     var price_query = price;
     if (direct_args) {
       var parent_head = {
-        ...direct_args?.fees_heads,
-        count: direct_args?.fees_heads?.length,
+        ...direct_args?.applicable_fees_heads,
+        count: direct_args?.applicable_fees_heads?.length,
       };
     } else {
       var parent_head = {
-        ...student_args.fee_structure?.fees_heads,
-        count: student_args.fee_structure?.fees_heads?.length,
+        ...student_args.fee_structure?.applicable_fees_heads,
+        count: student_args.fee_structure?.applicable_fees_heads?.length,
       };
     }
     var exist_filter_student_heads = student_args?.active_fee_heads?.filter(

@@ -55,6 +55,7 @@ const {
   generate_excel_to_json_attendence_query,
   generate_excel_to_json_biometric_query,
   generate_excel_to_json_staff_leave_query,
+  generate_excel_to_json_fee_structure_exist_query,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -74,6 +75,7 @@ const { applicable_pending_calc_singleton } = require("../../Functions/SetOff");
 const {
   renderAdmissionNewScholarNumberAutoQuery,
   renderInstituteScholarNumberAutoQuery,
+  renderGovernmentHeadsMoveGovernmentCardUpdateQuery,
 } = require("../Admission/admissionController");
 const {
   renderNewOfflineBookAutoQuery,
@@ -3881,6 +3883,27 @@ exports.renderExcelToJSONLMSStaffLeaveQuery = async (req, res) => {
       await renderAutoStaffLeaveConfigQuery(
         is_converted?.staff_array,
       );
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONGovernmentQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const { excel_file } = req.body;
+    
+    const val = await simple_object(excel_file);
+
+    const is_converted = await generate_excel_to_json_fee_structure_exist_query(
+      val,
+      fid
+    );
+    if (is_converted?.value) {
+      await renderGovernmentHeadsMoveGovernmentCardUpdateQuery(fid, is_converted?.structure_array);
     } else {
       console.log("false");
     }

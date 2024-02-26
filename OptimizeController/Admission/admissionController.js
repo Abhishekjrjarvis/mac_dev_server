@@ -12338,3 +12338,55 @@ exports.one_fees_card_query = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.renderFeeHeadsMoveGovernmentCardUpdateQuery = async (req, res) => {
+  try {
+    // var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
+    var fine = ["651ba371e39dbdf817dd5285"]
+    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
+    // var nums = []
+    // var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
+    var i = 0
+    for (var val of all_struct) {
+      for (var ele of val?.fees_heads) {
+        // ele.head_type = "BY_APPLICABLE"
+        val.applicable_fees_heads.push(ele)
+        val.applicable_fees_heads_count += 1
+      }
+      console.log(i)
+      i += 1
+      await val.save()
+    }
+
+    res.status(200).send({ message: "Explore Fees Structure Applicable Fees Heads Move Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderGovernmentHeadsMoveGovernmentCardUpdateQuery = async (fid, structures) => {
+  try {
+    if (structures?.length > 0) {
+      // console.log(structures, "jkahdkjhd")
+      var i = 0
+      for (var val of structures) {
+        var codes = await FeeStructure.findOne({ fee_structure_code: `${val?.fee_structure_code}` })
+        if (codes?._id) {
+          for (var ele of val?.heads) {
+            codes.government_fees_heads.push(ele)
+            codes.government_fees_heads_count += 1
+            console.log(i)
+            i += 1
+          }
+          await codes.save()
+        } 
+      }
+    }
+    console.log("DONE")
+    // res.status(200).send({ message: "Explore Fees Structure Applicable Fees Heads Move Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

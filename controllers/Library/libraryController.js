@@ -681,7 +681,6 @@ exports.allBookIssueByStaffSide = async (req, res) => {
   }
 };
 
-
 exports.bookColletedByStaffSide = async (req, res) => {
   try {
     if (!req.params.lid) throw "Please send issued id to perform task";
@@ -951,7 +950,6 @@ exports.allBookCollectedLogsByStaffSide = async (req, res) => {
   }
 };
 
-
 exports.oneBookCollectedLogsByStaffSide = async (req, res) => {
   try {
     if (!req.params.cid) throw "Please send Colleted logs id to perform task";
@@ -987,20 +985,54 @@ exports.allMembersByStaffSide = async (req, res) => {
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
-    const library = await Library.findById(req.params.lid)
-      .populate({
-        path: "members",
-        select:
-          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO library_total_time_spent",
-        skip: dropItem,
-        limit: itemPerPage,
+    const library = await Library.findById(req.params.lid).select("members");
+
+    var all_student = [];
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      all_student = await Student.find({
+        $and: [
+          { _id: { $in: library?.members } },
+          {
+            $or: [
+              {
+                studentFirstName: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                studentLastName: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                studentMiddleName: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                valid_full_name: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                studentGRNO: {
+                  $regex: req.query.search,
+                  $options: "i",
+                },
+              },
+            ],
+          },
+        ],
+      }).select(
+        "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO library_total_time_spent"
+      );
+    } else {
+      all_student = await Student.find({
+        _id: { $in: library?.members },
       })
-      .select("members")
-      .lean()
-      .exec();
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .select(
+          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO library_total_time_spent"
+        )
+        .lean()
+        .exec();
+    }
     res.status(200).send({
       message: "List of all members in Library",
-      members: library?.members,
+      members: all_student,
     });
   } catch (e) {
     res.status(200).send({
@@ -1825,21 +1857,22 @@ exports.bookColletedByStaffSideQuery = async (req, res) => {
 
 exports.getLibraryQrCode = async (req, res) => {
   try {
-    const libd = await Library.findById("63e126819ee9a3d11a823593");
+    const libd = await Library.findById("651beb5a08e427c667ee2721");
     let library = {
       lid: libd?._id,
       instituteId: libd.institute,
     };
-    console.log(library);
+    // let f = [libd?._id];
+    // let f2 = [libd?._id];
+    // console.log(f2?.includes(f?.[0]));
     let imageKey = await generate_qr({
       fileName: "library",
       object_contain: library,
     });
     libd.qr_code = imageKey;
     await libd.save();
-    res
-      .status(200)
-      .send({ message: "qr geenrated", file: "uploads/library.png", imageKey });
+    res.status(200).send({ message: "qr geenrated", imageKey });
+    // res.status(200).send({ message: "qr geenrated" });
   } catch (e) {
     console.log(e);
   }
@@ -1854,49 +1887,74 @@ exports.generateAllMemberQrCodeQuery = async (req, res) => {
       path: "institute",
       select: "ApproveStaff ApproveStudent",
     });
+    var flag = "";
+    if (flow === "STAFF") {
+      flag = library.is_generated_qr_staff ?? false;
+      library.is_generated_qr_staff = true;
+    } else {
+      flag = library.is_generated_qr_student ?? false;
+      library.is_generated_qr_student = true;
+    }
+    await library.save();
     res.status(200).send({
       message: "Library qr code generation processing",
       access: true,
     });
     if (flow === "STAFF") {
-      for (let sid of library?.institute?.ApproveStaff) {
-        const staff = await Staff.findById(sid);
-        if (staff) {
-          // if (staff?.library_qr_code) {
-          // } else {
-          let book_qr = {
-            libraryId: library?._id,
-            instituteId: library?.institute?._id,
-            staffId: sid,
-          };
-          let imageKey = await generate_qr({
-            fileName: "initial-staff-qr",
-            object_contain: book_qr,
-          });
-          staff.library_qr_code = imageKey;
-          await staff.save();
-          // }
+      if (!flag) {
+        var staff_id = library?.institute?.ApproveStaff?.filter((bid) =>
+          library?.generated_qr_staff?.includes(bid) ? null : bid
+        );
+        for (let sid of staff_id) {
+          const staff = await Staff.findById(sid);
+          if (staff) {
+            if (staff?.library_qr_code) {
+            } else {
+              let book_qr = {
+                libraryId: library?._id,
+                instituteId: library?.institute?._id,
+                staffId: sid,
+              };
+              let imageKey = await generate_qr({
+                fileName: "initial-staff-qr",
+                object_contain: book_qr,
+              });
+              staff.library_qr_code = imageKey;
+              await staff.save();
+              library.generated_qr_staff?.push(staff?._id);
+            }
+          }
         }
+        library.is_generated_qr_staff = false;
+        await library.save();
       }
     } else {
-      for (let sid of library?.institute?.ApproveStudent) {
-        const student = await Student.findById(sid);
-        if (student) {
-          // if (student?.library_qr_code) {
-          // } else {
-          let book_qr = {
-            libraryId: library?._id,
-            instituteId: library?.institute?._id,
-            studentId: sid,
-          };
-          let imageKey = await generate_qr({
-            fileName: "initial-student-qr",
-            object_contain: book_qr,
-          });
-          student.library_qr_code = imageKey;
-          await student.save();
+      if (!flag) {
+        var student_id = library?.institute?.ApproveStudent?.filter((bid) =>
+          library?.generated_qr_student?.includes(bid) ? null : bid
+        );
+        for (let sid of student_id) {
+          const student = await Student.findById(sid);
+          if (student) {
+            if (student?.library_qr_code) {
+            } else {
+              let book_qr = {
+                libraryId: library?._id,
+                instituteId: library?.institute?._id,
+                studentId: sid,
+              };
+              let imageKey = await generate_qr({
+                fileName: "initial-student-qr",
+                object_contain: book_qr,
+              });
+              student.library_qr_code = imageKey;
+              await student.save();
+              library.generated_qr_student?.push(student?._id);
+            }
+          }
         }
-        // }
+        library.is_generated_qr_student = false;
+        await library.save();
       }
     }
   } catch (e) {
@@ -1912,27 +1970,45 @@ exports.generateAllBookQrCodeQuery = async (req, res) => {
     const { lid } = req.params;
     if (!lid) throw "Please send library id to perform task";
     const library = await Library.findById(lid);
+    let flag = library.is_generated_qr_book ?? false;
+    library.is_generated_qr_book = true;
+    await library.save();
     res.status(200).send({
       message: "Library qr code book generation processing",
       access: true,
     });
-
-    for (let bid of library?.books) {
-      const book = await Book.findById(bid);
-      // if (book?.book_qr_code) {
-      // } else {
-      let book_qr = {
-        libraryId: library?._id,
-        instituteId: library?.institute,
-        bookId: book?._id,
-      };
-      let imageKey = await generate_qr({
-        fileName: "initial-book-qr",
-        object_contain: book_qr,
-      });
-      book.book_qr_code = imageKey;
-      await book.save();
-      // }
+    // let i = 0;
+    // var book_id = library?.books?.slice(3458);
+    // var book_id = library?.books?.slice(3458);
+    // var i = 0;
+    if (!flag) {
+      var book_id = library?.books?.filter((bid) =>
+        library?.generated_qr_book?.includes(bid) ? null : bid
+      );
+      for (let bid of book_id) {
+        const book = await Book.findById(bid);
+        if (book?.book_qr_code) {
+        } else {
+          if (book) {
+            let book_qr = {
+              libraryId: library?._id,
+              instituteId: library?.institute,
+              bookId: book?._id,
+            };
+            let imageKey = await generate_qr({
+              fileName: "initial-book-qr",
+              object_contain: book_qr,
+            });
+            book.book_qr_code = imageKey;
+            await book.save();
+            library.generated_qr_book?.push(book?._id);
+            // console.log("count :-> ", i);
+            // ++i;
+          }
+        }
+      }
+      library.is_generated_qr_book = false;
+      await library.save();
     }
   } catch (e) {
     console.log(e);
@@ -1968,6 +2044,24 @@ exports.getAllBookQrCodeQuery = async (req, res) => {
   }
 };
 
+const time_convertor = (data) => {
+  let splt = data?.split(" ");
+  let nt = splt?.[0]?.split(":");
+  let hr = 0;
+  let total_min = 0;
+  if (splt?.[1] === "Pm" || splt?.[1] === "pm") {
+    if (+nt?.[0] === 12) {
+      hr = +nt?.[0];
+    } else {
+      hr = +nt?.[0] + 12;
+    }
+  } else {
+    hr = +nt?.[0];
+  }
+  total_min = hr * 60 + +nt?.[1];
+  return total_min;
+};
+
 exports.getInOutStudentQuery = async (req, res) => {
   try {
     const { sid } = req.params;
@@ -1992,8 +2086,8 @@ exports.getInOutStudentQuery = async (req, res) => {
     });
     let current_time = moment(currentDate).format("hh:mm a");
     if (
-      library?.timing?.from <= current_time &&
-      library?.timing?.to >= current_time
+      +time_convertor(library?.timing?.from) <= +time_convertor(current_time) &&
+      +time_convertor(library?.timing?.to) >= +time_convertor(current_time)
     ) {
       if (!inout_g?.[0]?._id) {
         const student = await Student.findById(sid);
@@ -2959,6 +3053,59 @@ exports.getStudentTotalLibraryTimeQuery = async (req, res) => {
       message: "Student total library time",
       access: true,
       student: student,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.getAllStaffQrCodeQuery = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    if (!lid) throw "Please send library id to perform task";
+    const library = await Library.findById(lid).populate({
+      path: "institute",
+      select: "ApproveStaff",
+    });
+    var all_staff = [];
+    all_staff = await Staff.find({
+      _id: { $in: library?.institute?.ApproveStaff },
+    }).select(
+      "staffFirstName staffLastName staffMiddleName staffROLLNO staff_emp_code library_qr_code"
+    );
+    res.status(200).send({
+      message: "Library qr code staff generation processing",
+      access: true,
+      all_staff: all_staff,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+exports.getAllStudentQrCodeQuery = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    if (!lid) throw "Please send library id to perform task";
+    const library = await Library.findById(lid).populate({
+      path: "institute",
+      select: "ApproveStudent",
+    });
+    var all_student = [];
+    all_student = await Student.find({
+      _id: { $in: library?.institute?.ApproveStudent },
+    }).select(
+      "studentFirstName studentLastName studentMiddleName studentROLLNO staffGRNO library_qr_code"
+    );
+    res.status(200).send({
+      message: "Library qr code student generation processing",
+      access: true,
+      all_student: all_student,
     });
   } catch (e) {
     console.log(e);

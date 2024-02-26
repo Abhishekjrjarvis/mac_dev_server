@@ -120,7 +120,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { user_mod_id } = req?.query
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto qviple_id hostelDepart leave_config insEditableText_one insEditableText_two profile_modification merchant_options name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo random_institute_code last_login gr_initials online_amount_edit_access sub_domain_link_up_status application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by block_institute blockedBy"
+        "insName status photoId insProfilePhoto qviple_id hostelDepart leave_config insEditableText_one insEditableText_two profile_modification merchant_options name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo random_institute_code last_login gr_initials online_amount_edit_access sub_domain_link_up_status application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by block_institute blockedBy authority authority_signature autority_stamp_profile"
       )
       .populate({
         path: "request_at",
@@ -1340,25 +1340,22 @@ exports.retrieveApproveStaffList = async (req, res) => {
       const skip = (page - 1) * limit;
       const staff_ins = await InstituteAdmin.findById({ _id: id }).select(
         "ApproveStaff insName"
-      );
-      const staffIns = await Staff.find({
-        _id: { $in: staff_ins?.ApproveStaff },
-      })
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender"
-        )
+      )
         .populate({
-          path: "user",
-          select: "userLegalName userEmail userPhoneNumber",
-        });
-      if (staffIns) {
+          path: "ApproveStaff",
+          select: "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+          populate: {
+            path: "user",
+            select: "userLegalName userEmail userPhoneNumber"
+          }
+        })
+      if (staff_ins?.ApproveStaff?.length > 0) {
         // const sEncrypt = await encryptionPayload(staffIns);
-        staffIns.sort(function (st1, st2) {
-          return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
-        });
-        res.status(200).send({ message: "All Staff With Limit ", staffIns });
+        // staff_ins?.ApproveStaff.sort(function (st1, st2) {
+        //   return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+        // });
+        var all_staff = await nested_document_limit(page, limit, staff_ins?.ApproveStaff)
+        res.status(200).send({ message: "All Staff With Limit ", staffIns: all_staff });
       } else {
         res.status(404).send({ message: "Failure", staffIns: [] });
       }
@@ -1366,53 +1363,55 @@ exports.retrieveApproveStaffList = async (req, res) => {
       if (req.query.date) {
         const staff_ins = await InstituteAdmin.findById({ _id: id }).select(
           "ApproveStaff insName"
-        );
-        const staffIns = await Staff.find({
-          _id: { $in: staff_ins?.ApproveStaff },
-        })
-          .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
-          )
-          .populate({
+        )
+        .populate({
+          path: "ApproveStaff",
+          select: "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+          populate: {
             path: "user",
-            select: "userLegalName userEmail userPhoneNumber",
-          })
-          .populate({
+            select: "userLegalName userEmail userPhoneNumber"
+          }
+        })
+        .populate({
+          path: "ApproveStaff",
+          select: "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+          populate: {
             path: "staffLeave",
             match: {
               date: { $eq: req.query?.date },
             },
             select: "_id date",
-          });
-        if (staffIns) {
-          // const sEncrypt = await encryptionPayload(staffIns);
-          staffIns.sort(function (st1, st2) {
-            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
-          });
-          res.status(200).send({ message: "Without Limit", staffIns });
+          }
+        })
+        if (staff_ins?.ApproveStaff?.length > 0) {
+          // const sEncrypt = await encryptionPayload(staff_ins);
+          // staff_ins?.ApproveStaff.sort(function (st1, st2) {
+          //   return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+          // });
+          var all_staff = await nested_document_limit(page, limit, staff_ins?.ApproveStaff)
+          res.status(200).send({ message: "Without Limit", staffIns: all_staff });
         } else {
           res.status(404).send({ message: "Failure", staffIns: [] });
         }
       } else {
         const staff_ins = await InstituteAdmin.findById({ _id: id }).select(
           "ApproveStaff insName"
-        );
-        const staffIns = await Staff.find({
-          _id: { $in: staff_ins?.ApproveStaff },
-        })
-          .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
-          )
-          .populate({
+        )
+        .populate({
+          path: "ApproveStaff",
+          select: "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+          populate: {
             path: "user",
-            select: "userLegalName userEmail userPhoneNumber",
-          });
-        if (staffIns) {
-          // const sEncrypt = await encryptionPayload(staffIns);
-          staffIns.sort(function (st1, st2) {
-            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
-          });
-          res.status(200).send({ message: "Without Limit", staffIns });
+            select: "userLegalName userEmail userPhoneNumber"
+          }
+        })
+        if (staff_ins?.ApproveStaff?.length > 0) {
+          // const sEncrypt = await encryptionPayload(staff_ins);
+          // staff_ins?.ApproveStaff?.sort(function (st1, st2) {
+          //   return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+          // });
+          var all_staff = await nested_document_limit(page, limit, staff_ins?.ApproveStaff)
+          res.status(200).send({ message: "Without Limit", staffIns: all_staff });
         } else {
           res.status(404).send({ message: "Failure", staffIns: [] });
         }
@@ -5328,7 +5327,7 @@ exports.retrieveCertificateEditableDetailQuery = async (req, res) => {
     const { id } = req.params;
     const detail = await InstituteAdmin.findById(id)
       .select(
-        "insAffiliated insEditableText_one insEditableText_two affliatedLogo authority authority_signature autority_stamp_profile naac_motto"
+        "insAffiliated insEditableText_one insEditableText_two affliatedLogo authority authority_signature autority_stamp_profile naac_motto leave_certificate_selection"
       )
       .lean()
       .exec();
@@ -5880,3 +5879,53 @@ exports.renderEditSubjectMasterQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderApproveStaffShuffleQuery = async (req, res) => {
+  try {
+    const { id } = req?.params
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var one_ins = await InstituteAdmin.findById({ _id: id })
+      .select("ApproveStaff")
+      .populate({
+        path: "ApproveStaff",
+        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender teaching_type current_designation staffROLLNO staffDesignationCount"
+    })
+    
+    if (one_ins?.ApproveStaff?.length > 0) {
+      res.status(200).send({ message: "Explore All Staff Query", access: true, all_staff: one_ins?.ApproveStaff})
+    }
+    else {
+      res.status(200).send({ message: "No Staff Query", access: true, all_staff: []})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderApproveStaffShuffleQueryStats = async (req, res) => {
+  try {
+    var all_ins = await InstituteAdmin.find({ status: "Approved"})
+    
+    var i = 0
+    for (var val of all_ins) {
+      var all_staff = await Staff.find({ $and: [{ institute: val?._id }, { staffStatus: "Approved"}] })
+      for (var ele of all_staff) {
+        if (val?.ApproveStaff?.includes(`${ele?._id}`)) {
+          
+        }
+        else {
+          console.log(i)
+          val.ApproveStaff.push(ele?._id)
+          i+= 1
+        }
+      }
+      await val.save()
+    }
+    res.status(200).send({ message: "Explore All Staff Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

@@ -212,7 +212,12 @@ const subjectSchema = new mongoose.Schema({
   course_passing_credit: {
     type: Number,
   },
-
+  one_day_attendance_lecture: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectLectureDay",
+    },
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

@@ -107,6 +107,12 @@ router.get(
   catchAsync(Filter.renderHostelFeeHeadsStructureReceiptQuery)
 );
 
+
+// router.get(
+//   "/heads/hostel/query",
+//   catchAsync(Filter.renderHostelFeeHeadsStructureReceiptQueryStats)
+// );
+
 router.patch(
   "/heads/by/:fid/receipt/query/repay/price/calculate",
   catchAsync(Filter.renderFeeHeadsStructureReceiptRePayPriceQuery)

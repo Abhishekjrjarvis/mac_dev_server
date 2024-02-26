@@ -364,6 +364,6 @@ router.patch(
   catchAsync(Hostel.renderOneLinkedQuery)
 );
 
-router.patch("/pass", catchAsync(Hostel.renderPass));
+router.patch("/pass", catchAsync(Hostel.renderHostelCardQuery));
 
 module.exports = router;

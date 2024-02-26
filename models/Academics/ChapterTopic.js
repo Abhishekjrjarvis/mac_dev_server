@@ -34,6 +34,28 @@ const chapterTopicSchema = new mongoose.Schema({
   topic_edited_status: {
     type: String,
   },
+  course_outcome: {
+    type: String
+  },
+  learning_outcome: {
+    type: String
+  },
+  timing: {
+    hours: {
+      type: String
+    },
+    minutes: {
+      type: String
+    }
+  },
+  planning_date: {
+    type: Date,
+    default: Date.now
+  },
+  execution_date: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 module.exports = mongoose.model("ChapterTopic", chapterTopicSchema);

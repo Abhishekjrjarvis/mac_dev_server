@@ -198,4 +198,15 @@ router.patch(
   catchAsync(Filter.renderFilterByDepartmentQuery)
 );
 
+router.patch(
+  "/by/fee/structure/:did/query",
+  // isLoggedIn,
+  catchAsync(Filter.renderFeeStructureQuery)
+);
+
+router.patch(
+  "/:did/all/timetable/export/query",
+  catchAsync(Filter.renderTimeTableFilterByDepartmentQuery)
+);
+
 module.exports = router;

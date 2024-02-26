@@ -562,31 +562,125 @@ exports.allBookIssueByStaffSide = async (req, res) => {
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
     const library = await Library.findById(req.params.lid);
-    const issued = await IssueBook.find({
-      _id: { $in: library.issued },
-    })
-      .populate({
-        path: "book member staff_member",
-        select:
-          "bookName author language accession_number photoId photo photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+    var issued = [];
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      var all_book = await Book.find({
+        $and: [
+          { library: { $eq: library?._id } },
+          {
+            $or: [
+              {
+                bookName: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                author: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                subject: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                accession_number: {
+                  $regex: req.query.search,
+                  $options: "i",
+                },
+              },
+            ],
+          },
+        ],
+      }).select("_id");
+      all_book = all_book?.filter((bt) => bt?._id);
+
+      var all_student = await Student.find({
+        $and: [
+          { institute: { $eq: library?.institute } },
+          {
+            $or: [
+              {
+                studentFirstName: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                studentLastName: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                studentMiddleName: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                valid_full_name: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                studentGRNO: {
+                  $regex: req.query.search,
+                  $options: "i",
+                },
+              },
+            ],
+          },
+        ],
+      }).select("_id");
+
+      all_student = all_student?.filter((bt) => bt?._id);
+      issued = await IssueBook.find({
+        $and: [
+          {
+            _id: { $in: library.issued },
+          },
+          {
+            $or: [
+              {
+                book: { $in: all_book },
+              },
+              {
+                member: { $in: all_student },
+              },
+            ],
+          },
+        ],
       })
-      .select("book member staff_member createdAt day_overdue_charge for_days")
-      .sort({
-        createdAt: -1,
+        .populate({
+          path: "book member staff_member",
+          select:
+            "bookName author language accession_number photoId photo photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        })
+        .select(
+          "book member staff_member createdAt day_overdue_charge for_days"
+        )
+        .sort({
+          createdAt: -1,
+        });
+      res.status(200).send({
+        message: "List of all issued books with search",
+        issues: issued,
+      });
+    } else {
+      issued = await IssueBook.find({
+        _id: { $in: library.issued },
       })
-      .skip(dropItem)
-      .limit(itemPerPage)
-      .lean()
-      .exec();
-    res
-      .status(200)
-      .send({ message: "List of all issued books", issues: issued });
+        .populate({
+          path: "book member staff_member",
+          select:
+            "bookName author language accession_number photoId photo photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        })
+        .select(
+          "book member staff_member createdAt day_overdue_charge for_days"
+        )
+        .sort({
+          createdAt: -1,
+        })
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .lean()
+        .exec();
+      res
+        .status(200)
+        .send({ message: "List of all issued books", issues: issued });
+    }
   } catch (e) {
     res.status(200).send({
       message: e.message,
     });
   }
 };
+
 
 exports.bookColletedByStaffSide = async (req, res) => {
   try {
@@ -731,35 +825,132 @@ exports.allBookCollectedLogsByStaffSide = async (req, res) => {
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
-    const collected = await CollectBook.find({
-      library: { $eq: `${req.params.lid}` },
-    })
-      .populate({
-        path: "book member staff_member",
-        select:
-          "bookName photoId photo accession_number studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO valid_full_name photoId studentProfilePhoto staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
-      })
-      .select(
-        "book createdAt issuedDate fineCharge day_overdue_charge for_days"
-      )
-      .sort({
-        createdAt: -1,
-      })
-      .skip(dropItem)
-      .limit(itemPerPage)
-      .lean()
-      .exec();
+    const library = await Library.findById(req.params.lid);
 
-    res.status(200).send({
-      message: "List of all collected log books",
-      collected: collected,
-    });
+    var collected = [];
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      var all_book = await Book.find({
+        $and: [
+          { library: { $eq: library?._id } },
+          {
+            $or: [
+              {
+                bookName: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                author: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                subject: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                accession_number: {
+                  $regex: req.query.search,
+                  $options: "i",
+                },
+              },
+            ],
+          },
+        ],
+      }).select("_id");
+      all_book = all_book?.filter((bt) => bt?._id);
+
+      var all_student = await Student.find({
+        $and: [
+          { institute: { $eq: library?.institute } },
+          {
+            $or: [
+              {
+                studentFirstName: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                studentLastName: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                studentMiddleName: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                valid_full_name: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                studentGRNO: {
+                  $regex: req.query.search,
+                  $options: "i",
+                },
+              },
+            ],
+          },
+        ],
+      }).select("_id");
+      all_student = all_student?.filter((bt) => bt?._id);
+
+      collected = await CollectBook.find({
+        $and: [
+          { library: { $eq: `${req.params.lid}` } },
+          {
+            $or: [
+              {
+                book: { $in: all_book },
+              },
+              {
+                member: { $in: all_student },
+              },
+            ],
+          },
+        ],
+      })
+        .populate({
+          path: "book member staff_member",
+          select:
+            "bookName photoId photo accession_number studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO valid_full_name photoId studentProfilePhoto staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        })
+        .select(
+          "book createdAt issuedDate fineCharge day_overdue_charge for_days"
+        )
+        .sort({
+          createdAt: -1,
+        })
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .lean()
+        .exec();
+
+      res.status(200).send({
+        message: "List of all collected log books by search",
+        collected: collected,
+      });
+    } else {
+      collected = await CollectBook.find({
+        library: { $eq: `${req.params.lid}` },
+      })
+        .populate({
+          path: "book member staff_member",
+          select:
+            "bookName photoId photo accession_number studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO valid_full_name photoId studentProfilePhoto staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        })
+        .select(
+          "book createdAt issuedDate fineCharge day_overdue_charge for_days"
+        )
+        .sort({
+          createdAt: -1,
+        })
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .lean()
+        .exec();
+
+      res.status(200).send({
+        message: "List of all collected log books",
+        collected: collected,
+      });
+    }
   } catch (e) {
     res.status(200).send({
       message: e,
     });
   }
 };
+
 
 exports.oneBookCollectedLogsByStaffSide = async (req, res) => {
   try {

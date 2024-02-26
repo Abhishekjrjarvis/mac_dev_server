@@ -251,7 +251,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto certificate_issued_count",
+          "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto certificate_issued_count insAffiliated",
       });
     student.studentReason = reason;
     student.student_bona_message = student_bona_message;
@@ -289,14 +289,30 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     const { gr, id } = req.params;
     var download = true;
     const {
-      reason,
-      study,
-      previous,
-      l_date,
-      behaviour,
-      remark,
-      uidaiNumber,
-      bookNO,
+      studentCertificateNo,
+      leaving_date,
+      bookNo,
+      studentUidaiNumber,
+      studentPreviousSchool,
+      studentLeavingBehaviour,
+      studentLeavingStudy,
+      studentLeavingReason,
+      studentRemark,
+      instituteJoinDate,
+      instituteLeavingDate,
+      leaving_degree,
+      leaving_since_date,
+      leaving_course_duration,
+      elective_subject_one,
+      elective_subject_second,
+      leaving_project_work,
+      leaving_guide_name,
+      lcRegNo,
+      lcCaste,
+      lcBirth,
+      lcDOB,
+      lcAdmissionDate,
+      lcInstituteDate
     } = req.body;
     const institute = await InstituteAdmin.findById({
       _id: id,
@@ -308,7 +324,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentLeavingPreviousYear studentEmail duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount"
+        "studentFirstName studentLeavingPreviousYear studentEmail leaving_guide_name studentLeavingInsDate studentRemark student_prn_enroll_number studentCertificateNo studentLeavingStudy studentLeavingReason studentRemark leaving_project_work elective_subject_second elective_subject_one leaving_course_duration leaving_since_date leaving_degree leaving_date instituteJoinDate duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount lcRegNo lcCaste lcBirth lcDOB lcAdmissionDate lcInstituteDate studentLeavingRemark"
       )
       .populate({
         path: "studentClass",
@@ -321,7 +337,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "insName insAddress certificate_issued_count insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail",
+          "insName insAddress certificate_issued_count insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail leave_certificate_selection",
       })
       .populate({
         path: "remainingFeeList",
@@ -334,37 +350,80 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     if (
       institute.studentFormSetting.previousSchoolAndDocument
         .previousSchoolDocument &&
-      previous
+        studentPreviousSchool
     ) {
-      student.studentPreviousSchool = previous ? previous : null;
+      student.studentPreviousSchool = studentPreviousSchool ? studentPreviousSchool : null;
     } else {
     }
-    if (behaviour) {
-      student.studentLeavingBehaviour = behaviour;
+    if (studentLeavingBehaviour) {
+      student.studentLeavingBehaviour = studentLeavingBehaviour;
       if (institute?.original_copy) {
         student.duplicate_copy = "Duplicate Copy";
         // await student.save();
       }
     }
-    if (study) {
-      student.studentLeavingStudy = study;
+    if (leaving_date) {
+      student.leaving_date = leaving_date
     }
-    if (reason) {
-      student.studentLeavingReason = reason;
+    if (instituteJoinDate) {
+      student.instituteJoinDate = instituteJoinDate
     }
-    if (remark) {
-      student.studentLeavingRemark = remark;
+    if (studentLeavingStudy) {
+      student.studentLeavingStudy = studentLeavingStudy;
     }
-    if (uidaiNumber) {
-      student.studentUidaiNumber = uidaiNumber;
+    if (studentLeavingReason) {
+      student.studentLeavingReason = studentLeavingReason;
     }
-    if (l_date) {
-      student.studentLeavingInsDate = new Date(`${l_date}`);
+    if (studentRemark) {
+      student.studentLeavingRemark = studentRemark;
     }
-    if (bookNO) {
-      student.studentBookNo = bookNO;
+    if (studentUidaiNumber) {
+      student.studentUidaiNumber = studentUidaiNumber;
     }
-    student.studentCertificateNo = institute.leavingArray.length + 1;
+    if (instituteLeavingDate) {
+      student.studentLeavingInsDate = new Date(`${instituteLeavingDate}`);
+    }
+    if (bookNo) {
+      student.studentBookNo = bookNo;
+    }
+    if (leaving_degree) {
+      student.leaving_degree = leaving_degree
+    }
+    if (leaving_since_date) {
+      student.leaving_since_date = leaving_since_date
+    }
+    if (leaving_course_duration) {
+      student.leaving_course_duration = leaving_course_duration
+    }
+    if (elective_subject_one) {
+      student.elective_subject_one = elective_subject_one
+    }
+    if (elective_subject_second) {
+      student.elective_subject_second = elective_subject_second
+    }
+    if (leaving_project_work) {
+      student.leaving_project_work = leaving_project_work
+    }
+    if (lcRegNo) {
+      student.lcRegNo = lcRegNo
+    }
+    if (lcCaste) {
+      student.lcCaste = lcCaste
+    }
+    if (lcDOB) {
+      student.lcDOB = lcDOB
+    }
+    if (lcBirth) {
+      student.lcBirth = lcBirth
+    }
+    if (lcAdmissionDate) {
+      student.lcAdmissionDate = lcAdmissionDate
+    }
+    if (lcInstituteDate) {
+      student.lcInstituteDate = lcInstituteDate
+    }
+
+    student.studentCertificateNo = studentCertificateNo ? studentCertificateNo : institute.leavingArray.length + 1;
     institute.l_certificate_count += 1;
     institute.certificate_issued_count += 1;
     student.studentLeavingStatus = "Ready";
@@ -1984,46 +2043,44 @@ exports.renderActiveDesignationRoleQuery = async (req, res) => {
 exports.renderExcelToJSONSubjectChapterQuery = async (req, res) => {
   try {
     const { sid } = req.params;
-    const { excel_file } = req.body;
+    const { excel_file, excel_count } = req.body;
     if (!sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
 
-    const one_subject = await Subject.findById({ _id: sid });
-    const one_class = await Class.findById({ _id: `${one_subject?.class}` });
-    const one_ins = await InstituteAdmin.findById({
-      _id: `${one_class?.institute}`,
-    });
-    one_ins.excel_data_query.push({
-      excel_file: excel_file,
-      subjectId: one_subject?._id,
-      status: "Uploaded",
-    });
-    await one_ins.save();
+    // const one_subject = await Subject.findById({ _id: sid });
+    // const one_class = await Class.findById({ _id: `${one_subject?.class}` });
+    // const one_ins = await InstituteAdmin.findById({
+    //   _id: `${one_class?.institute}`,
+    // });
+    // one_ins.excel_data_query.push({
+    //   excel_file: excel_file,
+    //   subjectId: one_subject?._id,
+    //   status: "Uploaded",
+    // });
+    // await one_ins.save();
     res.status(200).send({
       message: "Update Excel To Backend Wait for Operation Completed",
       access: true,
     });
 
-    const update_ins = await InstituteAdmin.findById({
-      _id: `${one_class?.institute}`,
-    });
-    var key;
-    for (var ref of update_ins?.excel_data_query) {
-      if (
-        `${ref.status}` === "Uploaded" &&
-        `${ref?.subjectId}` === `${one_subject?._id}`
-      ) {
-        key = ref?.excel_file;
-      }
-    }
-    const val = await simple_object(key);
+    // const update_ins = await InstituteAdmin.findById({
+    //   _id: `${one_class?.institute}`,
+    // });
+    // var key;
+    // for (var ref of update_ins?.excel_data_query) {
+    //   if (
+    //     `${ref.status}` === "Uploaded" &&
+    //     `${ref?.subjectId}` === `${one_subject?._id}`
+    //   ) {
+    //     key = ref?.excel_file;
+    //   }
+    // }
+    // const val = await simple_object(key);
 
-    const is_converted = await generate_excel_to_json_subject_chapter_query(
-      val
-    );
+    const is_converted = await generate_excel_to_json_subject_chapter_query(excel_file, excel_count);
     if (is_converted?.value) {
       await renderNewOneChapterTopicQuery(sid, is_converted?.chapter_array);
     } else {

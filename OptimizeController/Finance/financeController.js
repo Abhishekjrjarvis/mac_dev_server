@@ -3925,13 +3925,13 @@ exports.renderOneFeeReceipt = async (req, res) => {
         });
     }
 
-    // var new_format = receipt?.student?.active_fee_heads?.filter((ref) => {
-    //   if (`${ref?.appId}` === `${receipt?.application?._id}`) return ref;
-    // });
+    var new_format = receipt?.fee_heads?.filter((ref) => {
+      if (ref?.original_paid > 0) return ref;
+    });
 
-    // receipt.student.active_fee_heads = [...new_format];
+    receipt.student.active_fee_heads = [...new_format];
 
-    receipt.student.active_fee_heads = [...receipt?.fee_heads];
+    // receipt.student.active_fee_heads = [...receipt?.fee_heads];
 
     const obj = {
       message: "Come up with Tea and Snacks",

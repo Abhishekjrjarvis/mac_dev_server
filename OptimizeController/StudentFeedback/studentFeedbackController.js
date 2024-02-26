@@ -361,6 +361,8 @@ exports.feedbackTakenByInstituteQuery = async (req, res) => {
         });
         if (staff_feedbaack) {
           staff_feedbaack.subject_master?.push(master?._id);
+          staff_feedbaack.classes?.push(obj);
+          await staff_feedbaack.save();
         } else {
           staff_feedbaack = new StaffStudentFeedback({
             institute: id,
@@ -370,7 +372,10 @@ exports.feedbackTakenByInstituteQuery = async (req, res) => {
           });
           staff.student_feedback?.push(staff_feedbaack?._id);
           feedback.feedback_staff?.push(staff_feedbaack?._id);
+          staff_feedbaack.classes?.push(obj);
+          await staff_feedbaack.save();
         }
+
         let all_student = st?.is_batch ? st?.student : data["student"];
         if (all_student?.length > 0) {
           for (let stu of all_student) {
@@ -413,10 +418,9 @@ exports.feedbackTakenByInstituteQuery = async (req, res) => {
           }
         }
 
-        staff_feedbaack.classes?.push(obj);
         await Promise.all([
           feedback.save(),
-          staff_feedbaack.save(),
+          // staff_feedbaack.save(),
           staff.save(),
         ]);
       }
@@ -425,6 +429,7 @@ exports.feedbackTakenByInstituteQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 exports.giveStudentFeedbackQuery = async (req, res) => {
   try {
     const { sid } = req.params;
@@ -459,17 +464,18 @@ exports.giveStudentFeedbackQuery = async (req, res) => {
       notify?.staffFeedbackId
     );
 
-    staff_feedback.student_give_feedback?.push(give_feedback?._id);
-    staff_feedback.student_give_feedback_count += 1;
-    await Promise.all([
-      give_feedback.save(),
-      staff_feedback.save(),
-      feedback.save(),
-    ]);
+    if (staff_feedback) {
+      staff_feedback.student_give_feedback?.push(give_feedback?._id);
+      staff_feedback.student_give_feedback_count += 1;
+      await staff_feedback.save();
+    }
+
+    await Promise.all([give_feedback.save(), feedback.save()]);
   } catch (e) {
     console.log(e);
   }
 };
+
 exports.getSubjectStaffListQuery = async (req, res) => {
   try {
     const { ifid } = req.params;

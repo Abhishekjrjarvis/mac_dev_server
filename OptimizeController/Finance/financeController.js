@@ -3913,7 +3913,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
     if (ref?.length > 0) {
       var all_remain = await RemainingList.findById({ _id: ref[0]?._id })
         .select(
-          "applicable_fee paid_fee remaining_fee refund_fee remaining_flow"
+          "applicable_fee paid_fee remaining_fee refund_fee remaining_flow appId"
         )
         .populate({
           path: "batchId",
@@ -3922,6 +3922,9 @@ exports.renderOneFeeReceipt = async (req, res) => {
         .populate({
           path: "fee_structure",
           select: "total_admission_fees",
+        })
+        .populate({
+          path: "applicable_card",
         });
     }
 
@@ -3930,6 +3933,19 @@ exports.renderOneFeeReceipt = async (req, res) => {
     // });
 
     // receipt.student.active_fee_heads = [...new_format];
+    var excess_obj = {
+      head_name: "Excess Applicable Fees",
+            head_name: ref?.head_name,
+            paid_fee: all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee > 0 ? all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee : 0,
+            remain_fee: 0,
+            applicable_fee: 0,
+            fee_structure: all_remain?.fee_structure?._id,
+            original_paid: 0,
+            appId: all_remain?.appId,
+    }
+    if (excess_obj?.paid_fee > 0) {
+      receipt.fee_heads.push(excess_obj)
+    }
 
     receipt.student.active_fee_heads = [...receipt?.fee_heads];
 

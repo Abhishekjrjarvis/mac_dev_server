@@ -3128,6 +3128,36 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
   }
 };
 
+// exports.renderHostelFeeHeadsStructureReceiptQueryStats = async (req, res) => {
+//   try {
+//     const all_receipts = await FeeReceipt.find({})
+//     .select("_id application receipt_generated_from")
+//     .populate({
+//       path: "application",
+//       select: "application_flow"
+//     })
+
+//     var  i = 0
+//     var nums = []
+//     for (var val of all_receipts) {
+//       if (`${val?.application?.application_flow}` === "Hostel Application") {
+//         nums.push(val)
+//         val.receipt_generated_from = "BY_HOSTEL_MANAGER"
+//         await val.save()
+//       }
+//       else {
+        
+//       }
+//       console.log(i)
+//       i+= 1
+//     }
+//     res.status(200).send({ message: "Explore All Receipts Query", count: nums?.length, nums})
+//   }
+//   catch (e) {
+    
+//   }
+// }
+
 exports.renderFeeHeadsStructureReceiptRePayPriceQuery = async (req, res) => {
   try {
     const { fid } = req.params;

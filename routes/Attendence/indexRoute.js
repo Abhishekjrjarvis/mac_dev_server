@@ -146,7 +146,39 @@ router
 
   router
   .route("/set/subject/:sid/attendace/time/slot")
-  .patch(catchAsync(Avail.subjectTodaySetAttendanceTimeQuery));
+    .patch(catchAsync(Avail.subjectTodaySetAttendanceTimeQuery));
+  
+    router
+  .route("/set/time/slot")
+  .get(catchAsync(Avail.subjectTimeSlotFormatQuery));
+
+router
+  .route("/delete/:said/today")
+  .patch(catchAsync(Avail.subjectDeleteTodayAttendanceQuery));
+
+router
+  .route("/timetable/all/day/check")
+  .patch(catchAsync(Avail.timetableQueryReset));
+
+  router
+  .route("/subject/already/slot/mark/class/:cid")
+    .get(catchAsync(Avail.subjectTimeSlotMarkListQuery));
+  
+    router
+  .route("/update/subject/:sid/attendace/set/time/slot")
+  .patch(catchAsync(Avail.subjectTodayUpdateAttendanceTimeQuery));
+
+router
+  .route("/today/subject/:sid/added/lecture")
+  .get(catchAsync(Avail.getSubjectAttednaceLectureQuery))
+  .post(catchAsync(Avail.subjectAttednaceAddLectureQuery));
+
+  router
+  .route("/inject/default/parameter")
+  .get(catchAsync(Avail.assignAttendanceToDefaultParameterQuery));
+router
+  .route("/staff/mark/:id/list/excel")
+  .patch(catchAsync(Avail.getInstituteStaffMarkExcelQuery));
 
 
 module.exports = router;

@@ -939,3 +939,65 @@ exports.getSubjectDateWiseScheduleUpdateTimeTableQuery = async(req, res) => {
     console.log(e)
   }
 }
+
+exports.addDayWiseScheduleAutoQuery = async (req, res) => {
+  try {
+    if (!req.params.cid || !req.body?.subjectId)
+      throw "Please send class id to perform task";
+    const { sfid } = req.query;
+    const classes = await Class.findById(req.params.cid).populate({
+      path: "timetableDayWise",
+      match: { day: { $eq: req.body.day } },
+    });
+    const subject = await Subject.findById(req.body.subjectId);
+    if (classes.timetableDayWise?.length <= 0) {
+      const timetable = new ClassTimetable({
+        day: req.body.day,
+        class: req.params.cid,
+        schedule: [
+          {
+            from: req.body.from,
+            to: req.body.to,
+            subject: subject._id,
+            subjectName: subject.subjectName,
+            assignStaff: subject.subjectTeacherName,
+          },
+        ],
+      });
+      classes.timetableDayWise.push(timetable._id);
+      await Promise.all([timetable.save(), classes.save()]);
+    } else {
+      let flag = false;
+      let flagIndex = false;
+      let timet = classes.timetableDayWise[0].schedule;
+      for (let i = 0; i < timet?.length; i++) {
+        if (String(timet[i]._id) === String(sfid)) {
+          flag = true;
+          flagIndex = i;
+          break;
+        }
+      }
+      if (flag) {
+        timet[flagIndex].from = req.body.from;
+        timet[flagIndex].to = req.body.to;
+        timet[flagIndex].subject = subject._id;
+        timet[flagIndex].subjectName = subject.subjectName;
+        timet[flagIndex].assignStaff = subject.subjectTeacherName;
+      } else {
+        classes.timetableDayWise[0].schedule.push({
+          from: req.body.from,
+          to: req.body.to,
+          subject: subject._id,
+          subjectName: subject.subjectName,
+          assignStaff: subject.subjectTeacherName,
+        });
+      }
+
+      await classes.timetableDayWise[0].save();
+      // console.log("hi", classes.timetableDayWise);
+      // console.log("hi", classes.timetableDayWise?.[0]?.schedule[0]);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

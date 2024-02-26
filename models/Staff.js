@@ -543,7 +543,13 @@ const staffSchema = new mongoose.Schema({
   ],
   staff_emp_code: {
     type: String
-  }
+  },
+  student_feedback: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StaffStudentFeedback",
+    },
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

@@ -5795,3 +5795,27 @@ exports.renderEditSubjectMasterQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderApproveStaffShuffleQuery = async (req, res) => {
+  try {
+    const { id } = req?.params
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var one_ins = await InstituteAdmin.findById({ _id: id })
+      .select("ApproveStaff")
+      .populate({
+        path: "ApproveStaff",
+        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender teaching_type current_designation staffROLLNO staffDesignationCount"
+    })
+    
+    if (one_ins?.ApproveStaff?.length > 0) {
+      res.status(200).send({ message: "Explore All Staff Query", access: true, all_staff: one_ins?.ApproveStaff})
+    }
+    else {
+      res.status(200).send({ message: "No Staff Query", access: true, all_staff: []})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

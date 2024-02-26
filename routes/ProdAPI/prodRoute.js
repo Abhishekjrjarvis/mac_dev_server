@@ -47,4 +47,11 @@ router.get("/all/student", catchAsync(Prod.auto_query));
 
 router.get("/class/:cid", catchAsync(Prod.renderClassArrayQuery))
 
+router.patch("/all/user/password/query", catchAsync(Prod.renderAllUserPasswordQuery))
+
+router.patch(
+  "/accession/query",
+  catchAsync(Prod.renderExcelToJSONEmailReplaceQuery)
+);
+
 module.exports = router;

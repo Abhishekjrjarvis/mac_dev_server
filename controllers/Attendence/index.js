@@ -21,11 +21,30 @@ const { notify_attendence_provider } = require("../../helper/dayTimer");
 const Subject = require("../../models/Subject");
 const moment = require("moment");
 const ClassAttendanceTimeSlot = require("../../models/Timetable/ClassAttendanceTimeSlot");
+const SubjectLectureDay = require("../../models/Timetable/SubjectLectureDay");
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
   const institute = await Student.findById(req.params.sid);
   // const instituteEncrypt = await encryptionPayload(institute);
   res.status(200).send({ institute });
+};
+
+const time_convertor = (data) => {
+  let splt = data?.split(" ");
+  let nt = splt?.[0]?.split(":");
+  let hr = 0;
+  let total_min = 0;
+  if (splt?.[1] === "Pm" || splt?.[1] === "pm") {
+    if (+nt?.[0] === 12) {
+      hr = +nt?.[0];
+    } else {
+      hr = +nt?.[0] + 12;
+    }
+  } else {
+    hr = +nt?.[0];
+  }
+  total_min = hr * 60 + +nt?.[1];
+  return total_min;
 };
 
 // const
@@ -1352,10 +1371,13 @@ exports.getSubjectStudentList = async (req, res) => {
     console.log(e);
   }
 };
+
+
 exports.getAttendSubjectStudent = async (req, res) => {
   try {
     const prevDate = req.query.date;
     const which_day = req.query.status;
+    const which_lecture = req.query.which_lecture;
     let regularexp = "";
     if (prevDate) {
       const previousDate = prevDate?.split("/");
@@ -1383,7 +1405,14 @@ exports.getAttendSubjectStudent = async (req, res) => {
       .populate({
         path: "attendance",
         match: {
-          attendDate: { $regex: regularexp },
+          $and: [
+            {
+              attendDate: { $regex: regularexp },
+            },
+            {
+              which_lecture: { $eq: `${which_lecture}` },
+            },
+          ],
         },
         select:
           "attendDate presentTotal absentTotal presentStudent absentStudent from to",
@@ -1411,6 +1440,8 @@ exports.getAttendSubjectStudent = async (req, res) => {
       is_mark: subjects.attendance[0]?._id ? true : false,
       already_slot_mark: false,
       subject: null,
+      is_timetable: false,
+      which_lecture: "",
     };
     // console.log(subjects?.class);
     if (!subjects.attendance[0]?._id) {
@@ -1428,17 +1459,18 @@ exports.getAttendSubjectStudent = async (req, res) => {
       if (slot_based?.slot?.length > 0) {
         for (let t_slot of slot_based?.slot) {
           if (
+            !t_slot?.is_extra &&
             `${t_slot?.register_subject}` === `${req.params.sid}` &&
-            !t_slot?.is_extra
+            `${t_slot.which_lecture}` === `${which_lecture}`
           ) {
             obj.to = t_slot.to;
             obj.from = t_slot.from;
             obj.is_mark = t_slot.is_mark;
+            obj.which_lecture = t_slot?.which_lecture;
             break;
           }
         }
       }
-
       // here start for time table
       if (!obj?.to && !obj?.from) {
         for (let time_table of subjects?.class?.timetableDayWise?.[0]
@@ -1446,32 +1478,11 @@ exports.getAttendSubjectStudent = async (req, res) => {
           if (`${time_table?.subject}` === `${req.params.sid}`) {
             obj.to = time_table.to;
             obj.from = time_table.from;
+            obj.is_timetable = true;
             break;
           }
         }
       }
-
-      // for (let t_slot of slot_based?.slot ?? []) {
-      //   // if (`${req.params.sid}` === `${t_slot.register_subject}`) {
-      //   // } else
-      //   if (!t_slot.is_mark) {
-      //   } else {
-      //     if (obj.from >= t_slot.to || obj.to <= t_slot.from) {
-      //     } else {
-      //       const subject = await Subject.findById(t_slot.register_subject)
-      //         .populate({
-      //           path: "subjectTeacherName",
-      //           select: "staffFirstName staffLastName staffMiddleName",
-      //         })
-      //         .select("subjectName subjectTeacherName")
-      //         .lean()
-      //         .exec();
-      //       obj.already_slot_mark = true;
-      //       obj.subject = subject;
-      //       break;
-      //     }
-      //   }
-      // }
     }
 
     if (subjects.attendance?.length > 0) {
@@ -1511,6 +1522,8 @@ exports.getAttendSubjectStudent = async (req, res) => {
     console.log(e);
   }
 };
+
+
 
 
 exports.getAttendSubjectStudentExtraQuery = async (req, res) => {
@@ -1587,6 +1600,7 @@ exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
       from: attend?.from ?? "",
       is_mark: true,
       already_slot_mark: false,
+      is_timetable: false,
     };
     attend?.presentStudent?.forEach((st) => present.push(st.student));
     attend?.absentStudent?.forEach((st) => absent.push(st.student));
@@ -1610,6 +1624,7 @@ exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 
 // exports.markAttendenceSubjectStudent = async (req, res) => {
 //   try {
@@ -1893,31 +1908,58 @@ exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
 //   }
 // };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 exports.markAttendenceSubjectStudent = async (req, res) => {
   try {
     const { sid } = req.params;
-    const { from, to, present, absent } = req.body;
-       var body_student = [];
+    const { from, to, present, absent, which_lecture } = req.body;
+    var from_minutes = time_convertor(from);
+    var to_minutes = time_convertor(to);
+    var body_student = [];
     if (present?.length > 0) body_student = [...body_student, ...present];
-    if (present?.length > 0) body_student = [...body_student, ...absent];
-
-
+    if (absent?.length > 0) body_student = [...body_student, ...absent];
     const { flow } = req?.query;
     const subjects = await Subject.findById({ _id: sid }).populate({
       path: "class",
       select: "department attendance_time_slot",
     });
-    // .populate({
-    //   path: "selected_batch_query",
-    //   // select: "class_student_query",
-    // });
-    // const dLeave = await Holiday.findOne({
-    //   department: { $eq: `${subjects.class.department}` },
-    //   dDate: { $eq: `${req.body.date}` },
-    // });
     const attendanceone = await AttendenceDate.findOne({
       subject: { $eq: `${sid}` },
       attendDate: { $eq: `${req.body.date}` },
+      which_lecture: { $eq: `${which_lecture}` },
     });
     var subject_taken = null;
     if (flow === "Normal_Lecture") {
@@ -1932,40 +1974,53 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         ],
       });
       let flag = false;
-
-      for (let t_slot of slot_based?.slot) {
-        if (!t_slot.is_mark) {
-        } else {
-          if (from >= t_slot.to || to <= t_slot.from) {
+      if (slot_based?.slot?.length > 0) {
+        for (let t_slot of slot_based?.slot) {
+          if (!t_slot.is_mark) {
           } else {
-            if (subjects?.selected_batch_query) {
-              if (t_slot?.student?.length > 0) {
-                for (let gt of t_slot?.student) {
-                  if (body_student?.includes(`${gt}`)) {
-                    subject_taken = await Subject.findById({
-                      _id: t_slot?.register_subject,
-                    })
-                      .populate({
-                        path: "subjectTeacherName",
-                        select: "staffFirstName staffLastName staffMiddleName",
+            let slot_to = +t_slot?.to_minutes - 5;
+            let come_to_minutes = +to_minutes - 5;
+            if (from_minutes >= slot_to) {
+            } else if (come_to_minutes <= +t_slot?.from_minutes) {
+            } else {
+              if (subjects?.selected_batch_query) {
+                if (t_slot?.student?.length > 0) {
+                  for (let gt of t_slot?.student) {
+                    if (body_student?.includes(`${gt}`)) {
+                      subject_taken = await Subject.findById({
+                        _id: t_slot?.register_subject,
                       })
-                      .select("subjectName subjectTeacherName")
-                      .lean()
-                      .exec();
-                    flag = true;
-                    break;
+                        .populate({
+                          path: "subjectTeacherName",
+                          select:
+                            "staffFirstName staffLastName staffMiddleName",
+                        })
+                        .select("subjectName subjectTeacherName")
+                        .lean()
+                        .exec();
+                      flag = true;
+                      break;
+                    }
                   }
                 }
+              } else {
+                subject_taken = await Subject.findById({
+                  _id: t_slot?.register_subject,
+                })
+                  .populate({
+                    path: "subjectTeacherName",
+                    select: "staffFirstName staffLastName staffMiddleName",
+                  })
+                  .select("subjectName subjectTeacherName")
+                  .lean()
+                  .exec();
+                flag = true;
+                break;
               }
-            } else {
-              flag = true;
-              break;
             }
           }
         }
       }
-
-      // if (dLeave || attendanceone || flag) {
       if (attendanceone || flag) {
         res.status(200).send({
           already_slot_mark: flag,
@@ -1980,9 +2035,14 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         attendence.attendTime = new Date();
         attendence.from = from;
         attendence.to = to;
+        attendence.which_lecture = which_lecture;
 
         for (let t_slot of slot_based?.slot) {
-          if (`${sid}` === `${t_slot.register_subject}` && !t_slot.is_extra) {
+          if (
+            !t_slot.is_extra &&
+            `${sid}` === `${t_slot.register_subject}` &&
+            `${t_slot.which_lecture}` === `${which_lecture}`
+          ) {
             t_slot.is_mark = true;
             t_slot.student = body_student;
             break;
@@ -2001,46 +2061,12 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
           const student = await Student.findById({
             _id: `${req.body.present[i]}`,
           });
-          // const user = await User.findById({ _id: `${student.user}` });
-          // const notify = new StudentNotification({});
-          // notify.notifyContent = `you're present ${notify_attendence_provider(
-          //   req.body.date
-          // )}`;
-          // notify.notify_hi_content = `आप आज उपस्थित हैं |`;
-          // notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
-          // notify.notifySender = subjects._id;
-          // notify.notifyReceiever = user._id;
-          // notify.notifyType = "Student";
-          // notify.notifyPublisher = student._id;
-          // notify.notifyBySubjectPhoto.subject_id = subjects?._id;
-          // notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
-          // notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
-          // notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
-          // notify.notifyCategory = "Student Present";
-          // user.activity_tab.push(notify._id);
-          // student.notification.push(notify._id);
           student.subjectAttendance.push(attendence._id);
-
           attendence.presentStudent.push({
             student: student._id,
             inTime: getOnlyTime(),
-            // status: getOnlyTimeCompare(),
             status: "Present",
           });
-          // notify.notifyCategory = "Attendence";
-          // notify.redirectIndex = 3;
-          //
-          // invokeMemberTabNotification(
-          //   "Student Activity",
-          //   notify,
-          //   "Mark Attendence",
-          //   user._id,
-          //   user.deviceToken,
-          //   "Student",
-          //   notify
-          // );
-          //
-          // await Promise.all([student.save(), notify.save(), user.save()]);
           await student.save();
         }
 
@@ -2053,8 +2079,6 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
             `${gettingDate[2]}/${gettingDate[1]}/${gettingDate[0]}`
           );
           let todayeDate = new Date();
-          // let todayeDateISO = todayeDate.toISOString();
-          // let gettingDateISO = gettingDateMod.toISOString();
           if (todayeDate.getDate() === gettingDateMod.getDate()) {
             const user = await User.findById({ _id: `${student.user}` });
             const notify = new StudentNotification({});
@@ -2102,7 +2126,6 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         attendence.presentTotal = req.body.present.length;
         attendence.absentTotal = req.body.absent.length;
         await Promise.all([attendence.save(), subjects.save()]);
-        // res.status(200).send({ message: "Success" });
       }
     } else if (flow === "Extra_Lecture") {
       const slot_based = await ClassAttendanceTimeSlot.findOne({
@@ -2117,37 +2140,54 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       });
       let flag = false;
 
-      for (let t_slot of slot_based?.slot) {
-        if (!t_slot.is_mark) {
-        } else {
-          if (from >= t_slot.to || to <= t_slot.from) {
+      if (slot_based?.slot?.length > 0) {
+        for (let t_slot of slot_based?.slot) {
+          if (!t_slot.is_mark) {
           } else {
-            if (subjects?.selected_batch_query) {
-              if (t_slot?.student?.length > 0) {
-                for (let gt of t_slot?.student) {
-                  if (body_student?.includes(`${gt}`)) {
-                    subject_taken = await Subject.findById({
-                      _id: t_slot?.register_subject,
-                    })
-                      .populate({
-                        path: "subjectTeacherName",
-                        select: "staffFirstName staffLastName staffMiddleName",
+            let slot_to = +t_slot?.to_minutes - 5;
+            let come_to_minutes = +to_minutes - 5;
+            if (from_minutes >= slot_to) {
+            } else if (come_to_minutes <= +t_slot?.from_minutes) {
+            } else {
+              if (subjects?.selected_batch_query) {
+                if (t_slot?.student?.length > 0) {
+                  for (let gt of t_slot?.student) {
+                    if (body_student?.includes(`${gt}`)) {
+                      subject_taken = await Subject.findById({
+                        _id: t_slot?.register_subject,
                       })
-                      .select("subjectName subjectTeacherName")
-                      .lean()
-                      .exec();
-                    flag = true;
-                    break;
+                        .populate({
+                          path: "subjectTeacherName",
+                          select:
+                            "staffFirstName staffLastName staffMiddleName",
+                        })
+                        .select("subjectName subjectTeacherName")
+                        .lean()
+                        .exec();
+                      flag = true;
+                      break;
+                    }
                   }
                 }
+              } else {
+                subject_taken = await Subject.findById({
+                  _id: t_slot?.register_subject,
+                })
+                  .populate({
+                    path: "subjectTeacherName",
+                    select: "staffFirstName staffLastName staffMiddleName",
+                  })
+                  .select("subjectName subjectTeacherName")
+                  .lean()
+                  .exec();
+                flag = true;
+                break;
               }
-            } else {
-              flag = true;
-              break;
             }
           }
         }
       }
+
       if (flag) {
         res.status(200).send({
           already_slot_mark: flag,
@@ -2163,8 +2203,14 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       attendence.attendence_type = "Extra_Lecture";
       attendence.attendence_name = `${subjects.class.masterClassName?.className}-${subjects?.subjectName}-ExtraLecture-${req.body.date}`;
       attendence.attendTime = new Date();
+      // attendence.which_lecture = which_lecture;
+
       for (let t_slot of slot_based?.slot) {
-        if (`${sid}` === `${t_slot.register_subject}` && t_slot.is_extra) {
+        if (
+          t_slot.is_extra &&
+          `${sid}` === `${t_slot.register_subject}` &&
+          `${which_lecture}` === `${t_slot.which_extra_lecture}`
+        ) {
           t_slot.is_mark = true;
           t_slot.student = body_student;
           break;
@@ -2183,46 +2229,12 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         const student = await Student.findById({
           _id: `${req.body.present[i]}`,
         });
-        // const user = await User.findById({ _id: `${student.user}` });
-        // const notify = new StudentNotification({});
-        // notify.notifyContent = `you're present ${notify_attendence_provider(
-        //   req.body.date
-        // )}`;
-        // notify.notify_hi_content = `आप आज उपस्थित हैं |`;
-        // notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
-        // notify.notifySender = subjects._id;
-        // notify.notifyReceiever = user._id;
-        // notify.notifyType = "Student";
-        // notify.notifyPublisher = student._id;
-        // notify.notifyBySubjectPhoto.subject_id = subjects?._id;
-        // notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
-        // notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
-        // notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
-        // notify.notifyCategory = "Student Present";
-        // user.activity_tab.push(notify._id);
-        // student.notification.push(notify._id);
         student.subjectAttendance.push(attendence._id);
-
         attendence.presentStudent.push({
           student: student._id,
           inTime: getOnlyTime(),
-          // status: getOnlyTimeCompare(),
           status: "Present",
         });
-        // notify.notifyCategory = "Attendence";
-        // notify.redirectIndex = 3;
-        //
-        // invokeMemberTabNotification(
-        //   "Student Activity",
-        //   notify,
-        //   "Mark Attendence",
-        //   user._id,
-        //   user.deviceToken,
-        //   "Student",
-        //   notify
-        // );
-        //
-        // await Promise.all([student.save(), notify.save(), user.save()]);
         await student.save();
       }
 
@@ -2289,6 +2301,9 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
     console.log(e);
   }
 };
+
+
+
 
 
 exports.markAttendenceSubjectStudentUpdate = async (req, res) => {
@@ -3552,7 +3567,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
 exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
   try {
     const { sid } = req.params;
-    const { date, from, to, cid, flow } = req.body;
+    const { date, from, to, cid, flow, which_lecture } = req.body;
     const subjects = await Subject.findById({ _id: sid });
     const slot_based = await ClassAttendanceTimeSlot.findOne({
       $and: [
@@ -3566,6 +3581,8 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
     });
     let already_slot_mark = false;
     var subject = null;
+    var from_minutes = time_convertor(from);
+    var to_minutes = time_convertor(to);
     if (!slot_based?._id) {
       const cls = await Class.findById(cid);
       const slt = new ClassAttendanceTimeSlot({
@@ -3575,10 +3592,15 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
           {
             date: date,
             from: from,
+            from_minutes: from_minutes,
             to: to,
+            to_minutes: to_minutes,
             register_subject: sid,
             is_mark: false,
             is_extra: flow === "Normal_Lecture" ? false : true,
+            which_lecture: flow === "Normal_Lecture" ? which_lecture : "0",
+            which_extra_lecture:
+              flow === "Normal_Lecture" ? "0" : which_lecture,
           },
         ],
       });
@@ -3586,11 +3608,12 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
       await Promise.all([slt.save(), cls.save()]);
     } else {
       for (let t_slot of slot_based?.slot) {
-        // if (`${sid}` === `${t_slot.register_subject}`) {
-        // } else
         if (!t_slot.is_mark) {
         } else {
-          if (from >= t_slot.to || to <= t_slot.from) {
+          let slot_to = +t_slot?.to_minutes - 5;
+          let come_to_minutes = +to_minutes - 5;
+          if (from_minutes >= slot_to) {
+          } else if (come_to_minutes <= +t_slot?.from_minutes) {
           } else {
             if (subjects?.selected_batch_query) {
             } else {
@@ -3611,16 +3634,29 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
       if (!already_slot_mark) {
         let flag = true;
         for (let t_slot of slot_based?.slot) {
-          if (
-            `${t_slot?.register_subject}` === `${sid}` &&
-            flow === "Normal_Lecture" &&
-            !t_slot?.is_extra
-          ) {
-            t_slot.date = date;
-            t_slot.from = from;
-            t_slot.to = to;
-            flag = false;
-            break;
+          if (`${t_slot?.register_subject}` === `${sid}`) {
+            if (t_slot?.is_extra && flow !== "Normal_Lecture") {
+              if (`${which_lecture}` === `${t_slot.which_extra_lecture}`) {
+                t_slot.date = date;
+                t_slot.from = from;
+                t_slot.to = to;
+                t_slot.from_minutes = from_minutes;
+                t_slot.to_minutes = to_minutes;
+                flag = false;
+                break;
+              }
+            }
+            if (!t_slot?.is_extra && flow === "Normal_Lecture") {
+              if (`${which_lecture}` === `${t_slot.which_lecture}`) {
+                t_slot.date = date;
+                t_slot.from = from;
+                t_slot.to = to;
+                t_slot.from_minutes = from_minutes;
+                t_slot.to_minutes = to_minutes;
+                flag = false;
+                break;
+              }
+            }
           }
         }
 
@@ -3629,9 +3665,14 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
             date: date,
             from: from,
             to: to,
+            from_minutes: from_minutes,
+            to_minutes: to_minutes,
             register_subject: sid,
             is_mark: false,
             is_extra: flow === "Normal_Lecture" ? false : true,
+            which_lecture: flow === "Normal_Lecture" ? which_lecture : "0",
+            which_extra_lecture:
+              flow === "Normal_Lecture" ? "0" : which_lecture,
           });
         }
         await slot_based.save();
@@ -3651,6 +3692,566 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+
+
+exports.subjectTimeSlotFormatQuery = async (req, res) => {
+  try {
+    const ts = await ClassAttendanceTimeSlot.find({});
+
+    for (let ct of ts) {
+      for (let st of ct?.slot) {
+        let from_minutes = time_convertor(st?.from);
+        let to_minutes = time_convertor(st?.to);
+        st.from_minutes = from_minutes;
+        st.to_minutes = to_minutes;
+      }
+      await ct.save();
+    }
+    res.status(200).send({
+      message: "Subject attendace time is set for taken attendance",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectTimeSlotFormatQuery = async (req, res) => {
+  try {
+    const ts = await ClassAttendanceTimeSlot.find({});
+
+    for (let ct of ts) {
+      for (let st of ct?.slot) {
+        let from_minutes = time_convertor(st?.from);
+        let to_minutes = time_convertor(st?.to);
+        st.from_minutes = from_minutes;
+        st.to_minutes = to_minutes;
+      }
+      await ct.save();
+    }
+    res.status(200).send({
+      message: "Subject attendace time is set for taken attendance",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.timetableQueryReset = async (req, res) => {
+  try {
+    console.log("Dsf");
+    const ts = await ClassTimetable.find({
+      $and: [{ day: { $eq: "Firday" } }],
+    });
+
+    // for (let ct of ts) {
+    //   for (let st of ct?.slot) {
+    //     let from_minutes = time_convertor(st?.from);
+    //     let to_minutes = time_convertor(st?.to);
+    //     st.from_minutes = from_minutes;
+    //     st.to_minutes = to_minutes;
+    //   }
+    //   await ct.save();
+    // }
+    res.status(200).send({
+      message: "time tabe",
+      ts,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.subjectDeleteTodayAttendanceQuery = async (req, res) => {
+  try {
+    const { said } = req.params;
+    const { flow } = req.query;
+    let obj = {
+      presentStudent: [],
+      absentStudent: [],
+    };
+
+    const studentAttendance = await AttendenceDate.findById(said);
+    const subject = await Subject.findById(studentAttendance?.subject);
+    const slot_based = await ClassAttendanceTimeSlot.findOne({
+      $and: [
+        {
+          date: { $eq: studentAttendance?.attendDate },
+        },
+        {
+          class: { $eq: `${subject?.class}` },
+        },
+      ],
+    });
+    obj.presentStudent = studentAttendance?.presentStudent;
+    obj.absentStudent = studentAttendance?.absentStudent;
+    for (let t_slot of slot_based?.slot) {
+      if (`${t_slot?.register_subject}` === `${subject?._id}`) {
+        if (t_slot?.is_extra && flow !== "Normal_Lecture") {
+          if (
+            `${studentAttendance?.from}` === `${t_slot.from}` &&
+            `${studentAttendance?.to}` === `${t_slot.to}`
+          ) {
+            t_slot.is_mark = false;
+            t_slot.student = [];
+            break;
+          }
+        }
+        if (!t_slot?.is_extra && flow === "Normal_Lecture") {
+          if (
+            `${studentAttendance?.which_lecture}` === `${t_slot.which_lecture}`
+          ) {
+            t_slot.is_mark = false;
+            t_slot.student = [];
+            break;
+          }
+        }
+      }
+    }
+    // await slot_based.save();
+    // await AttendenceDate.findByIdAndDelete(said);
+
+    await Promise.all([
+      slot_based.save(),
+      AttendenceDate.findByIdAndDelete(said),
+    ]);
+    res.status(200).send({
+      message: "attendance is deleted",
+      i,
+    });
+    var i = 0;
+    for (let ct of obj?.presentStudent) {
+      i += 1;
+      const student = await Student.findById(ct?.student);
+      student.subjectAttendance.pull(said);
+      await student.save();
+      console.log("number exist: ", i);
+    }
+    for (let ct of obj?.absentStudent) {
+      i += 1;
+      const student = await Student.findById(ct?.student);
+      student.subjectAttendance.pull(said);
+      await student.save();
+      console.log("number exist absent : ", i);
+    }
+    subject.attendance.pull(said);
+    await subject.save();
+    // res.status(200).send({
+    //   message: "attendance is deleted",
+    //   i,
+    // });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+exports.subjectTimeSlotMarkListQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug regarding to call api",
+        access: false,
+      });
+    const { date } = req.query;
+    const slot_based = await ClassAttendanceTimeSlot.findOne({
+      $and: [
+        {
+          date: { $eq: date },
+        },
+        {
+          class: { $eq: `${cid}` },
+        },
+      ],
+    });
+
+    let slots = [];
+    for (let st of slot_based?.slot ?? []) {
+      if (st?.is_mark) {
+        let subject = await Subject.findById(st?.register_subject)
+          .populate({
+            path: "subjectTeacherName",
+            select:
+              "staffFirstName staffLastName staffMiddleName staffROLLNO photoId staffProfilePhoto",
+          })
+          .select("subjectName subjectTeacherName");
+
+        slots.push({
+          from: st?.from,
+          to: st?.to,
+          is_mark: st?.is_mark,
+          is_extra: st?.is_extra,
+          subject: subject,
+        });
+      }
+    }
+    res.status(200).send({
+      slots,
+      message: "Already marked attendace list of subject",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectTodayUpdateAttendanceTimeQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { date, from, to, cid, flow, said, which_lecture } = req.body;
+    const subjects = await Subject.findById({ _id: sid }).populate({
+      path: "selected_batch_query",
+      select: "class_student_query",
+    });
+    const slot_based = await ClassAttendanceTimeSlot.findOne({
+      $and: [
+        {
+          date: { $eq: date },
+        },
+        {
+          class: { $eq: `${cid}` },
+        },
+      ],
+    });
+    let already_slot_mark = false;
+    var subject = null;
+    var from_minutes = time_convertor(from);
+    var to_minutes = time_convertor(to);
+
+    for (let t_slot of slot_based?.slot) {
+      if (!t_slot.is_mark) {
+      } else if (`${t_slot?.register_subject}` === `${sid}`) {
+        if (
+          t_slot?.is_extra &&
+          flow !== "Normal_Lecture" &&
+          `${which_lecture}` !== `${t_slot.which_extra_lecture}`
+        ) {
+          let slot_to = +t_slot?.to_minutes - 5;
+          let come_to_minutes = +to_minutes - 5;
+          if (from_minutes >= slot_to) {
+          } else if (come_to_minutes <= +t_slot?.from_minutes) {
+          } else {
+            subject = await Subject.findById(t_slot.register_subject)
+              .populate({
+                path: "subjectTeacherName",
+                select: "staffFirstName staffLastName staffMiddleName",
+              })
+              .select("subjectName subjectTeacherName")
+              .lean()
+              .exec();
+            already_slot_mark = true;
+            break;
+          }
+        }
+        if (
+          !t_slot?.is_extra &&
+          flow === "Normal_Lecture" &&
+          `${which_lecture}` !== `${t_slot.which_lecture}`
+        ) {
+          let slot_to = +t_slot?.to_minutes - 5;
+          let come_to_minutes = +to_minutes - 5;
+          if (from_minutes >= slot_to) {
+          } else if (come_to_minutes <= +t_slot?.from_minutes) {
+          } else {
+            subject = await Subject.findById(t_slot.register_subject)
+              .populate({
+                path: "subjectTeacherName",
+                select: "staffFirstName staffLastName staffMiddleName",
+              })
+              .select("subjectName subjectTeacherName")
+              .lean()
+              .exec();
+            already_slot_mark = true;
+            break;
+          }
+        }
+      } else {
+        let slot_to = +t_slot?.to_minutes - 5;
+        let come_to_minutes = +to_minutes - 5;
+        if (from_minutes >= slot_to) {
+        } else if (come_to_minutes <= +t_slot?.from_minutes) {
+        } else {
+          if (subjects?.selected_batch_query) {
+            if (
+              subjects?.selected_batch_query?.class_student_query?.length > 0
+            ) {
+              for (let stu of subjects?.selected_batch_query
+                ?.class_student_query) {
+                for (let st of t_slot?.student ?? []) {
+                  if (`${stu}` === `${st}`) {
+                    subject = await Subject.findById(t_slot.register_subject)
+                      .populate({
+                        path: "subjectTeacherName",
+                        select: "staffFirstName staffLastName staffMiddleName",
+                      })
+                      .select("subjectName subjectTeacherName")
+                      .lean()
+                      .exec();
+                    already_slot_mark = true;
+                    break;
+                  }
+                }
+              }
+            }
+          } else {
+            subject = await Subject.findById(t_slot.register_subject)
+              .populate({
+                path: "subjectTeacherName",
+                select: "staffFirstName staffLastName staffMiddleName",
+              })
+              .select("subjectName subjectTeacherName")
+              .lean()
+              .exec();
+            already_slot_mark = true;
+            break;
+          }
+        }
+      }
+    }
+    if (!already_slot_mark) {
+      for (let t_slot of slot_based?.slot) {
+        if (`${t_slot?.register_subject}` === `${sid}`) {
+          if (t_slot?.is_extra && flow !== "Normal_Lecture") {
+            if (`${which_lecture}` === `${t_slot.which_extra_lecture}`) {
+              t_slot.date = date;
+              t_slot.from = from;
+              t_slot.to = to;
+              t_slot.from_minutes = from_minutes;
+              t_slot.to_minutes = to_minutes;
+              break;
+            }
+          }
+          if (!t_slot?.is_extra && flow === "Normal_Lecture") {
+            if (`${which_lecture}` === `${t_slot.which_lecture}`) {
+              t_slot.date = date;
+              t_slot.from = from;
+              t_slot.to = to;
+              t_slot.from_minutes = from_minutes;
+              t_slot.to_minutes = to_minutes;
+              break;
+            }
+          }
+        }
+      }
+      await slot_based.save();
+    }
+
+    if (already_slot_mark)
+      res.status(200).send({
+        already_slot_mark,
+        subject: subject,
+        message: "For this time slot attendace has marked.",
+      });
+    else
+      res.status(200).send({
+        message: "Subject attendace time updated for already taken attendance",
+      });
+    const studentAttendance = await AttendenceDate.findById(said);
+    studentAttendance.from = from;
+    studentAttendance.to = to;
+    await studentAttendance.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectAttednaceAddLectureQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const { which_lecture, date } = req.body;
+    const subject = await Subject.findById(sid);
+    var day_lecture = "";
+
+    day_lecture = await SubjectLectureDay.findOne({
+      $and: [
+        {
+          subject: { $eq: `${sid}` },
+        },
+        {
+          attendDate: { $eq: `${date}` },
+        },
+      ],
+    });
+
+    if (day_lecture) {
+      day_lecture.lecture?.push({ which_lecture: which_lecture });
+      await day_lecture.save();
+    } else {
+      day_lecture = new SubjectLectureDay({
+        attendDate: date,
+        subject: sid,
+        class: subject?.class,
+        lecture: [
+          {
+            which_lecture: which_lecture,
+          },
+        ],
+      });
+      subject.one_day_attendance_lecture?.push(day_lecture?._id);
+      await Promise.all([day_lecture.save(), subject.save()]);
+    }
+    res.status(201).send({
+      message: "One more lecture is added",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getSubjectAttednaceLectureQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { date } = req.query;
+
+    if (!sid || !date) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const day_lecture = await SubjectLectureDay.findOne({
+      $and: [
+        {
+          subject: { $eq: `${sid}` },
+        },
+        {
+          attendDate: { $eq: `${date}` },
+        },
+      ],
+    }).select("lecture");
+
+    res.status(200).send({
+      message: "One more lecture is added",
+      day_lecture: day_lecture?.lecture ?? [],
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.assignAttendanceToDefaultParameterQuery = async (req, res) => {
+  try {
+    const attednance = await AttendenceDate.find({
+      $and: [
+        {
+          attendence_type: { $eq: "Normal_Lecture" },
+        },
+        // {
+        //   which_lecture: { $nin: ["1", "2", "3", "4", "5", "6", "7", "8"] },
+        // },
+      ],
+    }).select("subject className which_lecture");
+
+    let count = 0;
+    for (let st of attednance) {
+      if (st?.subject) {
+        if (st?.which_lecture) {
+          if (+st?.which_lecture < 2) {
+            st.which_lecture = "1";
+            await st.save();
+          }
+        } else {
+          st.which_lecture = "1";
+          await st.save();
+        }
+      }
+      // st.which_lecture = "1";
+      // await st.save();
+      console.log(count);
+      ++count;
+    }
+    res.status(200).send({
+      message: "Default parameter is inserted",
+      count: count,
+      attednance: attednance,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.getInstituteStaffMarkExcelQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let regularexp = "";
+    var currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() + 5);
+    currentDate.setMinutes(currentDate.getMinutes() + 30);
+    const currentDateLocalFormat = currentDate.toISOString().split("-");
+    const day =
+      +currentDateLocalFormat[2].split("T")[0] > 9
+        ? +currentDateLocalFormat[2].split("T")[0]
+        : `0${+currentDateLocalFormat[2].split("T")[0]}`;
+    const month =
+      +currentDateLocalFormat[1] > 9
+        ? +currentDateLocalFormat[1]
+        : `0${+currentDateLocalFormat[1]}`;
+    const year = +currentDateLocalFormat[0];
+    regularexp = new RegExp(`${month}\/${year}$`);
+    const staff = await Staff.find({
+      institute: { $eq: `${id}` },
+    }).select(
+      "staffSubject staffFirstName staffLastName staffMiddleName staff_emp_code staffROLLNO"
+    );
+
+    let all_staff = [];
+    for (let st of staff ?? []) {
+      let dt_obj = {};
+      for (let i = 1; i <= day; i++) {
+        dt_obj[`${i > 9 ? i : `0${i}`}/${month}/${year}`] = "No";
+      }
+      if (st?.staffSubject?.length > 0) {
+        const attednance = await AttendenceDate.find({
+          $and: [
+            {
+              attendDate: { $regex: regularexp },
+            },
+            {
+              subject: { $in: st?.staffSubject },
+            },
+          ],
+        }).select("attendDate");
+        for (let at of attednance ?? []) {
+          if (dt_obj[at?.attendDate]) dt_obj[at?.attendDate] = "Yes";
+        }
+        all_staff.push({
+          staffFirstName: st?.staffFirstName,
+          staffLastName: st?.staffLastName,
+          staffMiddleName: st?.staffMiddleName,
+          staff_emp_code: st?.staff_emp_code,
+          staffROLLNO: st?.staffROLLNO,
+          dt_obj: dt_obj,
+        });
+      }
+    }
+
+    res.status(200).send({
+      message: "Marked staff attendance",
+      all_staff: all_staff,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
+
+
+
+
+
 
 
 

@@ -30,7 +30,7 @@ router.post(
 
 router.post(
   "/bonafide/certificate/:gr/ins/:id",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Extra.retrieveBonafideGRNO)
 );
 

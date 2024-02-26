@@ -28,6 +28,8 @@ const {
   internal_fee_heads_receipt_json_to_excel_query,
   excess_refund_fees_json_query,
   certificate_json_query,
+  json_to_excel_structure_code_query,
+  json_to_excel_timetable_export_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -54,6 +56,7 @@ const { handle_NAN } = require("../../Handler/customError");
 const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 const { remove_duplicated_arr } = require("../../helper/functions");
 const Library = require("../../models/Library/Library");
+const ClassTimetable = require("../../models/Timetable/ClassTimetable");
 
 
 var trendingQuery = (trends, cat, type, page) => {
@@ -6720,6 +6723,107 @@ exports.renderFilterByDepartmentQuery = async (req, res) => {
       await lib.save()
     }
     res.status(200).send({ message: "Explore new department Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderFeeStructureQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    
+    var depart = await Department.findById({ _id: did })
+
+    var all_struct = await FeeStructure.find({ department: depart?._id })
+    .populate({
+      path: "class_master",
+      select: "className",
+    })
+    .populate({
+      path: "batch_master",
+      select: "batchName",
+    })
+    .populate({
+      path: "department",
+      select: "dName",
+    })
+    .populate({
+      path: "category_master",
+      select: "category_name",
+    })
+    var excel_list = [];
+    for (var ref of all_struct) {
+      excel_list.push({
+        StructureCode: ref?.fee_structure_code ?? "NA",
+        Category: ref?.category_master?.category_name ?? "#NA",
+        Batch: ref?.batch_master?.batchName ?? "#NA",
+        Standard: ref?.class_master?.className ?? "#NA",
+        TotalFees: ref?.total_admission_fees ?? 0,
+        ApplicableFees: ref?.applicable_fees ?? 0,
+        GovernmentFees: ref?.total_admission_fees >= ref?.applicable_fees ? ref?.total_admission_fees - ref?.applicable_fees : 0,
+      });
+    }
+    const data = await json_to_excel_structure_code_query(
+      depart?.dName,
+      excel_list,
+    );
+    res.status(200).send({
+      message: "Explore Structure Export Query",
+      access: true,
+      data: data
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderTimeTableFilterByDepartmentQuery = async (req, res) => {
+  try {
+    const { did } = req?.params
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var one_depart = await Department.findById({ _id: did })
+      .select("class dName")
+    
+    var all_classes = await ClassTimetable.find({ class: { $in: one_depart?.class } })
+      .populate({
+        path: "schedule",
+        populate: {
+          path: "subject"
+        }
+    })
+    
+    var excel_list = []
+    for (var val of all_classes) {
+      for (var ele of val?.schedule) {
+        excel_list.push({
+          Subject: ele?.subject?.subjectName ?? "#NA",
+          Monday: val?.day === "Monday" ? `${ele?.from}-${ele?.to}` : "#NA",
+          Tuesday: val?.day === "Tuesday" ? `${ele?.from}-${ele?.to}` : "#NA",
+          Wednesday: val?.day === "Wednesday" ? `${ele?.from}-${ele?.to}` : "#NA",
+          Thursday: val?.day === "Thursday" ? `${ele?.from}-${ele?.to}` : "#NA",
+          Friday: val?.day === "Friday" ? `${ele?.from}-${ele?.to}` : "#NA",
+          Saturday: val?.day === "Saturday" ? `${ele?.from}-${ele?.to}` : "#NA",
+          Sunday: val?.day === "Sunday" ? `${ele?.from}-${ele?.to}` : "#NA"
+        })
+      }
+    }
+
+    const data = await json_to_excel_timetable_export_query(
+      one_depart?.dName,
+      excel_list,
+    );
+    res.status(200).send({
+      message: "Explore Timetable Export Query",
+      access: true,
+      data: data
+    });
   }
   catch (e) {
     console.log(e)

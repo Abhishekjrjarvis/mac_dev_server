@@ -110,7 +110,32 @@ const studentNotificationSchema = new mongoose.Schema({
   student_message: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "StudentMessage"
-  }
+  },
+  student_feedback: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "StudentFeedback",
+  },
+  student_feedback_status: {
+    type: String,
+    default: "Not Submitted",
+  },
+  staffId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff",
+  },
+  subjectMasterId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SubjectMaster",
+  },
+  staffFeedbackId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "StaffStudentFeedback",
+  },
+  feedbackClassId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Class",
+  },
+
 });
 
 module.exports = mongoose.model(

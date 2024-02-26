@@ -58,7 +58,8 @@ app.use(
       "https://beta.qviple.com",
       "https://qvipleweb.web.app",
       "http://54.237.4.164",
-      "https://spesiop.qviple.com"
+      "https://spesiop.qviple.com",
+      "https://nespharmacy.qviple.com"
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

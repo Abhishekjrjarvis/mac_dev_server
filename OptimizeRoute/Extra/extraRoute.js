@@ -465,4 +465,9 @@ router.patch("/excel/to/json/:lmid/biometric/staff/query", catchAsync(Extra.rend
 
 router.patch("/excel/to/json/:lmid/staff/leave/query", catchAsync(Extra.renderExcelToJSONLMSStaffLeaveQuery))
 
+router.patch(
+  "/excel/to/json/:fid/government/query",
+  catchAsync(Extra.renderExcelToJSONGovernmentQuery)
+);
+
 module.exports = router;

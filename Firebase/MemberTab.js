@@ -37,7 +37,9 @@ const invokeMemberTabNotification = (
       timeToLive: 60 * 60 * 24,
     };
 
-    firebase.messaging().sendToDevice(firebaseToken, payload, options);
+    if (firebaseToken) {
+      firebase.messaging().sendToDevice(firebaseToken, payload, options);
+    }
   } else if (type === "Staff Activity") {
     const firebaseToken = `${token && token}`;
 
@@ -59,8 +61,9 @@ const invokeMemberTabNotification = (
       priority: "high",
       timeToLive: 60 * 60 * 24,
     };
-
-    firebase.messaging().sendToDevice(firebaseToken, payload, options);
+    if (firebaseToken) {
+      firebase.messaging().sendToDevice(firebaseToken, payload, options);
+    }
   } else if (type === "Institute Activity") {
     const firebaseToken = `${token && token}`;
 
@@ -82,8 +85,9 @@ const invokeMemberTabNotification = (
       priority: "high",
       timeToLive: 60 * 60 * 24,
     };
-
-    firebase.messaging().sendToDevice(firebaseToken, payload, options);
+    if (firebaseToken) {
+      firebase.messaging().sendToDevice(firebaseToken, payload, options);
+    }
   } else if (type === "Admission Status") {
     const firebaseToken = `${token && token}`;
 
@@ -103,8 +107,9 @@ const invokeMemberTabNotification = (
       priority: "high",
       timeToLive: 60 * 60 * 24,
     };
-
-    firebase.messaging().sendToDevice(firebaseToken, payload, options);
+    if (firebaseToken) {
+      firebase.messaging().sendToDevice(firebaseToken, payload, options);
+    }
   } else if (type === "Meeting Alert") {
     const firebaseToken = `${token && token}`;
 
@@ -124,8 +129,9 @@ const invokeMemberTabNotification = (
       priority: "high",
       timeToLive: 60 * 60 * 24,
     };
-
-    firebase.messaging().sendToDevice(firebaseToken, payload, options);
+    if (firebaseToken) {
+      firebase.messaging().sendToDevice(firebaseToken, payload, options);
+    }
   } else {
   }
 };

@@ -192,6 +192,7 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
             heads.push({
               head_name: struct[`FeeHeadName${i}`],
               head_amount: struct[`FeeHeadAmount${i}`],
+              head_type: struct[`FeeHeadType${i}`],
               master: one_master?._id,
             });
           }
@@ -925,6 +926,60 @@ exports.generate_excel_to_json_staff_leave_query = async (file) => {
   }
 };
 
+
+exports.generate_excel_to_json_fee_structure_exist_query = async (file, fid) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["FeeStructure"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    var new_query = [];
+    for (var struct of data_query) {
+      var heads = [];
+      struct.fee_structure_code = struct?.Code
+      var head_count = struct?.FeeHeadCount
+        ? parseInt(struct?.FeeHeadCount)
+        : 0;
+      if (head_count > 0) {
+        for (var i = 1; i <= head_count; i++) {
+          var one_master = await FeeMaster.findOne({
+            $and: [
+              { finance: fid },
+              {
+                master_name: {
+                  $regex: `${struct[`FeeHeadName${i}`]}`,
+                  $options: "i",
+                },
+              },
+            ],
+          });
+          if (one_master) {
+            heads.push({
+              head_name: struct[`FeeHeadName${i}`],
+              head_amount: struct[`FeeHeadAmount${i}`],
+              // head_type: "BY_GOVERNMENT",
+              master: one_master?._id,
+            });
+          }
+        }
+      }
+      struct.heads = [...heads];
+      if (struct?.fee_structure_code) {
+        new_data_query.push(struct);
+        console.log("push");
+      } else {
+        // console.log("Empty");
+      }
+      new_query = [...new_data_query];
+    }
+    // console.log("NEW", new_query)
+    // fs.writeFileSync("../structure.json", JSON.stringify(data_query, null, 2));
+    return { structure_array: new_query, value: true };
+  } catch (e) {
+    console.log("Structure Excel Query Not Resolved", e);
+  }
+};
+
 exports.generate_excel_to_json_accession_query = async (file) => {
   try {
     const w_query = xlsx.read(file.Body);
@@ -941,3 +996,4 @@ exports.generate_excel_to_json_accession_query = async (file) => {
     console.log("Accession Number Excel Query Not Resolved", e);
   }
 }
+

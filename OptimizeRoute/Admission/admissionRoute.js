@@ -736,4 +736,8 @@ router.post(
   catchAsync(Admission.cancelAllottedAdmissionApplication)
 );
 
+router
+  .route("/all/fee/heads/move/query")
+  .patch(catchAsync(Admission.renderFeeHeadsMoveGovernmentCardUpdateQuery));
+
 module.exports = router;

@@ -3934,7 +3934,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
 
     // receipt.student.active_fee_heads = [...new_format];
     var excess_obj = {
-      head_name: "Excess Applicable Fees",
+      head_name: "Excess Fees",
             paid_fee: all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee > 0 ? all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee : 0,
             remain_fee: 0,
             applicable_fee: 0,

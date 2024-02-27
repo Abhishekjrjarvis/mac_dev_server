@@ -6056,16 +6056,25 @@ exports.renderStudentExcessFeesExcelQuery = async (req, res) => {
         access: false,
       });
     var filter_refund = [];
-      var ads_admin = await Admission.findById({ _id: aid })
-        .select("refundCount")
-        .populate({
-          path: "refundFeeList",
+    var ads_admin = await Admission.findById({ _id: aid })
+    .select("refundCount")
+    .populate({
+      path: "refundFeeList",
+      populate: {
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO remainingFeeList refund",
           populate: {
-            path: "student",
+            path: "remainingFeeList",
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO studentGender",
+              "applicable_card government_card",
+              populate: {
+                path: "applicable_card government_card",
+                select: "paid_fee applicable_fee"
+              },
           },
-        });
+      },
+    });
         res.status(200).send({
           message: "Explore Excess Fees Query",
           access: true,
@@ -6075,10 +6084,17 @@ exports.renderStudentExcessFeesExcelQuery = async (req, res) => {
           filter_refund.push(data);
         }
       }
-      var all_refund_list = [...filter_refund];
-      var filtered = all_refund_list?.filter((ref) => {
-        if (ref?.refund > 0) return ref;
-      });
+    var all_refund_list = [...filter_refund];
+    for (var stu of all_refund_list) {
+      for (var val of stu?.student?.remainingFeeList) {
+        stu.student.refund += (val?.applicable_card?.paid_fee > val?.applicable_card?.applicable_fee ? val?.applicable_card?.paid_fee - val?.applicable_card?.applicable_fee : 0) + (val?.government_card?.paid_fee > val?.government_card?.applicable_fee ? val?.government_card?.paid_fee - val?.government_card?.applicable_fee : 0)
+      }
+      stu.refund = stu.student.refund
+    }
+    var filtered = [...all_refund_list]
+      // var filtered = ?.filter((ref) => {
+      //   if (ref?.refund > 0) return ref;
+      // });
     var excel_list = [];
     filtered.sort(function (st1, st2) {
       return (

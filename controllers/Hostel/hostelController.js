@@ -1576,13 +1576,28 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
       student.remainingFeeList_count += 1;
       new_remainFee.student = student?._id;
       new_remainFee.fee_receipts.push(new_receipt?._id);
-      await add_all_installment(
-        apply,
-        institute._id,
-        new_remainFee,
-        price,
-        student
-      );
+      if (student?.hostel_fee_structure?.total_installments === "1" && new_remainFee.remaining_fee > 0) {
+        new_remainFee.remaining_array.push({
+          remainAmount: new_remainFee.remaining_fee,
+          appId: apply._id,
+          status: "Not Paid",
+          instituteId: institute._id,
+          installmentValue: "Installment Remain",
+          isEnable: true,
+        });
+      }
+      else {
+        await add_all_installment(
+          apply,
+          institute._id,
+          new_remainFee,
+          price,
+          student
+        );
+      }
+      // if (new_remainFee.remaining_fee > 0) {
+        
+      // }
     } else if (price > 0 && !is_install) {
       var new_remainFee = new RemainingList({
         appId: apply._id,

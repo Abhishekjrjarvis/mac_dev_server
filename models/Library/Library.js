@@ -146,6 +146,7 @@ const librarySchema = new mongoose.Schema({
           "LIBRARY_MEMBER",
           "LIBRARY_FINE_OUTSTANDING",
           "LIBRARY_FINE_RECEIVE",
+          "LIBRARY_ENTRY_EXPORT"
         ],
       },
       excel_file: { type: String },

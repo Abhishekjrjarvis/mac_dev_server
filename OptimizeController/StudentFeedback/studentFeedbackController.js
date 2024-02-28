@@ -1037,3 +1037,78 @@ exports.getOneFeedbackStaffQuery = async (req, res) => {
   }
 };
 
+exports.removeDublicateMasterQuery = async (req, res) => {
+  try {
+    const { ifid } = req.params;
+    if (!ifid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const feedback = await StudentFeedback.findById(ifid);
+    let j = 0;
+    for (let i = 0; i < feedback?.feedback_staff?.length; i++) {
+      const staff_feedbaack = await StaffStudentFeedback.findById(
+        feedback?.feedback_staff[i]
+      );
+      let mt = staff_feedbaack?.subject_master ?? [];
+      staff_feedbaack.subject_master = [];
+      for (let t of mt) {
+        if (!staff_feedbaack.subject_master?.includes(t)) {
+          staff_feedbaack.subject_master?.push(t);
+        }
+      }
+
+      let ct = staff_feedbaack?.classes ?? [];
+      staff_feedbaack.classes = [];
+      for (let t of ct) {
+        if (!staff_feedbaack.classes?.includes(t)) {
+          staff_feedbaack.classes?.push(t);
+        }
+      }
+
+      let at = staff_feedbaack?.analytic ?? [];
+      staff_feedbaack.analytic = [];
+
+      for (let t of at) {
+        let flag = true;
+        for (let st of staff_feedbaack?.analytic ?? []) {
+          if (`${t?.subject_master}` === `${st?.subject_master}`) {
+            flag = false;
+            break;
+          }
+        }
+        if (flag) {
+          staff_feedbaack.analytic?.push(t);
+        }
+      }
+
+      let sub_at = staff_feedbaack?.subject_analytic ?? [];
+      staff_feedbaack.subject_analytic = [];
+
+      for (let t of sub_at) {
+        let flag = true;
+        for (let st of staff_feedbaack?.subject_analytic ?? []) {
+          if (`${t?.subject_master}` === `${st?.subject_master}`) {
+            flag = false;
+            break;
+          }
+        }
+        if (flag) {
+          staff_feedbaack.subject_analytic?.push(t);
+        }
+      }
+      await staff_feedbaack.save();
+      console.log(j);
+      ++j;
+    }
+    res.status(200).send({
+      message: "remove dblicate master",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+

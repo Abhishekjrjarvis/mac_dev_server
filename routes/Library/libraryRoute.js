@@ -190,5 +190,9 @@ router
 router
   .route("/student/qr/list/:lid")
   .patch(catchAsync(libraryController.getAllStudentQrCodeQuery));
+
+  router
+  .route("/export/:lid/entry/logs/query")
+  .patch(catchAsync(libraryController.getAllEntryLogsExport));
 module.exports = router;
 

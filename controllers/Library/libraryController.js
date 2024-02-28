@@ -1613,15 +1613,15 @@ exports.getAllIssueExport = async (req, res) => {
     const { lid } = req.params;
     const { from, to } = req.query;
 
-    if (!lid) throw "Please send library id to perform task";
+    if (!lid || !from || !to) throw "Please send library id to perform task";
+    const gte_Date = new Date(from);
+    const lte_Date = new Date(to);
+    lte_Date.setDate(lte_Date.getDate() + 1);
     const library = await Library.findById(lid)
       .populate({
         path: "issued",
         match: {
-          createdAt: {
-            $gte: from,
-            $lte: to,
-          },
+          createdAt: { $gte: gte_Date, $lte: lte_Date },
         },
         populate: {
           path: "book member",
@@ -1676,15 +1676,15 @@ exports.getAllCollectExport = async (req, res) => {
   try {
     const { lid } = req.params;
     const { from, to } = req.query;
-    if (!lid) throw "Please send library id to perform task";
+    if (!lid || !from || !to) throw "Please send library id to perform task";
+    const gte_Date = new Date(from);
+    const lte_Date = new Date(to);
+    lte_Date.setDate(lte_Date.getDate() + 1);
     const library = await Library.findById(lid)
       .populate({
         path: "collected",
         match: {
-          createdAt: {
-            $gte: from,
-            $lte: to,
-          },
+          createdAt: { $gte: gte_Date, $lte: lte_Date },
         },
         populate: {
           path: "book member",
@@ -1741,6 +1741,7 @@ exports.getAllCollectExport = async (req, res) => {
     console.log(e);
   }
 };
+
 exports.getAllMemberExport = async (req, res) => {
   try {
     const { lid } = req.params;
@@ -1908,22 +1909,22 @@ exports.generateAllMemberQrCodeQuery = async (req, res) => {
         for (let sid of staff_id) {
           const staff = await Staff.findById(sid);
           if (staff) {
-            if (staff?.library_qr_code) {
-            } else {
-              let book_qr = {
-                libraryId: library?._id,
-                instituteId: library?.institute?._id,
-                staffId: sid,
-              };
-              let imageKey = await generate_qr({
-                fileName: "initial-staff-qr",
-                object_contain: book_qr,
-              });
-              staff.library_qr_code = imageKey;
-              await staff.save();
-              library.generated_qr_staff?.push(staff?._id);
-            }
+            // if (staff?.library_qr_code) {
+            // } else {
+            let book_qr = {
+              libraryId: library?._id,
+              instituteId: library?.institute?._id,
+              staffId: sid,
+            };
+            let imageKey = await generate_qr({
+              fileName: "initial-staff-qr",
+              object_contain: book_qr,
+            });
+            staff.library_qr_code = imageKey;
+            await staff.save();
+            library.generated_qr_staff?.push(staff?._id);
           }
+          // }
         }
         library.is_generated_qr_staff = false;
         await library.save();
@@ -1936,22 +1937,22 @@ exports.generateAllMemberQrCodeQuery = async (req, res) => {
         for (let sid of student_id) {
           const student = await Student.findById(sid);
           if (student) {
-            if (student?.library_qr_code) {
-            } else {
-              let book_qr = {
-                libraryId: library?._id,
-                instituteId: library?.institute?._id,
-                studentId: sid,
-              };
-              let imageKey = await generate_qr({
-                fileName: "initial-student-qr",
-                object_contain: book_qr,
-              });
-              student.library_qr_code = imageKey;
-              await student.save();
-              library.generated_qr_student?.push(student?._id);
-            }
+            // if (student?.library_qr_code) {
+            // } else {
+            let book_qr = {
+              libraryId: library?._id,
+              instituteId: library?.institute?._id,
+              studentId: sid,
+            };
+            let imageKey = await generate_qr({
+              fileName: "initial-student-qr",
+              object_contain: book_qr,
+            });
+            student.library_qr_code = imageKey;
+            await student.save();
+            library.generated_qr_student?.push(student?._id);
           }
+          // }
         }
         library.is_generated_qr_student = false;
         await library.save();
@@ -1964,6 +1965,7 @@ exports.generateAllMemberQrCodeQuery = async (req, res) => {
     // });
   }
 };
+
 
 exports.generateAllBookQrCodeQuery = async (req, res) => {
   try {
@@ -2061,15 +2063,14 @@ const time_convertor = (data) => {
   total_min = hr * 60 + +nt?.[1];
   return total_min;
 };
-
 exports.getInOutStudentQuery = async (req, res) => {
   try {
     const { sid } = req.params;
     const { lid, date } = req.query;
     if (!sid) throw "Please send student id to perform task";
     var currentDate = new Date();
-    currentDate.setHours(currentDate.getHours() + 5);
-    currentDate.setMinutes(currentDate.getMinutes() + 30);
+    // currentDate.setHours(currentDate.getHours() + 5);
+    // currentDate.setMinutes(currentDate.getMinutes() + 30);
     const library = await Library.findById(lid);
     const inout_g = await LibraryInOut.find({
       $and: [
@@ -2114,17 +2115,37 @@ exports.getInOutStudentQuery = async (req, res) => {
           inout.minute_out = moment(currentDate).format("m");
           inout.second_out = moment(currentDate).format("s");
           inout.is_valid = "Yes";
-          let x = moment(inout?.created_at);
-          let y = moment(currentDate);
-          var duration = moment.duration(y.diff(x));
-          let hr = duration.get("hours");
-          let mit = duration.get("minutes");
-          let sec = duration.get("seconds");
-          inout.total_spent_time = `${hr}:${mit}:${sec}`;
+          // it is delayed about 1:30 seconds
+          // let x = moment(inout?.created_at);
+          // let y = moment(currentDate);
+          // var duration = moment.duration(y.diff(x));
+          // let hr = duration.get("hours");
+          // let mit = duration.get("minutes");
+          // let sec = duration.get("seconds");
+          let hr = +(inout.hour_out_24 - inout.hour_in_24);
+          let mit = 0;
+          let sec = 0;
+          if (inout.minute_out >= inout.minute_in) {
+            mit = inout.minute_out - inout.minute_in;
+          } else {
+            hr -= 1;
+            mit = inout.minute_out + 60 - inout.minute_in;
+          }
+          if (inout.second_out >= inout.second_in) {
+            sec = inout.second_out - inout.second_in;
+          } else {
+            mit -= 1;
+            sec = inout.second_out + 60 - inout.second_in;
+          }
+
+          inout.total_spent_time = `${hr > 9 ? hr : `0${hr}`}:${
+            mit > 9 ? mit : `0${mit}`
+          }:${sec > 9 ? sec : `0${sec}`}`;
           await inout.save();
           res.status(200).send({
             message: "Library visit exit time record.",
             access: true,
+            inout,
           });
 
           const student = await Student.findById(sid);
@@ -2159,6 +2180,7 @@ exports.getInOutStudentQuery = async (req, res) => {
     });
   }
 };
+
 
 exports.getInOutStudentHistoryQuery = async (req, res) => {
   try {
@@ -3114,3 +3136,63 @@ exports.getAllStudentQrCodeQuery = async (req, res) => {
     });
   }
 };
+
+exports.getAllEntryLogsExport = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    const { from, to } = req.query;
+
+    if (!lid || !from || !to) throw "Please send library id to perform task";
+    const gte_Date = new Date(from);
+    const lte_Date = new Date(to);
+    lte_Date.setDate(lte_Date.getDate() + 1);
+    const entry_logs = await LibraryInOut.find({
+      $and: [
+        {
+          library: { $eq: lid },
+        },
+        {
+          created_at: { $gte: gte_Date, $lte: lte_Date },
+        },
+      ],
+    })
+      .populate({
+        path: "student staff",
+        select:
+          "studentGRNO student_prn_enroll_number studentFirstName studentMiddleName studentLastName staffROLLNO staff_emp_code staffFirstName staffMiddleName staffLastName",
+      })
+      .select("date in_time out_time total_spent_time");
+
+    res.status(200).send({
+      message: "Generating excel all entry logs for library",
+    });
+    const excel_list = [];
+    for (let exc of entry_logs) {
+      excel_list.push({
+        GRNO: exc?.student?.studentGRNO ?? "#NA",
+        "Enrollment / Prn Number":
+          exc?.student?.student_prn_enroll_number ?? "#NA",
+        Name: `${exc?.student?.studentFirstName} ${
+          exc?.student?.studentMiddleName
+            ? `${exc?.student?.studentMiddleName} `
+            : " "
+        }${exc?.student?.studentLastName}`,
+        Date: exc?.date,
+        "In Time": exc?.in_time,
+        "Out Time": exc?.out_time,
+        "Spent Time": exc?.total_spent_time,
+      });
+    }
+    if (excel_list?.length > 0)
+      await library_json_to_excel(
+        lid,
+        excel_list,
+        "Entry Logs",
+        "LIBRARY_ENTRY_EXPORT",
+        "entry-logs"
+      );
+  } catch (e) {
+    console.log(e);
+  }
+};
+

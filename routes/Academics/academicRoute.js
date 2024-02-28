@@ -51,4 +51,9 @@ router.delete(
   catchAsync(Academic.renderOneChapterDestroyQuery)
 );
 
+router.patch(
+  "/insert/subject/chapter",
+  catchAsync(Academic.insertAcademicSubjectQuery)
+);
+
 module.exports = router;

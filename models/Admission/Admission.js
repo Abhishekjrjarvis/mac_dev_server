@@ -325,6 +325,24 @@ const admissionAdminSchema = new mongoose.Schema({
   ],
   admission_stats: {
     
+  },
+  cancel_admission: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      cancel_on: { type: Date, default: Date.now },
+      payment_status: { type: String, default: "Pending" },
+      refund_amount: { type: Number, default: 0 },
+      from: {
+        type: String
+      }
+    },
+  ],
+  cancel_admission_count: {
+    type: Number,
+    default: 0
   }
 });
 

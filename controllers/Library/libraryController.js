@@ -2072,8 +2072,8 @@ exports.getInOutStudentQuery = async (req, res) => {
     const { lid, date } = req.query;
     if (!sid) throw "Please send student id to perform task";
     var currentDate = new Date();
-    // currentDate.setHours(currentDate.getHours() + 5);
-    // currentDate.setMinutes(currentDate.getMinutes() + 30);
+    currentDate.setHours(currentDate.getHours() + 5);
+    currentDate.setMinutes(currentDate.getMinutes() + 30);
     const library = await Library.findById(lid);
     const inout_g = await LibraryInOut.find({
       $and: [

@@ -2582,7 +2582,14 @@ exports.cancelAdmissionApplication = async (req, res) => {
           refund_amount: price,
           from: "Cancel_Tab"
         });
-        await apply.save();
+        admission.cancel_admission.push({
+          student: student._id,
+          payment_status: "Refund",
+          refund_amount: price,
+          from: "Cancel_Tab"
+        })
+        admission.cancel_admission_count += price
+        await Promise.all([apply.save(), admission.save()]);
       }
       if (admission?.remainingFee?.length > 0) {
         if (admission.remainingFee?.includes(`${student._id}`)) {
@@ -12333,7 +12340,14 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
           refund_amount: price,
           from: "Allotted_Tab"
         });
-        await apply.save();
+        admission.cancel_admission.push({
+          student: student._id,
+          payment_status: "Refund",
+          refund_amount: price,
+          from: "Allotted_Tab"
+        })
+        admission.cancel_admission_count += price
+        await Promise.all([apply.save(), admission.save()]);
       }
       if (admission?.remainingFee?.length > 0) {
         if (admission.remainingFee?.includes(`${student._id}`)) {
@@ -12431,3 +12445,123 @@ exports.renderGovernmentHeadsMoveGovernmentCardUpdateQuery = async (fid, structu
     console.log(e)
   }
 }
+
+// exports.fetchAllCancelApplication = async (req, res) => {
+//   try {
+//     const { aid } = req.params;
+//     const page = req.query.page ? parseInt(req.query.page) : 1;
+//     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+//     const skip = (page - 1) * limit;
+//     const { search } = req.query;
+//     if (search) {
+//       var filter_cancel = [];
+//       var apply = await Admission.findById({ _id: aid })
+//         .select("cancel_admission_count")
+//         .populate({
+//           path: "cancel_admission",
+//           populate: {
+//             path: "student",
+//             match: {
+//               $or: [
+//                 {studentFirstName: { $regex: `${search}`, $options: "i" },
+//                 },
+//                 {
+//                   studentMiddleName: { $regex: `${search}`, $options: "i" },
+//                 },
+//                 {
+//                   studentLastName: { $regex: `${search}`, $options: "i" },
+//                 },
+//                 {
+//                   valid_full_name: { $regex: `${search}`, $options: "i" },
+//                 },
+//                 {
+//                   studentGRNO: { $regex: `${search}`, $options: "i" },
+//                 }
+//               ]
+//             },
+//             select:
+//               "studentFirstName studentMiddleName studentLastName studentGRNO paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name",
+//             populate: {
+//               path: "user",
+//               select: "userPhoneNumber userEmail",
+//             },
+//           },
+//         });
+//       for (let data of apply?.cancel_admission) {
+//         if (data.student !== null) {
+//           filter_cancel.push(data);
+//         }
+//       }
+//       if (filter_cancel?.length > 0) {
+//         res.status(200).send({
+//           message: "Lots of Cancel Application from DB 😂😂",
+//           cancel: filter_cancel?.reverse(),
+//         });
+//       } else {
+//         res.status(200).send({
+//           message: "Go To Outside for Dinner",
+//           cancel: [],
+//         });
+//       }
+//     } else {
+//       var apply = await Admission.findById({ _id: aid })
+//         .select("cancelCount")
+//         .populate({
+//           path: "cancelApplication",
+//           populate: {
+//             path: "student",
+//             select:
+//               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt",
+//             populate: {
+//               path: "user",
+//               select: "userPhoneNumber userEmail",
+//             },
+//           },
+//         });
+//       var all_cancel_query = nested_document_limit(
+//         page,
+//         limit,
+//         apply?.cancelApplication?.reverse()
+//       );
+//       if (all_cancel_query?.length > 0) {
+//         // const cancelEncrypt = await encryptionPayload(apply);
+//         // const cached = await connect_redis_miss(
+//         //   `All-Cancel-App-${aid}-${page}`,
+//         //   apply
+//         // );
+//         res.status(200).send({
+//           message: "Lots of Cancel Application from DB 😂😂",
+//           // cancel: cached.apply,
+//           cancel: all_cancel_query,
+//         });
+//       } else {
+//         res.status(200).send({
+//           message: "Go To Outside for Dinner",
+//           cancel: [],
+//         });
+//       }
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+// exports.renderAllCancelAppsQuery = async (req, res) => {
+//   try {
+//     const { aid } = req?.params
+//     if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+//     const ads_admin = await Admission.findById({ _id: aid })
+//       .select("newApplication cancel_admission")
+    
+//     const all_apps = await NewApplication.find({ _id: { $in: ads_admin?.newApplication } })
+    
+//     var nums = []
+//     for (var val of all_apps) {
+      
+//     }
+//   }
+//   catch (e) {
+//     console.log(e)
+//   }
+// }

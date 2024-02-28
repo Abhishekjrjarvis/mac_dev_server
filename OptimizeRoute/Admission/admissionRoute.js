@@ -740,4 +740,8 @@ router
   .route("/all/fee/heads/move/query")
   .patch(catchAsync(Admission.renderFeeHeadsMoveGovernmentCardUpdateQuery));
 
+router
+  .route("/:aid/all/cancel/app/query")
+  .get(catchAsync(Admission.renderAllCancelAppsQuery));
+
 module.exports = router;

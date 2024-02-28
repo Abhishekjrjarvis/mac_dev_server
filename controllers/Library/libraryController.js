@@ -1530,9 +1530,12 @@ exports.getAllExcelLibraryQuery = async (req, res) => {
       .lean()
       .exec();
     if (library?.export_collection?.length > 0) {
+      let sort_list = library?.export_collection?.sort(
+        (a, b) => b?.created_at - a?.created_at
+      );
       res.status(200).send({
         message: "ALl Library Export list",
-        excel_arr: library?.export_collection,
+        excel_arr: sort_list,
       });
     } else {
       res.status(200).send({

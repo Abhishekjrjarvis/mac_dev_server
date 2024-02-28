@@ -6656,11 +6656,17 @@ exports.renderRefundArrayQuery = async (req, res) => {
               },
           },
         });
-
+        var filter_refund = [];
+        for (let data of ads_admin?.refundFeeList) {
+          if (data.student !== null) {
+            filter_refund.push(data);
+          }
+        }
+      
       var all_refund_list = await nested_document_limit(
         page,
         limit,
-        ads_admin?.refundFeeList
+        filter_refund
       );
     }
     var total = 0
@@ -6679,6 +6685,7 @@ exports.renderRefundArrayQuery = async (req, res) => {
         access: true,
         all_refund_list: all_refund_list,
         refundCount: total,
+        array: all_refund_list?.length
       });
     } else {
       res.status(200).send({
@@ -8041,7 +8048,6 @@ exports.renderAllRefundedArray = async (req, res) => {
       limit,
       ads_admin?.refundedFeeList
     );
-
     if (all_refunded?.length > 0) {
       res.status(200).send({
         message: "Explore All Refunded Array",

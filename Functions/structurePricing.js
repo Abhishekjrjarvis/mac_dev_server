@@ -50,6 +50,9 @@ exports.structure_pricing_query = async (new_struct, month) => {
       for (var ref of new_struct?.fees_heads) {
         if (`${ref?.head_name}` === "Hostel Deposit Fees") {
           ref.head_amount = ref.head_amount
+          new_struct.one_installments.fees += ref.head_amount
+          new_struct.applicable_fees += ref.head_amount
+          new_struct.total_admission_fees += ref.head_amount
         }
         else {
           ref.head_amount = ref.head_amount

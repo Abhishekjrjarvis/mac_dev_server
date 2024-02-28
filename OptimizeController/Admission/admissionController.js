@@ -6663,26 +6663,29 @@ exports.renderRefundArrayQuery = async (req, res) => {
         ads_admin?.refundFeeList
       );
     }
-    
+    var total = 0
     if (all_refund_list?.length > 0) {
       for (var stu of all_refund_list) {
-        for (var val of stu?.student?.remainingFeeList) {
-          stu.student.refund += (val?.applicable_card?.paid_fee > val?.applicable_card?.applicable_fee ? val?.applicable_card?.paid_fee - val?.applicable_card?.applicable_fee : 0) + (val?.government_card?.paid_fee > val?.government_card?.applicable_fee ? val?.government_card?.paid_fee - val?.government_card?.applicable_fee : 0)
+        if (stu?.student?.remainingFeeList?.length > 0) {
+          for (var val of stu?.student?.remainingFeeList) {
+            stu.student.refund += (val?.applicable_card?.paid_fee > val?.applicable_card?.applicable_fee ? val?.applicable_card?.paid_fee - val?.applicable_card?.applicable_fee : 0) + (val?.government_card?.paid_fee > val?.government_card?.applicable_fee ? val?.government_card?.paid_fee - val?.government_card?.applicable_fee : 0)
+          }
+          stu.refund = stu.student.refund
+          total += stu.student.refund
         }
-        stu.refund = stu.student.refund
       }
       res.status(200).send({
         message: "Explore All Returns",
         access: true,
         all_refund_list: all_refund_list,
-        refundCount: ads_admin?.refundCount,
+        refundCount: total,
       });
     } else {
       res.status(200).send({
         message: "No Returns",
         access: false,
         all_refund_list: [],
-        refundCount: 0,
+        refundCount: total,
       });
     }
   } catch (e) {

@@ -565,6 +565,22 @@ const financeSchema = new mongoose.Schema(
       fee_statistics: {
         type: Boolean,
         default: true
+      },
+      fees_structure: {
+        type: Boolean,
+        default: true
+      },
+      admission_excess_fees: {
+        type: Boolean,
+        default: true
+      },
+      admission_pending_fees: {
+        type: Boolean,
+        default: true
+      },
+      admission_offline_verification: {
+        type: Boolean,
+        default: true
       }
     },
     fees_statistics_filter: {

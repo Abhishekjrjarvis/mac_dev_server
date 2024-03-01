@@ -209,4 +209,14 @@ router.patch(
   catchAsync(Filter.renderTimeTableFilterByDepartmentQuery)
 );
 
+router.patch(
+  "/:frid/all/non-applicable/fees/query",
+  catchAsync(Filter.renderNonApplicableFeesQuery)
+);
+
+router.patch(
+  "/all/classwise/query",
+  catchAsync(Filter.renderClassWiseQuery)
+);
+
 module.exports = router;

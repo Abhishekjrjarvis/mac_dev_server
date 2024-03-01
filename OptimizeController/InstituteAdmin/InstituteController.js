@@ -1371,7 +1371,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
           .skip(skip)
           .sort({ createdAt: -1 })
           .select(
-            "studentFirstName studentMiddleName studentLastName valid_full_name applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+            "studentFirstName studentMiddleName studentLastName valid_full_name applicable_fees_pending government_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
           )
           .populate({
             path: "user",
@@ -1385,7 +1385,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
             path: "remainingFeeList",
             select: "paid_fee fee_structure applicable_card",
             populate: {
-              path: "fee_structure applicable_card",
+              path: "fee_structure applicable_card government_card",
             },
           });
       }

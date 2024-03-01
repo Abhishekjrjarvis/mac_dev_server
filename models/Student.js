@@ -621,6 +621,10 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  government_fees_pending: {
+    type: Number,
+    default: 0
+  },
   valid_full_name: {
     type: String,
   },

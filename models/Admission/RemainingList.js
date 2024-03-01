@@ -169,6 +169,10 @@ const remainingFeeListSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  government_fees_pending: {
+    type: Number,
+    default: 0,
+  },
   excess_fee: { type: Number, default: 0 },
 });
 

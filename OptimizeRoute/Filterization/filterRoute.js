@@ -215,6 +215,21 @@ router.patch(
 );
 
 router.patch(
+  "/:fid/all/deposit/query",
+  catchAsync(Filter.renderAllDepositQuery)
+);
+
+router.patch(
+  "/:fid/all/refund/deposit/query",
+  catchAsync(Filter.renderAllRefundDepositQuery)
+);
+
+router.patch(
+  "/:fid/all/exemption/query",
+  catchAsync(Filter.renderAllExemptionQuery)
+);
+
+router.patch(
   "/all/classwise/query",
   catchAsync(Filter.renderClassWiseQuery)
 );

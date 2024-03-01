@@ -31,6 +31,7 @@ const {
   json_to_excel_structure_code_query,
   json_to_excel_timetable_export_query,
   json_to_excel_non_applicable_fees_export_query,
+  json_to_excel_deposit_export_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -59,6 +60,7 @@ const { remove_duplicated_arr } = require("../../helper/functions");
 const Library = require("../../models/Library/Library");
 const ClassTimetable = require("../../models/Timetable/ClassTimetable");
 const FeesCategory = require("../../models/Finance/FeesCategory");
+const FeeMaster = require("../../models/Finance/FeeMaster");
 
 
 var trendingQuery = (trends, cat, type, page) => {
@@ -6913,6 +6915,169 @@ exports.renderNonApplicableFeesQuery = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.renderAllDepositQuery = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    if (!fid) return res.status(200).send({ message: "Thier is a bug need to fixed immediately", access: false })
+    var fine = await Finance.findById({ _id: fid })
+    var new_master = await FeeMaster.findOne({
+      $and: [{ finance: fine },
+        {
+          master_name: "Deposit Fees",
+        },
+        {
+          master_status: "Linked",
+        }
+      ]
+    });
+    var excel_list = []
+    if (new_master?._id) {
+      var all_student = await Student.find({ _id: { $in: new_master?.paid_student } })
+        .select("studentFirstName studentMiddleName studentLastName studentGRNO deposit_pending_amount")
+        .populate({
+          path: "department",
+          select: "dName"
+      })
+      for (var val of all_student) {
+        var name = `${val?.studentFirstName} ${val?.studentMiddleName ? val?.studentMiddleName : ""} ${val?.studentLastName}`
+          excel_list.push({
+            GRNO: val?.studentGRNO ?? "#NA",
+            Name: name ?? "#NA",
+            DepositAmount: val?.deposit_pending_amount ?? "#NA",
+            Department: val?.department?.dName ?? "#NA",
+          }) 
+        }
+      const data = await json_to_excel_deposit_export_query(
+        "Deposit",
+        excel_list,
+      );
+      res.status(200).send({
+        message: "Explore Deposit Fees Query",
+        access: true,
+        data: data
+      });
+    }
+    else {
+      res.status(200).send({
+        message: "No Deposit Query",
+        access: false,
+      });
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderAllRefundDepositQuery = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    if (!fid) return res.status(200).send({ message: "Thier is a bug need to fixed immediately", access: false })
+    var fine = await Finance.findById({ _id: fid })
+    var new_master = await FeeMaster.findOne({
+      $and: [{ finance: fine },
+        {
+          master_name: "Deposit Fees",
+        },
+        {
+          master_status: "Linked",
+        }
+      ]
+    });
+    var excel_list = []
+    if (new_master?._id) {
+      var all_student = await Student.find({ _id: { $in: new_master?.refund_student } })
+        .select("studentFirstName studentMiddleName studentLastName studentGRNO deposit_pending_amount")
+        .populate({
+          path: "department",
+          select: "dName"
+      })
+      for (var val of all_student) {
+        var name = `${val?.studentFirstName} ${val?.studentMiddleName ? val?.studentMiddleName : ""} ${val?.studentLastName}`
+          excel_list.push({
+            GRNO: val?.studentGRNO ?? "#NA",
+            Name: name ?? "#NA",
+            RefundAmount: val?.deposit_refund_amount ?? "#NA",
+            Department: val?.department?.dName ?? "#NA",
+          }) 
+        }
+      const data = await json_to_excel_deposit_export_query(
+        "Refund Deposit",
+        excel_list,
+      );
+      res.status(200).send({
+        message: "Explore Refund Deposit Fees Query",
+        access: true,
+        data: data
+      });
+    }
+    else {
+      res.status(200).send({
+        message: "No Refund Deposit Query",
+        access: false,
+      });
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+// exports.renderAllExemptionQuery = async (req, res) => {
+//   try {
+//     const { fid } = req?.params
+//     if (!fid) return res.status(200).send({ message: "Thier is a bug need to fixed immediately", access: false })
+//     var fine = await Finance.findById({ _id: fid })
+//     var new_master = await FeeMaster.findOne({
+//       $and: [{ finance: fine },
+//         {
+//           master_name: "Deposit Fees",
+//         },
+//         {
+//           master_status: "Linked",
+//         }
+//       ]
+//     });
+//     var excel_list = []
+//     if (new_master?._id) {
+//       var all_student = await Student.find({ _id: { $in: new_master?.refund_student } })
+//         .select("studentFirstName studentMiddleName studentLastName studentGRNO deposit_pending_amount")
+//         .populate({
+//           path: "department",
+//           select: "dName"
+//       })
+//       for (var val of all_student) {
+//         var name = `${val?.studentFirstName} ${val?.studentMiddleName ? val?.studentMiddleName : ""} ${val?.studentLastName}`
+//           excel_list.push({
+//             GRNO: val?.studentGRNO ?? "#NA",
+//             Name: name ?? "#NA",
+//             RefundAmount: val?.deposit_refund_amount ?? "#NA",
+//             Department: val?.department?.dName ?? "#NA",
+//           }) 
+//         }
+//       const data = await json_to_excel_deposit_export_query(
+//         "Refund Deposit",
+//         excel_list,
+//       );
+//       res.status(200).send({
+//         message: "Explore Refund Deposit Fees Query",
+//         access: true,
+//         data: data
+//       });
+//     }
+//     else {
+//       res.status(200).send({
+//         message: "No Refund Deposit Query",
+//         access: false,
+//       });
+//     }
+//   }
+//   catch (e) {
+//     console.log(e)
+//   }
+// }
+
 
 // exports.renderClassWiseQuery = async (req, res) => {
 //   try {

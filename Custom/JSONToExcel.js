@@ -608,3 +608,26 @@ exports.json_to_excel_non_applicable_fees_export_query = async (
     console.log(e);
   }
 };
+
+exports.json_to_excel_deposit_export_query = async (
+  flow,
+  data_query,
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(
+      real_book,
+      real_sheet,
+      `${flow} List`
+    );
+    var name = `${flow}-List-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+    return results
+  } catch (e) {
+    console.log(e);
+  }
+};

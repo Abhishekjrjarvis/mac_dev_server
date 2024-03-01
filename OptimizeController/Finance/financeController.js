@@ -357,11 +357,11 @@ exports.getIncome = async (req, res) => {
       incomes.incomeFrom = req.body?.incomeFrom;
       order.payment_by_end_user_id_name = req.body?.incomeFrom;
     }
-    if (req.body.incomeAccount === "By Cash") {
+    if (req.body.incomeAccount === "Cash") {
       finance.financeIncomeCashBalance =
         finance.financeIncomeCashBalance + incomes.incomeAmount;
       finance.financeTotalBalance += incomes.incomeAmount;
-    } else if (req.body.incomeAccount === "By Bank") {
+    } else{
       finance.financeIncomeBankBalance =
         finance.financeIncomeBankBalance + incomes.incomeAmount;
       finance.financeTotalBalance += incomes.incomeAmount;
@@ -467,13 +467,13 @@ exports.getExpense = async (req, res) => {
         expenses.expensePaid = req.body?.expensePaid;
         order.payment_by_end_user_id_name = req.body?.expensePaid;
       }
-      if (req.body.expenseAccount === "By Cash") {
+      if (req.body.expenseAccount === "Cash") {
         finance.financeExpenseCashBalance =
           finance.financeExpenseCashBalance + expenses.expenseAmount;
         if (finance.financeTotalBalance >= expenses.expenseAmount) {
           finance.financeTotalBalance -= expenses.expenseAmount;
         }
-      } else if (req.body.expenseAccount === "By Bank") {
+      } else {
         finance.financeExpenseBankBalance =
           finance.financeExpenseBankBalance + expenses.expenseAmount;
         if (finance.financeTotalBalance >= expenses.expenseAmount) {

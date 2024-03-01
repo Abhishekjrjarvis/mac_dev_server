@@ -7024,59 +7024,82 @@ exports.renderAllRefundDepositQuery = async (req, res) => {
   }
 }
 
-// exports.renderAllExemptionQuery = async (req, res) => {
-//   try {
-//     const { fid } = req?.params
-//     if (!fid) return res.status(200).send({ message: "Thier is a bug need to fixed immediately", access: false })
-//     var fine = await Finance.findById({ _id: fid })
-//     var new_master = await FeeMaster.findOne({
-//       $and: [{ finance: fine },
-//         {
-//           master_name: "Deposit Fees",
-//         },
-//         {
-//           master_status: "Linked",
-//         }
-//       ]
-//     });
-//     var excel_list = []
-//     if (new_master?._id) {
-//       var all_student = await Student.find({ _id: { $in: new_master?.refund_student } })
-//         .select("studentFirstName studentMiddleName studentLastName studentGRNO deposit_pending_amount")
-//         .populate({
-//           path: "department",
-//           select: "dName"
-//       })
-//       for (var val of all_student) {
-//         var name = `${val?.studentFirstName} ${val?.studentMiddleName ? val?.studentMiddleName : ""} ${val?.studentLastName}`
-//           excel_list.push({
-//             GRNO: val?.studentGRNO ?? "#NA",
-//             Name: name ?? "#NA",
-//             RefundAmount: val?.deposit_refund_amount ?? "#NA",
-//             Department: val?.department?.dName ?? "#NA",
-//           }) 
-//         }
-//       const data = await json_to_excel_deposit_export_query(
-//         "Refund Deposit",
-//         excel_list,
-//       );
-//       res.status(200).send({
-//         message: "Explore Refund Deposit Fees Query",
-//         access: true,
-//         data: data
-//       });
-//     }
-//     else {
-//       res.status(200).send({
-//         message: "No Refund Deposit Query",
-//         access: false,
-//       });
-//     }
-//   }
-//   catch (e) {
-//     console.log(e)
-//   }
-// }
+exports.renderAllExemptionQuery = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    if (!fid) return res.status(200).send({ message: "Thier is a bug need to fixed immediately", access: false })
+    var finance = await Finance.findById({ _id: fid })
+    var all_exempt = await FeeReceipt.find({
+      _id: { $in: finance?.exempt_receipt },
+    })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
+        populate: {
+          path: "fee_structure",
+          select:
+            "category_master structure_name unique_structure_name applicable_fees",
+          populate: {
+            path: "category_master",
+            select: "category_name",
+          },
+        },
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle",
+        },
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
+        populate: {
+          path: "batches",
+          select: "batchName",
+        },
+      })
+      .populate({
+        path: "application",
+        select: "applicationName",
+      });
+    var excel_list = []
+    if (all_exempt?.length > 0) {
+      for (var val of all_exempt) {
+        var name = `${val?.student?.studentFirstName} ${val?.student?.studentMiddleName ? val?.student?.studentMiddleName : ""} ${val?.student?.studentLastName}`
+          excel_list.push({
+            GRNO: val?.student?.studentGRNO ?? "#NA",
+            Name: name ?? "#NA",
+            ExemptAmount: val?.fee_payment_amount ?? 0,
+            InvoiceNumber: val?.invoice_count ?? "#NA"
+          }) 
+        }
+      const data = await json_to_excel_deposit_export_query(
+        "Exemption",
+        excel_list,
+      );
+      res.status(200).send({
+        message: "Explore Exemption / UnRecovered Fees Query",
+        access: true,
+        data: data
+      });
+    }
+    else {
+      res.status(200).send({
+        message: "No Exemption / UnRecovered Query",
+        access: false,
+      });
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
 
 
 // exports.renderClassWiseQuery = async (req, res) => {

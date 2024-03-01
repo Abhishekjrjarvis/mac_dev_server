@@ -6065,6 +6065,82 @@ exports.renderFeeStructureCodeQuery = async (req, res) => {
   }
 }
 
+exports.renderFundsTabSegregationQuery = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const all_receipt = await FeeReceipt.find({ finance: fid })
+    .select("fee_payment_mode fee_payment_amount")
+    var neft = 0
+    var dd = 0
+    var cheque = 0
+    var neb = 0
+    var upi = 0
+    var pg = 0
+    var gs = 0
+
+    var neft_arr = []
+    var dd_arr = []
+    var cheque_arr = []
+    var neb_arr = []
+    var upi_arr = []
+    var pg_arr = []
+    var gs_arr = []
+    for (var val of all_receipt) {
+      if (`${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS") {
+        neft += val?.fee_payment_amount
+        // neft_arr.push(val)
+      }
+      if (`${val?.fee_payment_mode}` === "Demand Draft") {
+        dd += val?.fee_payment_amount
+        // dd_arr.push(val)
+      }
+      if (`${val?.fee_payment_mode}` === "UPI Transfer") {
+        upi += val?.fee_payment_amount
+        // upi_arr.push(val)
+      }
+      if (`${val?.fee_payment_mode}` === "Payment Gateway / Online") {
+        pg += val?.fee_payment_amount
+        // pg_arr.push(val)
+      }
+      if (`${val?.fee_payment_mode}` === "Net Banking") {
+        neb += val?.fee_payment_amount
+        // neb_arr.push(val)
+      }
+      if (`${val?.fee_payment_mode}` === "Cheque") {
+        cheque += val?.fee_payment_amount
+        // cheque_arr.push(val)
+      }
+      if (`${val?.fee_payment_mode}` === "Government/Scholarship") {
+        gs += val?.fee_payment_amount
+        // gs_arr.push(val)
+      }
+    }
+    res.status(200).send({
+      message: "Explore Funds Tab Segregation Query",
+      access: true,
+      neft,
+    dd,
+    cheque,
+    neb,
+    upi,
+    pg,
+    gs,
+    neft_arr,
+    dd_arr,
+    cheque_arr,
+    neb_arr,
+    upi_arr,
+    pg_arr,
+    gs_arr,
+    })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 // exports.updateAlias = async(req, res) => {
 //   try{

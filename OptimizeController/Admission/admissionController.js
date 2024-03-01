@@ -12540,6 +12540,38 @@ exports.renderAllCancelAppsQuery = async (req, res) => {
   }
 };
 
+exports.renderMultipleInstallmentQuery = async (req, res) => {
+  try {
+    const { pid } = req?.params
+    const { inst_price, inst_date, inst_type, inst_type1, raid } = req?.body
+    if (!raid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const p_card = await NestedCard.findById({ _id: pid })
+    .populate({
+        path: "parent_card",
+    })
+    p_card.remaining_array.push({
+      remainAmount: inst_price,
+      dueDate: inst_date,
+      status: "Not Paid",
+      instituteId: p_card?.institute,
+      appId: p_card?.appId,
+      isEnable: true,
+      installmentValue: "Installment Remain"
+    })
+    for (var val of p_card.remaining_array) {
+      if (`${val?._id}` === `${raid}`) {
+        val.remainAmount -= inst_price
+      }
+    }
+    await p_card.save()
+    res.status(200).send({ message: "Explore One Student Single Installment Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {
 //     const { aid } = req?.params

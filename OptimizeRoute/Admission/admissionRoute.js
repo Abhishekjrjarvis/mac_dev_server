@@ -745,7 +745,7 @@ router
   .get(catchAsync(Admission.renderAllCancelAppsQuery));
 
 router
-  .route("/:raid/multiple/installment/query")
+  .route("/:pid/multiple/installment/query")
   .get(catchAsync(Admission.renderMultipleInstallmentQuery));
 
 module.exports = router;

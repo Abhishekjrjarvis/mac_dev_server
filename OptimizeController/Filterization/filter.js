@@ -7165,18 +7165,20 @@ exports.renderCancelExportQuery = async (req, res) => {
       }
     }
     var sorted_array = [];
-    var finance = await Admission.findById({ _id: aid }).select("institute financeDepart");
+    var finance = await Admission.findById({ _id: aid }).select("institute");
     var institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
-    }).select("insName depart");
+    }).select("insName depart financeDepart");
+    // console.log(institute?.financeDepart?.[0])
 
     
     if (valid_timeline) {
       const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
       const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
+      // console.log(institute?.financeDepart?.[0])
       var all_receipts = await FeeReceipt.find({
         $and: [
-          { finance: finance?.financeDepart?.[0] },
+          { finance: institute?.financeDepart?.[0] },
           // { fee_flow: "FEE_HEADS" },
           {
             created_at: {
@@ -7279,9 +7281,10 @@ exports.renderCancelExportQuery = async (req, res) => {
       }
       const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
       const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
+      // console.log(institute?.financeDepart?.[0])
       var all_receipts = await FeeReceipt.find({
         $and: [
-          { finance: finance?.financeDepart?.[0] },
+          { finance: institute?.financeDepart?.[0] },
           // { fee_flow: "FEE_HEADS" },
           {
             created_at: {

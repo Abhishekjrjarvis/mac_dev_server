@@ -230,6 +230,11 @@ router.patch(
 );
 
 router.patch(
+  "/:aid/cancel/export/query",
+  catchAsync(Filter.renderCancelExportQuery)
+);
+
+router.patch(
   "/all/classwise/query",
   catchAsync(Filter.renderClassWiseQuery)
 );

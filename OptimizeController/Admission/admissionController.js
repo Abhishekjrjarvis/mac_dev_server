@@ -11034,6 +11034,7 @@ exports.renderReviewStudentQuery = async(req, res) => {
 exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
   try {
     const { rid } = req?.params
+    const { price } = req?.body
     if (!rid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var remain_list = await RemainingList.findById({ _id: rid })

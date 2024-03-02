@@ -2219,36 +2219,107 @@ exports.getInOutStudentHistoryQuery = async (req, res) => {
 exports.getInOutStaffQuery = async (req, res) => {
   try {
     const { sid } = req.params;
-    const { inId, lid } = req.query;
+    const { date, lid } = req.query;
     if (!sid) throw "Please send student id to perform task";
     var currentDate = new Date();
     currentDate.setHours(currentDate.getHours() + 5);
     currentDate.setMinutes(currentDate.getMinutes() + 30);
-    if (!inId) {
-      const staff = await Staff.findById(sid);
-      const inout = new LibraryInOut({
-        staff: sid,
-        library: lid,
-        in_time: moment(currentDate).format("hh:mm:ss a"),
-        hour_in_24: moment(currentDate).format("H"),
-        minute_in: moment(currentDate).format("m"),
-        second_in: moment(currentDate).format("s"),
-      });
-      staff.library_in_out?.push(inout?._id);
-      await Promise.all([inout.save(), staff.save()]);
-    } else {
-      const inout = await LibraryInOut.findById(inId);
-      inout.out_time = moment(currentDate).format("hh:mm:ss a");
-      inout.hour_out_24 = moment(currentDate).format("H");
-      inout.minute_out = moment(currentDate).format("m");
-      inout.second_out = moment(currentDate).format("s");
-      inout.is_valid = "Yes";
-      await inout.save();
-    }
-    res.status(200).send({
-      message: "Library visit history saved.",
-      access: true,
+    const library = await Library.findById(lid);
+    const inout_g = await LibraryInOut.find({
+      $and: [
+        {
+          staff: { $eq: `${sid}` },
+        },
+        {
+          date: { $eq: `${date}` },
+        },
+        {
+          is_valid: { $eq: "No" },
+        },
+      ],
     });
+    let current_time = moment(currentDate).format("hh:mm a");
+
+    if (
+      +time_convertor(library?.timing?.from) <= +time_convertor(current_time) &&
+      +time_convertor(library?.timing?.to) >= +time_convertor(current_time)
+    ) {
+      if (!inout_g?.[0]?._id) {
+        const staff = await Staff.findById(sid);
+        const inout = new LibraryInOut({
+          staff: sid,
+          library: lid,
+          date: date,
+          in_time: moment(currentDate).format("hh:mm:ss a"),
+          hour_in_24: moment(currentDate).format("H"),
+          minute_in: moment(currentDate).format("m"),
+          second_in: moment(currentDate).format("s"),
+        });
+        staff.library_in_out?.push(inout?._id);
+        await Promise.all([inout.save(), staff.save()]);
+        res.status(200).send({
+          message: "Library visit entry time record.",
+          access: true,
+        });
+      } else {
+        if (inout_g?.[0]?._id) {
+          const inout = await LibraryInOut.findById(inout_g?.[0]?._id);
+          inout.out_time = moment(currentDate).format("hh:mm:ss a");
+          inout.hour_out_24 = moment(currentDate).format("H");
+          inout.minute_out = moment(currentDate).format("m");
+          inout.second_out = moment(currentDate).format("s");
+          inout.is_valid = "Yes";
+          let hr = +(inout.hour_out_24 - inout.hour_in_24);
+          let mit = 0;
+          let sec = 0;
+          if (inout.minute_out >= inout.minute_in) {
+            mit = inout.minute_out - inout.minute_in;
+          } else {
+            hr -= 1;
+            mit = inout.minute_out + 60 - inout.minute_in;
+          }
+          if (inout.second_out >= inout.second_in) {
+            sec = inout.second_out - inout.second_in;
+          } else {
+            mit -= 1;
+            sec = inout.second_out + 60 - inout.second_in;
+          }
+
+          inout.total_spent_time = `${hr > 9 ? hr : `0${hr}`}:${
+            mit > 9 ? mit : `0${mit}`
+          }:${sec > 9 ? sec : `0${sec}`}`;
+          await inout.save();
+          res.status(200).send({
+            message: "Library visit exit time record.",
+            access: true,
+            inout,
+          });
+
+          const staff = await Staff.findById(sid);
+          staff.library_total_time_spent.hours += hr;
+          staff.library_total_time_spent.minutes += mit;
+          staff.library_total_time_spent.seconds += sec;
+          if (staff.library_total_time_spent.seconds > 59) {
+            staff.library_total_time_spent.seconds %= 60;
+            staff.library_total_time_spent.minutes += Math.floor(
+              staff.library_total_time_spent.seconds / 60
+            );
+          }
+          if (staff.library_total_time_spent.minutes > 59) {
+            staff.library_total_time_spent.minutes %= 60;
+            staff.library_total_time_spent.hours += Math.floor(
+              staff.library_total_time_spent.minutes / 60
+            );
+          }
+          await staff.save();
+        }
+      }
+    } else {
+      res.status(200).send({
+        message: "Library time is over.",
+        access: true,
+      });
+    }
   } catch (e) {
     console.log(e);
     res.status(200).send({
@@ -2720,7 +2791,7 @@ exports.getLibraryBookRemarkListQuery = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentLastName studentMiddleName studentGRNO studentProfilePhotot photoId",
+          "studentFirstName studentLastName studentMiddleName studentGRNO studentProfilePhoto photoId",
       })
       .sort({
         created_at: -1,
@@ -3171,20 +3242,36 @@ exports.getAllEntryLogsExport = async (req, res) => {
     });
     const excel_list = [];
     for (let exc of entry_logs) {
-      excel_list.push({
-        GRNO: exc?.student?.studentGRNO ?? "#NA",
-        "Enrollment / Prn Number":
-          exc?.student?.student_prn_enroll_number ?? "#NA",
-        Name: `${exc?.student?.studentFirstName} ${
-          exc?.student?.studentMiddleName
-            ? `${exc?.student?.studentMiddleName} `
-            : " "
-        }${exc?.student?.studentLastName}`,
-        Date: exc?.date,
-        "In Time": exc?.in_time,
-        "Out Time": exc?.out_time,
-        "Spent Time": exc?.total_spent_time,
-      });
+      if (exc?.student) {
+        excel_list.push({
+          GRNO: exc?.student?.studentGRNO ?? "#NA",
+          "Enrollment / Prn Number":
+            exc?.student?.student_prn_enroll_number ?? "#NA",
+          Name: `${exc?.student?.studentFirstName} ${
+            exc?.student?.studentMiddleName
+              ? `${exc?.student?.studentMiddleName} `
+              : " "
+          }${exc?.student?.studentLastName}`,
+          Date: exc?.date,
+          "In Time": exc?.in_time,
+          "Out Time": exc?.out_time,
+          "Spent Time": exc?.total_spent_time,
+        });
+      } else {
+        excel_list.push({
+          GRNO: exc?.staff?.staffROLLNO ?? "#NA",
+          "Enrollment / Prn Number": exc?.staff?.staff_emp_code ?? "#NA",
+          Name: `${exc?.staff?.staffFirstName} ${
+            exc?.staff?.staffMiddleName
+              ? `${exc?.staff?.staffMiddleName} `
+              : " "
+          }${exc?.staff?.staffLastName}`,
+          Date: exc?.date,
+          "In Time": exc?.in_time,
+          "Out Time": exc?.out_time,
+          "Spent Time": exc?.total_spent_time,
+        });
+      }
     }
     if (excel_list?.length > 0)
       await library_json_to_excel(

@@ -550,6 +550,21 @@ const staffSchema = new mongoose.Schema({
       ref: "StaffStudentFeedback",
     },
   ],
+  library_total_time_spent: {
+    hours: {
+      type: Number,
+      default: 0,
+    },
+    minutes: {
+      type: Number,
+      default: 0,
+    },
+    seconds: {
+      type: Number,
+      default: 0,
+    },
+  },
+
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

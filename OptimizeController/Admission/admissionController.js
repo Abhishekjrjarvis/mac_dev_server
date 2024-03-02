@@ -11050,6 +11050,16 @@ exports.renderShiftApplicableToGovernmentQuery = async (req, res) => {
           if (remain_list?.remaining_fee <= 0) {
             remain_list.status = "Paid"
           }
+          if (amount > 0) {
+            nest_gov_card.remaining_array.push({
+              status: "Not Paid",
+              instituteId: remain_list?.institute,
+              appId: remain_list?.appId,
+              isEnable: true,
+              installmentValue: "Installment Remain",
+              remainAmount: amount
+            })
+          }
         }
       }
       await Promise.all([ nest_gov_card.save(), nest_app_card.save(), remain_list.save() ])

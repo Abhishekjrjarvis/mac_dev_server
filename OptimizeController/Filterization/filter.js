@@ -1775,8 +1775,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       };
       for (var ref of all_receipts) {
         var remain_list = await RemainingList.findOne({
-          // $and: [{ student: ref?.student }, { appId: ref?.application }],
-          $and: [{ student: ref?.student }, { fee_structure: ref?.fee_structure }],
+          $and: [{ student: ref?.student }, { appId: ref?.application }],
         })
           .populate({
             path: "fee_structure",
@@ -1794,9 +1793,6 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               path: "applicationDepartment applicationBatch",
               select: "dName batchName",
             },
-          })
-          .populate({
-            path: "applicable_card",
           });
         var head_array = [];
         if (ref?.fee_heads?.length > 0) {
@@ -1809,11 +1805,11 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             }
           }
         }
-        if (remain_list?.applicable_card?.paid_fee - remain_list?.applicable_card?.applicable_fee > 0) {
+        if (remain_list?.paid_fee - remain_list?.applicable_fee > 0) {
           if (`${val?.appId}` === `${ref?.application?._id}`) {
             head_array.push({
               HeadsName: "Excess Fees",
-              PaidHeadFees: remain_list?.applicable_card?.paid_fee - remain_list?.applicable_card?.applicable_fee,
+              PaidHeadFees: remain_list?.paid_fee - remain_list?.applicable_fee,
             });
           }
         }

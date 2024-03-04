@@ -746,6 +746,6 @@ router
 
 router
   .route("/:pid/multiple/installment/query")
-  .get(catchAsync(Admission.renderMultipleInstallmentQuery));
+  .patch(catchAsync(Admission.renderMultipleInstallmentQuery));
 
 module.exports = router;

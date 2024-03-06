@@ -82,6 +82,8 @@ const {
   all_installment_paid,
   set_fee_head_query2,
   update_fee_head_query2,
+  update_fee_head_query_deposit,
+  set_fee_head_query_deposit,
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -104,6 +106,7 @@ const { render_new_fees_card, render_new_fees_card_install } = require("../../Fu
 const Charges = require("../../models/SuperAdmin/Charges");
 const { fee_receipt_count_query, fee_receipt_count_query_new } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 const { renderAllStudentToUnApprovedAutoCatalogQuery } = require("../Authentication/AuthController");
+const FeeMaster = require("../../models/Finance/FeeMaster");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -10512,62 +10515,116 @@ exports.renderAllOrderQuery = async (req, res) => {
 
 exports.renderFindStudentReceiptQuery = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { sid } = req.query;
-    if (!id)
-      return res.status(200).send({
-        message: "Their is a bug need to fixed immediately",
-        access: false,
-      });
-    var array = [];
-    var ins = await InstituteAdmin.findById({ _id: id });
-    var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    // const g_date = new Date(`2023-09-19T00:00:00.000Z`);
-    // const l_date = new Date(`2023-09-21T00:00:00.000Z`);
-    var receipt = await FeeReceipt.find({
-      $and: [
-        // {
-        //   created_at: {
-        //     $gte: g_date,
-        //     $lte: l_date,
-        //   },
-        // },
-        {
-          student: sid,
-        },
-        {
-          finance: finance?._id,
-        },
-      ],
+    var nums = ["65df09e2b7acfaac67b11673"]
+    // var fine = ["644a09d6d1679fcd6e76e5ef"]
+    // var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
+
+    // var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
+    var all_remain = await RemainingList.find({ _id: { $in: nums } })
+    .populate({
+      path: "fee_structure",
     })
-      .populate({
-        path: "fee_structure",
-      })
-      .populate({
-        path: "student",
-      });
-    for (var ref of receipt) {
-      if (ref?.fee_heads?.length > 0) {
-        // ref.fee_heads = []
-        // // ref.fee_structure = ref?.fee_heads?.[0]?.fee_structure
-        // ref.save()
-      } else {
-        if (ref?.fee_structure) {
-          await receipt_set_fee_head_query_redesign(
-            ref?.student,
-            ref?.fee_payment_amount,
-            ref?.application,
-            ref
-          );
+    .populate({
+      path: "student",
+    });
+    var  i =0
+    for (var sub of all_remain) {
+      if (sub?.applicable_card) {
+        var nest_app = await NestedCard.findById({ _id: `${sub?.applicable_card}` })
+          .populate({
+            path: "remaining_array",
+            populate: {
+              path: "fee_receipt",
+              populate: {
+                path: "fee_structure"
+              }
+            }
+        })
+        var filtered = []
+        for (var qwe of nest_app?.remaining_array) {
+          if (`${qwe?.status}` === "Paid" && qwe?.fee_receipt) {
+            filtered.push(qwe)
+          }
+        }
+        console.log("SET")
+          await set_fee_head_query_redesign(
+            sub?.student,
+            filtered?.[0]?.remainAmount,
+            sub?.appId,
+            filtered?.[0]?.fee_receipt
+          )
+          filtered.splice(filtered?.[0], 1)
+          
+        
+        for (var dtw of filtered) {
+          console.log("UPDATE")
+          await update_fee_head_query_redesign(
+          sub?.student,
+          dtw?.remainAmount,
+          sub?.appId,
+          dtw?.fee_receipt
+          )
         }
       }
+      console.log(i)
+      i += 1
     }
 
     res.status(200).send({
-      message: "Explore All Student Fee Heads Query",
+      message: "Explore All Student Fee Heads Insertion Query",
       access: true,
-      count: receipt?.length,
-      receipt,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStudentHeadsQuery = async (req, res) => {
+  try {
+    var nums = ["65df09e2b7acfaac67b11673"]
+    // var fine = ["644a09d6d1679fcd6e76e5ef"]
+    // var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
+
+    // var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
+    var all_remain = await RemainingList.find({ _id: { $in: nums } })
+    .populate({
+      path: "fee_structure",
+    })
+    .populate({
+      path: "student",
+    });
+    var  i =0
+    for (var sub of all_remain) {
+      if (sub?.applicable_card) {
+        var nest_app = await NestedCard.findById({ _id: `${sub?.applicable_card}` })
+          .populate({
+            path: "remaining_array",
+            populate: {
+              path: "fee_receipt",
+            }
+        })
+        var filtered = []
+        for (var qwe of nest_app?.remaining_array) {
+          if (`${qwe?.status}` === "Paid" && qwe?.fee_receipt) {
+            filtered.push(qwe)
+          }
+        }
+        for (var dtw of filtered) {
+          dtw.fee_receipt.fee_heads = []
+          await dtw.fee_receipt.save()
+        }
+      }
+      if (sub.student) {
+        sub.student.active_fee_heads = []
+        await sub.student.save()
+      }
+      console.log(i)
+      i += 1
+    }
+
+    res.status(200).send({
+      message: "Explore All Student Fee Heads Set TO ZERO Query",
+      access: true,
     });
   } catch (e) {
     console.log(e);
@@ -10827,26 +10884,6 @@ exports.renderCardFeeHeadsQuery = async (req, res) => {
     var array = [];
     var ins = await InstituteAdmin.findById({ _id: id });
     // var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    const g_date = new Date(`2023-06-01T00:00:00.000Z`);
-    const l_date = new Date(`2023-07-01T00:00:00.000Z`);
-    // var receipt = await RemainingList.find({
-    //   $and: [
-    //     {
-    //       created_at: {
-    //         $gte: g_date,
-    //         $lte: l_date,
-    //       },
-    //     },
-    //     {
-    //       institute: ins?._id,
-    //     },
-    //   ],
-    // }).populate({
-    //   path: "student",
-    //   populate: {
-    //     path: "fee_structure",
-    //   },
-    // });
     var receipt = await RemainingList.find({
       _id: { $in: arr },
     })
@@ -10859,28 +10896,38 @@ exports.renderCardFeeHeadsQuery = async (req, res) => {
       .populate({
         path: "fee_structure",
       });
-    for (var ref of receipt) {
-      if (block) {
-        if (ref?.student?.active_fee_heads?.length > 0) {
-          for (var ele of ref?.student?.active_fee_heads) {
-            if (`${ele?.appId}` === `${ref?.appId}`) {
-              console.log("match");
-              ref.student.active_fee_heads.pull(ele?._id);
-            } else {
-              // console.log("Not Match")
-            }
-          }
-          await ref.student.save();
-        }
-      } else {
-        await set_fee_head_redesign(
-          ref?.student,
-          ref?.paid_fee,
-          ref?.appId,
-          ref
-        );
-      }
-    }
+    // for (var ref of receipt) {
+    //   if (block) {
+    //     if (ref?.student?.active_fee_heads?.length > 0) {
+    //       for (var ele of ref?.student?.active_fee_heads) {
+    //         if (`${ele?.appId}` === `${ref?.appId}`) {
+    //           console.log("match");
+    //           ref.student.active_fee_heads.pull(ele?._id);
+    //         } else {
+    //           // console.log("Not Match")
+    //         }
+    //       }
+    //       await ref.student.save();
+    //     }
+    //   } 
+    //   if (ref?.applicable_card) {
+    //     var nest_app = await NestedCard.findById({ _id: `${ref?.applicable_card}` })
+    //       .populate({
+    //         path: "remaining_array",
+    //         populate: {
+    //           path: "fee_receipt"
+    //         }
+    //     })
+    //     for (var ele of nest_app?.remaining_array) {
+    //       await receipt_set_fee_head_query_redesign(
+    //         ref?.student,
+    //         ref?.paid_fee,
+    //         ref?.appId,
+    //         ref
+    //       );
+    //     }
+    //   }
+    // }
     // // else {
     //   await set_fee_head_query_redesign(
     //     student,
@@ -12371,10 +12418,11 @@ exports.one_fees_card_query = async (req, res) => {
   }
 }
 
+// Fee Heads Move To Applicable Fee Heads
 exports.renderFeeHeadsMoveGovernmentCardUpdateQuery = async (req, res) => {
   try {
     // var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
-    var fine = ["651ba371e39dbdf817dd5285"]
+    var fine = ["644a09d6d1679fcd6e76e5ef"]
     var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
     // var nums = []
     // var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
@@ -12397,6 +12445,7 @@ exports.renderFeeHeadsMoveGovernmentCardUpdateQuery = async (req, res) => {
   }
 }
 
+// Excel Government Fee Heads Query
 exports.renderGovernmentHeadsMoveGovernmentCardUpdateQuery = async (fid, structures) => {
   try {
     if (structures?.length > 0) {
@@ -12422,3 +12471,218 @@ exports.renderGovernmentHeadsMoveGovernmentCardUpdateQuery = async (fid, structu
     console.log(e)
   }
 }
+
+
+// Remove transfer Applicable + Government ALSO
+exports.removeTTOAQuery = async (req, res) => {
+  try {
+    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
+    // var fine = ["651ba371e39dbdf817dd5285"]
+    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
+    var nums_app = []
+    var nums_gov = []
+    var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
+      .select("applicable_card government_card")
+      // .populate({
+      //   path: "student",
+      //   select: "studentFirstName studentMiddleName studentLastName valid_full_name"
+      // })
+    
+    var  i =0
+    for (var val of all_remain) {
+      if (val?.applicable_card) {
+        var nest_app = await NestedCard.findById({ _id: `${val?.applicable_card}` }) 
+        for (var ele of nest_app?.remaining_array) {
+          if (ele?.revert_status) {
+            if (nums_app?.includes(`${val?._id}`)) {
+              
+            }
+            else {
+              nums_app.push(val?._id)
+            }
+          }
+        }
+      }
+      if (val?.government_card) {
+        var nest_gov = await NestedCard.findById({ _id: `${val?.government_card}` }) 
+        for (var ele of nest_gov?.remaining_array) {
+          if (ele?.revert_status) {
+            if (nums_gov?.includes(`${val?._id}`)) {
+              
+            }
+            else {
+              nums_gov.push(val?._id)
+            }
+          }
+        }
+      }
+      console.log(i)
+      i+= 1
+    }
+    res.status(200).send({ message: "Explore Fees Structure Applicable Fees Heads Move Query", access: true, nums_app, nums_gov })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.removeTTOAQuery = async (req, res) => {
+  try {
+    var nums_app = [
+      "6480830bbff5c201991de8dc", // ISSUE WITH GOV/OS
+      "64809531bff5c201991ede83", // DONE
+      "64809635bff5c201991eee20", // DONE
+      "64809e55bff5c201991f6f21", // DONE
+      "6480a58ebff5c201991fdb94", // DONE
+      "6480b398bff5c2019920c718", // DONE
+      "6480b299bff5c2019920a2f5", // DONE
+      "6480b55dbff5c20199212ee5", // DONE
+      "6480bca4bff5c2019922dbb1", // DONE
+      "6480949fbff5c201991ed54c", // DONE
+      "64809495bff5c201991ed4d9" // DONE
+    ]
+    var all_remain = await RemainingList.find({ _id: { $in: nums_app } })
+      .select("applicable_card government_card")
+      .populate({
+        path: "student",
+        select: "studentFirstName studentMiddleName studentLastName valid_full_name"
+      })
+    
+    var  i =0
+    for (var val of all_remain) {
+      
+    }
+    res.status(200).send({ message: "Explore Fees Structure Applicable Fees Heads Move Query", access: true, nums_app, nums_gov })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+// Fee Structure Set To Fee Receipt
+exports.setFeeStructureToFeeReceiptAQuery = async (req, res) => {
+  try {
+    // var fine = ["644a09d6d1679fcd6e76e5ef"]
+    var nums = ["65df09e2b7acfaac67b11673"]
+    // var nums = ["6481449fbff5c201992459c0", "64d8a21332c4819d5ee626a9", "6501fa70b830dd56a617afee"]
+    // var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
+    // var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
+    var all_remain = await RemainingList.find({ _id: { $in: nums } })
+    
+
+    var i =0
+    for (var val of all_remain) {
+      var all_receipt = await FeeReceipt.find({ $and: [{ student: val?.student }, { application: val?.appId }] })
+      for (var ele of all_receipt) {
+        ele.fee_structure = val?.fee_structure
+        console.log(i)
+        i+= 1
+        await ele.save()
+      }
+    }
+    res.status(200).send({ message: "Explore Fee Receipt Query", access: true, })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderDepositQuery = async (req, res) => {
+  try {
+    var fine = ["644a09d6d1679fcd6e76e5ef"]
+    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
+    // var nums = ["6507f64850f6dfea855c2af5"]
+
+        // var all_remain = await RemainingList.find({ _id: { $in: nums } })
+    var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
+    .populate({
+      path: "fee_structure",
+    })
+    .populate({
+      path: "student",
+    });
+    var  i =0
+    for (var sub of all_remain) {
+      if (sub?.applicable_card) {
+        var nest_app = await NestedCard.findById({ _id: `${sub?.applicable_card}` })
+          .populate({
+            path: "remaining_array",
+            populate: {
+              path: "fee_receipt",
+              populate: {
+                path: "fee_structure"
+              }
+            }
+        })
+        var filtered = []
+        for (var qwe of nest_app?.remaining_array) {
+          if (`${qwe?.status}` === "Paid" && qwe?.fee_receipt) {
+            filtered.push(qwe)
+          }
+        }
+        console.log("SET")
+          await set_fee_head_query_deposit(
+            sub?.student,
+            filtered?.[0]?.remainAmount,
+            filtered?.[0]?.fee_receipt
+          )
+          filtered.splice(filtered?.[0], 1)
+          
+        
+        for (var dtw of filtered) {
+          console.log("UPDATE")
+          await update_fee_head_query_deposit(
+          sub?.student,
+          dtw?.remainAmount,
+          sub?.appId,
+          // dtw?.fee_receipt
+          )
+        }
+      }
+      console.log(i)
+      i += 1
+    }
+
+    res.status(200).send({
+      message: "Explore All Student Fee Deposit Insertion Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDepositToZeroQuery = async (req, res) => {
+  try {
+    var one_master = await FeeMaster.findOne({
+      $and: [
+        { _id: "644a0b07d1679fcd6e76e7f5" },
+        { finance: "644a09d6d1679fcd6e76e5ef" },
+        { master_status: "Linked"}
+      ],
+    });
+    var i=0
+    for (var val of one_master?.deleted_student) {
+      const one_student = await Student.findById({ _id: `${val}` })
+      if (one_student?._id) {
+        one_student.deposit_pending_amount = 0
+        await one_student.save()
+        // one_master.deleted_student.push(val)
+        console.log(i)
+        i+=1
+      } 
+      }
+      
+    // one_master.paid_student = []
+    // one_master.paid_student_count = 0
+    // one_master.deposit_amount = 0
+    // await one_master.save()
+    res.status(200).send({
+      message: "Explore All Student Fee Deposit To ZERO Insertion Query",
+      access: true,
+      one_master
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

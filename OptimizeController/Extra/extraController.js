@@ -3904,6 +3904,7 @@ exports.renderExcelToJSONGovernmentQuery = async (req, res) => {
     );
     if (is_converted?.value) {
       await renderGovernmentHeadsMoveGovernmentCardUpdateQuery(fid, is_converted?.structure_array);
+      res.status(200).send({ message: "Excel Imported Successfully", access: true})
     } else {
       console.log("false");
     }

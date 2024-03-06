@@ -930,7 +930,7 @@ const studentSchema = new mongoose.Schema({
   },
   lcInstituteDate: {
     type: String
-  }
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

@@ -12511,17 +12511,22 @@ exports.setFeeStructureToFeeReceiptAQuery = async (req, res) => {
     var all_remain = await RemainingList.find({ _id: { $in: nums } })
     
 
-    var i =0
+    var i = 0
     for (var val of all_remain) {
       var all_receipt = await FeeReceipt.find({ $and: [{ student: val?.student }, { application: val?.appId }] })
       for (var ele of all_receipt) {
         ele.fee_structure = val?.fee_structure
         console.log(i)
-        i+= 1
+        i += 1
         await ele.save()
       }
     }
     res.status(200).send({ message: "Explore Fee Receipt Query", access: true, })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
 
 exports.renderAllCancelAppsQuery = async (req, res) => {
   try {

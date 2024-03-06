@@ -565,6 +565,22 @@ const financeSchema = new mongoose.Schema(
       fee_statistics: {
         type: Boolean,
         default: true
+      },
+      fees_structure: {
+        type: Boolean,
+        default: true
+      },
+      admission_excess_fees: {
+        type: Boolean,
+        default: true
+      },
+      admission_pending_fees: {
+        type: Boolean,
+        default: true
+      },
+      admission_offline_verification: {
+        type: Boolean,
+        default: true
       }
     },
     fees_statistics_filter: {
@@ -716,6 +732,16 @@ const financeSchema = new mongoose.Schema(
         feeId: { type: String },
       },
     ],
+    day_book: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "DayBook"
+      }
+    ],
+    day_book_count: {
+      type: Number,
+      default: 0
+    }
   },
   { timestamps: true }
 );

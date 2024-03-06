@@ -46,15 +46,24 @@ exports.structure_pricing_query = async (new_struct, month) => {
       ? Math.ceil((new_struct.applicable_fees * month) / 12)
       : new_struct.applicable_fees;
 
+    new_struct.one_installments.fees = 0
+    new_struct.applicable_fees = 0
+    new_struct.total_admission_fees = 0
     if (new_struct?.fees_heads?.length > 0) {
       for (var ref of new_struct?.fees_heads) {
         if (`${ref?.head_name}` === "Hostel Deposit Fees") {
           ref.head_amount = ref.head_amount
+          new_struct.one_installments.fees += ref.head_amount
+          new_struct.applicable_fees += ref.head_amount
+          new_struct.total_admission_fees += ref.head_amount
         }
         else {
           ref.head_amount = ref.head_amount
           ? Math.ceil((ref.head_amount * month) / 12)
-          : ref.head_amount;
+            : ref.head_amount;
+            new_struct.one_installments.fees += ref.head_amount
+            new_struct.applicable_fees += ref.head_amount
+            new_struct.total_admission_fees += ref.head_amount
         }
       }
     } else {

@@ -571,5 +571,6 @@ router
 
 router.patch("/fee/structure/code/query", catchAsync(Finance.renderFeeStructureCodeQuery))
 
+router.get("/:fid/funds/tab/segregation/query", catchAsync(Finance.renderFundsTabSegregationQuery))
 
 module.exports = router;

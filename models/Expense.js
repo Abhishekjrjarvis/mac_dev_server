@@ -48,6 +48,9 @@ const expenseSchema = new mongoose.Schema({
     type: String,
   },
   invoice_number: { type: Number, default: 0 },
+  purchase_order: {
+    type: String,
+  },
 });
 
 const Expense = mongoose.model("Expense", expenseSchema);

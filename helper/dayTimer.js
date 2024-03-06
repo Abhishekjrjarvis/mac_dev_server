@@ -359,6 +359,22 @@ exports.getSundaysInYear = (year, new_year) => {
     formattedSaturdays: formattedSaturdays
   };
 }
+
+exports.custom_date_time_reverse_db = (arg) => {
+  const date = new Date(new Date());
+  date.setDate(date.getDate() - arg);
+  var day = date.getDate();
+  var month = date.getMonth() + 1;
+  var year = date.getFullYear();
+  if (month < 10) {
+    month = `0${month}`;
+  }
+  if (day < 10) {
+    day = `0${day}`;
+  }
+  const date_pattern = `${day}/${month}/${year}`;
+  return date_pattern;
+};
 // const sundaysInYear = getSundaysInYear(2023, 2024);
 
 // console.log(`Sundays in 2023 - 2024:`);

@@ -503,3 +503,37 @@ exports.renderOneChapterDestroyQuery = async(req, res) => {
     console.log(e)
   }
 }
+
+exports.insertAcademicSubjectQuery = async (req, res) => {
+  try {
+    const subject = await Subject.find({});
+    var i = 0;
+    for (let st of subject) {
+      for (let ct of st?.chapter ?? []) {
+        const chapter = await Chapter.findById(ct);
+        if (!chapter?.subject) {
+          for (let cp of chapter?.topic ?? []) {
+            const topic = await ChapterTopic.findById(cp);
+            if (st?._id && topic) {
+              topic.subject = st?._id ? st?._id : null;
+              await topic.save();
+              console.log("in topic", i);
+              ++i;
+            }
+          }
+          if (st?._id && chapter) {
+            chapter.subject = st?._id;
+            await chapter.save();
+            console.log(i);
+            ++i;
+          }
+        }
+      }
+    }
+    res
+      .status(200)
+      .send({ message: "Inserted ids to dbs", subject: subject?.length });
+  } catch (e) {
+    console.log(e);
+  }
+};

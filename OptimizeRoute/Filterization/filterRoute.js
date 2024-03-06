@@ -209,4 +209,38 @@ router.patch(
   catchAsync(Filter.renderTimeTableFilterByDepartmentQuery)
 );
 
+router.patch(
+  "/:frid/all/non-applicable/fees/query",
+  catchAsync(Filter.renderNonApplicableFeesQuery)
+);
+
+router.patch(
+  "/:fid/all/deposit/query",
+  catchAsync(Filter.renderAllDepositQuery)
+);
+
+router.patch(
+  "/:fid/all/refund/deposit/query",
+  catchAsync(Filter.renderAllRefundDepositQuery)
+);
+
+router.patch(
+  "/:fid/all/exemption/query",
+  catchAsync(Filter.renderAllExemptionQuery)
+);
+
+router.patch(
+  "/:aid/cancel/export/query",
+  catchAsync(Filter.renderCancelExportQuery)
+);
+
+router.patch(
+  "/all/classwise/query",
+  catchAsync(Filter.renderClassWiseQuery)
+);
+
+router.get("/:fid/receipt/to/daybook", Filter.renderAllDayBookReceipt);
+
+router.get("/:fid/payment/to/daybook", Filter.renderAllDayBookPayment);
+
 module.exports = router;

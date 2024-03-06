@@ -1259,6 +1259,80 @@ exports.renderAllMentorAddQuery = async (req, res) => {
   }
 }
 
+exports.renderEditOneMeetingQuery = async (req, res) => {
+  try {
+    const { meid } = req?.params
+    if (!meid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    await Meeting.findByIdAndUpdate(meid, req?.body)
+
+    res.status(200).send({ message: "Explore One Meeting Edit Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderScheduleMeetingQuery = async (req, res) => {
+  try {
+    const { mid, p_array, a_array } = req.body;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var valid_mentor = await Mentor.findById({ _id: mid });
+    var new_meet = new Meeting({ ...req.body });
+    new_meet.mentor = valid_mentor?._id;
+    new_meet.creation_status = "SCHEDULE"
+    new_meet.department = valid_mentor?.department;
+    valid_mentor.meetings.push(new_meet?._id);
+    valid_mentor.meetings_count += 1;
+    if (p_array?.length > 0) {
+      new_meet.present_mentees.push(...p_array);
+      new_meet.mentees_present_count = p_array?.length;
+    }
+    if (a_array?.length > 0) {
+      new_meet.absent_mentees.push(...a_array);
+      new_meet.mentees_absent_count = a_array?.length;
+    }
+
+    await Promise.all([new_meet.save(), valid_mentor.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore Scheduled Meetings Query", access: true });
+
+    if (new_meet?.meeting_alert) {
+      var all_mentees = await Student.find({
+        _id: { $in: valid_mentor?.mentees },
+      });
+      for (var ref of all_mentees) {
+        var user = await User.findById({ _id: `${ref?.user}` });
+        var notify = new StudentNotification({});
+        notify.notifyContent = `Meetings with Agenda - ${new_meet?.agenda} is scheduled on ${new_meet?.meeting_date} at ${new_meet?.meeting_time}. click here to read more...`;
+        notify.notifySender = valid_mentor?._id;
+        notify.notifyReceiever = user?._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = ref?._id;
+        user.activity_tab.push(notify?._id);
+        notify.notifyByDepartPhoto = valid_mentor?.department;
+        notify.notifyCategory = "Meeting Alert";
+        notify.redirectIndex = 57;
+        await Promise.all([user.save(), notify.save()]);
+        invokeMemberTabNotification(
+          "Meeting Alert",
+          notify.notifyContent,
+          "New Agenda",
+          user._id,
+          user.deviceToken
+        );
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // Rating By Student IS Pending & Display Rating Query
 
 // exports.renderOneStudentGiveFeedbackQuery = async (req, res) => {

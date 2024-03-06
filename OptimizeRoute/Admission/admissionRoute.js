@@ -762,5 +762,17 @@ router
         "/student/deposit/to/zero/query",
         catchAsync(Admission.renderDepositToZeroQuery)
       );
+router
+  .route("/:aid/all/cancel/app/query")
+  .get(catchAsync(Admission.renderAllCancelAppsQuery));
+
+//
+router
+  .route("/:aid/all/cancel/app/query/sequence")
+  .get(catchAsync(Admission.renderAllCancelAppsSequenceQuery));
+
+router
+  .route("/:pid/multiple/installment/query")
+  .patch(catchAsync(Admission.renderMultipleInstallmentQuery));
 
 module.exports = router;

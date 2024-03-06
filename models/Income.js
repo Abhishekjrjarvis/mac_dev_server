@@ -41,6 +41,9 @@ const incomeSchema = new mongoose.Schema({
   income_utr: {
     type: String,
   },
+  purchase_order: {
+    type: String,
+  },
 });
 
 const Income = mongoose.model("Income", incomeSchema);

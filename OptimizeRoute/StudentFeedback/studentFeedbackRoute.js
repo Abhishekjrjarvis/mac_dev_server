@@ -80,5 +80,11 @@ router.route("/staff/one/info/:sid").get(
   catchAsync(studentFeedbackController.getOneFeedbackStaffQuery)
 );
 
+router.route("/remove/dublicate/master/:ifid").patch(
+  // isLoggedIn,
+  catchAsync(studentFeedbackController.removeDublicateMasterQuery)
+);
+
+
 module.exports = router;
 

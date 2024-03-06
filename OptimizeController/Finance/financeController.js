@@ -357,11 +357,11 @@ exports.getIncome = async (req, res) => {
       incomes.incomeFrom = req.body?.incomeFrom;
       order.payment_by_end_user_id_name = req.body?.incomeFrom;
     }
-    if (req.body.incomeAccount === "By Cash") {
+    if (req.body.incomeAccount === "Cash") {
       finance.financeIncomeCashBalance =
         finance.financeIncomeCashBalance + incomes.incomeAmount;
       finance.financeTotalBalance += incomes.incomeAmount;
-    } else if (req.body.incomeAccount === "By Bank") {
+    } else{
       finance.financeIncomeBankBalance =
         finance.financeIncomeBankBalance + incomes.incomeAmount;
       finance.financeTotalBalance += incomes.incomeAmount;
@@ -467,13 +467,13 @@ exports.getExpense = async (req, res) => {
         expenses.expensePaid = req.body?.expensePaid;
         order.payment_by_end_user_id_name = req.body?.expensePaid;
       }
-      if (req.body.expenseAccount === "By Cash") {
+      if (req.body.expenseAccount === "Cash") {
         finance.financeExpenseCashBalance =
           finance.financeExpenseCashBalance + expenses.expenseAmount;
         if (finance.financeTotalBalance >= expenses.expenseAmount) {
           finance.financeTotalBalance -= expenses.expenseAmount;
         }
-      } else if (req.body.expenseAccount === "By Bank") {
+      } else {
         finance.financeExpenseBankBalance =
           finance.financeExpenseBankBalance + expenses.expenseAmount;
         if (finance.financeTotalBalance >= expenses.expenseAmount) {
@@ -3913,7 +3913,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
     if (ref?.length > 0) {
       var all_remain = await RemainingList.findById({ _id: ref[0]?._id })
         .select(
-          "applicable_fee paid_fee remaining_fee refund_fee remaining_flow"
+          "applicable_fee paid_fee remaining_fee refund_fee remaining_flow appId"
         )
         .populate({
           path: "batchId",
@@ -3922,14 +3922,31 @@ exports.renderOneFeeReceipt = async (req, res) => {
         .populate({
           path: "fee_structure",
           select: "total_admission_fees",
+        })
+        .populate({
+          path: "applicable_card",
         });
     }
 
-    var new_format = receipt?.student?.active_fee_heads?.filter((ref) => {
-      if (`${ref?.appId}` === `${receipt?.application?._id}`) return ref;
-    });
+    // var new_format = receipt?.fee_heads?.filter((ref) => {
+    //   if (ref?.original_paid > 0) return ref;
+    // });
 
-    receipt.student.active_fee_heads = [...new_format];
+    // receipt.student.active_fee_heads = [...new_format];
+    var excess_obj = {
+      head_name: "Excess Fees",
+            paid_fee: all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee > 0 ? all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee : 0,
+            remain_fee: 0,
+            applicable_fee: 0,
+            fee_structure: all_remain?.fee_structure?._id,
+            original_paid: 0,
+            appId: all_remain?.appId,
+    }
+    if (excess_obj?.paid_fee > 0) {
+      receipt.fee_heads.push(excess_obj)
+    }
+
+    receipt.student.active_fee_heads = [...receipt?.fee_heads];
 
     const obj = {
       message: "Come up with Tea and Snacks",
@@ -6042,6 +6059,82 @@ exports.renderFeeStructureCodeQuery = async (req, res) => {
       i+= 1
     }
     res.status(200).send({ message: "Explore New Fee Structure Code", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderFundsTabSegregationQuery = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const all_receipt = await FeeReceipt.find({ finance: fid })
+    .select("fee_payment_mode fee_payment_amount")
+    var neft = 0
+    var dd = 0
+    var cheque = 0
+    var neb = 0
+    var upi = 0
+    var pg = 0
+    var gs = 0
+
+    var neft_arr = []
+    var dd_arr = []
+    var cheque_arr = []
+    var neb_arr = []
+    var upi_arr = []
+    var pg_arr = []
+    var gs_arr = []
+    for (var val of all_receipt) {
+      if (`${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS") {
+        neft += val?.fee_payment_amount
+        // neft_arr.push(val)
+      }
+      if (`${val?.fee_payment_mode}` === "Demand Draft") {
+        dd += val?.fee_payment_amount
+        // dd_arr.push(val)
+      }
+      if (`${val?.fee_payment_mode}` === "UPI Transfer") {
+        upi += val?.fee_payment_amount
+        // upi_arr.push(val)
+      }
+      if (`${val?.fee_payment_mode}` === "Payment Gateway / Online") {
+        pg += val?.fee_payment_amount
+        // pg_arr.push(val)
+      }
+      if (`${val?.fee_payment_mode}` === "Net Banking") {
+        neb += val?.fee_payment_amount
+        // neb_arr.push(val)
+      }
+      if (`${val?.fee_payment_mode}` === "Cheque") {
+        cheque += val?.fee_payment_amount
+        // cheque_arr.push(val)
+      }
+      if (`${val?.fee_payment_mode}` === "Government/Scholarship") {
+        gs += val?.fee_payment_amount
+        // gs_arr.push(val)
+      }
+    }
+    res.status(200).send({
+      message: "Explore Funds Tab Segregation Query",
+      access: true,
+      neft,
+    dd,
+    cheque,
+    neb,
+    upi,
+    pg,
+    gs,
+    neft_arr,
+    dd_arr,
+    cheque_arr,
+    neb_arr,
+    upi_arr,
+    pg_arr,
+    gs_arr,
+    })
   }
   catch (e) {
     console.log(e)

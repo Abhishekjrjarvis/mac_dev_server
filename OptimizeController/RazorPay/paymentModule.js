@@ -397,6 +397,7 @@ exports.admissionInstituteFunction = async (
       .populate({
         path: "government_card"
       })
+      new_receipt.fee_structure = remaining_fee_lists?.fee_structure
       remaining_fee_lists.fee_receipts.push(new_receipt?._id);
       new_receipt.invoice_count = orderPay?.payment_invoice_number;
       if (remaining_fee_lists?.applicable_card?._id) {

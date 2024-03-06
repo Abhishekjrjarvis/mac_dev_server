@@ -104,9 +104,7 @@ router
 router
   .route("/staff/issued/:lid")
   .patch(catchAsync(libraryController.bookIssueByStaffSideQuery));
-
-
-  router
+router
   .route("/staff/collect/:lid")
   .patch(catchAsync(libraryController.bookColletedByStaffSideQuery));
 
@@ -169,10 +167,9 @@ router
   .patch(catchAsync(libraryController.getLibraryUpdateBookRemarkQuery))
   .delete(catchAsync(libraryController.getLibraryRemoveBookRemarkQuery));
 
-  router
+router
   .route("/moderator/department/books/:mid")
-    .get(catchAsync(libraryController.allBookByModetatorStaffSide));
-  
+  .get(catchAsync(libraryController.allBookByModetatorStaffSide));
 router
   .route("/timing/update/:lid/query")
   .patch(catchAsync(libraryController.getLibraryUpdateTimeQuery));
@@ -187,4 +184,15 @@ router
   .route("/student/total/library/:sid/time")
   .get(catchAsync(libraryController.getStudentTotalLibraryTimeQuery));
 
+router
+  .route("/staff/qr/list/:lid")
+  .patch(catchAsync(libraryController.getAllStaffQrCodeQuery));
+router
+  .route("/student/qr/list/:lid")
+  .patch(catchAsync(libraryController.getAllStudentQrCodeQuery));
+
+  router
+  .route("/export/:lid/entry/logs/query")
+  .patch(catchAsync(libraryController.getAllEntryLogsExport));
 module.exports = router;
+

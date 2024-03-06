@@ -207,6 +207,33 @@ exports.all_access_role_finance = () => {
         appArray: [],
       },
     },
+    OFFLINE_PAYMENT_VERIFICATION_ACCESS: {
+      role: "OFFLINE_PAYMENT_VERIFICATION_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["FEE RECEIPT REQUEST", "FEE RECEIPT APPROVE", "FEE RECEIPT REJECT"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    EXCESS_FEE_REFUND_ACCESS: {
+      role: "EXCESS_FEE_REFUND_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["REFUND LIST", "REFUNDED LIST"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    ADMISSION_PENDING_FEES_ACCESS: {
+      role: "ADMISSION_PENDING_FEES_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["COLLECT PENDING FEES", "EXEMPT PENDING FEES"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
   };
   return access_role_finance;
 };

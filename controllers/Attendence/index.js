@@ -4189,15 +4189,17 @@ exports.getInstituteStaffMarkExcelQuery = async (req, res) => {
     currentDate.setHours(currentDate.getHours() + 5);
     currentDate.setMinutes(currentDate.getMinutes() + 30);
     const currentDateLocalFormat = currentDate.toISOString().split("-");
-    const day =
+    var day =
       +currentDateLocalFormat[2].split("T")[0] > 9
         ? +currentDateLocalFormat[2].split("T")[0]
         : `0${+currentDateLocalFormat[2].split("T")[0]}`;
-    const month =
+    var month =
       +currentDateLocalFormat[1] > 9
         ? +currentDateLocalFormat[1]
         : `0${+currentDateLocalFormat[1]}`;
     const year = +currentDateLocalFormat[0];
+    // month = `02`
+    // day = `29`
     regularexp = new RegExp(`${month}\/${year}$`);
     const staff = await Staff.find({
       institute: { $eq: `${id}` },

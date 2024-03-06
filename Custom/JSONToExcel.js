@@ -8,6 +8,8 @@ const NewApplication = require("../models/Admission/NewApplication");
 const { uploadExcelFile } = require("../S3Configuration");
 const RePay = require("../models/Return/RePay");
 const Library = require("../models/Library/Library");
+const DayBook = require("../models/Finance/DayBook");
+const { custom_date_time_reverse } = require("../helper/dayTimer");
 
 
 exports.json_to_excel_query = async (
@@ -158,6 +160,7 @@ exports.fee_heads_receipt_json_to_excel_query = async (
     });
     ins_admin.export_collection_count += 1;
     await ins_admin.save();
+    return results
   } catch (e) {
     console.log(e);
   }
@@ -573,13 +576,88 @@ exports.json_to_excel_timetable_export_query = async (
     xlsx.utils.book_append_sheet(
       real_book,
       real_sheet,
-      `${s_name[0]} Timetable List`
+      `${s_name?.[0]} Timetable List`
     );
-    var name = `${s_name[0]}-timetable-${new Date().getHours()}-${new Date().getMinutes()}`;
+    var name = `${s_name?.[0]}-timetable-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
     const results = await uploadExcelFile(`${name}.xlsx`);
     return results
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.json_to_excel_non_applicable_fees_export_query = async (
+  category,
+  data_query,
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(
+      real_book,
+      real_sheet,
+      `${category} Non Applicable Fees List`
+    );
+    var name = `${category}-Non-Applicable-Fees-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+    return results
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.json_to_excel_deposit_export_query = async (
+  flow,
+  data_query,
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(
+      real_book,
+      real_sheet,
+      `${flow} List`
+    );
+    var name = `${flow}-List-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+    return results
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.fee_heads_receipt_json_to_excel_daybook_query = async (
+  data_query,
+  dbid,
+  status
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+ var date = custom_date_time_reverse(1)
+    xlsx.utils.book_append_sheet(
+      real_book,
+      real_sheet,
+      `${date} DayBook`
+    );
+    var name = `${date}-DayBook-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const db = await DayBook.findById({ _id: dbid });
+    db.db_file = results;
+    db.db_status = "GENERATED"
+    db.db_file_type = `${status}`
+    await db.save();
   } catch (e) {
     console.log(e);
   }

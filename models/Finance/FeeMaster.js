@@ -54,6 +54,12 @@ const feeMasterSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  deleted_student: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ]
 });
 
 module.exports = mongoose.model("FeeMaster", feeMasterSchema);

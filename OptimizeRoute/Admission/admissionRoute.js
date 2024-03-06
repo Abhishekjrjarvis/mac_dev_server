@@ -604,8 +604,13 @@ router.post(
 router.patch("/all/order", catchAsync(Admission.renderAllOrderQuery));
 
 router.patch(
-  "/student/payment/:id",
+  "/student/payment/query",
   catchAsync(Admission.renderFindStudentReceiptQuery)
+);
+
+router.patch(
+  "/student/payment/heads/query",
+  catchAsync(Admission.renderStudentHeadsQuery)
 );
 
 router.patch("/excel/bug", catchAsync(Admission.renderExcelBugQuery));
@@ -740,6 +745,23 @@ router
   .route("/all/fee/heads/move/query")
   .patch(catchAsync(Admission.renderFeeHeadsMoveGovernmentCardUpdateQuery));
 
+  router
+  .route("/remove/tta/query")
+    .patch(catchAsync(Admission.removeTTOAQuery));
+  
+    router
+  .route("/set/receipt/tta/query")
+      .patch(catchAsync(Admission.setFeeStructureToFeeReceiptAQuery));
+  
+      router.patch(
+        "/student/deposit/query",
+        catchAsync(Admission.renderDepositQuery)
+      );
+
+      router.patch(
+        "/student/deposit/to/zero/query",
+        catchAsync(Admission.renderDepositToZeroQuery)
+      );
 router
   .route("/:aid/all/cancel/app/query")
   .get(catchAsync(Admission.renderAllCancelAppsQuery));

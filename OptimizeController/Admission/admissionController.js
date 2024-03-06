@@ -2132,6 +2132,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     const notify = new StudentNotification({});
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
+    new_receipt.fee_structure = new_remainFee?.fee_structure
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     new_receipt.application = apply?._id;
     new_receipt.receipt_generated_from = "BY_ADMISSION";
@@ -2229,7 +2230,8 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           // New Logic
         } else {
           console.log("Enter");
-          await set_fee_head_query(student, price, apply, new_receipt);
+          await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+          // await set_fee_head_query(student, price, apply, new_receipt);
           console.log("Exit");
         }
         apply.confirmedApplication.push({
@@ -2487,6 +2489,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
       const all_remain_fee_list = await RemainingList.findOne({
         $and: [{ fee_structure: struct }, { student: student?._id}]
       });
+      new_receipt.fee_structure = all_remain_fee_list?.fee_structure
       const nest_app_card = await NestedCard.findById({
         _id: `${all_remain_fee_list?.applicable_card}`
       });
@@ -3439,6 +3442,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     .populate({
       path: "government_card"
     })
+    new_receipt.fee_structure = remaining_fee_lists?.fee_structure
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     var order = new OrderPayment({});
     order.payment_module_type = "Admission Fees";
@@ -3506,9 +3510,10 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         var extra_price = 0
         await nest_card.save()
         if (type === "First Installment") {
-          await set_fee_head_query(student, price, apply, new_receipt);
+          await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt);
         } else {
-          await update_fee_head_query(student, price, apply, new_receipt);
+          await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+          // await update_fee_head_query(student, price, apply, new_receipt);
         }
         if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
           await exempt_installment(
@@ -3751,6 +3756,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     const remaining_fee_lists = await RemainingList.findById({
       _id: rid
     });
+    new_receipt.fee_structure = remaining_fee_lists?.fee_structure
     if (remaining_fee_lists?.government_card) {
       var nest_gov = await NestedCard.findById({ _id: `${remaining_fee_lists?.government_card}` })
     }
@@ -4114,7 +4120,8 @@ const request_mode_query_by_student = async (
     // await set_fee_head_query(student, price, apply);
     if (new_receipt?.fee_payment_mode === "Government/Scholarship") {
     } else {
-      await update_fee_head_query(student, price, apply, new_receipt);
+      await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+      // await update_fee_head_query(student, price, apply, new_receipt);
     }
     if (remaining_fee_lists) {
       await lookup_applicable_grant(
@@ -5964,7 +5971,8 @@ exports.renderOneReceiptStatus = async (req, res) => {
       if (one_receipt?.fee_payment_mode === "Government/Scholarship") {
         // New Logic
       } else {
-        await set_fee_head_query(student, price, one_app, one_receipt);
+        await set_fee_head_query_redesign(student, one_receipt?.fee_payment_amount, one_app?._id, one_receipt)
+        // await set_fee_head_query(student, price, one_app, one_receipt);
       }
       if (is_install) {
         one_app.confirmedApplication.push({
@@ -6754,7 +6762,8 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     })
       .populate({
       path: "applicable_card"
-    })
+      })
+      new_receipt.fee_structure = remaining_fee_lists?.fee_structure
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     if (req?.body?.fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
@@ -7783,6 +7792,22 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         }
         else {
           val.remainAmount = nest_app?.remaining_fee > 0 ? nest_app?.remaining_fee : 0
+          if (val.remainAmount <= 0) {
+            nest_app?.remaining_array.pull(val?._id)
+          }
+          if (nest_app?.remaining_fee > 0 && val) {
+            
+          }
+          else {
+            nest_app.remaining_array.push({
+              status: "Not Paid",
+              remainAmount: nest_app?.remaining_fee,
+              appId: one_remain_list?.appId,
+              instituteId: one_remain_list?.institute,
+              isEnable: true,
+              installmentValue: "Installment Remain"
+            })
+          }
         }
       }
       await nest_app.save()
@@ -7797,6 +7822,22 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         }
         else {
           val.remainAmount = nest_gov?.remaining_fee > 0 ? nest_gov?.remaining_fee : 0
+          if (val.remainAmount <= 0) {
+            nest_gov?.remaining_array.pull(val?._id)
+          }
+          if (nest_gov?.remaining_fee > 0 && val) {
+            
+          }
+          else {
+            nest_gov.remaining_array.push({
+              status: "Not Paid",
+              remainAmount: nest_gov?.remaining_fee,
+              appId: one_remain_list?.appId,
+              instituteId: one_remain_list?.institute,
+              isEnable: true,
+              installmentValue: "Installment Remain"
+            })
+          }
         }
       }
       await nest_gov.save()
@@ -7935,7 +7976,8 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         }
         const remaining_fee_lists = await RemainingList.findOne({
           $and: [{ student: student?._id }, { appId: apply?._id }],
-        });
+        })
+        new_receipt.fee_structure = remaining_fee_lists?.fee_structure
         remaining_fee_lists.fee_receipts.push(new_receipt?._id);
         if (req?.body?.fee_payment_mode === "Government/Scholarship") {
           finance.government_receipt.push(new_receipt?._id);
@@ -8061,7 +8103,8 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         // await set_fee_head_query(student, price, apply);
         if (req?.body?.fee_payment_mode === "Government/Scholarship") {
         } else {
-          await update_fee_head_query(student, price, apply, new_receipt);
+          await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+          // await update_fee_head_query(student, price, apply, new_receipt);
         }
         await lookup_applicable_grant(
           req?.body?.fee_payment_mode,
@@ -8262,6 +8305,7 @@ const auto_scholar_query = async (
     new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP"
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findById({ _id: rcid });
+    new_receipt.fee_structure = remaining_fee_lists?.fee_structure
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     remaining_fee_lists.remark = remaining_fee_lists?.remark ? `${remaining_fee_lists.remark} ${remark_query}` : `${remark_query}`
     new_receipt.txn_id = txn_id ?? ""
@@ -8760,6 +8804,7 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
       new_receipt.receipt_status = receipt_status
         ? receipt_status
         : "Already Generated";
+        new_receipt.fee_structure = valid_remain_list?.fee_structure
       const notify = new StudentNotification({});
       var order = new OrderPayment({});
       order.payment_module_type = "Admission Fees";
@@ -8802,7 +8847,8 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
         });
         // console.log("Card 2", card_2)
         if (type === "First Installment") {
-          await set_fee_head_query(student, price, apply, new_receipt);
+          await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+          // await set_fee_head_query(student, price, apply, new_receipt);
           student.paidFeeList.push({
             paidAmount: price,
             appId: apply?._id,
@@ -8847,7 +8893,8 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
             await Promise.all([classes.save(), batch.save(), depart.save()]);
           }
         } else {
-          await update_fee_head_query(student, price, apply, new_receipt);
+          await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+          // await update_fee_head_query(student, price, apply, new_receipt);
           for (var match of student?.paidFeeList) {
             if (`${match.appId}` === `${apply._id}`) {
               match.paidAmount += price;
@@ -9089,6 +9136,7 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     const valid_remain_list = await RemainingList.findById({
       _id: rid,
     });
+    new_receipt.fee_structure = valid_remain_list?.fee_structure
     valid_remain_list.fee_receipts.push(new_receipt?._id);
     if (req?.body?.fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
@@ -9196,7 +9244,8 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
           return val;
       });
       if (type === "First Installment") {
-        await set_fee_head_query(student, price, apply, new_receipt);
+        await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+        // await set_fee_head_query(student, price, apply, new_receipt);
         student.paidFeeList.push({
           paidAmount: price,
           appId: apply?._id,
@@ -9241,7 +9290,8 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
           await Promise.all([classes.save(), batch.save(), depart.save()]);
         }
       } else {
-        await update_fee_head_query(student, price, apply, new_receipt);
+        await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+        // await update_fee_head_query(student, price, apply, new_receipt);
         for (var match of student?.paidFeeList) {
           if (`${match.appId}` === `${apply._id}`) {
             match.paidAmount += price;
@@ -12110,6 +12160,7 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
       const all_remain_fee_list = await RemainingList.findOne({
         $and: [{ fee_structure: struct }, { student: student?._id}]
       });
+      new_receipt.fee_structure = all_remain_fee_list?.fee_structure
       const nest_app_card = await NestedCard.findById({
         _id: `${all_remain_fee_list?.applicable_card}`
       });

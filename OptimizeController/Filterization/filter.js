@@ -7427,10 +7427,12 @@ exports.renderCancelExportQuery = async (req, res) => {
             });
           }
         }
-        head_array.push({
-          HeadsName: "Cancellation & Refund",
-          PaidHeadFees: ref?.fee_payment_amount,
-        })
+        if (`${val?.appId}` === `${ref?.application?._id}`) {
+          head_array.push({
+            HeadsName: "Cancellation & Refund Charges",
+            PaidHeadFees: remain_list?.applicable_card?.paid_fee - ref?.fee_payment_amount,
+          })
+        }
         if (ref?.fee_heads?.length > 0) {
           var result = await buildStructureObject(head_array);
         }

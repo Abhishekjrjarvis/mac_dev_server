@@ -241,6 +241,6 @@ router.patch(
 
 router.get("/:fid/receipt/to/daybook", Filter.renderAllDayBookReceipt);
 
-router.get("/:fid/payment/by/daybook", Filter.renderAllDayBookPayment);
+router.get("/:fid/payment/to/daybook", Filter.renderAllDayBookPayment);
 
 module.exports = router;

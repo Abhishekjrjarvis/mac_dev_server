@@ -47,6 +47,16 @@ const meetingSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  creation_status: {
+    type: String,
+    default: "NORMAL"
+  },
+  meeting_time: {
+    type: String
+  },
+  meeting_date: {
+    type: String
+  }
 });
 
 module.exports = mongoose.model("Meeting", meetingSchema);

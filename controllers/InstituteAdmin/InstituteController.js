@@ -1334,10 +1334,10 @@ exports.retrievePendingStaffList = async (req, res) => {
 exports.retrieveApproveStaffList = async (req, res) => {
   try {
     var { id } = req.params;
-    if (req.query.limit) {
-      const page = req.query.page ? parseInt(req.query.page) : 1;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
       const skip = (page - 1) * limit;
+    if (req.query.limit) {
       const staff_ins = await InstituteAdmin.findById({ _id: id }).select(
         "ApproveStaff insName"
       )

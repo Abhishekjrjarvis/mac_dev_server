@@ -85,4 +85,8 @@ router.get("/one/meet/:meid/query", catchAsync(Mentor.renderOneMeetDetail));
 
 router.post("/all/mentor/add/:did/query", catchAsync(Mentor.renderAllMentorAddQuery));
 
+router.patch("/edit/one/:meid/meeting/query", catchAsync(Mentor.renderEditOneMeetingQuery));
+
+router.post("/schedule/meeting/query", catchAsync(Mentor.renderScheduleMeetingQuery));
+
 module.exports = router;

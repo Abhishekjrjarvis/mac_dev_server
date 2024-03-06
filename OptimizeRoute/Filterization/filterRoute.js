@@ -239,4 +239,8 @@ router.patch(
   catchAsync(Filter.renderClassWiseQuery)
 );
 
+// router.get("/:fid/receipt/to/daybook", Filter.renderDayBookReceipt);
+
+// router.get("/:fid/payment/by/daybook", Filter.renderDayBookPayment);
+
 module.exports = router;

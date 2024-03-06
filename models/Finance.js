@@ -732,6 +732,16 @@ const financeSchema = new mongoose.Schema(
         feeId: { type: String },
       },
     ],
+    day_book: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "DayBook"
+      }
+    ],
+    day_book_count: {
+      type: Number,
+      default: 0
+    }
   },
   { timestamps: true }
 );

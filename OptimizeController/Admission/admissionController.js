@@ -10839,28 +10839,44 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
       var nest_app_card = await NestedCard.findById({ _id: `${remain_list?.applicable_card}` })
       var shift_num = 0
       for (var val of nest_gov_card?.remaining_array) {
-        if (`${val?.status}` === "Not Paid") {
-          if (price <= val?.remainAmount) {
-            val.remainAmount = val.remainAmount - price == 0 ? val.remainAmount : val.remainAmount - price
-          }
-          shift_num += price
-          if (val.remainAmount - price == 0) {
-            val.status = "Paid" 
-          }
-          else if (val.remainAmount > 0) {
-            val.status = "Not Paid" 
-          }
-          else {
-            val.status = "Paid"
-          }
-          val.revert_status = "Government Fees Shifted To Applicable Fees"
-          if (nest_gov_card?.remaining_fee >= price) {
-            nest_gov_card.remaining_fee -= price
-          }
-          if (nest_gov_card?.applicable_fee >= price) {
-            nest_gov_card.applicable_fee -= price
+        if (price && price > 0) {
+          if (`${val?.status}` === "Not Paid") {
+            if (price <= val?.remainAmount) {
+              val.remainAmount = val.remainAmount - price == 0 ? val.remainAmount : val.remainAmount - price
+            }
+            shift_num += price
+            if (val.remainAmount - price == 0) {
+              val.status = "Paid"
+            }
+            else if (val.remainAmount > 0) {
+              val.status = "Not Paid"
+            }
+            else {
+              val.status = "Paid"
+            }
+            val.revert_status = "Government Fees Shifted To Applicable Fees"
+            if (nest_gov_card?.remaining_fee >= price) {
+              nest_gov_card.remaining_fee -= price
+            }
+            if (nest_gov_card?.applicable_fee >= price) {
+              nest_gov_card.applicable_fee -= price
+            }
           }
         }
+        else {
+          if (`${val?.status}` === "Not Paid") {
+            shift_num += val?.remainAmount
+            val.status = "Paid"
+            val.revert_status = "Government Fees Shifted To Applicable Fees"
+            if (nest_gov_card?.remaining_fee >= val?.remainAmount) {
+              nest_gov_card.remaining_fee -= val?.remainAmount
+            }
+            if (nest_gov_card?.applicable_fee >= val?.remainAmount) {
+              nest_gov_card.applicable_fee -= val?.remainAmount
+            }
+          }
+        }
+        
       }
       if (nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.status === "Not Paid") {
         nest_app_card.remaining_array[nest_app_card?.remaining_array?.length -  1].component.app = nest_app_card.remaining_array[nest_app_card?.remaining_array?.length -  1].remainAmount
@@ -11006,7 +11022,7 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
         }
         nest_app_card.applicable_fee += shift_num
       }
-      // await Promise.all([ nest_gov_card.save(), nest_app_card.save(), remain_list.save() ])
+      await Promise.all([ nest_gov_card.save(), nest_app_card.save(), remain_list.save() ])
     }
     res.status(200).send({ message: "Explore New Shifted Card Back To Applicable Fees Section", access: true, nest_app_card, nest_gov_card})
   }
@@ -12389,6 +12405,33 @@ exports.renderAllCancelAppsQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderAllCancelAppsSequenceQuery = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    if (!aid) return res.status(200).send({ message: "Bug" })
+    var nums = []
+    const ads_admin = await Admission.findById({ _id: aid })
+      .select("cancel_admission institute")
+    
+    const ins = await InstituteAdmin.findById({ _id: req?.query?.id })
+      .select("ApproveStudent")
+    var i = 0
+    for (var val of ads_admin?.cancel_admission) {
+      if (ins?.ApproveStudent?.includes(`${val?.student}`)) {
+        nums.push(val?.student)
+        console.log(i)
+        i+= 1
+      }
+    }
+
+    const all_student = await Student.find({ _id: { $in: nums } })
+    res.status(200).send({ message: "Explore Mismatch Query", all_student})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
 
 exports.renderMultipleInstallmentQuery = async (req, res) => {
   try {

@@ -4198,8 +4198,8 @@ exports.getInstituteStaffMarkExcelQuery = async (req, res) => {
         ? +currentDateLocalFormat[1]
         : `0${+currentDateLocalFormat[1]}`;
     const year = +currentDateLocalFormat[0];
-    month = `02`
-    day = `29`
+    // month = `02`
+    // day = `29`
     regularexp = new RegExp(`${month}\/${year}$`);
     const staff = await Staff.find({
       institute: { $eq: `${id}` },

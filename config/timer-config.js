@@ -1,4 +1,5 @@
 const { reset_receipt } = require("../Functions/protectReceipt");
+const { renderDayBookReceipt, renderDayBookPayment } = require("../OptimizeController/Filterization/filter");
 const {
   check_poll_status,
   election_vote_day,
@@ -38,6 +39,12 @@ exports.timerFunction = () => {
   }, 86400);
   setInterval(async () => {
     await outstanding_reminder_disable_query();
+  }, 86400000);
+  setInterval(async () => {
+    await renderDayBookReceipt();
+  }, 86400000);
+  setInterval(async () => {
+    await renderDayBookPayment();
   }, 86400000);
   // setInterval(async () => {
   //   await renderFindReceiptQuery();

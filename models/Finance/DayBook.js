@@ -21,6 +21,10 @@ const dayBookSchema = new mongoose.Schema({
     },
     db_file_type: {
         type: String
+    },
+    db_amount: {
+        type: Number,
+        default: 0
     }
 })
 

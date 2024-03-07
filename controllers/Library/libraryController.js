@@ -3286,3 +3286,70 @@ exports.getAllEntryLogsExport = async (req, res) => {
   }
 };
 
+
+exports.getAllBookReviewExport = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    const { from, to } = req.query;
+
+    if (!lid || !from || !to) throw "Please send library id to perform task";
+    const gte_Date = new Date(from);
+    const lte_Date = new Date(to);
+    lte_Date.setDate(lte_Date.getDate() + 1);
+    const book_review = await LibraryBookRemark.find({
+      $and: [
+        {
+          library: { $eq: lid },
+        },
+        {
+          created_at: { $gte: gte_Date, $lte: lte_Date },
+        },
+      ],
+    })
+      .populate({
+        path: "student book",
+        select:
+          "studentFirstName studentMiddleName studentLastName bookName bookStatus author accession_number edition",
+      })
+      .select("created_at description rating");
+
+    res.status(200).send({
+      message: "Generating excel all book review for library",
+    });
+    const excel_list = [];
+    for (let exc of book_review) {
+      excel_list.push({
+        "Student Name": `${exc?.student?.studentFirstName} ${
+          exc?.student?.studentMiddleName
+            ? `${exc?.student?.studentMiddleName} `
+            : " "
+        }${exc?.student?.studentLastName}`,
+        "Book Name": exc?.book?.bookName ?? "#NA",
+        "Accession Number": exc?.book?.accession_number ?? "#NA",
+        Author: exc?.book?.author ?? "#NA",
+        Mode: exc?.book?.bookStatus ?? "#NA",
+        Edition: exc?.book?.edition,
+        Date: moment(exc?.created_at).format("DD/MM/yyyy"),
+        Description: exc?.description,
+        Rating: exc?.rating,
+      });
+    }
+    // res.status(200).send({
+    //   message: "Generating excel all book review for library",
+    //   excel_list,
+    // });
+    if (excel_list?.length > 0)
+      await library_json_to_excel(
+        lid,
+        excel_list,
+        "Book Review",
+        "LIBRARY_BOOK_REVIEW",
+        "book-review"
+      );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+

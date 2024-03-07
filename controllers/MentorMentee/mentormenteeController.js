@@ -15,6 +15,8 @@ const { nested_document_limit } = require("../../helper/databaseFunction");
 const moment = require("moment");
 const { handle_undefined } = require("../../Handler/customError");
 const Class = require("../../models/Class");
+const { mentor_json_to_excel } = require("../../Custom/JSONToExcel");
+const RemainingList = require("../../models/Admission/RemainingList");
 
 exports.renderNewMentorQuery = async (req, res) => {
   try {
@@ -1332,6 +1334,443 @@ exports.renderScheduleMeetingQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+
+// for mentor export
+
+exports.getAllExcelOneMentorQuery = async (req, res) => {
+  try {
+    const { mid } = req.params;
+    if (!mid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    if (!lid) throw "Please send library id to perform task";
+    const mentor = await Mentor.findById(lid)
+      .select("export_collection")
+      .lean()
+      .exec();
+    if (mentor?.export_collection?.length > 0) {
+      let sort_list = mentor?.export_collection?.sort(
+        (a, b) => b?.created_at - a?.created_at
+      );
+      res.status(200).send({
+        message: "ALl Mentor Export list",
+        excel_arr: sort_list,
+      });
+    } else {
+      res.status(200).send({
+        message: "ALl Mentor Export list",
+        excel_arr: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getOneMentorAllMenteeExport = async (req, res) => {
+  try {
+    const { mid } = req.params;
+    if (!mid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const mentor = await Mentor.findById(mid);
+    res.status(200).send({
+      message: "Generating excel all mentee list for mentor",
+    });
+    const valid_all_students = await Student.find({
+      _id: { $in: mentor?.mentees ?? [] },
+    })
+      .populate({
+        path: "department",
+        select: "dName",
+      })
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName",
+      })
+      .populate({
+        path: "fee_structure hostel_fee_structure",
+        select:
+          "unique_structure_name applicable_fees total_admission_fees category_master batch_master class_master",
+        populate: {
+          path: "category_master batch_master class_master",
+          select: "category_name batchName className",
+        },
+      });
+
+    const excel_list = [];
+    for (var ref of valid_all_students) {
+      var struct = ref?.fee_structure
+        ? ref?.fee_structure?._id
+        : ref?.hostel_fee_structure
+        ? ref?.hostel_fee_structure?._id
+        : "";
+      var valid_card = await RemainingList.find({
+        $and: [{ student: `${ref?._id}` }],
+      }).populate({
+        path: "fee_structure",
+      });
+      var pending = 0;
+      var paid = 0;
+      var applicable_pending = 0;
+      for (var ele of valid_card) {
+        pending += ele?.remaining_fee;
+        paid += ele?.paid_fee;
+        applicable_pending +=
+          ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+            ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+            : 0;
+      }
+      if (struct) {
+        var currentPaid = 0;
+        var currentRemain = 0;
+        var currentApplicableRemaining = 0;
+        var valid_card = await RemainingList.findOne({
+          $and: [{ fee_structure: `${struct}` }, { student: `${ref?._id}` }],
+        }).populate({
+          path: "fee_structure",
+        });
+        currentPaid += valid_card?.paid_fee;
+        currentRemain += valid_card?.remaining_fee;
+        currentApplicableRemaining +=
+          valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee > 0
+            ? valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee
+            : 0;
+      }
+      const buildStructureObject = async (arr) => {
+        var obj = {};
+        for (let i = 0; i < arr.length; i++) {
+          const { BatchName, Fees } = arr[i];
+          obj[BatchName] = Fees;
+        }
+        return obj;
+      };
+      var all_remain = await RemainingList.find({
+        $and: [{ student: ref?._id }],
+      })
+        .populate({
+          path: "fee_structure",
+          populate: {
+            path: "batch_master",
+          },
+        })
+        .populate({
+          path: "appId",
+        });
+
+      var pusher = [];
+      for (var query of all_remain) {
+        pusher.push({
+          BatchName: `${query?.fee_structure?.batch_master?.batchName}-PaidFees`,
+          Fees: query?.paid_fee,
+        });
+        pusher.push({
+          BatchName: `${query?.fee_structure?.batch_master?.batchName}-RemainingFees`,
+          Fees: query?.remaining_fee,
+        });
+        pusher.push({
+          BatchName: `${query?.fee_structure?.batch_master?.batchName}-ApplicableRemainingFees`,
+          Fees:
+            query?.fee_structure?.applicable_fees - query?.paid_fee > 0
+              ? query?.fee_structure?.applicable_fees - query?.paid_fee
+              : 0,
+        });
+        pusher.push({
+          BatchName: `${query?.fee_structure?.batch_master?.batchName}-Remark`,
+          Fees: query?.remark,
+        });
+      }
+      if (pusher?.length > 0) {
+        var result = await buildStructureObject(pusher);
+      }
+      excel_list.push({
+        GRNO: ref?.studentGRNO ?? "#NA",
+        Name:
+          `${ref?.studentFirstName} ${
+            ref?.studentMiddleName ? ref?.studentMiddleName : ""
+          } ${ref?.studentLastName}` ?? ref?.valid_full_name,
+        DOB: ref?.studentDOB ?? "#NA",
+        Gender: ref?.studentGender ?? "#NA",
+        Caste: ref?.studentCast ?? "#NA",
+        Religion: ref?.studentReligion ?? "#NA",
+        Nationality: `${ref?.studentNationality}` ?? "#NA",
+        MotherName: `${ref?.studentMotherName}` ?? "#NA",
+        MotherTongue: `${ref?.studentMTongue}` ?? "#NA",
+        CastCategory: `${ref?.studentCastCategory}` ?? "#NA",
+        PreviousSchool: `${ref?.studentPreviousSchool}` ?? "#NA",
+        Address: `${ref?.studentAddress}` ?? "#NA",
+        ParentsName: `${ref?.studentParentsName}` ?? "#NA",
+        ParentsPhoneNumber: `${ref?.studentParentsPhoneNumber}` ?? "#NA",
+        ParentsOccupation: `${ref?.studentParentsOccupation}` ?? "#NA",
+        ParentsIncome: `${ref?.studentParentsAnnualIncom}` ?? "#NA",
+        BloodGroup: `${ref?.student_blood_group}` ?? "#NA",
+        Email: `${ref?.studentEmail}` ?? "#NA",
+        GateScore: `${ref?.student_gate_score}` ?? "#NA",
+        GateYear: `${ref?.student_gate_year}` ?? "#NA",
+        InstituteDegree: `${ref?.student_degree_institute}` ?? "#NA",
+        InstituteDegreeYear: `${ref?.student_degree_year}` ?? "#NA",
+        CPIPercentage: `${ref?.student_percentage_cpi}` ?? "#NA",
+        StudentProgramme: `${ref?.student_programme}` ?? "#NA",
+        StudentBranch: `${ref?.student_branch}` ?? "#NA",
+        SingleSeater: `${ref?.student_single_seater_room}` ?? "#NA",
+        PhysicallyChallenged: `${ref?.student_ph}` ?? "#NA",
+        ProfileCompletion: `${ref?.profile_percentage}` ?? "0",
+        Standard: `${ref?.fee_structure}`
+          ? `${ref?.fee_structure?.class_master?.className}`
+          : `${ref?.hostel_fee_structure}`
+          ? `${ref?.hostel_fee_structure?.class_master?.className}`
+          : "#NA",
+        Batch: `${ref?.fee_structure}`
+          ? `${ref?.fee_structure?.batch_master?.batchName}`
+          : `${ref?.hostel_fee_structure}`
+          ? `${ref?.hostel_fee_structure?.batch_master?.batchName}`
+          : "#NA",
+        FeeStructure: `${ref?.fee_structure}`
+          ? `${ref?.fee_structure?.unique_structure_name}`
+          : `${ref?.hostel_fee_structure}`
+          ? `${ref?.hostel_fee_structure?.unique_structure_name}`
+          : "#NA",
+        ActualFees: `${ref?.fee_structure}`
+          ? `${ref?.fee_structure?.total_admission_fees}`
+          : `${ref?.hostel_fee_structure}`
+          ? `${ref?.hostel_fee_structure?.total_admission_fees}`
+          : "0",
+        ApplicableFees: `${ref?.fee_structure}`
+          ? `${ref?.fee_structure?.applicable_fees}`
+          : `${ref?.hostel_fee_structure}`
+          ? `${ref?.hostel_fee_structure?.applicable_fees}`
+          : "0",
+        CurrentYearPaidFees: currentPaid ?? "0",
+        CurrentYearRemainingFees: currentRemain ?? "0",
+        CurrentYearApplicableRemainingFees: currentApplicableRemaining ?? "0",
+        TotalPaidFees: paid ?? "0",
+        TotalRemainingFees: pending ?? "0",
+        TotalApplicablePending: applicable_pending ?? "0",
+        ...result,
+      });
+      result = [];
+    }
+    if (excel_list?.length > 0)
+      await mentor_json_to_excel(mid, excel_list, "Mentee", "MENTEE", "mentee");
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getOneMentorAttendanceMenteeExport = async (req, res) => {
+  try {
+    const { mid, type } = req.params;
+    const month = req.query.month;
+    const year = req.query.year;
+    if (!mid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const mentor = await Mentor.findById(mid).select("mentees");
+    res.status(200).send({
+      message: "Generating excel all attendance of mentee for mentor",
+    });
+
+    let regularexp = "";
+
+    if (type === "ALL_SUBJECT_SEMESTER") {
+      var classes = await Class.findById(cid)
+        .populate({
+          path: "ApproveStudent",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
+        })
+        .populate({
+          path: "subject",
+          populate: {
+            path: "selected_batch_query",
+          },
+        })
+        .lean()
+        .exec();
+      let mapSubject = [];
+      for (let sub of classes?.subject) {
+        mapSubject.push({
+          subjectName: `${sub?.subjectName} ${
+            sub?.subject_category ? `(${sub?.subject_category})` : ""
+          } ${
+            sub?.selected_batch_query?.batchName
+              ? `(${sub?.selected_batch_query?.batchName})`
+              : ""
+          } ${
+            sub?.subjectOptional === "Optional"
+              ? `(${sub?.subjectOptional})`
+              : ""
+          }`,
+          subjectId: sub?._id,
+        });
+      }
+
+      let students = [];
+      for (let stu of classes?.ApproveStudent) {
+        let obj = {
+          ...stu,
+          subjects: [],
+        };
+        students.push(obj);
+      }
+
+      for (let sub of classes?.subject) {
+        const subjects = await Subject.findById(sub?._id).populate({
+          path: "attendance",
+        });
+
+        for (let stu of students) {
+          let sobj = {
+            subjectName: `${sub?.subjectName} ${
+              sub?.subject_category ? `(${sub?.subject_category})` : ""
+            } ${
+              sub?.selected_batch_query?.batchName
+                ? `(${sub?.selected_batch_query?.batchName})`
+                : ""
+            } ${
+              sub?.subjectOptional === "Optional"
+                ? `(${sub?.subjectOptional})`
+                : ""
+            }`,
+            subjectId: subjects?._id,
+            presentCount: 0,
+            totalCount: 0,
+            totalPercentage: 0,
+          };
+          for (let att of subjects?.attendance) {
+            for (let pre of att?.presentStudent) {
+              if (String(stu._id) === String(pre.student))
+                sobj.presentCount += 1;
+            }
+            sobj.totalCount += 1;
+          }
+          sobj.totalPercentage = (
+            (sobj.presentCount * 100) /
+            sobj.totalCount
+          ).toFixed(2);
+
+          stu.subjects.push(sobj);
+        }
+      }
+    } else if (type === "ALL_SUBJECT_MONTHLY") {
+      regularexp = new RegExp(`\/${month}\/${year}$`);
+
+      var classes = await Class.findById(cid)
+        .populate({
+          path: "ApproveStudent",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
+        })
+        .populate({
+          path: "subject",
+          populate: {
+            path: "selected_batch_query",
+          },
+        })
+        .lean()
+        .exec();
+      let mapSubject = [];
+      for (let sub of classes?.subject) {
+        mapSubject.push({
+          subjectName: `${sub?.subjectName} ${
+            sub?.subject_category ? `(${sub?.subject_category})` : ""
+          } ${
+            sub?.selected_batch_query?.batchName
+              ? `(${sub?.selected_batch_query?.batchName})`
+              : ""
+          } ${
+            sub?.subjectOptional === "Optional"
+              ? `(${sub?.subjectOptional})`
+              : ""
+          }`,
+          subjectId: sub?._id,
+        });
+      }
+
+      let students = [];
+      for (let stu of classes?.ApproveStudent) {
+        let obj = {
+          ...stu,
+          subjects: [],
+        };
+        students.push(obj);
+      }
+
+      for (let sub of classes?.subject) {
+        const subjects = await Subject.findById(sub?._id).populate({
+          path: "attendance",
+          match: {
+            attendDate: { $regex: regularexp },
+          },
+        });
+
+        for (let stu of students) {
+          let sobj = {
+            subjectName: `${sub?.subjectName} ${
+              sub?.subject_category ? `(${sub?.subject_category})` : ""
+            } ${
+              sub?.selected_batch_query?.batchName
+                ? `(${sub?.selected_batch_query?.batchName})`
+                : ""
+            } ${
+              sub?.subjectOptional === "Optional"
+                ? `(${sub?.subjectOptional})`
+                : ""
+            }`,
+            subjectId: subjects?._id,
+            presentCount: 0,
+            totalCount: 0,
+            totalPercentage: 0,
+          };
+          for (let att of subjects?.attendance) {
+            for (let pre of att?.presentStudent) {
+              if (String(stu._id) === String(pre.student))
+                sobj.presentCount += 1;
+            }
+            sobj.totalCount += 1;
+          }
+          sobj.totalPercentage = (
+            (sobj.presentCount * 100) /
+            sobj.totalCount
+          ).toFixed(2);
+
+          stu.subjects.push(sobj);
+        }
+      }
+    } else {
+    }
+    // const excel_list = [];
+    // for (let exc of mentor?.mentees) {
+    //   excel_list.push({
+    //     GRNO: exc?.studentGRNO ?? "#NA",
+    //     Name: `${exc?.studentFirstName} ${
+    //       exc?.studentMiddleName ? `${exc?.studentMiddleName} ` : " "
+    //     }${exc?.studentLastName}`,
+    //   });
+    // }
+    // if (excel_list?.length > 0)
+    //   await mentor_json_to_excel(mid, excel_list, "Mentee", "MENTEE", "mentee");
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
 
 // Rating By Student IS Pending & Display Rating Query
 

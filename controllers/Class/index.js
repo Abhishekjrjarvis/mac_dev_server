@@ -470,3 +470,54 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+
+exports.getClassTabManageQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const { flow } = req.query;
+
+    if (!cid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    if (flow === "Cls_flow") {
+      const cls = await Class.findById(cid);
+      const inst = await InstituteAdmin.findById(cls?.institute).select(
+        "class_tab_manage"
+      );
+      res.status(200).send({
+        message: "Class Tab Manage toggle",
+        tab_manage: inst.class_tab_manage,
+      });
+    } else {
+      const inst = await InstituteAdmin.findById(cid).select(
+        "class_tab_manage"
+      );
+      res.status(200).send({
+        message: "Class Tab Manage toggle",
+        tab_manage: inst.class_tab_manage,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.updateClassTabManageQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    await InstituteAdmin.findByIdAndUpdate(cid, req.body);
+    res.status(200).send({
+      message: "Class Tab Manage toggle updated",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+

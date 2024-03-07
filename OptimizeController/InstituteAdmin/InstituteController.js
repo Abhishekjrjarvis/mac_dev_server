@@ -1356,7 +1356,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
           path: "remainingFeeList",
           select: "paid_fee fee_structure applicable_card government_card",
           populate: {
-            path: "fee_structure applicable_card",
+            path: "fee_structure applicable_card government_card",
           },
         });
       }

@@ -1141,7 +1141,7 @@ exports.renderAllMeetingQuery = async (req, res) => {
           },
         ],
       }).select(
-        "agenda summary discussion created_at mentees_present_count mentees_absent_count meeting_alert department mentor"
+        "agenda summary discussion created_at mentees_present_count mentees_absent_count meeting_alert department creation_status mentor"
       );
     } else {
       var all_meet = await Meeting.find({
@@ -1151,7 +1151,7 @@ exports.renderAllMeetingQuery = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "agenda summary discussion created_at mentees_present_count mentees_absent_count meeting_alert department mentor"
+          "agenda summary discussion created_at mentees_present_count mentees_absent_count meeting_alert department creation_status mentor"
         );
     }
 

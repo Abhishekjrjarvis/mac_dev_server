@@ -2850,7 +2850,21 @@ const installment_remain_government = async (
       }
     }
     else {
-      arg6.remaining_array.push({
+      const filter_student_install = arg6?.remaining_array?.filter((stu) => {
+        if (
+          `${stu.appId}` === `${app_args._id}` &&
+          stu.status === "Not Paid" &&
+          stu.installmentValue === "First Installment"
+        )
+          return stu;
+      });
+      if (filter_student_install?.length > 0) {
+        for (var val of filter_student_install) {
+          val.installmentValue = "Installment Remain"
+          val.remainAmount = val?.remainAmount > amount ? val.remainAmount - amount : amount
+        }
+      }
+      arg6.remaining_array.unshift({
         remainAmount: amount,
         appId: app_args._id,
         status: "Paid",

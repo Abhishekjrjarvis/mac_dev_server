@@ -8076,6 +8076,14 @@ exports.renderAllDayBookReceipt = async (req, res) => {
       .sort("-1")
       .limit(limit)
       .skip(skip)
+      .populate({
+        path: "finance",
+        select: "institute",
+        populate: {
+          path: "institute",
+          select: "insName name photoId insProfilePhoto"
+        }
+    })
     
     if (all_db?.length > 0) {
       res.status(200).send({ message: "Explore All Day Book Receipts Query", access: true, all_db: all_db})
@@ -8100,6 +8108,14 @@ exports.renderAllDayBookPayment = async (req, res) => {
       .sort("-1")
       .limit(limit)
       .skip(skip)
+      .populate({
+        path: "finance",
+        select: "institute",
+        populate: {
+          path: "institute",
+          select: "insName name photoId insProfilePhoto"
+        }
+    })
     
     if (all_db?.length > 0) {
       res.status(200).send({ message: "Explore All Day Book Payments Query", access: true, all_db: all_db})

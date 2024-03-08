@@ -127,6 +127,12 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  UnApprovedStaff: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Staff",
+    },
+  ],
   saveInsPost: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -1243,6 +1249,10 @@ const instituteAdminSchema = new mongoose.Schema({
       default: true,
     },
     setting: {
+      type: Boolean,
+      default: true,
+    },
+    mcq: {
       type: Boolean,
       default: true,
     },

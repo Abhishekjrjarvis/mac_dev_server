@@ -1038,8 +1038,8 @@ const convert_time_format = (data) => {
 
 exports.addTimeTableExcelQuery = async (rows, clsId) => {
   try {
-    console.log("CALL TTE")
     var subject = null;
+    console.log(rows)
     if (rows?.SubjectStatus?.trim() === "Theory") {
       subject = await Subject.findOne({
         $and: [
@@ -1144,7 +1144,6 @@ exports.addTimeTableExcelQuery = async (rows, clsId) => {
         }
       }
     }
-    console.log("CALL EXIT TTE")
   } catch (e) {
     // console.log(e);
   }

@@ -1018,7 +1018,7 @@ exports.generate_excel_to_json_class_time_table_query = async (excel_arr, excel_
         ...obj
       });
     }
-    // console.log(new_data_query)
+    console.log(new_data_query)
     return { chapter_array: new_data_query, value: true };
   } catch (e) {
     console.log("TimeTable Excel Query Not Resolved", e);

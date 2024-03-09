@@ -1084,11 +1084,13 @@ exports.addTimeTableExcelQuery = async (rows, clsId) => {
     }
 
     for (let day of rows?.day_arr) {
+      console.log("DAY ARR")
       const classes = await Class.findById(clsId).populate({
         path: "timetableDayWise",
         match: { day: { $eq: day } },
       });
       if (rows[day] === "#NA") {
+        console.log("DAY")
       } else {
         let time_split = [];
         if (rows[day]?.includes("-")) time_split = rows[day]?.split("-");

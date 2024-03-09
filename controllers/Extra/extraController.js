@@ -53,6 +53,7 @@ const {
   generate_excel_to_json_class_query,
   generate_excel_to_json_subject_query,
   generate_excel_to_json_attendence_query,
+  generate_excel_to_json_class_time_table_query,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -114,6 +115,7 @@ const { render_mark_attendence_query } = require("../Attendence");
 const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 const Batch = require("../../models/Batch");
 const StudentMessage = require("../../models/Content/StudentMessage");
+const { addTimeTableExcelQuery } = require("../Timetable/timetableController");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -3871,3 +3873,28 @@ exports.renderShuffledStaffQuery = async(req, res) => {
     console.log(e)
   }
 }
+
+exports.renderExcelToJSONTimeTableQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const { excel_file, excel_count } = req.body;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const is_converted = await generate_excel_to_json_class_time_table_query(excel_file, excel_count);
+    if (is_converted?.value) {
+      // await addTimeTableExcelQuery(is_converted?.chapter_array, cid);
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

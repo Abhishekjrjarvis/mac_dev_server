@@ -1001,3 +1001,144 @@ exports.addDayWiseScheduleAutoQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+
+const convert_time_format = (data) => {
+  let data_string = `${data}`?.trim();
+  let hr =
+    data_string?.length > 3
+      ? `${data_string?.substring(0, 2)}`
+      : `${data_string?.substring(0, 1)}`;
+  let mt =
+    data_string?.length > 3
+      ? `${data_string?.substring(2)}`
+      : `${data_string?.substring(1)}`;
+  let meridian = "Am";
+  if (+hr > 12) {
+    let rt = +hr - 12;
+    hr = rt > 9 ? `${rt}` : `0${rt}`;
+    meridian = "Pm";
+  }
+  return `${hr}:${mt} ${meridian}`;
+};
+
+// let row = {
+//   subjectName: "",
+//   SubjectStatus: "",
+//   SubjectBatch: "",
+//   day_arr: ["Monday", "Tuesday", "Wednesday"],
+//   Monday: "1200-1300",
+//   Tuesday: "1200-1300",
+//   Wednesday: "1200-1300",
+//   Monday: "1200-1300",
+//   Monday: "1200-1300",
+//   Monday: "1200-1300",
+//   Monday: "1200-1300",
+// };
+
+exports.addTimeTableExcelQuery = async (rows, clsId) => {
+  try {
+    var subject = null;
+    if (rows?.SubjectStatus?.trim() === "Theory") {
+      subject = await Subject.findOne({
+        $and: [
+          {
+            class: { $eq: `${clsId}` },
+          },
+          {
+            subjectName: { $eq: `${rows?.Subject?.trim()}` },
+          },
+          {
+            subject_category: { $eq: `${rows?.SubjectStatus?.trim()}` },
+          },
+        ],
+      });
+    } else {
+      let multi_subject = await Subject.find({
+        $and: [
+          {
+            class: { $eq: `${clsId}` },
+          },
+          {
+            subjectName: { $eq: `${rows?.Subject?.trim()}` },
+          },
+          {
+            subject_category: { $eq: `${rows?.SubjectStatus?.trim()}` },
+          },
+        ],
+      }).populate({
+        path: "selected_batch_query",
+        match: {
+          batchName: {
+            $eq: `${rows?.SubjectBatch?.trim()}`,
+          },
+        },
+      });
+      for (let sub of multi_subject ?? []) {
+        if (sub.selected_batch_query) {
+          subject = sub;
+          break;
+        }
+      }
+    }
+
+    for (let day of rows?.day_arr) {
+      const classes = await Class.findById(clsId).populate({
+        path: "timetableDayWise",
+        match: { day: { $eq: day } },
+      });
+      let time_split = [];
+      if (rows[day]?.includes("-")) time_split = rows[day]?.split("-");
+      else if (rows[day]?.includes("to")) time_split = rows[day]?.split("to");
+      else if (rows[day]?.includes(",")) time_split = rows[day]?.split(",");
+      else time_split = [];
+      if (classes.timetableDayWise?.length <= 0) {
+        const timetable = new ClassTimetable({
+          day: day,
+          class: clsId,
+          schedule: [
+            {
+              from: convert_time_format(time_split?.[0]),
+              to: convert_time_format(time_split?.[1]),
+              subject: subject._id,
+              subjectName: subject.subjectName,
+              assignStaff: subject.subjectTeacherName,
+            },
+          ],
+        });
+        classes.timetableDayWise.push(timetable._id);
+        await Promise.all([timetable.save(), classes.save()]);
+      } else {
+        let flag = false;
+        let flagIndex = false;
+        let timet = classes.timetableDayWise[0].schedule;
+        for (let i = 0; i < timet?.length; i++) {
+          if (String(timet[i]._id) === String(sfid)) {
+            flag = true;
+            flagIndex = i;
+            break;
+          }
+        }
+        if (flag) {
+          timet[flagIndex].from = convert_time_format(time_split?.[0]);
+          timet[flagIndex].to = convert_time_format(time_split?.[1]);
+          timet[flagIndex].subject = subject._id;
+          timet[flagIndex].subjectName = subject.subjectName;
+          timet[flagIndex].assignStaff = subject.subjectTeacherName;
+        } else {
+          classes.timetableDayWise[0].schedule.push({
+            from: convert_time_format(time_split?.[0]),
+            to: convert_time_format(time_split?.[1]),
+            subject: subject._id,
+            subjectName: subject.subjectName,
+            assignStaff: subject.subjectTeacherName,
+          });
+        }
+
+        await classes.timetableDayWise[0].save();
+      }
+    }
+  } catch (e) {
+    // console.log(e);
+  }
+};

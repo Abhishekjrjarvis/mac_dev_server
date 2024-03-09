@@ -997,3 +997,24 @@ exports.generate_excel_to_json_accession_query = async (file) => {
   }
 }
 
+exports.generate_excel_to_json_class_time_table_query = async (excel_arr, excel_count) => {
+  try {
+    var new_data_query = [];
+    console.log(excel_arr, excel_count)
+    var obj = {}
+    for (var ref of excel_arr) {
+      for (var val = 0; val < excel_count; val++){
+        if (ref[`key${val}`]) {
+          obj[ref[`key${val}`].db_key] = ref[`key${val}`]?.value
+        }
+      }
+      new_data_query.push({
+        ...obj
+      });
+    }
+    return { chapter_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("Subject Chapter Excel Query Not Resolved", e);
+  }
+};
+

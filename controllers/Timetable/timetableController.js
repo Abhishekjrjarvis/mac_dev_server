@@ -1029,7 +1029,6 @@ const convert_time_format = (data) => {
 exports.addTimeTableExcelQuery = async (rows, clsId) => {
   try {
     var subject = null;
-    console.log(rows)
     if (rows?.SubjectStatus?.trim() === "Theory") {
       subject = await Subject.findOne({
         $and: [
@@ -1073,7 +1072,6 @@ exports.addTimeTableExcelQuery = async (rows, clsId) => {
       }
     }
 
-    console.log("-----SUBJECT-----", subject)
     for (let day of rows?.day_arr) {
       const classes = await Class.findById(clsId).populate({
         path: "timetableDayWise",
@@ -1081,7 +1079,6 @@ exports.addTimeTableExcelQuery = async (rows, clsId) => {
       });
       if (rows[day] === "#NA") {
       } else {
-        console.log("Enter In Else Bo=lock")
         let time_split = [];
         if (rows[day]?.includes("-")) time_split = rows[day]?.split("-");
         else if (rows[day]?.includes("to")) time_split = rows[day]?.split("to");

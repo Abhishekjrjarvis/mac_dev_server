@@ -1001,7 +1001,6 @@ exports.generate_excel_to_json_class_time_table_query = async (excel_arr, excel_
   try {
     var new_data_query = [];
     var week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    // console.log(excel_arr, excel_count)
     var obj = {
       day_arr: []
     }
@@ -1010,7 +1009,12 @@ exports.generate_excel_to_json_class_time_table_query = async (excel_arr, excel_
         if (ref[`key${val}`]) {
           obj[ref[`key${val}`].db_key] = ref[`key${val}`]?.value
           if (week?.includes(ref[`key${val}`]?.excel_key)) {
-            obj.day_arr.push(ref[`key${val}`]?.excel_key) 
+            if (obj.day_arr.includes(ref[`key${val}`]?.excel_key)) {
+              
+            }
+            else {
+              obj.day_arr.push(ref[`key${val}`]?.excel_key) 
+            }
           }
         }
       }
@@ -1018,7 +1022,7 @@ exports.generate_excel_to_json_class_time_table_query = async (excel_arr, excel_
         ...obj
       });
     }
-    console.log(new_data_query)
+    // console.log(new_data_query)
     return { chapter_array: new_data_query, value: true };
   } catch (e) {
     console.log("TimeTable Excel Query Not Resolved", e);

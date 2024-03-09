@@ -85,3 +85,17 @@ const data_set = [
     }
   }
 ]
+
+// let row = {
+//   subjectName: "",
+//   SubjectStatus: "",
+//   SubjectBatch: "",
+//   day_arr: ["Monday", "Tuesday", "Wednesday"],
+//   Monday: "1200-1300",
+//   Tuesday: "1200-1300",
+//   Wednesday: "1200-1300",
+//   Monday: "1200-1300",
+//   Monday: "1200-1300",
+//   Monday: "1200-1300",
+//   Monday: "1200-1300",
+// };

@@ -1019,27 +1019,16 @@ const convert_time_format = (data) => {
     hr = rt > 9 ? `${rt}` : `0${rt}`;
     meridian = "Pm";
   }
+  else if (+hr === 12) {
+    meridian = "Pm";
+  } else {
+  }
   return `${hr}:${mt} ${meridian}`;
 };
-
-// let row = {
-//   subjectName: "",
-//   SubjectStatus: "",
-//   SubjectBatch: "",
-//   day_arr: ["Monday", "Tuesday", "Wednesday"],
-//   Monday: "1200-1300",
-//   Tuesday: "1200-1300",
-//   Wednesday: "1200-1300",
-//   Monday: "1200-1300",
-//   Monday: "1200-1300",
-//   Monday: "1200-1300",
-//   Monday: "1200-1300",
-// };
 
 exports.addTimeTableExcelQuery = async (rows, clsId) => {
   try {
     var subject = null;
-    console.log(rows)
     if (rows?.SubjectStatus?.trim() === "Theory") {
       subject = await Subject.findOne({
         $and: [
@@ -1089,8 +1078,6 @@ exports.addTimeTableExcelQuery = async (rows, clsId) => {
         match: { day: { $eq: day } },
       });
       if (rows[day] === "#NA") {
-        console.log(rows[day])
-        console.log("DAY")
       } else {
         let time_split = [];
         if (rows[day]?.includes("-")) time_split = rows[day]?.split("-");

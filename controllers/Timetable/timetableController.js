@@ -1087,55 +1087,58 @@ exports.addTimeTableExcelQuery = async (rows, clsId) => {
         path: "timetableDayWise",
         match: { day: { $eq: day } },
       });
-      let time_split = [];
-      if (rows[day]?.includes("-")) time_split = rows[day]?.split("-");
-      else if (rows[day]?.includes("to")) time_split = rows[day]?.split("to");
-      else if (rows[day]?.includes(",")) time_split = rows[day]?.split(",");
-      else time_split = [];
-      if (classes.timetableDayWise?.length <= 0) {
-        const timetable = new ClassTimetable({
-          day: day,
-          class: clsId,
-          schedule: [
-            {
+      if (rows[day] === "#NA") {
+      } else {
+        let time_split = [];
+        if (rows[day]?.includes("-")) time_split = rows[day]?.split("-");
+        else if (rows[day]?.includes("to")) time_split = rows[day]?.split("to");
+        else if (rows[day]?.includes(",")) time_split = rows[day]?.split(",");
+        else time_split = [];
+        if (classes.timetableDayWise?.length <= 0) {
+          const timetable = new ClassTimetable({
+            day: day,
+            class: clsId,
+            schedule: [
+              {
+                from: convert_time_format(time_split?.[0]),
+                to: convert_time_format(time_split?.[1]),
+                subject: subject._id,
+                subjectName: subject.subjectName,
+                assignStaff: subject.subjectTeacherName,
+              },
+            ],
+          });
+          classes.timetableDayWise.push(timetable._id);
+          await Promise.all([timetable.save(), classes.save()]);
+        } else {
+          let flag = false;
+          let flagIndex = false;
+          let timet = classes.timetableDayWise[0].schedule;
+          for (let i = 0; i < timet?.length; i++) {
+            if (String(timet[i]._id) === String(sfid)) {
+              flag = true;
+              flagIndex = i;
+              break;
+            }
+          }
+          if (flag) {
+            timet[flagIndex].from = convert_time_format(time_split?.[0]);
+            timet[flagIndex].to = convert_time_format(time_split?.[1]);
+            timet[flagIndex].subject = subject._id;
+            timet[flagIndex].subjectName = subject.subjectName;
+            timet[flagIndex].assignStaff = subject.subjectTeacherName;
+          } else {
+            classes.timetableDayWise[0].schedule.push({
               from: convert_time_format(time_split?.[0]),
               to: convert_time_format(time_split?.[1]),
               subject: subject._id,
               subjectName: subject.subjectName,
               assignStaff: subject.subjectTeacherName,
-            },
-          ],
-        });
-        classes.timetableDayWise.push(timetable._id);
-        await Promise.all([timetable.save(), classes.save()]);
-      } else {
-        let flag = false;
-        let flagIndex = false;
-        let timet = classes.timetableDayWise[0].schedule;
-        for (let i = 0; i < timet?.length; i++) {
-          if (String(timet[i]._id) === String(sfid)) {
-            flag = true;
-            flagIndex = i;
-            break;
+            });
           }
-        }
-        if (flag) {
-          timet[flagIndex].from = convert_time_format(time_split?.[0]);
-          timet[flagIndex].to = convert_time_format(time_split?.[1]);
-          timet[flagIndex].subject = subject._id;
-          timet[flagIndex].subjectName = subject.subjectName;
-          timet[flagIndex].assignStaff = subject.subjectTeacherName;
-        } else {
-          classes.timetableDayWise[0].schedule.push({
-            from: convert_time_format(time_split?.[0]),
-            to: convert_time_format(time_split?.[1]),
-            subject: subject._id,
-            subjectName: subject.subjectName,
-            assignStaff: subject.subjectTeacherName,
-          });
-        }
 
-        await classes.timetableDayWise[0].save();
+          await classes.timetableDayWise[0].save();
+        }
       }
     }
   } catch (e) {

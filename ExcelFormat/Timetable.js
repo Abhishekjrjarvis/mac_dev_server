@@ -49,4 +49,39 @@ let requiredFormat = [
       Sunday: "Sunday",
       isRequired: false,
     },
-  ];
+];
+
+const data_set = [
+  {
+    key0: {
+      value: 'Medicinal Chemistry - III ',
+      fomat_key: 'Subject',
+      excel_key: 'Subject',
+      db_key: 'Subject'
+    },
+    key1: {
+      value: 'Practical',
+      fomat_key: 'SubjectStatus',
+      excel_key: 'SubjectStatus',
+      db_key: 'SubjectStatus'
+    },
+    key2: {
+      value: 'Batch A',
+      fomat_key: 'SubjectBatch',
+      excel_key: 'SubjectBatch',
+      db_key: 'SubjectBatch'
+    },
+    key3: {
+      value: '1200-1300',
+      fomat_key: 'Monday',
+      excel_key: 'Monday',
+      db_key: 'Monday'
+    },
+    key4: {
+      value: '1200-1300',
+      fomat_key: 'Tuesday',
+      excel_key: 'Tuesday',
+      db_key: 'Tuesday'
+    }
+  }
+]

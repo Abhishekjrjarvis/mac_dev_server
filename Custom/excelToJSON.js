@@ -1000,22 +1000,30 @@ exports.generate_excel_to_json_accession_query = async (file) => {
 exports.generate_excel_to_json_class_time_table_query = async (excel_arr, excel_count) => {
   try {
     var new_data_query = [];
-    console.log(excel_arr, excel_count)
-    var obj = {}
+    var week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    // console.log(excel_arr, excel_count)
+    var obj = {
+      day_arr: []
+    }
     for (var ref of excel_arr) {
       for (var val = 0; val < excel_count; val++){
         if (ref[`key${val}`]) {
           obj[ref[`key${val}`].db_key] = ref[`key${val}`]?.value
+          if (week?.includes(ref[`key${val}`]?.excel_key)) {
+            obj.day_arr.push(ref[`key${val}`]?.excel_key) 
+          }
         }
       }
       new_data_query.push({
         ...obj
       });
     }
-    console.log(new_data_query)
+    // console.log(new_data_query)
     return { chapter_array: new_data_query, value: true };
   } catch (e) {
     console.log("TimeTable Excel Query Not Resolved", e);
   }
 };
+
+// console.log(generate_excel_to_json_class_time_table_query(data_set, 5))
 

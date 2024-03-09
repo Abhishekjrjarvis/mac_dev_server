@@ -3890,9 +3890,9 @@ exports.renderExcelToJSONTimeTableQuery = async (req, res) => {
 
     const is_converted = await generate_excel_to_json_class_time_table_query(excel_file, excel_count);
     if (is_converted?.value) {
-      // for (var val of is_converted?.chapter_array) {
-      //   await addTimeTableExcelQuery(val, cid); 
-      // }
+      for (var val of is_converted?.chapter_array) {
+        await addTimeTableExcelQuery(val, cid); 
+      }
     } else {
       console.log("false");
     }

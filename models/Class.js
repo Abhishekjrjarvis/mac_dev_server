@@ -297,6 +297,14 @@ const classSchema = new mongoose.Schema({
       ref: "ClassAttendanceTimeSlot",
     },
   ],
+  updated_timetable_count: {
+    type: Number,
+    default: 0,
+  },
+  not_updated_timetable_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Class = mongoose.model("Class", classSchema);

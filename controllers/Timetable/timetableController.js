@@ -12,6 +12,7 @@ const {
 const { custom_date_time } = require("../../helper/dayTimer");
 const { get_day_wise_sort } = require("./timetableHelper");
 const AttendenceDate = require("../../models/AttendenceDate");
+const User = require("../../models/User");
 // const Student = require("../../models/Student");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
@@ -28,7 +29,7 @@ exports.getDayWiseSchedule = async (req, res) => {
             "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
         },
         select:
-          "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff",
+        "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff schedule.which_lecture",
       })
       .populate({
         path: "timetableDayWise",
@@ -42,7 +43,7 @@ exports.getDayWiseSchedule = async (req, res) => {
           select: "subjectOptional selected_batch_query subject_category",
         },
         select:
-          "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff",
+        "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff schedule.which_lecture",
       })
       .select("timetableDayWise")
       .lean()
@@ -72,11 +73,13 @@ exports.getDayWiseSchedule = async (req, res) => {
   }
 };
 
+
 exports.addDayWiseSchedule = async (req, res) => {
   try {
     if (!req.params.cid || !req.body?.subjectId)
       throw "Please send class id to perform task";
     const { sfid } = req.query;
+    const { isEdit } = req.body;
     const classes = await Class.findById(req.params.cid).populate({
       path: "timetableDayWise",
       match: { day: { $eq: req.body.day } },
@@ -93,35 +96,45 @@ exports.addDayWiseSchedule = async (req, res) => {
             subject: subject._id,
             subjectName: subject.subjectName,
             assignStaff: subject.subjectTeacherName,
+            which_lecture: "1",
           },
         ],
       });
       classes.timetableDayWise.push(timetable._id);
       await Promise.all([timetable.save(), classes.save()]);
     } else {
-      let flag = false;
-      let flagIndex = false;
-      let timet = classes.timetableDayWise[0].schedule;
-      for (let i = 0; i < timet?.length; i++) {
-        if (String(timet[i]._id) === String(sfid)) {
-          flag = true;
-          flagIndex = i;
-          break;
+      if (isEdit) {
+        let flagIndex = "";
+        let timet = classes.timetableDayWise[0].schedule;
+        for (let i = 0; i < timet?.length; i++) {
+          if (String(timet[i]._id) === String(sfid)) {
+            flagIndex = i;
+            break;
+          }
         }
-      }
-      if (flag) {
-        timet[flagIndex].from = req.body.from;
-        timet[flagIndex].to = req.body.to;
-        timet[flagIndex].subject = subject._id;
-        timet[flagIndex].subjectName = subject.subjectName;
-        timet[flagIndex].assignStaff = subject.subjectTeacherName;
+        if (flagIndex) {
+          timet[flagIndex].from = req.body.from;
+          timet[flagIndex].to = req.body.to;
+          timet[flagIndex].subject = subject._id;
+          timet[flagIndex].subjectName = subject.subjectName;
+          timet[flagIndex].assignStaff = subject.subjectTeacherName;
+        }
       } else {
+        let count = 1;
+        let timet = classes.timetableDayWise[0].schedule;
+        for (let i = 0; i < timet?.length; i++) {
+          if (String(timet[i].subject) === String(subject?._id)) {
+            count += 1;
+          }
+        }
+
         classes.timetableDayWise[0].schedule.push({
           from: req.body.from,
           to: req.body.to,
           subject: subject._id,
           subjectName: subject.subjectName,
           assignStaff: subject.subjectTeacherName,
+          which_lecture: `${count}`,
         });
       }
 
@@ -140,6 +153,7 @@ exports.addDayWiseSchedule = async (req, res) => {
     });
   }
 };
+
 
 exports.addDateWiseSchedule = async (req, res) => {
   try {
@@ -512,79 +526,294 @@ exports.getInstituteAllotStaff = async (req, res) => {
   }
 };
 
+
 exports.getStaffSideDateWise = async (req, res) => {
   try {
+    const { flow } = req.query;
     if (!req.params.sid) throw "Please send staff id to perform task";
-    const timetable = await ClassTimetable.find({
-      $or: [
-        { date: { $eq: req.query.date } },
-        { day: { $eq: req.query.status } },
-      ],
-      $and: [
-        {
-          $or: [
-            { "schedule.offStaff": { $eq: req.params.sid } },
-            { "schedule.assignStaff": { $eq: req.params.sid } },
-          ],
-        },
-      ],
-    })
-      .populate({
-        path: "class",
-        select: "className classTitle",
+    var subj = null;
+
+    if (flow === "Dashboard") {
+      const user = await User.findById(req.params.sid);
+      const timetable = await ClassTimetable.find({
+        $or: [
+          { date: { $eq: req.query.date } },
+          { day: { $eq: req.query.status } },
+        ],
+        $and: [
+          {
+            $or: [
+              { "schedule.offStaff": { $in: user?.staff } },
+              { "schedule.assignStaff": { $in: user?.staff } },
+            ],
+          },
+        ],
       })
-      .lean()
-      .exec();
-    const staffSchedlue = [];
-    for (let table of timetable) {
-      for (let sched of table?.schedule) {
-        if (String(sched.assignStaff) === req.params.sid) {
-          const assignment = await Assignment.find({
-            subject: { $eq: sched.subject },
-            dueDate: { $eq: req.query.date },
-          });
-          const assignmentObj = [];
-          for (let assign of assignment) {
-            assignmentObj.push({
-              assignmentName: assign.assignmentName,
-              _id: assign._id,
+        .populate({
+          path: "class",
+          select: "className classTitle",
+        })
+        .lean()
+        .exec();
+
+      var st_id = [];
+      for (let st of user?.staff ?? []) {
+        st_id.push(`${st}`);
+      }
+      const staffSchedlue = [];
+      for (let table of timetable) {
+        for (let sched of table?.schedule) {
+          // if (String(sched.assignStaff) === req.params.sid) {
+          if (st_id?.includes(`${sched.assignStaff}`)) {
+            const assignment = await Assignment.find({
+              subject: { $eq: sched.subject },
+              dueDate: { $eq: req.query.date },
             });
+            const assignmentObj = [];
+            for (let assign of assignment) {
+              assignmentObj.push({
+                assignmentName: assign.assignmentName,
+                _id: assign._id,
+              });
+            }
+            if (sched?.subject) {
+              subj = await Subject.findOne({
+                $and: [
+                  {
+                    _id: sched?.subject,
+                  },
+                  {
+                    subjectStatus: "UnCompleted",
+                  },
+                ],
+              })
+                .populate({
+                  path: "class",
+                  select: "className classTitle classStatus classHeadTitle",
+                  populate: {
+                    path: "batch",
+                    select: "batchName batchStatus",
+                  },
+                })
+                .populate({
+                  path: "selected_batch_query",
+                  select: "batchName batchStatus",
+                })
+                .select(
+                  "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional"
+                );
+              if (subj) {
+                staffSchedlue.push({
+                  _id: table.class._id,
+                  className: table.class.className,
+                  classTitle: table.class.classTitle,
+                  from: sched.from,
+                  subjectName: sched.subjectName,
+                  to: sched.to,
+                  offPeriod: false,
+                  assignment: assignmentObj,
+                  which_lecture: sched?.which_lecture,
+                  subject: subj,
+                  assignStaff: sched?.assignStaff,
+                  offStaff: sched?.offStaff,
+                });
+              }
+            }
+
+            // } else if (String(sched.offStaff) === req.params.sid) {
+          } else if (st_id?.includes(`${sched.offStaff}`)) {
+            if (sched?.subject) {
+              subj = await Subject.findOne({
+                $and: [
+                  {
+                    _id: sched?.subject,
+                  },
+                  {
+                    subjectStatus: "UnCompleted",
+                  },
+                ],
+              })
+                .populate({
+                  path: "class",
+                  select: "className classTitle classStatus classHeadTitle",
+                  populate: {
+                    path: "batch",
+                    select: "batchName batchStatus",
+                  },
+                })
+                .populate({
+                  path: "selected_batch_query",
+                  select: "batchName batchStatus",
+                })
+                .select(
+                  "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional"
+                );
+              if (subj) {
+                staffSchedlue.push({
+                  _id: table.class._id,
+                  className: table.class.className,
+                  classTitle: table.class.classTitle,
+                  from: sched.from,
+                  subjectName: sched.subjectName,
+                  to: sched.to,
+                  offPeriod: true,
+                  assignment: [],
+                  which_lecture: sched?.which_lecture,
+                  subject: subj,
+                  assignStaff: sched?.assignStaff,
+                  offStaff: sched?.offStaff,
+                });
+              }
+            }
+          } else {
           }
-          staffSchedlue.push({
-            _id: table.class._id,
-            className: table.class.className,
-            classTitle: table.class.classTitle,
-            from: sched.from,
-            subjectName: sched.subjectName,
-            to: sched.to,
-            offPeriod: false,
-            assignment: assignmentObj,
-          });
-        } else if (String(sched.offStaff) === req.params.sid) {
-          staffSchedlue.push({
-            _id: table.class._id,
-            className: table.class.className,
-            classTitle: table.class.classTitle,
-            from: sched.from,
-            subjectName: sched.subjectName,
-            to: sched.to,
-            offPeriod: true,
-            assignment: [],
-          });
-        } else {
         }
       }
+      // const staffScheduleEncrypt = await encryptionPayload(staffSchedlue);
+      res.status(200).send({
+        message: "In dashboard Staff side all schedule list",
+        staffSchedlue,
+      });
+    } else {
+      const timetable = await ClassTimetable.find({
+        $or: [
+          { date: { $eq: req.query.date } },
+          { day: { $eq: req.query.status } },
+        ],
+        $and: [
+          {
+            $or: [
+              { "schedule.offStaff": { $eq: req.params.sid } },
+              { "schedule.assignStaff": { $eq: req.params.sid } },
+            ],
+          },
+        ],
+      })
+        .populate({
+          path: "class",
+          select: "className classTitle",
+        })
+        .lean()
+        .exec();
+      const staffSchedlue = [];
+      for (let table of timetable) {
+        for (let sched of table?.schedule) {
+          if (String(sched.assignStaff) === req.params.sid) {
+            const assignment = await Assignment.find({
+              subject: { $eq: sched.subject },
+              dueDate: { $eq: req.query.date },
+            });
+            const assignmentObj = [];
+            for (let assign of assignment) {
+              assignmentObj.push({
+                assignmentName: assign.assignmentName,
+                _id: assign._id,
+              });
+            }
+            if (sched?.subject) {
+              subj = await Subject.findOne({
+                $and: [
+                  {
+                    _id: sched?.subject,
+                  },
+                  {
+                    subjectStatus: "UnCompleted",
+                  },
+                ],
+              })
+                .populate({
+                  path: "class",
+                  select: "className classTitle classStatus classHeadTitle",
+                  populate: {
+                    path: "batch",
+                    select: "batchName batchStatus",
+                  },
+                })
+                .populate({
+                  path: "selected_batch_query",
+                  select: "batchName batchStatus",
+                })
+                .select(
+                  "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional"
+                );
+              if (subj) {
+                staffSchedlue.push({
+                  _id: table.class._id,
+                  className: table.class.className,
+                  classTitle: table.class.classTitle,
+                  from: sched.from,
+                  subjectName: sched.subjectName,
+                  to: sched.to,
+                  offPeriod: false,
+                  assignment: assignmentObj,
+                  which_lecture: sched?.which_lecture,
+                  subject: subj,
+                  assignStaff: sched?.assignStaff,
+                  offStaff: sched?.offStaff,
+                });
+              }
+            }
+          } else if (String(sched.offStaff) === req.params.sid) {
+            if (sched?.subject) {
+              subj = await Subject.findOne({
+                $and: [
+                  {
+                    _id: sched?.subject,
+                  },
+                  {
+                    subjectStatus: "UnCompleted",
+                  },
+                ],
+              })
+                .populate({
+                  path: "class",
+                  select: "className classTitle classStatus classHeadTitle",
+                  populate: {
+                    path: "batch",
+                    select: "batchName batchStatus",
+                  },
+                })
+                .populate({
+                  path: "selected_batch_query",
+                  select: "batchName batchStatus",
+                })
+                .select(
+                  "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional"
+                );
+              if (subj) {
+                staffSchedlue.push({
+                  _id: table.class._id,
+                  className: table.class.className,
+                  classTitle: table.class.classTitle,
+                  from: sched.from,
+                  subjectName: sched.subjectName,
+                  to: sched.to,
+                  offPeriod: true,
+                  assignment: [],
+                  which_lecture: sched?.which_lecture,
+                  subject: subj,
+                  assignStaff: sched?.assignStaff,
+                  offStaff: sched?.offStaff,
+                });
+              }
+            }
+          } else {
+          }
+        }
+      }
+      // const staffScheduleEncrypt = await encryptionPayload(staffSchedlue);
+      res.status(200).send({
+        message: "Staff side all schedule list",
+        staffSchedlue,
+      });
     }
-    // const staffScheduleEncrypt = await encryptionPayload(staffSchedlue);
-    res.status(200).send({
-      message: "Staff side all schedule list",
-      staffSchedlue,
-    });
   } catch (e) {
     res.status(200).send({ message: e });
     // console.log(e);
   }
 };
+
+
 
 exports.getStudentSideDateWise = async (req, res) => {
   try {
@@ -1135,3 +1364,28 @@ exports.addTimeTableExcelQuery = async (rows, clsId) => {
     // console.log(e);
   }
 };
+
+
+exports.insertTimetableDefaultFieldQuery = async (req, res) => {
+  try {
+    const timetable = await ClassTimetable.find({});
+    let i = 0;
+    for (let clt of timetable) {
+      for (let lt of clt?.schedule) {
+        if (lt) {
+          lt.which_lecture = "1";
+          console.log(i);
+          ++i;
+        }
+      }
+      await clt.save();
+    }
+    res.status(200).send({
+      message: "custom field",
+      i,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+

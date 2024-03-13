@@ -3736,6 +3736,7 @@ exports.retrieveNewSubject = async (req, res) => {
       practical_analytic: practical_analytic,
       tutorial_analytic: tutorial_analytic,
       subject_category: subject_category,
+      batch: classes?.batch
     });
     const codess = universal_random_password()
     subject.member_module_unique = `${codess}`

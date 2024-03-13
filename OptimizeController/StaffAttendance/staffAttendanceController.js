@@ -318,6 +318,10 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const Leave = require("../../models/Leave");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const Staff = require("../../models/Staff");
+const Class = require("../../models/Class");
+const Subject = require("../../models/Subject");
+const Department = require("../../models/Department");
+const Batch = require("../../models/Batch");
 const StaffAttendenceDate = require("../../models/StaffAttendenceDate");
 
 exports.staffAttendanceMarkQuery = async (req, res) => {
@@ -332,11 +336,14 @@ exports.staffAttendanceMarkQuery = async (req, res) => {
     const { date, present, absent } = req.body;
     const { m_time } = attendance_today_date();
 
+    let split_date = date?.split("/");
+    const dt = new Date(`${split_date[2]}-${split_date[1]}-${split_date[0]}`);
     const attendance = new StaffAttendenceDate({
       staffAttendDate: date,
       institute: id,
       presentTotal: present?.length,
       absentTotal: absent?.length,
+      staffAttendDateFormat: dt,
     });
 
     await attendance.save();
@@ -384,15 +391,18 @@ exports.staffAttendanceMarkQuery = async (req, res) => {
       notify.notifyCategory = "Staff Absent";
       notify.redirectIndex = 3;
       //
-      invokeMemberTabNotification(
-        "Staff Activity",
-        notify,
-        "Mark Attendence",
-        staff.user._id,
-        staff.user.deviceToken,
-        "Staff",
-        notify
-      );
+      if (staff.user.deviceToken) {
+        invokeMemberTabNotification(
+          "Staff Activity",
+          notify,
+          "Mark Attendence",
+          staff.user._id,
+          staff.user.deviceToken,
+          "Staff",
+          notify
+        );
+      }
+
       await Promise.all([staff.save(), notify.save(), staff.user.save()]);
     }
     await Promise.all([institute.save(), attendance.save()]);
@@ -548,7 +558,7 @@ exports.getStaffAttendanceQuery = async (req, res) => {
 exports.staffAttendanceCalendarQuery = async (req, res) => {
   try {
     const { sid } = req.params;
-    const { month, year } = req.query.date;
+    const { month, year } = req.query;
     if (!sid || !year) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
@@ -686,6 +696,631 @@ exports.staffAttendanceCalendarYearQuery = async (req, res) => {
     res.status(200).send({
       message: "One staff calendar related data.",
       calendar,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.staffTodayAttendanceStatsQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let regularexp = "";
+    let server_date = attendance_today_date("yyyy-MM-DD")?.m_date?.split("-");
+    regularexp = new RegExp(
+      `${server_date[2]}\/${server_date[1]}\/${server_date[0]}$`
+    );
+
+    let obj = {
+      present: 0,
+      absent: 0,
+      leave_with_pay: 0,
+      on_duty_leave: 0,
+      aid: "",
+    };
+    const attendance = await StaffAttendenceDate.findOne({
+      institute: id,
+      staffAttendDate: { $regex: regularexp },
+    });
+    if (attendance) {
+      obj.aid = attendance?._id;
+      obj.present = attendance.presentTotal;
+      obj.absent = attendance.absentTotal;
+    }
+
+    res.status(200).send({
+      message: "Today date staff attendance stats",
+      stats: obj,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.staffTodayAttendanceListStatsQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { page, limit, flow, search } = req.query;
+    if (!aid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = page ? parseInt(page) : 1;
+    const itemPerPage = limit ? parseInt(limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    const attendance = await StaffAttendenceDate.findById(aid);
+    let staff_list = [];
+    if (flow === "Present") {
+      for (let ft of attendance.presentStaff ?? []) {
+        staff_list.push(ft?.staff);
+      }
+    } else if (flow === "Absent") {
+      for (let ft of attendance.absentStaff ?? []) {
+        staff_list.push(ft?.staff);
+      }
+    } else if (flow === "Leave_with_pay") {
+    } else {
+    }
+    var all_staff = [];
+    if (!["", undefined, ""]?.includes(search)) {
+      all_staff = await Staff.find({
+        $and: [
+          {
+            _id: { $in: staff_list },
+          },
+          {
+            $or: [
+              {
+                staffFirstName: { $regex: search, $options: "i" },
+              },
+              { staffMiddleName: { $regex: search, $options: "i" } },
+              { staffLastName: { $regex: search, $options: "i" } },
+              { staffROLLNO: { $regex: search, $options: "i" } },
+            ],
+          },
+        ],
+      }).select(
+        "staffFirstName staffMiddleName staffLastName staffROLLNO photoId staffProfilePhoto"
+      );
+    } else {
+      all_staff = await Staff.find({
+        _id: { $in: staff_list },
+      })
+        .select(
+          "staffFirstName staffMiddleName staffLastName staffROLLNO photoId staffProfilePhoto"
+        )
+        .skip(dropItem)
+        .limit(itemPerPage);
+    }
+
+    res.status(200).send({
+      message: "Today date staff attendance stats List",
+      all_staff: all_staff,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.staffTimetableStatsQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { page, limit, search } = req.query;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = page ? parseInt(page) : 1;
+    const itemPerPage = limit ? parseInt(limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    const department = await Department.find({
+      institute: { $eq: `${id}` },
+    }).select("departmentSelectBatch");
+
+    const batches = [];
+    for (let ft of department) {
+      batches.push(ft?.departmentSelectBatch);
+    }
+    var cls_list = [];
+
+    if (!["", undefined, ""]?.includes(search)) {
+      cls_list = await Class.find({
+        $and: [
+          {
+            batch: { $in: batches },
+          },
+          {
+            $or: [
+              {
+                className: { $regex: search, $options: "i" },
+              },
+              { classTitle: { $regex: search, $options: "i" } },
+            ],
+          },
+        ],
+      })
+        .populate({
+          path: "classTeacher",
+          select:
+            "staffFirstName staffMiddleName staffLastName staffROLLNO photoId staffProfilePhoto",
+        })
+        .select(
+          "className classTitle classTeacher updated_timetable_count not_updated_timetable_count"
+        );
+    } else {
+      cls_list = await Class.find({
+        batch: { $in: batches },
+      })
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .populate({
+          path: "classTeacher",
+          select:
+            "staffFirstName staffMiddleName staffLastName staffROLLNO photoId staffProfilePhoto",
+        })
+        .select(
+          "className classTitle classTeacher updated_timetable_count not_updated_timetable_count"
+        );
+    }
+
+    res.status(200).send({
+      message: "Timetable stats class list",
+      cls_list: cls_list,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.staffTimetableStatsSubjectListQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const { page, limit, search, flow } = req.query;
+    if (!cid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = page ? parseInt(page) : 1;
+    const itemPerPage = limit ? parseInt(limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    const cls = await Class.findById(cid);
+
+    const subjects = cls?.subject ?? [];
+
+    var subject_list = [];
+
+    if (!["", undefined, ""]?.includes(search)) {
+      subject_list = await Subject.find({
+        $and: [
+          {
+            _id: { $in: subjects },
+          },
+          {
+            timetable_update: { $eq: `${flow}` },
+          },
+
+          {
+            $or: [
+              {
+                subjectName: { $regex: search, $options: "i" },
+              },
+            ],
+          },
+        ],
+      })
+        .populate({
+          path: "subjectTeacherName",
+          select:
+            "staffFirstName staffMiddleName staffLastName staffROLLNO photoId staffProfilePhoto",
+        })
+        .select("subjectName subjectTeacherName");
+    } else {
+      subject_list = await Subject.find({
+        $and: [
+          {
+            _id: { $in: subjects },
+          },
+          {
+            timetable_update: { $eq: `${flow}` },
+          },
+        ],
+      })
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .populate({
+          path: "subjectTeacherName",
+          select:
+            "staffFirstName staffMiddleName staffLastName staffROLLNO photoId staffProfilePhoto",
+        })
+        .select("subjectName subjectTeacherName");
+    }
+
+    res.status(200).send({
+      message: "Timetable stats class list",
+      subject_list: subject_list,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.staffTeachingPlanStatsQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { page, limit, search } = req.query;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = page ? parseInt(page) : 1;
+    const itemPerPage = limit ? parseInt(limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    const department = await Department.find({
+      institute: { $eq: `${id}` },
+    }).select("departmentSelectBatch");
+    const bt_id = [];
+    for (let ft of department) {
+      bt_id.push(ft?.departmentSelectBatch);
+    }
+    // const batches = await Batch.find({
+    //   _id: { $in: bt_id },
+    // }).populate({
+    //   path: "classroom",
+    //   select: "subject",
+    // });
+
+    // const sub_list = [];
+    // for (let ft of batches) {
+    //   for (let tt of ft?.classroom) {
+    //     sub_list.push(...tt?.subject);
+    //   }
+    // }
+
+    var all_staff = [];
+
+    if (!["", undefined, ""]?.includes(search)) {
+      all_staff = await Staff.find({
+        $and: [
+          {
+            institute: { $eq: `${id}` },
+          },
+          {
+            $or: [
+              {
+                staffFirstName: { $regex: search, $options: "i" },
+              },
+              { staffMiddleName: { $regex: search, $options: "i" } },
+              { staffLastName: { $regex: search, $options: "i" } },
+              { staffROLLNO: { $regex: search, $options: "i" } },
+            ],
+          },
+        ],
+      })
+        .populate({
+          path: "staffSubject",
+          match: {
+            batch: { $in: bt_id },
+          },
+          select: "teaching_plan",
+        })
+        .select(
+          "staffFirstName staffMiddleName staffLastName staffROLLNO photoId staffProfilePhoto"
+        );
+    } else {
+      all_staff = await Staff.find({
+        $and: [
+          {
+            institute: { $eq: `${id}` },
+          },
+        ],
+      })
+        // .skip(dropItem)
+        // .limit(itemPerPage)
+        .populate({
+          path: "staffSubject",
+          match: {
+            batch: { $in: bt_id },
+          },
+          select: "teaching_plan",
+        })
+        .select(
+          "staffFirstName staffMiddleName staffLastName staffROLLNO photoId staffProfilePhoto"
+        );
+    }
+
+    var teaching_plan = [];
+
+    // for (let st of all_staff) {
+    for (let i = 0; i < all_staff?.length; i++) {
+      let st = all_staff[i];
+      if (st?.staffSubject?.length > 0) {
+        var obj = {
+          staffFirstName: st?.staffFirstName,
+          staffMiddleName: st?.staffMiddleName,
+          staffLastName: st?.staffLastName,
+          staffROLLNO: st?.staffROLLNO,
+          photoId: st?.photoId,
+          staffProfilePhoto: st?.staffProfilePhoto,
+          _id: st?._id,
+          updated_plan: 0,
+          not_updated_plan: 0,
+          remark: "red",
+        };
+        for (let sub of st?.staffSubject) {
+          if (sub?.teaching_plan === "Yes") {
+            obj.updated_plan += 1;
+          } else {
+            obj.not_updated_plan += 1;
+          }
+        }
+        if (obj.updated_plan === obj.not_updated_plan) {
+          obj.remark = "green";
+        }
+        teaching_plan.push(obj);
+      }
+    }
+
+    if (["", undefined, ""]?.includes(search)) {
+      teaching_plan = teaching_plan?.slice(dropItem, dropItem + itemPerPage);
+    }
+    res.status(200).send({
+      message: "All staff list with teaching plan",
+      teaching_plan: teaching_plan,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.staffTeachingPlanStatsSubjectListQuery = async (req, res) => {
+  try {
+    const { id, sid } = req.params;
+    const { page, limit, search, flow } = req.query;
+    if (!id || !sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = page ? parseInt(page) : 1;
+    const itemPerPage = limit ? parseInt(limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    const department = await Department.find({
+      institute: { $eq: `${id}` },
+    }).select("departmentSelectBatch");
+    const bt_id = [];
+    for (let ft of department) {
+      bt_id.push(ft?.departmentSelectBatch);
+    }
+
+    var subject_list = [];
+
+    if (!["", undefined, ""]?.includes(search)) {
+      subject_list = await Subject.find({
+        $and: [
+          {
+            subjectTeacherName: { $eq: `${sid}` },
+          },
+          {
+            batch: { $in: bt_id },
+          },
+          {
+            teaching_plan: { $eq: `${flow}` },
+          },
+          {
+            $or: [
+              {
+                subjectName: { $regex: search, $options: "i" },
+              },
+            ],
+          },
+        ],
+      })
+        .populate({
+          path: "subjectTeacherName",
+          select:
+            "staffFirstName staffMiddleName staffLastName staffROLLNO photoId staffProfilePhoto",
+        })
+        .select("subjectName subjectTeacherName");
+    } else {
+      subject_list = await Subject.find({
+        $and: [
+          {
+            subjectTeacherName: { $eq: `${sid}` },
+          },
+          {
+            batch: { $in: bt_id },
+          },
+          {
+            teaching_plan: { $eq: `${flow}` },
+          },
+        ],
+      })
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .populate({
+          path: "subjectTeacherName",
+          select:
+            "staffFirstName staffMiddleName staffLastName staffROLLNO photoId staffProfilePhoto",
+        })
+        .select("subjectName subjectTeacherName");
+    }
+
+    res.status(200).send({
+      message: "Teaching plan stats subject list",
+      subject_list: subject_list,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.staffAttendanceInProfileWithRangeQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { from, to } = req.query;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let split_from = from?.split("/");
+    let split_to = to?.split("/");
+    const gte_Date = new Date(
+      `${split_from[2]}-${split_from[1]}-${split_from[0]}`
+    );
+    const lte_Date = new Date(`${split_to[2]}-${split_to[1]}-${split_to[0]}`);
+    lte_Date.setDate(lte_Date.getDate() + 1);
+
+    const staff = await Staff.findById(sid);
+
+    let all_attendance_count = staff?.attendDates?.length ?? 0;
+    const stats = {
+      total: all_attendance_count,
+      present: 0,
+      absent: 0,
+      on_duty_leave: 0,
+      leave_with_pay: 0,
+    };
+    var attendance = [];
+    if (all_attendance_count > 0) {
+      attendance = await StaffAttendenceDate.find({
+        $and: [
+          { _id: { $in: staff.attendDates } },
+          {
+            staffAttendDateFormat: {
+              $gte: gte_Date,
+              $lte: lte_Date,
+            },
+          },
+        ],
+      }).select("staffAttendDate absentStaff");
+      for (let day of attendance) {
+        let flag = true;
+        for (let abs of day?.absentStaff) {
+          if (`${abs.staff}` === `${sid}`) {
+            stats.absent += 1;
+            flag = false;
+            break;
+          }
+        }
+        if (flag) {
+          stats.present += 1;
+        }
+      }
+    }
+    // if (staff?.staffLeave?.length > 0) {
+    //   const leave = await Leave.find({
+    //     staff: { $eq: sid },
+    //     status: { $eq: "Accepted" },
+    //     date: { $regex: regularexp },
+    //   }).select("date");
+    //   for (let lt of leave) {
+    //     calendar.leaveList.push(...lt.date);
+    //   }
+    // }
+
+    res.status(200).send({
+      message: "One staff attendance stats in profile page",
+      attendance,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.insertClassTimetableCountAndBatchToSubjectQuery = async (req, res) => {
+  try {
+    const cls = await Class.find({});
+    let i = 0;
+    let j = 0;
+    const not_batch = [];
+    // for (let ct of cls) {
+    for (let z = 0; z < cls?.length; z++) {
+      let ct = cls[z];
+      if (ct?.batch) {
+        for (let st of ct?.subject) {
+          const sub = await Subject.findById(st);
+          if (sub) {
+            sub.batch = ct?.batch;
+            sub.timetable_update = "No";
+            sub.teaching_plan = "No";
+            await sub.save();
+            console.log("i :-> ", i);
+            ++i;
+          }
+        }
+      } else {
+        not_batch.push(ct?._id);
+      }
+
+      ct.updated_timetable_count = 0;
+      ct.not_updated_timetable_count = ct?.subject?.length;
+      await ct.save();
+      console.log("j :-> ", j);
+      ++j;
+    }
+    res.status(200).send({
+      message: "All subject insert field",
+      i,
+      j,
+      not_batch,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.removeTimeSlotObjectInClassModelQuery = async (req, res) => {
+  try {
+    const cls = await Class.find({}).select("attendance_time_slot");
+
+    for (let ct of cls) {
+      for (let st of ct?.attendance_time_slot ?? []) {
+        let at = [];
+        if (`${st}`?.length === 24) {
+          at.push(st);
+        } else {
+          console.log("it is object", st);
+          break;
+        }
+      }
+    }
+    res.status(200).send({
+      message: "All subject insert field",
+      cls,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.staffAttendanceAdditionalFieldQuery = async (req, res) => {
+  try {
+    const attendance = await StaffAttendenceDate.find({});
+    let i = 0;
+    for (let at of attendance) {
+      let split_date = at?.staffAttendDate?.split("/");
+      const dt = new Date(`${split_date[2]}-${split_date[1]}-${split_date[0]}`);
+      at.staffAttendDateFormat = dt;
+      await at.save();
+      console.log(i);
+      ++i;
+    }
+    res.status(200).send({
+      message: "All staff attendace date format added.",
     });
   } catch (e) {
     console.log(e);

@@ -600,7 +600,7 @@ exports.getStaffSideDateWise = async (req, res) => {
                   select: "batchName batchStatus",
                 })
                 .select(
-                  "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional"
+                  "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional subjectMasterName"
                 );
               if (subj) {
                 staffSchedlue.push({
@@ -646,7 +646,7 @@ exports.getStaffSideDateWise = async (req, res) => {
                   select: "batchName batchStatus",
                 })
                 .select(
-                  "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional"
+                  "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional subjectMasterName"
                 );
               if (subj) {
                 staffSchedlue.push({
@@ -734,7 +734,7 @@ exports.getStaffSideDateWise = async (req, res) => {
                   select: "batchName batchStatus",
                 })
                 .select(
-                  "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional"
+                  "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional subjectMasterName"
                 );
               if (subj) {
                 staffSchedlue.push({
@@ -778,7 +778,7 @@ exports.getStaffSideDateWise = async (req, res) => {
                   select: "batchName batchStatus",
                 })
                 .select(
-                  "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional"
+                  "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional subjectMasterName"
                 );
               if (subj) {
                 staffSchedlue.push({

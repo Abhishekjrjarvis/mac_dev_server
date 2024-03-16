@@ -1350,8 +1350,8 @@ exports.getAllExcelOneMentorQuery = async (req, res) => {
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
 
-    if (!lid) throw "Please send library id to perform task";
-    const mentor = await Mentor.findById(lid)
+    if (!mid) throw "Please send library id to perform task";
+    const mentor = await Mentor.findById(mid)
       .select("export_collection")
       .lean()
       .exec();

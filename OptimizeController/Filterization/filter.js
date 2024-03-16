@@ -7647,6 +7647,7 @@ exports.renderDayBookReceipt = async () => {
           finance.day_book.push(db?._id)
           finance.day_book_count += 1
           db.db_amount = p_amount
+          db.db_status = "GENERATED"
           await Promise.all([
             institute.save(),
             notify.save(),
@@ -8073,7 +8074,7 @@ exports.renderAllDayBookReceipt = async (req, res) => {
       .select("day_book")
     
     const all_db = await DayBook.find({ $and: [{ _id: { $in: fn?.day_book } }, { db_file_type: "DAYBOOK_RECEIPT" }] })
-      .sort("-1")
+      .sort({ db_created: -1 })
       .limit(limit)
       .skip(skip)
       .populate({
@@ -8105,7 +8106,7 @@ exports.renderAllDayBookPayment = async (req, res) => {
       .select("day_book")
     
     const all_db = await DayBook.find({ $and: [{ _id: { $in: fn?.day_book } }, { db_file_type: "DAYBOOK_PAYMENTS" }] })
-      .sort("-1")
+    .sort({ db_created: -1 })
       .limit(limit)
       .skip(skip)
       .populate({

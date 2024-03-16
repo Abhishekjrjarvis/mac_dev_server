@@ -55,7 +55,7 @@ router.get(
   catchAsync(staffAttendanceController.staffTeachingPlanStatsSubjectListQuery)
 );
 
-router.patch(
+router.get(
   "/profile/stats/:sid/query",
   // isLoggedIn,
   catchAsync(staffAttendanceController.staffAttendanceInProfileWithRangeQuery)
@@ -77,11 +77,16 @@ router.patch(
   // isLoggedIn,
   catchAsync(staffAttendanceController.staffAttendanceAdditionalFieldQuery)
 );
-// router.get("/staff/:sid", isLoggedIn, catchAsync(staffAttendanceController.viewInstituteStaff));
-// router.get(
-//   "/filter/calendar/:sid",
-//   isLoggedIn,
-//   catchAsync(staffAttendanceController.getAttendStaffByIdForMonth)
-// );
+router.patch(
+  "/timetable/criteria/custom/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staffTimetableCustomCriteriaQuery)
+);
+router.patch(
+  "/teaching/plan/criteria/custom/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staffTeachingPlanCustomCriteriaQuery)
+);
+
 module.exports = router;
 

@@ -1,313 +1,3 @@
-// exports.getAttendInstituteStaff = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const prevDate = req.query.date;
-//     let regularexp = "";
-//     if (prevDate) {
-//       const previousDate = prevDate?.split("/");
-//       regularexp = new RegExp(
-//         `${previousDate[0]}\/${previousDate[1]}\/${previousDate[2]}$`
-//       );
-//     } else {
-//       var currentDate = new Date();
-//       currentDate.setHours(currentDate.getHours() + 5);
-//       currentDate.setMinutes(currentDate.getMinutes() + 30);
-//       const currentDateLocalFormat = currentDate.toISOString().split("-");
-//       const day =
-//         +currentDateLocalFormat[2].split("T")[0] > 9
-//           ? +currentDateLocalFormat[2].split("T")[0]
-//           : `0${+currentDateLocalFormat[2].split("T")[0]}`;
-//       const month =
-//         +currentDateLocalFormat[1] > 9
-//           ? +currentDateLocalFormat[1]
-//           : `0${+currentDateLocalFormat[1]}`;
-//       const year = +currentDateLocalFormat[0];
-//       regularexp = new RegExp(`${day}\/${month}\/${year}$`);
-//     }
-//     const institute = await InstituteAdmin.findById({ _id: id })
-//       .select("_id")
-//       .populate({
-//         path: "staffAttendance",
-//         match: {
-//           staffAttendDate: { $regex: regularexp },
-//         },
-//         select:
-//           "staffAttendDate staffAttendTime presentStaff absentStaff absentTotal presentTotal",
-//       })
-//       .lean()
-//       .exec();
-//     if (institute.staffAttendance?.length > 0) {
-//       const attend = institute.staffAttendance[0];
-//       const present = [];
-//       const absent = [];
-//       attend?.presentStaff?.forEach((st) => present.push(st.staff));
-//       attend?.absentStaff?.forEach((st) => absent.push(st.staff));
-//       res.status(200).send({
-//         message: "Success",
-//         institute: {
-//           _id: institute?._id,
-//           staffAttendance: [
-//             {
-//               _id: attend?._id,
-//               presentTotal: attend?.presentTotal,
-//               absentTotal: attend?.absentTotal,
-//               presentStaff: present,
-//               absentStaff: absent,
-//               staffAttendTime: attend?.staffAttendTime,
-//               staffAttendDate: attend?.staffAttendDate,
-//             },
-//           ],
-//         },
-//       });
-//     } else {
-//       // const insEncrypt = await encryptionPayload(institute);
-//       res.status(200).send({ message: "Success", institute });
-//       // res.status(403).send({ message: "Failure" });
-//     }
-//     if (!institute) {
-//       res.status(403).send({ message: "Failure" });
-//     }
-//   } catch {}
-// };
-
-// exports.markAttendenceDepartmentStaffUpdate = async (req, res) => {
-//   try {
-//     const { said } = req.params;
-//     const attendance = await StaffAttendenceDate.findById(said);
-
-//     if (!attendance) {
-//       res.status(200).send({
-//         message: "Attendance not Updated, first make a attendance",
-//       });
-//     } else {
-//       // var currentDate = new Date();
-//       // currentDate.setHours(currentDate.getHours() + 5);
-//       // currentDate.setMinutes(currentDate.getMinutes() + 30);
-//       // const currentDateLocalFormat = currentDate.toISOString().split("-");
-//       // const markDate = req.body.date?.split("/");
-//       // if (
-//       //   +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
-//       //   +markDate[1] === +currentDateLocalFormat[1] &&
-//       //   +markDate[2] === +currentDateLocalFormat[0]
-//       // ) {
-//       const staffAttendence = await StaffAttendenceDate.findById(said);
-//       for (let i = 0; i < req.body.present?.length; i++) {
-//         let flag = false;
-//         for (let pre of staffAttendence.presentStaff) {
-//           if (String(pre.staff) === req.body.present[i]) flag = true;
-//           else flag = false;
-//         }
-//         if (!flag) {
-//           staffAttendence.presentStaff?.push({
-//             staff: req.body.present[i],
-//             inTime: getOnlyTime(),
-//             status: "Present",
-//           });
-//           let prevLength = staffAttendence.absentStaff.length;
-//           staffAttendence.absentStaff = staffAttendence.absentStaff?.filter(
-//             (abs) => String(abs.staff) !== req.body.present[i]
-//           );
-//           let nextLength = staffAttendence.absentStaff.length;
-
-//           staffAttendence.presentTotal += 1;
-//           if (prevLength > nextLength) staffAttendence.absentTotal -= 1;
-//         }
-//         // if (staffAttendence.presentStaff?.includes(req.body.present[i])) {
-//         // } else if (staffAttendence.absentStaff?.includes(req.body.present[i])) {
-//         //   staffAttendence.presentStaff?.push(req.body.present[i]);
-//         //   staffAttendence.absentStaff?.pull(req.body.present[i]);
-//         //   staffAttendence.presentTotal += 1;
-//         //   staffAttendence.absentTotal -= 1;
-//         // } else {
-//         //   if (req.body.present.includes(req.body.present[i])) {
-//         //     staffAttendence.presentStaff?.push(req.body.present[i]);
-//         //     staffAttendence.presentTotal += 1;
-//         //   } else if (req.body.absent.includes(req.body.absent[i])) {
-//         //     staffAttendence.absentStaff?.push(req.body.absent[i]);
-//         //     staffAttendence.absentTotal += 1;
-//         //   } else {
-//         //   }
-//         // }
-//       }
-//       for (let i = 0; i < req.body.absent?.length; i++) {
-//         let flag = false;
-//         for (let abs of staffAttendence.absentStaff) {
-//           if (String(abs.staff) === req.body.absent[i]) flag = true;
-//           else flag = false;
-//         }
-//         if (!flag) {
-//           staffAttendence.absentStaff?.push({
-//             staff: req.body.absent[i],
-//             inTime: getOnlyTime(),
-//             status: "Absent",
-//           });
-//           let prevLength = staffAttendence.presentStaff.length;
-//           staffAttendence.presentStaff = staffAttendence.presentStaff?.filter(
-//             (pre) => String(pre.staff) !== req.body.absent[i]
-//           );
-//           let nextLength = staffAttendence.presentStaff.length;
-//           if (prevLength > nextLength) staffAttendence.presentTotal -= 1;
-//           staffAttendence.absentTotal += 1;
-//         }
-//         // if (staffAttendence.absentStaff?.includes(req.body.absent[i])) {
-//         // } else if (staffAttendence.presentStaff?.includes(req.body.absent[i])) {
-//         //   staffAttendence.absentStaff?.push(req.body.absent[i]);
-//         //   staffAttendence.presentStaff?.pull(req.body.absent[i]);
-//         //   staffAttendence.presentTotal -= 1;
-//         //   staffAttendence.absentTotal += 1;
-//         // } else {
-//         // }
-//       }
-//       await staffAttendence.save();
-//       res.status(200).send({ message: "Updated attendance" });
-//       // } else {
-//       //   res
-//       //     .status(200)
-//       //     .send({ message: "You can not mark attendance this date" });
-//       // }
-//     }
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
-
-// exports.getAttendStaffById = async (req, res) => {
-//   try {
-//     const month = req.query.month;
-//     const year = req.query.year;
-//     let days = 0;
-//     let present = 0;
-//     let absent = 0;
-//     const presentArray = [];
-//     const absentArray = [];
-//     let regularexp = "";
-//     if (month) {
-//       regularexp = new RegExp(`\/${month}\/${year}$`);
-//     } else {
-//       regularexp = new RegExp(`\/${year}$`);
-//     }
-//     const staff = await Staff.findById(req.params.sid)
-//       .select("_id attendDates staffLeave")
-//       .populate({
-//         path: "attendDates",
-//         match: {
-//           staffAttendDate: { $regex: regularexp },
-//         },
-
-//         select: "staffAttendDate presentStaff absentStaff",
-//       })
-//       .populate({
-//         path: "staffLeave",
-//         match: {
-//           date: { $regex: regularexp },
-//           status: { $eq: "Accepted" },
-//         },
-//         select: "date",
-//       })
-//       .lean()
-//       .exec();
-
-//     if (staff) {
-//       if (staff.attendDates) {
-//         staff.attendDates.forEach((day) => {
-//           for (let per of day?.presentStaff) {
-//             if (String(per.staff) === req.params.sid) {
-//               present += 1;
-//               presentArray.push(day.staffAttendDate);
-//             }
-//           }
-//           for (let abs of day?.absentStaff) {
-//             if (String(abs.staff) === req.params.sid) {
-//               absent += 1;
-//               absentArray.push(day.staffAttendDate);
-//             }
-//           }
-//           // if (day.presentStaff?.includes(req.params.sid)) {
-//           //   present += 1;
-//           //   presentArray.push(day.staffAttendDate);
-//           // } else if (day.absentStaff?.includes(req.params.sid)) {
-//           //   absent += 1;
-//           //   absentArray.push(day.staffAttendDate);
-//           // } else {
-//           // }
-//         });
-//         days = staff.attendDates.length;
-//       }
-
-//       let presentPercentage = ((present * 100) / days).toFixed(2);
-//       let absentPercentage = ((absent * 100) / days).toFixed(2);
-//       // Add Another Encryption
-//       res.status(200).send({
-//         message: "Success",
-//         presentArray,
-//         absentArray,
-//         present: presentPercentage,
-//         absent: absentPercentage,
-//         leaves: staff.staffLeave,
-//       });
-//     } else {
-//       res.status(404).send({ message: "Failure" });
-//     }
-//   } catch {}
-// };
-
-// exports.getAttendStaffByIdForMonth = async (req, res) => {
-//   try {
-//     const month = req.query.month;
-//     const year = req.query.year;
-//     let absentCount = 0;
-//     let leaveCount = 0;
-//     let regularexp = "";
-//     if (month) regularexp = new RegExp(`\/${month}\/${year}$`);
-
-//     const staff = await Staff.findById(req.params.sid)
-//       .select("_id attendDates staffLeave")
-//       .populate({
-//         path: "attendDates",
-//         match: {
-//           staffAttendDate: { $regex: regularexp },
-//         },
-
-//         select: "staffAttendDate absentStaff",
-//       })
-//       .populate({
-//         path: "staffLeave",
-//         match: {
-//           date: { $regex: regularexp },
-//           status: { $eq: "Accepted" },
-//         },
-//         select: "date",
-//       })
-//       .lean()
-//       .exec();
-
-//     if (staff) {
-//       if (staff.attendDates) {
-//         staff.attendDates?.forEach((day) => {
-//           for (let abs of day?.absentStaff) {
-//             if (String(abs.staff) === req.params.sid) {
-//               absentCount += 1;
-//             }
-//           }
-//           // if (day.absentStaff?.includes(req.params.sid)) absentCount += 1;
-//         });
-//       }
-//       if (staff.staffLeave) {
-//         staff?.staffLeave?.forEach((leave) => {
-//           leaveCount = leaveCount + leave?.date?.length;
-//         });
-//       }
-//       // Add Another Encryption
-//       res.status(200).send({
-//         message: "Success",
-//         absentCount,
-//         leaveCount,
-//       });
-//     } else {
-//       res.status(200).send({ message: "Failure" });
-//     }
-//   } catch {}
-// };
 
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const {
@@ -335,7 +25,6 @@ exports.staffAttendanceMarkQuery = async (req, res) => {
 
     const { date, present, absent } = req.body;
     const { m_time } = attendance_today_date();
-
     let split_date = date?.split("/");
     const dt = new Date(`${split_date[2]}-${split_date[1]}-${split_date[0]}`);
     const attendance = new StaffAttendenceDate({
@@ -568,15 +257,16 @@ exports.staffAttendanceCalendarQuery = async (req, res) => {
     if (month) regularexp = new RegExp(`\/${month}\/${year}$`);
     else regularexp = new RegExp(`\/${year}$`);
     let calendar = {
-      days: 0,
+      total: 0,
       present: 0,
-      presentPrecentage: 0,
+      present_percentage: 0,
       absent: 0,
-      absentPrecentage: 0,
-      presentList: [],
-      asbentList: [],
-      holidayList: [],
-      leaveList: [],
+      absent_percentage: 0,
+      on_duty_leave: 0,
+      leave_with_pay: 0,
+      on_duty_leave_percentage: 0,
+      leave_with_pay_percentage: 0,
+      dates: {},
     };
     const staff = await Staff.findById(sid);
     if (staff?.attendDates?.length > 0) {
@@ -588,37 +278,50 @@ exports.staffAttendanceCalendarQuery = async (req, res) => {
         let flag = true;
         for (let abs of day?.absentStaff) {
           if (`${abs.staff}` === `${sid}`) {
-            calendar.absent += 1;
-            calendar.asbentList.push(day.staffAttendDate);
             flag = false;
             break;
           }
         }
         if (flag) {
           calendar.present += 1;
-          calendar.presentList.push(day.staffAttendDate);
+          calendar.dates[day.staffAttendDate] = "P";
+        } else {
+          calendar.absent += 1;
+          calendar.dates[day.staffAttendDate] = "A";
         }
       }
-      calendar.days = attendance?.length ?? 0;
+      calendar.total = attendance?.length ?? 0;
     }
-    if (staff?.staffLeave?.length > 0) {
-      const leave = await Leave.find({
-        staff: { $eq: sid },
-        status: { $eq: "Accepted" },
-        date: { $regex: regularexp },
-      }).select("date");
-      for (let lt of leave) {
-        calendar.leaveList.push(...lt.date);
-      }
-    }
-    calendar.presentPrecentage = (
-      (calendar.present * 100) /
-      calendar.days
-    ).toFixed(2);
-    calendar.absentPrecentage = (
-      (calendar.absent * 100) /
-      calendar.days
-    ).toFixed(2);
+    // if (staff?.staffLeave?.length > 0) {
+    //   const leave = await Leave.find({
+    //     staff: { $eq: sid },
+    //     status: { $eq: "Accepted" },
+    //     date: { $regex: regularexp },
+    //   }).select("date");
+    //   for (let lt of leave) {
+    //     calendar.leaveList.push(...lt.date);
+    //   }
+    // }
+    if (calendar.present > 0 && calendar.total > 0)
+      calendar.present_percentage = (
+        (calendar.present / calendar.total) *
+        100
+      )?.toFixed(2);
+    if (calendar.absent > 0 && calendar.total > 0)
+      calendar.absent_percentage = (
+        (calendar.absent / calendar.total) *
+        100
+      )?.toFixed(2);
+    if (calendar.leave_with_pay > 0 && calendar.total > 0)
+      calendar.leave_with_pay_percentage = (
+        (calendar.leave_with_pay / calendar.total) *
+        100
+      )?.toFixed(2);
+    if (calendar.on_duty_leave > 0 && calendar.total > 0)
+      calendar.on_duty_leave_percentage = (
+        (calendar.on_duty_leave / calendar.total) *
+        100
+      )?.toFixed(2);
 
     res.status(200).send({
       message: "One staff calendar related data.",
@@ -1194,6 +897,11 @@ exports.staffAttendanceInProfileWithRangeQuery = async (req, res) => {
       absent: 0,
       on_duty_leave: 0,
       leave_with_pay: 0,
+      present_percentage: 0,
+      absent_percentage: 0,
+      on_duty_leave_percentage: 0,
+      leave_with_pay_percentage: 0,
+      dates: {},
     };
     var attendance = [];
     if (all_attendance_count > 0) {
@@ -1212,13 +920,16 @@ exports.staffAttendanceInProfileWithRangeQuery = async (req, res) => {
         let flag = true;
         for (let abs of day?.absentStaff) {
           if (`${abs.staff}` === `${sid}`) {
-            stats.absent += 1;
             flag = false;
             break;
           }
         }
         if (flag) {
           stats.present += 1;
+          stats.dates[day.staffAttendDate] = "P";
+        } else {
+          stats.absent += 1;
+          stats.dates[day.staffAttendDate] = "A";
         }
       }
     }
@@ -1233,9 +944,27 @@ exports.staffAttendanceInProfileWithRangeQuery = async (req, res) => {
     //   }
     // }
 
+    if (stats.present > 0 && stats.total > 0)
+      stats.present_percentage = ((stats.present / stats.total) * 100)?.toFixed(
+        2
+      );
+    if (stats.absent > 0 && stats.total > 0)
+      stats.absent_percentage = ((stats.absent / stats.total) * 100)?.toFixed(
+        2
+      );
+    if (stats.leave_with_pay > 0 && stats.total > 0)
+      stats.leave_with_pay_percentage = (
+        (stats.leave_with_pay / stats.total) *
+        100
+      )?.toFixed(2);
+    if (stats.on_duty_leave > 0 && stats.total > 0)
+      stats.on_duty_leave_percentage = (
+        (stats.on_duty_leave / stats.total) *
+        100
+      )?.toFixed(2);
     res.status(200).send({
       message: "One staff attendance stats in profile page",
-      attendance,
+      stats,
     });
   } catch (e) {
     console.log(e);
@@ -1326,4 +1055,71 @@ exports.staffAttendanceAdditionalFieldQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.staffTimetableCustomCriteriaQuery = async (req, res) => {
+  try {
+    const subject = await Subject.find({});
+    let i = 0;
+    for (let sub of subject) {
+      if (sub) {
+        const cls = await Class.findById(sub?.class).populate({
+          path: "timetableDayWise",
+        });
+        let flag = false;
+        for (let ctl of cls?.timetableDayWise) {
+          for (let sch of ctl?.schedule) {
+            if (`${sch?.subject}` === `${sub?._id}`) {
+              flag = true;
+              break;
+            }
+          }
+          if (flag) {
+            break;
+          }
+        }
+        if (flag) {
+          sub.timetable_update = "Yes";
+          cls.updated_timetable_count += 1;
+          cls.not_updated_timetable_count -= 1;
+        } else {
+          sub.timetable_update = "No";
+          cls.not_updated_timetable_count += 1;
+        }
+        await Promise.all([sub.save(), cls.save()]);
+        console.log(i);
+        ++i;
+      }
+    }
+    res.status(200).send({
+      message: "All subject timetable criteria is updated.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.staffTeachingPlanCustomCriteriaQuery = async (req, res) => {
+  try {
+    const subject = await Subject.find({
+      subjectStatus: "UnCompleted",
+    });
+    let i = 0;
+    for (let sub of subject) {
+      if (sub?.chapter?.length > 0) {
+        sub.teaching_plan = "Yes";
+        await sub.save();
+        console.log(i);
+        ++i;
+      }
+    }
+    res.status(200).send({
+      message: "All subject teaching plan criteria is updated.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
 

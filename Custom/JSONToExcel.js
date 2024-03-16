@@ -656,7 +656,6 @@ exports.fee_heads_receipt_json_to_excel_daybook_query = async (
 
     const db = await DayBook.findById({ _id: dbid });
     db.db_file = results;
-    db.db_status = "GENERATED"
     db.db_file_type = `${status}`
     await db.save();
   } catch (e) {

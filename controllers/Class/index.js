@@ -521,3 +521,25 @@ exports.updateClassTabManageQuery = async (req, res) => {
   }
 };
 
+exports.getShuffleQuery = async (req, res) => {
+  try {
+    const { cid } = req?.params
+    const classes = await Class.findById({ _id: cid })
+      .populate({
+        path: "ApproveStudent",
+        select: "studentFirstName studentMiddleName studentLastName studentGRNO"
+    })
+
+    for (var val of classes?.ApproveStudent) {
+      var split_g = val?.studentGRNO?.split("undefined")
+      val.studentGRNO = `${split_g[1]}`
+      await val.save()
+    }
+    
+    res.status(200).send({ message: "Sorted"})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+

@@ -272,7 +272,9 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
           dueDate: "",
         };
       }
+      // console.log(heads)
       struct.heads = [...heads];
+      // console.log(struct.heads)
       struct.CategoryId = fee_category?._id;
       struct.StandardId = master?._id;
       struct.batchId = batch?._id;
@@ -285,6 +287,7 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
       new_query = [...new_data_query];
     }
     // fs.writeFileSync("../structure.json", JSON.stringify(data_query, null, 2));
+    // console.log(new_query)
     return { structure_array: new_query, value: true };
   } catch (e) {
     console.log("Structure Excel Query Not Resolved", e);

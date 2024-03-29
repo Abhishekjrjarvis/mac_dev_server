@@ -1124,6 +1124,16 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
     default: "Disable"
   },
+  storeDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InventoryStore"
+    }
+  ],
+  storeStatus: {
+    type: String,
+    default: "Disable"
+  },
   department_tab_manage: {
     all_staff: {
       type: Boolean,
@@ -1257,7 +1267,6 @@ const instituteAdminSchema = new mongoose.Schema({
       default: true,
     },
   },
-
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

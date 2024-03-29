@@ -28,6 +28,7 @@ const Hostel = require("../../models/Hostel/hostel");
 const { handle_undefined } = require("../../Handler/customError");
 const Alumini = require("../../models/Alumini/Alumini");
 const LMS = require("../../models/Leave/LMS");
+const InventoryStore = require("../../models/Stores/store");
 
 exports.photoEditByStaff = async (req, res) => {
   try {
@@ -941,6 +942,85 @@ exports.renderLMSStaffQuery = async (req, res) => {
         user?.userEmail,
         "LMS",
         lms?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.renderStoresStaffQuery = async (req, res) => {
+  try {
+    const { osid } = req.params;
+    const { nsid } = req.query;
+    if (!osid && !nsid && osid !== nsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        status: false,
+      });
+    const oldStaff = await Staff.findById({ _id: osid }).populate({
+      path: "institute",
+      select: "storeDepart",
+    });
+    const newStaff = await Staff.findById({ _id: nsid });
+    const user = await User.findById({ _id: `${newStaff.user}` });
+    const stores = await InventoryStore.findById({
+      _id: `${oldStaff?.institute?.storeDepart[0]}`,
+    }).populate({
+      path: "institute",
+      select: "insName sms_lang",
+    });
+    const notify = new Notification({});
+    newStaff.stores_department.push(stores._id);
+    newStaff.staffDesignationCount += 1;
+    newStaff.recentDesignation = "Store Manager";
+    stores.store_head = newStaff._id;
+    oldStaff.stores_department.pull(stores._id);
+    if (oldStaff.staffDesignationCount > 0) {
+      oldStaff.staffDesignationCount -= 1;
+    }
+    oldStaff.recentDesignation = "";
+    notify.notifyContent = `you got the designation of as LMS Administrator`;
+    notify.notifySender = stores.institute._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Store Designation";
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByInsPhoto = stores.institute._id;
+    await invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      stores.institute.insName,
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([
+      oldStaff.save(),
+      stores.save(),
+      user.save(),
+      notify.save(),
+      newStaff.save(),
+    ]);
+    res.status(200).send({
+      message: "Successfully Assigned Store Manager",
+      status: true,
+    });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "STORE",
+      stores?.institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "STORE",
+        stores?.institute?.sms_lang,
         "",
         "",
         ""

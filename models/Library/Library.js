@@ -229,6 +229,13 @@ const librarySchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  request: [],
+  issue: [],
+  return: [],
+  consume: [],
+  stock_take: [],
+  register: [],
+  maintanence: []
 });
 
 module.exports = mongoose.model("Library", librarySchema);

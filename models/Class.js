@@ -297,6 +297,13 @@ const classSchema = new mongoose.Schema({
       ref: "ClassAttendanceTimeSlot",
     },
   ],
+  request: [],
+  issue: [],
+  return: [],
+  consume: [],
+  stock_take: [],
+  register: [],
+  maintanence: []
 });
 
 const Class = mongoose.model("Class", classSchema);

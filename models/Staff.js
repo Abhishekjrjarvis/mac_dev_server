@@ -564,7 +564,18 @@ const staffSchema = new mongoose.Schema({
       default: 0,
     },
   },
-
+  stores_department: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InventoryStore"
+    }
+  ],
+  goods_register: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "GoodManager"
+    }
+  ]
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

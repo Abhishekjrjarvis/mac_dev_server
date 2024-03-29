@@ -407,6 +407,13 @@ const departmentSchema = new mongoose.Schema({
   department_programme_name: {
     type: String,
   },
+  request: [],
+  issue: [],
+  return: [],
+  consume: [],
+  stock_take: [],
+  register: [],
+  maintanence: []
 });
 
 const Department = mongoose.model("Department", departmentSchema);

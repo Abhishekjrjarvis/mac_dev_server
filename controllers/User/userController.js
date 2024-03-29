@@ -1789,6 +1789,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
             select: "dName",
           },
         })
+        .populate({
+          path: "stores_department",
+          select: "_id",
+        })
         .lean()
         .exec();
       if (staff?.staffDocuments?.length > 0) {
@@ -1997,6 +2001,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
             path: "department",
             select: "dName",
           },
+        })
+        .populate({
+          path: "stores_department",
+          select: "_id",
         })
         .lean()
         .exec();

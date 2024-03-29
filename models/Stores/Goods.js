@@ -11,6 +11,9 @@ const inventoryStoreSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    goods_icon: {
+        type: String
+    },
     good_category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "GoodCategory"

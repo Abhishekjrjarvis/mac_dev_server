@@ -2,8 +2,7 @@ const mongoose = require("mongoose");
 
 const goodCategorySchema = new mongoose.Schema({
     category_name: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Staff",
+      type: String,
     },
     category_type: {
         type: String,

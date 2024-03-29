@@ -272,7 +272,9 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
           dueDate: "",
         };
       }
+      // console.log(heads)
       struct.heads = [...heads];
+      // console.log(struct.heads)
       struct.CategoryId = fee_category?._id;
       struct.StandardId = master?._id;
       struct.batchId = batch?._id;
@@ -285,6 +287,7 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
       new_query = [...new_data_query];
     }
     // fs.writeFileSync("../structure.json", JSON.stringify(data_query, null, 2));
+    // console.log(new_query)
     return { structure_array: new_query, value: true };
   } catch (e) {
     console.log("Structure Excel Query Not Resolved", e);
@@ -996,4 +999,38 @@ exports.generate_excel_to_json_accession_query = async (file) => {
     console.log("Accession Number Excel Query Not Resolved", e);
   }
 }
+
+exports.generate_excel_to_json_class_time_table_query = async (excel_arr, excel_count) => {
+  try {
+    var new_data_query = [];
+    var week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    var obj = {
+      day_arr: []
+    }
+    for (var ref of excel_arr) {
+      for (var val = 0; val < excel_count; val++){
+        if (ref[`key${val}`]) {
+          obj[ref[`key${val}`].db_key] = ref[`key${val}`]?.value
+          if (week?.includes(ref[`key${val}`]?.excel_key)) {
+            if (obj.day_arr.includes(ref[`key${val}`]?.excel_key)) {
+              
+            }
+            else {
+              obj.day_arr.push(ref[`key${val}`]?.excel_key) 
+            }
+          }
+        }
+      }
+      new_data_query.push({
+        ...obj
+      });
+    }
+    // console.log(new_data_query)
+    return { chapter_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("TimeTable Excel Query Not Resolved", e);
+  }
+};
+
+// console.log(generate_excel_to_json_class_time_table_query(data_set, 5))
 

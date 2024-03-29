@@ -54,7 +54,10 @@ const staffAttendenceDateSchema = new mongoose.Schema({
   attendence_type: {
     type: String,
     default: "Normal_Lecture"
-  }
+  },
+  staffAttendDateFormat: {
+    type: Date,
+  },
 });
 
 const StaffAttendenceDate = mongoose.model(

@@ -43,6 +43,10 @@ const staffStudentFeedbackSchema = new mongoose.Schema({
         ref: "SubjectMaster",
       },
       feedback_analytic: [],
+      master_rating: {
+        type: Number,
+        default: 0,
+      },
     },
   ],
   subject_analytic: [
@@ -55,11 +59,19 @@ const staffStudentFeedbackSchema = new mongoose.Schema({
         type: Number,
         default: 0,
       },
+      master_rating: {
+        type: Number,
+        default: 0,
+      },
     },
   ],
   analytic_evaluation: {
     type: Boolean,
     default: false,
+  },
+  overall_rating: {
+    type: Number,
+    default: 0,
   },
 });
 

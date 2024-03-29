@@ -4106,10 +4106,11 @@ exports.subjectAttednaceAddLectureQuery = async (req, res) => {
   }
 };
 
+
 exports.getSubjectAttednaceLectureQuery = async (req, res) => {
   try {
     const { sid } = req.params;
-    const { date } = req.query;
+    const { date, which_day } = req.query;
 
     if (!sid || !date) {
       return res.status(200).send({
@@ -4127,14 +4128,40 @@ exports.getSubjectAttednaceLectureQuery = async (req, res) => {
       ],
     }).select("lecture");
 
+    const subjects = await Subject.findById(sid).populate({
+      path: "class",
+      populate: {
+        path: "timetableDayWise",
+        match: {
+          day: { $eq: which_day },
+        },
+        select: "schedule.from schedule.to schedule.subject",
+      },
+      select: "timetableDayWise",
+    });
+
+    var timetable_lecture = [];
+    let ct = 1;
+    for (let time_table of subjects?.class?.timetableDayWise?.[0]?.schedule ??
+      []) {
+      if (`${time_table?.subject}` === `${sid}`) {
+        timetable_lecture.push({
+          which_lecture: `${ct}`,
+        });
+        ct += 1;
+      }
+    }
+    if (day_lecture?.lecture?.length > 0)
+      timetable_lecture.push(...day_lecture?.lecture);
     res.status(200).send({
-      message: "One more lecture is added",
-      day_lecture: day_lecture?.lecture ?? [],
+      message: "One day All lecture list",
+      day_lecture: timetable_lecture,
     });
   } catch (e) {
     console.log(e);
   }
 };
+
 
 exports.assignAttendanceToDefaultParameterQuery = async (req, res) => {
   try {

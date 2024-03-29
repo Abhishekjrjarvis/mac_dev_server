@@ -22,11 +22,71 @@ router.get(
   catchAsync(staffAttendanceController.staffAttendanceCalendarQuery)
 );
 
-// router.get("/institute/:id", isLoggedIn, catchAsync(staffAttendanceController.viewInstitute));
-// router.get("/staff/:sid", isLoggedIn, catchAsync(staffAttendanceController.viewInstituteStaff));
-// router.get(
-//   "/filter/calendar/:sid",
-//   isLoggedIn,
-//   catchAsync(staffAttendanceController.getAttendStaffByIdForMonth)
-// );
+router.get(
+  "/today/:id/stats/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staffTodayAttendanceStatsQuery)
+);
+router.get(
+  "/today/one/:aid/stats/list/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staffTodayAttendanceListStatsQuery)
+);
+
+router.get(
+  "/timetable/:id/stats/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staffTimetableStatsQuery)
+);
+router.get(
+  "/timetable/class/:cid/stats/subject/list/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staffTimetableStatsSubjectListQuery)
+);
+
+router.get(
+  "/teaching/plan/:id/stats/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staffTeachingPlanStatsQuery)
+);
+router.get(
+  "/teaching/plan/:id/staff/:sid/stats/subject/list/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staffTeachingPlanStatsSubjectListQuery)
+);
+
+router.get(
+  "/profile/stats/:sid/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staffAttendanceInProfileWithRangeQuery)
+);
+router.patch(
+  "/custom/insert/class/subject/query",
+  // isLoggedIn,
+  catchAsync(
+    staffAttendanceController.insertClassTimetableCountAndBatchToSubjectQuery
+  )
+);
+router.patch(
+  "/remove/class/type/slot/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.removeTimeSlotObjectInClassModelQuery)
+);
+router.patch(
+  "/additional/custom/date/field",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staffAttendanceAdditionalFieldQuery)
+);
+router.patch(
+  "/timetable/criteria/custom/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staffTimetableCustomCriteriaQuery)
+);
+router.patch(
+  "/teaching/plan/criteria/custom/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staffTeachingPlanCustomCriteriaQuery)
+);
+
 module.exports = router;
+

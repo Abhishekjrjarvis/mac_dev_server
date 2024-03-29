@@ -152,6 +152,7 @@ exports.render_new_subject_query = async (arr, cid) => {
           subjectMasterName: subjectMaster?._id,
           subjectOptional: subjectMaster?.subjectType,
           subject_category: ref?.subject_category,
+          batch: classes?.batch
         });
         const codess = universal_random_password()
         subject.member_module_unique = `${codess}`

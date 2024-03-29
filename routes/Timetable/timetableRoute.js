@@ -56,4 +56,8 @@ router
   .route("/subject/:sid/date/schedule/list/update/attendence")
   .patch(catchAsync(timetable.getSubjectDateWiseScheduleAttendenceQuery));
 
+  router
+  .route("/insert/default/field/timetable")
+  .patch(catchAsync(timetable.insertTimetableDefaultFieldQuery));
+
 module.exports = router;

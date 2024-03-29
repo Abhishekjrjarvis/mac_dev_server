@@ -448,51 +448,60 @@ exports.allExamSubjectTeacher = async (req, res) => {
   }
 };
 
+
 exports.allStudentInSubjectTeacher = async (req, res) => {
   try {
-    const subject = await Subject.findById(req.params.sid)
-      .populate({
-        path: "class",
-        populate: {
-          path: "ApproveStudent",
-          select: "_id",
-        },
-        select: "_id",
-      })
-      .select("_id")
-      .lean()
-      .exec();
+    const { sid, eid } = req.params;
+    const { cid } = req.query;
+    if (!sid || !cid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const cls = await Class.findById(cid);
+
+    // const subject = await Subject.findById(req.params.sid)
+    //   .populate({
+    //     path: "class",
+    //     populate: {
+    //       path: "ApproveStudent",
+    //       select: "_id",
+    //     },
+    //     select: "_id",
+    //   })
+    //   .select("_id")
+    //   .lean()
+    //   .exec();
     // const exams=await Exam.findById(req.params.eid)
     const students = [];
-    for (let studentId of subject?.class?.ApproveStudent) {
+    for (let studentId of cls?.ApproveStudent) {
       const student = await Student.findById(studentId)
         .populate({
           path: "subjectMarks",
-          match: { subject: { $eq: req.params.sid } },
+          match: { subject: { $eq: `${sid}` } },
         })
         .select(
           "studentFirstName studentMiddleName studentLastName studentROLLNO studentProfilePhoto subjectMarks studentClass"
-        )
-        .lean()
-        .exec();
+        );
 
       if (student?.subjectMarks?.length) {
         for (let onemarks of student?.subjectMarks[0]?.marks) {
-          if (onemarks.examId === req.params.eid) {
+          if (`${onemarks.examId}` === `${eid}`) {
             const attend = await AttendenceDate.find({
               $and: [
-                { attendDate: { $eq: `${onemarks.date}` } },
                 { className: { $eq: `${student.studentClass}` } },
+                { attendDate: { $eq: `${onemarks.date}` } },
               ],
             });
             let flag = null;
             if (attend?.length) {
               attend[0]?.presentStudent?.forEach((ids) => {
-                if (String(ids?.student) === req.params.sid)
+                if (String(ids?.student) === `${studentId}`)
                   return (flag = true);
               });
               attend[0]?.absentStudent?.forEach((ids) => {
-                if (String(ids?.student) === req.params.sid)
+                if (String(ids?.student) === `${studentId}`)
                   return (flag = false);
               });
             }
@@ -527,6 +536,7 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
     console.log(e);
   }
 };
+
 
 exports.allStudentMarksBySubjectTeacher = async (req, res) => {
   try {

@@ -647,6 +647,8 @@ router.get("/:id/all/approve-staff/shuffle/query", catchAsync(Institute.renderAp
 
 router.patch("/staff/shuffle/query", catchAsync(Institute.renderApproveStaffShuffleQueryStats));
 
+router.patch("/:sid/one-remove/query", catchAsync(Institute.renderRemoveStaffQuery));
+
 router.patch("/master/query", catchAsync(Institute.renderExistMasterQuery));
 
 module.exports = router;

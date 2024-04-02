@@ -89,4 +89,14 @@ router.patch("/edit/one/:meid/meeting/query", catchAsync(Mentor.renderEditOneMee
 
 router.post("/schedule/meeting/query", catchAsync(Mentor.renderScheduleMeetingQuery));
 
+router
+  .route("/export/one/mentor/:mid/excel/query")
+  .get(catchAsync(Mentor.getAllExcelOneMentorQuery));
+
+  router
+  .route("/export/one/mentor/:mid/all/mentee/query")
+  .patch(catchAsync(Mentor.getOneMentorAllMenteeExport));
+router
+  .route("/export/one/mentor/:mid/mentee/attendance/query")
+  .patch(catchAsync(Mentor.getOneMentorAttendanceMenteeExport));
 module.exports = router;

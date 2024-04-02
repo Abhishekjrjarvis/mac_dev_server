@@ -218,6 +218,20 @@ const subjectSchema = new mongoose.Schema({
       ref: "SubjectLectureDay",
     },
   ],
+  batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch",
+  },
+  timetable_update: {
+    type: String,
+    // "No" "Yes"
+    default: "No",
+  },
+  teaching_plan: {
+    type: String,
+    // "No" "Yes"
+    default: "No",
+  },
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

@@ -31,6 +31,10 @@ const timetableSchema = new mongoose.Schema({
           ref: "ChapterTopic",
         },
       ],
+      which_lecture: {
+        type: String,
+        default: "1",
+      },
     },
   ],
 

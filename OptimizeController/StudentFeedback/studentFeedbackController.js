@@ -963,6 +963,370 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
   }
 };
 
+// exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
+//   try {
+//     const { ifid } = req.params;
+//     if (!ifid) {
+//       return res.status(200).send({
+//         message: "Url Segement parameter required is not fulfill.",
+//       });
+//     }
+//     const feedback = await StudentFeedback.findById(ifid);
+//     feedback.analytic_evaluation = true;
+//     await feedback.save();
+//     res.status(200).send({
+//       message: "Feedback analytics in process, please wait some time.",
+//     });
+//     const staff_feedback = await StaffStudentFeedback.find({
+//       feedbackId: ifid,
+//     });
+
+//     for (let st of staff_feedback ?? []) {
+//       const st_feedback = await StaffStudentFeedback.findById(st?._id);
+//       let st_rating_arr = [];
+//       for (let mt of st?.subject_master) {
+//         let question = {};
+//         let m_rating_arr = [];
+//         for (let qe of feedback?.questions) {
+//           question[qe?.question_sno] = {};
+//           if (feedback?.how_many_question_option === 2) {
+//             question[qe?.question_sno]["excellent"] = {
+//               count: 0,
+//               multiply: 5,
+//               percentage: 0,
+//             };
+//             question[qe?.question_sno]["poor"] = {
+//               count: 0,
+//               multiply: 1,
+//               percentage: 0,
+//             };
+//             question["excellent"] = {
+//               percentage: 0,
+//               multiply: 2,
+//               arr: [],
+//               factor: 0,
+//             };
+//             question["poor"] = {
+//               percentage: 0,
+//               multiply: 1,
+//               arr: [],
+//               factor: 0,
+//             };
+//           } else if (feedback?.how_many_question_option === 3) {
+//             question[qe?.question_sno]["excellent"] = {
+//               count: 0,
+//               multiply: 5,
+//               percentage: 0,
+//             };
+//             question[qe?.question_sno]["satisfaction"] = {
+//               count: 0,
+//               multiply: 3,
+//               percentage: 0,
+//             };
+//             question[qe?.question_sno]["poor"] = {
+//               count: 0,
+//               multiply: 1,
+//               percentage: 0,
+//             };
+//             question["excellent"] = {
+//               percentage: 0,
+//               multiply: 3,
+//               arr: [],
+//               factor: 0,
+//             };
+//             question["satisfaction"] = {
+//               percentage: 0,
+//               multiply: 2,
+//               arr: [],
+//               factor: 0,
+//             };
+//             question["poor"] = {
+//               percentage: 0,
+//               multiply: 1,
+//               arr: [],
+//               factor: 0,
+//             };
+//           } else if (feedback?.how_many_question_option === 4) {
+//             question[qe?.question_sno]["excellent"] = {
+//               count: 0,
+//               multiply: 5,
+//               percentage: 0,
+//             };
+//             question[qe?.question_sno]["good"] = {
+//               count: 0,
+//               multiply: 4,
+//               percentage: 0,
+//             };
+//             question[qe?.question_sno]["satisfaction"] = {
+//               count: 0,
+//               multiply: 3,
+//               percentage: 0,
+//             };
+//             question[qe?.question_sno]["poor"] = {
+//               count: 0,
+//               multiply: 1,
+//               percentage: 0,
+//             };
+//             question["excellent"] = {
+//               percentage: 0,
+//               multiply: 4,
+//               arr: [],
+//               factor: 0,
+//             };
+//             question["good"] = {
+//               percentage: 0,
+//               multiply: 3,
+//               arr: [],
+//               factor: 0,
+//             };
+//             question["satisfaction"] = {
+//               percentage: 0,
+//               multiply: 2,
+//               arr: [],
+//               factor: 0,
+//             };
+//             question["poor"] = {
+//               percentage: 0,
+//               multiply: 1,
+//               arr: [],
+//               factor: 0,
+//             };
+//           } else {
+//             question[qe?.question_sno]["excellent"] = {
+//               count: 0,
+//               multiply: 5,
+//               percentage: 0,
+//             };
+//             question[qe?.question_sno]["good"] = {
+//               count: 0,
+//               multiply: 4,
+//               percentage: 0,
+//             };
+//             question[qe?.question_sno]["satisfaction"] = {
+//               count: 0,
+//               multiply: 3,
+//               percentage: 0,
+//             };
+//             question[qe?.question_sno]["average"] = {
+//               count: 0,
+//               multiply: 2,
+//               percentage: 0,
+//             };
+//             question[qe?.question_sno]["poor"] = {
+//               count: 0,
+//               multiply: 1,
+//               percentage: 0,
+//             };
+//             question["excellent"] = {
+//               percentage: 0,
+//               multiply: 5,
+//               arr: [],
+//               factor: 0,
+//             };
+//             question["good"] = {
+//               percentage: 0,
+//               multiply: 4,
+//               arr: [],
+//               factor: 0,
+//             };
+//             question["satisfaction"] = {
+//               percentage: 0,
+//               multiply: 3,
+//               arr: [],
+//               factor: 0,
+//             };
+//             question["average"] = {
+//               percentage: 0,
+//               multiply: 2,
+//               arr: [],
+//               factor: 0,
+//             };
+//             question["poor"] = {
+//               percentage: 0,
+//               multiply: 1,
+//               arr: [],
+//               factor: 0,
+//             };
+//           }
+//         }
+//         let ana = {
+//           ...question,
+//           staffId: st?.staff,
+//           subjectMaster: mt,
+//           // excellent: {
+//           //   percentage: 0,
+//           //   multiply: 5,
+//           //   arr: [],
+//           //   factor: 0,
+//           // },
+//           // good: {
+//           //   percentage: 0,
+//           //   multiply: 4,
+//           //   arr: [],
+//           //   factor: 0,
+//           // },
+//           // satisfaction: {
+//           //   percentage: 0,
+//           //   multiply: 3,
+//           //   arr: [],
+//           //   factor: 0,
+//           // },
+//           // poor: {
+//           //   percentage: 0,
+//           //   multiply: 1,
+//           //   arr: [],
+//           //   factor: 0,
+//           // },
+//           // average: {
+//           //   percentage: 0,
+//           //   multiply: 2,
+//           //   arr: [],
+//           //   factor: 0,
+//           // },
+//           avg_percentage_arr: [],
+//           avg_percentage: 0,
+//         };
+//         const given_feedback = await StudentGiveFeedback.find({
+//           $and: [
+//             {
+//               _id: { $in: st?.student_give_feedback },
+//             },
+//             {
+//               subject_master: { $eq: `${mt}` },
+//             },
+//           ],
+//         });
+//         for (let gf of given_feedback ?? []) {
+//           for (let qu of gf?.questions) {
+//             let which_one = "";
+//             for (let opt of qu?.options) {
+//               if (opt?.selected) which_one = opt?.option_sno;
+//             }
+//             if (feedback?.how_many_question_option === 2) {
+//               let rt_fy = which_one === "1" ? "excellent" : "poor";
+//               ana[qu.question_sno][rt_fy]["count"] += 1;
+//             } else if (feedback?.how_many_question_option === 3) {
+//               let rt_fy =
+//                 which_one === "1"
+//                   ? "excellent"
+//                   : which_one === "2"
+//                   ? "satisfaction"
+//                   : "poor";
+//               ana[qu.question_sno][rt_fy]["count"] += 1;
+//             } else if (feedback?.how_many_question_option === 4) {
+//               let rt_fy =
+//                 which_one === "1"
+//                   ? "excellent"
+//                   : which_one === "2"
+//                   ? "good"
+//                   : which_one === "3"
+//                   ? "satisfaction"
+//                   : "poor";
+//               ana[qu.question_sno][rt_fy]["count"] += 1;
+//             } else {
+//               let rt_fy =
+//                 which_one === "1"
+//                   ? "excellent"
+//                   : which_one === "2"
+//                   ? "good"
+//                   : which_one === "3"
+//                   ? "satisfaction"
+//                   : which_one === "4"
+//                   ? "average"
+//                   : "poor";
+//               ana[qu.question_sno][rt_fy]["count"] += 1;
+//             }
+//           }
+//           m_rating_arr.push(gf?.feedback_rating);
+//         }
+//         if (given_feedback?.length > 0) {
+//           let category = [
+//             "excellent",
+//             "good",
+//             "satisfaction",
+//             "poor",
+//             "average",
+//           ];
+//           for (let o in ana) {
+//             let obj = ana[o];
+//             for (let cate of category) {
+//               if (obj[cate]) {
+//                 obj[cate]["percentage"] = Math.floor(
+//                   (obj[cate]["count"] / given_feedback?.length) * 100
+//                   // (obj[cate]["count"] / feedback?.question_count) * 100
+//                 );
+//                 // console.log("ana[cate]", ana[cate]);
+//                 ana[cate]["arr"].push(obj[cate]["percentage"]);
+//               }
+//             }
+//           }
+//           for (let cate of category) {
+//             if (ana[cate]) {
+//               let sum = ana[cate]["arr"]?.reduce((accc, cv) => accc + cv, 0);
+//               if (sum) {
+//                 ana[cate]["percentage"] = Math.floor(
+//                   sum / ana[cate]["arr"]?.length
+//                 );
+//                 ana[cate]["factor"] =
+//                   ana[cate]["percentage"] * ana[cate]["multiply"];
+//                 ana.avg_percentage_arr.push(ana[cate]["factor"]);
+//               }
+//             }
+//           }
+//           if (ana.avg_percentage_arr?.length > 0) {
+//             let sum = ana.avg_percentage_arr?.reduce(
+//               (accc, cv) => accc + cv,
+//               0
+//             );
+//             ana.avg_percentage = Math.floor(
+//               sum / feedback?.how_many_question_option ?? 5
+//             );
+//           }
+//           let s_rat_avg = 0;
+//           if (m_rating_arr?.length > 0) {
+//             let s_rat = m_rating_arr?.reduce((acc, cv) => acc + cv, 0);
+//             s_rat_avg = (s_rat / m_rating_arr?.length)?.toFixed(2);
+//           }
+
+//           st_feedback.analytic?.push({
+//             subject_master: mt,
+//             feedback_analytic: [ana],
+//             master_rating: +s_rat_avg,
+//           });
+//           st_rating_arr.push(+s_rat_avg);
+//         } else {
+//           st_feedback.analytic?.push({
+//             subject_master: mt,
+//             feedback_analytic: [ana],
+//           });
+//           st_rating_arr.push(0);
+//         }
+//         let s_r_avg = 0;
+//         if (m_rating_arr?.length > 0) {
+//           let s_rat = m_rating_arr?.reduce((acc, cv) => acc + cv, 0);
+//           s_r_avg = (s_rat / m_rating_arr?.length)?.toFixed(2);
+//         }
+//         st_feedback.subject_analytic?.push({
+//           subject_master: mt,
+//           feedback_percentage: ana.avg_percentage,
+//           master_rating: +s_r_avg,
+//         });
+//       }
+//       let r_avg = 0;
+//       if (st_rating_arr?.length > 0) {
+//         let s_rat = st_rating_arr?.reduce((acc, cv) => acc + cv, 0);
+//         r_avg = (s_rat / st_rating_arr?.length)?.toFixed(2);
+//       }
+//       st_feedback.analytic_evaluation = true;
+//       st_feedback.overall_rating = +r_avg;
+//       await st_feedback.save();
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+
 
 exports.getOneStaffAnalyticQuery = async (req, res) => {
   try {

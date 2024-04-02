@@ -11,4 +11,9 @@ router.patch(
   catchAsync(Depart.renderFormUpdateQuery)
 );
 
+router
+  .route("/tab/manage/:did/query")
+  .get(catchAsync(Depart.getDepartmentTabManageQuery))
+  .patch(catchAsync(Depart.updateDepartmentTabManageQuery));
+
 module.exports = router;

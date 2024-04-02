@@ -464,4 +464,10 @@ router.patch(
   catchAsync(Extra.renderShuffledStaffQuery)
 );
 
+router.patch(
+  "/excel/to/json/:cid/timetable/query",
+  catchAsync(Extra.renderExcelToJSONTimeTableQuery)
+);
+
+
 module.exports = router;

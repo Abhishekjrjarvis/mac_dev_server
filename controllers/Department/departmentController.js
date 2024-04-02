@@ -1,4 +1,5 @@
 const Department = require("../../models/Department");
+const InstituteAdmin = require("../../models/InstituteAdmin");
 
 exports.renderStudentFormQuery = async (req, res) => {
   try {
@@ -38,3 +39,54 @@ exports.renderFormUpdateQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+
+exports.getDepartmentTabManageQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    const { flow } = req.query;
+    if (!did) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    if (flow === "Department") {
+      const department = await Department.findById(did);
+      const inst = await InstituteAdmin.findById(department.institute).select(
+        "department_tab_manage"
+      );
+      res.status(200).send({
+        message: "Department Tab Manage toggle",
+        tab_manage: inst?.department_tab_manage,
+      });
+    } else {
+      const inst = await InstituteAdmin.findById(did).select(
+        "department_tab_manage"
+      );
+      res.status(200).send({
+        message: "Department Tab Manage toggle",
+        tab_manage: inst?.department_tab_manage,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.updateDepartmentTabManageQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    await InstituteAdmin.findByIdAndUpdate(did, req.body);
+    res.status(200).send({
+      message: "Department Tab Manage toggle updated",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+

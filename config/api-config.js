@@ -57,6 +57,7 @@ const academics = require("../routes/Academics/academicRoute");
 const department = require("../routes/Department/departmentRoute");
 const copoRoute = require("../routes/Copo/copoRoute");
 const lmsRoute = require("../routes/LMS/LMSRoute");
+const subjectRoute = require("../routes/Subject/subjectRoute");
 
 
 // V2 
@@ -90,6 +91,7 @@ const userMemberRouteV2 = require("../OptimizeRoute/Edit/userMemberRoute");
 const staffAttendanceRouteV2 = require("../OptimizeRoute/StaffAttendance/staffAttendanceRoute");
 const studentFeedbackRouteV2 = require("../OptimizeRoute/StudentFeedback/studentFeedbackRoute");
 const storeV2 = require("../OptimizeRoute/Stores/storeRoute");
+const studentAttendanceRouteV2 = require("../OptimizeRoute/StudentAttendance/studentAttendanceRoute");
 
 // Api Middleware Func
 
@@ -147,6 +149,7 @@ router.use("/api/v1/guest/pay/online", guest);
 router.use("/api/v1/academic/analytics", academics);
 router.use("/api/v1/department", department);
 router.use("/api/v1/copo", copoRoute);
+router.use("/api/v1/subject", subjectRoute);
 router.use("/api/v2/lms", lmsRoute);
 
 router.use("/api/v1/prod/access", prod);
@@ -183,5 +186,6 @@ router.use("/api/v2/attendance/staff", staffAttendanceRouteV2);
 router.use("/api/v2/feedback", studentFeedbackRouteV2);
 router.use("/api/v2/store", storeV2);
 
+router.use("/api/v2/attendance/student", studentAttendanceRouteV2);
 
 module.exports = router;

@@ -2862,6 +2862,19 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList department student_bed_number",
+          populate: {
+            path: "student_bed_number",
+            select: "bed_number hostelRoom",
+            populate: {
+              path: "hostelRoom",
+              select: "room_name"
+            }
+          },
+        })
+        .populate({
+          path: "student",
+          select:
             "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList department student_unit",
           populate: {
             path: "batches",
@@ -2957,6 +2970,19 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
           populate: {
             path: "student_unit",
             select: "hostel_unit_name",
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList department student_bed_number",
+          populate: {
+            path: "student_bed_number",
+            select: "bed_number hostelRoom",
+            populate: {
+              path: "hostelRoom",
+              select: "room_name"
+            }
           },
         })
         .populate({
@@ -3079,6 +3105,8 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
                   remain_list?.paid_fee
                 : 0,
             TotalOutstanding: remain_list?.remaining_fee,
+            BedNumber: ref?.student?.student_bed_number?.bed_number ?? "#NA",
+            RoomNumber: ref?.student?.student_bed_number?.hostelRoom?.room_name ?? "#NA",
             Remark: remain_list?.remark ?? "#NA",
             HostelBankName:
               ref?.application?.applicationHostel?.bank_account

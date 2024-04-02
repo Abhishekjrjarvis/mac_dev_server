@@ -575,7 +575,29 @@ const staffSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "GoodManager"
     }
-  ]
+  ],
+  request: [],
+  issue: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "IssueGoods"
+    }
+  ],
+  return: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ReturnGoods"
+    }
+  ],
+  consume: [],
+  stock_take: [],
+  register: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StoreLogs"
+    }
+  ],
+  maintanence: []
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

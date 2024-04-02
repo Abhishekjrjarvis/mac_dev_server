@@ -470,7 +470,7 @@ exports.render_issue_stock_query = async (req, res) => {
                 good: goods?._id,
                 quantity: val?.volume
             })
-            goods?.goods_volume -= val?.volume
+            goods.goods_volume -= val?.volume
             goods.issue.push(issue?._id)
             goods.register.push(logs?._id)
             await goods.save()

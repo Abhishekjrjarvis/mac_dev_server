@@ -19,12 +19,35 @@ const inventoryStoreSchema = new mongoose.Schema({
         ref: "GoodCategory"
     },
     request: [],
-    issue: [],
-    return: [],
+    issue: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "IssueGoods"
+        }
+    ],
+    return: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "ReturnGoods"
+          }
+    ],
     consume: [],
     stock_take: [],
-    register: [],
-    maintanence: []
+    register: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "StoreLogs"
+        }
+    ],
+    maintanence: [],
+    goods_volume: {
+        type: Number,
+        default: 0
+    },
+    goods_price: {
+        type: Number,
+        default: 0
+    }
 });
 
 module.exports = mongoose.model("Goods", inventoryStoreSchema);

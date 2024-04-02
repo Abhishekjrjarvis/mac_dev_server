@@ -20,11 +20,26 @@ const goodManagerSchema = new mongoose.Schema({
         ref: "InventoryStore"
     },
     request: [],
-    issue: [],
-    return: [],
+    issue: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "IssueGoods"
+        }
+    ],
+    return: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "ReturnGoods"
+          }
+    ],
     consume: [],
     stock_take: [],
-    register: [],
+    register: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "StoreLogs"
+        }
+    ],
     maintanence: []
 });
 

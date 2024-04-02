@@ -82,7 +82,32 @@ const inventoryStoreSchema = new mongoose.Schema({
   good_heads_count: {
     type: Number,
     default: 0
-  }
+  },
+  dayBook: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StoreLogs"
+    }
+  ],
+  issue_records: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "IssueGoods"
+    }
+  ],
+  issue_request: [],
+  request: [],
+    issue: [],
+  return: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ReturnGoods"
+    }
+    ],
+    consume: [],
+    stock_take: [],
+    register: [],
+    maintanence: []
   
 });
 

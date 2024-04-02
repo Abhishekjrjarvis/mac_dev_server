@@ -298,12 +298,27 @@ const classSchema = new mongoose.Schema({
     },
   ],
   request: [],
-  issue: [],
-  return: [],
+  issue: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "IssueGoods"
+    }
+  ],
+  return: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ReturnGoods"
+    }
+  ],
   consume: [],
   stock_take: [],
-  register: [],
-  maintanence: [],
+  register: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StoreLogs"
+    }
+  ],
+  maintanence: []
   updated_timetable_count: {
     type: Number,
     default: 0,

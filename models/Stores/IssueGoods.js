@@ -44,6 +44,10 @@ const issueGoodsSchema = new mongoose.Schema({
     issue_flow: {
         type: String
     },
+    created_at: {
+        type: Date,
+        default: Date.now
+    }
 })
 
 module.exports = mongoose.model("IssueGoods", issueGoodsSchema)

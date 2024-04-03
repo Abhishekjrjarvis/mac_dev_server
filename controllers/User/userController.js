@@ -1664,7 +1664,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "institute",
           select:
-            "insName photoId insProfilePhoto student_section_form_show_query financeDepart",
+            "insName photoId insProfilePhoto student_section_form_show_query financeDepart storeStatus",
         })
         .populate({
           path: "user",
@@ -1792,6 +1792,18 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "stores_department",
           select: "_id",
+        })
+        .populate({
+          path: "goods_register",
+          select: "good_head_name good_title_person good_head_person",
+          populate: {
+            path: "store",
+            select: "institute",
+            populate: {
+              path: "institute",
+              select: "_id financeDepart admissionDepart storeStatus"
+            }
+          }
         })
         .lean()
         .exec();
@@ -1877,7 +1889,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "institute",
           select:
-            "insName photoId insProfilePhoto student_section_form_show_query financeDepart",
+            "insName photoId insProfilePhoto student_section_form_show_query financeDepart storeStatus",
         })
         .populate({
           path: "user",
@@ -2005,6 +2017,18 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "stores_department",
           select: "_id",
+        })
+        .populate({
+          path: "goods_register",
+          select: "good_head_name good_title_person good_head_person",
+          populate: {
+            path: "store",
+            select: "institute",
+            populate: {
+              path: "institute",
+              select: "_id financeDepart admissionDepart storeStatus"
+            }
+          }
         })
         .lean()
         .exec();

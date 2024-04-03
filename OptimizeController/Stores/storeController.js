@@ -493,16 +493,41 @@ exports.render_all_issue_stock_query = async (req, res) => {
         const skip = (page - 1) * limit;
         if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
         var stores = await InventoryStore.findById({ _id: sid })
-        .select("issue_records")
+            .select("issue_records")
+            
+        var all_issue_goods = await IssueGoods.find({ _id: { $in: stores?.issue_records } })
+            .select("issue_flow created_at")
             .populate({
-                path: "issue_records",
-                populate: {
-                    path: "goods issue_to_department issue_to_hostel issue_to_class issue_to_library issue_to_individual"
-                }
-                
+                path: "issue_to_department",
+                select: "dName"
             })
+            .populate({
+                path: "issue_to_class",
+                select: "className classTitle"
+            })
+            .populate({
+                path: "issue_to_hostel",
+                select: "_id"
+            })
+            .populate({
+                path: "issue_to_library",
+                select: "_id"
+            })
+            .populate({
+                path: "issue_to_custom",
+                select: "good_head_name good_head_name good_head_person created_at",
+                populate: {
+                    path: "good_head_person",
+                    select: "staffFirstName staffMiddleName staffLastName"
+                }
+            })
+            .populate({
+                path: "issue_to_individual",
+                select: "staffFirstName staffMiddleName staffLastName"
+            })
+            .limit(limit)
+        .skip(skip)
         
-        var all_issue_goods = await nested_document_limit(page, limit, stores?.issue_records)
         if (all_issue_goods?.length > 0) {
                 res.status(200).send({ message: "Explore Issue Records History Query", access: true, all_issue_goods: all_issue_goods})
         }
@@ -521,34 +546,7 @@ exports.render_one_issue_stock_query = async (req, res) => {
         const { icid } = req?.params
         if (!icid) return res.status(200).send({ message: "Their is a bug need to fixed immediately" })
         const one_stock = await IssueGoods.findById({ _id: icid })
-            .select("goods issue_flow")
-            .populate({
-                path: "issue_to_department",
-                select: "dName"
-            })
-            .populate({
-                path: "issue_to_hostel",
-                select: "_id"
-            })
-            .populate({
-                path: "issue_to_class",
-                select: "className classTitle"
-            })
-            .populate({
-                path: "issue_to_library",
-                select: "_id"
-            })
-            .populate({
-                path: "issue_to_individual",
-                select: "staffFirstName staffMiddleName staffLastName"
-            })
-            .populate({
-                path: "issue_to_custom",
-            })
-            .populate({
-                path: "store",
-                select: "_id"
-            })
+            .select("goods created_at")
         res.status(200).send({ message: "Explore One Issue Stock Query", access: true, one_stock: one_stock})
     }
     catch (e) {
@@ -674,11 +672,19 @@ exports.render_all_classes_query = async (req, res) => {
                     }
                 ]
             }) 
-            .select("className classTitle")
+                .select("className classTitle")
+                .populate({
+                    path: "classTeacher",
+                    select: "staffFirstName staffMiddleName staffLastName staffROLLNO staffProfilePhoto"
+            })
         }
         else {
             var all_classes = await Class.find({ $and: [{ batch: depart?.departmentSelectBatch }] })
                 .select("className classTitle")
+                .populate({
+                    path: "classTeacher",
+                    select: "staffFirstName staffMiddleName staffLastName staffROLLNO staffProfilePhoto"
+            })
                 .limit(limit)
             .skip(skip)
         }
@@ -725,7 +731,7 @@ exports.render_merge_custom_query = async (req, res) => {
             .select("good_head_name good_title_person")
             .populate({
                 path: "good_head_person",
-                select: "staffFirstName staffMiddleName staffLastName"
+                select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto staffROLLNO"
             })
             var all_depart = await Department.find({
                 $nad: [{ institute: stores?.institute }],
@@ -735,6 +741,10 @@ exports.render_merge_custom_query = async (req, res) => {
                     }
                 ]}) 
                 .select("dName") 
+                .populate({
+                    path: "dHead",
+                    select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto staffROLLNO"
+                })
                 var all = [...all_depart, ...all_manager]
         }
         else {
@@ -742,10 +752,14 @@ exports.render_merge_custom_query = async (req, res) => {
             .select("good_head_name good_title_person")
             .populate({
                 path: "good_head_person",
-                select: "staffFirstName staffMiddleName staffLastName"
+                select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto staffROLLNO"
             })
             var all_depart = await Department.find({ institute: stores?.institute })
-            .select("dName")
+                .select("dName")
+                .populate({
+                    path: "dHead",
+                    select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto staffROLLNO"
+                })
             merge = [...all_depart, ...all_manager]
             var all = await nested_document_limit(page, limit, merge)
         }

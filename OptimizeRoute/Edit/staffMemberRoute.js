@@ -62,4 +62,8 @@ router
   .route("/lms/staff/:osid")
   .patch(isLoggedIn, catchAsync(staffMember.renderLMSStaffQuery));
 
+router
+  .route("/stores/staff/:osid")
+  .patch(isLoggedIn, catchAsync(staffMember.renderStoresStaffQuery));
+
 module.exports = router;

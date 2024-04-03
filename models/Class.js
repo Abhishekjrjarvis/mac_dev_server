@@ -297,6 +297,28 @@ const classSchema = new mongoose.Schema({
       ref: "ClassAttendanceTimeSlot",
     },
   ],
+  request: [],
+  issue: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "IssueGoods"
+    }
+  ],
+  return: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ReturnGoods"
+    }
+  ],
+  consume: [],
+  stock_take: [],
+  register: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StoreLogs"
+    }
+  ],
+  maintanence: []
   updated_timetable_count: {
     type: Number,
     default: 0,

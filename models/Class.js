@@ -327,6 +327,14 @@ const classSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  stream_type: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "StreamType",
+  },
+  cls_stream_type: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "StreamType",
+  },
 });
 
 const Class = mongoose.model("Class", classSchema);

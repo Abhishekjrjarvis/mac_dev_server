@@ -395,11 +395,12 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
   try {
     const { said } = req.params;
     const { flow } = req?.query;
-    const attendance = await AttendenceDate.findOne({
-      _id: { $eq: `${said}` },
-      attendDate: { $eq: `${req.body.date}` },
-      attendence_type: `${flow}`,
-    });
+    // const attendance = await AttendenceDate.findOne({
+    //   _id: { $eq: `${said}` },
+    //   attendDate: { $eq: `${req.body.date}` },
+    //   attendence_type: `${flow}`,
+    // });
+    const attendance = await AttendenceDate.findById(said);
     if (!attendance) {
       res.status(200).send({
         message: "Attendance not Updated, first make a attendance",

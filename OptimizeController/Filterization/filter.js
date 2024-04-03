@@ -8126,6 +8126,113 @@ exports.renderAllDayBookPayment = async (req, res) => {
   }
 };
 
+// exports.renderStudentStatisticsExcelQuery = async (req, res) => {
+//   try {
+//     const { hid } = req?.query
+//     // const { all_arr, batch, depart } = req.body; 
+//     // if (!all_arr)
+//     //   return res.status(200).send({
+//     //     message: "Their is a bug need to fixed immediately",
+//     //     access: false,
+//     //   });
+//     var hostel = await Hostel.findById({ _id: hid })
+//     var valid_all_students = await Student.find({ hostel_fee_structure: { $in: hostel?.fees_structures } })
+//     .populate({
+//       path: "student_bed_number",
+//       populate: {
+//         path: "hostelRoom",
+//         select: "room_name hostelUnit",
+//         populate: {
+//           path: "hostelUnit",
+//           select: "hostel_unit_name"
+//         }
+//       }
+//     })
+//     // var applicable_os_fees = 0
+//     // var total_fees = 0
+//     // var total_os_fees = 0
+//     // var government_os_fees = 0
+//     var excel_list = [];
+//     var head_list = [];
+//       const buildStructureObject = async (arr) => {
+//         var obj = {};
+//         for (let i = 0; i < arr.length; i++) {
+//           const { HeadsName, PaidHeadFees } = arr[i];
+//           obj[HeadsName] = PaidHeadFees;
+//         }
+//         return obj;
+//       };
+//     // var all_app = await NewApplication.find({ $and: [{ applicationDepartment: depart}, { applicationBatch: batch}]})
+//     for (var ref of valid_all_students) {
+//     var one_remain = await RemainingList.findOne({  $and: [{ student: ref?._id}, { fee_structure: { $in: hostel?.fees_structures }}]})
+//     .populate({
+//       path: "fee_structure",
+//       populate: {
+//         path: "class_master batch_master",
+//         select: "className batchName"
+//       }
+//     })
+//     var head_array = [];
+//         if (ref?.active_fee_heads?.length > 0) {
+//           for (var val of ref?.active_fee_heads) {
+//             if (`${val?.appId}` === `${one_remain?.appId}`) {
+//               head_array.push({
+//                 HeadsName: val?.head_name,
+//                 PaidHeadFees: val?.paid_fee,
+//               });
+//             }
+//           }
+//         }
+//         if (one_remain?.paid_fee - one_remain?.applicable_fee > 0) {
+//           if (`${val?.appId}` === `${one_remain?.appId}`) {
+//             head_array.push({
+//               HeadsName: "Excess Fees",
+//               PaidHeadFees: one_remain?.paid_fee - one_remain?.applicable_fee,
+//             });
+//           }
+//         }
+//         if (ref?.active_fee_heads?.length > 0) {
+//           var result = await buildStructureObject(head_array);
+//         }
+//       excel_list.push({
+//         RollNo: ref?.studentROLLNO ?? "NA",
+//         AbcId: ref?.student_abc_id ?? "#NA",
+//         GRNO: ref?.studentGRNO ?? "#NA",
+//         Name: `${ref?.studentFirstName} ${
+//           ref?.studentMiddleName ? ref?.studentMiddleName : ""
+//         } ${ref?.studentLastName}` ?? ref?.valid_full_name,
+//         DOB: ref?.studentDOB ?? "#NA",
+//         Gender: ref?.studentGender ?? "#NA",
+//         BedNumber: ref?.student_bed_number?.bed_number ?? "#NA",
+//         RoomName: ref?.student_bed_number?.hostelRoom?.room_name ?? "#NA",
+//         UnitName: ref?.student_bed_number?.hostelRoom?.hostelUnit?.hostel_unit_name ?? "#NA",
+//         TotalFees: one_remain?.applicable_fee ?? 0,
+//         TotalOutstandingFees: one_remain?.remaining_fee,
+//         TotalPaidFees: one_remain?.paid_fee,
+//         TotalApplicableOutstandingFees: one_remain?.paid_fee <= one_remain?.fee_structure?.applicable_fees ? one_remain?.fee_structure?.applicable_fees - one_remain?.paid_fee : 0,
+//         Standard: `${one_remain?.fee_structure}` ? `${one_remain?.fee_structure?.class_master?.className}` : "#NA",
+//         Batch: `${one_remain?.fee_structure}` ? `${one_remain?.fee_structure?.batch_master?.batchName}` : "#NA",
+//         FeeStructure: one_remain?.fee_structure?.unique_structure_name,
+//         ...result
+//       });
+//       result = []
+//     }
+//     // console.log(excel_list)
+//     const data = await json_to_excel_statistics_promote_query(
+//       excel_list,
+//     );
+
+//     res.status(200).send({
+//       message: "Explore Statistics with Admission Fee Query",
+//       access: true,
+//       data: data,
+//       // excel_list: excel_list
+//     });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
 
 // exports.renderClassWiseQuery = async (req, res) => {
 //   try {

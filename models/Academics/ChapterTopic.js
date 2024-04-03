@@ -55,7 +55,13 @@ const chapterTopicSchema = new mongoose.Schema({
   execution_date: {
     type: Date,
     default: Date.now
-  }
+  },
+  topic_last_date_format: {
+    type: Date,
+  },
+  topic_link: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("ChapterTopic", chapterTopicSchema);

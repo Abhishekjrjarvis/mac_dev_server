@@ -10,6 +10,9 @@ const holidaySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  description: {
+    type: String,
+  },
 });
 
 const Holiday = mongoose.model("Holiday", holidaySchema);

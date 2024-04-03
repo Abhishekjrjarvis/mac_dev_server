@@ -88,6 +88,14 @@ const subjectMasterSchema = new mongoose.Schema({
       // subject_category: String,
     },
   ],
+  automate_subject_master: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "AutomateSubjectMaster",
+  },
+  is_practical: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const SubjectMaster = mongoose.model("SubjectMaster", subjectMasterSchema);

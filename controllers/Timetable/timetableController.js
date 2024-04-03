@@ -529,7 +529,8 @@ exports.getInstituteAllotStaff = async (req, res) => {
 
 exports.getStaffSideDateWise = async (req, res) => {
   try {
-    const { flow } = req.query;
+    let flow = "";
+    flow = req.query?.flow;
     if (!req.params.sid) throw "Please send staff id to perform task";
     var subj = null;
 
@@ -1094,7 +1095,7 @@ exports.getSubjectDateWiseScheduleQuery = async(req, res) => {
       }
     ] })
 
-    console.log(time_table)
+    // console.log(time_table)
 
     var list = time_table?.schedule?.filter((val) => {
       if(`${val?.subject}` === `${subject?._id}`) return val

@@ -138,6 +138,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
           var new_topic = new ChapterTopic({
             topic_name: ref?.topic_name,
             topic_last_date: ref?.topic_last_date,
+            // topic_last_date_format: new Date(`${ref?.topic_last_date}`)
           });
           new_chapter.topic.push(new_topic?._id);
           new_chapter.topic_count += 1;

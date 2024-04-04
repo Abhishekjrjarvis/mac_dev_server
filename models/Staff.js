@@ -576,7 +576,12 @@ const staffSchema = new mongoose.Schema({
       ref: "GoodManager"
     }
   ],
-  request: [],
+  request: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RequestGoods"
+    }
+  ],
   issue: [
     {
       type: mongoose.Schema.Types.ObjectId,

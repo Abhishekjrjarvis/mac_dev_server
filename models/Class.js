@@ -297,7 +297,12 @@ const classSchema = new mongoose.Schema({
       ref: "ClassAttendanceTimeSlot",
     },
   ],
-  request: [],
+  request: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RequestGoods"
+    }
+  ],
   issue: [
     {
       type: mongoose.Schema.Types.ObjectId,

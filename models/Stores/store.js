@@ -95,7 +95,12 @@ const inventoryStoreSchema = new mongoose.Schema({
       ref: "IssueGoods"
     }
   ],
-  issue_request: [],
+  issue_request: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RequestGoods"
+    }
+  ],
   request: [],
     issue: [],
   return: [
@@ -107,8 +112,17 @@ const inventoryStoreSchema = new mongoose.Schema({
     consume: [],
     stock_take: [],
     register: [],
-    maintanence: []
-  
+  maintanence: [],
+  goods_qr: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Goods",
+    },
+  ],
+  is_goods_qr: {
+    type: Boolean,
+    default: false
+  }
 });
 
 module.exports = mongoose.model("InventoryStore", inventoryStoreSchema);

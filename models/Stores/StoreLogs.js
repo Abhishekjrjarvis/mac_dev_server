@@ -49,6 +49,12 @@ const storeLogsSchema = new mongoose.Schema({
     ],
     issue_flow: {
         type: String
+    },
+    return_flow: {
+        type: String
+    },
+    request_flow: {
+        type: String
     }
 })
 

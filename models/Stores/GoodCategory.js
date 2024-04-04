@@ -25,7 +25,12 @@ const goodCategorySchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    request: [],
+    request: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "RequestGoods"
+          }
+    ],
     issue: [
         {
             type: mongoose.Schema.Types.ObjectId,

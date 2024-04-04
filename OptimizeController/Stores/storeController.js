@@ -51,6 +51,8 @@ const StoreLogs = require("../../models/Stores/StoreLogs");
 const IssueGoods = require("../../models/Stores/IssueGoods");
 const Library = require("../../models/Library/Library");
 const Hostel = require("../../models/Hostel/hostel");
+const RequestGoods = require("../../models/Stores/RequestGoods");
+const { generate_qr } = require("../../Utilities/qrGeneration/qr_generation");
 
 exports.render_new_store_query = async (req, res) => {
   try {
@@ -281,12 +283,12 @@ exports.render_all_goods_query = async (req, res) => {
                 ]
             })
             .sort({ created_at: -1 })
-            .select("goods_name goods_quantity goods_price goods_volume goods_icon")
+            .select("goods_name goods_quantity goods_price goods_volume goods_icon goods_qr_code")
         }
         else {
             var all_goods = await Goods.find({ _id: { $in: good_cat?.goods_arr } })
             .sort({ created_at: -1 })
-            .select("goods_name goods_quantity goods_price goods_volume goods_icon")
+            .select("goods_name goods_quantity goods_price goods_volume goods_icon goods_qr_code")
             .limit(limit)
             .skip(skip)   
         }
@@ -590,7 +592,7 @@ exports.render_daybook_stock_query = async (req, res) => {
             })
             .populate({
                 path: "goods",
-                select: "goods_volume goods_price goods_name goods_quantity goods_icon"
+                select: "goods_volume goods_price goods_name goods_quantity goods_icon goods_qr_code"
             })
             .limit(limit)
         .skip(skip)
@@ -628,11 +630,11 @@ exports.render_category_all_goods_query = async (req, res) => {
                 }
                 ]
             })
-            .select("goods_name goods_quantity goods_price goods_volume goods_icon")
+            .select("goods_name goods_quantity goods_price goods_volume goods_icon goods_qr_code")
         }
         else {
             var all_goods = await Goods.find({ good_category: { $in: stores?.good_category} })
-                .select("goods_name goods_quantity goods_price goods_volume goods_icon")
+                .select("goods_name goods_quantity goods_price goods_volume goods_icon goods_qr_code")
                 .limit(limit)
                 .skip(skip)
             
@@ -1047,7 +1049,642 @@ exports.render_module_all_maintainence_query = async (req, res) => {
 
 exports.render_module_all_request_query = async (req, res) => {
     try {
+        const { mid } = req?.params
+        const { flow } = req?.query
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
+        if (!mid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
         
+        if (flow === "Department") {
+            var module = await Department.findById({ _id: mid })
+            var all_request = await RequestGoods.find({ _id: { $in: module?.request } })
+                .limit(limit)
+                .skip(skip)
+                .populate({
+                    path: "issue_to_department",
+                    select: "dName"
+                })
+        }
+        else if (flow === "Class") {
+            var module = await Class.findById({ _id: mid })
+            var all_request = await RequestGoods.find({ _id: { $in: module?.request } })
+            .limit(limit)
+                .skip(skip)
+                .populate({
+                    path: "issue_to_class",
+                    select: "className classTitle"
+                })
+        }
+        else if (flow === "Library") {
+            var module = await Library.findById({ _id: mid })
+            var all_request = await RequestGoods.find({ _id: { $in: module?.request } })
+            .limit(limit)
+                .skip(skip)
+                .populate({
+                    path: "issue_to_library",
+                    select: "_id"
+                })
+        }
+        else if (flow === "Hostel") {
+            var module = await Hostel.findById({ _id: mid })
+            var all_request = await RequestGoods.find({ _id: { $in: module?.request } })
+            .limit(limit)
+                .skip(skip)
+                .populate({
+                    path: "issue_to_hostel",
+                    select: "_id"
+                })
+        }
+        else if (flow === "Individual") {
+            var module = await Staff.findById({ _id: mid })
+            var all_request = await RequestGoods.find({ _id: { $in: module?.request } })
+            .limit(limit)
+                .skip(skip)
+                .populate({
+                    path: "issue_to_individual",
+                    select: "staffFirstName staffMiddleName staffLastName"
+                })
+        }
+        else if (flow === "Custom") {
+            var module = await GoodManager.findById({ _id: mid })
+            var all_request = await RequestGoods.find({ _id: { $in: module?.request } })
+            .limit(limit)
+                .skip(skip)
+                .populate({
+                    path: "issue_to_custom",
+                })
+        }
+
+        if (all_request?.length > 0) {
+            res.status(200).send({ message: "Explore All Module Request Query", access: true, all_request: all_request})
+        }
+        else {
+            res.status(200).send({ message: "No Module Request Query", access: false, all_request: []})
+        }
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_goods_all_register_query = async (req, res) => {
+    try {
+        const { gid } = req?.params
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
+        if (!gid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+        
+            var gds = await Goods.findById({ _id: gid })
+            var all_register = await StoreLogs.find({ _id: { $in: gds?.register } })
+                .limit(limit)
+                .skip(skip)
+                .populate({
+                    path: "issue_to_department",
+                    select: "dName"
+                })
+                .populate({
+                    path: "issue_to_hostel",
+                    select: "_id"
+                })
+                .populate({
+                    path: "issue_to_class",
+                    select: "className classTitle"
+                })
+                .populate({
+                    path: "issue_to_library",
+                    select: "_id"
+                })
+                .populate({
+                    path: "issue_to_individual",
+                    select: "staffFirstName staffMiddleName staffLastName staffROLLNO staffProfilePhoto"
+                })
+                .populate({
+                    path: "issue_to_custom",
+                })
+        if (all_register?.length > 0) {
+            res.status(200).send({ message: "Explore All Goods Register Query", access: true, all_register: all_register})
+        }
+        else {
+            res.status(200).send({ message: "No Goods Register Query", access: false, all_register: []})
+        }
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_goods_all_issue_query = async (req, res) => {
+    try {
+        const { gid } = req?.params
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
+        if (!gid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+            var gds = await Goods.findById({ _id: gid })
+            var all_issue = await IssueGoods.find({ _id: { $in: gds?.issue } })
+                .limit(limit)
+                .skip(skip)
+                .populate({
+                    path: "issue_to_department",
+                    select: "dName"
+                })
+                .populate({
+                    path: "issue_to_hostel",
+                    select: "_id"
+                })
+                .populate({
+                    path: "issue_to_class",
+                    select: "className classTitle"
+                })
+                .populate({
+                    path: "issue_to_library",
+                    select: "_id"
+                })
+                .populate({
+                    path: "issue_to_individual",
+                    select: "staffFirstName staffMiddleName staffLastName staffROLLNO staffProfilePhoto"
+                })
+                .populate({
+                    path: "issue_to_custom",
+                })
+
+        if (all_issue?.length > 0) {
+            res.status(200).send({ message: "Explore All Goods Issue Query", access: true, all_issue: all_issue})
+        }
+        else {
+            res.status(200).send({ message: "No Goods Issue Query", access: false, all_issue: []})
+        }
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_goods_all_return_query = async (req, res) => {
+    try {
+        const { gid } = req?.params
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
+        if (!gid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+            var gds = await Goods.findById({ _id: gid })
+            var all_return = await ReturnGoods.find({ _id: { $in: gds?.return } })
+                .limit(limit)
+                .skip(skip)
+                .populate({
+                    path: "issue_to_department",
+                    select: "dName"
+                })
+                .populate({
+                    path: "issue_to_hostel",
+                    select: "_id"
+                })
+                .populate({
+                    path: "issue_to_class",
+                    select: "className classTitle"
+                })
+                .populate({
+                    path: "issue_to_library",
+                    select: "_id"
+                })
+                .populate({
+                    path: "issue_to_individual",
+                    select: "staffFirstName staffMiddleName staffLastName staffROLLNO staffProfilePhoto"
+                })
+                .populate({
+                    path: "issue_to_custom",
+                })
+
+        if (all_return?.length > 0) {
+            res.status(200).send({ message: "Explore All Goods Return Query", access: true, all_return: all_return})
+        }
+        else {
+            res.status(200).send({ message: "No Goods Return Query", access: false, all_return: []})
+        }
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_goods_all_consume_query = async (req, res) => {
+    try {
+        
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_goods_all_stocktake_query = async (req, res) => {
+    try {
+        
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_goods_all_maintainence_query = async (req, res) => {
+    try {
+        
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_goods_all_request_query = async (req, res) => {
+    try {
+        const { gid } = req?.params
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
+        if (!gid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+            var gds = await Goods.findById({ _id: gid })
+            var all_request = await RequestGoods.find({ _id: { $in: gds?.request } })
+                .limit(limit)
+                .skip(skip)
+                .populate({
+                    path: "issue_to_department",
+                    select: "dName"
+                })
+                .populate({
+                    path: "issue_to_hostel",
+                    select: "_id"
+                })
+                .populate({
+                    path: "issue_to_class",
+                    select: "className classTitle"
+                })
+                .populate({
+                    path: "issue_to_library",
+                    select: "_id"
+                })
+                .populate({
+                    path: "issue_to_individual",
+                    select: "staffFirstName staffMiddleName staffLastName staffROLLNO staffProfilePhoto"
+                })
+                .populate({
+                    path: "issue_to_custom",
+                })
+
+        if (all_request?.length > 0) {
+            res.status(200).send({ message: "Explore All Goods Request Query", access: true, all_request: all_request})
+        }
+        else {
+            res.status(200).send({ message: "No Goods Request Query", access: false, all_request: []})
+        }
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_return_stock_query = async (req, res) => {
+    try {
+        const { sid } = req?.params
+        const { arr, return_by, flow } = req?.body
+        if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+        
+        const stores = await InventoryStore.findById({ _id: sid })
+        const returns = new ReturnGoods({})
+        const logs = new StoreLogs({})
+        if (flow === "Department") {
+            var module = await Department.findById({ _id: return_by })
+            returns.return_to_department = module?._id
+            logs.issue_to_department = module?._id
+            module.return.push(returns?._id)
+            module.register.push(logs?._id)
+        }
+        else if (flow === "Class") {
+            var module = await Class.findById({ _id: return_by })
+            returns.return_to_class = module?._id
+            logs.issue_to_class = module?._id
+            module.return.push(returns?._id)
+            module.register.push(logs?._id)
+        }
+        else if (flow === "Library") {
+            var module = await Library.findById({ _id: return_by })
+            returns.return_to_library = module?._id
+            logs.issue_to_library = module?._id
+            module.return.push(returns?._id)
+            module.register.push(logs?._id)
+        }
+        else if (flow === "Hostel") {
+            var module = await Hostel.findById({ _id: return_by })
+            returns.return_to_hostel = module?._id
+            logs.issue_to_hostel = module?._id
+            module.return.push(returns?._id)
+            module.register.push(logs?._id)
+        }
+        else if (flow === "Individual") {
+            var module = await Staff.findById({ _id: return_by })
+            returns.return_to_individual = module?._id
+            logs.issue_to_individual = module?._id
+            module.return.push(returns?._id)
+            module.register.push(logs?._id)
+        }
+        else if (flow === "Custom") {
+            var module = await GoodManager.findById({ _id: return_by })
+            returns.return_to_custom = module?._id
+            logs.issue_to_custom = module?._id
+            module.return.push(returns?._id)
+            module.register.push(logs?._id)
+        }
+        logs.logs_title = `${arr?.length} goods return by ${flow} Unit To Store Manager`
+        returns.return_flow = flow
+        logs.return_flow = flow
+        for (var val of arr) {
+            var goods = await Goods.findById({ _id: `${val?.goodId}` })
+            returns.goods.push({
+                good: goods?._id,
+                quantity: val?.volume
+            })
+            logs.goods.push({
+                good: goods?._id,
+                quantity: val?.volume
+            })
+            goods.goods_volume -= val?.volume
+            goods.return.push(returns?._id)
+            goods.register.push(logs?._id)
+            await goods.save()
+        }
+        stores.return.push(returns?._id)
+        stores.dayBook.push(logs?._id)
+        await Promise.all([stores.save(), returns.save(), logs.save(), module.save()])
+        res.status(200).send({ message: "New Goods Returned", access: true})
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_all_return_stock_query = async (req, res) => {
+    try {
+        const { sid } = req?.params
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
+        if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+        var stores = await InventoryStore.findById({ _id: sid })
+            .select("return")
+            
+        var all_return_goods = await ReturnGoods.find({ _id: { $in: stores?.return } })
+            .select("return_flow created_at")
+            .populate({
+                path: "return_to_department",
+                select: "dName"
+            })
+            .populate({
+                path: "return_to_class",
+                select: "className classTitle"
+            })
+            .populate({
+                path: "return_to_hostel",
+                select: "_id"
+            })
+            .populate({
+                path: "return_to_library",
+                select: "_id"
+            })
+            .populate({
+                path: "return_to_custom",
+                select: "good_head_name good_head_name good_head_person created_at",
+                populate: {
+                    path: "good_head_person",
+                    select: "staffFirstName staffMiddleName staffLastName"
+                }
+            })
+            .populate({
+                path: "return_to_individual",
+                select: "staffFirstName staffMiddleName staffLastName"
+            })
+            .limit(limit)
+        .skip(skip)
+        
+        if (all_return_goods?.length > 0) {
+                res.status(200).send({ message: "Explore Return Records History Query", access: true, all_return_goods: all_return_goods})
+        }
+        else {
+            res.status(200).send({ message: "No Return Records History Query", access: true, all_return_goods: []})
+            
+        }
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_one_return_stock_query = async (req, res) => {
+    try {
+        const { icid } = req?.params
+        if (!icid) return res.status(200).send({ message: "Their is a bug need to fixed immediately" })
+        const one_stock = await ReturnGoods.findById({ _id: icid })
+            .select("goods created_at")
+        res.status(200).send({ message: "Explore One Return Stock Query", access: true, one_stock: one_stock})
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_request_stock_query = async (req, res) => {
+    try {
+        const { sid } = req?.params
+        const { arr, request_by, flow } = req?.body
+        if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+        
+        const stores = await InventoryStore.findById({ _id: sid })
+        const issue = new RequestGoods({})
+        const logs = new StoreLogs({})
+        if (flow === "Department") {
+            var module = await Department.findById({ _id: request_by })
+            issue.request_by_department = module?._id
+            logs.issue_to_department = module?._id
+            module.request.push(issue?._id)
+            module.register.push(logs?._id)
+        }
+        else if (flow === "Class") {
+            var module = await Class.findById({ _id: request_by })
+            issue.request_by_class = module?._id
+            logs.issue_to_class = module?._id
+            module.request.push(issue?._id)
+            module.register.push(logs?._id)
+        }
+        else if (flow === "Library") {
+            var module = await Library.findById({ _id: request_by })
+            issue.request_by_library = module?._id
+            logs.issue_to_library = module?._id
+            module.request.push(issue?._id)
+            module.register.push(logs?._id)
+        }
+        else if (flow === "Hostel") {
+            var module = await Hostel.findById({ _id: request_by })
+            issue.request_by_hostel = module?._id
+            logs.issue_to_hostel = module?._id
+            module.request.push(issue?._id)
+            module.register.push(logs?._id)
+        }
+        else if (flow === "Individual") {
+            var module = await Staff.findById({ _id: request_by })
+            issue.request_by_individual = module?._id
+            logs.issue_to_individual = module?._id
+            module.request.push(issue?._id)
+            module.register.push(logs?._id)
+        }
+        else if (flow === "Custom") {
+            var module = await GoodManager.findById({ _id: request_by })
+            issue.request_by_custom = module?._id
+            logs.issue_to_custom = module?._id
+            module.request.push(issue?._id)
+            module.register.push(logs?._id)
+        }
+        logs.logs_title = `${arr?.length} goods request by ${flow} Unit to store manager`
+        issue.request_flow = flow
+        logs.request_flow = flow
+        for (var val of arr) {
+            var goods = await Goods.findById({ _id: `${val?.goodId}` })
+            issue.goods.push({
+                good: goods?._id,
+                quantity: val?.volume
+            })
+            logs.goods.push({
+                good: goods?._id,
+                quantity: val?.volume
+            })
+            // goods.goods_volume -= val?.volume
+            goods.request.push(issue?._id)
+            goods.register.push(logs?._id)
+            await goods.save()
+        }
+        stores.issue_request.push(issue?._id)
+        stores.dayBook.push(logs?._id)
+        await Promise.all([stores.save(), issue.save(), logs.save(), module.save()])
+        res.status(200).send({ message: "New Goods Requested To Store Manager", access: true})
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_mark_status_stock_query = async (req, res) => {
+    try {
+        const { sid } = req?.params
+        const { status, rid } = req?.body
+        if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+        
+        const stores = await InventoryStore.findById({ _id: sid })
+        const one_request = await RequestGoods.findById({ _id: rid })
+        
+        if (status === "Approve") {
+            const issue = new IssueGoods({})
+            const logs = new StoreLogs({})
+            logs.logs_title = `${one_request?.goods?.length} goods ${status} for ${flow} Unit by store manager`
+            issue.issue_flow = one_request?.request_flow
+            logs.issue_flow = one_request?.request_flow
+            one_request.status = `${status}` 
+            for (var val of one_request?.goods) {
+                var goods = await Goods.findById({ _id: `${val?.good}` })
+                issue.goods.push({
+                    good: goods?._id,
+                    quantity: val?.volume
+                })
+                logs.goods.push({
+                    good: goods?._id,
+                    quantity: val?.volume
+                })
+                goods.goods_volume -= val?.volume
+                goods.issue.push(issue?._id)
+                goods.register.push(logs?._id)
+                await goods.save()
+            }
+            if (one_request?.request_flow === "Department") {
+                var module = await Department.findById({ _id: one_request?.request_by_department })
+                issue.issue_to_department = module?._id
+                logs.issue_to_department = module?._id
+                module.issue.push(issue?._id)
+                module.register.push(logs?._id)
+            }
+            else if (one_request?.request_flow === "Class") {
+                var module = await Class.findById({ _id: one_request?.request_by_department })
+                issue.issue_to_department = module?._id
+                logs.issue_to_department = module?._id
+                module.issue.push(issue?._id)
+                module.register.push(logs?._id)
+            }
+            else if (one_request?.request_flow === "Hostel") {
+                var module = await Hostel.findById({ _id: one_request?.request_by_department })
+                issue.issue_to_department = module?._id
+                logs.issue_to_department = module?._id
+                module.issue.push(issue?._id)
+                module.register.push(logs?._id)
+            }
+            else if (one_request?.request_flow === "Library") {
+                var module = await Library.findById({ _id: one_request?.request_by_department })
+                issue.issue_to_department = module?._id
+                logs.issue_to_department = module?._id
+                module.issue.push(issue?._id)
+                module.register.push(logs?._id)
+            }
+            else if (one_request?.request_flow === "Individual") {
+                var module = await Staff.findById({ _id: one_request?.request_by_department })
+                issue.issue_to_department = module?._id
+                logs.issue_to_department = module?._id
+                module.issue.push(issue?._id)
+                module.register.push(logs?._id)
+            }
+            else if (one_request?.request_flow === "Custom") {
+                var module = await GoodManager.findById({ _id: one_request?.request_by_department })
+                issue.issue_to_department = module?._id
+                logs.issue_to_department = module?._id
+                module.issue.push(issue?._id)
+                module.register.push(logs?._id)
+            }
+            stores.issue_records.push(issue?._id)
+            stores.dayBook.push(logs?._id)
+        }
+        else {
+            one_request.status = `${status}`
+        }
+        await Promise.all([stores.save(), issue.save(), logs.save(), module.save(), one_request.save()])
+        res.status(200).send({ message: `New Goods ${status} By Store Manager`, access: true})
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.goods_qr_generation = async (req, res) => {
+    try {
+        const { sid } = req?.params
+        if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+        
+        var stores = await InventoryStore.findById({ _id: sid })
+        var all_goods = await Goods.find({ good_category: { $in: stores?.good_heads }})
+        for (var good of all_goods) {
+            if (good?.goods_qr_code) {
+            } else {
+              if (good) {
+                let good_qr = {
+                  store: stores?._id,
+                  instituteId: stores?.institute,
+                    goodId: good?._id,
+                  good_category: good?.good_category
+                };
+                let imageKey = await generate_qr({
+                  fileName: "initial-good-qr",
+                  object_contain: good_qr,
+                });
+                good.goods_qr_code = imageKey;
+                await good.save();
+                stores.goods_qr?.push(good?._id);
+              }
+            }
+        }
+        res.status(200).send({ message: "Explore All Goods QR", access: true})
     }
     catch (e) {
         console.log(e)

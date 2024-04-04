@@ -407,7 +407,12 @@ const departmentSchema = new mongoose.Schema({
   department_programme_name: {
     type: String,
   },
-  request: [],
+  request: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RequestGoods"
+    }
+  ],
   issue: [
     {
       type: mongoose.Schema.Types.ObjectId,

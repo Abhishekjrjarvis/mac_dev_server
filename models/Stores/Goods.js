@@ -18,7 +18,12 @@ const inventoryStoreSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "GoodCategory"
     },
-    request: [],
+    request: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "RequestGoods"
+          }
+    ],
     issue: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -47,6 +52,9 @@ const inventoryStoreSchema = new mongoose.Schema({
     goods_price: {
         type: Number,
         default: 0
+    },
+    goods_qr_code: {
+        type: String
     }
 });
 

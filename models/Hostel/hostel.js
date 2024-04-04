@@ -285,7 +285,12 @@ const hostelSchema = new mongoose.Schema({
     type: String,
     unique: true
   },
-  request: [],
+  request: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RequestGoods"
+    }
+  ],
   issue: [
     {
       type: mongoose.Schema.Types.ObjectId,

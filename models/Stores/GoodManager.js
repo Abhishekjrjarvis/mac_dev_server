@@ -19,7 +19,12 @@ const goodManagerSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "InventoryStore"
     },
-    request: [],
+    request: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "RequestGoods"
+          }
+    ],
     issue: [
         {
             type: mongoose.Schema.Types.ObjectId,

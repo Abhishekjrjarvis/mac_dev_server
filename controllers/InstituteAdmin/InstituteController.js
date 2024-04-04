@@ -4022,7 +4022,7 @@ exports.fetchOneStaffDepartmentInfo = async (req, res) => {
       })
       .populate({
         path: "institute",
-        select: "insName financeStatus storeStatus",
+        select: "insName financeStatus storeStatus storeDepart",
       })
       .populate({
         path: "userBatch",
@@ -4286,7 +4286,7 @@ exports.retrieveClass = async (req, res) => {
       })
       .populate({
         path: "institute",
-        select: "insName storeStatus",
+        select: "insName storeStatus storeDepart",
       })
       .lean()
       .exec();

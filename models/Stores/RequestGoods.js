@@ -1,27 +1,27 @@
 const mongoose = require("mongoose")
 
-const returnGoodsSchema = new mongoose.Schema({
-    return_to_department: {
+const requestGoodsSchema = new mongoose.Schema({
+    request_by_department: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Department"
     },
-    return_to_hostel: {
+    request_by_hostel: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Hostel"
     },
-    return_to_class: {
+    request_by_class: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Class"
     },
-    return_to_library: {
+    request_by_library: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Library"
     },
-    return_to_individual: {
+    request_by_individual: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Staff"
     },
-    return_to_custom: {
+    request_by_custom: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "GoodManager"
     },
@@ -41,8 +41,12 @@ const returnGoodsSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "InventoryStore"
     },
-    return_flow: {
+    request_flow: {
         type: String
+    },
+    status: {
+        type: String,
+        default: "Requested"
     },
     created_at: {
         type: Date,
@@ -50,4 +54,4 @@ const returnGoodsSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model("ReturnGoods", returnGoodsSchema)
+module.exports = mongoose.model("RequestGoods", requestGoodsSchema)

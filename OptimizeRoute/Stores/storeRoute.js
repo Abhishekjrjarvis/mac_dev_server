@@ -126,4 +126,70 @@ router.get(
 );
 
 
+router.get(
+  "/:gid/goods/all/register/query",
+  catchAsync(Store.render_goods_all_register_query)
+);
+
+router.get(
+  "/:gid/goods/all/issue/query",
+  catchAsync(Store.render_goods_all_issue_query)
+);
+
+router.get(
+  "/:gid/goods/all/return/query",
+  catchAsync(Store.render_goods_all_return_query)
+);
+
+router.get(
+  "/:gid/goods/all/consume/query",
+  catchAsync(Store.render_goods_all_consume_query)
+);
+
+router.get(
+  "/:gid/goods/all/stocktake/query",
+  catchAsync(Store.render_goods_all_stocktake_query)
+);
+
+router.get(
+  "/:gid/goods/all/request/query",
+  catchAsync(Store.render_goods_all_request_query)
+);
+
+router.get(
+  "/:gid/goods/all/maintainence/query",
+  catchAsync(Store.render_goods_all_maintainence_query)
+);
+
+router.post(
+  "/:sid/request/stock/query",
+  catchAsync(Store.render_request_stock_query)
+);
+
+router.patch(
+  "/:sid/mark/status/query",
+  catchAsync(Store.render_mark_status_stock_query)
+);
+
+router.post(
+  "/:sid/return/stock/query",
+  catchAsync(Store.render_return_stock_query)
+);
+
+router.get(
+  "/:sid/all/return/stock/query",
+  catchAsync(Store.render_all_return_stock_query)
+);
+
+router.get(
+  "/one/return/:icid/stock/query",
+  catchAsync(Store.render_one_return_stock_query)
+);
+
+router.patch(
+  "/:sid/qr/code/query",
+  catchAsync(Store.goods_qr_generation)
+);
+
+
 module.exports = router;

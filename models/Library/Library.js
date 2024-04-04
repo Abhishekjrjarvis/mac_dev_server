@@ -229,7 +229,12 @@ const librarySchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  request: [],
+  request: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RequestGoods"
+    }
+  ],
   issue: [
     {
       type: mongoose.Schema.Types.ObjectId,

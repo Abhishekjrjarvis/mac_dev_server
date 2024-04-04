@@ -324,6 +324,22 @@ const classSchema = new mongoose.Schema({
     }
   ],
   maintanence: []
+  updated_timetable_count: {
+    type: Number,
+    default: 0,
+  },
+  not_updated_timetable_count: {
+    type: Number,
+    default: 0,
+  },
+  stream_type: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "StreamType",
+  },
+  cls_stream_type: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "StreamType",
+  },
 });
 
 const Class = mongoose.model("Class", classSchema);

@@ -3104,17 +3104,17 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
           if (valid_name && valid_amount && valid_master && valid_type) {
             if (`${valid_type}` === "APPLICABLE") {
               struct_query.applicable_fees_heads.push({
-                head_name: ref?.head_name,
-                head_amount: ref?.head_amount,
-                master: ref?.master,
+                head_name: val?.head_name,
+                head_amount: val?.head_amount,
+                master: val?.master,
               });
               struct_query.applicable_fees_heads_count += 1;
             }
             else if (`${valid_type}` === "GOVERNMENT") {
               struct_query.government_fees_heads.push({
-                head_name: ref?.head_name,
-                head_amount: ref?.head_amount,
-                master: ref?.master,
+                head_name: val?.head_name,
+                head_amount: val?.head_amount,
+                master: val?.master,
               });
               struct_query.government_fees_heads_count += 1;
             }
@@ -3123,6 +3123,8 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
             }
           } else {
           }
+          // console.log(struct_query?.applicable_fees_heads)
+          // console.log(struct_query?.government_fees_heads)
         }
       }
       await struct_query.save();

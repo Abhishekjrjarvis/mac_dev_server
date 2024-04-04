@@ -24,6 +24,9 @@ const chapterSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  chapter_link: {
+    type: String,
+  },
 });
 
 chapterSchema.post("findOneAndDelete", async function (doc) {

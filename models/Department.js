@@ -413,6 +413,37 @@ const departmentSchema = new mongoose.Schema({
       ref: "RequestGoods"
     }
   ],
+  institute_type: {
+    type: String,
+  },
+  institute_type_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteType",
+  },
+  affiliation_with_institute: {
+    type: String,
+  },
+  affiliation_with_institute_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "University",
+  },
+  department_type: {
+    type: String,
+  },
+  department_type_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "DepartmentType",
+  },
+  stream_type: {
+    type: String,
+  },
+  stream_type_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "StreamType",
+  },
+  academic_start_date: {
+    type: Date,
+  },
   issue: [
     {
       type: mongoose.Schema.Types.ObjectId,

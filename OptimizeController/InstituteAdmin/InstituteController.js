@@ -1356,7 +1356,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
           path: "remainingFeeList",
           select: "paid_fee fee_structure applicable_card government_card",
           populate: {
-            path: "fee_structure applicable_card",
+            path: "fee_structure applicable_card government_card",
           },
         });
       }
@@ -3616,6 +3616,7 @@ exports.retrieveNewSubject = async (req, res) => {
       practical_analytic: practical_analytic,
       tutorial_analytic: tutorial_analytic,
       subject_category: subject_category,
+      batch: classes?.batch
     });
     const codess = universal_random_password()
     subject.member_module_unique = `${codess}`
@@ -5814,6 +5815,92 @@ exports.renderApproveStaffShuffleQuery = async (req, res) => {
     else {
       res.status(200).send({ message: "No Staff Query", access: true, all_staff: []})
     }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderRemoveStaffQuery = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var staff = await Staff.findById({ _id: sid })
+    var user = await User.findById({ _id: `${staff?.user}` })
+    var admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    if (staff?.institute) {
+      var one_ins = await InstituteAdmin.findById({ _id: `${staff?.institute}` }) 
+      staff.staffStatus = "Not Approved";
+      one_ins.ApproveStaff.pull(staff._id);
+      if (one_ins.staffCount > 0) {
+        one_ins.staffCount -= 1
+      }
+      admins.staffArray.pull(staff._id);
+      if (admins.staffCount > 0) {
+        admins.staffCount -= 1
+      }
+      one_ins.UnApprovedStaff.push(sid);
+      one_ins.joinedUserList.pull(user._id);
+      staff.staffROLLNO = "";
+      if (staff.staffGender === "Male") {
+        if (one_ins.staff_category.boyCount > 0) {
+          one_ins.staff_category.boyCount -= 1
+        }
+      } else if (staff.staffGender === "Female") {
+        if (one_ins.staff_category.girlCount > 0) {
+          one_ins.staff_category.girlCount -= 1
+        }
+      } else if (staff.staffGender === "Other") {
+        if (one_ins.staff_category.otherCount > 0) {
+          one_ins.staff_category.otherCount -= 1
+        }
+      } else {
+      }
+      if (staff.staffCastCategory === "General") {
+        if (one_ins.staff_category.generalCount > 0) {
+          one_ins.staff_category.generalCount -= 1
+        }
+      } else if (staff.staffCastCategory === "OBC") {
+        if (one_ins.staff_category.obcCount > 0) {
+          one_ins.staff_category.obcCount -= 1
+        }
+      } else if (staff.staffCastCategory === "SC") {
+        if (one_ins.staff_category.scCount > 0) {
+          one_ins.staff_category.scCount -= 1
+        }
+      } else if (staff.staffCastCategory === "ST") {
+        if (one_ins.staff_category.stCount > 0) {
+          one_ins.staff_category.stCount -= 1
+        }
+      } else if (staff.staffCastCategory === "NT-A") {
+        if (one_ins.staff_category.ntaCount > 0) {
+          one_ins.staff_category.ntaCount -= 1
+        }
+      } else if (staff.staffCastCategory === "NT-B") {
+        if (one_ins.staff_category.ntbCount > 0) {
+          one_ins.staff_category.ntbCount -= 1
+        }
+      } else if (staff.staffCastCategory === "NT-C") {
+        if (one_ins.staff_category.ntcCount > 0) {
+          one_ins.staff_category.ntcCount -= 1
+        }
+      } else if (staff.staffCastCategory === "NT-D") {
+        if (one_ins.staff_category.ntdCount > 0) {
+          one_ins.staff_category.ntdCount -= 1
+        }
+      } else if (staff.staffCastCategory === "VJ") {
+        if (one_ins.staff_category.vjCount > 0) {
+          one_ins.staff_category.vjCount -= 1
+        }
+      } else {
+      }
+      await Promise.all([one_ins.save(), staff.save()]);
+    }
+    res.status(200).send({
+      message: `Remove From The Institute ${staff.staffFirstName} ${staff.staffLastName}`,
+      access: true
+    });
   }
   catch (e) {
     console.log(e)

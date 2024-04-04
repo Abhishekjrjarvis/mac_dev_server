@@ -75,6 +75,9 @@ const nestedCardSchema = new mongoose.Schema({
           type: Boolean,
           default: false
         },
+        gov_stats: {
+          type: String
+        }
         },
       ],
     parent_card: {

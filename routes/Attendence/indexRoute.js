@@ -77,7 +77,8 @@ router.route("/holiday/:did").get(isLoggedIn, catchAsync(Avail.fetchHoliday));
 
 router
   .route("/holiday/:hid/delete")
-  .get(isLoggedIn, catchAsync(Avail.delHoliday));
+  .get(isLoggedIn, catchAsync(Avail.delHoliday))
+  .delete(isLoggedIn, catchAsync(Avail.delHoliday));
 
 ///////////////////
 router

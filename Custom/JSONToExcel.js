@@ -10,6 +10,7 @@ const RePay = require("../models/Return/RePay");
 const Library = require("../models/Library/Library");
 const DayBook = require("../models/Finance/DayBook");
 const { custom_date_time_reverse } = require("../helper/dayTimer");
+const Mentor = require("../models/MentorMentee/mentor");
 
 
 exports.json_to_excel_query = async (
@@ -655,9 +656,38 @@ exports.fee_heads_receipt_json_to_excel_daybook_query = async (
 
     const db = await DayBook.findById({ _id: dbid });
     db.db_file = results;
-    db.db_status = "GENERATED"
     db.db_file_type = `${status}`
     await db.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.mentor_json_to_excel = async (
+  id,
+  list,
+  sheetName,
+  excelType,
+  exportTypeName
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(list);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, sheetName);
+    var name = `mentor-${exportTypeName}-${new Date().getHours()}-${new Date().getMinutes()}-${new Date().getSeconds()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const mentor = await Mentor.findById(id);
+    mentor.export_collection.push({
+      excel_type: excelType,
+      excel_file: results,
+      excel_file_name: name,
+    });
+    mentor.export_collection_count += 1;
+    await mentor.save();
   } catch (e) {
     console.log(e);
   }

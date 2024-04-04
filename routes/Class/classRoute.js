@@ -52,4 +52,13 @@ router
 router
   .route("/:cid/subject/all/student/query")
   .get(catchAsync(classController.getAllStudentSubjectQuery));
+
+  router
+  .route("/tab/manage/:cid/query")
+  .get(catchAsync(classController.getClassTabManageQuery))
+    .patch(catchAsync(classController.updateClassTabManageQuery));
+  
+router
+  .route("/:cid/reshuffle/query")
+  .patch(catchAsync(classController.getShuffleQuery))
 module.exports = router;

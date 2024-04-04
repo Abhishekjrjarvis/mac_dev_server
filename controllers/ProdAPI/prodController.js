@@ -493,3 +493,23 @@ exports.renderExcelToJSONEmailReplaceQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderAllStudentQuery = async (req, res) => {
+  try {
+    const { cid } = req?.params
+    var classes = await Class.findById({ _id: cid })
+
+    var all_student = await Student.find({ studentClass: `${classes?._id}` })
+    var  i =0
+    for (var val of all_student) {
+      classes.ApproveStudent.push(val?._id)
+      console.log(i)
+      i += 1
+    }
+    // await classes.save()
+    res.status(200).send({ message: "All Student Inserted", classes: classes?.ApproveStudent?.length})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

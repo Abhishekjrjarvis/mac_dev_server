@@ -2748,104 +2748,133 @@ const installment_remain_government = async (
         return stu;
     });
 
-    for (var ref of filter_student_install) {
-      if (amount < ref?.remainAmount) {
-        arg6.remaining_array.push({
-          remainAmount: ref.remainAmount - amount,
-          appId: app_args._id,
-          status: "Not Paid",
-          instituteId: ins_args?._id,
-          installmentValue: "Installment Remain",
-          isEnable: true,
-        });
-        ref.status = "Paid";
-        if (amount > ref?.remainAmount) {
-          var num_amount = amount - ref?.remainAmount
-          var filtered_arr = [arg7?.remaining_array[arg7?.remaining_array?.length - 1]]
-          for (var ele of filtered_arr) {
-            if (`${ele?.status}` === "Not Paid") {
-              ele.component.app = ele.remainAmount
-              if (num_amount > ele.remainAmount){
-                ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
-              }
-              ele.status = num_amount >= ele?.remainAmount ? "Paid" : "Not Paid"
-              ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
-                ele.component.gov = ref?.remainAmount - amount
-              if (arg7?.remaining_fee >= num_amount) {
-                arg7.remaining_fee -= num_amount
-              }
-              else {
-                arg7.remaining_fee = 0
-              }
-              if (arg1?.remaining_fee >= num_amount) {
-                arg1.remaining_fee -= num_amount
-              }
-              else {
-                arg1.remaining_fee = 0
-              }
-              if (ele?.status === "Paid") {
-                if (arg6?.paid_fee >= ele.component.app) {
-                  arg6.paid_fee -= ele.component.app
+    if (filter_student_install?.length > 0) {
+      for (var ref of filter_student_install) {
+        if (amount < ref?.remainAmount) {
+          arg6.remaining_array.push({
+            remainAmount: ref.remainAmount - amount,
+            appId: app_args._id,
+            status: "Not Paid",
+            instituteId: ins_args?._id,
+            installmentValue: "Installment Remain",
+            isEnable: true,
+          });
+          ref.status = "Paid";
+          if (amount > ref?.remainAmount) {
+            var num_amount = amount - ref?.remainAmount
+            var filtered_arr = [arg7?.remaining_array[arg7?.remaining_array?.length - 1]]
+            for (var ele of filtered_arr) {
+              if (`${ele?.status}` === "Not Paid") {
+                ele.component.app = ele.remainAmount
+                if (num_amount > ele.remainAmount) {
+                  ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
                 }
-              }
-              if (arg1?.remaining_fee <= 0) {
-                arg1.status = "Paid"
+                ele.status = num_amount >= ele?.remainAmount ? "Paid" : "Not Paid"
+                ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
+                ele.component.gov = ref?.remainAmount - amount
+                if (arg7?.remaining_fee >= num_amount) {
+                  arg7.remaining_fee -= num_amount
+                }
+                else {
+                  arg7.remaining_fee = 0
+                }
+                if (arg1?.remaining_fee >= num_amount) {
+                  arg1.remaining_fee -= num_amount
+                }
+                else {
+                  arg1.remaining_fee = 0
+                }
+                if (ele?.status === "Paid") {
+                  if (arg6?.paid_fee >= ele.component.app) {
+                    arg6.paid_fee -= ele.component.app
+                  }
+                }
+                if (arg1?.remaining_fee <= 0) {
+                  arg1.status = "Paid"
+                }
               }
             }
           }
-        }
-        ref.remainAmount = amount;
-        ref.installmentValue = "Installment Paid";
-        ref.mode = mode;
-        ref.fee_receipt = receipt_args?._id;
-        arg1.active_payment_type = "Installment Paid";
-        arg6.active_payment_type = "Installment Paid"
-      } else {
-        if (amount > ref?.remainAmount) {
-          var num_amount = amount - ref?.remainAmount
-          var filtered_arr = [arg7?.remaining_array[arg7?.remaining_array?.length - 1]]
-          for (var ele of filtered_arr) {
-            if (`${ele?.status}` === "Not Paid") {
-              ele.component.app = ele.remainAmount
-              if (num_amount > ele.remainAmount){
-                ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
-              }
-              ele.status = num_amount >= ele?.remainAmount ? "Paid" : "Not Paid"
-              ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
-                ele.component.gov = ref?.remainAmount - amount
-              if (arg7?.remaining_fee >= num_amount) {
-                arg7.remaining_fee -= num_amount
-              }
-              else {
-                arg7.remaining_fee = 0
-              }
-              if (arg1?.remaining_fee >= num_amount) {
-                arg1.remaining_fee -= num_amount
-              }
-              else {
-                arg1.remaining_fee = 0
-              }
-              if (ele?.status === "Paid") {
-                if (arg6?.paid_fee >= ele.component.app) {
-                  arg6.paid_fee -= ele.component.app
+          ref.remainAmount = amount;
+          ref.installmentValue = "Installment Paid";
+          ref.mode = mode;
+          ref.fee_receipt = receipt_args?._id;
+          arg1.active_payment_type = "Installment Paid";
+          arg6.active_payment_type = "Installment Paid"
+        } else {
+          if (amount > ref?.remainAmount) {
+            var num_amount = amount - ref?.remainAmount
+            var filtered_arr = [arg7?.remaining_array[arg7?.remaining_array?.length - 1]]
+            for (var ele of filtered_arr) {
+              if (`${ele?.status}` === "Not Paid") {
+                ele.component.app = ele.remainAmount
+                if (num_amount > ele.remainAmount) {
+                  ele.cover_status = `Remaining Fees Amount Set Off From Government Excess Fees ${num_amount}`
                 }
-              }
-              if (arg1?.remaining_fee <= 0) {
-                arg1.status = "Paid"
+                ele.status = num_amount >= ele?.remainAmount ? "Paid" : "Not Paid"
+                ele.remainAmount = ele?.remainAmount > num_amount ? ele?.remainAmount - num_amount : num_amount
+                ele.component.gov = ref?.remainAmount - amount
+                if (arg7?.remaining_fee >= num_amount) {
+                  arg7.remaining_fee -= num_amount
+                }
+                else {
+                  arg7.remaining_fee = 0
+                }
+                if (arg1?.remaining_fee >= num_amount) {
+                  arg1.remaining_fee -= num_amount
+                }
+                else {
+                  arg1.remaining_fee = 0
+                }
+                if (ele?.status === "Paid") {
+                  if (arg6?.paid_fee >= ele.component.app) {
+                    arg6.paid_fee -= ele.component.app
+                  }
+                }
+                if (arg1?.remaining_fee <= 0) {
+                  arg1.status = "Paid"
+                }
               }
             }
           }
+          ref.status = "Paid";
+          ref.installmentValue = "All Installment Paid";
+          ref.mode = mode;
+          arg4.remainingFee.pull(arg5._id);
+          ref.remainAmount = ref.remainAmount >= amount ? ref?.remainAmount : amount
+          // arg1.status = "Paid";
+          arg1.active_payment_type = "All Installment Paid";
+          arg6.active_payment_type = "All Installment Paid"
+          ref.fee_receipt = receipt_args?._id;
         }
-        ref.status = "Paid";
-        ref.installmentValue = "All Installment Paid";
-        ref.mode = mode;
-        arg4.remainingFee.pull(arg5._id);
-        ref.remainAmount = ref.remainAmount >= amount ? ref?.remainAmount : amount
-        // arg1.status = "Paid";
-        arg1.active_payment_type = "All Installment Paid";
-        arg6.active_payment_type = "All Installment Paid"
-        ref.fee_receipt = receipt_args?._id;
       }
+    }
+    else {
+      const filter_student_install = arg6?.remaining_array?.filter((stu) => {
+        if (
+          `${stu.appId}` === `${app_args._id}` &&
+          stu.status === "Not Paid" &&
+          stu.installmentValue === "First Installment"
+        )
+          return stu;
+      });
+      if (filter_student_install?.length > 0) {
+        for (var val of filter_student_install) {
+          val.installmentValue = "Installment Remain"
+          val.remainAmount = val?.remainAmount > amount ? val.remainAmount - amount : amount
+        }
+      }
+      arg6.remaining_array.unshift({
+        remainAmount: amount,
+        appId: app_args._id,
+        status: "Paid",
+        instituteId: ins_args?._id,
+        installmentValue: "Installment Remain",
+        isEnable: true,
+        mode: mode,
+        fee_receipt: receipt_args?._id,
+        gov_stats: "NEW_GOVT"
+      })
     }
     await Promise.all([arg1.save(), arg4.save(), arg6.save(), arg7.save()]);
   } catch (e) {

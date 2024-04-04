@@ -127,6 +127,12 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  UnApprovedStaff: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Staff",
+    },
+  ],
   saveInsPost: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -1127,7 +1133,140 @@ const instituteAdminSchema = new mongoose.Schema({
   storeStatus: {
     type: String,
     default: "Disable"
-  }
+  },
+  department_tab_manage: {
+    all_staff: {
+      type: Boolean,
+      default: true,
+    },
+    mentor: {
+      type: Boolean,
+      default: true,
+    },
+    fees: {
+      type: Boolean,
+      default: true,
+    },
+    checklist: {
+      type: Boolean,
+      default: true,
+    },
+    examination: {
+      type: Boolean,
+      default: true,
+    },
+
+    copo: {
+      type: Boolean,
+      default: true,
+    },
+    malicious: {
+      type: Boolean,
+      default: true,
+    },
+    backlog: {
+      type: Boolean,
+      default: true,
+    },
+    holiday: {
+      type: Boolean,
+      default: true,
+    },
+    complaint: {
+      type: Boolean,
+      default: true,
+    },
+    setting: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  class_tab_manage: {
+    catalog: {
+      type: Boolean,
+      default: true,
+    },
+    batch_standard: {
+      type: Boolean,
+      default: true,
+    },
+    attendance: {
+      type: Boolean,
+      default: true,
+    },
+    leave_and_transfer: {
+      type: Boolean,
+      default: true,
+    },
+    fees: {
+      type: Boolean,
+      default: true,
+    },
+
+    timetable: {
+      type: Boolean,
+      default: true,
+    },
+    checklist: {
+      type: Boolean,
+      default: true,
+    },
+    behaviour: {
+      type: Boolean,
+      default: true,
+    },
+    report_card: {
+      type: Boolean,
+      default: true,
+    },
+    promote_student: {
+      type: Boolean,
+      default: true,
+    },
+    complaint: {
+      type: Boolean,
+      default: true,
+    },
+    setting: {
+      type: Boolean,
+      default: true,
+    },
+  },
+
+  subject_tab_manage: {
+    catalog: {
+      type: Boolean,
+      default: true,
+    },
+    attendance: {
+      type: Boolean,
+      default: true,
+    },
+    assignment: {
+      type: Boolean,
+      default: true,
+    },
+    examination: {
+      type: Boolean,
+      default: true,
+    },
+    academic: {
+      type: Boolean,
+      default: true,
+    },
+    copo: {
+      type: Boolean,
+      default: true,
+    },
+    setting: {
+      type: Boolean,
+      default: true,
+    },
+    mcq: {
+      type: Boolean,
+      default: true,
+    },
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

@@ -193,6 +193,10 @@ router
 
   router
   .route("/export/:lid/entry/logs/query")
-  .patch(catchAsync(libraryController.getAllEntryLogsExport));
+    .patch(catchAsync(libraryController.getAllEntryLogsExport));
+  
+    router
+    .route("/export/:lid/review/book/query")
+    .patch(catchAsync(libraryController.getAllBookReviewExport));
 module.exports = router;
 

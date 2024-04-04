@@ -117,6 +117,8 @@ const subjectSchema = new mongoose.Schema({
     type: Number,
     default: 10,
   },
+  // In Lecture + Practical + Tutorial
+  // Replace Lecture count + Time by hours + Minutes
   lecture_analytic: {
     lecture_count: {
       type: Number,
@@ -126,6 +128,14 @@ const subjectSchema = new mongoose.Schema({
       type: String,
     },
     lecture_complete: {
+      type: Number,
+      default: 0,
+    },
+    lecture_hours: {
+      type: Number,
+      default: 0,
+    },
+    lecture_minutes: {
       type: Number,
       default: 0,
     },
@@ -142,6 +152,14 @@ const subjectSchema = new mongoose.Schema({
       type: Number,
       default: 0,
     },
+    practical_hours: {
+      type: Number,
+      default: 0,
+    },
+    practical_minutes: {
+      type: Number,
+      default: 0,
+    },
   },
   tutorial_analytic: {
     tutorial_count: {
@@ -152,6 +170,14 @@ const subjectSchema = new mongoose.Schema({
       type: String,
     },
     tutorial_complete: {
+      type: Number,
+      default: 0,
+    },
+    tutorial_hours: {
+      type: Number,
+      default: 0,
+    },
+    tutorial_minutes: {
       type: Number,
       default: 0,
     },
@@ -216,6 +242,26 @@ const subjectSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubjectLectureDay",
+    },
+  ],
+  batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch",
+  },
+  timetable_update: {
+    type: String,
+    // "No" "Yes"
+    default: "No",
+  },
+  teaching_plan: {
+    type: String,
+    // "No" "Yes"
+    default: "No",
+  },
+  teaching_plan_logs: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AttendanceTeachingPlanHistory",
     },
   ],
 });

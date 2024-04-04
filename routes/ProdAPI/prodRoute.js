@@ -54,4 +54,9 @@ router.patch(
   catchAsync(Prod.renderExcelToJSONEmailReplaceQuery)
 );
 
+router.patch(
+  "/:cid/all/student/query",
+  catchAsync(Prod.renderAllStudentQuery)
+);
+
 module.exports = router;

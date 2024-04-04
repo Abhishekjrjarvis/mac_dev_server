@@ -809,7 +809,7 @@ exports.renderOneWebProfile = async (req, res) => {
 
     const one_ins = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName name photoId insProfilePhoto sub_domain_link_up_status career_passage tender_passage contact_list website_looks website_active_tab insEstdDate insEmail insPhoneNumber insAddress insAffiliated naac_motto insEditableText_one insEditableText_two"
+        "insName name photoId insProfilePhoto sub_domain_link_up_status career_passage tender_passage contact_list website_looks website_active_tab insEstdDate insEmail insPhoneNumber insAddress insAffiliated naac_motto insEditableText_one insEditableText_two testimonials home_opener"
       )
       .populate({
         path: "website_looks.leading_person",
@@ -1235,6 +1235,73 @@ exports.renderEditFacilitiesQuery = async(req, res) => {
     res.status(200).send({ message: "Update Facilities Module Query", access: true})
   }
   catch(e){
+    console.log(e)
+  }
+}
+
+exports.render_testimonials_query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const { test } = req?.body
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const ins = await InstituteAdmin.findById({ _id: id })
+    for (var val of test) {
+      ins.testimonials.push({
+        name: val?.name,
+        image: val?.image,
+        bio: val?.bio,
+        link: val?.link
+      })
+    }
+    await ins.save()
+    res.status(200).send({ message: "Testimonials Updated Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_home_opener_query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const { home } = req?.body
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const ins = await InstituteAdmin.findById({ _id: id })
+    for (var val of home) {
+      ins.home_opener.push({
+        image: val?.image,
+        link: val?.link
+      })
+    }
+    await ins.save()
+    res.status(200).send({ message: "Home Opener Updated Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_testimonials_query = async (req, res) => {
+  try {
+    const { id, tid } = req?.params
+    const { image, link, name, bio } = req?.body
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const ins = await InstituteAdmin.findById({ _id: id })
+    for (var val of ins?.testimonials) {
+      if (`${val?._id}` === `${tid}`) {
+        val.image = image ? image : val?.image
+        val.name = name ? name : val?.name
+        val.link = link ? link : val?.link
+        val.bio = bio ? bio : val?.bio
+      }
+    }
+    await ins.save()
+    res.status(200).send({ message: "One Testimonials Updated Query", access: true })
+  }
+  catch (e) {
     console.log(e)
   }
 }

@@ -191,5 +191,11 @@ router.patch(
   catchAsync(Store.goods_qr_generation)
 );
 
+router.get(
+  "/:sid/all/request/stock/query",
+  catchAsync(Store.render_all_request_stock_query)
+);
+
+
 
 module.exports = router;

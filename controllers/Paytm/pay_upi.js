@@ -47,117 +47,117 @@ const order_history_query = async (
 };
 
 exports.initiate = async (req, res) => {
-  try {
-    const {
-      moduleId,
-      paidBy,
-      amount,
-      name,
-      paidTo,
-      isApk,
-      type,
-      payment_installment,
-      payment_card_type,
-      payment_remain_1,
-      ad_status_id,
-      payment_card_id,
-      payment_book_id
-    } = req.body;
-    let gatewayCharges = (parseInt(amount) * 1) / 100;
-    var valid_charge = gatewayCharges >= 100 ? 100 : gatewayCharges;
-    let gst = (+valid_charge * 18) / 100;
-    let data = parseInt(amount) + parseInt(valid_charge) + gst;
-    // let gatewayCharges = (parseInt(amount) * 2.1) / 100;
-    // let gst = (+gatewayCharges * 18) / 100;
-    // let withGst = gatewayCharges + gst;
-    // let data = parseInt(amount);
-    var order = `ORDERID${v4()}`;
-    var price = `${amount}`;
+  // try {
+  //   const {
+  //     moduleId,
+  //     paidBy,
+  //     amount,
+  //     name,
+  //     paidTo,
+  //     isApk,
+  //     type,
+  //     payment_installment,
+  //     payment_card_type,
+  //     payment_remain_1,
+  //     ad_status_id,
+  //     payment_card_id,
+  //     payment_book_id
+  //   } = req.body;
+  //   let gatewayCharges = (parseInt(amount) * 1) / 100;
+  //   var valid_charge = gatewayCharges >= 100 ? 100 : gatewayCharges;
+  //   let gst = (+valid_charge * 18) / 100;
+  //   let data = parseInt(amount) + parseInt(valid_charge) + gst;
+  //   // let gatewayCharges = (parseInt(amount) * 2.1) / 100;
+  //   // let gst = (+gatewayCharges * 18) / 100;
+  //   // let withGst = gatewayCharges + gst;
+  //   // let data = parseInt(amount);
+  //   var order = `ORDERID${v4()}`;
+  //   var price = `${amount}`;
 
-    var paytmParams = {};
+  //   var paytmParams = {};
 
-    paytmParams.body = {
-      requestType: "Payment",
-      mid: `${process.env.PAYTM_MID}`,
-      websiteName: `${process.env.PAYTM_WEBSITE}`,
-      orderId: order,
-      callbackUrl:
-        isApk === "APK"
-          ? `https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=${order}`
-          : type === "Fees"
-          ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}`
-          : type === "Admission"
-          ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_1}/card/${payment_card_type}/status/${ad_status_id}`
-          : type === "Hostel"
-          ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/hostel/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/install/${payment_installment}/remain/${payment_remain_1}/status/${ad_status_id}`
-          : `${process.env.CALLBACK_URLS}/v1/paytm/callback/library/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/book/${payment_book_id}`,
-      txnAmount: {
-        value: Math.ceil(data),
-        currency: "INR",
-      },
-      userInfo: {
-        custId: `${process.env.PAYTM_CUST_ID}`,
-      },
-      // enablePaymentMode:
-      //   isApk === "APK"
-      //     ? [
-      //         {
-      //           mode: "UPI",
-      //           // channels: ["UPIPUSH"],
-      //         },
-      //       ]
-      //     : [],
-    };
-    PaytmChecksum.generateSignature(
-      JSON.stringify(paytmParams.body),
-      `${process.env.PAYTM_MERCHANT_KEY}`
-    ).then(function (checksum) {
-      paytmParams.head = {
-        signature: checksum,
-      };
+  //   paytmParams.body = {
+  //     requestType: "Payment",
+  //     mid: `${process.env.PAYTM_MID}`,
+  //     websiteName: `${process.env.PAYTM_WEBSITE}`,
+  //     orderId: order,
+  //     callbackUrl:
+  //       isApk === "APK"
+  //         ? `https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=${order}`
+  //         : type === "Fees"
+  //         ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}`
+  //         : type === "Admission"
+  //         ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_1}/card/${payment_card_type}/status/${ad_status_id}`
+  //         : type === "Hostel"
+  //         ? `${process.env.CALLBACK_URLS}/v1/paytm/callback/hostel/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/install/${payment_installment}/remain/${payment_remain_1}/status/${ad_status_id}`
+  //         : `${process.env.CALLBACK_URLS}/v1/paytm/callback/library/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/book/${payment_book_id}`,
+  //     txnAmount: {
+  //       value: Math.ceil(data),
+  //       currency: "INR",
+  //     },
+  //     userInfo: {
+  //       custId: `${process.env.PAYTM_CUST_ID}`,
+  //     },
+  //     // enablePaymentMode:
+  //     //   isApk === "APK"
+  //     //     ? [
+  //     //         {
+  //     //           mode: "UPI",
+  //     //           // channels: ["UPIPUSH"],
+  //     //         },
+  //     //       ]
+  //     //     : [],
+  //   };
+  //   PaytmChecksum.generateSignature(
+  //     JSON.stringify(paytmParams.body),
+  //     `${process.env.PAYTM_MERCHANT_KEY}`
+  //   ).then(function (checksum) {
+  //     paytmParams.head = {
+  //       signature: checksum,
+  //     };
 
-      var post_data = JSON.stringify(paytmParams);
+  //     var post_data = JSON.stringify(paytmParams);
 
-      var options = {
-        // hostname: "securegw-stage.paytm.in",
-        hostname: process.env.PAYTM_CALLBACK_URL_APK
-          ? "securegw.paytm.in"
-          : "securegw-stage.paytm.in",
-        port: 443,
-        path: `/theia/api/v1/initiateTransaction?mid=${process.env.PAYTM_MID}&orderId=${order}`,
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Content-Length": post_data.length,
-        },
-      };
+  //     var options = {
+  //       // hostname: "securegw-stage.paytm.in",
+  //       hostname: process.env.PAYTM_CALLBACK_URL_APK
+  //         ? "securegw.paytm.in"
+  //         : "securegw-stage.paytm.in",
+  //       port: 443,
+  //       path: `/theia/api/v1/initiateTransaction?mid=${process.env.PAYTM_MID}&orderId=${order}`,
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         "Content-Length": post_data.length,
+  //       },
+  //     };
 
-      var response = "";
-      var post_req = https.request(options, function (post_res) {
-        post_res.on("data", function (chunk) {
-          response += chunk;
-        });
+  //     var response = "";
+  //     var post_req = https.request(options, function (post_res) {
+  //       post_res.on("data", function (chunk) {
+  //         response += chunk;
+  //       });
 
-        post_res.on("end", function () {
-          res.status(200).send({
-            message: "Explore New Paytm Token",
-            response: JSON.parse(response),
-            amount: amount,
-            order: order,
-            isStaging: process.env.PAYTM_CALLBACK_URL_APK ? false : true,
-            callback_apk_url: process.env.PAYTM_CALLBACK_URL_APK
-              ? "https://securegw.paytm.in/theia/paytmCallback?ORDER_ID="
-              : "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=",
-          });
-        });
-      });
+  //       post_res.on("end", function () {
+  //         res.status(200).send({
+  //           message: "Explore New Paytm Token",
+  //           response: JSON.parse(response),
+  //           amount: amount,
+  //           order: order,
+  //           isStaging: process.env.PAYTM_CALLBACK_URL_APK ? false : true,
+  //           callback_apk_url: process.env.PAYTM_CALLBACK_URL_APK
+  //             ? "https://securegw.paytm.in/theia/paytmCallback?ORDER_ID="
+  //             : "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=",
+  //         });
+  //       });
+  //     });
 
-      post_req.write(post_data);
-      post_req.end();
-    });
-  } catch (e) {
-    console.log(e);
-  }
+  //     post_req.write(post_data);
+  //     post_req.end();
+  //   });
+  // } catch (e) {
+  //   console.log(e);
+  // }
 };
 
 exports.callback = async (req, res) => {

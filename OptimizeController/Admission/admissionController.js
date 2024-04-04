@@ -10377,7 +10377,7 @@ exports.renderAllOrderQuery = async (req, res) => {
 
 exports.renderFindStudentReceiptQuery = async (req, res) => {
   try {
-    var nums = ["65df09e2b7acfaac67b11673"]
+    var nums = ["65042d1f50f6dfea855186cb", "65292cc5c0da2e5077661700"]
     // var fine = ["644a09d6d1679fcd6e76e5ef"]
     // var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
 
@@ -10443,7 +10443,7 @@ exports.renderFindStudentReceiptQuery = async (req, res) => {
 
 exports.renderStudentHeadsQuery = async (req, res) => {
   try {
-    var nums = ["65df09e2b7acfaac67b11673"]
+    var nums = ["65042d1f50f6dfea855186cb", "65292cc5c0da2e5077661700"]
     // var fine = ["644a09d6d1679fcd6e76e5ef"]
     // var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
 
@@ -12779,6 +12779,38 @@ exports.renderMultipleInstallmentQuery = async (req, res) => {
   }
   catch (e) {
     console.log(e)
+  }
+}
+
+exports.renderFeeStructureUpdate = async (req, res) => {
+  try {
+    const { fsid } = req?.params
+    if (!fsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const structure = await FeeStructure.findById({ _id: fsid })
+    var nums = []
+    var all = await RemainingList.find({ fee_structure: structure?._id })
+      .populate({
+      path: "applicable_card"
+      })
+      .populate({
+      path: "government_card"
+      })
+      .populate({
+        path: "student",
+        select: "studentGRNO"
+      })
+    
+    for (var val of all) {
+      nums.push(val?._id)
+      // val.applicable_card.applicable_fee = structure?.applicable_fees
+      // val.government_card.applicable_fee = structure?.total_admission_fees - structure?.applicable_fees
+      // await Promise.all([ val.applicable_card.save(),val.government_card.save() ])
+    }
+    res.status(200).send({ message: "Fees", nums})
+  }
+  catch (e) {
+    
   }
 }
 

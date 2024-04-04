@@ -52,6 +52,7 @@ const IssueGoods = require("../../models/Stores/IssueGoods");
 const Library = require("../../models/Library/Library");
 const Hostel = require("../../models/Hostel/hostel");
 const RequestGoods = require("../../models/Stores/RequestGoods");
+const ReturnGoods = require("../../models/Stores/ReturnGoods");
 const { generate_qr } = require("../../Utilities/qrGeneration/qr_generation");
 
 exports.render_new_store_query = async (req, res) => {
@@ -526,6 +527,12 @@ exports.render_all_issue_stock_query = async (req, res) => {
             .populate({
                 path: "issue_to_individual",
                 select: "staffFirstName staffMiddleName staffLastName"
+            })
+            .populate({
+                path: "goods",
+                populate: {
+                    path: "good",
+                }
             })
             .limit(limit)
         .skip(skip)
@@ -1462,6 +1469,12 @@ exports.render_all_return_stock_query = async (req, res) => {
                 path: "return_to_individual",
                 select: "staffFirstName staffMiddleName staffLastName"
             })
+            .populate({
+                path: "goods",
+                populate: {
+                    path: "good",
+                }
+            })
             .limit(limit)
         .skip(skip)
         
@@ -1685,6 +1698,62 @@ exports.goods_qr_generation = async (req, res) => {
             }
         }
         res.status(200).send({ message: "Explore All Goods QR", access: true})
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_all_request_stock_query = async (req, res) => {
+    try {
+        const { sid } = req?.params
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
+        if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+        var stores = await InventoryStore.findById({ _id: sid })
+            .select("issue_request")
+            
+        var all_request_goods = await RequestGoods.find({ _id: { $in: stores?.issue_request } })
+            .select("request_flow created_at")
+            .populate({
+                path: "request_by_department",
+                select: "dName"
+            })
+            .populate({
+                path: "request_by_class",
+                select: "className classTitle"
+            })
+            .populate({
+                path: "request_by_hostel",
+                select: "_id"
+            })
+            .populate({
+                path: "request_by_library",
+                select: "_id"
+            })
+            .populate({
+                path: "request_by_custom",
+                select: "good_head_name good_head_name good_head_person created_at",
+                populate: {
+                    path: "good_head_person",
+                    select: "staffFirstName staffMiddleName staffLastName"
+                }
+            })
+            .populate({
+                path: "request_by_individual",
+                select: "staffFirstName staffMiddleName staffLastName"
+            })
+            .limit(limit)
+        .skip(skip)
+        
+        if (all_request_goods?.length > 0) {
+                res.status(200).send({ message: "Explore Issue Request History Query", access: true, all_request_goods: all_request_goods})
+        }
+        else {
+            res.status(200).send({ message: "No Issue Request History Query", access: true, all_request_goods: []})
+            
+        }
     }
     catch (e) {
         console.log(e)

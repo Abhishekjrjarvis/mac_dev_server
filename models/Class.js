@@ -323,7 +323,7 @@ const classSchema = new mongoose.Schema({
       ref: "StoreLogs"
     }
   ],
-  maintanence: []
+  maintanence: [],
   updated_timetable_count: {
     type: Number,
     default: 0,

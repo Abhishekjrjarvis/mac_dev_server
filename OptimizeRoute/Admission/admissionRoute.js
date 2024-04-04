@@ -775,4 +775,6 @@ router
   .route("/:pid/multiple/installment/query")
   .patch(catchAsync(Admission.renderMultipleInstallmentQuery));
 
+router.patch("/:fsid/update/fs", catchAsync(Admission.renderFeeStructureUpdate))
+
 module.exports = router;

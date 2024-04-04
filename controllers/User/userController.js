@@ -1664,7 +1664,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "institute",
           select:
-            "insName photoId insProfilePhoto student_section_form_show_query financeDepart storeStatus",
+            "insName photoId insProfilePhoto student_section_form_show_query financeDepart storeStatus storeDepart",
         })
         .populate({
           path: "user",
@@ -1889,7 +1889,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "institute",
           select:
-            "insName photoId insProfilePhoto student_section_form_show_query financeDepart storeStatus",
+            "insName photoId insProfilePhoto student_section_form_show_query financeDepart storeStatus storeDepart",
         })
         .populate({
           path: "user",

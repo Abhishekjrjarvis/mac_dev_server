@@ -1062,7 +1062,7 @@ exports.render_module_all_request_query = async (req, res) => {
                 .limit(limit)
                 .skip(skip)
                 .populate({
-                    path: "issue_to_department",
+                    path: "request_by_department",
                     select: "dName"
                 })
         }
@@ -1072,7 +1072,7 @@ exports.render_module_all_request_query = async (req, res) => {
             .limit(limit)
                 .skip(skip)
                 .populate({
-                    path: "issue_to_class",
+                    path: "request_by_class",
                     select: "className classTitle"
                 })
         }
@@ -1082,7 +1082,7 @@ exports.render_module_all_request_query = async (req, res) => {
             .limit(limit)
                 .skip(skip)
                 .populate({
-                    path: "issue_to_library",
+                    path: "request_by_library",
                     select: "_id"
                 })
         }
@@ -1092,7 +1092,7 @@ exports.render_module_all_request_query = async (req, res) => {
             .limit(limit)
                 .skip(skip)
                 .populate({
-                    path: "issue_to_hostel",
+                    path: "request_by_hostel",
                     select: "_id"
                 })
         }
@@ -1102,7 +1102,7 @@ exports.render_module_all_request_query = async (req, res) => {
             .limit(limit)
                 .skip(skip)
                 .populate({
-                    path: "issue_to_individual",
+                    path: "request_by_individual",
                     select: "staffFirstName staffMiddleName staffLastName"
                 })
         }
@@ -1112,7 +1112,7 @@ exports.render_module_all_request_query = async (req, res) => {
             .limit(limit)
                 .skip(skip)
                 .populate({
-                    path: "issue_to_custom",
+                    path: "request_by_custom",
                 })
         }
 
@@ -1308,27 +1308,27 @@ exports.render_goods_all_request_query = async (req, res) => {
                 .limit(limit)
                 .skip(skip)
                 .populate({
-                    path: "issue_to_department",
+                    path: "request_by_department",
                     select: "dName"
                 })
                 .populate({
-                    path: "issue_to_hostel",
+                    path: "request_by_hostel",
                     select: "_id"
                 })
                 .populate({
-                    path: "issue_to_class",
+                    path: "request_by_class",
                     select: "className classTitle"
                 })
                 .populate({
-                    path: "issue_to_library",
+                    path: "request_by_library",
                     select: "_id"
                 })
                 .populate({
-                    path: "issue_to_individual",
+                    path: "request_by_individual",
                     select: "staffFirstName staffMiddleName staffLastName staffROLLNO staffProfilePhoto"
                 })
                 .populate({
-                    path: "issue_to_custom",
+                    path: "request_by_custom",
                 })
 
         if (all_request?.length > 0) {

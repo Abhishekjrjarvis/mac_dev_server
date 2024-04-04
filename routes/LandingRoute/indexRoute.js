@@ -145,4 +145,10 @@ router.post("/:id/new/facilities/query", catchAsync(Landing.renderNewFacilitiesQ
 
 router.patch("/:fid/edit/facilities/query", catchAsync(Landing.renderEditFacilitiesQuery));
 
+router.post("/:id/testimonials/query", catchAsync(Landing.render_testimonials_query));
+
+router.post("/:id/home/opener/query", catchAsync(Landing.render_home_opener_query));
+
+router.patch("/:id/one/:tid/testimonials/query", catchAsync(Landing.render_one_testimonials_query));
+
 module.exports = router;

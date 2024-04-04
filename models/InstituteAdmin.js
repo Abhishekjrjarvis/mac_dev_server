@@ -742,7 +742,7 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   website_looks: {
     logo: { type: String },
-    background_image: { type: String },
+    background_image: [{ type: String }],
     vision: { type: String },
     mission: { type: String },
     about: { type: String },
@@ -1267,6 +1267,20 @@ const instituteAdminSchema = new mongoose.Schema({
       default: true,
     },
   },
+  testimonials: [
+    {
+      name: { type: String },
+      image: { type: String },
+      bio: { type: String },
+      link: { type: String }
+    }
+  ],
+  home_opener: [
+    {
+      image: { type: String },
+      link: { type: String }
+    }
+  ]
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

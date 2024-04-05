@@ -16,7 +16,7 @@ const generateFeeReceipt = async (InsNo) => {
     doc.pipe(stream);
     const pageWidth = doc.page.width;
     const pageHeight = doc.page.height;
-  
+    // console.log(doc)
     // Header Section
     headerSection(
       doc,

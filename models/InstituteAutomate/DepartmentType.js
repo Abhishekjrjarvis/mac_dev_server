@@ -21,6 +21,16 @@ const departmentTypeSchema = new mongoose.Schema({
     // Admin or other institute
     default: "Admin",
   },
+  university: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "University",
+  },
+  streams: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StreamType",
+    },
+  ],
 });
 
 module.exports = mongoose.model("DepartmentType", departmentTypeSchema);

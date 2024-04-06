@@ -6,18 +6,39 @@ const catchAsync = require("../../Utilities/catchAsync");
 router
   .route("/add/:id/institute/type")
   .patch(catchAsync(iac.addInstituteTypeQuery));
+router
+  .route("/add/:id/manually/institute/type")
+  .patch(catchAsync(iac.addManuallyInstituteTypeQuery));
+
 router.route("/add/:id/university").patch(catchAsync(iac.addUniversityQuery));
+router
+  .route("/add/:id/manually/university")
+  .patch(catchAsync(iac.addManuallyUniversityQuery));
 router
   .route("/add/:id/department/type")
   .patch(catchAsync(iac.addDepartmentTypeQuery));
-router.route("/add/stream/type").patch(catchAsync(iac.addStreamTypeQuery));
+router
+  .route("/add/:id/manually/department/type")
+  .patch(catchAsync(iac.addManuallyDepartmentTypeQuery));
+
+router.route("/add/:did/stream/type").patch(catchAsync(iac.addStreamTypeQuery));
+router
+  .route("/add/:did/manually/stream/type")
+  .patch(catchAsync(iac.addManuallyStreamTypeQuery));
+
 router.route("/add/stream/:stid/po").patch(catchAsync(iac.addStreamPoQuery));
 router
   .route("/add/stream/:stid/class/master")
   .patch(catchAsync(iac.addStreamClassMasterQuery));
 router
+  .route("/add/stream/:stid/manually/class/master")
+  .patch(catchAsync(iac.addStreamManuallyClassMasterQuery));
+router
   .route("/add/stream/:stid/subject/master")
   .patch(catchAsync(iac.addStreamSubjectMasterQuery));
+router
+  .route("/add/stream/:stid/manually/subject/master")
+  .patch(catchAsync(iac.addStreamManuallySubjectMasterQuery));
 router
   .route("/add/stream/co/subject/master/:asmid")
   .patch(catchAsync(iac.addStreamCoSubjectMasterQuery));
@@ -83,11 +104,20 @@ router
   .get(catchAsync(iac.automateInstituteTypeListQuery));
 
 router
-  .route("/all/type/university/:id/query")
+  .route("/all/type/university/:itid/query")
   .get(catchAsync(iac.automateUniversityListQuery));
 
 router
-  .route("/all/type/department/:id/query")
+  .route("/all/type/department/:uid/query")
   .get(catchAsync(iac.automateDepartmentTypeListQuery));
-
+router
+  .route("/all/type/stream/:did/query")
+  .get(catchAsync(iac.automateUniversityDepartmentStreamQuery));
+router
+  .route("/all/type/stream/:stid/classmaster/query")
+  .get(catchAsync(iac.automateStreamClassMasterQuery));
+router
+  .route("/all/type/classmaster/:cid/subject/query")
+  .get(catchAsync(iac.automateStreamClassSubjectMasterQuery));
 module.exports = router;
+

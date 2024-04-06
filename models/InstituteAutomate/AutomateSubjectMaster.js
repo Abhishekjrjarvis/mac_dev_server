@@ -2,7 +2,10 @@ const mongoose = require("mongoose");
 
 const automateSubjectMasterSchema = new mongoose.Schema({
   subjectName: String,
-  className: String,
+  cls: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "AutomateClassMaster",
+  },
   subjectType: String,
   stream_type: {
     type: mongoose.Schema.Types.ObjectId,
@@ -52,6 +55,14 @@ const automateSubjectMasterSchema = new mongoose.Schema({
     },
   ],
   co_count: Number,
+  is_tutorial: {
+    type: Boolean,
+    default: false,
+  },
+  is_theory: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model(

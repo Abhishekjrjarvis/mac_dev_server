@@ -96,6 +96,14 @@ const subjectMasterSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  is_tutorial: {
+    type: Boolean,
+    default: false,
+  },
+  is_theory: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const SubjectMaster = mongoose.model("SubjectMaster", subjectMasterSchema);

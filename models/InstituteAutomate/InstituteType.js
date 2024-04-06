@@ -28,6 +28,12 @@ const instituteTypeSchema = new mongoose.Schema({
     // Admin or other institute
     default: "Admin",
   },
+  university: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "University",
+    },
+  ],
 });
 
 module.exports = mongoose.model("InstituteType", instituteTypeSchema);

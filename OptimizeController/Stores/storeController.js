@@ -1595,7 +1595,7 @@ exports.render_mark_status_stock_query = async (req, res) => {
         if (status === "Approve") {
             const issue = new IssueGoods({})
             const logs = new StoreLogs({})
-            logs.logs_title = `${one_request?.goods?.length} goods ${status} for ${flow} Unit by store manager`
+            logs.logs_title = `${one_request?.goods?.length} goods ${status} for ${one_request?.request_flow} Unit by store manager`
             issue.issue_flow = one_request?.request_flow
             logs.issue_flow = one_request?.request_flow
             one_request.status = `${status}` 

@@ -40,6 +40,10 @@ const classMasterSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Transport",
   },
+  automate_class_master: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "AutomateClassMaster",
+  },
 });
 
 const ClassMaster = mongoose.model("ClassMaster", classMasterSchema);

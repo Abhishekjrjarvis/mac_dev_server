@@ -6097,7 +6097,8 @@ exports.render_edit_student_form_section_query = async (req, res) => {
               form_checklist_visibility: ele?.form_checklist_visibility,
               form_checklist_placeholder: ele?.form_checklist_placeholder,
               form_checklist_lable: ele?.form_checklist_lable,
-              form_checklist_typo: ele?.form_checklist_typo
+              form_checklist_typo: ele?.form_checklist_typo,
+              form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl]
             })
             fc.form = ifs?._id
             fc.form_section = val?._id
@@ -6205,7 +6206,8 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
             form_checklist_visibility: ele?.form_checklist_visibility,
             form_checklist_placeholder: ele?.form_checklist_placeholder,
             form_checklist_lable: ele?.form_checklist_lable,
-            form_checklist_typo: ele?.form_checklist_typo
+            form_checklist_typo: ele?.form_checklist_typo,
+            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl]
           })
           fc.form = ifs?._id
           fc.form_section = val?._id

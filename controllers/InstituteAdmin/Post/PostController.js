@@ -1683,3 +1683,32 @@ exports.postWithDeletedFromAnnouncement = async (
     console.log(e);
   }
 };
+
+exports.render_featured_post_query = async (req, res) => {
+  try {
+    const { pid } = req.params;
+    if(!pid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    const institute_session =
+      req.tokenData && req.tokenData.insId ? req.tokenData.insId : "";
+    const post = await Post.findById({ _id: pid });
+    if (institute_session) {
+      const institute = await InstituteAdmin.findById({
+        _id: `${institute_session}`,
+      });
+      if (institute?.featured_post.includes(post?._id)) {
+        institute?.featured_post?.pull(post._id);
+        await institute.save()
+        res.status(200).send({ message: "Removed from Featured Gallery" , access: true});
+      } else {
+        institute?.featured_post?.push(post._id);
+        await institute.save()
+        res.status(200).send({ message: "Added To Featured Gallery" , access: true});
+      }
+    }
+     else {
+      res.status(401).send({ message: "Unauthorized access" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

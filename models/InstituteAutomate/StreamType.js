@@ -19,7 +19,8 @@ const streamTypeSchema = new mongoose.Schema({
 
   cls_master: [
     {
-      name: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AutomateClassMaster",
     },
   ],
   subject_master: [

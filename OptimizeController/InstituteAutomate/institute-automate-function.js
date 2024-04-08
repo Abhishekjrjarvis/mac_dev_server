@@ -21,6 +21,7 @@ const StreamType = require("../../models/InstituteAutomate/StreamType");
 const AutomateSubjectMaster = require("../../models/InstituteAutomate/AutomateSubjectMaster");
 const { universal_random_password } = require("../../Custom/universalId");
 const moment = require("moment");
+const AutomateClassMaster = require("../../models/InstituteAutomate/AutomateClassMaster");
 
 // testing done
 exports.create_department_po = async (departmentId, poList = []) => {
@@ -81,10 +82,12 @@ exports.create_master_query = async (departmentId, instituteId, streamId) => {
 
     for (let i = 0; i < cls_iteration_count; i++) {
       let ct = cls_master[i];
+      const ct_ma = await AutomateClassMaster.findById(ct);
       const cls = new ClassMaster({
-        className: ct?.name,
+        className: ct_ma?.className,
         institute: instituteId,
         department: departmentId,
+        automate_class_master: ct_ma?._id,
       });
       cls_master_list.push(cls?._id);
       await cls.save();
@@ -283,7 +286,12 @@ const create_subject_cls_batch_query = async (
 };
 
 // when create class then create subject and teaching plan // testing done
-exports.create_cls_subject_query = async (streamId, clsId, batchId) => {
+exports.create_cls_subject_query = async (
+  streamId,
+  clsId,
+  batchId,
+  autoClsId
+) => {
   try {
     let subject_list = [];
 
@@ -297,7 +305,7 @@ exports.create_cls_subject_query = async (streamId, clsId, batchId) => {
           stream_type: { $eq: streamId },
         },
         {
-          className: { $eq: `${cls?.className}` },
+          cls: { $eq: `${autoClsId}` },
         },
       ],
     });
@@ -311,26 +319,30 @@ exports.create_cls_subject_query = async (streamId, clsId, batchId) => {
       });
 
       if (subject_master?._id) {
-        let theory_sub = await create_subject_query(
-          s_obj,
-          subject_master?._id,
-          subject_master?.subjectType,
-          "Theory",
-          batchId,
-          clsId
-        );
-        subject_list.push(theory_sub?._id);
-        s_create.push(theory_sub?._id);
-        let tutorial_sub = await create_subject_query(
-          s_obj,
-          subject_master?._id,
-          subject_master?.subjectType,
-          "Tutorial",
-          batchId,
-          clsId
-        );
-        subject_list.push(tutorial_sub?._id);
-        s_create.push(tutorial_sub?._id);
+        if (subject_master?.is_theory) {
+          let theory_sub = await create_subject_query(
+            s_obj,
+            subject_master?._id,
+            subject_master?.subjectType,
+            "Theory",
+            batchId,
+            clsId
+          );
+          subject_list.push(theory_sub?._id);
+          s_create.push(theory_sub?._id);
+        }
+        if (subject_master?.is_tutorial) {
+          let tutorial_sub = await create_subject_query(
+            s_obj,
+            subject_master?._id,
+            subject_master?.subjectType,
+            "Tutorial",
+            batchId,
+            clsId
+          );
+          subject_list.push(tutorial_sub?._id);
+          s_create.push(tutorial_sub?._id);
+        }
 
         if (subject_master?.is_practical) {
           for (let bt of cls?.multiple_batches ?? []) {
@@ -1050,3 +1062,4 @@ exports.add_automate_chapter_query = async (
     console.log(e);
   }
 };
+

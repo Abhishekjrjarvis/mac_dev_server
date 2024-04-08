@@ -19,6 +19,8 @@ const { nested_document_limit } = require("../../helper/databaseFunction");
 const Academic = require("../../models/LandingModel/SinglePage/Academic");
 const NSS = require("../../models/LandingModel/SinglePage/NSS");
 const Facilities = require("../../models/LandingModel/SinglePage/facilities");
+const LandingControl = require("../../models/LandingModel/LandingControl");
+const Post = require("../../models/Post");
 
 exports.uploadGetTouchDetail = async (req, res) => {
   try {
@@ -809,7 +811,7 @@ exports.renderOneWebProfile = async (req, res) => {
 
     const one_ins = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName name photoId insProfilePhoto sub_domain_link_up_status career_passage tender_passage contact_list website_looks website_active_tab insEstdDate insEmail insPhoneNumber insAddress insAffiliated naac_motto insEditableText_one insEditableText_two testimonials home_opener"
+        "insName name photoId insProfilePhoto sub_domain_link_up_status career_passage tender_passage contact_list website_looks website_active_tab insEstdDate insEmail insPhoneNumber insAddress insAffiliated naac_motto insEditableText_one insEditableText_two testimonials home_opener iso_certificate"
       )
       .populate({
         path: "website_looks.leading_person",
@@ -838,6 +840,9 @@ exports.renderOneWebProfile = async (req, res) => {
       .populate({
         path: "facilities_module",
         select: "institute",
+      })
+      .populate({
+        path: "landing_control",
       });
     res.status(200).send({
       message: "Explore One Institute All Profile Details",
@@ -1300,6 +1305,104 @@ exports.render_one_testimonials_query = async (req, res) => {
     }
     await ins.save()
     res.status(200).send({ message: "One Testimonials Updated Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_Landing_Control_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    await LandingControl.findByIdAndUpdate(lcid, req?.body)
+    res.status(200).send({ message: "Explore One Institute Landing Control Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_iso_query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const { iso } = req?.body
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const ins = await InstituteAdmin.findById({ _id: id })
+    for (var val of iso) {
+      ins.iso_certificate.push({
+        name: val?.name,
+        image: val?.image,
+        link: val?.link
+      })
+    }
+    await ins.save()
+    res.status(200).send({ message: "New ISO Updated Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_gallery_post_query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+
+    const institute = await InstituteAdmin.findById(id)
+            .select("id")
+            .populate({ path: "featured_post" });
+          if (institute && institute.featured_post.length >= 1) {
+            const post = await Post.find({
+              _id: { $in: institute.featured_post },
+            })
+              // .sort("-createdAt")
+              .limit(limit)
+              .skip(skip)
+              .select(
+                "postTitle postText postDescription isHelpful needCount needUser questionCount pollCount isNeed endUserSave authorOneLine authorFollowersCount tagPeople createdAt postType postImage postVideo video_cover imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+              )
+              .populate({
+                path: "poll_query",
+              })
+              .populate({
+                path: "new_application",
+                select:
+                  "applicationSeats applicationStartDate applicationPhoto photoId applicationEndDate applicationAbout applicationStatus admissionFee applicationName",
+                populate: {
+                  path: "applicationDepartment",
+                  select: "dName",
+                },
+              })
+              .populate({
+                path: "new_announcement",
+                select: "insAnnTitle insAnnDescription",
+              });
+            if (institute.featured_post.length >= 1) {
+              const postCount = await Post.find({
+                _id: { $in: institute.featured_post },
+              });
+              if (page * limit >= postCount.length) {
+              } else {
+                var totalPage = page + 1;
+              }
+              // Add Another Encryption
+              res.status(200).send({
+                message: "Success",
+                post: post.reverse(),
+                postCount: postCount.length,
+                totalPage: totalPage,
+              });
+            }
+          } else {
+            res.status(204).send({ message: "No Posts Yet...", post: [] });
+          }
+  
   }
   catch (e) {
     console.log(e)

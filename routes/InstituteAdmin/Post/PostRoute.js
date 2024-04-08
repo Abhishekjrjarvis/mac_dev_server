@@ -115,4 +115,6 @@ router.delete(
   isLoggedIn,
   catchAsync(Post.commentReplyDelete)
 );
+
+router.get("/featured/:pid", isLoggedIn, catchAsync(Post.render_featured_post_query));
 module.exports = router;

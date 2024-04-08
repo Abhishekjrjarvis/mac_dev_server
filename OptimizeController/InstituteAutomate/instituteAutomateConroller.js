@@ -47,6 +47,7 @@ const {
 const { simple_object } = require("../../S3Configuration");
 const AutomateChapter = require("../../models/InstituteAutomate/AutomateChapter");
 const AutomateChapterTopic = require("../../models/InstituteAutomate/AutomateChapterTopic");
+const AutomateClassMaster = require("../../models/InstituteAutomate/AutomateClassMaster");
 
 // testing done
 exports.addInstituteTypeQuery = async (req, res) => {
@@ -96,12 +97,51 @@ exports.addInstituteTypeQuery = async (req, res) => {
 };
 
 // testing done
+exports.addManuallyInstituteTypeQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req?.body;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    var automate = null;
+    automate = await AutomateInstitute.findOne({
+      instituteId: id,
+    });
+    if (!automate) {
+      automate = new AutomateInstitute({
+        instituteId: id,
+      });
+      await automate.save();
+    }
+    // res.status(200).send({
+    //   message: "Adding Institute type in process",
+    // });
+    const institute_type = new InstituteType({
+      name: name ?? "",
+      automate_institute: automate?._id,
+      instituteId: id,
+    });
+    automate.institute_type?.push(institute_type?._id);
+
+    await Promise.all([institute_type.save(), automate.save()]);
+    res.status(200).send({
+      message: "Adding Institute type in process",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// testing done
 exports.addUniversityQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { excel_file } = req.query;
+    const { excel_file, institute_type_id } = req.query;
 
-    if (!id) {
+    if (!id || !institute_type_id) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
       });
@@ -124,19 +164,67 @@ exports.addUniversityQuery = async (req, res) => {
     const { data_query } = await getj_university_query(file);
     let iteration_count = data_query?.length;
     if (automate && iteration_count > 0) {
+      const inst_type = await InstituteType.findById(institute_type_id);
       for (let i = 0; i < iteration_count; i++) {
         let tp = data_query[i];
         const affiliated = new University({
           name: tp?.name,
           automate_institute: automate?._id,
           instituteId: id,
+          institute_type: institute_type_id,
         });
         await affiliated.save();
         automate.affiliated_with?.push(affiliated?._id);
+        inst_type.university.push(affiliated?._id);
         // console.log(affiliated);
       }
+      await Promise.all([inst_type.save(), automate.save()]);
+    }
+    res.status(200).send({
+      message: "Adding University in process",
+    });
+    // console.log(automate);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// testing done
+exports.addManuallyUniversityQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, institute_type_id } = req.body;
+
+    if (!id || !institute_type_id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    var automate = null;
+    automate = await AutomateInstitute.findOne({
+      instituteId: id,
+    });
+    if (!automate) {
+      automate = new AutomateInstitute({
+        instituteId: id,
+      });
       await automate.save();
     }
+    // res.status(200).send({
+    //   message: "Adding University in process",
+    // });
+    const inst_type = await InstituteType.findById(institute_type_id);
+
+    const affiliated = new University({
+      name: name,
+      automate_institute: automate?._id,
+      instituteId: id,
+      institute_type: institute_type_id,
+    });
+    automate.affiliated_with?.push(affiliated?._id);
+    inst_type.university.push(affiliated?._id);
+    await Promise.all([affiliated.save(), inst_type.save(), automate.save()]);
+
     res.status(200).send({
       message: "Adding University in process",
     });
@@ -150,9 +238,9 @@ exports.addUniversityQuery = async (req, res) => {
 exports.addDepartmentTypeQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { excel_file } = req.query;
+    const { excel_file, university_id } = req.query;
 
-    if (!id) {
+    if (!id || !university_id) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
       });
@@ -175,17 +263,46 @@ exports.addDepartmentTypeQuery = async (req, res) => {
     const { data_query } = await getj_department_type_query(file);
     let iteration_count = data_query?.length;
     if (automate && iteration_count > 0) {
+      const univer = await University.findById(university_id);
       for (let i = 0; i < iteration_count; i++) {
         let tp = data_query[i];
         const department_t = new DepartmentType({
           name: tp?.name,
           automate_institute: automate?._id,
           instituteId: id,
+          university: university_id,
         });
         await department_t.save();
         automate.department_type?.push(department_t?._id);
+        univer.department_type?.push(department_t?._id);
+        if (tp?.name === "First Year") {
+          const institute_type = await InstituteType.findById(
+            univer.institute_type
+          );
+          const affiliated_with = await University.findById(university_id);
+          const d_type = await DepartmentType.findById(department_t);
+          if (institute_type?._id && affiliated_with?._id && d_type?._id) {
+            const stream_type = new StreamType({
+              institute_type: institute_type?._id,
+              affiliated_with: affiliated_with?._id,
+              name: "First Year Stream",
+              automate_institute: institute_type?.automate_institute,
+              instituteId: institute_type?.instituteId,
+              department_type: d_type?._id,
+            });
+            affiliated_with.streams?.push(stream_type?._id);
+            institute_type.streams?.push(stream_type?._id);
+            d_type.streams?.push(stream_type?._id);
+            await Promise.all([
+              stream_type.save(),
+              institute_type.save(),
+              affiliated_with.save(),
+              d_type.save(),
+            ]);
+          }
+        }
       }
-      await automate.save();
+      await Promise.all([automate.save(), univer.save()]);
     }
     res.status(200).send({
       message: "Adding University in process",
@@ -196,11 +313,154 @@ exports.addDepartmentTypeQuery = async (req, res) => {
 };
 
 // testing done
+exports.addManuallyDepartmentTypeQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, university_id } = req.body;
+
+    if (!id || !university_id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    var automate = null;
+    automate = await AutomateInstitute.findOne({
+      instituteId: id,
+    });
+    if (!automate) {
+      automate = new AutomateInstitute({
+        instituteId: id,
+      });
+      await automate.save();
+    }
+    const univer = await University.findById(university_id);
+
+    const department_t = new DepartmentType({
+      name: name,
+      automate_institute: automate?._id,
+      instituteId: id,
+      university: university_id,
+    });
+    automate.department_type?.push(department_t?._id);
+    univer.department_type?.push(department_t?._id);
+    await Promise.all([department_t.save(), automate.save(), univer.save()]);
+    // res.status(200).send({
+    //   message: "Adding University in process",
+    // });
+
+    res.status(200).send({
+      message: "Adding University in process",
+    });
+    if (name === "First Year") {
+      const institute_type = await InstituteType.findById(
+        univer.institute_type
+      );
+      const affiliated_with = await University.findById(university_id);
+      const d_type = await DepartmentType.findById(department_t);
+      if (institute_type?._id && affiliated_with?._id && d_type?._id) {
+        const stream_type = new StreamType({
+          institute_type: institute_type?._id,
+          affiliated_with: affiliated_with?._id,
+          name: "First Year Stream",
+          automate_institute: institute_type?.automate_institute,
+          instituteId: institute_type?.instituteId,
+          department_type: d_type?._id,
+        });
+        affiliated_with.streams?.push(stream_type?._id);
+        institute_type.streams?.push(stream_type?._id);
+        d_type.streams?.push(stream_type?._id);
+        await Promise.all([
+          stream_type.save(),
+          institute_type.save(),
+          affiliated_with.save(),
+          d_type.save(),
+        ]);
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// // testing done
+// exports.addStreamTypeQuery = async (req, res) => {
+//   try {
+//     const { excel_file } = req.query;
+//     const file = await simple_object(excel_file);
+
+//     // res.status(200).send({
+//     //   message: "Adding streams in process",
+//     // });
+
+//     const { data_query } = await getj_stream_type_query(file);
+//     let iteration_count = data_query?.length;
+//     if (iteration_count > 0) {
+//       for (let i = 0; i < iteration_count; i++) {
+//         let rt = data_query[i];
+//         if (rt?.institute_type && rt?.name && rt?.affiliated_with) {
+//           const institute_type = await InstituteType.findOne({
+//             $and: [
+//               {
+//                 name: { $eq: `${rt?.institute_type}` },
+//               },
+//             ],
+//           });
+//           const affiliated_with = await University.findOne({
+//             $and: [
+//               {
+//                 name: { $eq: `${rt?.affiliated_with}` },
+//               },
+//             ],
+//           });
+//           const d_type = await DepartmentType.findOne({
+//             $and: [
+//               {
+//                 name: { $eq: `${rt?.departmentType}` },
+//               },
+//             ],
+//           });
+//           // console.log("institute_type", institute_type);
+//           // console.log("affiliated_with", affiliated_with);
+//           if (institute_type?._id && affiliated_with?._id && d_type?._id) {
+//             const stream_type = new StreamType({
+//               institute_type: institute_type?._id,
+//               affiliated_with: affiliated_with?._id,
+//               name: rt?.name ?? "",
+//               automate_institute: institute_type?.automate_institute,
+//               instituteId: institute_type?.instituteId,
+//               department_type: d_type?._id,
+//             });
+//             affiliated_with.streams?.push(stream_type?._id);
+//             institute_type.streams?.push(stream_type?._id);
+//             await Promise.all([
+//               stream_type.save(),
+//               institute_type.save(),
+//               affiliated_with.save(),
+//             ]);
+//           }
+//         }
+//       }
+//     }
+//     res.status(200).send({
+//       message: "Adding streams in process",
+//     });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+// testing done
 exports.addStreamTypeQuery = async (req, res) => {
   try {
-    const { excel_file } = req.query;
+    const { did } = req.params;
+    const { excel_file, institute_type_id, university_id } = req.query;
     const file = await simple_object(excel_file);
 
+    if (!did || !institute_type_id || !university_id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
     // res.status(200).send({
     //   message: "Adding streams in process",
     // });
@@ -210,28 +470,12 @@ exports.addStreamTypeQuery = async (req, res) => {
     if (iteration_count > 0) {
       for (let i = 0; i < iteration_count; i++) {
         let rt = data_query[i];
-        if (rt?.institute_type && rt?.name && rt?.affiliated_with) {
-          const institute_type = await InstituteType.findOne({
-            $and: [
-              {
-                name: { $eq: `${rt?.institute_type}` },
-              },
-            ],
-          });
-          const affiliated_with = await University.findOne({
-            $and: [
-              {
-                name: { $eq: `${rt?.affiliated_with}` },
-              },
-            ],
-          });
-          const d_type = await DepartmentType.findOne({
-            $and: [
-              {
-                name: { $eq: `${rt?.departmentType}` },
-              },
-            ],
-          });
+        if (rt?.name) {
+          const institute_type = await InstituteType.findById(
+            institute_type_id
+          );
+          const affiliated_with = await University.findById(university_id);
+          const d_type = await DepartmentType.findById(did);
           // console.log("institute_type", institute_type);
           // console.log("affiliated_with", affiliated_with);
           if (institute_type?._id && affiliated_with?._id && d_type?._id) {
@@ -245,10 +489,12 @@ exports.addStreamTypeQuery = async (req, res) => {
             });
             affiliated_with.streams?.push(stream_type?._id);
             institute_type.streams?.push(stream_type?._id);
+            d_type.streams?.push(stream_type?._id);
             await Promise.all([
               stream_type.save(),
               institute_type.save(),
               affiliated_with.save(),
+              d_type.save(),
             ]);
           }
         }
@@ -263,6 +509,52 @@ exports.addStreamTypeQuery = async (req, res) => {
 };
 
 // testing done
+exports.addManuallyStreamTypeQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    const { name, institute_type_id, university_id } = req.body;
+
+    if (!did || !institute_type_id || !university_id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    // res.status(200).send({
+    //   message: "Adding streams in process",
+    // });
+    const institute_type = await InstituteType.findById(institute_type_id);
+    const affiliated_with = await University.findById(university_id);
+    const d_type = await DepartmentType.findById(did);
+    // console.log("institute_type", institute_type);
+    // console.log("affiliated_with", affiliated_with);
+    if (institute_type?._id && affiliated_with?._id && d_type?._id) {
+      const stream_type = new StreamType({
+        institute_type: institute_type?._id,
+        affiliated_with: affiliated_with?._id,
+        name: name ?? "",
+        automate_institute: institute_type?.automate_institute,
+        instituteId: institute_type?.instituteId,
+        department_type: d_type?._id,
+      });
+      affiliated_with.streams?.push(stream_type?._id);
+      institute_type.streams?.push(stream_type?._id);
+      d_type.streams?.push(stream_type?._id);
+      await Promise.all([
+        stream_type.save(),
+        institute_type.save(),
+        affiliated_with.save(),
+        d_type.save(),
+      ]);
+    }
+
+    res.status(200).send({
+      message: "Adding streams in process",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.addStreamPoQuery = async (req, res) => {
   try {
     const { stid } = req.params;
@@ -329,9 +621,12 @@ exports.addStreamClassMasterQuery = async (req, res) => {
       for (let i = 0; i < iteration_count; i++) {
         let ot = data_query[i];
         if (ot?.name) {
-          stream?.cls_master.push({
-            name: ot?.name,
+          const c_master = new AutomateClassMaster({
+            className: ot?.name,
+            stream_type: stream?._id,
           });
+          await c_master.save();
+          stream?.cls_master.push(c_master?._id);
         }
       }
       await stream.save();
@@ -345,18 +640,46 @@ exports.addStreamClassMasterQuery = async (req, res) => {
 };
 
 // testing done
-exports.addStreamSubjectMasterQuery = async (req, res) => {
+exports.addStreamManuallyClassMasterQuery = async (req, res) => {
   try {
     const { stid } = req.params;
-    const { excel_file } = req.query;
+    const { name } = req.body;
 
     if (!stid) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
       });
     }
+    const stream = await StreamType.findById(stid);
+
+    const c_master = new AutomateClassMaster({
+      className: name,
+      stream_type: stream?._id,
+    });
+    stream?.cls_master.push(c_master?._id);
+
+    await Promise.all([c_master.save(), stream.save()]);
+    res.status(200).send({
+      message: "Adding class master in streams is process",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+// testing done
+exports.addStreamSubjectMasterQuery = async (req, res) => {
+  try {
+    const { stid } = req.params;
+    const { excel_file, clsId } = req.query;
+
+    if (!stid || !clsId) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
 
     const stream = await StreamType.findById(stid);
+    const cls_master = await AutomateClassMaster.findById(clsId);
     // res.status(200).send({
     //   message: "Adding streams in process",
     // });
@@ -373,16 +696,61 @@ exports.addStreamSubjectMasterQuery = async (req, res) => {
           const st_master = new AutomateSubjectMaster({
             subjectName: ot?.subjectName ?? "",
             subjectType: ot?.subjectType ?? "",
-            className: ot?.className ?? "",
+            cls: clsId,
             is_practical: ot?.is_practical === "Yes" ? true : false,
+            is_tutorial: ot?.is_tutorial === "Yes" ? true : false,
+            is_theory: ot?.is_theory === "Yes" ? true : false,
             stream_type: stream?._id,
           });
           await st_master.save();
           stream?.subject_master.push(st_master?._id);
+          cls_master?.subject.push(st_master?._id);
         }
       }
-      await stream.save();
+      await Promise.all([stream.save(), cls_master.save()]);
     }
+    res.status(200).send({
+      message: "Adding streams in process",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// testing done
+exports.addStreamManuallySubjectMasterQuery = async (req, res) => {
+  try {
+    const { stid } = req.params;
+    const {
+      subjectName,
+      subjectType,
+      clsId,
+      is_practical,
+      is_tutorial,
+      is_theory,
+    } = req.body;
+
+    if (!stid || !clsId) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const stream = await StreamType.findById(stid);
+    const cls_master = await AutomateClassMaster.findById(clsId);
+    const st_master = new AutomateSubjectMaster({
+      subjectName: subjectName ?? "",
+      subjectType: subjectType ?? "",
+      cls: clsId,
+      is_practical: is_practical === "Yes" ? true : false,
+      is_tutorial: is_tutorial === "Yes" ? true : false,
+      is_theory: is_theory === "Yes" ? true : false,
+      stream_type: stream?._id,
+    });
+    stream?.subject_master.push(st_master?._id);
+    cls_master?.subject.push(st_master?._id);
+    await Promise.all([st_master.save(), stream.save(), cls_master.save()]);
+
     res.status(200).send({
       message: "Adding streams in process",
     });
@@ -676,7 +1044,12 @@ exports.createClassInDepartmentQuery = async (req, res) => {
         ? cls?.stream_type
         : cls?.cls_stream_type;
       if (stream_id) {
-        await create_cls_subject_query(stream_id, cls?._id, batch?._id);
+        await create_cls_subject_query(
+          stream_id,
+          cls?._id,
+          batch?._id,
+          masterClass?.automate_class_master
+        );
       }
       res.status(200).send({
         message: "Department class created successfully.",
@@ -1247,12 +1620,12 @@ exports.automateTeachingPlanTopicListQuery = async (req, res) => {
 // testing done
 exports.automateInstituteTypeListQuery = async (req, res) => {
   try {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(200).send({
-        message: "Url Segement parameter required is not fulfill.",
-      });
-    }
+    // const { id } = req.params;
+    // if (!id) {
+    //   return res.status(200).send({
+    //     message: "Url Segement parameter required is not fulfill.",
+    //   });
+    // }
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
@@ -1260,9 +1633,9 @@ exports.automateInstituteTypeListQuery = async (req, res) => {
     if (!["", undefined, ""]?.includes(req.query?.search)) {
       institute_type = await InstituteType.find({
         $and: [
-          {
-            instituteId: { $eq: `${id}` },
-          },
+          // {
+          //   instituteId: { $eq: `${id}` },
+          // },
           {
             name: { $regex: req.query.search, $options: "i" },
           },
@@ -1270,11 +1643,11 @@ exports.automateInstituteTypeListQuery = async (req, res) => {
       }).select("name");
     } else {
       institute_type = await InstituteType.find({
-        $and: [
-          {
-            instituteId: { $eq: `${id}` },
-          },
-        ],
+        // $and: [
+        //   {
+        //     instituteId: { $eq: `${id}` },
+        //   },
+        // ],
       })
         .select("name")
         .skip(dropItem)
@@ -1293,8 +1666,8 @@ exports.automateInstituteTypeListQuery = async (req, res) => {
 // testing done
 exports.automateUniversityListQuery = async (req, res) => {
   try {
-    const { id } = req.params;
-    if (!id) {
+    const { itid } = req.params;
+    if (!itid) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
       });
@@ -1307,7 +1680,7 @@ exports.automateUniversityListQuery = async (req, res) => {
       university = await University.find({
         $and: [
           {
-            instituteId: { $eq: `${id}` },
+            institute_type: { $eq: `${itid}` },
           },
           {
             name: { $regex: req.query.search, $options: "i" },
@@ -1318,7 +1691,7 @@ exports.automateUniversityListQuery = async (req, res) => {
       university = await University.find({
         $and: [
           {
-            instituteId: { $eq: `${id}` },
+            institute_type: { $eq: `${itid}` },
           },
         ],
       })
@@ -1339,8 +1712,8 @@ exports.automateUniversityListQuery = async (req, res) => {
 // testing done
 exports.automateDepartmentTypeListQuery = async (req, res) => {
   try {
-    const { id } = req.params;
-    if (!id) {
+    const { uid } = req.params;
+    if (!uid) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
       });
@@ -1353,22 +1726,22 @@ exports.automateDepartmentTypeListQuery = async (req, res) => {
       department_type = await DepartmentType.find({
         $and: [
           {
-            instituteId: { $eq: `${id}` },
+            university: { $eq: `${uid}` },
           },
           {
             name: { $regex: req.query.search, $options: "i" },
           },
         ],
-      }).select("name");
+      }).select("name streams");
     } else {
       department_type = await DepartmentType.find({
         $and: [
           {
-            instituteId: { $eq: `${id}` },
+            university: { $eq: `${uid}` },
           },
         ],
       })
-        .select("name")
+        .select("name streams")
         .skip(dropItem)
         .limit(itemPerPage);
     }
@@ -1381,3 +1754,177 @@ exports.automateDepartmentTypeListQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// testing done
+exports.automateUniversityDepartmentStreamQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    const { institute_type_id, university_id } = req.query;
+    if (!did || !institute_type_id || !university_id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    var streams = [];
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      streams = await StreamType.find({
+        $and: [
+          {
+            institute_type: { $eq: `${institute_type_id}` },
+          },
+          {
+            affiliated_with: { $eq: `${university_id}` },
+          },
+          {
+            department_type: { $eq: `${did}` },
+          },
+          {
+            name: { $regex: req.query.search, $options: "i" },
+          },
+        ],
+      })
+        .populate({
+          path: "institute_type affiliated_with department_type",
+          select: "name name name",
+        })
+        .select("name po");
+    } else {
+      streams = await StreamType.find({
+        $and: [
+          {
+            institute_type: { $eq: `${institute_type_id}` },
+          },
+          {
+            affiliated_with: { $eq: `${university_id}` },
+          },
+          {
+            department_type: { $eq: `${did}` },
+          },
+        ],
+      })
+        .populate({
+          path: "institute_type affiliated_with department_type",
+          select: "name name name",
+        })
+        .select("name po")
+        .skip(dropItem)
+        .limit(itemPerPage);
+    }
+
+    return res.status(200).send({
+      message: "Automate all streams list",
+      streams,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// testing done
+exports.automateStreamClassMasterQuery = async (req, res) => {
+  try {
+    const { stid } = req.params;
+    if (!stid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    var cls_master = [];
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      cls_master = await AutomateClassMaster.find({
+        $and: [
+          {
+            stream_type: { $eq: `${stid}` },
+          },
+          {
+            className: { $regex: req.query.search, $options: "i" },
+          },
+        ],
+      }).select("className");
+    } else {
+      cls_master = await AutomateClassMaster.find({
+        $and: [
+          {
+            stream_type: { $eq: `${stid}` },
+          },
+        ],
+      })
+        .select("className")
+        .skip(dropItem)
+        .limit(itemPerPage);
+    }
+
+    return res.status(200).send({
+      message: "Automate all class master list",
+      cls_master,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// testing done
+exports.automateStreamClassSubjectMasterQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    var subject_master = [];
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      subject_master = await AutomateSubjectMaster.find({
+        $and: [
+          {
+            cls: { $eq: `${cid}` },
+          },
+          {
+            name: { $regex: req.query.search, $options: "i" },
+          },
+        ],
+      }).select(
+        "subjectName subjectType is_practical is_tutorial is_theory co co_count"
+      );
+    } else {
+      subject_master = await AutomateSubjectMaster.find({
+        $and: [
+          {
+            cls: { $eq: `${cid}` },
+          },
+        ],
+      })
+        .select(
+          "subjectName subjectType is_practical is_tutorial is_theory co co_count"
+        )
+        .skip(dropItem)
+        .limit(itemPerPage);
+    }
+
+    return res.status(200).send({
+      message: "Automate all class master list",
+      subject_master,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+

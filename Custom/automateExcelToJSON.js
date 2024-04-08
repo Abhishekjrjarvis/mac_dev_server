@@ -77,10 +77,10 @@ exports.getj_stream_type_query = async (file) => {
       for (let i = 0; i < sheet_row; i++) {
         let row = r_sheet_json[i];
         data_query.push({
-          institute_type: row?.Institute,
-          affiliated_with: row?.Affiliated,
+          // institute_type: row?.Institute,
+          // affiliated_with: row?.Affiliated,
           name: row?.Stream,
-          departmentType: row?.DepartmentType,
+          // departmentType: row?.DepartmentType,
         });
       }
     }
@@ -118,10 +118,12 @@ exports.getj_stream_subject_master_query = async (file) => {
       for (let i = 0; i < sheet_row; i++) {
         let row = r_sheet_json[i];
         data_query.push({
-          className: row?.ClassName,
+          // className: row?.ClassName,
           subjectName: row?.Subject,
           subjectType: row?.Type,
           is_practical: row?.Practical,
+          is_theory: row?.Theory,
+          is_tutorial: row?.Tutorial,
         });
       }
     }

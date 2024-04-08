@@ -60,6 +60,10 @@ const { universal_random_password } = require("../../Custom/universalId");
 const invokeSpecificRegister = require("../../Firebase/specific");
 const { send_global_announcement_notification_query } = require("../../Feed/socialFeed");
 const { postWithDeletedFromAnnouncement } = require("./Post/PostController");
+const FormChecklist = require("../../models/Form/FormChecklist");
+const { form_params } = require("../../Constant/form");
+const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
+const LandingControl = require("../../models/LandingModel/LandingControl");
 
 
 exports.getDashOneQuery = async (req, res) => {
@@ -67,7 +71,7 @@ exports.getDashOneQuery = async (req, res) => {
     const { id } = req.params;
     const { mod_id, user_mod_id } = req.query;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId qviple_id blockStatus profile_modification leave_config random_institute_code merchant_options staff_leave_config certificate_fund_charges certificate_issued_count name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus lms_depart lms_status storeStatus storeDepart"
+      "insName name insAbout photoId qviple_id blockStatus profile_modification leave_config random_institute_code merchant_options staff_leave_config certificate_fund_charges certificate_issued_count name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus lms_depart lms_status storeStatus storeDepart student_form_setting"
     );
     // const encrypt = await encryptionPayload(institute);
     if (req?.query?.mod_id) {
@@ -5355,14 +5359,18 @@ exports.getStudentFormQuery = async (req, res) => {
       throw "Please send institute id to perform task of student form setting";
     const { id } = req.params;
     const institute = await InstituteAdmin.findById(id).select(
-      "studentFormSetting admissionDepart online_amount_edit_access"
-    );
+      "studentFormSetting admissionDepart online_amount_edit_access student_form_setting"
+    )
+      .populate({
+        path: "student_form_setting"
+    })
     // const sEncrypt = await encryptionPayload(institute.studentFormSetting);
     res.status(200).send({
       message: "Student form setting details",
       studentFormSetting: institute.studentFormSetting,
       admissionId: institute?.admissionDepart,
       online_amount_edit_access: institute?.online_amount_edit_access,
+      new_student_form_setting: institute?.student_form_setting
     });
   } catch (e) {
     res.status(400).send({
@@ -6017,3 +6025,207 @@ exports.renderRemoveStaffQuery = async (req, res) => {
   }
 }
 
+exports.render_new_student_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { form } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var ifs = await InstituteStudentForm.findById({ _id: fcid })
+    for (var val of form) {
+      ifs.form_section.push({
+        section_name: val?.section_name,
+        section_visibilty: val?.section_visibilty,
+        section_key: val?.section_key,
+      })
+    }
+    await ifs.save()
+    res.status(200).send({ message: "Explore One Form Section Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_student_form_checklist_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { checklist, fsid } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var ifs = await InstituteStudentForm.findById({ _id: fcid })
+    for (var val of ifs?.form_section) {
+      if (`${val?._id}` === `${fsid}`) {
+        for (var ele of checklist) {
+          var fc = new FormChecklist({
+            form_checklist_name: ele?.form_checklist_name,
+            form_checklist_key: ele?.form_checklist_key,
+            form_checklist_visibility: ele?.form_checklist_visibility,
+            form_checklist_placeholder: ele?.form_checklist_placeholder,
+            form_checklist_lable: ele?.form_checklist_lable,
+            form_checklist_typo: ele?.form_checklist_typo
+          })
+          fc.form = ifs?._id
+          fc.form_section = val?._id
+          val.form_checklist.push(fc?._id)
+          await fc.save()
+        }
+        await val.save()
+      }
+    }
+    res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_edit_student_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { checklist, fsid, section_name, section_key, section_visibilty, cid } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var ifs = await InstituteStudentForm.findById({ _id: fcid })
+    for (var val of ifs?.form_section) {
+      if (`${val?._id}` === `${fsid}`) {
+        if (checklist?.length > 0) {
+          for (var ele of checklist) {
+            var fc = new FormChecklist({
+              form_checklist_name: ele?.form_checklist_name,
+              form_checklist_key: ele?.form_checklist_key,
+              form_checklist_visibility: ele?.form_checklist_visibility,
+              form_checklist_placeholder: ele?.form_checklist_placeholder,
+              form_checklist_lable: ele?.form_checklist_lable,
+              form_checklist_typo: ele?.form_checklist_typo,
+              form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl]
+            })
+            fc.form = ifs?._id
+            fc.form_section = val?._id
+            val.form_checklist.push(fc?._id)
+            await fc.save()
+          }
+        }
+        if (cid) {
+          for (var ele of val?.form_checklist) { 
+            if (`${ele?._id}` === `${cid}`) {
+              val.form_checklist.pull(ele?._id)
+              await FormChecklist.findByIdAndDelete(cid)
+            }
+          }
+        }
+        val.section_name = section_name ? section_name : val?.section_name
+        val.section_key = section_key ? section_key : val?.section_key
+        val.section_visibilty = section_visibilty ? section_visibilty : val?.section_visibilty
+        await val.save()
+      }
+    }
+    res.status(200).send({ message: "Edit One Form Section + Nested Checklist Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_shuffle_student_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { shuffle_arr } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    if (shuffle_arr?.length > 0) {
+      var ifs = await InstituteStudentForm.findById({ _id: fcid })
+      ifs.form_section = []
+      await ifs.save()
+      for(var val of shuffle_arr){
+        ifs.form_section.push(val)
+      }
+      await ifs.save()
+      res.status(200).send({ message: "Explore Form Section Shuffling Query", access: true})
+      }
+    else{
+      res.status(200).send({ message: "No Form Section Shuffling Query", access: false})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_student_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var ifs = await InstituteStudentForm.findById({ _id: fcid })
+      .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+    res.status(200).send({ message: "Explore One Institute Student Form Section Query", access: true, section: ifs})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_enable_query = async (req, res) => {
+  try {
+    const all_ins = await InstituteAdmin.find({})
+    for (var val of all_ins) {
+      var fc = new InstituteStudentForm({})
+      var lc = new LandingControl({})
+      fc.institute = val?._id
+      val.student_form_setting = fc?._id
+      lc.institute = val?._id
+      val.landing_control = lc?._id
+      await Promise.all([ val.save(), fc.save(), lc.save()])
+    }
+    res.status(200).send({ message: "Explore Student Form Section Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_auto_student_form_section_checklist_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var ifs = await InstituteStudentForm.findById({ _id: fcid })
+    
+    var checklist = form_params
+    var nums = []
+    for (var val of checklist) {
+      if (val?.form_checklist?.length > 0) {
+        for (var ele of val?.form_checklist) {
+          var fc = new FormChecklist({
+            form_checklist_name: ele?.form_checklist_name,
+            form_checklist_key: ele?.form_checklist_key,
+            form_checklist_visibility: ele?.form_checklist_visibility,
+            form_checklist_placeholder: ele?.form_checklist_placeholder,
+            form_checklist_lable: ele?.form_checklist_lable,
+            form_checklist_typo: ele?.form_checklist_typo,
+            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl]
+          })
+          fc.form = ifs?._id
+          fc.form_section = val?._id
+          nums.push(fc?._id)
+          await fc.save()
+        }
+      }
+      ifs.form_section.push({
+        section_name: val?.section_name,
+        section_visibilty: val?.section_visibilty,
+        section_key: val?.section_key,
+        form_checklist: [...nums]
+      })
+    }
+    await ifs.save()
+    res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

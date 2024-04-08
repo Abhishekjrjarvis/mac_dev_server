@@ -151,4 +151,10 @@ router.post("/:id/home/opener/query", catchAsync(Landing.render_home_opener_quer
 
 router.patch("/:id/one/:tid/testimonials/query", catchAsync(Landing.render_one_testimonials_query));
 
+router.post("/:id/iso/certificate/query", catchAsync(Landing.render_new_iso_query));
+
+router.patch("/:lcid/toggle/query", catchAsync(Landing.render_Landing_Control_query));
+
+router.patch("/:id/all/gallery/post", catchAsync(Landing.render_all_gallery_post_query));
+
 module.exports = router;

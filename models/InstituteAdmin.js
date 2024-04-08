@@ -1280,6 +1280,27 @@ const instituteAdminSchema = new mongoose.Schema({
       image: { type: String },
       link: { type: String }
     }
+  ],
+  iso_certificate: [
+    {
+      name: { type: String },
+      image: { type: String },
+      link: { type: String }
+    }
+  ],
+  landing_control: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "LandingControl"
+  },
+  student_form_setting: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteStudentForm"
+  },
+  featured_post: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post"
+    }
   ]
 });
 

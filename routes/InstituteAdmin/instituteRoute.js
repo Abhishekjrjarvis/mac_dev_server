@@ -651,4 +651,42 @@ router.patch("/:sid/one-remove/query", catchAsync(Institute.renderRemoveStaffQue
 
 router.patch("/master/query", catchAsync(Institute.renderExistMasterQuery));
 
+router.post(
+  "/new/form/:fcid/section/student/query",
+  catchAsync(Institute.render_new_student_form_section_query)
+);
+
+router.post(
+  "/new/form/:fcid/checklist/query",
+  catchAsync(Institute.render_new_student_form_checklist_query)
+);
+
+router.patch(
+  "/edit/form/:fcid/section/query",
+  catchAsync(Institute.render_edit_student_form_section_query)
+);
+
+router.patch(
+  "/shuffle/form/:fcid/section/student/query",
+  catchAsync(Institute.render_shuffle_student_form_section_query)
+);
+
+router.get(
+  "/one/form/:fcid/section/query",
+  catchAsync(Institute.render_one_student_form_section_query)
+);
+
+// Enable LC + FC
+router.patch(
+  "/enable/query",
+  catchAsync(Institute.render_one_enable_query)
+);
+
+// Add In Super Admin
+router.patch(
+  "/enable/auto/form/:fcid/query",
+  catchAsync(Institute.render_auto_student_form_section_checklist_query)
+);
+
+
 module.exports = router;

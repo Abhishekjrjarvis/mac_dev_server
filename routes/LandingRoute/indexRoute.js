@@ -173,4 +173,8 @@ router.patch("/:lcid/about/society/post", catchAsync(Landing.render_society_desk
 
 router.get("/:id/all/pinned/department/query", catchAsync(Landing.render_pinned_department_query));
 
+router.post("/:lcid/new/academic/head/query", catchAsync(Landing.render_new_academic_head_query));
+
+router.post("/:acid/sub/head/academic/query", catchAsync(Landing.render_new_academic_sub_head_query));
+
 module.exports = router;

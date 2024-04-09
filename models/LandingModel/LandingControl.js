@@ -120,12 +120,13 @@ vision: {
     founder_message_name: {
       type: String
     },
-  }
-  // administration: [
-  //   {
-
-  //   }
-  // ]
+  },
+  academic_courses_desk: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AcademicPage"
+    }
+  ]
 });
 
 module.exports = mongoose.model("LandingControl", landingControlSchema);

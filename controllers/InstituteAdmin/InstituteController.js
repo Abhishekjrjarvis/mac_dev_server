@@ -6194,10 +6194,12 @@ exports.render_one_student_form_section_query = async (req, res) => {
 
 exports.render_one_student_form_section_enable_query = async (req, res) => {
   try {
-    const { fcid } = req?.params
-    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const { id } = req?.params
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    var ifs = await InstituteStudentForm.findById({ _id: fcid })
+    var ins = await InstituteAdmin.findById({ _id: id })
+    .select("student_form_setting")
+    var ifs = await InstituteStudentForm.findById({ _id: `${ins?.student_form_setting}` })
       .select("form_section")
       .populate({
       path: "form_section.form_checklist"

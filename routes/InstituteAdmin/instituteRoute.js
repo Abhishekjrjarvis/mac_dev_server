@@ -677,7 +677,7 @@ router.get(
 );
 
 router.get(
-  "/one/form/:fcid/section/enable/query",
+  "/one/form/:id/section/enable/query",
   catchAsync(Institute.render_one_student_form_section_enable_query)
 );
 

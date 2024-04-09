@@ -1286,7 +1286,7 @@ exports.render_home_opener_query = async (req, res) => {
       ins.home_opener.push({
         image: val?.image,
         link: val?.link,
-        quick_links: [...val?.quick_links]
+        quick_links: [...val?.quick_links],
       })
     }
     await ins.save()
@@ -1311,7 +1311,8 @@ exports.render_one_home_opener_query = async (req, res) => {
         for (var ele of quick) {
           val.quick_links.push({
             name: ele?.name,
-            link: ele?.link
+            link: ele?.link,
+            attach: ele?.attach
           })
         }
       }

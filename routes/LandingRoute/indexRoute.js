@@ -177,4 +177,6 @@ router.post("/:lcid/new/academic/head/query", catchAsync(Landing.render_new_acad
 
 router.post("/:acid/sub/head/academic/query", catchAsync(Landing.render_new_academic_sub_head_query));
 
+router.patch("/enable/data", catchAsync(Landing.render_enable_data_query));
+
 module.exports = router;

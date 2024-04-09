@@ -1602,6 +1602,7 @@ exports.render_pinned_department_query = async (req, res) => {
 exports.render_new_academic_head_query = async (req, res) => {
   try {
     const { lcid } = req?.params
+    const { head_name, head_images, head_about } = req?.body
     if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const landing = await LandingControl.findById({ _id: lcid })
@@ -1623,6 +1624,7 @@ exports.render_new_academic_head_query = async (req, res) => {
 exports.render_new_academic_sub_head_query = async (req, res) => {
   try {
     const { acid } = req?.params
+    const { sub_head_title, sub_heading, sub_head_body } = req?.body
     if (!acid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const page = await AcademicPage.findById({ _id: acid })
@@ -1635,6 +1637,21 @@ exports.render_new_academic_sub_head_query = async (req, res) => {
     academic.academic_page = page?._id
     await Promise.all([page.save(), academic.save()])
     res.status(200).send({ message: "Explore New Academic Sub Head Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_enable_data_query = async (req, res) => {
+  try {
+    const all_ins = await InstituteAdmin.find({ status: "Approved" })
+    .select("website_looks")
+    for (var val of all_ins) {
+      val.website_looks.background_image = [val.website_looks.background_image]
+      await val.save()
+    }
+    res.status(200).send({ message: "Success"})
   }
   catch (e) {
     console.log(e)

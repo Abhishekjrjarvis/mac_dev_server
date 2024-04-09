@@ -688,5 +688,6 @@ router.patch(
   catchAsync(Institute.render_auto_student_form_section_checklist_query)
 );
 
+router.post("/:id/pinned/department/query", catchAsync(Institute.renderDepartmentPinnedQuery))
 
 module.exports = router;

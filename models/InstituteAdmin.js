@@ -1278,7 +1278,8 @@ const instituteAdminSchema = new mongoose.Schema({
   home_opener: [
     {
       image: { type: String },
-      link: { type: String }
+      link: { type: String },
+      quick_links: [{ name: { type: String }, link: { type: String }}]
     }
   ],
   iso_certificate: [
@@ -1300,6 +1301,12 @@ const instituteAdminSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Post"
+    }
+  ],
+  pinned_department: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department"
     }
   ]
 });

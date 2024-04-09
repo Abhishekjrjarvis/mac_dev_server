@@ -676,6 +676,11 @@ router.get(
   catchAsync(Institute.render_one_student_form_section_query)
 );
 
+router.get(
+  "/one/form/:fcid/section/enable/query",
+  catchAsync(Institute.render_one_student_form_section_enable_query)
+);
+
 // Enable LC + FC
 router.patch(
   "/enable/query",

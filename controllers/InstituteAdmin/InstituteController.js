@@ -6185,7 +6185,39 @@ exports.render_one_student_form_section_query = async (req, res) => {
       .populate({
       path: "form_section.form_checklist"
       })
-    res.status(200).send({ message: "Explore One Institute Student Form Section Query", access: true, section: ifs})
+    res.status(200).send({ message: "Explore One Institute Student Form Section Query", access: true, section: ifs?.form_section})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_student_form_section_enable_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var ifs = await InstituteStudentForm.findById({ _id: fcid })
+      .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+    
+    var all_section = ifs?.form_section?.filter((val) => {
+      if(val?.section_visibilty) return val
+    })
+
+    for (var ele of all_section) {
+      for (var stu of ele?.form_checklist) {
+        if (stu?.form_checklist_visibility) {
+          
+        }
+        else {
+          ele?.form_checklist?.pull(stu?._id)
+        }
+      }
+    }
+    res.status(200).send({ message: "Explore One Institute Student Form Section Enable Query", access: true, section: all_section})
   }
   catch (e) {
     console.log(e)

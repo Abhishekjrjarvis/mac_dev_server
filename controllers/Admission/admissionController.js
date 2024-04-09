@@ -4087,225 +4087,225 @@ exports.retrieveStudentCancelAdmissionMode = async (req, res) => {
 };
 
 exports.retrieveStudentAdmissionFees = async (req, res) => {
-  // try {
-  //   const { sid } = req.params;
-  //   const page = req.query.page ? parseInt(req.query.page) : 1;
-  //   const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-  //   const skip = (page - 1) * limit;
-  //   // const is_cache = await connect_redis_hit(`One-Student-AppFees-${sid}`);
-  //   // if (is_cache?.hit)
-  //   //   return res.status(200).send({
-  //   //     message: "All Admission Fees of One Student from Cache 🙌",
-  //   //     allDB: is_cache.ins_depart?.depart,
-  //   //   });
-  //   const student = await Student.findById({ _id: sid }).select(
-  //     "remainingFeeList"
-  //   );
-  //   var all_remain_promote = await RemainingList.find({
-  //     $and: [
-  //       { _id: { $in: student?.remainingFeeList } },
-  //       { card_type: "Promote" },
-  //     ],
-  //   })
-  //     .select(
-  //       "applicable_fee scholar_ship_number card_type applicable_fees_pending remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
-  //     )
-  //     .populate({
-  //       path: "appId",
-  //       select:
-  //         "applicationName applicationDepartment applicationMaster admissionAdmin hostelAdmin applicationBatch",
-  //       populate: {
-  //         path: "admissionAdmin hostelAdmin",
-  //         select: "institute",
-  //         populate: {
-  //           path: "institute",
-  //           select: "financeDepart",
-  //         },
-  //       },
-  //     })
-  //     .populate({
-  //       path: "vehicleId",
-  //       select: "vehicle_type vehicle_number vehicle_name",
-  //       populate: {
-  //         path: "transport",
-  //         select: "institute",
-  //         populate: {
-  //           path: "institute",
-  //           select: "financeDepart",
-  //         },
-  //       },
-  //     })
-  //     .populate({
-  //       path: "remaining_array",
-  //       populate: {
-  //         path: "fee_receipt",
-  //       },
-  //     })
-  //     .populate({
-  //       path: "student",
-  //       select: "studentFirstName studentMiddleName studentLastName",
-  //       populate: {
-  //         path: "hostel_fee_structure",
-  //         select:
-  //           "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments category_master structure_month batch_master",
-  //         populate: {
-  //           path: "category_master class_master",
-  //           select: "category_name className",
-  //         },
-  //       },
-  //     })
-  //     .populate({
-  //       path: "batchId",
-  //       select: "batchName",
-  //     })
-  //     .populate({
-  //       path: "fee_structure",
-  //       select:
-  //         "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments structure_month category_master batch_master",
-  //       populate: {
-  //         path: "category_master class_master",
-  //         select: "category_name className",
-  //       },
-  //     })
-  //     .populate({
-  //       path: "student",
-  //       select: "studentFirstName studentMiddleName studentLastName",
-  //       populate: {
-  //         path: "studentClass",
-  //         select: "className classTitle classStatus batch",
-  //         populate: {
-  //           path: "batch",
-  //           select: "batchName batchStatus",
-  //         },
-  //       },
-  //     });
-  //   var all_remain_normal = await RemainingList.find({
-  //     $and: [
-  //       { _id: { $in: student?.remainingFeeList } },
-  //       { card_type: "Normal" },
-  //     ],
-  //   })
-  //     .select(
-  //       "applicable_fee scholar_ship_number card_type applicable_fees_pending remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
-  //     )
-  //     .populate({
-  //       path: "appId",
-  //       select:
-  //         "applicationName applicationDepartment applicationMaster admissionAdmin hostelAdmin applicationBatch",
-  //       populate: {
-  //         path: "admissionAdmin hostelAdmin",
-  //         select: "institute",
-  //         populate: {
-  //           path: "institute",
-  //           select: "financeDepart",
-  //         },
-  //       },
-  //     })
-  //     .populate({
-  //       path: "vehicleId",
-  //       select: "vehicle_type vehicle_number vehicle_name",
-  //       populate: {
-  //         path: "transport",
-  //         select: "institute",
-  //         populate: {
-  //           path: "institute",
-  //           select: "financeDepart",
-  //         },
-  //       },
-  //     })
-  //     .populate({
-  //       path: "remaining_array",
-  //       populate: {
-  //         path: "fee_receipt",
-  //       },
-  //     })
-  //     .populate({
-  //       path: "student",
-  //       select: "studentFirstName studentMiddleName studentLastName",
-  //       populate: {
-  //         path: "hostel_fee_structure",
-  //         select:
-  //           "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments category_master structure_month batch_master",
-  //         populate: {
-  //           path: "category_master class_master",
-  //           select: "category_name className",
-  //         },
-  //       },
-  //     })
-  //     .populate({
-  //       path: "batchId",
-  //       select: "batchName",
-  //     })
-  //     .populate({
-  //       path: "fee_structure",
-  //       select:
-  //         "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments structure_month category_master batch_master",
-  //       populate: {
-  //         path: "category_master class_master",
-  //         select: "category_name className",
-  //       },
-  //     })
-  //     .populate({
-  //       path: "student",
-  //       select: "studentFirstName studentMiddleName studentLastName",
-  //       populate: {
-  //         path: "studentClass",
-  //         select: "className classTitle classStatus batch",
-  //         populate: {
-  //           path: "batch",
-  //           select: "batchName batchStatus",
-  //         },
-  //       },
-  //     });
-  //   var valid_arr = [...all_remain_promote, ...all_remain_normal];
-  //   var valid_remain = await nested_document_limit(page, limit, valid_arr);
-  //   var count = 0;
-  //   for (var ref of valid_remain) {
-  //     count +=
-  //       ref?.paid_fee >= ref?.applicable_fee
-  //         ? ref?.paid_fee - ref?.applicable_fee
-  //         : 0;
-  //     if (ref?.applicable_fee === ref?.remaining_fee) {
-  //       ref.drop_status = "Enable";
-  //     } else {
-  //     }
-  //     if (ref?.paid_fee >= ref?.fee_structure?.applicable_fees) {
-  //       ref.button_status = "Collect As Scholarship";
-  //     } else {
-  //     }
-  //     ref.applicable_fees_pending +=
-  //       ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0
-  //         ? ref?.fee_structure?.applicable_fees - ref?.paid_fee
-  //         : 0;
-  //   }
-  //   for (var ref of valid_remain) {
-  //     ref.setOffPrice = count;
-  //   }
+  try {
+    const { sid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    // const is_cache = await connect_redis_hit(`One-Student-AppFees-${sid}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Admission Fees of One Student from Cache 🙌",
+    //     allDB: is_cache.ins_depart?.depart,
+    //   });
+    const student = await Student.findById({ _id: sid }).select(
+      "remainingFeeList"
+    );
+    var all_remain_promote = await RemainingList.find({
+      $and: [
+        { _id: { $in: student?.remainingFeeList } },
+        { card_type: "Promote" },
+      ],
+    })
+      .select(
+        "applicable_fee scholar_ship_number card_type applicable_fees_pending remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
+      )
+      .populate({
+        path: "appId",
+        select:
+          "applicationName applicationDepartment applicationMaster admissionAdmin hostelAdmin applicationBatch",
+        populate: {
+          path: "admissionAdmin hostelAdmin",
+          select: "institute",
+          populate: {
+            path: "institute",
+            select: "financeDepart",
+          },
+        },
+      })
+      .populate({
+        path: "vehicleId",
+        select: "vehicle_type vehicle_number vehicle_name",
+        populate: {
+          path: "transport",
+          select: "institute",
+          populate: {
+            path: "institute",
+            select: "financeDepart",
+          },
+        },
+      })
+      .populate({
+        path: "remaining_array",
+        populate: {
+          path: "fee_receipt",
+        },
+      })
+      .populate({
+        path: "student",
+        select: "studentFirstName studentMiddleName studentLastName",
+        populate: {
+          path: "hostel_fee_structure",
+          select:
+            "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments category_master structure_month batch_master",
+          populate: {
+            path: "category_master class_master",
+            select: "category_name className",
+          },
+        },
+      })
+      .populate({
+        path: "batchId",
+        select: "batchName",
+      })
+      .populate({
+        path: "fee_structure",
+        select:
+          "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments structure_month category_master batch_master",
+        populate: {
+          path: "category_master class_master",
+          select: "category_name className",
+        },
+      })
+      .populate({
+        path: "student",
+        select: "studentFirstName studentMiddleName studentLastName",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle classStatus batch",
+          populate: {
+            path: "batch",
+            select: "batchName batchStatus",
+          },
+        },
+      });
+    var all_remain_normal = await RemainingList.find({
+      $and: [
+        { _id: { $in: student?.remainingFeeList } },
+        { card_type: "Normal" },
+      ],
+    })
+      .select(
+        "applicable_fee scholar_ship_number card_type applicable_fees_pending remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
+      )
+      .populate({
+        path: "appId",
+        select:
+          "applicationName applicationDepartment applicationMaster admissionAdmin hostelAdmin applicationBatch",
+        populate: {
+          path: "admissionAdmin hostelAdmin",
+          select: "institute",
+          populate: {
+            path: "institute",
+            select: "financeDepart",
+          },
+        },
+      })
+      .populate({
+        path: "vehicleId",
+        select: "vehicle_type vehicle_number vehicle_name",
+        populate: {
+          path: "transport",
+          select: "institute",
+          populate: {
+            path: "institute",
+            select: "financeDepart",
+          },
+        },
+      })
+      .populate({
+        path: "remaining_array",
+        populate: {
+          path: "fee_receipt",
+        },
+      })
+      .populate({
+        path: "student",
+        select: "studentFirstName studentMiddleName studentLastName",
+        populate: {
+          path: "hostel_fee_structure",
+          select:
+            "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments category_master structure_month batch_master",
+          populate: {
+            path: "category_master class_master",
+            select: "category_name className",
+          },
+        },
+      })
+      .populate({
+        path: "batchId",
+        select: "batchName",
+      })
+      .populate({
+        path: "fee_structure",
+        select:
+          "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments structure_month category_master batch_master",
+        populate: {
+          path: "category_master class_master",
+          select: "category_name className",
+        },
+      })
+      .populate({
+        path: "student",
+        select: "studentFirstName studentMiddleName studentLastName",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle classStatus batch",
+          populate: {
+            path: "batch",
+            select: "batchName batchStatus",
+          },
+        },
+      });
+    var valid_arr = [...all_remain_promote, ...all_remain_normal];
+    var valid_remain = await nested_document_limit(page, limit, valid_arr);
+    var count = 0;
+    for (var ref of valid_remain) {
+      count +=
+        ref?.paid_fee >= ref?.applicable_fee
+          ? ref?.paid_fee - ref?.applicable_fee
+          : 0;
+      if (ref?.applicable_fee === ref?.remaining_fee) {
+        ref.drop_status = "Enable";
+      } else {
+      }
+      if (ref?.paid_fee >= ref?.fee_structure?.applicable_fees) {
+        ref.button_status = "Collect As Scholarship";
+      } else {
+      }
+      ref.applicable_fees_pending +=
+        ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0
+          ? ref?.fee_structure?.applicable_fees - ref?.paid_fee
+          : 0;
+    }
+    for (var ref of valid_remain) {
+      ref.setOffPrice = count;
+    }
 
-  //   if (valid_remain?.length > 0) {
-  //     // const arrayEncrypt = await encryptionPayload(valid_remain);
-  //     // const cached = await connect_redis_miss(
-  //     //   `One-Student-AppFees-${sid}`,
-  //     //   valid_remain
-  //     // );
-  //     res.status(200).send({
-  //       message: "All Admission Fees",
-  //       get: true,
-  //       // array: cached.valid_remain,
-  //       array: valid_remain,
-  //       // student: student,
-  //     });
-  //   } else {
-  //     res.status(200).send({
-  //       message: "No Admission Fees",
-  //       get: false,
-  //       array: [],
-  //       // student: student,
-  //     });
-  //   }
-  // } catch (e) {
-  //   console.log(e);
-  // }
+    if (valid_remain?.length > 0) {
+      // const arrayEncrypt = await encryptionPayload(valid_remain);
+      // const cached = await connect_redis_miss(
+      //   `One-Student-AppFees-${sid}`,
+      //   valid_remain
+      // );
+      res.status(200).send({
+        message: "All Admission Fees",
+        get: true,
+        // array: cached.valid_remain,
+        array: valid_remain,
+        // student: student,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Admission Fees",
+        get: false,
+        array: [],
+        // student: student,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveAdmissionCollectDocs = async (req, res) => {

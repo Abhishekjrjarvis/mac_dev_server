@@ -1279,7 +1279,7 @@ const instituteAdminSchema = new mongoose.Schema({
     {
       image: { type: String },
       link: { type: String },
-      quick_links: [{ name: { type: String }, link: { type: String }}]
+      quick_links: [{ name: { type: String }, link: { type: String }, attach: { type: String}}]
     }
   ],
   iso_certificate: [

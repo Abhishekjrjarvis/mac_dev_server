@@ -21,6 +21,8 @@ const NSS = require("../../models/LandingModel/SinglePage/NSS");
 const Facilities = require("../../models/LandingModel/SinglePage/facilities");
 const LandingControl = require("../../models/LandingModel/LandingControl");
 const Post = require("../../models/Post");
+const AcademicPage = require("../../models/LandingModel/AcademicPage");
+const AcademicNestedPage = require("../../models/LandingModel/AcademicNestedPage");
 
 exports.uploadGetTouchDetail = async (req, res) => {
   try {
@@ -843,6 +845,12 @@ exports.renderOneWebProfile = async (req, res) => {
       })
       .populate({
         path: "landing_control",
+        populate: {
+          path: "academic_courses_desk",
+          populate: {
+            path: "sub_head"
+          }
+        }
       });
     res.status(200).send({
       message: "Explore One Institute All Profile Details",
@@ -1539,7 +1547,7 @@ exports.render_affiliation_desk_post_query = async (req, res) => {
     
     const landing = await LandingControl.findById({ _id: lcid })
     landing.affiliation_name = name ? name : landing?.affiliation_name
-    landing.affiliation_logo = logo ? [...logo] : landing.affiliation_logo
+    landing.affiliation_logo = logo?.length > 0  ? [...logo] : [...landing.affiliation_logo]
     await landing.save()
     res.status(200).send({ message: "Affiliation Desk Updated Query", access: true })
   }
@@ -1585,6 +1593,48 @@ exports.render_pinned_department_query = async (req, res) => {
         select: "dName"
       })
     res.status(200).send({ message: "Explore Pinned Department", access: true, ins: ins?.pinned_department})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_academic_head_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const landing = await LandingControl.findById({ _id: lcid })
+    const new_academic = new AcademicPage({
+      head_name: head_name,
+      head_images: [...head_images],
+      head_about: head_about
+    })
+    landing.academic_courses_desk.push(new_academic?._id)
+    new_academic.landing_control = landing?._id
+    await Promise.all([landing.save(), new_academic.save()])
+    res.status(200).send({ message: "Explore New Academic Head Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_academic_sub_head_query = async (req, res) => {
+  try {
+    const { acid } = req?.params
+    if (!acid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const page = await AcademicPage.findById({ _id: acid })
+    const academic = new AcademicNestedPage({
+      sub_head_title: sub_head_title,
+      sub_heading: sub_heading,
+      sub_head_body: sub_head_body
+    })
+    page.sub_head.push(academic?._id)
+    academic.academic_page = page?._id
+    await Promise.all([page.save(), academic.save()])
+    res.status(200).send({ message: "Explore New Academic Sub Head Query", access: true})
   }
   catch (e) {
     console.log(e)

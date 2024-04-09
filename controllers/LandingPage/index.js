@@ -1277,11 +1277,39 @@ exports.render_home_opener_query = async (req, res) => {
     for (var val of home) {
       ins.home_opener.push({
         image: val?.image,
-        link: val?.link
+        link: val?.link,
+        quick_links: [...val?.quick_links]
       })
     }
     await ins.save()
     res.status(200).send({ message: "Home Opener Updated Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_home_opener_query = async (req, res) => {
+  try {
+    const { id, hid } = req?.params
+    const { image, link, quick } = req?.body
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const ins = await InstituteAdmin.findById({ _id: id })
+    for (var val of ins?.home_opener) {
+      if (`${val?._id}` === `${hid}`) {
+        val.image = image ? image : val?.image
+        val.link = link ? link : val?.link
+        for (var ele of quick) {
+          val.quick_links.push({
+            name: ele?.name,
+            link: ele?.link
+          })
+        }
+      }
+    }
+    await ins.save()
+    res.status(200).send({ message: "One Home Opener Updated Query", access: true })
   }
   catch (e) {
     console.log(e)
@@ -1403,6 +1431,160 @@ exports.render_all_gallery_post_query = async (req, res) => {
             res.status(204).send({ message: "No Posts Yet...", post: [] });
           }
   
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_founder_desk_post_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { desk } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const landing = await LandingControl.findById({ _id: lcid })
+    for (var val of desk) {
+      landing.founder_desk.push({
+        video: val?.video,
+        image: val?.image,
+        link: val?.link,
+        description: val?.description
+      })
+    }
+    await landing.save()
+    res.status(200).send({ message: "Founder's Desk Updated Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_accreditation_desk_post_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { desk } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const landing = await LandingControl.findById({ _id: lcid })
+    for (var val of desk) {
+      landing.accreditations_desk.push({
+        image: val?.image,
+        link: val?.link
+      })
+    }
+    await landing.save()
+    res.status(200).send({ message: "Accreditations Desk Updated Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_gallery_desk_post_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { gallery } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const landing = await LandingControl.findById({ _id: lcid })
+    for (var val of gallery) {
+      landing.gallery.push({
+        category: val?.category,
+        image: val?.image
+      })
+    }
+    await landing.save()
+    res.status(200).send({ message: "Gallery Desk Updated Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_gallery_desk_post_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { category } = req?.query
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const landing = await LandingControl.findById({ _id: lcid })
+      .select("gallery")
+    
+    var filter = landing?.gallery?.filter((val) => {
+      if(`${val?.category}` === `${category}`) return val
+    })
+    var all_gallery = await nested_document_limit(page, limit, filter)
+    if (all_gallery?.length > 0) {
+      res.status(200).send({ message: "All Gallery Desk Updated Query", access: true, all_gallery: all_gallery }) 
+    }
+    else {
+      res.status(200).send({ message: "No Gallery Desk Updated Query", access: true, all_gallery: [] })
+    }
+    
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_affiliation_desk_post_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { name, logo } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const landing = await LandingControl.findById({ _id: lcid })
+    landing.affiliation_name = name ? name : landing?.affiliation_name
+    landing.affiliation_logo = logo ? [...logo] : landing.affiliation_logo
+    await landing.save()
+    res.status(200).send({ message: "Affiliation Desk Updated Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_society_desk_post_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { name, vision, mission, organisation_structure, founder_message_image, founder_message_designation, founder_message_message, founder_message_name } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const landing = await LandingControl.findById({ _id: lcid })
+
+    landing.about_society_dynamic.dynamic_name = name ? name : landing?.about_society_dynamic?.dynamic_name
+    landing.about_society_dynamic.vision = vision ? vision : landing?.about_society_dynamic?.vision
+    landing.about_society_dynamic.mission = mission ? mission : landing?.about_society_dynamic?.mission
+    landing.about_society_dynamic.organisation_structure = organisation_structure ? organisation_structure : landing?.about_society_dynamic?.organisation_structure
+    landing.about_society_dynamic.founder_message_image = founder_message_image ? founder_message_image : landing?.about_society_dynamic?.founder_message_image
+    landing.about_society_dynamic.founder_message_designation = founder_message_designation ? founder_message_designation : landing?.about_society_dynamic?.founder_message_designation
+    landing.about_society_dynamic.founder_message_message = founder_message_message ? founder_message_message : landing?.about_society_dynamic?.founder_message_message
+    landing.about_society_dynamic.founder_message_name = founder_message_name ? founder_message_name : landing?.about_society_dynamic?.founder_message_name
+    
+    await landing.save()
+    res.status(200).send({ message: "Society Desk Updated Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_pinned_department_query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const ins = await InstituteAdmin.findById({ _id: id })
+      .select("pinned_department")
+      .populate({
+        path: "pinned_department",
+        select: "dName"
+      })
+    res.status(200).send({ message: "Explore Pinned Department", access: true, ins: ins?.pinned_department})
   }
   catch (e) {
     console.log(e)

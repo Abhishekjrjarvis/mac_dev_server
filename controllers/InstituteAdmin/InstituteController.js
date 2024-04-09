@@ -5913,6 +5913,28 @@ exports.renderApproveStaffShuffleQuery = async (req, res) => {
   }
 }
 
+exports.renderDepartmentPinnedQuery = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const { did } = req?.body
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var one_ins = await InstituteAdmin.findById({ _id: id })
+
+    if (one_ins?.pinned_department?.includes(`${did}`)) {
+      one_ins.pinned_department.pull(did) 
+    }
+    else {
+      one_ins.pinned_department.push(did)
+    }
+    await one_ins.save()
+    res.status(200).send({ message: "Explore One Department Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.renderApproveStaffShuffleQueryStats = async (req, res) => {
   try {
     var all_ins = await InstituteAdmin.find({ status: "Approved"})
@@ -6070,9 +6092,10 @@ exports.render_new_student_form_checklist_query = async (req, res) => {
           val.form_checklist.push(fc?._id)
           await fc.save()
         }
-        await val.save()
+        // await val.save()
       }
     }
+    await ifs.save()
     res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true})
   }
   catch (e) {
@@ -6117,9 +6140,9 @@ exports.render_edit_student_form_section_query = async (req, res) => {
         val.section_name = section_name ? section_name : val?.section_name
         val.section_key = section_key ? section_key : val?.section_key
         val.section_visibilty = section_visibilty ? section_visibilty : val?.section_visibilty
-        await val.save()
       }
     }
+    await ifs.save()
     res.status(200).send({ message: "Edit One Form Section + Nested Checklist Query", access: true})
   }
   catch (e) {

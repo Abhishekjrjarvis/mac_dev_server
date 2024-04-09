@@ -149,6 +149,8 @@ router.post("/:id/testimonials/query", catchAsync(Landing.render_testimonials_qu
 
 router.post("/:id/home/opener/query", catchAsync(Landing.render_home_opener_query));
 
+router.patch("/:id/one/:hid/home/opener/query", catchAsync(Landing.render_one_home_opener_query));
+
 router.patch("/:id/one/:tid/testimonials/query", catchAsync(Landing.render_one_testimonials_query));
 
 router.post("/:id/iso/certificate/query", catchAsync(Landing.render_new_iso_query));
@@ -156,5 +158,19 @@ router.post("/:id/iso/certificate/query", catchAsync(Landing.render_new_iso_quer
 router.patch("/:lcid/toggle/query", catchAsync(Landing.render_Landing_Control_query));
 
 router.patch("/:id/all/gallery/post", catchAsync(Landing.render_all_gallery_post_query));
+
+router.post("/:lcid/founder/desk/post", catchAsync(Landing.render_founder_desk_post_query));
+
+router.post("/:lcid/accreditation/desk/post", catchAsync(Landing.render_accreditation_desk_post_query));
+
+router.post("/:lcid/gallery/desk/post", catchAsync(Landing.render_gallery_desk_post_query));
+
+router.get("/:lcid/all/gallery/desk/query", catchAsync(Landing.render_all_gallery_desk_post_query));
+
+router.patch("/:lcid/affiliation/post", catchAsync(Landing.render_affiliation_desk_post_query));
+
+router.patch("/:lcid/about/society/post", catchAsync(Landing.render_society_desk_post_query));
+
+router.get("/:id/all/pinned/department/query", catchAsync(Landing.render_pinned_department_query));
 
 module.exports = router;

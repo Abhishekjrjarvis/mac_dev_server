@@ -209,4 +209,8 @@ router.patch("/:lcid/about/institute/object/query", catchAsync(Landing.render_ab
 // About Us Institute Administration
 router.patch("/:lcid/about/institute/administration/object/query", catchAsync(Landing.render_about_institute_administration_object_query));
 
+router.get("/:acid/all/academic/page/query", catchAsync(Landing.render_all_academic_page_query));
+
+router.get("/:anid/one/academic/nested/page/query", catchAsync(Landing.render_all_academic_nested_page_query));
+
 module.exports = router;

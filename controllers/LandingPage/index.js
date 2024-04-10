@@ -1803,6 +1803,36 @@ exports.render_about_institute_administration_object_query = async (req, res) =>
   }
 }
 
+exports.render_all_academic_page_query = async (req, res) => {
+  try {
+    const { acid } = req?.params
+    if (!acid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const all_page = await AcademicPage.findById({ _id: acid })
+      .select("sub_head")
+      .populate({
+        path: "sub_head",
+        select: "sub_head_title_main"
+    })
+    res.status(200).send({ message: "All Academic Page Query", access: true, all_page: all_page?.sub_head})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_academic_nested_page_query = async (req, res) => {
+  try {
+    const { anid } = req?.params
+    if (!anid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const all_page = await AcademicNestedPage.findById({ _id: anid })
+      .select("sub_head_title sub_heading_image sub_head_body")
+    res.status(200).send({ message: "All Academic Nested Page Query", access: true, all_page: all_page})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 // var is_true = true;
 // setInterval(async () => {
 //   if (

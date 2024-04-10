@@ -1560,13 +1560,14 @@ exports.render_affiliation_desk_post_query = async (req, res) => {
 exports.render_society_desk_post_query = async (req, res) => {
   try {
     const { lcid } = req?.params
-    const { name, vision, mission, organisation_structure, founder_message_image, founder_message_designation, founder_message_message, founder_message_name } = req?.body
+    const { name, vision, about, mission, organisation_structure, founder_message_image, founder_message_designation, founder_message_message, founder_message_name } = req?.body
     if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
     
     const landing = await LandingControl.findById({ _id: lcid })
 
     landing.about_society_dynamic.dynamic_name = name ? name : landing?.about_society_dynamic?.dynamic_name
     landing.about_society_dynamic.vision = vision ? vision : landing?.about_society_dynamic?.vision
+    landing.about_society_dynamic.about = about ? about : landing?.about_society_dynamic?.about
     landing.about_society_dynamic.mission = mission ? mission : landing?.about_society_dynamic?.mission
     landing.about_society_dynamic.organisation_structure = organisation_structure ? organisation_structure : landing?.about_society_dynamic?.organisation_structure
     landing.about_society_dynamic.founder_message_image = founder_message_image ? founder_message_image : landing?.about_society_dynamic?.founder_message_image
@@ -1625,19 +1626,36 @@ exports.render_new_academic_head_query = async (req, res) => {
 exports.render_new_academic_sub_head_query = async (req, res) => {
   try {
     const { acid } = req?.params
-    const { sub_head_title, sub_heading, sub_head_body } = req?.body
+    const { sub_head_title_main } = req?.body
     if (!acid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const page = await AcademicPage.findById({ _id: acid })
     const academic = new AcademicNestedPage({
-      sub_head_title: sub_head_title,
-      sub_heading: sub_heading,
-      sub_head_body: sub_head_body
+      sub_head_title_main: sub_head_title_main,
     })
     page.sub_head.push(academic?._id)
     academic.academic_page = page?._id
     await Promise.all([page.save(), academic.save()])
     res.status(200).send({ message: "Explore New Academic Sub Head Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_edit_academic_sub_head_query = async (req, res) => {
+  try {
+    const { anid } = req?.params
+    const { sub_head_title, sub_heading_image, sub_head_body } = req?.body
+    if (!anid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const n_page = await AcademicNestedPage.findById({ _id: anid })
+    n_page.sub_head_title.push(sub_head_title)
+    n_page.sub_heading_image.push(sub_heading_image)
+    n_page.sub_head_body.push(sub_head_body)
+    
+    await n_page.save()
+    res.status(200).send({ message: "Explore New Academic Sub Head Edit Query", access: true})
   }
   catch (e) {
     console.log(e)
@@ -1653,6 +1671,132 @@ exports.render_enable_data_query = async (req, res) => {
       await val.save()
     }
     res.status(200).send({ message: "Success"})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_home_header_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    await LandingControl.findByIdAndUpdate(lcid, req?.body)
+    res.status(200).send({ message: "Home Header Object Update Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_home_background_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    await LandingControl.findByIdAndUpdate(lcid, req?.body)
+    res.status(200).send({ message: "Home Header Background Object Update Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_home_about_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    await LandingControl.findByIdAndUpdate(lcid, req?.body)
+    res.status(200).send({ message: "Home Header About Object Update Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_home_quick_opener_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    await LandingControl.findByIdAndUpdate(lcid, req?.body)
+    res.status(200).send({ message: "Home Header Quick + Opener Object Update Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_home_footer_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    await LandingControl.findByIdAndUpdate(lcid, req?.body)
+    res.status(200).send({ message: "Home Header Footer Object Update Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_home_accreditation_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { name, image, about } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const landing = await LandingControl.findById({ _id: lcid })
+    landing.home_accreditation_object.push({
+      name: name,
+      image: image,
+      about: about
+    })
+    await landing.save()
+    res.status(200).send({ message: "Home Header Accreditation Object Update Query", access: true})
+
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_home_accreditation_nested_object_query = async (req, res) => {
+  try {
+    const { lcid, acid } = req?.params
+    const { c_name, c_attach } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const landing = await LandingControl.findById({ _id: lcid })
+    for (var val of landing?.home_accreditation_object) {
+      if (`${val?._id}` === `${acid}`) {
+        val.c_name.push(c_name)
+        val.c_attach.push(c_attach)
+      }
+    }
+    await landing.save()
+    res.status(200).send({ message: "Home Header Accreditation Nested Object Update Query", access: true})
+
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_about_institute_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { affiliation } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    await LandingControl.findByIdAndUpdate(lcid, req?.body)
+    res.status(200).send({ message: "Home About Us Institute Object Update Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_about_institute_administration_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    await LandingControl.findByIdAndUpdate(lcid, req?.body)
+    res.status(200).send({ message: "Home About Institute Administration Object Update Query", access: true})
   }
   catch (e) {
     console.log(e)

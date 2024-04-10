@@ -1,13 +1,16 @@
 const mongoose = require("mongoose")
 
 const academicNestedPage = new mongoose.Schema({
-    sub_head_title: {
+    sub_head_title: [{
         type: String
-    },
-    sub_heading: {
+    }],
+    sub_heading_image: [{
         type: String
-    },
-    sub_head_body: {
+    }],
+    sub_head_body: [{
+        type: String
+    }],
+    sub_head_title_main: {
         type: String
     },
     created_at: {

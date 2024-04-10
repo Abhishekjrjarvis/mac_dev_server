@@ -102,6 +102,9 @@ vision: {
     vision: {
       type: String
     },
+    about: {
+      type: String
+    },
     mission: {
       type: String
     },
@@ -126,7 +129,105 @@ vision: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "AcademicPage"
     }
-  ]
+  ],
+  home_header_object: {
+    ins_name: { type: String },
+    ins_logo: { type: String },
+    affiliation_logo: { type: String },
+    ins_address: { type: String },
+    affiliation_with: { type: String },
+    ins_email: { type: String },
+    ins_phone_number: { type: String },
+    accreditations: { type: String }
+  },
+  home_background_object: {
+    images: [],
+    color_theme: { type: String }
+  },
+  home_about_institute_object: {
+    about: { type: String },
+    typo: { type: String },
+    link_images: { type: String },
+  },
+  home_opener_quick_links: {
+    link_1: {
+      name: { type: String },
+      typo: { type: String },
+      link_images: { type: String }
+    },
+    link_2: {
+      name: { type: String },
+      typo: { type: String },
+      link_images: { type: String }
+    },
+    link_3: {
+      name: { type: String },
+      typo: { type: String },
+      link_images: { type: String }
+    },
+    link_4: {
+      name: { type: String },
+      typo: { type: String },
+      link_images: { type: String }
+    },
+    link_5: {
+      name: { type: String },
+      typo: { type: String },
+      link_images: { type: String }
+    },
+    link_6: {
+      name: { type: String },
+      typo: { type: String },
+      link_images: { type: String }
+    },
+  },
+  home_opener_background_object: {
+    bg_1: {
+      name: { type: String },
+      typo: { type: String },
+      link_images: { type: String }
+    },
+    bg_2: {
+      name: { type: String },
+      typo: { type: String },
+      link_images: { type: String }
+    },
+  },
+  home_accreditation_object: [
+    {
+      name: { type: String },
+      image: { type: String },
+      about: { type: String },
+      c_name: [{ type: String }],
+      c_attach: [{ type: String }]
+    }
+  ],
+  footer_links: {
+    linkedin_link: { type: String },
+    instagram_link: { type: String },
+    twitter_link: { type: String },
+    qviple_link: { type: String },
+    youtube_link: { type: String },
+    facebook_link: { type: String }
+  },
+  about_us_institute_object: {
+    ins_name: { type: String },
+    ins_about: { type: String },
+    vision: { type: String },
+    mission: { type: String },
+    org_structure: { type: String },
+    affiliation: [
+      {
+        name: { type: String },
+        info: { type: String }
+      }
+    ]
+  },
+  administration_object: {
+    leading_person: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    leading_person_position: { type: String },
+    leading_person_message: { type: String },
+  }
 });
 
 module.exports = mongoose.model("LandingControl", landingControlSchema);

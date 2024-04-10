@@ -177,6 +177,36 @@ router.post("/:lcid/new/academic/head/query", catchAsync(Landing.render_new_acad
 
 router.post("/:acid/sub/head/academic/query", catchAsync(Landing.render_new_academic_sub_head_query));
 
+router.patch("/:anid/nested/sub/head/academic/query", catchAsync(Landing.render_edit_academic_sub_head_query));
+
 router.patch("/enable/data", catchAsync(Landing.render_enable_data_query));
+
+
+// Header Object
+router.patch("/:lcid/header/object/query", catchAsync(Landing.render_home_header_object_query));
+
+// Header Background Object
+router.patch("/:lcid/header/background/object/query", catchAsync(Landing.render_home_background_object_query));
+
+// Header About Us Institute
+router.patch("/:lcid/header/home/about/object/query", catchAsync(Landing.render_home_about_object_query));
+
+// Header Quick Links + Home Opener
+router.patch("/:lcid/header/home/quick/opener/object/query", catchAsync(Landing.render_home_quick_opener_object_query));
+
+// Header Footer Links
+router.patch("/:lcid/footer/object/query", catchAsync(Landing.render_home_footer_object_query));
+
+// Header Accreditation
+router.post("/:lcid/header/accreditation/object/query", catchAsync(Landing.render_home_accreditation_object_query));
+
+// Header Accreditation Nested
+router.patch("/:lcid/header/accreditation/:acid/nested/object/query", catchAsync(Landing.render_home_accreditation_nested_object_query));
+
+// About Us Institute
+router.patch("/:lcid/about/institute/object/query", catchAsync(Landing.render_about_institute_object_query));
+
+// About Us Institute Administration
+router.patch("/:lcid/about/institute/administration/object/query", catchAsync(Landing.render_about_institute_administration_object_query));
 
 module.exports = router;

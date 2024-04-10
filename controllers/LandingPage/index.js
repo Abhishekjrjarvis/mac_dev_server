@@ -851,6 +851,16 @@ exports.renderOneWebProfile = async (req, res) => {
             path: "sub_head"
           }
         }
+      })
+      .populate({
+        path: "landing_control",
+        populate: {
+          path: "administration_object",
+          populate: {
+            path: "leading_person",
+            select: "username userLegalName photoId profilePhoto"
+          }
+        }
       });
     res.status(200).send({
       message: "Explore One Institute All Profile Details",

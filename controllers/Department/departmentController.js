@@ -1,6 +1,7 @@
 const Department = require("../../models/Department");
 const DepartmentStudentForm = require("../../models/Form/DepartmentStudentForm");
 const FormChecklist = require("../../models/Form/FormChecklist");
+const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Student = require("../../models/Student");
 
@@ -264,24 +265,43 @@ exports.render_dynamic_form_query = async (req, res) => {
     
     if (flow === "INSTITUTE") {
       var head_array = []
+      var head_arrays = []
+      var obj = {}
       const student = await Student.findById({ _id: sid })
-      const all_check = await FormChecklist.find({ form: did })
-      for (var ele of all_check) {
-        head_array.push({
-          form_checklist_name: ele?.form_checklist_name,
-          form_checklist_key: ele?.form_checklist_key,
-          form_checklist_visibility: ele?.form_checklist_visibility,
-          form_checklist_placeholder: ele?.form_checklist_placeholder,
-          form_checklist_lable: ele?.form_checklist_lable,
-          form_checklist_typo: ele?.form_checklist_typo,
-          form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
-          form_checklist_required: ele?.form_checklist_required,
-          value: student[`${ele?.form_checklist_key}`]
-        })
+      const all_check = await InstituteStudentForm.findById({ _id: did })
+      .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+      for (var val of all_check?.form_section) {
+        for (var ele of val?.form_checklist) {
+          // for (var stu of student?.student_dynamic_field) {
+          //   if (`${stu?.key}` === `${ele?.form_checklist_key}`) {
+              
+          //   }
+          // }
+          var list = student?.student_dynamic_field?.filter((dna) => {
+            if(dna?.key[`${ele?.form_checklist_key}`]) return dna?.value
+          })
+          head_array.push({
+            form_checklist_name: ele?.form_checklist_name,
+            form_checklist_key: ele?.form_checklist_key,
+            form_checklist_visibility: ele?.form_checklist_visibility,
+            form_checklist_placeholder: ele?.form_checklist_placeholder,
+            form_checklist_lable: ele?.form_checklist_lable,
+            form_checklist_typo: ele?.form_checklist_typo,
+            form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+            form_checklist_required: ele?.form_checklist_required,
+            value: student[`${ele?.form_checklist_key}`] ?? list[0] 
+          })
+        }
+        obj[`fields`] = [...head_array]
+        head_arrays.push({ ...obj, key: val?.section_name })
+        obj = {}
       }
       // console.log(head_array)
       // var result = await buildStructureObject(head_array);
-      res.status(200).send({ message: "Explore One Student Dynamic Form Query", access: true, result: head_array})
+      res.status(200).send({ message: "Explore One Student Dynamic Form Query", access: true, result: [...head_arrays]})
     }
     else if (flow === "DEPARTMENT") {
       

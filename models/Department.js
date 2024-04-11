@@ -464,7 +464,11 @@ const departmentSchema = new mongoose.Schema({
       ref: "StoreLogs"
     }
   ],
-  maintanence: []
+  maintanence: [],
+  student_form_setting: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "DepartmentStudentForm"
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

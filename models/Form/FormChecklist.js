@@ -4,7 +4,11 @@ const formChecklistSchema = new mongoose.Schema({
   form: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteStudentForm",
-  },
+    },
+    department_form: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "DepartmentStudentForm"
+    },
   created_at: {
     type: Date,
     default: Date.now,
@@ -33,7 +37,11 @@ const formChecklistSchema = new mongoose.Schema({
     }],
     form_section: {
         type: String
-    }
+    },
+    form_checklist_required: {
+        type: Boolean,
+        default: false
+    },
 });
 
 module.exports = mongoose.model("FormChecklist", formChecklistSchema);

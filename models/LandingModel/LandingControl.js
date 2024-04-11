@@ -185,12 +185,14 @@ vision: {
     bg_1: {
       name: { type: String },
       typo: { type: String },
-      link_images: { type: String }
+      link_images: { type: String },
+      attach: { type: String }
     },
     bg_2: {
       name: { type: String },
       typo: { type: String },
-      link_images: { type: String }
+      link_images: { type: String },
+      attach: { type: String }
     },
   },
   home_accreditation_object: [
@@ -229,11 +231,11 @@ vision: {
       }
     ]
   },
-  administration_object: {
+  administration_object: [{
     leading_person: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     leading_person_position: { type: String },
     leading_person_message: { type: String },
-  }
+  }]
 });
 
 module.exports = mongoose.model("LandingControl", landingControlSchema);

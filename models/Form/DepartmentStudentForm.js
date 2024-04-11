@@ -1,10 +1,14 @@
 const mongoose = require("mongoose");
 
-const instituteStudentFormSchema = new mongoose.Schema({
+const departmentStudentFormSchema = new mongoose.Schema({
   institute: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
     },
+    department: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Department",
+      },
   created_at: {
     type: Date,
     default: Date.now,
@@ -31,11 +35,11 @@ const instituteStudentFormSchema = new mongoose.Schema({
                     ref: "FormChecklist"
                 }
             ],
-            status: {
+            ins_form_section_id: {
                 type: String
             }
       }
   ]
 });
 
-module.exports = mongoose.model("InstituteStudentForm", instituteStudentFormSchema);
+module.exports = mongoose.model("DepartmentStudentForm", departmentStudentFormSchema);

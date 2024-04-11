@@ -712,6 +712,9 @@ const studentSchema = new mongoose.Schema({
   student_ph: {
     type: String,
   },
+  student_ph_type: {
+    type: String,
+  },
   query_lock_status: {
     type: String,
     default: "Unlocked",
@@ -935,6 +938,38 @@ const studentSchema = new mongoose.Schema({
   lcInstituteDate: {
     type: String
   },
+  studentFatherName: { type: String },
+  studentNameAsMarksheet: { type: String },
+  studentNameAsCertificate: { type: String },
+  studentIdProfilePhoto: { type: String },
+  studentParentsEmail: { type: String },
+  studentParentsAddress: { type: String },
+  student_seat_type: { type: String },
+  student_defence_personnel_word: { type: String },
+  student_marital_status: { type: String },
+  student_board_university: { type: String },
+  student_previous_institute_name: { type: String },
+  student_university_courses: { type: String },
+  student_previous_class: { type: String },
+  student_previous_marks: { type: String },
+  student_previous_percentage: { type: String },
+  student_previous_section: { type: String },
+  student_previous_lctc: { type: String },
+  student_previous_marksheet_attachment: { type: String },
+  student_undertakings: { type: String },
+  student_signature: { type: String },
+  student_parents_signature: { type: String },
+  student_pan_card: { type: String },
+  student_ration_card: { type: String },
+  university_eligibility_form: { type: String },
+  ph_certificate: { type: String },
+  gap_certificate: { type: String },
+  student_dynamic_field: [
+    {
+      key: { type: String },
+      value: { type: String }
+    }
+  ]
 });
 
 const Student = mongoose.model("Student", studentSchema);

@@ -64,6 +64,7 @@ const FormChecklist = require("../../models/Form/FormChecklist");
 const { form_params } = require("../../Constant/form");
 const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
 const LandingControl = require("../../models/LandingModel/LandingControl");
+const DepartmentStudentForm = require("../../models/Form/DepartmentStudentForm");
 
 
 exports.getDashOneQuery = async (req, res) => {
@@ -947,6 +948,9 @@ exports.getNewDepartment = async (req, res) => {
           ""
         );
       }
+      var dfs = new DepartmentStudentForm({})
+      dfs.department = department?._id
+      department.student_form_setting = dfs?._id
     } else {
       department.dHead = null;
     }
@@ -956,6 +960,39 @@ exports.getNewDepartment = async (req, res) => {
       message: "Successfully Created Department",
       department: department._id,
     });
+    var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+    var nums = []
+    for (var val of ifs?.form_section) {
+      if (val?.form_checklist?.length > 0) {
+        for (var ele of val?.form_checklist) {
+          var fc = new FormChecklist({
+            form_checklist_name: ele?.form_checklist_name,
+            form_checklist_key: ele?.form_checklist_key,
+            form_checklist_visibility: ele?.form_checklist_visibility,
+            form_checklist_placeholder: ele?.form_checklist_placeholder,
+            form_checklist_lable: ele?.form_checklist_lable,
+            form_checklist_typo: ele?.form_checklist_typo,
+            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+            form_checklist_required: ele?.form_checklist_required
+          })
+          if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+            ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+          }
+          fc.department_form = dfs?._id
+          fc.form_section = val?._id
+          nums.push(fc?._id)
+          await fc.save()
+        }
+      }
+      dfs.form_section.push({
+        section_name: val?.section_name,
+        section_visibilty: val?.section_visibilty,
+        section_key: val?.section_key,
+        ins_form_section_id: val?._id,
+        form_checklist: [...nums]
+      })
+    }
+    await dfs.save()
     const new_exam_fee = new ExamFeeStructure({
       exam_fee_type: "Per student",
       exam_fee_status: "Static Department Linked",
@@ -6054,15 +6091,39 @@ exports.render_new_student_form_section_query = async (req, res) => {
     if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var ifs = await InstituteStudentForm.findById({ _id: fcid })
+    var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
+    .select("depart")
     for (var val of form) {
       ifs.form_section.push({
         section_name: val?.section_name,
         section_visibilty: val?.section_visibilty,
         section_key: val?.section_key,
+        status: "NEW_ADDED"
       })
     }
     await ifs.save()
-    res.status(200).send({ message: "Explore One Form Section Query", access: true})
+    res.status(200).send({ message: "Explore One Form Section Query", access: true })
+    var all_depart = await DepartmentStudentForm.find({ department: { $in: ins?.depart } })
+    var filter = ifs?.form_section((val) => {
+      if(`${val?.status}` === "NEW_ADDED") return val
+    })
+    for (var ele of all_depart) {
+      for (var val of filter) {
+        ele.form_section.push({
+          section_name: val?.section_name,
+          section_visibilty: val?.section_visibilty,
+          section_key: val?.section_key,
+          ins_form_section_id: val?._id,
+        })
+      }
+      await ele.save()
+    }
+    for (var val of ifs?.form_section) {
+      if (`${val?.status}` === "NEW_ADDED") {
+        val.status = "EXIST_ADDED"
+      }
+    }
+    await ifs.save()
   }
   catch (e) {
     console.log(e)
@@ -6086,8 +6147,12 @@ exports.render_new_student_form_checklist_query = async (req, res) => {
             form_checklist_placeholder: ele?.form_checklist_placeholder,
             form_checklist_lable: ele?.form_checklist_lable,
             form_checklist_typo: ele?.form_checklist_typo,
-            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl]
+            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+            form_checklist_required: ele?.form_checklist_required
           })
+          if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+            ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+          }
           fc.form = ifs?._id
           fc.form_section = val?._id
           val.form_checklist.push(fc?._id)
@@ -6097,7 +6162,35 @@ exports.render_new_student_form_checklist_query = async (req, res) => {
       }
     }
     await ifs.save()
-    res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true})
+    res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
+    var all_depart = await DepartmentStudentForm.find({ department: { $in: ins?.depart } })
+    for (var stu of all_depart) {
+      for (var val of stu?.form_section) {
+        if (`${val?.ins_form_section_id}` === `${fsid}`) {
+          for (var ele of checklist) {
+            var fc = new FormChecklist({
+              form_checklist_name: ele?.form_checklist_name,
+              form_checklist_key: ele?.form_checklist_key,
+              form_checklist_visibility: ele?.form_checklist_visibility,
+              form_checklist_placeholder: ele?.form_checklist_placeholder,
+              form_checklist_lable: ele?.form_checklist_lable,
+              form_checklist_typo: ele?.form_checklist_typo,
+              form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+              form_checklist_required: ele?.form_checklist_required
+            })
+            if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+              ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+            }
+            fc.department_form = stu?._id
+            fc.form_section = val?._id
+            val.form_checklist.push(fc?._id)
+            await fc.save()
+          }
+          // await val.save()
+        }
+      }
+      await stu.save()
+    }
   }
   catch (e) {
     console.log(e)
@@ -6122,8 +6215,12 @@ exports.render_edit_student_form_section_query = async (req, res) => {
               form_checklist_placeholder: ele?.form_checklist_placeholder,
               form_checklist_lable: ele?.form_checklist_lable,
               form_checklist_typo: ele?.form_checklist_typo,
-              form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl]
+              form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+              form_checklist_required: ele?.form_checklist_required
             })
+            if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+              ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+            }
             fc.form = ifs?._id
             fc.form_section = val?._id
             val.form_checklist.push(fc?._id)
@@ -6252,9 +6349,14 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
     if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var ifs = await InstituteStudentForm.findById({ _id: fcid })
-    
+    var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
+      .select("depart")
+      .populate({
+        path: "depart",
+        select: "student_form_setting"
+    })
     var checklist = form_params
-    var nums = []
+    var numss = []
     for (var val of checklist) {
       if (val?.form_checklist?.length > 0) {
         for (var ele of val?.form_checklist) {
@@ -6265,11 +6367,14 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
             form_checklist_placeholder: ele?.form_checklist_placeholder,
             form_checklist_lable: ele?.form_checklist_lable,
             form_checklist_typo: ele?.form_checklist_typo,
-            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl]
+            form_checklist_required: ele?.form_checklist_required
           })
+          if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+            ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+          }
           fc.form = ifs?._id
           fc.form_section = val?._id
-          nums.push(fc?._id)
+          numss.push(fc?._id)
           await fc.save()
         }
       }
@@ -6277,11 +6382,49 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
         section_name: val?.section_name,
         section_visibilty: val?.section_visibilty,
         section_key: val?.section_key,
-        form_checklist: [...nums]
+        form_checklist: [...numss]
       })
+      numss = []
     }
     await ifs.save()
-    res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true})
+    var nums = []
+    for (var qwe of ins?.depart) {
+      var dfs = new DepartmentStudentForm({})
+      dfs.department = qwe?._id
+      qwe.student_form_setting = dfs?._id 
+      for (var val of ifs?.form_section) {
+        if (val?.form_checklist?.length > 0) {
+          for (var ele of val?.form_checklist) {
+            var fc = new FormChecklist({
+              form_checklist_name: ele?.form_checklist_name,
+              form_checklist_key: ele?.form_checklist_key,
+              form_checklist_visibility: ele?.form_checklist_visibility,
+              form_checklist_placeholder: ele?.form_checklist_placeholder,
+              form_checklist_lable: ele?.form_checklist_lable,
+              form_checklist_typo: ele?.form_checklist_typo,
+              form_checklist_required: ele?.form_checklist_required
+            })
+            if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+              ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+            }
+            fc.department_form = dfs?._id
+            fc.form_section = val?._id
+            nums.push(fc?._id)
+            await fc.save()
+          }
+        }
+        dfs.form_section.push({
+          section_name: val?.section_name,
+          section_visibilty: val?.section_visibilty,
+          section_key: val?.section_key,
+          ins_form_section_id: val?._id,
+          form_checklist: [...nums]
+        })
+        nums = []
+      }
+      await Promise.all([dfs.save(), qwe.save()])
+    }
+    res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
   }
   catch (e) {
     console.log(e)

@@ -9,6 +9,9 @@ const ExamFeeStructure = require("../models/BacklogStudent/ExamFeeStructure");
 const { generate_random_code } = require("../helper/functions");
 const { todayDate } = require("../Utilities/timeComparison");
 const { universal_random_password } = require("../Custom/universalId");
+const DepartmentStudentForm = require("../models/Form/DepartmentStudentForm");
+const InstituteStudentForm = require("../models/Form/InstituteStudentForm");
+const FormChecklist = require("../models/Form/FormChecklist");
 
 exports.render_new_department_query = async (arr, id) => {
   try {
@@ -25,7 +28,43 @@ exports.render_new_department_query = async (arr, id) => {
         const code = universal_random_password()
         department.member_module_unique = `${code}`
         department.dHead = null;
+        var dfs = new DepartmentStudentForm({})
+        dfs.department = department?._id
+        department.student_form_setting = dfs?._id
         await department.save();
+        var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+    var nums = []
+    for (var val of ifs?.form_section) {
+      if (val?.form_checklist?.length > 0) {
+        for (var ele of val?.form_checklist) {
+          var fc = new FormChecklist({
+            form_checklist_name: ele?.form_checklist_name,
+            form_checklist_key: ele?.form_checklist_key,
+            form_checklist_visibility: ele?.form_checklist_visibility,
+            form_checklist_placeholder: ele?.form_checklist_placeholder,
+            form_checklist_lable: ele?.form_checklist_lable,
+            form_checklist_typo: ele?.form_checklist_typo,
+            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+            form_checklist_required: ele?.form_checklist_required
+          })
+          if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+            ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+          }
+          fc.form = dfs?._id
+          fc.form_section = val?._id
+          nums.push(fc?._id)
+          await fc.save()
+        }
+      }
+      dfs.form_section.push({
+        section_name: val?.section_name,
+        section_visibilty: val?.section_visibilty,
+        section_key: val?.section_key,
+        ins_form_section_id: val?._id,
+        form_checklist: [...nums]
+      })
+    }
+    await dfs.save()
         const new_exam_fee = new ExamFeeStructure({
           exam_fee_type: "Per student",
           exam_fee_status: "Static Department Linked",

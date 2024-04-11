@@ -1,5 +1,8 @@
 const Department = require("../../models/Department");
+const DepartmentStudentForm = require("../../models/Form/DepartmentStudentForm");
+const FormChecklist = require("../../models/Form/FormChecklist");
 const InstituteAdmin = require("../../models/InstituteAdmin");
+const Student = require("../../models/Student");
 
 exports.renderStudentFormQuery = async (req, res) => {
   try {
@@ -10,13 +13,17 @@ exports.renderStudentFormQuery = async (req, res) => {
         access: false,
       });
     var valid_depart = await Department.findById(did).select(
-      "studentFormSetting ug_undertakings_admission pg_undertakings_admission"
-    );
+      "studentFormSetting ug_undertakings_admission pg_undertakings_admission student_form_setting"
+    )
+    .populate({
+      path: "student_form_setting"
+  });
     res.status(200).send({
       message: "Explore Department Student form setting details Query",
       studentFormSetting: valid_depart?.studentFormSetting,
       ug_undertakings_admission: valid_depart?.ug_undertakings_admission,
       pg_undertakings_admission: valid_depart?.pg_undertakings_admission,
+      new_student_form_setting: valid_depart?.student_form_setting
     });
   } catch (e) {
     console.log(e);
@@ -88,5 +95,202 @@ exports.updateDepartmentTabManageQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.render_shuffle_student_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { shuffle_arr } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    if (shuffle_arr?.length > 0) {
+      var dfs = await DepartmentStudentForm.findById({ _id: fcid })
+      dfs.form_section = []
+      await dfs.save()
+      for(var val of shuffle_arr){
+        dfs.form_section.push(val)
+      }
+      await dfs.save()
+      res.status(200).send({ message: "Explore Form Section Shuffling Query", access: true})
+      }
+    else{
+      res.status(200).send({ message: "No Form Section Shuffling Query", access: false})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_student_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var dfs = await DepartmentStudentForm.findById({ _id: fcid })
+      .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+    res.status(200).send({ message: "Explore One Department Student Form Section Query", access: true, section: dfs?.form_section})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_student_form_section_enable_query = async (req, res) => {
+  try {
+    const { did } = req?.params
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var depart = await Department.findById({ _id: did })
+    .select("student_form_setting")
+    var dfs = await DepartmentStudentForm.findById({ _id: `${depart?.student_form_setting}` })
+      .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+    
+    var all_section = dfs?.form_section?.filter((val) => {
+      if(val?.section_visibilty) return val
+    })
+
+    for (var ele of all_section) {
+      for (var stu of ele?.form_checklist) {
+        if (stu?.form_checklist_visibility) {
+          
+        }
+        else {
+          ele?.form_checklist?.pull(stu?._id)
+        }
+      }
+    }
+    res.status(200).send({ message: "Explore One Department Student Form Section Enable Query", access: true, section: all_section})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_student_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { form } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var dfs = await DepartmentStudentForm.findById({ _id: fcid })
+    for (var val of form) {
+      dfs.form_section.push({
+        section_name: val?.section_name,
+        section_visibilty: val?.section_visibilty,
+        section_key: val?.section_key,
+      })
+    }
+    await dfs.save()
+    res.status(200).send({ message: "Explore One Department Form Section Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_student_form_checklist_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { checklist, fsid } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var dfs = await DepartmentStudentForm.findById({ _id: fcid })
+    for (var val of dfs?.form_section) {
+      if (`${val?._id}` === `${fsid}`) {
+        for (var ele of checklist) {
+          var fc = new FormChecklist({
+            form_checklist_name: ele?.form_checklist_name,
+            form_checklist_key: ele?.form_checklist_key,
+            form_checklist_visibility: ele?.form_checklist_visibility,
+            form_checklist_placeholder: ele?.form_checklist_placeholder,
+            form_checklist_lable: ele?.form_checklist_lable,
+            form_checklist_typo: ele?.form_checklist_typo,
+            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+            form_checklist_required: ele?.form_checklist_required
+          })
+          if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+            ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+          }
+          fc.department_form = dfs?._id
+          fc.form_section = val?._id
+          val.form_checklist.push(fc?._id)
+          await fc.save()
+        }
+      }
+    }
+    await ifs.save()
+    res.status(200).send({ message: "Explore One Department Form Section Nested Checklist Query", access: true }) 
+    // const all_student = await Student.find({ department: `${dfs?.department}`})
+    // for (ele of all_student) {
+    //   for (var check of checklist) {
+    //     ele.student_dynamic_field.push({
+    //       key: check?.form_checklist_key
+    //     })
+    //   }
+    //   await ele.save()
+    // }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+// const buildStructureObject = async (arr) => {
+//   var obj = {};
+//   for (let i = 0; i < arr.length; i++) {
+//     const { form_checklist_name, value, form_checklist_visibility, form_checklist_typo, form_checklist_lable, form_checklist_placeholder } = arr[i];
+//     obj["form_checklist_name"] = form_checklist_name;
+//     obj["form_checklist_key"] = value;
+//     obj["form_checklist_visibility"] = form_checklist_visibility;
+//     obj["form_checklist_placeholder"] = form_checklist_placeholder;
+//     obj["form_checklist_lable"] = form_checklist_lable;
+//     obj["form_checklist_typo"] = form_checklist_typo;
+//     obj["form_checklist_name"] = form_checklist_name;
+//   }
+//   return obj;
+// };
+
+exports.render_dynamic_form_query = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    const { flow, did } = req?.query
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    if (flow === "INSTITUTE") {
+      var head_array = []
+      const student = await Student.findById({ _id: sid })
+      const all_check = await FormChecklist.find({ form: did })
+      for (var ele of all_check) {
+        head_array.push({
+          form_checklist_name: ele?.form_checklist_name,
+          form_checklist_key: ele?.form_checklist_key,
+          form_checklist_visibility: ele?.form_checklist_visibility,
+          form_checklist_placeholder: ele?.form_checklist_placeholder,
+          form_checklist_lable: ele?.form_checklist_lable,
+          form_checklist_typo: ele?.form_checklist_typo,
+          form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+          form_checklist_required: ele?.form_checklist_required,
+          value: student[`${ele?.form_checklist_key}`]
+        })
+      }
+      // console.log(head_array)
+      // var result = await buildStructureObject(head_array);
+      res.status(200).send({ message: "Explore One Student Dynamic Form Query", access: true, result: head_array})
+    }
+    else if (flow === "DEPARTMENT") {
+      
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 

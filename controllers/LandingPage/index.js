@@ -1813,8 +1813,17 @@ exports.render_about_institute_object_query = async (req, res) => {
 exports.render_about_institute_administration_object_query = async (req, res) => {
   try {
     const { lcid } = req?.params
+    const { admins } = req?.body
     if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    await LandingControl.findByIdAndUpdate(lcid, req?.body)
+    const landing = await LandingControl.findById(lcid)
+    for (var val of admins) {
+      landing.administration_object.push({
+        leading_person: val?.leading_person,
+        leading_person_position: val?.leading_person_position,
+        leading_person_message: val?.leading_person_message
+      })
+    }
+    await landing.save()
     res.status(200).send({ message: "Home About Institute Administration Object Update Query", access: true})
   }
   catch (e) {

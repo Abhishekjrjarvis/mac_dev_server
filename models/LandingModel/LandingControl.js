@@ -198,8 +198,14 @@ vision: {
       name: { type: String },
       image: { type: String },
       about: { type: String },
-      c_name: [{ type: String }],
-      c_attach: [{ type: String }]
+      c_name: { type: String },
+      c_attach: { type: String },
+      combined: [
+        {
+          c_name: String,
+          c_attach: String
+        }
+      ]
     }
   ],
   footer_links: {

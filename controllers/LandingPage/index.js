@@ -1780,8 +1780,8 @@ exports.render_home_accreditation_nested_object_query = async (req, res) => {
     const landing = await LandingControl.findById({ _id: lcid })
     for (var val of landing?.home_accreditation_object) {
       if (`${val?._id}` === `${acid}`) {
-        val.c_name.push(c_name)
-        val.c_attach.push(c_attach)
+        val.c_name = c_name
+        val.c_attach = c_attach
         val.combined.push({
           c_name: c_name,
           c_attach: c_attach

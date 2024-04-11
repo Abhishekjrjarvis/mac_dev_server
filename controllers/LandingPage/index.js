@@ -1663,6 +1663,11 @@ exports.render_edit_academic_sub_head_query = async (req, res) => {
     n_page.sub_head_title.push(sub_head_title)
     n_page.sub_heading_image.push(sub_heading_image)
     n_page.sub_head_body.push(sub_head_body)
+    n_page.sub_topic.push({
+      sub_head_title: sub_head_title,
+      sub_heading_image: sub_heading_image,
+      sub_head_body: sub_head_body
+    })
     
     await n_page.save()
     res.status(200).send({ message: "Explore New Academic Sub Head Edit Query", access: true})
@@ -1777,6 +1782,10 @@ exports.render_home_accreditation_nested_object_query = async (req, res) => {
       if (`${val?._id}` === `${acid}`) {
         val.c_name.push(c_name)
         val.c_attach.push(c_attach)
+        val.combined.push({
+          c_name: c_name,
+          c_attach: c_attach
+        })
       }
     }
     await landing.save()
@@ -1835,10 +1844,28 @@ exports.render_all_academic_nested_page_query = async (req, res) => {
     const { anid } = req?.params
     if (!anid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     const all_page = await AcademicNestedPage.findById({ _id: anid })
-      .select("sub_head_title sub_heading_image sub_head_body")
-    res.status(200).send({ message: "All Academic Nested Page Query", access: true, all_page: all_page})
+      .select("sub_topic")
+    res.status(200).send({ message: "All Academic Nested Page Query", access: true, all_page: all_page?.sub_topic?.length >0?all_page?.sub_topic :[]})
+ }  catch (e) {
+    console.log(e)
   }
-  catch (e) {
+}
+
+exports.render_one_accreditation_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { hid } = req?.query
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const landing = await LandingControl.findById({ _id: lcid })
+      .select("home_accreditation_object")
+    var obj = {}
+    var filter = landing?.home_accreditation_object?.filter((val) => {
+      if (`${val?._id}` === `${hid}`) {
+        obj["list"] = val?.combined
+      }
+    })
+    res.status(200).send({ message: "All Accreditation Combined Query", access: true, ac_data: obj?.list?.length >0?obj?.list :[]})
+ }  catch (e) {
     console.log(e)
   }
 }

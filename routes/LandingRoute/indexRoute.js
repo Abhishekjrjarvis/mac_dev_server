@@ -213,4 +213,6 @@ router.get("/:acid/all/academic/page/query", catchAsync(Landing.render_all_acade
 
 router.get("/:anid/one/academic/nested/page/query", catchAsync(Landing.render_all_academic_nested_page_query));
 
+router.get("/:lcid/one/accreditation/query", catchAsync(Landing.render_one_accreditation_query));
+
 module.exports = router;

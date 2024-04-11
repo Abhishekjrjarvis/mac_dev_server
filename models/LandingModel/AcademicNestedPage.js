@@ -20,7 +20,12 @@ const academicNestedPage = new mongoose.Schema({
     academic_page: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "AcademicPage"
-    }
+    },
+sub_topic:[{
+  sub_head_title:String,
+  sub_heading_image:String,
+  sub_head_body:String,
+},],
 })
 
 module.exports = mongoose.model("AcademicNestedPage", academicNestedPage)

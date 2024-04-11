@@ -1564,6 +1564,8 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
         student.studentProfilePhoto = sample_pic;
       }
 
+      student.student_form_flow.flow = "INSTITUTE"
+      student.student_form_flow.did = institute?._id
       const notify = new StudentNotification({});
       const aStatus = new Status({});
       institute.student.push(student._id);
@@ -1996,6 +1998,8 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 7. For cancellation and refund, contact the admission department.
 
 Note: Stay tuned for further updates.`;
+      student.student_form_flow.flow = "DEPARTMENT"
+      student.student_form_flow.did = apply?.applicationDepartment
       status.applicationId = apply._id;
       status.document_visible = true;
       status.student = student._id;
@@ -2448,6 +2452,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       institute.userFollowersList.push(user?._id);
       institute.followersCount += 1;
     }
+    student.student_form_flow.flow = "DEPARTMENT"
+    student.student_form_flow.did = depart?._id
     student.institute = institute._id;
     student.user = user._id;
     student.studentStatus = "Approved";
@@ -3014,6 +3020,8 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       student.photoId = "0";
       student.studentProfilePhoto = sample_pic;
     }
+    student.student_form_flow.flow = "DEPARTMENT"
+    student.student_form_flow.did = apply?.applicationDepartment
     user.student.push(student._id);
     user.applyApplication.push(apply._id);
     student.user = user._id;

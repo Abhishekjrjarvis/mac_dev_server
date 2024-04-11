@@ -6237,8 +6237,32 @@ exports.render_edit_student_form_section_query = async (req, res) => {
         }
         val.section_name = section_name ? section_name : val?.section_name
         val.section_key = section_key ? section_key : val?.section_key
-        val.section_visibilty = section_visibilty ? section_visibilty : val?.section_visibilty
+        val.section_visibilty = section_visibilty
       }
+    }
+    await ifs.save()
+    res.status(200).send({ message: "Edit One Form Section + Nested Checklist Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_edit_student_form_section_checklist_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { checkID, fsid, form_checklist_visibility } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var ifs = await InstituteStudentForm.findById({ _id: fcid })
+    for (var val of ifs?.form_section) {
+      if (`${val?._id}` === `${fsid}`) {
+          for (var ele of val?.form_checklist) {
+            if(`${ele?._id}` === `${checkID}`)
+            ele.form_checklist_visibility = form_checklist_visibility,
+            await ele.save()
+          }
+        }
     }
     await ifs.save()
     res.status(200).send({ message: "Edit One Form Section + Nested Checklist Query", access: true})

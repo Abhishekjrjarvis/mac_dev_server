@@ -667,6 +667,11 @@ router.patch(
 );
 
 router.patch(
+  "/edit/form/:fcid/section/checklist/query",
+  catchAsync(Institute.render_edit_student_form_section_checklist_query)
+);
+
+router.patch(
   "/shuffle/form/:fcid/section/student/query",
   catchAsync(Institute.render_shuffle_student_form_section_query)
 );

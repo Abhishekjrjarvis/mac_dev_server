@@ -6229,7 +6229,7 @@ exports.render_one_student_form_section_enable_query = async (req, res) => {
 
 exports.render_one_enable_query = async (req, res) => {
   try {
-    const all_ins = await InstituteAdmin.find({})
+    const all_ins = await InstituteAdmin.find({ status: "Approved"})
     for (var val of all_ins) {
       var fc = new InstituteStudentForm({})
       var lc = new LandingControl({})

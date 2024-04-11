@@ -1280,6 +1280,8 @@ exports.fillStudentForm = async (req, res) => {
         });
       }
     }
+    student.student_form_flow.flow = "INSTITUTE"
+    student.student_form_flow.did = institute?._id
     if (studentOptionalSubject?.length > 0) {
       student.studentOptionalSubject.push(...studentOptionalSubject);
     }
@@ -6104,7 +6106,7 @@ exports.render_new_student_form_section_query = async (req, res) => {
     await ifs.save()
     res.status(200).send({ message: "Explore One Form Section Query", access: true })
     var all_depart = await DepartmentStudentForm.find({ department: { $in: ins?.depart } })
-    var filter = ifs?.form_section((val) => {
+    var filter = ifs?.form_section?.filter((val) => {
       if(`${val?.status}` === "NEW_ADDED") return val
     })
     for (var ele of all_depart) {
@@ -6148,7 +6150,8 @@ exports.render_new_student_form_checklist_query = async (req, res) => {
             form_checklist_lable: ele?.form_checklist_lable,
             form_checklist_typo: ele?.form_checklist_typo,
             form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
-            form_checklist_required: ele?.form_checklist_required
+            form_checklist_required: ele?.form_checklist_required,
+            form_checklist_key_status: "DYNAMIC"
           })
           if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
             ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
@@ -6176,7 +6179,8 @@ exports.render_new_student_form_checklist_query = async (req, res) => {
               form_checklist_lable: ele?.form_checklist_lable,
               form_checklist_typo: ele?.form_checklist_typo,
               form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
-              form_checklist_required: ele?.form_checklist_required
+              form_checklist_required: ele?.form_checklist_required,
+              form_checklist_key_status: "DYNAMIC"
             })
             if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
               ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
@@ -6255,12 +6259,17 @@ exports.render_edit_student_form_section_checklist_query = async (req, res) => {
     if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var ifs = await InstituteStudentForm.findById({ _id: fcid })
+    .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
     for (var val of ifs?.form_section) {
       if (`${val?._id}` === `${fsid}`) {
           for (var ele of val?.form_checklist) {
-            if(`${ele?._id}` === `${checkID}`)
-            ele.form_checklist_visibility = form_checklist_visibility,
-            await ele.save()
+            if (`${ele?._id}` === `${checkID}`) {
+              ele.form_checklist_visibility = form_checklist_visibility,
+                await ele.save()
+            }
           }
         }
     }

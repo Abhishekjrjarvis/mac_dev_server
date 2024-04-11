@@ -969,7 +969,11 @@ const studentSchema = new mongoose.Schema({
       key: { type: String },
       value: { type: String }
     }
-  ]
+  ],
+  student_form_flow: {
+    flow: { type: String },
+    did: { type: String }
+  }
 });
 
 const Student = mongoose.model("Student", studentSchema);

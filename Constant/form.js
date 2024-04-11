@@ -1,8 +1,8 @@
 module.exports.form_params = [
     {
-        section_name: "Personal Info",
+        section_name: "Basic Details",
         section_visibilty: true,
-        section_key: "personalInfo",
+        section_key: "basic_details",
         form_checklist: [
             {
                 form_checklist_name: "First Name",
@@ -36,7 +36,7 @@ module.exports.form_params = [
                 form_checklist_key: "studentProfilePhoto",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Profile Photo",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Profile Photo",
                 form_checklist_typo: "CROPIMAGE",
                 form_checklist_required: true
             },
@@ -89,15 +89,15 @@ module.exports.form_params = [
                 form_checklist_key: "studentIdProfilePhoto",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Passport Photo for ID Card",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Passport Photo for ID Card",
                 form_checklist_typo: "CROPIMAGE",
             },
         ]
     },
     {
-        section_name: "Other Personal Info",
+        section_name: "Other Details",
         section_visibilty: true,
-        section_key: "otherPersonalInfo",
+        section_key: "other_details",
         form_checklist: [
             {
                 form_checklist_name: "Place of Birth",
@@ -474,7 +474,7 @@ module.exports.form_params = [
                 form_checklist_key: "student_previous_lctc",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload LC / TC Attachment",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload LC / TC Attachment",
                 form_checklist_typo: "FILE",
             },
             {
@@ -482,7 +482,7 @@ module.exports.form_params = [
                 form_checklist_key: "student_previous_marksheet_attachment",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload LC / TC Attachment",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload LC / TC Attachment",
                 form_checklist_typo: "FILE",
             },
         ]
@@ -527,7 +527,7 @@ module.exports.form_params = [
                 form_checklist_key: "studentAadharFrontCard",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Aadhar Front Card",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Aadhar Front Card",
                 form_checklist_typo: "FILE",
             },
             {
@@ -535,7 +535,7 @@ module.exports.form_params = [
                 form_checklist_key: "studentAadharBackCard",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Aadhar Back Card",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Aadhar Back Card",
                 form_checklist_typo: "FILE",
             },
             {
@@ -543,7 +543,7 @@ module.exports.form_params = [
                 form_checklist_key: "student_signature",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Student's Signature",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Student's Signature",
                 form_checklist_typo: "FILE",
             },
             {
@@ -551,7 +551,7 @@ module.exports.form_params = [
                 form_checklist_key: "student_parents_signature",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Student Parent's Signature",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Student Parent's Signature",
                 form_checklist_typo: "FILE",
             },
             {
@@ -559,7 +559,7 @@ module.exports.form_params = [
                 form_checklist_key: "student_pan_card",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Student PAN Card",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Student PAN Card",
                 form_checklist_typo: "FILE",
             },
             {
@@ -567,7 +567,7 @@ module.exports.form_params = [
                 form_checklist_key: "student_ration_card",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Student Ration Card",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Student Ration Card",
                 form_checklist_typo: "FILE",
             },
             {
@@ -575,7 +575,7 @@ module.exports.form_params = [
                 form_checklist_key: "incomeCertificate",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Income Certificate",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Income Certificate",
                 form_checklist_typo: "FILE",
             },
             {
@@ -583,7 +583,7 @@ module.exports.form_params = [
                 form_checklist_key: "leavingTransferCertificate",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Leaving / Transfer Certificate",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Leaving / Transfer Certificate",
                 form_checklist_typo: "FILE",
             },
             {
@@ -591,7 +591,7 @@ module.exports.form_params = [
                 form_checklist_key: "nonCreamyLayerCertificate",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Non - Creamy Layer Certificate",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Non - Creamy Layer Certificate",
                 form_checklist_typo: "FILE",
             },
             {
@@ -599,7 +599,7 @@ module.exports.form_params = [
                 form_checklist_key: "domicileCertificate",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Domicile Certificate",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Domicile Certificate",
                 form_checklist_typo: "FILE",
             },
             {
@@ -607,7 +607,7 @@ module.exports.form_params = [
                 form_checklist_key: "nationalityCertificate",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Nationality Certificate",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Nationality Certificate",
                 form_checklist_typo: "FILE",
             },
             {
@@ -615,7 +615,7 @@ module.exports.form_params = [
                 form_checklist_key: "lastYearMarksheet",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Last Year Certificate",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Last Year Certificate",
                 form_checklist_typo: "FILE",
             },
             {
@@ -623,7 +623,7 @@ module.exports.form_params = [
                 form_checklist_key: "joiningTransferLetter",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Joining Transfer Letter",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Joining Transfer Letter",
                 form_checklist_typo: "FILE",
             },
             {
@@ -631,7 +631,7 @@ module.exports.form_params = [
                 form_checklist_key: "identityDocument",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Identity Document",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Identity Document",
                 form_checklist_typo: "FILE",
             },
             {
@@ -639,7 +639,7 @@ module.exports.form_params = [
                 form_checklist_key: "university_eligibility_form",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload University Eligibilty Form",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload University Eligibilty Form",
                 form_checklist_typo: "FILE",
             },
             {
@@ -647,7 +647,7 @@ module.exports.form_params = [
                 form_checklist_key: "ph_certificate",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Physically Handicapped Certificate",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload Physically Handicapped Certificate",
                 form_checklist_typo: "FILE",
             },
             {
@@ -655,7 +655,7 @@ module.exports.form_params = [
                 form_checklist_key: "gap_certificate",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload GAP Certificate",
-                form_checklist_lable: "Choose File",
+                form_checklist_lable: "Upload GAP Certificate",
                 form_checklist_typo: "FILE",
             },
         ]

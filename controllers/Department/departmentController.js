@@ -312,5 +312,56 @@ exports.render_dynamic_form_query = async (req, res) => {
   }
 }
 
+exports.render_edit_student_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { fsid, section_name, section_key, section_visibilty } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var dfs = await DepartmentStudentForm.findById({ _id: fcid })
+    for (var val of dfs?.form_section) {
+      if (`${val?._id}` === `${fsid}`) {
+        val.section_name = section_name ? section_name : val?.section_name
+        val.section_key = section_key ? section_key : val?.section_key
+        val.section_visibilty = section_visibilty
+      }
+    }
+    await dfs.save()
+    res.status(200).send({ message: "Edit One Form Section + Nested Checklist Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_edit_student_form_section_checklist_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { checkID, fsid, form_checklist_visibility } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var dfs = await DepartmentStudentForm.findById({ _id: fcid })
+    .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+    for (var val of dfs?.form_section) {
+      if (`${val?._id}` === `${fsid}`) {
+          for (var ele of val?.form_checklist) {
+            if (`${ele?._id}` === `${checkID}`) {
+              ele.form_checklist_visibility = form_checklist_visibility,
+                await ele.save()
+            }
+          }
+        }
+    }
+    await dfs.save()
+    res.status(200).send({ message: "Edit One Form Section + Nested Checklist Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 

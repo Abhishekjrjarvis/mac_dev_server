@@ -44,4 +44,15 @@ router.post(
 
 router.get("/:sid/dynamic/form/query", catchAsync(Depart.render_dynamic_form_query))
 
+
+router.patch(
+  "/edit/form/:fcid/section/query",
+  catchAsync(Depart.render_edit_student_form_section_query)
+);
+
+router.patch(
+  "/edit/form/:fcid/section/checklist/query",
+  catchAsync(Depart.render_edit_student_form_section_checklist_query)
+);
+
 module.exports = router;

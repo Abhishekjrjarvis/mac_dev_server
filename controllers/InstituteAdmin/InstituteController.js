@@ -4057,7 +4057,7 @@ exports.fetchOneStaffDepartmentInfo = async (req, res) => {
     const { did } = req.params;
     const department = await Department.findById({ _id: did })
       .select(
-        "dName dTitle photoId photo coverId staffCount classCount studentCount internal_assesment external_assesment cover dAbout dEmail dPhoneNumber dSpeaker dVicePrinciple dAdminClerk dStudentPresident"
+        "dName dTitle photoId photo coverId staffCount classCount studentCount internal_assesment external_assesment cover dAbout dEmail dPhoneNumber dSpeaker dVicePrinciple dAdminClerk dStudentPresident student_form_setting"
       )
       .populate({
         path: "dHead",
@@ -6378,54 +6378,20 @@ exports.render_one_enable_query = async (req, res) => {
 
 exports.render_auto_student_form_section_checklist_query = async (req, res) => {
   try {
-    const { fcid } = req?.params
-    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    // const { fcid } = req?.params
+    // if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    var ifs = await InstituteStudentForm.findById({ _id: fcid })
-    var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
-      .select("depart")
-      .populate({
-        path: "depart",
-        select: "student_form_setting"
-    })
-    var checklist = form_params
-    var numss = []
-    for (var val of checklist) {
-      if (val?.form_checklist?.length > 0) {
-        for (var ele of val?.form_checklist) {
-          var fc = new FormChecklist({
-            form_checklist_name: ele?.form_checklist_name,
-            form_checklist_key: ele?.form_checklist_key,
-            form_checklist_visibility: ele?.form_checklist_visibility,
-            form_checklist_placeholder: ele?.form_checklist_placeholder,
-            form_checklist_lable: ele?.form_checklist_lable,
-            form_checklist_typo: ele?.form_checklist_typo,
-            form_checklist_required: ele?.form_checklist_required
-          })
-          if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
-            ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
-          }
-          fc.form = ifs?._id
-          fc.form_section = val?._id
-          numss.push(fc?._id)
-          await fc.save()
-        }
-      }
-      ifs.form_section.push({
-        section_name: val?.section_name,
-        section_visibilty: val?.section_visibilty,
-        section_key: val?.section_key,
-        form_checklist: [...numss]
-      })
-      numss = []
-    }
-    await ifs.save()
-    var nums = []
-    for (var qwe of ins?.depart) {
-      var dfs = new DepartmentStudentForm({})
-      dfs.department = qwe?._id
-      qwe.student_form_setting = dfs?._id 
-      for (var val of ifs?.form_section) {
+    var all_ifs = await InstituteStudentForm.find({})
+    for (var ifs of all_ifs) {
+      var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
+        .select("depart")
+        .populate({
+          path: "depart",
+          select: "student_form_setting"
+        })
+      var checklist = form_params
+      var numss = []
+      for (var val of checklist) {
         if (val?.form_checklist?.length > 0) {
           for (var ele of val?.form_checklist) {
             var fc = new FormChecklist({
@@ -6440,22 +6406,58 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
             if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
               ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
             }
-            fc.department_form = dfs?._id
+            fc.form = ifs?._id
             fc.form_section = val?._id
-            nums.push(fc?._id)
+            numss.push(fc?._id)
             await fc.save()
           }
         }
-        dfs.form_section.push({
+        ifs.form_section.push({
           section_name: val?.section_name,
           section_visibilty: val?.section_visibilty,
           section_key: val?.section_key,
-          ins_form_section_id: val?._id,
-          form_checklist: [...nums]
+          form_checklist: [...numss]
         })
-        nums = []
+        numss = []
       }
-      await Promise.all([dfs.save(), qwe.save()])
+      await ifs.save()
+      var nums = []
+      for (var qwe of ins?.depart) {
+        var dfs = new DepartmentStudentForm({})
+        dfs.department = qwe?._id
+        qwe.student_form_setting = dfs?._id
+        for (var val of ifs?.form_section) {
+          if (val?.form_checklist?.length > 0) {
+            for (var ele of val?.form_checklist) {
+              var fc = new FormChecklist({
+                form_checklist_name: ele?.form_checklist_name,
+                form_checklist_key: ele?.form_checklist_key,
+                form_checklist_visibility: ele?.form_checklist_visibility,
+                form_checklist_placeholder: ele?.form_checklist_placeholder,
+                form_checklist_lable: ele?.form_checklist_lable,
+                form_checklist_typo: ele?.form_checklist_typo,
+                form_checklist_required: ele?.form_checklist_required
+              })
+              if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+                ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+              }
+              fc.department_form = dfs?._id
+              fc.form_section = val?._id
+              nums.push(fc?._id)
+              await fc.save()
+            }
+          }
+          dfs.form_section.push({
+            section_name: val?.section_name,
+            section_visibilty: val?.section_visibilty,
+            section_key: val?.section_key,
+            ins_form_section_id: val?._id,
+            form_checklist: [...nums]
+          })
+          nums = []
+        }
+        await Promise.all([dfs.save(), qwe.save()])
+      }
     }
     res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
   }

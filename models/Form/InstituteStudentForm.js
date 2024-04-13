@@ -33,7 +33,13 @@ const instituteStudentFormSchema = new mongoose.Schema({
             ],
             status: {
                 type: String
-            }
+        },
+        section_view: {
+          type: String
+        },
+        section_pdf: {
+          type: String
+        }
       }
   ]
 });

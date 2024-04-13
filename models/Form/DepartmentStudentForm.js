@@ -37,7 +37,13 @@ const departmentStudentFormSchema = new mongoose.Schema({
             ],
             ins_form_section_id: {
                 type: String
-            }
+        },
+        section_view: {
+          type: String
+        },
+        section_pdf: {
+          type: String
+        }
       }
   ]
 });

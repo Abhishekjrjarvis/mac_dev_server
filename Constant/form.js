@@ -1,5 +1,29 @@
 module.exports.form_params = [
     {
+        section_name: "",
+        section_visibilty: true,
+        section_key: "",
+        form_checklist: [
+            {
+                form_checklist_name: "Profile Photo",
+                form_checklist_key: "studentProfilePhoto",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Upload Profile Photo",
+                form_checklist_lable: "Upload Profile Photo",
+                form_checklist_typo: "CROPIMAGE",
+                form_checklist_required: true
+            }, 
+            {
+                form_checklist_name: "Passport Photo for ID Card",
+                form_checklist_key: "studentIdProfilePhoto",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Upload Passport Photo for ID Card",
+                form_checklist_lable: "Upload Passport Photo for ID Card",
+                form_checklist_typo: "CROPIMAGE",
+            },
+        ]
+    },
+    {
         section_name: "Basic Details",
         section_visibilty: true,
         section_key: "basic_details",
@@ -11,7 +35,8 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Enter Your First Name",
                 form_checklist_lable: "Student First Name",
                 form_checklist_typo: "TEXT",
-                form_checklist_required: true
+                form_checklist_required: true,
+                width: "32%"
             },
             {
                 form_checklist_name: "Father Name",
@@ -20,7 +45,8 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Enter Your Father Name",
                 form_checklist_lable: "Student Father's Name",
                 form_checklist_typo: "TEXT",
-                form_checklist_required: true
+                form_checklist_required: true,
+                width: "32%"
             },
             {
                 form_checklist_name: "Surname",
@@ -29,16 +55,8 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Enter Your Surname",
                 form_checklist_lable: "Student Surname",
                 form_checklist_typo: "TEXT",
-                form_checklist_required: true
-            },
-            {
-                form_checklist_name: "Profile Photo",
-                form_checklist_key: "studentProfilePhoto",
-                form_checklist_visibility: true,
-                form_checklist_placeholder: "Upload Profile Photo",
-                form_checklist_lable: "Upload Profile Photo",
-                form_checklist_typo: "CROPIMAGE",
-                form_checklist_required: true
+                form_checklist_required: true,
+                width: "32%"
             },
             {
                 form_checklist_name: "Date of Birth",
@@ -84,14 +102,6 @@ module.exports.form_params = [
                 form_checklist_lable: "Name as per LC / TC",
                 form_checklist_typo: "TEXT",
             },
-            {
-                form_checklist_name: "Passport Photo for ID Card",
-                form_checklist_key: "studentIdProfilePhoto",
-                form_checklist_visibility: true,
-                form_checklist_placeholder: "Upload Passport Photo for ID Card",
-                form_checklist_lable: "Upload Passport Photo for ID Card",
-                form_checklist_typo: "CROPIMAGE",
-            },
         ]
     },
     {
@@ -132,8 +142,7 @@ module.exports.form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Select Caste",
                 form_checklist_lable: "Select Caste",
-                form_checklist_typo: "SELECT",
-                form_checklist_typo_option_pl: ["Male", "Female", "Other"]
+                form_checklist_typo: "TEXT",
             },
             {
                 form_checklist_name: "Caste Category",
@@ -226,7 +235,8 @@ module.exports.form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Enter Student Current Address",
                 form_checklist_lable: "Student Current Address",
-                form_checklist_typo: "TEXT",
+                form_checklist_typo: "TEXTAREA",
+                width: "100%"
             },
             {
                 form_checklist_name: "Student Current Pincode",
@@ -235,6 +245,7 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Enter Student Current Pincode",
                 form_checklist_lable: "Student Current Pincode",
                 form_checklist_typo: "TEXT",
+                width: "32%"
             },
             {
                 form_checklist_name: "Student Current State",
@@ -243,6 +254,7 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Enter Student Current State",
                 form_checklist_lable: "Student Current State",
                 form_checklist_typo: "TEXT",
+                width: "32%"
             },
             {
                 form_checklist_name: "Student Current District",
@@ -251,6 +263,7 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Enter Student Current District",
                 form_checklist_lable: "Student Current District",
                 form_checklist_typo: "TEXT",
+                width: "32%"
             },
             {
                 form_checklist_name: "Student Permanent Address",
@@ -258,7 +271,8 @@ module.exports.form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Enter Student Permanent Address",
                 form_checklist_lable: "Student Permanent Address",
-                form_checklist_typo: "TEXT",
+                form_checklist_typo: "TEXTAREA",
+                width: "100%"
             },
             {
                 form_checklist_name: "Student Permanent Pincode",
@@ -267,6 +281,7 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Enter Student Permanent Pincode",
                 form_checklist_lable: "Student Permanent Pincode",
                 form_checklist_typo: "TEXT",
+                width: "32%"
             },
             {
                 form_checklist_name: "Student Permanent State",
@@ -275,6 +290,7 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Enter Student Permanent State",
                 form_checklist_lable: "Student Permanent State",
                 form_checklist_typo: "TEXT",
+                width: "32%"
             },
             {
                 form_checklist_name: "Student Permanent District",
@@ -283,6 +299,7 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Enter Student Permanent District",
                 form_checklist_lable: "Student Permanent District",
                 form_checklist_typo: "TEXT",
+                width: "32%"
             },
         ]
     },
@@ -396,7 +413,7 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Select Marital Status",
                 form_checklist_lable: "Marital Status",
                 form_checklist_typo: "SELECT",
-                form_checklist_typo_option_pl: ["Single", "Married"]
+                form_checklist_typo_option_pl: ["UnMarried", "Married"]
             },
         ]
     },
@@ -491,14 +508,18 @@ module.exports.form_params = [
         section_name: "Undertakings",
         section_visibilty: true,
         section_key: "undertakings",
+        section_view: "View Sample",
+        section_pdf: "",
         form_checklist: [
             {
                 form_checklist_name: "Undertakings",
                 form_checklist_key: "student_undertakings",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Enter Undertakings",
-                form_checklist_lable: "Undertakings",
-                form_checklist_typo: "TEXTAREA",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "I Agree",
+                form_checklist_typo_option_pl: ["I Agree"]
             },
         ]
     },
@@ -506,14 +527,18 @@ module.exports.form_params = [
         section_name: "Anti-Ragging Affidavit By The Student",
         section_visibilty: true,
         section_key: "antiragging_affidavit",
+        section_view: "View Sample",
+        section_pdf: "",
         form_checklist: [
             {
                 form_checklist_name: "Anti-Ragging Affidavit By The Student",
                 form_checklist_key: "student_undertakings",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Enter Anti-Ragging Affidavit By The Student",
-                form_checklist_lable: "Anti-Ragging Affidavit By The Student",
-                form_checklist_typo: "TEXTAREA",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "I Agree",
+                form_checklist_typo_option_pl: ["I Agree"]
             },
         ]
     },

@@ -72,7 +72,7 @@ exports.getDashOneQuery = async (req, res) => {
     const { id } = req.params;
     const { mod_id, user_mod_id } = req.query;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId qviple_id blockStatus profile_modification leave_config random_institute_code merchant_options staff_leave_config certificate_fund_charges certificate_issued_count name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus lms_depart lms_status storeStatus storeDepart student_form_setting landing_control"
+      "insName name insAbout photoId qviple_id blockStatus profile_modification leave_config random_institute_code merchant_options staff_leave_config certificate_fund_charges certificate_issued_count name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus lms_depart lms_status storeStatus storeDepart student_form_setting landing_control payroll_module payroll_module_status"
     );
     // const encrypt = await encryptionPayload(institute);
     if (req?.query?.mod_id) {
@@ -3166,7 +3166,7 @@ exports.getFullStaffInfo = async (req, res) => {
     if (isApk) {
       var staff = await Staff.findById({ _id: id })
         .select(
-          "staffFirstName staffDesignationCount staffMiddleName staff_emp_code staffDepartment staffJoinDate staffPanNumber teaching_type experience staffClass staffSubject staffBatch staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave current_designation staff_pf_number experience commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave"
+          "staffFirstName staffDesignationCount staffMiddleName staff_emp_code staffDepartment staffJoinDate staffPanNumber teaching_type experience staffClass staffSubject staffBatch staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave current_designation staff_pf_number experience commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave staff_grant_status staff_position staff_technicality"
         )
         .populate({
           path: "user",
@@ -3179,6 +3179,9 @@ exports.getFullStaffInfo = async (req, res) => {
             path: "lms_depart",
             select: "leave_manage"
           }
+        })
+        .populate({
+          path: "salary_structure",
         })
         .lean()
         .exec();
@@ -6378,11 +6381,12 @@ exports.render_one_enable_query = async (req, res) => {
 
 exports.render_auto_student_form_section_checklist_query = async (req, res) => {
   try {
-    // const { fcid } = req?.params
-    // if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const { fcid } = req?.params
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    var all_ifs = await InstituteStudentForm.find({})
-    for (var ifs of all_ifs) {
+    var ifs = await InstituteStudentForm.findById({_id: fcid})
+    // var all_ifs = await InstituteStudentForm.find({})
+    // for (var ifs of all_ifs) {
       var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
         .select("depart")
         .populate({
@@ -6401,10 +6405,20 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
               form_checklist_placeholder: ele?.form_checklist_placeholder,
               form_checklist_lable: ele?.form_checklist_lable,
               form_checklist_typo: ele?.form_checklist_typo,
-              form_checklist_required: ele?.form_checklist_required
+              form_checklist_required: ele?.form_checklist_required,
+              width: ele?.width
             })
             if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
-              ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+              fc.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+            }
+            if (ele?.form_checklist_sample) {
+              fc.form_checklist_sample = ele?.form_checklist_sample
+            }
+            if (ele?.form_checklist_pdf) {
+              fc.form_checklist_pdf = ele?.form_checklist_pdf
+            }
+            if (ele?.form_checklist_view) {
+              fc.form_checklist_view = ele?.form_checklist_view
             }
             fc.form = ifs?._id
             fc.form_section = val?._id
@@ -6421,12 +6435,17 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
         numss = []
       }
       await ifs.save()
+      var one_ifs = await InstituteStudentForm.findById({ _id: `${ifs?._id}` })
+      .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
       var nums = []
       for (var qwe of ins?.depart) {
         var dfs = new DepartmentStudentForm({})
         dfs.department = qwe?._id
         qwe.student_form_setting = dfs?._id
-        for (var val of ifs?.form_section) {
+        for (var val of one_ifs?.form_section) {
           if (val?.form_checklist?.length > 0) {
             for (var ele of val?.form_checklist) {
               var fc = new FormChecklist({
@@ -6436,10 +6455,20 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
                 form_checklist_placeholder: ele?.form_checklist_placeholder,
                 form_checklist_lable: ele?.form_checklist_lable,
                 form_checklist_typo: ele?.form_checklist_typo,
-                form_checklist_required: ele?.form_checklist_required
+                form_checklist_required: ele?.form_checklist_required,
+                width: ele?.width
               })
               if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
-                ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+                fc.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+              }
+              if (ele?.form_checklist_sample) {
+                fc.form_checklist_sample = ele?.form_checklist_sample
+              }
+              if (ele?.form_checklist_pdf) {
+                fc.form_checklist_pdf = ele?.form_checklist_pdf
+              }
+              if (ele?.form_checklist_view) {
+                fc.form_checklist_view = ele?.form_checklist_view
               }
               fc.department_form = dfs?._id
               fc.form_section = val?._id
@@ -6458,7 +6487,7 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
         }
         await Promise.all([dfs.save(), qwe.save()])
       }
-    }
+    // }
     res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
   }
   catch (e) {

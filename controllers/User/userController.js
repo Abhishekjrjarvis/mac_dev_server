@@ -1805,6 +1805,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
             }
           }
         })
+        .populate({
+          path: "payrollDepartment",
+          select: "_id",
+        })
         .lean()
         .exec();
       if (staff?.staffDocuments?.length > 0) {
@@ -2029,6 +2033,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
               select: "_id financeDepart admissionDepart storeStatus"
             }
           }
+        })
+        .populate({
+          path: "payrollDepartment",
+          select: "_id",
         })
         .lean()
         .exec();

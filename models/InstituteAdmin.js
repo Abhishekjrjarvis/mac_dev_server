@@ -1308,7 +1308,17 @@ const instituteAdminSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Department"
     }
-  ]
+  ],
+  payroll_module: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PayrollModule"
+    }
+  ],
+  payroll_module_status: {
+    type: String,
+    default: "Disable"
+  }
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

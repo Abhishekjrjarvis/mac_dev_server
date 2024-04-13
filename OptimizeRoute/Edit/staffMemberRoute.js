@@ -66,4 +66,9 @@ router
   .route("/stores/staff/:osid")
   .patch(isLoggedIn, catchAsync(staffMember.renderStoresStaffQuery));
 
+
+router
+.route("/payroll/staff/:osid")
+.patch(isLoggedIn, catchAsync(staffMember.renderPayrollStaffQuery));
+
 module.exports = router;

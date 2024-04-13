@@ -29,6 +29,7 @@ const { handle_undefined } = require("../../Handler/customError");
 const Alumini = require("../../models/Alumini/Alumini");
 const LMS = require("../../models/Leave/LMS");
 const InventoryStore = require("../../models/Stores/store");
+const PayrollModule = require("../../models/Finance/Payroll/PayrollModule");
 
 exports.photoEditByStaff = async (req, res) => {
   try {
@@ -1021,6 +1022,85 @@ exports.renderStoresStaffQuery = async (req, res) => {
         user?.userEmail,
         "STORE",
         stores?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.renderPayrollStaffQuery = async (req, res) => {
+  try {
+    const { osid } = req.params;
+    const { nsid } = req.query;
+    if (!osid && !nsid && osid !== nsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        status: false,
+      });
+    const oldStaff = await Staff.findById({ _id: osid }).populate({
+      path: "institute",
+      select: "payroll_module",
+    });
+    const newStaff = await Staff.findById({ _id: nsid });
+    const user = await User.findById({ _id: `${newStaff.user}` });
+    const payroll = await PayrollModule.findById({
+      _id: `${oldStaff?.institute?.payroll_module[0]}`,
+    }).populate({
+      path: "institute",
+      select: "insName sms_lang",
+    });
+    const notify = new Notification({});
+    newStaff.payrollDepartment.push(payroll._id);
+    newStaff.staffDesignationCount += 1;
+    newStaff.recentDesignation = "Payroll Administrator";
+    payroll.payroll_manager = newStaff._id;
+    oldStaff.payrollDepartment.pull(payroll._id);
+    if (oldStaff.staffDesignationCount > 0) {
+      oldStaff.staffDesignationCount -= 1;
+    }
+    oldStaff.recentDesignation = "";
+    notify.notifyContent = `you got the designation of as Payroll Administrator`;
+    notify.notifySender = payroll.institute._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Payroll Designation";
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByInsPhoto = payroll.institute._id;
+    await invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      payroll.institute.insName,
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([
+      oldStaff.save(),
+      payroll.save(),
+      user.save(),
+      notify.save(),
+      newStaff.save(),
+    ]);
+    res.status(200).send({
+      message: "Successfully Assigned Payroll Administrator",
+      status: true,
+    });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "PAYROLL",
+      payroll?.institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "PAYROLL",
+        payroll?.institute?.sms_lang,
         "",
         "",
         ""

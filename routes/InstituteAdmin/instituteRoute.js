@@ -694,7 +694,7 @@ router.patch(
 
 // Add In Super Admin
 router.patch(
-  "/enable/auto/form/query",
+  "/:fcid/enable/auto/form/query",
   catchAsync(Institute.render_auto_student_form_section_checklist_query)
 );
 

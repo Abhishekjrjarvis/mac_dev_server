@@ -93,6 +93,7 @@ const studentFeedbackRouteV2 = require("../OptimizeRoute/StudentFeedback/student
 const storeV2 = require("../OptimizeRoute/Stores/storeRoute");
 const studentAttendanceRouteV2 = require("../OptimizeRoute/StudentAttendance/studentAttendanceRoute");
 const instituteAutomateRouteV2 = require("../OptimizeRoute/InstituteAutomate/instituteAutomateRoute");
+const payrollRouteV2 = require("../OptimizeRoute/Finance/Payroll/PayrollRoute");
 
 // Api Middleware Func
 
@@ -186,6 +187,8 @@ router.use("/api/v2/edit/user", userMemberRouteV2);
 router.use("/api/v2/attendance/staff", staffAttendanceRouteV2);
 router.use("/api/v2/feedback", studentFeedbackRouteV2);
 router.use("/api/v2/store", storeV2);
+router.use("/api/v2/payroll", payrollRouteV2);
+
 
 router.use("/api/v2/attendance/student", studentAttendanceRouteV2);
 router.use("/api/v2/institute/automate", instituteAutomateRouteV2);

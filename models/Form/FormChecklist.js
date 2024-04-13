@@ -45,6 +45,12 @@ const formChecklistSchema = new mongoose.Schema({
     form_checklist_key_status: {
         type: String,
     },
+    form_checklist_sample: {
+        type: String
+    },
+    width: {
+        type: String
+    }
 });
 
 module.exports = mongoose.model("FormChecklist", formChecklistSchema);

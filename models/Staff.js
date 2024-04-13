@@ -602,7 +602,32 @@ const staffSchema = new mongoose.Schema({
       ref: "StoreLogs"
     }
   ],
-  maintanence: []
+  maintanence: [],
+  payrollDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PayrollModule"
+    }
+  ],
+  salary_structure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SalaryHeads"
+  },
+  staff_grant_status: {
+    type: String
+  },
+  staff_position: {
+    type: String
+  },
+  staff_technicality: {
+    type: String
+  },
+  pay_slip: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PaySlip"
+    }
+  ]
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

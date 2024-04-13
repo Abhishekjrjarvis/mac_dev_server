@@ -273,7 +273,7 @@ exports.render_dynamic_form_query = async (req, res) => {
       }
       res.status(200).send({ message: "Explore One Student Institute Dynamic Form Query", access: true, result: [...head_arrays]})
     }
-    else if (flow === "DEPARTMENT") {
+    else if (student?.student_form_flow?.flow === "DEPARTMENT") {
       var head_array = []
       var head_arrays = []
       var obj = {}

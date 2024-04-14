@@ -13,10 +13,7 @@ const paySlipSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    salary_structure:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "SalaryHeads"
-    },
+    salary_structure: [],
     month: {
         type: String
     },

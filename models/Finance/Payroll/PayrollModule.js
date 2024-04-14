@@ -162,6 +162,19 @@ const payrollModuleSchema = new mongoose.Schema({
       },
       status: { type: String, default: "Not Linked" },
     },
+    monthly_funds: [
+        {
+            month: { type: String },
+            year: { type: String },
+            net_allocate_pay: { type: Number, default: 0 }
+        }
+    ],
+    pay_slip: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "PaySlip"
+        }
+    ]
 });
 
 module.exports = mongoose.model("PayrollModule", payrollModuleSchema);

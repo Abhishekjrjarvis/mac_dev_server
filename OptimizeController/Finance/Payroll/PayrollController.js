@@ -10,6 +10,7 @@ const User = require("../../../models/User");
 const Notification = require("../../../models/notification");
 const StaffAttendenceDate = require("../../../models/StaffAttendenceDate");
 const { s_c, employee, employar, compliance } = require("../../../Constant/heads");
+const PaySlip = require("../../../models/Finance/Payroll/PaySlip");
 
 exports.render_new_payroll_query = async (req, res) => {
     try {
@@ -845,7 +846,31 @@ exports.render_staff_salary_compute = async (req, res) => {
       holiday: 0,
     };
     const staff = await Staff.findById(sid);
-    const structure = await SalaryStructure.findById({ _id: `${staff?.salary_structure}`})
+    const structure = await SalaryStructure.findById({ _id: `${staff?.salary_structure}` })
+    .populate({
+      path: "salary_components",
+      populate: {
+        path: "master"
+      }
+    })
+    .populate({
+      path: "employee_deduction",
+      populate: {
+        path: "master"
+      }
+  })
+  .populate({
+    path: "employar_deduction",
+    populate: {
+      path: "master"
+    }
+})
+.populate({
+  path: "compliances",
+  populate: {
+    path: "master"
+  }
+})
     if (staff?.attendDates?.length > 0) {
       const attendance = await StaffAttendenceDate.find({
         _id: { $in: staff.attendDates },
@@ -905,17 +930,21 @@ exports.render_staff_salary_compute = async (req, res) => {
       if (val?.master?.heads_key === "BASIC_PAY") {
         custom_obj.one_day_sal = (val?.head_amount / salary_days?.sal_day)?.toFixed(2)
         custom_obj.basic_pay = salary_days?.sal_day * custom_obj.one_day_sal
+        val.head_amount = custom_obj.basic_pay
       }
       if (val?.master?.heads_key === "DA") {
         if (val?.master?.heads_toggle) {
           custom_obj.da += ((custom_obj.basic_pay * val?.master?.heads_percentage) / 100)?.toFixed(2)
+          val.head_amount = custom_obj.da
         }
         else {
           custom_obj.da += val?.head_amount
+          val.head_amount = custom_obj.da
         }
       }
       if (val?.master?.heads_key === "HRA") {
         custom_obj.hra += val?.head_amount
+        val.head_amount = custom_obj.hra
       }
       if (val?.master?.heads_key === "ALLOWANCES") {
         if (val?.master?.heads_toggle) {
@@ -927,55 +956,67 @@ exports.render_staff_salary_compute = async (req, res) => {
       }
       if (val?.master?.heads_key === "BONUS") {
         custom_obj.bonus += val?.head_amount
+        val.head_amount = custom_obj.bonus
       }
       if (val?.master?.heads_key === "PERQUISITES") {
         custom_obj.perks += val?.head_amount
       }
       if (val?.master?.heads_key === "ADVANCE_SALARY") {
         custom_obj.ads += val?.head_amount
+        val.head_amount = custom_obj.ads
       }
       if (val?.master?.heads_key === "ARREARS") {
         custom_obj.arr += val?.head_amount
+        val.head_amount = custom_obj.arr
       }
     }
     for (var val of structure?.employee_deduction) {
       if (val?.master?.heads_key === "PT") {
-        custom_obj.pt = (custom_obj?.basic_pay > 7000 ?  200 : staff?.staffGender?.toLowerCase() === "male" ? 175 : 0)
+        custom_obj.pt = (custom_obj?.basic_pay > 7000 ? 200 : staff?.staffGender?.toLowerCase() === "male" ? 175 : 0)
+        val.head_amount = custom_obj.pt
       }
       if (val?.master?.heads_key === "ESI") {
           custom_obj.employee_si += (custom_obj.basic_pay > 21000 ? (custom_obj.basic_pay * 0.75) /100 : 0 )?.toFixed(2)
+          val.head_amount = custom_obj.employee_si
       }
       if (val?.master?.heads_key === "ADVANCE_SALARY_DEDUCTION") {
         custom_obj.ads_deduct += val?.head_amount
+        val.head_amount = custom_obj.ads_deduct
       }
       if (val?.master?.heads_key === "EPF") {
-        custom_obj.employee_pf += (((custom_obj?.basic_pay + custom_obj?.da) * 12.1) /100)?.toFixed(2)
+        custom_obj.employee_pf += (((custom_obj?.basic_pay + custom_obj?.da) * 12.1) / 100)?.toFixed(2)
+        val.head_amount = custom_obj.employee_pf
       }
     }
     for (var val of structure?.compliances) {
       if (val?.master?.heads_key === "TDS") {
-          custom_obj.tds += val?.head_amount
+        custom_obj.tds += val?.head_amount
+        val.head_amount = custom_obj.tds
       }
     }
     for (var val of structure?.employar_deduction) {
       if (val?.master?.heads_key === "ESI") {
           custom_obj.employar_si += (custom_obj.basic_pay > 21000 ? (custom_obj.basic_pay * 3.25) /100 : 0 )?.toFixed(2)
+          val.head_amount = custom_obj.employar_si
       }
       if (val?.master?.heads_key === "GRAUITY") {
         if (val?.master?.heads_enable === "YES") {
           let date1 = new Date(`${staff?.staffJoinDate}`)?.getFullYear()
           let date2 = new Date()?.getFullYear()
-          custom_obj.gratuity += (custom_obj.basic_pay * date2 - date1  * 15) / 30
+          custom_obj.gratuity += (custom_obj.basic_pay * date2 - date1 * 15) / 30
+          val.head_amount = custom_obj.gratuity
         }
         else {
           custom_obj.gratuity += (custom_obj.basic_pay * date2 - date1) / 26
+          val.head_amount = custom_obj.gratuity
         }
         
       }
       if (val?.master?.heads_key === "EPF") {
         custom_obj.employar_pf += (((custom_obj?.basic_pay + custom_obj?.da) * 3.67) / 100)?.toFixed(2)
         custom_obj.employar_ps += (((custom_obj?.basic_pay + custom_obj?.da) * 8.33) / 100)?.toFixed(2)
-        custom_obj.employar_charges += (((custom_obj?.basic_pay + custom_obj?.da) * 0.5) /100)?.toFixed(2) 
+        custom_obj.employar_charges += (((custom_obj?.basic_pay + custom_obj?.da) * 0.5) / 100)?.toFixed(2) 
+        val.head_amount = custom_obj.employar_pf + custom_obj.employar_ps + custom_obj.employar_charges
       }
     }
     custom_obj.total_earnings += custom_obj?.basic_pay + custom_obj?.da + custom_obj?.hra + custom_obj?.allowance + custom_obj?.bonus + custom_obj?.perks + custom_obj?.arr + custom_obj?.ads
@@ -987,11 +1028,311 @@ exports.render_staff_salary_compute = async (req, res) => {
       access: true,
       custom_obj
     });
-    
   } catch (e) {
     console.log(e);
   }
 };
+
+exports.render_staff_salary_compute_finalize = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { month, year, pid, salary_struct, custom_obj } = req.body;
+    if (!sid || !year) {
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+      });
+    }
+    const staff = await Staff.findById({ _id: sid })
+    const payroll = await PayrollModule.findById({ _id: pid })
+    days = data_set?.filter((val) => {
+        if(`${val?.month}` === `/${month}/${year}`) return val?.days 
+    })
+    let regularexp = "";
+    if (month) regularexp = new RegExp(`\/${month}\/${year}$`);
+    else regularexp = new RegExp(`\/${year}$`);
+    let salary_days = {
+      total_working_days: days[0],
+      present: 0,
+      paid_leaves: 0,
+      unpaid_leaves: 0,
+      absent: 0,
+      holiday: 0,
+    };
+    if (staff?.attendDates?.length > 0) {
+      const attendance = await StaffAttendenceDate.find({
+        _id: { $in: staff.attendDates },
+        staffAttendDate: { $regex: regularexp },
+      }).select("staffAttendDate absentStaff");
+      for (let day of attendance) {
+        let flag = true;
+        for (let abs of day?.absentStaff) {
+          if (`${abs.staff}` === `${sid}`) {
+            flag = false;
+            break;
+          }
+        }
+        if (flag) {
+          salary_days.present += 1;
+        } else {
+          salary_days.absent += 1;
+        }
+      }
+      salary_days.paid_leaves = staff?.leave_taken ?? 0;
+    }
+     salary_days = {
+        total_working_days: salary_days?.total_working_days ?? 0,
+        present: salary_days?.present ?? 0,
+        paid_leaves: salary_days?.paid_leaves ?? 0,
+        unpaid_leaves: (salary_days?.total_working_days) - (salary_days?.paid_leaves + salary_days?.holiday) ?? 0,
+        absent: salary_days?.absent ?? 0,
+       holiday: salary_days?.holiday ?? 0,
+        sal_day: salary_days?.present + salary_days?.paid_leaves + salary_days?.holiday 
+     }
+    const slip = new PaySlip({})
+    slip.staff = staff?._id
+    slip.payroll = pid
+    slip.month = month
+    slip.year = year
+    slip.net_payable += custom_obj?.net_pay
+    slip.salary_structure.push(salary_struct)
+    slip.attendance_stats.push(salary_days)
+    staff.pay_slip.push(slip?._id)
+    payroll.pay_slip.push(slip?._id)
+    await Promise.all([slip.save(), staff.save(), payroll.save()])
+    res.status(200).send({ message: "Explore One Staff Payroll Finalize", access: true })
+    if (custom_obj?.basic_pay) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.basic_pay_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+    if (custom_obj?.da) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.da_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.da,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+    if (custom_obj?.hra) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.hra_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.hra,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+    if (custom_obj?.bonus) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.bonus_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.bonus,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+    if (custom_obj?.ads) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.advance_salary_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.ads,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+    if (custom_obj?.arr) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.arrears_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.arr,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+
+    if (custom_obj?.employee_pf) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.employee_pf_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.employee_pf,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+
+    if (custom_obj?.ads_deduct) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.advance_salary_deduction_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.ads_deduct,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+
+    if (custom_obj?.pt) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.pt_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.pt,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+
+    if (custom_obj?.employee_si) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.emplyee_esi_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.employee_si,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+
+    if (custom_obj?.employar_pf) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.employar_pf_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.employar_pf,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+
+    if (custom_obj?.employar_si) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.emplyar_esi_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.employar_si + custom_obj?.employar_ps + custom_obj?.employar_charges,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+
+    if (custom_obj?.gratuity) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.gratuity_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.gratuity,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+
+    if (custom_obj?.tds) {
+      const exist = await SalaryHeads.findById({ _id: `${payroll.tds_linked_head_status?.master}` })
+      exist.collect_staff_price.push({
+        price: custom_obj?.tds,
+        month: month,
+        year: year
+      })
+      await exist.save()
+    }
+
+    if (payroll?.monthly_funds?.length > 0) {
+      for (var val of payroll?.monthly_funds) {
+        if (`${val?.month}/${val?.year}` === `${month}/${year}`) {
+          val.net_allocate_pay += custom_obj?.net_pay
+        }
+        else {
+          payroll?.monthly_funds.push({
+            month: month,
+            year: year,
+            net_allocate_pay: custom_obj?.net_pay
+          })
+        }
+      }
+    }
+    else {
+      payroll?.monthly_funds.push({
+        month: month,
+        year: year,
+        net_allocate_pay: custom_obj?.net_pay
+      })
+    }
+    await payroll.save()
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_monthly_funds_query = async (req, res) => {
+  try {
+    const { pid } = req?.params
+    if (!pid) return res.status(200).send({ message: "Their is a bug need to fixed imeediately", access: false })
+    
+    const payroll = await PayrollModule.findById({ _id: pid })
+    let y = new Date()?.getFullYear()
+    let obj = {}
+    var fun = payroll?.monthly_funds?.filter((val) => {
+      if (`${val?.year}` === `${y}`) {
+        return val
+      }
+    })
+    if (fun?.length > 0) {
+      res.status(200).send({ message: "Explore Financial Year Query", access: true, monthly: fun})
+    }
+    else {
+      res.status(200).send({ message: "No Financial Year Query", access: true, monthly: []})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_salary_slip_query = async (req, res) => {
+  try {
+    const { pid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!pid) return res.status(200).send({ message: "Their is a bug need to fixed imeediately", access: false })
+    
+    const payroll = await PayrollModule.findById({ _id: pid })
+    var all_slip = await PaySlip.find({ _id: { $in: payroll?.pay_slip } })
+      .select("created_at year net_payable month")
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "staff",
+        select: "staffFirstName staffMiddleName staffLastName staff_grant_status staffROLLNO staffPanNumber"
+      })
+    if (all_slip?.length > 0) {
+      res.status(200).send({ message: "Explore All Salary Slip Query", access: true, all_slip: all_slip})
+    }
+    else {
+      res.status(200).send({ message: "No Salary Slip Query", access: false, all_slip: []})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_salary_slip_query = async (req, res) => {
+  try {
+    const { slid } = req?.params
+    if (!slid) return res.status(200).send({ message: "Their is a bug need to fixed imeediately", access: false })
+    
+    const slip = await PaySlip.findById({ _id: slid })
+      .populate({
+        path: "staff",
+        select: "staffFirstName staffMiddleName staffLastName staff_grant_status staffROLLNO staffPanNumber"
+      })
+      res.status(200).send({ message: "Explore One Salary Slip Query", access: true, slip: slip})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
 
 exports.render_mark_status_salary_structure_query = async (req, res) => {
   try {

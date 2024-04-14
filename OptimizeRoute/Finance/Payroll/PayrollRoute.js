@@ -66,6 +66,16 @@ router.patch(
     catchAsync(Payroll.render_attendance_sheet_query)
 );
 
+router.get(
+    "/one/:sid/salary/days/query",
+    catchAsync(Payroll.render_staff_salary_days)
+);
+
+router.get(
+    "/one/:sid/attendance/sheet/query",
+    catchAsync(Payroll.render_attendance_sheet_query)
+);
+
 router.patch(
     "/one/:sid/salary/structure/edit/query",
     catchAsync(Payroll.render_staff_salary_structure_edit_query)
@@ -74,6 +84,26 @@ router.patch(
 router.patch(
     "/one/:sid/salary/compute/query",
     catchAsync(Payroll.render_staff_salary_compute)
+);
+
+router.patch(
+    "/one/:sid/salary/compute/finalize/query",
+    catchAsync(Payroll.render_staff_salary_compute_finalize)
+);
+
+router.get(
+    "/:pid/monthly/funds/query",
+    catchAsync(Payroll.render_monthly_funds_query)
+);
+
+router.get(
+    "/:pid/all/salary/slip/query",
+    catchAsync(Payroll.render_all_salary_slip_query)
+);
+
+router.get(
+    "/:slid/one/salary/slip/query",
+    catchAsync(Payroll.render_one_salary_slip_query)
 );
 
 router.patch(

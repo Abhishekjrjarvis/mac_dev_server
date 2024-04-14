@@ -22,6 +22,26 @@ router.patch(
 );
   
 router.patch(
+    "/:pid/new/salary/heads/query",
+    catchAsync(Payroll.render_new_salary_heads_query)
+);
+
+router.get(
+    "/:pid/all/salary/heads/query",
+    catchAsync(Payroll.render_all_salary_heads_query)
+);
+
+router.get(
+    "/one/:shid/salary/heads/query",
+    catchAsync(Payroll.render_one_salary_heads_query)
+);
+
+router.get(
+    "/:pid/all/salary/heads/nested/query",
+    catchAsync(Payroll.render_all_salary_heads_nested_query)
+);
+
+router.patch(
     "/:pid/new/salary/structure/query",
     catchAsync(Payroll.render_new_salary_structure_query)
 );
@@ -30,9 +50,34 @@ router.get(
     "/:pid/all/salary/structure/query",
     catchAsync(Payroll.render_all_salary_structure_query)
 );
-  
+
+router.get(
+    "/one/:srid/salary/structure/query",
+    catchAsync(Payroll.render_one_salary_structure_query)
+);
+
 router.patch(
-    "/:sid/mark/salary/structure/status/query",
+    "/one/:sid/salary/days/query",
+    catchAsync(Payroll.render_staff_salary_days)
+);
+
+router.patch(
+    "/one/:sid/attendance/sheet/query",
+    catchAsync(Payroll.render_attendance_sheet_query)
+);
+
+router.patch(
+    "/one/:sid/salary/structure/edit/query",
+    catchAsync(Payroll.render_staff_salary_structure_edit_query)
+);
+
+router.patch(
+    "/one/:sid/salary/compute/query",
+    catchAsync(Payroll.render_staff_salary_compute)
+);
+
+router.patch(
+    "/:pid/enable/query",
     catchAsync(Payroll.render_mark_status_salary_structure_query)
 );
 

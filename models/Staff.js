@@ -611,7 +611,7 @@ const staffSchema = new mongoose.Schema({
   ],
   salary_structure: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "SalaryHeads"
+    ref: "SalaryStructure"
   },
   staff_grant_status: {
     type: String
@@ -626,6 +626,24 @@ const staffSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "PaySlip"
+    }
+  ],
+  salary_days: [
+    {
+      total_working_days: { type: Number, default: 0 },
+      present: { type: Number, default: 0 },
+      paid_leaves: { type: Number, default: 0 },
+      unpaid_leaves: { type: Number, default: 0 },
+      absent: { type: Number, default: 0 },
+      holiday: { type: Number, default: 0 },
+      month: { type: String },
+      year: { type: String }
+    }
+  ],
+  staff_holiday: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StaffHoliday"
     }
   ]
 });

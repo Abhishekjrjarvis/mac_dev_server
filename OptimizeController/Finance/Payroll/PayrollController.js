@@ -1048,7 +1048,8 @@ exports.render_staff_salary_compute = async (req, res) => {
     res.status(200).send({
       message: "One staff salary computation data.",
       access: true,
-      custom_obj
+      custom_obj,
+      structure
     });
   } catch (e) {
     console.log(e);

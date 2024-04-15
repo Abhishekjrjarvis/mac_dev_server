@@ -1836,7 +1836,7 @@ exports.render_staff_fund_heads_query = async (req, res) => {
     var payroll = await PayrollModule.findById({ _id: pid })
     var all_staff = await Staff.find({ $and: [{ institute: payroll?.institute }, { staffStatus: "Approved" }] })
     for (var staff of all_staff) {
-      const salary_struct = await SalaryStructure.findById({ _id: `${staff?.salary_structure}` })
+      const salary_struct = await SalaryStructure.findOne({ _id: `${staff?.salary_structure}` })
         .populate({
           path: "salary_components",
           populate: {

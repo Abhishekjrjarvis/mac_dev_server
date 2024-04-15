@@ -174,6 +174,12 @@ const payrollModuleSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "PaySlip"
         }
+    ],
+    financial_data: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "TDSFinance"
+        }
     ]
 });
 

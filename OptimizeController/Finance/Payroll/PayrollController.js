@@ -498,6 +498,7 @@ exports.render_new_salary_structure_query = async (req, res) => {
       })
     }
     new_structure.structure_status = `${status}`
+    payroll.salary_structure.push(new_structure?._id)
     await Promise.all([payroll.save(), new_structure.save()])
     res.status(200).send({ message: "Explore New Salary Structure Query", access: true })
     var all_staff = await Staff.find({ $and: [{ institute: payroll?.institute}, { staff_grant_status: { $regex: `${status}`, $options: "i"}}]})
@@ -541,7 +542,7 @@ exports.render_new_salary_structure_query = async (req, res) => {
 exports.render_all_salary_structure_query = async (req, res) => {
   try {
     const { pid } = req.params;
-    const { type } = req?.body
+    const { type } = req?.query
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;

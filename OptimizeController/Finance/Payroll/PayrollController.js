@@ -1898,7 +1898,8 @@ exports.render_staff_tds_calculate_compute = async (req, res) => {
     const { sid } = req?.params
     if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    // const staff = await Staff.find
+    const staff = await Staff.findById({ _id: sid })
+    
   }
   catch (e) {
     console.log(e)

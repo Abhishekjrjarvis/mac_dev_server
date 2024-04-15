@@ -653,7 +653,7 @@ const staffSchema = new mongoose.Schema({
     value: {
       type: String
     }
-  }
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

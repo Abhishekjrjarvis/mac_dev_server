@@ -695,6 +695,7 @@ exports.render_staff_salary_days = async (req, res) => {
       unpaid_leaves: 0,
       absent: 0,
       holiday: 0,
+      sal_day: 0
     };
     const staff = await Staff.findById(sid);
     if (staff?.attendDates?.length > 0) {
@@ -727,6 +728,7 @@ exports.render_staff_salary_days = async (req, res) => {
         unpaid_leaves: (salary_days?.total_working_days) - (salary_days?.paid_leaves + salary_days?.holiday) ?? 0,
         absent: salary_days?.absent ?? 0,
         holiday: salary_days?.holiday ?? 0,
+        sal_day: salary_days?.present + salary_days?.paid_leaves + salary_days?.holiday 
       },
       access: true
     });
@@ -791,6 +793,7 @@ exports.render_attendance_sheet_query = async (req, res) => {
       unpaid_leaves: 0,
       absent: 0,
       holiday: 0,
+      dates: {}
     };
     const staff = await Staff.findById(sid);
     if (staff?.attendDates?.length > 0) {
@@ -967,6 +970,7 @@ exports.render_staff_salary_compute = async (req, res) => {
       if (val?.master?.heads_key === "ALLOWANCES") {
         if (val?.master?.heads_toggle) {
           custom_obj.allowance += ((custom_obj.basic_pay * val?.master?.heads_percentage) / 100)?.toFixed(2)
+          val.head_amount = ((custom_obj.basic_pay * val?.master?.heads_percentage) / 100)?.toFixed(2)
         }
         else {
           custom_obj.allowance += val?.head_amount
@@ -1125,6 +1129,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         month: month,
         year: year
       })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "BASIC_PAY",
+        section: "SALARY_COMPONENTS"
+      })
       await exist.save()
     }
     if (custom_obj?.da) {
@@ -1133,6 +1144,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         price: custom_obj?.da,
         month: month,
         year: year
+      })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "DA",
+        section: "SALARY_COMPONENTS"
       })
       await exist.save()
     }
@@ -1143,6 +1161,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         month: month,
         year: year
       })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "HRA",
+        section: "SALARY_COMPONENTS"
+      })
       await exist.save()
     }
     if (custom_obj?.bonus) {
@@ -1151,6 +1176,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         price: custom_obj?.bonus,
         month: month,
         year: year
+      })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "BONUS",
+        section: "SALARY_COMPONENTS"
       })
       await exist.save()
     }
@@ -1161,6 +1193,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         month: month,
         year: year
       })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "ADVANCE_SALARY",
+        section: "SALARY_COMPONENTS"
+      })
       await exist.save()
     }
     if (custom_obj?.arr) {
@@ -1169,6 +1208,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         price: custom_obj?.arr,
         month: month,
         year: year
+      })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "ARREARS",
+        section: "SALARY_COMPONENTS"
       })
       await exist.save()
     }
@@ -1180,6 +1226,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         month: month,
         year: year
       })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "EPF",
+        section: "EMPLOYEE_DEDUCTION"
+      })
       await exist.save()
     }
 
@@ -1189,6 +1242,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         price: custom_obj?.ads_deduct,
         month: month,
         year: year
+      })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "ADVANCE_SALARY_DEDUCTION",
+        section: "EMPLOYEE_DEDUCTION"
       })
       await exist.save()
     }
@@ -1200,6 +1260,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         month: month,
         year: year
       })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "PT",
+        section: "EMPLOYEE_DEDUCTION"
+      })
       await exist.save()
     }
 
@@ -1209,6 +1276,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         price: custom_obj?.employee_si,
         month: month,
         year: year
+      })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "ESI",
+        section: "EMPLOYEE_DEDUCTION"
       })
       await exist.save()
     }
@@ -1220,6 +1294,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         month: month,
         year: year
       })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "EPF",
+        section: "EMPLOYAR_DEDUCTION"
+      })
       await exist.save()
     }
 
@@ -1229,6 +1310,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         price: custom_obj?.employar_si + custom_obj?.employar_ps + custom_obj?.employar_charges,
         month: month,
         year: year
+      })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "ESI",
+        section: "EMPLOYAR_DEDUCTION"
       })
       await exist.save()
     }
@@ -1240,6 +1328,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         month: month,
         year: year
       })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "Grauity",
+        section: "EMPLOYAR_DEDUCTION"
+      })
       await exist.save()
     }
 
@@ -1249,6 +1344,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         price: custom_obj?.tds,
         month: month,
         year: year
+      })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.basic_pay,
+        month: month,
+        year: year,
+        heads_key: "TDS",
+        section: "COMPLIANCES"
       })
       await exist.save()
     }
@@ -1264,6 +1366,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
             year: year,
             net_allocate_pay: custom_obj?.net_pay
           })
+          staff.monthly_heads_data.push({
+            price: custom_obj?.net_pay,
+            month: month,
+            year: year,
+            heads_key: "NET_PAY",
+            section: "NET_PAY"
+          })
         }
       }
     }
@@ -1272,6 +1381,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         month: month,
         year: year,
         net_allocate_pay: custom_obj?.net_pay
+      })
+      staff.monthly_heads_data.push({
+        price: custom_obj?.net_pay,
+        month: month,
+        year: year,
+        heads_key: "NET_PAY",
+        section: "NET_PAY"
       })
     }
     await payroll.save()
@@ -1827,66 +1943,43 @@ exports.render_returns_tab_show_details_query = async (req, res) => {
 
 exports.render_staff_fund_heads_query = async (req, res) => {
   try {
-    const { month, year, heads_key, pid } = req.query;
-    if (!heads_key) {
-      return res.status(200).send({
-        message: "Their is a bug need to fixed immediately",
-      });
-    }
+    const { month, year, section, key, pid } = req?.query
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!pid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
     var payroll = await PayrollModule.findById({ _id: pid })
     var all_staff = await Staff.find({ $and: [{ institute: payroll?.institute }, { staffStatus: "Approved" }] })
-    for (var staff of all_staff) {
-      const salary_struct = await SalaryStructure.findOne({ _id: `${staff?.salary_structure}` })
-        .populate({
-          path: "salary_components",
-          populate: {
-            path: "master"
-          }
-        })
-        .populate({
-          path: "employee_deduction",
-          populate: {
-            path: "master"
-          }
-        })
-        .populate({
-          path: "employar_deduction",
-          populate: {
-            path: "master"
-          }
-        })
-        .populate({
-          path: "compliances",
-          populate: {
-            path: "master"
-          }
-        })
-      for (var val of salary_struct?.salary_components) {
-        if (val?.master?.heads_key === heads_key) {
-          staff.head_data.key = heads_key
-          staff.head_data.value = val?.head_amount
+      .limit(limit)
+      .skip(skip)
+    .select("staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffROLLNO")
+    for (var val of all_staff) {
+      const slip = await PaySlip.findOne({ $and: [{ staff: val?._id }, { month: { $regex: `${month}`, $options: "i"}}, { year: { $regex: `${year}`, $options: "i"}}]})
+      let list = val?.monthly_heads_data?.filter((ele) => {
+        if (`${month}/${year}` === `${month}/${year}` && ele?.section === section && ele?.heads_key === key) {
+          return ele
         }
-      }
-      for (var val of salary_struct?.employee_deduction) {
-        if (val?.master?.heads_key === heads_key) {
-          staff.head_data.key = heads_key
-          staff.head_data.value = val?.head_amount
-        }
-      }
-      for (var val of salary_struct?.employar_deduction) {
-        if (val?.master?.heads_key === heads_key) {
-          staff.head_data.key = heads_key
-          staff.head_data.value = val?.head_amount
-        }
-      }
-      for (var val of salary_struct?.compliances) {
-        if (val?.master?.heads_key === heads_key) {
-          staff.head_data.key = heads_key
-          staff.head_data.value = val?.head_amount
-        }
-      }
+      })
+      val.staff_obj.key = `${key}`
+      val.staff_obj.value = list?.[0]?.price ?? 0
+      val.staff_obj.slip = slip?._id
+      list = []
     }
-    res.status(200).send({ message: "Explore All Staff Heads Wise Data Set Query", access: true, all_staff: all_staff})
+    res.status(200).send({ message: "Explore All Staff Head Wise", access: true, all_staff: all_staff})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_staff_tds_form_query = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    await Staff.findByIdAndUpdate(sid, req?.body)
+    res.status(200).send({ message: "Explore Staff TDS Form update query", access: true})
   }
   catch (e) {
     console.log(e)

@@ -654,6 +654,53 @@ const staffSchema = new mongoose.Schema({
       type: String
     }
   },
+  choose_tax_regime: {
+    type: String
+},
+tds_calculation: {
+    income_from_sal: {
+        actual_rent: { type: Number, default: 0 },
+        other_allowances: { type: Number, default: 0 },
+        salary_from_other: { type: Number, default: 0 },
+    },
+    income_from_house: {
+        income_from_hp: { type: Number, default: 0 },
+        municiple_tax_paid: { type: Number, default: 0 },
+        interest_self: { type: Number, default: 0 },
+        interest_let_out: { type: Number, default: 0 },
+    },
+    income_from_os: {
+        income_from_other: { type: Number, default: 0 },
+    },
+    deductions: {
+        Sec_80C_80CCC_80CCD: { type: Number, default: 0 },
+        Sec_80D: { type: Number, default: 0 },
+        Sec_80G: { type: Number, default: 0 },
+        Sec_80GG: { type: Number, default: 0 },
+        Sec_80TTA: { type: Number, default: 0 },
+        other: { type: Number, default: 0 },
+    }
+},
+financial_data: [
+    {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "TDSFinance"
+    }
+  ],
+  monthly_heads_data: [
+    {
+      month: { type: String },
+      heads_key: { type: String },
+      year: { type: String },
+      price: { type: String },
+      section: { type: String }
+    }
+  ],
+  staff_obj: {
+    key: { type: String },
+    value: { type: Number, default: 0 },
+    slip: { type: String }
+  }
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

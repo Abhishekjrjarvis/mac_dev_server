@@ -121,6 +121,16 @@ router.get(
     catchAsync(Payroll.render_returns_tab_show_details_query)
 );
 
+router.get(
+    "/staff/fund/heads/query",
+    catchAsync(Payroll.render_staff_fund_heads_query)
+);
+
+router.patch(
+    "/one/:sid/tds/calculate/compute/query",
+    catchAsync(Payroll.render_staff_tds_calculate_compute)
+);
+
 router.patch(
     "/:pid/enable/query",
     catchAsync(Payroll.render_mark_status_salary_structure_query)

@@ -645,7 +645,15 @@ const staffSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "StaffHoliday"
     }
-  ]
+  ],
+  head_data: {
+    key: {
+      type: String,
+    },
+    value: {
+      type: String
+    }
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

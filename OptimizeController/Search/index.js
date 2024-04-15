@@ -892,7 +892,7 @@ exports.searchStaff = async (req, res) => {
       if (req.query.date) {
         const staff = await Staff.find(search)
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave salary_structure"
           )
           .populate({
             path: "user",
@@ -916,7 +916,7 @@ exports.searchStaff = async (req, res) => {
       } else {
         const staff = await Staff.find(search)
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave salary_structure"
           )
           .populate({
             path: "user",
@@ -943,7 +943,7 @@ exports.searchStaff = async (req, res) => {
         ],
       })
         .select(
-          "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave"
+          "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave salary_structure"
         )
         .populate({
           path: "user",
@@ -1042,7 +1042,7 @@ exports.searchAllStaff = async (req, res) => {
       const dropItem = (getPage - 1) * itemPerPage;
       const staff = await Staff.find(search)
         .select(
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user staffDesignationCount"
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user staffDesignationCount salary_structure"
         )
 
         .limit(itemPerPage)

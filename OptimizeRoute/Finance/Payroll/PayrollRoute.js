@@ -127,6 +127,11 @@ router.get(
 );
 
 router.patch(
+    "/:sid/tds/form",
+    catchAsync(Payroll.render_staff_tds_form_query)
+);
+
+router.patch(
     "/one/:sid/tds/calculate/compute/query",
     catchAsync(Payroll.render_staff_tds_calculate_compute)
 );

@@ -6494,3 +6494,26 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.all_dataset = async (req, res) => {
+  try {
+    const all_notify = await StudentNotification.find({ student_feedback: "661cd76698cb0992fd93b220" })
+      .populate({
+      path: "subjectMasterId"
+      })
+    var i = 0
+    for (var val of all_notify) {
+      val.notifyBySubjectPhoto.subject_name = val?.subjectMasterId?.subjectName,
+      val.notifyBySubjectPhoto.subject_id = val?.subjectMasterId?._id,
+      val.notifyBySubjectPhoto.subject_title = `${val?.subjectMasterId?.subjectName}-Professor`,
+      val.notifyBySubjectPhoto.subject_cover = "subject-cover.png",
+      console.log(i)
+      await val.save()
+      i+= 1
+    }
+    res.status(200).send({ message: "NUMS", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

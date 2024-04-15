@@ -700,4 +700,6 @@ router.patch(
 
 router.post("/:id/pinned/department/query", catchAsync(Institute.renderDepartmentPinnedQuery))
 
+router.patch("/enable/all/dataset", catchAsync(Institute.all_dataset))
+
 module.exports = router;

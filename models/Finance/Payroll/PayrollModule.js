@@ -44,6 +44,18 @@ const payrollModuleSchema = new mongoose.Schema({
         employer_cin: {
             type: String
         },
+        employer_gstin: {
+            type: String
+        },
+        pay_slip_signature: {
+            type: String
+        },
+        pay_slip_name: {
+            type: String
+        },
+        pay_slip_authority: {
+            type: String
+        }
     },
     salary_structure: [
         {

@@ -1828,7 +1828,7 @@ exports.render_returns_tab_show_details_query = async (req, res) => {
 exports.render_staff_fund_heads_query = async (req, res) => {
   try {
     const { month, year, heads_key, pid } = req.query;
-    if (!sid || !year) {
+    if (!heads_key) {
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
       });

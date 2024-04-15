@@ -106,6 +106,21 @@ router.get(
     catchAsync(Payroll.render_one_salary_slip_query)
 );
 
+router.get(
+    "/:pid/returns/tab/query",
+    catchAsync(Payroll.render_returns_tab_query)
+);
+
+router.patch(
+    "/:pid/returns/tab/add/details/query",
+    catchAsync(Payroll.render_returns_tab_add_details_query)
+);
+
+router.get(
+    "/:pid/returns/tab/show/details/query",
+    catchAsync(Payroll.render_returns_tab_show_details_query)
+);
+
 router.patch(
     "/:pid/enable/query",
     catchAsync(Payroll.render_mark_status_salary_structure_query)

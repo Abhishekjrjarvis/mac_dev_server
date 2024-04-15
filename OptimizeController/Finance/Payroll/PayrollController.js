@@ -1334,6 +1334,473 @@ exports.render_one_salary_slip_query = async (req, res) => {
   }
 }
 
+exports.render_returns_tab_query = async (req, res) => {
+  try {
+    const { pid } = req?.params
+    if (!pid) return res.status(200).send({ message: "Their is a bug need to fixed imeediately", access: false })
+    
+    const payroll = await PayrollModule.findById({ _id: pid })
+    .select("emplyar_esi_linked_head_status gratuity_linked_head_status emplyee_esi_linked_head_status pt_linked_head_status tds_linked_head_status employar_pf_linked_head_status employee_pf_linked_head_status")
+    let tab = {
+      epf: "EPF",
+      esi: "ESI",
+      pt: "PT",
+      tds: "TDS",
+      eps: "GRAUITY"
+    }
+    res.status(200).send({ message: "Explore Returns TAB Query", access: true, tab: tab})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_returns_tab_add_details_query = async (req, res) => {
+  try {
+    const { pid } = req?.params
+    const { month, year, key, bsr_code, dod, challan_sn, return_attach, challan_attach, oltas_status, quarter, price, receipt_no, flow } = req?.body
+    if (!pid) return res.status(200).send({ message: "Their is a bug need to fixed imeediately", access: false })
+    
+    const payroll = await PayrollModule.findById({ _id: pid })
+    if (flow === "MONTHLY") {
+      if (key === "PT") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.pt_linked_head_status?.master }) 
+        exist.returns_month.push({
+          month: month,
+          year: year,
+          bsr_code: bsr_code,
+          dod: dod,
+          challan_sn: challan_sn,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          oltas_status: oltas_status
+        })
+        await exist.save()
+      }
+      else if (key === "GRAUITY") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.gratuity_linked_head_status?.master}) 
+        exist.returns_month.push({
+          month: month,
+          year: year,
+          bsr_code: bsr_code,
+          dod: dod,
+          challan_sn: challan_sn,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          oltas_status: oltas_status
+        })
+        await exist.save()
+      }
+      else if (key === "TDS") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.tds_linked_head_status?.master}) 
+        exist.returns_month.push({
+          month: month,
+          year: year,
+          bsr_code: bsr_code,
+          dod: dod,
+          challan_sn: challan_sn,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          oltas_status: oltas_status
+        })
+        await exist.save()
+      }
+      else if (key === "EPF") {
+        const exist_employee = await SalaryHeads.findById({ _id: payroll?.employee_pf_linked_head_status?.master }) 
+        const exist_employar = await SalaryHeads.findById({ _id: payroll?.employar_pf_linked_head_status?.master}) 
+        exist_employee.returns_month.push({
+          month: month,
+          year: year,
+          bsr_code: bsr_code,
+          dod: dod,
+          challan_sn: challan_sn,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          oltas_status: oltas_status
+        })
+        exist_employar.returns_month.push({
+          month: month,
+          year: year,
+          bsr_code: bsr_code,
+          dod: dod,
+          challan_sn: challan_sn,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          oltas_status: oltas_status
+        })
+        await Promise.all([ exist_employee.save(), exist_employar.save() ])
+      }
+      else if (key === "ESI") {
+        const exist_employee = await SalaryHeads.findById({ _id: payroll?.emplyee_esi_linked_head_status?.master}) 
+        const exist_emplyar = await SalaryHeads.findById({ _id: payroll?.emplyar_esi_linked_head_status?.master}) 
+        exist_employee.returns_month.push({
+          month: month,
+          year: year,
+          bsr_code: bsr_code,
+          dod: dod,
+          challan_sn: challan_sn,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          oltas_status: oltas_status
+        })
+        exist_emplyar.returns_month.push({
+          month: month,
+          year: year,
+          bsr_code: bsr_code,
+          dod: dod,
+          challan_sn: challan_sn,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          oltas_status: oltas_status
+        })
+        await Promise.all([exist_employee.save(), exist_emplyar.save()])
+      }
+    }
+    else if (flow === "QUARTERLY") {
+      if (key === "PT") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.pt_linked_head_status?.master }) 
+        exist.returns_quarter.push({
+          quarter: quarter,
+          year: year,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        await exist.save()
+      }
+      else if (key === "GRAUITY") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.gratuity_linked_head_status?.master}) 
+        exist.returns_quarter.push({
+          quarter: quarter,
+          year: year,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        await exist.save()
+      }
+      else if (key === "TDS") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.tds_linked_head_status?.master}) 
+        exist.returns_quarter.push({
+          quarter: quarter,
+          year: year,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        await exist.save()
+      }
+      else if (key === "EPF") {
+        const exist_employee = await SalaryHeads.findById({ _id: payroll?.employee_pf_linked_head_status?.master}) 
+        const exist_emplyar = await SalaryHeads.findById({ _id: payroll?.employar_pf_linked_head_status?.master}) 
+        exist_employee.returns_quarter.push({
+          quarter: quarter,
+          year: year,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        exist_emplyar.returns_quarter.push({
+          quarter: quarter,
+          year: year,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        await Promise.all([ exist_employee.save(), exist_emplyar.save() ])
+      }
+      else if (key === "ESI") {
+        const exist_employee = await SalaryHeads.findById({ _id: payroll?.emplyee_esi_linked_head_status?.master}) 
+        const exist_emplyar = await SalaryHeads.findById({ _id: payroll?.emplyar_esi_linked_head_status?.master}) 
+        exist_employee.returns_quarter.push({
+          quarter: quarter,
+          year: year,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        exist_emplyar.returns_quarter.push({
+          quarter: quarter,
+          year: year,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        await Promise.all([ exist_employee.save(), exist_emplyar.save() ])
+      }
+    }
+    else if (flow === "ANNUALLY") {
+      if (key === "PT") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.pt_linked_head_status?.master }) 
+        exist.returns_annual.push({
+          annual: annual,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        await exist.save()
+      }
+      else if (key === "GRAUITY") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.gratuity_linked_head_status?.master}) 
+        exist.returns_annual.push({
+          annual: annual,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        await exist.save()
+      }
+      else if (key === "TDS") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.tds_linked_head_status?.master}) 
+        exist.returns_annual.push({
+          annual: annual,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        await exist.save()
+      }
+      else if (key === "EPF") {
+        const exist_employee = await SalaryHeads.findById({ _id: payroll?.employee_pf_linked_head_status?.master}) 
+        const exist_emplyar = await SalaryHeads.findById({ _id: payroll?.employar_pf_linked_head_status?.master}) 
+        exist_employee.returns_annual.push({
+          annual: annual,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        exist_emplyar.returns_annual.push({
+          annual: annual,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        await Promise.all([ exist_employee.save(), exist_emplyar.save() ])
+      }
+      else if (key === "ESI") {
+        const exist_employee = await SalaryHeads.findById({ _id: payroll?.emplyee_esi_linked_head_status?.master}) 
+        const exist_emplyar = await SalaryHeads.findById({ _id: payroll?.emplyar_esi_linked_head_status?.master}) 
+        exist_employee.returns_annual.push({
+          annual: annual,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        exist_emplyar.returns_annual.push({
+          annual: annual,
+          return_attach: return_attach,
+          challan_attach: challan_attach,
+          price: price,
+          receipt_no: receipt_no
+        })
+        await Promise.all([ exist_employee.save(), exist_emplyar.save() ])
+      }
+    }
+    res.status(200).send({ message: "Explore Update Returns Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_returns_tab_show_details_query = async (req, res) => {
+  try {
+    const { pid } = req?.params
+    const { month, year, key, quarter, flow } = req?.query
+    if (!pid) return res.status(200).send({ message: "Their is a bug need to fixed imeediately", access: false })
+    
+    const payroll = await PayrollModule.findById({ _id: pid })
+    var obj = {}
+    if (flow === "MONTHLY") {
+      if (key === "PT") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.pt_linked_head_status?.master }) 
+        const data = collect_staff_price?.filter((val) => {
+          if (`${val?.month}/${val?.year}` === `${month}/${year}`) return val?.price
+        })
+        for (var val of exist.returns_month) {
+          if (`${val?.month}/${val?.year}` === `${month}/${year}`) {
+            obj["return"] = val
+            obj["net_pay"] = data[0]
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+      else if (key === "GRAUITY") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.gratuity_linked_head_status?.master}) 
+        const data = collect_staff_price?.filter((val) => {
+          if (`${val?.month}/${val?.year}` === `${month}/${year}`) return val?.price
+        })
+        for (var val of exist.returns_month) {
+          if (`${val?.month}/${val?.year}` === `${month}/${year}`) {
+            obj["return"] = val
+            obj["net_pay"] = data[0]
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+      else if (key === "TDS") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.tds_linked_head_status?.master}) 
+        const data = collect_staff_price?.filter((val) => {
+          if (`${val?.month}/${val?.year}` === `${month}/${year}`) return val?.price
+        })
+        for (var val of exist.returns_month) {
+          if (`${val?.month}/${val?.year}` === `${month}/${year}`) {
+            obj["return"] = val
+            obj["net_pay"] = data[0]
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+      else if (key === "EPF") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.employee_pf_linked_head_status?.master}) 
+        const data = collect_staff_price?.filter((val) => {
+          if (`${val?.month}/${val?.year}` === `${month}/${year}`) return val?.price
+        })
+        for (var val of exist.returns_month) {
+          if (`${val?.month}/${val?.year}` === `${month}/${year}`) {
+            obj["return"] = val
+            obj["net_pay"] = data[0]
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+      else if (key === "ESI") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.emplyee_esi_linked_head_status?.master}) 
+        const data = collect_staff_price?.filter((val) => {
+          if (`${val?.month}/${val?.year}` === `${month}/${year}`) return val?.price
+        })
+        for (var val of exist.returns_month) {
+          if (`${val?.month}/${val?.year}` === `${month}/${year}`) {
+            obj["return"] = val
+            obj["net_pay"] = data[0]
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+    }
+    else if (flow === "QUARTERLY") {
+      if (key === "PT") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.pt_linked_head_status?.master }) 
+        for (var val of exist.returns_quarter) {
+          if (`${val?.quarter}/${val?.year}` === `${quarter}/${year}`) {
+            obj["return"] = val
+            obj["net_pay"] = val?.price
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+      else if (key === "GRAUITY") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.gratuity_linked_head_status?.master}) 
+        for (var val of exist.returns_quarter) {
+          if (`${val?.quarter}/${val?.year}` === `${quarter}/${year}`) {
+            obj["return"] = val
+            obj["net_pay"] = val?.price
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+      else if (key === "TDS") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.tds_linked_head_status?.master}) 
+        for (var val of exist.returns_quarter) {
+          if (`${val?.quarter}/${val?.year}` === `${quarter}/${year}`) {
+            obj["return"] = val
+            obj["net_pay"] = val?.price
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+      else if (key === "EPF") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.employee_pf_linked_head_status?.master}) 
+        for (var val of exist.returns_quarter) {
+          if (`${val?.quarter}/${val?.year}` === `${quarter}/${year}`) {
+            obj["return"] = val
+            obj["net_pay"] = val?.price
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+      else if (key === "ESI") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.emplyee_esi_linked_head_status?.master}) 
+        for (var val of exist.returns_quarter) {
+          if (`${val?.quarter}/${val?.year}` === `${quarter}/${year}`) {
+            obj["return"] = val
+            obj["net_pay"] = val?.price
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+    }
+    else if (flow === "ANNUALLY") {
+      if (key === "PT") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.pt_linked_head_status?.master }) 
+        for (var val of exist.returns_annual) {
+          if (`${val?.annual}` === `${annual}`) {
+            obj["return"] = val
+            obj["net_pay"] = val?.price
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+      else if (key === "GRAUITY") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.gratuity_linked_head_status?.master}) 
+        for (var val of exist.returns_annual) {
+          if (`${val?.annual}` === `${annual}`) {
+            obj["return"] = val
+            obj["net_pay"] = val?.price
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+      else if (key === "TDS") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.tds_linked_head_status?.master}) 
+        for (var val of exist.returns_annual) {
+          if (`${val?.annual}` === `${annual}`) {
+            obj["return"] = val
+            obj["net_pay"] = val?.price
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+      else if (key === "EPF") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.employee_pf_linked_head_status?.master}) 
+        for (var val of exist.returns_annual) {
+          if (`${val?.annual}` === `${annual}`) {
+            obj["return"] = val
+            obj["net_pay"] = val?.price
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+      else if (key === "ESI") {
+        const exist = await SalaryHeads.findById({ _id: payroll?.emplyee_esi_linked_head_status?.master}) 
+        for (var val of exist.returns_annual) {
+          if (`${val?.annual}` === `${annual}`) {
+            obj["return"] = val
+            obj["net_pay"] = val?.price
+          }
+        }
+        res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
+      }
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.render_mark_status_salary_structure_query = async (req, res) => {
   try {
     const { pid } = req.params;

@@ -59,6 +59,37 @@ const salaryHeadsSchema = new mongoose.Schema({
             }
         }
     ],
+    returns_month: [
+        {
+            month: { type: String },
+            year: { type: String },
+            bsr_code: { type: String },
+            dod: { type: String },
+            challan_sn: { type: String },
+            return_attach: { type: String },
+            challan_attach: { type: String },
+            oltas_status: { type: String }
+        }
+    ],
+    returns_quarter: [
+        {
+            quarter: { type: String },
+            year: { type: String },
+            price: { type: String },
+            receipt_no: { type: String },
+            return_attach: { type: String },
+            challan_attach: { type: String },
+        }
+    ],
+    returns_annual: [
+        {
+            annual: { type: String },
+            price: { type: String },
+            receipt_no: { type: String },
+            return_attach: { type: String },
+            challan_attach: { type: String },
+        }
+    ]
     // salary_components: {
     //     basic_pay: {
     //         price: {

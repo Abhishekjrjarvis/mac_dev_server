@@ -1863,26 +1863,26 @@ exports.render_staff_fund_heads_query = async (req, res) => {
         })
       for (var val of salary_struct?.salary_components) {
         if (val?.master?.heads_key === heads_key) {
-          staff?.head_data?.key = heads_key
-          staff?.head_data?.value = val?.head_amount
+          staff.head_data.key = heads_key
+          staff.head_data.value = val?.head_amount
         }
       }
       for (var val of salary_struct?.employee_deduction) {
         if (val?.master?.heads_key === heads_key) {
-          staff?.head_data?.key = heads_key
-          staff?.head_data?.value = val?.head_amount
+          staff.head_data.key = heads_key
+          staff.head_data.value = val?.head_amount
         }
       }
       for (var val of salary_struct?.employar_deduction) {
         if (val?.master?.heads_key === heads_key) {
-          staff?.head_data?.key = heads_key
-          staff?.head_data?.value = val?.head_amount
+          staff.head_data.key = heads_key
+          staff.head_data.value = val?.head_amount
         }
       }
       for (var val of salary_struct?.compliances) {
         if (val?.master?.heads_key === heads_key) {
-          staff?.head_data?.key = heads_key
-          staff?.head_data?.value = val?.head_amount
+          staff.head_data.key = heads_key
+          staff.head_data.value = val?.head_amount
         }
       }
     }
@@ -1899,7 +1899,7 @@ exports.render_staff_tds_calculate_compute = async (req, res) => {
     if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const staff = await Staff.findById({ _id: sid })
-    
+
   }
   catch (e) {
     console.log(e)

@@ -434,7 +434,24 @@ exports.render_one_salary_heads_query = async (req, res) => {
     const { shid } = req.params;
     if(!shid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     var head = await SalaryHeads.findById({ _id: shid })
-    res.status(200).send({ message: `Explore One Salary Heads Query`, access: true, head})
+    var obj = {
+      "01": 0,
+      "02": 0,
+      "03": 0,
+      "04": 0,
+      "05": 0,
+      "06": 0,
+      "07": 0,
+      "08": 0,
+      "09": 0,
+      "10": 0,
+      "11": 0,
+      "12": 0
+    }
+      var price = head?.collect_staff_price?.filter((val) => {
+        obj[`${val?.month}`] = val?.price
+      })
+    res.status(200).send({ message: `Explore One Salary Heads Query`, access: true, head, obj})
   }
   catch (e) {
     console.log(e)
@@ -1271,18 +1288,24 @@ exports.render_monthly_funds_query = async (req, res) => {
     
     const payroll = await PayrollModule.findById({ _id: pid })
     let y = new Date()?.getFullYear()
-    let obj = {}
-    var fun = payroll?.monthly_funds?.filter((val) => {
-      if (`${val?.year}` === `${y}`) {
-        return val
-      }
+    var obj = {
+      "01": 0,
+      "02": 0,
+      "03": 0,
+      "04": 0,
+      "05": 0,
+      "06": 0,
+      "07": 0,
+      "08": 0,
+      "09": 0,
+      "10": 0,
+      "11": 0,
+      "12": 0
+    }
+    payroll?.monthly_funds?.filter((val) => {
+      obj[`${val?.month}`] = val?.net_allocate_pay
     })
-    if (fun?.length > 0) {
-      res.status(200).send({ message: "Explore Financial Year Query", access: true, monthly: fun})
-    }
-    else {
-      res.status(200).send({ message: "No Financial Year Query", access: true, monthly: []})
-    }
+      res.status(200).send({ message: "Explore Financial Year Query", access: true, monthly: obj})
   }
   catch (e) {
     console.log(e)
@@ -1796,6 +1819,86 @@ exports.render_returns_tab_show_details_query = async (req, res) => {
         res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
       }
     }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_staff_fund_heads_query = async (req, res) => {
+  try {
+    const { month, year, heads_key, pid } = req.query;
+    if (!sid || !year) {
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+      });
+    }
+    var payroll = await PayrollModule.findById({ _id: pid })
+    var all_staff = await Staff.find({ $and: [{ institute: payroll?.institute }, { staffStatus: "Approved" }] })
+    for (var staff of all_staff) {
+      const salary_struct = await SalaryStructure.findById({ _id: `${staff?.salary_structure}` })
+        .populate({
+          path: "salary_components",
+          populate: {
+            path: "master"
+          }
+        })
+        .populate({
+          path: "employee_deduction",
+          populate: {
+            path: "master"
+          }
+        })
+        .populate({
+          path: "employar_deduction",
+          populate: {
+            path: "master"
+          }
+        })
+        .populate({
+          path: "compliances",
+          populate: {
+            path: "master"
+          }
+        })
+      for (var val of salary_struct?.salary_components) {
+        if (val?.master?.heads_key === heads_key) {
+          staff?.head_data?.key = heads_key
+          staff?.head_data?.value = val?.head_amount
+        }
+      }
+      for (var val of salary_struct?.employee_deduction) {
+        if (val?.master?.heads_key === heads_key) {
+          staff?.head_data?.key = heads_key
+          staff?.head_data?.value = val?.head_amount
+        }
+      }
+      for (var val of salary_struct?.employar_deduction) {
+        if (val?.master?.heads_key === heads_key) {
+          staff?.head_data?.key = heads_key
+          staff?.head_data?.value = val?.head_amount
+        }
+      }
+      for (var val of salary_struct?.compliances) {
+        if (val?.master?.heads_key === heads_key) {
+          staff?.head_data?.key = heads_key
+          staff?.head_data?.value = val?.head_amount
+        }
+      }
+    }
+    res.status(200).send({ message: "Explore All Staff Heads Wise Data Set Query", access: true, all_staff: all_staff})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_staff_tds_calculate_compute = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    // const staff = await Staff.find
   }
   catch (e) {
     console.log(e)

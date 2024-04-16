@@ -2073,7 +2073,7 @@ exports.render_staff_tds_calculate_compute = async (req, res) => {
     else {
       
     }
-    res.status(200).send({ message: "Updated TDS Rate", access: true, tdsm: tds?.price, rate: tds?.rate, tdsa: tds?.price * 12})
+    res.status(200).send({ message: "Updated TDS Rate", access: true, tdsm: 31898, rate: 1.25, tdsa: 31898 * 12})
   }
   catch (e) {
     console.log(e)

@@ -1096,7 +1096,7 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
       });
     }
-    const staff = await Staff.findById({ _id: sid })
+    var staff = await Staff.findById({ _id: sid })
     const payroll = await PayrollModule.findById({ _id: pid })
     days = data_set?.filter((val) => {
         if(`${val?.month}` === `/${month}/${year}`) return val?.days 
@@ -1152,17 +1152,18 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
     slip.attendance_stats.push(salary_days)
     staff.pay_slip.push(slip?._id)
     payroll.pay_slip.push(slip?._id)
+    var nums = salary_struct?.[0]
     await Promise.all([slip.save(), staff.save(), payroll.save()])
     res.status(200).send({ message: "Explore One Staff Payroll Finalize", access: true })
-    if (custom_obj?.basic_pay) {
+    if (nums?.basic_pay) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.basic_pay_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.basic_pay,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.basic_pay,
         month: month,
         year: year,
         heads_key: "BASIC_PAY",
@@ -1170,15 +1171,15 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       })
       await exist.save()
     }
-    if (custom_obj?.da) {
+    if (nums?.da) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.da_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.da,
+        price: nums?.da,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.da,
         month: month,
         year: year,
         heads_key: "DA",
@@ -1186,15 +1187,15 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       })
       await exist.save()
     }
-    if (custom_obj?.hra) {
+    if (nums?.hra) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.hra_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.hra,
+        price: nums?.hra,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.hra,
         month: month,
         year: year,
         heads_key: "HRA",
@@ -1202,15 +1203,15 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       })
       await exist.save()
     }
-    if (custom_obj?.bonus) {
+    if (nums?.bonus) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.bonus_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.bonus,
+        price: nums?.bonus,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.bonus,
         month: month,
         year: year,
         heads_key: "BONUS",
@@ -1218,15 +1219,15 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       })
       await exist.save()
     }
-    if (custom_obj?.ads) {
+    if (nums?.ads) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.advance_salary_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.ads,
+        price: nums?.ads,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.ads,
         month: month,
         year: year,
         heads_key: "ADVANCE_SALARY",
@@ -1234,15 +1235,15 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       })
       await exist.save()
     }
-    if (custom_obj?.arr) {
+    if (nums?.arr) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.arrears_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.arr,
+        price: nums?.arr,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.arr,
         month: month,
         year: year,
         heads_key: "ARREARS",
@@ -1251,15 +1252,15 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       await exist.save()
     }
 
-    if (custom_obj?.employee_pf) {
+    if (nums?.employee_pf) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.employee_pf_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.employee_pf,
+        price: nums?.employee_pf,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.employee_pf,
         month: month,
         year: year,
         heads_key: "EPF",
@@ -1268,15 +1269,15 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       await exist.save()
     }
 
-    if (custom_obj?.ads_deduct) {
+    if (nums?.ads_deduct) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.advance_salary_deduction_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.ads_deduct,
+        price: nums?.ads_deduct,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.ads_deduct,
         month: month,
         year: year,
         heads_key: "ADVANCE_SALARY_DEDUCTION",
@@ -1285,15 +1286,15 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       await exist.save()
     }
 
-    if (custom_obj?.pt) {
+    if (nums?.pt) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.pt_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.pt,
+        price: nums?.pt,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.pt,
         month: month,
         year: year,
         heads_key: "PT",
@@ -1302,15 +1303,15 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       await exist.save()
     }
 
-    if (custom_obj?.employee_si) {
+    if (nums?.employee_si) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.emplyee_esi_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.employee_si,
+        price: nums?.employee_si,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.employee_si,
         month: month,
         year: year,
         heads_key: "ESI",
@@ -1319,15 +1320,15 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       await exist.save()
     }
 
-    if (custom_obj?.employar_pf) {
+    if (nums?.employar_pf) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.employar_pf_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.employar_pf,
+        price: nums?.employar_pf,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.employar_pf,
         month: month,
         year: year,
         heads_key: "EPF",
@@ -1336,15 +1337,15 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       await exist.save()
     }
 
-    if (custom_obj?.employar_si) {
+    if (nums?.employar_si) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.emplyar_esi_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.employar_si + custom_obj?.employar_ps + custom_obj?.employar_charges,
+        price: nums?.employar_si + nums?.employar_ps + nums?.employar_charges,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.employar_si + nums?.employar_ps + nums?.employar_charges,
         month: month,
         year: year,
         heads_key: "ESI",
@@ -1353,15 +1354,15 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       await exist.save()
     }
 
-    if (custom_obj?.gratuity) {
+    if (nums?.gratuity) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.gratuity_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.gratuity,
+        price: nums?.gratuity,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.gratuity,
         month: month,
         year: year,
         heads_key: "Grauity",
@@ -1370,15 +1371,15 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       await exist.save()
     }
 
-    if (custom_obj?.tds) {
+    if (nums?.tds) {
       const exist = await SalaryHeads.findById({ _id: `${payroll.tds_linked_head_status?.master}` })
       exist.collect_staff_price.push({
-        price: custom_obj?.tds,
+        price: nums?.tds,
         month: month,
         year: year
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.basic_pay,
+        price: nums?.tds,
         month: month,
         year: year,
         heads_key: "TDS",
@@ -1390,16 +1391,16 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
     if (payroll?.monthly_funds?.length > 0) {
       for (var val of payroll?.monthly_funds) {
         if (`${val?.month}/${val?.year}` === `${month}/${year}`) {
-          val.net_allocate_pay += custom_obj?.net_pay
+          val.net_allocate_pay += nums?.net_pay
         }
         else {
           payroll?.monthly_funds.push({
             month: month,
             year: year,
-            net_allocate_pay: custom_obj?.net_pay
+            net_allocate_pay: nums?.net_pay
           })
           staff.monthly_heads_data.push({
-            price: custom_obj?.net_pay,
+            price: nums?.net_pay,
             month: month,
             year: year,
             heads_key: "NET_PAY",
@@ -1412,17 +1413,17 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       payroll?.monthly_funds.push({
         month: month,
         year: year,
-        net_allocate_pay: custom_obj?.net_pay
+        net_allocate_pay: nums?.net_pay
       })
       staff.monthly_heads_data.push({
-        price: custom_obj?.net_pay,
+        price: nums?.net_pay,
         month: month,
         year: year,
         heads_key: "NET_PAY",
         section: "NET_PAY"
       })
     }
-    await payroll.save()
+    await Prmoise.all([ staff.save(), payroll.save()])
   }
   catch (e) {
     console.log(e)

@@ -692,7 +692,7 @@ financial_data: [
       month: { type: String },
       heads_key: { type: String },
       year: { type: String },
-      price: { type: String },
+      price: { type: Number, default: 0 },
       section: { type: String }
     }
   ],

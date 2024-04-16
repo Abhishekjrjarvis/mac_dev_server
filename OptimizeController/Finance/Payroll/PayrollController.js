@@ -2012,6 +2012,7 @@ exports.render_staff_fund_heads_query = async (req, res) => {
       val.staff_obj.key = `${key}`
       val.staff_obj.value = list?.[0]?.price ?? 0
       val.staff_obj.slip = slip?._id
+      val.staff_obj.slip_key = slip?.key
       list = []
     }
     res.status(200).send({ message: "Explore All Staff Head Wise", access: true, all_staff: all_staff})

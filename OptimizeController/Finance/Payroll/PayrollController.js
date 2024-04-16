@@ -1097,7 +1097,7 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
       });
     }
     var staff = await Staff.findById({ _id: sid })
-    const payroll = await PayrollModule.findById({ _id: pid })
+    var payroll = await PayrollModule.findById({ _id: pid })
     days = data_set?.filter((val) => {
         if(`${val?.month}` === `/${month}/${year}`) return val?.days 
     })
@@ -2073,6 +2073,16 @@ exports.render_staff_tds_calculate_compute = async (req, res) => {
     else {
       
     }
+    res.status(200).send({ message: "Updated TDS Rate", access: true, tdsm: tds?.price, rate: tds?.rate, tdsa: tds?.price * 12})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_form_16_query = async (req, res) => {
+  try {
+    const { sid } = req?.params
   }
   catch (e) {
     console.log(e)

@@ -856,13 +856,13 @@ exports.render_staff_salary_compute = async (req, res) => {
       });
     }
     days = data_set?.filter((val) => {
-        if(`${val?.month}` === `/${month}/${year}`) return val?.days 
+        if(`${val?.month_year}` === `/${month}/${year}`) return val?.days 
     })
     let regularexp = "";
     if (month) regularexp = new RegExp(`\/${month}\/${year}$`);
     else regularexp = new RegExp(`\/${year}$`);
     let salary_days = {
-      total_working_days: days[0],
+      total_working_days: parseInt(days[0]?.days),
       present: 0,
       paid_leaves: 0,
       unpaid_leaves: 0,
@@ -952,7 +952,7 @@ exports.render_staff_salary_compute = async (req, res) => {
        }
     for (var val of structure?.salary_components) {
       if (val?.master?.heads_key === "BASIC_PAY") {
-        custom_obj.one_day_sal = (val?.head_amount / salary_days?.sal_day)?.toFixed(2)
+        custom_obj.one_day_sal = (val?.head_amount / salary_days?.total_working_days)?.toFixed(2)
         custom_obj.basic_pay = salary_days?.sal_day * parseInt(custom_obj.one_day_sal)
         val.head_amount = parseInt(custom_obj.basic_pay)
       }
@@ -1076,7 +1076,7 @@ exports.render_staff_salary_compute = async (req, res) => {
     structure.employar_ps = parseInt(custom_obj?.employar_ps),
     structure.employar_charges = parseInt(custom_obj?.employar_charges),
       structure.ctc = parseInt(custom_obj?.ctc)
-    await structure.save()
+    // await structure.save()
     res.status(200).send({
       message: "One staff salary computation data.",
       access: true,

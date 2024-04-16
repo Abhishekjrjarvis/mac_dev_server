@@ -953,7 +953,7 @@ exports.render_staff_salary_compute = async (req, res) => {
     for (var val of structure?.salary_components) {
       if (val?.master?.heads_key === "BASIC_PAY") {
         custom_obj.one_day_sal = (val?.head_amount / salary_days?.sal_day)?.toFixed(2)
-        custom_obj.basic_pay = salary_days?.sal_day * custom_obj.one_day_sal
+        custom_obj.basic_pay = salary_days?.sal_day * parseInt(custom_obj.one_day_sal)
         val.head_amount = parseInt(custom_obj.basic_pay)
       }
       if (val?.master?.heads_key === "DA") {
@@ -1424,7 +1424,7 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         section: "NET_PAY"
       })
     }
-    await Prmoise.all([ staff.save(), payroll.save()])
+    await Promise.all([ staff.save(), payroll.save()])
   }
   catch (e) {
     console.log(e)

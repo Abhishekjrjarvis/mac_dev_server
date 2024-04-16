@@ -2060,9 +2060,9 @@ exports.render_staff_tds_calculate_compute = async (req, res) => {
 })
     tds_final.staff = staff?._id
     tds_final.payroll = struct?.payroll
-    tds.tds_data = staff?.tds_calculation
-    tds.tax_regime = staff?.choose_tax_regime
-    tds.salary_structure.push(struct)
+    tds_final.tds_data = staff?.tds_calculation
+    tds_final.tax_regime = staff?.choose_tax_regime
+    tds_final.salary_structure.push(struct)
     var tds_obj = {}
     if (staff?.choose_tax_regime === "OLD_REGIME") {
       

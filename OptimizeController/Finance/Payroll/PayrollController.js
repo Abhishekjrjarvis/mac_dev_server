@@ -952,26 +952,26 @@ exports.render_staff_salary_compute = async (req, res) => {
       if (val?.master?.heads_key === "BASIC_PAY") {
         custom_obj.one_day_sal = (val?.head_amount / salary_days?.sal_day)?.toFixed(2)
         custom_obj.basic_pay = salary_days?.sal_day * custom_obj.one_day_sal
-        val.head_amount = custom_obj.basic_pay
+        val.head_amount = parseInt(custom_obj.basic_pay)
       }
       if (val?.master?.heads_key === "DA") {
         if (val?.master?.heads_toggle) {
           custom_obj.da += ((custom_obj.basic_pay * val?.master?.heads_percentage) / 100)?.toFixed(2)
-          val.head_amount = custom_obj.da
+          val.head_amount = parseInt(custom_obj.da)
         }
         else {
           custom_obj.da += val?.head_amount
-          val.head_amount = custom_obj.da
+          val.head_amount = parseInt(custom_obj.da)
         }
       }
       if (val?.master?.heads_key === "HRA") {
         custom_obj.hra += val?.head_amount
-        val.head_amount = custom_obj.hra
+        val.head_amount = parseInt(custom_obj.hra)
       }
       if (val?.master?.heads_key === "ALLOWANCES") {
         if (val?.master?.heads_toggle) {
           custom_obj.allowance += ((custom_obj.basic_pay * val?.master?.heads_percentage) / 100)?.toFixed(2)
-          val.head_amount = ((custom_obj.basic_pay * val?.master?.heads_percentage) / 100)?.toFixed(2)
+          val.head_amount = parseInt(((custom_obj.basic_pay * val?.master?.heads_percentage) / 100)?.toFixed(2))
         }
         else {
           custom_obj.allowance += val?.head_amount
@@ -979,61 +979,61 @@ exports.render_staff_salary_compute = async (req, res) => {
       }
       if (val?.master?.heads_key === "BONUS") {
         custom_obj.bonus += val?.head_amount
-        val.head_amount = custom_obj.bonus
+        val.head_amount = parseInt(custom_obj.bonus)
       }
       if (val?.master?.heads_key === "PERQUISITES") {
         custom_obj.perks += val?.head_amount
       }
       if (val?.master?.heads_key === "ADVANCE_SALARY") {
         custom_obj.ads += val?.head_amount
-        val.head_amount = custom_obj.ads
+        val.head_amount = parseInt(custom_obj.ads)
       }
       if (val?.master?.heads_key === "ARREARS") {
         custom_obj.arr += val?.head_amount
-        val.head_amount = custom_obj.arr
+        val.head_amount = parseInt(custom_obj.arr)
       }
     }
     for (var val of structure?.employee_deduction) {
       if (val?.master?.heads_key === "PT") {
         custom_obj.pt = (custom_obj?.basic_pay > 7000 ? 200 : staff?.staffGender?.toLowerCase() === "male" ? 175 : 0)
-        val.head_amount = custom_obj.pt
+        val.head_amount = parseInt(custom_obj.pt)
       }
       if (val?.master?.heads_key === "ESI") {
           custom_obj.employee_si += (custom_obj.basic_pay > 21000 ? (custom_obj.basic_pay * 0.75) /100 : 0 )?.toFixed(2)
-          val.head_amount = custom_obj.employee_si
+          val.head_amount = parseInt(custom_obj.employee_si)
       }
       if (val?.master?.heads_key === "ADVANCE_SALARY_DEDUCTION") {
         custom_obj.ads_deduct += val?.head_amount
-        val.head_amount = custom_obj.ads_deduct
+        val.head_amount = parseInt(custom_obj.ads_deduct)
       }
       if (val?.master?.heads_key === "EPF") {
         custom_obj.employee_pf += (((custom_obj?.basic_pay + custom_obj?.da) * 12.1) / 100)?.toFixed(2)
-        val.head_amount = custom_obj.employee_pf
+        val.head_amount = parseInt(custom_obj.employee_pf)
       }
     }
     for (var val of structure?.compliances) {
       if (val?.master?.heads_key === "TDS") {
         custom_obj.tds += val?.head_amount
-        val.head_amount = custom_obj.tds
+        val.head_amount = parseInt(custom_obj.tds)
       }
     }
     for (var val of structure?.employar_deduction) {
       if (val?.master?.heads_key === "ESI") {
           custom_obj.employar_si += (custom_obj.basic_pay > 21000 ? (custom_obj.basic_pay * 3.25) /100 : 0 )?.toFixed(2)
-          val.head_amount = custom_obj.employar_si
+          val.head_amount = parseInt(custom_obj.employar_si)
       }
       if (val?.master?.heads_key === "GRAUITY") {
         if (val?.master?.heads_enable === "YES") {
           let date1 = new Date(`${staff?.staffJoinDate}`)?.getFullYear()
           let date2 = new Date()?.getFullYear()
           custom_obj.gratuity += (custom_obj.basic_pay * date2 - date1 * 15) / 30
-          val.head_amount = custom_obj.gratuity
+          val.head_amount = parseInt(custom_obj.gratuity)
         }
         else {
           let date1 = new Date(`${staff?.staffJoinDate}`)?.getFullYear()
           let date2 = new Date()?.getFullYear()
           custom_obj.gratuity += (custom_obj.basic_pay * date2 - date1) / 26
-          val.head_amount = custom_obj.gratuity
+          val.head_amount = parseInt(custom_obj.gratuity)
         }
         
       }
@@ -1041,7 +1041,7 @@ exports.render_staff_salary_compute = async (req, res) => {
         custom_obj.employar_pf += (((custom_obj?.basic_pay + custom_obj?.da) * 3.67) / 100)?.toFixed(2)
         custom_obj.employar_ps += (((custom_obj?.basic_pay + custom_obj?.da) * 8.33) / 100)?.toFixed(2)
         custom_obj.employar_charges += (((custom_obj?.basic_pay + custom_obj?.da) * 0.5) / 100)?.toFixed(2) 
-        val.head_amount = custom_obj.employar_pf + custom_obj.employar_ps + custom_obj.employar_charges
+        val.head_amount = parseInt(custom_obj.employar_pf + custom_obj.employar_ps + custom_obj.employar_charges)
       }
     }
     custom_obj.total_earnings += custom_obj?.basic_pay + custom_obj?.da + custom_obj?.hra + custom_obj?.allowance + custom_obj?.bonus + custom_obj?.perks + custom_obj?.arr + custom_obj?.ads
@@ -1049,29 +1049,29 @@ exports.render_staff_salary_compute = async (req, res) => {
     custom_obj.net_pay += custom_obj.total_pay - custom_obj.tds
     custom_obj.ctc += custom_obj.total_pay + custom_obj.employar_si + custom_obj.gratuity + custom_obj.employar_pf + custom_obj.employar_ps + custom_obj.employar_charges
 
-    structure.one_day_sal = custom_obj?.one_day_sal,
-    structure.da = custom_obj?.da,
-    structure.basic_pay = custom_obj?.basic_pay,
-    structure.hra = custom_obj?.hra,
-    structure.allowance = custom_obj?.allowance,
-    structure.bonus = custom_obj?.bonus,
-    structure.perks = custom_obj?.perks,
-    structure.ads = custom_obj?.ads,
-    structure.arr = custom_obj?.arr,
-    structure.total_earnings = custom_obj?.total_earnings,
-    structure.pt = custom_obj?.pt,
-    structure.employee_si = custom_obj?.employee_si,
-    structure.ads_deduct = custom_obj?.ads_deduct,
-    structure.employee_pf = custom_obj?.employee_pf,
-    structure.total_pay = custom_obj?.total_pay,
-    structure.employar_si = custom_obj?.employar_si,
-    structure.employar_pf = custom_obj?.employar_pf,
-    structure.gratuity = custom_obj?.gratuity,
-    structure.net_pay = custom_obj?.net_pay,
-    structure.tds = custom_obj?.tds,
-    structure.employar_ps = custom_obj?.employar_ps,
-    structure.employar_charges = custom_obj?.employar_charges,
-      structure.ctc = custom_obj?.ctc
+    structure.one_day_sal = parseInt(custom_obj?.one_day_sal),
+    structure.da = parseInt(custom_obj?.da),
+    structure.basic_pay = parseInt(custom_obj?.basic_pay),
+    structure.hra = parseInt(custom_obj?.hra),
+    structure.allowance = parseInt(custom_obj?.allowance),
+    structure.bonus = parseInt(custom_obj?.bonus),
+    structure.perks = parseInt(custom_obj?.perks),
+    structure.ads = parseInt(custom_obj?.ads),
+    structure.arr = parseInt(custom_obj?.arr),
+    structure.total_earnings = parseInt(custom_obj?.total_earnings),
+    structure.pt = parseInt(custom_obj?.pt),
+    structure.employee_si = parseInt(custom_obj?.employee_si),
+    structure.ads_deduct = parseInt(custom_obj?.ads_deduct),
+    structure.employee_pf = parseInt(custom_obj?.employee_pf),
+    structure.total_pay = parseInt(custom_obj?.total_pay),
+    structure.employar_si = parseInt(custom_obj?.employar_si),
+    structure.employar_pf = parseInt(custom_obj?.employar_pf),
+    structure.gratuity = parseInt(custom_obj?.gratuity),
+    structure.net_pay = parseInt(custom_obj?.net_pay),
+    structure.tds = parseInt(custom_obj?.tds),
+    structure.employar_ps = parseInt(custom_obj?.employar_ps),
+    structure.employar_charges = parseInt(custom_obj?.employar_charges),
+      structure.ctc = parseInt(custom_obj?.ctc)
     await structure.save()
     res.status(200).send({
       message: "One staff salary computation data.",

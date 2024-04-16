@@ -137,6 +137,7 @@ exports.render_new_salary_heads_query = async (req, res) => {
     const new_heads = new SalaryHeads({ 
       ...req?.body
     })
+    new_heads.heads_key = new_heads?.heads_parent
     // if (list?.includes(`${new_heads?.heads_parent}`)) {
     //   payroll.salary_custom_heads.push(new_heads?._id)
     // }
@@ -1026,13 +1027,15 @@ exports.render_staff_salary_compute = async (req, res) => {
         if (val?.master?.heads_enable === "YES") {
           let date1 = new Date(`${staff?.staffJoinDate}`)?.getFullYear()
           let date2 = new Date()?.getFullYear()
-          custom_obj.gratuity += (custom_obj.basic_pay * date2 - date1 * 15) / 30
+          let diff = date2 - date1
+          custom_obj.gratuity += (custom_obj.basic_pay * diff * 15) / 30
           val.head_amount = parseInt(custom_obj.gratuity)
         }
         else {
           let date1 = new Date(`${staff?.staffJoinDate}`)?.getFullYear()
           let date2 = new Date()?.getFullYear()
-          custom_obj.gratuity += (custom_obj.basic_pay * date2 - date1) / 26
+          let diff = date2 - date1
+          custom_obj.gratuity += (custom_obj.basic_pay * diff) / 26
           val.head_amount = parseInt(custom_obj.gratuity)
         }
         
@@ -1044,10 +1047,10 @@ exports.render_staff_salary_compute = async (req, res) => {
         val.head_amount = parseInt(custom_obj.employar_pf + custom_obj.employar_ps + custom_obj.employar_charges)
       }
     }
-    custom_obj.total_earnings += custom_obj?.basic_pay + custom_obj?.da + custom_obj?.hra + custom_obj?.allowance + custom_obj?.bonus + custom_obj?.perks + custom_obj?.arr + custom_obj?.ads
-    custom_obj.total_pay += (custom_obj?.total_earnings  - (custom_obj?.employee_pf + custom_obj?.employee_si + custom_obj?.pt + custom_obj?.ads_deduct))
-    custom_obj.net_pay += custom_obj.total_pay - custom_obj.tds
-    custom_obj.ctc += custom_obj.total_pay + custom_obj.employar_si + custom_obj.gratuity + custom_obj.employar_pf + custom_obj.employar_ps + custom_obj.employar_charges
+    custom_obj.total_earnings += parseInt(custom_obj?.basic_pay) + parseInt(custom_obj?.da) + parseInt(custom_obj?.hra) + parseInt(custom_obj?.allowance) + parseInt(custom_obj?.bonus) + parseInt(custom_obj?.perks) + parseInt(custom_obj?.arr) + parseInt(custom_obj?.ads)
+    custom_obj.total_pay += (custom_obj?.total_earnings  - (parseInt(custom_obj?.employee_pf) + parseInt(custom_obj?.employee_si) + parseInt(custom_obj?.pt) + parseInt(custom_obj?.ads_deduct)))
+    custom_obj.net_pay += custom_obj.total_pay - parseInt(custom_obj.tds)
+    custom_obj.ctc += custom_obj.total_pay + parseInt(custom_obj.employar_si) + parseInt(custom_obj.gratuity) + parseInt(custom_obj.employar_pf) + parseInt(custom_obj.employar_ps) + parseInt(custom_obj.employar_charges)
 
     structure.one_day_sal = parseInt(custom_obj?.one_day_sal),
     structure.da = parseInt(custom_obj?.da),

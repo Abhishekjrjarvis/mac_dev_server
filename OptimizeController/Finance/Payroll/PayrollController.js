@@ -2079,10 +2079,18 @@ exports.render_staff_tds_calculate_compute = async (req, res) => {
       month: 4000,
       rate: "1.25"
     }
+    struct.tds = tds?.month
+    for (let val of struct.compliances) {
+      const exist = await SalaryHeads.findOne({ _id: `${payroll?.tds_linked_head_status?.master}`})
+      val.head_amount = struct.tds
+      exist.collect_staff_price.year = year 
+      exist.collect_staff_price.price += struct.tds
+      await exist.save()
+    }
     staff.tds_calculation.tds_calculate.annual = tds?.annual
     staff.tds_calculation.tds_calculate.month = tds?.month
     staff.tds_calculation.tds_calculate.rate = tds?.rate
-    await staff.save()
+    await Promise.all([ staff.save(), struct.save()])
     res.status(200).send({ message: "Updated TDS Rate", access: true, tdsm: tds?.month, rate: tds?.rate, tdsa: tds?.annual})
   }
   catch (e) {

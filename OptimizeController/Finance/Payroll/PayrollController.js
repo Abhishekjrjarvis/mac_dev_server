@@ -1993,17 +1993,20 @@ exports.render_staff_fund_heads_query = async (req, res) => {
     var all_staff = await Staff.find({ $and: [{ institute: payroll?.institute }, { staffStatus: "Approved" }] })
       .limit(limit)
       .skip(skip)
-    .select("staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffROLLNO")
+    .select("staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffROLLNO monthly_heads_data")
     for (var val of all_staff) {
-      const slip = await PaySlip.findOne({ $and: [{ staff: val?._id }, { month: { $regex: `${month}`, $options: "i"}}, { year: { $regex: `${year}`, $options: "i"}}]})
+      const slip = await PaySlip.findOne({ $and: [{ staff: val?._id }, { month: `${month}`}, { year: `${year}`}]})
       let list = val?.monthly_heads_data?.filter((ele) => {
-        if (`${month}/${year}` === `${month}/${year}` && ele?.section === section && ele?.heads_key === key) {
+        console.log(ele)
+        if (`${ele?.month}/${ele?.year}` === `${month}/${year}` && ele?.section === section && ele?.heads_key === key) {
           return ele
         }
       })
+      console.log(list)
       val.staff_obj.key = `${key}`
       val.staff_obj.value = list?.[0]?.price ?? 0
       val.staff_obj.slip = slip?._id
+      val.staff_obj.slip_key = "sign.jpeg"
       list = []
     }
     res.status(200).send({ message: "Explore All Staff Head Wise", access: true, all_staff: all_staff})

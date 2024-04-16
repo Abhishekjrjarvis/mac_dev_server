@@ -141,6 +141,11 @@ router.patch(
     catchAsync(Payroll.render_form_16_query)
 );
 
+router.get(
+    "/:pid/all/form/16/query",
+    catchAsync(Payroll.render_all_form_16_query)
+);
+
 router.patch(
     "/:pid/enable/query",
     catchAsync(Payroll.render_mark_status_salary_structure_query)

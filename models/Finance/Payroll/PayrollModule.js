@@ -192,7 +192,17 @@ const payrollModuleSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "TDSFinance"
         }
-    ]
+    ],
+    form_16: [
+        {
+            staff: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Staff"
+            },
+          annual: { type: String },
+          key_a: { type: String },
+        }
+      ],
 });
 
 module.exports = mongoose.model("PayrollModule", payrollModuleSchema);

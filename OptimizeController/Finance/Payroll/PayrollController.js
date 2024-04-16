@@ -2059,6 +2059,7 @@ exports.render_staff_tds_calculate_compute = async (req, res) => {
     path: "master"
   }
 })
+var payroll = await PayrollModule.findById({ _id: `${struct?.payroll}` })
     tds_final.staff = staff?._id
     tds_final.payroll = struct?.payroll
     tds_final.tds_data = staff?.tds_calculation

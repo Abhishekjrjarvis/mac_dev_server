@@ -34,6 +34,9 @@ const paySlipSchema = new mongoose.Schema({
     },
     form_b: {
         type: String
+    },
+    key: {
+        type: String
     }
 });
 

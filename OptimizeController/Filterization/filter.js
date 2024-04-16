@@ -33,6 +33,7 @@ const {
   json_to_excel_non_applicable_fees_export_query,
   json_to_excel_deposit_export_query,
   fee_heads_receipt_json_to_excel_daybook_query,
+  json_to_excel_slip_export_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -64,6 +65,8 @@ const ClassTimetable = require("../../models/Timetable/ClassTimetable");
 const FeesCategory = require("../../models/Finance/FeesCategory");
 const FeeMaster = require("../../models/Finance/FeeMaster");
 const DayBook = require("../../models/Finance/DayBook");
+const PayrollModule = require("../../models/Finance/Payroll/PayrollModule");
+const PaySlip = require("../../models/Finance/Payroll/PaySlip");
 
 
 var trendingQuery = (trends, cat, type, page) => {
@@ -8125,6 +8128,52 @@ exports.renderAllDayBookPayment = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderAllSlipQuery = async (req, res) => {
+  try {
+    const { pid } = req?.params
+    const { month, year } = req?.body
+    if (!pid) return res.status(200).send({ message: "Thier is a bug need to fixed immediately", access: false })
+    var payroll = await PayrollModule.findById({ _id: pid })
+    var all_slip = await PaySlip.find({ $and: [{ _id: { $in: payroll?.pay_slip } }, { month: month }, { year: year }] })
+    .populate({
+        path: "staff",
+        select: "staffFirstName staffMiddleName staffLastName staffPanNumber staff_grant_status"
+    })
+    var excel_list = []
+    if (all_slip?.length > 0) {
+      for (var val of all_slip) {
+        var name = `${val?.staff?.staffFirstName} ${val?.staff?.staffMiddleName ? val?.staff?.staffMiddleName : ""} ${val?.staff?.staffLastName}`
+        excel_list.push({
+            Month: val?.month,
+            Year: val?.year,
+            PAN: val?.staff?.staffPanNumber ?? "#NA",
+            Name: name ?? "#NA",
+            NetPrice: val?.net_payable ?? "#NA",
+            GrantStatus: val?.staff?.staff_grant_status
+          }) 
+        }
+      const data = await json_to_excel_slip_export_query(
+        "PAYSLIP",
+        excel_list,
+      );
+      res.status(200).send({
+        message: "Explore Salary Slip Fees Query",
+        access: true,
+        data: data
+      });
+    }
+    else {
+      res.status(200).send({
+        message: "No Salary Slip Query",
+        access: false,
+      });
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
 
 // exports.renderStudentStatisticsExcelQuery = async (req, res) => {
 //   try {

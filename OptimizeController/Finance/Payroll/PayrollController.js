@@ -1100,13 +1100,13 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
     var staff = await Staff.findById({ _id: sid })
     var payroll = await PayrollModule.findById({ _id: pid })
     days = data_set?.filter((val) => {
-        if(`${val?.month}` === `/${month}/${year}`) return val?.days 
+        if(`${val?.month_year}` === `/${month}/${year}`) return val?.days 
     })
     let regularexp = "";
     if (month) regularexp = new RegExp(`\/${month}\/${year}$`);
     else regularexp = new RegExp(`\/${year}$`);
     let salary_days = {
-      total_working_days: days[0],
+      total_working_days: parseInt(days[0]?.days),
       present: 0,
       paid_leaves: 0,
       unpaid_leaves: 0,
@@ -1153,7 +1153,7 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
     slip.attendance_stats.push(salary_days)
     staff.pay_slip.push(slip?._id)
     payroll.pay_slip.push(slip?._id)
-    var nums = salary_struct?.[0]
+    var nums = salary_struct
     await Promise.all([slip.save(), staff.save(), payroll.save()])
     res.status(200).send({ message: "Explore One Staff Payroll Finalize", access: true })
     if (nums?.basic_pay) {

@@ -699,7 +699,8 @@ financial_data: [
   staff_obj: {
     key: { type: String },
     value: { type: Number, default: 0 },
-    slip: { type: String }
+    slip: { type: String },
+    slip_key: { type: String, default: "PaymentSlip (1).pdf"}
   }
 });
 

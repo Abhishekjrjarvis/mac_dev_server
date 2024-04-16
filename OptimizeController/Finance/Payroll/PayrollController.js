@@ -1424,7 +1424,7 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         section: "NET_PAY"
       })
     }
-    await Prmoise.all([ staff.save(), payroll.save()])
+    await Promise.all([ staff.save(), payroll.save()])
   }
   catch (e) {
     console.log(e)

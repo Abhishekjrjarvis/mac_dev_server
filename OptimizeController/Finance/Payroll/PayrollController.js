@@ -1478,6 +1478,12 @@ exports.render_all_salary_slip_query = async (req, res) => {
         path: "staff",
         select: "staffFirstName staffMiddleName staffLastName staff_grant_status staffROLLNO staffPanNumber"
       })
+      .populate({
+        path: "payroll",
+        populate: {
+          path: "institute"
+        }
+      })
     if (all_slip?.length > 0) {
       res.status(200).send({ message: "Explore All Salary Slip Query", access: true, all_slip: all_slip})
     }

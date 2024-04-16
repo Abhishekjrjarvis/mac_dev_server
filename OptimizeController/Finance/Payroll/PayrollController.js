@@ -11,6 +11,7 @@ const Notification = require("../../../models/notification");
 const StaffAttendenceDate = require("../../../models/StaffAttendenceDate");
 const { s_c, employee, employar, compliance } = require("../../../Constant/heads");
 const PaySlip = require("../../../models/Finance/Payroll/PaySlip");
+const TDSFinance = require("../../../models/Finance/Payroll/TDSFinance");
 
 exports.render_new_payroll_query = async (req, res) => {
     try {
@@ -136,12 +137,12 @@ exports.render_new_salary_heads_query = async (req, res) => {
     const new_heads = new SalaryHeads({ 
       ...req?.body
     })
-    if (list?.includes(`${new_heads?.heads_parent}`)) {
-      payroll.salary_custom_heads.push(new_heads?._id)
-    }
-    else {
+    // if (list?.includes(`${new_heads?.heads_parent}`)) {
+    //   payroll.salary_custom_heads.push(new_heads?._id)
+    // }
+    // else {
       payroll.salary_heads.push(new_heads?._id)
-    }
+    // }
     new_heads.payroll = payroll?._id
     await Promise.all([payroll.save(), new_heads.save()])
     res.status(200).send({ message: "Explore New Salary Heads Query", access: true })
@@ -384,7 +385,7 @@ exports.render_new_salary_heads_query = async (req, res) => {
       const new_heads = new SalaryHeads({ 
         heads_name: "TDS",
         heads_toggle: false,
-        heads_type: "EMPLOYAR_DEDUCTION",
+        heads_type: "COMPLIANCES",
         heads_key: "TDS",
       })
       new_heads.payroll = payroll?._id
@@ -518,11 +519,11 @@ exports.render_new_salary_structure_query = async (req, res) => {
     payroll.salary_structure.push(new_structure?._id)
     await Promise.all([payroll.save(), new_structure.save()])
     res.status(200).send({ message: "Explore New Salary Structure Query", access: true })
-    var all_staff = await Staff.find({ $and: [{ institute: payroll?.institute}, { staff_grant_status: { $regex: `${status}`, $options: "i"}}]})
-    for (var val of all_staff) {
+    var all_staff = await Staff.find({ $and: [{ institute: payroll?.institute}, { staff_grant_status: `${status}`}]})
+    for (var ele of all_staff) {
       const exist = new SalaryStructure({})
       exist.payroll = payroll?._id
-      exist.staff = val?._id
+      exist.staff = ele?._id
       for (var val of sal_com) {
         exist.salary_components.push({
           head_amount: val?.head_amount,
@@ -547,8 +548,8 @@ exports.render_new_salary_structure_query = async (req, res) => {
           master: val?.master
         })
       }
-      val.salary_structure = exist?._id
-      await Promise.all([ val.save(), exist.save() ])
+      ele.salary_structure = exist?._id
+      await Promise.all([ ele.save(), exist.save() ])
     }
   }
   catch (e) {
@@ -682,14 +683,14 @@ exports.render_staff_salary_days = async (req, res) => {
       //   return 29
       // }
       // else {
-        if(`${val?.month}` === `/${month}/${year}`) return val?.days 
+        if(`${val?.month_year}` === `/${month}/${year}`) return val?.days 
       // }
     })
     let regularexp = "";
     if (month) regularexp = new RegExp(`\/${month}\/${year}$`);
     else regularexp = new RegExp(`\/${year}$`);
     let salary_days = {
-      total_working_days: days[0],
+      total_working_days: parseInt(days[0]?.days),
       present: 0,
       paid_leaves: 0,
       unpaid_leaves: 0,
@@ -725,7 +726,7 @@ exports.render_staff_salary_days = async (req, res) => {
         total_working_days: salary_days?.total_working_days ?? 0,
         present: salary_days?.present ?? 0,
         paid_leaves: salary_days?.paid_leaves ?? 0,
-        unpaid_leaves: (salary_days?.total_working_days) - (salary_days?.paid_leaves + salary_days?.holiday) ?? 0,
+        unpaid_leaves: (salary_days?.total_working_days) - (salary_days?.paid_leaves + salary_days?.holiday + salary_days?.present) ?? 0,
         absent: salary_days?.absent ?? 0,
         holiday: salary_days?.holiday ?? 0,
         sal_day: salary_days?.present + salary_days?.paid_leaves + salary_days?.holiday 
@@ -1029,6 +1030,8 @@ exports.render_staff_salary_compute = async (req, res) => {
           val.head_amount = custom_obj.gratuity
         }
         else {
+          let date1 = new Date(`${staff?.staffJoinDate}`)?.getFullYear()
+          let date2 = new Date()?.getFullYear()
           custom_obj.gratuity += (custom_obj.basic_pay * date2 - date1) / 26
           val.head_amount = custom_obj.gratuity
         }
@@ -1045,11 +1048,36 @@ exports.render_staff_salary_compute = async (req, res) => {
     custom_obj.total_pay += (custom_obj?.total_earnings  - (custom_obj?.employee_pf + custom_obj?.employee_si + custom_obj?.pt + custom_obj?.ads_deduct))
     custom_obj.net_pay += custom_obj.total_pay - custom_obj.tds
     custom_obj.ctc += custom_obj.total_pay + custom_obj.employar_si + custom_obj.gratuity + custom_obj.employar_pf + custom_obj.employar_ps + custom_obj.employar_charges
+
+    structure.one_day_sal = custom_obj?.one_day_sal,
+    structure.da = custom_obj?.da,
+    structure.basic_pay = custom_obj?.basic_pay,
+    structure.hra = custom_obj?.hra,
+    structure.allowance = custom_obj?.allowance,
+    structure.bonus = custom_obj?.bonus,
+    structure.perks = custom_obj?.perks,
+    structure.ads = custom_obj?.ads,
+    structure.arr = custom_obj?.arr,
+    structure.total_earnings = custom_obj?.total_earnings,
+    structure.pt = custom_obj?.pt,
+    structure.employee_si = custom_obj?.employee_si,
+    structure.ads_deduct = custom_obj?.ads_deduct,
+    structure.employee_pf = custom_obj?.employee_pf,
+    structure.total_pay = custom_obj?.total_pay,
+    structure.employar_si = custom_obj?.employar_si,
+    structure.employar_pf = custom_obj?.employar_pf,
+    structure.gratuity = custom_obj?.gratuity,
+    structure.net_pay = custom_obj?.net_pay,
+    structure.tds = custom_obj?.tds,
+    structure.employar_ps = custom_obj?.employar_ps,
+    structure.employar_charges = custom_obj?.employar_charges,
+      structure.ctc = custom_obj?.ctc
+    await structure.save()
     res.status(200).send({
       message: "One staff salary computation data.",
       access: true,
       custom_obj,
-      structure
+      structure: structure
     });
   } catch (e) {
     console.log(e);
@@ -1990,10 +2018,51 @@ exports.render_staff_tds_form_query = async (req, res) => {
 exports.render_staff_tds_calculate_compute = async (req, res) => {
   try {
     const { sid } = req?.params
+    const { year } = req?.body
     if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
+    const tds_final = new TDSFinance({})
     const staff = await Staff.findById({ _id: sid })
-
+    const struct = await SalaryStructure.findById({ _id: `${staff?.salary_structure}` })
+    populate({
+      path: "salary_components",
+      populate: {
+        path: "master"
+      }
+    })
+    .populate({
+      path: "employee_deduction",
+      populate: {
+        path: "master"
+      }
+  })
+  .populate({
+    path: "employar_deduction",
+    populate: {
+      path: "master"
+    }
+})
+.populate({
+  path: "compliances",
+  populate: {
+    path: "master"
+  }
+})
+    tds_final.staff = staff?._id
+    tds_final.payroll = struct?.payroll
+    tds.tds_data = staff?.tds_calculation
+    tds.tax_regime = staff?.choose_tax_regime
+    tds.salary_structure.push(struct)
+    var tds_obj = {}
+    if (staff?.choose_tax_regime === "OLD_REGIME") {
+      
+    }
+    else if (staff?.choose_tax_regime === "NEW_REGIME") {
+      
+    }
+    else {
+      
+    }
   }
   catch (e) {
     console.log(e)

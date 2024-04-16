@@ -452,7 +452,7 @@ exports.render_one_salary_heads_query = async (req, res) => {
       "12": 0
     }
       var price = head?.collect_staff_price?.filter((val) => {
-        obj[`${val?.month}`] = val?.price
+        obj[`${val?.month}`] += val?.price
       })
     res.status(200).send({ message: `Explore One Salary Heads Query`, access: true, head, obj})
   }

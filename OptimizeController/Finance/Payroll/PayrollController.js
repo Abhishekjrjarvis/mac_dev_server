@@ -1507,6 +1507,12 @@ exports.render_one_salary_slip_query = async (req, res) => {
         path: "staff",
         select: "staffFirstName staffMiddleName staffLastName staff_grant_status staffROLLNO staffPanNumber"
       })
+      .populate({
+        path: "payroll",
+        populate: {
+          path: "institute"
+        }
+      })
       res.status(200).send({ message: "Explore One Salary Slip Query", access: true, slip: slip})
   }
   catch (e) {

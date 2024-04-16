@@ -12,6 +12,7 @@ const StaffAttendenceDate = require("../../../models/StaffAttendenceDate");
 const { s_c, employee, employar, compliance } = require("../../../Constant/heads");
 const PaySlip = require("../../../models/Finance/Payroll/PaySlip");
 const TDSFinance = require("../../../models/Finance/Payroll/TDSFinance");
+const { nested_document_limit } = require("../../../helper/databaseFunction");
 
 exports.render_new_payroll_query = async (req, res) => {
     try {
@@ -2073,7 +2074,24 @@ exports.render_staff_tds_calculate_compute = async (req, res) => {
     else {
       
     }
-    res.status(200).send({ message: "Updated TDS Rate", access: true, tdsm: 31898, rate: 1.25, tdsa: 31898 * 12})
+    let tds = {
+      annual: 48000,
+      month: 4000,
+      rate: "1.25"
+    }
+    struct.tds = tds?.month
+    for (let val of struct.compliances) {
+      const exist = await SalaryHeads.findOne({ _id: `${payroll?.tds_linked_head_status?.master}`})
+      val.head_amount = struct.tds
+      exist.collect_staff_price.year = year 
+      exist.collect_staff_price.price += struct.tds
+      await exist.save()
+    }
+    staff.tds_calculation.tds_calculate.annual = tds?.annual
+    staff.tds_calculation.tds_calculate.month = tds?.month
+    staff.tds_calculation.tds_calculate.rate = tds?.rate
+    await Promise.all([ staff.save(), struct.save()])
+    res.status(200).send({ message: "Updated TDS Rate", access: true, tdsm: tds?.month, rate: tds?.rate, tdsa: tds?.annual})
   }
   catch (e) {
     console.log(e)
@@ -2083,6 +2101,49 @@ exports.render_staff_tds_calculate_compute = async (req, res) => {
 exports.render_form_16_query = async (req, res) => {
   try {
     const { sid } = req?.params
+    const { pid, key, annual } = req?.body
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const staff = await Staff.findById({ _id: sid })
+    const payroll = await PayrollModule.findById({ _id: pid })
+    payroll.form_16.push({
+      annual: annual,
+      staff: staff?._id,
+      key_a: key
+    })
+    staff.form_16.annual = annual
+    staff.form_16.key_a = key
+    await Promise.all([payroll.save(), staff.save()])
+    res.status(200).send({ message: "Form 16 Update", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_form_16_query = async (req, res) => {
+  try {
+    const { pid } = req?.params
+    const { annual } = req?.query
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!pid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const payroll = await PayrollModule.findById({ _id: pid })
+      .select("form_16")
+      .populate({
+        path: "form_16",
+        populate: {
+          path: "staff",
+          select: "staffFirstName staffMiddleName staffLastName staffROLLNO staffPanNumber"
+        }
+      })
+    let nums = payroll?.form_16?.filter((val) => {
+      if(`${val?.annual}` === `${annual}`) return val
+    })
+    let all_nums = await nested_document_limit(page, limit, nums)
+    res.status(200).send({ message: "All Form 16 Update", access: true, all_form: all_nums})
   }
   catch (e) {
     console.log(e)

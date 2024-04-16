@@ -243,4 +243,9 @@ router.get("/:fid/receipt/to/daybook", Filter.renderAllDayBookReceipt);
 
 router.get("/:fid/payment/to/daybook", Filter.renderAllDayBookPayment);
 
+router.patch(
+  "/:pid/all/slip/query",
+  catchAsync(Filter.renderAllSlipQuery)
+);
+
 module.exports = router;

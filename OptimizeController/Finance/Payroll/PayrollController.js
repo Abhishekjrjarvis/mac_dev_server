@@ -2034,7 +2034,7 @@ exports.render_staff_tds_calculate_compute = async (req, res) => {
     const tds_final = new TDSFinance({})
     const staff = await Staff.findById({ _id: sid })
     const struct = await SalaryStructure.findById({ _id: `${staff?.salary_structure}` })
-    populate({
+    .populate({
       path: "salary_components",
       populate: {
         path: "master"

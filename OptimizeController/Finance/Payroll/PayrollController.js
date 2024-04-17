@@ -1555,12 +1555,12 @@ exports.render_returns_tab_add_details_query = async (req, res) => {
         exist.returns_month.push({
           month: month,
           year: year,
-          bsr_code: bsr_code,
-          dod: dod,
-          challan_sn: challan_sn,
+          // bsr_code: bsr_code,
+          // dod: dod,
+          // challan_sn: challan_sn,
           return_attach: return_attach,
           challan_attach: challan_attach,
-          oltas_status: oltas_status
+          // oltas_status: oltas_status
         })
         await exist.save()
       }
@@ -1569,12 +1569,12 @@ exports.render_returns_tab_add_details_query = async (req, res) => {
         exist.returns_month.push({
           month: month,
           year: year,
-          bsr_code: bsr_code,
-          dod: dod,
-          challan_sn: challan_sn,
+          // bsr_code: bsr_code,
+          // dod: dod,
+          // challan_sn: challan_sn,
           return_attach: return_attach,
           challan_attach: challan_attach,
-          oltas_status: oltas_status
+          // oltas_status: oltas_status
         })
         await exist.save()
       }
@@ -1583,12 +1583,12 @@ exports.render_returns_tab_add_details_query = async (req, res) => {
         exist.returns_month.push({
           month: month,
           year: year,
-          bsr_code: bsr_code,
-          dod: dod,
-          challan_sn: challan_sn,
+          // bsr_code: bsr_code,
+          // dod: dod,
+          // challan_sn: challan_sn,
           return_attach: return_attach,
           challan_attach: challan_attach,
-          oltas_status: oltas_status
+          // oltas_status: oltas_status
         })
         await exist.save()
       }
@@ -1598,22 +1598,22 @@ exports.render_returns_tab_add_details_query = async (req, res) => {
         exist_employee.returns_month.push({
           month: month,
           year: year,
-          bsr_code: bsr_code,
-          dod: dod,
-          challan_sn: challan_sn,
+          // bsr_code: bsr_code,
+          // dod: dod,
+          // challan_sn: challan_sn,
           return_attach: return_attach,
           challan_attach: challan_attach,
-          oltas_status: oltas_status
+          // oltas_status: oltas_status
         })
         exist_employar.returns_month.push({
           month: month,
           year: year,
-          bsr_code: bsr_code,
-          dod: dod,
-          challan_sn: challan_sn,
+          // bsr_code: bsr_code,
+          // dod: dod,
+          // challan_sn: challan_sn,
           return_attach: return_attach,
           challan_attach: challan_attach,
-          oltas_status: oltas_status
+          // oltas_status: oltas_status
         })
         await Promise.all([ exist_employee.save(), exist_employar.save() ])
       }
@@ -1623,22 +1623,22 @@ exports.render_returns_tab_add_details_query = async (req, res) => {
         exist_employee.returns_month.push({
           month: month,
           year: year,
-          bsr_code: bsr_code,
-          dod: dod,
-          challan_sn: challan_sn,
+          // bsr_code: bsr_code,
+          // dod: dod,
+          // challan_sn: challan_sn,
           return_attach: return_attach,
           challan_attach: challan_attach,
-          oltas_status: oltas_status
+          // oltas_status: oltas_status
         })
         exist_emplyar.returns_month.push({
           month: month,
           year: year,
-          bsr_code: bsr_code,
-          dod: dod,
-          challan_sn: challan_sn,
+          // bsr_code: bsr_code,
+          // dod: dod,
+          // challan_sn: challan_sn,
           return_attach: return_attach,
           challan_attach: challan_attach,
-          oltas_status: oltas_status
+          // oltas_status: oltas_status
         })
         await Promise.all([exist_employee.save(), exist_emplyar.save()])
       }
@@ -1727,7 +1727,7 @@ exports.render_returns_tab_add_details_query = async (req, res) => {
       if (key === "PT") {
         const exist = await SalaryHeads.findById({ _id: payroll?.pt_linked_head_status?.master }) 
         exist.returns_annual.push({
-          annual: annual,
+          annual: year,
           return_attach: return_attach,
           challan_attach: challan_attach,
           price: price,
@@ -1738,7 +1738,7 @@ exports.render_returns_tab_add_details_query = async (req, res) => {
       else if (key === "GRAUITY") {
         const exist = await SalaryHeads.findById({ _id: payroll?.gratuity_linked_head_status?.master}) 
         exist.returns_annual.push({
-          annual: annual,
+          annual: year,
           return_attach: return_attach,
           challan_attach: challan_attach,
           price: price,
@@ -1749,7 +1749,7 @@ exports.render_returns_tab_add_details_query = async (req, res) => {
       else if (key === "TDS") {
         const exist = await SalaryHeads.findById({ _id: payroll?.tds_linked_head_status?.master}) 
         exist.returns_annual.push({
-          annual: annual,
+          annual: year,
           return_attach: return_attach,
           challan_attach: challan_attach,
           price: price,
@@ -1761,14 +1761,14 @@ exports.render_returns_tab_add_details_query = async (req, res) => {
         const exist_employee = await SalaryHeads.findById({ _id: payroll?.employee_pf_linked_head_status?.master}) 
         const exist_emplyar = await SalaryHeads.findById({ _id: payroll?.employar_pf_linked_head_status?.master}) 
         exist_employee.returns_annual.push({
-          annual: annual,
+          annual: year,
           return_attach: return_attach,
           challan_attach: challan_attach,
           price: price,
           receipt_no: receipt_no
         })
         exist_emplyar.returns_annual.push({
-          annual: annual,
+          annual: year,
           return_attach: return_attach,
           challan_attach: challan_attach,
           price: price,
@@ -1780,14 +1780,14 @@ exports.render_returns_tab_add_details_query = async (req, res) => {
         const exist_employee = await SalaryHeads.findById({ _id: payroll?.emplyee_esi_linked_head_status?.master}) 
         const exist_emplyar = await SalaryHeads.findById({ _id: payroll?.emplyar_esi_linked_head_status?.master}) 
         exist_employee.returns_annual.push({
-          annual: annual,
+          annual: year,
           return_attach: return_attach,
           challan_attach: challan_attach,
           price: price,
           receipt_no: receipt_no
         })
         exist_emplyar.returns_annual.push({
-          annual: annual,
+          annual: year,
           return_attach: return_attach,
           challan_attach: challan_attach,
           price: price,

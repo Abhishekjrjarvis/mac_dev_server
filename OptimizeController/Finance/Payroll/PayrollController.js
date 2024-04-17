@@ -1138,7 +1138,7 @@ exports.render_staff_salary_compute_finalize = async (req, res) => {
         total_working_days: salary_days?.total_working_days ?? 0,
         present: salary_days?.present ?? 0,
         paid_leaves: salary_days?.paid_leaves ?? 0,
-        unpaid_leaves: (salary_days?.total_working_days) - (salary_days?.paid_leaves + salary_days?.holiday) ?? 0,
+        unpaid_leaves: (salary_days?.total_working_days) - (salary_days?.paid_leaves + salary_days?.holiday + salary_days?.present) ?? 0,
         absent: salary_days?.absent ?? 0,
        holiday: salary_days?.holiday ?? 0,
         sal_day: salary_days?.present + salary_days?.paid_leaves + salary_days?.holiday 
@@ -1465,14 +1465,15 @@ exports.render_monthly_funds_query = async (req, res) => {
 exports.render_all_salary_slip_query = async (req, res) => {
   try {
     const { pid } = req?.params
+    const { month, year } = req?.body
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     if (!pid) return res.status(200).send({ message: "Their is a bug need to fixed imeediately", access: false })
     
     const payroll = await PayrollModule.findById({ _id: pid })
-    var all_slip = await PaySlip.find({ _id: { $in: payroll?.pay_slip } })
-      .select("created_at year net_payable month")
+    var all_slip = await PaySlip.find({ $and: [{ _id: { $in: payroll?.pay_slip } }, { month: month}, { year: year}] })
+      .select("created_at year net_payable month key")
       .limit(limit)
       .skip(skip)
       .populate({

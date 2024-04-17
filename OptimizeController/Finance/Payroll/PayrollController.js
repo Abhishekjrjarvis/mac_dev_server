@@ -1813,66 +1813,81 @@ exports.render_returns_tab_show_details_query = async (req, res) => {
     var obj = {}
     if (flow === "MONTHLY") {
       if (key === "PT") {
-        const exist = await SalaryHeads.findById({ _id: payroll?.pt_linked_head_status?.master }) 
-        const data = collect_staff_price?.filter((val) => {
-          if (`${val?.month}/${val?.year}` === `${month}/${year}`) return val?.price
-        })
+        const exist = await SalaryHeads.findById({ _id: payroll?.pt_linked_head_status?.master })
+        let t = 0
+        for (let sum of exist?.collect_staff_price) {
+          if (`${sum?.month}/${sum?.year}` === `${month}/${year}`) {
+            t += sum?.price
+          }
+        }
         for (var val of exist.returns_month) {
           if (`${val?.month}/${val?.year}` === `${month}/${year}`) {
             obj["return"] = val
-            obj["net_pay"] = data[0]
+            obj["net_pay"] = t
           }
         }
         res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
       }
       else if (key === "GRAUITY") {
         const exist = await SalaryHeads.findById({ _id: payroll?.gratuity_linked_head_status?.master}) 
-        const data = collect_staff_price?.filter((val) => {
-          if (`${val?.month}/${val?.year}` === `${month}/${year}`) return val?.price
-        })
+        let t = 0
+        for (let sum of exist?.collect_staff_price) {
+          if (`${sum?.month}/${sum?.year}` === `${month}/${year}`) {
+            t += sum?.price
+          }
+        }
         for (var val of exist.returns_month) {
           if (`${val?.month}/${val?.year}` === `${month}/${year}`) {
             obj["return"] = val
-            obj["net_pay"] = data[0]
+            obj["net_pay"] = t
           }
         }
         res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
       }
       else if (key === "TDS") {
         const exist = await SalaryHeads.findById({ _id: payroll?.tds_linked_head_status?.master}) 
-        const data = collect_staff_price?.filter((val) => {
-          if (`${val?.month}/${val?.year}` === `${month}/${year}`) return val?.price
-        })
+        let t = 0
+        for (let sum of exist?.collect_staff_price) {
+          if (`${sum?.month}/${sum?.year}` === `${month}/${year}`) {
+            t += sum?.price
+          }
+        }
         for (var val of exist.returns_month) {
           if (`${val?.month}/${val?.year}` === `${month}/${year}`) {
             obj["return"] = val
-            obj["net_pay"] = data[0]
+            obj["net_pay"] = t
           }
         }
         res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
       }
       else if (key === "EPF") {
         const exist = await SalaryHeads.findById({ _id: payroll?.employee_pf_linked_head_status?.master}) 
-        const data = collect_staff_price?.filter((val) => {
-          if (`${val?.month}/${val?.year}` === `${month}/${year}`) return val?.price
-        })
+        let t = 0
+        for (let sum of exist?.collect_staff_price) {
+          if (`${sum?.month}/${sum?.year}` === `${month}/${year}`) {
+            t += sum?.price
+          }
+        }
         for (var val of exist.returns_month) {
           if (`${val?.month}/${val?.year}` === `${month}/${year}`) {
             obj["return"] = val
-            obj["net_pay"] = data[0]
+            obj["net_pay"] = t
           }
         }
         res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})
       }
       else if (key === "ESI") {
         const exist = await SalaryHeads.findById({ _id: payroll?.emplyee_esi_linked_head_status?.master}) 
-        const data = collect_staff_price?.filter((val) => {
-          if (`${val?.month}/${val?.year}` === `${month}/${year}`) return val?.price
-        })
+        let t = 0
+        for (let sum of exist?.collect_staff_price) {
+          if (`${sum?.month}/${sum?.year}` === `${month}/${year}`) {
+            t += sum?.price
+          }
+        }
         for (var val of exist.returns_month) {
           if (`${val?.month}/${val?.year}` === `${month}/${year}`) {
             obj["return"] = val
-            obj["net_pay"] = data[0]
+            obj["net_pay"] = t
           }
         }
         res.status(200).send({ message: `Explore ${key} Returns Query`, access: true, nums: obj})

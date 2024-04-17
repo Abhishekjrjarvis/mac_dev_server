@@ -470,4 +470,6 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONGovernmentQuery)
 );
 
+router.patch("/auto/mess", catchAsync(Extra.auto_messages))
+
 module.exports = router;

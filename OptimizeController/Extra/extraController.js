@@ -2259,6 +2259,60 @@ exports.renderFilteredMessageQuery = async (req, res) => {
   }
 };
 
+exports.auto_messages = async (req, res) => {
+  try {
+    let nums = [
+      // "661e0aa32417e87fe3a9e618", "661e0d972417e87fe3aa049d",
+      "661e0e9d2417e87fe3aa144b"]
+    let all_mess = await StudentMessage.find({ _id: { $in: nums } })
+    for (var val of all_mess) {
+      var valid_staff = await Staff.findById({ _id: `${val?.from}` });
+      var all_student = await Student.find({ _id: { $in: val?.student_list } });
+      var i = 0
+      for (var ref of all_student) {
+        var user = await User.findById({
+          _id: `${ref?.user}`,
+        });
+        var notify = new StudentNotification({});
+        notify.notifyContent = `${val?.message} - From ${val?.message_type},
+    ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${valid_staff?.staffLastName
+          }`;
+        notify.notifySender = `${valid_staff?.user}`;
+        notify.notifyReceiever = `${user?._id}`;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = ref?._id;
+        user.activity_tab.push(notify?._id);
+        user.student_message.push(val?._id)
+        notify.notifyByStaffPhoto = valid_staff?._id;
+        notify.notifyCategory = "Reminder Alert";
+        notify.redirectIndex = 59;
+        notify.student_message = val?._id
+        await Promise.all([user.save(), notify.save()]);
+        console.log(i, val?._id)
+        i += 1
+        if (user?.deviceToken) {
+          invokeSpecificRegister(
+            "Specific Notification",
+            `${val?.message_title} - ${val?.message_type},
+    ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${valid_staff?.staffLastName
+            }`,
+            "Student Alert",
+            user._id,
+            user.deviceToken
+          );
+        }
+      }
+    }
+    res
+        .status(200)
+        .send({ message: "Explore Filtered Message Query", access: true });
+
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.renderAllFilteredMessageQuery = async (req, res) => {
   try {
     const { sid } = req.params;

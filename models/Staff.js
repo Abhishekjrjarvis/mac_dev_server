@@ -710,7 +710,19 @@ const staffSchema = new mongoose.Schema({
     value: { type: Number, default: 0 },
     slip: { type: String },
     slip_key: { type: String, default: "PaymentSlip (1).pdf"}
-  }
+  },
+  iqacDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "IQAC"
+    }
+  ],
+  custom_authority: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CustomAuthority"
+    }
+  ]
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

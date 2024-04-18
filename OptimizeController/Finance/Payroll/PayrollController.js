@@ -1465,7 +1465,7 @@ exports.render_monthly_funds_query = async (req, res) => {
 exports.render_all_salary_slip_query = async (req, res) => {
   try {
     const { pid } = req?.params
-    const { month, year } = req?.body
+    const { month, year } = req?.query
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
@@ -1479,12 +1479,6 @@ exports.render_all_salary_slip_query = async (req, res) => {
       .populate({
         path: "staff",
         select: "staffFirstName staffMiddleName staffLastName staff_grant_status staffROLLNO staffPanNumber"
-      })
-      .populate({
-        path: "payroll",
-        populate: {
-          path: "institute"
-        }
       })
     if (all_slip?.length > 0) {
       res.status(200).send({ message: "Explore All Salary Slip Query", access: true, all_slip: all_slip})
@@ -1949,7 +1943,7 @@ exports.render_returns_tab_show_details_query = async (req, res) => {
       if (key === "PT") {
         const exist = await SalaryHeads.findById({ _id: payroll?.pt_linked_head_status?.master }) 
         for (var val of exist.returns_annual) {
-          if (`${val?.annual}` === `${annual}`) {
+          if (`${val?.annual}` === `${year}`) {
             obj["return"] = val
             obj["net_pay"] = val?.price
           }
@@ -1959,7 +1953,7 @@ exports.render_returns_tab_show_details_query = async (req, res) => {
       else if (key === "GRAUITY") {
         const exist = await SalaryHeads.findById({ _id: payroll?.gratuity_linked_head_status?.master}) 
         for (var val of exist.returns_annual) {
-          if (`${val?.annual}` === `${annual}`) {
+          if (`${val?.annual}` === `${year}`) {
             obj["return"] = val
             obj["net_pay"] = val?.price
           }
@@ -1969,7 +1963,7 @@ exports.render_returns_tab_show_details_query = async (req, res) => {
       else if (key === "TDS") {
         const exist = await SalaryHeads.findById({ _id: payroll?.tds_linked_head_status?.master}) 
         for (var val of exist.returns_annual) {
-          if (`${val?.annual}` === `${annual}`) {
+          if (`${val?.annual}` === `${year}`) {
             obj["return"] = val
             obj["net_pay"] = val?.price
           }
@@ -1979,7 +1973,7 @@ exports.render_returns_tab_show_details_query = async (req, res) => {
       else if (key === "EPF") {
         const exist = await SalaryHeads.findById({ _id: payroll?.employee_pf_linked_head_status?.master}) 
         for (var val of exist.returns_annual) {
-          if (`${val?.annual}` === `${annual}`) {
+          if (`${val?.annual}` === `${year}`) {
             obj["return"] = val
             obj["net_pay"] = val?.price
           }
@@ -1989,7 +1983,7 @@ exports.render_returns_tab_show_details_query = async (req, res) => {
       else if (key === "ESI") {
         const exist = await SalaryHeads.findById({ _id: payroll?.emplyee_esi_linked_head_status?.master}) 
         for (var val of exist.returns_annual) {
-          if (`${val?.annual}` === `${annual}`) {
+          if (`${val?.annual}` === `${year}`) {
             obj["return"] = val
             obj["net_pay"] = val?.price
           }

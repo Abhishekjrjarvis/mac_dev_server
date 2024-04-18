@@ -1303,10 +1303,21 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Post"
     }
   ],
-  pinned_department: [
+  independent_pinned_department: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Department"
+    }
+  ],
+  dependent_pinned_department: [
+    {
+      section_type: { type: String },
+      department: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Department"
+        }
+      ]
     }
   ],
   payroll_module: [
@@ -1316,6 +1327,16 @@ const instituteAdminSchema = new mongoose.Schema({
     }
   ],
   payroll_module_status: {
+    type: String,
+    default: "Disable"
+  },
+  iqac_module: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "IQAC"
+    }
+  ],
+  iqac_module_status: {
     type: String,
     default: "Disable"
   }

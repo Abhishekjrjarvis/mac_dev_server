@@ -1596,15 +1596,55 @@ exports.render_society_desk_post_query = async (req, res) => {
 exports.render_pinned_department_query = async (req, res) => {
   try {
     const { id } = req?.params
+    const { flow } = req?.query
     if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
     
-    const ins = await InstituteAdmin.findById({ _id: id })
-      .select("pinned_department")
+    if (flow === "INDEPENDENT") {
+      const ins = await InstituteAdmin.findById({ _id: id })
+      .select("independent_pinned_department")
       .populate({
-        path: "pinned_department",
+        path: "independent_pinned_department",
         select: "dName"
       })
-    res.status(200).send({ message: "Explore Pinned Department", access: true, ins: ins?.pinned_department})
+    res.status(200).send({ message: "Explore Independent Pinned Department", access: true, ins: ins?.independent_pinned_department})
+    }
+    else if (flow === "DEPENDENT") {
+      const ins = await InstituteAdmin.findById({ _id: id })
+      .select("dependent_pinned_department")
+      .populate({
+        path: "dependent_pinned_department",
+        select: "dName"
+      })
+      const unique = [...new Set(ins?.dependent_pinned_department.map(item => item.section_type))]; 
+    res.status(200).send({ message: "Explore Dependent Pinned Department", access: true, ins: unique})
+    }
+    
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_pinned_department_query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const { type } = req?.query
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+
+      const ins = await InstituteAdmin.findById({ _id: id })
+      .select("dependent_pinned_department")
+      .populate({
+        path: "dependent_pinned_department",
+        select: "dName"
+      })
+    var nums = []
+    for (let ele of ins?.dependent_pinned_department) {
+      if (`${ele?.section_type}` === `${type}`) {
+        nums.push(ele?.department)
+      }
+    }
+    res.status(200).send({ message: "Explore Dependent Pinned Department", access: true, ins: nums})
+    
   }
   catch (e) {
     console.log(e)

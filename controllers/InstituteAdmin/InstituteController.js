@@ -72,7 +72,7 @@ exports.getDashOneQuery = async (req, res) => {
     const { id } = req.params;
     const { mod_id, user_mod_id } = req.query;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId qviple_id blockStatus profile_modification leave_config random_institute_code merchant_options staff_leave_config certificate_fund_charges certificate_issued_count name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus lms_depart lms_status storeStatus storeDepart student_form_setting landing_control payroll_module payroll_module_status"
+      "insName name insAbout photoId qviple_id blockStatus profile_modification leave_config random_institute_code merchant_options staff_leave_config certificate_fund_charges certificate_issued_count name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus lms_depart lms_status storeStatus storeDepart student_form_setting landing_control payroll_module payroll_module_status iqac_module iqac_module_status"
     );
     // const encrypt = await encryptionPayload(institute);
     if (req?.query?.mod_id) {
@@ -5958,18 +5958,21 @@ exports.renderApproveStaffShuffleQuery = async (req, res) => {
 exports.renderDepartmentPinnedQuery = async (req, res) => {
   try {
     const { id } = req?.params
-    const { did } = req?.body
+    const { did, type, flow } = req?.body
     if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var one_ins = await InstituteAdmin.findById({ _id: id })
-
-    if (one_ins?.pinned_department?.includes(`${did}`)) {
-      one_ins.pinned_department.pull(did) 
+    if (flow === "INDEPENDENT") {
+      one_ins.independent_pinned_department.push(did)
+      await one_ins.save()
     }
-    else {
-      one_ins.pinned_department.push(did)
+    else if (flow === "DEPENDENT") {
+      one_ins.dependent_pinned_department.push({
+        section_type: type,
+        department: did
+      })
+      await one_ins.save()
     }
-    await one_ins.save()
     res.status(200).send({ message: "Explore One Department Query", access: true})
   }
   catch (e) {

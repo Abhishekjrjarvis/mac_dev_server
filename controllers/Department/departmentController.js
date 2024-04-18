@@ -271,6 +271,7 @@ exports.render_dynamic_form_query = async (req, res) => {
         obj = {}
         head_array = []
       }
+      head_arrays?.splice(0, 1)
       res.status(200).send({ message: "Explore One Student Institute Dynamic Form Query", access: true, result: [...head_arrays]})
     }
     else if (student?.student_form_flow?.flow === "DEPARTMENT") {
@@ -304,6 +305,7 @@ exports.render_dynamic_form_query = async (req, res) => {
         obj = {}
         head_array = []
       }
+      head_arrays?.splice(0, 1)
       res.status(200).send({ message: "Explore One Student Department Dynamic Form Query", access: true, result: [...head_arrays]})
     }
   }
@@ -357,6 +359,63 @@ exports.render_edit_student_form_section_checklist_query = async (req, res) => {
     }
     await dfs.save()
     res.status(200).send({ message: "Edit One Form Section + Nested Checklist Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_dynamic_form_details_query = async (req, res) => {
+  try {
+    const { flow, did } = req?.query
+    if (!flow && !did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    if (flow === "INSTITUTE") {
+      const ins_form = await InstituteStudentForm.findById({ _id: did })
+      .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+    
+    var all_section = ins_form?.form_section?.filter((val) => {
+      if(val?.section_visibilty) return val
+    })
+
+    for (var ele of all_section) {
+      for (var stu of ele?.form_checklist) {
+        if (stu?.form_checklist_visibility) {
+          
+        }
+        else {
+          ele?.form_checklist?.pull(stu?._id)
+        }
+      }
+    }
+    res.status(200).send({ message: "Institute Form Query", access: true, ins_form: all_section})
+    }
+    else if (flow === "DEPARTMENT") {
+      const depart_form = await DepartmentStudentForm.findById({ _id: did })
+      .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+    
+    var all_section = depart_form?.form_section?.filter((val) => {
+      if(val?.section_visibilty) return val
+    })
+
+    for (var ele of all_section) {
+      for (var stu of ele?.form_checklist) {
+        if (stu?.form_checklist_visibility) {
+          
+        }
+        else {
+          ele?.form_checklist?.pull(stu?._id)
+        }
+      }
+    }
+      res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section})
+    }
   }
   catch (e) {
     console.log(e)

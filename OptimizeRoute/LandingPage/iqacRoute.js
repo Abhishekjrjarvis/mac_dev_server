@@ -41,12 +41,12 @@ router.get(
   catchAsync(IQAC.render_all_composition_query)
 );
 
-router.post("/:qcid/syllabus/feedback/object/query", catchAsync(Landing.render_syllabus_feedback_object_query));
+router.post("/:qcid/syllabus/feedback/object/query", catchAsync(IQAC.render_syllabus_feedback_object_query));
 
-router.patch("/:qcid/syllabus/feedback/:acid/nested/object/query", catchAsync(Landing.render_syllabus_feedback_nested_object_query));
+router.patch("/:qcid/syllabus/feedback/:acid/nested/object/query", catchAsync(IQAC.render_syllabus_feedback_nested_object_query));
 
-router.post("/:qcid/add/documents/all/section/query", catchAsync(Landing.render_add_documents_all_section_query));
+router.post("/:qcid/add/documents/all/section/query", catchAsync(IQAC.render_add_documents_all_section_query));
 
-router.post("/:qcid/add/documents/section/query", catchAsync(Landing.render_add_documents_section_query));
+router.post("/:qcid/add/documents/section/query", catchAsync(IQAC.render_add_documents_section_query));
 
 module.exports = router;

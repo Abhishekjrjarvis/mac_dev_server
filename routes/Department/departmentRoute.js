@@ -55,4 +55,6 @@ router.patch(
   catchAsync(Depart.render_edit_student_form_section_checklist_query)
 );
 
+router.get("/dynamic/form/details/query", catchAsync(Depart.render_dynamic_form_details_query))
+
 module.exports = router;

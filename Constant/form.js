@@ -266,6 +266,16 @@ module.exports.form_params = [
                 width: "32%"
             },
             {
+                form_checklist_name: "",
+                form_checklist_key: "",
+                form_checklist_visibility: false,
+                form_checklist_placeholder: "",
+                form_checklist_lable: "",
+                form_checklist_typo: "Same As",
+                form_checklist_required: "",
+                value: ""
+              },
+            {
                 form_checklist_name: "Student Permanent Address",
                 form_checklist_key: "studentAddress",
                 form_checklist_visibility: true,

@@ -11,6 +11,7 @@ const Library = require("../models/Library/Library");
 const DayBook = require("../models/Finance/DayBook");
 const { custom_date_time_reverse } = require("../helper/dayTimer");
 const Mentor = require("../models/MentorMentee/mentor");
+const StudentFeedback = require("../models/StudentFeedback/StudentFeedback");
 
 
 exports.json_to_excel_query = async (
@@ -715,3 +716,37 @@ exports.mentor_json_to_excel = async (
     console.log(e);
   }
 };
+
+exports.department_feedback_json_to_excel = async (
+  id,
+  list,
+  sheetName,
+  excelType,
+  exportTypeName,
+  departmentId
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(list);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, sheetName);
+    var name = `department-${exportTypeName}-${new Date().getHours()}-${new Date().getMinutes()}-${new Date().getSeconds()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const feedback = await StudentFeedback.findById(id);
+    feedback.export_collection.push({
+      excel_type: excelType,
+      excel_file: results,
+      excel_file_name: name,
+      department: departmentId,
+    });
+    feedback.export_collection_count += 1;
+    await feedback.save();
+    return results;
+  } catch (e) {
+    console.log(e);
+  }
+};
+

@@ -13,6 +13,12 @@ const departmentStudentFormSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  undertakings: {
+    type: String
+  },
+  anti_ragging: {
+    type: String
+  },
     form_section: [
         {
             section_name: {

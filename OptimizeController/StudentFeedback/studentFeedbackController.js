@@ -10,6 +10,10 @@ const StudentFeedback = require("../../models/StudentFeedback/StudentFeedback");
 const StudentGiveFeedback = require("../../models/StudentFeedback/StudentGiveFeedback");
 const User = require("../../models/User");
 const StaffStudentFeedback = require("../../models/StudentFeedback/StaffStudentFeedback");
+const {
+  department_feedback_json_to_excel,
+} = require("../../Custom/JSONToExcel");
+const Subject = require("../../models/Subject");
 
 exports.getStudentFeedbackQuery = async (req, res) => {
   try {
@@ -1476,3 +1480,149 @@ exports.removeDublicateMasterQuery = async (req, res) => {
 };
 
 
+exports.getOneDepartmentAnalyticQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    const { ifid } = req.query;
+    if (!did || !ifid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const department = await Department.findById(did);
+
+    const cls = await Class.find({
+      $and: [
+        {
+          batch: { $eq: `${department.departmentSelectBatch}` },
+        },
+        {
+          department: { $eq: `${did}` },
+        },
+      ],
+    });
+
+    let excel_list = [];
+    for (let ct of cls) {
+      let lt = [];
+      const subject = await Subject.find({
+        $and: [
+          {
+            _id: {
+              $in: ct.subject,
+            },
+          },
+          {
+            subject_category: {
+              $in: ["Full Class", "Theory"],
+            },
+          },
+        ],
+      }).populate({
+        path: "subjectTeacherName",
+        select: "staffFirstName staffLastName staffMiddleName",
+      });
+      // .populate({
+      //   path: "subjectMasterName",
+      // });
+      for (let st of subject) {
+        const staff_feedback = await StaffStudentFeedback.findOne({
+          $and: [
+            {
+              feedbackId: { $eq: `${ifid}` },
+            },
+            {
+              staff: { $eq: `${st?.subjectTeacherName?._id}` },
+            },
+          ],
+        }).populate({
+          path: "analytic",
+          // populate: {
+          //   path: "subject_master",
+          //   select: "subjectName",
+          // },
+        });
+        var obj = null;
+        if (lt?.length > 0) {
+          obj = {
+            "Class Name": "",
+            Subject: "",
+            Staff: "",
+            Excellent: "",
+            Good: "",
+            Satisfactory: "",
+            Poor: "",
+            // average: "",
+            Average: "",
+            // subjectCategory: "",
+          };
+        } else {
+          obj = {
+            "Class Name": ct?.classTitle,
+            Subject: "",
+            Staff: "",
+            Excellent: "",
+            Good: "",
+            Satisfactory: "",
+            Poor: "",
+            // average: "",
+            Average: "",
+            // subjectCategory: "",
+          };
+        }
+
+        obj.Subject = st.subjectName;
+        // obj.subjectCategory = st.subject_category;
+        obj.Staff = `${st.subjectTeacherName?.staffFirstName ?? ""} ${
+          st.subjectTeacherName?.staffMiddleName ?? ""
+        } ${st.subjectTeacherName?.staffLastName ?? ""}`;
+
+        for (let ft of staff_feedback?.analytic) {
+          if (`${ft?.subject_master}` === `${st?.subjectMasterName}`) {
+            let ftd = ft?.feedback_analytic?.[0];
+            obj.Excellent = ftd?.excellent?.percentage;
+            obj.Good = ftd?.good?.percentage;
+            obj.Satisfactory = ftd?.satisfaction?.percentage;
+            obj.Poor = ftd?.poor?.percentage;
+            // obj.average=ftd?.excellent?.percentage
+            obj.Average = ftd.avg_percentage;
+          }
+        }
+        lt.push(obj);
+      }
+      lt.push({
+        "Class Name": "",
+        Subject: "",
+        Staff: "",
+        Excellent: "",
+        Good: "",
+        Satisfactory: "",
+        Poor: "",
+        // average: "",
+        Average: "",
+        // subjectCategory: "",
+      });
+      excel_list.push(...lt);
+    }
+
+    let excel_key = "";
+    if (excel_list?.length > 0) {
+      excel_key = await department_feedback_json_to_excel(
+        ifid,
+        excel_list,
+        "Department Feedback",
+        "FEEDBACK",
+        "feedback",
+        did
+      );
+    }
+    res.status(200).send({
+      message: "staff Feedback info",
+      // excel_list: excel_list,
+      excel_key: excel_key,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

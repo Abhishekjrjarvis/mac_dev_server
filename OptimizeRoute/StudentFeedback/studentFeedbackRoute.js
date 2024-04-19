@@ -85,6 +85,12 @@ router.route("/remove/dublicate/master/:ifid").patch(
   catchAsync(studentFeedbackController.removeDublicateMasterQuery)
 );
 
+router.route("/department/analytic/:did/class/feedback/query").patch(
+  // isLoggedIn,
+  catchAsync(studentFeedbackController.getOneDepartmentAnalyticQuery)
+);
+
+
 
 module.exports = router;
 

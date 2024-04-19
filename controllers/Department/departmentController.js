@@ -132,6 +132,19 @@ exports.render_one_student_form_section_query = async (req, res) => {
       .populate({
       path: "form_section.form_checklist"
       })
+      dfs?.form_section?.splice(0, 1)
+      for (let nums of dfs?.form_section) {
+        if (`${nums?.section_key}` === "undertakings" || `${nums?.section_key}` === "antiragging_affidavit") {
+          nums.form_checklist = []
+        }
+        if (`${nums?.section_key}` === "contactDetails") {
+          for (let ele of nums?.form_checklist) {
+            if (`${ele?.form_checklist_typo}` === "Same As Current Address") {
+              nums?.form_checklist?.pull(ele?._id)
+            }
+          }
+        }
+      }
     res.status(200).send({ message: "Explore One Department Student Form Section Query", access: true, section: dfs?.form_section})
   }
   catch (e) {
@@ -244,6 +257,7 @@ exports.render_dynamic_form_query = async (req, res) => {
       var head_array = []
       var head_arrays = []
       var obj = {}
+      var nest_obj = {}
       const all_check = await InstituteStudentForm.findOne({ institute: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
@@ -252,19 +266,25 @@ exports.render_dynamic_form_query = async (req, res) => {
       for (var val of all_check?.form_section) {
         for (var ele of val?.form_checklist) {
           var list = student?.student_dynamic_field?.filter((dna) => {
-            if(dna?.key[`${ele?.form_checklist_key}`]) return dna?.value
+            if (dna?.key === ele?.form_checklist_key) {
+              nest_obj[`${dna?.key}`] = dna?.value
+            }
           })
-          head_array.push({
-            form_checklist_name: ele?.form_checklist_name,
-            form_checklist_key: ele?.form_checklist_key,
-            form_checklist_visibility: ele?.form_checklist_visibility,
-            form_checklist_placeholder: ele?.form_checklist_placeholder,
-            form_checklist_lable: ele?.form_checklist_lable,
-            form_checklist_typo: ele?.form_checklist_typo,
-            form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
-            form_checklist_required: ele?.form_checklist_required,
-            value: student[`${ele?.form_checklist_key}`] ?? list[0] 
-          })
+          if (ele?.form_checklist_typo === "Same As Current Address") {
+          }
+          else{
+            head_array.push({
+              form_checklist_name: ele?.form_checklist_name,
+              form_checklist_key: ele?.form_checklist_key,
+              form_checklist_visibility: ele?.form_checklist_visibility,
+              form_checklist_placeholder: ele?.form_checklist_placeholder,
+              form_checklist_lable: ele?.form_checklist_lable,
+              form_checklist_typo: ele?.form_checklist_typo,
+              form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+              form_checklist_required: ele?.form_checklist_required,
+              value: student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+            }) 
+          }
         }
         obj[`fields`] = [...head_array]
         head_arrays.push({ ...obj, key: val?.section_name })
@@ -278,6 +298,7 @@ exports.render_dynamic_form_query = async (req, res) => {
       var head_array = []
       var head_arrays = []
       var obj = {}
+      var nest_obj = {}
       const all_check = await DepartmentStudentForm.findOne({ department: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
@@ -286,19 +307,25 @@ exports.render_dynamic_form_query = async (req, res) => {
       for (var val of all_check?.form_section) {
         for (var ele of val?.form_checklist) {
           var list = student?.student_dynamic_field?.filter((dna) => {
-            if(dna?.key[`${ele?.form_checklist_key}`]) return dna?.value
+            if (dna?.key === ele?.form_checklist_key) {
+              nest_obj[`${dna?.key}`] = dna?.value
+            }
           })
-          head_array.push({
-            form_checklist_name: ele?.form_checklist_name,
-            form_checklist_key: ele?.form_checklist_key,
-            form_checklist_visibility: ele?.form_checklist_visibility,
-            form_checklist_placeholder: ele?.form_checklist_placeholder,
-            form_checklist_lable: ele?.form_checklist_lable,
-            form_checklist_typo: ele?.form_checklist_typo,
-            form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
-            form_checklist_required: ele?.form_checklist_required,
-            value: student[`${ele?.form_checklist_key}`] ?? list[0] 
-          })
+          if (ele?.form_checklist_typo === "Same As Current Address") {
+          }
+          else {
+            head_array.push({
+              form_checklist_name: ele?.form_checklist_name,
+              form_checklist_key: ele?.form_checklist_key,
+              form_checklist_visibility: ele?.form_checklist_visibility,
+              form_checklist_placeholder: ele?.form_checklist_placeholder,
+              form_checklist_lable: ele?.form_checklist_lable,
+              form_checklist_typo: ele?.form_checklist_typo,
+              form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+              form_checklist_required: ele?.form_checklist_required,
+              value: student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+            })
+          }
         }
         obj[`fields`] = [...head_array]
         head_arrays.push({ ...obj, key: val?.section_name })
@@ -371,7 +398,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
     if (!flow && !did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     if (flow === "INSTITUTE") {
-      const ins_form = await InstituteStudentForm.findById({ _id: did })
+      const ins_form = await InstituteStudentForm.findOne({ institute: did })
       .select("form_section")
       .populate({
       path: "form_section.form_checklist"
@@ -394,7 +421,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
     res.status(200).send({ message: "Institute Form Query", access: true, ins_form: all_section})
     }
     else if (flow === "DEPARTMENT") {
-      const depart_form = await DepartmentStudentForm.findById({ _id: did })
+      const depart_form = await DepartmentStudentForm.findOne({ department: did })
       .select("form_section")
       .populate({
       path: "form_section.form_checklist"
@@ -415,6 +442,39 @@ exports.render_dynamic_form_details_query = async (req, res) => {
       }
     }
       res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_add_textarea_field_query = async (req, res) => {
+  try {
+    const { flow, did, fsid, content } = req?.body
+    if (!flow && !did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    if (flow === "INSTITUTE") {
+      const ins_form = await InstituteStudentForm.findOne({ institute: did })
+      for (var val of ins_form?.form_section) {
+        if (`${val?._id}` === `${fsid}`) {
+          val.section_pdf = content
+          val.section_value = content
+        }
+      }
+      await ins_form.save()
+      res.status(200).send({ message: "Institute Form Query", access: true})
+    }
+    else if (flow === "DEPARTMENT") {
+      const depart_form = await DepartmentStudentForm.findOne({ department: did })
+      for (var val of depart_form?.form_section) {
+        if (`${val?._id}` === `${fsid}`) {
+          val.section_pdf = content
+          val.section_value = content
+        }
+      }
+      await depart_form.save()
+      res.status(200).send({ message: "Department Form Query", access: true})
     }
   }
   catch (e) {

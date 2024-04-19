@@ -964,6 +964,13 @@ const studentSchema = new mongoose.Schema({
   university_eligibility_form: { type: String },
   ph_certificate: { type: String },
   gap_certificate: { type: String },
+  eligibilty_certificate: { type: String },
+  caste_certificate: { type: String },
+  domicileCertificate: { type: String },
+  nationalityCertificate: { type: String },
+  nonCreamyLayerCertificate: { type: String },
+  migrationCertificate: { type: String },
+  incomeCertificate: { type: String },
   student_dynamic_field: [
     {
       key: { type: String },

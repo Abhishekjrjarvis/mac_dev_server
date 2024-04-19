@@ -57,4 +57,6 @@ router.patch(
 
 router.get("/dynamic/form/details/query", catchAsync(Depart.render_dynamic_form_details_query))
 
+router.patch("/add/textarea/query", catchAsync(Depart.render_add_textarea_field_query))
+
 module.exports = router;

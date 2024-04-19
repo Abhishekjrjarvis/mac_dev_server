@@ -9,12 +9,6 @@ const instituteStudentFormSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  undertakings: {
-    type: String
-  },
-  anti_ragging: {
-    type: String
-  },
     form_section: [
         {
             section_name: {
@@ -26,7 +20,13 @@ const instituteStudentFormSchema = new mongoose.Schema({
             },
             section_key: {
                 type: String
-            },
+        },
+        section_stats: {
+              type: String
+        },
+        section_value: {
+          type: String
+        },
             section_date: {
                 type: Date,
                 default: Date.now

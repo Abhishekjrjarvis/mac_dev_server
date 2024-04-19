@@ -271,7 +271,7 @@ module.exports.form_params = [
                 form_checklist_visibility: false,
                 form_checklist_placeholder: "",
                 form_checklist_lable: "",
-                form_checklist_typo: "Same As",
+                form_checklist_typo: "Same As Current Address",
                 form_checklist_required: false,
                 value: ""
               },
@@ -520,6 +520,34 @@ module.exports.form_params = [
         section_key: "undertakings",
         section_view: "View Sample",
         section_pdf: "",
+        section_stats: "undertakings",
+        section_value: `
+        1.I @STUDENT_NAME have read all the rules of admission for the year & undertake to abide by the same
+ 2.The information given by me in my application is true to be the best knowledge and belief
+ 3.I have not been debarred from appearing at any examination held by the government or any statutory body
+ in India
+4.I hereby agree to confirm to any Rules Act & Laws enforced by government and i hereby undertake that so
+ long as I remain student of college, I will do nothing either inside or out of the college which my result in
+ disciplinary action against the under the rules of conduct and discipline
+ 5.I fully understand that the Principal of the @INSTITUTE_NAME, Bhavans
+ Campus, Munshi Nagar, Andheri West, Mumbai ,willhavefullyauthority to expel me from the
+ college of any infringement of rules of conduct and discipline
+ 6.I am fully aware that there is likely to be change in the fee structure and I understand to pay fees
+ whatsoever, approved by competent authority
+ 7.I am fully aware that i wil not be allow to appear for the examination if I do not attend minimum 75% class
+ in theory, practical, drawing etc. , I am also aware that i will not allow to appear for the examination if I fail to
+ submit satisfactory all the assignment job, journal, drawing, reports as specified by the university within
+ stipulated time limit
+ 8.I am admitted under (SC / ST / OBC / VJNT / SBC / EWS) category. If i do not apply to appropriate authority
+ for free ship / scholarship (State Government/ Central Government) for reimbursement of fees, i will be
+ responsible to pay the full fees applicable for Open Category Student
+ 9.If the government decides not to reimburse or sanction the fees for any reason whatsoever then I am liable
+ to pay the full fees as application to the Open Category Student
+ 10.If the government decides not to reimburse or sanction the fees for any reason whatsoever then I am
+ liable to pay the full fees as application to the Open Category Student The fee structure for the year is
+ tentative. In case competent authority makes any changes in the fees, i will be responsible to pay the fees
+ accordingly
+        `,
         form_checklist: [
             {
                 form_checklist_name: "Undertakings",
@@ -539,6 +567,8 @@ module.exports.form_params = [
         section_key: "antiragging_affidavit",
         section_view: "View Sample",
         section_pdf: "",
+        section_stats: "antiragging_affidavit",
+        section_value: "",
         form_checklist: [
             {
                 form_checklist_name: "Anti-Ragging Affidavit By The Student",

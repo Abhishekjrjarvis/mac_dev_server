@@ -6322,6 +6322,20 @@ exports.render_one_student_form_section_query = async (req, res) => {
       .populate({
       path: "form_section.form_checklist"
       })
+    
+    ifs?.form_section?.splice(0, 1)
+    for (let nums of ifs?.form_section) {
+      if (`${nums?.section_key}` === "undertakings" || `${nums?.section_key}` === "antiragging_affidavit") {
+        nums.form_checklist = []
+      }
+      if (`${nums?.section_key}` === "contactDetails") {
+        for (let ele of nums?.form_checklist) {
+          if (`${ele?.form_checklist_typo}` === "Same As Current Address") {
+            nums?.form_checklist?.pull(ele?._id)
+          }
+        }
+      }
+    }
     res.status(200).send({ message: "Explore One Institute Student Form Section Query", access: true, section: ifs?.form_section})
   }
   catch (e) {
@@ -6433,6 +6447,7 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
           section_name: val?.section_name,
           section_visibilty: val?.section_visibilty,
           section_key: val?.section_key,
+          section_value: val?.section_value,
           form_checklist: [...numss]
         })
         numss = []
@@ -6483,6 +6498,7 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
             section_name: val?.section_name,
             section_visibilty: val?.section_visibilty,
             section_key: val?.section_key,
+            section_value: val?.section_value,
             ins_form_section_id: val?._id,
             form_checklist: [...nums]
           })

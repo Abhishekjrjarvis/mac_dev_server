@@ -217,4 +217,19 @@ router.get("/:anid/one/academic/nested/page/query", catchAsync(Landing.render_al
 
 router.get("/:lcid/one/accreditation/query", catchAsync(Landing.render_one_accreditation_query));
 
+router.get("/:lcid/one/accreditation/edit/query", catchAsync(Landing.render_home_accreditation_edit_object_query));
+router.get("/:lcid/one/accreditation/delete/query", catchAsync(Landing.render_home_accreditation_delete_object_query));
+
+router.get("/:lcid/one/founder/desk/edit/query", catchAsync(Landing.render_founder_edit_desk_post_query));
+router.get("/:lcid/one/founder/desk/delete/query", catchAsync(Landing.render_founder_delete_desk_post_query));
+
+router.get("/:lcid/one/administration/edit/query", catchAsync(Landing.render_about_institute_administration_edit_object_query));
+router.get("/:lcid/one/administration/delete/query", catchAsync(Landing.render_about_institute_administration_delete_object_query));
+
+router.get("/:lcid/one/academic/page/edit/query", catchAsync(Landing.render_edit_academic_head_query));
+router.get("/:lcid/one/academic/page/delete/query", catchAsync(Landing.render_delete_academic_head_query));
+
+router.get("/:lcid/one/academic/page/edit/query", catchAsync(Landing.render_edit_academic_nested_head_query));
+router.get("/:lcid/one/academic/page/delete/query", catchAsync(Landing.render_delete_academic_nested_head_query));  
+
 module.exports = router;

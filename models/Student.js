@@ -957,6 +957,7 @@ const studentSchema = new mongoose.Schema({
   student_previous_lctc: { type: String },
   student_previous_marksheet_attachment: { type: String },
   student_undertakings: { type: String },
+  student_anti_ragging: { type: String },
   student_signature: { type: String },
   student_parents_signature: { type: String },
   student_pan_card: { type: String },
@@ -980,7 +981,7 @@ const studentSchema = new mongoose.Schema({
   student_form_flow: {
     flow: { type: String },
     did: { type: String }
-  }
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

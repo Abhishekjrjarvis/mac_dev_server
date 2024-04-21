@@ -74,7 +74,7 @@ exports.render_new_iqac_query = async (req, res) => {
         var institute = await InstituteAdmin.findById({ _id: id });
         var iqac = new IQAC({});
         institute.iqac_module.push(iqac._id);
-        institute.iqac_module = "Enable";
+        institute.iqac_module_status = "Enable";
         iqac.institute = institute._id;
         await Promise.all([institute.save(), iqac.save()]);
         // const fEncrypt = await encryptionPayload(iqac._id);

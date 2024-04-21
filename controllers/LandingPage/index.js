@@ -1919,6 +1919,196 @@ exports.render_one_accreditation_query = async (req, res) => {
   }
 }
 
+exports.render_home_accreditation_edit_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { acid, c_name, c_attach, name, image, about, combined } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const landing = await LandingControl.findById({ _id: lcid })
+    for (var val of landing?.home_accreditation_object) {
+      if (`${val?._id}` === `${acid}`) {
+        val.c_name = c_name ? c_name : val.c_name
+        val.c_attach = c_attach ? c_attach : val.c_attach
+        val.name = name ? name : val.name
+        val.image = image ? image : val.image
+        val.about = about ? about : val.about
+        val.combined = [...combined]
+      }
+    }
+    await landing.save()
+    res.status(200).send({ message: "Home Header Accreditation Edit Object Update Query", access: true})
+
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_home_accreditation_delete_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { acid } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const landing = await LandingControl.findById({ _id: lcid })
+    for (var val of landing?.home_accreditation_object) {
+      if (`${val?._id}` === `${acid}`) {
+        landing?.home_accreditation_object.pull(val?._id)
+      }
+    }
+    await landing.save()
+    res.status(200).send({ message: "Home Header Accreditation Delete Object Update Query", access: true})
+
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_about_institute_administration_edit_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { acid, leading_person, leading_person_position, leading_person_message } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const landing = await LandingControl.findById(lcid)
+    for (var val of landing.administration_object) {
+      if (`${val?._id}` === `${acid}`) {
+          val.leading_person = leading_person ? leading_person : val?.leading_person,
+          val.leading_person_position = leading_person_position ? leading_person_position : val?.leading_person_position,
+          val.leading_person_message = leading_person_message ? leading_person_message : val?.leading_person_message
+      }
+    }
+    await landing.save()
+    res.status(200).send({ message: "Home About Institute Administration Edit Object Update Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_about_institute_administration_delete_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { acid } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const landing = await LandingControl.findById(lcid)
+    for (var val of landing.administration_object) {
+      if (`${val?._id}` === `${acid}`) {
+        landing.administration_object.pull(val?._id)
+      }
+    }
+    await landing.save()
+    res.status(200).send({ message: "Home About Institute Administration Delete Object Update Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_founder_edit_desk_post_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { fcid, video, image, link, description } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const landing = await LandingControl.findById({ _id: lcid })
+    for (var val of landing.founder_desk) {
+      if (`${val?._id}` === `${fcid}`) {
+        val.video = video ? video : val?.video,
+        val.image = image ? image : val?.image,
+        val.link = link ? link : val?.link,
+        val.description = description ? description : val?.description
+      }
+    }
+    await landing.save()
+    res.status(200).send({ message: "Founder's Desk Updated Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_founder_delete_desk_post_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { fcid } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const landing = await LandingControl.findById({ _id: lcid })
+    for (var val of landing.founder_desk) {
+      if (`${val?._id}` === `${fcid}`) {
+        landing.founder_desk.pull(val?._id)
+      }
+    }
+    await landing.save()
+    res.status(200).send({ message: "Founder's Desk Delete Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_edit_academic_head_query = async (req, res) => {
+  try {
+    const { apid } = req?.params
+    if (!apid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    await AcademicPage.findByIdAndUpdate(apid, req?.body)
+    res.status(200).send({ message: "Explore Edit Academic Head Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_delete_academic_head_query = async (req, res) => {
+  try {
+    const { apid } = req?.params
+    if (!apid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const page = await AcademicPage.findById({ _id: apid })
+    const landing = await LandingControl.findById({ _id: `${page?.landing_control}` })
+    landing.academic_courses_desk.pull(page?._id)
+    await landing.save()
+    await AcademicPage.findByIdAndDelete(apid)
+    res.status(200).send({ message: "Explore Delete Academic Head Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_edit_academic_nested_head_query = async (req, res) => {
+  try {
+    const { anid } = req?.params
+    if (!anid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    await AcademicNestedPage.findByIdAndUpdate(anid, req?.body)
+    res.status(200).send({ message: "Explore Edit Academic Nested Head Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_delete_academic_nested_head_query = async (req, res) => {
+  try {
+    const { anid } = req?.params
+    if (!anid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const page = await AcademicNestedPage.findById({ _id: anid })
+    const landing = await AcademicPage.findById({ _id: `${page?.academic_page}` })
+    landing.sub_head.pull(page?._id)
+    await landing.save()
+    await AcademicNestedPage.findByIdAndDelete(anid)
+    res.status(200).send({ message: "Explore Delete Academic Nested Head Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+
+
 // var is_true = true;
 // setInterval(async () => {
 //   if (

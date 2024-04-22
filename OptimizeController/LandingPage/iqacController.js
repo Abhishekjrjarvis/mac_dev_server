@@ -108,7 +108,7 @@ exports.render_add_authority_query = async (req, res) => {
 
         const iq = await IQAC.findById({ _id: qid })
         const new_custom = new CustomAuthority({ ...req?.body })
-        const staff = await Staff.findById({ _id: `${custom_head_person}`})
+        const staff = await Staff.findById({ _id: `${req?.body?.custom_head_person}`})
         new_custom.institute = iq?.institute
         new_custom.iqac = iq?._id
         iq.authority.push(new_custom?._id)
@@ -331,6 +331,12 @@ exports.render_add_documents_all_section_query = async (req, res) => {
         }
         else if (flow === "IDD") {
             custom.idd.push({
+                name: name,
+                attach: attach
+            })
+        }
+        else if (flow === "MEETINGS") {
+            custom.meetings.push({
                 name: name,
                 attach: attach
             })

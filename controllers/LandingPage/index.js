@@ -1935,7 +1935,7 @@ exports.render_home_accreditation_edit_object_query = async (req, res) => {
         val.name = name ? name : val.name
         val.image = image ? image : val.image
         val.about = about ? about : val.about
-        val.combined = [...combined]
+        val.combined = combined?.length > 0 ? [...combined] : val.combined
       }
     }
     await landing.save()

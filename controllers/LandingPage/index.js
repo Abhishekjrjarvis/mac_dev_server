@@ -1635,7 +1635,10 @@ exports.render_one_pinned_department_query = async (req, res) => {
       .select("dependent_pinned_department")
       .populate({
         path: "dependent_pinned_department",
-        select: "dName"
+        populate: {
+          path: "department",
+          select: "dName"
+        }
       })
     var nums = []
     for (let ele of ins?.dependent_pinned_department) {

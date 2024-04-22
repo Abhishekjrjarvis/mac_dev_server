@@ -124,6 +124,12 @@ const customAuthoritySchema = new mongoose.Schema({
             ref: "AcademicNestedPage"
         }
     ],
+    meetings: [
+        {
+            name: { type: String },
+            attach: { type: String }
+        }
+    ],
     tab_manage: {
         composition_tab: { type: Boolean, default: true },
         syllabus_feedback_tab: { type: Boolean, default: true },

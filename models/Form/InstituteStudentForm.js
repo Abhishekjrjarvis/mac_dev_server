@@ -9,6 +9,9 @@ const instituteStudentFormSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  flow: {
+    type: String
+  },
     form_section: [
         {
             section_name: {

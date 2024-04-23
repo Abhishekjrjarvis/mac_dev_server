@@ -1643,7 +1643,7 @@ exports.render_one_pinned_department_query = async (req, res) => {
     var nums = []
     for (let ele of ins?.dependent_pinned_department) {
       if (`${ele?.section_type}` === `${type}`) {
-        nums.push(ele?.department)
+        nums.push(...ele?.department)
       }
     }
     res.status(200).send({ message: "Explore Dependent Pinned Department", access: true, ins: nums})

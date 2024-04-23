@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { isLoggedIn } = require("../../middleware");
 const siteController = require("../../controllers/Site/siteController");
+const catchAsync = require("../../Utilities/catchAsync");
 router
   .route("/info/department/:did")
   .get(siteController.getDepartmentInfo)
@@ -30,5 +31,11 @@ router
   .route("/info/transport/:tid")
   .get(siteController.getTransportInfo)
   .patch(isLoggedIn, siteController.updateTransportInfo);
+
+router.patch("/:dsid/one/department/site/extra/docs/query", catchAsync(siteController.render_one_department_extra_docs_query));
+
+router.patch("/:dsid/one/department/site/syllabus/projects/query", catchAsync(siteController.render_one_department_syllabus_projects_query));
+
+router.patch("/:dsid/one/department/site/pso/query", catchAsync(siteController.render_one_department_pso_query));
 
 module.exports = router;

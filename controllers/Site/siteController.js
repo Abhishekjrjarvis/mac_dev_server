@@ -569,3 +569,91 @@ exports.updateTransportInfo = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.render_one_department_extra_docs_query = async (req, res) => {
+  try {
+    const { dsid } = req?.params
+    const { flow, title, image, description } = req?.body
+    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var d_site = await DepartmentSite.findById({ _id: dsid })
+    if (flow === "PROFESSIONAL_BODY") {
+      d_site.professional_body.push({
+        title: title,
+        description: description,
+        image: image
+      })
+    } else if (flow === "STUDENT_ASSOCIATIONS") {
+      d_site.professional_body.push({
+        title: title,
+        description: description,
+        image: image
+      })
+    }
+    else if (flow === "STUDENT_ACHIEVEMENTS") {
+      d_site.professional_body.push({
+        title: title,
+        description: description,
+        image: image
+      })
+    }
+    else if (flow === "INNOVATIVE_PRACTICES") {
+      d_site.professional_body.push({
+        title: title,
+        description: description,
+        image: image
+      })
+    }
+    await d_site.save()
+    res.status(200).send({ message: "Explore Department Site Updated Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+
+exports.render_one_department_syllabus_projects_query = async (req, res) => {
+  try {
+    const { dsid } = req?.params
+    const { flow, name, attach } = req?.body
+    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var d_site = await DepartmentSite.findById({ _id: dsid })
+    if (flow === "SYLLABUS") {
+      d_site.syllabus.push({
+        name: name,
+        attach: attach
+      })
+    } else if (flow === "PROJECTS") {
+      d_site.projects.push({
+        name: name,
+        attach: attach
+      })
+    }
+    await d_site.save()
+    res.status(200).send({ message: "Explore Department Site Updated Syllabus + Projects Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_department_pso_query = async (req, res) => {
+  try {
+    const { dsid } = req?.params
+    const { title, description } = req?.body
+    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+
+    var d_site = await DepartmentSite.findById({ _id: dsid })
+    d_site.po_pso.push({
+      title: title,
+      description: description
+    })
+    await d_site.save()
+    res.status(200).send({ message: "Explore Department Site Updated PO / PSO Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

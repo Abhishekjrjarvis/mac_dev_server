@@ -292,7 +292,7 @@ exports.render_dynamic_form_query = async (req, res) => {
               form_checklist_lable: ele?.form_checklist_lable,
               form_checklist_typo: ele?.form_checklist_typo,
               form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
-              form_checklist_required: ele?.form_checklist_required,
+              form_checklist_required: true,
               value:  name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
             }) 
           }
@@ -346,7 +346,7 @@ exports.render_dynamic_form_query = async (req, res) => {
               form_checklist_lable: ele?.form_checklist_lable,
               form_checklist_typo: ele?.form_checklist_typo,
               form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
-              form_checklist_required: ele?.form_checklist_required,
+              form_checklist_required: true,
               value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
             })
           }
@@ -434,18 +434,20 @@ exports.render_dynamic_form_details_query = async (req, res) => {
 
       for (var ele of all_section) {
         for (var stu of ele?.form_checklist) {
-        stu.form_checklist_required = true
-        if (stu?.form_checklist_visibility) {
-          
-        }
-        else {
           if (stu?.form_checklist_typo === "Same As") {
             
           }
           else {
-            ele?.form_checklist?.pull(stu?._id)
+            ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
+              if (qwe?.form_checklist_visibility) {
+                return qwe
+              }
+              else {
+                return null
+              }
+            })
           }
-        }
+        stu.form_checklist_required = true
       }
     }
     res.status(200).send({ message: "Institute Form Query", access: true, ins_form: all_section})
@@ -463,18 +465,21 @@ exports.render_dynamic_form_details_query = async (req, res) => {
 
     for (var ele of all_section) {
       for (var stu of ele?.form_checklist) {
-        stu.form_checklist_required = true
-        if (stu?.form_checklist_visibility) {
-          
-        }
-        else {
+        
           if (stu?.form_checklist_typo === "Same As") {
             
           }
           else {
-            ele?.form_checklist?.pull(stu?._id)
+            ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
+              if (qwe?.form_checklist_visibility) {
+                return qwe
+              }
+              else {
+                return null
+              }
+            })
           }
-        }
+        stu.form_checklist_required = true
       }
     }
       res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section})

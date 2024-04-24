@@ -434,18 +434,20 @@ exports.render_dynamic_form_details_query = async (req, res) => {
 
       for (var ele of all_section) {
         for (var stu of ele?.form_checklist) {
-        stu.form_checklist_required = true
-        if (stu?.form_checklist_visibility) {
-          
-        }
-        else {
           if (stu?.form_checklist_typo === "Same As") {
             
           }
           else {
-            ele?.form_checklist?.pull(stu?._id)
+            ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
+              if (qwe?.form_checklist_visibility) {
+                return qwe
+              }
+              else {
+                return null
+              }
+            })
           }
-        }
+        stu.form_checklist_required = true
       }
     }
     res.status(200).send({ message: "Institute Form Query", access: true, ins_form: all_section})
@@ -463,18 +465,21 @@ exports.render_dynamic_form_details_query = async (req, res) => {
 
     for (var ele of all_section) {
       for (var stu of ele?.form_checklist) {
-        stu.form_checklist_required = true
-        if (stu?.form_checklist_visibility) {
-          
-        }
-        else {
+        
           if (stu?.form_checklist_typo === "Same As") {
             
           }
           else {
-            ele?.form_checklist?.pull(stu?._id)
+            ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
+              if (qwe?.form_checklist_visibility) {
+                return qwe
+              }
+              else {
+                return null
+              }
+            })
           }
-        }
+        stu.form_checklist_required = true
       }
     }
       res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section})

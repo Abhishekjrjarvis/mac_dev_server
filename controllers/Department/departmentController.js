@@ -139,7 +139,7 @@ exports.render_one_student_form_section_query = async (req, res) => {
         }
         if (`${nums?.section_key}` === "contactDetails") {
           for (let ele of nums?.form_checklist) {
-            if (`${ele?.form_checklist_typo}` === "Same As Current Address") {
+            if (`${ele?.form_checklist_typo}` === "Same As") {
               nums?.form_checklist?.pull(ele?._id)
             }
           }
@@ -270,7 +270,7 @@ exports.render_dynamic_form_query = async (req, res) => {
               nest_obj[`${dna?.key}`] = dna?.value
             }
           })
-          if (ele?.form_checklist_typo === "Same As Current Address") {
+          if (ele?.form_checklist_typo === "Same As") {
           }
           else{
             head_array.push({
@@ -311,7 +311,7 @@ exports.render_dynamic_form_query = async (req, res) => {
               nest_obj[`${dna?.key}`] = dna?.value
             }
           })
-          if (ele?.form_checklist_typo === "Same As Current Address") {
+          if (ele?.form_checklist_typo === "Same As") {
           }
           else {
             head_array.push({
@@ -414,7 +414,12 @@ exports.render_dynamic_form_details_query = async (req, res) => {
           
         }
         else {
-          ele?.form_checklist?.pull(stu?._id)
+          if (stu?.form_checklist_typo === "Same As") {
+            
+          }
+          else {
+            ele?.form_checklist?.pull(stu?._id)
+          }
         }
       }
     }
@@ -437,7 +442,12 @@ exports.render_dynamic_form_details_query = async (req, res) => {
           
         }
         else {
-          ele?.form_checklist?.pull(stu?._id)
+          if (stu?.form_checklist_typo === "Same As") {
+            
+          }
+          else {
+            ele?.form_checklist?.pull(stu?._id)
+          }
         }
       }
     }

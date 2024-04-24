@@ -8073,24 +8073,6 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
           student.admissionRemainFeeCount -= price;
         }
         student.admissionPaidFeeCount += price;
-        // if (mode === "Online") {
-        //   admin_ins.onlineFee += price + extra_price;
-        //   apply.onlineFee += price + extra_price;
-        //   apply.collectedFeeCount += price + extra_price;
-        //   finance.financeTotalBalance += price + extra_price;
-        //   finance.financeAdmissionBalance += price + extra_price;
-        //   finance.financeBankBalance += price + extra_price;
-        // } else if (mode === "Offline") {
-        //   admin_ins.offlineFee += price + extra_price;
-        //   apply.offlineFee += price + extra_price;
-        //   apply.collectedFeeCount += price + extra_price;
-        //   admin_ins.collected_fee += price + extra_price;
-        //   finance.financeTotalBalance += price + extra_price;
-        //   finance.financeAdmissionBalance += price + extra_price;
-        //   finance.financeSubmitBalance += price + extra_price;
-        // } else {
-        // }
-        // await set_fee_head_query(student, price, apply);
         if (req?.body?.fee_payment_mode === "Government/Scholarship") {
         } else {
           await update_fee_head_query(student, price, apply, new_receipt);

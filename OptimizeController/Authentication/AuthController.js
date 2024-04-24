@@ -80,6 +80,7 @@ const QvipleId = require("../../models/Universal/QvipleId");
 const { number_query } = require("../../Custom/phoneNumber");
 const LandingControl = require("../../models/LandingModel/LandingControl");
 const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
+const InstituteStaffForm = require("../../models/Form/InstituteStaffForm");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -138,6 +139,7 @@ exports.getRegisterIns = async (req, res) => {
         const institute = new InstituteAdmin({ ...req.body });
         var lc = new LandingControl({})
         var form = new InstituteStudentForm({})
+        var form_staff = new InstituteStaffForm({})
         var qvipleId = new QvipleId({})
       qvipleId.institute = institute?._id
         qvipleId.qviple_id = `${uqid}`
@@ -145,6 +147,8 @@ exports.getRegisterIns = async (req, res) => {
         institute.landing_control = lc?._id
         form.institute = institute?._id
         institute.student_form_setting = form?._id
+        form_staff.institute = institute?._id
+        institute.staff_form_setting = form_staff?._id
         institute.staffJoinCode = await randomSixCode();
         if (req.body.userId !== "") {
           const user = await User.findOne({ username: req.body.userId });
@@ -176,7 +180,7 @@ exports.getRegisterIns = async (req, res) => {
         }`;
         admins.instituteList.push(institute);
         admins.requestInstituteCount += 1;
-        await Promise.all([admins.save(), institute.save(), qvipleId.save(), lc.save(), form.save()]);
+        await Promise.all([admins.save(), institute.save(), qvipleId.save(), lc.save(), form.save(), form_staff.save()]);
         const ins_obj = {
           message: "Institute", 
           institute: institute

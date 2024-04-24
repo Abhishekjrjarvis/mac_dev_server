@@ -698,8 +698,54 @@ router.patch(
   catchAsync(Institute.render_auto_student_form_section_checklist_query)
 );
 
+// Add In Super Admin
+router.patch(
+  "/:fcid/enable/auto/staff/form/query",
+  catchAsync(Institute.render_auto_staff_form_section_checklist_query)
+);
+
 router.post("/:id/pinned/department/query", catchAsync(Institute.renderDepartmentPinnedQuery))
 
 router.patch("/enable/all/dataset", catchAsync(Institute.all_dataset))
+
+
+router.post(
+  "/new/form/:fcid/section/staff/query",
+  catchAsync(Institute.render_new_staff_form_section_query)
+);
+
+router.post(
+  "/new/form/:fcid/checklist/staff/query",
+  catchAsync(Institute.render_new_staff_form_checklist_query)
+);
+
+router.patch(
+  "/edit/form/:fcid/section/staff/query",
+  catchAsync(Institute.render_edit_staff_form_section_query)
+);
+
+router.patch(
+  "/edit/form/:fcid/section/checklist/staff/query",
+  catchAsync(Institute.render_edit_staff_form_section_checklist_query)
+);
+
+router.patch(
+  "/shuffle/form/:fcid/section/staff/query",
+  catchAsync(Institute.render_shuffle_staff_form_section_query)
+);
+
+router.get(
+  "/one/form/:fcid/section/staff/query",
+  catchAsync(Institute.render_one_staff_form_section_query)
+);
+
+router.get(
+  "/one/form/:id/section/enable/staff/query",
+  catchAsync(Institute.render_one_staff_form_section_enable_query)
+);
+
+router.get("/:sid/dynamic/form/query", catchAsync(Institute.render_dynamic_form_query))
+
+router.get("/dynamic/form/details/query", catchAsync(Institute.render_dynamic_form_details_query))
 
 module.exports = router;

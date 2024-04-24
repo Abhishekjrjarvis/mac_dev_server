@@ -722,7 +722,26 @@ const staffSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "CustomAuthority"
     }
-  ]
+  ],
+  staff_joining_letter: { type: String },
+  staffAlternatePhoneNumber: { type: String },
+  staffAlternateEmail: { type: String },
+  staffEmail: { type: String },
+  staff_qualification_details: [],
+  staff_past_experience_details: [],
+  staff_research_and_publication: [],
+  yt_links: { type: String },
+  fb_links: { type: String },
+  tw_links: { type: String },
+  ig_links: { type: String },
+  in_links: { type: String },
+  qviple_links: { type: String },
+  staff_dynamic_field: [
+    {
+      key: { type: String },
+      value: { type: String }
+    }
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

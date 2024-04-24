@@ -1339,7 +1339,11 @@ const instituteAdminSchema = new mongoose.Schema({
   iqac_module_status: {
     type: String,
     default: "Disable"
-  }
+  },
+  staff_form_setting: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteStaffForm"
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

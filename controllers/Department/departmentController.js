@@ -263,6 +263,10 @@ exports.render_dynamic_form_query = async (req, res) => {
       .populate({
       path: "form_section.form_checklist"
       })
+      .populate({
+        path: "institute",
+        select: "insName"
+        })
       for (var val of all_check?.form_section) {
         for (var ele of val?.form_checklist) {
           var list = student?.student_dynamic_field?.filter((dna) => {
@@ -272,7 +276,14 @@ exports.render_dynamic_form_query = async (req, res) => {
           })
           if (ele?.form_checklist_typo === "Same As") {
           }
-          else{
+          else {
+            if (ele?.form_checklist_key === "student_undertakings") {
+              var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+              var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.institute?.insName}`)
+            }
+            else if (ele?.form_checklist_key === "student_anti_ragging") {
+              var name2 = val?.section_value
+            }
             head_array.push({
               form_checklist_name: ele?.form_checklist_name,
               form_checklist_key: ele?.form_checklist_key,
@@ -282,7 +293,7 @@ exports.render_dynamic_form_query = async (req, res) => {
               form_checklist_typo: ele?.form_checklist_typo,
               form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
               form_checklist_required: ele?.form_checklist_required,
-              value: student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+              value:  name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
             }) 
           }
         }
@@ -304,6 +315,12 @@ exports.render_dynamic_form_query = async (req, res) => {
       .populate({
       path: "form_section.form_checklist"
       })
+      .populate({
+        path: "department",
+        select: "institute",
+        populate: "institute",
+        select: "insName"
+        })
       for (var val of all_check?.form_section) {
         for (var ele of val?.form_checklist) {
           var list = student?.student_dynamic_field?.filter((dna) => {
@@ -314,6 +331,13 @@ exports.render_dynamic_form_query = async (req, res) => {
           if (ele?.form_checklist_typo === "Same As") {
           }
           else {
+            if (ele?.form_checklist_key === "student_undertakings") {
+              var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+              var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.department?.institute?.insName}`)
+            }
+            else if (ele?.form_checklist_key === "student_anti_ragging") {
+              var name2 = val?.section_value
+            }
             head_array.push({
               form_checklist_name: ele?.form_checklist_name,
               form_checklist_key: ele?.form_checklist_key,
@@ -323,7 +347,7 @@ exports.render_dynamic_form_query = async (req, res) => {
               form_checklist_typo: ele?.form_checklist_typo,
               form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
               form_checklist_required: ele?.form_checklist_required,
-              value: student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+              value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
             })
           }
         }
@@ -408,8 +432,9 @@ exports.render_dynamic_form_details_query = async (req, res) => {
       if(val?.section_visibilty) return val
     })
 
-    for (var ele of all_section) {
-      for (var stu of ele?.form_checklist) {
+      for (var ele of all_section) {
+        for (var stu of ele?.form_checklist) {
+        stu.form_checklist_required = true
         if (stu?.form_checklist_visibility) {
           
         }
@@ -438,6 +463,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
 
     for (var ele of all_section) {
       for (var stu of ele?.form_checklist) {
+        stu.form_checklist_required = true
         if (stu?.form_checklist_visibility) {
           
         }

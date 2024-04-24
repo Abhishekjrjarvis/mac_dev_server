@@ -6891,6 +6891,8 @@ exports.render_dynamic_form_details_query = async (req, res) => {
     if (!flow && !did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     if (flow === "INSTITUTE") {
+      const all_depart = await Department.find({ institute: did })
+      .select("dName")
       const ins_form = await InstituteStaffForm.findOne({ institute: did })
       .select("form_section")
       .populate({
@@ -6903,8 +6905,11 @@ exports.render_dynamic_form_details_query = async (req, res) => {
 
     for (var ele of all_section) {
       for (var stu of ele?.form_checklist) {
+        stu.form_checklist_required = true
         if (stu?.form_checklist_visibility) {
-          
+          if (stu?.form_checklist_key === "staff_department") {
+              stu.form_checklist_typo_option_pl_staff = [...all_depart]
+          }
         }
         else {
           if (stu?.form_checklist_typo === "Same As") {

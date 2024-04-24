@@ -35,6 +35,7 @@ const formChecklistSchema = new mongoose.Schema({
     form_checklist_typo_option_pl: [{
         type: String
     }],
+    form_checklist_typo_option_pl_staff: [],
     form_section: {
         type: String
     },

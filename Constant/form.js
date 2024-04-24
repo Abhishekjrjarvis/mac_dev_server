@@ -271,7 +271,7 @@ module.exports.form_params = [
                 form_checklist_visibility: false,
                 form_checklist_placeholder: "",
                 form_checklist_lable: "",
-                form_checklist_typo: "Same As Current Address",
+                form_checklist_typo: "Same As",
                 form_checklist_required: false,
                 value: ""
               },
@@ -449,7 +449,7 @@ module.exports.form_params = [
                 form_checklist_typo: "TEXT",
             },
             {
-                form_checklist_name: "University Courses",
+                form_checklist_name: "Course",
                 form_checklist_key: "student_university_courses",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Enter University Courses",
@@ -508,8 +508,8 @@ module.exports.form_params = [
                 form_checklist_name: "Marksheet Attachment",
                 form_checklist_key: "student_previous_marksheet_attachment",
                 form_checklist_visibility: true,
-                form_checklist_placeholder: "Upload LC / TC Attachment",
-                form_checklist_lable: "Upload LC / TC Attachment",
+                form_checklist_placeholder: "Upload Marksheet Attachment",
+                form_checklist_lable: "Upload Marksheet Attachment",
                 form_checklist_typo: "FILE",
             },
         ]
@@ -572,7 +572,7 @@ module.exports.form_params = [
         form_checklist: [
             {
                 form_checklist_name: "Anti-Ragging Affidavit By The Student",
-                form_checklist_key: "student_undertakings",
+                form_checklist_key: "student_anti_ragging",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Enter Anti-Ragging Affidavit By The Student",
                 form_checklist_lable: "",

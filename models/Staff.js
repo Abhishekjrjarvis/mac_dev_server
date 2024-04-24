@@ -742,6 +742,7 @@ const staffSchema = new mongoose.Schema({
       value: { type: String }
     }
   ],
+  staff_department: { type: mongoose.Schema.Types.ObjectId, ref: "Department" }
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

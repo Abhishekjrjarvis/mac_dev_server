@@ -694,7 +694,7 @@ router.patch(
 
 // Add In Super Admin
 router.patch(
-  "/:fcid/enable/auto/form/query",
+  "/enable/auto/form/query",
   catchAsync(Institute.render_auto_student_form_section_checklist_query)
 );
 
@@ -747,5 +747,11 @@ router.get(
 router.get("/:sid/dynamic/form/query", catchAsync(Institute.render_dynamic_form_query))
 
 router.get("/dynamic/form/details/query", catchAsync(Institute.render_dynamic_form_details_query))
+
+// Enable LC + FC
+router.patch(
+  "/enable/form/flow",
+  catchAsync(Institute.render_enable_form_flow)
+);
 
 module.exports = router;

@@ -6403,12 +6403,12 @@ exports.render_one_enable_query = async (req, res) => {
 
 exports.render_auto_student_form_section_checklist_query = async (req, res) => {
   try {
-    const { fcid } = req?.params
-    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    // const { fcid } = req?.params
+    // if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    var ifs = await InstituteStudentForm.findById({_id: fcid})
-    // var all_ifs = await InstituteStudentForm.find({})
-    // for (var ifs of all_ifs) {
+    // var ifs = await InstituteStudentForm.findById({_id: fcid})
+    var all_ifs = await InstituteStudentForm.find({})
+    for (var ifs of all_ifs) {
       var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
         .select("depart")
         .populate({
@@ -6459,10 +6459,10 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
       }
       await ifs.save()
       var one_ifs = await InstituteStudentForm.findById({ _id: `${ifs?._id}` })
-      .select("form_section")
-      .populate({
-      path: "form_section.form_checklist"
-      })
+        .select("form_section")
+        .populate({
+          path: "form_section.form_checklist"
+        })
       var nums = []
       for (var qwe of ins?.depart) {
         var dfs = new DepartmentStudentForm({})
@@ -6511,9 +6511,10 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
         }
         await Promise.all([dfs.save(), qwe.save()])
       }
-    // }
-    res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
-  }
+      }
+      res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
+  
+}
   catch (e) {
     console.log(e)
   }
@@ -6925,6 +6926,25 @@ exports.render_dynamic_form_details_query = async (req, res) => {
     }
     res.status(200).send({ message: "Institute Form Query", access: true, ins_form: all_section})
     }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_enable_form_flow = async (req, res) => {
+  try {
+    const all_ins = await InstituteAdmin.findById({ _id: "6449c83598fec071fbffd3ad"})
+    var  i = 0
+    const all_student = await Student.find({ $and: [{ institute: all_ins?._id }, { studentStatus: "Approved" }] }) 
+      for (var ele of all_student) { 
+        ele.student_form_flow.flow = "INSTITUTE",
+          ele.student_form_flow.did = all_ins?._id
+        console.log(i)
+        await ele.save()
+        i+= 1
+      }
+    res.status(200).send({ message: "Institute Form Query", access: true })
   }
   catch (e) {
     console.log(e)

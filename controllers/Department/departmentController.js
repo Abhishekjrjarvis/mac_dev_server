@@ -286,9 +286,6 @@ exports.render_dynamic_form_query = async (req, res) => {
                 else if (ele?.form_checklist_key === "student_anti_ragging") {
                   var name2 = val?.section_value
                 }
-                else if (ele?.form_checklist_key === "student_previous_institute_name") {
-                  var name2 = student[`${ele?.form_checklist_key}`] ?? student?.studentPreviousSchool
-                }
                 head_array.push({
                   form_checklist_name: ele?.form_checklist_name,
                   form_checklist_key: ele?.form_checklist_key,
@@ -346,9 +343,6 @@ exports.render_dynamic_form_query = async (req, res) => {
                 }
                 else if (ele?.form_checklist_key === "student_anti_ragging") {
                   var name2 = val?.section_value
-                }
-                else if (ele?.form_checklist_key === "student_previous_institute_name") {
-                  var name2 = student[`${ele?.form_checklist_key}`] ?? student?.studentPreviousSchool
                 }
                 head_array.push({
                   form_checklist_name: ele?.form_checklist_name,

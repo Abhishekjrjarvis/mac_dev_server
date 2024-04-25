@@ -6933,7 +6933,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
             }
           })
         }
-      stu.form_checklist_required = true
+      // stu.form_checklist_required = true
       }
     }
     res.status(200).send({ message: "Institute Form Query", access: true, ins_form: all_section})
@@ -6956,6 +6956,20 @@ exports.render_enable_form_flow = async (req, res) => {
         await ele.save()
         i+= 1
       }
+    res.status(200).send({ message: "Institute Form Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_form_key_editable = async (req, res) => {
+  try {
+    const all_check = await FormChecklist.find({ form_checklist_key: "student_seat_type" })
+    for (let ele of all_check) {
+      ele.form_checklist_typo_option_pl = ["General/OPEN", "OBC", "SBC", "EWS", "TFWS", "VJNT", "NT-A", "NT-B", "NT-C", "Physically Handicapped", "Defence Quota", "J&K & NEUT", "PMSS"]
+      await ele.save()
+    }
     res.status(200).send({ message: "Institute Form Query", access: true })
   }
   catch (e) {

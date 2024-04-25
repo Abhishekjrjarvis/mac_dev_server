@@ -6681,11 +6681,7 @@ exports.renderRefundArrayQuery = async (req, res) => {
           }
         }
       
-      var all_refund_list = await nested_document_limit(
-        page,
-        limit,
-        filter_refund
-      );
+      var all_refund_list = [...filter_refund]
     }
     var total = 0
     if (all_refund_list?.length > 0) {
@@ -6701,14 +6697,20 @@ exports.renderRefundArrayQuery = async (req, res) => {
       let nest_list = all_refund_list?.filter((val) => {
         if(val?.refund > 0) return val
       })
+      let nest_lists = 
+      await nested_document_limit(
+        page,
+        limit,
+        nest_list
+      );
       // ads_admin.refundCount = total
       // await ads_admin.save()
       res.status(200).send({
         message: "Explore All Returns",
         access: true,
-        all_refund_list: nest_list,
+        all_refund_list: nest_lists,
         refundCount: total,
-        array: nest_list?.length
+        array: nest_lists?.length
       });
     } else {
       res.status(200).send({

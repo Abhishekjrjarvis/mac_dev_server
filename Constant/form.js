@@ -388,7 +388,7 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Select Seat Type",
                 form_checklist_lable: "Seat Type",
                 form_checklist_typo: "SELECT",
-                form_checklist_typo_option_pl: []
+                form_checklist_typo_option_pl: ["General/OPEN", "OBC", "SBC", "EWS", "TFWS", "VJNT", "NT-A", "NT-B", "NT-C", "Physically Handicapped", "Defence Quota", "J&K & NEUT", "PMSS"]
             },
             {
                 form_checklist_name: "Physically Handicapped",

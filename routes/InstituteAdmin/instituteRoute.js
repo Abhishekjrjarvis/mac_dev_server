@@ -754,4 +754,10 @@ router.patch(
   catchAsync(Institute.render_enable_form_flow)
 );
 
+// Enable LC + FC
+router.patch(
+  "/enable/form/checklist/key/editable",
+  catchAsync(Institute.render_form_key_editable)
+);
+
 module.exports = router;

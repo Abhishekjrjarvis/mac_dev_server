@@ -170,7 +170,7 @@ module.exports.staff_form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Enter Staff Contact No.",
                 form_checklist_lable: "Staff Contact No.",
-                form_checklist_typo: "TEXT",
+                form_checklist_typo: "NUMBER",
             },
             {
                 form_checklist_name: "Staff Email ID",

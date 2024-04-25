@@ -6253,7 +6253,19 @@ exports.render_edit_student_form_section_query = async (req, res) => {
       }
     }
     await ifs.save()
-    res.status(200).send({ message: "Edit One Form Section + Nested Checklist Query", access: true})
+    res.status(200).send({ message: "Edit One Form Section + Nested Checklist Query", access: true })
+    var ins = await InstituteAdmin.findById({ _id: ifs?.institute })
+    var all_dfs = await DepartmentStudentForm.find({ department: { $in: ins?.depart } })
+    for (var dfs of all_dfs) {
+      for (var val of dfs?.form_section) {
+        if (`${val?.ins_form_section_id}` === `${fsid}`) {
+          val.section_name = section_name ? section_name : val?.section_name
+          val.section_key = section_key ? section_key : val?.section_key
+          val.section_visibilty = section_visibilty
+        }
+      }
+      await dfs.save()
+    }
   }
   catch (e) {
     console.log(e)

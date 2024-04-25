@@ -6698,12 +6698,17 @@ exports.renderRefundArrayQuery = async (req, res) => {
           total += stu.student.refund
         }
       }
+      let nest_list = all_refund_list?.filter((val) => {
+        if(val?.refund > 0) return val
+      })
+      // ads_admin.refundCount = total
+      // await ads_admin.save()
       res.status(200).send({
         message: "Explore All Returns",
         access: true,
-        all_refund_list: all_refund_list,
+        all_refund_list: nest_list,
         refundCount: total,
-        array: all_refund_list?.length
+        array: nest_list?.length
       });
     } else {
       res.status(200).send({

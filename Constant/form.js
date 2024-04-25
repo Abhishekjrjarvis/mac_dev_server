@@ -442,7 +442,7 @@ module.exports.form_params = [
             },
             {
                 form_checklist_name: "Previous Institute Name",
-                form_checklist_key: "student_previous_institute_name",
+                form_checklist_key: "studentPreviousSchool",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Enter Previous Institute Name",
                 form_checklist_lable: "Previous Institute Name",

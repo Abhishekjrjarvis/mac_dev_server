@@ -268,41 +268,46 @@ exports.render_dynamic_form_query = async (req, res) => {
         select: "insName"
         })
       for (var val of all_check?.form_section) {
-        for (var ele of val?.form_checklist) {
-          if (ele?.form_checklist_visibility) {
-            var list = student?.student_dynamic_field?.filter((dna) => {
-              if (dna?.key === ele?.form_checklist_key) {
-                nest_obj[`${dna?.key}`] = dna?.value
-              }
-            })
-            if (ele?.form_checklist_typo === "Same As") {
-            }
-            else {
-              if (ele?.form_checklist_key === "student_undertakings") {
-                var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
-                var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.institute?.insName}`)
-              }
-              else if (ele?.form_checklist_key === "student_anti_ragging") {
-                var name2 = val?.section_value
-              }
-              head_array.push({
-                form_checklist_name: ele?.form_checklist_name,
-                form_checklist_key: ele?.form_checklist_key,
-                form_checklist_visibility: ele?.form_checklist_visibility,
-                form_checklist_placeholder: ele?.form_checklist_placeholder,
-                form_checklist_lable: ele?.form_checklist_lable,
-                form_checklist_typo: ele?.form_checklist_typo,
-                form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
-                form_checklist_required: val?.section_key === "documents" ? false : true,
-                value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+        if (val?.section_visibilty == true) {
+          for (var ele of val?.form_checklist) {
+            if (ele?.form_checklist_visibility == true) {
+              var list = student?.student_dynamic_field?.filter((dna) => {
+                if (dna?.key === ele?.form_checklist_key) {
+                  nest_obj[`${dna?.key}`] = dna?.value
+                }
               })
+              if (ele?.form_checklist_typo === "Same As") {
+              }
+              else {
+                if (ele?.form_checklist_key === "student_undertakings") {
+                  var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                  var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.institute?.insName}`)
+                }
+                else if (ele?.form_checklist_key === "student_anti_ragging") {
+                  var name2 = val?.section_value
+                }
+                else if (ele?.form_checklist_key === "student_previous_institute_name") {
+                  var name2 = student[`${ele?.form_checklist_key}`] ?? student?.studentPreviousSchool
+                }
+                head_array.push({
+                  form_checklist_name: ele?.form_checklist_name,
+                  form_checklist_key: ele?.form_checklist_key,
+                  form_checklist_visibility: ele?.form_checklist_visibility,
+                  form_checklist_placeholder: ele?.form_checklist_placeholder,
+                  form_checklist_lable: ele?.form_checklist_lable,
+                  form_checklist_typo: ele?.form_checklist_typo,
+                  form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+                  form_checklist_required: val?.section_key === "documents" ? false : true,
+                  value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                })
+              }
             }
           }
+          obj[`fields`] = [...head_array]
+          head_arrays.push({ ...obj, key: val?.section_name })
+          obj = {}
+          head_array = []
         }
-        obj[`fields`] = [...head_array]
-        head_arrays.push({ ...obj, key: val?.section_name })
-        obj = {}
-        head_array = []
       }
       head_arrays?.splice(0, 1)
       res.status(200).send({ message: "Explore One Student Institute Dynamic Form Query", access: true, result: [...head_arrays]})
@@ -324,41 +329,46 @@ exports.render_dynamic_form_query = async (req, res) => {
         select: "insName"
         })
       for (var val of all_check?.form_section) {
-        for (var ele of val?.form_checklist) {
-          if (ele?.form_checklist_visibility) {
-            var list = student?.student_dynamic_field?.filter((dna) => {
-              if (dna?.key === ele?.form_checklist_key) {
-                nest_obj[`${dna?.key}`] = dna?.value
-              }
-            })
-            if (ele?.form_checklist_typo === "Same As") {
-            }
-            else {
-              if (ele?.form_checklist_key === "student_undertakings") {
-                var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
-                var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.department?.institute?.insName}`)
-              }
-              else if (ele?.form_checklist_key === "student_anti_ragging") {
-                var name2 = val?.section_value
-              }
-              head_array.push({
-                form_checklist_name: ele?.form_checklist_name,
-                form_checklist_key: ele?.form_checklist_key,
-                form_checklist_visibility: ele?.form_checklist_visibility,
-                form_checklist_placeholder: ele?.form_checklist_placeholder,
-                form_checklist_lable: ele?.form_checklist_lable,
-                form_checklist_typo: ele?.form_checklist_typo,
-                form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
-                form_checklist_required: val?.section_key === "documents" ? false : true,
-                value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+        if (val?.section_visibilty == true) {
+          for (var ele of val?.form_checklist) {
+            if (ele?.form_checklist_visibility == true) {
+              var list = student?.student_dynamic_field?.filter((dna) => {
+                if (dna?.key === ele?.form_checklist_key) {
+                  nest_obj[`${dna?.key}`] = dna?.value
+                }
               })
+              if (ele?.form_checklist_typo === "Same As") {
+              }
+              else {
+                if (ele?.form_checklist_key === "student_undertakings") {
+                  var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                  var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.department?.institute?.insName}`)
+                }
+                else if (ele?.form_checklist_key === "student_anti_ragging") {
+                  var name2 = val?.section_value
+                }
+                else if (ele?.form_checklist_key === "student_previous_institute_name") {
+                  var name2 = student[`${ele?.form_checklist_key}`] ?? student?.studentPreviousSchool
+                }
+                head_array.push({
+                  form_checklist_name: ele?.form_checklist_name,
+                  form_checklist_key: ele?.form_checklist_key,
+                  form_checklist_visibility: ele?.form_checklist_visibility,
+                  form_checklist_placeholder: ele?.form_checklist_placeholder,
+                  form_checklist_lable: ele?.form_checklist_lable,
+                  form_checklist_typo: ele?.form_checklist_typo,
+                  form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+                  form_checklist_required: val?.section_key === "documents" ? false : true,
+                  value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                })
+              }
             }
           }
+          obj[`fields`] = [...head_array]
+          head_arrays.push({ ...obj, key: val?.section_name })
+          obj = {}
+          head_array = []
         }
-        obj[`fields`] = [...head_array]
-        head_arrays.push({ ...obj, key: val?.section_name })
-        obj = {}
-        head_array = []
       }
       head_arrays?.splice(0, 1)
       res.status(200).send({ message: "Explore One Student Department Dynamic Form Query", access: true, result: [...head_arrays]})

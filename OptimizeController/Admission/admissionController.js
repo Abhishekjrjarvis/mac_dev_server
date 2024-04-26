@@ -4690,6 +4690,8 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       count +=
         ref?.applicable_card?.paid_fee >= ref?.applicable_card?.applicable_fee
           ? ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee
+          : 0 + ref?.government_card?.paid_fee >= ref?.government_card?.applicable_fee
+          ? ref?.government_card?.paid_fee - ref?.government_card?.applicable_fee
           : 0;
       if (ref?.applicable_fee === ref?.remaining_fee) {
         ref.drop_status = "Enable";

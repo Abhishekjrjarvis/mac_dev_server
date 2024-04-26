@@ -6852,6 +6852,10 @@ exports.render_dynamic_form_query = async (req, res) => {
     if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var staff = await Staff.findById({ _id: sid })
+      .populate({
+        path: "staff_department",
+        select: "dName"
+    })
       var head_array = []
       var head_arrays = []
       var obj = {}

@@ -349,7 +349,7 @@ module.exports.staff_form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Enter Joining Date",
                 form_checklist_lable: "Joining Date",
-                form_checklist_typo: "TEXT",
+                form_checklist_typo: "CALENDAR",
                 form_checklist_typo_option_pl: []
             },
             {
@@ -412,7 +412,7 @@ module.exports.staff_form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Select Departments",
                 form_checklist_lable: "Select Departments",
-                form_checklist_typo: "SELECT",
+                form_checklist_typo: "SELECT_DEPARTMENT",
                 form_checklist_typo_option_pl: []
             },
         ]
@@ -470,6 +470,15 @@ module.exports.staff_form_params = [
         section_visibilty: true,
         section_key: "self_about",
         form_checklist: [
+            {
+                form_checklist_name: "Self Intro",
+                form_checklist_key: "staff_self_intro",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter Self Intro",
+                form_checklist_lable: "Self Intro",
+                form_checklist_typo: "TEXTAREA",
+                form_checklist_typo_option_pl: []
+            },
             {
                 form_checklist_name: "You Tube Links",
                 form_checklist_key: "yt_links",

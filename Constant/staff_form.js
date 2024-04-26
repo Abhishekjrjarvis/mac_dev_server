@@ -150,7 +150,7 @@ module.exports.staff_form_params = [
             },
             {
                 form_checklist_name: "Blood Group",
-                form_checklist_key: "student_blood_group",
+                form_checklist_key: "staff_blood_group",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Select Blood Group",
                 form_checklist_lable: "Blood Group",
@@ -377,7 +377,7 @@ module.exports.staff_form_params = [
                 form_checklist_placeholder: "Select Faculty Type",
                 form_checklist_lable: "Faculty Type",
                 form_checklist_typo: "SELECT",
-                form_checklist_typo_option_pl: ["Techicality", "Non-Techicality"]
+                form_checklist_typo_option_pl: ["Technical", "Non-Technical"]
             },
             {
                 form_checklist_name: "Your's Designation",
@@ -403,7 +403,7 @@ module.exports.staff_form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Select Joining Letter (Attachment)",
                 form_checklist_lable: "Joining Letter (Attachment)",
-                form_checklist_typo: "TEXT",
+                form_checklist_typo: "FILE",
                 form_checklist_typo_option_pl: []
             },
             {
@@ -412,7 +412,7 @@ module.exports.staff_form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Select Departments",
                 form_checklist_lable: "Select Departments",
-                form_checklist_typo: "TEXT",
+                form_checklist_typo: "SELECT",
                 form_checklist_typo_option_pl: []
             },
         ]

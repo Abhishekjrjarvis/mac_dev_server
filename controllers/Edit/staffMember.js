@@ -87,6 +87,7 @@ exports.formEditByInstitute = async (req, res) => {
     for (let staffObj in req.body?.staff) {
       staffs[`${staffObj}`] = req.body?.staff[staffObj];
     }
+    staffs.staff_dynamic_field = [...req.body?.staff_dynamic_field]
     if(experience && experience?.length > 0){
       for(var val of experience){
         staffs.experience.push(val)

@@ -8032,16 +8032,18 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
             if (nest_card.remaining_fee >= price) {
               nest_card.remaining_fee -= price;
             }
-            nest_card.paid_fee += price;
+        nest_card.paid_fee += price;
+        let excess_fee = nest_card_set?.paid_fee - nest_card_set?.applicable_fee
+        let g_excess_fee = nest_gov_card_set?.paid_fee - nest_gov_card_set?.applicable_fee
         // nest_card.applicable_fee += price;
         if ((nest_card_set?.paid_fee - nest_card_set?.applicable_fee) > 0) {
-          if (nest_card_set.paid_fee >= price) {
-            nest_card_set.paid_fee -= price;
+          if (nest_card_set.paid_fee >= excess_fee) {
+            nest_card_set.paid_fee -= excess_fee;
           }
           nest_card_set.remaining_array.push({
             appId: valid_remain_card?.appId,
             instituteId: valid_remain_card?.institute,
-            remainAmount: price,
+            remainAmount: excess_fee,
             isEnable: true,
             installmentValue: `Excess Fees Set Off`,
             status: "Paid",
@@ -8049,13 +8051,13 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
           })
         }
         if ((nest_gov_card_set?.paid_fee - nest_gov_card_set?.applicable_fee) > 0) {
-          if (nest_gov_card_set.paid_fee >= price) {
-            nest_gov_card_set.paid_fee -= price;
+          if (nest_gov_card_set.paid_fee >= g_excess_fee) {
+            nest_gov_card_set.paid_fee -= g_excess_fee;
           }
           nest_gov_card_set.remaining_array.push({
             appId: valid_remain_card?.appId,
             instituteId: valid_remain_card?.institute,
-            remainAmount: price,
+            remainAmount: g_excess_fee,
             isEnable: true,
             installmentValue: `Excess Fees Set Off`,
             status: "Paid",

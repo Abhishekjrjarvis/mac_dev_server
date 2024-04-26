@@ -6769,9 +6769,9 @@ exports.render_shuffle_staff_form_section_query = async (req, res) => {
       var ifs = await InstituteStaffForm.findById({ _id: fcid })
       ifs.form_section = []
       await ifs.save()
-      for(var val of shuffle_arr){
-        ifs.form_section.push(val)
-      }
+      // for(var val of shuffle_arr){
+        ifs.form_section.push(...shuffle_arr)
+      // }
       await ifs.save()
       res.status(200).send({ message: "Explore Form Section Shuffling Query", access: true})
       }
@@ -6861,27 +6861,30 @@ exports.render_dynamic_form_query = async (req, res) => {
       .populate({
       path: "form_section.form_checklist"
       })
-      for (var val of all_check?.form_section) {
+    for (var val of all_check?.form_section) {
+      if (val?.section_visibilty == true) {
         for (var ele of val?.form_checklist) {
-          var list = staff?.staff_dynamic_field?.filter((dna) => {
-            if (dna?.key === ele?.form_checklist_key) {
-              nest_obj[`${dna?.key}`] = dna?.value
+          if (ele?.form_checklist_visibility == true) {
+            var list = staff?.staff_dynamic_field?.filter((dna) => {
+              if (dna?.key === ele?.form_checklist_key) {
+                nest_obj[`${dna?.key}`] = dna?.value
+              }
+            })
+            if (ele?.form_checklist_typo === "Same As") {
             }
-          })
-          if (ele?.form_checklist_typo === "Same As") {
-          }
-          else{
-            head_array.push({
-              form_checklist_name: ele?.form_checklist_name,
-              form_checklist_key: ele?.form_checklist_key,
-              form_checklist_visibility: ele?.form_checklist_visibility,
-              form_checklist_placeholder: ele?.form_checklist_placeholder,
-              form_checklist_lable: ele?.form_checklist_lable,
-              form_checklist_typo: ele?.form_checklist_typo,
-              form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
-              form_checklist_required: ele?.form_checklist_required,
-              value: staff[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
-            }) 
+            else {
+              head_array.push({
+                form_checklist_name: ele?.form_checklist_name,
+                form_checklist_key: ele?.form_checklist_key,
+                form_checklist_visibility: ele?.form_checklist_visibility,
+                form_checklist_placeholder: ele?.form_checklist_placeholder,
+                form_checklist_lable: ele?.form_checklist_lable,
+                form_checklist_typo: ele?.form_checklist_typo,
+                form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+                form_checklist_required: val?.section_key === "self_about" ? false : true,
+                value: staff[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+              })
+            }
           }
         }
         obj[`fields`] = [...head_array]
@@ -6889,6 +6892,7 @@ exports.render_dynamic_form_query = async (req, res) => {
         obj = {}
         head_array = []
       }
+    }
       head_arrays?.splice(0, 1)
       res.status(200).send({ message: "Explore One Staff Institute Dynamic Form Query", access: true, result: [...head_arrays]})
   }
@@ -6933,7 +6937,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
             }
           })
         }
-      // stu.form_checklist_required = true
+        stu.form_checklist_required = ele?.section_key === "self_about" ? false : true
       }
     }
     res.status(200).send({ message: "Institute Form Query", access: true, ins_form: all_section})

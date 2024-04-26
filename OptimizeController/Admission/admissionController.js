@@ -7980,7 +7980,8 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
             path: "appId",
             select: "applicationName"
         })
-        var nest_card_set = await NestedCard.findById({ _id: `${valid_remain_card?.applicable_card}`})
+        var nest_card_set = await NestedCard.findById({ _id: `${valid_remain_card?.applicable_card}` })
+        var nest_gov_card_set = await NestedCard.findById({ _id: `${valid_remain_card?.government_card}`})
 
         // console.log("Enter in This Zone");
         const new_receipt = new FeeReceipt({ ...req.body });
@@ -8028,18 +8029,34 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
             }
             nest_card.paid_fee += price;
         // nest_card.applicable_fee += price;
-        if (nest_card_set.paid_fee >= price) {
-          nest_card_set.paid_fee -= price;
+        if ((nest_card_set?.paid_fee - nest_card_set?.applicable_fee) > 0) {
+          if (nest_card_set.paid_fee >= price) {
+            nest_card_set.paid_fee -= price;
+          }
+          nest_card_set.remaining_array.push({
+            appId: valid_remain_card?.appId,
+            instituteId: valid_remain_card?.institute,
+            remainAmount: price,
+            isEnable: true,
+            installmentValue: `Excess Fees Set Off`,
+            status: "Paid",
+            receipt_status: "Setoff"
+          })
         }
-        nest_card_set.remaining_array.push({
-          appId: valid_remain_card?.appId,
-          instituteId: valid_remain_card?.institute,
-          remainAmount: price,
-          isEnable: true,
-          installmentValue: `Excess Fees Set Off`,
-          status: "Paid",
-          receipt_status: "Setoff"
-        })
+        if ((nest_gov_card_set?.paid_fee - nest_gov_card_set?.applicable_fee) > 0) {
+          if (nest_gov_card_set.paid_fee >= price) {
+            nest_gov_card_set.paid_fee -= price;
+          }
+          nest_gov_card_set.remaining_array.push({
+            appId: valid_remain_card?.appId,
+            instituteId: valid_remain_card?.institute,
+            remainAmount: price,
+            isEnable: true,
+            installmentValue: `Excess Fees Set Off`,
+            status: "Paid",
+            receipt_status: "Setoff"
+          })
+        }
             await render_installment(
               type,
               student,
@@ -8090,13 +8107,14 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
           new_receipt.save(),
           valid_remain_card.save(),
           nest_card.save(),
-        nest_card_set.save()
+          nest_card_set.save(),
+          nest_gov_card_set.save()
         ]);
         res
         .status(200)
           .send({ message: "Price set off is under processing...", access: true, remaining_fee_lists, nest_card, valid_remain_card });
           for (let ele of all_remain_list) {
-            ele.setOffPrice = ele.setOffPrice - price 
+            ele.setOffPrice = 0
             await ele.save()
           }
         var is_refund =

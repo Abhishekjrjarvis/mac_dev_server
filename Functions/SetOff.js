@@ -5,10 +5,21 @@ exports.set_off_amount = async (r_args) => {
     for (var ref of r_args) {
       if (ref?.applicable_card?.paid_fee >= ref?.applicable_card?.applicable_fee) {
         total += ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee;
-        set_arr.push({
-          excess_fee: ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee,
-          remain: ref?._id,
-        });
+        if ((ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee) > 0) {
+          set_arr.push({
+            excess_fee: ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee,
+            remain: ref?._id,
+          });
+        }
+      }
+      if (ref?.government_card?.paid_fee >= ref?.government_card?.applicable_fee) {
+        total += ref?.government_card?.paid_fee - ref?.government_card?.applicable_fee;
+        if ((ref?.government_card?.paid_fee - ref?.government_card?.applicable_fee) > 0) {
+          set_arr.push({
+            excess_fee: ref?.government_card?.paid_fee - ref?.government_card?.applicable_fee,
+            remain: ref?._id,
+          });
+        }
       }
     }
     return { total: total, set_off_arr: set_arr };

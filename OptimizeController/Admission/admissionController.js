@@ -4688,8 +4688,8 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
     var count = 0;
     for (var ref of valid_remain) {
       count +=
-        ref?.paid_fee >= ref?.applicable_fee
-          ? ref?.paid_fee - ref?.applicable_fee
+        ref?.applicable_card?.paid_fee >= ref?.applicable_card?.applicable_fee
+          ? ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee
           : 0;
       if (ref?.applicable_fee === ref?.remaining_fee) {
         ref.drop_status = "Enable";
@@ -7965,7 +7965,6 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
       .populate({
         path: "government_card"
       })
-
     var valid_price = await set_off_amount(all_remain_list);
     console.log(valid_price)
     // console.log("Valid Set Off", valid_price);
@@ -8095,7 +8094,11 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         ]);
         res
         .status(200)
-        .send({ message: "Price set off is under processing...", access: true, remaining_fee_lists, nest_card, valid_remain_card });
+          .send({ message: "Price set off is under processing...", access: true, remaining_fee_lists, nest_card, valid_remain_card });
+          for (let ele of all_remain_list) {
+            ele.setOffPrice = ele.setOffPrice - price 
+            await ele.save()
+          }
         var is_refund =
           remaining_fee_lists?.paid_fee - remaining_fee_lists?.applicable_fee;
         if (is_refund > 0) {

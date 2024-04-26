@@ -3,10 +3,10 @@ exports.set_off_amount = async (r_args) => {
     var total = 0;
     var set_arr = [];
     for (var ref of r_args) {
-      if (ref?.paid_fee >= ref?.applicable_fee) {
-        total += ref?.paid_fee - ref?.applicable_fee;
+      if (ref?.applicable_card?.paid_fee >= ref?.applicable_card?.applicable_fee) {
+        total += ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee;
         set_arr.push({
-          excess_fee: ref?.paid_fee - ref?.applicable_fee,
+          excess_fee: ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee,
           remain: ref?._id,
         });
       }

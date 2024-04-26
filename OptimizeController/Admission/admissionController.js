@@ -7991,9 +7991,9 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         new_receipt.set_off_status = "Set Off";
         new_receipt.fee_transaction_date = new Date();
         const notify = new StudentNotification({});
-        // if (valid_remain_card?.paid_fee >= price) {
-        //   valid_remain_card.paid_fee -= price;
-        // }
+        if (valid_remain_card?.paid_fee >= price) {
+          valid_remain_card.paid_fee -= price;
+        }
         const remaining_fee_lists = await RemainingList.findOne({
           $and: [{ student: student?._id }, { appId: apply?._id }],
         })
@@ -8019,7 +8019,7 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         user.payment_history.push(order._id);
         institute.payment_history.push(order._id);
         order.fee_receipt = new_receipt?._id;
-            // remaining_fee_lists.paid_fee += price;
+            remaining_fee_lists.paid_fee += price;
             if (remaining_fee_lists.remaining_fee >= price) {
               remaining_fee_lists.remaining_fee -= price;
             }
@@ -8027,7 +8027,7 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
               nest_card.remaining_fee -= price;
             }
             nest_card.paid_fee += price;
-        nest_card.applicable_fee += price;
+        // nest_card.applicable_fee += price;
         if (nest_card_set.paid_fee >= price) {
           nest_card_set.paid_fee -= price;
         }

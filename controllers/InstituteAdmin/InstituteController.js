@@ -6395,16 +6395,13 @@ exports.render_one_enable_query = async (req, res) => {
   try {
     const all_ins = await InstituteAdmin.find({ status: "Approved"})
     for (var val of all_ins) {
-      // var fc = new InstituteStudentForm({})
+      var fc = new InstituteStudentForm({})
       var form_staff = new InstituteStaffForm({})
       form_staff.institute = val?._id
       val.staff_form_setting = form_staff?._id
-      // var lc = new LandingControl({})
-      // fc.institute = val?._id
-      // val.student_form_setting = fc?._id
-      // lc.institute = val?._id
-      // val.landing_control = lc?._id
-      await Promise.all([ val.save(), form_staff.save()])
+      fc.institute = val?._id
+      val.student_form_setting = fc?._id
+      await Promise.all([ val.save(), form_staff.save(), fc.save()])
     }
     res.status(200).send({ message: "Explore Student Form Section Query", access: true})
   }
@@ -6534,12 +6531,12 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
 
 exports.render_auto_staff_form_section_checklist_query = async (req, res) => {
   try {
-    const { fcid } = req?.params
-    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    // const { fcid } = req?.params
+    // if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    var ifs = await InstituteStaffForm.findById({_id: fcid})
-    // var all_ifs = await InstituteStudentForm.find({})
-    // for (var ifs of all_ifs) {
+    // var ifs = await InstituteStaffForm.findById({_id: fcid})
+    var all_ifs = await InstituteStaffForm.find({})
+    for (var ifs of all_ifs) {
       var checklist = staff_form_params
       var numss = []
       for (var val of checklist) {
@@ -6583,7 +6580,7 @@ exports.render_auto_staff_form_section_checklist_query = async (req, res) => {
         numss = []
       }
       await ifs.save()
-    // }
+    }
     res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
   }
   catch (e) {
@@ -6973,9 +6970,10 @@ exports.render_enable_form_flow = async (req, res) => {
 
 exports.render_form_key_editable = async (req, res) => {
   try {
-    const all_check = await FormChecklist.find({ form_checklist_key: "student_seat_type" })
+    const all_check = await FormChecklist.find({ form_checklist_key: "staff_technicality" })
     for (let ele of all_check) {
-      ele.form_checklist_typo_option_pl = ["General/OPEN", "OBC", "SBC", "EWS", "TFWS", "VJNT", "NT-A", "NT-B", "NT-C", "Physically Handicapped", "Defence Quota", "J&K & NEUT", "PMSS"]
+      ele.form_checklist_typo_option_pl = ["Teaching", "Non-Teaching"]
+        // ["General/OPEN", "OBC", "SBC", "EWS", "TFWS", "VJNT", "NT-A", "NT-B", "NT-C", "Physically Handicapped", "Defence Quota", "J&K & NEUT", "PMSS"]
       await ele.save()
     }
     res.status(200).send({ message: "Institute Form Query", access: true })

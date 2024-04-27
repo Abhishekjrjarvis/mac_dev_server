@@ -377,7 +377,7 @@ module.exports.staff_form_params = [
                 form_checklist_placeholder: "Select Faculty Type",
                 form_checklist_lable: "Faculty Type",
                 form_checklist_typo: "SELECT",
-                form_checklist_typo_option_pl: ["Technical", "Non-Technical"]
+                form_checklist_typo_option_pl: ["Teaching", "Non-Teaching"]
             },
             {
                 form_checklist_name: "Your's Designation",

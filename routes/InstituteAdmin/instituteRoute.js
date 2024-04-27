@@ -700,7 +700,7 @@ router.patch(
 
 // Add In Super Admin
 router.patch(
-  "/:fcid/enable/auto/staff/form/query",
+  "/enable/auto/staff/form/query",
   catchAsync(Institute.render_auto_staff_form_section_checklist_query)
 );
 

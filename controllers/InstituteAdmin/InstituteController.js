@@ -6858,10 +6858,12 @@ exports.render_dynamic_form_query = async (req, res) => {
       var obj = {}
       var nest_obj = {}
       const all_check = await InstituteStaffForm.findOne({ institute: staff?.institute })
-      .select("form_section")
+      .select("form_section institute")
       .populate({
       path: "form_section.form_checklist"
       })
+      const all_depart = await Department.find({ institute: all_check?.institute })
+      .select("dName")
     for (var val of all_check?.form_section) {
       if (val?.section_visibilty == true) {
         for (var ele of val?.form_checklist) {
@@ -6874,6 +6876,9 @@ exports.render_dynamic_form_query = async (req, res) => {
             if (ele?.form_checklist_typo === "Same As") {
             }
             else {
+              if (ele?.form_checklist_key === "staff_department") {
+                ele.form_checklist_typo_option_pl_staff = [...all_depart]
+              }
               head_array.push({
                 form_checklist_name: ele?.form_checklist_name,
                 form_checklist_key: ele?.form_checklist_key,
@@ -6882,6 +6887,7 @@ exports.render_dynamic_form_query = async (req, res) => {
                 form_checklist_lable: ele?.form_checklist_lable,
                 form_checklist_typo: ele?.form_checklist_typo,
                 form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+                form_checklist_typo_option_pl_staff: ele.form_checklist_typo_option_pl_staff,
                 form_checklist_required: val?.section_key === "self_about" ? false : true,
                 value: staff[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
               })

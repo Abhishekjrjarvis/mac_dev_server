@@ -468,21 +468,22 @@ exports.promoteStudent = async (req, res) => {
               });
             }
           }
-          structure = structure?.filter((val) => {
-            if (
-              val?.unique_structure_name?.includes(`SY 2022-23`) ||
-              val?.unique_structure_name?.includes(`SYD 2022-23`)
-            ) {
-            } else {
-              return val;
-            }
-          });
-          numIndex = structure?.findIndex((val) => {
-            if (val?.unique_structure_name?.includes("SY")) return val;
-          });
-          if(numIndex < 0){
+          // structure = structure?.filter((val) => {
+          //   if (
+          //     val?.unique_structure_name?.includes(`SY 2022-23`) ||
+          //     val?.unique_structure_name?.includes(`SYD 2022-23`)
+          //   ) {
+          //   } else {
+          //     return val;
+          //   }
+          // });
+          // numIndex = structure
+          //   ?.findIndex((val) => {
+          //   if (val?.unique_structure_name?.includes("SY")) return val;
+          // });
+          // if(numIndex < 0){
             numIndex = 0
-          }
+          // }
           const user = await User.findById({ _id: `${student.user}` });
           const previousData = new StudentPreviousData({
             studentCode: student.studentCode,

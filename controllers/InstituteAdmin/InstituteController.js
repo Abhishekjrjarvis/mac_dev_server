@@ -6412,12 +6412,12 @@ exports.render_one_enable_query = async (req, res) => {
 
 exports.render_auto_student_form_section_checklist_query = async (req, res) => {
   try {
-    // const { fcid } = req?.params
-    // if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const { fcid } = req?.params
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    // var ifs = await InstituteStudentForm.findById({_id: fcid})
-    var all_ifs = await InstituteStudentForm.find({})
-    for (var ifs of all_ifs) {
+    var ifs = await InstituteStudentForm.findById({_id: fcid})
+    // var all_ifs = await InstituteStudentForm.find({})
+    // for (var ifs of all_ifs) {
       var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
         .select("depart")
         .populate({
@@ -6520,7 +6520,7 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
         }
         await Promise.all([dfs.save(), qwe.save()])
       }
-      }
+      // }
       res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
   
 }

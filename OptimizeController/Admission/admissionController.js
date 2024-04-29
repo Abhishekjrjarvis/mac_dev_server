@@ -12755,6 +12755,111 @@ exports.renderFeeStructureUpdate = async (req, res) => {
   }
 }
 
+// exports.renderAllReadmissionQuery = async (req, res) => {
+//   try {
+//     const { aid } = req.params;
+//     const page = req.query.page ? parseInt(req.query.page) : 1;
+//     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+//     const skip = (page - 1) * limit;
+//     const { search } = req.query;
+//     if (search) {
+//       const filter_select = [];
+//       const apply = await Admission.findById({ _id: aid })
+//         .select("re_admission_list_count")
+//         .populate({
+//           path: "FeeCollectionApplication",
+//           populate: {
+//             path: "student payment_flow app_card gov_card fee_struct",
+//             match: {
+//               $or: [
+//                 {studentFirstName: { $regex: `${search}`, $options: "i" },
+//                 },
+//                 {
+//                   studentMiddleName: { $regex: `${search}`, $options: "i" },
+//                 },
+//                 {
+//                   studentLastName: { $regex: `${search}`, $options: "i" },
+//                 },
+//                 {
+//                   valid_full_name: { $regex: `${search}`, $options: "i" },
+//                 },
+//               ]
+//             },
+//             // select:
+//             //   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name",
+//             // populate: {
+//             //   path: "fee_structure",
+//             //   select:
+//             //     "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+//             //   populate: {
+//             //     path: "category_master",
+//             //     select: "category_name",
+//             //   },
+//             // },
+//           },
+//         });
+//       for (let data of apply.FeeCollectionApplication) {
+//         if (data.student !== null) {
+//           filter_select.push(data);
+//         }
+//       }
+//       if (filter_select?.length > 0) {
+//         // const selectEncrypt = await encryptionPayload(apply);
+//         res.status(200).send({
+//           message:
+//             "Lots of Fees Collection required make sure you come up with Tea and Snack from DB 🙌",
+//           fees: filter_select?.reverse(),
+//         });
+//       } else {
+//         res.status(200).send({
+//           message: "Go To Outside for Dinner",
+//           fees: [],
+//         });
+//       }
+//     } else {
+//       var apply = await Admission.findById({ _id: aid })
+//         .select("re_admission_list_count")
+//         .populate({
+//           path: "FeeCollectionApplication",
+//           populate: {
+//             path: "student payment_flow app_card gov_card fee_struct",
+//             // select:
+//             //   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber",
+//             // populate: {
+//             //   path: "fee_structure",
+//             //   select:
+//             //     "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+//             //   populate: {
+//             //     path: "category_master",
+//             //     select: "category_name",
+//             //   },
+//             // },
+//           },
+//         });
+//       var all_select_query = nested_document_limit(
+//         page,
+//         limit,
+//         apply?.FeeCollectionApplication?.reverse()
+//       );
+//       if (all_select_query?.length > 0) {
+//         // const selectEncrypt = await encryptionPayload(apply);
+//         res.status(200).send({
+//           message:
+//             "Lots of Fees Collection Selection required make sure you come up with Tea and Snack from DB 🙌",
+//           fees: all_select_query,
+//         });
+//       } else {
+//         res.status(200).send({
+//           message: "Go To Outside for Dinner",
+//           fees: [],
+//         });
+//       }
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// }
+
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {
 //     const { aid } = req?.params

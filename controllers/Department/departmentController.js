@@ -301,7 +301,7 @@ exports.render_dynamic_form_query = async (req, res) => {
             }
           }
           obj[`fields`] = [...head_array]
-          head_arrays.push({ ...obj, key: val?.section_name })
+          head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key })
           obj = {}
           head_array = []
         }
@@ -359,7 +359,7 @@ exports.render_dynamic_form_query = async (req, res) => {
             }
           }
           obj[`fields`] = [...head_array]
-          head_arrays.push({ ...obj, key: val?.section_name })
+          head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key })
           obj = {}
           head_array = []
         }

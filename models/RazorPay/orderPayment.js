@@ -114,6 +114,10 @@ const orderPaymentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "CertificateQuery",
   },
+  payment_visible_status: {
+    type: String,
+    default: "Not Hide"
+  }
   // payment_expense_by_end_user_id: {
   //   type: mongoose.Schema.Types.ObjectId,
   //   ref: "InstituteAdmin",

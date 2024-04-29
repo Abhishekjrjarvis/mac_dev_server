@@ -777,4 +777,6 @@ router
 
 router.patch("/:fsid/update/fs", catchAsync(Admission.renderFeeStructureUpdate))
 
+// router.get("/:aid/all/readmission/query", catchAsync(Admission.renderAllReadmissionQuery))
+
 module.exports = router;

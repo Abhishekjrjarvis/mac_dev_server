@@ -1565,6 +1565,9 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
           {
             refund_status: "No Refund",
           },
+          {
+            visible_status: "Not Hide",
+          },
           // { student: { $in: sorted_array } },
         ],
       })
@@ -1669,6 +1672,9 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
           },
           {
             refund_status: "No Refund",
+          },
+          {
+            visible_status: "Not Hide",
           },
           // { student: { $in: sorted_array } },
         ],
@@ -4647,6 +4653,30 @@ exports.renderAllStudentMessageQuery = async(req, res) => {
     }
   }
   catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderPaymentDataQuery = async (req, res) => {
+  try {
+    const all_o = await OrderPayment.find({})
+    const all_receipt = await FeeReceipt.find({})
+    var i = 0
+    for (let ele of all_o) {
+      ele.payment_visible_status = "Not Hide"
+      console.log(i)
+      await ele.save()
+      i+=1
+    }
+    for (let num of all_receipt) {
+      num.visible_status = "Not Hide"
+      console.log(i)
+      await num.save()
+      i+=1
+    }
+    res.status(200).send({ message: "Explore All Student Query", access: true})
+  }
+  catch (e) {
     console.log(e)
   }
 }

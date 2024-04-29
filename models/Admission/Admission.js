@@ -343,7 +343,46 @@ const admissionAdminSchema = new mongoose.Schema({
   cancel_admission_count: {
     type: Number,
     default: 0
-  }
+  },
+  re_admission_list: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      apply_on: { type: Date, default: Date.now },
+      payment_status: { type: String, default: "Pending" },
+      fee_struct: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeStructure"
+      },
+      appId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication"
+      },
+    }
+  ],
+  re_admission_list_count: {
+    type: Number,
+    default: 0
+  },
+  confirmedApplication: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      apply_on: { type: Date, default: Date.now },
+      appId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication"
+      },
+      structure: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeStructure"
+      }
+    },
+  ],
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

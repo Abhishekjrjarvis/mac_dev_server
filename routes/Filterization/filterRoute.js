@@ -151,4 +151,9 @@ router.patch(
   catchAsync(Filter.renderAllStudentMessageQuery)
 );
 
+router.patch(
+  "/payment/data/query",
+  catchAsync(Filter.renderPaymentDataQuery)
+);
+
 module.exports = router;

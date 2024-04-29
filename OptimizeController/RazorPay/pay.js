@@ -672,6 +672,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
             { payment_to_end_user_id: uid },
             { payment_module_type: filter },
             { payment_amount: { $gt: 0 } },
+            { payment_visible_status: "Not Hide"}
           ],
           $or: [
             {
@@ -745,6 +746,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
             { payment_to_end_user_id: uid },
             { payment_module_type: filter },
             { payment_amount: { $gt: 0 } },
+            { payment_visible_status: "Not Hide"}
           ],
         })
           .sort("-created_at")
@@ -824,6 +826,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
             {
               payment_amount: { $gt: 0 },
             },
+            { payment_visible_status: "Not Hide"}
           ],
           $or: [
             {
@@ -896,6 +899,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
             {
               payment_amount: { $gt: 0 },
             },
+            { payment_visible_status: "Not Hide"}
           ],
         })
           .sort("-created_at")

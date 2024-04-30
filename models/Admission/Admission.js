@@ -380,6 +380,10 @@ const admissionAdminSchema = new mongoose.Schema({
       structure: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeStructure"
+      },
+      class: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class"
       }
     },
   ],

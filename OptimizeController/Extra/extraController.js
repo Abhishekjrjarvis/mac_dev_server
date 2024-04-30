@@ -56,6 +56,7 @@ const {
   generate_excel_to_json_biometric_query,
   generate_excel_to_json_staff_leave_query,
   generate_excel_to_json_fee_structure_exist_query,
+  generate_excel_to_json_student_fees_mapping,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -76,6 +77,7 @@ const {
   renderAdmissionNewScholarNumberAutoQuery,
   renderInstituteScholarNumberAutoQuery,
   renderGovernmentHeadsMoveGovernmentCardUpdateQuery,
+  render_student_fees_mapping,
 } = require("../Admission/admissionController");
 const {
   renderNewOfflineBookAutoQuery,
@@ -3959,6 +3961,58 @@ exports.renderExcelToJSONGovernmentQuery = async (req, res) => {
     if (is_converted?.value) {
       await renderGovernmentHeadsMoveGovernmentCardUpdateQuery(fid, is_converted?.structure_array);
       res.status(200).send({ message: "Excel Imported Successfully", access: true})
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONStudentFeesMappingQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const { excel_file } = req.body;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      financeId: finance?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.financeId}` === `${finance?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_student_fees_mapping(val);
+    if (is_converted?.value) {
+      await render_student_fees_mapping(
+        is_converted?.student_array,
+      );
     } else {
       console.log("false");
     }

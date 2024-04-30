@@ -982,6 +982,10 @@ const studentSchema = new mongoose.Schema({
     flow: { type: String },
     did: { type: String }
   },
+  fee_category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeCategory"
+  }
 });
 
 const Student = mongoose.model("Student", studentSchema);

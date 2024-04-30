@@ -741,7 +741,13 @@ const financeSchema = new mongoose.Schema(
     day_book_count: {
       type: Number,
       default: 0
-    }
+    },
+    delete_logs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "DeleteLogs"
+      }
+    ]
   },
   { timestamps: true }
 );

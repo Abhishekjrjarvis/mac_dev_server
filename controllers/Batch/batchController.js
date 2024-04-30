@@ -449,7 +449,7 @@ exports.promoteStudent = async (req, res) => {
               if (
                 `${ref?.class_master}` === `${classes?.masterClassName}` &&
                 `${ref?.category_master?._id}` ===
-                  `${student?.fee_structure?.category_master?._id}` &&
+                  (`${student?.fee_structure?.category_master?._id}` || `${student?.fee_category}`) &&
                 `${ref?.batch_master}` === `${batch?._id}`
               )
                 return ref;
@@ -461,7 +461,7 @@ exports.promoteStudent = async (req, res) => {
                 if (
                   `${ref?.class_master}` === `${classes?.masterClassName}` &&
                   `${ref?.category_master?._id}` ===
-                    `${student?.fee_structure?.category_master?.secondary_category}` &&
+                    (`${student?.fee_structure?.category_master?.secondary_category}` || `${student?.fee_category}`) &&
                   `${ref?.batch_master}` === `${batch?._id}`
                 )
                   return ref;

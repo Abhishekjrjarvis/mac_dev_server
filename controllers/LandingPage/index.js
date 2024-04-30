@@ -1646,7 +1646,9 @@ exports.render_one_pinned_department_query = async (req, res) => {
         nums.push(...ele?.department)
       }
     }
-    res.status(200).send({ message: "Explore Dependent Pinned Department", access: true, ins: nums})
+    let setObj = new Set(nums.map(JSON.stringify));
+    let output = Array.from(setObj).map(JSON.parse);
+    res.status(200).send({ message: "Explore Dependent Pinned Department", access: true, ins: output})
     
   }
   catch (e) {

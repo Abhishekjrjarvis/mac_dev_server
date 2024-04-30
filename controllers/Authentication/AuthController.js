@@ -1979,6 +1979,8 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         student.photoId = "0";
         student.studentProfilePhoto = sample_pic;
       }
+      student.student_form_flow.flow = "INSTITUTE"
+      student.student_form_flow.did = institute?._id
       status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -2203,6 +2205,8 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
         student.photoId = "0";
         student.studentProfilePhoto = sample_pic;
       }
+      student.student_form_flow.flow = "INSTITUTE"
+      student.student_form_flow.did = institute?._id
       status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -2440,6 +2444,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       subject.optionalStudent.push(student?._id);
       await subject.save();
     }
+    student.student_form_flow.flow = "INSTITUTE"
+    student.student_form_flow.did = institute?._id
     const notify = new StudentNotification({});
     const aStatus = new Status({});
     user.student.push(student._id);
@@ -3296,6 +3302,8 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
             });
           }
         }
+        student.student_form_flow.flow = "DEPARTMENT"
+        student.student_form_flow.did = depart?._id
         if (studentOptionalSubject?.length > 0) {
           student.studentOptionalSubject.push(...studentOptionalSubject);
         }
@@ -4334,6 +4342,8 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
         user.student.push(student._id);
         user.is_mentor = true;
         institute.joinedPost.push(user._id);
+        student.student_form_flow.flow = "INSTITUTE"
+        student.student_form_flow.did = institute?._id
         if (institute.userFollowersList.includes(user?._id)) {
         } else {
           user.userInstituteFollowing.push(institute?._id);

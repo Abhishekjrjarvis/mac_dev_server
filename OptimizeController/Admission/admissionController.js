@@ -13268,7 +13268,7 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
       if (`${ele?._id}` === `${rid}`) {
         const logs = new DeleteLogs({})
         if (ele?.fee_receipt) {
-          const fees = await FeeReceipt.findById({ _id: ele?.fee_receipt })
+          var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt })
           fees.visible_status = "Hide"
           await fees.save()
         }

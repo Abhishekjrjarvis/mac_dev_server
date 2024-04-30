@@ -4784,6 +4784,7 @@ exports.renderFinanceMasterAllDepositHistory = async (req, res) => {
       var all_receipts = await FeeReceipt.find({
         _id: { $in: finance?.refund_deposit },
       })
+        .sort({ created_at: -1 })
         .limit(limit)
         .skip(skip)
         .populate({

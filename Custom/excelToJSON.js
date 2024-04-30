@@ -11,6 +11,7 @@ const HostelUnit = require("../models/Hostel/hostelUnit");
 const HostelRoom = require("../models/Hostel/hostelRoom");
 const Department = require("../models/Department");
 const SubjectMaster = require("../models/SubjectMaster");
+const FeesCategory = require("../models/Finance/FeesCategory");
 // const Batch = require("../models/Batch");
 
 exports.generate_excel_to_json = async (file, aid, fid, did) => {
@@ -1029,6 +1030,33 @@ exports.generate_excel_to_json_class_time_table_query = async (excel_arr, excel_
     return { chapter_array: new_data_query, value: true };
   } catch (e) {
     console.log("TimeTable Excel Query Not Resolved", e);
+  }
+};
+
+exports.generate_excel_to_json_student_fees_mapping = async (file, fid) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["StudentFeesMapping"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var ref of data_query) {
+      var valid_cate = await FeesCategory.findOne({
+        $and: [
+          { finance: fid },
+          {
+            category_name: { $regex: `${ref?.Name}`, $options: "i" },
+          },
+        ],
+      });
+      ref.studentGRNO = GRNO;
+      ref.fee_category = valid_cate?._id
+        new_data_query.push({
+          ...ref,
+        });
+    }
+    return { student_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("Student Fees Mapping Excel Query Not Resolved", e);
   }
 };
 

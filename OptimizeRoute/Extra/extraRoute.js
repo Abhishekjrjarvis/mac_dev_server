@@ -472,4 +472,9 @@ router.patch(
 
 router.patch("/auto/mess", catchAsync(Extra.auto_messages))
 
+router.patch(
+  "/excel/to/json/:fid/add/student/fees/mapping",
+  catchAsync(Extra.renderExcelToJSONStudentFeesMappingQuery)
+);
+
 module.exports = router;

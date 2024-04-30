@@ -173,6 +173,10 @@ const feeReceiptSchema = new mongoose.Schema({
   visible_status: {
     type: String,
     default: "Not Hide"
+  },
+  is_deleted: {
+    type: Boolean,
+    default: false
   }
 });
 

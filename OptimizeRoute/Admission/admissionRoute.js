@@ -777,6 +777,12 @@ router
 
 router.patch("/:fsid/update/fs", catchAsync(Admission.renderFeeStructureUpdate))
 
-// router.get("/:aid/all/readmission/query", catchAsync(Admission.renderAllReadmissionQuery))
+router.get("/:aid/all/readmission/query", catchAsync(Admission.renderAllReadmissionQuery))
+
+router.patch("/:aid/fees/student/:sid/re/admission", catchAsync(Admission.renderReAdmissionFeesQuery))
+
+router.get("/:aid/all/confirmed/readmission/query", catchAsync(Admission.renderAllConfirmedReadmissionQuery))
+
+router.patch("/:nid/delete/:rid/installment/card/query", catchAsync(Admission.renderDeleteInstallmentCardQuery))
 
 module.exports = router;

@@ -107,6 +107,7 @@ const Charges = require("../../models/SuperAdmin/Charges");
 const { fee_receipt_count_query, fee_receipt_count_query_new } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 const { renderAllStudentToUnApprovedAutoCatalogQuery } = require("../Authentication/AuthController");
 const FeeMaster = require("../../models/Finance/FeeMaster");
+const DeleteLogs = require("../../models/RazorPay/DeleteLogs");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -6706,7 +6707,7 @@ exports.renderRefundArrayQuery = async (req, res) => {
       await nested_document_limit(
         page,
         limit,
-        nest_list
+        nest_list?.reverse()
       );
       // ads_admin.refundCount = total
       // await ads_admin.save()
@@ -7905,7 +7906,7 @@ exports.renderAllRefundedArray = async (req, res) => {
     var all_refunded = await nested_document_limit(
       page,
       limit,
-      ads_admin?.refundedFeeList
+      ads_admin?.refundedFeeList?.reverse()
     );
     if (all_refunded?.length > 0) {
       res.status(200).send({
@@ -12755,110 +12756,540 @@ exports.renderFeeStructureUpdate = async (req, res) => {
   }
 }
 
-// exports.renderAllReadmissionQuery = async (req, res) => {
-//   try {
-//     const { aid } = req.params;
-//     const page = req.query.page ? parseInt(req.query.page) : 1;
-//     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-//     const skip = (page - 1) * limit;
-//     const { search } = req.query;
-//     if (search) {
-//       const filter_select = [];
-//       const apply = await Admission.findById({ _id: aid })
-//         .select("re_admission_list_count")
-//         .populate({
-//           path: "FeeCollectionApplication",
-//           populate: {
-//             path: "student payment_flow app_card gov_card fee_struct",
-//             match: {
-//               $or: [
-//                 {studentFirstName: { $regex: `${search}`, $options: "i" },
-//                 },
-//                 {
-//                   studentMiddleName: { $regex: `${search}`, $options: "i" },
-//                 },
-//                 {
-//                   studentLastName: { $regex: `${search}`, $options: "i" },
-//                 },
-//                 {
-//                   valid_full_name: { $regex: `${search}`, $options: "i" },
-//                 },
-//               ]
-//             },
-//             // select:
-//             //   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name",
-//             // populate: {
-//             //   path: "fee_structure",
-//             //   select:
-//             //     "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-//             //   populate: {
-//             //     path: "category_master",
-//             //     select: "category_name",
-//             //   },
-//             // },
-//           },
-//         });
-//       for (let data of apply.FeeCollectionApplication) {
-//         if (data.student !== null) {
-//           filter_select.push(data);
-//         }
-//       }
-//       if (filter_select?.length > 0) {
-//         // const selectEncrypt = await encryptionPayload(apply);
-//         res.status(200).send({
-//           message:
-//             "Lots of Fees Collection required make sure you come up with Tea and Snack from DB 🙌",
-//           fees: filter_select?.reverse(),
-//         });
-//       } else {
-//         res.status(200).send({
-//           message: "Go To Outside for Dinner",
-//           fees: [],
-//         });
-//       }
-//     } else {
-//       var apply = await Admission.findById({ _id: aid })
-//         .select("re_admission_list_count")
-//         .populate({
-//           path: "FeeCollectionApplication",
-//           populate: {
-//             path: "student payment_flow app_card gov_card fee_struct",
-//             // select:
-//             //   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber",
-//             // populate: {
-//             //   path: "fee_structure",
-//             //   select:
-//             //     "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-//             //   populate: {
-//             //     path: "category_master",
-//             //     select: "category_name",
-//             //   },
-//             // },
-//           },
-//         });
-//       var all_select_query = nested_document_limit(
-//         page,
-//         limit,
-//         apply?.FeeCollectionApplication?.reverse()
-//       );
-//       if (all_select_query?.length > 0) {
-//         // const selectEncrypt = await encryptionPayload(apply);
-//         res.status(200).send({
-//           message:
-//             "Lots of Fees Collection Selection required make sure you come up with Tea and Snack from DB 🙌",
-//           fees: all_select_query,
-//         });
-//       } else {
-//         res.status(200).send({
-//           message: "Go To Outside for Dinner",
-//           fees: [],
-//         });
-//       }
-//     }
-//   } catch (e) {
-//     console.log(e);
-//   }
-// }
+exports.renderAllReadmissionQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (search) {
+      const filter_select = [];
+      const apply = await Admission.findById({ _id: aid })
+        .select("re_admission_list_count")
+        .populate({
+          path: "re_admission_list",
+          populate: {
+            path: "student fee_struct appId",
+            match: {
+              $or: [
+                {studentFirstName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentMiddleName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentLastName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  valid_full_name: { $regex: `${search}`, $options: "i" },
+                },
+              ]
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName",
+          },
+        });
+      for (let data of apply.re_admission_list) {
+        if (data.student !== null) {
+          filter_select.push(data);
+        }
+      }
+      if (filter_select?.length > 0) {
+        // const selectEncrypt = await encryptionPayload(apply);
+        res.status(200).send({
+          message:
+            "Lots of Fees Collection required make sure you come up with Tea and Snack from DB 🙌",
+          fees: filter_select?.reverse(),
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          fees: [],
+        });
+      }
+    } else {
+      var apply = await Admission.findById({ _id: aid })
+        .select("re_admission_list_count")
+        .populate({
+          path: "re_admission_list",
+          populate: {
+            path: "student fee_struct appId",
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName",
+          },
+        });
+      var all_select_query = nested_document_limit(
+        page,
+        limit,
+        apply?.re_admission_list?.reverse()
+      );
+      if (all_select_query?.length > 0) {
+        // const selectEncrypt = await encryptionPayload(apply);
+        res.status(200).send({
+          message:
+            "Lots of Fees Collection Selection required make sure you come up with Tea and Snack from DB 🙌",
+          fees: all_select_query,
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          fees: [],
+        });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.renderAllConfirmedReadmissionQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (search) {
+      const filter_select = [];
+      const apply = await Admission.findById({ _id: aid })
+        .select("re_admission_list_count")
+        .populate({
+          path: "confirmedApplication",
+          populate: {
+            path: "student fee_struct appId class",
+            match: {
+              $or: [
+                {studentFirstName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentMiddleName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentLastName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  valid_full_name: { $regex: `${search}`, $options: "i" },
+                },
+              ]
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName className classTitle",
+          },
+        });
+      for (let data of apply.confirmedApplication) {
+        if (data.student !== null) {
+          filter_select.push(data);
+        }
+      }
+      if (filter_select?.length > 0) {
+        // const selectEncrypt = await encryptionPayload(apply);
+        res.status(200).send({
+          message:
+            "Lots of Fees Collection required make sure you come up with Tea and Snack from DB 🙌",
+          fees: filter_select?.reverse(),
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          fees: [],
+        });
+      }
+    } else {
+      var apply = await Admission.findById({ _id: aid })
+        .populate({
+          path: "confirmedApplication",
+          populate: {
+            path: "student fee_struct appId class",
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName className classTitle",
+          },
+        });
+      var all_select_query = nested_document_limit(
+        page,
+        limit,
+        apply?.confirmedApplication?.reverse()
+      );
+      if (all_select_query?.length > 0) {
+        // const selectEncrypt = await encryptionPayload(apply);
+        res.status(200).send({
+          message:
+            "Lots of Confirmed Admission From DB 🙌",
+          fees: all_select_query,
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          fees: [],
+        });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.renderReAdmissionFeesQuery = async(req, res) => {
+  try {
+    const { sid, aid } = req.params;
+    const { receipt_status } = req.query;
+    const { amount, mode, card_id, rid, type, pay_remain, flow } = req.body;
+    if (!sid && !aid && !amount && !mode)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        confirm_status: false,
+      });
+    var price = parseInt(amount);
+    const apply = await NewApplication.findById({ _id: aid });
+    const admission = await Admission.findById({
+      _id: `${apply.admissionAdmin}`,
+    }).populate({
+      path: "admissionAdminHead",
+      select: "user",
+    });
+    var institute = await InstituteAdmin.findById({
+      _id: `${admission.institute}`,
+    });
+    var finance = await Finance.findById({
+      _id: `${institute.financeDepart[0]}`,
+    });
+    const student = await Student.findById({ _id: sid }).populate({
+      path: "fee_structure",
+    });
+    var all_status = await Status.find({ $and: [{ applicationId: apply?._id}, { student: student?._id }, { payment_status: "Not Paid"}]})
+    var new_remainFee = await RemainingList.findById({ _id: rid })
+    .populate({
+      path: "applicable_card"
+    })
+    .populate({
+      path: "government_card"
+    })
+    if (flow === "RE_ADMISSION") {
+      const user = await User.findById({ _id: `${student.user}` });
+      const status = new Status({});
+      const order = new OrderPayment({});
+      const notify = new StudentNotification({});
+      const new_receipt = new FeeReceipt({ ...req.body });
+      new_receipt.student = student?._id;
+      new_receipt.fee_structure = new_remainFee?.fee_structure
+      new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+      new_receipt.application = apply?._id;
+      new_receipt.receipt_generated_from = "BY_ADMISSION";
+      new_receipt.finance = finance?._id;
+      new_receipt.receipt_status = receipt_status
+        ? receipt_status
+        : "Already Generated";
+      order.payment_module_type = "Admission Fees";
+      order.payment_to_end_user_id = institute?._id;
+      order.payment_by_end_user_id = user._id;
+      order.payment_module_id = apply._id;
+      order.payment_amount = price;
+      order.payment_status = "Captured";
+      order.payment_flag_to = "Credit";
+      order.payment_flag_by = "Debit";
+      order.payment_mode = mode;
+      order.payment_admission = apply._id;
+      order.payment_from = student._id;
+      order.payment_student = student?._id;
+      order.payment_student_name = student?.valid_full_name;
+      order.payment_student_gr = student?.studentGRNO;
+      order.fee_receipt = new_receipt?._id;
+      fee_receipt_count_query(institute, new_receipt, order)
+      // institute.invoice_count += 1;
+      // new_receipt.invoice_count = `${
+      //   new Date().getMonth() + 1
+      // }${new Date().getFullYear()}${institute.invoice_count}`;
+      // order.payment_invoice_number = new_receipt?.invoice_count;
+      user.payment_history.push(order._id);
+      institute.payment_history.push(order._id);
+      if (`${new_remainFee?.applicable_card?._id}` === `${card_id}`) {
+        const nest_card = await NestedCard.findById({ _id: `${card_id}` })
+        new_remainFee.active_payment_type = `${type}`;
+        nest_card.active_payment_type = `${type}`;
+        new_remainFee.paid_fee += price;
+        nest_card.paid_fee += price;
+        if (new_remainFee?.remaining_fee >= price) {
+          new_remainFee.remaining_fee -= price
+        }
+        if (nest_card?.remaining_fee >= price) {
+          nest_card.remaining_fee -= price
+        }
+        else {
+          nest_card.remaining_fee = 0
+        }
+        if (student.admissionRemainFeeCount >= price) {
+          student.admissionRemainFeeCount -= price
+        }
+        if (apply.remainingFee >= price) {
+          apply.remainingFee -= price
+        }
+        if (admission.remainingFeeCount >= price) {
+          admission.remainingFeeCount -= price
+        }
+        var valid_one_time_fees =
+          student?.fee_structure?.applicable_fees - price == 0
+            ? true
+            : false;
+        if (valid_one_time_fees) {
+          admission.remainingFee.pull(student._id);
+        } else {
+        }
+        if (pay_remain) {
+          await all_installment_paid(
+            new_remainFee,
+            student?.fee_structure,
+            mode,
+            price,
+            admission,
+            student,
+            new_receipt,
+            apply,
+            institute,
+            nest_card,
+            type
+          )
+        }
+        else {
+          await render_installment(
+            type,
+            student,
+            mode,
+            price,
+            admission,
+            student?.fee_structure,
+            new_remainFee,
+            new_receipt,
+            apply,
+            institute,
+            nest_card
+          );
+        }
+        await nest_card.save()
+        if (req.body?.fee_payment_mode === "Government/Scholarship") {
+          // New Logic
+        } else {
+          console.log("Enter");
+          await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+          // await set_fee_head_query(student, price, apply, new_receipt);
+          console.log("Exit");
+        }
+        apply.confirmedApplication.push({
+          student: student._id,
+          payment_status: mode,
+          install_type: "First Installment Paid",
+          fee_remain: nest_card.remaining_fee ?? 0,
+        });
+      }
+      new_remainFee.fee_receipts.push(new_receipt?._id);
+      if (mode === "Offline") {
+        admission.offlineFee += price;
+        apply.collectedFeeCount += price;
+        apply.offlineFee += price;
+        admission.collected_fee += price;
+        finance.financeAdmissionBalance += price;
+        finance.financeTotalBalance += price;
+        finance.financeSubmitBalance += price;
+      } else if (mode === "Online") {
+        admission.onlineFee += price;
+        apply.collectedFeeCount += price;
+        apply.onlineFee += price;
+        finance.financeAdmissionBalance += price;
+        finance.financeTotalBalance += price;
+        finance.financeBankBalance += price;
+      } else {
+      }
+      if (new_remainFee?.remaining_fee > 0) {
+      } else {
+        new_remainFee.status = "Paid";
+      }
+      await lookup_applicable_grant(
+        req.body?.fee_payment_mode,
+        price,
+        new_remainFee,
+        new_receipt
+      );
+      apply.confirmCount += 1;
+      for (let app of apply.FeeCollectionApplication) {
+        if (`${app.student}` === `${student._id}`) {
+          if (app?.status_id) {
+            const valid_status = await Status.findById({
+              _id: `${app?.status_id}`,
+            });
+            valid_status.isPaid = "Paid";
+            await valid_status.save();
+          }
+          apply.FeeCollectionApplication.pull(app?._id);
+        } else {
+        }
+      }
+      for (var val of all_status) {
+        val.payment_status = "Paid"
+        val.fee_receipt = new_receipt?._id
+        await val.save()
+      }
+      student.admissionPaidFeeCount += price;
+      student.paidFeeList.push({
+        paidAmount: price,
+        appId: apply._id,
+      });
+      status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
+      status.group_by = "Admission_Confirmation"
+      status.applicationId = apply._id;
+      user.applicationStatus.push(status._id);
+      status.instituteId = institute._id;
+      status.fee_receipt = new_receipt?._id;
+      notify.notifyContent = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
+      notify.notifySender = admission?.admissionAdminHead?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      notify.fee_receipt = new_receipt?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByAdmissionPhoto = admission?._id;
+      notify.notifyCategory = "Status Alert";
+      notify.redirectIndex = 29;
+      if (
+        `${new_receipt?.fee_payment_mode}` === "Demand Draft" ||
+        `${new_receipt?.fee_payment_mode}` === "Cheque"
+      ) {
+        status.receipt_status = "Requested";
+        status.receipt = new_receipt?._id;
+        if (admission?.request_array?.includes(`${new_receipt?._id}`)) {
+        } else {
+          admission.request_array.push(new_receipt?._id);
+          admission.fee_receipt_request.push({
+            receipt: new_receipt?._id,
+            demand_cheque_status: "Requested",
+          });
+          admission.fee_receipt_request_count += 1
+        }
+      }
+      if (
+        new_remainFee?.re_admission_class != null &&
+        new_remainFee?.re_admission_flow
+      ) {
+        var classes = await Class.findById({
+          _id: `${new_remainFee?.re_admission_class}`,
+        });
+        var batch = await Batch.findById({ _id: `${classes?.batch}` });
+        var depart = await Department.findById({
+          _id: `${batch?.department}`,
+        });
+        if (classes?.ApproveStudent?.includes(student._id)) {
+        } else {
+          classes?.ApproveStudent.push(student._id);
+          classes?.UnApproveStudent.pull(student._id);
+        }
+        if (batch?.ApproveStudent?.includes(student._id)) {
+        } else {
+          batch?.ApproveStudent.push(student._id);
+          batch?.UnApproveStudent.pull(student._id);
+        }
+        if (depart?.ApproveStudent?.includes(student._id)) {
+        } else {
+          depart?.ApproveStudent.push(student._id);
+          depart?.UnApproveStudent.pull(student._id);
+        }
+        classes.studentCount += 1;
+        if (student.studentGender === "Male") {
+          classes.boyCount += 1;
+        } else if (student.studentGender === "Female") {
+          classes.girlCount += 1;
+        } else if (student.studentGender === "Other") {
+          classes.otherCount += 1;
+        } else {
+        }
+        student.studentROLLNO = classes.ApproveStudent?.length + 1;
+        admission.confirmedApplication.push({
+          student: student?._id,
+          fee_struct: new_remainFee?.fee_structure,
+          appId: apply?._id,
+          class: classes?._id
+        })
+        await Promise.all([classes.save(), batch.save(), depart.save()]);
+      }
+      await Promise.all([
+        admission.save(),
+        apply.save(),
+        student.save(),
+        finance.save(),
+        user.save(),
+        order.save(),
+        institute.save(),
+        // s_admin.save(),
+        new_remainFee.save(),
+        new_receipt.save(),
+        status.save(),
+        notify.save(),
+      ]);
+      res.status(200).send({
+        message: "Look like a party mood",
+        confirm_status: true,
+      });
+      invokeMemberTabNotification(
+        "Admission Status",
+        status.content,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
+  
+    }
+} catch (e) {
+    console.log(e);
+  }
+}
+
+exports.render_student_fees_mapping = async (map) => {
+  try {
+    if (map?.length > 0) {
+      for (let ele of map) {
+        const student = await Student.findOne({ studentGRNO: `${ele?.studentGRNO}` })
+        student.fee_category = ele?.fee_category
+        await student.save()
+      }
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderDeleteInstallmentCardQuery = async (req, res) => {
+  try {
+    const { nid, rid } = req?.params
+    const { fid } = req?.body
+    if (!nid && !rid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var nest = await NestedCard.findById({ _id: nid })
+    var new_fees = await RemainingList.findById({ _id: `${nest?.parent_card}` })
+    const finance = await Finance.findById({ _id: fid })
+    for (var ele of nest?.remaining_array) {
+      if (`${ele?._id}` === `${rid}`) {
+        const logs = new DeleteLogs({})
+        logs.fee_receipt = ele?.fee_receipt
+        logs.nested_card = nest?._id
+        ele.status = "Not Paid"
+        ele.installmentValue = (ele.installmentValue === "All Installment Paid" || ele.installmentValue === "All Installment Paid") ? "Installment Remain" : ele.installmentValue
+        ele.mode = ""
+        ele.fee_receipt = null
+        if (nest?.paid_fee >= ele?.remainAmount) {
+          nest.paid_fee -= ele?.remainAmount
+        }
+        if (new_fees?.paid_fee >= ele?.remainAmount) {
+          new_fees.paid_fee -= ele?.remainAmount
+        }
+        finance.delete_logs.push(logs?._id)
+        await logs.save()
+      }
+    }
+    await Promise.all([nest.save(), new_fees.save(), finance.save()])
+    res.status(200).send({ message: "I Think you press the wrong button", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
 
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {

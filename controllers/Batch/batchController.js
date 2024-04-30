@@ -441,6 +441,7 @@ exports.promoteStudent = async (req, res) => {
           // const sec_category = await FeeCategory.findOne({
           //   current_status: "Secondary Category",
           // });
+          // console.log(same_batch_promotion)
           if (!same_batch_promotion) {
             // if (finance?.secondary_category?.status === "Assigned") {
             //   var cate = finance?.secondary_category?.category;
@@ -449,24 +450,38 @@ exports.promoteStudent = async (req, res) => {
               if (
                 `${ref?.class_master}` === `${classes?.masterClassName}` &&
                 `${ref?.category_master?._id}` ===
-                  (`${student?.fee_structure?.category_master?._id}` || `${student?.fee_category}`) &&
+                `${student?.fee_structure?.category_master?._id}` &&
                 `${ref?.batch_master}` === `${batch?._id}`
               )
                 return ref;
             });
+            console.log(structure)
             if (structure?.length > 0) {
+              console.log("structure Assign BUG");
             } else {
-              // console.log("structure Assign");
+              console.log("structure Assign");
               var structure = department?.fees_structures?.filter((ref) => {
                 if (
                   `${ref?.class_master}` === `${classes?.masterClassName}` &&
                   `${ref?.category_master?._id}` ===
-                    (`${student?.fee_structure?.category_master?.secondary_category}` || `${student?.fee_category}`) &&
+                  `${student?.fee_structure?.category_master?.secondary_category}` &&
                   `${ref?.batch_master}` === `${batch?._id}`
                 )
                   return ref;
               });
             }
+          }
+          else {
+            var structure = department?.fees_structures?.filter((ref) => {
+              if (
+                `${ref?.class_master}` === `${classes?.masterClassName}` &&
+                `${ref?.category_master?._id}` ===
+                `${student?.fee_structure?.category_master?._id}` &&
+                `${ref?.batch_master}` === `${batch?._id}`
+              )
+                return ref;
+            });
+            // console.log(structure);
           }
           // structure = structure?.filter((val) => {
           //   if (
@@ -670,6 +685,16 @@ exports.promoteStudent = async (req, res) => {
           student.form_status = "Not Filled";
           // student.fee_receipt = [];
           if (!same_batch_promotion) {
+            await render_new_fees_card(
+              student?._id,
+              apply?._id,
+              structure[numIndex]?._id,
+              "BATCH_PROMOTE",
+              re_ads,
+              classes
+            )
+          }
+          else {
             await render_new_fees_card(
               student?._id,
               apply?._id,

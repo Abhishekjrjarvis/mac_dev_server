@@ -13267,6 +13267,16 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
     for (var ele of nest?.remaining_array) {
       if (`${ele?._id}` === `${rid}`) {
         const logs = new DeleteLogs({})
+        if (ele?.fee_receipt) {
+          const fees = await FeeReceipt.findById({ _id: ele?.fee_receipt })
+          fees.visible_status = "Hide"
+          await fees.save()
+        }
+        if (fees?.order_history) {
+          const order = await OrderPayment.findById({ _id: fees?.order_history })
+          order.payment_visible_status = "Hide"
+          await order.save()
+        }
         logs.fee_receipt = ele?.fee_receipt
         logs.nested_card = nest?._id
         ele.status = "Not Paid"

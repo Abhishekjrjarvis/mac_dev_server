@@ -360,6 +360,14 @@ const admissionAdminSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "NewApplication"
       },
+      app_card: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NestedCard"
+      },
+      gov_card: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NestedCard"
+      }
     }
   ],
   re_admission_list_count: {

@@ -43,7 +43,10 @@ const Attainment = require("../../models/Marks/Attainment");
 const SubjectAttainment = require("../../models/Marks/SubjectAttainment");
 const QuestionEvaluation = require("../../models/Marks/Evaluation/QuestionEvaluation");
 const StudentQuestionEvaluation = require("../../models/Marks/Evaluation/StudentQuestionEvaluation");
-
+const {
+  subject_marks_student_json_to_excel,
+} = require("../../Custom/JSONToExcel");
+const { getj_subject_marks_update_query } = require("../../Custom/excelToJSON");
 
 exports.getClassMaster = async (req, res) => {
   try {
@@ -6310,6 +6313,7 @@ exports.examQuestionEvaluationCoMappingQuery = async (req, res) => {
   }
 };
 
+
 exports.oneStudentReportCardFinalizeModify = async (req, res) => {
   try {
     // console.log("hit", req.body);
@@ -6410,10 +6414,12 @@ exports.oneStudentReportCardFinalizeModify = async (req, res) => {
         /// for see backlog student
         new_backlog.backlog_students = req.params.sid;
         student.backlog.push(new_backlog._id);
+        backlogSub.fail.push(req.params.sid);
         await Promise.all([
           backlogSubMaster.save(),
           new_backlog.save(),
           student.save(),
+          backlogSub.save(),
         ]);
       } else {
         backlogSub.pass.push(req.params.sid);
@@ -6468,3 +6474,519 @@ exports.oneStudentReportCardFinalizeModify = async (req, res) => {
     res.status(200).send({ message: e });
   }
 };
+
+exports.oneSubjectExamAllStudentExcelExportQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { cid, eid } = req.body;
+    if (!sid || !cid || !eid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const cls = await Class.findById(cid);
+    const sub = await Subject.findById(sid).populate({
+      path: "selected_batch_query",
+      select: "class_student_query",
+    });
+
+    let st_id = [];
+    if (sub?.selected_batch_query) {
+      st_id = sub?.selected_batch_query?.class_student_query;
+    } else {
+      st_id = cls?.ApproveStudent;
+    }
+
+    const students = [];
+    for (let studentId of st_id) {
+      const student = await Student.findById(studentId)
+        .populate({
+          path: "subjectMarks",
+          match: { subject: { $eq: `${sid}` } },
+        })
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentROLLNO subjectMarks studentGRNO student_prn_enroll_number"
+        );
+      if (student?.subjectMarks?.length) {
+        for (let onemarks of student?.subjectMarks[0]?.marks) {
+          if (`${onemarks.examId}` === `${eid}`) {
+            students.push({
+              "Enrollment / PRN NO ":
+                student?.student_prn_enroll_number ?? "#NA",
+              GRNO: student?.studentGRNO ?? "#NA",
+              ROLLNO: student.studentROLLNO ?? "#NA",
+              Name: `${student?.studentFirstName} ${
+                student?.studentMiddleName ? student?.studentMiddleName : ""
+              } ${student?.studentLastName}`,
+              Marks: onemarks.obtainMarks ?? "#NA",
+            });
+            break;
+          }
+        }
+      }
+    }
+    let excel_key = "";
+    if (students?.length > 0) {
+      excel_key = await subject_marks_student_json_to_excel(
+        sid,
+        students,
+        "Students",
+        "MARKS",
+        "marks"
+      );
+    }
+    res.status(200).send({
+      message: "One Subject student excel export",
+      excel_key: excel_key,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.oneSubjectExamAllStudentMarksImportQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { cid, excel_key, examId } = req.body;
+    if (!sid || !cid || !excel_key || !examId) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const subjectData = await Subject.findById(sid).populate({
+      path: "class",
+    });
+    subjectData.import_collection?.push({
+      excel_type: "Mark Import",
+      excel_file: excel_key,
+      status: "Pending",
+    });
+    subjectData.import_collection_count += 1;
+    await subjectData.save();
+    res
+      .status(200)
+      .send({ message: "Student Marks import excel is in processing" });
+
+    const file = await simple_object(excel_key);
+    const { data_query } = await getj_subject_marks_update_query(file);
+
+    // res.status(200).send({
+    //   message: "Student Marks import excel is in processing",
+    //   data_query,
+    // });
+    const exam_data = await Exam.findById(examId);
+
+    let iteration_count = data_query?.length;
+
+    var student_marks_list = [];
+    var sub_total_mark = 0;
+
+    if (iteration_count > 0) {
+      for (let i = 0; i < iteration_count; i++) {
+        let studt = data_query[i];
+        const student = await Student.findOne({
+          $and: [
+            {
+              studentGRNO: { $eq: `${studt?.GRNO}` },
+            },
+            {
+              studentClass: { $eq: `${cid}` },
+            },
+          ],
+        }).populate({
+          path: "subjectMarks",
+          match: {
+            subject: { $eq: `${sid}` },
+          },
+        });
+        const subjectMarks1 = await SubjectMarks.findById(
+          student?.subjectMarks[0]?._id
+        );
+        student_marks_list.push({
+          studentId: student?._id,
+          obtainMarks: +studt?.marks ?? 0,
+        });
+        for (let marks of subjectMarks1.marks) {
+          if (`${marks.examId}` === `${examId}`) {
+            marks.obtainMarks = +studt?.marks ?? 0;
+            sub_total_mark = marks.totalMarks;
+            await subjectMarks1.save();
+          }
+        }
+      }
+
+      for (let st of subjectData?.import_collection ?? []) {
+        if (`${st?.excel_file}` === `${excel_key}`) {
+          st.status = "Success";
+          await subjectData.save();
+          break;
+        }
+      }
+    }
+
+    // res.status(200).send({ message: "updated" });
+
+    const mark_list = await SubjectMarkList.findOne({
+      $and: [
+        {
+          subjectMaster: subjectData.subjectMasterName,
+        },
+        {
+          classMaster: subjectData.class.masterClassName,
+        },
+        {
+          batch: subjectData.class?.batch,
+        },
+      ],
+    });
+
+    if (mark_list) {
+      let examFlag = false;
+      let examIndex = 0;
+      for (let i = 0; i < mark_list?.exam_marks?.length; i++) {
+        if (`${mark_list?.exam_marks[i].exam}` === `${examId}`) {
+          examIndex = i;
+          examFlag = true;
+          break;
+        } else {
+          examFlag = false;
+        }
+      }
+      if (examFlag) {
+        let updated_subject = mark_list?.exam_marks[examIndex];
+        for (let stu of marks) {
+          let flag = false;
+          let findIndex = 0;
+          for (let i = 0; i < updated_subject.marks.length; i++) {
+            if (`${updated_subject.marks[i].student}` === `${stu.studentId}`) {
+              findIndex = i;
+              flag = true;
+              break;
+            }
+          }
+          if (flag) {
+            updated_subject.marks[findIndex].totalMarks = +stu.obtainMarks;
+          } else {
+            updated_subject.marks.push({
+              student: stu.studentId,
+              related_subject: subjectData?._id,
+              related_class: subjectData.class._id,
+              totalMarks: stu.obtainMarks,
+              maximumMarks: sub_total_mark,
+            });
+          }
+        }
+
+        let final_weight = 100;
+        let fr_list = [];
+        let student_mark_value = [];
+
+        for (let e_marks of mark_list?.exam_marks) {
+          final_weight -= e_marks.examWeight;
+        }
+        for (let e_marks of mark_list?.exam_marks) {
+          for (let s_mark of e_marks.marks) {
+            let obj = {
+              student: "",
+              totalNumber: 0,
+            };
+            obj.totalNumber =
+              e_marks.examWeight > 0
+                ? Math.ceil(
+                    (s_mark.totalMarks * e_marks.examWeight) /
+                      s_mark.maximumMarks
+                  )
+                : s_mark.totalMarks;
+            obj.student = s_mark.student;
+            fr_list.push(obj);
+          }
+        }
+
+        let fr_dubli = [];
+        let fr_qnique = [];
+        for (let m = 0; m < fr_list.length; m++) {
+          let val = 0;
+          for (let j = 0; j < fr_list.length; j++) {
+            if (`${fr_list[m].student}` === `${fr_list[j].student}`) {
+              val += +fr_list[j].totalNumber;
+              student_mark_value.push(+val);
+            }
+          }
+          fr_dubli.push({
+            student: fr_list[m].student,
+            totalNumber: +val,
+          });
+        }
+        fr_qnique = [...new Set(fr_dubli?.map(JSON.stringify))]?.map(
+          JSON.parse
+        );
+        mark_list.marks_list = fr_qnique;
+        const subject_master = await SubjectMaster.findById(
+          subjectData.subjectMasterName
+        );
+        let fg = false;
+        for (let ot of subject_master?.max_obtain) {
+          if (
+            `${ot?.batch}` === `${subjectData.class?.batch}` &&
+            subjectData.subject_category === ot.subject_category
+          ) {
+            ot.obtain_value = Math.max(...student_mark_value);
+            fg = true;
+          }
+        }
+        if (!fg) {
+          subject_master.max_obtain.push({
+            batch: subjectData.class?.batch,
+            obtain_value: Math.max(...student_mark_value),
+          });
+        }
+        await Promise.all([mark_list.save(), subject_master.save()]);
+      } else {
+        let student_mark_value = [];
+        let obj = {
+          exam: examId,
+          examWeight: exam_data.examWeight,
+          examType: exam_data.examType,
+          marks: [],
+        };
+        for (let stu of marks) {
+          obj.marks.push({
+            student: stu.studentId,
+            related_subject: subjectData?._id,
+            related_class: subjectData.class._id,
+            totalMarks: stu.obtainMarks,
+            maximumMarks: sub_total_mark,
+          });
+        }
+        mark_list.exam_marks.push(obj);
+        let final_weight = 100;
+        let fr_list = [];
+        for (let e_marks of mark_list?.exam_marks) {
+          final_weight -= e_marks.examWeight;
+        }
+        for (let e_marks of mark_list?.exam_marks) {
+          for (let s_mark of e_marks.marks) {
+            let obj = {
+              student: "",
+              totalNumber: 0,
+            };
+            obj.totalNumber =
+              e_marks.examWeight > 0
+                ? Math.ceil(
+                    (s_mark.totalMarks * e_marks.examWeight) /
+                      s_mark.maximumMarks
+                  )
+                : s_mark.totalMarks;
+            obj.student = s_mark.student;
+            fr_list.push(obj);
+          }
+        }
+
+        let fr_dubli = [];
+        let fr_qnique = [];
+        for (let m = 0; m < fr_list.length; m++) {
+          let val = 0;
+          for (let j = 0; j < fr_list.length; j++) {
+            if (`${fr_list[m].student}` === `${fr_list[j].student}`) {
+              val += +fr_list[j].totalNumber;
+              student_mark_value.push(val);
+            }
+          }
+          fr_dubli.push({
+            student: fr_list[m].student,
+            totalNumber: val,
+          });
+        }
+        fr_qnique = [...new Set(fr_dubli?.map(JSON.stringify))]?.map(
+          JSON.parse
+        );
+        mark_list.marks_list = fr_qnique;
+        const subject_master = await SubjectMaster.findById(
+          subjectData.subjectMasterName
+        );
+        let fg = false;
+        for (let ot of subject_master?.max_obtain) {
+          if (`${ot?.batch}` === `${subjectData.class?.batch}`) {
+            ot.obtain_value = Math.max(...student_mark_value);
+            fg = true;
+          }
+        }
+        if (!fg) {
+          subject_master.max_obtain.push({
+            batch: subjectData.class?.batch,
+            obtain_value: Math.max(...student_mark_value),
+          });
+        }
+        await Promise.all([mark_list.save(), subject_master.save()]);
+      }
+    } else {
+      const subject_master = await SubjectMaster.findById(
+        subjectData.subjectMasterName
+      );
+      const create_mark_list = new SubjectMarkList({
+        batch: subjectData.class.batch,
+        classMaster: subjectData.class.masterClassName,
+        subjectMaster: subjectData.subjectMasterName,
+      });
+      let all_marks = [];
+      let unique_marks = [];
+      let student_mark_value = [];
+      let obj = {
+        exam: examId,
+        examWeight: exam_data.examWeight,
+        examType: exam_data.examType,
+        marks: [],
+      };
+
+      for (let stu of student_marks_list) {
+        let fr_marks =
+          exam_data.examWeight > 0
+            ? Math.ceil(
+                (+stu.obtainMarks * exam_data.examWeight) / sub_total_mark
+              )
+            : +stu.obtainMarks;
+        student_mark_value.push(fr_marks);
+        all_marks.push({
+          student: stu.studentId,
+          totalNumber: fr_marks,
+        });
+        obj.marks.push({
+          student: stu.studentId,
+          related_subject: subjectData?._id,
+          related_class: subjectData.class._id,
+          totalMarks: stu.obtainMarks,
+          maximumMarks: sub_total_mark,
+        });
+      }
+      unique_marks.push(obj);
+      create_mark_list.marks_list = all_marks;
+      create_mark_list.exam_marks = unique_marks;
+      subject_master.subject_mark_list.push(create_mark_list?._id);
+      subjectData.subject_mark_list.push(create_mark_list?._id);
+      subject_master.max_obtain.push({
+        batch: subjectData.class?.batch,
+        obtain_value: Math.max(...student_mark_value),
+      });
+      await Promise.all([
+        create_mark_list.save(),
+        subject_master.save(),
+        subjectData.save(),
+      ]);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.resultClassListQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    const cls = await Class.findById(cid);
+
+    var cls_list = [];
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      cls_list = await Class.find({
+        $and: [
+          {
+            batch: { $eq: `${cls.batch}` },
+          },
+          {
+            masterClassName: { $eq: `${cls.masterClassName}` },
+          },
+          {
+            classTitle: { $regex: req.query.search, $options: "i" },
+          },
+        ],
+      }).select("classTitle className");
+    } else {
+      cls_list = await Class.find({
+        $and: [
+          {
+            batch: { $eq: `${cls.batch}` },
+          },
+          {
+            masterClassName: { $eq: `${cls.masterClassName}` },
+          },
+        ],
+      })
+        .select("classTitle className")
+        .skip(dropItem)
+        .limit(itemPerPage);
+    }
+
+    res.status(200).send({
+      message: "Class divisions list",
+      cls_list,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.resultAnalysisOfExamQuery = async (req, res) => {
+  try {
+    const { cid_list } = req.body;
+    if (cid_list?.length <= 0) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    let iteration_count = cid_list?.length;
+    let result_analysis = {
+      className: "",
+      semesters: [],
+    };
+
+    for (let i = 0; i < iteration_count; i++) {
+      let cls_id = cid_list[i];
+      const cls = await Class.findById(cls_id);
+      result_analysis["className"] = cls.className;
+      const subject = await Subject.find({
+        _id: { $in: cls.subject ?? [] },
+      }).populate({
+        path: "subjectTeacherName subjectMasterName",
+        select: "staffFirstName staffLastName staffMiddleName course_code",
+      });
+
+      let obj = {
+        classTitle: cls?.classTitle,
+        subjects: [],
+      };
+      for (let j = 0; j < subject?.length; j++) {
+        let sub = subject[j];
+        let st_obj = {
+          course_code: sub?.subjectMasterName?.course_code ?? "",
+          subjectName: sub?.subjectName,
+          subjectTeacher: sub?.subjectTeacherName,
+          total_student: cls?.ApproveStudent?.length ?? 0,
+          pass_student: sub?.pass?.length ?? 0,
+          fail_student: sub?.fail?.length ?? 0,
+          passing_percentage: 0,
+        };
+
+        st_obj["passing_percentage"] = (
+          (st_obj.pass_student * 100) /
+          st_obj.total_student
+        )?.toFixed(2);
+        obj.subjects.push(st_obj);
+      }
+      result_analysis.semesters.push(obj);
+    }
+
+    res.status(200).send({
+      message: "Class result analysis",
+      result_analysis,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+

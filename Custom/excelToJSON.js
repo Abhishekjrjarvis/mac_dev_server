@@ -1060,5 +1060,28 @@ exports.generate_excel_to_json_student_fees_mapping = async (file, fid) => {
   }
 };
 
+exports.getj_subject_marks_update_query = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets[w_query.SheetNames?.[0]];
+    const read_data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var data_query = [];
+    let sheet_row = read_data_query?.length;
+    if (sheet_row > 0) {
+      for (let i = 0; i < sheet_row; i++) {
+        let row = read_data_query[i];
+        data_query.push({
+          GRNO: row?.GRNO,
+          marks: row?.Marks,
+        });
+      }
+    }
+    return { data_query };
+  } catch (e) {
+    console.log("Subject Master CO Excel Query Not Resolved", e);
+  }
+};
+
+
 // console.log(generate_excel_to_json_class_time_table_query(data_set, 5))
 

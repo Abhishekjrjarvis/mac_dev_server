@@ -12787,7 +12787,10 @@ exports.renderAllReadmissionQuery = async (req, res) => {
               ]
             },
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_card government_card applicable_fees structure_month applicationName",
+            populate: {
+              path: "applicable_card government_card"
+            }
           },
         });
       for (let data of apply.re_admission_list) {
@@ -12816,7 +12819,10 @@ exports.renderAllReadmissionQuery = async (req, res) => {
           populate: {
             path: "student fee_struct appId",
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName applicable_card government_card",
+              populate: {
+                path: "applicable_card government_card"
+              }
           },
         });
       var all_select_query = nested_document_limit(

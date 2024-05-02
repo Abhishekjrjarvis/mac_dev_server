@@ -264,6 +264,42 @@ const subjectSchema = new mongoose.Schema({
       ref: "AttendanceTeachingPlanHistory",
     },
   ],
+  export_collection: [
+    {
+      excel_type: {
+        type: String,
+      },
+      excel_file: { type: String },
+      excel_file_name: { type: String },
+      created_at: { type: Date, default: Date.now },
+    },
+  ],
+  export_collection_count: {
+    type: Number,
+    default: 0,
+  },
+  import_collection: [
+    {
+      excel_type: {
+        type: String,
+      },
+      excel_file: { type: String },
+      created_at: { type: Date, default: Date.now },
+      status: {
+        type: String,
+      },
+    },
+  ],
+  import_collection_count: {
+    type: Number,
+    default: 0,
+  },
+  fail: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

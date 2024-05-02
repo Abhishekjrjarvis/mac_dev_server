@@ -255,5 +255,20 @@ router
   .route("/add/subject/master/qpevaluation/co/mapping")
   .patch(catchAsync(examController.examQuestionEvaluationCoMappingQuery));
 
+  router
+  .route("/excel/export/subject/:sid/query")
+  .patch(catchAsync(examController.oneSubjectExamAllStudentExcelExportQuery));
+
+router
+  .route("/excel/import/subject/:sid/query")
+  .patch(catchAsync(examController.oneSubjectExamAllStudentMarksImportQuery));
+
+router
+  .route("/result/class/:cid/list")
+  .get(catchAsync(examController.resultClassListQuery));
+
+router
+  .route("/result/analysis/query")
+  .patch(catchAsync(examController.resultAnalysisOfExamQuery));
 
 module.exports = router;

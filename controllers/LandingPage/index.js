@@ -2112,6 +2112,33 @@ exports.render_delete_academic_nested_head_query = async (req, res) => {
   }
 }
 
+exports.render_all_faculty_query = async (req, res) => {
+  try {
+    const { anid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!anid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+
+    const all_staff = await Staff.find({ staff_department: did })
+      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO teaching_type current_designation")
+      .limit(limit)
+      .skip(skip)
+    if (all_staff?.length > 0) {
+    res.status(200).send({ message: "Explore All Department Wise Query", access: true, all_staff: all_staff})
+      
+    }
+    else {
+    res.status(200).send({ message: "No Department Wise Query", access: false, all_staff: []})
+      
+    }
+    
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 
 // var is_true = true;

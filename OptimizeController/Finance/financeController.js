@@ -3944,9 +3944,19 @@ exports.renderOneFeeReceipt = async (req, res) => {
             original_paid: 0,
             appId: all_remain?.appId,
     }
+    var gta_obj = {
+      head_name: "Government To Applicable",
+            paid_fee: all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee > 0 ? all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee : 0,
+            remain_fee: 0,
+            applicable_fee: 0,
+            fee_structure: all_remain?.fee_structure?._id,
+            original_paid: 0,
+            appId: all_remain?.appId,
+    }
     if (excess_obj?.paid_fee > 0) {
       receipt.fee_heads.push(excess_obj)
     }
+    receipt.fee_heads.push(gta_obj)
 
     receipt.student.active_fee_heads = [...receipt?.fee_heads];
 
@@ -3959,7 +3969,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
     }
     const all_encrypt = await encryptionPayload(obj)
 
-    res.status(200).send({ encrypt: all_encrypt });
+    res.status(200).send({ encrypt: obj });
   } catch (e) {
     console.log(e);
   }

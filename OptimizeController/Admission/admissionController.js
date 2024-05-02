@@ -12695,22 +12695,26 @@ exports.renderDepositToZeroQuery = async (req, res) => {
 exports.renderMultipleInstallmentQuery = async (req, res) => {
   try {
     const { pid } = req?.params
-    const { inst_price, inst_date, inst_type, inst_type1, raid } = req?.body
+    const { inst_arr } = req?.body
     if (!raid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const p_card = await NestedCard.findById({ _id: pid })
     .populate({
         path: "parent_card",
     })
-    p_card.remaining_array.push({
-      remainAmount: inst_price,
-      dueDate: inst_date,
-      status: "Not Paid",
-      instituteId: p_card?.institute,
-      appId: p_card?.appId,
-      isEnable: true,
-      installmentValue: "Installment Remain"
-    })
+    if (inst_arr?.length > 0) {
+      for (let ele of inst_arr) {
+        p_card.remaining_array.push({
+          remainAmount: ele?.inst_price,
+          dueDate: ele?.inst_date,
+          status: "Not Paid",
+          instituteId: p_card?.institute,
+          appId: p_card?.appId,
+          isEnable: true,
+          installmentValue: ele?.inst_type
+        }) 
+      }
+    }
     for (var val of p_card.remaining_array) {
       if (`${val?._id}` === `${raid}`) {
         val.remainAmount -= inst_price
@@ -13266,37 +13270,122 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
     const finance = await Finance.findById({ _id: fid })
     for (var ele of nest?.remaining_array) {
       if (`${ele?._id}` === `${rid}`) {
-        const logs = new DeleteLogs({})
-        if (ele?.fee_receipt) {
-          var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt })
-          fees.visible_status = "Hide"
-          await fees.save()
+        if (nest?.paid_fee >= nest?.applicable_fee) {
+          const logs = new DeleteLogs({})
+          if (ele?.fee_receipt) {
+            var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt })
+            fees.visible_status = "Hide"
+            await fees.save()
+          }
+          if (fees?.order_history) {
+            const order = await OrderPayment.findById({ _id: fees?.order_history })
+            order.payment_visible_status = "Hide"
+            await order.save()
+          }
+          logs.fee_receipt = ele?.fee_receipt
+          logs.nested_card = nest?._id
+          ele.status = "Not Paid"
+          ele.installmentValue = (ele.installmentValue === "All Installment Paid" || ele.installmentValue === "All Installment Paid") ? "Installment Remain" : ele.installmentValue
+          ele.mode = ""
+          ele.fee_receipt = null
+          if (nest?.paid_fee >= ele?.remainAmount) {
+            nest.paid_fee -= ele?.remainAmount
+          }
+          // nest.remaining_fee += ele?.remainAmount
+          if (new_fees?.paid_fee >= ele?.remainAmount) {
+            new_fees.paid_fee -= ele?.remainAmount
+          }
+          // new_fees.remaining_fee += ele?.remainAmount
+          finance.delete_logs.push(logs?._id)
+          nest?.remaining_array.pull(ele?._id)
+          await logs.save()
         }
-        if (fees?.order_history) {
-          const order = await OrderPayment.findById({ _id: fees?.order_history })
-          order.payment_visible_status = "Hide"
-          await order.save()
+        else {
+            const logs = new DeleteLogs({})
+            if (ele?.fee_receipt) {
+              var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt })
+              fees.visible_status = "Hide"
+              await fees.save()
+            }
+            if (fees?.order_history) {
+              const order = await OrderPayment.findById({ _id: fees?.order_history })
+              order.payment_visible_status = "Hide"
+              await order.save()
+            }
+            logs.fee_receipt = ele?.fee_receipt
+            logs.nested_card = nest?._id
+            ele.status = "Not Paid"
+            ele.installmentValue = (ele.installmentValue === "All Installment Paid" || ele.installmentValue === "All Installment Paid") ? "Installment Remain" : ele.installmentValue
+            ele.mode = ""
+            ele.fee_receipt = null
+            if (nest?.paid_fee >= ele?.remainAmount) {
+              nest.paid_fee -= ele?.remainAmount
+            }
+            nest.remaining_fee += ele?.remainAmount
+            if (new_fees?.paid_fee >= ele?.remainAmount) {
+              new_fees.paid_fee -= ele?.remainAmount
+            }
+            new_fees.remaining_fee += ele?.remainAmount
+            finance.delete_logs.push(logs?._id)
+            nest?.remaining_array.pull(ele?._id)
+            await logs.save()
         }
-        logs.fee_receipt = ele?.fee_receipt
-        logs.nested_card = nest?._id
-        ele.status = "Not Paid"
-        ele.installmentValue = (ele.installmentValue === "All Installment Paid" || ele.installmentValue === "All Installment Paid") ? "Installment Remain" : ele.installmentValue
-        ele.mode = ""
-        ele.fee_receipt = null
-        if (nest?.paid_fee >= ele?.remainAmount) {
-          nest.paid_fee -= ele?.remainAmount
+        if (nest?.remaining_fee > 0) {
+          if (ele?.status === "Not Paid") {
+            ele.remainAmount = nest?.remaining_fee
+          }
+          else {
+            nest.remaining_array.push({
+              installmentValue: "Installment Remain",
+              status: "Not Paid",
+              isEnable: true,
+              appId: new_fees?.appId,
+              instituteId: new_fees?.institute,
+              remainAmount: nest?.remaining_fee
+            })
+          }
         }
-        nest.remaining_fee += ele?.remainAmount
-        if (new_fees?.paid_fee >= ele?.remainAmount) {
-          new_fees.paid_fee -= ele?.remainAmount
-        }
-        new_fees.remaining_fee += ele?.remainAmount
-        finance.delete_logs.push(logs?._id)
-        await logs.save()
       }
     }
     await Promise.all([nest.save(), new_fees.save(), finance.save()])
     res.status(200).send({ message: "I Think you press the wrong button", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderAllDeleteLogsQuery = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var finance = await Finance.findById({ _id: fid })
+      .select("delete_logs")
+    
+    var all_logs = await DeleteLogs.find({ _id: { $in: finance?.delete_logs } })
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "fee_receipt",
+        populate: {
+          path: "student",
+          select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO"
+        }
+      })
+      .populate({
+        path: "nested_card"
+      })
+    
+    if (all_logs?.length > 0) {
+      res.status(200).send({ message: "Explore All Delete Logs Query", access: true, all_logs: all_logs })
+    }
+    else {
+      res.status(200).send({ message: "No Deleted Logs", access: false, all_logs: [] }) 
+    }
   }
   catch (e) {
     console.log(e)

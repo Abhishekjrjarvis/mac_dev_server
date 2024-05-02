@@ -2264,8 +2264,8 @@ exports.renderFilteredMessageQuery = async (req, res) => {
 exports.auto_messages = async (req, res) => {
   try {
     let nums = [
-      // "661e0aa32417e87fe3a9e618", "661e0d972417e87fe3aa049d",
-      "661e0e9d2417e87fe3aa144b"]
+      "662a3a3fc73639c8ad2b16ef", "662a3a9bc73639c8ad2b1b98",
+      "663073966fdbbbc36cba981d"]
     let all_mess = await StudentMessage.find({ _id: { $in: nums } })
     for (var val of all_mess) {
       var valid_staff = await Staff.findById({ _id: `${val?.from}` });

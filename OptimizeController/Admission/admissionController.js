@@ -12933,16 +12933,16 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
   try {
     const { sid, aid } = req.params;
     const { receipt_status } = req.query;
-    const { amount, mode, card_id, rid, type, pay_remain, flow } = req.body;
+    const { amount, mode, card_id, rid, type, pay_remain, flow, appId } = req.body;
     if (!sid && !aid && !amount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         confirm_status: false,
       });
     var price = parseInt(amount);
-    const apply = await NewApplication.findById({ _id: aid });
+    const apply = await NewApplication.findById({ _id: appId });
     const admission = await Admission.findById({
-      _id: `${apply.admissionAdmin}`,
+      _id: aid,
     }).populate({
       path: "admissionAdminHead",
       select: "user",

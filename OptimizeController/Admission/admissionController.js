@@ -12770,7 +12770,7 @@ exports.renderAllReadmissionQuery = async (req, res) => {
         .populate({
           path: "re_admission_list",
           populate: {
-            path: "student fee_struct appId",
+            path: "student fee_struct appId app_card gov_card",
             match: {
               $or: [
                 {studentFirstName: { $regex: `${search}`, $options: "i" },
@@ -12786,8 +12786,8 @@ exports.renderAllReadmissionQuery = async (req, res) => {
                 },
               ]
             },
-            select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_card government_card applicable_fees structure_month applicationName",
+            // select:
+            //   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_card government_card applicable_fees structure_month applicationName",
           },
         });
       for (let data of apply.re_admission_list) {
@@ -12814,9 +12814,9 @@ exports.renderAllReadmissionQuery = async (req, res) => {
         .populate({
           path: "re_admission_list",
           populate: {
-            path: "student fee_struct appId",
-            select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName applicable_card government_card",
+            path: "student fee_struct appId app_card gov_card",
+            // select:
+            //   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName",
           },
         });
       var all_select_query = nested_document_limit(

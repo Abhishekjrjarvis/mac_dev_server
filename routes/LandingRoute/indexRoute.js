@@ -230,6 +230,9 @@ router.patch("/:apid/one/academic/page/edit/query", catchAsync(Landing.render_ed
 router.delete("/:apid/one/academic/page/delete/query", catchAsync(Landing.render_delete_academic_head_query));
 
 router.patch("/:anid/one/academic/nested/page/edit/query", catchAsync(Landing.render_edit_academic_nested_head_query));
-router.delete("/:anid/one/academic/nested/page/delete/query", catchAsync(Landing.render_delete_academic_nested_head_query));  
+router.delete("/:anid/one/academic/nested/page/delete/query", catchAsync(Landing.render_delete_academic_nested_head_query)); 
+
+router.get("/:did/all/faculty/query", catchAsync(Landing.render_all_faculty_query));
+
 
 module.exports = router;

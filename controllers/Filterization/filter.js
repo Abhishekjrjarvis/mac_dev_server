@@ -1568,6 +1568,9 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
           {
             visible_status: "Not Hide",
           },
+          {
+            set_off_status: "Not Set off",
+          },
           // { student: { $in: sorted_array } },
         ],
       })
@@ -1675,6 +1678,9 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
           },
           {
             visible_status: "Not Hide",
+          },
+          {
+            set_off_status: "Not Set off",
           },
           // { student: { $in: sorted_array } },
         ],

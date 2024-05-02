@@ -785,4 +785,6 @@ router.get("/:aid/all/confirmed/readmission/query", catchAsync(Admission.renderA
 
 router.patch("/:nid/delete/:rid/installment/card/query", catchAsync(Admission.renderDeleteInstallmentCardQuery))
 
+router.get("/:fid/all/delete/logs/query", catchAsync(Admission.renderAllDeleteLogsQuery))
+
 module.exports = router;

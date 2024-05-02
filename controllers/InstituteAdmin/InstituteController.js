@@ -1394,6 +1394,14 @@ exports.retrieveApproveStaffList = async (req, res) => {
             select: "userLegalName userEmail userPhoneNumber"
           }
         })
+        .populate({
+          path: "ApproveStaff",
+          select: "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+          populate: {
+            path: "staff_department",
+            select: "dName"
+          }
+        })
       if (staff_ins?.ApproveStaff?.length > 0) {
         // const sEncrypt = await encryptionPayload(staffIns);
         // staff_ins?.ApproveStaff.sort(function (st1, st2) {
@@ -1415,6 +1423,14 @@ exports.retrieveApproveStaffList = async (req, res) => {
           populate: {
             path: "user",
             select: "userLegalName userEmail userPhoneNumber"
+          }
+        })
+        .populate({
+          path: "ApproveStaff",
+          select: "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+          populate: {
+            path: "staff_department",
+            select: "dName"
           }
         })
         .populate({
@@ -1448,6 +1464,14 @@ exports.retrieveApproveStaffList = async (req, res) => {
           populate: {
             path: "user",
             select: "userLegalName userEmail userPhoneNumber"
+          }
+        })
+        .populate({
+          path: "ApproveStaff",
+          select: "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+          populate: {
+            path: "staff_department",
+            select: "dName"
           }
         })
         if (staff_ins?.ApproveStaff?.length > 0) {

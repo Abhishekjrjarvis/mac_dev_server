@@ -638,15 +638,6 @@ exports.promoteStudent = async (req, res) => {
           student.borrow = [];
           student.deposite = [];
           student.sportEventCount = 0;
-          if (`${re_ads}` === "WITH_RE_ADMISSION") {
-            admission.re_admission_list.push({
-              student: student?._id,
-              fee_struct: structure[numIndex]?._id,
-              appId: apply?._id
-            })
-            admission.re_admission_list_count += 1
-            await admission.save()
-          }
 
           // here assign new fee st
           if (!same_batch_promotion) {

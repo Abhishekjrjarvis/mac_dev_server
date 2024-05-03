@@ -685,6 +685,76 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
   }
 };
 
+module.exports.app_status = async (apply, institute, student, filtered_account, user) => {
+  const status = new Status({});
+  status.content = `Your application for ${apply?.applicationName} have been filled successfully.
+
+Below is the admission process:
+1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)
+
+2.After selection, confirm from your side and start the admission process.
+
+3.After confirmation from your side, visit the institute with the required documents and applicable fees. (You will get Required documents and application fees information on your selection from the institute side. (Till then check our standard required documents and fee structures)
+
+4.Payment modes available for fee payment: 
+Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe, Google pay, Paytm)
+
+5.After submission and verification of documents, you are required to pay application admission fees.
+
+6. Pay application admission fees and your admission will be confirmed and complete.
+
+7. For cancellation and refund, contact the admission department.
+
+Note: Stay tuned for further updates.`;
+      status.applicationId = apply._id;
+      status.document_visible = true;
+      status.instituteId = institute._id;
+      status.finance = institute?.financeDepart?.[0];
+      status.student = student?._id;
+      status.group_by = "Admission_Application_Applied"
+      status.bank_account = filtered_account?._id;
+      user.applicationStatus.push(status._id);
+      await Promise.all([ status.save(), user.save() ])
+}
+
+module.exports.docs_status = async (apply, institute, student, user, structure) => {
+  const status = new Status({});
+  status.content = `You have been selected for ${apply.applicationName}. 
+Your fee structure will be ${structure?.structure_name}. And required documents are 'click here for details'.   
+Start your admission process by confirming below.`;
+    status.applicationId = apply._id;
+    status.for_docs = "Yes";
+    status.studentId = student._id;
+    status.group_by = "Admission_Document_Verification"
+    status.student = student._id;
+    status.admissionFee = structure.total_admission_fees;
+    status.instituteId = institute?._id;
+    status.feeStructure = structure?._id;
+    status.document_visible = true;
+    status.finance = institute?.financeDepart?.[0]
+    user.applicationStatus.push(status._id);
+    status.structure_edited = "Edited";
+    await Promise.all([ status.save(), user.save() ])
+}
+
+// module.exports.fees_status = async (apply, institute, student, user, structure) => {
+//   const status = new Status({});
+//   status.content = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
+//   status.applicationId = apply._id;
+//   user.applicationStatus.push(status._id);
+//   status.group_by = "Admission_Fees_Payment"
+//   status.remaining_list = c_num?.card
+//   status.payment_status = "Not Paid"
+//   status.finance = institute?.financeDepart?.[0];
+//   status.feeStructure = structure?._id;
+//   status.for_selection = "Yes";
+//   status.structure_edited = "Edited";
+//   status.studentId = student?._id;
+//   status.student = student?._id;
+//   status.instituteId = institute._id;
+//   await Promise.all([ status.save(), user.save() ])
+// }
+
 exports.retrieveAdmissionReceievedApplication = async (req, res) => {
   try {
     const { uid, aid } = req.params;

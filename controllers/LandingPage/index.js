@@ -23,6 +23,7 @@ const LandingControl = require("../../models/LandingModel/LandingControl");
 const Post = require("../../models/Post");
 const AcademicPage = require("../../models/LandingModel/AcademicPage");
 const AcademicNestedPage = require("../../models/LandingModel/AcademicNestedPage");
+const Staff = require("../../models/Staff");
 
 exports.uploadGetTouchDetail = async (req, res) => {
   try {
@@ -2114,11 +2115,11 @@ exports.render_delete_academic_nested_head_query = async (req, res) => {
 
 exports.render_all_faculty_query = async (req, res) => {
   try {
-    const { anid } = req?.params
+    const { did } = req?.params
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!anid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
 
     const all_staff = await Staff.find({ staff_department: did })
       .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO teaching_type current_designation")

@@ -438,7 +438,7 @@ exports.promoteStudent = async (req, res) => {
               path: "category_master",
             },
           });
-          var user = await User.findById(student?.user)
+          // var user = await User.findById(student?.user)
           var same_batch_promotion =
             `${student?.batches}` === `${batch?._id}` ? true : false;
           // const sec_category = await FeeCategory.findOne({

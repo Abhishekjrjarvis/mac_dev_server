@@ -32,6 +32,8 @@ const FeeCategory = require("../../models/Finance/FeesCategory");
 const Finance = require("../../models/Finance");
 const { universal_random_password } = require("../../Custom/universalId");
 const { render_new_fees_card } = require("../../Functions/FeesCard");
+const BankAccount = require("../../models/Finance/BankAccount");
+const { app_status, docs_status } = require("../../OptimizeController/Admission/admissionController");
 
 exports.preformedStructure = async (req, res) => {
   try {
@@ -436,6 +438,7 @@ exports.promoteStudent = async (req, res) => {
               path: "category_master",
             },
           });
+          var user = await User.findById(student?.user)
           var same_batch_promotion =
             `${student?.batches}` === `${batch?._id}` ? true : false;
           // const sec_category = await FeeCategory.findOne({
@@ -455,11 +458,11 @@ exports.promoteStudent = async (req, res) => {
               )
                 return ref;
             });
-            console.log(structure)
+            // console.log(structure)
             if (structure?.length > 0) {
-              console.log("structure Assign BUG");
+              // console.log("structure Assign BUG");
             } else {
-              console.log("structure Assign");
+              // console.log("structure Assign");
               var structure = department?.fees_structures?.filter((ref) => {
                 if (
                   `${ref?.class_master}` === `${classes?.masterClassName}` &&
@@ -696,6 +699,13 @@ exports.promoteStudent = async (req, res) => {
             )
           }
           roll += 1;
+          if (`${re_ads}` === "WITH_RE_ADMISSION") { 
+            var filtered_account = await BankAccount.findOne({
+              departments: { $in: apply?.applicationDepartment },
+            });
+            await app_status(apply, institute, student, filtered_account, user)
+            await docs_status(apply, institute, student, user, structure[numIndex]?._id)
+          }
           if (`${re_ads}` === "WITH_RE_ADMISSION") {
             if (classes?.UnApproveStudent?.includes(student._id)) {
             } else {

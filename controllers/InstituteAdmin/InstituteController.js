@@ -6555,12 +6555,12 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
 
 exports.render_auto_staff_form_section_checklist_query = async (req, res) => {
   try {
-    // const { fcid } = req?.params
-    // if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const { fcid } = req?.params
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    // var ifs = await InstituteStaffForm.findById({_id: fcid})
-    var all_ifs = await InstituteStaffForm.find({})
-    for (var ifs of all_ifs) {
+    var ifs = await InstituteStaffForm.findById({_id: fcid})
+    // var all_ifs = await InstituteStaffForm.find({})
+    // for (var ifs of all_ifs) {
       var checklist = staff_form_params
       var numss = []
       for (var val of checklist) {
@@ -6604,7 +6604,7 @@ exports.render_auto_staff_form_section_checklist_query = async (req, res) => {
         numss = []
       }
       await ifs.save()
-    }
+    // }
     res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
   }
   catch (e) {

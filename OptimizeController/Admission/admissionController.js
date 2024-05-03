@@ -12695,7 +12695,7 @@ exports.renderDepositToZeroQuery = async (req, res) => {
 exports.renderMultipleInstallmentQuery = async (req, res) => {
   try {
     const { pid } = req?.params
-    const { inst_arr } = req?.body
+    const { inst_arr, raid } = req?.body
     if (!raid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const p_card = await NestedCard.findById({ _id: pid })

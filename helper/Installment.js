@@ -2313,6 +2313,7 @@ exports.set_fee_head_query_redesign = async (
           });
         }
       }
+      console.log("EXISTED", receipt_args)
       await receipt_args.save();
     } else {
       for (var i = 0; i < parent_head?.count; i++) {
@@ -2381,6 +2382,7 @@ exports.set_fee_head_query_redesign = async (
           });
         }
       }
+      console.log("RECEIPT_ARGS", receipt_args)
       if (student_args?.fee_receipt?.includes(`${receipt_args?._id}`)) {
       } else {
         student_args.fee_receipt.push(receipt_args?._id);

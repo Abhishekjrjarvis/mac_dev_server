@@ -13081,11 +13081,6 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
       order.payment_student_gr = student?.studentGRNO;
       order.fee_receipt = new_receipt?._id;
       fee_receipt_count_query(institute, new_receipt, order)
-      // institute.invoice_count += 1;
-      // new_receipt.invoice_count = `${
-      //   new Date().getMonth() + 1
-      // }${new Date().getFullYear()}${institute.invoice_count}`;
-      // order.payment_invoice_number = new_receipt?.invoice_count;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
       if (`${new_remainFee?.applicable_card?._id}` === `${card_id}`) {
@@ -13159,12 +13154,6 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
           // await set_fee_head_query(student, price, apply, new_receipt);
           console.log("Exit");
         }
-        apply.confirmedApplication.push({
-          student: student._id,
-          payment_status: mode,
-          install_type: "First Installment Paid",
-          fee_remain: nest_card.remaining_fee ?? 0,
-        });
       }
       new_remainFee.fee_receipts.push(new_receipt?._id);
       if (mode === "Offline") {
@@ -13194,16 +13183,8 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
         new_remainFee,
         new_receipt
       );
-      apply.confirmCount += 1;
-      for (let app of apply.FeeCollectionApplication) {
+      for (let app of admission.re_admission_list) {
         if (`${app.student}` === `${student._id}`) {
-          if (app?.status_id) {
-            const valid_status = await Status.findById({
-              _id: `${app?.status_id}`,
-            });
-            valid_status.isPaid = "Paid";
-            await valid_status.save();
-          }
           apply.FeeCollectionApplication.pull(app?._id);
         } else {
         }
@@ -13303,7 +13284,6 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
         user.save(),
         order.save(),
         institute.save(),
-        // s_admin.save(),
         new_remainFee.save(),
         new_receipt.save(),
         status.save(),

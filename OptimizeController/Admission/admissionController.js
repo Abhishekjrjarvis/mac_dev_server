@@ -767,6 +767,17 @@ const class_status = async (apply, institute, depart, user, classes) => {
   await Promise.all([ status.save(), user.save() ])
 }
 
+module.exports.classes_status = async (apply, institute, depart, user, classes) => {
+  const status = new Status({});
+  status.content = `Welcome to ${depart.dName} ${classes.classTitle} Enjoy your Learning.`;
+  status.group_by = "Admission_Class_Allotment"
+  status.classes = classes?._id
+  status.applicationId = apply._id;
+  user.applicationStatus.push(status._id);
+  status.instituteId = institute._id;
+  await Promise.all([ status.save(), user.save() ])
+}
+
 exports.retrieveAdmissionReceievedApplication = async (req, res) => {
   try {
     const { uid, aid } = req.params;

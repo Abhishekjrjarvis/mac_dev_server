@@ -46,6 +46,7 @@ const Batch = require("../../models/Batch");
 const { universal_random_password } = require("../../Custom/universalId");
 const NestedCard = require("../../models/Admission/NestedCard");
 const CertificateQuery = require("../../models/Certificate/CertificateQuery");
+const { classes_status } = require("../Admission/admissionController");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
   try {
@@ -623,6 +624,7 @@ exports.admissionInstituteFunction = async (
         } else {
         }
         student.studentROLLNO = classes.ApproveStudent?.length + 1;
+        await classes_status(apply, ins, depart, user, classes)
         await Promise.all([classes.save(), batch.save(), depart.save()]);
       }
       for (var val of all_status) {

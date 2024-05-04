@@ -679,7 +679,7 @@ exports.promoteStudent = async (req, res) => {
           student.form_status = "Not Filled";
           // student.fee_receipt = [];
           if (!same_batch_promotion) {
-            await render_new_fees_card(
+            var c = await render_new_fees_card(
               student?._id,
               apply?._id,
               structure[numIndex]?._id,
@@ -689,7 +689,7 @@ exports.promoteStudent = async (req, res) => {
             )
           }
           else {
-            await render_new_fees_card(
+            var c = await render_new_fees_card(
               student?._id,
               apply?._id,
               structure[numIndex]?._id,
@@ -705,6 +705,7 @@ exports.promoteStudent = async (req, res) => {
             });
             await app_status(apply, institute, student, filtered_account, user)
             await docs_status(apply, institute, student, user, structure[numIndex]?._id)
+            await fees_status(apply, institute, student, user, structure[numIndex]?._id, c)
           }
           if (`${re_ads}` === "WITH_RE_ADMISSION") {
             if (classes?.UnApproveStudent?.includes(student._id)) {

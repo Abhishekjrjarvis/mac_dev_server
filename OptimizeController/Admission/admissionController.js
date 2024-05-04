@@ -713,7 +713,8 @@ Note: Stay tuned for further updates.`;
       status.student = student?._id;
       status.group_by = "Admission_Application_Applied"
       status.bank_account = filtered_account?._id;
-      user.applicationStatus.push(status._id);
+  user.applicationStatus.push(status._id);
+  user.applyApplication.push(apply._id);
       await Promise.all([ status.save(), user.save() ])
 }
 
@@ -737,23 +738,34 @@ Start your admission process by confirming below.`;
     await Promise.all([ status.save(), user.save() ])
 }
 
-// module.exports.fees_status = async (apply, institute, student, user, structure) => {
-//   const status = new Status({});
-//   status.content = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
-//   status.applicationId = apply._id;
-//   user.applicationStatus.push(status._id);
-//   status.group_by = "Admission_Fees_Payment"
-//   status.remaining_list = c_num?.card
-//   status.payment_status = "Not Paid"
-//   status.finance = institute?.financeDepart?.[0];
-//   status.feeStructure = structure?._id;
-//   status.for_selection = "Yes";
-//   status.structure_edited = "Edited";
-//   status.studentId = student?._id;
-//   status.student = student?._id;
-//   status.instituteId = institute._id;
-//   await Promise.all([ status.save(), user.save() ])
-// }
+module.exports.fees_status = async (apply, institute, student, user, structure, c_num) => {
+  const status = new Status({});
+  status.content = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
+  status.applicationId = apply._id;
+  user.applicationStatus.push(status._id);
+  status.group_by = "Admission_Fees_Payment"
+  status.remaining_list = c_num?.card
+  status.payment_status = "Not Paid"
+  status.finance = institute?.financeDepart?.[0];
+  status.feeStructure = structure?._id;
+  status.for_selection = "Yes";
+  status.structure_edited = "Edited";
+  status.studentId = student?._id;
+  status.student = student?._id;
+  status.instituteId = institute._id;
+  await Promise.all([ status.save(), user.save() ])
+}
+
+const class_status = async (apply, institute, depart, user, classes) => {
+  const status = new Status({});
+  status.content = `Welcome to ${depart.dName} ${classes.classTitle} Enjoy your Learning.`;
+  status.group_by = "Admission_Class_Allotment"
+  status.classes = classes?._id
+  status.applicationId = apply._id;
+  user.applicationStatus.push(status._id);
+  status.instituteId = institute._id;
+  await Promise.all([ status.save(), user.save() ])
+}
 
 exports.retrieveAdmissionReceievedApplication = async (req, res) => {
   try {
@@ -13280,6 +13292,7 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
           appId: apply?._id,
           class: classes?._id
         })
+        await class_status(apply, institute, depart, user, classes)
         await Promise.all([classes.save(), batch.save(), depart.save()]);
       }
       await Promise.all([

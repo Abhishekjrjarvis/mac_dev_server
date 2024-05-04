@@ -95,7 +95,7 @@ exports.render_new_fees_card = async (sid, appId, struct, flow, re_ads, classes)
       if (`${re_ads}` === "WITH_RE_ADMISSION") {
         admission.re_admission_list.push({
           student: student?._id,
-          fee_struct: structure[numIndex]?._id,
+          fee_struct: structure?._id,
           appId: apply?._id,
           app_card: new_remainFee?.applicable_card,
           gov_card: new_remainFee?.government_card,

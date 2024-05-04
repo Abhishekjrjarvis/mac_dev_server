@@ -33,7 +33,7 @@ const Finance = require("../../models/Finance");
 const { universal_random_password } = require("../../Custom/universalId");
 const { render_new_fees_card } = require("../../Functions/FeesCard");
 const BankAccount = require("../../models/Finance/BankAccount");
-const { app_status, docs_status } = require("../../OptimizeController/Admission/admissionController");
+const { app_status, docs_status, fees_status } = require("../../OptimizeController/Admission/admissionController");
 
 exports.preformedStructure = async (req, res) => {
   try {

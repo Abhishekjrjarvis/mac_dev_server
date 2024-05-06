@@ -747,7 +747,11 @@ const financeSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "DeleteLogs"
       }
-    ]
+    ],
+    show_receipt: {
+      type: String,
+      default: "Normal"
+    }
   },
   { timestamps: true }
 );

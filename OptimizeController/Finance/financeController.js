@@ -266,7 +266,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
     //   });
     const finance = await Finance.findById({ _id: fid })
       .select(
-        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count tab_manage financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type bank_account_count fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status"
+        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count tab_manage financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type bank_account_count fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status show_receipt"
       )
       .populate({
         path: "institute",
@@ -3778,7 +3778,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       })
       .populate({
         path: "finance",
-        select: "financeHead",
+        select: "financeHead show_receipt",
         populate: {
           path: "financeHead",
           select: "staffFirstName staffMiddleName staffLastName",
@@ -3960,17 +3960,21 @@ exports.renderOneFeeReceipt = async (req, res) => {
       receipt.fee_heads.push(excess_obj)
     }
     receipt.fee_heads.push(gta_obj)
-
-    receipt.fee_heads = receipt?.fee_heads?.filter((qwe) => {
-      if (!qwe?.is_society) {
-        return qwe
-      }
-      else {
-        receipt.student.active_society_fee_heads.push(qwe)
-        return null
-      }
-    })
-    receipt.student.active_fee_heads = [...receipt?.fee_heads];
+    if (receipt?.finance?.show_receipt === "Normal") {
+      receipt.student.active_fee_heads = [...receipt?.fee_heads];
+    }
+    else if (receipt?.finance?.show_receipt === "Society") {
+      receipt.fee_heads = receipt?.fee_heads?.filter((qwe) => {
+        if (!qwe?.is_society) {
+          return qwe
+        }
+        else {
+          receipt.student.active_society_fee_heads.push(qwe)
+          return null
+        }
+      })
+      receipt.student.active_fee_heads = [...receipt?.fee_heads]; 
+    }
 
     const obj = {
       message: "Come up with Tea and Snacks",
@@ -6189,6 +6193,24 @@ exports.render_mark_society_head_query = async (req, res) => {
     }
     await struct.save()
     res.status(200).send({ message: `${flow} wise society heads updated`, access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_control_receipt_query = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    const { show_receipt } = req?.body
+    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const finance = await Finance.findById({ _id: fid })
+      .select("show_receipt")
+    
+    finance.show_receipt = show_receipt ? show_receipt : finance.show_receipt
+    await finance.save()
+    res.status(200).send({ message: "Explore Fees Receipt type Wise", access: true})
   }
   catch (e) {
     console.log(e)

@@ -1665,6 +1665,7 @@ exports.set_fee_head_query = async (
         student_args.active_fee_heads.push({
           appId: apply_args?._id,
           head_name: parent_head[`${i}`]?.head_name,
+          is_society: parent_head[`${i}`]?.is_society,
           applicable_fee: parent_head[`${i}`]?.head_amount,
           remain_fee:
             price_query >= parent_head[`${i}`]?.head_amount
@@ -1698,6 +1699,7 @@ exports.set_fee_head_query = async (
           master: ref?.master,
           original_paid: ref?.original_paid,
           appId: ref?.appId,
+          is_society: ref?.is_society,
         });
       }
       if (student_args?.fee_receipt?.includes(`${receipt_args?._id}`)) {
@@ -1734,6 +1736,7 @@ exports.update_fee_head_query = async (
         master: ref?.master,
         original_paid: 0,
         appId: ref?.appId,
+        is_society: ref?.is_society,
       });
     }
     await receipt_args.save();
@@ -1855,6 +1858,7 @@ exports.set_fee_head_query_retro = async (
       student_args.active_fee_heads.push({
         appId: apply_args?._id,
         head_name: parent_head[`${i}`]?.head_name,
+        is_society: parent_head[`${i}`]?.is_society,
         applicable_fee: parent_head[`${i}`]?.head_amount,
         remain_fee:
           price_query >= parent_head[`${i}`]?.head_amount
@@ -1891,6 +1895,7 @@ exports.set_fee_head_query_retro = async (
           original_paid:
             receipt_query >= ref.remain_fee ? ref.remain_fee : receipt_query, // New Add
           appId: ref?.appId,
+          is_society: ref?.is_society,
         });
         receipt_query =
           receipt_query >= ref.remain_fee ? receipt_query - ref.remain_fee : 0; // New Add
@@ -2226,6 +2231,7 @@ exports.retro_student_heads_sequencing_query = async (
       student_args.active_fee_heads.push({
         appId: r_args?.appId,
         head_name: parent_head[`${i}`]?.head_name,
+        is_society: parent_head[`${i}`]?.is_society,
         applicable_fee: parent_head[`${i}`]?.head_amount,
         remain_fee:
           price_query >= parent_head[`${i}`]?.head_amount
@@ -2270,6 +2276,7 @@ exports.retro_receipt_heads_sequencing_query = async (
         master: ref?.master,
         original_paid: ref?.original_paid,
         appId: ref?.appId,
+        is_society: ref?.is_society,
       });
     }
     await receipt_args.save();
@@ -2310,6 +2317,7 @@ exports.set_fee_head_query_redesign = async (
             master: ref?.master,
             original_paid: ref?.original_paid,
             appId: ref?.appId,
+            is_society: ref?.is_society,
           });
         }
       }
@@ -2345,6 +2353,7 @@ exports.set_fee_head_query_redesign = async (
         student_args.active_fee_heads.push({
           appId: apply_args,
           head_name: parent_head[`${i}`]?.head_name,
+          is_society: parent_head[`${i}`]?.is_society,
           applicable_fee: parent_head[`${i}`]?.head_amount,
           remain_fee:
             price_query >= parent_head[`${i}`]?.head_amount
@@ -2379,6 +2388,7 @@ exports.set_fee_head_query_redesign = async (
             master: ref?.master,
             original_paid: ref?.original_paid,
             appId: ref?.appId,
+            is_society: ref?.is_society,
           });
         }
       }
@@ -2418,6 +2428,7 @@ exports.update_fee_head_query_redesign = async (
           master: ref?.master,
           original_paid: 0,
           appId: ref?.appId,
+          is_society: ref?.is_society,
         });
       }
     }
@@ -2605,6 +2616,7 @@ exports.set_fee_head_redesign = async (
         student_args.active_fee_heads.push({
           appId: apply_args,
           head_name: parent_head[`${i}`]?.head_name,
+          is_society: parent_head[`${i}`]?.is_society,
           applicable_fee: parent_head[`${i}`]?.head_amount,
           remain_fee:
             price_query >= parent_head[`${i}`]?.head_amount
@@ -2991,6 +3003,7 @@ exports.set_fee_head_query2 = async (
         student_args.active_fee_heads.push({
           appId: apply_args?._id,
           head_name: parent_head[`${i}`]?.head_name,
+          is_society: parent_head[`${i}`]?.is_society,
           applicable_fee: parent_head[`${i}`]?.head_amount,
           remain_fee:
             price_query >= parent_head[`${i}`]?.head_amount

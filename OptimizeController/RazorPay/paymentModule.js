@@ -624,7 +624,7 @@ exports.admissionInstituteFunction = async (
         } else {
         }
         student.studentROLLNO = classes.ApproveStudent?.length + 1;
-        await classes_status(apply, ins, depart, user, classes)
+        await classes_status(apply, institute, depart, user, classes)
         await Promise.all([classes.save(), batch.save(), depart.save()]);
       }
       for (var val of all_status) {

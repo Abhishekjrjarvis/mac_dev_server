@@ -2538,6 +2538,9 @@ exports.renderFinanceBankAddQuery = async (req, res) => {
       libs.bank_account = new_account?._id;
       await libs.save();
     }
+    else if (flow === "Society") {
+      new_account.bank_account_type = "Society"
+    }
     new_account.finance = finance?._id;
     finance.bank_account.push(new_account?._id);
     finance.bank_account_count += 1;
@@ -3753,7 +3756,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads",
         populate: {
           path: "remainingFeeList",
           select: "appId",
@@ -3762,7 +3765,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads hostel_fee_structure",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads hostel_fee_structure active_society_fee_heads",
         populate: {
           path: "fee_structure hostel_fee_structure",
           select:
@@ -3826,7 +3829,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number active_society_fee_heads",
         populate: {
           path: "student_bed_number",
           select: "bed_number hostelRoom",
@@ -3880,7 +3883,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads",
         populate: {
           path: "remainingFeeList",
           populate: {
@@ -3958,6 +3961,15 @@ exports.renderOneFeeReceipt = async (req, res) => {
     }
     receipt.fee_heads.push(gta_obj)
 
+    receipt.fee_heads = receipt?.fee_heads?.filter((qwe) => {
+      if (!qwe?.is_society) {
+        return qwe
+      }
+      else {
+        receipt.student.active_society_fee_heads.push(qwe)
+        return null
+      }
+    })
     receipt.student.active_fee_heads = [...receipt?.fee_heads];
 
     const obj = {
@@ -3969,7 +3981,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
     }
     const all_encrypt = await encryptionPayload(obj)
 
-    res.status(200).send({ encrypt: all_encrypt });
+    res.status(200).send({ encrypt: obj, });
   } catch (e) {
     console.log(e);
   }
@@ -6148,6 +6160,35 @@ exports.renderFundsTabSegregationQuery = async (req, res) => {
     pg_arr,
     gs_arr,
     })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_mark_society_head_query = async (req, res) => {
+  try {
+    const { fsid } = req?.params
+    const { flow, fhid, status  } = req?.body
+    if (!fsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var struct = await FeeStructure.findById({ _id: fsid })
+    if (flow === "APPLICABLE") {
+      for (let ele of struct?.applicable_fees_heads) {
+        if (`${ele?._id}` === `${fhid}`) {
+          ele.is_society = status
+        }
+      }
+    }
+    else if (flow === "GOVERNMENT") {
+      for (let ele of struct?.government_fees_heads) {
+        if (`${ele?._id}` === `${fhid}`) {
+          ele.is_society = status
+        }
+      }
+    }
+    await struct.save()
+    res.status(200).send({ message: `${flow} wise society heads updated`, access: true})
   }
   catch (e) {
     console.log(e)

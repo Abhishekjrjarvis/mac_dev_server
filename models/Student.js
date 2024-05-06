@@ -379,6 +379,7 @@ const studentSchema = new mongoose.Schema({
         ref: "FeeMaster",
       },
       original_paid: { type: Number, default: 0 },
+      is_society: { type: Boolean, default: false }
     },
   ],
   certificateBonaFideCopy: {
@@ -985,7 +986,8 @@ const studentSchema = new mongoose.Schema({
   fee_category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeCategory"
-  }
+  },
+  active_society_fee_heads: []
 });
 
 const Student = mongoose.model("Student", studentSchema);

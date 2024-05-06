@@ -72,6 +72,9 @@ const bankAccountSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  bank_account_type: {
+    type: String
+  }
 });
 
 module.exports = mongoose.model("BankAccount", bankAccountSchema);

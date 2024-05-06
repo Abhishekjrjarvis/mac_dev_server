@@ -2426,8 +2426,21 @@ exports.retrieveUserAllApplicationQuery = async(req, res) => {
     if(!uid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     var one_user = await User.findById({ _id: uid })
-    var all_apps = await NewApplication.find({ $and: [{ _id: { $in: one_user?.applyApplication } }, { application_flow: "Admission Application"}]})
-    .select("applicationName admissionAdmin applicationStatus application_flow student")
+    var all_apps = await NewApplication.find({ $and: [{ _id: { $in: one_user?.applyApplication } }, { application_flow: "Admission Application" }] })
+      .sort({ createdAt: -1 })
+      .select("applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster")
+      .populate({
+        path: "applicationDepartment",
+        select: "dName",
+      })
+      .populate({
+        path: "applicationBatch",
+        select: "batchName",
+      })
+      .populate({
+        path: "applicationMaster",
+        select: "className",
+      })
     .populate({
       path: "admissionAdmin",
       select: "institute",

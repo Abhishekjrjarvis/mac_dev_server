@@ -13196,7 +13196,7 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
       );
       for (let app of admission.re_admission_list) {
         if (`${app.student}` === `${student._id}`) {
-          apply.FeeCollectionApplication.pull(app?._id);
+          admission.re_admission_list.pull(app?._id);
         } else {
         }
       }

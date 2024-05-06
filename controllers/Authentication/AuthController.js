@@ -2001,8 +2001,10 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 
 Note: Stay tuned for further updates.`;
       student.student_form_flow.flow = "DEPARTMENT"
+      status.group_by = "Admission_Application_Applied"
       student.student_form_flow.did = apply?.applicationDepartment
       status.applicationId = apply._id;
+      status.student = student?._id;
       status.document_visible = true;
       status.student = student._id;
       status.finance = institute?.financeDepart?.[0];

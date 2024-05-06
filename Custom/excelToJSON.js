@@ -1090,22 +1090,22 @@ exports.generate_excel_to_json_staff_department = async (file, id) => {
     var new_data_query = [];
     // console.log(data_query)
     for (var ref of data_query) {
-      var valid_cate = await Department.findOne({
+      var new_depart = await Department.findOne({
         $and: [
-          { institute: id },
+          { institute: `${id}` },
           {
-            dName: { $regex: `${ref?.Name}`, $options: "i" },
+            dName: { $regex: `${ref?.Name?.trim()}`, $options: "i" },
           },
         ],
       });
-      console.log(valid_cate)
-      ref.staff_department = valid_cate?._id;
+      ref.staff_department = new_depart?._id;
+      if (new_depart?._id) {
         new_data_query.push({
           ...ref,
-        });
+        }); 
+      }
     }
-    console.log(new_data_query)
-    // return { student_array: new_data_query, value: true };
+    return { student_array: new_data_query, value: true };
   } catch (e) {
     console.log("Staff Department Excel Query Not Resolved", e);
   }

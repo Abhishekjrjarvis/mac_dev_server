@@ -4060,10 +4060,11 @@ exports.renderExcelToJSONAddStaffDepartmentQuery = async (req, res) => {
     }
     const val = await simple_object(key);
 
-    const is_converted = await generate_excel_to_json_staff_department(val);
+    const is_converted = await generate_excel_to_json_staff_department(val, id);
     if (is_converted?.value) {
       await render_staff_add_department(
         is_converted?.student_array,
+        id
       );
     } else {
       console.log("false");

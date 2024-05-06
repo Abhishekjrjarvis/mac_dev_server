@@ -7013,15 +7013,17 @@ exports.render_form_key_editable = async (req, res) => {
   }
 }
 
-exports.render_staff_add_department = async (list) => {
+exports.render_staff_add_department = async (list, id) => {
   try {
     if (list?.length > 0) {
       var  i =0
       for (let ele of list) {
-        const staff = await Staff.findOne({ staffROLLNO: { $eq: ele?.Code} })
+        const staff = await Staff.findOne({ $and: [{ institute: id }, { staffStatus: "Approved"}, {staffROLLNO: ele?.Code}] })
+        console.log(staff?.staffFirstName)
         staff.staff_department = ele?.staff_department
         console.log(i)
         await staff.save()
+        console.log(staff?.staff_department)
         i+= 1
       }
     }

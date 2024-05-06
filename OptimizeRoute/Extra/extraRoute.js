@@ -477,4 +477,9 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONStudentFeesMappingQuery)
 );
 
+router.patch(
+  "/excel/to/json/:id/add/staff/department",
+  catchAsync(Extra.renderExcelToJSONAddStaffDepartmentQuery)
+);
+
 module.exports = router;

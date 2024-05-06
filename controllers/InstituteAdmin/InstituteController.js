@@ -7012,3 +7012,21 @@ exports.render_form_key_editable = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.render_staff_add_department = async (list) => {
+  try {
+    if (list?.length > 0) {
+      var  i =0
+      for (let ele of list) {
+        const staff = await Staff.findOne({ staffROLLNO: { $eq: ele?.Code} })
+        staff.staff_department = ele?.staff_department
+        console.log(i)
+        await staff.save()
+        i+= 1
+      }
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

@@ -104,6 +104,10 @@ const feeReceiptSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "NewApplication",
       },
+      is_society: {
+        type: Boolean,
+        default: false
+      },
     },
   ],
   created_at: {

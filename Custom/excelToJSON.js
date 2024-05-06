@@ -1082,6 +1082,35 @@ exports.getj_subject_marks_update_query = async (file) => {
   }
 };
 
+exports.generate_excel_to_json_staff_department = async (file, id) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["Departmentstaff"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    // console.log(data_query)
+    for (var ref of data_query) {
+      var valid_cate = await Department.findOne({
+        $and: [
+          { institute: id },
+          {
+            dName: { $regex: `${ref?.Name}`, $options: "i" },
+          },
+        ],
+      });
+      console.log(valid_cate)
+      ref.staff_department = valid_cate?._id;
+        new_data_query.push({
+          ...ref,
+        });
+    }
+    console.log(new_data_query)
+    // return { student_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("Staff Department Excel Query Not Resolved", e);
+  }
+};
+
 
 // console.log(generate_excel_to_json_class_time_table_query(data_set, 5))
 

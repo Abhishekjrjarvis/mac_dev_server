@@ -584,21 +584,21 @@ exports.render_one_department_extra_docs_query = async (req, res) => {
         image: image
       })
     } else if (flow === "STUDENT_ASSOCIATIONS") {
-      d_site.professional_body.push({
+      d_site.student_associations.push({
         title: title,
         description: description,
         image: image
       })
     }
     else if (flow === "STUDENT_ACHIEVEMENTS") {
-      d_site.professional_body.push({
+      d_site.student_achievements.push({
         title: title,
         description: description,
         image: image
       })
     }
     else if (flow === "INNOVATIVE_PRACTICES") {
-      d_site.professional_body.push({
+      d_site.innovative_practices.push({
         title: title,
         description: description,
         image: image
@@ -611,7 +611,6 @@ exports.render_one_department_extra_docs_query = async (req, res) => {
     console.log(e)
   }
 }
-
 
 exports.render_one_department_syllabus_projects_query = async (req, res) => {
   try {
@@ -657,3 +656,195 @@ exports.render_one_department_pso_query = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.render_one_department_edit_extra_docs_query = async (req, res) => {
+  try {
+    const { dsid } = req?.params
+    const { flow, title, image, description, cid } = req?.body
+    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var d_site = await DepartmentSite.findById({ _id: dsid })
+    if (flow === "PROFESSIONAL_BODY") {
+      for (let ele of d_site?.professional_body) {
+        if (`${ele?._id}` === `${cid}`) {
+          ele.title = title ? title : ele?.title
+          ele.description = description ? description : ele?.description
+          ele.image = image ? image : ele?.image
+        }
+      }
+    } else if (flow === "STUDENT_ASSOCIATIONS") {
+      for (let ele of d_site?.student_associations) {
+        if (`${ele?._id}` === `${cid}`) {
+          ele.title = title ? title : ele?.title
+          ele.description = description ? description : ele?.description
+          ele.image = image ? image : ele?.image
+        }
+      }
+    }
+    else if (flow === "STUDENT_ACHIEVEMENTS") {
+      for (let ele of d_site?.student_achievements) {
+        if (`${ele?._id}` === `${cid}`) {
+          ele.title = title ? title : ele?.title
+          ele.description = description ? description : ele?.description
+          ele.image = image ? image : ele?.image
+        }
+      }
+    }
+    else if (flow === "INNOVATIVE_PRACTICES") {
+      for (let ele of d_site?.innovative_practices) {
+        if (`${ele?._id}` === `${cid}`) {
+          ele.title = title ? title : ele?.title
+          ele.description = description ? description : ele?.description
+          ele.image = image ? image : ele?.image
+        }
+      }
+    }
+    await d_site.save()
+    res.status(200).send({ message: "Explore Edit Department Site Updated Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_department_edit_syllabus_projects_query = async (req, res) => {
+  try {
+    const { dsid } = req?.params
+    const { flow, name, attach, cid } = req?.body
+    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var d_site = await DepartmentSite.findById({ _id: dsid })
+    if (flow === "SYLLABUS") {
+      for (let ele of d_site?.syllabus) {
+        if (`${ele?._id}` === `${cid}`) {
+          ele.name = name ? name : ele?.name
+          ele.attach = attach ? attach : ele?.attach
+        }
+      }
+    } else if (flow === "PROJECTS") {
+      for (let ele of d_site?.projects) {
+        if (`${ele?._id}` === `${cid}`) {
+          ele.name = name ? name : ele?.name
+          ele.attach = attach ? attach : ele?.attach
+        }
+      }
+    }
+    await d_site.save()
+    res.status(200).send({ message: "Explore Edit Department Site Updated Syllabus + Projects Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_department_edit_pso_query = async (req, res) => {
+  try {
+    const { dsid } = req?.params
+    const { title, description, cid } = req?.body
+    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+
+    var d_site = await DepartmentSite.findById({ _id: dsid })
+    for (let ele of d_site?.po_pso) {
+      if (`${ele?._id}` === `${cid}`) { 
+        ele.title = title ? title : ele?.title
+        ele.description = description ? description : ele?.description
+      }
+    }
+    await d_site.save()
+    res.status(200).send({ message: "Explore Edit Department Site Updated PO / PSO Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_department_delete_extra_docs_query = async (req, res) => {
+  try {
+    const { dsid } = req?.params
+    const { cid } = req?.body
+    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var d_site = await DepartmentSite.findById({ _id: dsid })
+    if (flow === "PROFESSIONAL_BODY") {
+      for (let ele of d_site?.professional_body) {
+        if (`${ele?._id}` === `${cid}`) {
+          d_site?.professional_body.pull(ele?._id)
+        }
+      }
+    } else if (flow === "STUDENT_ASSOCIATIONS") {
+      for (let ele of d_site?.student_associations) {
+        if (`${ele?._id}` === `${cid}`) {
+          d_site?.student_associations.pull(ele?._id)
+        }
+      }
+    }
+    else if (flow === "STUDENT_ACHIEVEMENTS") {
+      for (let ele of d_site?.student_achievements) {
+        if (`${ele?._id}` === `${cid}`) {
+          d_site?.student_achievements.pull(ele?._id)
+        }
+      }
+    }
+    else if (flow === "INNOVATIVE_PRACTICES") {
+      for (let ele of d_site?.innovative_practices) {
+        if (`${ele?._id}` === `${cid}`) {
+          d_site?.innovative_practices.pull(ele?._id)
+        }
+      }
+    }
+    await d_site.save()
+    res.status(200).send({ message: "Explore Delete Department Site Updated Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_department_delete_syllabus_projects_query = async (req, res) => {
+  try {
+    const { dsid } = req?.params
+    const { cid } = req?.body
+    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var d_site = await DepartmentSite.findById({ _id: dsid })
+    if (flow === "SYLLABUS") {
+      for (let ele of d_site?.syllabus) {
+        if (`${ele?._id}` === `${cid}`) {
+          d_site?.syllabus.pull(ele?._id)
+        }
+      }
+    } else if (flow === "PROJECTS") {
+      for (let ele of d_site?.projects) {
+        if (`${ele?._id}` === `${cid}`) {
+          d_site?.projects.pull(ele?._id)
+        }
+      }
+    }
+    await d_site.save()
+    res.status(200).send({ message: "Explore Delete Department Site Updated Syllabus + Projects Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_department_delete_pso_query = async (req, res) => {
+  try {
+    const { dsid } = req?.params
+    const { cid } = req?.body
+    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+
+    var d_site = await DepartmentSite.findById({ _id: dsid })
+    for (let ele of d_site?.po_pso) {
+      if (`${ele?._id}` === `${cid}`) { 
+        d_site?.po_pso.pull(ele?._id)
+      }
+    }
+    await d_site.save()
+    res.status(200).send({ message: "Explore Delete Department Site Updated PO / PSO Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+

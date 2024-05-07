@@ -38,4 +38,16 @@ router.patch("/:dsid/one/department/site/syllabus/projects/query", catchAsync(si
 
 router.patch("/:dsid/one/department/site/pso/query", catchAsync(siteController.render_one_department_pso_query));
 
+router.patch("/:dsid/edit/one/department/site/extra/docs/query", catchAsync(siteController.render_one_department_edit_extra_docs_query));
+
+router.patch("/:dsid/edit/one/department/site/syllabus/projects/query", catchAsync(siteController.render_one_department_edit_syllabus_projects_query));
+
+router.patch("/:dsid/edit/one/department/site/pso/query", catchAsync(siteController.render_one_department_edit_pso_query));
+
+router.delete("/:dsid/delete/one/department/site/extra/docs/query", catchAsync(siteController.render_one_department_delete_extra_docs_query));
+
+router.delete("/:dsid/delete/one/department/site/syllabus/projects/query", catchAsync(siteController.render_one_department_delete_syllabus_projects_query));
+
+router.delete("/:dsid/delete/one/department/site/pso/query", catchAsync(siteController.render_one_department_delete_pso_query));
+
 module.exports = router;

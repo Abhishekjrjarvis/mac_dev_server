@@ -373,6 +373,130 @@ exports.render_dynamic_form_query = async (req, res) => {
   }
 }
 
+exports.render_dynamic_form_query_photo = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var student = await Student.findById({ _id: sid })
+    if (student?.student_form_flow?.flow === "INSTITUTE") {
+      var head_array = []
+      var head_arrays = []
+      var obj = {}
+      var nest_obj = {}
+      const all_check = await InstituteStudentForm.findOne({ institute: student?.student_form_flow?.did })
+      .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+      .populate({
+        path: "institute",
+        select: "insName"
+        })
+      for (var val of all_check?.form_section) {
+        if (val?.section_visibilty == true) {
+          for (var ele of val?.form_checklist) {
+            if (ele?.form_checklist_visibility == true) {
+              var list = student?.student_dynamic_field?.filter((dna) => {
+                if (dna?.key === ele?.form_checklist_key) {
+                  nest_obj[`${dna?.key}`] = dna?.value
+                }
+              })
+              if (ele?.form_checklist_typo === "Same As") {
+              }
+              else {
+                if (ele?.form_checklist_key === "student_undertakings") {
+                  var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                  var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.institute?.insName}`)
+                }
+                else if (ele?.form_checklist_key === "student_anti_ragging") {
+                  var name2 = val?.section_value
+                }
+                head_array.push({
+                  form_checklist_name: ele?.form_checklist_name,
+                  form_checklist_key: ele?.form_checklist_key,
+                  form_checklist_visibility: ele?.form_checklist_visibility,
+                  form_checklist_placeholder: ele?.form_checklist_placeholder,
+                  form_checklist_lable: ele?.form_checklist_lable,
+                  form_checklist_typo: ele?.form_checklist_typo,
+                  form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+                  form_checklist_required: val?.section_key === "documents" ? false : true,
+                  value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                })
+              }
+            }
+          }
+          obj[`fields`] = [...head_array]
+          head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key })
+          obj = {}
+          head_array = []
+        }
+      }
+      res.status(200).send({ message: "Explore One Student Institute Dynamic Form Query", access: true, result: [...head_arrays]})
+    }
+    else if (student?.student_form_flow?.flow === "DEPARTMENT") {
+      var head_array = []
+      var head_arrays = []
+      var obj = {}
+      var nest_obj = {}
+      const all_check = await DepartmentStudentForm.findOne({ department: student?.student_form_flow?.did })
+      .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+      .populate({
+        path: "department",
+        select: "institute",
+        populate: "institute",
+        select: "insName"
+        })
+      for (var val of all_check?.form_section) {
+        if (val?.section_visibilty == true) {
+          for (var ele of val?.form_checklist) {
+            if (ele?.form_checklist_visibility == true) {
+              var list = student?.student_dynamic_field?.filter((dna) => {
+                if (dna?.key === ele?.form_checklist_key) {
+                  nest_obj[`${dna?.key}`] = dna?.value
+                }
+              })
+              if (ele?.form_checklist_typo === "Same As") {
+              }
+              else {
+                if (ele?.form_checklist_key === "student_undertakings") {
+                  var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                  var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.department?.institute?.insName}`)
+                }
+                else if (ele?.form_checklist_key === "student_anti_ragging") {
+                  var name2 = val?.section_value
+                }
+                head_array.push({
+                  form_checklist_name: ele?.form_checklist_name,
+                  form_checklist_key: ele?.form_checklist_key,
+                  form_checklist_visibility: ele?.form_checklist_visibility,
+                  form_checklist_placeholder: ele?.form_checklist_placeholder,
+                  form_checklist_lable: ele?.form_checklist_lable,
+                  form_checklist_typo: ele?.form_checklist_typo,
+                  form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+                  form_checklist_required: val?.section_key === "documents" ? false : true,
+                  value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                })
+              }
+            }
+          }
+          obj[`fields`] = [...head_array]
+          head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key })
+          obj = {}
+          head_array = []
+        }
+      }
+      res.status(200).send({ message: "Explore One Student Department Dynamic Form Query", access: true, result: [...head_arrays]})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.render_edit_student_form_section_query = async (req, res) => {
   try {
     const { fcid } = req?.params
@@ -426,71 +550,139 @@ exports.render_edit_student_form_section_checklist_query = async (req, res) => {
 
 exports.render_dynamic_form_details_query = async (req, res) => {
   try {
-    const { flow, did } = req?.query
+    const { flow, did, apk } = req?.query
     if (!flow && !did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    if (flow === "INSTITUTE") {
-      const ins_form = await InstituteStudentForm.findOne({ institute: did })
-      .select("form_section")
-      .populate({
-      path: "form_section.form_checklist"
-      })
+    if (apk === "WEB") {
+      if (flow === "INSTITUTE") {
+        const ins_form = await InstituteStudentForm.findOne({ institute: did })
+          .select("form_section")
+          .populate({
+            path: "form_section.form_checklist"
+          })
     
-    var all_section = ins_form?.form_section?.filter((val) => {
-      if(val?.section_visibilty) return val
-    })
-
-      for (var ele of all_section) {
-        for (var stu of ele?.form_checklist) {
-          if (stu?.form_checklist_typo === "Same As") {
+        var all_section = ins_form?.form_section?.filter((val) => {
+          if (val?.section_visibilty) return val
+        })
+        for (var ele of all_section) {
+          for (var stu of ele?.form_checklist) {
+            if (stu?.form_checklist_typo === "Same As") {
             
+            }
+            else {
+              ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
+                if (qwe?.form_checklist_visibility) {
+                  return qwe
+                }
+                else {
+                  return null
+                }
+              })
+            }
+            stu.form_checklist_required = ele?.section_key === "documents" ? false : true
           }
-          else {
-            ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
-              if (qwe?.form_checklist_visibility) {
-                return qwe
-              }
-              else {
-                return null
-              }
-            })
-          }
-        stu.form_checklist_required = ele?.section_key === "documents" ? false : true
+        }
+        res.status(200).send({ message: "Institute Form Query", access: true, ins_form: all_section })
       }
-    }
-    res.status(200).send({ message: "Institute Form Query", access: true, ins_form: all_section})
-    }
-    else if (flow === "DEPARTMENT") {
-      const depart_form = await DepartmentStudentForm.findOne({ department: did })
-      .select("form_section")
-      .populate({
-      path: "form_section.form_checklist"
-      })
+      else if (flow === "DEPARTMENT") {
+        const depart_form = await DepartmentStudentForm.findOne({ department: did })
+          .select("form_section")
+          .populate({
+            path: "form_section.form_checklist"
+          })
     
-    var all_section = depart_form?.form_section?.filter((val) => {
-      if(val?.section_visibilty) return val
-    })
+        var all_section = depart_form?.form_section?.filter((val) => {
+          if (val?.section_visibilty) return val
+        })
 
-    for (var ele of all_section) {
-      for (var stu of ele?.form_checklist) {
+        for (var ele of all_section) {
+          for (var stu of ele?.form_checklist) {
         
-          if (stu?.form_checklist_typo === "Same As") {
+            if (stu?.form_checklist_typo === "Same As") {
             
+            }
+            else {
+              ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
+                if (qwe?.form_checklist_visibility) {
+                  return qwe
+                }
+                else {
+                  return null
+                }
+              })
+            }
+            stu.form_checklist_required = ele?.section_key === "documents" ? false : true
           }
-          else {
-            ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
-              if (qwe?.form_checklist_visibility) {
-                return qwe
-              }
-              else {
-                return null
-              }
-            })
-          }
-          stu.form_checklist_required = ele?.section_key === "documents" ? false : true
+        }
+        res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section })
       }
     }
-      res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section})
+    else {
+      if (flow === "INSTITUTE") {
+        const ins_form = await InstituteStudentForm.findOne({ institute: did })
+          .select("form_section")
+          .populate({
+            path: "form_section.form_checklist"
+          })
+    
+        var all_section = ins_form?.form_section?.filter((val) => {
+          if (val?.section_visibilty) return val
+        })
+        all_section[1].form_checklist.push(...all_section?.[0]?.form_checklist)
+        for (var ele of all_section) {
+          for (var stu of ele?.form_checklist) {
+            if (stu?.form_checklist_typo === "Same As") {
+            
+            }
+            else {
+              ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
+                if (qwe?.form_checklist_visibility) {
+                  return qwe
+                }
+                else {
+                  return null
+                }
+              })
+            }
+            stu.form_checklist_required = ele?.section_key === "documents" ? false : true
+          }
+        }
+        all_section.splice(0, 1)
+        res.status(200).send({ message: "Institute Form Query", access: true, ins_form: all_section })
+      }
+      else if (flow === "DEPARTMENT") {
+        const depart_form = await DepartmentStudentForm.findOne({ department: did })
+          .select("form_section")
+          .populate({
+            path: "form_section.form_checklist"
+          })
+    
+        var all_section = depart_form?.form_section?.filter((val) => {
+          if (val?.section_visibilty) return val
+        })
+        all_section[1].form_checklist.push(...all_section?.[0]?.form_checklist)
+        for (var ele of all_section) {
+          for (var stu of ele?.form_checklist) {
+        
+            if (stu?.form_checklist_typo === "Same As") {
+            
+            }
+            else {
+              ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
+                if (qwe?.form_checklist_visibility) {
+                  return qwe
+                }
+                else {
+                  return null
+                }
+              })
+            }
+            stu.form_checklist_required = ele?.section_key === "documents" ? false : true
+          }
+        }
+        all_section.splice(0, 1)
+        res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section })
+      }
     }
   }
   catch (e) {

@@ -44,6 +44,7 @@ router.post(
 
 router.get("/:sid/dynamic/form/query", catchAsync(Depart.render_dynamic_form_query))
 
+router.get("/:sid/dynamic/form/query/photo", catchAsync(Depart.render_dynamic_form_query_photo))
 
 router.patch(
   "/edit/form/:fcid/section/query",

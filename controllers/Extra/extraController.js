@@ -412,6 +412,9 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     if (lcCaste) {
       student.lcCaste = lcCaste
     }
+    if (leaving_guide_name) {
+      student.leaving_guide_name = leaving_guide_name
+    }
     if (lcDOB) {
       student.lcDOB = lcDOB
     }

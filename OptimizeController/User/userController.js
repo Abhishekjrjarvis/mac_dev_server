@@ -2537,7 +2537,15 @@ exports.retrieveUserOneApplicationQuery = async(req, res) => {
             select: "category_name",
           },
         }
-      });
+      })
+      .populate({
+        path: "applicationId",
+            populate: {
+              path: "applicationDepartment applicationBatch applicationMaster",
+              select: "dName batchName className",
+            },
+          }
+      );
     // const appEncrypt = await encryptionPayload(user.applicationStatus);
     for (var val of app_status) {
       if (val?.group_by === "Admission_Application_Applied") {

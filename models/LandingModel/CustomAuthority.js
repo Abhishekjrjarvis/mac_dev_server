@@ -145,7 +145,31 @@ const customAuthoritySchema = new mongoose.Schema({
         status_tab: { type: Boolean, default: true },
         validity_tab: { type: Boolean, default: true },
         idd_tab: { type: Boolean, default: true },
-    }
+    },
+    rnd_mou: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Head"
+        }
+    ],
+    rnd_activities: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Head"
+        } 
+    ],
+    rnd_projects: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Head"
+        }
+    ],
+    rnd_paper: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Head"
+        }
+    ],
 })
 
 module.exports = mongoose.model("CustomAuthority", customAuthoritySchema)

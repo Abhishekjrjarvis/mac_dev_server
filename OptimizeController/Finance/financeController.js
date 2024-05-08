@@ -3960,21 +3960,21 @@ exports.renderOneFeeReceipt = async (req, res) => {
       receipt.fee_heads.push(excess_obj)
     }
     receipt.fee_heads.push(gta_obj)
-    if (receipt?.finance?.show_receipt === "Normal") {
+    // if (receipt?.finance?.show_receipt === "Normal") {
       receipt.student.active_fee_heads = [...receipt?.fee_heads];
-    }
-    else if (receipt?.finance?.show_receipt === "Society") {
-      receipt.fee_heads = receipt?.fee_heads?.filter((qwe) => {
-        if (!qwe?.is_society) {
-          return qwe
-        }
-        else {
-          receipt.student.active_society_fee_heads.push(qwe)
-          return null
-        }
-      })
-      receipt.student.active_fee_heads = [...receipt?.fee_heads]; 
-    }
+    // }
+    // else if (receipt?.finance?.show_receipt === "Society") {
+    //   receipt.fee_heads = receipt?.fee_heads?.filter((qwe) => {
+    //     if (!qwe?.is_society) {
+    //       return qwe
+    //     }
+    //     else {
+    //       receipt.student.active_society_fee_heads.push(qwe)
+    //       return null
+    //     }
+    //   })
+    //   receipt.student.active_fee_heads = [...receipt?.fee_heads]; 
+    // }
 
     const obj = {
       message: "Come up with Tea and Snacks",
@@ -3985,7 +3985,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
     }
     const all_encrypt = await encryptionPayload(obj)
 
-    res.status(200).send({ encrypt: obj, });
+    res.status(200).send({ encrypt: all_encrypt });
   } catch (e) {
     console.log(e);
   }

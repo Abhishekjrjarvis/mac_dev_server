@@ -1811,7 +1811,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "custom_authority",
-          select: "_id",
+          select: "_id custom_head_name",
         })
         .lean()
         .exec();
@@ -2044,7 +2044,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "custom_authority",
-          select: "_id",
+          select: "_id custom_head_name",
         })
         .lean()
         .exec();

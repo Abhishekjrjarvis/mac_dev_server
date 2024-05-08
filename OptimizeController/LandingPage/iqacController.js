@@ -501,4 +501,29 @@ exports.render_add_rnd_paper_query = async (req, res) => {
     catch (e) {
       console.log(e)
     }
-  }
+}
+  
+exports.render_all_sections_query = async (req, res) => {
+    try {
+        const { hid } = req?.params
+        const { flow } = req?.query
+        if (!hid) return res.status(200).send({ message: "Their is abug need to fixed immediately", access: false })
+        var head = await Head.findById({ _id: hid })
+        if (flow === "MOU") {
+            const all = await nested_document_limit(page, limit, head?.rnd_mou)
+            res.status(200).send({ message: "Explore All MOU Sections Query", access: true, all: all})
+        } else if (flow === "PROJECTS") {
+            const all = await nested_document_limit(page, limit, head?.rnd_projects)
+            res.status(200).send({ message: "Explore All PROJECTS Sections Query", access: true, all: all})
+        } else if (flow === "ACTIVITIES") {
+            const all = await nested_document_limit(page, limit, head?.rnd_activities)
+            res.status(200).send({ message: "Explore All ACTIVITIES Sections Query", access: true, all: all})
+        } else if (flow === "PAPER") { 
+            const all = await nested_document_limit(page, limit, head?.rnd_paper)
+            res.status(200).send({ message: "Explore All PAPER Sections Query", access: true, all: all})
+        }
+    }
+    catch (e) {
+        console.log(e)
+    }
+}

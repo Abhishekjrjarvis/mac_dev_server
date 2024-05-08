@@ -59,5 +59,6 @@ router.post("/:hid/add/projects/query", catchAsync(IQAC.render_add_projects_quer
 
 router.post("/:hid/add/rnd/paper/query", catchAsync(IQAC.render_add_rnd_paper_query));
 
+router.get("/:hid/all/sections/query", catchAsync(IQAC.render_all_sections_query));
 
 module.exports = router;

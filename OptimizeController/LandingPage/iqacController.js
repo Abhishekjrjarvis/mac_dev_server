@@ -66,6 +66,7 @@ const Vehicle = require("../../models/Transport/vehicle");
 const { universal_random_password } = require("../../Custom/universalId");
 const IQAC = require("../../models/LandingModel/IQAC");
 const CustomAuthority = require("../../models/LandingModel/CustomAuthority");
+const Head = require("../../models/LandingModel/RND/Head");
 
 
 exports.render_new_iqac_query = async (req, res) => {
@@ -374,5 +375,130 @@ exports.render_add_documents_section_query = async (req, res) => {
     }
     catch (e) {
         console.log(e)
+    }
+}
+
+exports.render_add_head_query = async (req, res) => {
+    try {
+      const { qcid } = req?.params
+      const { flow, year } = req?.body
+      if (!qcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+        var custom = await CustomAuthority.findById({ _id: qcid })
+        var new_head = new Head({})
+        new_head.head_name = year
+        new_head.custom_authority = custom?._id
+        if (flow === "MOU") {
+            custom.rnd_mou.push(new_head?._id)
+        }
+        else if (flow === "PROJECTS") {
+            custom.rnd_projects.push(new_head?._id)
+        }
+        else if (flow === "ACTIVITIES") {
+            custom.rnd_activities.push(new_head?._id)
+        }
+        else if (flow === "PAPER") {
+            custom.rnd_paper.push(new_head?._id)
+        }
+      await Promise.all([ custom.save(), new_head.save() ])
+      res.status(200).send({ message: "New Head Added Query", access: true})
+  
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
+  
+exports.render_add_mou_query = async (req, res) => {
+    try {
+      const { hid } = req?.params
+      const { srn, org_name, objectives, durations, link, attach } = req?.body
+      if (!hid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+      const head = await Head.findById({ _id: hid })
+      head.rnd_mou.push({
+        srn: srn,
+        org_name: org_name,
+        objectives: objectives,
+        durations: durations,
+        link: link,
+        attach: attach
+      })
+      await head.save()
+      res.status(200).send({ message: "RND MOU Query", access: true})
+  
+    }
+    catch (e) {
+      console.log(e)
+    }
+}
+  
+exports.render_add_activities_query = async (req, res) => {
+    try {
+      const { hid } = req?.params
+      const { srn, title, description, link, attach } = req?.body
+      if (!hid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+      const head = await Head.findById({ _id: hid })
+      head.rnd_activities.push({
+        srn: srn,
+        title: title,
+        description: description,
+        link: link,
+        attach: attach
+      })
+      await head.save()
+      res.status(200).send({ message: "RND ACTIVITIES Query", access: true})
+  
+    }
+    catch (e) {
+      console.log(e)
+    }
+}
+  
+exports.render_add_projects_query = async (req, res) => {
+    try {
+      const { hid } = req?.params
+      const { srn, title, student, classes, subject, guide_name, link, attach } = req?.body
+      if (!hid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+      const head = await Head.findById({ _id: hid })
+      head.rnd_projects.push({
+        srn: srn,
+        title: title,
+        student: student,
+        link: link,
+        attach: attach,
+        classes: classes,
+        subject: subject,
+        guide_name: guide_name
+      })
+      await head.save()
+      res.status(200).send({ message: "RND PROJECTS Query", access: true})
+  
+    }
+    catch (e) {
+      console.log(e)
+    }
+}
+  
+exports.render_add_rnd_paper_query = async (req, res) => {
+    try {
+      const { hid } = req?.params
+      const { collaboration, title, staff, department, category, funding_agency, link, attach } = req?.body
+      if (!hid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+      const head = await Head.findById({ _id: hid })
+      head.rnd_paper.push({
+        collaboration: collaboration,
+        title: title,
+        staff: staff,
+        link: link,
+        attach: attach,
+        department: department,
+        category: category,
+        funding_agency: funding_agency
+      })
+      await head.save()
+      res.status(200).send({ message: "RND PAPER Query", access: true})
+  
+    }
+    catch (e) {
+      console.log(e)
     }
   }

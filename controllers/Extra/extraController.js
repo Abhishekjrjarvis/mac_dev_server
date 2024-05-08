@@ -428,7 +428,9 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       student.lcInstituteDate = lcInstituteDate
     }
 
-    student.studentCertificateNo = studentCertificateNo ? studentCertificateNo : institute.leavingArray.length + 1;
+    if (studentCertificateNo) {
+      student.studentCertificateNo = studentCertificateNo
+    }
     institute.l_certificate_count += 1;
     institute.certificate_issued_count += 1;
     student.studentLeavingStatus = "Ready";

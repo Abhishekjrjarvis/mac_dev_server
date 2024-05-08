@@ -49,4 +49,15 @@ router.post("/:qcid/add/documents/all/section/query", catchAsync(IQAC.render_add
 
 router.post("/:qcid/add/documents/section/query", catchAsync(IQAC.render_add_documents_section_query));
 
+router.post("/:qcid/add/heads/query", catchAsync(IQAC.render_add_head_query));
+
+router.post("/:hid/add/mou/query", catchAsync(IQAC.render_add_mou_query));
+
+router.post("/:hid/add/activities/query", catchAsync(IQAC.render_add_activities_query));
+
+router.post("/:hid/add/projects/query", catchAsync(IQAC.render_add_projects_query));
+
+router.post("/:hid/add/rnd/paper/query", catchAsync(IQAC.render_add_rnd_paper_query));
+
+
 module.exports = router;

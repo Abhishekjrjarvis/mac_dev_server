@@ -506,6 +506,9 @@ exports.render_add_rnd_paper_query = async (req, res) => {
 exports.render_all_sections_query = async (req, res) => {
     try {
         const { hid } = req?.params
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
         const { flow } = req?.query
         if (!hid) return res.status(200).send({ message: "Their is abug need to fixed immediately", access: false })
         var head = await Head.findById({ _id: hid })

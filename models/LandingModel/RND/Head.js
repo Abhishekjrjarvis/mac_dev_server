@@ -28,7 +28,7 @@ const rndSchema = new mongoose.Schema({
             srn: { type: String },
             title: { type: String },
             student: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
-            classes: { type: String },
+            classes: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },
             subject: { type: String },
             guide_name: { type: String },
             link: { type: String },

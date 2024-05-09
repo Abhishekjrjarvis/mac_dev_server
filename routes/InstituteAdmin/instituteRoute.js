@@ -760,4 +760,11 @@ router.patch(
   catchAsync(Institute.render_form_key_editable)
 );
 
+
+// Enable LC + FC
+router.get(
+  "/all/classes/:id/query",
+  catchAsync(Institute.render_all_classes_query)
+);
+
 module.exports = router;

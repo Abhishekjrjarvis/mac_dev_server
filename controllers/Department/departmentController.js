@@ -239,7 +239,7 @@ exports.render_new_student_form_checklist_query = async (req, res) => {
         }
       }
     }
-    await ifs.save()
+    await dfs.save()
     res.status(200).send({ message: "Explore One Department Form Section Nested Checklist Query", access: true }) 
   }
   catch (e) {

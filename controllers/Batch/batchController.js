@@ -34,6 +34,8 @@ const { universal_random_password } = require("../../Custom/universalId");
 const { render_new_fees_card } = require("../../Functions/FeesCard");
 const BankAccount = require("../../models/Finance/BankAccount");
 const { app_status, docs_status, fees_status } = require("../../OptimizeController/Admission/admissionController");
+const InstituteApplicationForm = require("../../models/Form/InstituteApplicationForm");
+const FormChecklist = require("../../models/Form/FormChecklist");
 
 exports.preformedStructure = async (req, res) => {
   try {
@@ -128,11 +130,47 @@ exports.preformedStructure = async (req, res) => {
           applicationMaster: ref?.applicationMaster,
           applicationTypeStatus: "Promote Application",
         });
+        var iaf = new InstituteApplicationForm({})
+        iaf.application = new_app?._id
+        new_app.student_form_setting = iaf?._id
         admission.newApplication.push(new_app._id);
         admission.newAppCount += 1;
         new_app.admissionAdmin = admission._id;
         institute.admissionCount += 1;
-        await Promise.all([new_app.save(), admission.save(), institute.save()]);
+        await Promise.all([new_app.save(), admission.save(), institute.save(), iaf.save()]);
+        var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+      var nums = []
+      for (var val of ifs?.form_section) {
+        if (val?.form_checklist?.length > 0) {
+          for (var ele of val?.form_checklist) {
+            var fc = new FormChecklist({
+              form_checklist_name: ele?.form_checklist_name,
+              form_checklist_key: ele?.form_checklist_key,
+              form_checklist_visibility: ele?.form_checklist_visibility,
+              form_checklist_placeholder: ele?.form_checklist_placeholder,
+              form_checklist_lable: ele?.form_checklist_lable,
+              form_checklist_typo: ele?.form_checklist_typo,
+              form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+              form_checklist_required: ele?.form_checklist_required
+            })
+            if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+              ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+            }
+            fc.department_form = iaf?._id
+            fc.form_section = val?._id
+            nums.push(fc?._id)
+            await fc.save()
+          }
+        }
+        iaf.form_section.push({
+          section_name: val?.section_name,
+          section_visibilty: val?.section_visibilty,
+          section_key: val?.section_key,
+          ins_form_section_id: val?._id,
+          form_checklist: [...nums]
+        })
+      }
+      await iaf.save()
       }
     }
     for (let oneClass of batch?.classroom) {

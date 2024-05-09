@@ -67,6 +67,7 @@ const LandingControl = require("../../models/LandingModel/LandingControl");
 const DepartmentStudentForm = require("../../models/Form/DepartmentStudentForm");
 const InstituteStaffForm = require("../../models/Form/InstituteStaffForm");
 const { staff_form_params } = require("../../Constant/staff_form");
+const InstituteApplicationForm = require("../../models/Form/InstituteApplicationForm");
 
 
 exports.getDashOneQuery = async (req, res) => {
@@ -4203,6 +4204,9 @@ exports.retrieveNewBatch = async (req, res) => {
         applicationMaster: department?.departmentClassMasters[rand],
         applicationTypeStatus: "Promote Application",
       });
+      var iaf = new InstituteApplicationForm({})
+      iaf.application = new_app?._id
+      new_app.student_form_setting = iaf?._id
       admission.newApplication.push(new_app._id);
       admission.newAppCount += 1;
       new_app.admissionAdmin = admission._id;
@@ -4213,11 +4217,45 @@ exports.retrieveNewBatch = async (req, res) => {
         new_app.save(),
         admission.save(),
         institute.save(),
+        iaf.save()
       ]);
       // const bEncrypt = await encryptionPayload(batch._id);
       res
         .status(200)
         .send({ message: "batch data", batch: batch._id, access: true });
+        var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+        var nums = []
+        for (var val of ifs?.form_section) {
+          if (val?.form_checklist?.length > 0) {
+            for (var ele of val?.form_checklist) {
+              var fc = new FormChecklist({
+                form_checklist_name: ele?.form_checklist_name,
+                form_checklist_key: ele?.form_checklist_key,
+                form_checklist_visibility: ele?.form_checklist_visibility,
+                form_checklist_placeholder: ele?.form_checklist_placeholder,
+                form_checklist_lable: ele?.form_checklist_lable,
+                form_checklist_typo: ele?.form_checklist_typo,
+                form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+                form_checklist_required: ele?.form_checklist_required
+              })
+              if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+                ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+              }
+              fc.department_form = iaf?._id
+              fc.form_section = val?._id
+              nums.push(fc?._id)
+              await fc.save()
+            }
+          }
+          iaf.form_section.push({
+            section_name: val?.section_name,
+            section_visibilty: val?.section_visibilty,
+            section_key: val?.section_key,
+            ins_form_section_id: val?._id,
+            form_checklist: [...nums]
+          })
+        }
+        await iaf.save()
     } else {
       res.status(200).send({
         message: "Admission module must activate for this process",
@@ -6443,11 +6481,14 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
     // var all_ifs = await InstituteStudentForm.find({})
     // for (var ifs of all_ifs) {
       var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
-        .select("depart")
+        .select("depart admissionDepart")
         .populate({
           path: "depart",
           select: "student_form_setting"
         })
+    
+    var all_app = await NewApplication.find({ admissionAdmin: "651ba377e39dbdf817dd5291" })
+    .select("student_form_setting")
       var checklist = form_params
       var numss = []
       for (var val of checklist) {
@@ -6544,7 +6585,55 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
         }
         await Promise.all([dfs.save(), qwe.save()])
       }
-      // }
+    // }
+    var numss = []
+      for (var qwe of all_app) {
+        var iaf = new InstituteApplicationForm({})
+        iaf.application = qwe?._id
+        qwe.student_form_setting = iaf?._id
+        for (var val of one_ifs?.form_section) {
+          if (val?.form_checklist?.length > 0) {
+            for (var ele of val?.form_checklist) {
+              var fc = new FormChecklist({
+                form_checklist_name: ele?.form_checklist_name,
+                form_checklist_key: ele?.form_checklist_key,
+                form_checklist_visibility: ele?.form_checklist_visibility,
+                form_checklist_placeholder: ele?.form_checklist_placeholder,
+                form_checklist_lable: ele?.form_checklist_lable,
+                form_checklist_typo: ele?.form_checklist_typo,
+                form_checklist_required: ele?.form_checklist_required,
+                width: ele?.width
+              })
+              if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+                fc.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+              }
+              if (ele?.form_checklist_sample) {
+                fc.form_checklist_sample = ele?.form_checklist_sample
+              }
+              if (ele?.form_checklist_pdf) {
+                fc.form_checklist_pdf = ele?.form_checklist_pdf
+              }
+              if (ele?.form_checklist_view) {
+                fc.form_checklist_view = ele?.form_checklist_view
+              }
+              fc.department_form = iaf?._id
+              fc.form_section = val?._id
+              numss.push(fc?._id)
+              await fc.save()
+            }
+          }
+          iaf.form_section.push({
+            section_name: val?.section_name,
+            section_visibilty: val?.section_visibilty,
+            section_key: val?.section_key,
+            section_value: val?.section_value,
+            ins_form_section_id: val?._id,
+            form_checklist: [...numss]
+          })
+          numss = []
+        }
+        await Promise.all([iaf.save(), qwe.save()])
+      }
       res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
   
 }
@@ -7027,6 +7116,29 @@ exports.render_staff_add_department = async (list, id) => {
         i+= 1
       }
     }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_classes_query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const ins = await InstituteAdmin.findById({ _id: id })
+      .select("classRooms")
+    
+    const all_classes = await Class.find({ _id: { $in: ins?.classRooms }})
+      .limit(limit)
+      .skip(skip)
+      .select("className classTitle")
+      res.status(200).send({ message: "All Classes Query", access: true, all_classes: all_classes})
+    
   }
   catch (e) {
     console.log(e)

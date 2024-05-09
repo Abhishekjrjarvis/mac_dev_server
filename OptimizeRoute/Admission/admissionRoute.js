@@ -787,4 +787,39 @@ router.patch("/:nid/delete/:rid/installment/card/query", catchAsync(Admission.re
 
 router.get("/:fid/all/delete/logs/query", catchAsync(Admission.renderAllDeleteLogsQuery))
 
+router.post(
+  "/new/form/:fcid/section/student/query",
+  catchAsync(Admission.render_new_student_form_section_query)
+);
+
+router.post(
+  "/new/form/:fcid/checklist/query",
+  catchAsync(Admission.render_new_student_form_checklist_query)
+);
+
+router.patch(
+  "/edit/form/:fcid/section/query",
+  catchAsync(Admission.render_edit_student_form_section_query)
+);
+
+router.patch(
+  "/edit/form/:fcid/section/checklist/query",
+  catchAsync(Admission.render_edit_student_form_section_checklist_query)
+);
+
+router.patch(
+  "/shuffle/form/:fcid/section/student/query",
+  catchAsync(Admission.render_shuffle_student_form_section_query)
+);
+
+router.get(
+  "/one/form/:fcid/section/query",
+  catchAsync(Admission.render_one_student_form_section_query)
+);
+
+router.get(
+  "/one/form/:id/section/enable/query",
+  catchAsync(Admission.render_one_student_form_section_enable_query)
+);
+
 module.exports = router;

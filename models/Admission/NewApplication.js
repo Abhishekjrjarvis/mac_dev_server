@@ -248,7 +248,11 @@ const newApplicationSchema = new mongoose.Schema({
   request_array: [],
   cancel_array: [],
   confirm_fee_array: [],
-  review_array: []
+  review_array: [],
+  student_form_setting: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteApplicationForm"
+  }
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

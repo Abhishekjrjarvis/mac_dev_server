@@ -108,6 +108,9 @@ const { fee_receipt_count_query, fee_receipt_count_query_new } = require("../../
 const { renderAllStudentToUnApprovedAutoCatalogQuery } = require("../Authentication/AuthController");
 const FeeMaster = require("../../models/Finance/FeeMaster");
 const DeleteLogs = require("../../models/RazorPay/DeleteLogs");
+const InstituteApplicationForm = require("../../models/Form/InstituteApplicationForm");
+const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
+const FormChecklist = require("../../models/Form/FormChecklist");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -518,15 +521,51 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     //     newApply.applicationChildType.push(child[i]);
     //   }
     // }
+    var iaf = new InstituteApplicationForm({})
+    iaf.application = newApply?._id
+    newApply.student_form_setting = iaf?._id
     admission.newApplication.push(newApply._id);
     admission.newAppCount += 1;
     newApply.admissionAdmin = admission._id;
     institute.admissionCount += 1;
     newApply.applicationTypeStatus = "Normal Application";
-    await Promise.all([admission.save(), newApply.save(), institute.save()]);
+    await Promise.all([admission.save(), newApply.save(), institute.save(), iaf.save()]);
     res
       .status(200)
       .send({ message: "New Application is ongoing 👍", status: true });
+      var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+      var nums = []
+      for (var val of ifs?.form_section) {
+        if (val?.form_checklist?.length > 0) {
+          for (var ele of val?.form_checklist) {
+            var fc = new FormChecklist({
+              form_checklist_name: ele?.form_checklist_name,
+              form_checklist_key: ele?.form_checklist_key,
+              form_checklist_visibility: ele?.form_checklist_visibility,
+              form_checklist_placeholder: ele?.form_checklist_placeholder,
+              form_checklist_lable: ele?.form_checklist_lable,
+              form_checklist_typo: ele?.form_checklist_typo,
+              form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+              form_checklist_required: ele?.form_checklist_required
+            })
+            if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+              ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+            }
+            fc.department_form = iaf?._id
+            fc.form_section = val?._id
+            nums.push(fc?._id)
+            await fc.save()
+          }
+        }
+        iaf.form_section.push({
+          section_name: val?.section_name,
+          section_visibilty: val?.section_visibilty,
+          section_key: val?.section_key,
+          ins_form_section_id: val?._id,
+          form_checklist: [...nums]
+        })
+      }
+      await iaf.save()
     // const post = new Post({});
     // post.imageId = "1";
     // institute.posts.push(post._id);
@@ -563,11 +602,47 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
         applicationMaster: newApply?.applicationMaster,
         applicationTypeStatus: "Promote Application",
       });
+      var iaf = new InstituteApplicationForm({})
+      iaf.application = new_app?._id
+      new_app.student_form_setting = iaf?._id
       admission.newApplication.push(new_app._id);
       admission.newAppCount += 1;
       new_app.admissionAdmin = admission._id;
       institute.admissionCount += 1;
-      await Promise.all([new_app.save(), admission.save(), institute.save()]);
+      await Promise.all([new_app.save(), admission.save(), institute.save(), iaf.save()]);
+      var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+    var nums = []
+    for (var val of ifs?.form_section) {
+      if (val?.form_checklist?.length > 0) {
+        for (var ele of val?.form_checklist) {
+          var fc = new FormChecklist({
+            form_checklist_name: ele?.form_checklist_name,
+            form_checklist_key: ele?.form_checklist_key,
+            form_checklist_visibility: ele?.form_checklist_visibility,
+            form_checklist_placeholder: ele?.form_checklist_placeholder,
+            form_checklist_lable: ele?.form_checklist_lable,
+            form_checklist_typo: ele?.form_checklist_typo,
+            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+            form_checklist_required: ele?.form_checklist_required
+          })
+          if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+            ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+          }
+          fc.department_form = iaf?._id
+          fc.form_section = val?._id
+          nums.push(fc?._id)
+          await fc.save()
+        }
+      }
+      iaf.form_section.push({
+        section_name: val?.section_name,
+        section_visibilty: val?.section_visibilty,
+        section_key: val?.section_key,
+        ins_form_section_id: val?._id,
+        form_checklist: [...nums]
+      })
+    }
+    await iaf.save()
     }
     // await new_admission_recommend_post(institute?._id, post?._id, expand);
   } catch (e) {
@@ -13460,6 +13535,207 @@ exports.renderAllDeleteLogsQuery = async (req, res) => {
     else {
       res.status(200).send({ message: "No Deleted Logs", access: false, all_logs: [] }) 
     }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_student_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { form } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var iaf = await InstituteApplicationForm.findById({ _id: fcid })
+    for (var val of form) {
+      iaf.form_section.push({
+        section_name: val?.section_name,
+        section_visibilty: val?.section_visibilty,
+        section_key: val?.section_key,
+      })
+    }
+    await iaf.save()
+    res.status(200).send({ message: "Explore One Application Form Section Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_student_form_checklist_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { checklist, fsid } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var iaf = await InstituteApplicationForm.findById({ _id: fcid })
+    for (var val of iaf?.form_section) {
+      if (`${val?._id}` === `${fsid}`) {
+        for (var ele of checklist) {
+          var fc = new FormChecklist({
+            form_checklist_name: ele?.form_checklist_name,
+            form_checklist_key: ele?.form_checklist_key,
+            form_checklist_visibility: ele?.form_checklist_visibility,
+            form_checklist_placeholder: ele?.form_checklist_placeholder,
+            form_checklist_lable: ele?.form_checklist_lable,
+            form_checklist_typo: ele?.form_checklist_typo,
+            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+            form_checklist_required: ele?.form_checklist_required,
+            form_checklist_key_status: "DYNAMIC"
+          })
+          if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+            ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+          }
+          fc.department_form = iaf?._id
+          fc.form_section = val?._id
+          val.form_checklist.push(fc?._id)
+          await fc.save()
+        }
+      }
+    }
+    await iaf.save()
+    res.status(200).send({ message: "Explore One Application Form Section Nested Checklist Query", access: true }) 
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_edit_student_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { fsid, section_name, section_key, section_visibilty } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var iaf = await InstituteApplicationForm.findById({ _id: fcid })
+    for (var val of iaf?.form_section) {
+      if (`${val?._id}` === `${fsid}`) {
+        val.section_name = section_name ? section_name : val?.section_name
+        val.section_key = section_key ? section_key : val?.section_key
+        val.section_visibilty = section_visibilty
+      }
+    }
+    await iaf.save()
+    res.status(200).send({ message: "Edit One Application Form Section + Nested Checklist Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_edit_student_form_section_checklist_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { checkID, fsid, form_checklist_visibility } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var iaf = await InstituteApplicationForm.findById({ _id: fcid })
+    .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+    for (var val of iaf?.form_section) {
+      if (`${val?._id}` === `${fsid}`) {
+          for (var ele of val?.form_checklist) {
+            if (`${ele?._id}` === `${checkID}`) {
+              ele.form_checklist_visibility = form_checklist_visibility,
+                await ele.save()
+            }
+          }
+        }
+    }
+    await iaf.save()
+    res.status(200).send({ message: "Edit One Application Form Section + Nested Checklist Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_shuffle_student_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    const { shuffle_arr } = req?.body
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    if (shuffle_arr?.length > 0) {
+      var iaf = await InstituteApplicationForm.findById({ _id: fcid })
+      iaf.form_section = []
+      await iaf.save()
+      for(var val of shuffle_arr){
+        iaf.form_section.push(val)
+      }
+      await iaf.save()
+      res.status(200).send({ message: "Explore Application Form Section Shuffling Query", access: true})
+      }
+    else{
+      res.status(200).send({ message: "No Application Form Section Shuffling Query", access: false})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_student_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var iaf = await InstituteApplicationForm.findById({ _id: fcid })
+      .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+      iaf?.form_section?.splice(0, 1)
+      for (let nums of iaf?.form_section) {
+        if (`${nums?.section_key}` === "undertakings" || `${nums?.section_key}` === "antiragging_affidavit") {
+          nums.form_checklist = []
+        }
+        if (`${nums?.section_key}` === "contactDetails") {
+          for (let ele of nums?.form_checklist) {
+            if (`${ele?.form_checklist_typo}` === "Same As") {
+              nums?.form_checklist?.pull(ele?._id)
+            }
+          }
+        }
+      }
+    res.status(200).send({ message: "Explore One Application Student Form Section Query", access: true, section: iaf?.form_section})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_student_form_section_enable_query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var app = await NewApplication.findById({ _id: id })
+    .select("student_form_setting")
+    var iaf = await InstituteApplicationForm.findById({ _id: `${app?.student_form_setting}` })
+      .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+    
+    var all_section = iaf?.form_section?.filter((val) => {
+      if(val?.section_visibilty) return val
+    })
+
+    for (var ele of all_section) {
+      for (var stu of ele?.form_checklist) {
+        if (stu?.form_checklist_visibility) {
+          
+        }
+        else {
+          ele?.form_checklist?.pull(stu?._id)
+        }
+      }
+    }
+    res.status(200).send({ message: "Explore One Department Student Form Section Enable Query", access: true, section: all_section})
   }
   catch (e) {
     console.log(e)

@@ -165,6 +165,18 @@ exports.render_master_custom_query = async (req, res) => {
             path: "custom_head_person",
             select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffROLLNO"
         })
+        .populate({
+            path: "rnd_mou",
+        })
+        .populate({
+            path: "rnd_activities",
+        })
+        .populate({
+            path: "rnd_projects",
+        })
+        .populate({
+            path: "rnd_paper",
+        })
         res.status(200).send({ message: "Explore custom Master Query", access: true, custom})
     }
     catch (e) {

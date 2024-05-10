@@ -314,7 +314,12 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       lcBirth,
       lcDOB,
       lcAdmissionDate,
-      lcInstituteDate
+      lcInstituteDate,
+      leaving_student_name,
+      leaving_nationality,
+      leaving_religion,
+      leaving_previous_school,
+      leaving_certificate_attach
     } = req.body;
     const institute = await InstituteAdmin.findById({
       _id: id,
@@ -326,7 +331,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentLeavingPreviousYear studentEmail leaving_guide_name studentLeavingInsDate studentRemark student_prn_enroll_number studentCertificateNo studentLeavingStudy studentLeavingReason studentRemark leaving_project_work elective_subject_second elective_subject_one leaving_course_duration leaving_since_date leaving_degree leaving_date instituteJoinDate duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount lcRegNo lcCaste lcBirth lcDOB lcAdmissionDate lcInstituteDate studentLeavingRemark"
+        "studentFirstName studentLeavingPreviousYear studentEmail leaving_guide_name leaving_certificate_attach leaving_previous_school leaving_religion leaving_nationality leaving_student_name studentLeavingInsDate studentRemark student_prn_enroll_number studentCertificateNo studentLeavingStudy studentLeavingReason studentRemark leaving_project_work elective_subject_second elective_subject_one leaving_course_duration leaving_since_date leaving_degree leaving_date instituteJoinDate duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount lcRegNo lcCaste lcBirth lcDOB lcAdmissionDate lcInstituteDate studentLeavingRemark"
       )
       .populate({
         path: "studentClass",
@@ -430,6 +435,21 @@ exports.retrieveLeavingGRNO = async (req, res) => {
 
     if (studentCertificateNo) {
       student.studentCertificateNo = studentCertificateNo
+    }
+    if (leaving_student_name) {
+      student.leaving_student_name = leaving_student_name
+    }
+    if (leaving_nationality) {
+      student.leaving_nationality = leaving_nationality
+    }
+    if (leaving_religion) {
+      student.leaving_religion = leaving_religion
+    }
+    if (leaving_previous_school) {
+      student.leaving_previous_school = leaving_previous_school
+    }
+    if (leaving_certificate_attach) {
+      student.leaving_certificate_attach = leaving_certificate_attach
     }
     institute.l_certificate_count += 1;
     institute.certificate_issued_count += 1;

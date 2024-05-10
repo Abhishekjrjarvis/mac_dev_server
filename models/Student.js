@@ -987,7 +987,12 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeCategory"
   },
-  active_society_fee_heads: []
+  active_society_fee_heads: [],
+  leaving_student_name: String,
+  leaving_nationality: String,
+  leaving_religion: String,
+  leaving_previous_school: String,
+  leaving_certificate_attach: String
 });
 
 const Student = mongoose.model("Student", studentSchema);

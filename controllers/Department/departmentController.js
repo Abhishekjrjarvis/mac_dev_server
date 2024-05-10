@@ -1,6 +1,7 @@
 const Department = require("../../models/Department");
 const DepartmentStudentForm = require("../../models/Form/DepartmentStudentForm");
 const FormChecklist = require("../../models/Form/FormChecklist");
+const InstituteApplicationForm = require("../../models/Form/InstituteApplicationForm");
 const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Student = require("../../models/Student");
@@ -616,6 +617,38 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         }
         res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section })
       }
+      else if (flow === "APPLICATION") {
+        const app_form = await InstituteApplicationForm.findOne({ application: did })
+          .select("form_section")
+          .populate({
+            path: "form_section.form_checklist"
+          })
+    
+        var all_section = app_form?.form_section?.filter((val) => {
+          if (val?.section_visibilty) return val
+        })
+
+        for (var ele of all_section) {
+          for (var stu of ele?.form_checklist) {
+        
+            if (stu?.form_checklist_typo === "Same As") {
+            
+            }
+            else {
+              ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
+                if (qwe?.form_checklist_visibility) {
+                  return qwe
+                }
+                else {
+                  return null
+                }
+              })
+            }
+            stu.form_checklist_required = ele?.section_key === "documents" ? false : true
+          }
+        }
+        res.status(200).send({ message: "Application Form Query", access: true, app_form: all_section })
+      }
     }
     else {
       if (flow === "INSTITUTE") {
@@ -683,6 +716,38 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         all_section.splice(0, 1)
         res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section })
       }
+      else if (flow === "APPLICATION") {
+        const app_form = await InstituteApplicationForm.findOne({ application: did })
+          .select("form_section")
+          .populate({
+            path: "form_section.form_checklist"
+          })
+    
+        var all_section = app_form?.form_section?.filter((val) => {
+          if (val?.section_visibilty) return val
+        })
+
+        for (var ele of all_section) {
+          for (var stu of ele?.form_checklist) {
+        
+            if (stu?.form_checklist_typo === "Same As") {
+            
+            }
+            else {
+              ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
+                if (qwe?.form_checklist_visibility) {
+                  return qwe
+                }
+                else {
+                  return null
+                }
+              })
+            }
+            stu.form_checklist_required = ele?.section_key === "documents" ? false : true
+          }
+        }
+        res.status(200).send({ message: "Application Form Query", access: true, app_form: all_section })
+      }
     }
   }
   catch (e) {
@@ -716,6 +781,17 @@ exports.render_add_textarea_field_query = async (req, res) => {
       }
       await depart_form.save()
       res.status(200).send({ message: "Department Form Query", access: true})
+    }
+    else if (flow === "APPLICATION") {
+      const app_form = await InstituteApplicationForm.findOne({ application: did })
+      for (var val of app_form?.form_section) {
+        if (`${val?._id}` === `${fsid}`) {
+          val.section_pdf = content
+          val.section_value = content
+        }
+      }
+      await app_form.save()
+      res.status(200).send({ message: "Application Form Query", access: true})
     }
   }
   catch (e) {

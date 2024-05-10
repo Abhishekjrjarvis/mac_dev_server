@@ -524,6 +524,20 @@ exports.render_all_sections_query = async (req, res) => {
         const { flow } = req?.query
         if (!hid) return res.status(200).send({ message: "Their is abug need to fixed immediately", access: false })
         var head = await Head.findById({ _id: hid })
+            .populate({
+                path: "rnd_paper",
+                populate: {
+                    path: "staff department",
+                    select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO dName"
+                }
+            })
+            .populate({
+                path: "rnd_projects",
+                populate: {
+                    path: "student classes",
+                    select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO className classTitle"
+                }
+        })
         if (flow === "MOU") {
             const all = await nested_document_limit(page, limit, head?.rnd_mou)
             res.status(200).send({ message: "Explore All MOU Sections Query", access: true, all: all})

@@ -1,8 +1,15 @@
-const generateFeeReceipt = async (InsNo) => {
-    const PDFDocument = require("pdfkit-table");
-    const fs = require("fs");
-    const createTable = require("../components/createTable");
+const { uploadDocsFile } = require("../S3Configuration");
+const fs = require("fs");
+const util = require("util");
+const unlinkFile = util.promisify(fs.unlink);
+const PDFDocument = require("pdfkit-table");
+const createTable = require("../components/createTable");
     const headerSection = require("../components/headerSection");
+const feeReceipt = require("../models/RazorPay/feeReceipt");
+
+const generateFeeReceipt = async (InsNo) => {
+  let date = new Date()
+  let time = date.getTime()
     const getData = require("../data/feeData");
     const doc = new PDFDocument({
       font: "Times-Roman",
@@ -11,7 +18,7 @@ const generateFeeReceipt = async (InsNo) => {
     });
     const data = await getData(InsNo);
     const stream = fs.createWriteStream(
-      `./outputs/${data.receiptDetails.receiptNo}.pdf`
+      `./uploads/${data.receiptDetails.receiptNo}-${time}normal-receipt.pdf`
     );
     doc.pipe(stream);
     const pageWidth = doc.page.width;
@@ -176,11 +183,21 @@ const generateFeeReceipt = async (InsNo) => {
       console.error("Error creating PDF:", err);
     });
   
-    // Handle stream close event
-    stream.on("finish", () => {
+  // Handle stream close event
+  stream.on("finish", async (qwe) => {
+      const fee_receipt = await feeReceipt.findById({ _id: InsNo})
       console.log("PDF created successfully");
-    });
-  
+      let file = {
+        path: `uploads/${data.receiptDetails.receiptNo}-${time}normal-receipt.pdf`,
+        filename: `${data.receiptDetails.receiptNo}-${time}normal-receipt.pdf`,
+        mimetype: "application/pdf",
+      };
+      const results = await uploadDocsFile(file);
+    await unlinkFile(file.path);
+    console.log(results?.Key)
+    fee_receipt.receipt_file = results?.Key
+    await fee_receipt.save()
+  });
     //   console.log(data);
   };
   module.exports = generateFeeReceipt;

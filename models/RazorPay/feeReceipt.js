@@ -181,7 +181,10 @@ const feeReceiptSchema = new mongoose.Schema({
   is_deleted: {
     type: Boolean,
     default: false
-  }
+  },
+  receipt_file: {
+    type: String
+  },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

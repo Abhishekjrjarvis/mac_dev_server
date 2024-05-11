@@ -181,6 +181,26 @@ exports.uploadExcelFile = async (fileName) => {
   return value;
 };
 
+exports.uploadReceiptFile = async (fileName) => {
+  var file = `./outputs/${fileName}`;
+  var value = `receipt-file/${fileName}`;
+  fs.readFile(file, (err, data) => {
+    if (err) throw err;
+    const params_query = {
+      Bucket: new_bucket,
+      Key: `receipt-file/${fileName}`,
+      Body: data,
+    };
+    s3.upload(params_query, function (s3Err, data) {
+      if (s3Err) throw s3Err;
+      fs.unlink(file, (err, data) => {
+        if (err) throw err;
+      });
+    });
+  });
+  return value;
+};
+
 //upload afile of docs to s3
 function uploadOneDocFile(file) {
   const fileStream = fs.createReadStream(file.path);
@@ -197,7 +217,7 @@ exports.uploadOneDocFile = uploadOneDocFile;
 function uploadDocsFile(file) {
   const fileStream = fs.createReadStream(file.path);
   const uploadParams = {
-    Bucket: bucketName,
+    Bucket: new_bucket,
     Body: fileStream,
     Key: file.filename,
     ContentType: file.mimetype,

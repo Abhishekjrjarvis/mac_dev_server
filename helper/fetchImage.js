@@ -3,7 +3,7 @@ axios = require("axios");
 const sharp = require("sharp");
 const fetchImage = async (id) => {
   const image = await axios.get(
-    `http://3.88.27.4/api/api/v1/all-images/${id}`,
+    `https://d3dqpu54js2vfl.cloudfront.net/${id}`,
     {
       responseType: "arraybuffer",
     }

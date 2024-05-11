@@ -761,7 +761,7 @@ exports.render_one_department_edit_pso_query = async (req, res) => {
 exports.render_one_department_delete_extra_docs_query = async (req, res) => {
   try {
     const { dsid } = req?.params
-    const { cid } = req?.body
+    const { cid, flow } = req?.body
     if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var d_site = await DepartmentSite.findById({ _id: dsid })
@@ -803,7 +803,7 @@ exports.render_one_department_delete_extra_docs_query = async (req, res) => {
 exports.render_one_department_delete_syllabus_projects_query = async (req, res) => {
   try {
     const { dsid } = req?.params
-    const { cid } = req?.body
+    const { cid, flow } = req?.body
     if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var d_site = await DepartmentSite.findById({ _id: dsid })

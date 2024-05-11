@@ -822,4 +822,9 @@ router.get(
   catchAsync(Admission.render_one_student_form_section_enable_query)
 );
 
+router.patch(
+  "/one/fee/receipt/query",
+  catchAsync(Admission.render_one_fee_receipt_query)
+);
+
 module.exports = router;

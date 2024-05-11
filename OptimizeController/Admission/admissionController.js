@@ -111,6 +111,7 @@ const DeleteLogs = require("../../models/RazorPay/DeleteLogs");
 const InstituteApplicationForm = require("../../models/Form/InstituteApplicationForm");
 const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
 const FormChecklist = require("../../models/Form/FormChecklist");
+const generateFeeReceipt = require("../../scripts/feeReceipt");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -13736,6 +13737,15 @@ exports.render_one_student_form_section_enable_query = async (req, res) => {
       }
     }
     res.status(200).send({ message: "Explore One Department Student Form Section Enable Query", access: true, section: all_section})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_fee_receipt_query = async (req, res) => {
+  try {
+    await generateFeeReceipt("663c9573f2b92516a81bfb10")
   }
   catch (e) {
     console.log(e)

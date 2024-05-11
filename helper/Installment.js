@@ -1,6 +1,7 @@
 const { remaining_card_initiate_query } = require("../Functions/SetOff");
 const FeeMaster = require("../models/Finance/FeeMaster");
 const Student = require("../models/Student");
+const generateFeeReceipt = require("../scripts/feeReceipt");
 
 exports.add_all_installment = async (arg1, arg2, arg3, amount, arg4) => {
   try {
@@ -2401,6 +2402,7 @@ exports.set_fee_head_query_redesign = async (
       price_query = 0;
       console.log("INSIDE FEE HEADS");
     }
+    const obj_nums = await generateFeeReceipt(receipt_args?._id)
   } catch (e) {
     console.log(e);
   }
@@ -2491,6 +2493,7 @@ exports.update_fee_head_query_redesign = async (
     }
     await receipt_args.save();
     console.log("EXIT FROM FEE HEADS");
+    const obj_nums = await generateFeeReceipt(receipt_args?._id)
     return student_args;
   } catch (e) {
     console.log(e);

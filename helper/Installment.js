@@ -1,7 +1,9 @@
 const { remaining_card_initiate_query } = require("../Functions/SetOff");
+const Finance = require("../models/Finance");
 const FeeMaster = require("../models/Finance/FeeMaster");
 const Student = require("../models/Student");
 const generateFeeReceipt = require("../scripts/feeReceipt");
+const societyAdmissionFeeReceipt = require("../scripts/societyAdmissionFeeReceipt");
 
 exports.add_all_installment = async (arg1, arg2, arg3, amount, arg4) => {
   try {
@@ -2293,6 +2295,8 @@ exports.set_fee_head_query_redesign = async (
   receipt_args
 ) => {
   try {
+    const finance = await Finance.findById({ _id: `${receipt_args?.finance}` })
+    .select("show_receipt institute")
     var price_query = price;
     var parent_head = {
       ...receipt_args.fee_structure?.applicable_fees_heads,
@@ -2402,7 +2406,12 @@ exports.set_fee_head_query_redesign = async (
       price_query = 0;
       console.log("INSIDE FEE HEADS");
     }
-    const obj_nums = await generateFeeReceipt(receipt_args?._id)
+    if (finance?.show_receipt === "Normal") {
+      await generateFeeReceipt(receipt_args?._id)
+    }
+    else {
+      await societyAdmissionFeeReceipt(receipt_args?._id, finance?.institute)
+    }
   } catch (e) {
     console.log(e);
   }
@@ -2416,6 +2425,8 @@ exports.update_fee_head_query_redesign = async (
 ) => {
   try {
     console.log("Enter Exist Fee Heads");
+    const finance = await Finance.findById({ _id: `${receipt_args?.finance}` })
+    .select("show_receipt institute")
     var price_query = price;
     var receipt_query = price;
     for (var ref of student_args?.active_fee_heads) {
@@ -2493,7 +2504,12 @@ exports.update_fee_head_query_redesign = async (
     }
     await receipt_args.save();
     console.log("EXIT FROM FEE HEADS");
-    const obj_nums = await generateFeeReceipt(receipt_args?._id)
+    if (finance?.show_receipt === "Normal") {
+      await generateFeeReceipt(receipt_args?._id)
+    }
+    else {
+      await societyAdmissionFeeReceipt(receipt_args?._id, finance?.institute)
+    }
     return student_args;
   } catch (e) {
     console.log(e);

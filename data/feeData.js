@@ -83,10 +83,8 @@ const getData = async (InsNo) => {
       email: institute?.insEmail ?? "",
     },
     assets: {
-      instituteLogo:
-        (await fetchImage(institute?.insProfilePhoto)) ?? "./assets/blank.jpg",
-      universityLogo:
-        (await fetchImage(institute?.affliatedLogo)) ?? "./assets/blank.jpg",
+      instituteLogo: institute?.insProfilePhoto,
+      universityLogo: institute?.affliatedLogo,
     },
     student: {
       name: `${studentFirstName} ${studentMiddleName} ${studentLastName}` ?? "",

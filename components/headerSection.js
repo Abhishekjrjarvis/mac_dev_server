@@ -1,4 +1,6 @@
-const headerSection = (
+const dynamicImages = require("../helper/dynamicImages");
+
+const headerSection = async (
     doc,
     x,
     y,
@@ -9,17 +11,21 @@ const headerSection = (
     address,
     mobNo,
     email
-  ) => {
-    doc.image(instituteLogo, x, y, {
+) => {
+  if (instituteLogo) {
+    doc.image(await dynamicImages("CUSTOM", instituteLogo), x, y, {
       width: 65,
       height: 65,
       align: "left",
     });
-    doc.image(universityLogo, doc.page.width - 90, y, {
+  }
+  if (universityLogo) {
+    doc.image(await dynamicImages("CUSTOM", universityLogo), doc.page.width - 90, y, {
       width: 65,
       height: 65,
       align: "left",
     });
+  }
   
     doc.fontSize(10).text(boardName, 25, 25, { align: "center" });
     doc.moveDown(0.3);

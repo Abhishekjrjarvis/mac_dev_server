@@ -4,7 +4,7 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const PDFDocument = require("pdfkit-table");
 const createTable = require("../components/createTable");
-    const headerSection = require("../components/headerSection");
+const headerSection = require("../components/headerSection");
 const feeReceipt = require("../models/RazorPay/feeReceipt");
 
 const generateFeeReceipt = async (InsNo) => {
@@ -25,7 +25,7 @@ const generateFeeReceipt = async (InsNo) => {
     const pageHeight = doc.page.height;
   
     // Header Section
-    headerSection(
+    await headerSection(
       doc,
       doc.x,
       doc.y,

@@ -1,6 +1,7 @@
 const { remaining_card_initiate_query } = require("../Functions/SetOff");
 const Finance = require("../models/Finance");
 const FeeMaster = require("../models/Finance/FeeMaster");
+const FeeStructure = require("../models/Finance/FeesStructure");
 const Student = require("../models/Student");
 const generateFeeReceipt = require("../scripts/feeReceipt");
 const societyAdmissionFeeReceipt = require("../scripts/societyAdmissionFeeReceipt");
@@ -2296,11 +2297,12 @@ exports.set_fee_head_query_redesign = async (
 ) => {
   try {
     const finance = await Finance.findById({ _id: `${receipt_args?.finance}` })
-    .select("show_receipt institute")
+      .select("show_receipt institute")
+    const structure = await FeeStructure.findById({ _id: `${receipt_args?.fee_structure}`})
     var price_query = price;
     var parent_head = {
-      ...receipt_args.fee_structure?.applicable_fees_heads,
-      count: receipt_args.fee_structure?.applicable_fees_heads?.length,
+      ...structure?.applicable_fees_heads,
+      count: structure?.applicable_fees_heads?.length,
     };
     var exist_filter_student_heads = student_args?.active_fee_heads?.filter(
       (stu) => {

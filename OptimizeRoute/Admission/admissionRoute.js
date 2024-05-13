@@ -832,6 +832,11 @@ router.post(
   catchAsync(Admission.render_add_subject_query)
 );
 
+router.delete(
+  "/:aid/delete/subject/query",
+  catchAsync(Admission.render_delete_subject_query)
+);
+
 router.get(
   "/:aid/all/subject/query",
   catchAsync(Admission.render_all_subject_query)
@@ -845,6 +850,11 @@ router.get(
 router.post(
   "/:sgid/add/subject/group/query",
   catchAsync(Admission.render_add_subject_group_query)
+);
+
+router.delete(
+  "/:sgid/delete/subject/group/query",
+  catchAsync(Admission.render_delete_subject_group_query)
 );
 
 router.get(

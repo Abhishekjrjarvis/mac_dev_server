@@ -115,6 +115,7 @@ const generateFeeReceipt = require("../../scripts/feeReceipt");
 const SubjectGroup = require("../../models/Admission/Optional/SubjectGroup");
 const SubjectGroupSelect = require("../../models/Admission/Optional/SubjectGroupSelect");
 const SubjectMaster = require("../../models/SubjectMaster");
+const Subject = require("../../models/Subject");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -2911,6 +2912,7 @@ exports.retrieveClassAllotQuery = async (req, res) => {
         } else {
           const student = await Student.findById({ _id: sid });
           const user = await User.findById({ _id: `${student.user}` });
+          const all_subjects = await Subject.find({ $and: [{ class: classes?._id}, { subjectMasterName: { $in: student?.student_optional_subject}}]})
           const notify = new Notification({});
           const aStatus = new Status({});
           apply.reviewApplication.pull(student._id);
@@ -2974,6 +2976,10 @@ exports.retrieveClassAllotQuery = async (req, res) => {
           aStatus.applicationId = apply._id;
           user.applicationStatus.push(aStatus._id);
           aStatus.instituteId = institute._id;
+          for (let ele of all_subjects) {
+            ele.optionalStudent.push(student?._id);
+            await ele.save();
+          }
           await Promise.all([
             apply.save(),
             student.save(),
@@ -13927,7 +13933,8 @@ exports.render_add_subject_group_select_query = async (req, res) => {
         group.optional_subject.push({
           optional_subject_rule: ele?.optional_subject_rule,
           optional_subject_name: ele?.optional_subject_name,
-          optional_subject_options: [...ele?.optional_subject_options]
+          optional_subject_options: [...ele?.optional_subject_options],
+          optional_subject_rule_max: optional_subject_rule_max
         })
         group.optional_subject_count += 1
       }

@@ -678,14 +678,14 @@ exports.render_dynamic_form_details_query = async (req, res) => {
             for (var set of val?.compulsory_subject) {
               nums_select.push(
                 {
-                  form_checklist_name: `${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`,
+                  form_checklist_name: `${set?.subjectName}`,
                   form_checklist_key: "subject_criteria",
                   form_checklist_visibility: true,
-                  form_checklist_placeholder: `${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`,
+                  form_checklist_placeholder: `${set?.subjectName}`,
                   form_checklist_lable: "",
                   form_checklist_typo: "TEXT",
-                  form_checklist_sample: `${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`,
-                  form_checklist_typo_option_pl: [`${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`]
+                  form_checklist_sample: `${set?.subjectName}`,
+                  form_checklist_typo_option_pl: [`${set?.subjectName}`]
                 })
             }
             for (var set of val?.optional_subject) {
@@ -700,7 +700,8 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   form_checklist_typo_option_pl: [
                      ...set?.optional_subject_options
                   ],
-                  form_checklist_rule: set?.optional_subject_rule
+                  form_checklist_rule: set?.optional_subject_rule,
+                  form_checklist_rule_max: set?.optional_subject_rule_max
               })
             }
             nums_group.push(
@@ -857,14 +858,14 @@ exports.render_dynamic_form_details_query = async (req, res) => {
             for (var set of val?.compulsory_subject) {
               nums_select.push(
                 {
-                  form_checklist_name: `${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`,
+                  form_checklist_name: `${set?.subjectName}`,
                   form_checklist_key: "subject_criteria",
                   form_checklist_visibility: true,
-                  form_checklist_placeholder: `${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`,
+                  form_checklist_placeholder: `${set?.subjectName}`,
                   form_checklist_lable: "",
                   form_checklist_typo: "TEXT",
-                  form_checklist_sample: `${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`,
-                  form_checklist_typo_option_pl: [`${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`]
+                  form_checklist_sample: `${set?.subjectName}`,
+                  form_checklist_typo_option_pl: [`${set?.subjectName}`]
                 })
             }
             for (var set of val?.optional_subject) {
@@ -879,7 +880,8 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   form_checklist_typo_option_pl: [
                      ...set?.optional_subject_options
                   ],
-                  form_checklist_rule: set?.optional_subject_rule
+                  form_checklist_rule: set?.optional_subject_rule,
+                  form_checklist_rule_max: set?.optional_subject_rule_max
               })
             }
             nums_group.push(

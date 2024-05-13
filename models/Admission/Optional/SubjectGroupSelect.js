@@ -16,6 +16,10 @@ const subjectGroupSelectSchema = new mongoose.Schema({
                 type: Number,
                 default: 1
             },
+            optional_subject_rule_max: {
+                type: Number,
+                default: 1
+            },
             optional_subject_name: {
                 type: String
             },

@@ -235,7 +235,31 @@ vision: {
     leading_person: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     leading_person_position: { type: String },
     leading_person_message: { type: String },
-  }]
+  }],
+  manual_examination: [
+    {
+      name: { type: String },
+      attach: { type: String }
+    },
+  ],
+  examination_schedule: [
+    {
+      name: { type: String },
+      attach: { type: String }
+    },
+  ],
+  examination_timetable: [
+    {
+      name: { type: String },
+      attach: { type: String }
+    },
+  ],
+  examination_notification: [
+    {
+      name: { type: String },
+      attach: { type: String }
+    },
+  ]
 });
 
 module.exports = mongoose.model("LandingControl", landingControlSchema);

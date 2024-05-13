@@ -234,5 +234,10 @@ router.delete("/:anid/one/academic/nested/page/delete/query", catchAsync(Landing
 
 router.get("/:did/all/faculty/query", catchAsync(Landing.render_all_faculty_query));
 
+router.patch("/:lcid/examination/object/query", catchAsync(Landing.render_examination_object_query));
+
+router.get("/:lcid/all/examination/object/query", catchAsync(Landing.render_all_examination_object_query));
+
+router.delete("/:lcid/examination/destroy/object/query", catchAsync(Landing.render_examination_delete_object_query));
 
 module.exports = router;

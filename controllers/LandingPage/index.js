@@ -2140,6 +2140,102 @@ exports.render_all_faculty_query = async (req, res) => {
   }
 }
 
+exports.render_examination_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { name, attach, flow } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var landing = await LandingControl.findById({ _id: lcid })
+    if (flow === "MANUAL_EXAM") {
+      landing.manual_examination.push({
+        name: name,
+        attach: attach
+      })
+    }
+    else if (flow === "EXAM_SCHEDULE") {
+      landing.examination_schedule.push({
+        name: name,
+        attach: attach
+      })
+    }
+    else if (flow === "EXAM_TIMETABLE") {
+      landing.examination_timetable.push({
+        name: name,
+        attach: attach
+      })
+    }
+    else if (flow === "EXAM_NOTIFICATION") {
+      landing.examination_notification.push({
+        name: name,
+        attach: attach
+      })
+    }
+    await landing.save()
+    res.status(200).send({ message: `${flow} Documents Query`, access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_examination_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var landing = await LandingControl.findById({ _id: lcid })
+    .select("manual_examination examination_schedule examination_timetable examination_notification")
+    res.status(200).send({ message: `All Documents Query`, access: true, landing})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_examination_delete_object_query = async (req, res) => {
+  try {
+    const { lcid } = req?.params
+    const { flow, cid } = req?.body
+    if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var landing = await LandingControl.findById({ _id: lcid })
+    if (flow === "MANUAL_EXAM") {
+      for (var val of landing?.manual_examination) {
+        if (`${val?._id}` === `${cid}`) {
+          landing.manual_examination.pull(val?._id)
+        }
+      }
+    }
+    else if (flow === "EXAM_SCHEDULE") {
+      for (var val of landing?.examination_schedule) {
+        if (`${val?._id}` === `${cid}`) {
+          landing.examination_schedule.pull(val?._id)
+        }
+      }
+    }
+    else if (flow === "EXAM_TIMETABLE") {
+      for (var val of landing?.examination_timetable) {
+        if (`${val?._id}` === `${cid}`) {
+          landing.examination_timetable.pull(val?._id)
+        }
+      }
+    }
+    else if (flow === "EXAM_NOTIFICATION") {
+      for (var val of landing?.examination_notification) {
+        if (`${val?._id}` === `${cid}`) {
+          landing.examination_notification.pull(val?._id)
+        }
+      }
+    }
+    await landing.save()
+    res.status(200).send({ message: `${flow} Documents Delete Query`, access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 
 // var is_true = true;

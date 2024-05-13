@@ -556,3 +556,21 @@ exports.render_all_sections_query = async (req, res) => {
         console.log(e)
     }
 }
+
+exports.render_add_rnd_meetings_query = async (req, res) => {
+    try {
+        const { qcid } = req?.params
+        const { name, attach } = req?.body
+        if (!qcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+        var custom = await CustomAuthority.findById({ _id: qcid })
+            custom.meetings.push({
+                name: name,
+                attach: attach
+            })
+        await custom.save()
+        res.status(200).send({ message: `Add RND Meetings Query`, access: true})
+    }
+    catch (e) {
+        console.log(e)
+    }
+}

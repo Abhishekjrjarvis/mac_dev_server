@@ -706,6 +706,8 @@ router.patch(
 
 router.post("/:id/pinned/department/query", catchAsync(Institute.renderDepartmentPinnedQuery))
 
+router.post("/:id/un/pinned/department/query", catchAsync(Institute.renderDepartmentUnPinnedQuery))
+
 router.patch("/enable/all/dataset", catchAsync(Institute.all_dataset))
 
 

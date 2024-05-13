@@ -3536,7 +3536,7 @@ exports.getOneDepartment = async (req, res) => {
       else {
         department.pin_status = "UnPinned"
       }
-      for (let ele of dependent_pinned_department) {
+      for (let ele of ins?.dependent_pinned_department) {
         if (`${ele?.department}` === `${department?._id}`) {
           department.pin_status = "Pinned"
         }

@@ -3489,7 +3489,7 @@ exports.getOneDepartment = async (req, res) => {
     } else {
       const department = await Department.findById({ _id: did })
         .select(
-          "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo coverId cover election_date_setting pin_status institute"
+          "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo coverId cover election_date_setting pin_status pin_status_id pin_status_flow institute"
         )
         .populate({
           path: "dHead",
@@ -3532,16 +3532,24 @@ exports.getOneDepartment = async (req, res) => {
         .select("independent_pinned_department dependent_pinned_department")
       if (ins?.independent_pinned_department?.includes(`${department?._id}`)) {
         department.pin_status = "Pinned"
+        department.pin_status_id = department?._id
+        department.pin_status_flow = "INDEPENDENT"
       }
       else {
         department.pin_status = "UnPinned"
+        department.pin_status_id = department?._id
+        department.pin_status_flow = "INDEPENDENT"
       }
       for (let ele of ins?.dependent_pinned_department) {
         if (`${ele?.department}` === `${department?._id}`) {
           department.pin_status = "Pinned"
+          department.pin_status_id = ele?._id
+          department.pin_status_flow = "DEPENDENT"
         }
         else {
           department.pin_status = "UnPinned"
+          department.pin_status_id = ele?._id
+          department.pin_status_flow = "DEPENDENT"
         }
       }
       if (department) {

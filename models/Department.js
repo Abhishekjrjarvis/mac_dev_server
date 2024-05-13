@@ -471,6 +471,12 @@ const departmentSchema = new mongoose.Schema({
   },
   pin_status: {
     type: String
+  },
+  pin_status_id: {
+    type: String
+  },
+  pin_status_flow: {
+    type: String
   }
 });
 

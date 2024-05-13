@@ -6044,6 +6044,32 @@ exports.renderDepartmentPinnedQuery = async (req, res) => {
   }
 }
 
+exports.renderDepartmentUnPinnedQuery = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const { did, flow } = req?.body
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var one_ins = await InstituteAdmin.findById({ _id: id })
+    if (flow === "INDEPENDENT") {
+      one_ins.independent_pinned_department.pull(did)
+      await one_ins.save()
+    }
+    else if (flow === "DEPENDENT") {
+      for (var ele of one_ins?.independent_pinned_department) {
+        if (`${ele?._id}` === `${did}`) {
+          one_ins.dependent_pinned_department.pull(ele?._id)   
+        }
+      }
+      await one_ins.save()
+    }
+    res.status(200).send({ message: "Explore One Department Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.renderApproveStaffShuffleQueryStats = async (req, res) => {
   try {
     var all_ins = await InstituteAdmin.find({ status: "Approved"})

@@ -13778,6 +13778,24 @@ exports.render_add_subject_query = async (req, res) => {
   }
 }
 
+exports.render_delete_subject_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    const { sgid } = req?.body
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const ads_admin = await Admission.findById({ _id: aid })
+    const new_group = await SubjectGroup.findById({ _id: sgid })
+    ads_admin.subject_groups.pull(new_group?._id)
+    await ads_admin.save()
+    await SubjectGroup.findByIdAndDelete(sgid)
+    res.status(200).send({ message: "New Group Section Delete Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.render_all_subject_query = async (req, res) => {
   try {
     const { aid } = req?.params
@@ -13832,6 +13850,24 @@ exports.render_add_subject_group_query = async (req, res) => {
     group.subject_group_select.push(group_select?._id)
     await Promise.all([group_select.save(), group.save()])
     res.status(200).send({ message: "New Group Select Section Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_delete_subject_group_query = async (req, res) => {
+  try {
+    const { sgid } = req?.params
+    const { ssid } = req?.body
+    if (!sgid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const group = await SubjectGroup.findById({ _id: sgid })
+    const group_select = await SubjectGroupSelect.findById({ _id: ssid })
+    group.subject_group_select.pull(group_select?._id)
+    await group.save()
+    await SubjectGroupSelect.findByIdAndDelete(ssid)
+    res.status(200).send({ message: "New Group Select Section Delete Query", access: true })
   }
   catch (e) {
     console.log(e)
@@ -13934,7 +13970,7 @@ exports.render_add_subject_group_select_query = async (req, res) => {
           optional_subject_rule: ele?.optional_subject_rule,
           optional_subject_name: ele?.optional_subject_name,
           optional_subject_options: [...ele?.optional_subject_options],
-          optional_subject_rule_max: optional_subject_rule_max
+          optional_subject_rule_max: ele?.optional_subject_rule_max
         })
         group.optional_subject_count += 1
       }

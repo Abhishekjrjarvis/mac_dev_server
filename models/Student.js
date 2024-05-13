@@ -992,7 +992,13 @@ const studentSchema = new mongoose.Schema({
   leaving_nationality: String,
   leaving_religion: String,
   leaving_previous_school: String,
-  leaving_certificate_attach: String
+  leaving_certificate_attach: String,
+  student_optional_subject: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectMaster"
+    }
+  ]
 });
 
 const Student = mongoose.model("Student", studentSchema);

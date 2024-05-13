@@ -3489,7 +3489,7 @@ exports.getOneDepartment = async (req, res) => {
     } else {
       const department = await Department.findById({ _id: did })
         .select(
-          "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo coverId cover election_date_setting"
+          "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo coverId cover election_date_setting pin_status"
         )
         .populate({
           path: "dHead",
@@ -3528,6 +3528,22 @@ exports.getOneDepartment = async (req, res) => {
         })
         .lean()
         .exec();
+      const ins = await InstituteAdmin.findById({ _id: `${department?.institute}` })
+        .select("independent_pinned_department dependent_pinned_department")
+      if (ins?.independent_pinned_department?.includes(`${department?._id}`)) {
+        department.pin_status = "Pinned"
+      }
+      else {
+        department.pin_status = "UnPinned"
+      }
+      for (let ele of dependent_pinned_department) {
+        if (`${ele?.department}` === `${department?._id}`) {
+          department.pin_status = "Pinned"
+        }
+        else {
+          department.pin_status = "UnPinned"
+        }
+      }
       if (department) {
         // const oneEncrypt = await encryptionPayload(department);
         res.status(200).send({ message: "Success", department });

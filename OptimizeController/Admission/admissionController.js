@@ -13868,21 +13868,13 @@ exports.render_one_subject_group_query = async (req, res) => {
       .select("group_name compulsory_subject_count optional_subject_count subject_group created_at")
       .populate({
         path: "compulsory_subject",
-        select: "subjectName class",
-        populate: {
-          path: "class",
-          select: "className classTitle"
-        }
+        select: "subjectName",
       })
       .populate({
         path: "optional_subject",
         populate: {
           path: "optional_subject_options",
-          select: "subjectName class",
-          populate: {
-            path: "class",
-            select: "className classTitle"
-          }
+          select: "subjectName",
         }
       })
       .populate({
@@ -13898,32 +13890,19 @@ exports.render_one_subject_group_query = async (req, res) => {
 
 exports.render_all_subject_list_query = async (req, res) => {
   try {
-    const { id } = req?.params
+    const { did } = req?.params
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
 
     var subject = []
-    const ins = await InstituteAdmin.findById({ _id: id })
-    .select("depart")
-    const all_master = await SubjectMaster.find({ department: { $in: ins?.depart } })
-      .select("subjects")
-      .populate({
-        path: "subjects",
-        select: "subjectName class",
-        populate: {
-          path: "class",
-          select: "className classTitle"
-        }
-      })
-    if (all_master?.length > 0) {
-      for (var ele of all_master) {
-        subject.push(...ele?.subjects)
-      }
-    }
-    var all_subjects = await nested_document_limit(page, limit, subject)
-    res.status(200).send({ message: "All Subjects Query", access: false, all_subjects: all_subjects}) 
+    // const ins = await InstituteAdmin.findById({ _id: id })
+    // .select("depart")
+    const all_master = await SubjectMaster.find({ department: did })
+    .select("subjectName")
+    // var all_subjects = await nested_document_limit(page, limit, subject)
+    res.status(200).send({ message: "All Subjects Query", access: false, all_subjects: all_master}) 
   }
   catch (e) {
     console.log(e)

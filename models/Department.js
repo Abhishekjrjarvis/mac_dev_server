@@ -469,6 +469,9 @@ const departmentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "DepartmentStudentForm"
   },
+  pin_status: {
+    type: String
+  }
 });
 
 const Department = mongoose.model("Department", departmentSchema);

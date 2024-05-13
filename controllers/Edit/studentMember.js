@@ -527,7 +527,7 @@ exports.instituteDepartmentOtherCount = async (req, res) => {
   try {
     if (!req.params.id) throw "Please call proper api with all details";
     const institute_data = await InstituteAdmin.findById(req.params.id).select(
-      "departmentCount studentCount classRooms name insName insProfileCoverPhoto coverId alias_pronounciation"
+      "departmentCount studentCount classRooms name insName insProfileCoverPhoto coverId alias_pronounciation landing_control"
     );
     const classCount = institute_data?.classRooms?.length;
     const modifiy_data = {
@@ -540,6 +540,7 @@ exports.instituteDepartmentOtherCount = async (req, res) => {
       coverId: institute_data?.coverId,
       _id: institute_data?._id,
       alias_pronounciation: institute_data?.alias_pronounciation,
+      landing_control: institute_data?.landing_control
     };
     res.status(200).send({
       message: "All count and institute some details",

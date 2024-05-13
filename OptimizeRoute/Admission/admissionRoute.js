@@ -858,7 +858,7 @@ router.get(
 );
 
 router.get(
-  "/:id/all/subject/list/query",
+  "/:did/all/subject/list/query",
   catchAsync(Admission.render_all_subject_list_query)
 );
 

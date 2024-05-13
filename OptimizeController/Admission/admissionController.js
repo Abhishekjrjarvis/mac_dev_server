@@ -13970,7 +13970,7 @@ exports.render_add_subject_group_select_query = async (req, res) => {
           optional_subject_rule: ele?.optional_subject_rule,
           optional_subject_name: ele?.optional_subject_name,
           optional_subject_options: [...ele?.optional_subject_options],
-          optional_subject_rule_max: optional_subject_rule_max
+          optional_subject_rule_max: ele?.optional_subject_rule_max
         })
         group.optional_subject_count += 1
       }

@@ -395,6 +395,12 @@ const admissionAdminSchema = new mongoose.Schema({
       }
     },
   ],
+  subject_groups: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectGroup"
+    }
+  ]
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

@@ -7,7 +7,7 @@ const subjectGroupSelectSchema = new mongoose.Schema({
     compulsory_subject: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Subject"
+            ref: "SubjectMaster"
         }
     ],
     optional_subject: [
@@ -22,7 +22,7 @@ const subjectGroupSelectSchema = new mongoose.Schema({
             optional_subject_options: [
                 {
                     type: mongoose.Schema.Types.ObjectId,
-                    ref: "Subject"
+                    ref: "SubjectMaster"
                 }
             ],
         }

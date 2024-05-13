@@ -414,7 +414,55 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
       });
     }
     var all_students = [];
-
+    var all_subject_students = [];
+    if (subjectId) {
+      var subject = await Subject.findById(subjectId)
+        .select("subjectName")
+      .populate({
+        path: "optionalStudent",
+        select:
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO student_prn_enroll_number",
+        populate: {
+          path: "user class_selected_batch",
+          select: "userLegalName username batchName batchStatus",
+        },
+      })
+      for (let stu of subject?.optionalStudent) {
+        let subjectWise = {
+          presentCount: 0,
+          totalCount: 0,
+          totalPercentage: 0,
+          todayStatus: "",
+        };
+        for (let att of subjectAttend?.attendance) {
+          for (let pre of att?.presentStudent) {
+            if (String(stu._id) === String(pre.student))
+              subjectWise.presentCount += 1;
+          }
+          subjectWise.totalCount += 1;
+        }
+        subjectWise.totalPercentage = (
+          (subjectWise.presentCount * 100) /
+          subjectWise.totalCount
+        ).toFixed(2);
+        for (let att of subject?.attendance) {
+          for (let pre of att?.presentStudent) {
+            if (String(stu._id) === String(pre.student))
+              subjectWise.todayStatus = "P";
+          }
+          for (let pre of att?.absentStudent) {
+            if (String(stu._id) === String(pre.student))
+              subjectWise.todayStatus = "A";
+          }
+        }
+  
+        all_subject_students.push({
+          ...stu,
+          todayStatus: subjectWise.todayStatus,
+          totalPercentage: subjectWise.totalPercentage,
+        });
+      }
+    }
     for (let stu of normal_classes?.ApproveStudent) {
       let subjectWise = {
         presentCount: 0,
@@ -458,7 +506,7 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
       boyCount: normal_classes?.boyCount,
       girlCount: normal_classes?.girlCount,
       studentCount: normal_classes?.studentCount,
-      ApproveStudent: all_students,
+      ApproveStudent: subjectId ? all_subject_students : all_students,
     };
     // console.log(classes)
     classes?.ApproveStudent?.sort(function (st1, st2) {

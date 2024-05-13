@@ -1,3 +1,6 @@
+const Admission = require("../../models/Admission/Admission");
+const SubjectGroup = require("../../models/Admission/Optional/SubjectGroup");
+const SubjectGroupSelect = require("../../models/Admission/Optional/SubjectGroupSelect");
 const Department = require("../../models/Department");
 const DepartmentStudentForm = require("../../models/Form/DepartmentStudentForm");
 const FormChecklist = require("../../models/Form/FormChecklist");
@@ -551,7 +554,7 @@ exports.render_edit_student_form_section_checklist_query = async (req, res) => {
 
 exports.render_dynamic_form_details_query = async (req, res) => {
   try {
-    const { flow, did, apk } = req?.query
+    const { flow, did, aid, apk } = req?.query
     if (!flow && !did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     if (apk === "WEB") {
@@ -618,6 +621,8 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section })
       }
       else if (flow === "APPLICATION") {
+        const app = await Admission.findById({ _id: aid })
+          .select("subject_groups")
         const app_form = await InstituteApplicationForm.findOne({ application: did })
           .select("form_section")
           .populate({
@@ -647,6 +652,84 @@ exports.render_dynamic_form_details_query = async (req, res) => {
             stu.form_checklist_required = ele?.section_key === "documents" ? false : true
           }
         }
+        var all_subjects = await SubjectGroup.find({ _id: { $in: app?.subject_groups} })
+        .populate({
+          path: "subject_group_select",
+          populate: {
+            path: "compulsory_subject",
+            select: "subjectName class",
+            populate: {
+              path: "class",
+              select: "className classTitle"
+            }
+          }
+        })
+        .populate({
+          path: "subject_group_select",
+          populate: {
+            path: "optional_subject",
+            populate: {
+            path: "optional_subject_options",
+            select: "subjectName class",
+            populate: {
+              path: "class",
+              select: "className classTitle"
+            }
+          }
+          }
+        })
+        var nums_subject = []
+        var nums_select = []
+        var nums_group = []
+        for (var ele of all_subjects) {
+          for (var val of ele?.subject_group_select) {
+            for (var set of val?.compulsory_subject) {
+              nums_select.push(
+                {
+                  form_checklist_name: `${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`,
+                  form_checklist_key: "subject_criteria",
+                  form_checklist_visibility: true,
+                  form_checklist_placeholder: `${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`,
+                  form_checklist_lable: "",
+                  form_checklist_typo: "TEXT",
+                  form_checklist_sample: `${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`,
+                  form_checklist_typo_option_pl: [`${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`]
+                })
+            }
+            for (var set of val?.optional_subject) {
+              nums_select.push(
+                {
+                  form_checklist_name: `${set?.optional_subject_name}`,
+                  form_checklist_key: "subject_criteria",
+                  form_checklist_visibility: true,
+                  form_checklist_placeholder: `${set?.optional_subject_name}`,
+                  form_checklist_lable: `${set?.optional_subject_name}`,
+                  form_checklist_typo: "SELECT",
+                  form_checklist_typo_option_pl: [
+                     ...set?.optional_subject_options
+                  ],
+                  form_checklist_rule: set?.optional_subject_rule
+              })
+            }
+            nums_group.push(
+              {
+                nested_section_name: `${val?.group_name}`,
+                nested_section_visibilty: true,
+                nested_section_key: "subject_criteria",
+                nested_form_checklist: [...nums_select],
+                nested_section_typo: "CHECKBOX"
+              }
+            )
+          }
+          nums_subject.push({
+            section_name: `${ele?.subject_group_name}`,
+            section_visibilty: true,
+            section_key: "subject_criteria",
+            section_group: ele?.no_of_group,
+            nested_section: [...nums_group]
+          })
+        }
+        all_section.push(...nums_subject)
         res.status(200).send({ message: "Application Form Query", access: true, app_form: all_section })
       }
     }
@@ -717,6 +800,8 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section })
       }
       else if (flow === "APPLICATION") {
+        const app = await Admission.findById({ _id: aid })
+          .select("subject_groups")
         const app_form = await InstituteApplicationForm.findOne({ application: did })
           .select("form_section")
           .populate({
@@ -746,6 +831,84 @@ exports.render_dynamic_form_details_query = async (req, res) => {
             stu.form_checklist_required = ele?.section_key === "documents" ? false : true
           }
         }
+        var all_subjects = await SubjectGroup.find({ _id: { $in: app?.subject_groups} })
+        .populate({
+          path: "subject_group_select",
+          populate: {
+            path: "compulsory_subject",
+            select: "subjectName class",
+            populate: {
+              path: "class",
+              select: "className classTitle"
+            }
+          }
+        })
+        .populate({
+          path: "subject_group_select",
+          populate: {
+            path: "optional_subject",
+            populate: {
+            path: "optional_subject_options",
+            select: "subjectName class",
+            populate: {
+              path: "class",
+              select: "className classTitle"
+            }
+          }
+          }
+        })
+        var nums_subject = []
+        var nums_select = []
+        var nums_group = []
+        for (var ele of all_subjects) {
+          for (var val of ele?.subject_group_select) {
+            for (var set of val?.compulsory_subject) {
+              nums_select.push(
+                {
+                  form_checklist_name: `${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`,
+                  form_checklist_key: "subject_criteria",
+                  form_checklist_visibility: true,
+                  form_checklist_placeholder: `${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`,
+                  form_checklist_lable: "",
+                  form_checklist_typo: "TEXT",
+                  form_checklist_sample: `${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`,
+                  form_checklist_typo_option_pl: [`${set?.subjectName}-${set?.class?.className}/${set?.class?.classTitle}`]
+                })
+            }
+            for (var set of val?.optional_subject) {
+              nums_select.push(
+                {
+                  form_checklist_name: `${set?.optional_subject_name}`,
+                  form_checklist_key: "subject_criteria",
+                  form_checklist_visibility: true,
+                  form_checklist_placeholder: `${set?.optional_subject_name}`,
+                  form_checklist_lable: `${set?.optional_subject_name}`,
+                  form_checklist_typo: "SELECT",
+                  form_checklist_typo_option_pl: [
+                     ...set?.optional_subject_options
+                  ],
+                  form_checklist_rule: set?.optional_subject_rule
+              })
+            }
+            nums_group.push(
+              {
+                nested_section_name: `${val?.group_name}`,
+                nested_section_visibilty: true,
+                nested_section_key: "subject_criteria",
+                nested_form_checklist: [...nums_select],
+                nested_section_typo: "CHECKBOX"
+              }
+            )
+          }
+          nums_subject.push({
+            section_name: `${ele?.subject_group_name}`,
+            section_visibilty: true,
+            section_key: "subject_criteria",
+            section_group: ele?.no_of_group,
+            nested_section: [...nums_group]
+          })
+        }
+        all_section.push(...nums_subject)
         res.status(200).send({ message: "Application Form Query", access: true, app_form: all_section })
       }
     }

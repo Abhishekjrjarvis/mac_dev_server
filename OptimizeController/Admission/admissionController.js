@@ -112,6 +112,9 @@ const InstituteApplicationForm = require("../../models/Form/InstituteApplication
 const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
 const FormChecklist = require("../../models/Form/FormChecklist");
 const generateFeeReceipt = require("../../scripts/feeReceipt");
+const SubjectGroup = require("../../models/Admission/Optional/SubjectGroup");
+const SubjectGroupSelect = require("../../models/Admission/Optional/SubjectGroupSelect");
+const SubjectMaster = require("../../models/SubjectMaster");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -13746,6 +13749,212 @@ exports.render_one_student_form_section_enable_query = async (req, res) => {
 exports.render_one_fee_receipt_query = async (req, res) => {
   try {
     await generateFeeReceipt("663c9573f2b92516a81bfb10")
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_add_subject_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const ads_admin = await Admission.findById({ _id: aid })
+    const new_group = new SubjectGroup({...req?.body})
+    new_group.admission = ads_admin?._id
+    ads_admin.subject_groups.push(new_group?._id)
+    await Promise.all([new_group.save(), ads_admin.save()])
+    res.status(200).send({ message: "New Group Section Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_subject_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const ads_admin = await Admission.findById({ _id: aid })
+    .select("subject_groups")
+    const all_group = await SubjectGroup.find({ _id: { $in: ads_admin?.subject_groups } })
+      .sort({ created_at: -1})
+      .limit(limit)
+      .skip(skip)
+    .select("subject_group_name no_of_group")
+    if (all_group?.length > 0) {
+      res.status(200).send({ message: "All Group Section Query", access: true, all_group: all_group}) 
+    }
+    else {
+      res.status(200).send({ message: "No Group Section Query", access: false, all_group: [] }) 
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_subject_query = async (req, res) => {
+  try {
+    const { osid } = req?.params
+    if (!osid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const group = await SubjectGroup.findById({ _id: osid })
+      .select("subject_group_name no_of_group")
+      res.status(200).send({ message: "One Group Query", access: false, group}) 
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_add_subject_group_query = async (req, res) => {
+  try {
+    const { sgid } = req?.params
+    const { group_name } = req?.body
+    if (!sgid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const group = await SubjectGroup.findById({ _id: sgid })
+    const group_select = new SubjectGroupSelect({ ...req?.body })
+    group_select.group_name = group_name
+    group_select.subject_group = group?._id
+    group.subject_group_select.push(group_select?._id)
+    await Promise.all([group_select.save(), group.save()])
+    res.status(200).send({ message: "New Group Select Section Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_subject_group_query = async (req, res) => {
+  try {
+    const { sgid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sgid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const group = await SubjectGroup.findById({ _id: sgid })
+    .select("subject_group_select")
+    const all_group_select = await SubjectGroupSelect.find({ _id: { $in: group?.subject_group_select } })
+      .sort({ created_at: -1})
+      .limit(limit)
+      .skip(skip)
+    .select("group_name compulsory_subject_count optional_subject_count subject_group created_at")
+    if (all_group_select?.length > 0) {
+      res.status(200).send({ message: "All Group Section Query", access: true, all_group_select: all_group_select}) 
+    }
+    else {
+      res.status(200).send({ message: "No Group Section Query", access: false, all_group_select: [] }) 
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_subject_group_query = async (req, res) => {
+  try {
+    const { osid } = req?.params
+    if (!osid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const group = await SubjectGroupSelect.findById({ _id: osid })
+      .select("group_name compulsory_subject_count optional_subject_count subject_group created_at")
+      .populate({
+        path: "compulsory_subject",
+        select: "subjectName class",
+        populate: {
+          path: "class",
+          select: "className classTitle"
+        }
+      })
+      .populate({
+        path: "optional_subject",
+        populate: {
+          path: "optional_subject_options",
+          select: "subjectName class",
+          populate: {
+            path: "class",
+            select: "className classTitle"
+          }
+        }
+      })
+      .populate({
+        path: "subject_group",
+        select: "subject_group_name no_of_group",
+    })
+      res.status(200).send({ message: "One Group Select Query", access: false, group}) 
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_subject_list_query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+
+    var subject = []
+    const ins = await InstituteAdmin.findById({ _id: id })
+    .select("depart")
+    const all_master = await SubjectMaster.find({ department: { $in: ins?.depart } })
+      .select("subjects")
+      .populate({
+        path: "subjects",
+        select: "subjectName class",
+        populate: {
+          path: "class",
+          select: "className classTitle"
+        }
+      })
+    if (all_master?.length > 0) {
+      for (var ele of all_master) {
+        subject.push(...ele?.subjects)
+      }
+    }
+    var all_subjects = await nested_document_limit(page, limit, subject)
+    res.status(200).send({ message: "All Subjects Query", access: false, all_subjects: all_subjects}) 
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_add_subject_group_select_query = async (req, res) => {
+  try {
+    const { ssid } = req?.params
+    const { cs, os } = req?.body
+    if (!ssid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const group = await SubjectGroupSelect.findById({ _id: ssid })
+    if (cs?.length > 0) {
+      for (var ele of cs) {
+        group.compulsory_subject.push(ele)
+        group.compulsory_subject_count += 1
+      }
+    }
+    if (os?.length > 0) {
+      for (var ele of os) {
+        group.optional_subject.push({
+          optional_subject_rule: ele?.optional_subject_rule,
+          optional_subject_name: ele?.optional_subject_name,
+          optional_subject_options: [...ele?.optional_subject_options]
+        })
+        group.optional_subject_count += 1
+      }
+    }
+    await group.save()
+    res.status(200).send({ message: "New Group Select Subject Section Query", access: true })
   }
   catch (e) {
     console.log(e)

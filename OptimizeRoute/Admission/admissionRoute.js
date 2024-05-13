@@ -826,5 +826,45 @@ router.patch(
   "/one/fee/receipt/query",
   catchAsync(Admission.render_one_fee_receipt_query)
 );
+// Optional Subject
+router.post(
+  "/:aid/add/subject/query",
+  catchAsync(Admission.render_add_subject_query)
+);
+
+router.get(
+  "/:aid/all/subject/query",
+  catchAsync(Admission.render_all_subject_query)
+);
+
+router.get(
+  "/:osid/one/subject/query",
+  catchAsync(Admission.render_one_subject_query)
+);
+
+router.post(
+  "/:sgid/add/subject/group/query",
+  catchAsync(Admission.render_add_subject_group_query)
+);
+
+router.get(
+  "/:sgid/all/subject/group/query",
+  catchAsync(Admission.render_all_subject_group_query)
+);
+
+router.get(
+  "/:osid/one/subject/group/query",
+  catchAsync(Admission.render_one_subject_group_query)
+);
+
+router.get(
+  "/:id/all/subject/list/query",
+  catchAsync(Admission.render_all_subject_list_query)
+);
+
+router.post(
+  "/:ssid/add/subject/group/select/query",
+  catchAsync(Admission.render_add_subject_group_select_query)
+);
 
 module.exports = router;

@@ -6,6 +6,7 @@ const StudentAdmissionFormHeader = require("../components/StudentAdmissionFormHe
 const fs = require("fs");
 const util = require("util");
 const dynamicImages = require("../helper/dynamicImages");
+const Student = require("../models/Student");
 const unlinkFile = util.promisify(fs.unlink);
 
 const drawBorder = (doc) => {
@@ -499,6 +500,7 @@ const generateStudentAdmissionForm = async (
 
   // Handle stream close event
   stream.on("finish", async () => {
+    const student = await Student.findById({ _id: studentId })
     console.log("created");
     let file = {
       path: `uploads/${name}-form.pdf`,
@@ -506,7 +508,13 @@ const generateStudentAdmissionForm = async (
       mimetype: "application/pdf",
     };
     const results = await uploadDocsFile(file);
+    student.application_print.push({
+      flow: "BACKEND",
+      value: results?.Key,
+      from: "false",
+    })
     await unlinkFile(file.path);
+    await student.save()
     // console.log("PDF created successfully", results.Key);
   });
 };

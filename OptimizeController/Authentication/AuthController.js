@@ -81,6 +81,7 @@ const { number_query } = require("../../Custom/phoneNumber");
 const LandingControl = require("../../models/LandingModel/LandingControl");
 const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
 const InstituteStaffForm = require("../../models/Form/InstituteStaffForm");
+const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -3313,6 +3314,12 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
         institute?.sms_lang
       );
     }
+    await generateStudentAdmissionForm(
+      student?._id,
+      institute?._id,
+      `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
+      `${apply?.applicationName}`,
+    );
   } catch (e) {
     console.log(e);
   }

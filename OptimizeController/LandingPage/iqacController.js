@@ -95,6 +95,10 @@ exports.render_master_query = async (req, res) => {
         if (!qid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
         
         const iqac = await IQAC.findById({ _id: qid })
+        .populate({
+            path: "authority",
+            select: "custom_head_name custom_title_person"
+        })
         res.status(200).send({ message: "Explore IQAC Master Query", access: true, iqac})
     }
     catch (e) {

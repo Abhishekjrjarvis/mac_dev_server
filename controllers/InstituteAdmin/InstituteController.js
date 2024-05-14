@@ -964,6 +964,10 @@ exports.getNewDepartment = async (req, res) => {
       department: department._id,
     });
     var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+    .select("form_section")
+          .populate({
+            path: "form_section.form_checklist"
+          })
     var nums = []
     for (var val of ifs?.form_section) {
       if (val?.form_checklist?.length > 0) {
@@ -994,6 +998,7 @@ exports.getNewDepartment = async (req, res) => {
         ins_form_section_id: val?._id,
         form_checklist: [...nums]
       })
+      nums = []
     }
     await dfs.save()
     const new_exam_fee = new ExamFeeStructure({

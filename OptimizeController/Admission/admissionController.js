@@ -573,6 +573,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
           ins_form_section_id: val?._id,
           form_checklist: [...nums]
         })
+        nums = []
       }
       await iaf.save()
     // const post = new Post({});
@@ -611,14 +612,14 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
         applicationMaster: newApply?.applicationMaster,
         applicationTypeStatus: "Promote Application",
       });
-      var iaf = new InstituteApplicationForm({})
-      iaf.application = new_app?._id
-      new_app.student_form_setting = iaf?._id
+      var iaff = new InstituteApplicationForm({})
+      iaff.application = new_app?._id
+      new_app.student_form_setting = iaff?._id
       admission.newApplication.push(new_app._id);
       admission.newAppCount += 1;
       new_app.admissionAdmin = admission._id;
       institute.admissionCount += 1;
-      await Promise.all([new_app.save(), admission.save(), institute.save(), iaf.save()]);
+      await Promise.all([new_app.save(), admission.save(), institute.save(), iaff.save()]);
       var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
       .select("form_section")
           .populate({
@@ -641,21 +642,22 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
           if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
             ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
           }
-          fc.department_form = iaf?._id
+          fc.department_form = iaff?._id
           fc.form_section = val?._id
           numss.push(fc?._id)
           await fc.save()
         }
       }
-      iaf.form_section.push({
+      iaff.form_section.push({
         section_name: val?.section_name,
         section_visibilty: val?.section_visibilty,
         section_key: val?.section_key,
         ins_form_section_id: val?._id,
         form_checklist: [...numss]
       })
+      numss = []
     }
-    await iaf.save()
+    await iaff.save()
     }
     // await new_admission_recommend_post(institute?._id, post?._id, expand);
   } catch (e) {

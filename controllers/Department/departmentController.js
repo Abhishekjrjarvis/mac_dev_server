@@ -1,4 +1,5 @@
 const Admission = require("../../models/Admission/Admission");
+const NewApplication = require("../../models/Admission/NewApplication");
 const SubjectGroup = require("../../models/Admission/Optional/SubjectGroup");
 const SubjectGroupSelect = require("../../models/Admission/Optional/SubjectGroupSelect");
 const Department = require("../../models/Department");
@@ -621,8 +622,8 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section })
       }
       else if (flow === "APPLICATION") {
-        const app = await Admission.findById({ _id: aid })
-          .select("subject_groups subject_selected_group")
+        const app = await NewApplication.findById({ _id: did })
+          .select("subject_selected_group")
         const app_form = await InstituteApplicationForm.findOne({ application: did })
           .select("form_section")
           .populate({
@@ -685,7 +686,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   form_checklist_lable: "",
                   form_checklist_typo: "TEXT",
                   form_checklist_sample: `${set?.subjectName}`,
-                  form_checklist_typo_option_pl: [`${set?.subjectName}`]
+                  form_checklist_typo_option_pl: []
                 })
             }
             for (var set of val?.optional_subject) {
@@ -722,7 +723,9 @@ exports.render_dynamic_form_details_query = async (req, res) => {
             nested_section: [...nums_group]
           })
         }
-        all_section.push(...nums_subject)
+        if (app?.subject_selected_group?.length > 0) {
+          all_section.push(...nums_subject) 
+        }
         res.status(200).send({ message: "Application Form Query", access: true, app_form: all_section })
       }
     }
@@ -793,8 +796,8 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section })
       }
       else if (flow === "APPLICATION") {
-        const app = await Admission.findById({ _id: aid })
-          .select("subject_groups subject_selected_group")
+        const app = await NewApplication.findById({ _id: did })
+          .select("subject_selected_group")
         const app_form = await InstituteApplicationForm.findOne({ application: did })
           .select("form_section")
           .populate({
@@ -857,7 +860,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   form_checklist_lable: "",
                   form_checklist_typo: "TEXT",
                   form_checklist_sample: `${set?.subjectName}`,
-                  form_checklist_typo_option_pl: [`${set?.subjectName}`]
+                  form_checklist_typo_option_pl: []
                 })
             }
             for (var set of val?.optional_subject) {
@@ -894,7 +897,9 @@ exports.render_dynamic_form_details_query = async (req, res) => {
             nested_section: [...nums_group]
           })
         }
-        all_section.push(...nums_subject)
+        if (app?.subject_selected_group?.length > 0) {
+          all_section.push(...nums_subject) 
+        }
         res.status(200).send({ message: "Application Form Query", access: true, app_form: all_section })
       }
     }

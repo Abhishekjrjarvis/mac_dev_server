@@ -538,7 +538,11 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     res
       .status(200)
       .send({ message: "New Application is ongoing 👍", status: true });
-      var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+    var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+    .select("form_section")
+          .populate({
+            path: "form_section.form_checklist"
+          })
       var nums = []
       for (var val of ifs?.form_section) {
         if (val?.form_checklist?.length > 0) {
@@ -616,7 +620,11 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
       institute.admissionCount += 1;
       await Promise.all([new_app.save(), admission.save(), institute.save(), iaf.save()]);
       var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
-    var nums = []
+      .select("form_section")
+          .populate({
+            path: "form_section.form_checklist"
+          })
+    var numss = []
     for (var val of ifs?.form_section) {
       if (val?.form_checklist?.length > 0) {
         for (var ele of val?.form_checklist) {
@@ -635,7 +643,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
           }
           fc.department_form = iaf?._id
           fc.form_section = val?._id
-          nums.push(fc?._id)
+          numss.push(fc?._id)
           await fc.save()
         }
       }
@@ -644,7 +652,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
         section_visibilty: val?.section_visibilty,
         section_key: val?.section_key,
         ins_form_section_id: val?._id,
-        form_checklist: [...nums]
+        form_checklist: [...numss]
       })
     }
     await iaf.save()

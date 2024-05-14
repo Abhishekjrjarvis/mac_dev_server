@@ -92,6 +92,12 @@ const departmentSiteSchema = new mongoose.Schema({
       attach: { type: String }
     }
   ],
+  about: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AcademicNestedPage"
+    }
+  ]
 });
 
 module.exports = mongoose.model("DepartmentSite", departmentSiteSchema);

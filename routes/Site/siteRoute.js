@@ -50,4 +50,6 @@ router.delete("/:dsid/delete/one/department/site/syllabus/projects/query", catch
 
 router.delete("/:dsid/delete/one/department/site/pso/query", catchAsync(siteController.render_one_department_delete_pso_query));
 
+router.patch("/:dsid/about/one/department/site/query", catchAsync(siteController.render_edit_academic_sub_head_query));
+
 module.exports = router;

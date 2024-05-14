@@ -170,6 +170,12 @@ const customAuthoritySchema = new mongoose.Schema({
             ref: "Head"
         }
     ],
+    about: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "AcademicNestedPage"
+        }
+      ]
 })
 
 module.exports = mongoose.model("CustomAuthority", customAuthoritySchema)

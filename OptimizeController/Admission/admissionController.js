@@ -878,13 +878,13 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
         status: false,
       });
     const user = await User.findById({ _id: uid });
-    if (user?.applyApplication?.includes(`${aid}`)) {
-      res.status(200).send({
-        message: "You have already applied for this application",
-        status: false,
-        denied: true,
-      });
-    } else {
+    // if (user?.applyApplication?.includes(`${aid}`)) {
+    //   res.status(200).send({
+    //     message: "You have already applied for this application",
+    //     status: false,
+    //     denied: true,
+    //   });
+    // } else {
       const student = new Student({ ...req.body });
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
@@ -1034,7 +1034,7 @@ Note: Stay tuned for further updates.`;
         `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
         `${apply?.applicationName}`,
       );
-    }
+    // }
   } catch (e) {
     console.log(e);
   }

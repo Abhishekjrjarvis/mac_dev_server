@@ -24,9 +24,7 @@ exports.getDepartmentInfo = async (req, res) => {
     if (department.site_info?.[0]) {
       const departmentSite = await DepartmentSite.findById(
         department.site_info[0]
-      ).populate({
-        path: "about"
-      })
+      )
       res.status(200).send({
         message: "get Department site info detail 😋😊😋",
         department_site: departmentSite,
@@ -858,17 +856,12 @@ exports.render_edit_academic_sub_head_query = async (req, res) => {
     if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const site = await DepartmentSite.findById({ _id: dsid })
-    const n_page = new AcademicNestedPage({})
-    n_page.sub_head_title.push(sub_head_title)
-    n_page.sub_heading_image.push(sub_heading_image)
-    n_page.sub_head_body.push(sub_head_body)
-    n_page.sub_topic.push({
+    site.about.push({
       sub_head_title: sub_head_title,
       sub_heading_image: sub_heading_image,
       sub_head_body: sub_head_body
     })
-    site.about.push(n_page?._id)
-    await Promise.all([n_page.save(), site.save()])
+    await site.save()
     res.status(200).send({ message: "Explore Sub Head Edit Query", access: true})
   }
   catch (e) {

@@ -94,8 +94,9 @@ const departmentSiteSchema = new mongoose.Schema({
   ],
   about: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "AcademicNestedPage"
+      sub_head_title:String,
+      sub_heading_image:String,
+      sub_head_body:String,
     }
   ]
 });

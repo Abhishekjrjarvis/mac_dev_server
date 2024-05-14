@@ -956,6 +956,8 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 
 Note: Stay tuned for further updates.`;
       status.applicationId = apply._id;
+      student.student_form_flow.flow = "APPLICATION"
+      student.student_form_flow.did = apply._id
       status.document_visible = true;
       status.instituteId = institute._id;
       status.finance = institute?.financeDepart?.[0];

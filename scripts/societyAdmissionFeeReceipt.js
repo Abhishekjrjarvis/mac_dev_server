@@ -5,6 +5,7 @@ const numToWords = require("../helper/numToWords");
 const { uploadDocsFile } = require("../S3Configuration");
 const util = require("util");
 const societyReceiptData = require("../AjaxRequest/societyReceiptData");
+const feeReceipt = require("../models/RazorPay/feeReceipt");
 const unlinkFile = util.promisify(fs.unlink);
 
 const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
@@ -785,6 +786,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
 
   // Handle stream close event
   stream.on("finish", async () => {
+    const fee_receipt = await feeReceipt.findById({ _id: receiptId})
     console.log("created");
     let file = {
       path: `uploads/${name}-society-receipt.pdf`,
@@ -792,7 +794,9 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       mimetype: "application/pdf",
     };
     const results = await uploadDocsFile(file);
+    fee_receipt.receipt_file = results?.Key
     await unlinkFile(file.path);
+    await fee_receipt.save()
   });
 
   //   console.log(data);

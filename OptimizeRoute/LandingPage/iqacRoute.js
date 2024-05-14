@@ -63,4 +63,6 @@ router.get("/:hid/all/sections/query", catchAsync(IQAC.render_all_sections_query
 
 router.post("/:qcid/add/rnd/meetings/query", catchAsync(IQAC.render_add_rnd_meetings_query));
 
+router.patch("/:qcid/add/about/query", catchAsync(IQAC.render_edit_academic_sub_head_query));
+
 module.exports = router;

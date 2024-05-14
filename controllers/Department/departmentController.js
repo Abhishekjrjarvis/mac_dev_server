@@ -686,6 +686,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   form_checklist_lable: "",
                   form_checklist_typo: "TEXT",
                   form_checklist_sample: `${set?.subjectName}`,
+                  form_checklist_subjectId: `${set?._id}`,
                   form_checklist_typo_option_pl: []
                 })
             }
@@ -860,6 +861,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   form_checklist_lable: "",
                   form_checklist_typo: "TEXT",
                   form_checklist_sample: `${set?.subjectName}`,
+                  form_checklist_subjectId: `${set?._id}`,
                   form_checklist_typo_option_pl: []
                 })
             }

@@ -67,6 +67,7 @@ const { universal_random_password } = require("../../Custom/universalId");
 const IQAC = require("../../models/LandingModel/IQAC");
 const CustomAuthority = require("../../models/LandingModel/CustomAuthority");
 const Head = require("../../models/LandingModel/RND/Head");
+const AcademicNestedPage = require("../../models/LandingModel/AcademicNestedPage");
 
 
 exports.render_new_iqac_query = async (req, res) => {
@@ -180,6 +181,9 @@ exports.render_master_custom_query = async (req, res) => {
         })
         .populate({
             path: "rnd_paper",
+        })
+        .populate({
+            path: "about",
         })
         res.status(200).send({ message: "Explore custom Master Query", access: true, custom})
     }
@@ -578,3 +582,28 @@ exports.render_add_rnd_meetings_query = async (req, res) => {
         console.log(e)
     }
 }
+
+exports.render_edit_academic_sub_head_query = async (req, res) => {
+    try {
+      const { qcid } = req?.params
+      const { sub_head_title, sub_heading_image, sub_head_body } = req?.body
+      if (!qcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+      
+      const custom = await CustomAuthority.findById({ _id: qcid })
+      const n_page = new AcademicNestedPage({})
+      n_page.sub_head_title.push(sub_head_title)
+      n_page.sub_heading_image.push(sub_heading_image)
+      n_page.sub_head_body.push(sub_head_body)
+      n_page.sub_topic.push({
+        sub_head_title: sub_head_title,
+        sub_heading_image: sub_heading_image,
+        sub_head_body: sub_head_body
+      })
+      custom.about.push(n_page?._id)
+      await Promise.all([n_page.save(), custom.save()])
+      res.status(200).send({ message: "Explore Sub Head Edit Query", access: true})
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }

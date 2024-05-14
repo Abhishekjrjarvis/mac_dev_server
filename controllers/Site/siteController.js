@@ -10,6 +10,7 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const { deleteFile } = require("../../S3Configuration");
 const Transport = require("../../models/Transport/transport");
 const TransportSite = require("../../models/SiteModels/TransportSite");
+const AcademicNestedPage = require("../../models/LandingModel/AcademicNestedPage");
 
 exports.getDepartmentInfo = async (req, res) => {
   try {
@@ -23,7 +24,9 @@ exports.getDepartmentInfo = async (req, res) => {
     if (department.site_info?.[0]) {
       const departmentSite = await DepartmentSite.findById(
         department.site_info[0]
-      );
+      ).populate({
+        path: "about"
+      })
       res.status(200).send({
         message: "get Department site info detail 😋😊😋",
         department_site: departmentSite,
@@ -842,6 +845,31 @@ exports.render_one_department_delete_pso_query = async (req, res) => {
     }
     await d_site.save()
     res.status(200).send({ message: "Explore Delete Department Site Updated PO / PSO Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_edit_academic_sub_head_query = async (req, res) => {
+  try {
+    const { dsid } = req?.params
+    const { sub_head_title, sub_heading_image, sub_head_body } = req?.body
+    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const site = await DepartmentSite.findById({ _id: dsid })
+    const n_page = new AcademicNestedPage({})
+    n_page.sub_head_title.push(sub_head_title)
+    n_page.sub_heading_image.push(sub_heading_image)
+    n_page.sub_head_body.push(sub_head_body)
+    n_page.sub_topic.push({
+      sub_head_title: sub_head_title,
+      sub_heading_image: sub_heading_image,
+      sub_head_body: sub_head_body
+    })
+    site.about.push(n_page?._id)
+    await Promise.all([n_page.save(), site.save()])
+    res.status(200).send({ message: "Explore Sub Head Edit Query", access: true})
   }
   catch (e) {
     console.log(e)

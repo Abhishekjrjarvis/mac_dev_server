@@ -116,6 +116,7 @@ const SubjectGroup = require("../../models/Admission/Optional/SubjectGroup");
 const SubjectGroupSelect = require("../../models/Admission/Optional/SubjectGroupSelect");
 const SubjectMaster = require("../../models/SubjectMaster");
 const Subject = require("../../models/Subject");
+const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -1024,6 +1025,12 @@ Note: Stay tuned for further updates.`;
         "Application Status",
         user._id,
         user.deviceToken
+      );
+      await generateStudentAdmissionForm(
+        student?._id,
+        institute?._id,
+        `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
+        `${apply?.applicationName}`,
       );
     }
   } catch (e) {

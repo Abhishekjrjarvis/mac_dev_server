@@ -77,6 +77,7 @@ const Hostel = require("../../models/Hostel/hostel");
 const FinanceModerator = require("../../models/Moderator/FinanceModerator");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
+const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -1635,6 +1636,12 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
         login: true,
         student: student?._id,
       });
+      await generateStudentAdmissionForm(
+        student?._id,
+        institute?._id,
+        `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
+        `${classes?.classTitle}`,
+      );
     } else {
       res.status(200).send({
         message: "Bug in the direct joining process 😡",
@@ -2053,6 +2060,12 @@ Note: Stay tuned for further updates.`;
         login: true,
         student: student?._id,
       });
+      await generateStudentAdmissionForm(
+        student?._id,
+        institute?._id,
+        `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
+        `${apply?.applicationName}`,
+      );
     } else {
       res.status(200).send({
         message: "Bug in the direct joining process 😡",
@@ -2598,6 +2611,12 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       status: true,
       student: student?._id,
     });
+    await generateStudentAdmissionForm(
+      student?._id,
+      institute?._id,
+      `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
+      `${classes?.classTitle}`,
+    );
     // const studentName = `${student.studentFirstName} ${
     //   student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
     // } ${student.studentLastName}`;

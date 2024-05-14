@@ -252,7 +252,13 @@ const newApplicationSchema = new mongoose.Schema({
   student_form_setting: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteApplicationForm"
-  }
+  },
+  subject_selected_group: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectGroup"
+    }
+  ]
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

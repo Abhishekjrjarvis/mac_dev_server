@@ -400,6 +400,12 @@ const admissionAdminSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubjectGroup"
     }
+  ],
+  subject_selected_group: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectGroup"
+    }
   ]
 });
 

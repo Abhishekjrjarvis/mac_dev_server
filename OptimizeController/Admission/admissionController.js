@@ -4495,6 +4495,29 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
         path: "applicationUnit",
         select: "hostel_unit_name",
       })
+      .populate({
+        path: "subject_selected_group",
+        populate: {
+          path: "subject_group_select",
+          populate: {
+            path: "compulsory_subject",
+            select: "subjectName",
+          }
+        }
+      })
+      .populate({
+        path: "subject_selected_group",
+        populate: {
+          path: "subject_group_select",
+          populate: {
+            path: "optional_subject",
+            populate: {
+              path: "optional_subject_options",
+              select: "subjectName",
+            }
+          }
+        }
+      })
       .lean()
       .exec();
     // const oneEncrypt = await encryptionPayload(oneApply);
@@ -13977,6 +14000,45 @@ exports.render_add_subject_group_select_query = async (req, res) => {
     }
     await group.save()
     res.status(200).send({ message: "New Group Select Subject Section Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_subject_data_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const ads_admin = await Admission.findById({ _id: aid })
+    .select("subject_groups")
+    const all_group = await SubjectGroup.find({ _id: { $in: ads_admin?.subject_groups } })
+    .select("subject_group_name no_of_group")
+    if (all_group?.length > 0) {
+      res.status(200).send({ message: "All Group Section Query", access: true, all_group: all_group}) 
+    }
+    else {
+      res.status(200).send({ message: "No Group Section Query", access: false, all_group: [] }) 
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_select_group_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    const { select } = req?.body
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const app = await NewApplication.findById({ _id: aid })
+    for (let ele of select) {
+      app.subject_selected_group.push(ele)
+    }
+    await app.save()
+    res.status(200).send({ message: "Explore Selected Subject "})
   }
   catch (e) {
     console.log(e)

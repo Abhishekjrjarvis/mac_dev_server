@@ -13983,6 +13983,24 @@ exports.render_add_subject_group_select_query = async (req, res) => {
   }
 }
 
+exports.render_select_group_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    const { select } = req?.body
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const ads_admin = await Admission.findById({ _id: aid })
+    for (let ele of select) {
+      ads_admin.subject_selected_group.push(ele)
+    }
+    await ads_admin.save()
+    res.status(200).send({ message: "Explore Selected Subject "})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {
 //     const { aid } = req?.params

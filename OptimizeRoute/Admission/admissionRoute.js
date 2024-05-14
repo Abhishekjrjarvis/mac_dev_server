@@ -877,4 +877,9 @@ router.post(
   catchAsync(Admission.render_add_subject_group_select_query)
 );
 
+router.post(
+  "/:aid/select/group/query",
+  catchAsync(Admission.render_select_group_query)
+);
+
 module.exports = router;

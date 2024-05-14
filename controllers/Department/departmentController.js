@@ -622,7 +622,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
       }
       else if (flow === "APPLICATION") {
         const app = await Admission.findById({ _id: aid })
-          .select("subject_groups")
+          .select("subject_groups subject_selected_group")
         const app_form = await InstituteApplicationForm.findOne({ application: did })
           .select("form_section")
           .populate({
@@ -652,7 +652,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
             stu.form_checklist_required = ele?.section_key === "documents" ? false : true
           }
         }
-        var all_subjects = await SubjectGroup.find({ _id: { $in: app?.subject_groups} })
+        var all_subjects = await SubjectGroup.find({ _id: { $in: app?.subject_selected_group} })
         .populate({
           path: "subject_group_select",
           populate: {
@@ -794,7 +794,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
       }
       else if (flow === "APPLICATION") {
         const app = await Admission.findById({ _id: aid })
-          .select("subject_groups")
+          .select("subject_groups subject_selected_group")
         const app_form = await InstituteApplicationForm.findOne({ application: did })
           .select("form_section")
           .populate({
@@ -824,7 +824,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
             stu.form_checklist_required = ele?.section_key === "documents" ? false : true
           }
         }
-        var all_subjects = await SubjectGroup.find({ _id: { $in: app?.subject_groups} })
+        var all_subjects = await SubjectGroup.find({ _id: { $in: app?.subject_selected_group} })
         .populate({
           path: "subject_group_select",
           populate: {

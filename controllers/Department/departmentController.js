@@ -829,11 +829,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
           path: "subject_group_select",
           populate: {
             path: "compulsory_subject",
-            select: "subjectName class",
-            populate: {
-              path: "class",
-              select: "className classTitle"
-            }
+            select: "subjectName",
           }
         })
         .populate({
@@ -842,11 +838,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
             path: "optional_subject",
             populate: {
             path: "optional_subject_options",
-            select: "subjectName class",
-            populate: {
-              path: "class",
-              select: "className classTitle"
-            }
+            select: "subjectName",
           }
           }
         })

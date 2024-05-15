@@ -1379,7 +1379,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             populate: {
               path: "fee_structure hostel_fee_structure fee_receipt",
               select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
               // populate: {
               //   path: "category_master",
               //   select: "category_name",
@@ -1417,7 +1417,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             populate: {
               path: "fee_structure hostel_fee_structure fee_receipt",
               select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
               // populate: {
               //   path: "category_master",
               //   select: "category_name",
@@ -1562,7 +1562,7 @@ exports.fetchAllReviewApplication = async (req, res) => {
           populate: {
             path: "fee_structure hostel_fee_structure fee_receipt",
             select:
-              "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+              "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
             // populate: {
             //   path: "category_master",
             //   select: "category_name",
@@ -1591,7 +1591,7 @@ exports.fetchAllReviewApplication = async (req, res) => {
           populate: {
             path: "fee_structure hostel_fee_structure fee_receipt",
             select:
-              "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+              "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
             // populate: {
             //   path: "category_master",
             //   select: "category_name",
@@ -1650,7 +1650,7 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
           populate: {
             path: "fee_structure hostel_fee_structure fee_receipt",
             select:
-              "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+              "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
             // populate: {
             //   path: "category_master",
             //   select: "category_name",
@@ -1679,7 +1679,7 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
           populate: {
             path: "fee_structure hostel_fee_structure fee_receipt",
             select:
-              "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+              "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
             // populate: {
             //   path: "category_master",
             //   select: "category_name",
@@ -1749,7 +1749,7 @@ exports.fetchAllAllotApplication = async (req, res) => {
               populate: {
                 path: "fee_structure hostel_fee_structure fee_receipt",
                 select:
-                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
                 // populate: {
                 //   path: "category_master",
                 //   select: "category_name",
@@ -1785,7 +1785,7 @@ exports.fetchAllAllotApplication = async (req, res) => {
               populate: {
                 path: "fee_structure hostel_fee_structure fee_receipt",
                 select:
-                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
                 // populate: {
                 //   path: "category_master",
                 //   select: "category_name",
@@ -13099,10 +13099,10 @@ exports.renderAllConfirmedReadmissionQuery = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName className classTitle fee_receipt",
-            populate: {
-              path: "fee_receipt",
-              select: "receipt_file"
-              }
+            // populate: {
+            //   path: "fee_receipt",
+            //   select: "receipt_file"
+            //   }
           },
         });
       for (let data of apply.confirmedApplication) {
@@ -13131,10 +13131,10 @@ exports.renderAllConfirmedReadmissionQuery = async (req, res) => {
             path: "student fee_struct appId class",
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName className classTitle fee_receipt",
-              populate: {
-                path: "fee_receipt",
-                select: "receipt_file"
-                }
+              // populate: {
+              //   path: "fee_receipt",
+              //   select: "receipt_file"
+              //   }
           },
         });
       var all_select_query = nested_document_limit(

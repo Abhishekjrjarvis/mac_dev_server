@@ -10498,7 +10498,12 @@ exports.retrieveAdmissionReceievedValidApplicationQuery = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         status: false,
       });
-    const user = await User.findById({ _id: uid });
+    if (uid?.length == 10) {
+      var user = await User.findOne({ userPhoneNumber: uid }); 
+    }
+    else {
+      var user = await User.findOne({ _id: uid }); 
+    }
     if (user?.applyApplication?.includes(`${aid}`)) {
       res.status(200).send({
         message: "You have already applied for this application",

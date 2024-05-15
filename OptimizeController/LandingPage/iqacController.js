@@ -182,9 +182,6 @@ exports.render_master_custom_query = async (req, res) => {
         .populate({
             path: "rnd_paper",
         })
-        .populate({
-            path: "about",
-        })
         res.status(200).send({ message: "Explore custom Master Query", access: true, custom})
     }
     catch (e) {
@@ -590,17 +587,12 @@ exports.render_edit_academic_sub_head_query = async (req, res) => {
       if (!qcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
       
       const custom = await CustomAuthority.findById({ _id: qcid })
-      const n_page = new AcademicNestedPage({})
-      n_page.sub_head_title.push(sub_head_title)
-      n_page.sub_heading_image.push(sub_heading_image)
-      n_page.sub_head_body.push(sub_head_body)
-      n_page.sub_topic.push({
-        sub_head_title: sub_head_title,
-        sub_heading_image: sub_heading_image,
-        sub_head_body: sub_head_body
+        custom.about.push({
+            sub_head_title: sub_head_title,
+            sub_heading_image: sub_heading_image,
+            sub_head_body: sub_head_body
       })
-      custom.about.push(n_page?._id)
-      await Promise.all([n_page.save(), custom.save()])
+      await custom.save()
       res.status(200).send({ message: "Explore Sub Head Edit Query", access: true})
     }
     catch (e) {

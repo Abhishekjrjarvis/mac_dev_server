@@ -644,4 +644,12 @@ router.patch("/:sid/one-remove/query", catchAsync(Institute.renderRemoveStaffQue
 
 router.patch("/master/query", catchAsync(Institute.renderExistMasterQuery));
 
+router.patch("/:id/new/universal/batch/query", catchAsync(Institute.render_new_universal_batch_Query));
+
+router.patch("/:id/select/universal/batch/query", catchAsync(Institute.render_select_universal_batch_Query));
+
+router.get("/:id/all/universal/batch/query", catchAsync(Institute.render_all_universal_batch_Query));
+
+router.patch("/:bid/link/universal/batch/query", catchAsync(Institute.render_link_universal_batch_Query));
+
 module.exports = router;

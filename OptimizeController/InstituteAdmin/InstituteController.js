@@ -5906,3 +5906,79 @@ exports.renderRemoveStaffQuery = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.render_new_universal_batch_Query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const ins = await InstituteAdmin.findById({ _id: id })
+    const new_batch = new Batch({ ...req?.body })
+    new_batch.institute = ins?._id
+    ins.universal_batches.push(new_batch?._id)
+    ins.universal_batches_count += 1
+    await Promise.all([ins.save(), new_batch.save()])
+    res.status(200).send({ message: "Explore New Universal Batch Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_select_universal_batch_Query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const { batchId } = req?.body
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const ins = await InstituteAdmin.findById({ _id: id })
+    const new_batch = await Batch.findById({ _id: batchId })
+    ins.universal_selected_batch = new_batch?._id
+    new_batch.activeBatch = "Active"
+    await Promise.all([ins.save(), new_batch.save()])
+    res.status(200).send({ message: "Explore Select Universal Batch Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_universal_batch_Query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const ins = await InstituteAdmin.findById({ _id: id })
+    const all_batch = await Batch.find({ _id: { $in: ins?.universal_batches } })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(skip)
+    .select("batchName batchStatus createdAt activeBatch")
+    
+    res.status(200).send({ message: "Explore All Universal Batch Query", access: true, all_batch: all_batch })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_link_universal_batch_Query = async (req, res) => {
+  try {
+    const { bid } = req?.params
+    const { link_batch } = req?.body
+    if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const u_batch = await Batch.findById({ _id: bid })
+    const l_batch = await Batch.findById({ _id: link_batch })
+    u_batch.merged_batches.push(l_batch)
+    l_batch.merged_batch = "Merged"
+    await Promise.all([u_batch.save(), l_batch.save()])
+    res.status(200).send({ message: "Explore Link Universal Batch Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

@@ -120,6 +120,16 @@ const batchSchema = new mongoose.Schema({
   pending_from_government: {
     type: Number,
     default: 0
+  },
+  merged_batches: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch"
+    }
+  ],
+  merged_batch: {
+    type: String,
+    default: "Not Merged"
   }
 });
 

@@ -6085,7 +6085,7 @@ exports.renderDepartmentUnPinnedQuery = async (req, res) => {
       await one_ins.save()
     }
     else if (flow === "DEPENDENT") {
-      for (var ele of one_ins?.independent_pinned_department) {
+      for (var ele of one_ins?.dependent_pinned_department) {
         if (`${ele?._id}` === `${did}`) {
           one_ins.dependent_pinned_department.pull(ele?._id)   
         }

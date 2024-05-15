@@ -1377,13 +1377,13 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute",
             populate: {
-              path: "fee_structure hostel_fee_structure",
+              path: "fee_structure hostel_fee_structure fee_receipt",
               select:
                 "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-              populate: {
-                path: "category_master",
-                select: "category_name",
-              },
+              // populate: {
+              //   path: "category_master",
+              //   select: "category_name",
+              // },
             },
           },
         });
@@ -1415,13 +1415,13 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt institute",
             populate: {
-              path: "fee_structure hostel_fee_structure",
+              path: "fee_structure hostel_fee_structure fee_receipt",
               select:
                 "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-              populate: {
-                path: "category_master",
-                select: "category_name",
-              },
+              // populate: {
+              //   path: "category_master",
+              //   select: "category_name",
+              // },
             },
           },
         });
@@ -1473,8 +1473,8 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name",
             populate: {
-              path: "user",
-              select: "userPhoneNumber userEmail",
+              path: "user fee_receipt",
+              select: "userPhoneNumber userEmail receipt_file",
             },
           },
         });
@@ -1506,8 +1506,8 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt",
             populate: {
-              path: "user",
-              select: "userPhoneNumber userEmail",
+              path: "user fee_receipt",
+              select: "userPhoneNumber userEmail receipt_file",
             },
           },
         });
@@ -1560,13 +1560,13 @@ exports.fetchAllReviewApplication = async (req, res) => {
           },
           select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute",
           populate: {
-            path: "fee_structure hostel_fee_structure",
+            path: "fee_structure hostel_fee_structure fee_receipt",
             select:
               "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-            populate: {
-              path: "category_master",
-              select: "category_name",
-            },
+            // populate: {
+            //   path: "category_master",
+            //   select: "category_name",
+            // },
           }
       })
       if (apply?.reviewApplication?.length > 0) {
@@ -1589,13 +1589,13 @@ exports.fetchAllReviewApplication = async (req, res) => {
           path: "reviewApplication",
           select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute",
           populate: {
-            path: "fee_structure hostel_fee_structure",
+            path: "fee_structure hostel_fee_structure fee_receipt",
             select:
               "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-            populate: {
-              path: "category_master",
-              select: "category_name",
-            },
+            // populate: {
+            //   path: "category_master",
+            //   select: "category_name",
+            // },
           }
         })
       var all_student = await nested_document_limit(page, limit, apply?.reviewApplication)
@@ -1648,13 +1648,13 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
           },
           select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute",
           populate: {
-            path: "fee_structure hostel_fee_structure",
+            path: "fee_structure hostel_fee_structure fee_receipt",
             select:
               "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-            populate: {
-              path: "category_master",
-              select: "category_name",
-            },
+            // populate: {
+            //   path: "category_master",
+            //   select: "category_name",
+            // },
           }
       })
       if (apply?.reviewApplication?.length > 0) {
@@ -1677,13 +1677,13 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
           path: "reviewApplication",
           select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute",
           populate: {
-            path: "fee_structure hostel_fee_structure",
+            path: "fee_structure hostel_fee_structure fee_receipt",
             select:
               "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-            populate: {
-              path: "category_master",
-              select: "category_name",
-            },
+            // populate: {
+            //   path: "category_master",
+            //   select: "category_name",
+            // },
           }
         })
       if (apply?.reviewApplication?.length > 0) {
@@ -1747,13 +1747,13 @@ exports.fetchAllAllotApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentGRNO studentParentsPhoneNumber fee_receipt valid_full_name",
               populate: {
-                path: "fee_structure hostel_fee_structure",
+                path: "fee_structure hostel_fee_structure fee_receipt",
                 select:
                   "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-                populate: {
-                  path: "category_master",
-                  select: "category_name",
-                },
+                // populate: {
+                //   path: "category_master",
+                //   select: "category_name",
+                // },
               }
           },
         });
@@ -1783,13 +1783,13 @@ exports.fetchAllAllotApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt",
               populate: {
-                path: "fee_structure hostel_fee_structure",
+                path: "fee_structure hostel_fee_structure fee_receipt",
                 select:
                   "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-                populate: {
-                  path: "category_master",
-                  select: "category_name",
-                },
+                // populate: {
+                //   path: "category_master",
+                //   select: "category_name",
+                // },
               }
           },
         });
@@ -1863,8 +1863,8 @@ exports.fetchAllCancelApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName studentGRNO paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name",
             populate: {
-              path: "user",
-              select: "userPhoneNumber userEmail",
+              path: "user fee_receipt",
+              select: "userPhoneNumber userEmail receipt_file",
             },
           },
         });
@@ -1894,8 +1894,8 @@ exports.fetchAllCancelApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt",
             populate: {
-              path: "user",
-              select: "userPhoneNumber userEmail",
+              path: "user fee_receipt",
+              select: "userPhoneNumber userEmail receipt_file",
             },
           },
         });
@@ -12726,8 +12726,8 @@ exports.renderAllCancelAppsQuery = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName studentGRNO paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name",
             populate: {
-              path: "user",
-              select: "userPhoneNumber userEmail",
+              path: "user fee_receipt",
+              select: "userPhoneNumber userEmail receipt_file",
             },
           },
         });
@@ -12757,8 +12757,8 @@ exports.renderAllCancelAppsQuery = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt",
             populate: {
-              path: "user",
-              select: "userPhoneNumber userEmail",
+              path: "user fee_receipt",
+              select: "userPhoneNumber userEmail receipt_file",
             },
           },
         });
@@ -13098,7 +13098,11 @@ exports.renderAllConfirmedReadmissionQuery = async (req, res) => {
               ]
             },
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName className classTitle",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName className classTitle fee_receipt",
+            populate: {
+              path: "fee_receipt",
+              select: "receipt_file"
+              }
           },
         });
       for (let data of apply.confirmedApplication) {
@@ -13126,7 +13130,11 @@ exports.renderAllConfirmedReadmissionQuery = async (req, res) => {
           populate: {
             path: "student fee_struct appId class",
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName className classTitle",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName className classTitle fee_receipt",
+              populate: {
+                path: "fee_receipt",
+                select: "receipt_file"
+                }
           },
         });
       var all_select_query = nested_document_limit(

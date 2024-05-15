@@ -1344,6 +1344,20 @@ const instituteAdminSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteStaffForm"
   },
+  universal_batches: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch"
+    }
+  ],
+  universal_batches_count: {
+    type: Number,
+    default: 0
+  },
+  universal_selected_batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch"
+  }
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

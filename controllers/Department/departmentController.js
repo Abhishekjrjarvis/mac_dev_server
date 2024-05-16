@@ -1108,6 +1108,8 @@ exports.render_add_textarea_field_query = async (req, res) => {
     
     if (flow === "INSTITUTE") {
       const ins_form = await InstituteStudentForm.findOne({ institute: did })
+      const ins = await InstituteAdmin.findById({ _id: did })
+        .select("depart admissionDepart")
       for (var val of ins_form?.form_section) {
         if (`${val?._id}` === `${fsid}`) {
           val.section_pdf = content
@@ -1115,7 +1117,28 @@ exports.render_add_textarea_field_query = async (req, res) => {
         }
       }
       await ins_form.save()
-      res.status(200).send({ message: "Institute Form Query", access: true})
+      res.status(200).send({ message: "Institute Form Query", access: true })
+      var all_app = await NewApplication.find({ admissionAdmin: ins?.admissionDepart?.[0] })
+      var all_depart = await DepartmentStudentForm.find({ department: { $in: ins?.depart} })
+      for (let ele of all_depart) {
+        for (var val of ele?.form_section) {
+          if (`${val?.section_key}` === `antiragging_affidavit`) {
+            val.section_pdf = content
+            val.section_value = content
+          }
+        }
+        await ele.save()
+      }
+      var all_app_form = await InstituteApplicationForm.find({ application: { $in: all_app}})
+      for (let ele of all_app_form) {
+        for (var val of ele?.form_section) {
+          if (`${val?.section_key}` === `antiragging_affidavit`) {
+            val.section_pdf = content
+            val.section_value = content
+          }
+        }
+        await ele.save()
+      }
     }
     else if (flow === "DEPARTMENT") {
       const depart_form = await DepartmentStudentForm.findOne({ department: did })

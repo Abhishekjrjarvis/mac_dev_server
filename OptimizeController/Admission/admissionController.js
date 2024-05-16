@@ -571,6 +571,8 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
           section_name: val?.section_name,
           section_visibilty: val?.section_visibilty,
           section_key: val?.section_key,
+          section_pdf: val?.section_pdf,
+          section_value: val?.section_value,
           ins_form_section_id: val?._id,
           form_checklist: [...nums]
         })

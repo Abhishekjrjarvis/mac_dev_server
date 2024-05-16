@@ -1103,7 +1103,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
 
 exports.render_add_textarea_field_query = async (req, res) => {
   try {
-    const { flow, did, fsid, content } = req?.body
+    const { flow, did, fsid, content, key } = req?.body
     if (!flow && !did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     if (flow === "INSTITUTE") {
@@ -1119,25 +1119,48 @@ exports.render_add_textarea_field_query = async (req, res) => {
       await ins_form.save()
       res.status(200).send({ message: "Institute Form Query", access: true })
       var all_app = await NewApplication.find({ admissionAdmin: ins?.admissionDepart?.[0] })
-      var all_depart = await DepartmentStudentForm.find({ department: { $in: ins?.depart} })
-      for (let ele of all_depart) {
-        for (var val of ele?.form_section) {
-          if (`${val?.section_key}` === `antiragging_affidavit`) {
-            val.section_pdf = content
-            val.section_value = content
+      var all_depart = await DepartmentStudentForm.find({ department: { $in: ins?.depart } })
+      if (key === "antiragging_affidavit") {
+        for (let ele of all_depart) {
+          for (var val of ele?.form_section) {
+            if (`${val?.section_key}` === `antiragging_affidavit`) {
+              val.section_pdf = content
+              val.section_value = content
+            }
           }
+          await ele.save()
         }
-        await ele.save()
+        var all_app_form = await InstituteApplicationForm.find({ application: { $in: all_app}})
+        for (let ele of all_app_form) {
+          for (var val of ele?.form_section) {
+            if (`${val?.section_key}` === `antiragging_affidavit`) {
+              val.section_pdf = content
+              val.section_value = content
+            }
+          }
+          await ele.save()
+        } 
       }
-      var all_app_form = await InstituteApplicationForm.find({ application: { $in: all_app}})
-      for (let ele of all_app_form) {
-        for (var val of ele?.form_section) {
-          if (`${val?.section_key}` === `antiragging_affidavit`) {
-            val.section_pdf = content
-            val.section_value = content
+      else if (key === "undertakings") {
+          for (let ele of all_depart) {
+            for (var val of ele?.form_section) {
+              if (`${val?.section_key}` === `undertakings`) {
+                val.section_pdf = content
+                val.section_value = content
+              }
+            }
+            await ele.save()
           }
-        }
-        await ele.save()
+          var all_app_form = await InstituteApplicationForm.find({ application: { $in: all_app}})
+          for (let ele of all_app_form) {
+            for (var val of ele?.form_section) {
+              if (`${val?.section_key}` === `undertakings`) {
+                val.section_pdf = content
+                val.section_value = content
+              }
+            }
+            await ele.save()
+          } 
       }
     }
     else if (flow === "DEPARTMENT") {

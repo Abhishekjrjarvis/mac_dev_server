@@ -4471,7 +4471,7 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
     //   });
     const oneApply = await NewApplication.findById({ _id: aid })
       .select(
-        "applicationName applicationType applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type app_qr_code student_form_setting"
+        "applicationName applicationType applicationAbout admissionProcess gr_initials applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type app_qr_code student_form_setting"
       )
       .populate({
         path: "applicationDepartment",
@@ -4480,6 +4480,10 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
       .populate({
         path: "applicationBatch",
         select: "batchName",
+      })
+      .populate({
+        path: "applicationMaster",
+        select: "className",
       })
       .populate({
         path: "admissionAdmin",

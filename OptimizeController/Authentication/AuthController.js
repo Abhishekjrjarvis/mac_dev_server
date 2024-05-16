@@ -82,17 +82,38 @@ const LandingControl = require("../../models/LandingModel/LandingControl");
 const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
 const InstituteStaffForm = require("../../models/Form/InstituteStaffForm");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
+const { generate_qr } = require("../../Utilities/qrGeneration/qr_generation");
 
 const generateQR = async (encodeData, Id) => {
   try {
     const institute = await InstituteAdmin.findById({ _id: Id });
     var data = await QRCode.toDataURL(encodeData);
     institute.profileQRCode = data;
+    console.log(data)
     await institute.save();
   } catch (e) {
     console.log(e);
   }
 };
+const all_ins_qr = async (id) => {
+  try {
+    const institute = await InstituteAdmin.findById({ _id: id})
+      let institute_qr = {
+        instituteId: institute?._id,
+        url: `https://qviple.com/q/${institute?.name}/profile`,
+        flow: "FOR_APPLICATION_FORM"
+      };
+      let imageKey = await generate_qr({
+        fileName: "initial-institute-qr",
+        object_contain: institute_qr,
+      });
+      institute.profileQRCode = imageKey
+      await institute.save();
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
 
 const show_specific_activity = async (query) => {
   try {
@@ -197,10 +218,7 @@ exports.getRegisterIns = async (req, res) => {
           });
           await institute.save();
         }
-        generateQR(
-          `https://qviple.com/q/${institute.name}/profile`,
-          institute._id
-        );
+        await all_ins_qr(institute?._id)
       }
     }
   } catch (e) {

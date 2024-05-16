@@ -211,7 +211,7 @@ module.exports.form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Enter Student Contact No.",
                 form_checklist_lable: "Student Contact No.",
-                form_checklist_typo: "TEXT",
+                form_checklist_typo: "NUMBER",
             },
             {
                 form_checklist_name: "Student Email ID",
@@ -227,7 +227,7 @@ module.exports.form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Enter Parents / Guardian Contact No.",
                 form_checklist_lable: "Parents / Guardian Contact No.",
-                form_checklist_typo: "TEXT",
+                form_checklist_typo: "NUMBER",
             },
             {
                 form_checklist_name: "Student Current Address",
@@ -268,7 +268,7 @@ module.exports.form_params = [
             {
                 form_checklist_name: "",
                 form_checklist_key: "",
-                form_checklist_visibility: false,
+                form_checklist_visibility: true,
                 form_checklist_placeholder: "",
                 form_checklist_lable: "",
                 form_checklist_typo: "Same As",

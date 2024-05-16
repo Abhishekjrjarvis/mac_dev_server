@@ -791,10 +791,6 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         })
         for (var ele of all_section) {
           for (var stu of ele?.form_checklist) {
-            if (stu?.form_checklist_typo === "Same As") {
-            
-            }
-            else {
               ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
                 if (qwe?.form_checklist_visibility) {
                   return qwe
@@ -803,7 +799,6 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   return null
                 }
               })
-            }
             stu.form_checklist_required = ele?.section_key === "documents" ? false : true
           }
         }
@@ -822,11 +817,6 @@ exports.render_dynamic_form_details_query = async (req, res) => {
 
         for (var ele of all_section) {
           for (var stu of ele?.form_checklist) {
-        
-            if (stu?.form_checklist_typo === "Same As") {
-            
-            }
-            else {
               ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
                 if (qwe?.form_checklist_visibility) {
                   return qwe
@@ -835,7 +825,6 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   return null
                 }
               })
-            }
             stu.form_checklist_required = ele?.section_key === "documents" ? false : true
           }
         }
@@ -856,11 +845,6 @@ exports.render_dynamic_form_details_query = async (req, res) => {
 
         for (var ele of all_section) {
           for (var stu of ele?.form_checklist) {
-        
-            if (stu?.form_checklist_typo === "Same As") {
-            
-            }
-            else {
               ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
                 if (qwe?.form_checklist_visibility) {
                   return qwe
@@ -869,7 +853,6 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   return null
                 }
               })
-            }
             stu.form_checklist_required = ele?.section_key === "documents" ? false : true
           }
         }
@@ -965,10 +948,6 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         all_section[1].form_checklist.push(...all_section?.[0]?.form_checklist)
         for (var ele of all_section) {
           for (var stu of ele?.form_checklist) {
-            if (stu?.form_checklist_typo === "Same As") {
-            
-            }
-            else {
               ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
                 if (qwe?.form_checklist_visibility) {
                   return qwe
@@ -977,7 +956,6 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   return null
                 }
               })
-            }
             stu.form_checklist_required = ele?.section_key === "documents" ? false : true
           }
         }
@@ -997,11 +975,6 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         all_section[1].form_checklist.push(...all_section?.[0]?.form_checklist)
         for (var ele of all_section) {
           for (var stu of ele?.form_checklist) {
-        
-            if (stu?.form_checklist_typo === "Same As") {
-            
-            }
-            else {
               ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
                 if (qwe?.form_checklist_visibility) {
                   return qwe
@@ -1010,7 +983,6 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   return null
                 }
               })
-            }
             stu.form_checklist_required = ele?.section_key === "documents" ? false : true
           }
         }
@@ -1033,10 +1005,6 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         for (var ele of all_section) {
           for (var stu of ele?.form_checklist) {
         
-            if (stu?.form_checklist_typo === "Same As") {
-            
-            }
-            else {
               ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
                 if (qwe?.form_checklist_visibility) {
                   return qwe
@@ -1045,10 +1013,10 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   return null
                 }
               })
-            }
             stu.form_checklist_required = ele?.section_key === "documents" ? false : true
           }
         }
+        all_section.splice(0, 1)
         var all_subjects = await SubjectGroup.find({ _id: { $in: app?.subject_selected_group} })
         .populate({
           path: "subject_group_select",

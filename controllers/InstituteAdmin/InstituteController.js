@@ -3290,7 +3290,7 @@ exports.getFullStudentInfo = async (req, res) => {
     if (isApk) {
       var student = await Student.findById({ _id: id })
         .select(
-          "studentFirstName extraPoints batchCount student_prn_enroll_number online_amount_edit_access studentIdProfilePhoto student_hostel_cpi profile_percentage student_anti_ragging student_id_card_front student_id_card_back student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points studentEmail online_amount_edit_access hostelRemainFeeCount hostelPaidFeeCount exist_linked_hostel studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO leaving_student_name leaving_nationality leaving_religion leaving_previous_school leaving_certificate_attach"
+          "studentFirstName extraPoints batchCount student_prn_enroll_number online_amount_edit_access studentIdProfilePhoto student_signature student_hostel_cpi profile_percentage student_anti_ragging student_id_card_front student_id_card_back student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points studentEmail online_amount_edit_access hostelRemainFeeCount hostelPaidFeeCount exist_linked_hostel studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO leaving_student_name leaving_nationality leaving_religion leaving_previous_school leaving_certificate_attach"
         )
         .populate({
           path: "user",
@@ -3385,7 +3385,7 @@ exports.getFullStudentInfo = async (req, res) => {
     } else {
       var student = await Student.findById({ _id: id })
         .select(
-          "studentFirstName extraPoints student_hostel_cpi profile_percentage online_amount_edit_access studentIdProfilePhoto student_anti_ragging student_id_card_front student_id_card_back student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph batchCount studentMiddleName student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points exist_linked_hostel student_prn_enroll_number studentEmail online_amount_edit_access hostelRemainFeeCount hostelPaidFeeCount studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO leaving_student_name leaving_nationality leaving_religion leaving_previous_school leaving_certificate_attach"
+          "studentFirstName extraPoints student_hostel_cpi profile_percentage online_amount_edit_access studentIdProfilePhoto student_signature student_anti_ragging student_id_card_front student_id_card_back student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph batchCount studentMiddleName student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points exist_linked_hostel student_prn_enroll_number studentEmail online_amount_edit_access hostelRemainFeeCount hostelPaidFeeCount studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO leaving_student_name leaving_nationality leaving_religion leaving_previous_school leaving_certificate_attach"
         )
         .populate({
           path: "user",
@@ -6219,7 +6219,8 @@ exports.render_new_student_form_section_query = async (req, res) => {
     
     var ifs = await InstituteStudentForm.findById({ _id: fcid })
     var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
-    .select("depart")
+      .select("depart admissionDepart")
+    var all_app = await NewApplication.find({ admissionAdmin: ins?.admissionDepart?.[0] })
     for (var val of form) {
       ifs.form_section.push({
         section_name: val?.section_name,
@@ -6251,6 +6252,28 @@ exports.render_new_student_form_section_query = async (req, res) => {
       }
     }
     await ifs.save()
+
+    var all_app_form = await InstituteApplicationForm.find({ application: { $in: all_app } })
+    var filter = ifs?.form_section?.filter((val) => {
+      if(`${val?.status}` === "NEW_ADDED") return val
+    })
+    for (var ele of all_app_form) {
+      for (var val of filter) {
+        ele.form_section.push({
+          section_name: val?.section_name,
+          section_visibilty: val?.section_visibilty,
+          section_key: val?.section_key,
+          ins_form_section_id: val?._id,
+        })
+      }
+      await ele.save()
+    }
+    for (var val of ifs?.form_section) {
+      if (`${val?.status}` === "NEW_ADDED") {
+        val.status = "EXIST_ADDED"
+      }
+    }
+    await ifs.save()
   }
   catch (e) {
     console.log(e)
@@ -6264,6 +6287,9 @@ exports.render_new_student_form_checklist_query = async (req, res) => {
     if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var ifs = await InstituteStudentForm.findById({ _id: fcid })
+    var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
+      .select("depart admissionDepart")
+      var all_app = await NewApplication.find({ admissionAdmin: ins?.admissionDepart?.[0] })
     for (var val of ifs?.form_section) {
       if (`${val?._id}` === `${fsid}`) {
         for (var ele of checklist) {
@@ -6311,6 +6337,35 @@ exports.render_new_student_form_checklist_query = async (req, res) => {
               ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
             }
             fc.department_form = stu?._id
+            fc.form_section = val?._id
+            val.form_checklist.push(fc?._id)
+            await fc.save()
+          }
+          // await val.save()
+        }
+      }
+      await stu.save()
+    }
+    var all_app_form = await InstituteApplicationForm.find({ application: { $in: all_app } })
+    for (var stu of all_app_form) {
+      for (var val of stu?.form_section) {
+        if (`${val?.ins_form_section_id}` === `${fsid}`) {
+          for (var ele of checklist) {
+            var fc = new FormChecklist({
+              form_checklist_name: ele?.form_checklist_name,
+              form_checklist_key: ele?.form_checklist_key,
+              form_checklist_visibility: ele?.form_checklist_visibility,
+              form_checklist_placeholder: ele?.form_checklist_placeholder,
+              form_checklist_lable: ele?.form_checklist_lable,
+              form_checklist_typo: ele?.form_checklist_typo,
+              form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+              form_checklist_required: ele?.form_checklist_required,
+              form_checklist_key_status: "DYNAMIC"
+            })
+            if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+              ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+            }
+            fc.application_form = stu?._id
             fc.form_section = val?._id
             val.form_checklist.push(fc?._id)
             await fc.save()
@@ -6597,7 +6652,7 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
         var dfs = new DepartmentStudentForm({})
         dfs.department = qwe?._id
         qwe.student_form_setting = dfs?._id
-        for (var val of one_ifs?.form_section) {
+        for (var val of checklist) {
           if (val?.form_checklist?.length > 0) {
             for (var ele of val?.form_checklist) {
               var fc = new FormChecklist({
@@ -6623,7 +6678,7 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
                 fc.form_checklist_view = ele?.form_checklist_view
               }
               fc.department_form = dfs?._id
-              fc.form_section = val?._id
+              fc.form_section = one_ifs?._id
               nums.push(fc?._id)
               await fc.save()
             }
@@ -6641,12 +6696,12 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
         await Promise.all([dfs.save(), qwe.save()])
       }
     // }
-    var numss = []
+    var numsss = []
       for (var qwe of all_app) {
         var iaf = new InstituteApplicationForm({})
         iaf.application = qwe?._id
         qwe.student_form_setting = iaf?._id
-        for (var val of one_ifs?.form_section) {
+        for (var val of checklist) {
           if (val?.form_checklist?.length > 0) {
             for (var ele of val?.form_checklist) {
               var fc = new FormChecklist({
@@ -6671,9 +6726,9 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
               if (ele?.form_checklist_view) {
                 fc.form_checklist_view = ele?.form_checklist_view
               }
-              fc.department_form = iaf?._id
-              fc.form_section = val?._id
-              numss.push(fc?._id)
+              fc.application_form = iaf?._id
+              fc.form_section = one_ifs?._id
+              numsss.push(fc?._id)
               await fc.save()
             }
           }
@@ -6683,9 +6738,9 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
             section_key: val?.section_key,
             section_value: val?.section_value,
             ins_form_section_id: val?._id,
-            form_checklist: [...numss]
+            form_checklist: [...numsss]
           })
-          numss = []
+          numsss = []
         }
         await Promise.all([iaf.save(), qwe.save()])
       }
@@ -7144,9 +7199,10 @@ exports.render_enable_form_flow = async (req, res) => {
 
 exports.render_form_key_editable = async (req, res) => {
   try {
-    const all_check = await FormChecklist.find({ form_checklist_key: "staff_technicality" })
+    const all_check = await FormChecklist.find({ form_checklist_typo: "Same As" })
     for (let ele of all_check) {
-      ele.form_checklist_typo_option_pl = ["Teaching", "Non-Teaching"]
+      ele.form_checklist_visibility = true
+      // ele.form_checklist_typo_option_pl = ["Teaching", "Non-Teaching"]
         // ["General/OPEN", "OBC", "SBC", "EWS", "TFWS", "VJNT", "NT-A", "NT-B", "NT-C", "Physically Handicapped", "Defence Quota", "J&K & NEUT", "PMSS"]
       await ele.save()
     }

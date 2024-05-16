@@ -9,6 +9,10 @@ const formChecklistSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "DepartmentStudentForm"
     },
+    application_form: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "InstituteApplicationForm"
+    },
   created_at: {
     type: Date,
     default: Date.now,

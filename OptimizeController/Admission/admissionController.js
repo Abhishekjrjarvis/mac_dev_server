@@ -561,7 +561,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
             if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
               ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
             }
-            fc.department_form = iaf?._id
+            fc.application_form = iaf?._id
             fc.form_section = val?._id
             nums.push(fc?._id)
             await fc.save()
@@ -643,7 +643,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
           if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
             ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
           }
-          fc.department_form = iaff?._id
+          fc.application_form = iaff?._id
           fc.form_section = val?._id
           numss.push(fc?._id)
           await fc.save()
@@ -13656,7 +13656,7 @@ exports.render_new_student_form_checklist_query = async (req, res) => {
           if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
             ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
           }
-          fc.department_form = iaf?._id
+          fc.application_form = iaf?._id
           fc.form_section = val?._id
           val.form_checklist.push(fc?._id)
           await fc.save()

@@ -957,7 +957,7 @@ exports.getNewDepartment = async (req, res) => {
     } else {
       department.dHead = null;
     }
-    await Promise.all([institute.save(), department.save()]);
+    await Promise.all([institute.save(), department.save()], dfs.save());
     // const dEncrypt = await encryptionPayload(department._id);
     res.status(200).send({
       message: "Successfully Created Department",

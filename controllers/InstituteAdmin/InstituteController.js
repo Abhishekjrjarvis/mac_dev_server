@@ -4270,7 +4270,7 @@ exports.retrieveNewBatch = async (req, res) => {
               if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
                 ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
               }
-              fc.department_form = iaf?._id
+              fc.application_form = iaf?._id
               fc.form_section = val?._id
               nums.push(fc?._id)
               await fc.save()

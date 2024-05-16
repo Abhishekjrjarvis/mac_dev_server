@@ -951,12 +951,12 @@ exports.getNewDepartment = async (req, res) => {
           ""
         );
       }
-      var dfs = new DepartmentStudentForm({})
-      dfs.department = department?._id
-      department.student_form_setting = dfs?._id
     } else {
       department.dHead = null;
     }
+    var dfs = new DepartmentStudentForm({})
+      dfs.department = department?._id
+      department.student_form_setting = dfs?._id
     await Promise.all([institute.save(), department.save()], dfs.save());
     // const dEncrypt = await encryptionPayload(department._id);
     res.status(200).send({

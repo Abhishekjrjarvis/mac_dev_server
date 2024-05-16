@@ -556,7 +556,8 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
               form_checklist_lable: ele?.form_checklist_lable,
               form_checklist_typo: ele?.form_checklist_typo,
               form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
-              form_checklist_required: ele?.form_checklist_required
+              form_checklist_required: ele?.form_checklist_required,
+              width: ele?.width
             })
             if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
               ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
@@ -640,7 +641,8 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
             form_checklist_lable: ele?.form_checklist_lable,
             form_checklist_typo: ele?.form_checklist_typo,
             form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
-            form_checklist_required: ele?.form_checklist_required
+            form_checklist_required: ele?.form_checklist_required,
+            width: ele?.width
           })
           if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
             ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]

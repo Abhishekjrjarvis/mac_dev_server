@@ -951,12 +951,12 @@ exports.getNewDepartment = async (req, res) => {
           ""
         );
       }
-      var dfs = new DepartmentStudentForm({})
-      dfs.department = department?._id
-      department.student_form_setting = dfs?._id
     } else {
       department.dHead = null;
     }
+    var dfs = new DepartmentStudentForm({})
+      dfs.department = department?._id
+      department.student_form_setting = dfs?._id
     await Promise.all([institute.save(), department.save()], dfs.save());
     // const dEncrypt = await encryptionPayload(department._id);
     res.status(200).send({
@@ -4270,7 +4270,7 @@ exports.retrieveNewBatch = async (req, res) => {
               if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
                 ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
               }
-              fc.department_form = iaf?._id
+              fc.application_form = iaf?._id
               fc.form_section = val?._id
               nums.push(fc?._id)
               await fc.save()

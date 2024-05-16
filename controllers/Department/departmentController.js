@@ -633,6 +633,95 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
   }
 }
 
+exports.render_dynamic_form_subject_list_query = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var student = await Student.findById({ _id: sid })
+      .populate({
+        path: "student_optional_subject",
+        select: "subjectName"
+    })
+    if (student?.student_form_flow?.flow === "APPLICATION") {
+      var head_array = []
+      var head_arrays = []
+      var obj = {}
+      var nest_obj = {}
+      const all_check = await InstituteApplicationForm.findOne({ application: student?.student_form_flow?.did })
+      .select("form_section")
+      .populate({
+      path: "form_section.form_checklist"
+      })
+      .populate({
+        path: "application",
+        select: "admissionAdmin",
+        populate: {
+          path: "admissionAdmin",
+          select: "institute",
+          populate: {
+            path: "institute",
+            select: "insName"
+          }
+        }
+        })
+      for (var val of all_check?.form_section) {
+        if (val?.section_visibilty == true) {
+          for (var ele of val?.form_checklist) {
+            if (ele?.form_checklist_visibility == true) {
+              var list = student?.student_dynamic_field?.filter((dna) => {
+                if (dna?.key === ele?.form_checklist_key) {
+                  nest_obj[`${dna?.key}`] = dna?.value
+                }
+              })
+              if (ele?.form_checklist_typo === "Same As") {
+              }
+              else {
+                if (ele?.form_checklist_key === "student_undertakings") {
+                  var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                  var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
+                }
+                else if (ele?.form_checklist_key === "student_anti_ragging") {
+                  var name2 = val?.section_value
+                }
+                head_array.push({
+                  form_checklist_name: ele?.form_checklist_name,
+                  form_checklist_key: ele?.form_checklist_key,
+                  form_checklist_visibility: ele?.form_checklist_visibility,
+                  form_checklist_placeholder: ele?.form_checklist_placeholder,
+                  form_checklist_lable: ele?.form_checklist_lable,
+                  form_checklist_typo: ele?.form_checklist_typo,
+                  form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+                  form_checklist_required: val?.section_key === "documents" ? false : true,
+                  value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                })
+              }
+            }
+          }
+          obj[`fields`] = [...head_array]
+          head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key })
+          obj = {}
+          head_array = []
+        }
+      }
+      head_arrays?.splice(0, 1)
+      var n = []
+      var objs = {}
+      for (let ele of student?.student_optional_subject) {
+        n.push({
+          value: `${ele?.subjectName}`
+        })
+      }
+      objs[`fields`] = [...n]
+      head_arrays.push({ ...objs, key: "Selected Subjects", static_key: "selected_subjects" })
+      res.status(200).send({ message: "Explore One Student Application Dynamic Form Query", access: true, result: [...head_arrays]})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.render_edit_student_form_section_query = async (req, res) => {
   try {
     const { fcid } = req?.params
@@ -846,6 +935,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                 nested_section_typo: "CHECKBOX"
               }
             )
+            nums_select = []
           }
           nums_subject.push({
             section_name: `${ele?.subject_group_name}`,
@@ -1021,6 +1111,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                 nested_section_typo: "CHECKBOX"
               }
             )
+            nums_select = []
           }
           nums_subject.push({
             section_name: `${ele?.subject_group_name}`,

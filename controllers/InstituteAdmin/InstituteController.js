@@ -995,6 +995,8 @@ exports.getNewDepartment = async (req, res) => {
         section_name: val?.section_name,
         section_visibilty: val?.section_visibilty,
         section_key: val?.section_key,
+        section_pdf: val?.section_pdf,
+        section_value: val?.section_value,
         ins_form_section_id: val?._id,
         form_checklist: [...nums]
       })
@@ -4280,6 +4282,8 @@ exports.retrieveNewBatch = async (req, res) => {
             section_name: val?.section_name,
             section_visibilty: val?.section_visibilty,
             section_key: val?.section_key,
+            section_pdf: val?.section_pdf,
+            section_value: val?.section_value,
             ins_form_section_id: val?._id,
             form_checklist: [...nums]
           })
@@ -6688,6 +6692,7 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
             section_visibilty: val?.section_visibilty,
             section_key: val?.section_key,
             section_value: val?.section_value,
+            section_pdf: val?.section_pdf,
             ins_form_section_id: val?._id,
             form_checklist: [...nums]
           })
@@ -6736,6 +6741,7 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
             section_name: val?.section_name,
             section_visibilty: val?.section_visibilty,
             section_key: val?.section_key,
+            section_pdf: val?.section_pdf,
             section_value: val?.section_value,
             ins_form_section_id: val?._id,
             form_checklist: [...numsss]

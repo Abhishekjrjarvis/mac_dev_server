@@ -251,12 +251,8 @@ exports.render_all_subject_master_query = async (req, res) => {
             .skip(skip)
             .select("subjectName department link_subject_master")
             .populate({
-                path: "department",
+                path: "link_department",
                 select: "dName"
-            })
-            .populate({
-                path: "link_subject_master",
-                select: "subjectName"
             })
             res.status(200).send({ message: "Explore All Subject Master Query", access: true, all_subjects: all_subjects})
     }
@@ -268,17 +264,17 @@ exports.render_all_subject_master_query = async (req, res) => {
 exports.render_map_master_query = async (req, res) => {
     try {
         const { subId, mapId, did } = req?.body
-        if (!subId && !mapId) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+        if (!mapId) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
         
         const depart = await Department.findById({ _id: did })
-        const subjects = await SubjectMaster.findById({ _id: subId })
+        // const subjects = await SubjectMaster.findById({ _id: subId })
         const subjects_extra = await SubjectMaster.findById({ _id: mapId })
 
-        subjects.link_subject_master = subjects_extra?._id
-        subjects_extra.link_subject_master = subjects?._id
+        // subjects.link_subject_master = subjects_extra?._id
+        subjects_extra.link_department = depart?._id
         depart.merged_subject_master.push(subjects_extra?._id)
 
-        await Promise.all([subjects.save(), subjects_extra.save(), depart.save()])
+        await Promise.all([ subjects_extra.save(), depart.save()])
         res.status(200).send({ message: "Explore One Subject Master Map Query", access: true})
 
     }

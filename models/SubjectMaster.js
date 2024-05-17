@@ -104,9 +104,9 @@ const subjectMasterSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  link_subject_master: {
+  link_department: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "SubjectMaster"
+    ref: "Department"
   }
 });
 

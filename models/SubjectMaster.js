@@ -104,6 +104,10 @@ const subjectMasterSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  link_subject_master: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SubjectMaster"
+  }
 });
 
 const SubjectMaster = mongoose.model("SubjectMaster", subjectMasterSchema);

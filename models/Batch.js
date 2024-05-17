@@ -130,6 +130,10 @@ const batchSchema = new mongoose.Schema({
   merged_batch: {
     type: String,
     default: "Not Merged"
+  },
+  u_batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch"
   }
 });
 

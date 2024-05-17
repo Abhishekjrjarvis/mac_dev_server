@@ -477,7 +477,17 @@ const departmentSchema = new mongoose.Schema({
   },
   pin_status_flow: {
     type: String
-  }
+  },
+  department_status: {
+    type: String,
+    default: "Normal"
+  },
+  merged_subject_master: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectMaster"
+    }
+  ]
 });
 
 const Department = mongoose.model("Department", departmentSchema);

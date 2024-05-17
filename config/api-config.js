@@ -95,6 +95,8 @@ const studentAttendanceRouteV2 = require("../OptimizeRoute/StudentAttendance/stu
 const instituteAutomateRouteV2 = require("../OptimizeRoute/InstituteAutomate/instituteAutomateRoute");
 const payrollRouteV2 = require("../OptimizeRoute/Finance/Payroll/PayrollRoute");
 const iqacV2 = require("../OptimizeRoute/LandingPage/iqacRoute");
+const academicDepartmentV2 = require("../OptimizeRoute/AcademicDepartment/academicDepartmentRoute");
+
 
 // Api Middleware Func
 
@@ -190,6 +192,7 @@ router.use("/api/v2/feedback", studentFeedbackRouteV2);
 router.use("/api/v2/store", storeV2);
 router.use("/api/v2/payroll", payrollRouteV2);
 router.use("/api/v2/committee", iqacV2);
+router.use("/api/v2/academic/department", academicDepartmentV2);
 
 
 router.use("/api/v2/attendance/student", studentAttendanceRouteV2);

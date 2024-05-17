@@ -98,7 +98,11 @@ const departmentSiteSchema = new mongoose.Schema({
       sub_heading_image:String,
       sub_head_body:String,
     }
-  ]
+  ],
+  department_site_status: {
+    type: String,
+    default: "Normal"
+  }
 });
 
 module.exports = mongoose.model("DepartmentSite", departmentSiteSchema);

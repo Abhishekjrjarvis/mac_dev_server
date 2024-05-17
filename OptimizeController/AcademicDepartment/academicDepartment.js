@@ -25,7 +25,6 @@ const ReplyAnnouncement = require("../../models/ReplyAnnouncement");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const Status = require("../../models/Admission/status");
-const Post = require("../../models/Post");
 const Comment = require("../../models/Comment");
 const ReplyComment = require("../../models/ReplyComment/ReplyComment");
 const { uploadDocFile, uploadFile } = require("../../S3Configuration");
@@ -46,7 +45,6 @@ const {
 const {
   render_institute_current_role,
 } = require("../Moderator/roleController");
-const { announcement_feed_query } = require("../../Post/announceFeed");
 const { handle_undefined } = require("../../Handler/customError");
 const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
 const { applicable_pending_calc } = require("../../Functions/SetOff");
@@ -59,7 +57,6 @@ const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
 const invokeSpecificRegister = require("../../Firebase/specific");
 const { send_global_announcement_notification_query } = require("../../Feed/socialFeed");
-const { postWithDeletedFromAnnouncement } = require("./Post/PostController");
 const FormChecklist = require("../../models/Form/FormChecklist");
 const { form_params } = require("../../Constant/form");
 const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");

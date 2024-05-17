@@ -86,6 +86,7 @@ exports.updateDepartmentInfo = async (req, res) => {
         department_image: req.body.department_image,
         department_contact: req.body.department_contact,
         related_department: department?._id,
+        department_site_status: req.body.department_site_status ?? "Normal"
       });
       department.site_info.push(departmentSite?._id);
       await Promise.all([departmentSite.save(), department.save()]);

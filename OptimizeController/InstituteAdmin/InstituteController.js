@@ -5975,6 +5975,7 @@ exports.render_link_universal_batch_Query = async (req, res) => {
     const l_batch = await Batch.findById({ _id: link_batch })
     u_batch.merged_batches.push(l_batch)
     l_batch.merged_batch = "Merged"
+    l_batch.u_batch = u_batch?._id
     await Promise.all([u_batch.save(), l_batch.save()])
     res.status(200).send({ message: "Explore Link Universal Batch Query", access: true })
   }

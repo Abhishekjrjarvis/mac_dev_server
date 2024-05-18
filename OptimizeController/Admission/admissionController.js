@@ -2999,9 +2999,12 @@ exports.retrieveClassAllotQuery = async (req, res) => {
           aStatus.applicationId = apply._id;
           user.applicationStatus.push(aStatus._id);
           aStatus.instituteId = institute._id;
-          for (let ele of all_subjects) {
-            ele.optionalStudent.push(student?._id);
-            await ele.save();
+          if (all_subjects?.length > 0) {
+            student.student_optional_subject_access = "Yes"
+            for (let ele of all_subjects) {
+              ele.optionalStudent.push(student?._id);
+              await ele.save();
+            }
           }
           await Promise.all([
             apply.save(),

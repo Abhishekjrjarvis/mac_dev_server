@@ -998,7 +998,11 @@ const studentSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubjectMaster"
     }
-  ]
+  ],
+  student_optional_subject_access: {
+    type: String,
+    default: "No"
+  }
 });
 
 const Student = mongoose.model("Student", studentSchema);

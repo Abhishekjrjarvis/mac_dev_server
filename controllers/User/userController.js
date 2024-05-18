@@ -1625,7 +1625,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         )
         .populate({
           path: "staffDepartment",
-          select: "dName dTitle",
+          select: "dName dTitle department_status",
           populate: {
             path: "departmentSelectBatch",
             select: "batchName batchStatus",
@@ -1858,7 +1858,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         )
         .populate({
           path: "staffDepartment",
-          select: "dName dTitle",
+          select: "dName dTitle department_status",
           populate: {
             path: "departmentSelectBatch",
             select: "batchName batchStatus",

@@ -246,12 +246,13 @@ exports.render_all_subject_master_query = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
         if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-        const all_subjects = await SubjectMaster.find({ department: did })
+        const depart = await Department.findById({ _id: did })
+        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
             .limit(limit)
             .skip(skip)
             .select("subjectName department link_subject_master")
             .populate({
-                path: "link_department",
+                path: "department",
                 select: "dName"
             })
             res.status(200).send({ message: "Explore All Subject Master Query", access: true, all_subjects: all_subjects})

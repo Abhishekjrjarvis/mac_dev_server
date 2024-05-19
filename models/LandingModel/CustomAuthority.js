@@ -210,6 +210,12 @@ const customAuthoritySchema = new mongoose.Schema({
             attach: { type: String }
         }
     ],
+    naac_sss: [
+        {
+            name: { type: String },
+            attach: { type: String }
+        }
+    ],
     certificates: [
         {
             name: { type: String },

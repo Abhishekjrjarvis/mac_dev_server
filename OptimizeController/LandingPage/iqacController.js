@@ -726,6 +726,12 @@ exports.render_add_naac_documents_query = async (req, res) => {
                 attach: attach
             })
         }
+        else if (flow === "SSS") {
+            custom.naac_sss.push({
+                name: name ?? "",
+                attach: attach
+            })
+        }
         await custom.save()
         res.status(200).send({ message: `Add ${flow} Documents Query`, access: true})
     }

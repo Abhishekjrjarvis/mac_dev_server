@@ -746,7 +746,7 @@ exports.render_all_naac_master_query = async (req, res) => {
         if (!qcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
         
         const custom = await CustomAuthority.findById({ _id: qcid })
-            .select("naac_ssr_three_cycle naac_ssr_four_cycle naac_dvv naac_iiqa certificates undertakings")
+            .select("naac_ssr_three_cycle naac_ssr_four_cycle naac_dvv naac_iiqa certificates undertakings naac_sss")
         .populate({
             path: "custom_head_person",
             select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffROLLNO"

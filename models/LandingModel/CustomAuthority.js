@@ -219,7 +219,7 @@ const customAuthoritySchema = new mongoose.Schema({
     certificates: [
         {
             name: { type: String },
-            attach: { type: String },
+            attach: [],
         }
     ],
     undertakings: [

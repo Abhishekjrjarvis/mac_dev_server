@@ -717,7 +717,7 @@ exports.render_add_naac_documents_query = async (req, res) => {
         else if (flow === "CERTIFICATE") {
             custom.certificates.push({
                 name: name ?? "",
-                attach: attach
+                attach: [...attach]
             })
         }
         else if (flow === "UNDERTAKINGS") {

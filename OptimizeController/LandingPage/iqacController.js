@@ -583,14 +583,16 @@ exports.render_add_rnd_meetings_query = async (req, res) => {
 exports.render_edit_academic_sub_head_query = async (req, res) => {
     try {
       const { qcid } = req?.params
-      const { sub_head_title, sub_heading_image, sub_head_body } = req?.body
+      const { sub_head_title, sub_heading_image, sub_head_body, flow, type } = req?.body
       if (!qcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
       
       const custom = await CustomAuthority.findById({ _id: qcid })
         custom.about.push({
             sub_head_title: sub_head_title,
             sub_heading_image: sub_heading_image,
-            sub_head_body: sub_head_body
+            sub_head_body: sub_head_body,
+            flow: flow ?? "",
+            type: type ?? ""
       })
       await custom.save()
       res.status(200).send({ message: "Explore Sub Head Edit Query", access: true})
@@ -598,4 +600,155 @@ exports.render_edit_academic_sub_head_query = async (req, res) => {
     catch (e) {
       console.log(e)
     }
-  }
+}
+  
+exports.render_all_custom_about_query = async (req, res) => {
+    try {
+        const { qcid } = req?.params
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
+        const { flow, type } = req?.query
+        if (!qcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false }) 
+
+        const new_custom = await CustomAuthority.findById({ _id: qcid })
+            .select("about")
+        
+        var all_customs = new_custom?.about?.filter((ele) => {
+            if(`${ele?.flow}` === `${flow}` && `${ele?.type}` === `${type}`) return ele
+            
+        })
+        var all_com = await nested_document_limit(page, limit, all_customs)
+        if (all_com?.length > 0) {
+        res.status(200).send({ message: "Explore All About Query", access: true, all_com: all_com})
+            
+        }
+        else {
+        res.status(200).send({ message: "No About Query", access: false})
+            
+        }
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_add_audit_reports_query = async (req, res) => {
+    try {
+      const { qcid } = req?.params
+      const { name, attach, tab_type } = req?.body
+      if (!qcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+      
+        const custom = await CustomAuthority.findById({ _id: qcid })
+        custom.audit_reports.push({
+            name: name,
+            attach: attach,
+            tab_type: tab_type
+      })
+      await custom.save()
+      res.status(200).send({ message: "Explore Add Audit Reports Query", access: true})
+    }
+    catch (e) {
+      console.log(e)
+    }
+}
+
+exports.render_all_audit_reports_query = async (req, res) => {
+    try {
+        const { qcid } = req?.params
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
+        const { tab_type } = req?.query
+        if (!qcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false }) 
+
+        const new_custom = await CustomAuthority.findById({ _id: qcid })
+            .select("audit_reports")
+        
+        var all_customs = new_custom?.audit_reports?.filter((ele) => {
+            if(`${ele?.tab_type}` === `${tab_type}`) return ele
+            
+        })
+        var all_com = await nested_document_limit(page, limit, all_customs)
+        if (all_com?.length > 0) {
+        res.status(200).send({ message: "Explore All Audit Reports Query", access: true, all_com: all_com})
+            
+        }
+        else {
+        res.status(200).send({ message: "No Audit Reports Query", access: false})
+            
+        }
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_add_naac_documents_query = async (req, res) => {
+    try {
+        const { qcid } = req?.params
+        const { name, attach } = req?.body
+        if (!qcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+        var custom = await CustomAuthority.findById({ _id: qcid })
+        if (flow === "SSR_3") {
+            custom.naac_ssr_three_cycle.push({
+                name: name ?? "",
+                attach: attach
+            })
+        }
+        else if (flow === "SSR_4") {
+            custom.naac_ssr_four_cycle.push({
+                name: name ?? "",
+                attach: attach
+            })
+        }
+        else if (flow === "DVV") {
+            custom.naac_dvv.push({
+                name: name ?? "",
+                attach: attach
+            })
+        }
+        else if (flow === "IIQA") {
+            custom.naac_iiqa.push({
+                name: name ?? "",
+                attach: attach
+            })
+        }
+        else if (flow === "CERTIFICATE") {
+            custom.certificates.push({
+                name: name ?? "",
+                attach: attach
+            })
+        }
+        else if (flow === "UNDERTAKINGS") {
+            custom.undertakings.push({
+                name: name,
+                attach: attach
+            })
+        }
+        await custom.save()
+        res.status(200).send({ message: `Add ${flow} Documents Query`, access: true})
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
+exports.render_all_naac_master_query = async (req, res) => {
+    try {
+        const { qcid } = req?.params
+        if (!qcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+        
+        const custom = await CustomAuthority.findById({ _id: qcid })
+            .select("naac_ssr_three_cycle naac_ssr_four_cycle naac_dvv naac_iiqa certificates undertakings")
+        .populate({
+            path: "custom_head_person",
+            select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffROLLNO"
+        })
+        res.status(200).send({ message: "Explore NAAC Master Query", access: true, custom})
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+  

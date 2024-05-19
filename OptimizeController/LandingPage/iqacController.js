@@ -687,7 +687,7 @@ exports.render_all_audit_reports_query = async (req, res) => {
 exports.render_add_naac_documents_query = async (req, res) => {
     try {
         const { qcid } = req?.params
-        const { name, attach } = req?.body
+        const { name, attach, flow } = req?.body
         if (!qcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
         var custom = await CustomAuthority.findById({ _id: qcid })
         if (flow === "SSR_3") {

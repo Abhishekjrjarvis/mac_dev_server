@@ -172,11 +172,11 @@ const customAuthoritySchema = new mongoose.Schema({
     ],
     about: [
         {
-            sub_head_title:String,
-            sub_heading_image:String,
-            sub_head_body: String,
-            flow: String,
-            type: String
+            sub_head_title: { type: String },
+            sub_heading_image: { type: String },
+            sub_head_body:  { type: String },
+            flow:  { type: String },
+            type:  { type: String }
         }
     ],
     audit_reports: [

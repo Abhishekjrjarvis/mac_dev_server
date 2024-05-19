@@ -174,9 +174,54 @@ const customAuthoritySchema = new mongoose.Schema({
         {
             sub_head_title:String,
             sub_heading_image:String,
-            sub_head_body:String,
+            sub_head_body: String,
+            flow: String,
+            type: String
         }
-      ]
+    ],
+    audit_reports: [
+        {
+            name: { type: String },
+            attach: { type: String },
+            tab_type: { type: String }
+        }
+    ],
+    naac_ssr_three_cycle: [
+        {
+            name: { type: String },
+            attach: { type: String }
+        }
+    ],
+    naac_ssr_four_cycle: [
+        {
+            name: { type: String },
+            attach: { type: String }
+        }
+    ],
+    naac_dvv: [
+        {
+            name: { type: String },
+            attach: { type: String }
+        }
+    ],
+    naac_iiqa: [
+        {
+            name: { type: String },
+            attach: { type: String }
+        }
+    ],
+    certificates: [
+        {
+            name: { type: String },
+            attach: { type: String },
+        }
+    ],
+    undertakings: [
+        {
+            name: { type: String },
+            attach: { type: String }
+        }
+    ]
 })
 
 module.exports = mongoose.model("CustomAuthority", customAuthoritySchema)

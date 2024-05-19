@@ -65,4 +65,14 @@ router.post("/:qcid/add/rnd/meetings/query", catchAsync(IQAC.render_add_rnd_meet
 
 router.patch("/:qcid/add/about/query", catchAsync(IQAC.render_edit_academic_sub_head_query));
 
+router.get("/:qcid/all/about/query", catchAsync(IQAC.render_all_custom_about_query));
+
+router.patch("/:qcid/add/audit/reports/query", catchAsync(IQAC.render_add_audit_reports_query));
+
+router.get("/:qcid/all/audit/reports/query", catchAsync(IQAC.render_all_audit_reports_query));
+
+router.patch("/:qcid/add/naac/documents/query", catchAsync(IQAC.render_add_naac_documents_query));
+
+router.get("/:qcid/all/naac/master/query", catchAsync(IQAC.render_all_naac_master_query));
+
 module.exports = router;

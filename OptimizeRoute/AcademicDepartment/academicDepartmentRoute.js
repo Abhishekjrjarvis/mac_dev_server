@@ -53,4 +53,54 @@ router.get(
     catchAsync(AcademicDepartment.render_all_staff_query)
   );
 
+  router.post(
+    "/:cid/new/theory/classes",
+    catchAsync(AcademicDepartment.render_new_theory_classes)
+  );
+  
+  router.get(
+    "/:cid/all/theory/classes",
+    catchAsync(AcademicDepartment.render_all_theory_classes)
+  );
+
+  router.get(
+    "/:sid/one/theory/classes/subject",
+    catchAsync(AcademicDepartment.render_one_theory_classes_subject)
+  );
+
+  router.patch(
+    "/:sid/new/student/add",
+    catchAsync(AcademicDepartment.render_new_student_add_query)
+  );
+
+  router.patch(
+    "/:sid/new/student/remove",
+    catchAsync(AcademicDepartment.render_new_student_remove_query)
+  );
+
+  router.post(
+    "/:cid/new/theory/practical/batch",
+    catchAsync(AcademicDepartment.render_new_theory_practical)
+  );
+  
+  router.get(
+    "/:cid/all/theory/practical/batch",
+    catchAsync(AcademicDepartment.render_all_theory_practical)
+  );
+
+  router.get(
+    "/:bid/one/theory/practical/batch",
+    catchAsync(AcademicDepartment.render_one_theory_practical_batch)
+  );
+
+  router.patch(
+    "/:bid/new/student/add/batch",
+    catchAsync(AcademicDepartment.render_new_student_add_query)
+  );
+  
+  router.patch(
+    "/:bid/new/student/remove/batch",
+    catchAsync(AcademicDepartment.render_new_student_remove_query)
+  );
+
 module.exports = router;

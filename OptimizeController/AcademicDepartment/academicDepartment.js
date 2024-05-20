@@ -493,3 +493,221 @@ exports.render_all_staff_query = async (req, res) => {
         console.log(e)
     }
 }
+
+exports.render_new_theory_classes = async (req, res) => {
+  try {
+    const { cid } = req?.params
+    const { staff } = req?.body
+    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const classes = await ClassMaster.findById({ _id: cid })
+    const new_subject = new Subject({ ...req?.body })
+    if (staff) {
+      const staffs = await Staff.findById({ _id: staff})
+      new_subject.subjectTeacherName = staffs
+      staffs.staffSubject.push(new_subject?._id)
+      await staffs.save()
+    }
+    classes.theory_classes.push(new_subject?._id)
+    classes.theory_classes_count += 1
+    await Promise.all([new_subject.save(), classes.save()])
+    res.status(200).send({ message: "New Subject Add Query", access: true })            
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_theory_classes = async (req, res) => {
+  try {
+    const { cid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const classes = await ClassMaster.findById({ _id: cid })
+    const all_subject = await Subject.find({ _id: { $in: classes?.theory_classes } })
+      .limit(limit)
+      .skip(skip)
+      .select("subjectName theory_students")
+      .populate({
+        path: "subjectTeacherName",
+        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+      })
+      res.status(200).send({ message: "All Subject Query", access: true, all_subject: all_subject })            
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_theory_classes_subject = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const subject = await Subject.findById({ _id: sid })
+    .select("subjectName theory_students")
+    .populate({
+      path: "subjectTeacherName",
+      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+    })
+      res.status(200).send({ message: "One Subject Query", access: true, subject: subject })            
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_student_add_query = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    const { students } = req?.body
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var subject = await Subject.findById({ _id: sid })
+    if (students?.length > 0) {
+      for (let ele of students) {
+        subject.theory_students.push(ele) 
+      }
+    }
+    await subject.save()
+    res.status(200).send({ message: "New Student Add Query", access: true })            
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_student_remove_query = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    const { students } = req?.body
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var subject = await Subject.findById({ _id: sid })
+    if (students?.length > 0) {
+      for (let ele of students) {
+        subject.theory_students.pull(ele) 
+      }
+    }
+    await subject.save()
+    res.status(200).send({ message: "New Student Remove Query", access: true })            
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_theory_practical = async (req, res) => {
+  try {
+    const { cid } = req?.params
+    const { staff } = req?.body
+    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const classes = await ClassMaster.findById({ _id: cid })
+    const new_batch = new Batch({ ...req?.body })
+    if (staff) {
+      const staffs = await Staff.findById({ _id: staff})
+      new_batch.batch_head = staffs
+      staffs.staffBatch.push(new_batch?._id)
+      await staffs.save()
+    }
+    classes.practical_batch.push(new_batch?._id)
+    classes.practical_batch_count += 1
+    await Promise.all([new_batch.save(), classes.save()])
+    res.status(200).send({ message: "New Batch Add Query", access: true })            
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_theory_practical = async (req, res) => {
+  try {
+    const { cid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const classes = await ClassMaster.findById({ _id: cid })
+    const all_batch = await Batch.find({ _id: { $in: classes?.practical_batch } })
+      .limit(limit)
+      .skip(skip)
+      .select("batchName class_student_query")
+      .populate({
+        path: "batch_head",
+        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+      })
+      res.status(200).send({ message: "All Batches Query", access: true, all_batch: all_batch })            
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_theory_practical_batch = async (req, res) => {
+  try {
+    const { bid } = req?.params
+    if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const batch = await Batch.findById({ _id: bid })
+    .select("batchName class_student_query")
+    .populate({
+      path: "batch_head",
+      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+    })
+      res.status(200).send({ message: "One Batch Query", access: true, batch: batch })            
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_student_add_query_batch = async (req, res) => {
+  try {
+    const { bid } = req?.params
+    const { students } = req?.body
+    if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var one_batch = await Batch.findById({ _id: bid })
+    var all_student = await Student.find({ _id: { $in: students } });
+
+    for (var ref of all_student) {
+      one_batch.class_student_query.push(ref?._id);
+      one_batch.class_student_query_count += 1;
+      ref.class_selected_batch.push(one_batch?._id);
+      await ref.save();
+    }
+    await one_batch.save()
+    res.status(200).send({ message: "New Student In Batch Add Query", access: true })            
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_student_remove_query_batch = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    const { students } = req?.body
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var subject = await Subject.findById({ _id: sid })
+    var all_student = await Student.find({ _id: { $in: students } });
+
+    for (var ref of all_student) {
+      one_batch.class_student_query.pull(ref?._id);
+      one_batch.class_student_query_count += 1;
+      ref.class_selected_batch.pull(one_batch?._id);
+      await ref.save();
+    }
+    await one_batch.save()
+    res.status(200).send({ message: "New Student Remove In Batch Query", access: true })            
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

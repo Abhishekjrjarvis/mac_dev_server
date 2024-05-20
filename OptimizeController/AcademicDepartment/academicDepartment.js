@@ -502,6 +502,7 @@ exports.render_new_theory_classes = async (req, res) => {
     
     const classes = await ClassMaster.findById({ _id: cid })
     const new_subject = new Subject({ ...req?.body })
+    new_subject.subjectTitle = "Subject Teacher"
     if (staff) {
       const staffs = await Staff.findById({ _id: staff})
       new_subject.subjectTeacherName = staffs

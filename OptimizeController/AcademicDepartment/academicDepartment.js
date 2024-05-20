@@ -556,6 +556,10 @@ exports.render_one_theory_classes_subject = async (req, res) => {
       path: "subjectTeacherName",
       select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
     })
+    .populate({
+      path: "theory_students",
+      select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO"
+    })
       res.status(200).send({ message: "One Subject Query", access: true, subject: subject })            
   }
   catch (e) {
@@ -661,6 +665,10 @@ exports.render_one_theory_practical_batch = async (req, res) => {
     .populate({
       path: "batch_head",
       select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+    })
+    .populate({
+      path: "class_student_query",
+      select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO"
     })
       res.status(200).send({ message: "One Batch Query", access: true, batch: batch })            
   }

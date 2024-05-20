@@ -52,4 +52,27 @@ router.delete("/:dsid/delete/one/department/site/pso/query", catchAsync(siteCont
 
 router.patch("/:dsid/about/one/department/site/query", catchAsync(siteController.render_edit_academic_sub_head_query));
 
+
+// MOU / Collab
+router.patch("/:did/add/mou/collab/query", catchAsync(siteController.render_add_mou_collab_query));
+
+router.patch("/:did/edit/mou/collab/query", catchAsync(siteController.render_edit_mou_collab_query));
+
+router.delete("/:did/delete/mou/collab/query", catchAsync(siteController.render_delete_mou_collab_query));
+
+router.get("/:did/all/mou/collab/query", catchAsync(siteController.render_all_mou_query));
+
+router.get("/:did/all/universal/batch/query", catchAsync(siteController.render_all_universal_batch_query));
+
+// Activity
+router.patch("/:did/add/activity/query", catchAsync(siteController.render_add_activity_query));
+
+router.patch("/:did/edit/activity/query", catchAsync(siteController.render_edit_activity_query));
+
+router.delete("/:did/delete/activity/query", catchAsync(siteController.render_delete_activity_query));
+
+router.get("/:did/all/activity/query", catchAsync(siteController.render_all_activity_query));
+
+
+
 module.exports = router;

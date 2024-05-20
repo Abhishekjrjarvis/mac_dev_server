@@ -300,6 +300,12 @@ const subjectSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  theory_students: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student"
+    }
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

@@ -44,6 +44,26 @@ const classMasterSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "AutomateClassMaster",
   },
+  theory_classes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject"
+    }
+  ],
+  theory_classes_count: {
+    type: Number,
+    default: 0
+  },
+  practical_batch: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject"
+    }
+  ],
+  practical_batch_count: {
+    type: Number,
+    default: 0
+  }
 });
 
 const ClassMaster = mongoose.model("ClassMaster", classMasterSchema);

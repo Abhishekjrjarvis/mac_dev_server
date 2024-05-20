@@ -1024,6 +1024,9 @@ exports.render_add_activity_query = async (req, res) => {
 exports.render_all_activity_query = async (req, res) => {
   try {
     const { sid, flow } = req?.query
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
     
     if (flow === "STAFF") {
@@ -1065,6 +1068,59 @@ exports.render_one_activity_query = async (req, res) => {
       select: "dName"
     })
     res.status(200).send({ message: "Explore One Activity Query", access: true, act: act})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_delete_activity_query = async (req, res) => {
+  try {
+    const { acid } = req?.params
+    if (!acid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+
+    const act = await Activity.findById({ _id: acid })
+    const depart = await Department.findById({ _id: act?.activity_department })
+    const staff = await Staff.findById({ _id: act?.activity_staff })
+
+    staff.activity.pull(act?._id)
+    depart.activity.pull(act?._id)
+    await Promise.all([staff.save(), depart.save()])
+    await Activity.findByIdAndDelete(acid)
+    res.status(200).send({ message: "Explore One Activity Delete Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_add_activity_documents_query = async (req, res) => {
+  try {
+    const { acid } = req?.params
+    const { name, attach, flow } = req?.body
+    if (!acid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+
+    var act = await Activity.findById({ _id: acid })
+    if (flow === "NOTICE") {
+      act.notice.push(attach)
+    }
+    else if (flow === "PERMISSION_LETTER") {
+      act.permission_letter.push(attach)
+    }
+    else if (flow === "ACTIVITY_REPORTS") {
+      act.activity_report.push(attach)
+    }
+    else if (flow === "ATTENDANCE") {
+      act.attendance.push(attach)
+    }
+    else if (flow === "OTHER") { 
+      act.other.push({
+        name: name,
+        attach: attach
+      })
+    }
+    await act.save()
+    res.status(200).send({ message: "Explore One Activity Documents Query", access: true})
   }
   catch (e) {
     console.log(e)

@@ -744,7 +744,13 @@ const staffSchema = new mongoose.Schema({
   ],
   staff_department: { type: mongoose.Schema.Types.ObjectId, ref: "Department" },
   staff_blood_group: { type: String },
-  staff_self_intro: { type: String }
+  staff_self_intro: { type: String },
+  activity: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Activity"
+    }
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

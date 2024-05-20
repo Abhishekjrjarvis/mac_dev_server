@@ -95,12 +95,12 @@ router.get(
 
   router.patch(
     "/:bid/new/student/add/batch",
-    catchAsync(AcademicDepartment.render_new_student_add_query)
+    catchAsync(AcademicDepartment.render_new_student_add_query_batch)
   );
   
   router.patch(
     "/:bid/new/student/remove/batch",
-    catchAsync(AcademicDepartment.render_new_student_remove_query)
+    catchAsync(AcademicDepartment.render_new_student_remove_query_batch)
   );
 
 module.exports = router;

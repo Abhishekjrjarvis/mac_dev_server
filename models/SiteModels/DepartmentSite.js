@@ -102,7 +102,7 @@ const departmentSiteSchema = new mongoose.Schema({
   department_site_status: {
     type: String,
     default: "Normal"
-  }
+  },
 });
 
 module.exports = mongoose.model("DepartmentSite", departmentSiteSchema);

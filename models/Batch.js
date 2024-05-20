@@ -135,12 +135,11 @@ const batchSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch"
   },
-  batch_head: [
+  batch_head:
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Staff"
     }
-  ],
 });
 
 const Batch = mongoose.model("Batch", batchSchema);

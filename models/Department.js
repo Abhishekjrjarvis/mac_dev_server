@@ -487,7 +487,39 @@ const departmentSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubjectMaster"
     }
-  ]
+  ],
+  mou_collab: [
+    {
+      srn: { type: String },
+      org_name: { type: String },
+      institution_industry: { type: String },
+      durations: { type: String },
+      link: { type: String },
+      attach: { type: String },
+      batch: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Batch"
+      },
+      activities: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Activity"
+      },
+      student_count: {
+        type: Number,
+        default: 0
+      },
+      staff_count: {
+        type: Number,
+        default: 0
+      }
+    }
+  ],
+  activity: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Activity"
+    }
+  ],
 });
 
 const Department = mongoose.model("Department", departmentSchema);

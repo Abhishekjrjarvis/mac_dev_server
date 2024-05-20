@@ -11,6 +11,10 @@ const { deleteFile } = require("../../S3Configuration");
 const Transport = require("../../models/Transport/transport");
 const TransportSite = require("../../models/SiteModels/TransportSite");
 const AcademicNestedPage = require("../../models/LandingModel/AcademicNestedPage");
+const { nested_document_limit } = require("../../helper/databaseFunction");
+const Activity = require("../../models/LandingModel/RND/Activity");
+const Staff = require("../../models/Staff");
+
 
 exports.getDepartmentInfo = async (req, res) => {
   try {
@@ -864,6 +868,203 @@ exports.render_edit_academic_sub_head_query = async (req, res) => {
     })
     await site.save()
     res.status(200).send({ message: "Explore Sub Head Edit Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_add_mou_collab_query = async (req, res) => {
+  try {
+    const { did } = req?.params
+    const { srn, org_name, institution_industry, durations, link, attach, batch, student_count, staff_count } = req?.body
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const depart = await Department.findById({ _id: did })
+    depart.mou_collab.push({
+      srn: srn,
+      org_name: org_name,
+      institution_industry: institution_industry,
+      durations: durations,
+      link: link ?? "",
+      attach: attach ?? "",
+      batch: batch,
+      student_count: student_count,
+      staff_count: staff_count
+    })
+    await depart.save()
+    res.status(200).send({ message: "Explore All Mou/Collab Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_mou_query = async (req, res) => {
+  try {
+    const { did } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { batch } = req?.query
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    var site = await Department.findById({ _id: did })
+    if (batch) {
+      var nums = site?.mou_collab?.filter((ele) => {
+        if (`${ele?.batch}` === `${batch}`) return ele
+      })
+      var all_mou = await nested_document_limit(page, limit, nums)
+    }
+    else {
+      var all_mou = await nested_document_limit(page, limit, site?.mou_collab)
+    }
+    res.status(200).send({ message: "Explore All MOU / Collab Query", access: true, all_mou: all_mou})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_edit_mou_collab_query = async (req, res) => {
+  try {
+    const { did } = req?.params
+    const { srn, org_name, institution_industry, durations, link, attach, batch, student_count, staff_count, mid } = req?.body
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const depart = await Department.findById({ _id: did })
+    for (let ele of depart?.mou_collab) {
+      if (`${ele?._id}` === `${mid}`) {
+        ele.srn = srn
+        ele.org_name = org_name
+        ele.institution_industry = institution_industry
+        ele.durations = durations
+        ele.link = link ?? ""
+        ele.attach = attach ?? ""
+        ele.batch = batch
+        ele.student_count = student_count
+        ele.staff_count = staff_count
+      }
+    }
+    await depart.save()
+    res.status(200).send({ message: "Explore Edit Mou/Collab Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_delete_mou_collab_query = async (req, res) => {
+  try {
+    const { did } = req?.params
+    const { mid } = req?.body
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const depart = await Department.findById({ _id: did })
+    for (let ele of depart?.mou_collab) {
+      if (`${ele?._id}` === `${mid}`) {
+        depart?.mou_collab?.pull(ele?._id)
+      }
+    }
+    await depart.save()
+    res.status(200).send({ message: "Explore Delete Mou/Collab Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_universal_batch_query = async (req, res) => {
+  try {
+    const { did } = req?.params
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const depart = await Department.findById({ _id: did })
+    const all_batch = await Batch.find({ $and: [{ department: depart?.related_department }, { merged_batch: "Merged" }] })
+      .select("_id u_batch")
+      .populate({
+        path: "u_batch",
+        select: "batchName batchStatus"
+      })
+    res.status(200).send({ message: "Explore All Site Batches Query", access: true, all_batch: all_batch})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_add_activity_query = async (req, res) => {
+  try {
+    const { did } = req?.params
+    const { staff_id, mid } = req?.body
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const depart = await Department.findById({ _id: did })
+    const staff = await Staff.findById({ _id: staff_id })
+    const new_act = new Activity({ ...req?.body })
+    new_act.activity_staff = staff?._id
+    new_act.activity_department = depart?._id
+    depart.activity.push(new_act?._id)
+    staff.activity.push(new_act?._id)
+    if (mid) {
+      for (let val of depart?.mou_collab) {
+        if (`${val?._id}` === `${mid}`) {
+          val.activities = new_act?._id
+        }
+      }
+    }
+    await Promise.all([ depart.save(), staff.save() ])
+    res.status(200).send({ message: "Explore Add Activity Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_activity_query = async (req, res) => {
+  try {
+    const { sid, flow } = req?.query
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    if (flow === "STAFF") {
+      const staff = await Staff.findById({ _id: sid })
+      const all_act = await Activity.find({ _id: { $in: staff?.activity } })
+        .select("activity_name activity_type")
+        .limit(limit)
+        .skip(skip)
+    res.status(200).send({ message: "Explore All Activity Query", access: true, all_act: all_act})
+      
+    }
+    else if (flow === "DEPARTMENT") {
+      const depart = await Department.findById({ _id: sid })
+      const all_act = await Activity.find({ _id: { $in: depart?.activity } })
+        .select("activity_name activity_type")
+        .limit(limit)
+        .skip(skip)
+    res.status(200).send({ message: "Explore All Activity Query", access: true, all_act: all_act})
+      
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_activity_query = async (req, res) => {
+  try {
+    const { acid } = req?.params
+    if (!acid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+
+    const act = await Activity.findById({ _id: acid })
+    .populate({
+      path: "activity_staff",
+      select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffGender staffROLLNO"
+    })
+    .populate({
+      path: "activity_department",
+      select: "dName"
+    })
+    res.status(200).send({ message: "Explore One Activity Query", access: true, act: act})
   }
   catch (e) {
     console.log(e)

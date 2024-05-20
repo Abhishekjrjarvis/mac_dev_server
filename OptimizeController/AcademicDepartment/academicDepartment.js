@@ -702,11 +702,11 @@ exports.render_new_student_add_query_batch = async (req, res) => {
 
 exports.render_new_student_remove_query_batch = async (req, res) => {
   try {
-    const { sid } = req?.params
+    const { bid } = req?.params
     const { students } = req?.body
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    var subject = await Subject.findById({ _id: sid })
+    var one_batch = await Batch.findById({ _id: bid })
     var all_student = await Student.find({ _id: { $in: students } });
 
     for (var ref of all_student) {

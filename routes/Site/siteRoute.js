@@ -67,12 +67,13 @@ router.get("/:did/all/universal/batch/query", catchAsync(siteController.render_a
 // Activity
 router.patch("/:did/add/activity/query", catchAsync(siteController.render_add_activity_query));
 
-router.patch("/:did/edit/activity/query", catchAsync(siteController.render_edit_activity_query));
+router.get("/:acid/one/activity/query", catchAsync(siteController.render_one_activity_query));
 
-router.delete("/:did/delete/activity/query", catchAsync(siteController.render_delete_activity_query));
+router.delete("/:acid/delete/activity/query", catchAsync(siteController.render_delete_activity_query));
 
-router.get("/:did/all/activity/query", catchAsync(siteController.render_all_activity_query));
+router.get("/all/activity/query", catchAsync(siteController.render_all_activity_query));
 
+router.patch("/:acid/add/documents/query", catchAsync(siteController.render_add_activity_documents_query));
 
 
 module.exports = router;

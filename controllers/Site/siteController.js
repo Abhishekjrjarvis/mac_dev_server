@@ -911,9 +911,13 @@ exports.render_all_mou_query = async (req, res) => {
     if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
     
     var site = await Department.findById({ _id: did })
+      .populate({
+        path: "batch",
+        select: "batchName batchStatus"
+    })
     if (batch) {
       var nums = site?.mou_collab?.filter((ele) => {
-        if (`${ele?.batch}` === `${batch}`) return ele
+        if (`${ele?.batch?._id}` === `${batch}`) return ele
       })
       var all_mou = await nested_document_limit(page, limit, nums)
     }

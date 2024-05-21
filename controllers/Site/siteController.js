@@ -912,8 +912,11 @@ exports.render_all_mou_query = async (req, res) => {
     
     var site = await Department.findById({ _id: did })
       .populate({
-        path: "batch",
-        select: "batchName batchStatus"
+        path: "mou_collab",
+        populate: {
+          path: "batch",
+          select: "batchName batchStatus"
+        }
     })
     if (batch) {
       var nums = site?.mou_collab?.filter((ele) => {

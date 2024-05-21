@@ -1182,11 +1182,25 @@ exports.render_all_projects_query = async (req, res) => {
 
     if (flow === "DEPARTMENT") {
       const depart = await Department.findById({ _id: did })
+      .populate({
+        path: "projects",
+        populate: {
+            path: "student classes department",
+            select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO className classTitle dName"
+        }
+})
       const all_act = await nested_document_limit(page, limit, depart?.projects)
       res.status(200).send({ message: "Explore All Projects Department Query", access: true, all_act: all_act })
     }
     else if (flow === "STAFF") {
       const staff = await Staff.findById({ _id: did })
+      .populate({
+        path: "projects",
+        populate: {
+            path: "student classes department",
+            select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO className classTitle dName"
+        }
+})
       const all_act = await nested_document_limit(page, limit, staff?.projects)
       res.status(200).send({ message: "Explore All Projects Satff Query", access: true, all_act: all_act })
     }

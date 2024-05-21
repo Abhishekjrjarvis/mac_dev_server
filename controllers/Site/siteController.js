@@ -14,6 +14,7 @@ const AcademicNestedPage = require("../../models/LandingModel/AcademicNestedPage
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const Activity = require("../../models/LandingModel/RND/Activity");
 const Staff = require("../../models/Staff");
+const Batch = require("../../models/Batch");
 
 
 exports.getDepartmentInfo = async (req, res) => {
@@ -980,7 +981,7 @@ exports.render_all_universal_batch_query = async (req, res) => {
     if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
     
     const depart = await Department.findById({ _id: did })
-    const all_batch = await Batch.find({ $and: [{ department: depart?.related_department }, { merged_batch: "Merged" }] })
+    const all_batch = await Batch.find({ $and: [{ department: depart?._id }, { merged_batch: "Merged" }] })
       .select("_id u_batch")
       .populate({
         path: "u_batch",

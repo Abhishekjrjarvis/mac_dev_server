@@ -1067,6 +1067,10 @@ exports.render_one_activity_query = async (req, res) => {
       path: "activity_department",
       select: "dName"
     })
+    .populate({
+      path: "activity_batch",
+      select: "batchName"
+    })
     res.status(200).send({ message: "Explore One Activity Query", access: true, act: act})
   }
   catch (e) {
@@ -1121,6 +1125,152 @@ exports.render_add_activity_documents_query = async (req, res) => {
     }
     await act.save()
     res.status(200).send({ message: "Explore One Activity Documents Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_add_projects_query = async (req, res) => {
+  try {
+    const { did } = req?.params
+    const { srn, title, student, classes, subject, guide_name, link, attach, abstract, department, sid } = req?.body
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const depart = await Department.findById({ _id: did })
+    const staff = await Staff.findById({ _id: sid })
+    depart.projects.push({
+      srn: srn,
+      title: title,
+      student: student,
+      link: link,
+      attach: attach,
+      classes: classes,
+      subject: subject,
+      guide_name: guide_name,
+      abstract: abstract,
+      department: department
+    })
+    staff.projects.push({
+      srn: srn,
+      title: title,
+      student: student,
+      link: link,
+      attach: attach,
+      classes: classes,
+      subject: subject,
+      guide_name: guide_name,
+      abstract: abstract,
+      department: department
+    })
+    await Promise.all([ staff.save(), depart.save()])
+    res.status(200).send({ message: "Explore Add Projects Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_projects_query = async (req, res) => {
+  try {
+    const { did, flow } = req?.query
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+
+    if (flow === "DEPARTMENT") {
+      const depart = await Department.findById({ _id: did })
+      const all_act = await nested_document_limit(page, limit, depart?.projects)
+      res.status(200).send({ message: "Explore All Projects Department Query", access: true, all_act: all_act })
+    }
+    else if (flow === "STAFF") {
+      const staff = await Staff.findById({ _id: did })
+      const all_act = await nested_document_limit(page, limit, staff?.projects)
+      res.status(200).send({ message: "Explore All Projects Satff Query", access: true, all_act: all_act })
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_delete_projects_query = async (req, res) => {
+  try {
+    const { did } = req?.params
+    const { pid, sid } = req?.body
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+
+    const depart = await Department.findById({ _id: did })
+    const staff = await Staff.findById({ _id: sid })
+    for (let val of depart?.projects) {
+      if (`${val?._id}` === `${pid}`) {
+        depart?.projects?.pull(val?._id)
+      }
+    }
+    for (let val of staff?.projects) {
+      if (`${val?._id}` === `${pid}`) {
+        staff?.projects?.pull(val?._id)
+      }
+    }
+    await Promise.all([ staff.save(), depart.save()])
+    res.status(200).send({ message: "Explore One Projects Delete Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_add_hall_ticket_query = async (req, res) => {
+  try {
+    const { did } = req?.params
+    const { name, attach } = req?.body
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const depart = await Department.findById({ _id: did })
+    depart.hall_ticket.push({
+      name: name,
+      attach: attach
+    })
+    await depart.save()
+    res.status(200).send({ message: "Explore Add Hall Ticket Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_hall_ticket_query = async (req, res) => {
+  try {
+    const { did, flow } = req?.query
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+
+      const depart = await Department.findById({ _id: did })
+      const all_ticket = await nested_document_limit(page, limit, depart?.hall_ticket)
+    res.status(200).send({ message: "Explore All Hall Ticket Query", access: true, all_ticket: all_ticket})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_delete_hall_ticket_query = async (req, res) => {
+  try {
+    const { did } = req?.params
+    const { pid } = req?.body
+    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+
+    const depart = await Department.findById({ _id: did })
+    for (let val of depart?.hall_ticket) {
+      if (`${val?._id}` === `${pid}`) {
+        depart?.hall_ticket?.pull(val?._id)
+      }
+    }
+    await depart.save()
+    res.status(200).send({ message: "Explore One Hall Ticket Delete Query", access: true})
   }
   catch (e) {
     console.log(e)

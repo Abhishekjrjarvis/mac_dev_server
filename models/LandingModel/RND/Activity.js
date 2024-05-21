@@ -12,6 +12,10 @@ const activitySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Staff"
     },
+    activity_batch: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Batch"
+    },
     created_at: {
         type: Date,
         default: Date.now

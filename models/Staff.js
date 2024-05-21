@@ -751,6 +751,20 @@ const staffSchema = new mongoose.Schema({
       ref: "Activity"
     }
   ],
+  projects: [
+    {
+      srn: { type: String },
+      title: { type: String },
+      student: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
+      classes: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },
+      department: { type: mongoose.Schema.Types.ObjectId, ref: "Department" },
+      subject: { type: String },
+      guide_name: { type: String },
+      link: { type: String },
+      attach: { type: String },
+      abstract: { type: String }
+    }
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

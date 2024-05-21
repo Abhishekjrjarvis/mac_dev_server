@@ -75,5 +75,19 @@ router.get("/all/activity/query", catchAsync(siteController.render_all_activity_
 
 router.patch("/:acid/add/documents/query", catchAsync(siteController.render_add_activity_documents_query));
 
+// Projects
+router.patch("/:did/add/projects/query", catchAsync(siteController.render_add_projects_query));
+
+router.delete("/:did/delete/projects/query", catchAsync(siteController.render_delete_projects_query));
+
+router.get("/all/projects/query", catchAsync(siteController.render_all_projects_query));
+
+// Hall Ticket
+router.patch("/:did/add/hall/ticket/query", catchAsync(siteController.render_add_hall_ticket_query));
+
+router.delete("/:did/delete/hall/ticket/query", catchAsync(siteController.render_delete_hall_ticket_query));
+
+router.get("/all/hall/ticket/query", catchAsync(siteController.render_all_hall_ticket_query));
+
 
 module.exports = router;

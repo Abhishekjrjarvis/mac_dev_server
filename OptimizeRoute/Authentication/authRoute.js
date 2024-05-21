@@ -164,7 +164,7 @@ router.patch(
   catchAsync(Auth.sendAllStudentLoginMessage)
 );
 
-router.patch("/update/qr", catchAsync(Auth.all_ins_qr))
+router.patch("/update/qr", catchAsync(Auth.all_ins_qr_code))
 
 
 // router.patch("/all/student/:id", catchAsync(Auth.renderAllStudentQuery));

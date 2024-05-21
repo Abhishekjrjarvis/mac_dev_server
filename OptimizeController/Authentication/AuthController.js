@@ -115,6 +115,29 @@ const all_ins_qr = async (id) => {
   }
 }
 
+exports.all_ins_qr_code = async (req, res) => {
+  try {
+    const { id } = req?.query
+    const institute = await InstituteAdmin.findById({ _id: id})
+      let institute_qr = {
+        instituteId: institute?._id,
+        url: `https://qviple.com/q/${institute?.name}/profile`,
+        flow: "FOR_APPLICATION_FORM"
+      };
+      let imageKey = await generate_qr({
+        fileName: "initial-institute-qr",
+        object_contain: institute_qr,
+      });
+      institute.profileQRCode = imageKey
+    await institute.save();
+    res.send({ message: "Institute Existing with this Username" });
+    
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 const show_specific_activity = async (query) => {
   try {
     var data = `Welcome ${query?.insName}/${query?.name} with contact ${query?.insEmail}/${query?.insPhoneNumber} with delievering content ${query?.insMode} as ${query?.insType} placed on ${query?.insAddress}

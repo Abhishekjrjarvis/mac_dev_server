@@ -652,4 +652,7 @@ router.get("/:id/all/universal/batch/query", catchAsync(Institute.render_all_uni
 
 router.patch("/:bid/link/universal/batch/query", catchAsync(Institute.render_link_universal_batch_Query));
 
+router.get("/:id/all/merged/department", catchAsync(Institute.render_all_merged_department_Query));
+
+
 module.exports = router;

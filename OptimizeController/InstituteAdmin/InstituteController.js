@@ -5388,6 +5388,7 @@ exports.retrieveInstituteReportBlock = async (req, res) => {
 exports.renderStats = async (req, res) => {
   try {
     const { id } = req.params;
+    const { flow } = req?.body
     if (!id)
       return res.status(200).send({
         message: "There is a bug need to fixed immediately 😡",
@@ -5397,7 +5398,8 @@ exports.renderStats = async (req, res) => {
       const stats = await InstituteAdmin.findById({ _id: id }).select(
         "departmentCount staffCount studentCount insProfileCoverPhoto insProfilePhoto un_approved_student_count financeStatus admissionStatus transportStatus hostelStatus sportClassStatus sportStatus eventManagerStatus careerStatus tenderStatus aluminiStatus libraryActivate"
       );
-      var all_classes = await Class.find({ institute: stats?._id})
+    var all_classes = await Class.find({ institute: stats?._id })
+    var all_valid_depart = await Department.find({ $and: [{ institute: stats?._id }, { department_status: flow }]})
       if(stats?.financeStatus === "Enable"){
         m_u += 1
       }
@@ -5432,7 +5434,7 @@ exports.renderStats = async (req, res) => {
         m_u += 1
       }
       var custom_stats = {
-        departmentCount: stats?.departmentCount,
+        departmentCount: all_valid_depart?.length ?? 0,
         staffCount: stats?.staffCount,
         studentCount: stats?.studentCount,
         insProfileCoverPhoto: stats?.insProfileCoverPhoto,
@@ -5978,6 +5980,26 @@ exports.render_link_universal_batch_Query = async (req, res) => {
     l_batch.u_batch = u_batch?._id
     await Promise.all([u_batch.save(), l_batch.save()])
     res.status(200).send({ message: "Explore Link Universal Batch Query", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_all_merged_department_Query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const all_depart = await Department.find({ $and: [{ institute: id }] })
+      .select("dName dTitle department_status")
+      .limit(limit)
+      .skip(skip)
+    
+    res.status(200).send({ message: "Explore All Merged Department Query", access: true, all_depart: all_depart })
   }
   catch (e) {
     console.log(e)

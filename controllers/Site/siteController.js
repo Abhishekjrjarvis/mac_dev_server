@@ -1048,6 +1048,18 @@ exports.render_all_activity_query = async (req, res) => {
       const staff = await Staff.findById({ _id: sid })
       const all_act = await Activity.find({ _id: { $in: staff?.activity } })
         .select("activity_name activity_type")
+        .populate({
+          path: "activity_staff",
+          select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffGender staffROLLNO"
+        })
+        .populate({
+          path: "activity_department",
+          select: "dName"
+        })
+        .populate({
+          path: "activity_batch",
+          select: "batchName"
+        })
         .limit(limit)
         .skip(skip)
     res.status(200).send({ message: "Explore All Activity Query", access: true, all_act: all_act})
@@ -1057,6 +1069,18 @@ exports.render_all_activity_query = async (req, res) => {
       const depart = await Department.findById({ _id: sid })
       const all_act = await Activity.find({ _id: { $in: depart?.activity } })
         .select("activity_name activity_type")
+        .populate({
+          path: "activity_staff",
+          select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffGender staffROLLNO"
+        })
+        .populate({
+          path: "activity_department",
+          select: "dName"
+        })
+        .populate({
+          path: "activity_batch",
+          select: "batchName"
+        })
         .limit(limit)
         .skip(skip)
     res.status(200).send({ message: "Explore All Activity Query", access: true, all_act: all_act})

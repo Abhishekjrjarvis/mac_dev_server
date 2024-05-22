@@ -1021,7 +1021,7 @@ exports.render_add_activity_query = async (req, res) => {
         }
       }
     }
-    await Promise.all([ depart.save(), staff.save() ])
+    await Promise.all([ depart.save(), staff.save(), new_act.save() ])
     res.status(200).send({ message: "Explore Add Activity Query", access: true})
   }
   catch (e) {

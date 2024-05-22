@@ -917,6 +917,13 @@ exports.render_all_mou_query = async (req, res) => {
           path: "batch",
           select: "batchName batchStatus"
         }
+      })
+      .populate({
+        path: "mou_collab",
+        populate: {
+          path: "activities",
+          select: "activity_name activity_type"
+        }
     })
     if (batch) {
       var nums = site?.mou_collab?.filter((ele) => {

@@ -2171,6 +2171,12 @@ exports.render_examination_object_query = async (req, res) => {
         attach: attach
       })
     }
+    else if (flow === "HALL_TICKET") {
+      landing.hall_ticket.push({
+        name: name,
+        attach: attach
+      })
+    }
     await landing.save()
     res.status(200).send({ message: `${flow} Documents Query`, access: true})
   }
@@ -2185,7 +2191,7 @@ exports.render_all_examination_object_query = async (req, res) => {
     if (!lcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var landing = await LandingControl.findById({ _id: lcid })
-    .select("manual_examination examination_schedule examination_timetable examination_notification")
+    .select("manual_examination examination_schedule examination_timetable examination_notification hall_ticket")
     res.status(200).send({ message: `All Documents Query`, access: true, landing})
   }
   catch (e) {

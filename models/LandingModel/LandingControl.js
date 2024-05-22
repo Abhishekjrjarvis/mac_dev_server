@@ -259,6 +259,12 @@ vision: {
       name: { type: String },
       attach: { type: String }
     },
+  ],
+  hall_ticket: [
+    {
+      name: { type: String },
+      attach: { type: String }
+    }
   ]
 });
 

@@ -769,4 +769,10 @@ router.get(
   catchAsync(Institute.render_all_classes_query)
 );
 
+// Add In Super Admin
+router.patch(
+  "/:fcid/enable/auto/form/query/academic",
+  catchAsync(Institute.render_auto_student_form_section_checklist_query_academic)
+);
+
 module.exports = router;

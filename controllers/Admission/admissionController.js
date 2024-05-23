@@ -8676,19 +8676,28 @@ exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
 exports.renderApplicationAutoQRCodeQuery = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { qr_code } = req.query;
+    const { qr_code, code_url, flow } = req.query;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
 
-    var new_app = await NewApplication.findById({ _id: aid });
-    new_app.app_qr_code = qr_code;
-    await new_app.save();
+    if (flow === "APPLICATION") {
+      var new_app = await NewApplication.findById({ _id: aid });
+      new_app.app_qr_code = qr_code;
+      new_app.code_url = code_url
+      await new_app.save();
+    }
+    else if (flow === "ADMISSION") {
+      var new_ads = await Admission.findById({ _id: aid });
+      new_ads.app_qr_code = qr_code;
+      new_ads.code_url = code_url
+      await new_ads.save();
+    }
     res
       .status(200)
-      .send({ message: "Explore New Application QR Code Query", access: true });
+      .send({ message: `Explore New ${flow} QR Code Query`, access: true });
   } catch (e) {
     console.log(e);
   }

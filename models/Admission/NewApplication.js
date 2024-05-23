@@ -258,7 +258,10 @@ const newApplicationSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubjectGroup"
     }
-  ]
+  ],
+  code_url: {
+    type: String
+  }
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

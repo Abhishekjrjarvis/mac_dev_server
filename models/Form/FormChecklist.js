@@ -53,6 +53,16 @@ const formChecklistSchema = new mongoose.Schema({
     form_checklist_sample: {
         type: String
     },
+    nested_form_checklist: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FormChecklist"
+    }],
+    nested_form_checklist_nested: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "FormChecklist"
+        }
+    ],
     width: {
         type: String
     }

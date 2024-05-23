@@ -214,7 +214,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   });
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber enable_protection tab_manage online_amount_edit_access fee_receipt_request_count fee_receipt_approve_count fee_receipt_reject_count moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status active_tab_index alarm_enable alarm_enable_status refundedCount"
+        "admissionAdminEmail admissionAdminPhoneNumber enable_protection tab_manage online_amount_edit_access fee_receipt_request_count fee_receipt_approve_count fee_receipt_reject_count moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status active_tab_index alarm_enable alarm_enable_status refundedCount app_qr_code code_url"
       )
       .populate({
         path: "admissionAdminHead",
@@ -228,7 +228,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "_id insName insProfilePhoto status financeDepart hostelDepart random_institute_code alias_pronounciation",
+          "_id insName insProfilePhoto status financeDepart hostelDepart random_institute_code alias_pronounciation profileQRCode",
       });
     const ads_obj = {
       message: "All Detail Admission Admin from DB 🙌",

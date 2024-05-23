@@ -406,7 +406,13 @@ const admissionAdminSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubjectGroup"
     }
-  ]
+  ],
+  app_qr_code: {
+    type: String
+  },
+  code_url: {
+    type: String
+  }
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

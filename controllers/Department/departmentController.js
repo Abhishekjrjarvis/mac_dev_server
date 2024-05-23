@@ -783,7 +783,16 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         const ins_form = await InstituteStudentForm.findOne({ institute: did })
           .select("form_section")
           .populate({
-            path: "form_section.form_checklist"
+            path: "form_section",
+            populate: {
+              path: "form_checklist",
+              populate: {
+                path: "nested_form_checklist",
+                populate: {
+                  path: "nested_form_checklist_nested"
+                }
+              }
+            }
           })
     
         var all_section = ins_form?.form_section?.filter((val) => {
@@ -808,7 +817,16 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         const depart_form = await DepartmentStudentForm.findOne({ department: did })
           .select("form_section")
           .populate({
-            path: "form_section.form_checklist"
+            path: "form_section",
+            populate: {
+              path: "form_checklist",
+              populate: {
+                path: "nested_form_checklist",
+                populate: {
+                  path: "nested_form_checklist_nested"
+                }
+              }
+            }
           })
     
         var all_section = depart_form?.form_section?.filter((val) => {
@@ -836,7 +854,16 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         const app_form = await InstituteApplicationForm.findOne({ application: did })
           .select("form_section")
           .populate({
-            path: "form_section.form_checklist"
+            path: "form_section",
+            populate: {
+              path: "form_checklist",
+              populate: {
+                path: "nested_form_checklist",
+                populate: {
+                  path: "nested_form_checklist_nested"
+                }
+              }
+            }
           })
     
         var all_section = app_form?.form_section?.filter((val) => {
@@ -939,7 +966,16 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         const ins_form = await InstituteStudentForm.findOne({ institute: did })
           .select("form_section")
           .populate({
-            path: "form_section.form_checklist"
+            path: "form_section",
+            populate: {
+              path: "form_checklist",
+              populate: {
+                path: "nested_form_checklist",
+                populate: {
+                  path: "nested_form_checklist_nested"
+                }
+              }
+            }
           })
     
         var all_section = ins_form?.form_section?.filter((val) => {
@@ -966,7 +1002,16 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         const depart_form = await DepartmentStudentForm.findOne({ department: did })
           .select("form_section")
           .populate({
-            path: "form_section.form_checklist"
+            path: "form_section",
+            populate: {
+              path: "form_checklist",
+              populate: {
+                path: "nested_form_checklist",
+                populate: {
+                  path: "nested_form_checklist_nested"
+                }
+              }
+            }
           })
     
         var all_section = depart_form?.form_section?.filter((val) => {
@@ -995,7 +1040,16 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         const app_form = await InstituteApplicationForm.findOne({ application: did })
           .select("form_section")
           .populate({
-            path: "form_section.form_checklist"
+            path: "form_section",
+            populate: {
+              path: "form_checklist",
+              populate: {
+                path: "nested_form_checklist",
+                populate: {
+                  path: "nested_form_checklist_nested"
+                }
+              }
+            }
           })
     
         var all_section = app_form?.form_section?.filter((val) => {

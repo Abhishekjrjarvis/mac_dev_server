@@ -1002,7 +1002,53 @@ const studentSchema = new mongoose.Schema({
   student_optional_subject_access: {
     type: String,
     default: "No"
-  }
+  },
+  std_tenth_details: {
+    type: String
+  },
+  month_of_passing: { type: String },
+  year_of_passing: { type: String },
+  percentage: { type: String },
+  name_of_institute: { type: String },
+  hsc_diploma: {
+    type: String
+  },
+  hsc_month: { type: String },
+  hsc_year: { type: String },
+  hsc_percentage: { type: String },
+  hsc_name_of_institute: { type: String },
+  hsc_board: { type: String },
+  ug_engineering: {
+    type: String
+  },
+  pre_final_sem: { type: String },
+  pre_marks_credit_obtain: { type: String },
+  pre_total_grade_points: { type: String },
+  final_sem: { type: String },
+  final_marks_credit_obtain: { type: String },
+  final_total_grade_points: { type: String },
+  final_cpi: { type: String },
+  entrance_exam: { type: String },
+  jee_details: { type: String },
+  jee_rollno: { type: String },
+  jee_physics_marks: { type: String },
+  jee_chemistry_marks: { type: String },
+  jee_mathematics_marks: { type: String },
+  jee_total: { type: String },
+  jee_percentile: { type: String },
+  cet_details: { type: String },
+  cet_rollno: { type: String },
+  cet_physics_marks: { type: String },
+  cet_chemistry_marks: { type: String },
+  cet_mathematics_marks: { type: String },
+  cet_biology_marks: { type: String },
+  aieee_details: { type: String },
+  aieee_rollno: { type: String },
+  aieee_physics_marks: { type: String },
+  aieee_chemistry_marks: { type: String },
+  aieee_mathematics_marks: { type: String },
+  aieee_biology_marks: { type: String },
+
 });
 
 const Student = mongoose.model("Student", studentSchema);

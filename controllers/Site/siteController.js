@@ -1092,6 +1092,38 @@ exports.render_all_activity_query = async (req, res) => {
   }
 }
 
+exports.render_all_activity_query_type = async (req, res) => {
+  try {
+    const { id, type } = req?.query
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+
+      const ins = await InstituteAdmin.findById({ _id: id })
+      const all_act = await Activity.find({ $and: [{ activity_department: { $in: ins?.depart }}, { activity_type: type }] })
+        .select("activity_name activity_type")
+        .populate({
+          path: "activity_staff",
+          select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffGender staffROLLNO"
+        })
+        .populate({
+          path: "activity_department",
+          select: "dName"
+        })
+        .populate({
+          path: "activity_batch",
+          select: "batchName"
+        })
+        .limit(limit)
+        .skip(skip)
+    res.status(200).send({ message: "Explore All Activity Query", access: true, all_act: all_act})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.render_one_activity_query = async (req, res) => {
   try {
     const { acid } = req?.params

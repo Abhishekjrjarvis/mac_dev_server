@@ -75,6 +75,8 @@ router.get("/all/activity/query", catchAsync(siteController.render_all_activity_
 
 router.patch("/:acid/add/documents/query", catchAsync(siteController.render_add_activity_documents_query));
 
+router.get("/all/activity/query/type", catchAsync(siteController.render_all_activity_query_type));
+
 // Projects
 router.patch("/:did/add/projects/query", catchAsync(siteController.render_add_projects_query));
 

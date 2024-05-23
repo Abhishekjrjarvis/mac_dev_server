@@ -29,6 +29,12 @@ const subjectGroupSelectSchema = new mongoose.Schema({
                     ref: "SubjectMaster"
                 }
             ],
+            optional_subject_options_or: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "SubjectMaster"
+                }
+            ],
         }
     ],
     compulsory_subject_count: {

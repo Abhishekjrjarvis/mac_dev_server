@@ -4542,7 +4542,7 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
           populate: {
             path: "optional_subject",
             populate: {
-              path: "optional_subject_options",
+              path: "optional_subject_options optional_subject_options_or",
               select: "subjectName",
             }
           }
@@ -13981,7 +13981,7 @@ exports.render_one_subject_group_query = async (req, res) => {
       .populate({
         path: "optional_subject",
         populate: {
-          path: "optional_subject_options",
+          path: "optional_subject_options optional_subject_options_or",
           select: "subjectName",
         }
       })
@@ -14036,7 +14036,8 @@ exports.render_add_subject_group_select_query = async (req, res) => {
           optional_subject_rule: ele?.optional_subject_rule,
           optional_subject_name: ele?.optional_subject_name,
           optional_subject_options: [...ele?.optional_subject_options],
-          optional_subject_rule_max: ele?.optional_subject_rule_max
+          optional_subject_rule_max: ele?.optional_subject_rule_max,
+          optional_subject_options_or: [...ele?.optional_subject_options_or]
         })
         group.optional_subject_count += 1
       }

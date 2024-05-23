@@ -7284,10 +7284,6 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
     // for (var ifs of all_ifs) {
       var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
         .select("depart admissionDepart")
-        .populate({
-          path: "depart",
-          select: "student_form_setting"
-        })
     
     var all_app = await NewApplication.find({ admissionAdmin: "651ba377e39dbdf817dd5291" })
     .select("student_form_setting")
@@ -7407,11 +7403,11 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
             }
           }
         })
-      var nums = []
-      for (var qwe of ins?.depart) {
-        var dfs = new DepartmentStudentForm({})
-        dfs.department = qwe?._id
-        qwe.student_form_setting = dfs?._id
+    var nums = []
+    var all_dfs = await DepartmentStudentForm.find({ department: { $in: ins?.depart} })
+    // console.log(all_dfs)
+    for (var qwe of all_dfs) {
+      if (qwe?._id) {
         for (var val of checklist) {
           if (val?.form_checklist?.length > 0) {
             for (var ele of val?.form_checklist) {
@@ -7437,7 +7433,7 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
               if (ele?.form_checklist_view) {
                 fc.form_checklist_view = ele?.form_checklist_view
               }
-              fc.department_form = dfs?._id
+              fc.department_form = qwe?._id
               fc.form_section = one_ifs?._id
               for (var stu of ele?.nested_form_checklist) {
                 var fcc = new FormChecklist({
@@ -7462,33 +7458,33 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
                 if (stu?.form_checklist_view) {
                   fcc.form_checklist_view = stu?.form_checklist_view
                 }
-                fcc.department_form = dfs?._id
+                fcc.department_form = qwe?._id
                 fcc.form_section = one_ifs?._id
                 if (stu?.nested_form_checklist_nested) {
-                  for (var qwe of stu?.nested_form_checklist_nested) {
+                  for (var qwes of stu?.nested_form_checklist_nested) {
                     var fcca = new FormChecklist({
-                      form_checklist_name: qwe?.form_checklist_name,
-                      form_checklist_key: qwe?.form_checklist_key,
-                      form_checklist_visibility: qwe?.form_checklist_visibility,
-                      form_checklist_placeholder: qwe?.form_checklist_placeholder,
-                      form_checklist_lable: qwe?.form_checklist_lable,
-                      form_checklist_typo: qwe?.form_checklist_typo,
-                      form_checklist_required: qwe?.form_checklist_required,
-                      width: qwe?.width
+                      form_checklist_name: qwes?.form_checklist_name,
+                      form_checklist_key: qwes?.form_checklist_key,
+                      form_checklist_visibility: qwes?.form_checklist_visibility,
+                      form_checklist_placeholder: qwes?.form_checklist_placeholder,
+                      form_checklist_lable: qwes?.form_checklist_lable,
+                      form_checklist_typo: qwes?.form_checklist_typo,
+                      form_checklist_required: qwes?.form_checklist_required,
+                      width: qwes?.width
                     })
-                    if (qwe?.form_checklist_typo_option_pl && qwe?.form_checklist_typo_option_pl?.length > 0) {
-                      fcca.form_checklist_typo_option_pl = [...qwe?.form_checklist_typo_option_pl]
+                    if (qwes?.form_checklist_typo_option_pl && qwes?.form_checklist_typo_option_pl?.length > 0) {
+                      fcca.form_checklist_typo_option_pl = [...qwes?.form_checklist_typo_option_pl]
                     }
-                    if (qwe?.form_checklist_sample) {
-                      fcca.form_checklist_sample = qwe?.form_checklist_sample
+                    if (qwes?.form_checklist_sample) {
+                      fcca.form_checklist_sample = qwes?.form_checklist_sample
                     }
-                    if (qwe?.form_checklist_pdf) {
-                      fcca.form_checklist_pdf = qwe?.form_checklist_pdf
+                    if (qwes?.form_checklist_pdf) {
+                      fcca.form_checklist_pdf = qwes?.form_checklist_pdf
                     }
-                    if (qwe?.form_checklist_view) {
-                      fcca.form_checklist_view = qwe?.form_checklist_view
+                    if (qwes?.form_checklist_view) {
+                      fcca.form_checklist_view = qwes?.form_checklist_view
                     }
-                    fcca.department_form = dfs?._id
+                    fcca.department_form = qwe?._id
                     fcca.form_section = one_ifs?._id
                     fcc.nested_form_checklist_nested.push(fcca?._id)
                     await fcca.save()
@@ -7501,7 +7497,8 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
               await fc.save()
             }
           }
-          dfs.form_section.push({
+          console.log(qwe)
+          qwe.form_section.push({
             section_name: val?.section_name,
             section_visibilty: val?.section_visibilty,
             section_key: val?.section_key,
@@ -7512,14 +7509,13 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
           })
           nums = []
         }
-        await Promise.all([dfs.save(), qwe.save()])
+        await qwe.save()
+      }
       }
     // }
     var numsss = []
-      for (var qwe of all_app) {
-        var iaf = new InstituteApplicationForm({})
-        iaf.application = qwe?._id
-        qwe.student_form_setting = iaf?._id
+    var all_apps = await InstituteApplicationForm.find({ application: { $in:  all_app }})
+      for (var all of all_apps) {
         for (var val of checklist) {
           if (val?.form_checklist?.length > 0) {
             for (var ele of val?.form_checklist) {
@@ -7545,7 +7541,7 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
               if (ele?.form_checklist_view) {
                 fc.form_checklist_view = ele?.form_checklist_view
               }
-              fc.application_form = iaf?._id
+              fc.application_form = all?._id
               fc.form_section = one_ifs?._id
               for (var stu of ele?.nested_form_checklist) {
                 var fcc = new FormChecklist({
@@ -7570,7 +7566,7 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
                 if (stu?.form_checklist_view) {
                   fcc.form_checklist_view = stu?.form_checklist_view
                 }
-                fcc.application_form = iaf?._id
+                fcc.application_form = all?._id
                 fcc.form_section = one_ifs?._id
                 if (stu?.nested_form_checklist_nested) {
                   for (var qwe of stu?.nested_form_checklist_nested) {
@@ -7596,7 +7592,7 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
                     if (qwe?.form_checklist_view) {
                       fcca.form_checklist_view = qwe?.form_checklist_view
                     }
-                    fcca.application_form = iaf?._id
+                    fcca.application_form = all?._id
                     fcca.form_section = one_ifs?._id
                     fcc.nested_form_checklist_nested.push(fcca?._id)
                     await fcca.save()
@@ -7609,7 +7605,7 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
               await fc.save()
             }
           }
-          iaf.form_section.push({
+          all.form_section.push({
             section_name: val?.section_name,
             section_visibilty: val?.section_visibilty,
             section_key: val?.section_key,
@@ -7620,7 +7616,7 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
           })
           numsss = []
         }
-        await Promise.all([iaf.save(), qwe.save()])
+        await all.save()
       }
   
 }

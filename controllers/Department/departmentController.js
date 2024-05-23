@@ -896,7 +896,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
           populate: {
             path: "optional_subject",
             populate: {
-            path: "optional_subject_options",
+            path: "optional_subject_options optional_subject_options_or",
             select: "subjectName",
           }
           }
@@ -932,6 +932,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   form_checklist_typo_option_pl: [
                      ...set?.optional_subject_options
                   ],
+                  form_checklist_typo_option_pl_optional: [...set?.optional_subject_options_or],
                   form_checklist_rule: set?.optional_subject_rule,
                   form_checklist_rule_max: set?.optional_subject_rule_max
               })
@@ -1084,7 +1085,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
           populate: {
             path: "optional_subject",
             populate: {
-            path: "optional_subject_options",
+            path: "optional_subject_options optional_subject_options_or",
             select: "subjectName",
           }
           }
@@ -1120,6 +1121,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   form_checklist_typo_option_pl: [
                      ...set?.optional_subject_options
                   ],
+                  form_checklist_typo_option_pl_optional: [...set?.optional_subject_options_or],
                   form_checklist_rule: set?.optional_subject_rule,
                   form_checklist_rule_max: set?.optional_subject_rule_max
               })

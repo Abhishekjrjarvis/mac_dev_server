@@ -65,7 +65,8 @@ const formChecklistSchema = new mongoose.Schema({
     ],
     width: {
         type: String
-    }
+    },
+    form_checklist_typo_option_pl_optional: []
 });
 
 module.exports = mongoose.model("FormChecklist", formChecklistSchema);

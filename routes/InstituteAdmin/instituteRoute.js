@@ -775,4 +775,10 @@ router.patch(
   catchAsync(Institute.render_auto_student_form_section_checklist_query_academic)
 );
 
+// Single Application
+router.patch(
+  "/enable/auto/form/query/single/application",
+  catchAsync(Institute.render_auto_student_form_section_checklist_query_single_application)
+);
+
 module.exports = router;

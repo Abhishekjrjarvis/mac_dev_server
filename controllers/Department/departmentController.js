@@ -266,7 +266,16 @@ exports.render_dynamic_form_query = async (req, res) => {
       const all_check = await InstituteStudentForm.findOne({ institute: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
-      path: "form_section.form_checklist"
+        path: "form_section",
+        populate: {
+          path: "form_checklist",
+          populate: {
+            path: "nested_form_checklist",
+            populate: {
+              path: "nested_form_checklist_nested"
+            }
+          }
+        }
       })
       .populate({
         path: "institute",
@@ -302,6 +311,7 @@ exports.render_dynamic_form_query = async (req, res) => {
                   form_checklist_required: val?.section_key === "documents" ? false : true,
                   value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                 })
+                name2 = ""
               }
             }
           }
@@ -322,7 +332,16 @@ exports.render_dynamic_form_query = async (req, res) => {
       const all_check = await DepartmentStudentForm.findOne({ department: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
-      path: "form_section.form_checklist"
+        path: "form_section",
+        populate: {
+          path: "form_checklist",
+          populate: {
+            path: "nested_form_checklist",
+            populate: {
+              path: "nested_form_checklist_nested"
+            }
+          }
+        }
       })
       .populate({
         path: "department",
@@ -362,6 +381,7 @@ exports.render_dynamic_form_query = async (req, res) => {
                   form_checklist_required: val?.section_key === "documents" ? false : true,
                   value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                 })
+                name2 = ""
               }
             }
           }
@@ -382,7 +402,16 @@ exports.render_dynamic_form_query = async (req, res) => {
       const all_check = await InstituteApplicationForm.findOne({ application: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
-      path: "form_section.form_checklist"
+        path: "form_section",
+        populate: {
+          path: "form_checklist",
+          populate: {
+            path: "nested_form_checklist",
+            populate: {
+              path: "nested_form_checklist_nested"
+            }
+          }
+        }
       })
       .populate({
         path: "application",
@@ -423,9 +452,11 @@ exports.render_dynamic_form_query = async (req, res) => {
                   form_checklist_lable: ele?.form_checklist_lable,
                   form_checklist_typo: ele?.form_checklist_typo,
                   form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+                  // nested_form_checklist: ele?.form_checklist_key === "std_tenth_details" && student?.std_tenth_details === "Yes" || ele?.form_checklist_key === "hsc_diploma" && student?.hsc_diploma === "Yes" || ele?.form_checklist_key === "ug_engineering" && student?.ug_engineering === "Yes" || ele?.form_checklist_key === "entrance_exam" && student?.entrance_exam === "Yes" ? ele?.nested_form_checklist : [],
                   form_checklist_required: val?.section_key === "documents" ? false : true,
                   value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                 })
+                name2 = ""
               }
             }
           }
@@ -458,7 +489,16 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
       const all_check = await InstituteStudentForm.findOne({ institute: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
-      path: "form_section.form_checklist"
+        path: "form_section",
+        populate: {
+          path: "form_checklist",
+          populate: {
+            path: "nested_form_checklist",
+            populate: {
+              path: "nested_form_checklist_nested"
+            }
+          }
+        }
       })
       .populate({
         path: "institute",
@@ -494,6 +534,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   form_checklist_required: val?.section_key === "documents" ? false : true,
                   value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                 })
+                name2 = ""
               }
             }
           }
@@ -513,7 +554,16 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
       const all_check = await DepartmentStudentForm.findOne({ department: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
-      path: "form_section.form_checklist"
+        path: "form_section",
+        populate: {
+          path: "form_checklist",
+          populate: {
+            path: "nested_form_checklist",
+            populate: {
+              path: "nested_form_checklist_nested"
+            }
+          }
+        }
       })
       .populate({
         path: "department",
@@ -553,6 +603,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   form_checklist_required: val?.section_key === "documents" ? false : true,
                   value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                 })
+                name2 = ""
               }
             }
           }
@@ -572,7 +623,16 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
       const all_check = await InstituteApplicationForm.findOne({ application: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
-      path: "form_section.form_checklist"
+        path: "form_section",
+        populate: {
+          path: "form_checklist",
+          populate: {
+            path: "nested_form_checklist",
+            populate: {
+              path: "nested_form_checklist_nested"
+            }
+          }
+        }
       })
       .populate({
         path: "application",
@@ -616,6 +676,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   form_checklist_required: val?.section_key === "documents" ? false : true,
                   value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                 })
+                name2 = ""
               }
             }
           }
@@ -651,7 +712,16 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
       const all_check = await InstituteApplicationForm.findOne({ application: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
-      path: "form_section.form_checklist"
+        path: "form_section",
+        populate: {
+          path: "form_checklist",
+          populate: {
+            path: "nested_form_checklist",
+            populate: {
+              path: "nested_form_checklist_nested"
+            }
+          }
+        }
       })
       .populate({
         path: "application",
@@ -695,6 +765,7 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
                   form_checklist_required: val?.section_key === "documents" ? false : true,
                   value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                 })
+                name2 = ""
               }
             }
           }

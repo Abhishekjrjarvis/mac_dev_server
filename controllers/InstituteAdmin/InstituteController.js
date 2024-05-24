@@ -7624,3 +7624,77 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
     console.log(e)
   }
 }
+
+exports.render_auto_student_form_section_checklist_query_single_application = async (req, res) => {
+  try {    
+    var all_ifs = await InstituteStudentForm.find({})
+    for (var ifs of all_ifs) {
+      var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
+        .select("depart admissionDepart")
+      if (ins?.admissionDepart?.[0]) {
+        var all_app = await NewApplication.find({ admissionAdmin: ins?.admissionDepart?.[0] })
+          .select("student_form_setting")
+        var checklist = form_params
+        var one_ifs = await InstituteStudentForm.findById({ _id: `${ifs?._id}` })
+          .select("form_section")
+          .populate({
+            path: "form_section.form_checklist"
+          })
+        var numsss = []
+        for (var qwe of all_app) {
+          var iaf = new InstituteApplicationForm({})
+          iaf.application = qwe?._id
+          qwe.student_form_setting = iaf?._id
+          for (var val of checklist) {
+            if (val?.form_checklist?.length > 0) {
+              for (var ele of val?.form_checklist) {
+                var fc = new FormChecklist({
+                  form_checklist_name: ele?.form_checklist_name,
+                  form_checklist_key: ele?.form_checklist_key,
+                  form_checklist_visibility: ele?.form_checklist_visibility,
+                  form_checklist_placeholder: ele?.form_checklist_placeholder,
+                  form_checklist_lable: ele?.form_checklist_lable,
+                  form_checklist_typo: ele?.form_checklist_typo,
+                  form_checklist_required: ele?.form_checklist_required,
+                  width: ele?.width
+                })
+                if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+                  fc.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+                }
+                if (ele?.form_checklist_sample) {
+                  fc.form_checklist_sample = ele?.form_checklist_sample
+                }
+                if (ele?.form_checklist_pdf) {
+                  fc.form_checklist_pdf = ele?.form_checklist_pdf
+                }
+                if (ele?.form_checklist_view) {
+                  fc.form_checklist_view = ele?.form_checklist_view
+                }
+                fc.application_form = iaf?._id
+                fc.form_section = one_ifs?._id
+                numsss.push(fc?._id)
+                await fc.save()
+              }
+            }
+            iaf.form_section.push({
+              section_name: val?.section_name,
+              section_visibilty: val?.section_visibilty,
+              section_key: val?.section_key,
+              section_pdf: val?.section_pdf,
+              section_value: val?.section_value,
+              ins_form_section_id: val?._id,
+              form_checklist: [...numsss]
+            })
+            numsss = []
+          }
+          await Promise.all([iaf.save(), qwe.save()])
+        }
+      }
+    }
+      res.status(200).send({ message: "Explore One Form Section Nested Application Checklist Query", access: true })
+  
+}
+  catch (e) {
+    console.log(e)
+  }
+}

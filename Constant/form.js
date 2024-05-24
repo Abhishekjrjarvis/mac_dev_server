@@ -644,12 +644,22 @@ module.exports.form_params = [
                 form_checklist_typo: "FILE",
             },
             {
+                form_checklist_name: "Are you migrated",
+                form_checklist_key: "is_migrate",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Are you migrated",
+                form_checklist_lable: "Are you migrated",
+                form_checklist_typo: "SELECT",
+                form_checklist_typo_option_pl: ["Yes", "No"],
+            },
+            {
                 form_checklist_name: "Migration Certificate",
                 form_checklist_key: "migrationCertificate",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Migration Certificate",
                 form_checklist_lable: "Upload Migration Certificate",
                 form_checklist_typo: "FILE",
+                form_common_key: "is_migrate"
             },
             {
                 form_checklist_name: "Non - Creamy Layer Certificate",
@@ -660,12 +670,22 @@ module.exports.form_params = [
                 form_checklist_typo: "FILE",
             },
             {
+                form_checklist_name: "DOMICILE (Applicable)",
+                form_checklist_key: "is_domicile",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "DOMICILE (Applicable)",
+                form_checklist_lable: "DOMICILE (Applicable)",
+                form_checklist_typo: "SELECT",
+                form_checklist_typo_option_pl: ["Yes", "No"],
+            },
+            {
                 form_checklist_name: "Domicile Certificate",
                 form_checklist_key: "domicileCertificate",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Domicile Certificate",
                 form_checklist_lable: "Upload Domicile Certificate",
                 form_checklist_typo: "FILE",
+                form_common_key: "is_domicile"
             },
             {
                 form_checklist_name: "Nationality Certificate",
@@ -676,15 +696,22 @@ module.exports.form_params = [
                 form_checklist_typo: "FILE",
             },
             {
+                form_checklist_name: "Is Open Category Student",
+                form_checklist_key: "is_open_category",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Is Open Category Student",
+                form_checklist_lable: "Is Open Category Student",
+                form_checklist_typo: "SELECT",
+                form_checklist_typo_option_pl: ["Yes", "No"],
+            },
+            {
                 form_checklist_name: "Caste Certificate",
                 form_checklist_key: "caste_certificate",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Caste Certificate",
                 form_checklist_lable: "Upload Caste Certificate",
                 form_checklist_typo: "FILE",
-                // form_checklist_radio: ["Yes", "No"],
-                // form_checklist_radio_lable: "Is Open Category Student",
-                // form_checklist_
+                form_common_key: "is_open_category"
             },
             {
                 form_checklist_name: "Eligibilty Certificate",
@@ -703,12 +730,31 @@ module.exports.form_params = [
                 form_checklist_typo: "FILE",
             },
             {
+                form_checklist_name: "Are you physically handicapped",
+                form_checklist_key: "is_ph",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Are you physically handicapped",
+                form_checklist_lable: "Are you physically handicapped",
+                form_checklist_typo: "SELECT",
+                form_checklist_typo_option_pl: ["Yes", "No"],
+            },
+            {
                 form_checklist_name: "Physically Handicapped Certificate",
                 form_checklist_key: "ph_certificate",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Physically Handicapped Certificate",
                 form_checklist_lable: "Upload Physically Handicapped Certificate",
                 form_checklist_typo: "FILE",
+                form_common_key: "is_ph"
+            },
+            {
+                form_checklist_name: "GAP (Applicable)",
+                form_checklist_key: "is_gap",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "GAP (Applicable)",
+                form_checklist_lable: "GAP (Applicable)",
+                form_checklist_typo: "SELECT",
+                form_checklist_typo_option_pl: ["Yes", "No"],
             },
             {
                 form_checklist_name: "GAP Certificate",
@@ -717,6 +763,7 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Upload GAP Certificate",
                 form_checklist_lable: "Upload GAP Certificate",
                 form_checklist_typo: "FILE",
+                form_common_key: "is_gap"
             },
         ]
     },

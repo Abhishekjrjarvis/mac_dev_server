@@ -781,4 +781,10 @@ router.patch(
   catchAsync(Institute.render_auto_student_form_section_checklist_query_single_application)
 );
 
+// Single Social
+router.patch(
+  "/:fcid/enable/auto/form/query/social",
+  catchAsync(Institute.render_auto_student_form_section_checklist_query_social)
+);
+
 module.exports = router;

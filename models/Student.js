@@ -1048,7 +1048,10 @@ const studentSchema = new mongoose.Schema({
   aieee_chemistry_marks: { type: String },
   aieee_mathematics_marks: { type: String },
   aieee_biology_marks: { type: String },
-
+  form_no: {
+    type: String
+  },
+  student_undertakings_date: { type: String }
 });
 
 const Student = mongoose.model("Student", studentSchema);

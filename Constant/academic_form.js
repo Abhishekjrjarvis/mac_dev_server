@@ -412,6 +412,462 @@ module.exports.academic_form = [
                     }
                 ]
             },
+            {
+                form_checklist_name: "F.Y.J.C",
+                form_checklist_key: "fyjc",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter F.Y.J.C",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "F.Y.J.C",
+                form_checklist_typo_option_pl: ["F.Y.J.C"],
+                form_checklist_key_status: "DYNAMIC",
+                nested_form_checklist: [
+                    {
+                        form_checklist_name: "Month of Passing",
+                        form_checklist_key: "fyjc_month_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Month of Passing",
+                        form_checklist_lable: "Enter Month of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Month of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Year of Passing",
+                        form_checklist_key: "fyjc_year_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Year of Passing",
+                        form_checklist_lable: "Enter Year of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Year of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Percentage",
+                        form_checklist_key: "fyjc_percentage",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Percentage",
+                        form_checklist_lable: "Enter Percentage",
+                        form_checklist_typo: "NUMBER",
+                        form_checklist_sample: "Percentage",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Name of Institute",
+                        form_checklist_key: "fyjc_name_of_institute",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Name of Institute",
+                        form_checklist_lable: "Enter Name of Institute",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Name of Institute",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    }
+                ]
+            },
+            {
+                form_checklist_name: "F.Y. Sem-I",
+                form_checklist_key: "fy_sem_I",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter F.Y. Sem-I",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "F.Y. Sem-I",
+                form_checklist_typo_option_pl: ["F.Y. Sem-I"],
+                form_checklist_key_status: "DYNAMIC",
+                nested_form_checklist: [
+                    {
+                        form_checklist_name: "Month of Passing",
+                        form_checklist_key: "fy_sem_I_month_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Month of Passing",
+                        form_checklist_lable: "Enter Month of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Month of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Year of Passing",
+                        form_checklist_key: "fy_sem_I_year_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Year of Passing",
+                        form_checklist_lable: "Enter Year of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Year of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Percentage",
+                        form_checklist_key: "fy_sem_I_percentage",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Percentage",
+                        form_checklist_lable: "Enter Percentage",
+                        form_checklist_typo: "NUMBER",
+                        form_checklist_sample: "Percentage",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Name of Institute",
+                        form_checklist_key: "fy_sem_I_name_of_institute",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Name of Institute",
+                        form_checklist_lable: "Enter Name of Institute",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Name of Institute",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    }
+                ]
+            },
+            {
+                form_checklist_name: "F.Y. Sem-II",
+                form_checklist_key: "fy_sem_II",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter F.Y. Sem-II",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "F.Y. Sem-II",
+                form_checklist_typo_option_pl: ["F.Y. Sem-II"],
+                form_checklist_key_status: "DYNAMIC",
+                nested_form_checklist: [
+                    {
+                        form_checklist_name: "Month of Passing",
+                        form_checklist_key: "fy_sem_II_month_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Month of Passing",
+                        form_checklist_lable: "Enter Month of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Month of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Year of Passing",
+                        form_checklist_key: "fy_sem_II_year_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Year of Passing",
+                        form_checklist_lable: "Enter Year of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Year of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Percentage",
+                        form_checklist_key: "fy_sem_II_percentage",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Percentage",
+                        form_checklist_lable: "Enter Percentage",
+                        form_checklist_typo: "NUMBER",
+                        form_checklist_sample: "Percentage",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Name of Institute",
+                        form_checklist_key: "fy_sem_II_name_of_institute",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Name of Institute",
+                        form_checklist_lable: "Enter Name of Institute",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Name of Institute",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    }
+                ]
+            },
+            {
+                form_checklist_name: "S.Y. Sem-III",
+                form_checklist_key: "sy_sem_III",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter S.Y. Sem-III",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "S.Y. Sem-III",
+                form_checklist_typo_option_pl: ["S.Y. Sem-III"],
+                form_checklist_key_status: "DYNAMIC",
+                nested_form_checklist: [
+                    {
+                        form_checklist_name: "Month of Passing",
+                        form_checklist_key: "sy_sem_III_month_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Month of Passing",
+                        form_checklist_lable: "Enter Month of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Month of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Year of Passing",
+                        form_checklist_key: "sy_sem_III_year_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Year of Passing",
+                        form_checklist_lable: "Enter Year of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Year of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Percentage",
+                        form_checklist_key: "sy_sem_III_percentage",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Percentage",
+                        form_checklist_lable: "Enter Percentage",
+                        form_checklist_typo: "NUMBER",
+                        form_checklist_sample: "Percentage",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Name of Institute",
+                        form_checklist_key: "sy_sem_III_name_of_institute",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Name of Institute",
+                        form_checklist_lable: "Enter Name of Institute",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Name of Institute",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    }
+                ]
+            },
+            {
+                form_checklist_name: "S.Y. Sem-IV",
+                form_checklist_key: "sy_sem_IV",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter S.Y. Sem-IV",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "S.Y. Sem-IV",
+                form_checklist_typo_option_pl: ["S.Y. Sem-IV"],
+                form_checklist_key_status: "DYNAMIC",
+                nested_form_checklist: [
+                    {
+                        form_checklist_name: "Month of Passing",
+                        form_checklist_key: "sy_sem_IV_month_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Month of Passing",
+                        form_checklist_lable: "Enter Month of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Month of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Year of Passing",
+                        form_checklist_key: "sy_sem_IV_year_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Year of Passing",
+                        form_checklist_lable: "Enter Year of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Year of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Percentage",
+                        form_checklist_key: "sy_sem_IV_percentage",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Percentage",
+                        form_checklist_lable: "Enter Percentage",
+                        form_checklist_typo: "NUMBER",
+                        form_checklist_sample: "Percentage",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Name of Institute",
+                        form_checklist_key: "sy_sem_IV_name_of_institute",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Name of Institute",
+                        form_checklist_lable: "Enter Name of Institute",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Name of Institute",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    }
+                ]
+            },
+            {
+                form_checklist_name: "T.Y. Sem-V",
+                form_checklist_key: "ty_sem_V",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter T.Y. Sem-V",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "T.Y. Sem-V",
+                form_checklist_typo_option_pl: ["T.Y. Sem-V"],
+                form_checklist_key_status: "DYNAMIC",
+                nested_form_checklist: [
+                    {
+                        form_checklist_name: "Month of Passing",
+                        form_checklist_key: "ty_sem_V_month_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Month of Passing",
+                        form_checklist_lable: "Enter Month of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Month of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Year of Passing",
+                        form_checklist_key: "ty_sem_V_year_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Year of Passing",
+                        form_checklist_lable: "Enter Year of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Year of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Percentage",
+                        form_checklist_key: "ty_sem_V_percentage",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Percentage",
+                        form_checklist_lable: "Enter Percentage",
+                        form_checklist_typo: "NUMBER",
+                        form_checklist_sample: "Percentage",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Name of Institute",
+                        form_checklist_key: "ty_sem_V_name_of_institute",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Name of Institute",
+                        form_checklist_lable: "Enter Name of Institute",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Name of Institute",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    }
+                ]
+            },
+            {
+                form_checklist_name: "T.Y. Sem-VI",
+                form_checklist_key: "ty_sem_VI",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter T.Y. Sem-VI",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "T.Y. Sem-VI",
+                form_checklist_typo_option_pl: ["T.Y. Sem-VI"],
+                form_checklist_key_status: "DYNAMIC",
+                nested_form_checklist: [
+                    {
+                        form_checklist_name: "Month of Passing",
+                        form_checklist_key: "ty_sem_VI_month_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Month of Passing",
+                        form_checklist_lable: "Enter Month of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Month of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Year of Passing",
+                        form_checklist_key: "ty_sem_VI_year_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Year of Passing",
+                        form_checklist_lable: "Enter Year of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Year of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Percentage",
+                        form_checklist_key: "ty_sem_VI_percentage",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Percentage",
+                        form_checklist_lable: "Enter Percentage",
+                        form_checklist_typo: "NUMBER",
+                        form_checklist_sample: "Percentage",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Name of Institute",
+                        form_checklist_key: "ty_sem_VI_name_of_institute",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Name of Institute",
+                        form_checklist_lable: "Enter Name of Institute",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Name of Institute",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    }
+                ]
+            },
+            {
+                form_checklist_name: "M.Sc/M.Com",
+                form_checklist_key: "msc_mcom",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter M.Sc/M.Com",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "M.Sc/M.Com",
+                form_checklist_typo_option_pl: ["M.Sc/M.Com"],
+                form_checklist_key_status: "DYNAMIC",
+                nested_form_checklist: [
+                    {
+                        form_checklist_name: "Month of Passing",
+                        form_checklist_key: "msc_mcom_month_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Month of Passing",
+                        form_checklist_lable: "Enter Month of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Month of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Year of Passing",
+                        form_checklist_key: "msc_mcom_year_of_passing",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Year of Passing",
+                        form_checklist_lable: "Enter Year of Passing",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Year of Passing",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Percentage",
+                        form_checklist_key: "msc_mcom_percentage",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Percentage",
+                        form_checklist_lable: "Enter Percentage",
+                        form_checklist_typo: "NUMBER",
+                        form_checklist_sample: "Percentage",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    },
+                    {
+                        form_checklist_name: "Name of Institute",
+                        form_checklist_key: "msc_mcom_name_of_institute",
+                        form_checklist_visibility: true,
+                        form_checklist_placeholder: "Enter Name of Institute",
+                        form_checklist_lable: "Enter Name of Institute",
+                        form_checklist_typo: "TEXT",
+                        form_checklist_sample: "Name of Institute",
+                        form_checklist_typo_option_pl: [],
+                        form_checklist_key_status: "DYNAMIC"
+                    }
+                ]
+            },
         ]
     }
 ]

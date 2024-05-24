@@ -7750,6 +7750,9 @@ exports.render_auto_student_form_section_checklist_query_social = async (req, re
             if (ele?.form_checklist_view) {
               fc.form_checklist_view = ele?.form_checklist_view
             }
+            if (ele?.form_common_key) {
+              fc.form_common_key = ele?.form_common_key
+            }
             fc.form = ifs?._id
             fc.form_section = val?._id
             await fc.save()
@@ -7806,6 +7809,9 @@ exports.render_auto_student_form_section_checklist_query_social = async (req, re
               if (ele?.form_checklist_view) {
                 fc.form_checklist_view = ele?.form_checklist_view
               }
+              if (ele?.form_common_key) {
+                fc.form_common_key = ele?.form_common_key
+              }
               fc.department_form = qwe?._id
               fc.form_section = one_ifs?._id
               nums.push(fc?._id)
@@ -7855,6 +7861,9 @@ exports.render_auto_student_form_section_checklist_query_social = async (req, re
               }
               if (ele?.form_checklist_view) {
                 fc.form_checklist_view = ele?.form_checklist_view
+              }
+              if (ele?.form_common_key) {
+                fc.form_common_key = ele?.form_common_key
               }
               fc.application_form = all?._id
               fc.form_section = one_ifs?._id

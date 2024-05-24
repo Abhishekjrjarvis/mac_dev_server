@@ -424,46 +424,115 @@ exports.render_dynamic_form_query = async (req, res) => {
             select: "insName"
           }
         }
-        })
+      })
+      var custom = ""
+      var customs = ""
       for (var val of all_check?.form_section) {
-        if (val?.section_visibilty == true) {
-          for (var ele of val?.form_checklist) {
-            if (ele?.form_checklist_visibility == true) {
-              var list = student?.student_dynamic_field?.filter((dna) => {
-                if (dna?.key === ele?.form_checklist_key) {
-                  nest_obj[`${dna?.key}`] = dna?.value
+        if (val?.section_key === "academic_details") {
+          if (val?.section_visibilty == true) {
+            for (var ele of val?.form_checklist) {
+              if (ele?.form_checklist_visibility == true) {
+                if (student[`${ele?.form_checklist_key}`] === "Yes") {
+                  for (let qwe of ele?.nested_form_checklist) {
+                    if (qwe?.nested_form_checklist_nested?.length > 0) {
+                      if (student[`${qwe?.form_checklist_key}`] === "Yes") {
+                        for (let ads of qwe?.nested_form_checklist_nested) {
+                          head_array.push({
+                            form_checklist_name: ads?.form_checklist_name,
+                            form_checklist_key: ads?.form_checklist_key,
+                            form_checklist_visibility: ads?.form_checklist_visibility,
+                            form_checklist_placeholder: ads?.form_checklist_placeholder,
+                            form_checklist_lable: ads?.form_checklist_lable,
+                            form_checklist_typo: ads?.form_checklist_typo,
+                            form_checklist_typo_option_pl: ads?.form_checklist_typo_option_pl,
+                            form_checklist_required: val?.section_key === "documents" ? false : true,
+                            value: student[`${ads?.form_checklist_key}`] ?? ""
+                          })
+                        }
+                        customs = qwe?.form_checklist_key
+                      }
+                    }
+                    else {
+                      if (student[`${qwe?.form_checklist_key}`] === "Yes") {
+                        for (let ads of qwe?.nested_form_checklist_nested) {
+                          head_array.push({
+                            form_checklist_name: ads?.form_checklist_name,
+                            form_checklist_key: ads?.form_checklist_key,
+                            form_checklist_visibility: ads?.form_checklist_visibility,
+                            form_checklist_placeholder: ads?.form_checklist_placeholder,
+                            form_checklist_lable: ads?.form_checklist_lable,
+                            form_checklist_typo: ads?.form_checklist_typo,
+                            form_checklist_typo_option_pl: ads?.form_checklist_typo_option_pl,
+                            form_checklist_required: val?.section_key === "documents" ? false : true,
+                            value: student[`${ads?.form_checklist_key}`] ?? ""
+                          })
+                        }
+                        customs = qwe?.form_checklist_key
+                      }
+                      else {
+                        head_array.push({
+                          form_checklist_name: qwe?.form_checklist_name,
+                          form_checklist_key: qwe?.form_checklist_key,
+                          form_checklist_visibility: qwe?.form_checklist_visibility,
+                          form_checklist_placeholder: qwe?.form_checklist_placeholder,
+                          form_checklist_lable: qwe?.form_checklist_lable,
+                          form_checklist_typo: qwe?.form_checklist_typo,
+                          form_checklist_typo_option_pl: qwe?.form_checklist_typo_option_pl,
+                          form_checklist_required: val?.section_key === "documents" ? false : true,
+                          value: student[`${qwe?.form_checklist_key}`] ?? ""
+                        })
+                      }
+                    }
+                  }
+                  custom = ele?.form_checklist_key
+                  obj[`fields`] = [...head_array]
+                  head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key, active_academic: [`${custom}`], active_academic_nested: [`${customs}`] })
+                  obj = {}
+                  head_array = []
                 }
-              })
-              if (ele?.form_checklist_typo === "Same As") {
-              }
-              else {
-                if (ele?.form_checklist_key === "student_undertakings") {
-                  var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
-                  var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
-                }
-                else if (ele?.form_checklist_key === "student_anti_ragging") {
-                  var name2 = val?.section_value
-                }
-                head_array.push({
-                  form_checklist_name: ele?.form_checklist_name,
-                  form_checklist_key: ele?.form_checklist_key,
-                  form_checklist_visibility: ele?.form_checklist_visibility,
-                  form_checklist_placeholder: ele?.form_checklist_placeholder,
-                  form_checklist_lable: ele?.form_checklist_lable,
-                  form_checklist_typo: ele?.form_checklist_typo,
-                  form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
-                  // nested_form_checklist: ele?.form_checklist_key === "std_tenth_details" && student?.std_tenth_details === "Yes" || ele?.form_checklist_key === "hsc_diploma" && student?.hsc_diploma === "Yes" || ele?.form_checklist_key === "ug_engineering" && student?.ug_engineering === "Yes" || ele?.form_checklist_key === "entrance_exam" && student?.entrance_exam === "Yes" ? ele?.nested_form_checklist : [],
-                  form_checklist_required: val?.section_key === "documents" ? false : true,
-                  value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
-                })
-                name2 = ""
               }
             }
           }
-          obj[`fields`] = [...head_array]
-          head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key })
-          obj = {}
-          head_array = []
+        }
+        else {
+          if (val?.section_visibilty == true) {
+            for (var ele of val?.form_checklist) {
+              if (ele?.form_checklist_visibility == true) {
+                var list = student?.student_dynamic_field?.filter((dna) => {
+                  if (dna?.key === ele?.form_checklist_key) {
+                    nest_obj[`${dna?.key}`] = dna?.value
+                  }
+                })
+                if (ele?.form_checklist_typo === "Same As") {
+                }
+                else {
+                  if (ele?.form_checklist_key === "student_undertakings") {
+                    var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                    var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
+                  }
+                  else if (ele?.form_checklist_key === "student_anti_ragging") {
+                    var name2 = val?.section_value
+                  }
+                  head_array.push({
+                    form_checklist_name: ele?.form_checklist_name,
+                    form_checklist_key: ele?.form_checklist_key,
+                    form_checklist_visibility: ele?.form_checklist_visibility,
+                    form_checklist_placeholder: ele?.form_checklist_placeholder,
+                    form_checklist_lable: ele?.form_checklist_lable,
+                    form_checklist_typo: ele?.form_checklist_typo,
+                    form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+                    form_checklist_required: val?.section_key === "documents" ? false : true,
+                    value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                  })
+                  name2 = ""
+                }
+              }
+            }
+            obj[`fields`] = [...head_array]
+            head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key })
+            obj = {}
+            head_array = []
+          }
         }
       }
       head_arrays?.splice(0, 1)
@@ -645,45 +714,115 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
             select: "insName"
           }
         }
-        })
+      })
+      var custom = ""
+      var customs = ""
       for (var val of all_check?.form_section) {
-        if (val?.section_visibilty == true) {
-          for (var ele of val?.form_checklist) {
-            if (ele?.form_checklist_visibility == true) {
-              var list = student?.student_dynamic_field?.filter((dna) => {
-                if (dna?.key === ele?.form_checklist_key) {
-                  nest_obj[`${dna?.key}`] = dna?.value
+        if (val?.section_key === "academic_details") {
+          if (val?.section_visibilty == true) {
+            for (var ele of val?.form_checklist) {
+              if (ele?.form_checklist_visibility == true) {
+                if (student[`${ele?.form_checklist_key}`] === "Yes") {
+                  for (let qwe of ele?.nested_form_checklist) {
+                    if (qwe?.nested_form_checklist_nested?.length > 0) {
+                      if (student[`${qwe?.form_checklist_key}`] === "Yes") {
+                        for (let ads of qwe?.nested_form_checklist_nested) {
+                          head_array.push({
+                            form_checklist_name: ads?.form_checklist_name,
+                            form_checklist_key: ads?.form_checklist_key,
+                            form_checklist_visibility: ads?.form_checklist_visibility,
+                            form_checklist_placeholder: ads?.form_checklist_placeholder,
+                            form_checklist_lable: ads?.form_checklist_lable,
+                            form_checklist_typo: ads?.form_checklist_typo,
+                            form_checklist_typo_option_pl: ads?.form_checklist_typo_option_pl,
+                            form_checklist_required: val?.section_key === "documents" ? false : true,
+                            value: student[`${ads?.form_checklist_key}`] ?? ""
+                          })
+                        }
+                        customs = qwe?.form_checklist_key
+                      }
+                    }
+                    else {
+                      if (student[`${qwe?.form_checklist_key}`] === "Yes") {
+                        for (let ads of qwe?.nested_form_checklist_nested) {
+                          head_array.push({
+                            form_checklist_name: ads?.form_checklist_name,
+                            form_checklist_key: ads?.form_checklist_key,
+                            form_checklist_visibility: ads?.form_checklist_visibility,
+                            form_checklist_placeholder: ads?.form_checklist_placeholder,
+                            form_checklist_lable: ads?.form_checklist_lable,
+                            form_checklist_typo: ads?.form_checklist_typo,
+                            form_checklist_typo_option_pl: ads?.form_checklist_typo_option_pl,
+                            form_checklist_required: val?.section_key === "documents" ? false : true,
+                            value: student[`${ads?.form_checklist_key}`] ?? ""
+                          })
+                        }
+                        customs = qwe?.form_checklist_key
+                      }
+                      else {
+                        head_array.push({
+                          form_checklist_name: qwe?.form_checklist_name,
+                          form_checklist_key: qwe?.form_checklist_key,
+                          form_checklist_visibility: qwe?.form_checklist_visibility,
+                          form_checklist_placeholder: qwe?.form_checklist_placeholder,
+                          form_checklist_lable: qwe?.form_checklist_lable,
+                          form_checklist_typo: qwe?.form_checklist_typo,
+                          form_checklist_typo_option_pl: qwe?.form_checklist_typo_option_pl,
+                          form_checklist_required: val?.section_key === "documents" ? false : true,
+                          value: student[`${qwe?.form_checklist_key}`] ?? ""
+                        })
+                      }
+                    }
+                  }
+                  custom = ele?.form_checklist_key
+                  obj[`fields`] = [...head_array]
+                  head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key, active_academic: [`${custom}`], active_academic_nested: [`${customs}`] })
+                  obj = {}
+                  head_array = []
                 }
-              })
-              if (ele?.form_checklist_typo === "Same As") {
-              }
-              else {
-                if (ele?.form_checklist_key === "student_undertakings") {
-                  var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
-                  var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
-                }
-                else if (ele?.form_checklist_key === "student_anti_ragging") {
-                  var name2 = val?.section_value
-                }
-                head_array.push({
-                  form_checklist_name: ele?.form_checklist_name,
-                  form_checklist_key: ele?.form_checklist_key,
-                  form_checklist_visibility: ele?.form_checklist_visibility,
-                  form_checklist_placeholder: ele?.form_checklist_placeholder,
-                  form_checklist_lable: ele?.form_checklist_lable,
-                  form_checklist_typo: ele?.form_checklist_typo,
-                  form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
-                  form_checklist_required: val?.section_key === "documents" ? false : true,
-                  value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
-                })
-                name2 = ""
               }
             }
           }
-          obj[`fields`] = [...head_array]
-          head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key })
-          obj = {}
-          head_array = []
+        }
+        else {
+          if (val?.section_visibilty == true) {
+            for (var ele of val?.form_checklist) {
+              if (ele?.form_checklist_visibility == true) {
+                var list = student?.student_dynamic_field?.filter((dna) => {
+                  if (dna?.key === ele?.form_checklist_key) {
+                    nest_obj[`${dna?.key}`] = dna?.value
+                  }
+                })
+                if (ele?.form_checklist_typo === "Same As") {
+                }
+                else {
+                  if (ele?.form_checklist_key === "student_undertakings") {
+                    var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                    var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
+                  }
+                  else if (ele?.form_checklist_key === "student_anti_ragging") {
+                    var name2 = val?.section_value
+                  }
+                  head_array.push({
+                    form_checklist_name: ele?.form_checklist_name,
+                    form_checklist_key: ele?.form_checklist_key,
+                    form_checklist_visibility: ele?.form_checklist_visibility,
+                    form_checklist_placeholder: ele?.form_checklist_placeholder,
+                    form_checklist_lable: ele?.form_checklist_lable,
+                    form_checklist_typo: ele?.form_checklist_typo,
+                    form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+                    form_checklist_required: val?.section_key === "documents" ? false : true,
+                    value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                  })
+                  name2 = ""
+                }
+              }
+            }
+            obj[`fields`] = [...head_array]
+            head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key })
+            obj = {}
+            head_array = []
+          }
         }
       }
       res.status(200).send({ message: "Explore One Student Application Dynamic Form Query", access: true, result: [...head_arrays]})
@@ -734,45 +873,115 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
             select: "insName"
           }
         }
-        })
+      })
+      var custom = ""
+      var customs = ""
       for (var val of all_check?.form_section) {
-        if (val?.section_visibilty == true) {
-          for (var ele of val?.form_checklist) {
-            if (ele?.form_checklist_visibility == true) {
-              var list = student?.student_dynamic_field?.filter((dna) => {
-                if (dna?.key === ele?.form_checklist_key) {
-                  nest_obj[`${dna?.key}`] = dna?.value
+        if (val?.section_key === "academic_details") {
+          if (val?.section_visibilty == true) {
+            for (var ele of val?.form_checklist) {
+              if (ele?.form_checklist_visibility == true) {
+                if (student[`${ele?.form_checklist_key}`] === "Yes") {
+                  for (let qwe of ele?.nested_form_checklist) {
+                    if (qwe?.nested_form_checklist_nested?.length > 0) {
+                      if (student[`${qwe?.form_checklist_key}`] === "Yes") {
+                        for (let ads of qwe?.nested_form_checklist_nested) {
+                          head_array.push({
+                            form_checklist_name: ads?.form_checklist_name,
+                            form_checklist_key: ads?.form_checklist_key,
+                            form_checklist_visibility: ads?.form_checklist_visibility,
+                            form_checklist_placeholder: ads?.form_checklist_placeholder,
+                            form_checklist_lable: ads?.form_checklist_lable,
+                            form_checklist_typo: ads?.form_checklist_typo,
+                            form_checklist_typo_option_pl: ads?.form_checklist_typo_option_pl,
+                            form_checklist_required: val?.section_key === "documents" ? false : true,
+                            value: student[`${ads?.form_checklist_key}`] ?? ""
+                          })
+                        }
+                        customs = qwe?.form_checklist_key
+                      }
+                    }
+                    else {
+                      if (student[`${qwe?.form_checklist_key}`] === "Yes") {
+                        for (let ads of qwe?.nested_form_checklist_nested) {
+                          head_array.push({
+                            form_checklist_name: ads?.form_checklist_name,
+                            form_checklist_key: ads?.form_checklist_key,
+                            form_checklist_visibility: ads?.form_checklist_visibility,
+                            form_checklist_placeholder: ads?.form_checklist_placeholder,
+                            form_checklist_lable: ads?.form_checklist_lable,
+                            form_checklist_typo: ads?.form_checklist_typo,
+                            form_checklist_typo_option_pl: ads?.form_checklist_typo_option_pl,
+                            form_checklist_required: val?.section_key === "documents" ? false : true,
+                            value: student[`${ads?.form_checklist_key}`] ?? ""
+                          })
+                        }
+                        customs = qwe?.form_checklist_key
+                      }
+                      else {
+                        head_array.push({
+                          form_checklist_name: qwe?.form_checklist_name,
+                          form_checklist_key: qwe?.form_checklist_key,
+                          form_checklist_visibility: qwe?.form_checklist_visibility,
+                          form_checklist_placeholder: qwe?.form_checklist_placeholder,
+                          form_checklist_lable: qwe?.form_checklist_lable,
+                          form_checklist_typo: qwe?.form_checklist_typo,
+                          form_checklist_typo_option_pl: qwe?.form_checklist_typo_option_pl,
+                          form_checklist_required: val?.section_key === "documents" ? false : true,
+                          value: student[`${qwe?.form_checklist_key}`] ?? ""
+                        })
+                      }
+                    }
+                  }
+                  custom = ele?.form_checklist_key
+                  obj[`fields`] = [...head_array]
+                  head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key, active_academic: [`${custom}`], active_academic_nested: [`${customs}`] })
+                  obj = {}
+                  head_array = []
                 }
-              })
-              if (ele?.form_checklist_typo === "Same As") {
-              }
-              else {
-                if (ele?.form_checklist_key === "student_undertakings") {
-                  var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
-                  var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
-                }
-                else if (ele?.form_checklist_key === "student_anti_ragging") {
-                  var name2 = val?.section_value
-                }
-                head_array.push({
-                  form_checklist_name: ele?.form_checklist_name,
-                  form_checklist_key: ele?.form_checklist_key,
-                  form_checklist_visibility: ele?.form_checklist_visibility,
-                  form_checklist_placeholder: ele?.form_checklist_placeholder,
-                  form_checklist_lable: ele?.form_checklist_lable,
-                  form_checklist_typo: ele?.form_checklist_typo,
-                  form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
-                  form_checklist_required: val?.section_key === "documents" ? false : true,
-                  value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
-                })
-                name2 = ""
               }
             }
           }
-          obj[`fields`] = [...head_array]
-          head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key })
-          obj = {}
-          head_array = []
+        }
+        else {
+          if (val?.section_visibilty == true) {
+            for (var ele of val?.form_checklist) {
+              if (ele?.form_checklist_visibility == true) {
+                var list = student?.student_dynamic_field?.filter((dna) => {
+                  if (dna?.key === ele?.form_checklist_key) {
+                    nest_obj[`${dna?.key}`] = dna?.value
+                  }
+                })
+                if (ele?.form_checklist_typo === "Same As") {
+                }
+                else {
+                  if (ele?.form_checklist_key === "student_undertakings") {
+                    var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                    var name2 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
+                  }
+                  else if (ele?.form_checklist_key === "student_anti_ragging") {
+                    var name2 = val?.section_value
+                  }
+                  head_array.push({
+                    form_checklist_name: ele?.form_checklist_name,
+                    form_checklist_key: ele?.form_checklist_key,
+                    form_checklist_visibility: ele?.form_checklist_visibility,
+                    form_checklist_placeholder: ele?.form_checklist_placeholder,
+                    form_checklist_lable: ele?.form_checklist_lable,
+                    form_checklist_typo: ele?.form_checklist_typo,
+                    form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
+                    form_checklist_required: val?.section_key === "documents" ? false : true,
+                    value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                  })
+                  name2 = ""
+                }
+              }
+            }
+            obj[`fields`] = [...head_array]
+            head_arrays.push({ ...obj, key: val?.section_name, static_key: val?.section_key })
+            obj = {}
+            head_array = []
+          }
         }
       }
       head_arrays?.splice(0, 1)

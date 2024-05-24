@@ -1584,6 +1584,8 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
 
       student.student_form_flow.flow = "INSTITUTE"
       student.student_form_flow.did = institute?._id
+      institute.form_no_count += 1
+      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
       const notify = new StudentNotification({});
       const aStatus = new Status({});
       institute.student.push(student._id);
@@ -2005,6 +2007,8 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       }
       student.student_form_flow.flow = "INSTITUTE"
       student.student_form_flow.did = institute?._id
+      institute.form_no_count += 1
+      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
       status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -2027,6 +2031,8 @@ Note: Stay tuned for further updates.`;
       student.student_form_flow.flow = "DEPARTMENT"
       status.group_by = "Admission_Application_Applied"
       student.student_form_flow.did = apply?.applicationDepartment
+      institute.form_no_count += 1
+      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
       status.applicationId = apply._id;
       status.student = student?._id;
       status.document_visible = true;
@@ -2239,6 +2245,8 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
       }
       student.student_form_flow.flow = "INSTITUTE"
       student.student_form_flow.did = institute?._id
+      institute.form_no_count += 1
+      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
       status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -2476,8 +2484,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       subject.optionalStudent.push(student?._id);
       await subject.save();
     }
-    student.student_form_flow.flow = "INSTITUTE"
-    student.student_form_flow.did = institute?._id
+    // student.student_form_flow.flow = "INSTITUTE"
+    // student.student_form_flow.did = institute?._id
     const notify = new StudentNotification({});
     const aStatus = new Status({});
     user.student.push(student._id);
@@ -2492,6 +2500,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     }
     student.student_form_flow.flow = "DEPARTMENT"
     student.student_form_flow.did = depart?._id
+    institute.form_no_count += 1
+    student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
     student.institute = institute._id;
     student.user = user._id;
     student.studentStatus = "Approved";
@@ -3066,6 +3076,8 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     }
     student.student_form_flow.flow = "DEPARTMENT"
     student.student_form_flow.did = apply?.applicationDepartment
+    institute.form_no_count += 1
+    student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
     user.student.push(student._id);
     user.applyApplication.push(apply._id);
     student.user = user._id;
@@ -3342,6 +3354,8 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         }
         student.student_form_flow.flow = "DEPARTMENT"
         student.student_form_flow.did = depart?._id
+        institute.form_no_count += 1
+        student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
         if (studentOptionalSubject?.length > 0) {
           student.studentOptionalSubject.push(...studentOptionalSubject);
         }
@@ -4382,6 +4396,8 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
         institute.joinedPost.push(user._id);
         student.student_form_flow.flow = "INSTITUTE"
         student.student_form_flow.did = institute?._id
+        institute.form_no_count += 1
+        student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
         if (institute.userFollowersList.includes(user?._id)) {
         } else {
           user.userInstituteFollowing.push(institute?._id);

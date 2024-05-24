@@ -962,6 +962,8 @@ Note: Stay tuned for further updates.`;
       status.applicationId = apply._id;
       student.student_form_flow.flow = "APPLICATION"
       student.student_form_flow.did = apply._id
+      institute.form_no_count += 1
+      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
       status.document_visible = true;
       status.instituteId = institute._id;
       status.finance = institute?.financeDepart?.[0];

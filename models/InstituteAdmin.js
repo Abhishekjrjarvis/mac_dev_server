@@ -1357,6 +1357,10 @@ const instituteAdminSchema = new mongoose.Schema({
   universal_selected_batch: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch"
+  },
+  form_no_count: {
+    type: Number,
+    default: 0
   }
 });
 

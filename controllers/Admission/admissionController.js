@@ -4633,7 +4633,6 @@ exports.renderRemarkInquiryQuery = async (req, res) => {
         query?.inquiry_student_email,
         query?.inquiry_student_name,
         query?.inquiry_student_mobileNo,
-        query?.inquiry_student_email,
         query?.inquiry_student_city,
         query?.inquiry_student_message,
         query?.inquiry_status,

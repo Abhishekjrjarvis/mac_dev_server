@@ -480,7 +480,6 @@ exports.email_sms_designation_normal = (
   name,
   message,
   mobile,
-  email,
   city,
   status,
   soln

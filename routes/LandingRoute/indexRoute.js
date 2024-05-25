@@ -240,4 +240,6 @@ router.get("/:lcid/all/examination/object/query", catchAsync(Landing.render_all_
 
 router.delete("/:lcid/examination/destroy/object/query", catchAsync(Landing.render_examination_delete_object_query));
 
+router.post("/:aid/new/inquiry/query", catchAsync(Landing.render_new_landing_page_inquiry));
+
 module.exports = router;

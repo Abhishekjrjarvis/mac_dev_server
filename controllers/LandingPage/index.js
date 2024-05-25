@@ -24,6 +24,10 @@ const Post = require("../../models/Post");
 const AcademicPage = require("../../models/LandingModel/AcademicPage");
 const AcademicNestedPage = require("../../models/LandingModel/AcademicNestedPage");
 const Staff = require("../../models/Staff");
+const Inquiry = require("../../models/Admission/Inquiry");
+const NewApplication = require("../../models/Admission/NewApplication");
+const Admission = require("../../models/Admission/Admission");
+const { email_sms_designation_normal } = require("../../WhatsAppSMS/payload");
 
 exports.uploadGetTouchDetail = async (req, res) => {
   try {
@@ -2234,8 +2238,49 @@ exports.render_examination_delete_object_query = async (req, res) => {
         }
       }
     }
+    else if (flow === "HALL_TICKET") {
+      for (var val of landing?.hall_ticket) {
+        if (`${val?._id}` === `${cid}`) {
+          landing.hall_ticket.pull(val?._id)
+        }
+      }
+    }
     await landing.save()
     res.status(200).send({ message: `${flow} Documents Delete Query`, access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_new_landing_page_inquiry = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const apply = await NewApplication.findById({ _id: aid })
+    const admission_admin = await Admission.findById({ _id: `${apply?.admissionAdmin}`})
+      const inquiry = new Inquiry({ ...req.body });
+      inquiry.inquiry_application = apply._id;
+      inquiry.admissionAdmin = admission_admin._id;
+      admission_admin.inquiryList.push(inquiry._id);
+      admission_admin.queryCount += 1;
+      await Promise.all([admission_admin.save(), inquiry.save()]);
+      res.status(200).send({
+        message: "New Inquiry By Single Landing Page is Coming Ready to Handle",
+        access: true,
+      });
+    if (inquiry?.inquiry_student_email?.includes("@")) {
+      email_sms_designation_normal(
+        inquiry?.inquiry_student_email,
+        inquiry?.inquiry_student_name,
+        inquiry?.inquiry_student_mobileNo,
+        inquiry?.inquiry_student_email,
+        inquiry?.inquiry_student_city,
+        inquiry?.inquiry_student_message,
+        "Enquired"
+      );
+    }
   }
   catch (e) {
     console.log(e)

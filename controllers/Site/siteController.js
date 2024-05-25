@@ -1362,3 +1362,65 @@ exports.render_delete_hall_ticket_query = async (req, res) => {
   }
 }
 
+exports.render_admission_video_gallery_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    const { title, video, link } = req?.body
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const ads = await AdmissionSite.findById({ _id: aid })
+    ads.video_gallery.push({
+      title: title,
+      video: video,
+      link: link
+    })
+    await ads.save()
+    res.status(200).send({ message: "Explore New Video By Admission Site", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_admission_edit_video_gallery_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    const { title, video, link, vid } = req?.body
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const ads = await AdmissionSite.findById({ _id: aid })
+    for (let ele of ads?.video_gallery) {
+      if (`${ele?._id}` === `${vid}`) {
+        ele.title = title
+        ele.video = video
+        ele.link = link
+      }
+    }
+    await ads.save()
+    res.status(200).send({ message: "Explore Edit Video By Admission Site", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_admission_delete_video_gallery_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    const { vid } = req?.body
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    const ads = await AdmissionSite.findById({ _id: aid })
+    for (let ele of ads?.video_gallery) {
+      if (`${ele?._id}` === `${vid}`) {
+        ads?.video_gallery?.pull(ele?._id)
+      }
+    }
+    await ads.save()
+    res.status(200).send({ message: "Explore Delete Video By Admission Site", access: true })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+

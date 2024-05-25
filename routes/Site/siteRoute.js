@@ -91,5 +91,11 @@ router.delete("/:did/delete/hall/ticket/query", catchAsync(siteController.render
 
 router.get("/all/hall/ticket/query", catchAsync(siteController.render_all_hall_ticket_query));
 
+router.post("/:aid/new/video/gallery/query", catchAsync(siteController.render_admission_video_gallery_query));
+router.patch("/:aid/edit/video/gallery/query", catchAsync(siteController.render_admission_edit_video_gallery_query));
+router.delete("/:aid/delete/video/gallery/query", catchAsync(siteController.render_admission_delete_video_gallery_query));
+
+
+
 
 module.exports = router;

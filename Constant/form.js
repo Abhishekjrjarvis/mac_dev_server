@@ -651,6 +651,7 @@ module.exports.form_params = [
                 form_checklist_lable: "Are you migrated",
                 form_checklist_typo: "SELECT",
                 form_checklist_typo_option_pl: ["Yes", "No"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Migration Certificate",
@@ -677,6 +678,7 @@ module.exports.form_params = [
                 form_checklist_lable: "DOMICILE (Applicable)",
                 form_checklist_typo: "SELECT",
                 form_checklist_typo_option_pl: ["Yes", "No"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Domicile Certificate",
@@ -703,6 +705,7 @@ module.exports.form_params = [
                 form_checklist_lable: "Is Open Category Student",
                 form_checklist_typo: "SELECT",
                 form_checklist_typo_option_pl: ["Yes", "No"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Caste Certificate",
@@ -737,6 +740,7 @@ module.exports.form_params = [
                 form_checklist_lable: "Are you physically handicapped",
                 form_checklist_typo: "SELECT",
                 form_checklist_typo_option_pl: ["Yes", "No"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Physically Handicapped Certificate",
@@ -755,6 +759,7 @@ module.exports.form_params = [
                 form_checklist_lable: "GAP (Applicable)",
                 form_checklist_typo: "SELECT",
                 form_checklist_typo_option_pl: ["Yes", "No"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "GAP Certificate",

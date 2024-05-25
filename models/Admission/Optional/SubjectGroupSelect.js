@@ -37,11 +37,36 @@ const subjectGroupSelectSchema = new mongoose.Schema({
             ],
         }
     ],
+    fixed_subject: [
+        {
+            fixed_subject_rule: {
+                type: Number,
+                default: 1
+            },
+            fixed_subject_rule_max: {
+                type: Number,
+                default: 1
+            },
+            fixed_subject_name: {
+                type: String
+            },
+            fixed_subject_options: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "SubjectMaster"
+                }
+            ],
+        }
+    ],
     compulsory_subject_count: {
         type: Number,
         default: 0
     },
     optional_subject_count: {
+        type: Number,
+        default: 0
+    },
+    fixed_subject_count: {
         type: Number,
         default: 0
     },

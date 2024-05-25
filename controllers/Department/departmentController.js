@@ -149,6 +149,13 @@ exports.render_one_student_form_section_query = async (req, res) => {
             }
           }
         }
+        if (`${nums?.section_key}` === "documents") {
+          for (let ele of nums?.form_checklist) {
+            if (`${ele?.form_checklist_enable}` === "true") {
+              nums?.form_checklist?.pull(ele?._id)
+            }
+          }
+        }
       }
     res.status(200).send({ message: "Explore One Department Student Form Section Query", access: true, section: dfs?.form_section})
   }
@@ -1462,6 +1469,16 @@ exports.render_dynamic_form_details_query = async (req, res) => {
           }
           }
         })
+        .populate({
+          path: "subject_group_select",
+          populate: {
+            path: "fixed_subject",
+            populate: {
+            path: "fixed_subject_options",
+            select: "subjectName",
+          }
+          }
+        })
         var nums_subject = []
         var nums_select = []
         var nums_group = []
@@ -1496,6 +1513,22 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   form_checklist_typo_option_pl_optional: [...set?.optional_subject_options_or],
                   form_checklist_rule: set?.optional_subject_rule,
                   form_checklist_rule_max: set?.optional_subject_rule_max
+              })
+            }
+            for (var set of val?.fixed_subject) {
+              nums_select.push(
+                {
+                  form_checklist_name: `${set?.fixed_subject_name}`,
+                  form_checklist_key: "subject_criteria",
+                  form_checklist_visibility: true,
+                  form_checklist_placeholder: `${set?.fixed_subject_name}`,
+                  form_checklist_lable: `${set?.fixed_subject_name}`,
+                  form_checklist_typo: "SELECT",
+                  form_checklist_typo_option_pl: [
+                     ...set?.fixed_subject_options
+                  ],
+                  form_checklist_rule: set?.fixed_subject_rule,
+                  form_checklist_rule_max: set?.fixed_subject_rule_max
               })
             }
             nums_group.push(
@@ -1651,6 +1684,16 @@ exports.render_dynamic_form_details_query = async (req, res) => {
           }
           }
         })
+        .populate({
+          path: "subject_group_select",
+          populate: {
+            path: "fixed_subject",
+            populate: {
+            path: "fixed_subject_options",
+            select: "subjectName",
+          }
+          }
+        })
         var nums_subject = []
         var nums_select = []
         var nums_group = []
@@ -1685,6 +1728,22 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   form_checklist_typo_option_pl_optional: [...set?.optional_subject_options_or],
                   form_checklist_rule: set?.optional_subject_rule,
                   form_checklist_rule_max: set?.optional_subject_rule_max
+              })
+            }
+            for (var set of val?.fixed_subject) {
+              nums_select.push(
+                {
+                  form_checklist_name: `${set?.fixed_subject_name}`,
+                  form_checklist_key: "subject_criteria",
+                  form_checklist_visibility: true,
+                  form_checklist_placeholder: `${set?.fixed_subject_name}`,
+                  form_checklist_lable: `${set?.fixed_subject_name}`,
+                  form_checklist_typo: "SELECT",
+                  form_checklist_typo_option_pl: [
+                     ...set?.fixed_subject_options
+                  ],
+                  form_checklist_rule: set?.fixed_subject_rule,
+                  form_checklist_rule_max: set?.fixed_subject_rule_max
               })
             }
             nums_group.push(

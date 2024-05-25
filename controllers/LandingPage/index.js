@@ -2275,7 +2275,6 @@ exports.render_new_landing_page_inquiry = async (req, res) => {
         inquiry?.inquiry_student_email,
         inquiry?.inquiry_student_name,
         inquiry?.inquiry_student_mobileNo,
-        inquiry?.inquiry_student_email,
         inquiry?.inquiry_student_city,
         inquiry?.inquiry_student_message,
         "Enquired"

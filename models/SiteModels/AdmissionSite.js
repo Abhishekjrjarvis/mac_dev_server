@@ -17,6 +17,13 @@ const admissionSiteSchema = new mongoose.Schema({
   },
   cashier_name: String,
   cashier_signature: String,
+  video_gallery: [
+    {
+      title: { type: String },
+      link: { type: String },
+      video: { type: String }
+    }
+  ]
 });
 
 module.exports = mongoose.model("AdmissionSite", admissionSiteSchema);

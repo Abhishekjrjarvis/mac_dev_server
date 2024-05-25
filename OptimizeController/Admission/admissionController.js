@@ -4550,6 +4550,19 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
           }
         }
       })
+      .populate({
+        path: "subject_selected_group",
+        populate: {
+          path: "subject_group_select",
+          populate: {
+            path: "fixed_subject",
+            populate: {
+              path: "fixed_subject_options",
+              select: "subjectName",
+            }
+          }
+        }
+      })
       .lean()
       .exec();
     // const oneEncrypt = await encryptionPayload(oneApply);
@@ -13778,6 +13791,13 @@ exports.render_one_student_form_section_query = async (req, res) => {
             }
           }
         }
+        if (`${nums?.section_key}` === "documents") {
+          for (let ele of nums?.form_checklist) {
+            if (`${ele?.form_checklist_enable}` === "true") {
+              nums?.form_checklist?.pull(ele?._id)
+            }
+          }
+        }
       }
     res.status(200).send({ message: "Explore One Application Student Form Section Query", access: true, section: iaf?.form_section})
   }
@@ -13956,7 +13976,7 @@ exports.render_all_subject_group_query = async (req, res) => {
       .sort({ created_at: -1})
       .limit(limit)
       .skip(skip)
-    .select("group_name compulsory_subject_count optional_subject_count subject_group created_at")
+    .select("group_name compulsory_subject_count optional_subject_count subject_group created_at fixed_subject_count")
     if (all_group_select?.length > 0) {
       res.status(200).send({ message: "All Group Section Query", access: true, all_group_select: all_group_select}) 
     }
@@ -13975,7 +13995,7 @@ exports.render_one_subject_group_query = async (req, res) => {
     if (!osid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const group = await SubjectGroupSelect.findById({ _id: osid })
-      .select("group_name compulsory_subject_count optional_subject_count subject_group created_at")
+      .select("group_name compulsory_subject_count optional_subject_count subject_group created_at fixed_subject_count")
       .populate({
         path: "compulsory_subject",
         select: "subjectName",
@@ -13984,6 +14004,13 @@ exports.render_one_subject_group_query = async (req, res) => {
         path: "optional_subject",
         populate: {
           path: "optional_subject_options optional_subject_options_or",
+          select: "subjectName",
+        }
+      })
+      .populate({
+        path: "fixed_subject",
+        populate: {
+          path: "fixed_subject_options",
           select: "subjectName",
         }
       })
@@ -14022,7 +14049,7 @@ exports.render_all_subject_list_query = async (req, res) => {
 exports.render_add_subject_group_select_query = async (req, res) => {
   try {
     const { ssid } = req?.params
-    const { cs, os } = req?.body
+    const { cs, os, fs } = req?.body
     if (!ssid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const group = await SubjectGroupSelect.findById({ _id: ssid })
@@ -14042,6 +14069,17 @@ exports.render_add_subject_group_select_query = async (req, res) => {
           optional_subject_options_or: [...ele?.optional_subject_options_or]
         })
         group.optional_subject_count += 1
+      }
+    }
+    if (fs?.length > 0) {
+      for (var ele of fs) {
+        group.fixed_subject.push({
+          fixed_subject_rule: ele?.fixed_subject_rule,
+          fixed_subject_name: ele?.fixed_subject_name,
+          fixed_subject_options: [...ele?.fixed_subject_options],
+          fixed_subject_rule_max: ele?.fixed_subject_rule_max,
+        })
+        group.fixed_subject_count += 1
       }
     }
     await group.save()

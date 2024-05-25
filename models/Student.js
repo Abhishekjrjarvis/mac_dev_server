@@ -1018,6 +1018,13 @@ const studentSchema = new mongoose.Schema({
   hsc_percentage: { type: String },
   hsc_name_of_institute: { type: String },
   hsc_board: { type: String },
+  hsc_candidate_type: { type: String },
+  hsc_vocational_type: { type: String },
+  hsc_physics_marks: { type: String },
+  hsc_chemistry_marks: { type: String },
+  hsc_mathematics_marks: { type: String },
+  hsc_pcm_total: { type: String },
+  hsc_grand_total: { type: String },
   ug_engineering: {
     type: String
   },
@@ -1042,12 +1049,16 @@ const studentSchema = new mongoose.Schema({
   cet_chemistry_marks: { type: String },
   cet_mathematics_marks: { type: String },
   cet_biology_marks: { type: String },
+  cet_total: { type: String },
+  cet_percentile: { type: String },
   aieee_details: { type: String },
   aieee_rollno: { type: String },
   aieee_physics_marks: { type: String },
   aieee_chemistry_marks: { type: String },
   aieee_mathematics_marks: { type: String },
   aieee_biology_marks: { type: String },
+  aieee_total: { type: String },
+  aieee_percentile: { type: String },
   form_no: {
     type: String
   },

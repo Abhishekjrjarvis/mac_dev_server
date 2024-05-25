@@ -5230,7 +5230,7 @@ exports.renderAllInquiryQuery = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { status, search } = req.query;
+    const { status, search, appId } = req.query;
     if (!aid && !status)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately",
@@ -5244,11 +5244,12 @@ exports.renderAllInquiryQuery = async (req, res) => {
         $and: [
           { _id: { $in: admission_admin?.inquiryList } },
           { inquiry_status: status },
+          { inquiry_application: appId }
         ],
         $or: [{ inquiry_student_name: { $regex: search, $options: "i" } }],
       })
         .select(
-          "inquiry_student_name inquiry_status inquiry_student_photo createdAt reviewAt"
+          "inquiry_student_name inquiry_status inquiry_student_photo inquiry_student_city inquiry_student_message inquiry_student_email inquiry_student_mobileNo createdAt reviewAt"
         )
         .populate({
           path: "inquiry_application",
@@ -5259,12 +5260,13 @@ exports.renderAllInquiryQuery = async (req, res) => {
         $and: [
           { _id: { $in: admission_admin?.inquiryList } },
           { inquiry_status: status },
+          { inquiry_application: appId }
         ],
       })
         .limit(limit)
         .skip(skip)
         .select(
-          "inquiry_student_name inquiry_status inquiry_student_photo createdAt reviewAt"
+          "inquiry_student_name inquiry_status inquiry_student_photo inquiry_student_city inquiry_student_message inquiry_student_email inquiry_student_mobileNo createdAt reviewAt"
         )
         .populate({
           path: "inquiry_application",

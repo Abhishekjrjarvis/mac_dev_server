@@ -475,6 +475,60 @@ exports.email_sms_designation_alarm = (
   }
 };
 
+exports.email_sms_designation_normal = (
+  email,
+  name,
+  message,
+  mobile,
+  email,
+  city,
+  status,
+  soln
+) => {
+  try {
+    const bool = process.env.IS_GLOBAL;
+    if (bool) {
+      if (status === "Reviewed") {
+        var message = `Your Enquiry has been Solved successfully.
+
+        Solution - ${soln}
+
+        - Thanks for having patience.
+        `
+      }
+      else {
+        var message = `Your Enquiry has been submitted successfully
+      
+        See Your Inquiry Details -
+        ${name}
+        ${mobile}
+        ${email}
+        ${city}
+        inquiry - ${message}.
+
+        - Admission Team will reach out you soon.
+        `
+      }
+      const subject = "Qviple Inquiry Support";
+      const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+      const encodeURL = encodeURI(url);
+      axios
+        .post(encodeURL)
+        .then((res) => {
+          console.log("Sended Successfully");
+        })
+        .catch((e) => {
+          console.log("SMS API Bug", e.message);
+        });
+      return true;
+    } else {
+      console.log("18 Dev");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // console.log(designation_alarm(8787264007, "ADMISSION", "en", "", "", ""));
 
 // const url = `https://web-wapp.in/api/send.php?number=917007023972&type=text&message=Hello&instance_id=63D7C834B820F&access_token=91e482f7e128d555b2eca66109b2ce29`;

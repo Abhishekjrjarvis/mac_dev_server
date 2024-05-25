@@ -1523,7 +1523,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   form_checklist_visibility: true,
                   form_checklist_placeholder: `${set?.fixed_subject_name}`,
                   form_checklist_lable: `${set?.fixed_subject_name}`,
-                  form_checklist_typo: "SELECT",
+                  form_checklist_typo: "SELECT_GROUP",
                   form_checklist_typo_option_pl: [
                      ...set?.fixed_subject_options
                   ],
@@ -1738,7 +1738,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   form_checklist_visibility: true,
                   form_checklist_placeholder: `${set?.fixed_subject_name}`,
                   form_checklist_lable: `${set?.fixed_subject_name}`,
-                  form_checklist_typo: "SELECT",
+                  form_checklist_typo: "SELECT_GROUP",
                   form_checklist_typo_option_pl: [
                      ...set?.fixed_subject_options
                   ],

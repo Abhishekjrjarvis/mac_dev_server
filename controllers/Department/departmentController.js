@@ -270,6 +270,7 @@ exports.render_dynamic_form_query = async (req, res) => {
       var head_arrays = []
       var obj = {}
       var nest_obj = {}
+      var nest_objs = {}
       const all_check = await InstituteStudentForm.findOne({ institute: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
@@ -294,13 +295,13 @@ exports.render_dynamic_form_query = async (req, res) => {
         if (val?.section_key === "academic_details") {
           if (val?.section_visibilty == true) {
             for (var ele of val?.form_checklist) {
-              if (student[`${ele?.form_checklist_key}`] === "Yes") {
+              var list = student?.student_dynamic_field?.filter((dna) => {
+                if (dna?.key === ele?.form_checklist_key) {
+                  nest_objs[`${dna?.key}`] = dna?.value
+                }
+              })
+              if (student[`${ele?.form_checklist_key}`] === "Yes" || nest_objs[`${ele?.form_checklist_key}`]) {
                 if (ele?.form_checklist_visibility == true) {
-                  var list = student?.student_dynamic_field?.filter((dna) => {
-                    if (dna?.key === ele?.form_checklist_key) {
-                      nest_obj[`${dna?.key}`] = dna?.value
-                    }
-                  })
                   for (let ads of ele?.nested_form_checklist) {
                     if (student[`${ads?.form_checklist_key}`] === "Yes") {
                       for (let ad of ads?.nested_form_checklist_nested) {
@@ -317,6 +318,11 @@ exports.render_dynamic_form_query = async (req, res) => {
                         })
                       }
                     }
+                    var list = student?.student_dynamic_field?.filter((dna) => {
+                      if (dna?.key === ads?.form_checklist_key) {
+                        nest_obj[`${dna?.key}`] = dna?.value
+                      }
+                    })
                       custom.push({
                         form_checklist_name: ads?.form_checklist_name,
                         form_checklist_key: ads?.form_checklist_key,
@@ -345,7 +351,7 @@ exports.render_dynamic_form_query = async (req, res) => {
                   form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                   form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
                   nested_form_checklist: [...custom],
-                  value: student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                  value: student[`${ele?.form_checklist_key}`] ?? nest_objs[`${ele?.form_checklist_key}`]
                 })
                 custom = []
               }
@@ -407,6 +413,7 @@ exports.render_dynamic_form_query = async (req, res) => {
       var head_arrays = []
       var obj = {}
       var nest_obj = {}
+      var nest_objs = {}
       const all_check = await DepartmentStudentForm.findOne({ department: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
@@ -435,13 +442,13 @@ exports.render_dynamic_form_query = async (req, res) => {
         if (val?.section_key === "academic_details") {
           if (val?.section_visibilty == true) {
             for (var ele of val?.form_checklist) {
-              if (student[`${ele?.form_checklist_key}`] === "Yes") {
+              var list = student?.student_dynamic_field?.filter((dna) => {
+                if (dna?.key === ele?.form_checklist_key) {
+                  nest_objs[`${dna?.key}`] = dna?.value
+                }
+              })
+              if (student[`${ele?.form_checklist_key}`] === "Yes" || nest_objs[`${ele?.form_checklist_key}`]) {
                 if (ele?.form_checklist_visibility == true) {
-                  var list = student?.student_dynamic_field?.filter((dna) => {
-                    if (dna?.key === ele?.form_checklist_key) {
-                      nest_obj[`${dna?.key}`] = dna?.value
-                    }
-                  })
                   for (let ads of ele?.nested_form_checklist) {
                     if (student[`${ads?.form_checklist_key}`] === "Yes") {
                       for (let ad of ads?.nested_form_checklist_nested) {
@@ -458,6 +465,11 @@ exports.render_dynamic_form_query = async (req, res) => {
                         })
                       }
                     }
+                    var list = student?.student_dynamic_field?.filter((dna) => {
+                      if (dna?.key === ads?.form_checklist_key) {
+                        nest_obj[`${dna?.key}`] = dna?.value
+                      }
+                    })
                       custom.push({
                         form_checklist_name: ads?.form_checklist_name,
                         form_checklist_key: ads?.form_checklist_key,
@@ -486,7 +498,7 @@ exports.render_dynamic_form_query = async (req, res) => {
                   form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                   form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
                   nested_form_checklist: [...custom],
-                  value: student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                  value: student[`${ele?.form_checklist_key}`] ?? nest_objs[`${ele?.form_checklist_key}`]
                 })
                 custom = []
               }
@@ -547,6 +559,7 @@ exports.render_dynamic_form_query = async (req, res) => {
       var head_arrays = []
       var obj = {}
       var nest_obj = {}
+      var nest_objs = {}
       const all_check = await InstituteApplicationForm.findOne({ application: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
@@ -579,13 +592,13 @@ exports.render_dynamic_form_query = async (req, res) => {
         if (val?.section_key === "academic_details") {
           if (val?.section_visibilty == true) {
             for (var ele of val?.form_checklist) {
-              if (student[`${ele?.form_checklist_key}`] === "Yes") {
+              var list = student?.student_dynamic_field?.filter((dna) => {
+                if (dna?.key === ele?.form_checklist_key) {
+                  nest_objs[`${dna?.key}`] = dna?.value
+                }
+              })
+              if (student[`${ele?.form_checklist_key}`] === "Yes" || nest_objs[`${ele?.form_checklist_key}`]) {
                 if (ele?.form_checklist_visibility == true) {
-                  var list = student?.student_dynamic_field?.filter((dna) => {
-                    if (dna?.key === ele?.form_checklist_key) {
-                      nest_obj[`${dna?.key}`] = dna?.value
-                    }
-                  })
                   for (let ads of ele?.nested_form_checklist) {
                     if (student[`${ads?.form_checklist_key}`] === "Yes") {
                       for (let ad of ads?.nested_form_checklist_nested) {
@@ -602,6 +615,11 @@ exports.render_dynamic_form_query = async (req, res) => {
                         })
                       }
                     }
+                    var list = student?.student_dynamic_field?.filter((dna) => {
+                      if (dna?.key === ads?.form_checklist_key) {
+                        nest_obj[`${dna?.key}`] = dna?.value
+                      }
+                    })
                       custom.push({
                         form_checklist_name: ads?.form_checklist_name,
                         form_checklist_key: ads?.form_checklist_key,
@@ -630,7 +648,7 @@ exports.render_dynamic_form_query = async (req, res) => {
                   form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                   form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
                   nested_form_checklist: [...custom],
-                  value: student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                  value: student[`${ele?.form_checklist_key}`] ?? nest_objs[`${ele?.form_checklist_key}`]
                 })
                 custom = []
               }
@@ -703,6 +721,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
       var head_arrays = []
       var obj = {}
       var nest_obj = {}
+      var nest_objs = {}
       const all_check = await InstituteStudentForm.findOne({ institute: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
@@ -727,13 +746,13 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
         if (val?.section_key === "academic_details") {
           if (val?.section_visibilty == true) {
             for (var ele of val?.form_checklist) {
-              if (student[`${ele?.form_checklist_key}`] === "Yes") {
+              var list = student?.student_dynamic_field?.filter((dna) => {
+                if (dna?.key === ele?.form_checklist_key) {
+                  nest_objs[`${dna?.key}`] = dna?.value
+                }
+              })
+              if (student[`${ele?.form_checklist_key}`] === "Yes" || nest_objs[`${ele?.form_checklist_key}`]) {
                 if (ele?.form_checklist_visibility == true) {
-                  var list = student?.student_dynamic_field?.filter((dna) => {
-                    if (dna?.key === ele?.form_checklist_key) {
-                      nest_obj[`${dna?.key}`] = dna?.value
-                    }
-                  })
                   for (let ads of ele?.nested_form_checklist) {
                     if (student[`${ads?.form_checklist_key}`] === "Yes") {
                       for (let ad of ads?.nested_form_checklist_nested) {
@@ -750,6 +769,11 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                         })
                       }
                     }
+                    var list = student?.student_dynamic_field?.filter((dna) => {
+                      if (dna?.key === ads?.form_checklist_key) {
+                        nest_obj[`${dna?.key}`] = dna?.value
+                      }
+                    })
                       custom.push({
                         form_checklist_name: ads?.form_checklist_name,
                         form_checklist_key: ads?.form_checklist_key,
@@ -778,7 +802,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                   form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
                   nested_form_checklist: [...custom],
-                  value: student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                  value: student[`${ele?.form_checklist_key}`] ?? nest_objs[`${ele?.form_checklist_key}`]
                 })
                 custom = []
               }
@@ -838,6 +862,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
       var head_arrays = []
       var obj = {}
       var nest_obj = {}
+      var nest_objs = {}
       const all_check = await DepartmentStudentForm.findOne({ department: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
@@ -866,13 +891,13 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
         if (val?.section_key === "academic_details") {
           if (val?.section_visibilty == true) {
             for (var ele of val?.form_checklist) {
-              if (student[`${ele?.form_checklist_key}`] === "Yes") {
+              var list = student?.student_dynamic_field?.filter((dna) => {
+                if (dna?.key === ele?.form_checklist_key) {
+                  nest_objs[`${dna?.key}`] = dna?.value
+                }
+              })
+              if (student[`${ele?.form_checklist_key}`] === "Yes" || nest_objs[`${ele?.form_checklist_key}`]) {
                 if (ele?.form_checklist_visibility == true) {
-                  var list = student?.student_dynamic_field?.filter((dna) => {
-                    if (dna?.key === ele?.form_checklist_key) {
-                      nest_obj[`${dna?.key}`] = dna?.value
-                    }
-                  })
                   for (let ads of ele?.nested_form_checklist) {
                     if (student[`${ads?.form_checklist_key}`] === "Yes") {
                       for (let ad of ads?.nested_form_checklist_nested) {
@@ -889,6 +914,11 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                         })
                       }
                     }
+                    var list = student?.student_dynamic_field?.filter((dna) => {
+                      if (dna?.key === ads?.form_checklist_key) {
+                        nest_obj[`${dna?.key}`] = dna?.value
+                      }
+                    })
                       custom.push({
                         form_checklist_name: ads?.form_checklist_name,
                         form_checklist_key: ads?.form_checklist_key,
@@ -917,7 +947,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                   form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
                   nested_form_checklist: [...custom],
-                  value: student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                  value: student[`${ele?.form_checklist_key}`] ?? nest_objs[`${ele?.form_checklist_key}`]
                 })
                 custom = []
               }
@@ -977,6 +1007,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
       var head_arrays = []
       var obj = {}
       var nest_obj = {}
+      var nest_objs = {}
       const all_check = await InstituteApplicationForm.findOne({ application: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
@@ -1009,13 +1040,13 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
         if (val?.section_key === "academic_details") {
           if (val?.section_visibilty == true) {
             for (var ele of val?.form_checklist) {
-              if (student[`${ele?.form_checklist_key}`] === "Yes") {
+              var list = student?.student_dynamic_field?.filter((dna) => {
+                if (dna?.key === ele?.form_checklist_key) {
+                  nest_objs[`${dna?.key}`] = dna?.value
+                }
+              })
+              if (student[`${ele?.form_checklist_key}`] === "Yes" || nest_objs[`${ele?.form_checklist_key}`]) {
                 if (ele?.form_checklist_visibility == true) {
-                  var list = student?.student_dynamic_field?.filter((dna) => {
-                    if (dna?.key === ele?.form_checklist_key) {
-                      nest_obj[`${dna?.key}`] = dna?.value
-                    }
-                  })
                   for (let ads of ele?.nested_form_checklist) {
                     if (student[`${ads?.form_checklist_key}`] === "Yes") {
                       for (let ad of ads?.nested_form_checklist_nested) {
@@ -1032,6 +1063,11 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                         })
                       }
                     }
+                    var list = student?.student_dynamic_field?.filter((dna) => {
+                      if (dna?.key === ads?.form_checklist_key) {
+                        nest_obj[`${dna?.key}`] = dna?.value
+                      }
+                    })
                       custom.push({
                         form_checklist_name: ads?.form_checklist_name,
                         form_checklist_key: ads?.form_checklist_key,
@@ -1060,7 +1096,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                   form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
                   nested_form_checklist: [...custom],
-                  value: student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                  value: student[`${ele?.form_checklist_key}`] ?? nest_objs[`${ele?.form_checklist_key}`]
                 })
                 custom = []
               }
@@ -1136,6 +1172,7 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
       var head_arrays = []
       var obj = {}
       var nest_obj = {}
+      var nest_objs = {}
       const all_check = await InstituteApplicationForm.findOne({ application: student?.student_form_flow?.did })
       .select("form_section")
       .populate({
@@ -1168,13 +1205,13 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
         if (val?.section_key === "academic_details") {
           if (val?.section_visibilty == true) {
             for (var ele of val?.form_checklist) {
-              if (student[`${ele?.form_checklist_key}`] === "Yes") {
+              var list = student?.student_dynamic_field?.filter((dna) => {
+                if (dna?.key === ele?.form_checklist_key) {
+                  nest_objs[`${dna?.key}`] = dna?.value
+                }
+              })
+              if (student[`${ele?.form_checklist_key}`] === "Yes" || nest_objs[`${ele?.form_checklist_key}`]) {
                 if (ele?.form_checklist_visibility == true) {
-                  var list = student?.student_dynamic_field?.filter((dna) => {
-                    if (dna?.key === ele?.form_checklist_key) {
-                      nest_obj[`${dna?.key}`] = dna?.value
-                    }
-                  })
                   for (let ads of ele?.nested_form_checklist) {
                     if (student[`${ads?.form_checklist_key}`] === "Yes") {
                       for (let ad of ads?.nested_form_checklist_nested) {
@@ -1191,6 +1228,11 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
                         })
                       }
                     }
+                    var list = student?.student_dynamic_field?.filter((dna) => {
+                      if (dna?.key === ads?.form_checklist_key) {
+                        nest_obj[`${dna?.key}`] = dna?.value
+                      }
+                    })
                       custom.push({
                         form_checklist_name: ads?.form_checklist_name,
                         form_checklist_key: ads?.form_checklist_key,
@@ -1219,7 +1261,7 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
                   form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                   form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
                   nested_form_checklist: [...custom],
-                  value: student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                  value: student[`${ele?.form_checklist_key}`] ?? nest_objs[`${ele?.form_checklist_key}`]
                 })
                 custom = []
               }

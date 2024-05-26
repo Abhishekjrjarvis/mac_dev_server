@@ -988,6 +988,21 @@ exports.getNewDepartment = async (req, res) => {
           if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
             ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
           }
+          if (ele?.form_checklist_sample) {
+            fc.form_checklist_sample = ele?.form_checklist_sample
+          }
+          if (ele?.form_checklist_pdf) {
+            fc.form_checklist_pdf = ele?.form_checklist_pdf
+          }
+          if (ele?.form_checklist_view) {
+            fc.form_checklist_view = ele?.form_checklist_view
+          }
+          if (ele?.form_common_key) {
+            fc.form_common_key = ele?.form_common_key
+          }
+          if (ele?.form_checklist_enable) {
+            fc.form_checklist_enable = ele?.form_checklist_enable
+          }
           fc.department_form = dfs?._id
           fc.form_section = val?._id
           if (ele?.nested_form_checklist?.length > 0) {
@@ -1016,7 +1031,7 @@ exports.getNewDepartment = async (req, res) => {
                 fcc.form_checklist_view = stu?.form_checklist_view
               }
               fcc.department_form = dfs?._id
-              fcc.form_section = ifs?._id
+              fcc.form_section = val?._id
               if (stu?.nested_form_checklist_nested) {
                 for (var qwes of stu?.nested_form_checklist_nested) {
                   var fcca = new FormChecklist({
@@ -1043,7 +1058,7 @@ exports.getNewDepartment = async (req, res) => {
                     fcca.form_checklist_view = qwes?.form_checklist_view
                   }
                   fcca.department_form = dfs?._id
-                  fcca.form_section = ifs?._id
+                  fcca.form_section = val?._id
                   fcc.nested_form_checklist_nested.push(fcca?._id)
                   await fcca.save()
                 }
@@ -4338,6 +4353,21 @@ exports.retrieveNewBatch = async (req, res) => {
               if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
                 ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
               }
+              if (ele?.form_checklist_sample) {
+                fc.form_checklist_sample = ele?.form_checklist_sample
+              }
+              if (ele?.form_checklist_pdf) {
+                fc.form_checklist_pdf = ele?.form_checklist_pdf
+              }
+              if (ele?.form_checklist_view) {
+                fc.form_checklist_view = ele?.form_checklist_view
+              }
+              if (ele?.form_common_key) {
+                fc.form_common_key = ele?.form_common_key
+              }
+              if (ele?.form_checklist_enable) {
+                fc.form_checklist_enable = ele?.form_checklist_enable
+              }
               fc.application_form = iaf?._id
               fc.form_section = val?._id
               for (var stu of ele?.nested_form_checklist) {
@@ -4365,7 +4395,7 @@ exports.retrieveNewBatch = async (req, res) => {
                   fcc.form_checklist_view = stu?.form_checklist_view
                 }
                 fcc.application_form = iaf?._id
-                fcc.form_section = ifs?._id
+                fcc.form_section = val?._id
                 if (stu?.nested_form_checklist_nested) {
                   for (var qwe of stu?.nested_form_checklist_nested) {
                     var fcca = new FormChecklist({
@@ -4392,7 +4422,7 @@ exports.retrieveNewBatch = async (req, res) => {
                       fcca.form_checklist_view = qwe?.form_checklist_view
                     }
                     fcca.application_form = iaf?._id
-                    fcca.form_section = ifs?._id
+                    fcca.form_section = val?._id
                     fcc.nested_form_checklist_nested.push(fcca?._id)
                     await fcca.save()
                   }
@@ -6829,6 +6859,12 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
               if (ele?.form_checklist_view) {
                 fc.form_checklist_view = ele?.form_checklist_view
               }
+              if (ele?.form_common_key) {
+                fc.form_common_key = ele?.form_common_key
+              }
+              if (ele?.form_checklist_enable) {
+                fc.form_checklist_enable = ele?.form_checklist_enable
+              }
               fc.department_form = dfs?._id
               fc.form_section = one_ifs?._id
               nums.push(fc?._id)
@@ -6878,6 +6914,12 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
               }
               if (ele?.form_checklist_view) {
                 fc.form_checklist_view = ele?.form_checklist_view
+              }
+              if (ele?.form_common_key) {
+                fc.form_common_key = ele?.form_common_key
+              }
+              if (ele?.form_checklist_enable) {
+                fc.form_checklist_enable = ele?.form_checklist_enable
               }
               fc.application_form = iaf?._id
               fc.form_section = one_ifs?._id
@@ -7826,6 +7868,12 @@ exports.render_auto_student_form_section_checklist_query_single_application = as
                 }
                 if (ele?.form_checklist_view) {
                   fc.form_checklist_view = ele?.form_checklist_view
+                }
+                if (ele?.form_common_key) {
+                  fc.form_common_key = ele?.form_common_key
+                }
+                if (ele?.form_checklist_enable) {
+                  fc.form_checklist_enable = ele?.form_checklist_enable
                 }
                 fc.application_form = iaf?._id
                 fc.form_section = one_ifs?._id

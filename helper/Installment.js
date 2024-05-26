@@ -3,6 +3,7 @@ const Finance = require("../models/Finance");
 const FeeMaster = require("../models/Finance/FeeMaster");
 const FeeStructure = require("../models/Finance/FeesStructure");
 const Student = require("../models/Student");
+const admissionFeeReceipt = require("../scripts/admissionFeeReceipt");
 const generateFeeReceipt = require("../scripts/feeReceipt");
 const societyAdmissionFeeReceipt = require("../scripts/societyAdmissionFeeReceipt");
 
@@ -2409,7 +2410,8 @@ exports.set_fee_head_query_redesign = async (
       console.log("INSIDE FEE HEADS");
     }
     if (finance?.show_receipt === "Normal") {
-      await generateFeeReceipt(receipt_args?._id)
+      // await generateFeeReceipt(receipt_args?._id)
+      await admissionFeeReceipt(receipt_args?._id, apply_args)
     }
     else {
       await societyAdmissionFeeReceipt(receipt_args?._id, finance?.institute)
@@ -2507,7 +2509,8 @@ exports.update_fee_head_query_redesign = async (
     await receipt_args.save();
     console.log("EXIT FROM FEE HEADS");
     if (finance?.show_receipt === "Normal") {
-      await generateFeeReceipt(receipt_args?._id)
+      // await generateFeeReceipt(receipt_args?._id)
+      await admissionFeeReceipt(receipt_args?._id, apply_args?._id)
     }
     else {
       await societyAdmissionFeeReceipt(receipt_args?._id, finance?.institute)

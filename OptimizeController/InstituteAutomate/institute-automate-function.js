@@ -107,6 +107,8 @@ exports.create_master_query = async (departmentId, instituteId, streamId) => {
           subjectType: sub?.subjectType,
           automate_subject_master: sub?._id,
           is_practical: sub?.is_practical,
+          is_tutorial: sub?.is_tutorial,
+          is_theory: sub?.is_theory,
         });
         subject_master_list.push(subject_master?._id);
         if (sub?.co?.length > 0) {
@@ -290,7 +292,8 @@ exports.create_cls_subject_query = async (
   streamId,
   clsId,
   batchId,
-  autoClsId
+  autoClsId,
+  departmentId
 ) => {
   try {
     let subject_list = [];
@@ -315,9 +318,13 @@ exports.create_cls_subject_query = async (
       let s_obj = automate_subject_master[i];
       let s_create = [];
       const subject_master = await SubjectMaster.findOne({
-        automate_subject_master: { $eq: `${s_obj?._id}` },
+        $and: [
+          {
+            automate_subject_master: { $eq: `${s_obj?._id}` },
+          },
+          { department: { $eq: `${departmentId}` } },
+        ],
       });
-
       if (subject_master?._id) {
         if (subject_master?.is_theory) {
           let theory_sub = await create_subject_query(

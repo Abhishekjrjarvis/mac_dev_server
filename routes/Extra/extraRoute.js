@@ -469,5 +469,15 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONTimeTableQuery)
 );
 
+router.patch(
+  "/custom/generate/institute/logs",
+  catchAsync(Extra.customGenerateInstituteLogsQuery)
+);
+router.patch(
+  "/issue/certificate/logs/:gr/ins/:id",
+  // isLoggedIn,
+  catchAsync(Extra.issueCertificateInstituteLogsQuery)
+);
+
 
 module.exports = router;

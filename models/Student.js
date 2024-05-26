@@ -1062,7 +1062,13 @@ const studentSchema = new mongoose.Schema({
   form_no: {
     type: String
   },
-  student_undertakings_date: { type: String }
+  student_undertakings_date: { type: String },
+  certificate_logs: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InstituteCertificateLog",
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

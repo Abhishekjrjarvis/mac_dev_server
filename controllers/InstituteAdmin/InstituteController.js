@@ -967,9 +967,18 @@ exports.getNewDepartment = async (req, res) => {
     });
     var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
     .select("form_section")
-          .populate({
-            path: "form_section.form_checklist"
-          })
+    .populate({
+      path: "form_section",
+      populate: {
+        path: "form_checklist",
+        populate: {
+          path: "nested_form_checklist",
+          populate: {
+            path: "nested_form_checklist_nested"
+          }
+        }
+      }
+    })
     var nums = []
     for (var val of ifs?.form_section) {
       if (val?.form_checklist?.length > 0) {
@@ -983,6 +992,7 @@ exports.getNewDepartment = async (req, res) => {
             form_checklist_typo: ele?.form_checklist_typo,
             form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
             form_checklist_required: ele?.form_checklist_required,
+            form_checklist_key_status: ele?.form_checklist_key_status,
             width: ele?.width
           })
           if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
@@ -4334,7 +4344,20 @@ exports.retrieveNewBatch = async (req, res) => {
       res
         .status(200)
         .send({ message: "batch data", batch: batch._id, access: true });
-        var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+      var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+        .select("form_section")
+      .populate({
+        path: "form_section",
+        populate: {
+          path: "form_checklist",
+          populate: {
+            path: "nested_form_checklist",
+            populate: {
+              path: "nested_form_checklist_nested"
+            }
+          }
+        }
+      })
         var nums = []
         for (var val of ifs?.form_section) {
           if (val?.form_checklist?.length > 0) {
@@ -4348,6 +4371,7 @@ exports.retrieveNewBatch = async (req, res) => {
                 form_checklist_typo: ele?.form_checklist_typo,
                 form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
                 form_checklist_required: ele?.form_checklist_required,
+                form_checklist_key_status: ele?.form_checklist_key_status,
                 width: ele?.width
               })
               if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
@@ -6827,7 +6851,16 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
       var one_ifs = await InstituteStudentForm.findById({ _id: `${ifs?._id}` })
         .select("form_section")
         .populate({
-          path: "form_section.form_checklist"
+          path: "form_section",
+          populate: {
+            path: "form_checklist",
+            populate: {
+              path: "nested_form_checklist",
+              populate: {
+                path: "nested_form_checklist_nested"
+              }
+            }
+          }
         })
       var nums = []
       for (var qwe of ins?.depart) {
@@ -6845,6 +6878,7 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
                 form_checklist_lable: ele?.form_checklist_lable,
                 form_checklist_typo: ele?.form_checklist_typo,
                 form_checklist_required: ele?.form_checklist_required,
+                form_checklist_key_status: ele?.form_checklist_key_status,
                 width: ele?.width
               })
               if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
@@ -6901,6 +6935,7 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
                 form_checklist_lable: ele?.form_checklist_lable,
                 form_checklist_typo: ele?.form_checklist_typo,
                 form_checklist_required: ele?.form_checklist_required,
+                form_checklist_key_status: ele?.form_checklist_key_status,
                 width: ele?.width
               })
               if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
@@ -7837,7 +7872,16 @@ exports.render_auto_student_form_section_checklist_query_single_application = as
         var one_ifs = await InstituteStudentForm.findById({ _id: `${ifs?._id}` })
           .select("form_section")
           .populate({
-            path: "form_section.form_checklist"
+            path: "form_section",
+            populate: {
+              path: "form_checklist",
+              populate: {
+                path: "nested_form_checklist",
+                populate: {
+                  path: "nested_form_checklist_nested"
+                }
+              }
+            }
           })
         var numsss = []
         for (var qwe of all_app) {
@@ -7855,6 +7899,7 @@ exports.render_auto_student_form_section_checklist_query_single_application = as
                   form_checklist_lable: ele?.form_checklist_lable,
                   form_checklist_typo: ele?.form_checklist_typo,
                   form_checklist_required: ele?.form_checklist_required,
+                  form_checklist_key_status: ele?.form_checklist_key_status,
                   width: ele?.width
                 })
                 if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {

@@ -33,6 +33,19 @@ exports.render_new_department_query = async (arr, id) => {
         department.student_form_setting = dfs?._id
         await department.save();
         var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+        .select("form_section")
+        .populate({
+          path: "form_section",
+          populate: {
+            path: "form_checklist",
+            populate: {
+              path: "nested_form_checklist",
+              populate: {
+                path: "nested_form_checklist_nested"
+              }
+            }
+          }
+        })
     var nums = []
     for (var val of ifs?.form_section) {
       if (val?.form_checklist?.length > 0) {
@@ -46,6 +59,7 @@ exports.render_new_department_query = async (arr, id) => {
             form_checklist_typo: ele?.form_checklist_typo,
             form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
             form_checklist_required: ele?.form_checklist_required,
+            form_checklist_key_status: ele?.form_checklist_key_status,
             width: ele?.width
           })
           if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {

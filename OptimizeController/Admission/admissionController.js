@@ -541,9 +541,18 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
       .send({ message: "New Application is ongoing 👍", status: true });
     var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
     .select("form_section")
-          .populate({
-            path: "form_section.form_checklist"
-          })
+    .populate({
+      path: "form_section",
+      populate: {
+        path: "form_checklist",
+        populate: {
+          path: "nested_form_checklist",
+          populate: {
+            path: "nested_form_checklist_nested"
+          }
+        }
+      }
+    })
       var nums = []
       for (var val of ifs?.form_section) {
         if (val?.form_checklist?.length > 0) {
@@ -557,6 +566,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
               form_checklist_typo: ele?.form_checklist_typo,
               form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
               form_checklist_required: ele?.form_checklist_required,
+              form_checklist_key_status: ele?.form_checklist_key_status,
               width: ele?.width
             })
             if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
@@ -703,9 +713,18 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
       await Promise.all([new_app.save(), admission.save(), institute.save(), iaff.save()]);
       var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
       .select("form_section")
-          .populate({
-            path: "form_section.form_checklist"
-          })
+      .populate({
+        path: "form_section",
+        populate: {
+          path: "form_checklist",
+          populate: {
+            path: "nested_form_checklist",
+            populate: {
+              path: "nested_form_checklist_nested"
+            }
+          }
+        }
+      })
     var numss = []
     for (var val of ifs?.form_section) {
       if (val?.form_checklist?.length > 0) {
@@ -719,6 +738,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
             form_checklist_typo: ele?.form_checklist_typo,
             form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
             form_checklist_required: ele?.form_checklist_required,
+            form_checklist_key_status: ele?.form_checklist_key_status,
             width: ele?.width
           })
           if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {

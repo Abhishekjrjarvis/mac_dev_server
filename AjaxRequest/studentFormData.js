@@ -28,7 +28,7 @@ const getStudentProfile = async (studentId) => {
     const response = await axios.get(
       `${
         obj[process.env.CONNECT_DB]
-      }/v1/department/${studentId}/dynamic/form/query`,
+      }/v1/department/${studentId}/dynamic/form/query/subject/list`,
       { httpsAgent }
     );
     return response?.data?.result;
@@ -59,3 +59,4 @@ const studentFormData = async (studentId, instituteId) => {
   return { ft, dt, oneProfile: gt };
 };
 module.exports = studentFormData;
+

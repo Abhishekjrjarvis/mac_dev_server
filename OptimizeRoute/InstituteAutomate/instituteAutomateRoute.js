@@ -119,5 +119,10 @@ router
 router
   .route("/all/type/classmaster/:cid/subject/query")
   .get(catchAsync(iac.automateStreamClassSubjectMasterQuery));
+
+router
+  .route("/direct/subject/teaching/:sid/query")
+  .patch(catchAsync(iac.directSubjectTeachingPlanByAutomateQuery));
+
 module.exports = router;
 

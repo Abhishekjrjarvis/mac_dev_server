@@ -306,6 +306,12 @@ const subjectSchema = new mongoose.Schema({
       ref: "Student"
     }
   ],
+  teaching_plan_copy: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AutomateSubjectMaster",
+    },
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

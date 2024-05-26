@@ -102,6 +102,7 @@ exports.classReportSetting = async (req, res) => {
   } catch {}
 };
 
+
 exports.renderAllStudentMentors = async (req, res) => {
   try {
     const { sid } = req.params;
@@ -119,20 +120,55 @@ exports.renderAllStudentMentors = async (req, res) => {
         select:
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
       });
+
     const all_subjects = await Subject.find({ _id: { $in: classes?.subject } })
-      .select("subjectTeacherName subjectName subjectTitle")
+      .populate({
+        path: "selected_batch_query",
+        select: "class_student_query batchName",
+      })
+      .select(
+        "subjectTeacherName subjectName subjectTitle optionalStudent selected_batch_query"
+      )
       .populate({
         path: "subjectTeacherName",
         select:
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
       });
 
-    if (all_subjects?.length > 0 || classes) {
+    var ref_subject = [];
+
+    for (var ref of all_subjects) {
+      if (ref?.selected_batch_query) {
+        if (ref?.selected_batch_query?.class_student_query?.length > 0) {
+          for (let ele of ref?.selected_batch_query?.class_student_query) {
+            if (`${ele}` === `${stu}`) {
+              ref_subject.push(ref);
+              break;
+            }
+          }
+        }
+      } else {
+        if (student?.student_optional_subject_access === "Yes") {
+          if (ref?.optionalStudent?.length > 0) {
+            for (let ele of ref?.optionalStudent) {
+              if (`${ele}` === `${stu}`) {
+                ref_subject.push(ref);
+                break;
+              }
+            }
+          }
+        } else {
+          ref_subject.push(ref);
+        }
+      }
+    }
+
+    if (ref_subject?.length > 0 || classes) {
       res.status(200).send({
         message: "All Active Mentors ClassTeacher / Subject Teacher",
         access: true,
         classes: classes?.classTeacher,
-        all_subjects: all_subjects,
+        all_subjects: ref_subject,
       });
     } else {
       res.status(200).send({
@@ -146,6 +182,7 @@ exports.renderAllStudentMentors = async (req, res) => {
     console.log(e);
   }
 };
+
 // exports.createClassChecklist = async (req, res) => {
 //   try {
 //     const checklist = new Checklist(req.body);

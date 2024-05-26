@@ -6,9 +6,10 @@ const StudentAdmissionFormHeader = require("../components/StudentAdmissionFormHe
 const fs = require("fs");
 const util = require("util");
 const dynamicImages = require("../helper/dynamicImages");
+const cdnDynamicImages = require("../helper/cdnDynamicImages");
 const Student = require("../models/Student");
 const unlinkFile = util.promisify(fs.unlink);
-
+const moment = require("moment");
 const drawBorder = (doc) => {
   doc
     .roundedRect(12.5, 12.5, doc.page.width - 25, doc.page.height - 25, 5)
@@ -33,12 +34,14 @@ const generateStudentAdmissionForm = async (
   let date = new Date();
   let name = `${date.getTime()}-${studentName}`;
   // let name = `${studentName}`;
+  // const stream = fs.createWriteStream(`uploads/${studentName}-form.pdf`);
+
   const stream = fs.createWriteStream(`uploads/${name}-form.pdf`);
   const nt_call = await studentFormData(studentId, instituteId);
   const data = nt_call?.dt;
   const result = nt_call?.ft;
   const oneProfile = nt_call?.oneProfile;
-  // console.log(oneProfile);
+  // console.log(result?.[0]);
   doc.on("pageAdded", () => {
     drawBorder(doc);
   });
@@ -83,7 +86,174 @@ const generateStudentAdmissionForm = async (
   doc.fontSize(12);
   if (result?.length > 0) {
     for (let itr of result) {
-      if (["documents"]?.includes(itr?.static_key)) {
+      if (
+        ["documents", "social_reservation_information_section"]?.includes(
+          itr?.static_key
+        )
+      ) {
+        doc.fontSize(12);
+        doc.font("Times-Bold");
+        doc.text(`${itr?.key}: -`, 25);
+        doc.moveDown();
+        doc.fontSize(11);
+
+        let yt = doc.y;
+        doc
+          .fontSize(10)
+          .font("Times-Bold")
+          .fillColor("#121212")
+          .text("On", 28, yt);
+
+        doc
+          .fontSize(10)
+          .font("Times-Bold")
+          .fillColor("#121212")
+          .text("Off", 57, yt);
+
+        doc.y -= 5;
+        doc
+          .fontSize(10)
+          .font("Times-Bold")
+          .fillColor("#121212")
+          .text("On", pageWidth / 2 + 3, yt);
+
+        doc
+          .fontSize(10)
+          .font("Times-Bold")
+          .fillColor("#121212")
+          .text("Off", pageWidth / 2 + 28, yt);
+
+        for (let i = 0; i < itr?.fields?.length; i++) {
+          let ft = itr?.fields[i];
+          if (i === 0) {
+            if (ft?.value) {
+              doc.image(
+                await cdnDynamicImages("CUSTOM", "check.png"),
+                25,
+                doc.y,
+                {
+                  width: 20,
+                  height: 20,
+                }
+              );
+            } else {
+              doc.image(
+                await cdnDynamicImages("CUSTOM", "uncheck.png"),
+                25,
+                doc.y,
+                {
+                  width: 20,
+                  height: 20,
+                }
+              );
+            }
+            doc.y -= 20;
+            doc.image(
+              await cdnDynamicImages("CUSTOM", "uncheck.png"),
+              55,
+              doc.y,
+              {
+                width: 20,
+                height: 20,
+              }
+            );
+
+            doc.y -= 12;
+            doc
+              .fontSize(10)
+              .font("Times-Bold")
+              .fillColor("#121212")
+              .text(`${ft?.form_checklist_name}`, 85);
+          } else if (i % 2 !== 0) {
+            doc.moveUp(1);
+
+            doc.y -= 8;
+            if (ft?.value) {
+              doc.image(
+                await cdnDynamicImages("CUSTOM", "check.png"),
+                pageWidth / 2,
+                doc.y,
+                {
+                  width: 20,
+                  height: 20,
+                }
+              );
+            } else {
+              doc.image(
+                await cdnDynamicImages("CUSTOM", "uncheck.png"),
+                pageWidth / 2,
+                doc.y,
+                {
+                  width: 20,
+                  height: 20,
+                }
+              );
+            }
+            doc.y -= 20;
+            doc.image(
+              await cdnDynamicImages("CUSTOM", "uncheck.png"),
+              pageWidth / 2 + 30,
+              doc.y,
+              {
+                width: 20,
+                height: 20,
+              }
+            );
+            doc.y -= 12;
+            doc
+              .fontSize(10)
+              .font("Times-Bold")
+              .fillColor("#121212")
+              .text(`${ft?.form_checklist_name}`, {
+                width: pageWidth,
+                indent: pageWidth / 2 - 25,
+              });
+            doc.y += 8;
+          } else {
+            if (ft?.value) {
+              doc.image(
+                await cdnDynamicImages("CUSTOM", "check.png"),
+                25,
+                doc.y,
+                {
+                  width: 20,
+                  height: 20,
+                }
+              );
+            } else {
+              doc.image(
+                await cdnDynamicImages("CUSTOM", "uncheck.png"),
+                25,
+                doc.y,
+                {
+                  width: 20,
+                  height: 20,
+                }
+              );
+            }
+            doc.y -= 20;
+            doc.image(
+              await cdnDynamicImages("CUSTOM", "uncheck.png"),
+              55,
+              doc.y,
+              {
+                width: 20,
+                height: 20,
+              }
+            );
+            doc.y -= 12;
+            doc
+              .fontSize(10)
+              .font("Times-Bold")
+              .fillColor("#121212")
+              .text(`${ft?.form_checklist_name}`, 85);
+          }
+        }
+        doc
+          .moveTo(25, doc.y + 10)
+          .lineTo(pageWidth - 25, doc.y + 10)
+          .stroke();
+        doc.moveDown(1.3);
       } else {
         doc.fontSize(12);
         doc.font("Times-Bold");
@@ -127,16 +297,19 @@ const generateStudentAdmissionForm = async (
                   arr.push({
                     ...dt,
                     form_checklist_name: "Name",
-                    value: `${dt?.value}, ${arrObj["studentFatherName"]
+                    value: `${dt?.value} ${
+                      arrObj["studentFatherName"]
                         ? `${arrObj["studentFatherName"]} `
                         : ""
-                      }${arrObj["studentLastName"]
+                    }${
+                      arrObj["studentLastName"]
                         ? `${arrObj["studentLastName"]} `
                         : ""
-                      }${arrObj["studentMiddleName"]
+                    }${
+                      arrObj["studentMiddleName"]
                         ? `${arrObj["studentMiddleName"]} `
                         : ""
-                      }`,
+                    }`,
                   });
                 }
               } else {
@@ -187,25 +360,43 @@ const generateStudentAdmissionForm = async (
               // else {
               doc
                 .fontSize(10)
-                .font("Times-Bold")
+                .font("Times-Roman")
                 .fillColor("#121212")
                 .text(`${ft?.form_checklist_name} :`, 25);
+
               if (ft?.value) {
-                doc.moveUp(1);
-                doc
-                  .fontSize(10)
-                  .font("Times-Roman")
-                  .fillColor("#2e2e2e")
-                  .text(`${ft?.value ?? ""}`, {
-                    indent:
-                      doc.widthOfString(`${ft?.form_checklist_name} :`) + 15,
-                  });
+                if (ft?.form_checklist_key === "studentDOB") {
+                  doc.moveUp(1);
+                  doc
+                    .fontSize(10)
+                    .font("Times-Roman")
+                    .fillColor("#2e2e2e")
+                    .text(`${moment(ft?.value).format("DD/MM/yyyy")}`, {
+                      indent:
+                        doc.widthOfString(`${ft?.form_checklist_name} :`) + 15,
+                    });
+                } else {
+                  doc.moveUp(1);
+                  doc
+                    .fontSize(10)
+                    .font("Times-Roman")
+                    .fillColor("#2e2e2e")
+                    .text(`${ft?.value ?? ""}`, {
+                      indent:
+                        doc.widthOfString(`${ft?.form_checklist_name} :`) + 15,
+                    });
+                }
               }
             }
             // }
-            if (oneProfile?.studentProfilePhoto) {
+
+            // for student profile
+            if (oneProfile?.studentIdProfilePhoto) {
               doc.image(
-                await dynamicImages("CUSTOM", oneProfile?.studentProfilePhoto),
+                await dynamicImages(
+                  "CUSTOM",
+                  oneProfile?.studentIdProfilePhoto
+                ),
                 pageWidth - 90,
                 yAxis - 32,
                 {
@@ -246,16 +437,19 @@ const generateStudentAdmissionForm = async (
                 if (dt?.form_checklist_key === "studentCurrentAddress") {
                   arr.push({
                     ...dt,
-                    value: `${dt?.value}, ${arrObj["studentCurrentDistrict"]
+                    value: `${dt?.value}, ${
+                      arrObj["studentCurrentDistrict"]
                         ? `${arrObj["studentCurrentDistrict"]}, `
                         : ""
-                      }${arrObj["studentCurrentState"]
+                    }${
+                      arrObj["studentCurrentState"]
                         ? `${arrObj["studentCurrentState"]}, `
                         : ""
-                      }${arrObj["studentCurrentPincode"]
+                    }${
+                      arrObj["studentCurrentPincode"]
                         ? `${arrObj["studentCurrentPincode"]}, `
                         : ""
-                      }`,
+                    }`,
                   });
                 }
               } else if (
@@ -269,14 +463,19 @@ const generateStudentAdmissionForm = async (
                 if (dt?.form_checklist_key === "studentAddress") {
                   arr.push({
                     ...dt,
-                    value: `${dt?.value}, ${arrObj["studentDistrict"]
+                    value: `${dt?.value}, ${
+                      arrObj["studentDistrict"]
                         ? `${arrObj["studentDistrict"]}, `
                         : ""
-                      }${arrObj["studentState"] ? `${arrObj["studentState"]}, ` : ""
-                      }${arrObj["studentPincode"]
+                    }${
+                      arrObj["studentState"]
+                        ? `${arrObj["studentState"]}, `
+                        : ""
+                    }${
+                      arrObj["studentPincode"]
                         ? `${arrObj["studentPincode"]}, `
                         : ""
-                      }`,
+                    }`,
                   });
                 }
               } else {
@@ -292,7 +491,7 @@ const generateStudentAdmissionForm = async (
               ) {
                 doc
                   .fontSize(10)
-                  .font("Times-Bold")
+                  .font("Times-Roman")
                   .fillColor("#121212")
                   .text(`${ft?.form_checklist_name} :`, 25);
                 if (ft?.value) {
@@ -310,7 +509,7 @@ const generateStudentAdmissionForm = async (
                 if (i === 0) {
                   doc
                     .fontSize(10)
-                    .font("Times-Bold")
+                    .font("Times-Roman")
                     .fillColor("#121212")
                     .text(`${ft?.form_checklist_name} :`, 25);
                   if (ft?.value) {
@@ -321,7 +520,8 @@ const generateStudentAdmissionForm = async (
                       .fillColor("#2e2e2e")
                       .text(`${ft?.value ?? ""}`, {
                         indent:
-                          doc.widthOfString(`${ft?.form_checklist_name} :`) + 15,
+                          doc.widthOfString(`${ft?.form_checklist_name} :`) +
+                          15,
                       });
                   }
                 } else if (i % 2 !== 0) {
@@ -329,7 +529,7 @@ const generateStudentAdmissionForm = async (
                   doc;
                   doc
                     .fontSize(10)
-                    .font("Times-Bold")
+                    .font("Times-Roman")
                     .fillColor("#121212")
                     .text(`${ft?.form_checklist_name} :`, {
                       width: pageWidth / 2 + 80,
@@ -350,7 +550,7 @@ const generateStudentAdmissionForm = async (
                 } else {
                   doc
                     .fontSize(10)
-                    .font("Times-Bold")
+                    .font("Times-Roman")
                     .fillColor("#121212")
                     .text(`${ft?.form_checklist_name} :`, 25);
                   if (ft?.value) {
@@ -361,11 +561,152 @@ const generateStudentAdmissionForm = async (
                       .fillColor("#2e2e2e")
                       .text(`${ft?.value ?? ""}`, {
                         indent:
-                          doc.widthOfString(`${ft?.form_checklist_name} :`) + 15,
+                          doc.widthOfString(`${ft?.form_checklist_name} :`) +
+                          15,
                       });
                   }
                 }
               }
+            }
+          } else if (itr?.static_key === "selected_subjects") {
+            doc.moveUp();
+
+            for (let i = 0; i < itr?.fields?.length; i++) {
+              let ft = itr?.fields[i];
+              doc
+                .fontSize(10)
+                .font("Times-Roman")
+                .fillColor("#121212")
+                .text(`${ft?.value}`, 25);
+            }
+          } else if (itr?.static_key === "academic_details") {
+            for (let i = 0; i < itr?.fields?.length; i++) {
+              let ft = itr?.fields[i];
+              doc
+                .fontSize(10)
+                .font("Times-Bold")
+                .fillColor("#121212")
+                .text(`${ft?.form_checklist_name}:`, 25);
+              doc.moveDown(0.2);
+              if (
+                [
+                  "std_tenth_details",
+                  "hsc_diploma",
+                  "fyjc",
+                  "fy_sem_I",
+                  "fy_sem_II",
+                  "sy_sem_III",
+                  "sy_sem_IV",
+                  "ty_sem_V",
+                  "ty_sem_VI",
+                  "msc_mcom",
+                ]?.includes(ft?.form_checklist_key)
+              ) {
+                for (let j = 0; j < ft?.nested_form_checklist?.length; j++) {
+                  let nested_field = ft?.nested_form_checklist[j];
+                  if (j === 0) {
+                    doc
+                      .fontSize(10)
+                      .font("Times-Roman")
+                      .fillColor("#121212")
+                      .text(
+                        `${nested_field?.form_checklist_name}:${"     "}${
+                          nested_field?.value
+                        }`,
+                        25
+                      );
+                  } else if (j % 2 !== 0) {
+                    doc.moveUp(1);
+                    doc
+                      .fontSize(10)
+                      .font("Times-Roman")
+                      .fillColor("#121212")
+                      .text(
+                        `${nested_field?.form_checklist_name}:${"     "}${
+                          nested_field?.value
+                        }`,
+                        {
+                          width: pageWidth,
+                          indent: pageWidth / 2,
+                          align: "left",
+                        }
+                      );
+                  } else {
+                    doc
+                      .fontSize(10)
+                      .font("Times-Roman")
+                      .fillColor("#121212")
+                      .text(
+                        `${nested_field?.form_checklist_name}:${"     "}${
+                          nested_field?.value
+                        }`,
+                        25
+                      );
+                  }
+                }
+              } else {
+                for (let j = 0; j < ft?.nested_form_checklist?.length; j++) {
+                  let nested_field = ft?.nested_form_checklist[j];
+
+                  doc
+                    .fontSize(10)
+                    .font("Times-Bold")
+                    .fillColor("#121212")
+                    .text(`${nested_field?.form_checklist_name}:`, 25);
+                  doc.moveDown(0.2);
+
+                  for (
+                    let k = 0;
+                    k < nested_field?.nested_form_checklist_nested?.length;
+                    k++
+                  ) {
+                    let nested_field_nested =
+                      nested_field?.nested_form_checklist_nested[k];
+                    if (k === 0) {
+                      doc
+                        .fontSize(10)
+                        .font("Times-Roman")
+                        .fillColor("#121212")
+                        .text(
+                          `${
+                            nested_field_nested?.form_checklist_name
+                          }:${"     "}${nested_field_nested?.value}`,
+                          25
+                        );
+                    } else if (k % 2 !== 0) {
+                      doc.moveUp(1);
+                      doc
+                        .fontSize(10)
+                        .font("Times-Roman")
+                        .fillColor("#121212")
+                        .text(
+                          `${
+                            nested_field_nested?.form_checklist_name
+                          }:${"     "}${nested_field_nested?.value}`,
+                          {
+                            width: pageWidth,
+                            indent: pageWidth / 2,
+                            align: "left",
+                          }
+                        );
+                    } else {
+                      doc
+                        .fontSize(10)
+                        .font("Times-Roman")
+                        .fillColor("#121212")
+                        .text(
+                          `${
+                            nested_field_nested?.form_checklist_name
+                          }:${"     "}${nested_field_nested?.value}`,
+                          25
+                        );
+                    }
+                  }
+                  doc.moveDown(0.7);
+                }
+              }
+
+              doc.moveDown(1);
             }
           } else {
             for (let i = 0; i < itr?.fields?.length; i++) {
@@ -373,26 +714,39 @@ const generateStudentAdmissionForm = async (
               if (i === 0) {
                 doc
                   .fontSize(10)
-                  .font("Times-Bold")
+                  .font("Times-Roman")
                   .fillColor("#121212")
                   .text(`${ft?.form_checklist_name} :`, 25);
-                if (ft?.value) {
+                if (ft?.form_checklist_typo === "FILE") {
                   doc.moveUp(1);
-
                   doc
                     .fontSize(10)
                     .font("Times-Roman")
                     .fillColor("#2e2e2e")
-                    .text(`${ft?.value ?? ""}`, {
+                    .text(`${ft?.value ? "Yes" : "No"}`, {
                       indent:
                         doc.widthOfString(`${ft?.form_checklist_name} :`) + 15,
                     });
+                } else {
+                  if (ft?.value) {
+                    doc.moveUp(1);
+
+                    doc
+                      .fontSize(10)
+                      .font("Times-Roman")
+                      .fillColor("#2e2e2e")
+                      .text(`${ft?.value ?? ""}`, {
+                        indent:
+                          doc.widthOfString(`${ft?.form_checklist_name} :`) +
+                          15,
+                      });
+                  }
                 }
               } else if (i % 2 !== 0) {
                 doc.moveUp(1);
                 doc
                   .fontSize(10)
-                  .font("Times-Bold")
+                  .font("Times-Roman")
                   .fillColor("#121212")
                   .text(`${ft?.form_checklist_name} :`, {
                     // width: pageWidth / 2 + 80,
@@ -401,50 +755,77 @@ const generateStudentAdmissionForm = async (
                     indent: pageWidth / 2,
                     align: "left",
                   });
-                if (ft?.value) {
+                if (ft?.form_checklist_typo === "FILE") {
                   doc.moveDown(-1);
                   doc
                     .fontSize(10)
                     .font("Times-Roman")
                     .fillColor("#2e2e2e")
                     .text(
-                      `${ft?.value ?? ""}`,
-                      // {
-                      //   width: pageWidth - 50,
-                      //   indent:
-                      //     pageWidth / 2 +
-                      //     15 +
-                      //     doc.widthOfString(`${ft?.form_checklist_name} :`),
-                      //   align: "left",
-                      // }
+                      `${ft?.value ? "Yes" : "No"}`,
                       pageWidth / 2 +
-                      38 +
-                      doc.widthOfString(`${ft?.form_checklist_name} :`)
-                      // {
-                      //   width: pageWidth / 2 + 80,
-                      //   indent: pageWidth / 2 + 82,
-                      //   height: 50,
-                      //   lineBreak: false,
-                      //   // align: "right",
-                      // }
+                        38 +
+                        doc.widthOfString(`${ft?.form_checklist_name} :`)
                     );
+                } else {
+                  if (ft?.value) {
+                    doc.moveDown(-1);
+                    doc
+                      .fontSize(10)
+                      .font("Times-Roman")
+                      .fillColor("#2e2e2e")
+                      .text(
+                        `${ft?.value ?? ""}`,
+                        // {
+                        //   width: pageWidth - 50,
+                        //   indent:
+                        //     pageWidth / 2 +
+                        //     15 +
+                        //     doc.widthOfString(`${ft?.form_checklist_name} :`),
+                        //   align: "left",
+                        // }
+                        pageWidth / 2 +
+                          38 +
+                          doc.widthOfString(`${ft?.form_checklist_name} :`)
+                        // {
+                        //   width: pageWidth / 2 + 80,
+                        //   indent: pageWidth / 2 + 82,
+                        //   height: 50,
+                        //   lineBreak: false,
+                        //   // align: "right",
+                        // }
+                      );
+                  }
                 }
               } else {
                 doc
                   .fontSize(10)
-                  .font("Times-Bold")
+                  .font("Times-Roman")
                   .fillColor("#121212")
                   .text(`${ft?.form_checklist_name} :`, 25);
-                if (ft?.value) {
+                if (ft?.form_checklist_typo === "FILE") {
                   doc.moveUp(1);
                   doc
                     .fontSize(10)
                     .font("Times-Roman")
                     .fillColor("#2e2e2e")
-                    .text(`${ft?.value ?? ""}`, {
+                    .text(`${ft?.value ? "Yes" : "No"}`, {
                       indent:
                         doc.widthOfString(`${ft?.form_checklist_name} :`) + 15,
                     });
+                } else {
+                  if (ft?.value) {
+                    doc.moveUp(1);
+                    doc
+                      .fontSize(10)
+                      .font("Times-Roman")
+                      .fillColor("#2e2e2e")
+                      .text(`${ft?.value ?? ""}`, {
+                        indent:
+                          doc.widthOfString(`${ft?.form_checklist_name} :`) +
+                          15,
+                      });
+                  }
                 }
               }
             }
@@ -493,8 +874,8 @@ const generateStudentAdmissionForm = async (
 
   // Handle stream close event
   stream.on("finish", async () => {
-    const student = await Student.findById({ _id: studentId })
-    console.log("created");
+    const student = await Student.findById({ _id: studentId });
+    // console.log("created");
     let file = {
       path: `uploads/${name}-form.pdf`,
       filename: `${name}-form.pdf`,
@@ -505,12 +886,13 @@ const generateStudentAdmissionForm = async (
       flow: "BACKEND",
       value: results?.Key,
       from: "false",
-    })
+    });
     await unlinkFile(file.path);
-    await student.save()
+    await student.save();
     // console.log("PDF created successfully", results.Key);
   });
 };
 module.exports = generateStudentAdmissionForm;
 
 // district , state , pincode.
+

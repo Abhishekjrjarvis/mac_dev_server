@@ -116,6 +116,8 @@ const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 const Batch = require("../../models/Batch");
 const StudentMessage = require("../../models/Content/StudentMessage");
 const { addTimeTableExcelQuery } = require("../Timetable/timetableController");
+const InstituteLog = require("../../models/InstituteLog/InstituteLog");
+const InstituteCertificateLog = require("../../models/InstituteLog/InstituteCertificateLog");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -319,7 +321,13 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       leaving_nationality,
       leaving_religion,
       leaving_previous_school,
-      leaving_certificate_attach
+      leaving_certificate_attach,
+      is_dublicate,
+
+      certificate_type,
+      certificate_attachment,
+      student_name,
+      staffId,
     } = req.body;
     const institute = await InstituteAdmin.findById({
       _id: id,
@@ -331,7 +339,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentLeavingPreviousYear studentEmail leaving_guide_name leaving_certificate_attach leaving_previous_school leaving_religion leaving_nationality leaving_student_name studentLeavingInsDate studentRemark student_prn_enroll_number studentCertificateNo studentLeavingStudy studentLeavingReason studentRemark leaving_project_work elective_subject_second elective_subject_one leaving_course_duration leaving_since_date leaving_degree leaving_date instituteJoinDate duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount lcRegNo lcCaste lcBirth lcDOB lcAdmissionDate lcInstituteDate studentLeavingRemark"
+        "studentFirstName studentLeavingPreviousYear studentEmail leaving_guide_name leaving_certificate_attach leaving_previous_school leaving_religion leaving_nationality leaving_student_name studentLeavingInsDate studentRemark student_prn_enroll_number studentCertificateNo studentLeavingStudy studentLeavingReason studentRemark leaving_project_work elective_subject_second elective_subject_one leaving_course_duration leaving_since_date leaving_degree leaving_date instituteJoinDate duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount lcRegNo lcCaste lcBirth lcDOB lcAdmissionDate lcInstituteDate studentLeavingRemark certificate_logs"
       )
       .populate({
         path: "studentClass",
@@ -357,9 +365,11 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     if (
       institute.studentFormSetting.previousSchoolAndDocument
         .previousSchoolDocument &&
-        studentPreviousSchool
+      studentPreviousSchool
     ) {
-      student.studentPreviousSchool = studentPreviousSchool ? studentPreviousSchool : null;
+      student.studentPreviousSchool = studentPreviousSchool
+        ? studentPreviousSchool
+        : null;
     } else {
     }
     if (studentLeavingBehaviour) {
@@ -370,10 +380,10 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       }
     }
     if (leaving_date) {
-      student.leaving_date = leaving_date
+      student.leaving_date = leaving_date;
     }
     if (instituteJoinDate) {
-      student.instituteJoinDate = instituteJoinDate
+      student.instituteJoinDate = instituteJoinDate;
     }
     if (studentLeavingStudy) {
       student.studentLeavingStudy = studentLeavingStudy;
@@ -394,62 +404,62 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       student.studentBookNo = bookNo;
     }
     if (leaving_degree) {
-      student.leaving_degree = leaving_degree
+      student.leaving_degree = leaving_degree;
     }
     if (leaving_since_date) {
-      student.leaving_since_date = leaving_since_date
+      student.leaving_since_date = leaving_since_date;
     }
     if (leaving_course_duration) {
-      student.leaving_course_duration = leaving_course_duration
+      student.leaving_course_duration = leaving_course_duration;
     }
     if (elective_subject_one) {
-      student.elective_subject_one = elective_subject_one
+      student.elective_subject_one = elective_subject_one;
     }
     if (elective_subject_second) {
-      student.elective_subject_second = elective_subject_second
+      student.elective_subject_second = elective_subject_second;
     }
     if (leaving_project_work) {
-      student.leaving_project_work = leaving_project_work
+      student.leaving_project_work = leaving_project_work;
     }
     if (lcRegNo) {
-      student.lcRegNo = lcRegNo
+      student.lcRegNo = lcRegNo;
     }
     if (lcCaste) {
-      student.lcCaste = lcCaste
+      student.lcCaste = lcCaste;
     }
     if (leaving_guide_name) {
-      student.leaving_guide_name = leaving_guide_name
+      student.leaving_guide_name = leaving_guide_name;
     }
     if (lcDOB) {
-      student.lcDOB = lcDOB
+      student.lcDOB = lcDOB;
     }
     if (lcBirth) {
-      student.lcBirth = lcBirth
+      student.lcBirth = lcBirth;
     }
     if (lcAdmissionDate) {
-      student.lcAdmissionDate = lcAdmissionDate
+      student.lcAdmissionDate = lcAdmissionDate;
     }
     if (lcInstituteDate) {
-      student.lcInstituteDate = lcInstituteDate
+      student.lcInstituteDate = lcInstituteDate;
     }
 
     if (studentCertificateNo) {
-      student.studentCertificateNo = studentCertificateNo
+      student.studentCertificateNo = studentCertificateNo;
     }
     if (leaving_student_name) {
-      student.leaving_student_name = leaving_student_name
+      student.leaving_student_name = leaving_student_name;
     }
     if (leaving_nationality) {
-      student.leaving_nationality = leaving_nationality
+      student.leaving_nationality = leaving_nationality;
     }
     if (leaving_religion) {
-      student.leaving_religion = leaving_religion
+      student.leaving_religion = leaving_religion;
     }
     if (leaving_previous_school) {
-      student.leaving_previous_school = leaving_previous_school
+      student.leaving_previous_school = leaving_previous_school;
     }
     if (leaving_certificate_attach) {
-      student.leaving_certificate_attach = leaving_certificate_attach
+      student.leaving_certificate_attach = leaving_certificate_attach;
     }
     institute.l_certificate_count += 1;
     institute.certificate_issued_count += 1;
@@ -490,10 +500,32 @@ exports.retrieveLeavingGRNO = async (req, res) => {
         ? true
         : false,
     });
+
+    if (institute?.institute_log && student?._id) {
+      const i_log = await InstituteLog.findById(institute?.institute_log);
+      const c_logs = new InstituteCertificateLog({
+        instituteId: institute?._id,
+        institute_log_id: i_log?._id,
+        student_name: student_name,
+        student: student?._id,
+        certificate_attachment: certificate_attachment,
+        certificate_type: certificate_type,
+        certificate_issue_type: is_dublicate ? "Dublicate" : "Original",
+      });
+      if (staffId) {
+        c_logs.issue_by_staff = staffId;
+      } else {
+        c_logs.issue_by_institute = "NIL";
+      }
+
+      i_log.certificate_logs.push(c_logs?._id);
+      student.certificate_logs.push(c_logs?._id);
+      await Promise.all([c_logs.save(), i_log.save(), student.save()]);
+    }
   } catch (e) {
     console.log(e);
   }
-};
+}
 
 exports.retrieveCertificateStatus = async (req, res) => {
   try {
@@ -3925,3 +3957,83 @@ exports.renderExcelToJSONTimeTableQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.customGenerateInstituteLogsQuery = async (req, res) => {
+  try {
+    const inst = await InstituteAdmin.find({
+      status: "Approved",
+    });
+    for (let st of inst) {
+      if (st?._id) {
+        const lt = new InstituteLog({
+          instituteId: st?._id,
+        });
+        st.institute_log = lt?._id;
+        await Promise.all([lt.save(), st.save()]);
+      }
+    }
+
+    res.status(200).send({
+      message: "All institute logs schema is created.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.issueCertificateInstituteLogsQuery = async (req, res) => {
+  try {
+    const { gr, id } = req.params;
+
+    const {
+      certificate_type,
+      certificate_attachment,
+      is_dublicate,
+      student_name,
+      staffId,
+    } = req.body;
+    if (!gr || !id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const institute = await InstituteAdmin.findById({
+      _id: id,
+    });
+    const validGR = await valid_initials(institute?.gr_initials, gr);
+    if (!validGR)
+      return res.status(200).send({ message: "I Think you lost in space" });
+
+    const student = await Student.findOne({
+      $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
+    });
+
+    res.status(200).send({
+      message: "All institute logs schema is created.",
+    });
+
+    if (institute?.institute_log && student?._id) {
+      const i_log = await InstituteLog.findById(institute?.institute_log);
+      const c_logs = new InstituteCertificateLog({
+        instituteId: institute?._id,
+        institute_log_id: i_log?._id,
+        student_name: student_name,
+        student: student?._id,
+        certificate_attachment: certificate_attachment,
+        certificate_type: certificate_type,
+        certificate_issue_type: is_dublicate ? "Dublicate" : "Original",
+      });
+      if (staffId) {
+        c_logs.issue_by_staff = staffId;
+      } else {
+        c_logs.issue_by_institute = "NIL";
+      }
+      i_log.certificate_logs.push(c_logs?._id);
+      student.certificate_logs.push(c_logs?._id);
+      await Promise.all([c_logs.save(), i_log.save(), student.save()]);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+

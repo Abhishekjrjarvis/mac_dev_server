@@ -978,6 +978,7 @@ exports.getPromoteStudentByClassQuery = async (req, res) => {
   }
 };
 
+
 exports.getStudentSubjectQuery = async (req, res) => {
   try {
     const { sid } = req?.params;
@@ -989,10 +990,11 @@ exports.getStudentSubjectQuery = async (req, res) => {
         path: "selected_batch_query",
         select: "class_student_query batchName",
       })
-      .select("subjectName")
+      .select("subjectName optionalStudent")
       .lean()
       .exec();
 
+    const student = await Student.findById(sid);
     var all_subject = [];
 
     for (var ref of subject) {
@@ -1001,11 +1003,23 @@ exports.getStudentSubjectQuery = async (req, res) => {
           for (let ele of ref?.selected_batch_query?.class_student_query) {
             if (`${ele}` === `${sid}`) {
               all_subject.push(ref);
+              break;
             }
           }
         }
       } else {
-        all_subject.push(ref);
+        if (student?.student_optional_subject_access === "Yes") {
+          if (ref?.optionalStudent?.length > 0) {
+            for (let ele of ref?.optionalStudent) {
+              if (`${ele}` === `${stu}`) {
+                all_subject.push(ref);
+                break;
+              }
+            }
+          }
+        } else {
+          all_subject.push(ref);
+        }
       }
     }
     res.status(200).send({
@@ -1018,3 +1032,5 @@ exports.getStudentSubjectQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+

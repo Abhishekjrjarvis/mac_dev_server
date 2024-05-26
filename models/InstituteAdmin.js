@@ -1361,7 +1361,11 @@ const instituteAdminSchema = new mongoose.Schema({
   form_no_count: {
     type: Number,
     default: 0
-  }
+  },
+  institute_log: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteLog",
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

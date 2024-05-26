@@ -1048,7 +1048,8 @@ exports.createClassInDepartmentQuery = async (req, res) => {
           stream_id,
           cls?._id,
           batch?._id,
-          masterClass?.automate_class_master
+          masterClass?.automate_class_master,
+          department?._id
         );
       }
       res.status(200).send({
@@ -1922,6 +1923,47 @@ exports.automateStreamClassSubjectMasterQuery = async (req, res) => {
     return res.status(200).send({
       message: "Automate all class master list",
       subject_master,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// testing not done, working on it
+exports.directSubjectTeachingPlanByAutomateQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { automate_subject_master_id, teaching_plan_type } = req.body;
+
+    if (!sid || !teaching_plan_type || !automate_subject_master_id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const subject = await Subject.findById(sid);
+    const automate_subject_master = await AutomateSubjectMaster.findById(
+      automate_subject_master_id
+    );
+    let t_plan = [];
+    if (teaching_plan_type === "Theory") {
+      t_plan = automate_subject_master.teaching_plan.theory;
+    } else if (teaching_plan_type === "Tutorial") {
+      t_plan = automate_subject_master.teaching_plan.tutorial;
+    } else if (teaching_plan_type === "Practical") {
+      t_plan = automate_subject_master.teaching_plan.practical;
+    } else {
+      return res.status(200).send({
+        message: "No Subject Teaching plan is selected.",
+      });
+    }
+    let { c_list } = await create_subject_teaching_plan_query(sid, t_plan);
+    subject.chapter.push(...c_list);
+    subject.chapter_count += c_list?.length;
+    subject.teaching_plan_copy.push(automate_subject_master_id);
+    await subject.save();
+
+    return res.status(200).send({
+      message: "Subject Teaching plan is selected successfully.",
     });
   } catch (e) {
     console.log(e);

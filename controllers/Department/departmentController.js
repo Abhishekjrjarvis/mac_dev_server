@@ -1618,7 +1618,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         var all_section = ins_form?.form_section?.filter((val) => {
           if (val?.section_visibilty) return val
         })
-        all_section[1].form_checklist.push(...all_section?.[0]?.form_checklist)
+        all_section[1].form_checklist.unshift(...all_section?.[0]?.form_checklist)
         for (var ele of all_section) {
           for (var stu of ele?.form_checklist) {
               ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
@@ -1654,7 +1654,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         var all_section = depart_form?.form_section?.filter((val) => {
           if (val?.section_visibilty) return val
         })
-        all_section[1].form_checklist.push(...all_section?.[0]?.form_checklist)
+        all_section[1].form_checklist.unshift(...all_section?.[0]?.form_checklist)
         for (var ele of all_section) {
           for (var stu of ele?.form_checklist) {
               ele.form_checklist = ele?.form_checklist?.filter((qwe) => {
@@ -1692,7 +1692,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
         var all_section = app_form?.form_section?.filter((val) => {
           if (val?.section_visibilty) return val
         })
-
+        all_section[1].form_checklist.unshift(...all_section?.[0]?.form_checklist)
         for (var ele of all_section) {
           for (var stu of ele?.form_checklist) {
         

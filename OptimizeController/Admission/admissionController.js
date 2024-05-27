@@ -24,6 +24,7 @@ const {
   designation_alarm,
   email_sms_payload_query,
   email_sms_designation_alarm,
+  email_sms_designation_application,
 } = require("../../WhatsAppSMS/payload");
 const Hostel = require("../../models/Hostel/hostel");
 const {
@@ -2300,6 +2301,7 @@ Payment modes available:`;
 exports.retrieveAdmissionCancelApplication = async (req, res) => {
   try {
     const { sid, aid } = req.params;
+    const { reason } = req?.body
     if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2361,6 +2363,10 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
       user._id,
       user.deviceToken
     );
+    let name = `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`
+    if (student?.studentEmail) {
+      email_sms_designation_application(student?.studentEmail, name, apply?.applicationName, reason)
+    }
   } catch (e) {
     console.log(e);
   }
@@ -12271,8 +12277,9 @@ exports.renderAllStudentArray = async (req, res) => {
 
 exports.renderChargesCardQuery = async (req, res) => {
   try {
+    let nums = ["65c48434896ca745f41b7381"]
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}`})
-    const all_ins = await InstituteAdmin.find({ status: "Approved" })
+    const all_ins = await InstituteAdmin.find({ _id: { $in: nums} })
     
     for (var val of all_ins) {
       const new_charge = new Charges({})

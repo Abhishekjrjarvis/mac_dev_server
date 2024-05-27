@@ -397,7 +397,8 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Select Physically Handicapped",
                 form_checklist_lable: "Physically Handicapped",
                 form_checklist_typo: "SELECT",
-                form_checklist_typo_option_pl: ["Yes", "No"]
+                form_checklist_typo_option_pl: ["Yes", "No"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Physically Handicapped Type",
@@ -406,6 +407,7 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Enter Physically Handicapped Type",
                 form_checklist_lable: "Physically Handicapped Type",
                 form_checklist_typo: "TEXT",
+                form_common_key: "student_ph"
             },
             {
                 form_checklist_name: "Defence Personnel Word",
@@ -609,7 +611,7 @@ module.exports.form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Student's Signature",
                 form_checklist_lable: "Upload Student's Signature",
-                form_checklist_typo: "FILE",
+                form_checklist_typo: "CROPIMAGE",
             },
             {
                 form_checklist_name: "Student Parent's Signature",
@@ -617,7 +619,7 @@ module.exports.form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Student Parent's Signature",
                 form_checklist_lable: "Upload Student Parent's Signature",
-                form_checklist_typo: "FILE",
+                form_checklist_typo: "CROPIMAGE",
             },
             {
                 form_checklist_name: "Student PAN Card",

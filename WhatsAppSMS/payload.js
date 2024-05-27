@@ -528,6 +528,41 @@ exports.email_sms_designation_normal = (
   }
 };
 
+exports.email_sms_designation_application = (
+  email,
+  name,
+  appName,
+  reason,
+) => {
+  try {
+    const bool = process.env.IS_GLOBAL;
+    if (bool) {
+        var message = `Dear ${name},
+        Your admission application for ${appName} has been rejected due to following reason:
+        Reason- ${reason}
+        
+        
+        Take action on given remarks and reapply for admission`
+      const subject = "Application Rejection";
+      const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+      const encodeURL = encodeURI(url);
+      axios
+        .post(encodeURL)
+        .then((res) => {
+          console.log("Sended Successfully");
+        })
+        .catch((e) => {
+          console.log("SMS API Bug", e.message);
+        });
+      return true;
+    } else {
+      console.log("18 Dev");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // console.log(designation_alarm(8787264007, "ADMISSION", "en", "", "", ""));
 
 // const url = `https://web-wapp.in/api/send.php?number=917007023972&type=text&message=Hello&instance_id=63D7C834B820F&access_token=91e482f7e128d555b2eca66109b2ce29`;

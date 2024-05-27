@@ -771,7 +771,7 @@ router.get(
 
 // Add In Super Admin
 router.patch(
-  "/:fcid/enable/auto/form/query/academic",
+  "/enable/auto/form/query/academic",
   catchAsync(Institute.render_auto_student_form_section_checklist_query_academic)
 );
 
@@ -783,8 +783,14 @@ router.patch(
 
 // Single Social
 router.patch(
-  "/:fcid/enable/auto/form/query/social",
+  "/enable/auto/form/query/social",
   catchAsync(Institute.render_auto_student_form_section_checklist_query_social)
+);
+
+// Single Social
+router.patch(
+  "/enable/auto/form/query/documents",
+  catchAsync(Institute.clear_form_fields_section)
 );
 
 module.exports = router;

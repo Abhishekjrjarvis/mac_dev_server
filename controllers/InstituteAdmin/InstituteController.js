@@ -6983,6 +6983,274 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
   }
 }
 
+exports.render_auto_student_form_section_checklist_query_manual = async (req, res) => {
+  try {
+    const { fcid } = req?.params
+    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var ifs = await InstituteStudentForm.findById({_id: fcid})
+    // var all_ifs = await InstituteStudentForm.find({})
+    // for (var ifs of all_ifs) {
+      var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
+        .select("depart admissionDepart")
+        .populate({
+          path: "depart",
+          select: "student_form_setting"
+        })
+    
+    var list = [
+      "662e8fbca73be706305ec189",
+      "662e8fd1a73be706305ec193",
+      "664092de0728cf14e8be2394",
+      "664092f00728cf14e8be2f5f"
+    ]
+    // var all_app = await NewApplication.find({ admissionAdmin: ins?.admissionDepart?.[0] })
+    var all_depart = await Department.find({ _id: { $in: list } })
+    .select("student_form_setting")
+      var checklist = form_params
+      // var numss = []
+      // for (var val of checklist) {
+      //   if (val?.form_checklist?.length > 0) {
+      //     for (var ele of val?.form_checklist) {
+      //       var fc = new FormChecklist({
+      //         form_checklist_name: ele?.form_checklist_name,
+      //         form_checklist_key: ele?.form_checklist_key,
+      //         form_checklist_visibility: ele?.form_checklist_visibility,
+      //         form_checklist_placeholder: ele?.form_checklist_placeholder,
+      //         form_checklist_lable: ele?.form_checklist_lable,
+      //         form_checklist_typo: ele?.form_checklist_typo,
+      //         form_checklist_required: ele?.form_checklist_required,
+      //         width: ele?.width
+      //       })
+      //       if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+      //         fc.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+      //       }
+      //       if (ele?.form_checklist_sample) {
+      //         fc.form_checklist_sample = ele?.form_checklist_sample
+      //       }
+      //       if (ele?.form_checklist_pdf) {
+      //         fc.form_checklist_pdf = ele?.form_checklist_pdf
+      //       }
+      //       if (ele?.form_checklist_view) {
+      //         fc.form_checklist_view = ele?.form_checklist_view
+      //       }
+      //       if (ele?.form_common_key) {
+      //         fc.form_common_key = ele?.form_common_key
+      //       }
+      //       if (ele?.form_checklist_enable) {
+      //         fc.form_checklist_enable = ele?.form_checklist_enable
+      //       }
+      //       fc.form = ifs?._id
+      //       fc.form_section = val?._id
+      //       numss.push(fc?._id)
+      //       await fc.save()
+      //     }
+      //   }
+      //   ifs.form_section.push({
+      //     section_name: val?.section_name,
+      //     section_visibilty: val?.section_visibilty,
+      //     section_key: val?.section_key,
+      //     section_value: val?.section_value,
+      //     form_checklist: [...numss]
+      //   })
+      //   numss = []
+      // }
+      // await ifs.save()
+      var one_ifs = await InstituteStudentForm.findById({ _id: `${ifs?._id}` })
+        .select("form_section")
+        .populate({
+          path: "form_section",
+          populate: {
+            path: "form_checklist",
+            populate: {
+              path: "nested_form_checklist",
+              populate: {
+                path: "nested_form_checklist_nested"
+              }
+            }
+          }
+        })
+      var nums = []
+      for (var dep of all_depart) {
+        var dfs = await DepartmentStudentForm.findById({ _id: dep?.student_form_setting})
+        for (var val of checklist) {
+          if (val?.form_checklist?.length > 0) {
+            for (var ele of val?.form_checklist) {
+              var fc = new FormChecklist({
+                form_checklist_name: ele?.form_checklist_name,
+                form_checklist_key: ele?.form_checklist_key,
+                form_checklist_visibility: ele?.form_checklist_visibility,
+                form_checklist_placeholder: ele?.form_checklist_placeholder,
+                form_checklist_lable: ele?.form_checklist_lable,
+                form_checklist_typo: ele?.form_checklist_typo,
+                form_checklist_required: ele?.form_checklist_required,
+                form_checklist_key_status: ele?.form_checklist_key_status,
+                width: ele?.width
+              })
+              if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+                fc.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+              }
+              if (ele?.form_checklist_sample) {
+                fc.form_checklist_sample = ele?.form_checklist_sample
+              }
+              if (ele?.form_checklist_pdf) {
+                fc.form_checklist_pdf = ele?.form_checklist_pdf
+              }
+              if (ele?.form_checklist_view) {
+                fc.form_checklist_view = ele?.form_checklist_view
+              }
+              if (ele?.form_common_key) {
+                fc.form_common_key = ele?.form_common_key
+              }
+              if (ele?.form_checklist_enable) {
+                fc.form_checklist_enable = ele?.form_checklist_enable
+              }
+              fc.department_form = dfs?._id
+              fc.form_section = one_ifs?._id
+              if (ele?.nested_form_checklist?.length > 0) {
+                for (var stu of ele?.nested_form_checklist) {
+                  var fcc = new FormChecklist({
+                    form_checklist_name: stu?.form_checklist_name,
+                    form_checklist_key: stu?.form_checklist_key,
+                    form_checklist_visibility: stu?.form_checklist_visibility,
+                    form_checklist_placeholder: stu?.form_checklist_placeholder,
+                    form_checklist_lable: stu?.form_checklist_lable,
+                    form_checklist_typo: stu?.form_checklist_typo,
+                    form_checklist_required: stu?.form_checklist_required,
+                    form_checklist_key_status: stu?.form_checklist_key_status,
+                    width: stu?.width
+                  })
+                  if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
+                    fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
+                  }
+                  if (stu?.form_checklist_sample) {
+                    fcc.form_checklist_sample = stu?.form_checklist_sample
+                  }
+                  if (stu?.form_checklist_pdf) {
+                    fcc.form_checklist_pdf = stu?.form_checklist_pdf
+                  }
+                  if (stu?.form_checklist_view) {
+                    fcc.form_checklist_view = stu?.form_checklist_view
+                  }
+                  fcc.department_form = dfs?._id
+                  fcc.form_section = one_ifs?._id
+                  if (stu?.nested_form_checklist_nested) {
+                    for (var qwe of stu?.nested_form_checklist_nested) {
+                      var fcca = new FormChecklist({
+                        form_checklist_name: qwe?.form_checklist_name,
+                        form_checklist_key: qwe?.form_checklist_key,
+                        form_checklist_visibility: qwe?.form_checklist_visibility,
+                        form_checklist_placeholder: qwe?.form_checklist_placeholder,
+                        form_checklist_lable: qwe?.form_checklist_lable,
+                        form_checklist_typo: qwe?.form_checklist_typo,
+                        form_checklist_required: qwe?.form_checklist_required,
+                        form_checklist_key_status: qwe?.form_checklist_key_status,
+                        width: qwe?.width
+                      })
+                      if (qwe?.form_checklist_typo_option_pl && qwe?.form_checklist_typo_option_pl?.length > 0) {
+                        fcca.form_checklist_typo_option_pl = [...qwe?.form_checklist_typo_option_pl]
+                      }
+                      if (qwe?.form_checklist_sample) {
+                        fcca.form_checklist_sample = qwe?.form_checklist_sample
+                      }
+                      if (qwe?.form_checklist_pdf) {
+                        fcca.form_checklist_pdf = qwe?.form_checklist_pdf
+                      }
+                      if (qwe?.form_checklist_view) {
+                        fcca.form_checklist_view = qwe?.form_checklist_view
+                      }
+                      fcca.department_form = dfs?._id
+                      fcca.form_section = one_ifs?._id
+                      fcc.nested_form_checklist_nested.push(fcca?._id)
+                      await fcca.save()
+                    }
+                  }
+                  await fcc.save()
+                  fc.nested_form_checklist.push(fcc?._id)
+                }
+              }
+              nums.push(fc?._id)
+              await fc.save()
+            }
+          }
+          dfs.form_section.push({
+            section_name: val?.section_name,
+            section_visibilty: val?.section_visibilty,
+            section_key: val?.section_key,
+            section_value: val?.section_value,
+            section_pdf: val?.section_pdf,
+            ins_form_section_id: val?._id,
+            form_checklist: [...nums]
+          })
+          nums = []
+        }
+        await Promise.all([dfs.save(), dep.save()])
+      }
+    // }
+    // var numsss = []
+    //   for (var qwe of all_app) {
+    //     var iaf = new InstituteApplicationForm({})
+    //     iaf.application = qwe?._id
+    //     qwe.student_form_setting = iaf?._id
+    //     for (var val of checklist) {
+    //       if (val?.form_checklist?.length > 0) {
+    //         for (var ele of val?.form_checklist) {
+    //           var fc = new FormChecklist({
+    //             form_checklist_name: ele?.form_checklist_name,
+    //             form_checklist_key: ele?.form_checklist_key,
+    //             form_checklist_visibility: ele?.form_checklist_visibility,
+    //             form_checklist_placeholder: ele?.form_checklist_placeholder,
+    //             form_checklist_lable: ele?.form_checklist_lable,
+    //             form_checklist_typo: ele?.form_checklist_typo,
+    //             form_checklist_required: ele?.form_checklist_required,
+    //             form_checklist_key_status: ele?.form_checklist_key_status,
+    //             width: ele?.width
+    //           })
+    //           if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+    //             fc.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+    //           }
+    //           if (ele?.form_checklist_sample) {
+    //             fc.form_checklist_sample = ele?.form_checklist_sample
+    //           }
+    //           if (ele?.form_checklist_pdf) {
+    //             fc.form_checklist_pdf = ele?.form_checklist_pdf
+    //           }
+    //           if (ele?.form_checklist_view) {
+    //             fc.form_checklist_view = ele?.form_checklist_view
+    //           }
+    //           if (ele?.form_common_key) {
+    //             fc.form_common_key = ele?.form_common_key
+    //           }
+    //           if (ele?.form_checklist_enable) {
+    //             fc.form_checklist_enable = ele?.form_checklist_enable
+    //           }
+    //           fc.application_form = iaf?._id
+    //           fc.form_section = one_ifs?._id
+    //           numsss.push(fc?._id)
+    //           await fc.save()
+    //         }
+    //       }
+    //       iaf.form_section.push({
+    //         section_name: val?.section_name,
+    //         section_visibilty: val?.section_visibilty,
+    //         section_key: val?.section_key,
+    //         section_pdf: val?.section_pdf,
+    //         section_value: val?.section_value,
+    //         ins_form_section_id: val?._id,
+    //         form_checklist: [...numsss]
+    //       })
+    //       numsss = []
+    //     }
+    //     await Promise.all([iaf.save(), qwe.save()])
+    //   }
+      res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
+  
+}
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.render_auto_staff_form_section_checklist_query = async (req, res) => {
   try {
     const { fcid } = req?.params
@@ -7415,19 +7683,42 @@ exports.render_dynamic_form_details_query = async (req, res) => {
   }
 }
 
+// exports.render_enable_form_flow = async (req, res) => {
+//   try {
+//     const all_ins = await InstituteAdmin.findById({ _id: "660bd1c7d5016c9947aef713"})
+//     var  i = 0
+//     const all_student = await Student.find({ $and: [{ institute: all_ins?._id }, { studentStatus: "Approved" }] }) 
+//       for (var ele of all_student) { 
+//         ele.student_form_flow.flow = "DEPARTMENT",
+//           ele.student_form_flow.did = ele?.department
+//         console.log(i)
+//         await ele.save()
+//         i+= 1
+//       }
+//     res.status(200).send({ message: "Institute Form Query", access: true })
+//   }
+//   catch (e) {
+//     console.log(e)
+//   }
+// }
+
 exports.render_enable_form_flow = async (req, res) => {
   try {
-    const all_ins = await InstituteAdmin.findById({ _id: "632c3e87cb54e96356d98626"})
+    const all_ins = await InstituteAdmin.findById({ _id: "660bd1c7d5016c9947aef713"})
     var  i = 0
-    const all_student = await Student.find({ $and: [{ institute: all_ins?._id }, { studentStatus: "Approved" }] }) 
-      for (var ele of all_student) { 
-        ele.student_form_flow.flow = "INSTITUTE",
-          ele.student_form_flow.did = all_ins?._id
+    const all_depart = await Department.find({ $and: [{ institute: all_ins?._id }] }) 
+    var nums = []
+    for (var ele of all_depart) { 
+      if (ele?.student_form_setting) {
+          
+      }
+      else {
+        nums.push(ele?._id)
+      }
         console.log(i)
-        await ele.save()
         i+= 1
       }
-    res.status(200).send({ message: "Institute Form Query", access: true })
+    res.status(200).send({ message: "Institute Form Fields Query", access: true, nums })
   }
   catch (e) {
     console.log(e)
@@ -7500,6 +7791,7 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
     
     // var ifs = await InstituteStudentForm.findById({_id: fcid})
     var all_ifs = await InstituteStudentForm.find({})
+    var  i =0
     for (var ifs of all_ifs) {
       var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
         .select("depart admissionDepart")
@@ -7616,7 +7908,7 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
         numss = []
       }
       await ifs.save()
-      res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
+      // res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
       var one_ifs = await InstituteStudentForm.findById({ _id: `${ifs?._id}` })
         .select("form_section")
         .populate({
@@ -7634,6 +7926,7 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
       var nums = []
       var all_dfs = await DepartmentStudentForm.find({ department: { $in: ins?.depart } })
       // console.log(all_dfs)
+      var j = 0
       for (var qwe of all_dfs) {
         if (qwe?._id) {
           for (var val of checklist) {
@@ -7728,7 +8021,7 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
                 await fc.save()
               }
             }
-            console.log(qwe)
+            // console.log(qwe)
             qwe.form_section.push({
               section_name: val?.section_name,
               section_visibilty: val?.section_visibilty,
@@ -7741,10 +8034,13 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
             nums = []
           }
           await qwe.save()
+          console.log("Depart", j)
+      j+=1
         }
       }
       // }
       var numsss = []
+      var k = 0
       var all_apps = await InstituteApplicationForm.find({ application: { $in: all_app } })
       for (var all of all_apps) {
         for (var val of checklist) {
@@ -7851,8 +8147,12 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
           numsss = []
         }
         await all.save()
+        console.log("APP", k)
+      k+=1
       }
   
+      console.log("Ins", i)
+      i+=1
     }
   }
   catch (e) {
@@ -7965,6 +8265,7 @@ exports.render_auto_student_form_section_checklist_query_social = async (req, re
         .select("student_form_setting")
       var checklist = social_reservation_information_section
       var numss = []
+      var i = 0
       for (var val of checklist) {
         if (val?.form_checklist?.length > 0) {
           for (var ele of val?.form_checklist) {
@@ -8011,9 +8312,11 @@ exports.render_auto_student_form_section_checklist_query_social = async (req, re
           form_checklist: [...numss]
         })
         numss = []
+        console.log("Ins", i)
+        i+= 1
       }
       await ifs.save()
-      res.status(200).send({ message: "Explore One Form Section Nested Checklist Social Query", access: true })
+      // res.status(200).send({ message: "Explore One Form Section Nested Checklist Social Query", access: true })
       var one_ifs = await InstituteStudentForm.findById({ _id: `${ifs?._id}` })
         .select("form_section")
         .populate({
@@ -8025,6 +8328,7 @@ exports.render_auto_student_form_section_checklist_query_social = async (req, re
       var nums = []
       var all_dfs = await DepartmentStudentForm.find({ department: { $in: ins?.depart } })
       // console.log(all_dfs)
+      var j = 0
       for (var qwe of all_dfs) {
         if (qwe?._id) {
           for (var val of checklist) {
@@ -8077,10 +8381,13 @@ exports.render_auto_student_form_section_checklist_query_social = async (req, re
             nums = []
           }
           await qwe.save()
+          console.log("Depart", j)
+          j+= 1
         }
       }
       // }
       var numsss = []
+      var  k =0
       var all_apps = await InstituteApplicationForm.find({ application: { $in: all_app } })
       for (var all of all_apps) {
         for (var val of checklist) {
@@ -8133,9 +8440,49 @@ exports.render_auto_student_form_section_checklist_query_social = async (req, re
           numsss = []
         }
         await all.save()
+        console.log("APP", k)
+        k+=1 
       }
   
     }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.clear_form_fields_section = async (req, res) => {
+  try {
+    const all_ifs = await InstituteStudentForm.find({})
+    for (var ifs of all_ifs) {
+      for (let val of ifs?.form_section) {
+        if (`${val?.section_key}` === "documents") {
+          ifs?.form_section?.pull(val?._id)
+        }
+      }
+      await ifs.save()
+    }
+
+    const all_dfs = await DepartmentStudentForm.find({})
+    for (var dfs of all_dfs) {
+      for (let val of dfs?.form_section) {
+        if (`${val?.section_key}` === "documents") {
+          dfs?.form_section?.pull(val?._id)
+        }
+      }
+      await dfs.save()
+    }
+
+    const all_app = await InstituteApplicationForm.find({})
+    for (var app of all_app) {
+      for (let val of app?.form_section) {
+        if (`${val?.section_key}` === "documents") {
+          app?.form_section?.pull(val?._id)
+        }
+      }
+      await app.save()
+    }
+    res.status(200).send({ message: "Clear"})
   }
   catch (e) {
     console.log(e)

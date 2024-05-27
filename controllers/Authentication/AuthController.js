@@ -2005,8 +2005,8 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         student.photoId = "0";
         student.studentProfilePhoto = sample_pic;
       }
-      student.student_form_flow.flow = "INSTITUTE"
-      student.student_form_flow.did = institute?._id
+      student.student_form_flow.flow = "APPLICATION"
+      student.student_form_flow.did = apply?._id
       institute.form_no_count += 1
       student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
       status.content = `Your application for ${apply?.applicationName} have been filled successfully.
@@ -2028,9 +2028,7 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 7. For cancellation and refund, contact the admission department.
 
 Note: Stay tuned for further updates.`;
-      student.student_form_flow.flow = "DEPARTMENT"
       status.group_by = "Admission_Application_Applied"
-      student.student_form_flow.did = apply?.applicationDepartment
       institute.form_no_count += 1
       student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
       status.applicationId = apply._id;

@@ -10,6 +10,7 @@ const cdnDynamicImages = require("../helper/cdnDynamicImages");
 const Student = require("../models/Student");
 const unlinkFile = util.promisify(fs.unlink);
 const moment = require("moment");
+const { email_sms_designation_application_apply } = require("../WhatsAppSMS/payload");
 const drawBorder = (doc) => {
   doc
     .roundedRect(12.5, 12.5, doc.page.width - 25, doc.page.height - 25, 5)
@@ -874,7 +875,11 @@ const generateStudentAdmissionForm = async (
 
   // Handle stream close event
   stream.on("finish", async () => {
-    const student = await Student.findById({ _id: studentId });
+    const student = await Student.findById({ _id: studentId })
+      .populate({
+      path: "user",
+      select: "userEmail userPhoneNumber"
+    })
     // console.log("created");
     let file = {
       path: `uploads/${name}-form.pdf`,
@@ -889,6 +894,11 @@ const generateStudentAdmissionForm = async (
     });
     await unlinkFile(file.path);
     await student.save();
+    let name = `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ?? ""} ${student?.studentLastName}`
+    if (student?.studentEmail) {
+      let login = student?.user?.userPhoneNumber ? student?.user?.userPhoneNumber : student?.user?.userEmail ?? ""
+      email_sms_designation_application_apply(student?.studentEmail, name, applicationName, login, results?.Key)
+    }
     // console.log("PDF created successfully", results.Key);
   });
 };

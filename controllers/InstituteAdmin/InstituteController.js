@@ -6721,6 +6721,13 @@ exports.render_one_student_form_section_query = async (req, res) => {
           }
         }
       }
+      if (`${nums?.section_key}` === "social_reservation_information_section") {
+        for (let ele of nums?.form_checklist) {
+          if (`${ele?.form_checklist_enable}` === "true") {
+            nums?.form_checklist?.pull(ele?._id)
+          }
+        }
+      }
     }
     res.status(200).send({ message: "Explore One Institute Student Form Section Query", access: true, section: ifs?.form_section})
   }
@@ -8461,7 +8468,7 @@ exports.clear_form_fields_section = async (req, res) => {
     const all_ifs = await InstituteStudentForm.find({})
     for (var ifs of all_ifs) {
       for (let val of ifs?.form_section) {
-        if (`${val?.section_key}` === "documents") {
+        if (`${val?.section_key}` === "social_reservation_information_section") {
           ifs?.form_section?.pull(val?._id)
         }
       }
@@ -8471,7 +8478,7 @@ exports.clear_form_fields_section = async (req, res) => {
     const all_dfs = await DepartmentStudentForm.find({})
     for (var dfs of all_dfs) {
       for (let val of dfs?.form_section) {
-        if (`${val?.section_key}` === "documents") {
+        if (`${val?.section_key}` === "social_reservation_information_section") {
           dfs?.form_section?.pull(val?._id)
         }
       }
@@ -8481,7 +8488,7 @@ exports.clear_form_fields_section = async (req, res) => {
     const all_app = await InstituteApplicationForm.find({})
     for (var app of all_app) {
       for (let val of app?.form_section) {
-        if (`${val?.section_key}` === "documents") {
+        if (`${val?.section_key}` === "social_reservation_information_section") {
           app?.form_section?.pull(val?._id)
         }
       }

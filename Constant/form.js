@@ -647,11 +647,11 @@ module.exports.form_params = [
                 form_checklist_typo: "FILE",
             },
             {
-                form_checklist_name: "Are you migrated",
+                form_checklist_name: "Are you from other than Pune University",
                 form_checklist_key: "is_migrate",
                 form_checklist_visibility: true,
-                form_checklist_placeholder: "Are you migrated",
-                form_checklist_lable: "Are you migrated",
+                form_checklist_placeholder: "Are you from other than Pune University",
+                form_checklist_lable: "Are you from other than Pune University",
                 form_checklist_typo: "SELECT",
                 form_checklist_typo_option_pl: ["Yes", "No"],
                 form_checklist_enable: "true"
@@ -701,11 +701,11 @@ module.exports.form_params = [
                 form_checklist_typo: "FILE",
             },
             {
-                form_checklist_name: "Is Open Category Student",
+                form_checklist_name: "Are you from Reserved Category (Other than Open)",
                 form_checklist_key: "is_open_category",
                 form_checklist_visibility: true,
-                form_checklist_placeholder: "Is Open Category Student",
-                form_checklist_lable: "Is Open Category Student",
+                form_checklist_placeholder: "Are you from Reserved Category (Other than Open)",
+                form_checklist_lable: "Are you from Reserved Category (Other than Open)",
                 form_checklist_typo: "SELECT",
                 form_checklist_typo_option_pl: ["Yes", "No"],
                 form_checklist_enable: "true"

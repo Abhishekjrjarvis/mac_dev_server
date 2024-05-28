@@ -3998,8 +3998,8 @@ exports.renderOneFeeReceipt = async (req, res) => {
       all_remain: all_remain
     }
     if (receipt?.finance?.show_receipt === "Normal") {
-      const obj_nums = await generateFeeReceipt(receipt?._id)
-      // await admissionFeeReceipt(receipt?._id, receipt?.application?._id)
+      // const obj_nums = await generateFeeReceipt(receipt?._id)
+      await admissionFeeReceipt(receipt?._id, receipt?.application?._id)
     }
     else if (receipt?.finance?.show_receipt === "Society") {
       await societyAdmissionFeeReceipt(receipt?._id,receipt?.finance?.institute)

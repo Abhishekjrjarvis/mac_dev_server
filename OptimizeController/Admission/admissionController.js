@@ -25,6 +25,7 @@ const {
   email_sms_payload_query,
   email_sms_designation_alarm,
   email_sms_designation_application,
+  email_sms_designation_application_apply,
 } = require("../../WhatsAppSMS/payload");
 const Hostel = require("../../models/Hostel/hostel");
 const {
@@ -1202,6 +1203,7 @@ Note: Stay tuned for further updates.`;
         student: student._id,
         status: true,
       });
+    let name = `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ?? ""} ${student?.studentLastName}`
       invokeMemberTabNotification(
         "Admission Status",
         status.content,
@@ -1215,6 +1217,10 @@ Note: Stay tuned for further updates.`;
         `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
         `${apply?.applicationName}`,
       );
+    if (student?.studentEmail && student?.application_print?.length > 0) {
+      let login = user?.userPhoneNumber ? user?.userPhoneNumber : user?.userEmail ?? ""
+      email_sms_designation_application_apply(student?.studentEmail, name, apply?.applicationName, login, student?.application_print?.[0]?.value)
+    }
     // }
   } catch (e) {
     console.log(e);

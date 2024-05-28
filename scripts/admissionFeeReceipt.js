@@ -10,6 +10,8 @@ const {
 const numToWords = require("../helper/numToWords");
 const dynamicImages = require("../helper/dynamicImages");
 const moment = require("moment");
+const feeReceipt = require("../models/RazorPay/feeReceipt");
+const { uploadDocsFile } = require("../S3Configuration");
 
 exports.admissionFeeReceipt = async (receiptId, appId) => {
   let date = new Date();

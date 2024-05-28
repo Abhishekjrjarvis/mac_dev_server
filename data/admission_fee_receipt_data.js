@@ -1,8 +1,5 @@
-// const { decryption } = require("../helper/decrypt");
 const axios = require("axios");
 const changeDateFormat = require("../helper/changeDateFormat");
-const getData = require("./feeData");
-// const { renderOneFeeReceiptUploadQuery } = require("../OptimizeController/Finance/financeController");
 const RemainingList = require("../models/Admission/RemainingList");
 const BankAccount = require("../models/Finance/BankAccount");
 const feeReceipt = require("../models/RazorPay/feeReceipt");
@@ -98,9 +95,11 @@ const admissionModifyReceiptData = (
   let afterDataSncyPaidFees = 0;
   let afterDataSncyFeeHead = [];
   let afterDataSncyInstall =
-    afterDataSncyRemainList?.remaining_array[
-      afterDataSncyRemainList?.remaining_array?.length - 1
-    ];
+    afterDataSncyRemainList?.remaining_array?.length > 0
+      ? afterDataSncyRemainList?.remaining_array[
+          afterDataSncyRemainList?.remaining_array?.length - 1
+        ]
+      : null;
   let flag = true;
   if (afterDataSncyInstall?.fee_receipt === args2?._id) {
     flag = true;
@@ -169,7 +168,8 @@ const admissionModifyReceiptData = (
 
 const renderOneFeeReceiptUploadQuery = async (frid) => {
   try {
-    const receipt = await feeReceipt.findById({ _id: frid })
+    const receipt = await feeReceipt
+      .findById({ _id: frid })
       .populate({
         path: "student",
         select:
@@ -366,40 +366,50 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
     // receipt.student.active_fee_heads = [...new_format];
     var excess_obj = {
       head_name: "Excess Fees",
-            paid_fee: all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee > 0 ? all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee : 0,
-            remain_fee: 0,
-            applicable_fee: 0,
-            fee_structure: all_remain?.fee_structure?._id,
-            original_paid: 0,
-            appId: all_remain?.appId,
-    }
+      paid_fee:
+        all_remain?.applicable_card?.paid_fee -
+          all_remain?.applicable_card?.applicable_fee >
+        0
+          ? all_remain?.applicable_card?.paid_fee -
+            all_remain?.applicable_card?.applicable_fee
+          : 0,
+      remain_fee: 0,
+      applicable_fee: 0,
+      fee_structure: all_remain?.fee_structure?._id,
+      original_paid: 0,
+      appId: all_remain?.appId,
+    };
     var gta_obj = {
       head_name: "Government To Applicable",
-            paid_fee: all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee > 0 ? all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee : 0,
-            remain_fee: 0,
-            applicable_fee: 0,
-            fee_structure: all_remain?.fee_structure?._id,
-            original_paid: 0,
-            appId: all_remain?.appId,
-    }
+      paid_fee:
+        all_remain?.applicable_card?.paid_fee -
+          all_remain?.applicable_card?.applicable_fee >
+        0
+          ? all_remain?.applicable_card?.paid_fee -
+            all_remain?.applicable_card?.applicable_fee
+          : 0,
+      remain_fee: 0,
+      applicable_fee: 0,
+      fee_structure: all_remain?.fee_structure?._id,
+      original_paid: 0,
+      appId: all_remain?.appId,
+    };
     if (excess_obj?.paid_fee > 0) {
-      receipt.fee_heads.push(excess_obj)
+      receipt.fee_heads.push(excess_obj);
     }
-    receipt.fee_heads.push(gta_obj)
+    receipt.fee_heads.push(gta_obj);
     if (receipt?.finance?.show_receipt === "Normal") {
       receipt.student.active_fee_heads = [...receipt?.fee_heads];
-    }
-    else if (receipt?.finance?.show_receipt === "Society") {
+    } else if (receipt?.finance?.show_receipt === "Society") {
       receipt.fee_heads = receipt?.fee_heads?.filter((qwe) => {
         if (!qwe?.is_society) {
-          return qwe
+          return qwe;
+        } else {
+          receipt.student.active_society_fee_heads.push(qwe);
+          return null;
         }
-        else {
-          receipt.student.active_society_fee_heads.push(qwe)
-          return null
-        }
-      })
-      receipt.student.active_fee_heads = [...receipt?.fee_heads]; 
+      });
+      receipt.student.active_fee_heads = [...receipt?.fee_heads];
     }
 
     const obj = {
@@ -407,17 +417,17 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       access: true,
       receipt: receipt,
       one_account: one_account,
-      all_remain: all_remain
-    }
-    return obj
+      all_remain: all_remain,
+    };
+    return obj;
   } catch (e) {
     console.log(e);
   }
 };
 
 module.exports.one_receipt_format_data = async (receipt, appId) => {
-    //   const data = await get_one_receipt(receipt);
-    const data = await renderOneFeeReceiptUploadQuery(receipt);
+  //   const data = await get_one_receipt(receipt);
+  const data = await renderOneFeeReceiptUploadQuery(receipt);
   const { institute, studentInfo, paymentReceiptInfo } =
     admissionModifyReceiptData(data?.all_remain, data?.receipt, appId);
 

@@ -3072,8 +3072,8 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       student.photoId = "0";
       student.studentProfilePhoto = sample_pic;
     }
-    student.student_form_flow.flow = "DEPARTMENT"
-    student.student_form_flow.did = apply?.applicationDepartment
+    student.student_form_flow.flow = "APPLICATION"
+    student.student_form_flow.did = apply?._id
     institute.form_no_count += 1
     student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
     user.student.push(student._id);

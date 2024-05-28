@@ -714,8 +714,8 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 7. For cancellation and refund, contact the admission department.
 
 Note: Stay tuned for further updates.`;
-      student.student_form_flow.flow = "DEPARTMENT"
-      student.student_form_flow.did = apply?.applicationDepartment
+      student.student_form_flow.flow = "APPLICATION"
+      student.student_form_flow.did = apply?._id
       status.applicationId = apply._id;
       status.document_visible = true;
       status.instituteId = institute._id;

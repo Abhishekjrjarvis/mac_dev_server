@@ -1567,7 +1567,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
           populate: {
             path: "optional_subject",
             populate: {
-            path: "optional_subject_options optional_subject_options_or",
+            path: "optional_subject_options optional_subject_options_or.options",
             select: "subjectName",
           }
           }
@@ -1782,7 +1782,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
           populate: {
             path: "optional_subject",
             populate: {
-            path: "optional_subject_options optional_subject_options_or",
+            path: "optional_subject_options optional_subject_options_or.options",
             select: "subjectName",
           }
           }

@@ -31,8 +31,12 @@ const subjectGroupSelectSchema = new mongoose.Schema({
             ],
             optional_subject_options_or: [
                 {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "SubjectMaster"
+                    options: [
+                        {
+                            type: mongoose.Schema.Types.ObjectId,
+                            ref: "SubjectMaster"
+                        }
+                    ]
                 }
             ],
         }

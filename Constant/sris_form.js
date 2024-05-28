@@ -6,12 +6,35 @@ module.exports.social_reservation_information_section = [
         form_checklist: [ 
             {
                 form_checklist_name: "Ex-Service man / Ward of Active-Service man",
+                form_checklist_key: "student_esm_wasm_check",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter Ex-Service man / Ward of Active-Service man",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "Ex-Service man / Ward of Active-Service man",
+                form_checklist_typo_option_pl: ["Ex-Service man / Ward of Active-Service man"],
+                form_checklist_enable: "true"
+            },
+            {
+                form_checklist_name: "Ex-Service man / Ward of Active-Service man",
                 form_checklist_key: "student_esm_wasm",
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Upload Ex-Service man / Ward of Active-Service man Certificate",
                 form_checklist_lable: "Upload Ex-Service man / Ward of Active-Service man Certificate",
                 form_checklist_typo: "FILE",
-                form_checklist_key_status: "DYNAMIC"
+                form_checklist_key_status: "DYNAMIC",
+                form_common_key: "student_esm_wasm_check"
+            },
+            {
+                form_checklist_name: "Active-Service man / Ward of Active-Service man",
+                form_checklist_key: "student_asm_wasm_check",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter Active-Service man / Ward of Active-Service man",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "Active-Service man / Ward of Active-Service man",
+                form_checklist_typo_option_pl: ["Active-Service man / Ward of Active-Service man"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Active-Service man / Ward of Active-Service man",
@@ -20,7 +43,19 @@ module.exports.social_reservation_information_section = [
                 form_checklist_placeholder: "Upload Active-Service man / Ward of Active-Service man Certificate",
                 form_checklist_lable: "Upload Active-Service man / Ward of Active-Service man Certificate",
                 form_checklist_typo: "FILE",
-                form_checklist_key_status: "DYNAMIC"
+                form_checklist_key_status: "DYNAMIC",
+                form_common_key: "student_asm_wasm_check"
+            },
+            {
+                form_checklist_name: "Freedom Fighter /Ward of Freedom Fighter",
+                form_checklist_key: "student_ff_wff_check",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter Freedom Fighter /Ward of Freedom Fighter",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "Freedom Fighter /Ward of Freedom Fighter",
+                form_checklist_typo_option_pl: ["Freedom Fighter /Ward of Freedom Fighter"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Freedom Fighter /Ward of Freedom Fighter",
@@ -29,7 +64,19 @@ module.exports.social_reservation_information_section = [
                 form_checklist_placeholder: "Upload Freedom Fighter /Ward of Freedom Fighter Certificate",
                 form_checklist_lable: "Upload Freedom Fighter /Ward of Freedom Fighter Certificate",
                 form_checklist_typo: "FILE",
-                form_checklist_key_status: "DYNAMIC"
+                form_checklist_key_status: "DYNAMIC",
+                form_common_key: "student_ff_wff_check"
+            },
+            {
+                form_checklist_name: "Ward of Primary Teacher",
+                form_checklist_key: "student_wpt_check",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter Ward of Primary Teacher",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "Ward of Primary Teacher",
+                form_checklist_typo_option_pl: ["Ward of Primary Teacher"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Ward of Primary Teacher",
@@ -38,7 +85,19 @@ module.exports.social_reservation_information_section = [
                 form_checklist_placeholder: "Upload Ward of Primary Teacher Certificate",
                 form_checklist_lable: "Upload Ward of Primary Teacher Certificate",
                 form_checklist_typo: "FILE",
-                form_checklist_key_status: "DYNAMIC"
+                form_checklist_key_status: "DYNAMIC",
+                form_common_key: "student_wpt_check"
+            },
+            {
+                form_checklist_name: "Ward of Secondary Teacher",
+                form_checklist_key: "student_wst_check",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter Ward of Secondary Teacher",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "Ward of Secondary Teacher",
+                form_checklist_typo_option_pl: ["Ward of Secondary Teacher"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Ward of Secondary Teacher",
@@ -47,7 +106,19 @@ module.exports.social_reservation_information_section = [
                 form_checklist_placeholder: "Upload Ward of Secondary Teacher Certificate",
                 form_checklist_lable: "Upload Ward of Secondary Teacher Certificate",
                 form_checklist_typo: "FILE",
-                form_checklist_key_status: "DYNAMIC"
+                form_checklist_key_status: "DYNAMIC",
+                form_common_key: "student_wst_check"
+            },
+            {
+                form_checklist_name: "Deserted / Divorced / Widowed Women",
+                form_checklist_key: "student_ddww_check",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter Deserted / Divorced / Widowed Women",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "Deserted / Divorced / Widowed Women",
+                form_checklist_typo_option_pl: ["Deserted / Divorced / Widowed Women"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Deserted / Divorced / Widowed Women",
@@ -56,7 +127,19 @@ module.exports.social_reservation_information_section = [
                 form_checklist_placeholder: "Upload Deserted / Divorced / Widowed Women Certificate",
                 form_checklist_lable: "Upload Deserted / Divorced / Widowed Women Certificate",
                 form_checklist_typo: "FILE",
-                form_checklist_key_status: "DYNAMIC"
+                form_checklist_key_status: "DYNAMIC",
+                form_common_key: "student_ddww_check"
+            },
+            {
+                form_checklist_name: "Member of Project Affected Family",
+                form_checklist_key: "student_mopaf_check",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter Member of Project Affected Family",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "Member of Project Affected Family",
+                form_checklist_typo_option_pl: ["Member of Project Affected Family"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Member of Project Affected Family",
@@ -65,7 +148,19 @@ module.exports.social_reservation_information_section = [
                 form_checklist_placeholder: "Upload Member of Project Affected Family Certificate",
                 form_checklist_lable: "Upload Member of Project Affected Family Certificate",
                 form_checklist_typo: "FILE",
-                form_checklist_key_status: "DYNAMIC"
+                form_checklist_key_status: "DYNAMIC",
+                form_common_key: "student_mopaf_check"
+            },
+            {
+                form_checklist_name: "Member of Earthquake Affected Family",
+                form_checklist_key: "student_moeaf_check",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter Member of Earthquake Affected Family",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "Member of Earthquake Affected Family",
+                form_checklist_typo_option_pl: ["Member of Earthquake Affected Family"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Member of Earthquake Affected Family",
@@ -74,7 +169,19 @@ module.exports.social_reservation_information_section = [
                 form_checklist_placeholder: "Upload Member of Earthquake Affected Family Certificate",
                 form_checklist_lable: "Upload Member of Earthquake Affected Family Certificate",
                 form_checklist_typo: "FILE",
-                form_checklist_key_status: "DYNAMIC"
+                form_checklist_key_status: "DYNAMIC",
+                form_common_key: "student_moeaf_check"
+            },
+            {
+                form_checklist_name: "Member of Flood / Famine Affected Family",
+                form_checklist_key: "student_moffaf_check",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter Member of Flood / Famine Affected Family",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "Member of Flood / Famine Affected Family",
+                form_checklist_typo_option_pl: ["Member of Flood / Famine Affected Family"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Member of Flood / Famine Affected Family",
@@ -83,7 +190,19 @@ module.exports.social_reservation_information_section = [
                 form_checklist_placeholder: "Upload Member of Flood / Famine Affected Family Certificate",
                 form_checklist_lable: "Upload Member of Flood / Famine Affected Family Certificate",
                 form_checklist_typo: "FILE",
-                form_checklist_key_status: "DYNAMIC"
+                form_checklist_key_status: "DYNAMIC",
+                form_common_key: "student_moffaf_check"
+            },
+            {
+                form_checklist_name: "Resident of Tribal Area",
+                form_checklist_key: "student_rota_check",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter Resident of Tribal Area",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "Resident of Tribal Area",
+                form_checklist_typo_option_pl: ["Resident of Tribal Area"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Resident of Tribal Area",
@@ -92,7 +211,19 @@ module.exports.social_reservation_information_section = [
                 form_checklist_placeholder: "Upload Resident of Tribal Area Certificate",
                 form_checklist_lable: "Upload Resident of Tribal Area Certificate",
                 form_checklist_typo: "FILE",
-                form_checklist_key_status: "DYNAMIC"
+                form_checklist_key_status: "DYNAMIC",
+                form_common_key: "student_rota_check"
+            },
+            {
+                form_checklist_name: "Kashmir Migrant",
+                form_checklist_key: "student_km_check",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Enter Kashmir Migrant",
+                form_checklist_lable: "",
+                form_checklist_typo: "CHECKBOX",
+                form_checklist_sample: "Kashmir Migrant",
+                form_checklist_typo_option_pl: ["Kashmir Migrant"],
+                form_checklist_enable: "true"
             },
             {
                 form_checklist_name: "Kashmir Migrant",
@@ -101,7 +232,8 @@ module.exports.social_reservation_information_section = [
                 form_checklist_placeholder: "Upload Kashmir Migrant Certificate",
                 form_checklist_lable: "Upload Kashmir Migrant Certificate",
                 form_checklist_typo: "FILE",
-                form_checklist_key_status: "DYNAMIC"
+                form_checklist_key_status: "DYNAMIC",
+                form_common_key: "student_km_check"
             },
         ]
     },

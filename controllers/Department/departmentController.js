@@ -156,6 +156,13 @@ exports.render_one_student_form_section_query = async (req, res) => {
             }
           }
         }
+        if (`${nums?.section_key}` === "social_reservation_information_section") {
+          for (let ele of nums?.form_checklist) {
+            if (`${ele?.form_checklist_enable}` === "true") {
+              nums?.form_checklist?.pull(ele?._id)
+            }
+          }
+        }
       }
     res.status(200).send({ message: "Explore One Department Student Form Section Query", access: true, section: dfs?.form_section})
   }

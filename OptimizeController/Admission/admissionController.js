@@ -2319,12 +2319,12 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
     }).populate({
       path: "admissionAdminHead",
       select: "user",
-    });
-    const student = await Student.findById({ _id: sid })
+    })
     .populate({
       path: "institute",
       select: "insName",
     })
+    const student = await Student.findById({ _id: sid })
     const user = await User.findById({ _id: `${student?.user}` });
     const status = new Status({});
     const notify = new StudentNotification({});
@@ -2375,7 +2375,7 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
     );
     let name = `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`
     if (student?.studentEmail) {
-      email_sms_designation_application(student?.studentEmail, name, apply?.applicationName, reason, student?.institute?.insName)
+      email_sms_designation_application(student?.studentEmail, name, apply?.applicationName, reason, admission_admin?.institute?.insName)
     }
   } catch (e) {
     console.log(e);

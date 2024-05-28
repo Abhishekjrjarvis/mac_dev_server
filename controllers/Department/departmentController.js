@@ -272,6 +272,7 @@ exports.render_dynamic_form_query = async (req, res) => {
     if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var student = await Student.findById({ _id: sid })
+    student.studentFatherName = student?.studentMiddleName ?? student?.studentFatherName
     if (student?.student_form_flow?.flow === "INSTITUTE") {
       var head_array = []
       var head_arrays = []
@@ -748,6 +749,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
     if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var student = await Student.findById({ _id: sid })
+    student.studentFatherName = student?.studentMiddleName ?? student?.studentFatherName
     if (student?.student_form_flow?.flow === "INSTITUTE") {
       var head_array = []
       var head_arrays = []
@@ -1223,7 +1225,8 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
       .populate({
         path: "student_optional_subject",
         select: "subjectName"
-    })
+      })
+      student.studentFatherName = student?.studentMiddleName ?? student?.studentFatherName
     if (student?.student_form_flow?.flow === "APPLICATION") {
       var head_array = []
       var head_arrays = []

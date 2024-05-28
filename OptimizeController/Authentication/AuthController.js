@@ -68,6 +68,7 @@ const {
 const {
   whats_app_sms_payload,
   email_sms_payload_query,
+  email_sms_designation_application_apply,
 } = require("../../WhatsAppSMS/payload");
 const { handle_undefined } = require("../../Handler/customError");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
@@ -2122,7 +2123,6 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
     if (!valid?.exist) {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
-      const uqid = universal_random_password()
       var user = new User({
         userLegalName: `${req.body.studentFirstName} ${
           req.body.studentMiddleName ? req.body.studentMiddleName : ""
@@ -2139,12 +2139,9 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         remindLater: rDate,
         next_date: c_date,
       });
-      var qvipleId = new QvipleId({})
-      qvipleId.user = user?._id
-      qvipleId.qviple_id = `${uqid}`
       admins.users.push(user);
       admins.userCount += 1;
-      await Promise.all([admins.save(), user.save(), qvipleId.save()]);
+      await Promise.all([admins.save(), user.save()]);
       var uInstitute = await InstituteAdmin.findOne({
         isUniversal: "Universal",
       })
@@ -2194,12 +2191,12 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         });
       }
       const student = new Student({ ...req.body });
+      const codess = universal_random_password()
+      student.member_module_unique = `${codess}`
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;
       student.student_join_mode = "ADMISSION_PROCESS";
-      const codess = universal_random_password()
-      student.member_module_unique = `${codess}`
       const apply = await NewApplication.findById({ _id: aid });
       const admission = await Admission.findById({
         _id: `${apply.admissionAdmin}`,
@@ -2243,6 +2240,10 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         student.photoId = "0";
         student.studentProfilePhoto = sample_pic;
       }
+      student.student_form_flow.flow = "APPLICATION"
+      student.student_form_flow.did = apply?._id
+      institute.form_no_count += 1
+      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
       status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -2262,7 +2263,11 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 7. For cancellation and refund, contact the admission department.
 
 Note: Stay tuned for further updates.`;
+      status.group_by = "Admission_Application_Applied"
+      institute.form_no_count += 1
+      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
       status.applicationId = apply._id;
+      status.student = student?._id;
       status.document_visible = true;
       status.student = student._id;
       status.finance = institute?.financeDepart?.[0];
@@ -2311,6 +2316,17 @@ Note: Stay tuned for further updates.`;
         login: true,
         student: student?._id,
       });
+    let name = `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ?? ""} ${student?.studentLastName}`
+      await generateStudentAdmissionForm(
+        student?._id,
+        institute?._id,
+        `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
+        `${apply?.applicationName}`,
+      );
+      if (student?.studentEmail && student?.application_print?.length > 0) {
+        let login = user?.userPhoneNumber ? user?.userPhoneNumber : user?.userEmail ?? ""
+        email_sms_designation_application_apply(student?.studentEmail, name, apply?.applicationName, login, student?.application_print?.[0]?.value)
+      }
     } else {
       res.status(200).send({
         message: "Bug in the direct joining process 😡",

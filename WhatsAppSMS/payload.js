@@ -533,16 +533,16 @@ exports.email_sms_designation_application = (
   name,
   appName,
   reason,
+  insName
 ) => {
   try {
     const bool = process.env.IS_GLOBAL;
     if (bool) {
-        var message = `Dear ${name},
-        Your admission application for ${appName} has been rejected due to following reason:
-        Reason- ${reason}
+        var message = `Dear ${name}, Your admission application in ${insName} for ${appName} has been rejected due to following reason: - ${reason}
+      
+        Take action on given remarks and reapply for admission.
         
-        
-        Take action on given remarks and reapply for admission`
+        Do Not Click on this below link (if click then further emails won't be delievered to you)`
       const subject = "Application Rejection";
       const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
       const encodeURL = encodeURI(url);

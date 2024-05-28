@@ -1217,10 +1217,10 @@ Note: Stay tuned for further updates.`;
         `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
         `${apply?.applicationName}`,
       );
-    if (student?.studentEmail && student?.application_print?.length > 0) {
-      let login = user?.userPhoneNumber ? user?.userPhoneNumber : user?.userEmail ?? ""
-      email_sms_designation_application_apply(student?.studentEmail, name, apply?.applicationName, login, student?.application_print?.[0]?.value)
-    }
+    // if (student?.studentEmail && student?.application_print?.length > 0) {
+    //   let login = user?.userPhoneNumber ? user?.userPhoneNumber : user?.userEmail ?? ""
+    //   email_sms_designation_application_apply(student?.studentEmail, name, apply?.applicationName, login, student?.application_print?.[0]?.value)
+    // }
     // }
   } catch (e) {
     console.log(e);
@@ -2320,7 +2320,11 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
       path: "admissionAdminHead",
       select: "user",
     });
-    const student = await Student.findById({ _id: sid });
+    const student = await Student.findById({ _id: sid })
+    .populate({
+      path: "institute",
+      select: "insName",
+    })
     const user = await User.findById({ _id: `${student?.user}` });
     const status = new Status({});
     const notify = new StudentNotification({});
@@ -2371,7 +2375,7 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
     );
     let name = `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`
     if (student?.studentEmail) {
-      email_sms_designation_application(student?.studentEmail, name, apply?.applicationName, reason)
+      email_sms_designation_application(student?.studentEmail, name, apply?.applicationName, reason, student?.institute?.insName)
     }
   } catch (e) {
     console.log(e);

@@ -2089,10 +2089,6 @@ Note: Stay tuned for further updates.`;
         `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
         `${apply?.applicationName}`,
       );
-      if (student?.studentEmail && student?.application_print?.length > 0) {
-        let login = user?.userPhoneNumber ? user?.userPhoneNumber : user?.userEmail ?? ""
-        email_sms_designation_application_apply(student?.studentEmail, name, apply?.applicationName, login, student?.application_print?.[0]?.value)
-      }
     } else {
       res.status(200).send({
         message: "Bug in the direct joining process 😡",

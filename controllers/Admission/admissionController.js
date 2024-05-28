@@ -4587,7 +4587,7 @@ exports.renderOneInquiryQuery = async (req, res) => {
       _id: id,
     })
       .select(
-        "inquiry_student_name inquiry_student_gender inquiry_student_dob inquiry_student_address inquiry_student_mobileNo inquiry_student_previous inquiry_student_remark reviewAt createdAt inquiry_student_photo createdAt"
+        "inquiry_student_name inquiry_student_gender inquiry_student_dob inquiry_student_address inquiry_student_mobileNo inquiry_student_previous inquiry_student_remark reviewAt createdAt inquiry_student_photo createdAt inquiry_student_city inquiry_student_message inquiry_student_email"
       )
       .populate({
         path: "inquiry_application",

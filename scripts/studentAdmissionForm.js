@@ -894,10 +894,10 @@ const generateStudentAdmissionForm = async (
     });
     await unlinkFile(file.path);
     await student.save();
-    let name = `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ?? ""} ${student?.studentLastName}`
+    let names = `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ?? ""} ${student?.studentLastName}`
     if (student?.studentEmail) {
       let login = student?.user?.userPhoneNumber ? student?.user?.userPhoneNumber : student?.user?.userEmail ?? ""
-      email_sms_designation_application_apply(student?.studentEmail, name, applicationName, login, results?.Key)
+      email_sms_designation_application_apply(student?.studentEmail, names, applicationName, login, results?.Key)
     }
     // console.log("PDF created successfully", results.Key);
   });

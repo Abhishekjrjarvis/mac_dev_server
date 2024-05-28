@@ -692,14 +692,14 @@ exports.render_dynamic_form_query = async (req, res) => {
                     var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
                     var name3 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
                     var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
-                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name}`)
+                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name?.applicationName}`)
                     var name2 = name5?.replace("@DATE", app_date)
                   }
                   else if (ele?.form_checklist_key === "student_anti_ragging") {
                     var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
                     var name3 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
                     var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
-                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name}`)
+                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name?.applicationName}`)
                     var name2 = name5?.replace("@DATE", app_date)
                   }
                   head_array.push({
@@ -1165,14 +1165,14 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                     var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
                     var name3 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
                     var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
-                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name}`)
+                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name?.applicationName}`)
                     var name2 = name5?.replace("@DATE", app_date)
                   }
                   else if (ele?.form_checklist_key === "student_anti_ragging") {
                     var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
                     var name3 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
                     var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
-                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name}`)
+                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name?.applicationName}`)
                     var name2 = name5?.replace("@DATE", app_date)
                   }
                   head_array.push({
@@ -1341,14 +1341,14 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
                     var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
                     var name3 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
                     var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
-                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name}`)
+                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name?.applicationName}`)
                     var name2 = name5?.replace("@DATE", app_date)
                   }
                   else if (ele?.form_checklist_key === "student_anti_ragging") {
                     var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
                     var name3 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
                     var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
-                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name}`)
+                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name?.applicationName}`)
                     var name2 = name5?.replace("@DATE", app_date)
                   }
                   head_array.push({

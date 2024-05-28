@@ -11,7 +11,7 @@ const numToWords = require("../helper/numToWords");
 const dynamicImages = require("../helper/dynamicImages");
 const moment = require("moment");
 
-const admissionFeeReceipt = async (receiptId, appId) => {
+exports.admissionFeeReceipt = async (receiptId, appId) => {
   let date = new Date();
   let time = date.getTime();
   const { institute, studentInfo, paymentReceiptInfo } =
@@ -219,7 +219,7 @@ const admissionFeeReceipt = async (receiptId, appId) => {
   });
   // Handle stream close event
   stream.on("finish", async (qwe) => {
-    const fee_receipt = await feeReceipt.findById({ _id: InsNo });
+    const fee_receipt = await feeReceipt.findById({ _id: receiptId });
     console.log("PDF created successfully");
     let file = {
       path: `uploads/${paymentReceiptInfo.invoiceNumber}-${time}normal-receipt.pdf`,
@@ -232,5 +232,4 @@ const admissionFeeReceipt = async (receiptId, appId) => {
     await fee_receipt.save();
   });
 };
-module.exports = admissionFeeReceipt;
 

@@ -612,6 +612,7 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Upload Student's Signature",
                 form_checklist_lable: "Upload Student's Signature",
                 form_checklist_typo: "CROPIMAGE",
+                form_checklist_required: true
             },
             {
                 form_checklist_name: "Student Parent's Signature",

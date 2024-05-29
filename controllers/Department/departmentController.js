@@ -1407,6 +1407,8 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
         }
       }
       head_arrays?.splice(0, 1)
+      const is_documents = (element) => element?.static_key === "documents";
+      let value = head_arrays?.findIndex(is_documents)
       var n = []
       var objs = {}
       for (let ele of student?.student_optional_subject) {
@@ -1415,7 +1417,8 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
         })
       }
       objs[`fields`] = [...n]
-      head_arrays.push({ ...objs, key: "Selected Subjects", static_key: "selected_subjects" })
+      // head_arrays.push({ ...objs, key: "Selected Subjects", static_key: "selected_subjects" })
+      head_arrays?.splice(value, 0, { ...objs, key: "Selected Subjects", static_key: "selected_subjects" })
       res.status(200).send({ message: "Explore One Student Application Dynamic Form Query", access: true, result: [...head_arrays]})
     }
   }

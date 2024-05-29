@@ -192,7 +192,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   });
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber enable_protection moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status active_tab_index alarm_enable alarm_enable_status app_qr_code code_url"
+        "admissionAdminEmail admissionAdminPhoneNumber enable_protection moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status active_tab_index alarm_enable alarm_enable_status app_qr_code code_url app_hindi_qr_code app_marathi_qr_code"
       )
       .populate({
         path: "admissionAdminHead",
@@ -3872,7 +3872,7 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
     //   });
     const oneApply = await NewApplication.findById({ _id: aid })
       .select(
-        "applicationName applicationType applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type app_qr_code"
+        "applicationName applicationType applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type app_qr_code app_hindi_qr_code app_marathi_qr_code"
       )
       .populate({
         path: "applicationDepartment",
@@ -8690,7 +8690,7 @@ exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
 exports.renderApplicationAutoQRCodeQuery = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { qr_code, code_url, flow } = req.query;
+    const { qr_code, hn_qr_code, mt_qr_code, code_url, flow } = req.query;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -8701,12 +8701,24 @@ exports.renderApplicationAutoQRCodeQuery = async (req, res) => {
       var new_app = await NewApplication.findById({ _id: aid });
       new_app.app_qr_code = qr_code;
       new_app.code_url = code_url
+      if (hn_qr_code) {
+        new_app.app_hindi_qr_code = hn_qr_code;
+      }
+      if (mt_qr_code) {
+        new_app.app_marathi_qr_code = mt_qr_code;
+      }
       await new_app.save();
     }
     else if (flow === "ADMISSION") {
       var new_ads = await Admission.findById({ _id: aid });
       new_ads.app_qr_code = qr_code;
       new_ads.code_url = code_url
+      if (hn_qr_code) {
+        new_ads.app_hindi_qr_code = hn_qr_code;
+      }
+      if (mt_qr_code) {
+        new_ads.app_marathi_qr_code = mt_qr_code;
+      }
       await new_ads.save();
     }
     res

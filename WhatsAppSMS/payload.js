@@ -582,7 +582,10 @@ After selection email, visit institute with Required documents, applicable fees 
 You can check your admission progress by logging into your account from site or Mobile Application: Qviple Your Institute Online : - For login use ${login} used while filing admission application.
 
 Click on below to download your admission application form - https://qviple-dev.s3.ap-south-1.amazonaws.com/${file}
-Stay updated for further updates.`
+
+Stay updated for further updates.
+
+Do Not Click on this below link (if click then further emails won't be delievered to you)`
       const subject = "Admission Application Submission";
       const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
       const encodeURL = encodeURI(url);

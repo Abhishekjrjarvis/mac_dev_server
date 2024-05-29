@@ -261,7 +261,13 @@ const newApplicationSchema = new mongoose.Schema({
   ],
   code_url: {
     type: String
-  }
+  },
+  app_hindi_qr_code: {
+    type: String
+  },
+  app_marathi_qr_code: {
+    type: String
+  },
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

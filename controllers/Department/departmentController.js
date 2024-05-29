@@ -382,6 +382,9 @@ exports.render_dynamic_form_query = async (req, res) => {
                 })
                 if (ele?.form_checklist_typo === "Same As") {
                 }
+                else if (`${ele?.form_checklist_enable}` === "true") {
+                  
+                }
                 else {
                   if (ele?.form_checklist_key === "student_undertakings") {
                     var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
@@ -535,6 +538,9 @@ exports.render_dynamic_form_query = async (req, res) => {
                   }
                 })
                 if (ele?.form_checklist_typo === "Same As") {
+                }
+                else if (`${ele?.form_checklist_enable}` === "true") {
+                  
                 }
                 else {
                   if (ele?.form_checklist_key === "student_undertakings") {
@@ -694,6 +700,9 @@ exports.render_dynamic_form_query = async (req, res) => {
                   }
                 })
                 if (ele?.form_checklist_typo === "Same As") {
+                }
+                else if (`${ele?.form_checklist_enable}` === "true") {
+                  
                 }
                 else {
                   if (ele?.form_checklist_key === "student_undertakings") {
@@ -859,6 +868,9 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                 })
                 if (ele?.form_checklist_typo === "Same As") {
                 }
+                else if (`${ele?.form_checklist_enable}` === "true") {
+                  
+                }
                 else {
                   if (ele?.form_checklist_key === "student_undertakings") {
                     var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
@@ -1010,6 +1022,9 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   }
                 })
                 if (ele?.form_checklist_typo === "Same As") {
+                }
+                else if (`${ele?.form_checklist_enable}` === "true") {
+                  
                 }
                 else {
                   if (ele?.form_checklist_key === "student_undertakings") {
@@ -1168,6 +1183,9 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   }
                 })
                 if (ele?.form_checklist_typo === "Same As") {
+                }
+                else if (`${ele?.form_checklist_enable}` === "true") {
+                  
                 }
                 else {
                   if (ele?.form_checklist_key === "student_undertakings") {
@@ -1345,6 +1363,9 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
                   }
                 })
                 if (ele?.form_checklist_typo === "Same As") {
+                }
+                else if (`${ele?.form_checklist_enable}` === "true") {
+                  
                 }
                 else {
                   if (ele?.form_checklist_key === "student_undertakings") {

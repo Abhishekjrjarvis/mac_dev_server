@@ -7690,47 +7690,47 @@ exports.render_dynamic_form_details_query = async (req, res) => {
   }
 }
 
-// exports.render_enable_form_flow = async (req, res) => {
-//   try {
-//     const all_ins = await InstituteAdmin.findById({ _id: "660bd1c7d5016c9947aef713"})
-//     var  i = 0
-//     const all_student = await Student.find({ $and: [{ institute: all_ins?._id }, { studentStatus: "Approved" }] }) 
-//       for (var ele of all_student) { 
-//         ele.student_form_flow.flow = "DEPARTMENT",
-//           ele.student_form_flow.did = ele?.department
-//         console.log(i)
-//         await ele.save()
-//         i+= 1
-//       }
-//     res.status(200).send({ message: "Institute Form Query", access: true })
-//   }
-//   catch (e) {
-//     console.log(e)
-//   }
-// }
-
 exports.render_enable_form_flow = async (req, res) => {
   try {
-    const all_ins = await InstituteAdmin.findById({ _id: "660bd1c7d5016c9947aef713"})
+    const all_ins = await InstituteAdmin.findById({ _id: "6449c83598fec071fbffd3ad"})
     var  i = 0
-    const all_depart = await Department.find({ $and: [{ institute: all_ins?._id }] }) 
-    var nums = []
-    for (var ele of all_depart) { 
-      if (ele?.student_form_setting) {
-          
-      }
-      else {
-        nums.push(ele?._id)
-      }
+    const all_student = await Student.find({ $and: [{ institute: all_ins?._id }, { studentStatus: "Approved" }] }) 
+      for (var ele of all_student) { 
+        ele.student_form_flow.flow = "DEPARTMENT",
+          ele.student_form_flow.did = ele?.department
         console.log(i)
+        await ele.save()
         i+= 1
       }
-    res.status(200).send({ message: "Institute Form Fields Query", access: true, nums })
+    res.status(200).send({ message: "Institute Form Query", access: true })
   }
   catch (e) {
     console.log(e)
   }
 }
+
+// exports.render_enable_form_flow = async (req, res) => {
+//   try {
+//     const all_ins = await InstituteAdmin.findById({ _id: "660bd1c7d5016c9947aef713"})
+//     var  i = 0
+//     const all_depart = await Department.find({ $and: [{ institute: all_ins?._id }] }) 
+//     var nums = []
+//     for (var ele of all_depart) { 
+//       if (ele?.student_form_setting) {
+          
+//       }
+//       else {
+//         nums.push(ele?._id)
+//       }
+//         console.log(i)
+//         i+= 1
+//       }
+//     res.status(200).send({ message: "Institute Form Fields Query", access: true, nums })
+//   }
+//   catch (e) {
+//     console.log(e)
+//   }
+// }
 
 exports.render_form_key_editable = async (req, res) => {
   try {

@@ -9,7 +9,9 @@ const cdnDynamicImages = require("../helper/cdnDynamicImages");
 const Student = require("../models/Student");
 const unlinkFile = util.promisify(fs.unlink);
 const moment = require("moment");
-const { email_sms_designation_application_apply } = require("../WhatsAppSMS/payload");
+const {
+  email_sms_designation_application_apply,
+} = require("../WhatsAppSMS/payload");
 const drawBorder = (doc) => {
   doc
     .roundedRect(12.5, 12.5, doc.page.width - 25, doc.page.height - 25, 5)
@@ -32,9 +34,9 @@ const generateStudentAdmissionForm = async (
   let date = new Date();
   let name = `${date.getTime()}-${studentName}`;
   // let name = `${studentName}`;
-  // const stream = fs.createWriteStream(`uploads/${studentName}-form.pdf`);
+  const stream = fs.createWriteStream(`uploads/${studentName}-form.pdf`);
 
-  const stream = fs.createWriteStream(`uploads/${name}-form.pdf`);
+  // const stream = fs.createWriteStream(`uploads/${name}-form.pdf`);
   const nt_call = await studentFormData(studentId, instituteId);
   const data = nt_call?.dt;
   const result = nt_call?.ft;
@@ -101,7 +103,7 @@ const generateStudentAdmissionForm = async (
           doc.fillColor("#121212").text(`${itr?.key}: -`, 25);
           doc.moveDown(0.3);
           doc.fontSize(11);
-          doc.moveUp();
+
           for (let i = 0; i < itr?.fields?.length; i++) {
             let ft = itr?.fields[i];
             doc
@@ -291,20 +293,26 @@ const generateStudentAdmissionForm = async (
                 .text(`${ft?.form_checklist_name}`, 85, sc_y + 6);
             }
           }
+          doc
+            .moveTo(25, doc.y + 10)
+            .lineTo(pageWidth - 25, doc.y + 10)
+            .stroke();
+          doc.moveDown(1.3);
         } else {
           if (
             ["antiragging_affidavit", "undertakings"]?.includes(itr?.static_key)
           ) {
-            doc.addPage();
-            doc.fontSize(12);
-            doc.font("Times-Bold");
-            doc.fillColor("#121212").text(`${itr?.key}: -`, 25);
-            doc.moveDown(0.3);
-            doc.fontSize(11);
-            if (itr?.fields?.[0]?.value) {
-              doc.font("Times-Roman").text(`${itr?.fields?.[0]?.value ?? ""}`);
-            }
             if (itr?.static_key === "undertakings") {
+              doc.fontSize(12);
+              doc.font("Times-Bold");
+              doc.fillColor("#121212").text(`${itr?.key}: -`, 25);
+              doc.moveDown(0.3);
+              doc.fontSize(11);
+              if (itr?.fields?.[0]?.value) {
+                doc
+                  .font("Times-Roman")
+                  .text(`${itr?.fields?.[0]?.value ?? ""}`);
+              }
               doc.moveDown(2);
               if (oneProfile?.student_signature) {
                 doc.image(
@@ -322,11 +330,18 @@ const generateStudentAdmissionForm = async (
               doc.font("Times-Bold").text("Signature of Candidate", 440, doc.y);
             }
             if (itr?.static_key === "antiragging_affidavit") {
-              doc
-                .moveTo(25, doc.y + 10)
-                .lineTo(pageWidth - 25, doc.y + 10)
-                .stroke();
-              doc.moveDown(1.3);
+              doc.addPage();
+
+              doc.fontSize(12);
+              doc.font("Times-Bold");
+              doc.fillColor("#121212").text(`${itr?.key}: -`, 25);
+              doc.moveDown(0.3);
+              doc.fontSize(11);
+              if (itr?.fields?.[0]?.value) {
+                doc
+                  .font("Times-Roman")
+                  .text(`${itr?.fields?.[0]?.value ?? ""}`);
+              }
             }
           } else {
             doc.fontSize(12);
@@ -901,23 +916,23 @@ const generateStudentAdmissionForm = async (
       }
     }
   }
-  doc.moveDown(2);
+  // doc.moveDown(2);
 
-  if (oneProfile?.student_signature) {
-    doc.image(
-      await dynamicImages("CUSTOM", oneProfile?.student_signature),
-      pageWidth - 185,
-      doc.y,
-      {
-        width: 160,
-        height: 60,
-        align: "right",
-      }
-    );
-    doc.moveDown(1);
-  }
+  // if (oneProfile?.student_signature) {
+  //   doc.image(
+  //     await dynamicImages("CUSTOM", oneProfile?.student_signature),
+  //     pageWidth - 185,
+  //     doc.y,
+  //     {
+  //       width: 160,
+  //       height: 60,
+  //       align: "right",
+  //     }
+  //   );
+  //   doc.moveDown(1);
+  // }
 
-  doc.font("Times-Bold").text("Signature of Candidate", 440, doc.y);
+  // doc.font("Times-Bold").text("Signature of Candidate", 440, doc.y);
   doc.moveDown();
   // doc.strokeColor("black").lineWidth(1);
   // // doc.moveDown();
@@ -935,11 +950,10 @@ const generateStudentAdmissionForm = async (
 
   // Handle stream close event
   stream.on("finish", async () => {
-    const student = await Student.findById({ _id: studentId })
-      .populate({
+    const student = await Student.findById({ _id: studentId }).populate({
       path: "user",
-      select: "userEmail userPhoneNumber"
-    })
+      select: "userEmail userPhoneNumber",
+    });
     // console.log("created");
     let file = {
       path: `uploads/${name}-form.pdf`,
@@ -954,17 +968,25 @@ const generateStudentAdmissionForm = async (
     });
     await unlinkFile(file.path);
     await student.save();
-    let names = `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ?? ""} ${student?.studentLastName}`
+    let names = `${student?.studentFirstName} ${
+      student?.studentMiddleName
+        ? student?.studentMiddleName
+        : student?.studentFatherName ?? ""
+    } ${student?.studentLastName}`;
     if (student?.studentEmail) {
-      let login = student?.user?.userPhoneNumber ? student?.user?.userPhoneNumber : student?.user?.userEmail ?? ""
-      email_sms_designation_application_apply(student?.studentEmail, names, applicationName, login, results?.Key)
+      let login = student?.user?.userPhoneNumber
+        ? student?.user?.userPhoneNumber
+        : student?.user?.userEmail ?? "";
+      email_sms_designation_application_apply(
+        student?.studentEmail,
+        names,
+        applicationName,
+        login,
+        results?.Key
+      );
     }
     // console.log("PDF created successfully", results.Key);
   });
 };
 module.exports = generateStudentAdmissionForm;
-
-
-
-
 

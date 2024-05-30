@@ -34,9 +34,9 @@ const generateStudentAdmissionForm = async (
   let date = new Date();
   let name = `${date.getTime()}-${studentName}`;
   // let name = `${studentName}`;
-  const stream = fs.createWriteStream(`uploads/${studentName}-form.pdf`);
+  // const stream = fs.createWriteStream(`uploads/${studentName}-form.pdf`);
 
-  // const stream = fs.createWriteStream(`uploads/${name}-form.pdf`);
+  const stream = fs.createWriteStream(`uploads/${name}-form.pdf`);
   const nt_call = await studentFormData(studentId, instituteId);
   const data = nt_call?.dt;
   const result = nt_call?.ft;
@@ -449,11 +449,20 @@ const generateStudentAdmissionForm = async (
                 if (ft?.value) {
                   if (ft?.form_checklist_key === "studentDOB") {
                     doc.moveUp(1);
+                    // doc
+                    //   .fontSize(10)
+                    //   .font("Times-Roman")
+                    //   .fillColor("#2e2e2e")
+                    //   .text(`${moment(ft?.value).format("DD/MM/yyyy")}`, {
+                    //     indent:
+                    //       doc.widthOfString(`${ft?.form_checklist_name} :`) +
+                    //       15,
+                    //   });
                     doc
                       .fontSize(10)
                       .font("Times-Roman")
                       .fillColor("#2e2e2e")
-                      .text(`${moment(ft?.value).format("DD/MM/yyyy")}`, {
+                      .text(`${ft?.value}`, {
                         indent:
                           doc.widthOfString(`${ft?.form_checklist_name} :`) +
                           15,

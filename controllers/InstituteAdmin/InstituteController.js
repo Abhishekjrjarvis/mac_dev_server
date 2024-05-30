@@ -7741,12 +7741,12 @@ exports.render_enable_form_flow = async (req, res) => {
 
 exports.render_form_key_editable = async (req, res) => {
   try {
-    const all_check = await FormChecklist.find({ form_checklist_key: "is_migrate" })
+    const all_check = await FormChecklist.find({ form_checklist_key: "hsc_grand_total" })
     for (let ele of all_check) {
-      ele.form_checklist_name = "Are you from other than Pune University"
-      ele.form_checklist_placeholder = "Are you from other than Pune University"
-      ele.form_checklist_lable = "Are you from other than Pune University"
-      // ele.form_checklist_required = true
+      // ele.form_checklist_name = "Are you from other than Pune University"
+      // ele.form_checklist_placeholder = "Are you from other than Pune University"
+      // ele.form_checklist_lable = "Are you from other than Pune University"
+      ele.form_checklist_required = true
       // ele.form_common_key = "student_ph"
       // ele.form_checklist_typo = "CROPIMAGE"
       // ele.form_checklist_typo_option_pl = ["Teaching", "Non-Teaching"]

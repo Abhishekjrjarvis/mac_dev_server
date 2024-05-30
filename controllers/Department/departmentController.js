@@ -408,7 +408,7 @@ exports.render_dynamic_form_query = async (req, res) => {
                     form_checklist_typo: ele?.form_checklist_typo,
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
-                    form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
+                    form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
                     value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
@@ -564,7 +564,7 @@ exports.render_dynamic_form_query = async (req, res) => {
                     form_checklist_typo: ele?.form_checklist_typo,
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
-                    form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
+                    form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
                     value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
@@ -728,7 +728,7 @@ exports.render_dynamic_form_query = async (req, res) => {
                     form_checklist_typo: ele?.form_checklist_typo,
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
-                    form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
+                    form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
                     value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                       // name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
@@ -893,7 +893,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                     form_checklist_typo: ele?.form_checklist_typo,
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
-                    form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
+                    form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
                     value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
@@ -1048,7 +1048,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                     form_checklist_typo: ele?.form_checklist_typo,
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
-                    form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
+                    form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
                     value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
@@ -1211,7 +1211,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                     form_checklist_typo: ele?.form_checklist_typo,
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
-                    form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
+                    form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
                     value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
@@ -1391,7 +1391,7 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
                     form_checklist_typo: ele?.form_checklist_typo,
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
-                    form_checklist_required: (val?.section_key === "documents" || val?.section_key === "social_reservation_information_section") ? false : true,
+                    form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
                     value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
@@ -1452,7 +1452,7 @@ exports.render_edit_student_form_section_query = async (req, res) => {
 exports.render_edit_student_form_section_checklist_query = async (req, res) => {
   try {
     const { fcid } = req?.params
-    const { checkID, fsid, form_checklist_visibility } = req?.body
+    const { checkID, fsid, form_checklist_visibility, form_checklist_required } = req?.body
     if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var dfs = await DepartmentStudentForm.findById({ _id: fcid })
@@ -1464,7 +1464,8 @@ exports.render_edit_student_form_section_checklist_query = async (req, res) => {
       if (`${val?._id}` === `${fsid}`) {
           for (var ele of val?.form_checklist) {
             if (`${ele?._id}` === `${checkID}`) {
-              ele.form_checklist_visibility = form_checklist_visibility,
+              ele.form_checklist_visibility = form_checklist_visibility ? form_checklist_visibility : ele?.form_checklist_visibility
+              ele.form_checklist_required = form_checklist_required ? form_checklist_required : ele?.form_checklist_required
                 await ele.save()
             }
           }
@@ -1513,7 +1514,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   return null
                 }
               })
-            stu.form_checklist_required = (ele?.section_key === "documents" || ele?.section_key === "social_reservation_information_section") ? false : true
+            stu.form_checklist_required = ele?.section_key === "social_reservation_information_section" ? false : stu?.form_checklist_required
           }
         }
         res.status(200).send({ message: "Institute Form Query", access: true, ins_form: all_section })
@@ -1548,7 +1549,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   return null
                 }
               })
-            stu.form_checklist_required = (ele?.section_key === "documents" || ele?.section_key === "social_reservation_information_section") ? false : true
+            stu.form_checklist_required = ele?.section_key === "social_reservation_information_section" ? false : stu?.form_checklist_required
           }
         }
         res.status(200).send({ message: "Department Form Query", access: true, depart_form: all_section })
@@ -1585,7 +1586,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   return null
                 }
               })
-            stu.form_checklist_required = (ele?.section_key === "documents" || ele?.section_key === "social_reservation_information_section") ? false : true
+            stu.form_checklist_required = ele?.section_key === "social_reservation_information_section" ? false : stu?.form_checklist_required
           }
         }
         var all_subjects = await SubjectGroup.find({ _id: { $in: app?.subject_selected_group} })
@@ -1724,7 +1725,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   return null
                 }
               })
-            stu.form_checklist_required = (ele?.section_key === "documents" || ele?.section_key === "social_reservation_information_section") ? false : true
+            stu.form_checklist_required = ele?.section_key === "social_reservation_information_section" ? false : stu?.form_checklist_required
           }
         }
         all_section.splice(0, 1)
@@ -1760,7 +1761,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   return null
                 }
               })
-            stu.form_checklist_required = (ele?.section_key === "documents" || ele?.section_key === "social_reservation_information_section") ? false : true
+            stu.form_checklist_required = ele?.section_key === "social_reservation_information_section" ? false : stu?.form_checklist_required
           }
         }
         all_section.splice(0, 1)
@@ -1799,7 +1800,7 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   return null
                 }
               })
-            stu.form_checklist_required = (ele?.section_key === "documents" || ele?.section_key === "social_reservation_information_section") ? false : true
+            stu.form_checklist_required = ele?.section_key === "social_reservation_information_section" ? false : stu?.form_checklist_required
           }
         }
         all_section.splice(0, 1)

@@ -6643,8 +6643,8 @@ exports.render_edit_student_form_section_checklist_query = async (req, res) => {
       if (`${val?._id}` === `${fsid}`) {
           for (var ele of val?.form_checklist) {
             if (`${ele?._id}` === `${checkID}`) {
-              ele.form_checklist_visibility = form_checklist_visibility ? form_checklist_visibility : ele?.form_checklist_visibility
-              ele.form_checklist_required = form_checklist_required ? form_checklist_required : ele?.form_checklist_required
+              ele.form_checklist_visibility = form_checklist_visibility
+              ele.form_checklist_required = form_checklist_required
                 await ele.save()
             }
           }
@@ -7478,8 +7478,8 @@ exports.render_edit_staff_form_section_checklist_query = async (req, res) => {
       if (`${val?._id}` === `${fsid}`) {
           for (var ele of val?.form_checklist) {
             if (`${ele?._id}` === `${checkID}`) {
-              ele.form_checklist_visibility = form_checklist_visibility ? form_checklist_visibility : ele?.form_checklist_visibility
-              ele.form_checklist_required = form_checklist_required ? form_checklist_required : ele?.form_checklist_required
+              ele.form_checklist_visibility = form_checklist_visibility
+              ele.form_checklist_required = form_checklist_required
                 await ele.save()
             }
           }

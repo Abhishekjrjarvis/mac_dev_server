@@ -13950,7 +13950,12 @@ exports.render_edit_student_form_section_checklist_query = async (req, res) => {
             if (`${ele?._id}` === `${checkID}`) {
               ele.form_checklist_visibility = form_checklist_visibility
               ele.form_checklist_required = form_checklist_required
-                await ele.save()
+              await ele.save()
+              if (ele?.form_common_key) {
+                let exist = await FormChecklist.findOne({ $and: [{ application_form: iaf?._id }, { form_checklist_key: ele?.form_common_key }] })
+                exist.form_checklist_visibility = ele?.form_checklist_visibility
+                await exist.save()
+              }
             }
           }
         }

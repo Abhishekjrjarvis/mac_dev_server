@@ -13936,7 +13936,7 @@ exports.render_edit_student_form_section_query = async (req, res) => {
 exports.render_edit_student_form_section_checklist_query = async (req, res) => {
   try {
     const { fcid } = req?.params
-    const { checkID, fsid, form_checklist_visibility } = req?.body
+    const { checkID, fsid, form_checklist_visibility, form_checklist_required } = req?.body
     if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var iaf = await InstituteApplicationForm.findById({ _id: fcid })
@@ -13948,7 +13948,8 @@ exports.render_edit_student_form_section_checklist_query = async (req, res) => {
       if (`${val?._id}` === `${fsid}`) {
           for (var ele of val?.form_checklist) {
             if (`${ele?._id}` === `${checkID}`) {
-              ele.form_checklist_visibility = form_checklist_visibility,
+              ele.form_checklist_visibility = form_checklist_visibility ? form_checklist_visibility : ele?.form_checklist_visibility
+              ele.form_checklist_required = form_checklist_required ? form_checklist_required : ele?.form_checklist_required
                 await ele.save()
             }
           }

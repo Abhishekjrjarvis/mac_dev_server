@@ -119,6 +119,7 @@ const SubjectGroupSelect = require("../../models/Admission/Optional/SubjectGroup
 const SubjectMaster = require("../../models/SubjectMaster");
 const Subject = require("../../models/Subject");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
+const { universal_random_password_student_code } = require("../../Generator/RandomPass");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -1189,6 +1190,8 @@ Note: Stay tuned for further updates.`;
         institute.userFollowersList.push(uid);
         institute.followersCount += 1;
       }
+      let nums = universal_random_password_student_code()
+      student.qviple_student_pay_id = nums
       await Promise.all([
         student.save(),
         user.save(),

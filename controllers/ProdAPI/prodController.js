@@ -15,6 +15,7 @@ const bcrypt = require("bcryptjs");
 const { generate_excel_to_json_accession_query } = require("../../Custom/excelToJSON");
 const { simple_object } = require("../../S3Configuration");
 const Book = require("../../models/Library/Book");
+const { universal_random_password_student_code } = require("../../Generator/RandomPass");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // exports.allUsers = async (req, res) => {
@@ -508,6 +509,25 @@ exports.renderAllStudentQuery = async (req, res) => {
     }
     // await classes.save()
     res.status(200).send({ message: "All Student Inserted", classes: classes?.ApproveStudent?.length})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_student_code_insertion_query = async (req, res) => {
+  try {
+    const all_student = await Student.find({})
+    .select("qviple_student_pay_id")
+    var i = 0
+    for (let ele of all_student) {
+      let nums = universal_random_password_student_code()
+      ele.qviple_student_pay_id = nums
+      await ele.save()
+      console.log(i)
+      i+=1
+    }
+    res.status(200).send({ message: "All Student Qviple Pay Code Inserted"})
   }
   catch (e) {
     console.log(e)

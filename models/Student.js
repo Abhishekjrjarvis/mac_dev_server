@@ -1069,6 +1069,9 @@ const studentSchema = new mongoose.Schema({
       ref: "InstituteCertificateLog",
     },
   ],
+  qviple_student_pay_id: {
+    type: String
+  }
 });
 
 const Student = mongoose.model("Student", studentSchema);

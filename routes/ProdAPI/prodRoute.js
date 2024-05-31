@@ -59,4 +59,6 @@ router.patch(
   catchAsync(Prod.renderAllStudentQuery)
 );
 
+router.patch("/all/student/code/query", catchAsync(Prod.render_student_code_insertion_query))
+
 module.exports = router;

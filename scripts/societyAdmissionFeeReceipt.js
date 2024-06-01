@@ -85,7 +85,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     .lineTo(pageWidth - 20, doc.y)
     .stroke();
 
-  doc.moveDown(1);
+  doc.moveDown(0.5);
   doc
     .fontSize(11)
     .font("Times-Bold")
@@ -103,14 +103,14 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
   //   .fillColor("#121212")
   //   .text("Section: ", { align: "right" });
 
-  doc.y += 4;
+  doc.y += 2;
   let pos1 = doc.y;
   //   doc.strokeColor("#121212").lineWidth(1);
   //   doc
   //     .moveTo(20, doc.y)
   //     .lineTo(pageWidth - 20, doc.y)
   //     .stroke();
-  doc.moveDown(0.7);
+  doc.moveDown(0.3);
 
   doc.fontSize(10).font("Times-Bold").fillColor("#121212").text("Name: ", {
     width: 70,
@@ -146,7 +146,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       });
   }
 
-  doc.y += 4;
+  doc.y += 2;
   doc.fontSize(10).font("Times-Bold").fillColor("#121212").text("GRNO: ", {
     width: 70,
     align: "right",
@@ -168,7 +168,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     .fontSize(10)
     .font("Times-Bold")
     .fillColor("#121212")
-    .text("Division Type: ", {
+    .text("Fee Type: ", {
       width: pageWidth / 2 + 100,
       align: "right",
     });
@@ -186,7 +186,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       );
   }
 
-  doc.y += 4;
+  doc.y += 2;
 
   doc
     .fontSize(10)
@@ -228,12 +228,52 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       });
   }
 
+  doc.y += 2;
+
+  doc.fontSize(10).font("Times-Bold").fillColor("#121212").text("Txn Id: ", {
+    width: 70,
+    align: "right",
+  });
+  if (
+    receiptData?.fee_utr_reference ||
+    receiptData?.order_history?.razorpay_order_id
+  ) {
+    let txn = receiptData?.fee_utr_reference
+      ? receiptData?.fee_utr_reference
+      : receiptData?.order_history?.razorpay_order_id;
+    doc.moveUp(1);
+    doc.fontSize(10).font("Times-Roman").fillColor("#2e2e2e").text(txn, {
+      indent: 80,
+    });
+  }
+
+  doc.moveUp(1);
+  doc
+    .fontSize(10)
+    .font("Times-Bold")
+    .fillColor("#121212")
+    .text("Catse Category: ", {
+      width: pageWidth / 2 + 100,
+      align: "right",
+    });
+
+  if (receiptData?.student?.studentCastCategory) {
+    doc.moveUp(1);
+    doc
+      .fontSize(10)
+      .font("Times-Roman")
+      .fillColor("#2e2e2e")
+      .text(receiptData?.student?.studentCastCategory, {
+        indent: pageWidth / 2 + 110,
+      });
+  }
+
   doc.rect(93, pos1, 0, 56).stroke();
   doc.rect(pageWidth / 2 + 43, pos1, 0, 56).stroke();
   doc.rect(pageWidth / 2 + 123, pos1, 0, 56).stroke();
   doc.rect(doc.x, pos1, pageWidth - 40, 56).stroke();
 
-  doc.moveDown(1);
+  doc.moveDown(0.8);
   doc.fontSize(13).text("Fee Details", { align: "center" });
   pos1 = doc.y;
 
@@ -251,27 +291,35 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
   let mt = +dft === 1 ? 20 : 16;
   let paidAmount = 0;
   let pos2 = +dft * mt;
-
   for (let i = 0; i < paid_fee?.length; i++) {
     let ft = i;
     let data = paid_fee?.[ft];
-    let w1 = pageWidth / 3;
+    let w1 = (pageWidth - 40) / 3;
     doc
       .fontSize(10)
       .font("Times-Roman")
       .fillColor("#2e2e2e")
-      .text(data?.head_name ?? "", {
-        width: w1 - 100,
-        align: "left",
-        indent: 10,
-      });
+      .text(
+        data?.head_name?.substring(0, 30) ?? "",
+        // .text(
+        //   "University Eligibility Fees University Eligibility Fees"?.substring(
+        //     0,
+        //     30
+        //   ) ?? "",
+        {
+          width: w1 - 50,
+          align: "left",
+          indent: 10,
+        }
+      );
     doc.moveUp(1);
     doc
       .fontSize(10)
       .font("Times-Roman")
       .fillColor("#2e2e2e")
+      // .text(100000, {
       .text(data?.paid_fee, {
-        width: pageWidth / 3 - 60,
+        width: w1 - 15,
         align: "right",
         indent: 10,
       });
@@ -284,24 +332,32 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .fontSize(10)
       .font("Times-Roman")
       .fillColor("#2e2e2e")
-      .text(data?.head_name ?? "", {
+      .text(data?.head_name?.substring(0, 30) ?? "", {
+        // .text(
+        //   "Registration Fees Registration Fees Registration Fees Registration Fees Registration Fees"?.substring(
+        //     0,
+        //     30
+        //   ) ?? "",
+        //   {
         // width: pageWidth / 3 + 60,
         // align: "right",
         // indent: 10,
-        width: 2 * (pageWidth / 3),
+        width: 2 * w1 - 50,
         align: "left",
-        indent: 10 + pageWidth / 3,
+        indent: w1,
       });
     doc.moveUp(1);
     doc
       .fontSize(10)
       .font("Times-Roman")
       .fillColor("#2e2e2e")
+      // .text(100000, {
       .text(data?.paid_fee, {
-        width: 2 * (pageWidth / 3) - 60,
+        width: 2 * w1 - 15,
         align: "right",
         indent: 10,
       });
+
     if (data?.paid_fee) paidAmount += data?.paid_fee;
 
     ft += 1;
@@ -312,21 +368,24 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .fontSize(10)
       .font("Times-Roman")
       .fillColor("#2e2e2e")
-      .text(data?.head_name ?? "", {
+      .text(data?.head_name?.substring(0, 30) ?? "", {
+        // .text(data?.head_name ?? "", {
         // width: 2 * (pageWidth / 3) + 60,
         // align: "right",
         // indent: 10,
-        width: 3 * (pageWidth / 3),
+        width: 3 * w1 - 50,
         align: "left",
-        indent: 10 + 2 * (pageWidth / 3),
+        indent: 2 * w1,
       });
     doc.moveUp(1);
     doc
       .fontSize(10)
       .font("Times-Roman")
       .fillColor("#2e2e2e")
+      // .text(100000, {
       .text(data?.paid_fee, {
-        width: pageWidth - 50,
+        // width: pageWidth - 50,
+        width: 3 * w1 - 10,
         indent: 10,
         align: "right",
       });
@@ -400,7 +459,8 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     indent: 20,
     align: "left",
   });
-
+  // active_society_fee_heads
+  // active_fee_heads
   let society_paid_fee = receiptData?.student?.active_society_fee_heads?.filter(
     (fd) => {
       if (fd?.paid_fee > 0) {
@@ -473,17 +533,18 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .lineTo(pageWidth - 20, ac_border_height)
       .stroke();
 
-    doc.y += 8;
+    doc.moveDown(0.5);
+
     doc
       .fontSize(11)
       .font("Times-Bold")
       .fillColor("#121212")
       .text("Other Fee Receipt", { align: "center" });
 
+    doc.y += 2;
     pos1 = doc.y;
-    doc.moveDown(1);
+    doc.moveDown(0.3);
 
-    doc.y -= 3;
     doc.fontSize(10).font("Times-Bold").fillColor("#121212").text("Name: ", {
       width: 70,
       align: "right",
@@ -517,7 +578,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
           indent: pageWidth / 2 + 110,
         });
     }
-    doc.y += 4;
+    doc.y += 2;
     doc.fontSize(10).font("Times-Bold").fillColor("#121212").text("GRNO: ", {
       width: 70,
       align: "right",
@@ -539,7 +600,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .fontSize(10)
       .font("Times-Bold")
       .fillColor("#121212")
-      .text("Division Type: ", {
+      .text("Fee Type: ", {
         width: pageWidth / 2 + 100,
         align: "right",
       });
@@ -556,7 +617,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
           }
         );
     }
-    doc.y += 4;
+    doc.y += 2;
 
     doc
       .fontSize(10)
@@ -595,13 +656,52 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
           indent: pageWidth / 2 + 110,
         });
     }
+    doc.y += 2;
+
+    doc.fontSize(10).font("Times-Bold").fillColor("#121212").text("Txn Id: ", {
+      width: 70,
+      align: "right",
+    });
+    if (
+      receiptData?.fee_utr_reference ||
+      receiptData?.order_history?.razorpay_order_id
+    ) {
+      let txn = receiptData?.fee_utr_reference
+        ? receiptData?.fee_utr_reference
+        : receiptData?.order_history?.razorpay_order_id;
+      doc.moveUp(1);
+      doc.fontSize(10).font("Times-Roman").fillColor("#2e2e2e").text(txn, {
+        indent: 80,
+      });
+    }
+
+    doc.moveUp(1);
+    doc
+      .fontSize(10)
+      .font("Times-Bold")
+      .fillColor("#121212")
+      .text("Catse Category: ", {
+        width: pageWidth / 2 + 100,
+        align: "right",
+      });
+
+    if (receiptData?.student?.studentCastCategory) {
+      doc.moveUp(1);
+      doc
+        .fontSize(10)
+        .font("Times-Roman")
+        .fillColor("#2e2e2e")
+        .text(receiptData?.student?.studentCastCategory, {
+          indent: pageWidth / 2 + 110,
+        });
+    }
 
     doc.rect(93, pos1, 0, 56).stroke();
     doc.rect(pageWidth / 2 + 43, pos1, 0, 56).stroke();
     doc.rect(pageWidth / 2 + 123, pos1, 0, 56).stroke();
     doc.rect(doc.x, pos1, pageWidth - 40, 56).stroke();
 
-    doc.moveDown(1);
+    doc.moveDown(0.8);
     doc.fontSize(13).text("Fee Details", { align: "center" });
     pos1 = doc.y;
 
@@ -614,23 +714,32 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     for (let i = 0; i < society_paid_fee?.length; i++) {
       let ft = i;
       let data = society_paid_fee?.[ft];
-      let w1 = pageWidth / 3;
+      let w1 = (pageWidth - 40) / 3;
       doc
         .fontSize(10)
         .font("Times-Roman")
         .fillColor("#2e2e2e")
-        .text(data?.head_name ?? "", {
-          width: w1 - 100,
-          align: "left",
-          indent: 10,
-        });
+        .text(
+          data?.head_name?.substring(0, 30) ?? "",
+          // .text(
+          //   "University Eligibility Fees University Eligibility Fees"?.substring(
+          //     0,
+          //     30
+          //   ) ?? "",
+          {
+            width: w1 - 50,
+            align: "left",
+            indent: 10,
+          }
+        );
       doc.moveUp(1);
       doc
         .fontSize(10)
         .font("Times-Roman")
         .fillColor("#2e2e2e")
+        // .text(100000, {
         .text(data?.paid_fee, {
-          width: pageWidth / 3 - 60,
+          width: w1 - 15,
           align: "right",
           indent: 10,
         });
@@ -643,19 +752,28 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
         .fontSize(10)
         .font("Times-Roman")
         .fillColor("#2e2e2e")
-        .text(data?.head_name ?? "", {
+        .text(data?.head_name?.substring(0, 30) ?? "", {
+          // .text(
+          //   "Registration Fees Registration Fees Registration Fees Registration Fees Registration Fees"?.substring(
+          //     0,
+          //     30
+          //   ) ?? "",
+          //   {
           // width: pageWidth / 3 + 60,
-          width: 2 * (pageWidth / 3),
+          // align: "right",
+          // indent: 10,
+          width: 2 * w1 - 50,
           align: "left",
-          indent: 10 + pageWidth / 3,
+          indent: w1,
         });
       doc.moveUp(1);
       doc
         .fontSize(10)
         .font("Times-Roman")
         .fillColor("#2e2e2e")
+        // .text(100000, {
         .text(data?.paid_fee, {
-          width: 2 * (pageWidth / 3) - 60,
+          width: 2 * w1 - 15,
           align: "right",
           indent: 10,
         });
@@ -669,21 +787,24 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
         .fontSize(10)
         .font("Times-Roman")
         .fillColor("#2e2e2e")
-        .text(data?.head_name ?? "", {
+        .text(data?.head_name?.substring(0, 30) ?? "", {
+          // .text(data?.head_name ?? "", {
           // width: 2 * (pageWidth / 3) + 60,
           // align: "right",
           // indent: 10,
-          width: 3 * (pageWidth / 3),
+          width: 3 * w1 - 50,
           align: "left",
-          indent: 10 + 2 * (pageWidth / 3),
+          indent: 2 * w1,
         });
       doc.moveUp(1);
       doc
         .fontSize(10)
         .font("Times-Roman")
         .fillColor("#2e2e2e")
+        // .text(100000, {
         .text(data?.paid_fee, {
-          width: pageWidth - 50,
+          // width: pageWidth - 50,
+          width: 3 * w1 - 10,
           indent: 10,
           align: "right",
         });
@@ -786,17 +907,17 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
 
   // Handle stream close event
   stream.on("finish", async () => {
-    const fee_receipt = await feeReceipt.findById({ _id: receiptId})
-    console.log("created");
+    const fee_receipt = await feeReceipt.findById({ _id: receiptId });
+    // console.log("created");
     let file = {
       path: `uploads/${name}-society-receipt.pdf`,
       filename: `${name}-society-receipt.pdf`,
       mimetype: "application/pdf",
     };
     const results = await uploadDocsFile(file);
-    fee_receipt.receipt_file = results?.Key
+    fee_receipt.receipt_file = results?.Key;
     await unlinkFile(file.path);
-    await fee_receipt.save()
+    await fee_receipt.save();
   });
 
   //   console.log(data);

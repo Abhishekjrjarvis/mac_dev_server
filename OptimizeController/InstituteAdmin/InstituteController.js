@@ -57,6 +57,7 @@ const Attainment = require("../../models/Marks/Attainment");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
 const { send_global_announcement_notification_query } = require("../../Feed/socialFeed");
+const { universal_random_password_student_code } = require("../../Generator/RandomPass");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -1175,6 +1176,8 @@ exports.fillStudentForm = async (req, res) => {
     aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.`;
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
+    let nums = universal_random_password_student_code()
+      student.qviple_student_pay_id = nums
     //
     invokeMemberTabNotification(
       "Staff Activity",

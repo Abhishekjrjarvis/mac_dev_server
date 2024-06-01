@@ -765,6 +765,9 @@ const staffSchema = new mongoose.Schema({
       abstract: { type: String }
     }
   ],
+  qviple_staff_pay_id: {
+    type: String
+  }
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

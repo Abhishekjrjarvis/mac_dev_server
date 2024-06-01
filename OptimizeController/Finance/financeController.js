@@ -3973,7 +3973,9 @@ exports.renderOneFeeReceipt = async (req, res) => {
     if (excess_obj?.paid_fee > 0) {
       receipt.fee_heads.push(excess_obj)
     }
-    receipt.fee_heads.push(gta_obj)
+    if (gta_obj?.paid_fee > 0) {
+      receipt.fee_heads.push(gta_obj)
+    }
     if (receipt?.finance?.show_receipt === "Normal") {
       receipt.student.active_fee_heads = [...receipt?.fee_heads];
     }

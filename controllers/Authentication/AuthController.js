@@ -80,6 +80,7 @@ const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 const { generate_qr } = require("../../Utilities/qrGeneration/qr_generation");
+const { universal_random_password_student_code } = require("../../Generator/RandomPass");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -1541,6 +1542,8 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       });
       const student = new Student({ ...req.body });
       const codess = universal_random_password()
+      let nums = universal_random_password_student_code()
+      student.qviple_student_pay_id = nums
       student.member_module_unique = `${codess}`
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
@@ -1958,6 +1961,8 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       }
       const student = new Student({ ...req.body });
       const codess = universal_random_password()
+      let nums = universal_random_password_student_code()
+      student.qviple_student_pay_id = nums
       student.member_module_unique = `${codess}`
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
@@ -2195,6 +2200,8 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
       }
       const student = new Student({ ...req.body });
       const codess = universal_random_password()
+      let nums = universal_random_password_student_code()
+      student.qviple_student_pay_id = nums
       student.member_module_unique = `${codess}`
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
@@ -2441,6 +2448,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     });
     const student = new Student({ ...req.body });
     const codess = universal_random_password()
+    let nums = universal_random_password_student_code()
+      student.qviple_student_pay_id = nums
     student.member_module_unique = `${codess}`
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
@@ -3037,6 +3046,8 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     }
     const student = new Student({ ...req.body });
     const codess = universal_random_password()
+    let nums = universal_random_password_student_code()
+      student.qviple_student_pay_id = nums
     student.member_module_unique = `${codess}`
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
@@ -3322,6 +3333,8 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         });
         const student = new Student({ ...query });
         const codess = universal_random_password()
+        let nums = universal_random_password_student_code()
+      student.qviple_student_pay_id = nums
         student.member_module_unique = `${codess}`
         student.valid_full_name = `${student?.studentFirstName} ${
           student?.studentMiddleName ?? ""
@@ -4376,6 +4389,8 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
           student_join_mode: "ADMISSION_PROCESS",
         });
         const codess = universal_random_password()
+        let nums = universal_random_password_student_code()
+        student.qviple_student_pay_id = nums
         student.member_module_unique = `${codess}`
         student.valid_full_name = `${student?.studentFirstName} ${
           student?.studentMiddleName ?? ""

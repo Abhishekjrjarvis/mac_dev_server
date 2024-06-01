@@ -248,4 +248,6 @@ router.patch(
   catchAsync(Filter.renderAllSlipQuery)
 );
 
+router.patch("/:fid/daybook/heads/wise", catchAsync(Filter.render_daybook_heads_wise))
+
 module.exports = router;

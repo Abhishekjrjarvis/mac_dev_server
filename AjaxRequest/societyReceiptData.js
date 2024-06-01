@@ -27,14 +27,14 @@ const obj = {
 //   }
 // };
 
-
 const renderOneFeeReceiptUploadQuery = async (frid) => {
   try {
-    const receipt = await feeReceipt.findById({ _id: frid })
+    const receipt = await feeReceipt
+      .findById({ _id: frid })
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentCastCategory",
         populate: {
           path: "remainingFeeList",
           select: "appId",
@@ -43,7 +43,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads hostel_fee_structure active_society_fee_heads",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads hostel_fee_structure active_society_fee_heads studentCastCategory",
         populate: {
           path: "fee_structure hostel_fee_structure",
           select:
@@ -107,7 +107,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number active_society_fee_heads",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number active_society_fee_heads studentCastCategory",
         populate: {
           path: "student_bed_number",
           select: "bed_number hostelRoom",
@@ -161,7 +161,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentCastCategory",
         populate: {
           path: "remainingFeeList",
           populate: {
@@ -218,40 +218,50 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
     // receipt.student.active_fee_heads = [...new_format];
     var excess_obj = {
       head_name: "Excess Fees",
-            paid_fee: all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee > 0 ? all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee : 0,
-            remain_fee: 0,
-            applicable_fee: 0,
-            fee_structure: all_remain?.fee_structure?._id,
-            original_paid: 0,
-            appId: all_remain?.appId,
-    }
+      paid_fee:
+        all_remain?.applicable_card?.paid_fee -
+          all_remain?.applicable_card?.applicable_fee >
+        0
+          ? all_remain?.applicable_card?.paid_fee -
+            all_remain?.applicable_card?.applicable_fee
+          : 0,
+      remain_fee: 0,
+      applicable_fee: 0,
+      fee_structure: all_remain?.fee_structure?._id,
+      original_paid: 0,
+      appId: all_remain?.appId,
+    };
     var gta_obj = {
       head_name: "Government To Applicable",
-            paid_fee: all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee > 0 ? all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee : 0,
-            remain_fee: 0,
-            applicable_fee: 0,
-            fee_structure: all_remain?.fee_structure?._id,
-            original_paid: 0,
-            appId: all_remain?.appId,
-    }
+      paid_fee:
+        all_remain?.applicable_card?.paid_fee -
+          all_remain?.applicable_card?.applicable_fee >
+        0
+          ? all_remain?.applicable_card?.paid_fee -
+            all_remain?.applicable_card?.applicable_fee
+          : 0,
+      remain_fee: 0,
+      applicable_fee: 0,
+      fee_structure: all_remain?.fee_structure?._id,
+      original_paid: 0,
+      appId: all_remain?.appId,
+    };
     if (excess_obj?.paid_fee > 0) {
-      receipt.fee_heads.push(excess_obj)
+      receipt.fee_heads.push(excess_obj);
     }
-    receipt.fee_heads.push(gta_obj)
+    receipt.fee_heads.push(gta_obj);
     if (receipt?.finance?.show_receipt === "Normal") {
       receipt.student.active_fee_heads = [...receipt?.fee_heads];
-    }
-    else if (receipt?.finance?.show_receipt === "Society") {
+    } else if (receipt?.finance?.show_receipt === "Society") {
       receipt.fee_heads = receipt?.fee_heads?.filter((qwe) => {
         if (!qwe?.is_society) {
-          return qwe
+          return qwe;
+        } else {
+          receipt.student.active_society_fee_heads.push(qwe);
+          return null;
         }
-        else {
-          receipt.student.active_society_fee_heads.push(qwe)
-          return null
-        }
-      })
-      receipt.student.active_fee_heads = [...receipt?.fee_heads]; 
+      });
+      receipt.student.active_fee_heads = [...receipt?.fee_heads];
     }
 
     const obj = {
@@ -259,9 +269,9 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       access: true,
       receipt: receipt,
       one_account: one_account,
-      all_remain: all_remain
-    }
-    return obj
+      all_remain: all_remain,
+    };
+    return obj;
   } catch (e) {
     console.log(e);
   }
@@ -297,3 +307,4 @@ const societyReceiptData = async (receiptId, instituteId) => {
   return { ft, dt };
 };
 module.exports = societyReceiptData;
+

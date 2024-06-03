@@ -5,10 +5,10 @@ const StudentAdmissionFormHeader = require("../components/StudentAdmissionFormHe
 const fs = require("fs");
 const util = require("util");
 const dynamicImages = require("../helper/dynamicImages");
-const cdnDynamicImages = require("../helper/cdnDynamicImages");
 const Student = require("../models/Student");
 const unlinkFile = util.promisify(fs.unlink);
-const moment = require("moment");
+const path = require("path");
+
 const {
   email_sms_designation_application_apply,
 } = require("../WhatsAppSMS/payload");
@@ -39,15 +39,15 @@ const generateStudentAdmissionForm = async (
   const stream = fs.createWriteStream(`uploads/${name}-form.pdf`);
   const nt_call = await studentFormData(studentId, instituteId);
   const data = nt_call?.dt;
-  const result = nt_call?.ft;
+  const result = nt_call?.ft?.result;
+  const add_last_page_images = nt_call?.ft?.img_content;
   const oneProfile = nt_call?.oneProfile;
-  // console.log(result?.[0]);
   doc.on("pageAdded", () => {
     drawBorder(doc);
   });
 
   doc.pipe(stream);
-  // console.log("oneProfile", oneProfile);
+  // console.log("oneProfile", result?.[0]);
   const pageWidth = doc.page.width;
   await StudentAdmissionFormHeader(doc, doc.x, doc.y, pageWidth, data);
   drawBorder(doc);
@@ -76,9 +76,14 @@ const generateStudentAdmissionForm = async (
       .fontSize(12)
       .font("Times-Bold")
       .fillColor("#121212")
-      .text(`Form No.: ${oneProfile?.form_no}`, {
-        align: "center",
-      });
+      .text(
+        `Form No.: ${oneProfile?.form_no}, Pay Id: ${
+          oneProfile?.qviple_student_pay_id ?? ""
+        }`,
+        {
+          align: "center",
+        }
+      );
   }
 
   // const dmsfbs = ;
@@ -155,42 +160,26 @@ const generateStudentAdmissionForm = async (
             .font("Times-Bold")
             .fillColor("#121212")
             .text("Off", pageWidth / 2 + 28, yt);
-
           for (let i = 0; i < itr?.fields?.length; i++) {
             let ft = itr?.fields[i];
             if (i === 0) {
               let sc_y = doc.y;
               if (ft?.value) {
-                doc.image(
-                  await cdnDynamicImages("CUSTOM", "check.png"),
-                  25,
-                  sc_y,
-                  {
-                    width: 20,
-                    height: 20,
-                  }
-                );
-              } else {
-                doc.image(
-                  await cdnDynamicImages("CUSTOM", "uncheck.png"),
-                  25,
-                  sc_y,
-                  {
-                    width: 20,
-                    height: 20,
-                  }
-                );
-              }
-              // doc.y -= 20;
-              doc.image(
-                await cdnDynamicImages("CUSTOM", "uncheck.png"),
-                55,
-                sc_y,
-                {
+                doc.image(path.join(__dirname, "./check.png"), 25, sc_y, {
                   width: 20,
                   height: 20,
-                }
-              );
+                });
+              } else {
+                doc.image(path.join(__dirname, "./uncheck.png"), 25, sc_y, {
+                  width: 20,
+                  height: 20,
+                });
+              }
+              // doc.y -= 20;
+              doc.image(path.join(__dirname, "./uncheck.png"), 55, sc_y, {
+                width: 20,
+                height: 20,
+              });
 
               // doc.y -= 12;
               doc
@@ -205,7 +194,7 @@ const generateStudentAdmissionForm = async (
               // doc.y -= 8;
               if (ft?.value) {
                 doc.image(
-                  await cdnDynamicImages("CUSTOM", "check.png"),
+                  path.join(__dirname, "./check.png"),
                   pageWidth / 2,
                   sc_y,
                   {
@@ -215,7 +204,7 @@ const generateStudentAdmissionForm = async (
                 );
               } else {
                 doc.image(
-                  await cdnDynamicImages("CUSTOM", "uncheck.png"),
+                  path.join(__dirname, "./uncheck.png"),
                   pageWidth / 2,
                   sc_y,
                   {
@@ -226,7 +215,7 @@ const generateStudentAdmissionForm = async (
               }
               // doc.y -= 20;
               doc.image(
-                await cdnDynamicImages("CUSTOM", "uncheck.png"),
+                path.join(__dirname, "./uncheck.png"),
                 pageWidth / 2 + 30,
                 sc_y,
                 {
@@ -255,36 +244,21 @@ const generateStudentAdmissionForm = async (
               let sc_y = doc.y;
 
               if (ft?.value) {
-                doc.image(
-                  await cdnDynamicImages("CUSTOM", "check.png"),
-                  25,
-                  sc_y,
-                  {
-                    width: 20,
-                    height: 20,
-                  }
-                );
-              } else {
-                doc.image(
-                  await cdnDynamicImages("CUSTOM", "uncheck.png"),
-                  25,
-                  sc_y,
-                  {
-                    width: 20,
-                    height: 20,
-                  }
-                );
-              }
-              // doc.y -= 20;
-              doc.image(
-                await cdnDynamicImages("CUSTOM", "uncheck.png"),
-                55,
-                sc_y,
-                {
+                doc.image(path.join(__dirname, "./check.png"), 25, sc_y, {
                   width: 20,
                   height: 20,
-                }
-              );
+                });
+              } else {
+                doc.image(path.join(__dirname, "./uncheck.png"), 25, sc_y, {
+                  width: 20,
+                  height: 20,
+                });
+              }
+              // doc.y -= 20;
+              doc.image(path.join(__dirname, "./uncheck.png"), 55, sc_y, {
+                width: 20,
+                height: 20,
+              });
               // doc.y -= 12;
               doc
                 .fontSize(10)
@@ -300,7 +274,11 @@ const generateStudentAdmissionForm = async (
           doc.moveDown(1.3);
         } else {
           if (
-            ["antiragging_affidavit", "undertakings"]?.includes(itr?.static_key)
+            [
+              "antiragging_affidavit",
+              "undertakings",
+              "antiragging_affidavit_parents",
+            ]?.includes(itr?.static_key)
           ) {
             if (itr?.static_key === "undertakings") {
               doc.fontSize(12);
@@ -328,6 +306,14 @@ const generateStudentAdmissionForm = async (
                 doc.moveDown(1);
               }
               doc.font("Times-Bold").text("Signature of Candidate", 440, doc.y);
+
+              doc.moveDown(6);
+              doc.font("Times-Bold").text("Clerk", 25);
+              doc.moveUp(1);
+              doc.font("Times-Bold").text("Principal", {
+                width: pageWidth - 50,
+                align: "right",
+              });
             }
             if (itr?.static_key === "antiragging_affidavit") {
               doc.addPage();
@@ -342,6 +328,53 @@ const generateStudentAdmissionForm = async (
                   .font("Times-Roman")
                   .text(`${itr?.fields?.[0]?.value ?? ""}`);
               }
+              doc.moveDown(2);
+              if (oneProfile?.student_signature) {
+                doc.image(
+                  await dynamicImages("CUSTOM", oneProfile?.student_signature),
+                  pageWidth - 185,
+                  doc.y,
+                  {
+                    width: 160,
+                    height: 60,
+                    align: "right",
+                  }
+                );
+                doc.moveDown(1);
+              }
+              doc.font("Times-Bold").text("Signature of Candidate", 440, doc.y);
+            }
+            if (itr?.static_key === "antiragging_affidavit_parents") {
+              doc.addPage();
+
+              doc.fontSize(12);
+              doc.font("Times-Bold");
+              doc.fillColor("#121212").text(`${itr?.key}: -`, 25);
+              doc.moveDown(0.3);
+              doc.fontSize(11);
+              if (itr?.fields?.[0]?.value) {
+                doc
+                  .font("Times-Roman")
+                  .text(`${itr?.fields?.[0]?.value ?? ""}`);
+              }
+              doc.moveDown(2);
+              if (oneProfile?.student_parents_signature) {
+                doc.image(
+                  await dynamicImages(
+                    "CUSTOM",
+                    oneProfile?.student_parents_signature
+                  ),
+                  pageWidth - 185,
+                  doc.y,
+                  {
+                    width: 160,
+                    height: 60,
+                    align: "right",
+                  }
+                );
+                doc.moveDown(1);
+              }
+              doc.font("Times-Bold").text("Signature of Parent", 440, doc.y);
             }
           } else {
             doc.fontSize(12);
@@ -467,6 +500,17 @@ const generateStudentAdmissionForm = async (
                           doc.widthOfString(`${ft?.form_checklist_name} :`) +
                           15,
                       });
+                  } else if (ft?.form_checklist_key === "studentFirstName") {
+                    doc.moveUp(1);
+                    doc
+                      .fontSize(10)
+                      .font("Times-Bold")
+                      .fillColor("#121212")
+                      .text(`${ft?.value?.toUpperCase()}`, {
+                        indent:
+                          doc.widthOfString(`${ft?.form_checklist_name} :`) +
+                          15,
+                      });
                   } else {
                     doc.moveUp(1);
                     doc
@@ -498,6 +542,172 @@ const generateStudentAdmissionForm = async (
                     align: "right",
                   }
                 );
+              }
+            } else if (itr?.static_key === "other_details") {
+              for (let i = 0; i < itr?.fields?.length; i++) {
+                let ft = itr?.fields[i];
+                if (i === 0) {
+                  doc
+                    .fontSize(10)
+                    .font("Times-Roman")
+                    .fillColor("#121212")
+                    .text(`${ft?.form_checklist_name} :`, 25);
+                  if (ft?.form_checklist_typo === "FILE") {
+                    doc.moveUp(1);
+                    doc
+                      .fontSize(10)
+                      .font("Times-Roman")
+                      .fillColor("#2e2e2e")
+                      .text(`${ft?.value ? "Yes" : "No"}`, {
+                        indent:
+                          doc.widthOfString(`${ft?.form_checklist_name} :`) +
+                          15,
+                      });
+                  } else if (ft?.form_checklist_key === "studentCastCategory") {
+                    if (ft?.value) {
+                      doc.moveUp(1);
+
+                      doc
+                        .fontSize(10)
+                        .font("Times-Bold")
+                        .fillColor("#121212")
+                        .text(`${ft?.value?.toUpperCase()}`, {
+                          indent:
+                            doc.widthOfString(`${ft?.form_checklist_name} :`) +
+                            15,
+                        });
+                    }
+                  } else {
+                    if (ft?.value) {
+                      doc.moveUp(1);
+
+                      doc
+                        .fontSize(10)
+                        .font("Times-Roman")
+                        .fillColor("#2e2e2e")
+                        .text(`${ft?.value ?? ""}`, {
+                          indent:
+                            doc.widthOfString(`${ft?.form_checklist_name} :`) +
+                            15,
+                        });
+                    }
+                  }
+                } else if (i % 2 !== 0) {
+                  doc.moveUp(1);
+                  doc
+                    .fontSize(10)
+                    .font("Times-Roman")
+                    .fillColor("#121212")
+                    .text(`${ft?.form_checklist_name} :`, {
+                      // width: pageWidth / 2 + 80,
+                      // align: "right",
+                      width: pageWidth,
+                      indent: pageWidth / 2,
+                      align: "left",
+                    });
+                  if (ft?.form_checklist_typo === "FILE") {
+                    doc.moveDown(-1);
+                    doc
+                      .fontSize(10)
+                      .font("Times-Roman")
+                      .fillColor("#2e2e2e")
+                      .text(
+                        `${ft?.value ? "Yes" : "No"}`,
+                        pageWidth / 2 +
+                          38 +
+                          doc.widthOfString(`${ft?.form_checklist_name} :`)
+                      );
+                  } else if (ft?.form_checklist_key === "studentCastCategory") {
+                    if (ft?.value) {
+                      doc.moveUp(1);
+
+                      doc
+                        .fontSize(10)
+                        .font("Times-Bold")
+                        .fillColor("#121212")
+                        .text(
+                          `${ft?.value?.toUpperCase()}`,
+                          pageWidth / 2 +
+                            38 +
+                            doc.widthOfString(`${ft?.form_checklist_name} :`)
+                        );
+                    }
+                  } else {
+                    if (ft?.value) {
+                      doc.moveDown(-1);
+                      doc
+                        .fontSize(10)
+                        .font("Times-Roman")
+                        .fillColor("#2e2e2e")
+                        .text(
+                          `${ft?.value ?? ""}`,
+                          // {
+                          //   width: pageWidth - 50,
+                          //   indent:
+                          //     pageWidth / 2 +
+                          //     15 +
+                          //     doc.widthOfString(`${ft?.form_checklist_name} :`),
+                          //   align: "left",
+                          // }
+                          pageWidth / 2 +
+                            38 +
+                            doc.widthOfString(`${ft?.form_checklist_name} :`)
+                          // {
+                          //   width: pageWidth / 2 + 80,
+                          //   indent: pageWidth / 2 + 82,
+                          //   height: 50,
+                          //   lineBreak: false,
+                          //   // align: "right",
+                          // }
+                        );
+                    }
+                  }
+                } else {
+                  doc
+                    .fontSize(10)
+                    .font("Times-Roman")
+                    .fillColor("#121212")
+                    .text(`${ft?.form_checklist_name} :`, 25);
+                  if (ft?.form_checklist_typo === "FILE") {
+                    doc.moveUp(1);
+                    doc
+                      .fontSize(10)
+                      .font("Times-Roman")
+                      .fillColor("#2e2e2e")
+                      .text(`${ft?.value ? "Yes" : "No"}`, {
+                        indent:
+                          doc.widthOfString(`${ft?.form_checklist_name} :`) +
+                          15,
+                      });
+                  } else if (ft?.form_checklist_key === "studentCastCategory") {
+                    if (ft?.value) {
+                      doc.moveUp(1);
+
+                      doc
+                        .fontSize(10)
+                        .font("Times-Bold")
+                        .fillColor("#121212")
+                        .text(`${ft?.value?.toUpperCase()}`, {
+                          indent:
+                            doc.widthOfString(`${ft?.form_checklist_name} :`) +
+                            15,
+                        });
+                    }
+                  } else {
+                    if (ft?.value) {
+                      doc.moveUp(1);
+                      doc
+                        .fontSize(10)
+                        .font("Times-Roman")
+                        .fillColor("#2e2e2e")
+                        .text(`${ft?.value ?? ""}`, {
+                          indent:
+                            doc.widthOfString(`${ft?.form_checklist_name} :`) +
+                            15,
+                        });
+                    }
+                  }
+                }
               }
             } else if (itr?.static_key === "contactDetails") {
               let arr = [];
@@ -925,6 +1135,18 @@ const generateStudentAdmissionForm = async (
       }
     }
   }
+
+  if (add_last_page_images?.length > 0) {
+    for (let dft of add_last_page_images) {
+      doc.addPage();
+      if (dft?.attach) {
+        doc.image(await dynamicImages("CUSTOM", dft?.attach), {
+          width: 545.28,
+          height: 790.89,
+        });
+      }
+    }
+  }
   // doc.moveDown(2);
 
   // if (oneProfile?.student_signature) {
@@ -950,7 +1172,6 @@ const generateStudentAdmissionForm = async (
   //   .lineTo(pageWidth - 25, doc.y)
   //   .stroke();
   // doc.moveDown();
-
   doc.end();
   stream.on("error", (err) => {
     console.error("Error creating PDF:", err);
@@ -982,6 +1203,7 @@ const generateStudentAdmissionForm = async (
         ? student?.studentMiddleName
         : student?.studentFatherName ?? ""
     } ${student?.studentLastName}`;
+
     if (student?.studentEmail) {
       let login = student?.user?.userPhoneNumber
         ? student?.user?.userPhoneNumber

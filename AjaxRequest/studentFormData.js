@@ -31,7 +31,46 @@ const getStudentProfile = async (studentId) => {
       }/v1/department/${studentId}/dynamic/form/query/subject/list`,
       { httpsAgent }
     );
-    return response?.data?.result;
+    // let mod_res = [];
+    // let id_obj = {};
+    // for (let i = 0; i < response?.data?.result?.length; i++) {
+    //   let obj = response?.data?.result[i];
+    //   if (
+    //     [
+    //       "selected_subjects",
+    //       "antiragging_affidavit",
+    //       "undertakings",
+    //       "social_reservation_information_section",
+    //       "documents",
+    //     ]?.includes(obj?.static_key)
+    //   ) {
+    //     id_obj[obj?.static_key] = i;
+    //   } else {
+    //     mod_res.push(obj);
+    //   }
+    // }
+    // if (id_obj["selected_subjects"]) {
+    //   mod_res.push(response?.data?.result[id_obj["selected_subjects"]]);
+    // }
+    // if (id_obj["documents"]) {
+    //   mod_res.push(response?.data?.result[id_obj["documents"]]);
+    // }
+
+    // if (id_obj["social_reservation_information_section"]) {
+    //   mod_res.push(
+    //     response?.data?.result[id_obj["social_reservation_information_section"]]
+    //   );
+    // }
+    // if (id_obj["undertakings"]) {
+    //   mod_res.push(response?.data?.result[id_obj["undertakings"]]);
+    // }
+    // if (id_obj["antiragging_affidavit"]) {
+    //   mod_res.push(response?.data?.result[id_obj["antiragging_affidavit"]]);
+    // }
+    return {
+      result: response?.data?.result,
+      img_content: response?.data?.image_content,
+    };
   } catch (e) {
     console.log(e);
     return {};

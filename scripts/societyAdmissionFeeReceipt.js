@@ -26,8 +26,11 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
   let stu_name = `${receiptData?.student?.studentFirstName ?? ""} ${
     receiptData?.student?.studentMiddleName ?? ""
   } ${receiptData?.student?.studentLastName ?? ""}`;
-  let name = `${date.getTime()}-${stu_name}`;
+  // const stream = fs.createWriteStream(
+  //   `./uploads/${stu_name}-society-receipt.pdf`
+  // );
 
+  let name = `${date.getTime()}-${stu_name}`;
   const stream = fs.createWriteStream(`./uploads/${name}-society-receipt.pdf`);
 
   doc.pipe(stream);
@@ -86,11 +89,21 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     .stroke();
 
   doc.moveDown(0.5);
+
+  // doc
+  //   .fontSize(11)
+  //   .font("Times-Bold")
+  //   .fillColor("#121212")
+  //   .text("Regular Admission Fee Receipt (Confirmed Admission)", {
+  //     width: pageWidth - 100,
+  //     align: "center",
+  //   });
+
   doc
     .fontSize(11)
     .font("Times-Bold")
     .fillColor("#121212")
-    .text("Regular Admission Fee Receipt (Confirmed Admission)", {
+    .text(`${receiptData?.application?.applicationName ?? ""}`, {
       width: pageWidth - 100,
       align: "center",
     });
@@ -459,6 +472,12 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     indent: 20,
     align: "left",
   });
+  doc.moveUp(1);
+  doc.fontSize(14).text("Principal", {
+    width: pageWidth - 50,
+    align: "right",
+  });
+
   // active_society_fee_heads
   // active_fee_heads
   let society_paid_fee = receiptData?.student?.active_society_fee_heads?.filter(
@@ -483,7 +502,9 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     dy = doc.y;
 
     doc.fontSize(10).text(instituteData?.insAffiliated, { align: "center" });
-    doc.moveDown(2);
+    doc.moveDown(0.3);
+    doc.fontSize(16).text(instituteData?.insName, { align: "center" });
+    doc.moveDown(0.3);
     doc.fontSize(10).text(instituteData?.insAddress, { align: "center" });
     if (instituteData?.insProfilePhoto) {
       doc.image(
@@ -895,6 +916,11 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     doc.fontSize(14).text("A/C Clerk", {
       indent: 20,
       align: "left",
+    });
+    doc.moveUp(1);
+    doc.fontSize(14).text("Principal", {
+      width: pageWidth - 50,
+      align: "right",
     });
   }
 

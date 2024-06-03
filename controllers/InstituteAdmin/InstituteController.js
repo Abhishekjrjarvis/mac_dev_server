@@ -6738,6 +6738,17 @@ exports.render_one_student_form_section_query = async (req, res) => {
         }
       }
     }
+    ifs.form_section.push(
+      {
+        section_name: "Form Images / Attachment",
+        section_visibilty: true,
+        section_key: "form_attach",
+        section_view: "View Sample",
+        section_pdf: "",
+        section_stats: "form_attach",
+        section_value: "",
+        form_checklist: [...ifs?.image_content]
+    })
     res.status(200).send({ message: "Explore One Institute Student Form Section Query", access: true, section: ifs?.form_section})
   }
   catch (e) {

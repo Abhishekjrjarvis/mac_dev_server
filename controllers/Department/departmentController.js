@@ -133,13 +133,13 @@ exports.render_one_student_form_section_query = async (req, res) => {
     if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var dfs = await DepartmentStudentForm.findById({ _id: fcid })
-      .select("form_section")
+      .select("form_section image_content")
       .populate({
       path: "form_section.form_checklist"
       })
       dfs?.form_section?.splice(0, 1)
       for (let nums of dfs?.form_section) {
-        if (`${nums?.section_key}` === "undertakings" || `${nums?.section_key}` === "antiragging_affidavit") {
+        if (`${nums?.section_key}` === "undertakings" || `${nums?.section_key}` === "antiragging_affidavit" || `${nums?.section_key}` === "antiragging_affidavit_parents") {
           nums.form_checklist = []
         }
         if (`${nums?.section_key}` === "contactDetails") {
@@ -399,6 +399,12 @@ exports.render_dynamic_form_query = async (req, res) => {
                     var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
                     var name2 = name4?.replace("@DATE", app_date)
                   }
+                  else if (ele?.form_checklist_key === "student_anti_ragging_parents") {
+                    var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                    var name3 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
+                    var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
+                    var name2 = name4?.replace("@DATE", app_date)
+                  }
                   head_array.push({
                     form_checklist_name: ele?.form_checklist_name,
                     form_checklist_key: ele?.form_checklist_key,
@@ -409,7 +415,7 @@ exports.render_dynamic_form_query = async (req, res) => {
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
                     form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
-                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging" || ele?.form_checklist_key === "student_anti_ragging_parents") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
                   name2 = ""
@@ -555,6 +561,12 @@ exports.render_dynamic_form_query = async (req, res) => {
                     var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
                     var name2 = name4?.replace("@DATE", app_date)
                   }
+                  else if (ele?.form_checklist_key === "student_anti_ragging_parents") {
+                    var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                    var name3 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
+                    var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
+                    var name2 = name4?.replace("@DATE", app_date)
+                  }
                   head_array.push({
                     form_checklist_name: ele?.form_checklist_name,
                     form_checklist_key: ele?.form_checklist_key,
@@ -565,7 +577,7 @@ exports.render_dynamic_form_query = async (req, res) => {
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
                     form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
-                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging" || ele?.form_checklist_key === "student_anti_ragging_parents") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
                   name2 = ""
@@ -719,6 +731,13 @@ exports.render_dynamic_form_query = async (req, res) => {
                     var name5 = name4?.replace("@APPLICATION_NAME", `${app_name?.applicationName}`)
                     var name2 = name5?.replace("@DATE", app_date)
                   }
+                  else if (ele?.form_checklist_key === "student_anti_ragging_parents") {
+                    var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                    var name3 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
+                    var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
+                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name?.applicationName}`)
+                    var name2 = name5?.replace("@DATE", app_date)
+                  }
                   head_array.push({
                     form_checklist_name: ele?.form_checklist_name,
                     form_checklist_key: ele?.form_checklist_key,
@@ -729,7 +748,7 @@ exports.render_dynamic_form_query = async (req, res) => {
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
                     form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
-                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging" || ele?.form_checklist_key === "student_anti_ragging_parents") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                       // name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
                   name2 = ""
@@ -884,6 +903,12 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                     var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
                     var name2 = name4?.replace("@DATE", app_date)
                   }
+                  else if (ele?.form_checklist_key === "student_anti_ragging_parents") {
+                    var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                    var name3 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
+                    var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
+                    var name2 = name4?.replace("@DATE", app_date)
+                  }
                   head_array.push({
                     form_checklist_name: ele?.form_checklist_name,
                     form_checklist_key: ele?.form_checklist_key,
@@ -894,7 +919,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
                     form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
-                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging" || ele?.form_checklist_key === "student_anti_ragging_parents") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
                   name2 = ""
@@ -1039,6 +1064,12 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                     var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
                     var name2 = name4?.replace("@DATE", app_date)
                   }
+                  else if (ele?.form_checklist_key === "student_anti_ragging_parents") {
+                    var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                    var name3 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
+                    var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
+                    var name2 = name4?.replace("@DATE", app_date)
+                  }
                   head_array.push({
                     form_checklist_name: ele?.form_checklist_name,
                     form_checklist_key: ele?.form_checklist_key,
@@ -1049,7 +1080,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
                     form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
-                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging" || ele?.form_checklist_key === "student_anti_ragging_parents") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
                   name2 = ""
@@ -1202,6 +1233,13 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                     var name5 = name4?.replace("@APPLICATION_NAME", `${app_name?.applicationName}`)
                     var name2 = name5?.replace("@DATE", app_date)
                   }
+                  else if (ele?.form_checklist_key === "student_anti_ragging_parents") {
+                    var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                    var name3 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
+                    var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
+                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name?.applicationName}`)
+                    var name2 = name5?.replace("@DATE", app_date)
+                  }
                   head_array.push({
                     form_checklist_name: ele?.form_checklist_name,
                     form_checklist_key: ele?.form_checklist_key,
@@ -1212,7 +1250,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
                     form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
-                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging" || ele?.form_checklist_key === "student_anti_ragging_parents") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
                   name2 = ""
@@ -1255,7 +1293,7 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
       var app_name = await NewApplication.findById({ _id: student?.student_form_flow?.did })
       .select("applicationName")
       const all_check = await InstituteApplicationForm.findOne({ application: student?.student_form_flow?.did })
-      .select("form_section")
+      .select("form_section image_content")
       .populate({
         path: "form_section",
         populate: {
@@ -1382,6 +1420,13 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
                     var name5 = name4?.replace("@APPLICATION_NAME", `${app_name?.applicationName}`)
                     var name2 = name5?.replace("@DATE", app_date)
                   }
+                  else if (ele?.form_checklist_key === "student_anti_ragging_parents") {
+                    var name1 = val?.section_value?.replace("@STUDENT_NAME", `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`)
+                    var name3 = name1?.replace("@INSTITUTE_NAME", `${all_check?.application?.admissionAdmin?.institute?.insName}`)
+                    var name4 = name3?.replace("@PARENTS_NAME", `${student?.studentParentsName}`)
+                    var name5 = name4?.replace("@APPLICATION_NAME", `${app_name?.applicationName}`)
+                    var name2 = name5?.replace("@DATE", app_date)
+                  }
                   head_array.push({
                     form_checklist_name: ele?.form_checklist_name,
                     form_checklist_key: ele?.form_checklist_key,
@@ -1392,7 +1437,7 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
                     form_checklist_typo_option_pl: ele?.form_checklist_typo_option_pl,
                     form_common_key: ele?.form_common_key,
                     form_checklist_required: val?.section_key === "social_reservation_information_section" ? false : ele?.form_checklist_required,
-                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
+                    value: (ele?.form_checklist_key === "student_undertakings" || ele?.form_checklist_key === "student_anti_ragging" || ele?.form_checklist_key === "student_anti_ragging_parents") ? name2 ?? "" : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   })
                   name2 = ""
@@ -1419,7 +1464,7 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
       objs[`fields`] = [...n]
       // head_arrays.push({ ...objs, key: "Selected Subjects", static_key: "selected_subjects" })
       head_arrays?.splice(value, 0, { ...objs, key: "Selected Subjects", static_key: "selected_subjects" })
-      res.status(200).send({ message: "Explore One Student Application Dynamic Form Query", access: true, result: [...head_arrays]})
+      res.status(200).send({ message: "Explore One Student Application Dynamic Form Query", access: true, result: [...head_arrays], image_content: all_check?.image_content})
     }
   }
   catch (e) {
@@ -1981,6 +2026,27 @@ exports.render_add_textarea_field_query = async (req, res) => {
             await ele.save()
           } 
       }
+      else if (key === "antiragging_affidavit_parents") {
+        for (let ele of all_depart) {
+          for (var val of ele?.form_section) {
+            if (`${val?.section_key}` === `antiragging_affidavit_parents`) {
+              val.section_pdf = content
+              val.section_value = content
+            }
+          }
+          await ele.save()
+        }
+        var all_app_form = await InstituteApplicationForm.find({ application: { $in: all_app}})
+        for (let ele of all_app_form) {
+          for (var val of ele?.form_section) {
+            if (`${val?.section_key}` === `antiragging_affidavit_parents`) {
+              val.section_pdf = content
+              val.section_value = content
+            }
+          }
+          await ele.save()
+        } 
+      }
     }
     else if (flow === "DEPARTMENT") {
       const depart_form = await DepartmentStudentForm.findOne({ department: did })
@@ -2003,6 +2069,73 @@ exports.render_add_textarea_field_query = async (req, res) => {
       }
       await app_form.save()
       res.status(200).send({ message: "Application Form Query", access: true})
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_add_form_image_query = async (req, res) => {
+  try {
+    const { flow, did, content } = req?.body
+    if (!flow && !did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    if (flow === "INSTITUTE") {
+      const ins_form = await InstituteStudentForm.findOne({ institute: did })
+      const ins = await InstituteAdmin.findById({ _id: did })
+        .select("depart admissionDepart")
+        for (var val of content) {
+          ins_form.image_content.push({
+            name: val?.name,
+            attach: val?.attach
+          })
+        }
+      await ins_form.save()
+      res.status(200).send({ message: "Institute Form Image Query", access: true })
+      var all_app = await NewApplication.find({ admissionAdmin: ins?.admissionDepart?.[0] })
+      var all_depart = await DepartmentStudentForm.find({ department: { $in: ins?.depart } })
+        for (let ele of all_depart) {
+          for (var val of content) {
+            ele.image_content.push({
+              name: val?.name,
+              attach: val?.attach
+            })
+          }
+          await ele.save()
+        }
+        var all_app_form = await InstituteApplicationForm.find({ application: { $in: all_app}})
+        for (let ele of all_app_form) {
+          for (var val of content) {
+            ele.image_content.push({
+              name: val?.name,
+              attach: val?.attach
+            })
+          }
+          await ele.save()
+        } 
+      }
+    else if (flow === "DEPARTMENT") {
+      const depart_form = await DepartmentStudentForm.findOne({ department: did })
+      for (var val of content) {
+        depart_form.image_content.push({
+          name: val?.name,
+          attach: val?.attach
+        })
+      }
+      await depart_form.save()
+      res.status(200).send({ message: "Department Form Image Query", access: true})
+    }
+    else if (flow === "APPLICATION") {
+      const app_form = await InstituteApplicationForm.findOne({ application: did })
+      for (var val of content) {
+        app_form.image_content.push({
+          name: val?.name,
+          attach: val?.attach
+        })
+      }
+      await app_form.save()
+      res.status(200).send({ message: "Application Form Image Query", access: true})
     }
   }
   catch (e) {

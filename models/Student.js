@@ -739,6 +739,9 @@ const studentSchema = new mongoose.Schema({
   student_anti_ragging: {
     type: String,
   },
+  student_anti_ragging_parents: {
+    type: String
+  },
   student_id_card_front: {
     type: String,
   },

@@ -8581,22 +8581,22 @@ exports.render_daybook_heads_wise = async (req, res) => {
       nest_obj.push(obj)
       obj = {}
     }
-    var t = 0
+    // var t = 0
     if (all_receipts?.length > 0) {
       for (let ele of all_receipts) {
         for (let val of ele?.fee_heads) {
           for (let ads of nest_obj) {
             if (`${ads?.head_name}` === `${val?.head_name}`) {
               ads.head_amount += val?.original_paid
-              t+= val?.original_paid
+              // t+= val?.original_paid
             }
           }
         }
       }
-      nest_obj.push({
-        head_name: "Total Fees",
-        head_amount: t
-      })
+      // nest_obj.push({
+      //   head_name: "Total Fees",
+      //   head_amount: t
+      // })
       res.status(200).send({
         message: "Explore Day Book Heads Query",
         access: true,

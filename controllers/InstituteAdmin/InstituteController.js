@@ -6697,7 +6697,7 @@ exports.render_one_student_form_section_query = async (req, res) => {
     if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var ifs = await InstituteStudentForm.findById({ _id: fcid })
-      .select("form_section")
+      .select("form_section image_content")
       .populate({
         path: "form_section",
         populate: {
@@ -6713,7 +6713,7 @@ exports.render_one_student_form_section_query = async (req, res) => {
     
     ifs?.form_section?.splice(0, 1)
     for (let nums of ifs?.form_section) {
-      if (`${nums?.section_key}` === "undertakings" || `${nums?.section_key}` === "antiragging_affidavit") {
+      if (`${nums?.section_key}` === "undertakings" || `${nums?.section_key}` === "antiragging_affidavit" || `${nums?.section_key}` === "antiragging_affidavit_parents") {
         nums.form_checklist = []
       }
       if (`${nums?.section_key}` === "contactDetails") {

@@ -12,6 +12,12 @@ const instituteStudentFormSchema = new mongoose.Schema({
   flow: {
     type: String
   },
+  image_content: [
+    {
+      name: { type: String },
+      attach: { type: String }
+    }
+  ],
     form_section: [
         {
             section_name: {

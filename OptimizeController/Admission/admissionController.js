@@ -14033,6 +14033,17 @@ exports.render_one_student_form_section_query = async (req, res) => {
         }
       }
       }
+      iaf.form_section.push(
+        {
+          section_name: "Form Images / Attachment",
+          section_visibilty: true,
+          section_key: "form_attach",
+          section_view: "View Sample",
+          section_pdf: "",
+          section_stats: "form_attach",
+          section_value: "",
+          form_checklist: [...iaf?.image_content]
+      })
     res.status(200).send({ message: "Explore One Application Student Form Section Query", access: true, section: iaf?.form_section})
   }
   catch (e) {

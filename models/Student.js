@@ -1006,6 +1006,12 @@ const studentSchema = new mongoose.Schema({
     type: String,
     default: "No"
   },
+  major_subject: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectMaster"
+    }
+  ],
   std_tenth_details: {
     type: String
   },

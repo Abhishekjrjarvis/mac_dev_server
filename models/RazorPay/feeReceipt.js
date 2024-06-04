@@ -185,6 +185,10 @@ const feeReceiptSchema = new mongoose.Schema({
   receipt_file: {
     type: String
   },
+  other_fees: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "OtherFees",
+  },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

@@ -8489,8 +8489,8 @@ exports.clear_form_fields_section = async (req, res) => {
     const all_ifs = await InstituteStudentForm.find({})
     for (var ifs of all_ifs) {
       for (let val of ifs?.form_section) {
-        if (`${val?.section_key}` === "social_reservation_information_section") {
-          ifs?.form_section?.pull(val?._id)
+        if (`${val?.section_key}` === "antiragging_affidavit_parents") {
+          val.section_pdf = val?.section_value
         }
       }
       await ifs.save()
@@ -8499,8 +8499,8 @@ exports.clear_form_fields_section = async (req, res) => {
     const all_dfs = await DepartmentStudentForm.find({})
     for (var dfs of all_dfs) {
       for (let val of dfs?.form_section) {
-        if (`${val?.section_key}` === "social_reservation_information_section") {
-          dfs?.form_section?.pull(val?._id)
+        if (`${val?.section_key}` === "antiragging_affidavit_parents") {
+          val.section_pdf = val?.section_value
         }
       }
       await dfs.save()
@@ -8509,8 +8509,8 @@ exports.clear_form_fields_section = async (req, res) => {
     const all_app = await InstituteApplicationForm.find({})
     for (var app of all_app) {
       for (let val of app?.form_section) {
-        if (`${val?.section_key}` === "social_reservation_information_section") {
-          app?.form_section?.pull(val?._id)
+        if (`${val?.section_key}` === "antiragging_affidavit_parents") {
+          val.section_pdf = val?.section_value
         }
       }
       await app.save()

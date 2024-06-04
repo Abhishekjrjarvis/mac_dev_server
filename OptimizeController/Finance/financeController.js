@@ -6501,12 +6501,12 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
         head_name: ele?.head_name,
         head_amount: ele?.head_amount,
         master: ele?.master,
-        is_society: ele?.is_society
+        is_society: false
       })
     }
     if (students?.length > 0) {
       for (let ele of students) {
-        const stu = await Student.findById({ _id: `${ele?._id}` })
+        const stu = await Student.findById({ _id: `${ele}` })
         stu.other_fees.push({
           fees: o_f?._id,
         })

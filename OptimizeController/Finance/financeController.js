@@ -6495,7 +6495,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
     if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var finance = await Finance.findById({ _id: fid })
-    var o_f = new OtherFees({})
+    var o_f = new OtherFees({...req?.body})
     for (let ele of heads) {
       o_f.fees_heads.push({
         head_name: ele?.head_name,

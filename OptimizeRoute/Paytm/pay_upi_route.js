@@ -11,7 +11,8 @@ const {
   callbackHostelStatus,
   callbackTransportStatus,
   callbackCertificate,
-  callbackCertificateStatus
+  callbackCertificateStatus,
+  callbackOtherFees
   // callbackLibrary,
   // callbackLibraryStatus,
 } = require("../../OptimizeController/Paytm/pay_upi");
@@ -40,6 +41,12 @@ router
     "/callback/certificate/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price/type/:cert_type/content/:cert_content/original/:is_original"
   )
   .post(callbackCertificate);
+
+  router
+  .route(
+    "/callback/other/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price"
+  )
+  .post(callbackOtherFees);
 
 // router
 //   .route(

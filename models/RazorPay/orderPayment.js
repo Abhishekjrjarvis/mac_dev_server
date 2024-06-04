@@ -87,6 +87,10 @@ const orderPaymentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Library",
   },
+  payment_other_fees: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "OtherFees",
+  },
   payment_from: {
     type: String,
   },

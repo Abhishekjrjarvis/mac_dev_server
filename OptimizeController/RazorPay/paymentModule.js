@@ -47,6 +47,7 @@ const { universal_random_password } = require("../../Custom/universalId");
 const NestedCard = require("../../models/Admission/NestedCard");
 const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 const { classes_status } = require("../Admission/admissionController");
+const OtherFees = require("../../models/Finance/Other/OtherFees");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
   try {
@@ -1778,6 +1779,127 @@ exports.certificateInstituteFunction = async (
             new_cert.save(),
             new_receipt.save(),
           ]);
+    return `${studentUser?.username}`;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.otherFeesFunction = async (
+  order,
+  paidBy,
+  tx_amount,
+  tx_amount_charges,
+  moduleId,
+  is_author,
+) => {
+  try {
+    const student = await Student.findById({ _id: paidBy });
+    const studentUser = await User.findById({ _id: `${student?.user}` });
+    const institute = await InstituteAdmin.findById({
+      _id: `${student?.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    }).populate({
+      path: "financeHead",
+      select: "user",
+    });
+    var finance_user = await User.findById({
+      _id: `${finance?.financeHead?.user}`,
+    });
+    var new_internal = await OtherFees.findById({ _id: moduleId });
+    var account = await BankAccount.findById({ _id: `${new_internal?.bank_account}` });
+    const user = await User.findById({
+      _id: `${finance.financeHead.user}`,
+    });
+    const orderPay = await OrderPayment.findById({ _id: order });
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    var notify = new StudentNotification({});
+    var new_receipt = new FeeReceipt({});
+    new_receipt.fee_payment_amount = new_internal?.payable_amount;
+    new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
+    new_receipt.fee_payment_mode = "Payment Gateway - PG";
+    new_receipt.student = student?._id;
+    new_receipt.fee_transaction_date = new Date();
+    new_receipt.finance = finance?._id;
+    new_receipt.invoice_count = orderPay?.payment_invoice_number;
+    new_receipt.order_history = orderPay?._id;
+    orderPay.fee_receipt = new_receipt?._id;
+    orderPay.payment_student = student?._id;
+    new_receipt.other_fees = new_internal?._id;
+    student.other_fees_paid_price += parseInt(tx_amount);
+    if (student.other_fees_remain_price >= parseInt(tx_amount)) {
+      student.other_fees_remain_price -= parseInt(tx_amount);
+    }
+    for (var ref of new_internal?.remaining_students) {
+      if (`${ref}` === `${student?._id}`) {
+        new_internal?.remaining_students?.pull(student?._id)
+      }
+    }
+    new_internal.paid_students.push(student?._id);
+    // library.pending_fee.pull(student?._id);
+    for (let ele of student?.other_fees) {
+      if (`${ele?.fees}` === `${new_internal?._id}`) {
+        ele.fee_receipt = new_receipt?._id
+      }
+    }
+    if (is_author) {
+      finance.financeBankBalance =
+        finance.financeBankBalance + parseInt(tx_amount);
+      finance.financeTotalBalance =
+        finance.financeTotalBalance + parseInt(tx_amount);
+      institute.insBankBalance = institute.insBankBalance + parseInt(tx_amount);
+    } else {
+      institute.adminRepayAmount =
+        institute.adminRepayAmount + parseInt(tx_amount);
+      admin.returnAmount += parseInt(tx_amount_charges);
+      // depart.due_repay += parseInt(tx_amount);
+      // depart.total_repay += parseInt(tx_amount);
+      account.due_repay += parseInt(tx_amount);
+      account.total_repay += parseInt(tx_amount);
+      account.collect_online += parseInt(tx_amount);
+    }
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${student.studentLastName} paid the ${new_internal?.other_fees_name} / (Rs.${parseInt(
+      tx_amount
+    )}) successfully`;
+    notify.notify_hi_content = `${student.studentFirstName} ${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${student.studentLastName} ने ${new_internal?.other_fees_name} / (Rs.${parseInt(
+      tx_amount
+    )}) का सफलतापूर्वक पेमेंट किया |`;
+    notify.notify_mr_content = `${student.studentFirstName} ${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${student.studentLastName} ने ${new_internal?.other_fees_name} / (रु.${parseInt(
+      tx_amount
+    )}) यशस्वीरित्या भरले`;
+    notify.notifySender = student._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Online Fee";
+    user.activity_tab.push(notify._id);
+    finance_user.activity_tab.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByStudentPhoto = student._id;
+    studentUser.payment_history.push(order);
+    institute.payment_history.push(order);
+    orderPay.payment_other_fees = new_internal?._id;
+    orderPay.payment_by_end_user_id = studentUser._id;
+    await Promise.all([
+      student.save(),
+      finance.save(),
+      institute.save(),
+      user.save(),
+      notify.save(),
+      admin.save(),
+      studentUser.save(),
+      orderPay.save(),
+      new_internal.save(),
+      new_receipt.save(),
+      account.save(),
+      finance_user.save(),
+    ]);
     return `${studentUser?.username}`;
   } catch (e) {
     console.log(e);

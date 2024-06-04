@@ -577,4 +577,26 @@ router.patch("/:fsid/mark/society/query", catchAsync(Finance.render_mark_society
 
 router.patch("/:fid/control/receipt/query", catchAsync(Finance.render_control_receipt_query))
 
+router
+  .route("/other/fee/:fid")
+  .post(catchAsync(Finance.renderNewOtherFeesQuery));
+
+router
+  .route("/all/other/fee/:fid")
+  .get(catchAsync(Finance.renderAllOtherFeesQuery));
+
+
+router
+.route("/one/other/fee/:ofid/student/list")
+.get(catchAsync(Finance.renderOneOtherFeesStudentListQuery));
+
+router
+  .route("/one/edit/other/fee/:ofid")
+  .patch(catchAsync(Finance.render_one_other_fees_edit_query));
+
+
+router
+.route("/one/student/all/fees/:sid")
+.get(catchAsync(Finance.render_one_student_all_fees));
+
 module.exports = router;

@@ -71,6 +71,7 @@ const { universal_random_password } = require("../../Custom/universalId");
 const generateFeeReceipt = require("../../scripts/feeReceipt");
 const societyAdmissionFeeReceipt = require("../../scripts/societyAdmissionFeeReceipt");
 const { admissionFeeReceipt } = require("../../scripts/admissionFeeReceipt");
+const OtherFees = require("../../models/Finance/Other/OtherFees");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -6481,6 +6482,143 @@ exports.render_control_receipt_query = async (req, res) => {
     finance.show_receipt = show_receipt ? show_receipt : finance.show_receipt
     await finance.save()
     res.status(200).send({ message: "Explore Fees Receipt type Wise", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderNewOtherFeesQuery = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    const { heads, students } = req?.body
+    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var finance = await Finance.findById({ _id: fid })
+    var o_f = new OtherFees({})
+    for (let ele of heads) {
+      o_f.fees_heads.push({
+        head_name: ele?.head_name,
+        head_amount: ele?.head_amount,
+        master: ele?.master,
+        is_society: ele?.is_society
+      })
+    }
+    if (students?.length > 0) {
+      for (let ele of students) {
+        const stu = await Student.findById({ _id: `${ele?._id}` })
+        stu.other_fees.push({
+          fees: o_f?._id,
+        })
+        stu.other_fees_remain_price += o_f?.payable_amount
+        o_f.students.push(stu?._id)
+        o_f.remaining_students.push(stu?._id)
+        await stu.save()
+      }
+    }
+    finance.other_fees.push(o_f?._id)
+    o_f.finance = finance?._id
+    await Promise.all([finance.save(), o_f.save()])
+    res.status(200).send({ message: "Explore New Other Fees Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderAllOtherFeesQuery = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { type } = req?.query
+    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var finance = await Finance.findById({ _id: fid })
+    var all_of = await OtherFees.find({ $and: [{ _id: { $in: finance?.other_fees } }, { other_fees_type: type}]})
+      .limit(limit)
+      .skip(skip)
+      .select("other_fees_name other_fees_type payable_amount")
+      .populate({
+        path: "bank_account",
+        select: "finance_bank_account_number finance_bank_name finance_bank_account_name"
+      })
+    res.status(200).send({ message: "Explore All Other Fees Query", access: true, all_of: all_of})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
+  try {
+    const { ofid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { type } = req?.query
+    if (!ofid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var one_of = await OtherFees.findById({ _id: ofid })
+      
+    if (type === "Paid") {
+      var all_student = await Student.find({ _id: { $in: one_of?.paid_students } })
+        .limit(limit)
+        .skip(skip)
+        .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_paid_price")
+      // for (let ele of all_student) {
+      //   for (let val of ele?.other_fees) {
+      //     if (`${val?.fees}` === `${one_of?._id}`) {
+            
+      //     }
+      //   }
+      // }
+    }
+    else {
+      var all_student = await Student.find({ _id: { $in: one_of?.remaining_students } })
+        .limit(limit)
+        .skip(skip)
+        .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price")
+    }
+    res.status(200).send({ message: "Explore One Other Fees Remaining Student List Query", access: true, all_student: all_student})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_other_fees_edit_query = async (req, res) => {
+  try {
+    const { ofid } = req?.params
+    if (!ofid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    await OtherFees.findByIdAndUpdate(ofid, req?.body)
+    res.status(200).send({ message: "Explore One Other Fees Update Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_student_all_fees = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const student = await Student.findById({ _id: sid })
+      .populate({
+        path: "other_fees",
+        populate: {
+          path: "fees",
+          // select: "other_fees_name"
+        }
+    })
+    const all_fees = await nested_document_limit(page, limit, student?.other_fees)
+    res.status(200).send({ message: "Explore One Student All Fees Query", access: true, all_fees: all_fees})
   }
   catch (e) {
     console.log(e)

@@ -22,13 +22,13 @@ exports.renderSearchInstituteByCodeQuery = async (req, res) => {
     if (valid_ins) {
       var valid_student = await Student.findOne({
         $and: [
-          { studentGRNO: gr },
+          { qviple_student_pay_id: gr },
           { institute: valid_ins?._id },
           { studentStatus: "Approved" },
         ],
       })
         .select(
-          "studentFirstName studentMiddleName studentLastName studentProfilePhoto valid_full_name studentGRNO"
+          "studentFirstName studentMiddleName studentLastName studentProfilePhoto valid_full_name qviple_student_pay_id"
         )
         .populate({
           path: "studentClass",
@@ -52,7 +52,7 @@ exports.renderSearchInstituteByCodeQuery = async (req, res) => {
         await valid_student.save();
       } else {
         res.status(200).send({
-          message: "You are lost in space 🌌 Invalid GR",
+          message: "You are lost in space 🌌 Invalid Pay Id",
           access: false,
           valid_student: "",
         });

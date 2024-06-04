@@ -751,7 +751,13 @@ const financeSchema = new mongoose.Schema(
     show_receipt: {
       type: String,
       default: "Normal"
-    }
+    },
+    other_fees: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "OtherFees"
+      }
+    ]
   },
   { timestamps: true }
 );

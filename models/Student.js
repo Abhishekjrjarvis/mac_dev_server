@@ -1074,7 +1074,27 @@ const studentSchema = new mongoose.Schema({
   ],
   qviple_student_pay_id: {
     type: String
-  }
+  },
+  other_fees: [
+    {
+      fees: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "OtherFees"
+      },
+      fee_receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt"
+      }
+    }
+  ],
+  other_fees_remain_price: {
+    type: Number,
+    default: 0
+  },
+  other_fees_paid_price: {
+    type: Number,
+    default: 0
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

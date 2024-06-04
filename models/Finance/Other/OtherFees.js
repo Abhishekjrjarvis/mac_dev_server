@@ -1,6 +1,9 @@
 const mongoose = require("mongoose")
 
 const otherFeesSchema = new mongoose.Schema({
+    other_fees_name: {
+        type: String
+    },
     students: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -41,7 +44,11 @@ const otherFeesSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "Student"
         }
-    ]
+    ],
+    payable_amount: {
+        type: Number,
+        default: 0
+    }
 })
 
 module.exports = mongoose.model("OtherFees", otherFeesSchema)

@@ -10,6 +10,13 @@ const subjectGroupSelectSchema = new mongoose.Schema({
             ref: "SubjectMaster"
         }
     ],
+    major_type: {
+        type: String
+    },
+    major_select_max: {
+        type: Number,
+        default: 0
+    },
     optional_subject: [
         {
             optional_subject_rule: {

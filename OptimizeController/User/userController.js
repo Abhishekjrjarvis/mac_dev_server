@@ -3542,6 +3542,178 @@ exports.render_specific_mods_query = async (req, res) => {
   }
 }
 
+exports.retrieveUserDashboardAllApplicationQuery = async(req, res) => {
+  try{
+    const { uid } = req?.params
+    if(!uid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    var one_user = await User.findById({ _id: uid })
+    let nums = one_user?.applyApplication?.reverse()
+    var all_apps = await NewApplication.find({ $and: [{ _id: { $in: nums?.[0] } }, { application_flow: "Admission Application" }] })
+      .sort({ createdAt: -1 })
+      .select("applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster")
+      .populate({
+        path: "applicationDepartment",
+        select: "dName",
+      })
+      .populate({
+        path: "applicationBatch",
+        select: "batchName",
+      })
+      .populate({
+        path: "applicationMaster",
+        select: "className",
+      })
+    .populate({
+      path: "admissionAdmin",
+      select: "institute",
+      populate: {
+        path: "institute",
+        select: "insName name insProfilePhoto photoId"
+      }
+    })
+    if(all_apps?.length > 0){
+      res.status(200).send({ message: "Explore All Applied Application Query", access: true, all_apps: all_apps, conditional: conditional})
+    }
+    else{
+      res.status(200).send({ message: "No Applied Application Query", access: false, all_apps: [], conditional: ""})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
+  try {
+    const { uid } = req.params;
+    var user = await User.findById({ _id: uid })
+    let nums = user?.applyApplication?.reverse()
+    const latest_app = await NewApplication.findById({ _id: nums?.[0] })
+    .select("applicationDepartment")
+    var admission_application = []
+    var document_verification = []
+    var fees_payment = []
+    var admission_confirmation = []
+    var class_allotment = []
+    var app_status = await Status.find({ $and: [{ _id: { $in: user?.applicationStatus}}, { applicationId: latest_app?._id }]})
+    .sort({ createdAt: -1})
+    .populate({
+      path: "applicationId",
+          populate: {
+            path: "applicationUnit",
+            select: "hostel hostel_unit_name",
+            populate: {
+              path: "hostel",
+              select: "bank_account",
+              populate: {
+                path: "bank_account",
+              },
+            },
+          },
+        }
+    )
+      .populate({
+        path: "instituteId",
+        select: "insName name photoId insProfilePhoto",
+      })
+      .populate({
+        path: "feeStructure hostel_fee_structure",
+          select:
+            "one_installments total_admission_fees applicable_fees structure_name structure_month two_installments three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments",
+          populate: {
+            path: "category_master",
+            select: "category_name",
+          },
+      })
+      .populate({
+        path: "bank_account",
+      })
+      .populate({
+        path: "fee_receipt",
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName valid_full_name studentStatus application_print online_amount_edit_access",
+      })
+      .populate({
+        path: "classes",
+        select:
+          "className classTitle",
+        populate: {
+          path: "department",
+          select: "dName"
+        }
+      })
+      .populate({
+        path: "remaining_list",
+        populate: {
+          path: "applicable_card"
+        }
+      })
+      .populate({
+        path: "remaining_list",
+        populate: {
+          path: "fee_structure",
+          populate: {
+            path: "category_master",
+            select: "category_name",
+          },
+        }
+      })
+      .populate({
+        path: "applicationId",
+            populate: {
+              path: "applicationDepartment applicationBatch applicationMaster",
+              select: "dName batchName className",
+            },
+          }
+      );
+    // const appEncrypt = await encryptionPayload(user.applicationStatus);
+    for (var val of app_status) {
+      if (val?.group_by === "Admission_Application_Applied") {
+        admission_application.push(val)
+      }
+      if (val?.group_by === "Admission_Document_Verification") {
+        document_verification.push(val)
+      }
+      if (val?.group_by === "Admission_Fees_Payment") {
+        fees_payment.push(val)
+      }
+      if (val?.group_by === "Admission_Confirmation") {
+        admission_confirmation.push(val)
+      }
+      if (val?.group_by === "Admission_Class_Allotment") {
+        class_allotment.push(val)
+      }
+    }
+    const student = await Student.find({ _id: { $in: user?.student } })
+    .select("department")
+    var conditional = "Show";
+    for (let ele of student) {
+      if (ele?.department) {
+        if (`${ele?.department}` === `${latest_app?.applicationDepartment}`) {
+          conditional = "Not Show"
+          break
+        }
+      }
+    }
+    res.status(200).send({
+      message: "user Application Status",
+      // status: app_status,
+      admission_application: admission_application,
+      document_verification: document_verification,
+      fees_payment: fees_payment,
+      admission_confirmation: admission_confirmation,
+      class_allotment: class_allotment,
+      conditional: conditional
+    });
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 
 // exports.getAllThreeCount = async (req, res) => {
 //   try {

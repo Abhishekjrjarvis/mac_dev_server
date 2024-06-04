@@ -348,4 +348,12 @@ router.get(
   catchAsync(User.render_specific_mods_query)
 );
 
+// Dashboard Application API
+
+router.get(
+  "/:uid/dashboard/all/application/query",
+  catchAsync(User.retrieveUserDashboardOneApplicationQuery)
+);
+
+
 module.exports = router;

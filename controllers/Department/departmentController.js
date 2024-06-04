@@ -1293,6 +1293,10 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
         path: "student_optional_subject",
         select: "subjectName"
       })
+      // .populate({
+      //   path: "major_subject",
+      //   select: "subjectName"
+      // })
       student.studentFatherName = student?.studentMiddleName ?? student?.studentFatherName
     if (student?.student_form_flow?.flow === "APPLICATION") {
       var head_array = []
@@ -1472,6 +1476,13 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
           value: `${ele?.subjectName}`
         })
       }
+      // for (let val of n) {
+      //   for (let ele of student?.major_subject) {
+      //     if (`${val?.value}` === `${ele?.subjectName}`) {
+      //       val.value = `${ele?.subjectName} - (Major)`
+      //     }
+      //   }
+      // }
       objs[`fields`] = [...n]
       // head_arrays.push({ ...objs, key: "Selected Subjects", static_key: "selected_subjects" })
       head_arrays?.splice(value, 0, { ...objs, key: "Selected Subjects", static_key: "selected_subjects" })
@@ -1736,7 +1747,9 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                 nested_section_visibilty: true,
                 nested_section_key: "subject_criteria",
                 nested_form_checklist: [...nums_select],
-                nested_section_typo: "CHECKBOX"
+                nested_section_typo: "CHECKBOX",
+                nested_major_type: val?.major_type,
+                nested_major_select_max: val?.major_select_max
               }
             )
             nums_select = []
@@ -1951,7 +1964,9 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                 nested_section_visibilty: true,
                 nested_section_key: "subject_criteria",
                 nested_form_checklist: [...nums_select],
-                nested_section_typo: "CHECKBOX"
+                nested_section_typo: "CHECKBOX",
+                nested_major_type: val?.major_type,
+                nested_major_select_max: val?.major_select_max,
               }
             )
             nums_select = []

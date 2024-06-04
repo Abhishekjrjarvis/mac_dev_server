@@ -3590,7 +3590,7 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
     var user = await User.findById({ _id: uid })
     let nums = user?.applyApplication?.reverse()
     const latest_app = await NewApplication.findById({ _id: nums?.[0] })
-    .select("applicationDepartment")
+    .select("applicationDepartment applicationName")
     var admission_application = []
     var document_verification = []
     var fees_payment = []
@@ -3707,7 +3707,8 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
       fees_payment: fees_payment,
       admission_confirmation: admission_confirmation,
       class_allotment: class_allotment,
-      conditional: conditional
+      conditional: conditional,
+      latest_app: latest_app
     });
   } catch (e) {
     console.log(e);

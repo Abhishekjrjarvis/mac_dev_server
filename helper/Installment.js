@@ -2316,7 +2316,7 @@ exports.set_fee_head_query_redesign = async (
       for (var ref of exist_filter_student_heads) {
         if (`${ref?.fee_structure}` === `${receipt_args?.fee_structure?._id}`) {
           receipt_args.fee_heads.push({
-            head_id: ref?._id,
+            head_id: ref?.master,
             head_name: ref?.head_name,
             paid_fee: ref?.paid_fee,
             remain_fee: ref?.remain_fee,
@@ -2387,7 +2387,7 @@ exports.set_fee_head_query_redesign = async (
       for (var ref of student_args?.active_fee_heads) {
         if (`${ref?.fee_structure}` === `${receipt_args?.fee_structure?._id}`) {
           receipt_args.fee_heads.push({
-            head_id: ref?._id,
+            head_id: ref?.master,
             head_name: ref?.head_name,
             paid_fee: ref?.paid_fee,
             remain_fee: ref?.remain_fee,
@@ -2436,7 +2436,7 @@ exports.update_fee_head_query_redesign = async (
     for (var ref of student_args?.active_fee_heads) {
       if (`${ref?.fee_structure}` === `${receipt_args?.fee_structure?._id}`) {
         receipt_args.fee_heads.push({
-          head_id: ref?._id,
+          head_id: ref?.master,
           head_name: ref?.head_name,
           paid_fee: ref?.paid_fee,
           remain_fee: ref?.remain_fee,

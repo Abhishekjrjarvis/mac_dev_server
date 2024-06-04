@@ -22,13 +22,16 @@ exports.renderSearchInstituteByCodeQuery = async (req, res) => {
     if (valid_ins) {
       var valid_student = await Student.findOne({
         $and: [
-          { qviple_student_pay_id: gr },
           { institute: valid_ins?._id },
           { studentStatus: "Approved" },
         ],
+        $or: [
+          { studentGRNO: gr },
+          { qviple_student_pay_id: gr },
+        ]
       })
         .select(
-          "studentFirstName studentMiddleName studentLastName studentProfilePhoto valid_full_name qviple_student_pay_id"
+          "studentFirstName studentMiddleName studentLastName studentProfilePhoto valid_full_name qviple_student_pay_id studentGRNO"
         )
         .populate({
           path: "studentClass",

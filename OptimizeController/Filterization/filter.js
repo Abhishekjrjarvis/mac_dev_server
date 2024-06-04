@@ -8428,7 +8428,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
 
     var sorted_array = [];
     const bank_acc = await BankAccount.findById({ _id: bank })
-    const all_struct = await FeeStructure.find({ department: { $in: bank_acc?.departments}})
+    const all_struct = await FeeStructure.find({ department: { $in: bank_acc?.departments } })
     const finance = await Finance.findById({ _id: fid }).select("institute");
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,

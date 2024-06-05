@@ -2373,7 +2373,7 @@ exports.set_fee_head_query_redesign = async (
               ? parent_head[`${i}`].head_amount
               : price_query,
           fee_structure: receipt_args?.fee_structure?._id,
-          master: one_master?._id,
+          master: parent_head[`${i}`]?.master,
           original_paid:
             price_query >= parent_head[`${i}`]?.head_amount
               ? parent_head[`${i}`].head_amount

@@ -1293,10 +1293,10 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
         path: "student_optional_subject",
         select: "subjectName"
       })
-      // .populate({
-      //   path: "major_subject",
-      //   select: "subjectName"
-      // })
+      .populate({
+        path: "major_subject",
+        select: "subjectName"
+      })
       student.studentFatherName = student?.studentMiddleName ?? student?.studentFatherName
     if (student?.student_form_flow?.flow === "APPLICATION") {
       var head_array = []
@@ -1476,13 +1476,13 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
           value: `${ele?.subjectName}`
         })
       }
-      // for (let val of n) {
-      //   for (let ele of student?.major_subject) {
-      //     if (`${val?.value}` === `${ele?.subjectName}`) {
-      //       val.value = `${ele?.subjectName} - (Major)`
-      //     }
-      //   }
-      // }
+      for (let val of n) {
+        for (let ele of student?.major_subject) {
+          if (`${val?.value}` === `${ele?.subjectName}`) {
+            val.value = `${ele?.subjectName} - (Major)`
+          }
+        }
+      }
       objs[`fields`] = [...n]
       // head_arrays.push({ ...objs, key: "Selected Subjects", static_key: "selected_subjects" })
       head_arrays?.splice(value, 0, { ...objs, key: "Selected Subjects", static_key: "selected_subjects" })

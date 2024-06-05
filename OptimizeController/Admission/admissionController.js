@@ -1058,6 +1058,7 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         status: false,
       });
+      console.log(req?.body)
     const user = await User.findById({ _id: uid });
     // if (user?.applyApplication?.includes(`${aid}`)) {
     //   res.status(200).send({
@@ -1201,7 +1202,6 @@ Note: Stay tuned for further updates.`;
         notify.save(),
         admission.save()
       ]);
-    console.log(student)
       res.status(201).send({
         message: "Taste a bite of sweets till your application is selected",
         student: student._id,

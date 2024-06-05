@@ -2074,8 +2074,8 @@ exports.renderApplicationListQuery = async (req, res) => {
         path: "receievedApplication",
         populate: {
           path: "student",
-          select:
-            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
+          // select:
+          //   "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
         },
       })
       .populate({
@@ -2129,17 +2129,23 @@ exports.renderApplicationListQuery = async (req, res) => {
           });
         }
       } else {
+        var numss = []
         for (var ref of valid_apply?.receievedApplication) {
+          for (let ele of ref?.student?.student_dynamic_field) {
+            numss.push({
+              [ele?.key]: ele?.value
+            })
+          }
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
-                ? ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName ?? ref?.student?.studentFatherName
                 : ""
             } ${ref?.student?.studentLastName}`,
             DOB: ref?.student?.studentDOB ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
-            Caste: ref?.student?.studentCastCategory ?? "#NA",
+            CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
             Religion: ref?.student?.studentReligion ?? "#NA",
             MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
             ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
@@ -2148,6 +2154,62 @@ exports.renderApplicationListQuery = async (req, res) => {
             ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
             AlternateContactNo:
               ref?.student?.studentParentsPhoneNumber ?? "#NA",
+            NameAsMarksheet: ref?.student?.studentNameAsMarksheet,
+            NameAsCertificate: ref?.student?.studentNameAsCertificate,
+            BirthPlace: ref?.student?.studentBirthPlace,
+            Religion: ref?.student?.studentReligion,
+            Caste: ref?.student?.studentCast,
+            Nationality: ref?.student?.studentNationality,
+            RationCard: ref?.student?.studentFatherRationCardColor,
+            BloodGroup: ref?.student?.student_blood_group,
+            AadharNumber: ref?.student?.studentAadharNumber,
+            PhoneNumber: ref?.student?.studentPhoneNumber,
+            Email: ref?.student?.studentEmail,
+            ParentsPhoneNumber: ref?.student?.studentParentsPhoneNumber,
+            CurrentAddress: ref?.student?.studentCurrentAddress,
+            CurrentPinCode: ref?.student?.studentCurrentPincode,
+            CurrentState: ref?.student?.studentCurrentState,
+            CurrentDistrict: ref?.student?.studentCurrentDistrict,
+            Address: ref?.student?.studentAddress,
+            PinCode: ref?.student?.studentPincode,
+            State: ref?.student?.studentState,
+            District: ref?.student?.studentDistrict,
+            ParentsName: ref?.student?.studentParentsName,
+            ParentsEmail: ref?.student?.studentParentsEmail,
+            ParentsOccupation: ref?.student?.studentParentsOccupation,
+            ParentsOfficeAddress: ref?.student?.studentParentsAddress,
+            ParentsAnnualIncome: ref?.student?.studentParentsAnnualIncom,
+            SeatType: ref?.student?.student_seat_type,
+            PhysicallyHandicapped: ref?.student?.student_ph_type,
+            DefencePersonnel: ref?.student?.student_defence_personnel_word,
+            MaritalStatus: ref?.student?.student_marital_status,
+            PreviousBoard: ref?.student?.student_board_university,
+            PreviousSchool: ref?.student?.studentPreviousSchool,
+            UniversityCourse: ref?.student?.student_university_courses,
+            PassingYear: ref?.student?.student_year,
+            PreviousClass: ref?.student?.student_previous_class,
+            PreviousMarks: ref?.student?.student_previous_marks,
+            PreviousPercentage: ref?.student?.student_previous_percentage,
+            SeatNo: ref?.student?.student_previous_section,
+            StandardMOP: ref?.student?.month_of_passing,
+            StandardYOP: ref?.student?.year_of_passing,
+            StandardPercentage: ref?.student?.percentage,
+            StandardNameOfInstitute: ref?.student?.name_of_institute,
+            HSCMOP: ref?.student?.hsc_month,
+            HSCYOP: ref?.student?.hsc_year,
+            HSCPercentage: ref?.student?.hsc_percentage,
+            HSCNameOfInstitute: ref?.student?.hsc_name_of_institute,
+            HSCBoard: ref?.student?.hsc_board,
+            HSCCandidateType: ref?.student?.hsc_candidate_type,
+            HSCVocationalType: ref?.student?.hsc_vocational_type,
+            HSCPhysicsMarks: ref?.student?.hsc_physics_marks,
+            HSCChemistryMarks: ref?.student?.hsc_chemistry_marks,
+            HSCMathematicsMarks: ref?.student?.hsc_mathematics_marks,
+            HSCPCMTotal: ref?.student?.hsc_pcm_total,
+            HSCGrandTotal: ref?.student?.hsc_grand_total,
+            FormNo: ref?.student?.form_no,
+            QviplePayId: ref?.student?.qviple_student_pay_id,
+            ...numss
           });
         }
       }
@@ -8578,6 +8640,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
     for (let ele of all_master) {
       obj["head_name"] = ele?.master_name
       obj["head_amount"] = 0
+      obj["_id"] = ele?._id
       nest_obj.push(obj)
       obj = {}
     }
@@ -8586,7 +8649,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
       for (let ele of all_receipts) {
         for (let val of ele?.fee_heads) {
           for (let ads of nest_obj) {
-            if (`${ads?.head_name}` === `${val?.head_name}`) {
+            if (`${ads?._id}` === `${val?.master}`) {
               ads.head_amount += val?.original_paid
               // t+= val?.original_paid
             }

@@ -2384,6 +2384,7 @@ exports.set_fee_head_query_redesign = async (
             : 0;
       }
       receipt_args.fee_flow = "FEE_HEADS";
+      console.log(student_args?.active_fee_heads)
       for (var ref of student_args?.active_fee_heads) {
         if (`${ref?.fee_structure}` === `${receipt_args?.fee_structure?._id}`) {
           receipt_args.fee_heads.push({

@@ -2312,6 +2312,7 @@ exports.set_fee_head_query_redesign = async (
     );
     if (exist_filter_student_heads?.length > 0) {
       console.log("Exist APP");
+      console.log(exist_filter_student_heads)
       receipt_args.fee_flow = "FEE_HEADS";
       for (var ref of exist_filter_student_heads) {
         if (`${ref?.fee_structure}` === `${receipt_args?.fee_structure?._id}`) {

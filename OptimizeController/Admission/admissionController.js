@@ -1201,6 +1201,7 @@ Note: Stay tuned for further updates.`;
         notify.save(),
         admission.save()
       ]);
+    console.log(student)
       res.status(201).send({
         message: "Taste a bite of sweets till your application is selected",
         student: student._id,

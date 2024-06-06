@@ -9528,10 +9528,17 @@ exports.render_daybook_heads_wise = async (req, res) => {
 
     var sorted_array = [];
     const bank_acc = await BankAccount.findById({ _id: bank });
-    const all_struct = await FeeStructure.find({
-      $and: [{department: { $in: bank_acc?.departments }}, { document_update: false}],
-    });
     const finance = await Finance.findById({ _id: fid }).select("institute");
+    if (bank_acc?.bank_account_type === "Society") {
+      var all_struct = await FeeStructure.find({
+        $and: [{finance: finance?._id}, { document_update: false}],
+      });
+    }
+    else {
+      var all_struct = await FeeStructure.find({
+        $and: [{department: { $in: bank_acc?.departments }}, { document_update: false}],
+      }); 
+    }
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
     }).select(
@@ -9636,15 +9643,16 @@ exports.render_daybook_heads_wise = async (req, res) => {
         .lean()
         .exec();
     }
-    if (bank) {
-      all_receipts = all_receipts?.filter((val) => {
-        if (
-          `${val?.application?.applicationDepartment?.bank_account?._id}` ===
-          `${bank}`
-        )
-          return val;
-      });
-    }
+    // console.log(all_receipts)
+    // if (bank) {
+    //   all_receipts = all_receipts?.filter((val) => {
+    //     if (
+    //       `${val?.application?.applicationDepartment?.bank_account?._id}` ===
+    //       `${bank}`
+    //     )
+    //       return val;
+    //   });
+    // }
     let heads_queue = [];
     if (bank_acc?.bank_account_type === "Society") {
       for (let ele of all_struct) {

@@ -10750,8 +10750,12 @@ exports.retrieveAdmissionReceievedValidApplicationQuery = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         status: false,
       });
+    let valid_email = uid?.includes("@")
     if (uid?.length == 10) {
       var user = await User.findOne({ userPhoneNumber: uid }); 
+    }
+    else if(valid_email) {
+      var user = await User.findOne({ userEmail: uid }); 
     }
     else {
       var user = await User.findOne({ _id: uid }); 

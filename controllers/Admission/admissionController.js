@@ -10370,12 +10370,16 @@ exports.retrieveAdmissionReceievedValidApplicationQuery = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         status: false,
       });
-    if (uid?.length == 10) {
-      var user = await User.findOne({ userPhoneNumber: uid }); 
-    }
-    else {
-      var user = await User.findOne({ _id: uid }); 
-    }
+      let valid_email = uid?.includes("@")
+      if (uid?.length == 10) {
+        var user = await User.findOne({ userPhoneNumber: uid }); 
+      }
+      else if(valid_email) {
+        var user = await User.findOne({ userEmail: uid }); 
+      }
+      else {
+        var user = await User.findOne({ _id: uid }); 
+      }
     if (user?.applyApplication?.includes(`${aid}`)) {
       res.status(200).send({
         message: "You have already applied for this application",

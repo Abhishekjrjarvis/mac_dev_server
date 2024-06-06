@@ -3589,17 +3589,18 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
     const { uid } = req.params;
     var user = await User.findById({ _id: uid })
     let nums = user?.applyApplication?.reverse()
-    const latest_app = await NewApplication.findById({ _id: nums?.[0] })
-    .select("applicationDepartment applicationName")
-    var admission_application = []
-    var document_verification = []
-    var fees_payment = []
-    var admission_confirmation = []
-    var class_allotment = []
-    var app_status = await Status.find({ $and: [{ _id: { $in: user?.applicationStatus}}, { applicationId: latest_app?._id }]})
-    .sort({ createdAt: -1})
-    .populate({
-      path: "applicationId",
+    if (nums?.length > 0) {
+      const latest_app = await NewApplication.findById({ _id: nums?.[0] })
+        .select("applicationDepartment applicationName")
+      var admission_application = []
+      var document_verification = []
+      var fees_payment = []
+      var admission_confirmation = []
+      var class_allotment = []
+      var app_status = await Status.find({ $and: [{ _id: { $in: user?.applicationStatus } }, { applicationId: latest_app?._id }] })
+        .sort({ createdAt: -1 })
+        .populate({
+          path: "applicationId",
           populate: {
             path: "applicationUnit",
             select: "hostel hostel_unit_name",
@@ -3612,105 +3613,120 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
             },
           },
         }
-    )
-      .populate({
-        path: "instituteId",
-        select: "insName name photoId insProfilePhoto",
-      })
-      .populate({
-        path: "feeStructure hostel_fee_structure",
+        )
+        .populate({
+          path: "instituteId",
+          select: "insName name photoId insProfilePhoto",
+        })
+        .populate({
+          path: "feeStructure hostel_fee_structure",
           select:
             "one_installments total_admission_fees applicable_fees structure_name structure_month two_installments three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments",
           populate: {
             path: "category_master",
             select: "category_name",
           },
-      })
-      .populate({
-        path: "bank_account",
-      })
-      .populate({
-        path: "fee_receipt",
-      })
-      .populate({
-        path: "student",
-        select:
-          "studentFirstName studentMiddleName studentLastName valid_full_name studentStatus application_print online_amount_edit_access",
-      })
-      .populate({
-        path: "classes",
-        select:
-          "className classTitle",
-        populate: {
-          path: "department",
-          select: "dName"
-        }
-      })
-      .populate({
-        path: "remaining_list",
-        populate: {
-          path: "applicable_card"
-        }
-      })
-      .populate({
-        path: "remaining_list",
-        populate: {
-          path: "fee_structure",
+        })
+        .populate({
+          path: "bank_account",
+        })
+        .populate({
+          path: "fee_receipt",
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName valid_full_name studentStatus application_print online_amount_edit_access",
+        })
+        .populate({
+          path: "classes",
+          select:
+            "className classTitle",
           populate: {
-            path: "category_master",
-            select: "category_name",
-          },
-        }
-      })
-      .populate({
-        path: "applicationId",
+            path: "department",
+            select: "dName"
+          }
+        })
+        .populate({
+          path: "remaining_list",
+          populate: {
+            path: "applicable_card"
+          }
+        })
+        .populate({
+          path: "remaining_list",
+          populate: {
+            path: "fee_structure",
             populate: {
-              path: "applicationDepartment applicationBatch applicationMaster",
-              select: "dName batchName className",
+              path: "category_master",
+              select: "category_name",
             },
           }
-      );
-    // const appEncrypt = await encryptionPayload(user.applicationStatus);
-    for (var val of app_status) {
-      if (val?.group_by === "Admission_Application_Applied") {
-        admission_application.push(val)
-      }
-      if (val?.group_by === "Admission_Document_Verification") {
-        document_verification.push(val)
-      }
-      if (val?.group_by === "Admission_Fees_Payment") {
-        fees_payment.push(val)
-      }
-      if (val?.group_by === "Admission_Confirmation") {
-        admission_confirmation.push(val)
-      }
-      if (val?.group_by === "Admission_Class_Allotment") {
-        class_allotment.push(val)
-      }
-    }
-    const student = await Student.find({ _id: { $in: user?.student } })
-    .select("department")
-    var conditional = "Show";
-    for (let ele of student) {
-      if (ele?.department) {
-        if (`${ele?.department}` === `${latest_app?.applicationDepartment}`) {
-          conditional = "Not Show"
-          break
+        })
+        .populate({
+          path: "applicationId",
+          populate: {
+            path: "applicationDepartment applicationBatch applicationMaster",
+            select: "dName batchName className",
+          },
+        }
+        );
+      // const appEncrypt = await encryptionPayload(user.applicationStatus);
+      for (var val of app_status) {
+        if (val?.group_by === "Admission_Application_Applied") {
+          admission_application.push(val)
+        }
+        if (val?.group_by === "Admission_Document_Verification") {
+          document_verification.push(val)
+        }
+        if (val?.group_by === "Admission_Fees_Payment") {
+          fees_payment.push(val)
+        }
+        if (val?.group_by === "Admission_Confirmation") {
+          admission_confirmation.push(val)
+        }
+        if (val?.group_by === "Admission_Class_Allotment") {
+          class_allotment.push(val)
         }
       }
+      const student = await Student.find({ _id: { $in: user?.student } })
+        .select("department")
+      var conditional = "Show";
+      for (let ele of student) {
+        if (ele?.department) {
+          if (`${ele?.department}` === `${latest_app?.applicationDepartment}`) {
+            conditional = "Not Show"
+            break
+          }
+        }
+      }
+      res.status(200).send({
+        message: "user Application Status",
+        // status: app_status,
+        admission_application: admission_application,
+        document_verification: document_verification,
+        fees_payment: fees_payment,
+        admission_confirmation: admission_confirmation,
+        class_allotment: class_allotment,
+        conditional: conditional,
+        latest_app: latest_app
+      });
+  
     }
-    res.status(200).send({
-      message: "user Application Status",
-      // status: app_status,
-      admission_application: admission_application,
-      document_verification: document_verification,
-      fees_payment: fees_payment,
-      admission_confirmation: admission_confirmation,
-      class_allotment: class_allotment,
-      conditional: conditional,
-      latest_app: latest_app
-    });
-  } catch (e) {
+    else {
+      res.status(200).send({
+        message: "No user Application Status",
+        // status: app_status,
+        admission_application: [],
+        document_verification: [],
+        fees_payment: [],
+        admission_confirmation: [],
+        class_allotment: [],
+        conditional: "Not Show",
+        latest_app: {},
+      });
+    }
+} catch (e) {
     console.log(e);
   }
 }

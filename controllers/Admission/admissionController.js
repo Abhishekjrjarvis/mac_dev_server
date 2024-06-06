@@ -4682,6 +4682,11 @@ exports.renderNewDirectInquiry = async (req, res) => {
         remindLater: custom_date_time(21),
         next_date: custom_date_time(0),
       });
+      const code = "qviple@161028520"
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+      user.user_normal_password = `${code}`
+      user.user_universal_password = `${hash_user_pass}`
       admins.users.push(user);
       admins.userCount += 1;
       await Promise.all([admins.save(), user.save()]);

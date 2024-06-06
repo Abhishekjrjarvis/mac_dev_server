@@ -8521,3 +8521,20 @@ exports.clear_form_fields_section = async (req, res) => {
     console.log(e)
   }
 }
+
+// exports.render_middle_name_data = async (req, res) => {
+//   try {
+//     const all_student = await Student.find({})
+//     for (let ele of all_student) {
+//       if (ele?.studentMiddleName) {
+//         ele.studentMiddleName = ele?.studentFatherName ? ele?.studentFatherName : ele.studentMiddleName
+//       }
+//       else {
+        
+//       }
+//     }
+//   }
+//   catch (e) {
+//     console.log(e)
+//   }
+// }

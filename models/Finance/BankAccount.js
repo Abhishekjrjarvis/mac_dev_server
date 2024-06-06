@@ -74,7 +74,14 @@ const bankAccountSchema = new mongoose.Schema({
   },
   bank_account_type: {
     type: String
-  }
+  },
+  day_book: [
+    {
+      excel_file: { type: String },
+      excel_file_name: { type: String },
+      created_at: { type: Date, default: Date.now },
+    },
+    ],
 });
 
 module.exports = mongoose.model("BankAccount", bankAccountSchema);

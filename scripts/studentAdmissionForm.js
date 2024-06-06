@@ -308,12 +308,9 @@ const generateStudentAdmissionForm = async (
               doc.font("Times-Bold").text("Signature of Candidate", 440, doc.y);
 
               doc.moveDown(6);
-              doc.font("Times-Bold").text("Clerk", 25);
+              doc.font("Times-Bold").text("Clerk", 55);
               doc.moveUp(1);
-              doc.font("Times-Bold").text("Principal", {
-                width: pageWidth - 50,
-                align: "right",
-              });
+              doc.font("Times-Bold").text("Principal", 470, doc.y);
             }
             if (itr?.static_key === "antiragging_affidavit") {
               doc.addPage();
@@ -412,13 +409,13 @@ const generateStudentAdmissionForm = async (
                     arr.push({
                       ...dt,
                       form_checklist_name: "Name",
-                      value: `${dt?.value} ${
-                        arrObj["studentFatherName"]
-                          ? `${arrObj["studentFatherName"]} `
-                          : ""
-                      }${
+                      value: `${
                         arrObj["studentLastName"]
                           ? `${arrObj["studentLastName"]} `
+                          : ""
+                      } ${dt?.value ?? ""} ${
+                        arrObj["studentFatherName"]
+                          ? `${arrObj["studentFatherName"]} `
                           : ""
                       }${
                         arrObj["studentMiddleName"]
@@ -1191,6 +1188,7 @@ const generateStudentAdmissionForm = async (
       mimetype: "application/pdf",
     };
     const results = await uploadDocsFile(file);
+    // student.application_print = [];
     student.application_print.push({
       flow: "BACKEND",
       value: results?.Key,

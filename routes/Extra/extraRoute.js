@@ -479,5 +479,10 @@ router.patch(
   catchAsync(Extra.issueCertificateInstituteLogsQuery)
 );
 
+router.patch(
+  "/custom/generate/application/:aid/form",
+  catchAsync(Extra.customGenerateApplicationFormQuery)
+);
+
 
 module.exports = router;

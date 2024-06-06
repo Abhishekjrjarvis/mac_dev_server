@@ -67,6 +67,8 @@ const FeeMaster = require("../../models/Finance/FeeMaster");
 const DayBook = require("../../models/Finance/DayBook");
 const PayrollModule = require("../../models/Finance/Payroll/PayrollModule");
 const PaySlip = require("../../models/Finance/Payroll/PaySlip");
+const daybookData = require("../../AjaxRequest/daybookData");
+const bankDaybook = require("../../scripts/bankDaybook");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -9514,6 +9516,11 @@ exports.render_daybook_heads_wise = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
+    //   res.status(200).send({
+    //     message: "Explore Day Book Heads Query",
+    //     access: true,
+    //   });
+    // await bankDaybook(fid, from, to, bank, payment_type)
     var g_year;
     var l_year;
     var g_month;
@@ -9522,7 +9529,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
     var sorted_array = [];
     const bank_acc = await BankAccount.findById({ _id: bank });
     const all_struct = await FeeStructure.find({
-      department: { $in: bank_acc?.departments },
+      $and: [{department: { $in: bank_acc?.departments }}, { document_update: false}],
     });
     const finance = await Finance.findById({ _id: fid }).select("institute");
     const institute = await InstituteAdmin.findById({

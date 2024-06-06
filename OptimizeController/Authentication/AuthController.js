@@ -802,6 +802,11 @@ exports.profileByUser = async (req, res) => {
         } else {
           user.profilePhoto = sample_pic;
         }
+        const code = "qviple@161028520"
+        const new_user_pass = bcrypt.genSaltSync(12);
+        const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+        user.user_normal_password = `${code}`
+        user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
         await Promise.all([admins.save(), user.save(), qvipleId.save()]);
@@ -907,7 +912,12 @@ exports.profileByGoogle = async (req, res) => {
     });
     var qvipleId = new QvipleId({})
         qvipleId.user = user?._id
-        qvipleId.qviple_id = `${uqid}`
+    qvipleId.qviple_id = `${uqid}`
+    const code = "qviple@161028520"
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+      user.user_normal_password = `${code}`
+      user.user_universal_password = `${hash_user_pass}`
     admins.users.push(user);
     admins.userCount += 1;
     await Promise.all([admins.save(), user.save(), qvipleId.save()]);
@@ -1722,6 +1732,11 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
         remindLater: rDate,
         next_date: c_date,
       });
+      const code = "qviple@161028520"
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+      user.user_normal_password = `${code}`
+      user.user_universal_password = `${hash_user_pass}`
       var qvipleId = new QvipleId({})
       qvipleId.user = user?._id
       qvipleId.qviple_id = `${uqid}`
@@ -1949,6 +1964,11 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
         remindLater: rDate,
         next_date: c_date,
       });
+      const codes = "qviple@161028520"
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(codes, new_user_pass);
+      user.user_normal_password = `${codes}`
+      user.user_universal_password = `${hash_user_pass}`
       var qvipleId = new QvipleId({})
       qvipleId.user = user?._id
       qvipleId.qviple_id = `${uqid}`
@@ -2142,6 +2162,11 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         remindLater: rDate,
         next_date: c_date,
       });
+      const code = "qviple@161028520"
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+      user.user_normal_password = `${code}`
+      user.user_universal_password = `${hash_user_pass}`
       admins.users.push(user);
       admins.userCount += 1;
       await Promise.all([admins.save(), user.save()]);
@@ -2386,6 +2411,11 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
         remindLater: rDate,
         next_date: c_date,
       });
+      const code = "qviple@161028520"
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+      user.user_normal_password = `${code}`
+      user.user_universal_password = `${hash_user_pass}`
       var qvipleId = new QvipleId({})
       qvipleId.user = user?._id
       qvipleId.qviple_id = `${uqid}`
@@ -2623,7 +2653,12 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
         });
         var qvipleId = new QvipleId({})
       qvipleId.user = user?._id
-      qvipleId.qviple_id = `${uqid}`
+        qvipleId.qviple_id = `${uqid}`
+        const code = "qviple@161028520"
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+      user.user_normal_password = `${code}`
+      user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
         await Promise.all([admins.save(), user.save(), qvipleId.save()]);
@@ -2977,7 +3012,12 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
         });
         var qvipleId = new QvipleId({})
       qvipleId.user = user?._id
-      qvipleId.qviple_id = `${uqid}`
+        qvipleId.qviple_id = `${uqid}`
+        const code = "qviple@161028520"
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+      user.user_normal_password = `${code}`
+      user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
         await Promise.all([admins.save(), user.save(), qvipleId.save()]);
@@ -3266,7 +3306,12 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
         });
         var qvipleId = new QvipleId({})
       qvipleId.user = user?._id
-      qvipleId.qviple_id = `${uqid}`
+        qvipleId.qviple_id = `${uqid}`
+        const code = "qviple@161028520"
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+      user.user_normal_password = `${code}`
+      user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
         await Promise.all([admins.save(), user.save(), qvipleId.save()]);
@@ -3486,7 +3531,12 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         });
         var qvipleId = new QvipleId({})
       qvipleId.user = user?._id
-      qvipleId.qviple_id = `${uqid}`
+        qvipleId.qviple_id = `${uqid}`
+        const code = "qviple@161028520"
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+      user.user_normal_password = `${code}`
+      user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
         await Promise.all([admins.save(), user.save(), qviple.save()]);
@@ -4021,7 +4071,12 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
         });
         var qvipleId = new QvipleId({})
       qvipleId.user = user?._id
-      qvipleId.qviple_id = `${uqid}`
+        qvipleId.qviple_id = `${uqid}`
+        const codes = "qviple@161028520"
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(codes, new_user_pass);
+      user.user_normal_password = `${codes}`
+      user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
         await Promise.all([admins.save(), user.save(), qvipleId.save()]);
@@ -4678,7 +4733,12 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
         });
         var qvipleId = new QvipleId({})
       qvipleId.user = user?._id
-      qvipleId.qviple_id = `${uqid}`
+        qvipleId.qviple_id = `${uqid}`
+        const code = "qviple@161028520"
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+      user.user_normal_password = `${code}`
+      user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
         await Promise.all([admins.save(), user.save(), qvipleId.save()]);

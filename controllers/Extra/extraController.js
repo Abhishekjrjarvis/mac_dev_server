@@ -118,6 +118,8 @@ const StudentMessage = require("../../models/Content/StudentMessage");
 const { addTimeTableExcelQuery } = require("../Timetable/timetableController");
 const InstituteLog = require("../../models/InstituteLog/InstituteLog");
 const InstituteCertificateLog = require("../../models/InstituteLog/InstituteCertificateLog");
+const NewApplication = require("../../models/Admission/NewApplication");
+const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -4036,4 +4038,87 @@ exports.issueCertificateInstituteLogsQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+
+exports.customGenerateApplicationFormQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+
+    if (!aid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const new_app = await NewApplication.findById(aid).populate({
+      path: "admissionAdmin",
+      select: "institute",
+    });
+    if (new_app?.admissionAdmin?.institute) {
+      for (let st of new_app?.receievedApplication) {
+        if (st?.student) {
+          const stu = await Student.findById(st?.student);
+          await generateStudentAdmissionForm(
+            st?.student,
+            new_app?.admissionAdmin?.institute,
+            `${stu?.studentFirstName ?? ""} ${stu?.studentLastName ?? ""}`,
+            new_app?.applicationName
+          );
+        }
+      }
+      for (let st of new_app?.selectedApplication) {
+        if (st?.student) {
+          const stu = await Student.findById(st?.student);
+          await generateStudentAdmissionForm(
+            st?.student,
+            new_app?.admissionAdmin?.institute,
+            `${stu?.studentFirstName ?? ""} ${stu?.studentLastName ?? ""}`,
+            new_app?.applicationName
+          );
+        }
+      }
+      for (let st of new_app?.FeeCollectionApplication) {
+        if (st?.student) {
+          const stu = await Student.findById(st?.student);
+          await generateStudentAdmissionForm(
+            st?.student,
+            new_app?.admissionAdmin?.institute,
+            `${stu?.studentFirstName ?? ""} ${stu?.studentLastName ?? ""}`,
+            new_app?.applicationName
+          );
+        }
+      }
+      for (let st of new_app?.confirmedApplication) {
+        if (st?.student) {
+          const stu = await Student.findById(st?.student);
+          await generateStudentAdmissionForm(
+            st?.student,
+            new_app?.admissionAdmin?.institute,
+            `${stu?.studentFirstName ?? ""} ${stu?.studentLastName ?? ""}`,
+            new_app?.applicationName
+          );
+        }
+      }
+      for (let st of new_app?.reviewApplication) {
+        if (st?.student) {
+          const stu = await Student.findById(st?.student);
+          await generateStudentAdmissionForm(
+            st?.student,
+            new_app?.admissionAdmin?.institute,
+            `${stu?.studentFirstName ?? ""} ${stu?.studentLastName ?? ""}`,
+            new_app?.applicationName
+          );
+        }
+      }
+    }
+
+    res.status(200).send({
+      message: "All application form is created.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
 

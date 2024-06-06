@@ -64,7 +64,8 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       })
       .populate({
         path: "application",
-        select: "applicationName applicationDepartment applicationHostel",
+        select:
+          "applicationName applicationDepartment applicationHostel applicationMaster",
         populate: {
           path: "admissionAdmin",
           select: "_id site_info",
@@ -86,7 +87,8 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       })
       .populate({
         path: "application",
-        select: "applicationName applicationDepartment applicationHostel",
+        select:
+          "applicationName applicationDepartment applicationHostel applicationMaster",
         populate: {
           path: "admissionAdmin",
           select: "_id site_info",
@@ -98,7 +100,16 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "application",
         select:
-          "applicationName applicationDepartment applicationHostel applicationUnit",
+          "applicationName applicationDepartment applicationHostel applicationMaster",
+        populate: {
+          path: "applicationMaster",
+          select: "_id className",
+        },
+      })
+      .populate({
+        path: "application",
+        select:
+          "applicationName applicationDepartment applicationHostel applicationMaster applicationUnit",
         populate: {
           path: "applicationUnit",
           select: "hostel_unit_name",
@@ -123,7 +134,8 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       })
       .populate({
         path: "application",
-        select: "applicationName applicationDepartment applicationHostel",
+        select:
+          "applicationName applicationDepartment applicationHostel applicationMaster",
         populate: {
           path: "hostelAdmin",
           select: "_id institute",
@@ -146,7 +158,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "application",
         select:
-          "applicationName applicationDepartment applicationHostel applicationUnit",
+          "applicationName applicationDepartment applicationHostel applicationMaster applicationUnit",
         populate: {
           path: "applicationHostel",
           select: "site_info",

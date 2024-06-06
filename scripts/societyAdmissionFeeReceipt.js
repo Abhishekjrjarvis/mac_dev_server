@@ -148,15 +148,25 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       width: pageWidth / 2 + 100,
       align: "right",
     });
-  if (receiptData?.student?.studentClass?.classTitle) {
+  if (
+    receiptData?.student?.studentClass?.classTitle ||
+    receiptData?.application?.applicationMaster?.className
+  ) {
     doc.moveUp(1);
     doc
       .fontSize(10)
       .font("Times-Roman")
       .fillColor("#2e2e2e")
-      .text(`${receiptData?.student?.studentClass?.classTitle}`, {
-        indent: pageWidth / 2 + 110,
-      });
+      .text(
+        `${
+          receiptData?.student?.studentClass?.classTitle
+            ? receiptData?.student?.studentClass?.classTitle
+            : receiptData?.application?.applicationMaster?.className
+        }`,
+        {
+          indent: pageWidth / 2 + 110,
+        }
+      );
   }
 
   doc.y += 2;
@@ -215,9 +225,16 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .fontSize(10)
       .font("Times-Roman")
       .fillColor("#2e2e2e")
-      .text(receiptData?.invoice_count, {
-        indent: 80,
-      });
+      .text(
+        `${receiptData?.invoice_count} (${receiptData?.fee_payment_mode}${
+          receiptData?.order_history?.razor_query?.[0]?.method
+            ? `- ${receiptData?.order_history?.razor_query?.[0]?.method}`
+            : ""
+        })`,
+        {
+          indent: 80,
+        }
+      );
   }
 
   doc.moveUp(1);
@@ -303,7 +320,9 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
   let dft = Math.ceil(paid_fee?.length / 3);
   let mt = +dft === 1 ? 20 : 16;
   let paidAmount = 0;
-  let pos2 = +dft * mt;
+  // if dynamic fee head come
+  // let pos2 = +dft * mt;
+  let pos2 = 128;
   for (let i = 0; i < paid_fee?.length; i++) {
     let ft = i;
     let data = paid_fee?.[ft];
@@ -406,7 +425,6 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
 
     doc.moveDown(0.2);
   }
-
   doc.rect(doc.x, pos1, pageWidth - 40, pos2).stroke();
   doc.y = pos1 + pos2 + 8;
   doc
@@ -589,15 +607,25 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
         width: pageWidth / 2 + 100,
         align: "right",
       });
-    if (receiptData?.student?.studentClass?.classTitle) {
+    if (
+      receiptData?.student?.studentClass?.classTitle ||
+      receiptData?.application?.applicationMaster?.className
+    ) {
       doc.moveUp(1);
       doc
         .fontSize(10)
         .font("Times-Roman")
         .fillColor("#2e2e2e")
-        .text(`${receiptData?.student?.studentClass?.classTitle}`, {
-          indent: pageWidth / 2 + 110,
-        });
+        .text(
+          `${
+            receiptData?.student?.studentClass?.classTitle
+              ? receiptData?.student?.studentClass?.classTitle
+              : receiptData?.application?.applicationMaster?.className
+          }`,
+          {
+            indent: pageWidth / 2 + 110,
+          }
+        );
     }
     doc.y += 2;
     doc.fontSize(10).font("Times-Bold").fillColor("#121212").text("GRNO: ", {
@@ -654,9 +682,16 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
         .fontSize(10)
         .font("Times-Roman")
         .fillColor("#2e2e2e")
-        .text(receiptData?.invoice_count, {
-          indent: 80,
-        });
+        .text(
+          `${receiptData?.invoice_count} (${receiptData?.fee_payment_mode}${
+            receiptData?.order_history?.razor_query?.[0]?.method
+              ? `- ${receiptData?.order_history?.razor_query?.[0]?.method}`
+              : ""
+          })`,
+          {
+            indent: 80,
+          }
+        );
     }
     doc.moveUp(1);
     doc
@@ -730,7 +765,9 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
 
     dft = Math.ceil(society_paid_fee?.length / 3);
     mt = +dft === 1 ? 20 : 16;
-    pos2 = +dft * mt;
+    // for dynamic fee head come
+    // pos2 = +dft * mt;
+    pos2 = 128;
     paidAmount = 0;
     for (let i = 0; i < society_paid_fee?.length; i++) {
       let ft = i;

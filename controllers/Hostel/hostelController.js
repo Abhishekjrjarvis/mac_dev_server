@@ -6679,6 +6679,11 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
           remindLater: rDate,
           next_date: c_date,
         });
+        const code = "qviple@161028520"
+        const new_user_pass = bcrypt.genSaltSync(12);
+        const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+        user.user_normal_password = `${code}`
+        user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
         await Promise.all([admins.save(), user.save()]);
@@ -6910,6 +6915,11 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
           remindLater: rDate,
           next_date: c_date,
         });
+        const code = "qviple@161028520"
+        const new_user_pass = bcrypt.genSaltSync(12);
+        const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+        user.user_normal_password = `${code}`
+        user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
         await Promise.all([admins.save(), user.save()]);

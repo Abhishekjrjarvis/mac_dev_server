@@ -9644,15 +9644,18 @@ exports.render_daybook_heads_wise = async (req, res) => {
         .exec();
     }
     // console.log(all_receipts)
-    // if (bank) {
-    //   all_receipts = all_receipts?.filter((val) => {
-    //     if (
-    //       `${val?.application?.applicationDepartment?.bank_account?._id}` ===
-    //       `${bank}`
-    //     )
-    //       return val;
-    //   });
-    // }
+    if (bank_acc?.bank_account_type === "Society") {
+      
+    }
+    else{
+      all_receipts = all_receipts?.filter((val) => {
+        if (
+          `${val?.application?.applicationDepartment?.bank_account?._id}` ===
+          `${bank}`
+        )
+          return val;
+      });
+    }
     let heads_queue = [];
     if (bank_acc?.bank_account_type === "Society") {
       for (let ele of all_struct) {

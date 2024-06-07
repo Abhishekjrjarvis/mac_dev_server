@@ -187,6 +187,10 @@ const bankDaybook = async (fid, from, to, bank, payment_type) => {
       bank_acc.day_book.push({
         excel_file: results?.Key,
         excel_file_name: `${name}-bank-daybook.pdf`,
+        from: from,
+        to: to,
+        payment_type: payment_type,
+        bank: bank
       })
       await unlinkFile(file.path);
       await bank_acc.save();

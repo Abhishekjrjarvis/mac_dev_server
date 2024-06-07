@@ -9740,6 +9740,13 @@ exports.render_daybook_query = async (req, res) => {
     if (!baid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const bank_acc = await BankAccount.findById({ _id: baid })
+      .populate({
+        path: "day_book",
+        populate: {
+          path: "bank",
+          select: "finance_bank_account_number finance_bank_name finance_bank_account_name"
+        }
+    })
 
     const all_daybook = await nested_document_limit(page, limit, bank_acc?.day_book)
 

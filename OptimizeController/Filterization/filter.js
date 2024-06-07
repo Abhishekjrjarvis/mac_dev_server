@@ -2081,19 +2081,39 @@ exports.renderApplicationListQuery = async (req, res) => {
         },
       })
       .populate({
+        path: "selectedApplication",
+        populate: {
+          path: "student",
+          // select:
+          //   "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
+        },
+      })
+      .populate({
+        path: "FeeCollectionApplication",
+        populate: {
+          path: "student",
+          // select:
+          //   "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
+        },
+      })
+      // .populate({
+      //   path: "reviewApplication",
+      //   populate: {
+      //     path: "student",
+      //     // select:
+      //     //   "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
+      //   },
+      // })
+      .populate({
         path: "confirmedApplication",
         populate: {
           path: "student",
-          select:
-            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
         },
       })
       .populate({
         path: "allottedApplication",
         populate: {
           path: "student",
-          select:
-            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
         },
       });
 
@@ -2237,7 +2257,226 @@ exports.renderApplicationListQuery = async (req, res) => {
           // excel_list: excel_list,
         });
       }
-    } else if (
+    }
+    else if (
+      `${flow}` === "Docs_Query" &&
+      valid_apply?.selectedApplication?.length > 0
+    ) {
+      var excel_list = [];
+      var numss = {};
+      for (var ref of valid_apply?.selectedApplication) {
+        for (let ele of ref?.student?.student_dynamic_field) {
+          // numss.push(
+          //   [ele?.key]: ele?.value,
+          // );
+          numss[ele?.key] = ele?.value;
+        }
+        excel_list.push({
+          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+          Name: `${ref?.student?.studentFirstName} ${
+            ref?.student?.studentMiddleName
+              ? ref?.student?.studentMiddleName ??
+                ref?.student?.studentFatherName
+              : ""
+          } ${ref?.student?.studentLastName}`,
+          DOB: ref?.student?.studentDOB ?? "#NA",
+          Gender: ref?.student?.studentGender ?? "#NA",
+          CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
+          Religion: ref?.student?.studentReligion ?? "#NA",
+          MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+          Address: `${ref?.student?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+          ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo:
+            ref?.student?.studentParentsPhoneNumber ?? "#NA",
+          NameAsMarksheet: ref?.student?.studentNameAsMarksheet,
+          NameAsCertificate: ref?.student?.studentNameAsCertificate,
+          BirthPlace: ref?.student?.studentBirthPlace,
+          Religion: ref?.student?.studentReligion,
+          Caste: ref?.student?.studentCast,
+          Nationality: ref?.student?.studentNationality,
+          RationCard: ref?.student?.studentFatherRationCardColor,
+          BloodGroup: ref?.student?.student_blood_group,
+          AadharNumber: ref?.student?.studentAadharNumber,
+          PhoneNumber: ref?.student?.studentPhoneNumber,
+          Email: ref?.student?.studentEmail,
+          ParentsPhoneNumber: ref?.student?.studentParentsPhoneNumber,
+          CurrentAddress: ref?.student?.studentCurrentAddress,
+          CurrentPinCode: ref?.student?.studentCurrentPincode,
+          CurrentState: ref?.student?.studentCurrentState,
+          CurrentDistrict: ref?.student?.studentCurrentDistrict,
+          Address: ref?.student?.studentAddress,
+          PinCode: ref?.student?.studentPincode,
+          State: ref?.student?.studentState,
+          District: ref?.student?.studentDistrict,
+          ParentsName: ref?.student?.studentParentsName,
+          ParentsEmail: ref?.student?.studentParentsEmail,
+          ParentsOccupation: ref?.student?.studentParentsOccupation,
+          ParentsOfficeAddress: ref?.student?.studentParentsAddress,
+          ParentsAnnualIncome: ref?.student?.studentParentsAnnualIncom,
+          SeatType: ref?.student?.student_seat_type,
+          PhysicallyHandicapped: ref?.student?.student_ph_type,
+          DefencePersonnel: ref?.student?.student_defence_personnel_word,
+          MaritalStatus: ref?.student?.student_marital_status,
+          PreviousBoard: ref?.student?.student_board_university,
+          PreviousSchool: ref?.student?.studentPreviousSchool,
+          UniversityCourse: ref?.student?.student_university_courses,
+          PassingYear: ref?.student?.student_year,
+          PreviousClass: ref?.student?.student_previous_class,
+          PreviousMarks: ref?.student?.student_previous_marks,
+          PreviousPercentage: ref?.student?.student_previous_percentage,
+          SeatNo: ref?.student?.student_previous_section,
+          StandardMOP: ref?.student?.month_of_passing,
+          StandardYOP: ref?.student?.year_of_passing,
+          StandardPercentage: ref?.student?.percentage,
+          StandardNameOfInstitute: ref?.student?.name_of_institute,
+          HSCMOP: ref?.student?.hsc_month,
+          HSCYOP: ref?.student?.hsc_year,
+          HSCPercentage: ref?.student?.hsc_percentage,
+          HSCNameOfInstitute: ref?.student?.hsc_name_of_institute,
+          HSCBoard: ref?.student?.hsc_board,
+          HSCCandidateType: ref?.student?.hsc_candidate_type,
+          HSCVocationalType: ref?.student?.hsc_vocational_type,
+          HSCPhysicsMarks: ref?.student?.hsc_physics_marks,
+          HSCChemistryMarks: ref?.student?.hsc_chemistry_marks,
+          HSCMathematicsMarks: ref?.student?.hsc_mathematics_marks,
+          HSCPCMTotal: ref?.student?.hsc_pcm_total,
+          HSCGrandTotal: ref?.student?.hsc_grand_total,
+          FormNo: ref?.student?.form_no,
+          QviplePayId: ref?.student?.qviple_student_pay_id,
+          ...numss,
+        });
+      }
+
+      var valid_back = await json_to_excel_admission_application_query(
+        excel_list,
+        valid_apply?.applicationName,
+        appId,
+        flow
+      );
+      if (valid_back?.back) {
+        res.status(200).send({
+          message: "Explore New Excel On Hostel Export TAB",
+          access: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No New Excel Exports ",
+          access: false,
+        });
+      }
+    }
+    else if (
+      `${flow}` === "Fees_Query" &&
+      valid_apply?.FeeCollectionApplication?.length > 0
+    ) {
+      var excel_list = [];
+      var numss = {};
+      for (var ref of valid_apply?.FeeCollectionApplication) {
+        for (let ele of ref?.student?.student_dynamic_field) {
+          // numss.push(
+          //   [ele?.key]: ele?.value,
+          // );
+          numss[ele?.key] = ele?.value;
+        }
+        excel_list.push({
+          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+          Name: `${ref?.student?.studentFirstName} ${
+            ref?.student?.studentMiddleName
+              ? ref?.student?.studentMiddleName ??
+                ref?.student?.studentFatherName
+              : ""
+          } ${ref?.student?.studentLastName}`,
+          DOB: ref?.student?.studentDOB ?? "#NA",
+          Gender: ref?.student?.studentGender ?? "#NA",
+          CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
+          Religion: ref?.student?.studentReligion ?? "#NA",
+          MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+          Address: `${ref?.student?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+          ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo:
+            ref?.student?.studentParentsPhoneNumber ?? "#NA",
+          NameAsMarksheet: ref?.student?.studentNameAsMarksheet,
+          NameAsCertificate: ref?.student?.studentNameAsCertificate,
+          BirthPlace: ref?.student?.studentBirthPlace,
+          Religion: ref?.student?.studentReligion,
+          Caste: ref?.student?.studentCast,
+          Nationality: ref?.student?.studentNationality,
+          RationCard: ref?.student?.studentFatherRationCardColor,
+          BloodGroup: ref?.student?.student_blood_group,
+          AadharNumber: ref?.student?.studentAadharNumber,
+          PhoneNumber: ref?.student?.studentPhoneNumber,
+          Email: ref?.student?.studentEmail,
+          ParentsPhoneNumber: ref?.student?.studentParentsPhoneNumber,
+          CurrentAddress: ref?.student?.studentCurrentAddress,
+          CurrentPinCode: ref?.student?.studentCurrentPincode,
+          CurrentState: ref?.student?.studentCurrentState,
+          CurrentDistrict: ref?.student?.studentCurrentDistrict,
+          Address: ref?.student?.studentAddress,
+          PinCode: ref?.student?.studentPincode,
+          State: ref?.student?.studentState,
+          District: ref?.student?.studentDistrict,
+          ParentsName: ref?.student?.studentParentsName,
+          ParentsEmail: ref?.student?.studentParentsEmail,
+          ParentsOccupation: ref?.student?.studentParentsOccupation,
+          ParentsOfficeAddress: ref?.student?.studentParentsAddress,
+          ParentsAnnualIncome: ref?.student?.studentParentsAnnualIncom,
+          SeatType: ref?.student?.student_seat_type,
+          PhysicallyHandicapped: ref?.student?.student_ph_type,
+          DefencePersonnel: ref?.student?.student_defence_personnel_word,
+          MaritalStatus: ref?.student?.student_marital_status,
+          PreviousBoard: ref?.student?.student_board_university,
+          PreviousSchool: ref?.student?.studentPreviousSchool,
+          UniversityCourse: ref?.student?.student_university_courses,
+          PassingYear: ref?.student?.student_year,
+          PreviousClass: ref?.student?.student_previous_class,
+          PreviousMarks: ref?.student?.student_previous_marks,
+          PreviousPercentage: ref?.student?.student_previous_percentage,
+          SeatNo: ref?.student?.student_previous_section,
+          StandardMOP: ref?.student?.month_of_passing,
+          StandardYOP: ref?.student?.year_of_passing,
+          StandardPercentage: ref?.student?.percentage,
+          StandardNameOfInstitute: ref?.student?.name_of_institute,
+          HSCMOP: ref?.student?.hsc_month,
+          HSCYOP: ref?.student?.hsc_year,
+          HSCPercentage: ref?.student?.hsc_percentage,
+          HSCNameOfInstitute: ref?.student?.hsc_name_of_institute,
+          HSCBoard: ref?.student?.hsc_board,
+          HSCCandidateType: ref?.student?.hsc_candidate_type,
+          HSCVocationalType: ref?.student?.hsc_vocational_type,
+          HSCPhysicsMarks: ref?.student?.hsc_physics_marks,
+          HSCChemistryMarks: ref?.student?.hsc_chemistry_marks,
+          HSCMathematicsMarks: ref?.student?.hsc_mathematics_marks,
+          HSCPCMTotal: ref?.student?.hsc_pcm_total,
+          HSCGrandTotal: ref?.student?.hsc_grand_total,
+          FormNo: ref?.student?.form_no,
+          QviplePayId: ref?.student?.qviple_student_pay_id,
+          ...numss,
+        });
+      }
+
+      var valid_back = await json_to_excel_admission_application_query(
+        excel_list,
+        valid_apply?.applicationName,
+        appId,
+        flow
+      );
+      if (valid_back?.back) {
+        res.status(200).send({
+          message: "Explore New Excel On Hostel Export TAB",
+          access: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No New Excel Exports ",
+          access: false,
+        });
+      }
+    }
+    else if (
       `${flow}` === "Confirm_Query" &&
       valid_apply?.confirmedApplication?.length > 0
     ) {
@@ -2271,27 +2510,91 @@ exports.renderApplicationListQuery = async (req, res) => {
           });
         }
       } else {
-        for (var ref of valid_apply?.confirmedApplication) {
-          excel_list.push({
-            RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-            Name: `${ref?.student?.studentFirstName} ${
-              ref?.student?.studentMiddleName
-                ? ref?.student?.studentMiddleName
-                : ""
-            } ${ref?.student?.studentLastName}`,
-            DOB: ref?.student?.studentDOB ?? "#NA",
-            Gender: ref?.student?.studentGender ?? "#NA",
-            Caste: ref?.student?.studentCastCategory ?? "#NA",
-            Religion: ref?.student?.studentReligion ?? "#NA",
-            MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
-            ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
-            Address: `${ref?.student?.studentAddress}` ?? "#NA",
-            AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
-            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
-            AlternateContactNo:
-              ref?.student?.studentParentsPhoneNumber ?? "#NA",
-          });
+      var numss = {};
+      for (var ref of valid_apply?.confirmedApplication) {
+        for (let ele of ref?.student?.student_dynamic_field) {
+          // numss.push(
+          //   [ele?.key]: ele?.value,
+          // );
+          numss[ele?.key] = ele?.value;
         }
+        excel_list.push({
+          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+          Name: `${ref?.student?.studentFirstName} ${
+            ref?.student?.studentMiddleName
+              ? ref?.student?.studentMiddleName ??
+                ref?.student?.studentFatherName
+              : ""
+          } ${ref?.student?.studentLastName}`,
+          DOB: ref?.student?.studentDOB ?? "#NA",
+          Gender: ref?.student?.studentGender ?? "#NA",
+          CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
+          Religion: ref?.student?.studentReligion ?? "#NA",
+          MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+          Address: `${ref?.student?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+          ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo:
+            ref?.student?.studentParentsPhoneNumber ?? "#NA",
+          NameAsMarksheet: ref?.student?.studentNameAsMarksheet,
+          NameAsCertificate: ref?.student?.studentNameAsCertificate,
+          BirthPlace: ref?.student?.studentBirthPlace,
+          Religion: ref?.student?.studentReligion,
+          Caste: ref?.student?.studentCast,
+          Nationality: ref?.student?.studentNationality,
+          RationCard: ref?.student?.studentFatherRationCardColor,
+          BloodGroup: ref?.student?.student_blood_group,
+          AadharNumber: ref?.student?.studentAadharNumber,
+          PhoneNumber: ref?.student?.studentPhoneNumber,
+          Email: ref?.student?.studentEmail,
+          ParentsPhoneNumber: ref?.student?.studentParentsPhoneNumber,
+          CurrentAddress: ref?.student?.studentCurrentAddress,
+          CurrentPinCode: ref?.student?.studentCurrentPincode,
+          CurrentState: ref?.student?.studentCurrentState,
+          CurrentDistrict: ref?.student?.studentCurrentDistrict,
+          Address: ref?.student?.studentAddress,
+          PinCode: ref?.student?.studentPincode,
+          State: ref?.student?.studentState,
+          District: ref?.student?.studentDistrict,
+          ParentsName: ref?.student?.studentParentsName,
+          ParentsEmail: ref?.student?.studentParentsEmail,
+          ParentsOccupation: ref?.student?.studentParentsOccupation,
+          ParentsOfficeAddress: ref?.student?.studentParentsAddress,
+          ParentsAnnualIncome: ref?.student?.studentParentsAnnualIncom,
+          SeatType: ref?.student?.student_seat_type,
+          PhysicallyHandicapped: ref?.student?.student_ph_type,
+          DefencePersonnel: ref?.student?.student_defence_personnel_word,
+          MaritalStatus: ref?.student?.student_marital_status,
+          PreviousBoard: ref?.student?.student_board_university,
+          PreviousSchool: ref?.student?.studentPreviousSchool,
+          UniversityCourse: ref?.student?.student_university_courses,
+          PassingYear: ref?.student?.student_year,
+          PreviousClass: ref?.student?.student_previous_class,
+          PreviousMarks: ref?.student?.student_previous_marks,
+          PreviousPercentage: ref?.student?.student_previous_percentage,
+          SeatNo: ref?.student?.student_previous_section,
+          StandardMOP: ref?.student?.month_of_passing,
+          StandardYOP: ref?.student?.year_of_passing,
+          StandardPercentage: ref?.student?.percentage,
+          StandardNameOfInstitute: ref?.student?.name_of_institute,
+          HSCMOP: ref?.student?.hsc_month,
+          HSCYOP: ref?.student?.hsc_year,
+          HSCPercentage: ref?.student?.hsc_percentage,
+          HSCNameOfInstitute: ref?.student?.hsc_name_of_institute,
+          HSCBoard: ref?.student?.hsc_board,
+          HSCCandidateType: ref?.student?.hsc_candidate_type,
+          HSCVocationalType: ref?.student?.hsc_vocational_type,
+          HSCPhysicsMarks: ref?.student?.hsc_physics_marks,
+          HSCChemistryMarks: ref?.student?.hsc_chemistry_marks,
+          HSCMathematicsMarks: ref?.student?.hsc_mathematics_marks,
+          HSCPCMTotal: ref?.student?.hsc_pcm_total,
+          HSCGrandTotal: ref?.student?.hsc_grand_total,
+          FormNo: ref?.student?.form_no,
+          QviplePayId: ref?.student?.qviple_student_pay_id,
+          ...numss,
+        });
+      }
       }
       var valid_back = await json_to_excel_admission_application_query(
         excel_list,
@@ -2310,7 +2613,226 @@ exports.renderApplicationListQuery = async (req, res) => {
           access: false,
         });
       }
-    } else if (
+    }
+    else if (
+      `${flow}` === "Fees_Query" &&
+      valid_apply?.FeeCollectionApplication?.length > 0
+    ) {
+      var excel_list = [];
+      var numss = {};
+      for (var ref of valid_apply?.FeeCollectionApplication) {
+        for (let ele of ref?.student?.student_dynamic_field) {
+          // numss.push(
+          //   [ele?.key]: ele?.value,
+          // );
+          numss[ele?.key] = ele?.value;
+        }
+        excel_list.push({
+          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+          Name: `${ref?.student?.studentFirstName} ${
+            ref?.student?.studentMiddleName
+              ? ref?.student?.studentMiddleName ??
+                ref?.student?.studentFatherName
+              : ""
+          } ${ref?.student?.studentLastName}`,
+          DOB: ref?.student?.studentDOB ?? "#NA",
+          Gender: ref?.student?.studentGender ?? "#NA",
+          CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
+          Religion: ref?.student?.studentReligion ?? "#NA",
+          MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+          Address: `${ref?.student?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+          ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo:
+            ref?.student?.studentParentsPhoneNumber ?? "#NA",
+          NameAsMarksheet: ref?.student?.studentNameAsMarksheet,
+          NameAsCertificate: ref?.student?.studentNameAsCertificate,
+          BirthPlace: ref?.student?.studentBirthPlace,
+          Religion: ref?.student?.studentReligion,
+          Caste: ref?.student?.studentCast,
+          Nationality: ref?.student?.studentNationality,
+          RationCard: ref?.student?.studentFatherRationCardColor,
+          BloodGroup: ref?.student?.student_blood_group,
+          AadharNumber: ref?.student?.studentAadharNumber,
+          PhoneNumber: ref?.student?.studentPhoneNumber,
+          Email: ref?.student?.studentEmail,
+          ParentsPhoneNumber: ref?.student?.studentParentsPhoneNumber,
+          CurrentAddress: ref?.student?.studentCurrentAddress,
+          CurrentPinCode: ref?.student?.studentCurrentPincode,
+          CurrentState: ref?.student?.studentCurrentState,
+          CurrentDistrict: ref?.student?.studentCurrentDistrict,
+          Address: ref?.student?.studentAddress,
+          PinCode: ref?.student?.studentPincode,
+          State: ref?.student?.studentState,
+          District: ref?.student?.studentDistrict,
+          ParentsName: ref?.student?.studentParentsName,
+          ParentsEmail: ref?.student?.studentParentsEmail,
+          ParentsOccupation: ref?.student?.studentParentsOccupation,
+          ParentsOfficeAddress: ref?.student?.studentParentsAddress,
+          ParentsAnnualIncome: ref?.student?.studentParentsAnnualIncom,
+          SeatType: ref?.student?.student_seat_type,
+          PhysicallyHandicapped: ref?.student?.student_ph_type,
+          DefencePersonnel: ref?.student?.student_defence_personnel_word,
+          MaritalStatus: ref?.student?.student_marital_status,
+          PreviousBoard: ref?.student?.student_board_university,
+          PreviousSchool: ref?.student?.studentPreviousSchool,
+          UniversityCourse: ref?.student?.student_university_courses,
+          PassingYear: ref?.student?.student_year,
+          PreviousClass: ref?.student?.student_previous_class,
+          PreviousMarks: ref?.student?.student_previous_marks,
+          PreviousPercentage: ref?.student?.student_previous_percentage,
+          SeatNo: ref?.student?.student_previous_section,
+          StandardMOP: ref?.student?.month_of_passing,
+          StandardYOP: ref?.student?.year_of_passing,
+          StandardPercentage: ref?.student?.percentage,
+          StandardNameOfInstitute: ref?.student?.name_of_institute,
+          HSCMOP: ref?.student?.hsc_month,
+          HSCYOP: ref?.student?.hsc_year,
+          HSCPercentage: ref?.student?.hsc_percentage,
+          HSCNameOfInstitute: ref?.student?.hsc_name_of_institute,
+          HSCBoard: ref?.student?.hsc_board,
+          HSCCandidateType: ref?.student?.hsc_candidate_type,
+          HSCVocationalType: ref?.student?.hsc_vocational_type,
+          HSCPhysicsMarks: ref?.student?.hsc_physics_marks,
+          HSCChemistryMarks: ref?.student?.hsc_chemistry_marks,
+          HSCMathematicsMarks: ref?.student?.hsc_mathematics_marks,
+          HSCPCMTotal: ref?.student?.hsc_pcm_total,
+          HSCGrandTotal: ref?.student?.hsc_grand_total,
+          FormNo: ref?.student?.form_no,
+          QviplePayId: ref?.student?.qviple_student_pay_id,
+          ...numss,
+        });
+      }
+
+      var valid_back = await json_to_excel_admission_application_query(
+        excel_list,
+        valid_apply?.applicationName,
+        appId,
+        flow
+      );
+      if (valid_back?.back) {
+        res.status(200).send({
+          message: "Explore New Excel On Hostel Export TAB",
+          access: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No New Excel Exports ",
+          access: false,
+        });
+      }
+    }
+    // else if (
+    //   `${flow}` === "Review_Query" &&
+    //   valid_apply?.reviewApplication?.length > 0
+    // ) {
+    //   var excel_list = [];
+    //   var numss = {};
+    //   for (var ref of valid_apply?.reviewApplication) {
+    //     for (let ele of ref?.student?.student_dynamic_field) {
+    //       // numss.push(
+    //       //   [ele?.key]: ele?.value,
+    //       // );
+    //       numss[ele?.key] = ele?.value;
+    //     }
+    //     excel_list.push({
+    //       RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+    //       Name: `${ref?.student?.studentFirstName} ${
+    //         ref?.student?.studentMiddleName
+    //           ? ref?.student?.studentMiddleName ??
+    //             ref?.student?.studentFatherName
+    //           : ""
+    //       } ${ref?.student?.studentLastName}`,
+    //       DOB: ref?.student?.studentDOB ?? "#NA",
+    //       Gender: ref?.student?.studentGender ?? "#NA",
+    //       CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
+    //       Religion: ref?.student?.studentReligion ?? "#NA",
+    //       MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+    //       ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+    //       Address: `${ref?.student?.studentAddress}` ?? "#NA",
+    //       AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+    //       ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+    //       AlternateContactNo:
+    //         ref?.student?.studentParentsPhoneNumber ?? "#NA",
+    //       NameAsMarksheet: ref?.student?.studentNameAsMarksheet,
+    //       NameAsCertificate: ref?.student?.studentNameAsCertificate,
+    //       BirthPlace: ref?.student?.studentBirthPlace,
+    //       Religion: ref?.student?.studentReligion,
+    //       Caste: ref?.student?.studentCast,
+    //       Nationality: ref?.student?.studentNationality,
+    //       RationCard: ref?.student?.studentFatherRationCardColor,
+    //       BloodGroup: ref?.student?.student_blood_group,
+    //       AadharNumber: ref?.student?.studentAadharNumber,
+    //       PhoneNumber: ref?.student?.studentPhoneNumber,
+    //       Email: ref?.student?.studentEmail,
+    //       ParentsPhoneNumber: ref?.student?.studentParentsPhoneNumber,
+    //       CurrentAddress: ref?.student?.studentCurrentAddress,
+    //       CurrentPinCode: ref?.student?.studentCurrentPincode,
+    //       CurrentState: ref?.student?.studentCurrentState,
+    //       CurrentDistrict: ref?.student?.studentCurrentDistrict,
+    //       Address: ref?.student?.studentAddress,
+    //       PinCode: ref?.student?.studentPincode,
+    //       State: ref?.student?.studentState,
+    //       District: ref?.student?.studentDistrict,
+    //       ParentsName: ref?.student?.studentParentsName,
+    //       ParentsEmail: ref?.student?.studentParentsEmail,
+    //       ParentsOccupation: ref?.student?.studentParentsOccupation,
+    //       ParentsOfficeAddress: ref?.student?.studentParentsAddress,
+    //       ParentsAnnualIncome: ref?.student?.studentParentsAnnualIncom,
+    //       SeatType: ref?.student?.student_seat_type,
+    //       PhysicallyHandicapped: ref?.student?.student_ph_type,
+    //       DefencePersonnel: ref?.student?.student_defence_personnel_word,
+    //       MaritalStatus: ref?.student?.student_marital_status,
+    //       PreviousBoard: ref?.student?.student_board_university,
+    //       PreviousSchool: ref?.student?.studentPreviousSchool,
+    //       UniversityCourse: ref?.student?.student_university_courses,
+    //       PassingYear: ref?.student?.student_year,
+    //       PreviousClass: ref?.student?.student_previous_class,
+    //       PreviousMarks: ref?.student?.student_previous_marks,
+    //       PreviousPercentage: ref?.student?.student_previous_percentage,
+    //       SeatNo: ref?.student?.student_previous_section,
+    //       StandardMOP: ref?.student?.month_of_passing,
+    //       StandardYOP: ref?.student?.year_of_passing,
+    //       StandardPercentage: ref?.student?.percentage,
+    //       StandardNameOfInstitute: ref?.student?.name_of_institute,
+    //       HSCMOP: ref?.student?.hsc_month,
+    //       HSCYOP: ref?.student?.hsc_year,
+    //       HSCPercentage: ref?.student?.hsc_percentage,
+    //       HSCNameOfInstitute: ref?.student?.hsc_name_of_institute,
+    //       HSCBoard: ref?.student?.hsc_board,
+    //       HSCCandidateType: ref?.student?.hsc_candidate_type,
+    //       HSCVocationalType: ref?.student?.hsc_vocational_type,
+    //       HSCPhysicsMarks: ref?.student?.hsc_physics_marks,
+    //       HSCChemistryMarks: ref?.student?.hsc_chemistry_marks,
+    //       HSCMathematicsMarks: ref?.student?.hsc_mathematics_marks,
+    //       HSCPCMTotal: ref?.student?.hsc_pcm_total,
+    //       HSCGrandTotal: ref?.student?.hsc_grand_total,
+    //       FormNo: ref?.student?.form_no,
+    //       QviplePayId: ref?.student?.qviple_student_pay_id,
+    //       ...numss,
+    //     });
+    //   }
+
+    //   var valid_back = await json_to_excel_admission_application_query(
+    //     excel_list,
+    //     valid_apply?.applicationName,
+    //     appId,
+    //     flow
+    //   );
+    //   if (valid_back?.back) {
+    //     res.status(200).send({
+    //       message: "Explore New Excel On Hostel Export TAB",
+    //       access: true,
+    //     });
+    //   } else {
+    //     res.status(200).send({
+    //       message: "No New Excel Exports ",
+    //       access: false,
+    //     });
+    //   }
+    // }
+    else if (
       `${flow}` === "Allot_Query" &&
       valid_apply?.allottedApplication?.length > 0
     ) {

@@ -61,7 +61,8 @@ app.use(
       "https://spesiop.qviple.com",
       "https://nespharmacy.qviple.com",
       "https://hptrykcollege.qviple.com",
-      "http://52.203.216.121"
+      "http://52.203.216.121",
+      "https://pvgssd.qviple.com",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

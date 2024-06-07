@@ -6792,16 +6792,15 @@ exports.render_one_student_form_section_enable_query = async (req, res) => {
 
 exports.render_one_enable_query = async (req, res) => {
   try {
-    const all_ins = await InstituteAdmin.find({ status: "Approved"})
-    for (var val of all_ins) {
-      var fc = new InstituteStudentForm({})
+    const { id } = req?.params
+    const all_ins = await InstituteAdmin.findById({ _id: id})
+    var fc = new InstituteStudentForm({})
       var form_staff = new InstituteStaffForm({})
-      form_staff.institute = val?._id
-      val.staff_form_setting = form_staff?._id
-      fc.institute = val?._id
-      val.student_form_setting = fc?._id
-      await Promise.all([ val.save(), form_staff.save(), fc.save()])
-    }
+      form_staff.institute = all_ins?._id
+      all_ins.staff_form_setting = form_staff?._id
+      fc.institute = all_ins?._id
+      all_ins.student_form_setting = fc?._id
+      await Promise.all([ all_ins.save(), form_staff.save(), fc.save()])
     res.status(200).send({ message: "Explore Student Form Section Query", access: true})
   }
   catch (e) {
@@ -7278,11 +7277,8 @@ exports.render_auto_student_form_section_checklist_query_manual = async (req, re
   }
 }
 
-exports.render_auto_staff_form_section_checklist_query = async (req, res) => {
+exports.render_auto_staff_form_section_checklist_query = async (fcid) => {
   try {
-    const { fcid } = req?.params
-    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
     var ifs = await InstituteStaffForm.findById({_id: fcid})
     // var all_ifs = await InstituteStaffForm.find({})
     // for (var ifs of all_ifs) {
@@ -7336,7 +7332,6 @@ exports.render_auto_staff_form_section_checklist_query = async (req, res) => {
       }
       await ifs.save()
     // }
-    res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
   }
   catch (e) {
     console.log(e)
@@ -7819,19 +7814,16 @@ exports.render_all_classes_query = async (req, res) => {
 
 exports.render_auto_student_form_section_checklist_query_academic = async (req, res) => {
   try {
-    // const { fcid } = req?.params
-    // if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    // var ifs = await InstituteStudentForm.findById({_id: fcid})
-    var all_ifs = await InstituteStudentForm.find({})
+    var ifs = await InstituteStudentForm.findById({_id: fcid})
+    // var all_ifs = await InstituteStudentForm.find({})
     var  i =0
-    for (var ifs of all_ifs) {
+    // for (var ifs of all_ifs) {
       var ins = await InstituteAdmin.findById({ _id: `${ifs?.institute}` })
         .select("depart admissionDepart")
     
       var all_app = await NewApplication.find({ admissionAdmin: ins?.admissionDepart?.[0] })
         .select("student_form_setting")
-      var checklist = academic_form
+      var checklist = form_params
       var numss = []
       for (var val of checklist) {
         if (val?.form_checklist?.length > 0) {
@@ -7867,65 +7859,67 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
             }
             fc.form = ifs?._id
             fc.form_section = val?._id
-            for (var stu of ele?.nested_form_checklist) {
-              var fcc = new FormChecklist({
-                form_checklist_name: stu?.form_checklist_name,
-                form_checklist_key: stu?.form_checklist_key,
-                form_checklist_visibility: stu?.form_checklist_visibility,
-                form_checklist_placeholder: stu?.form_checklist_placeholder,
-                form_checklist_lable: stu?.form_checklist_lable,
-                form_checklist_typo: stu?.form_checklist_typo,
-                form_checklist_required: stu?.form_checklist_required,
-                form_checklist_key_status: stu?.form_checklist_key_status,
-                width: stu?.width
-              })
-              if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
-                fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
-              }
-              if (stu?.form_checklist_sample) {
-                fcc.form_checklist_sample = stu?.form_checklist_sample
-              }
-              if (stu?.form_checklist_pdf) {
-                fcc.form_checklist_pdf = stu?.form_checklist_pdf
-              }
-              if (stu?.form_checklist_view) {
-                fcc.form_checklist_view = stu?.form_checklist_view
-              }
-              fcc.form = ifs?._id
-              fcc.form_section = val?._id
-              if (stu?.nested_form_checklist_nested) {
-                for (var qwe of stu?.nested_form_checklist_nested) {
-                  var fcca = new FormChecklist({
-                    form_checklist_name: qwe?.form_checklist_name,
-                    form_checklist_key: qwe?.form_checklist_key,
-                    form_checklist_visibility: qwe?.form_checklist_visibility,
-                    form_checklist_placeholder: qwe?.form_checklist_placeholder,
-                    form_checklist_lable: qwe?.form_checklist_lable,
-                    form_checklist_typo: qwe?.form_checklist_typo,
-                    form_checklist_required: qwe?.form_checklist_required,
-                    form_checklist_key_status: qwe?.form_checklist_key_status,
-                    width: qwe?.width
-                  })
-                  if (qwe?.form_checklist_typo_option_pl && qwe?.form_checklist_typo_option_pl?.length > 0) {
-                    fcca.form_checklist_typo_option_pl = [...qwe?.form_checklist_typo_option_pl]
-                  }
-                  if (qwe?.form_checklist_sample) {
-                    fcca.form_checklist_sample = qwe?.form_checklist_sample
-                  }
-                  if (qwe?.form_checklist_pdf) {
-                    fcca.form_checklist_pdf = qwe?.form_checklist_pdf
-                  }
-                  if (qwe?.form_checklist_view) {
-                    fcca.form_checklist_view = qwe?.form_checklist_view
-                  }
-                  fcca.form = ifs?._id
-                  fcca.form_section = val?._id
-                  fcc.nested_form_checklist_nested.push(fcca?._id)
-                  await fcca.save()
+            if (ele?.nested_form_checklist?.length > 0) {
+              for (var stu of ele?.nested_form_checklist) {
+                var fcc = new FormChecklist({
+                  form_checklist_name: stu?.form_checklist_name,
+                  form_checklist_key: stu?.form_checklist_key,
+                  form_checklist_visibility: stu?.form_checklist_visibility,
+                  form_checklist_placeholder: stu?.form_checklist_placeholder,
+                  form_checklist_lable: stu?.form_checklist_lable,
+                  form_checklist_typo: stu?.form_checklist_typo,
+                  form_checklist_required: stu?.form_checklist_required,
+                  form_checklist_key_status: stu?.form_checklist_key_status,
+                  width: stu?.width
+                })
+                if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
+                  fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
                 }
+                if (stu?.form_checklist_sample) {
+                  fcc.form_checklist_sample = stu?.form_checklist_sample
+                }
+                if (stu?.form_checklist_pdf) {
+                  fcc.form_checklist_pdf = stu?.form_checklist_pdf
+                }
+                if (stu?.form_checklist_view) {
+                  fcc.form_checklist_view = stu?.form_checklist_view
+                }
+                fcc.form = ifs?._id
+                fcc.form_section = val?._id
+                if (stu?.nested_form_checklist_nested) {
+                  for (var qwe of stu?.nested_form_checklist_nested) {
+                    var fcca = new FormChecklist({
+                      form_checklist_name: qwe?.form_checklist_name,
+                      form_checklist_key: qwe?.form_checklist_key,
+                      form_checklist_visibility: qwe?.form_checklist_visibility,
+                      form_checklist_placeholder: qwe?.form_checklist_placeholder,
+                      form_checklist_lable: qwe?.form_checklist_lable,
+                      form_checklist_typo: qwe?.form_checklist_typo,
+                      form_checklist_required: qwe?.form_checklist_required,
+                      form_checklist_key_status: qwe?.form_checklist_key_status,
+                      width: qwe?.width
+                    })
+                    if (qwe?.form_checklist_typo_option_pl && qwe?.form_checklist_typo_option_pl?.length > 0) {
+                      fcca.form_checklist_typo_option_pl = [...qwe?.form_checklist_typo_option_pl]
+                    }
+                    if (qwe?.form_checklist_sample) {
+                      fcca.form_checklist_sample = qwe?.form_checklist_sample
+                    }
+                    if (qwe?.form_checklist_pdf) {
+                      fcca.form_checklist_pdf = qwe?.form_checklist_pdf
+                    }
+                    if (qwe?.form_checklist_view) {
+                      fcca.form_checklist_view = qwe?.form_checklist_view
+                    }
+                    fcca.form = ifs?._id
+                    fcca.form_section = val?._id
+                    fcc.nested_form_checklist_nested.push(fcca?._id)
+                    await fcca.save()
+                  }
+                }
+                await fcc.save()
+                fc.nested_form_checklist.push(fcc?._id)
               }
-              await fcc.save()
-              fc.nested_form_checklist.push(fcc?._id)
             }
             await fc.save()
             numss.push(fc?._id)
@@ -7941,7 +7935,6 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
         numss = []
       }
       await ifs.save()
-      // res.status(200).send({ message: "Explore One Form Section Nested Checklist Query", access: true })
       var one_ifs = await InstituteStudentForm.findById({ _id: `${ifs?._id}` })
         .select("form_section")
         .populate({
@@ -7990,65 +7983,67 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
                 }
                 fc.department_form = qwe?._id
                 fc.form_section = one_ifs?._id
-                for (var stu of ele?.nested_form_checklist) {
-                  var fcc = new FormChecklist({
-                    form_checklist_name: stu?.form_checklist_name,
-                    form_checklist_key: stu?.form_checklist_key,
-                    form_checklist_visibility: stu?.form_checklist_visibility,
-                    form_checklist_placeholder: stu?.form_checklist_placeholder,
-                    form_checklist_lable: stu?.form_checklist_lable,
-                    form_checklist_typo: stu?.form_checklist_typo,
-                    form_checklist_required: stu?.form_checklist_required,
-                    form_checklist_key_status: stu?.form_checklist_key_status,
-                    width: stu?.width
-                  })
-                  if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
-                    fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
-                  }
-                  if (stu?.form_checklist_sample) {
-                    fcc.form_checklist_sample = stu?.form_checklist_sample
-                  }
-                  if (stu?.form_checklist_pdf) {
-                    fcc.form_checklist_pdf = stu?.form_checklist_pdf
-                  }
-                  if (stu?.form_checklist_view) {
-                    fcc.form_checklist_view = stu?.form_checklist_view
-                  }
-                  fcc.department_form = qwe?._id
-                  fcc.form_section = one_ifs?._id
-                  if (stu?.nested_form_checklist_nested) {
-                    for (var qwes of stu?.nested_form_checklist_nested) {
-                      var fcca = new FormChecklist({
-                        form_checklist_name: qwes?.form_checklist_name,
-                        form_checklist_key: qwes?.form_checklist_key,
-                        form_checklist_visibility: qwes?.form_checklist_visibility,
-                        form_checklist_placeholder: qwes?.form_checklist_placeholder,
-                        form_checklist_lable: qwes?.form_checklist_lable,
-                        form_checklist_typo: qwes?.form_checklist_typo,
-                        form_checklist_required: qwes?.form_checklist_required,
-                        form_checklist_key_status: qwes?.form_checklist_key_status,
-                        width: qwes?.width
-                      })
-                      if (qwes?.form_checklist_typo_option_pl && qwes?.form_checklist_typo_option_pl?.length > 0) {
-                        fcca.form_checklist_typo_option_pl = [...qwes?.form_checklist_typo_option_pl]
-                      }
-                      if (qwes?.form_checklist_sample) {
-                        fcca.form_checklist_sample = qwes?.form_checklist_sample
-                      }
-                      if (qwes?.form_checklist_pdf) {
-                        fcca.form_checklist_pdf = qwes?.form_checklist_pdf
-                      }
-                      if (qwes?.form_checklist_view) {
-                        fcca.form_checklist_view = qwes?.form_checklist_view
-                      }
-                      fcca.department_form = qwe?._id
-                      fcca.form_section = one_ifs?._id
-                      fcc.nested_form_checklist_nested.push(fcca?._id)
-                      await fcca.save()
+                if (ele?.nested_form_checklist?.length > 0) {
+                  for (var stu of ele?.nested_form_checklist) {
+                    var fcc = new FormChecklist({
+                      form_checklist_name: stu?.form_checklist_name,
+                      form_checklist_key: stu?.form_checklist_key,
+                      form_checklist_visibility: stu?.form_checklist_visibility,
+                      form_checklist_placeholder: stu?.form_checklist_placeholder,
+                      form_checklist_lable: stu?.form_checklist_lable,
+                      form_checklist_typo: stu?.form_checklist_typo,
+                      form_checklist_required: stu?.form_checklist_required,
+                      form_checklist_key_status: stu?.form_checklist_key_status,
+                      width: stu?.width
+                    })
+                    if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
+                      fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
                     }
+                    if (stu?.form_checklist_sample) {
+                      fcc.form_checklist_sample = stu?.form_checklist_sample
+                    }
+                    if (stu?.form_checklist_pdf) {
+                      fcc.form_checklist_pdf = stu?.form_checklist_pdf
+                    }
+                    if (stu?.form_checklist_view) {
+                      fcc.form_checklist_view = stu?.form_checklist_view
+                    }
+                    fcc.department_form = qwe?._id
+                    fcc.form_section = one_ifs?._id
+                    if (stu?.nested_form_checklist_nested) {
+                      for (var qwes of stu?.nested_form_checklist_nested) {
+                        var fcca = new FormChecklist({
+                          form_checklist_name: qwes?.form_checklist_name,
+                          form_checklist_key: qwes?.form_checklist_key,
+                          form_checklist_visibility: qwes?.form_checklist_visibility,
+                          form_checklist_placeholder: qwes?.form_checklist_placeholder,
+                          form_checklist_lable: qwes?.form_checklist_lable,
+                          form_checklist_typo: qwes?.form_checklist_typo,
+                          form_checklist_required: qwes?.form_checklist_required,
+                          form_checklist_key_status: qwes?.form_checklist_key_status,
+                          width: qwes?.width
+                        })
+                        if (qwes?.form_checklist_typo_option_pl && qwes?.form_checklist_typo_option_pl?.length > 0) {
+                          fcca.form_checklist_typo_option_pl = [...qwes?.form_checklist_typo_option_pl]
+                        }
+                        if (qwes?.form_checklist_sample) {
+                          fcca.form_checklist_sample = qwes?.form_checklist_sample
+                        }
+                        if (qwes?.form_checklist_pdf) {
+                          fcca.form_checklist_pdf = qwes?.form_checklist_pdf
+                        }
+                        if (qwes?.form_checklist_view) {
+                          fcca.form_checklist_view = qwes?.form_checklist_view
+                        }
+                        fcca.department_form = qwe?._id
+                        fcca.form_section = one_ifs?._id
+                        fcc.nested_form_checklist_nested.push(fcca?._id)
+                        await fcca.save()
+                      }
+                    }
+                    await fcc.save()
+                    fc.nested_form_checklist.push(fcc?._id)
                   }
-                  await fcc.save()
-                  fc.nested_form_checklist.push(fcc?._id)
                 }
                 nums.push(fc?._id)
                 await fc.save()
@@ -8104,65 +8099,67 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
               }
               fc.application_form = all?._id
               fc.form_section = one_ifs?._id
-              for (var stu of ele?.nested_form_checklist) {
-                var fcc = new FormChecklist({
-                  form_checklist_name: stu?.form_checklist_name,
-                  form_checklist_key: stu?.form_checklist_key,
-                  form_checklist_visibility: stu?.form_checklist_visibility,
-                  form_checklist_placeholder: stu?.form_checklist_placeholder,
-                  form_checklist_lable: stu?.form_checklist_lable,
-                  form_checklist_typo: stu?.form_checklist_typo,
-                  form_checklist_required: stu?.form_checklist_required,
-                  form_checklist_key_status: stu?.form_checklist_key_status,
-                  width: stu?.width
-                })
-                if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
-                  fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
-                }
-                if (stu?.form_checklist_sample) {
-                  fcc.form_checklist_sample = stu?.form_checklist_sample
-                }
-                if (stu?.form_checklist_pdf) {
-                  fcc.form_checklist_pdf = stu?.form_checklist_pdf
-                }
-                if (stu?.form_checklist_view) {
-                  fcc.form_checklist_view = stu?.form_checklist_view
-                }
-                fcc.application_form = all?._id
-                fcc.form_section = one_ifs?._id
-                if (stu?.nested_form_checklist_nested) {
-                  for (var qwe of stu?.nested_form_checklist_nested) {
-                    var fcca = new FormChecklist({
-                      form_checklist_name: qwe?.form_checklist_name,
-                      form_checklist_key: qwe?.form_checklist_key,
-                      form_checklist_visibility: qwe?.form_checklist_visibility,
-                      form_checklist_placeholder: qwe?.form_checklist_placeholder,
-                      form_checklist_lable: qwe?.form_checklist_lable,
-                      form_checklist_typo: qwe?.form_checklist_typo,
-                      form_checklist_required: qwe?.form_checklist_required,
-                      form_checklist_key_status: qwe?.form_checklist_key_status,
-                      width: qwe?.width
-                    })
-                    if (qwe?.form_checklist_typo_option_pl && qwe?.form_checklist_typo_option_pl?.length > 0) {
-                      fcca.form_checklist_typo_option_pl = [...qwe?.form_checklist_typo_option_pl]
-                    }
-                    if (qwe?.form_checklist_sample) {
-                      fcca.form_checklist_sample = qwe?.form_checklist_sample
-                    }
-                    if (qwe?.form_checklist_pdf) {
-                      fcca.form_checklist_pdf = qwe?.form_checklist_pdf
-                    }
-                    if (qwe?.form_checklist_view) {
-                      fcca.form_checklist_view = qwe?.form_checklist_view
-                    }
-                    fcca.application_form = all?._id
-                    fcca.form_section = one_ifs?._id
-                    fcc.nested_form_checklist_nested.push(fcca?._id)
-                    await fcca.save()
+              if (ele?.nested_form_checklist?.length > 0) {
+                for (var stu of ele?.nested_form_checklist) {
+                  var fcc = new FormChecklist({
+                    form_checklist_name: stu?.form_checklist_name,
+                    form_checklist_key: stu?.form_checklist_key,
+                    form_checklist_visibility: stu?.form_checklist_visibility,
+                    form_checklist_placeholder: stu?.form_checklist_placeholder,
+                    form_checklist_lable: stu?.form_checklist_lable,
+                    form_checklist_typo: stu?.form_checklist_typo,
+                    form_checklist_required: stu?.form_checklist_required,
+                    form_checklist_key_status: stu?.form_checklist_key_status,
+                    width: stu?.width
+                  })
+                  if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
+                    fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
                   }
+                  if (stu?.form_checklist_sample) {
+                    fcc.form_checklist_sample = stu?.form_checklist_sample
+                  }
+                  if (stu?.form_checklist_pdf) {
+                    fcc.form_checklist_pdf = stu?.form_checklist_pdf
+                  }
+                  if (stu?.form_checklist_view) {
+                    fcc.form_checklist_view = stu?.form_checklist_view
+                  }
+                  fcc.application_form = all?._id
+                  fcc.form_section = one_ifs?._id
+                  if (stu?.nested_form_checklist_nested) {
+                    for (var qwe of stu?.nested_form_checklist_nested) {
+                      var fcca = new FormChecklist({
+                        form_checklist_name: qwe?.form_checklist_name,
+                        form_checklist_key: qwe?.form_checklist_key,
+                        form_checklist_visibility: qwe?.form_checklist_visibility,
+                        form_checklist_placeholder: qwe?.form_checklist_placeholder,
+                        form_checklist_lable: qwe?.form_checklist_lable,
+                        form_checklist_typo: qwe?.form_checklist_typo,
+                        form_checklist_required: qwe?.form_checklist_required,
+                        form_checklist_key_status: qwe?.form_checklist_key_status,
+                        width: qwe?.width
+                      })
+                      if (qwe?.form_checklist_typo_option_pl && qwe?.form_checklist_typo_option_pl?.length > 0) {
+                        fcca.form_checklist_typo_option_pl = [...qwe?.form_checklist_typo_option_pl]
+                      }
+                      if (qwe?.form_checklist_sample) {
+                        fcca.form_checklist_sample = qwe?.form_checklist_sample
+                      }
+                      if (qwe?.form_checklist_pdf) {
+                        fcca.form_checklist_pdf = qwe?.form_checklist_pdf
+                      }
+                      if (qwe?.form_checklist_view) {
+                        fcca.form_checklist_view = qwe?.form_checklist_view
+                      }
+                      fcca.application_form = all?._id
+                      fcca.form_section = one_ifs?._id
+                      fcc.nested_form_checklist_nested.push(fcca?._id)
+                      await fcca.save()
+                    }
+                  }
+                  await fcc.save()
+                  fc.nested_form_checklist.push(fcc?._id)
                 }
-                await fcc.save()
-                fc.nested_form_checklist.push(fcc?._id)
               }
               numsss.push(fc?._id)
               await fc.save()
@@ -8186,7 +8183,7 @@ exports.render_auto_student_form_section_checklist_query_academic = async (req, 
   
       console.log("Ins", i)
       i+=1
-    }
+    // }
   }
   catch (e) {
     console.log(e)

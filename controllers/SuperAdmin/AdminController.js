@@ -25,6 +25,7 @@ const {
 const BankAccount = require("../../models/Finance/BankAccount");
 const { generate_random_code } = require("../../helper/functions");
 const Charges = require("../../models/SuperAdmin/Charges");
+const { render_auto_staff_form_section_checklist_query, render_auto_student_form_section_checklist_query_academic } = require("../InstituteAdmin/InstituteController");
 
 var AdminOTP = "";
 
@@ -362,6 +363,8 @@ exports.getApproveIns = async (req, res) => {
       message: `Congrats for Approval ${institute.insName}`,
       admin: admin._id,
     });
+    await render_auto_staff_form_section_checklist_query(institute?.staff_form_setting)
+    await render_auto_student_form_section_checklist_query_academic(institute?.student_form_setting)
   } catch (e) {
     console.log("Error", e);
   }

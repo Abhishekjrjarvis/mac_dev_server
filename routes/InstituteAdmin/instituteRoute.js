@@ -688,7 +688,7 @@ router.get(
 
 // Enable LC + FC
 router.patch(
-  "/enable/query",
+  "/enable/query/:id",
   catchAsync(Institute.render_one_enable_query)
 );
 
@@ -771,7 +771,7 @@ router.get(
 
 // Add In Super Admin
 router.patch(
-  "/enable/auto/form/query/academic",
+  "/:fcid/enable/auto/form/query/academic",
   catchAsync(Institute.render_auto_student_form_section_checklist_query_academic)
 );
 

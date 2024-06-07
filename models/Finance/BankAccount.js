@@ -79,6 +79,10 @@ const bankAccountSchema = new mongoose.Schema({
     {
       excel_file: { type: String },
       excel_file_name: { type: String },
+      from: { type: String },
+      to: { type: String },
+      payment_type: { type: String },
+      bank: { type: mongoose.Schema.Types.ObjectId, ref: "BankAccount"},
       created_at: { type: Date, default: Date.now },
     },
     ],

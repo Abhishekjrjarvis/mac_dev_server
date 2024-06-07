@@ -8522,19 +8522,25 @@ exports.clear_form_fields_section = async (req, res) => {
   }
 }
 
-// exports.render_middle_name_data = async (req, res) => {
-//   try {
-//     const all_student = await Student.find({})
-//     for (let ele of all_student) {
-//       if (ele?.studentMiddleName) {
-//         ele.studentMiddleName = ele?.studentFatherName ? ele?.studentFatherName : ele.studentMiddleName
-//       }
-//       else {
-        
-//       }
-//     }
-//   }
-//   catch (e) {
-//     console.log(e)
-//   }
-// }
+exports.render_middle_name_data = async (req, res) => {
+  try {
+    const all_student = await Student.find({})
+    .select("studentMiddleName studentFatherName")
+    var i = 0
+    for (let ele of all_student) {
+      if (ele?.studentMiddleName) {
+        ele.studentMiddleName = ele?.studentFatherName ? ele?.studentFatherName : ele.studentMiddleName
+      }
+      else {
+        ele.studentMiddleName = ele?.studentFatherName ? ele?.studentFatherName : ele.studentMiddleName
+      }
+      await ele.save()
+      console.log(i)
+      i+=1
+    }
+    res.status(200).send({ message: "Insert Middle Name"})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

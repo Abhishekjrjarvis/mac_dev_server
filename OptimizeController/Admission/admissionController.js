@@ -1067,7 +1067,10 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     //     denied: true,
     //   });
     // } else {
-      const student = new Student({ ...req.body });
+    const student = new Student({ ...req.body });
+    if (req.body?.studentFatherName) {
+      student.studentMiddleName = req.body?.studentFatherName
+    }
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;

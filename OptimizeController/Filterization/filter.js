@@ -69,6 +69,7 @@ const PayrollModule = require("../../models/Finance/Payroll/PayrollModule");
 const PaySlip = require("../../models/Finance/Payroll/PaySlip");
 const daybookData = require("../../AjaxRequest/daybookData");
 const bankDaybook = require("../../scripts/bankDaybook");
+const { nested_document_limit } = require("../../helper/databaseFunction");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -9516,11 +9517,11 @@ exports.render_daybook_heads_wise = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    //   res.status(200).send({
-    //     message: "Explore Day Book Heads Query",
-    //     access: true,
-    //   });
-    // await bankDaybook(fid, from, to, bank, payment_type)
+      res.status(200).send({
+        message: "Explore Day Book Heads Query",
+        access: true,
+      });
+    await bankDaybook(fid, from, to, bank, payment_type)
     var g_year;
     var l_year;
     var g_month;
@@ -9708,27 +9709,46 @@ exports.render_daybook_heads_wise = async (req, res) => {
       //   head_name: "Total Fees",
       //   head_amount: t
       // })
-      res.status(200).send({
-        message: "Explore Day Book Heads Query",
-        access: true,
-        // all_receipts,
-        results: nest_obj,
-        account_info: bank_acc,
-        day_range_from: from,
-        day_range_to: to,
-        ins_info: institute,
-      });
+      // res.status(200).send({
+      //   message: "Explore Day Book Heads Query",
+      //   access: true,
+      //   // all_receipts,
+      //   results: nest_obj,
+      //   account_info: bank_acc,
+      //   day_range_from: from,
+      //   day_range_to: to,
+      //   ins_info: institute,
+      // });
     } else {
-      res.status(200).send({
-        message: "No Day Book Heads Query",
-        access: false,
-        results: [],
-      });
+      // res.status(200).send({
+      //   message: "No Day Book Heads Query",
+      //   access: false,
+      //   results: [],
+      // });
     }
   } catch (e) {
     console.log(e);
   }
 };
+
+exports.render_daybook_query = async (req, res) => {
+  try {
+    const { baid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!baid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const bank_acc = await BankAccount.findById({ _id: baid })
+
+    const all_daybook = await nested_document_limit(page, limit, bank_acc?.day_book)
+
+    res.status(200).send({ message: "Explore All Day Book Query", access: true, all_daybook: all_daybook})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
 // var data = "2023-08-28T11:22:55.743+00:00";
 // var from = "2023-07-01";
 // var to = "2023-08-28";

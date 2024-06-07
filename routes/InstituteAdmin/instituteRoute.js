@@ -793,4 +793,10 @@ router.patch(
   catchAsync(Institute.clear_form_fields_section)
 );
 
+// Single Social
+router.patch(
+  "/enable/middle",
+  catchAsync(Institute.render_middle_name_data)
+);
+
 module.exports = router;

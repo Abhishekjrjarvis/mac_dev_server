@@ -184,172 +184,183 @@ const render_daybook_heads_wise = async (fid, from, to, bank, payment_type) => {
       var l_month;
   
       var sorted_array = [];
-      const bank_acc = await BankAccount.findById({ _id: bank });
-      const all_struct = await FeesStructure.find({
-        department: { $in: bank_acc?.departments },
+    const bank_acc = await BankAccount.findById({ _id: bank });
+    const finance = await Finance.findById({ _id: fid }).select("institute");
+    if (bank_acc?.bank_account_type === "Society") {
+      var all_struct = await FeeStructure.find({
+        $and: [{finance: finance?._id}, { document_update: false}],
       });
-      const finance = await Finance.findById({ _id: fid }).select("institute");
-      const institute = await InstituteAdmin.findById({
-        _id: `${finance?.institute}`,
-      }).select(
-        "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode insAbout insAffiliated"
-      );
-  
-      var g_year = new Date(`${from}`).getFullYear();
-      var g_day = new Date(`${from}`).getDate();
-      var l_year = new Date(`${to}`).getFullYear();
-      var l_day = new Date(`${to}`).getDate();
-      var g_month = new Date(`${from}`).getMonth() + 1;
-      if (g_month < 10) {
-        g_month = `0${g_month}`;
-      }
-      if (g_day < 10) {
-        g_day = `0${g_day}`;
-      }
-      var l_month = new Date(`${to}`).getMonth() + 1;
-      if (l_month < 10) {
-        l_month = `0${l_month}`;
-      }
-      if (l_day < 10) {
-        l_day = `0${l_day}`;
-      }
-      const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
-      const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
-      if (payment_type) {
-        var all_receipts = await feeReceipt.find({
-          $and: [
-            { finance: fid },
-            // { fee_flow: "FEE_HEADS" },
-            {
-              created_at: {
-                $gte: g_date,
-                $lt: l_date,
-              },
+    }
+    else {
+      var all_struct = await FeeStructure.find({
+        $and: [{department: { $in: bank_acc?.departments }}, { document_update: false}],
+      }); 
+    }
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    }).select(
+      "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode insAbout insAffiliated"
+    );
+
+    var g_year = new Date(`${from}`).getFullYear();
+    var g_day = new Date(`${from}`).getDate();
+    var l_year = new Date(`${to}`).getFullYear();
+    var l_day = new Date(`${to}`).getDate();
+    var g_month = new Date(`${from}`).getMonth() + 1;
+    if (g_month < 10) {
+      g_month = `0${g_month}`;
+    }
+    if (g_day < 10) {
+      g_day = `0${g_day}`;
+    }
+    var l_month = new Date(`${to}`).getMonth() + 1;
+    if (l_month < 10) {
+      l_month = `0${l_month}`;
+    }
+    if (l_day < 10) {
+      l_day = `0${l_day}`;
+    }
+    const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+    const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
+    if (payment_type) {
+      var all_receipts = await FeeReceipt.find({
+        $and: [
+          { finance: fid },
+          // { fee_flow: "FEE_HEADS" },
+          {
+            created_at: {
+              $gte: g_date,
+              $lt: l_date,
             },
-            {
-              receipt_generated_from: "BY_ADMISSION",
-            },
-            {
-              refund_status: "No Refund",
-            },
-            {
-              fee_payment_mode: payment_type,
-            },
-            // { student: { $in: sorted_array } },
-          ],
-        })
-          .sort({ invoice_count: "1" })
-          .select("fee_heads application")
-          .populate({
-            path: "application",
-            select: "applicationDepartment",
+          },
+          {
+            receipt_generated_from: "BY_ADMISSION",
+          },
+          {
+            refund_status: "No Refund",
+          },
+          {
+            fee_payment_mode: payment_type,
+          },
+          // { student: { $in: sorted_array } },
+        ],
+      })
+        .sort({ invoice_count: "1" })
+        .select("fee_heads application")
+        .populate({
+          path: "application",
+          select: "applicationDepartment",
+          populate: {
+            path: "applicationDepartment",
+            select: "bank_account",
             populate: {
-              path: "applicationDepartment",
-              select: "bank_account",
-              populate: {
-                path: "bank_account",
-                select:
-                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
-              },
+              path: "bank_account",
+              select:
+                "finance_bank_account_number finance_bank_name finance_bank_account_name",
             },
-          })
-          .lean()
-          .exec();
-      } else {
-        var all_receipts = await feeReceipt.find({
-          $and: [
-            { finance: fid },
-            // { fee_flow: "FEE_HEADS" },
-            {
-              created_at: {
-                $gte: g_date,
-                $lt: l_date,
-              },
-            },
-            {
-              receipt_generated_from: "BY_ADMISSION",
-            },
-            {
-              refund_status: "No Refund",
-            },
-            // { student: { $in: sorted_array } },
-          ],
+          },
         })
-          .sort({ invoice_count: "1" })
-          .select("fee_heads application")
-          .populate({
-            path: "application",
-            select: "applicationDepartment",
-            populate: {
-              path: "applicationDepartment",
-              select: "bank_account",
-              populate: {
-                path: "bank_account",
-                select:
-                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
-              },
+        .lean()
+        .exec();
+    } else {
+      var all_receipts = await FeeReceipt.find({
+        $and: [
+          { finance: fid },
+          // { fee_flow: "FEE_HEADS" },
+          {
+            created_at: {
+              $gte: g_date,
+              $lt: l_date,
             },
-          })
-          .lean()
-          .exec();
-      }
-      if (bank) {
-        all_receipts = all_receipts?.filter((val) => {
-          if (
-            `${val?.application?.applicationDepartment?.bank_account?._id}` ===
-            `${bank}`
-          )
-            return val;
-        });
-      }
-      let heads_queue = [];
-      if (bank_acc?.bank_account_type === "Society") {
-        for (let ele of all_struct) {
-          for (let val of ele?.applicable_fees_heads) {
-            if (val?.is_society == true) {
-              if (heads_queue?.includes(`${val?.master}`)) {
-              } else {
-                heads_queue.push(val?.master);
-              }
+          },
+          {
+            receipt_generated_from: "BY_ADMISSION",
+          },
+          {
+            refund_status: "No Refund",
+          },
+          // { student: { $in: sorted_array } },
+        ],
+      })
+        .sort({ invoice_count: "1" })
+        .select("fee_heads application")
+        .populate({
+          path: "application",
+          select: "applicationDepartment",
+          populate: {
+            path: "applicationDepartment",
+            select: "bank_account",
+            populate: {
+              path: "bank_account",
+              select:
+                "finance_bank_account_number finance_bank_name finance_bank_account_name",
+            },
+          },
+        })
+        .lean()
+        .exec();
+    }
+    // console.log(all_receipts)
+    if (bank_acc?.bank_account_type === "Society") {
+      
+    }
+    else{
+      all_receipts = all_receipts?.filter((val) => {
+        if (
+          `${val?.application?.applicationDepartment?.bank_account?._id}` ===
+          `${bank}`
+        )
+          return val;
+      });
+    }
+    let heads_queue = [];
+    if (bank_acc?.bank_account_type === "Society") {
+      for (let ele of all_struct) {
+        for (let val of ele?.applicable_fees_heads) {
+          if (val?.is_society == true) {
+            if (heads_queue?.includes(`${val?.master}`)) {
+            } else {
+              heads_queue.push(val?.master);
             }
           }
         }
-      } else {
-        for (let ele of all_struct) {
-          for (let val of ele?.applicable_fees_heads) {
-            if (val?.is_society == false) {
-              if (heads_queue?.includes(`${val?.master}`)) {
-              } else {
-                heads_queue.push(val?.master);
-              }
+      }
+    } else {
+      for (let ele of all_struct) {
+        for (let val of ele?.applicable_fees_heads) {
+          if (val?.is_society == false) {
+            if (heads_queue?.includes(`${val?.master}`)) {
+            } else {
+              heads_queue.push(val?.master);
             }
           }
         }
       }
-      const all_master = await FeeMaster.find({
-        _id: { $in: heads_queue },
-      }).select("master_name");
-      var obj = {};
-      var nest_obj = [];
-      for (let ele of all_master) {
-        obj["head_name"] = ele?.master_name;
-        obj["head_amount"] = 0;
-        obj["_id"] = ele?._id;
-        nest_obj.push(obj);
-        obj = {};
-      }
-      // var t = 0
-      if (all_receipts?.length > 0) {
-        for (let ele of all_receipts) {
-          for (let val of ele?.fee_heads) {
-            for (let ads of nest_obj) {
-              if (`${ads?._id}` === `${val?.master}`) {
-                ads.head_amount += val?.original_paid;
-                // t+= val?.original_paid
-              }
+    }
+    const all_master = await FeeMaster.find({
+      _id: { $in: heads_queue },
+    }).select("master_name");
+    var obj = {};
+    var nest_obj = [];
+    for (let ele of all_master) {
+      obj["head_name"] = ele?.master_name;
+      obj["head_amount"] = 0;
+      obj["_id"] = ele?._id;
+      nest_obj.push(obj);
+      obj = {};
+    }
+    // var t = 0
+    if (all_receipts?.length > 0) {
+      for (let ele of all_receipts) {
+        for (let val of ele?.fee_heads) {
+          for (let ads of nest_obj) {
+            if (`${ads?._id}` === `${val?.master}`) {
+              ads.head_amount += val?.original_paid;
+              // t+= val?.original_paid
             }
           }
         }
+      }
         // nest_obj.push({
         //   head_name: "Total Fees",
         //   head_amount: t

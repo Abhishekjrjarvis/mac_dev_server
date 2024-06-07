@@ -1796,6 +1796,9 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
         _id: `${classes?.institute}`,
       });
       const student = new Student({ ...req.body });
+      if (req.body?.studentFatherName) {
+        student.studentMiddleName = req.body?.studentFatherName
+      }
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;
@@ -2223,6 +2226,9 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       let nums = universal_random_password_student_code()
       student.qviple_student_pay_id = nums
       student.member_module_unique = `${codess}`
+      if (req.body?.studentFatherName) {
+        student.studentMiddleName = req.body?.studentFatherName
+      }
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;
@@ -2471,6 +2477,9 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
         });
       }
       const student = new Student({ ...req.body });
+      if (req.body?.studentFatherName) {
+        student.studentMiddleName = req.body?.studentFatherName
+      }
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;
@@ -2724,6 +2733,9 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       _id: `${institute?.financeDepart[0]}`,
     });
     const student = new Student({ ...req.body });
+    if (req.body?.studentFatherName) {
+      student.studentMiddleName = req.body?.studentFatherName
+    }
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
@@ -3323,6 +3335,9 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       var user = await User.findById({ _id: `${existing}` });
     }
     const student = new Student({ ...req.body });
+    if (req.body?.studentFatherName) {
+      student.studentMiddleName = req.body?.studentFatherName
+    }
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;

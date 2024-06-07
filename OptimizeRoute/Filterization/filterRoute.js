@@ -250,4 +250,6 @@ router.patch(
 
 router.patch("/:fid/daybook/heads/wise", catchAsync(Filter.render_daybook_heads_wise))
 
+router.get("/:baid/all/daybook", catchAsync(Filter.render_daybook_query))
+
 module.exports = router;

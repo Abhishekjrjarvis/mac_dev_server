@@ -187,12 +187,12 @@ const render_daybook_heads_wise = async (fid, from, to, bank, payment_type) => {
     const bank_acc = await BankAccount.findById({ _id: bank });
     const finance = await Finance.findById({ _id: fid }).select("institute");
     if (bank_acc?.bank_account_type === "Society") {
-      var all_struct = await FeeStructure.find({
+      var all_struct = await FeesStructure.find({
         $and: [{finance: finance?._id}, { document_update: false}],
       });
     }
     else {
-      var all_struct = await FeeStructure.find({
+      var all_struct = await FeesStructure.find({
         $and: [{department: { $in: bank_acc?.departments }}, { document_update: false}],
       }); 
     }

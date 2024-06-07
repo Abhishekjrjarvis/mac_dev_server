@@ -3,7 +3,7 @@ const BankAccount = require("../models/Finance/BankAccount");
 const FeeMaster = require("../models/Finance/FeeMaster");
 const FeesStructure = require("../models/Finance/FeesStructure");
 const InstituteAdmin = require("../models/InstituteAdmin");
-const feeReceipt = require("../models/RazorPay/feeReceipt");
+const FeeReceipt = require("../models/RazorPay/feeReceipt");
 
 let dataObj = {
     message: "Explore Day Book Heads Query",

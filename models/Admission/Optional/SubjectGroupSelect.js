@@ -10,15 +10,22 @@ const subjectGroupSelectSchema = new mongoose.Schema({
             ref: "SubjectMaster"
         }
     ],
-    major_type: {
-        type: String
-    },
-    major_select_max: {
-        type: Number,
-        default: 0
-    },
     optional_subject: [
         {
+            major_type: {
+                type: String
+            },
+            major_select_max: {
+                type: Number,
+                default: 0
+            },
+            nested_select_name: {
+                type: String
+            },
+            nested_select_min: {
+                type: Number,
+                default: 0
+            },
             optional_subject_rule: {
                 type: Number,
                 default: 1
@@ -50,6 +57,20 @@ const subjectGroupSelectSchema = new mongoose.Schema({
     ],
     fixed_subject: [
         {
+            major_type: {
+                type: String
+            },
+            major_select_max: {
+                type: Number,
+                default: 0
+            },
+            nested_select_name: {
+                type: String
+            },
+            nested_select_min: {
+                type: Number,
+                default: 0
+            },
             fixed_subject_rule: {
                 type: Number,
                 default: 1

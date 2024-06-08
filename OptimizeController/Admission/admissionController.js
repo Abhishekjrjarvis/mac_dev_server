@@ -14324,7 +14324,11 @@ exports.render_add_subject_group_select_query = async (req, res) => {
           optional_subject_name: ele?.optional_subject_name,
           optional_subject_options: [...ele?.optional_subject_options],
           optional_subject_rule_max: ele?.optional_subject_rule_max,
-          optional_subject_options_or: [...ele?.optional_subject_options_or]
+          optional_subject_options_or: [...ele?.optional_subject_options_or],
+          major_type: ele?.major_type,
+          major_select_max: ele?.major_select_max,
+          nested_select_name: ele?.nested_select_name,
+          nested_select_min: ele?.nested_select_min,
         })
         group.optional_subject_count += 1
       }
@@ -14336,6 +14340,10 @@ exports.render_add_subject_group_select_query = async (req, res) => {
           fixed_subject_name: ele?.fixed_subject_name,
           fixed_subject_options: [...ele?.fixed_subject_options],
           fixed_subject_rule_max: ele?.fixed_subject_rule_max,
+          major_type: ele?.major_type,
+          major_select_max: ele?.major_select_max,
+          nested_select_name: ele?.nested_select_name,
+          nested_select_min: ele?.nested_select_min,
         })
         group.fixed_subject_count += 1
       }

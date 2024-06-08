@@ -1722,7 +1722,11 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   ],
                   form_checklist_typo_option_pl_optional: [...set?.optional_subject_options_or],
                   form_checklist_rule: set?.optional_subject_rule,
-                  form_checklist_rule_max: set?.optional_subject_rule_max
+                  form_checklist_rule_max: set?.optional_subject_rule_max,
+                  form_checklist_major_type: set?.major_type,
+                  form_checklist_major_select_max: set?.major_select_max,
+                  form_checklist_nested_select_name: set?.nested_select_name,
+                  form_checklist_nested_select_min: set?.nested_select_min,
               })
             }
             for (var set of val?.fixed_subject) {
@@ -1738,7 +1742,11 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                      ...set?.fixed_subject_options
                   ],
                   form_checklist_rule: set?.fixed_subject_rule,
-                  form_checklist_rule_max: set?.fixed_subject_rule_max
+                  form_checklist_rule_max: set?.fixed_subject_rule_max,
+                  form_checklist_major_type: set?.major_type,
+                  form_checklist_major_select_max: set?.major_select_max,
+                  form_checklist_nested_select_name: set?.nested_select_name,
+                  form_checklist_nested_select_min: set?.nested_select_min,
               })
             }
             nums_group.push(
@@ -1748,8 +1756,6 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                 nested_section_key: "subject_criteria",
                 nested_form_checklist: [...nums_select],
                 nested_section_typo: "CHECKBOX",
-                nested_major_type: val?.major_type,
-                nested_major_select_max: val?.major_select_max
               }
             )
             nums_select = []
@@ -1939,7 +1945,11 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                   ],
                   form_checklist_typo_option_pl_optional: [...set?.optional_subject_options_or],
                   form_checklist_rule: set?.optional_subject_rule,
-                  form_checklist_rule_max: set?.optional_subject_rule_max
+                  form_checklist_rule_max: set?.optional_subject_rule_max,
+                  form_checklist_major_type: set?.major_type,
+                  form_checklist_major_select_max: set?.major_select_max,
+                  form_checklist_nested_select_name: set?.nested_select_name,
+                  form_checklist_nested_select_min: set?.nested_select_min,
               })
             }
             for (var set of val?.fixed_subject) {
@@ -1955,7 +1965,11 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                      ...set?.fixed_subject_options
                   ],
                   form_checklist_rule: set?.fixed_subject_rule,
-                  form_checklist_rule_max: set?.fixed_subject_rule_max
+                  form_checklist_rule_max: set?.fixed_subject_rule_max,
+                  form_checklist_major_type: set?.major_type,
+                  form_checklist_major_select_max: set?.major_select_max,
+                  form_checklist_nested_select_name: set?.nested_select_name,
+                  form_checklist_nested_select_min: set?.nested_select_min,
               })
             }
             nums_group.push(
@@ -1965,8 +1979,6 @@ exports.render_dynamic_form_details_query = async (req, res) => {
                 nested_section_key: "subject_criteria",
                 nested_form_checklist: [...nums_select],
                 nested_section_typo: "CHECKBOX",
-                nested_major_type: val?.major_type,
-                nested_major_select_max: val?.major_select_max,
               }
             )
             nums_select = []

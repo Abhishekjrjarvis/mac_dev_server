@@ -10270,9 +10270,85 @@ exports.render_daybook_query = async (req, res) => {
         }
     })
 
-    const all_daybook = await nested_document_limit(page, limit, bank_acc?.day_book)
+    const all_daybook = await nested_document_limit(page, limit, bank_acc?.day_book?.reverse())
 
     res.status(200).send({ message: "Explore All Day Book Query", access: true, all_daybook: all_daybook})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.fee_master_linking = async (req, res) => {
+  try {
+    const nums = [
+      "6654d392f2effce6154532c5",
+      "66586df0e1e16049583466a0",
+      "665abc19e1e16049583b8141",
+      "665acfc4e1e16049583bca8f",
+      "665ad324e1e16049583bd5a8",
+      "665ec6b6fe80b4410e5aa92d",
+      "665eea2cfe80b4410e5b433b",
+      "665eed56fe80b4410e5b4eff",
+      "665efdd7fe80b4410e5b8a74",
+      "665fffa2f8bc7a5d88f1d0c7",
+      "6660077ef8bc7a5d88f1f0ba",
+      "66600a2af8bc7a5d88f1fb46",
+      "666038f1f8bc7a5d88f2cc42",
+      "66603103f8bc7a5d88f2a70e",
+      "66602995f8bc7a5d88f27fd7",
+      "6660256cf8bc7a5d88f26c69",
+      "666017c7f8bc7a5d88f22f3b"
+    ]
+    const all = await FeeReceipt.find({ _id: { $in: nums } })
+    .select("fee_heads fee_structure")
+    const struct = []
+    for (let ele of all) {
+      if (struct?.includes(`${ele?.fee_structure}`)) {
+        
+      }
+      else {
+        struct.push(ele?.fee_structure)
+      }
+    }
+    const all_struct = await FeeStructure.find({ _id: { $in: struct } })
+    var heads_queue = []
+    for (let ele of all_struct) {
+      for (let val of ele?.applicable_fees_heads) {
+          if (heads_queue?.includes(`${val?.master}`)) {
+          } else {
+            heads_queue.push(val?.master);
+          }
+      }
+    }
+
+    const all_master = await FeeMaster.find({
+      _id: { $in: heads_queue },
+    }).select("master_name");
+    var obj = {};
+    var nest_obj = [];
+    for (let ele of all_master) {
+      obj["head_name"] = ele?.master_name;
+      obj["head_amount"] = 0;
+      obj["_id"] = ele?._id;
+      nest_obj.push(obj);
+      obj = {};
+    }
+
+    for (let ele of all) {
+      for (let val of ele?.fee_heads) {
+        for (let ads of nest_obj) {
+            if (`${ads?.head_name}` === `${val?.head_name}`) {
+              val.master = ads?._id
+              // t+= val?.original_paid
+            }
+          // }
+        }
+      }
+      await ele.save()
+    }
+
+    res.status(200).send({ message: "Explore", all: all})
   }
   catch (e) {
     console.log(e)

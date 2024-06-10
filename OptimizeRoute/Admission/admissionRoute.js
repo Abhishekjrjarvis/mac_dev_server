@@ -887,4 +887,6 @@ router.post(
   catchAsync(Admission.render_select_group_query)
 );
 
+router.patch("/new/form/:sid", catchAsync(Admission.form))
+
 module.exports = router;

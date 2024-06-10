@@ -14395,6 +14395,25 @@ exports.render_select_group_query = async (req, res) => {
   }
 }
 
+exports.form = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    const { id, aid } = req?.body
+    const student = await Student.findById({ _id: sid })
+    const institute = await InstituteAdmin.findById({ _id: id })
+    const apply = await NewApplication.findById({ _id: aid })
+    await generateStudentAdmissionForm(
+      student?._id,
+      institute?._id,
+      `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
+      `${apply?.applicationName}`,
+    );
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {
 //     const { aid } = req?.params

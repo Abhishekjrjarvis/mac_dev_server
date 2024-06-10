@@ -3398,8 +3398,10 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       // new_receipt
     );
     apply.receievedCount += 1;
-    apply.selectCount += 1;
-    apply.confirmCount += 1;
+    apply.receievedApplication.push({
+      student: student?._id,
+      fee_remain: 0
+    })
     // await fee_reordering(
     //   type,
     //   mode,

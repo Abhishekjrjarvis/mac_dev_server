@@ -3293,7 +3293,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     const finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
-    const structure = await FeeStructure.findById({ _id: fee_struct });
+    // const structure = await FeeStructure.findById({ _id: fee_struct });
     if (!existing) {
       var valid = await filter_unique_username(
         req.body.studentFirstName,
@@ -3386,7 +3386,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     user.student.push(student._id);
     user.applyApplication.push(apply._id);
     student.user = user._id;
-    student.fee_structure = fee_struct;
+    // student.fee_structure = fee_struct;
     await student.save();
     await insert_multiple_status(
       apply,
@@ -3394,25 +3394,25 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       institute,
       student?._id,
       finance,
-      structure,
-      new_receipt
+      // structure,
+      // new_receipt
     );
     apply.receievedCount += 1;
     apply.selectCount += 1;
     apply.confirmCount += 1;
-    await fee_reordering(
-      type,
-      mode,
-      parseInt(amount),
-      student,
-      apply,
-      institute,
-      finance,
-      admission,
-      admins,
-      new_receipt,
-      user
-    );
+    // await fee_reordering(
+    //   type,
+    //   mode,
+    //   parseInt(amount),
+    //   student,
+    //   apply,
+    //   institute,
+    //   finance,
+    //   admission,
+    //   admins,
+    //   new_receipt,
+    //   user
+    // );
     if (institute.userFollowersList.includes(user?._id)) {
     } else {
       user.userInstituteFollowing.push(institute._id);

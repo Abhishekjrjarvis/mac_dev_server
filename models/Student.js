@@ -1012,6 +1012,12 @@ const studentSchema = new mongoose.Schema({
       ref: "SubjectMaster"
     }
   ],
+  nested_subject: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectMaster"
+    }
+  ],
   std_tenth_details: {
     type: String
   },

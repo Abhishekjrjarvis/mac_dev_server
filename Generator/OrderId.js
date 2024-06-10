@@ -10,6 +10,11 @@ module.exports.orderID = () => {
     const u_6 = Math.floor(Math.random() * 10);
     const u_7 = Math.floor(Math.random() * 10);
     const u_8 = Math.floor(Math.random() * 10);
-    const userExp = `${upperCase[u_5]}${upperCase[u_6]}${digits[u_3]}${digits[u_4]}${digits[u_1]}${digits[u_2]}${upperCase[u_7]}${upperCase[u_8]}`;
+    const u_9 = Math.floor(Math.random() * 10);
+    const u_10 = Math.floor(Math.random() * 10);
+    const u_11 = Math.floor(Math.random() * 10);
+    const u_12 = Math.floor(Math.random() * 10);
+    const u_13 = Math.floor(Math.random() * 10);
+    const userExp = `ORDERID${upperCase[u_5]}${digits[u_12]}${upperCase[u_6]}${lowerCase[u_10]}${digits[u_3]}${digits[u_4]}${lowerCase[u_11]}${digits[u_1]}${digits[u_2]}${lowerCase[u_9]}${digits[u_13]}${upperCase[u_7]}${upperCase[u_8]}`;
     return userExp;
   };

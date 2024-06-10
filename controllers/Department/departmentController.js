@@ -1297,6 +1297,10 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
         path: "major_subject",
         select: "subjectName"
       })
+      .populate({
+        path: "nested_subject",
+        select: "subjectName"
+      })
       student.studentFatherName = student?.studentMiddleName ?? student?.studentFatherName
     if (student?.student_form_flow?.flow === "APPLICATION") {
       var head_array = []
@@ -1479,7 +1483,16 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
       for (let val of n) {
         for (let ele of student?.major_subject) {
           if (`${val?.value}` === `${ele?.subjectName}`) {
-            val.value = `${ele?.subjectName} - (Major)`
+            val.value = `${ele?.subjectName} - (DSE)`
+          }
+        }
+      }
+      if (student?.nested_subject?.length > 0) {
+        for (let val of n) {
+          for (let ele of student?.nested_subject) {
+            if (`${val?.value}` === `${ele?.subjectName}`) {
+              val.value = `${ele?.subjectName}`
+            }
           }
         }
       }

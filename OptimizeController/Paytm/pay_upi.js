@@ -11,6 +11,7 @@ const {
   otherFeesFunction,
 } = require("../RazorPay/paymentModule");
 const { hostelInstituteFunction } = require("../RazorPay/hostelPaymentModule");
+const { orderID } = require("../../Generator/OrderId");
 
 const order_history_query = async (
   module_type,
@@ -85,7 +86,7 @@ exports.initiate = async (req, res) => {
     // let gst = (+gatewayCharges * 18) / 100;
     // let withGst = gatewayCharges + gst;
     // let data = parseInt(amount);
-    var order = `ORDERID${v4()}`;
+    var order = `${orderID()}`;
     var price = `${amount}`;
 
     var paytmParams = {};

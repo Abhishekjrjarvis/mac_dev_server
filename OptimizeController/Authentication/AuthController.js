@@ -3279,6 +3279,11 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       });
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const apply = await NewApplication.findById({ _id: aid });
+    var new_receipt = new FeeReceipt({ ...req.body });
+    new_receipt.fee_transaction_date = new Date(
+      `${req.body?.transaction_date}`
+    );
+    new_receipt.receipt_generated_from = "BY_ADMISSION";
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
     });
@@ -3288,7 +3293,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     const finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
-    // const structure = await FeeStructure.findById({ _id: fee_struct });
+    const structure = await FeeStructure.findById({ _id: fee_struct });
     if (!existing) {
       var valid = await filter_unique_username(
         req.body.studentFirstName,
@@ -3299,7 +3304,6 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       if (!valid?.exist) {
         const genUserPass = bcrypt.genSaltSync(12);
         const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
-      const uqid = universal_random_password()
         var user = new User({
           userLegalName: `${req.body.studentFirstName} ${
             req.body.studentMiddleName ? req.body.studentMiddleName : ""
@@ -3316,17 +3320,14 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
           remindLater: rDate,
           next_date: c_date,
         });
-        var qvipleId = new QvipleId({})
-      qvipleId.user = user?._id
-        qvipleId.qviple_id = `${uqid}`
         const code = "qviple@161028520"
-      const new_user_pass = bcrypt.genSaltSync(12);
-      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-      user.user_normal_password = `${code}`
-      user.user_universal_password = `${hash_user_pass}`
+        const new_user_pass = bcrypt.genSaltSync(12);
+        const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+        user.user_normal_password = `${code}`
+        user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
-        await Promise.all([admins.save(), user.save(), qvipleId.save()]);
+        await Promise.all([admins.save(), user.save()]);
         await universal_account_creation_feed(user);
         await user_date_of_birth(user);
       } else {
@@ -3335,6 +3336,10 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       var user = await User.findById({ _id: `${existing}` });
     }
     const student = new Student({ ...req.body });
+    const codess = universal_random_password()
+    let nums = universal_random_password_student_code()
+      student.qviple_student_pay_id = nums
+    student.member_module_unique = `${codess}`
     if (req.body?.studentFatherName) {
       student.studentMiddleName = req.body?.studentFatherName
     }
@@ -3342,10 +3347,6 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
     student.student_join_mode = "ADMISSION_PROCESS";
-    const codess = universal_random_password()
-    let nums = universal_random_password_student_code()
-      student.qviple_student_pay_id = nums
-    student.member_module_unique = `${codess}`
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
       : [];
@@ -3378,14 +3379,14 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       student.photoId = "0";
       student.studentProfilePhoto = sample_pic;
     }
+    student.student_form_flow.flow = "APPLICATION"
+    student.student_form_flow.did = apply?._id
+    institute.form_no_count += 1
+    student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
     user.student.push(student._id);
     user.applyApplication.push(apply._id);
     student.user = user._id;
-    apply.receievedApplication.push({
-      student: student._id,
-      fee_remain: 0,
-    });
-    apply.receievedCount += 1;
+    student.fee_structure = fee_struct;
     await student.save();
     await insert_multiple_status(
       apply,
@@ -3393,6 +3394,24 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       institute,
       student?._id,
       finance,
+      structure,
+      new_receipt
+    );
+    apply.receievedCount += 1;
+    apply.selectCount += 1;
+    apply.confirmCount += 1;
+    await fee_reordering(
+      type,
+      mode,
+      parseInt(amount),
+      student,
+      apply,
+      institute,
+      finance,
+      admission,
+      admins,
+      new_receipt,
+      user
     );
     if (institute.userFollowersList.includes(user?._id)) {
     } else {
@@ -3401,6 +3420,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       institute.userFollowersList.push(user?._id);
       institute.followersCount += 1;
     }
+    // await insert_multiple_status(apply, user, institute, student?._id);
     await Promise.all([
       student.save(),
       user.save(),
@@ -3430,6 +3450,12 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       student.admissionRemainFeeCount,
       institute?.sms_lang
     );
+    await generateStudentAdmissionForm(
+      student?._id,
+      institute?._id,
+      `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
+      `${apply?.applicationName}`,
+    );
     if (user?.userEmail) {
       await email_sms_payload_query(
         user?.userEmail,
@@ -3442,12 +3468,6 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
         institute?.sms_lang
       );
     }
-    await generateStudentAdmissionForm(
-      student?._id,
-      institute?._id,
-      `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
-      `${apply?.applicationName}`,
-    );
   } catch (e) {
     console.log(e);
   }

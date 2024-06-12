@@ -242,4 +242,8 @@ router.delete("/:lcid/examination/destroy/object/query", catchAsync(Landing.rend
 
 router.post("/:aid/new/inquiry/query", catchAsync(Landing.render_new_landing_page_inquiry));
 
+router.get("/:id/all/pinned/application/query", catchAsync(Landing.render_pinned_application_query));
+
+router.get("/:id/one/pinned/application/query", catchAsync(Landing.render_one_pinned_application_query));
+
 module.exports = router;

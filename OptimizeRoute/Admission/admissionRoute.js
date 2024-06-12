@@ -889,4 +889,8 @@ router.post(
 
 router.patch("/new/form/:sid", catchAsync(Admission.form))
 
+router.post("/:id/pinned/application/query", catchAsync(Institute.renderApplicationPinnedQuery))
+
+router.post("/:id/un/pinned/application/query", catchAsync(Institute.renderApplicationUnPinnedQuery))
+
 module.exports = router;

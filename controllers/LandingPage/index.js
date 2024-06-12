@@ -2286,6 +2286,69 @@ exports.render_new_landing_page_inquiry = async (req, res) => {
   }
 }
 
+exports.render_pinned_application_query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const { flow } = req?.query
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    
+    if (flow === "INDEPENDENT") {
+      const ins = await Admission.findById({ _id: id })
+      .select("independent_pinned_application")
+      .populate({
+        path: "independent_pinned_application",
+        select: "applicationName"
+      })
+    res.status(200).send({ message: "Explore Independent Pinned Application", access: true, ins: ins?.independent_pinned_application})
+    }
+    else if (flow === "DEPENDENT") {
+      const ins = await Admission.findById({ _id: id })
+      .select("dependent_pinned_application")
+      .populate({
+        path: "dependent_pinned_application",
+        select: "applicationName"
+      })
+      const unique = [...new Set(ins?.dependent_pinned_application.map(item => item.section_type))]; 
+    res.status(200).send({ message: "Explore Dependent Pinned Application", access: true, ins: unique})
+    }
+    
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_pinned_application_query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const { type } = req?.query
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+
+      const ins = await InstituteAdmin.findById({ _id: id })
+      .select("dependent_pinned_application")
+      .populate({
+        path: "dependent_pinned_application",
+        populate: {
+          path: "application",
+          select: "applicationName"
+        }
+      })
+    var nums = []
+    for (let ele of ins?.dependent_pinned_application) {
+      if (`${ele?.section_type}` === `${type}`) {
+        nums.push(...ele?.application)
+      }
+    }
+    let setObj = new Set(nums.map(JSON.stringify));
+    let output = Array.from(setObj).map(JSON.parse);
+    res.status(200).send({ message: "Explore Dependent Pinned Application", access: true, ins: output})
+    
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 
 // var is_true = true;

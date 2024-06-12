@@ -61,7 +61,13 @@ router
     router
   .route("/subject/:sid/list/query")
   // isLoggedIn,
-  .get(catchAsync(studentMember.getStudentSubjectQuery));
+      .get(catchAsync(studentMember.getStudentSubjectQuery));
+  
+      router
+  .route("/subject/:sid/catalog/add/remove/query")
+  // isLoggedIn,
+  .patch(catchAsync(studentMember.subjectStudentAddCatalogQuery))
+  .delete(catchAsync(studentMember.subjectStudentRemoveCatalogQuery));
 
 
 module.exports = router;

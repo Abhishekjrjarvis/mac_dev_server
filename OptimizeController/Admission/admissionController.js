@@ -13228,8 +13228,8 @@ exports.renderMultipleInstallmentQuery = async (req, res) => {
           remainAmount: ele?.inst_price,
           dueDate: ele?.inst_date,
           status: "Not Paid",
-          instituteId: p_card?.institute,
-          appId: p_card?.appId,
+          instituteId: remain?.instituteId,
+          appId: remain?.appId,
           isEnable: true,
           installmentValue: ele?.inst_type,
           fee_heads: [...ele?.fee_heads]

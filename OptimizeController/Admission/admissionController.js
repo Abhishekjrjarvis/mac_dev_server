@@ -13220,6 +13220,7 @@ exports.renderMultipleInstallmentQuery = async (req, res) => {
     .populate({
         path: "parent_card",
     })
+    var price = 0
     const remain = await RemainingList.findById({ _id: `${p_card?.parent_card?._id}`})
     if (inst_arr?.length > 0) {
       for (let ele of inst_arr) {
@@ -13233,11 +13234,12 @@ exports.renderMultipleInstallmentQuery = async (req, res) => {
           installmentValue: ele?.inst_type,
           fee_heads: [...ele?.fee_heads]
         }) 
+        price += ele?.inst_price
       }
     }
     for (var val of p_card.remaining_array) {
       if (`${val?._id}` === `${raid}`) {
-        val.remainAmount -= inst_price
+        val.remainAmount -= price
       }
     }
     remain.is_splited = "Yes"

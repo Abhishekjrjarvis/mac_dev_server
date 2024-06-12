@@ -134,6 +134,7 @@ module.exports.form_params = [
                     "Indigenous Faith",
                     "Buddhism",
                     "Jainism",
+                    "Other"
                   ]
             },
             {

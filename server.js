@@ -63,7 +63,8 @@ app.use(
       "https://hptrykcollege.qviple.com",
       "http://52.203.216.121",
       "https://pvgssd.qviple.com",
-      "https://navjeevanpharmacycollege.com"
+      "https://navjeevanpharmacycollege.com",
+      "https://bhavanschowpatty.qviple.com"
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

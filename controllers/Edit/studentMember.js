@@ -1033,4 +1033,50 @@ exports.getStudentSubjectQuery = async (req, res) => {
   }
 };
 
+exports.subjectStudentAddCatalogQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { student_list } = req.body;
+    if (!sid || student_list?.length <= 0) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const subject = await Subject.findById(sid);
+
+    for (let dt of student_list) {
+      subject.optionalStudent.push(dt);
+    }
+    await subject.save();
+    res.status(200).send({
+      message: "Students add to this subject catalog",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.subjectStudentRemoveCatalogQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { student_list } = req.body;
+    if (!sid || student_list?.length <= 0) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const subject = await Subject.findById(sid);
+    for (let dt of student_list) {
+      subject.optionalStudent.pull(dt);
+    }
+    await subject.save();
+    res.status(200).send({
+      message: "Students remove to this subject catalog",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
 

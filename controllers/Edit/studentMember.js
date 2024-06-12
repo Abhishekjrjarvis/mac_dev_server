@@ -1011,7 +1011,7 @@ exports.getStudentSubjectQuery = async (req, res) => {
         if (student?.student_optional_subject_access === "Yes") {
           if (ref?.optionalStudent?.length > 0) {
             for (let ele of ref?.optionalStudent) {
-              if (`${ele}` === `${stu}`) {
+              if (`${ele}` === `${sid}`) {
                 all_subject.push(ref);
                 break;
               }

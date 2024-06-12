@@ -14436,6 +14436,57 @@ exports.render_select_group_query = async (req, res) => {
   }
 }
 
+exports.renderApplicationPinnedQuery = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const { did, type, flow } = req?.body
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var one_ins = await Admission.findById({ _id: id })
+    if (flow === "INDEPENDENT") {
+      one_ins.independent_pinned_application.push(did)
+      await one_ins.save()
+    }
+    else if (flow === "DEPENDENT") {
+      one_ins.dependent_pinned_application.push({
+        section_type: type,
+        application: did
+      })
+      await one_ins.save()
+    }
+    res.status(200).send({ message: "Explore One Application Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderApplicationUnPinnedQuery = async (req, res) => {
+  try {
+    const { id } = req?.params
+    const { did, flow } = req?.body
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var one_ins = await Admission.findById({ _id: id })
+    if (flow === "INDEPENDENT") {
+      one_ins.independent_pinned_application.pull(did)
+      await one_ins.save()
+    }
+    else if (flow === "DEPENDENT") {
+      for (var ele of one_ins?.dependent_pinned_application) {
+        if (`${ele?._id}` === `${did}`) {
+          one_ins.dependent_pinned_application.pull(ele?._id)   
+        }
+      }
+      await one_ins.save()
+    }
+    res.status(200).send({ message: "Explore One Application Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.form = async (req, res) => {
   try {
     const { sid } = req?.params

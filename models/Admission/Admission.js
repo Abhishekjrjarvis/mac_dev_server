@@ -419,6 +419,23 @@ const admissionAdminSchema = new mongoose.Schema({
   app_marathi_qr_code: {
     type: String
   },
+  independent_pinned_application: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "NewApplication"
+    }
+  ],
+  dependent_pinned_application: [
+    {
+      section_type: { type: String },
+      application: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "NewApplication"
+        }
+      ]
+    }
+  ],
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

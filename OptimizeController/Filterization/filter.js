@@ -4905,6 +4905,9 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
             path: "class_master batch_master",
             select: "className batchName",
           },
+        })
+        .populate({
+          path: "applicable_card government_card",
         });
         var head_array = [];
         if (ref?.active_fee_heads?.length > 0) {
@@ -4938,14 +4941,15 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
             } ${ref?.studentLastName}` ?? ref?.valid_full_name,
           DOB: ref?.studentDOB ?? "#NA",
           Gender: ref?.studentGender ?? "#NA",
-          TotalFees: one_remain?.applicable_fee ?? 0,
-          TotalOutstandingFees: one_remain?.remaining_fee,
-          TotalPaidFees: one_remain?.paid_fee,
-          TotalApplicableOutstandingFees:
-            one_remain?.paid_fee <= one_remain?.fee_structure?.applicable_fees
-              ? one_remain?.fee_structure?.applicable_fees -
-                one_remain?.paid_fee
-              : 0,
+          TotalApplicableFees: one_remain?.applicable_card?.applicable_fee ?? 0,
+          TotalGovernmentApplicableFees: one_remain?.government_card?.applicable_fee ?? 0,
+          TotalFees: one_remain?.applicable_card?.applicable_fee + one_remain?.government_card?.applicable_fee ?? 0,
+          ApplicablePaidFees: one_remain?.applicable_card?.paid_fee ?? 0,
+          GovernmentApplicablePaidFees: one_remain?.government_card?.paid_fee ?? 0,
+          TotalPaidFees: one_remain?.applicable_card?.paid_fee + one_remain?.government_card?.paid_fee,
+          TotalApplicableOutstandingFees: one_remain?.applicable_card?.remaining_fee,
+          TotalGovernmentOutstandingFees: one_remain?.government_card?.remaining_fee,
+          TotalOutstandingFees: one_remain?.applicable_card?.remaining_fee + one_remain?.government_card?.remaining_fee,
           Standard: `${one_remain?.fee_structure}`
             ? `${one_remain?.fee_structure?.class_master?.className}`
             : "#NA",

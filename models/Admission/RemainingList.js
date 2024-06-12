@@ -174,6 +174,10 @@ const remainingFeeListSchema = new mongoose.Schema({
     default: 0,
   },
   excess_fee: { type: Number, default: 0 },
+  is_splited: {
+    type: String,
+    default: "No"
+  }
 });
 
 module.exports = mongoose.model("RemainingList", remainingFeeListSchema);

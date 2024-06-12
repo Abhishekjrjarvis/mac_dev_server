@@ -47,37 +47,64 @@ const nestedCardSchema = new mongoose.Schema({
           },
           reason: {
             type: String
-        },
-        revert_status: {
+          },
+          revert_status: {
+              type: String
+          },
+          component: {
+            app: {
+              type: Number,
+              default: 0
+            },
+            gov: {
+              type: Number,
+              default: 0
+            }
+          },
+          cover_status: {
             type: String
-        },
-        component: {
-          app: {
+          },
+          set_off: {
             type: Number,
             default: 0
           },
-          gov: {
-            type: Number,
-            default: 0
-          }
-        },
-        cover_status: {
-          type: String
-        },
-        set_off: {
-          type: Number,
-          default: 0
-        },
-        set_off_message: {
-          type: String
-        },
-        fee_update: {
-          type: Boolean,
-          default: false
-        },
-        gov_stats: {
-          type: String
-        }
+          set_off_message: {
+            type: String
+          },
+          fee_update: {
+            type: Boolean,
+            default: false
+          },
+          gov_stats: {
+            type: String
+          },
+          fee_heads: [
+            {
+              head_id: { type: String },
+              head_name: { type: String },
+              paid_fee: { type: Number, default: 0 },
+              applicable_fee: { type: Number, default: 0 },
+              remain_fee: { type: Number, default: 0 },
+              created_at: { type: Date, default: Date.now },
+              fee_structure: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "FeeStructure",
+              },
+              master: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "FeeMaster",
+              },
+              original_paid: { type: Number, default: 0 },
+              appId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "NewApplication",
+              },
+              is_society: {
+                type: Boolean,
+                default: false
+              },
+            },
+          ],
         },
       ],
     parent_card: {

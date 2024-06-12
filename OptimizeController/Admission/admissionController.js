@@ -86,6 +86,8 @@ const {
   update_fee_head_query2,
   update_fee_head_query_deposit,
   set_fee_head_query_deposit,
+  set_fee_head_query_redesign_split,
+  update_fee_head_query_redesign_split,
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -2519,7 +2521,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
   try {
     const { sid, aid } = req.params;
     const { receipt_status } = req.query;
-    const { amount, mode, card_id, rid, type, pay_remain} = req.body;
+    const { amount, mode, card_id, rid, type, pay_remain, nsid} = req.body;
     if (!sid && !aid && !amount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2653,10 +2655,17 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         if (req.body?.fee_payment_mode === "Government/Scholarship") {
           // New Logic
         } else {
-          console.log("Enter");
-          await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
-          // await set_fee_head_query(student, price, apply, new_receipt);
-          console.log("Exit");
+          if (new_remainFee?.is_splited && new_remainFee?.is_splited  === "Yes") {
+            console.log("Enter Split");
+            await set_fee_head_query_redesign_split(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt, nest_card, nsid)
+            console.log("Exit Split");
+          }
+          else {
+            console.log("Enter");
+            await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+            // await set_fee_head_query(student, price, apply, new_receipt);
+            console.log("Exit");
+          }
         }
         apply.confirmedApplication.push({
           student: student._id,
@@ -2998,11 +3007,14 @@ exports.cancelAdmissionApplication = async (req, res) => {
         user.deviceToken
       );
       if (apply.reviewApplication?.length > 0) {
-        for (var val of apply.reviewApplication) {
-          if (`${val?.student}` === `${student?._id}`) {
-            apply.reviewApplication.pull(val?._id);   
-          }
+        if (apply?.reviewApplication?.includes(`${student?._id}`)) {
+          apply.reviewApplication?.pull(student?._id)
         }
+        // for (var val of apply.reviewApplication) {
+        //   if (`${val?.student}` === `${student?._id}`) {
+        //     apply.reviewApplication.pull(val?._id);   
+        //   }
+        // }
         apply.cancelApplication.push({
           student: student._id,
           payment_status: "Refund",
@@ -3827,7 +3839,7 @@ exports.oneStudentViewRemainingFee = async (req, res) => {
 exports.paidRemainingFeeStudent = async (req, res) => {
   try {
     const { aid, sid, appId } = req.params;
-    const { amount, mode, type, card_id, rid, raid, pay_remain } = req.body;
+    const { amount, mode, type, card_id, rid, raid, pay_remain, nsid } = req.body;
     const { receipt_status } = req.query;
     if (!sid && !aid && !appId && !amount && !mode && !type)
       return res.status(200).send({
@@ -3941,10 +3953,24 @@ exports.paidRemainingFeeStudent = async (req, res) => {
           }
         var extra_price = 0
         await nest_card.save()
-        if (type === "First Installment") {
-          await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt);
-        } else {
-          await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+      if (type === "First Installment") {
+          if (remaining_fee_lists?.is_splited && remaining_fee_lists?.is_splited === "Yes") {
+            console.log("Enter Split");
+            await set_fee_head_query_redesign_split(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt, nest_card, nsid)
+            console.log("Exit Split");
+          }
+          else {
+            await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt);
+          }
+      } else {
+          if (remaining_fee_lists?.is_splited && remaining_fee_lists?.is_splited === "Yes") {
+            console.log("Update Split");
+            await update_fee_head_query_redesign_split(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt, nest_card, nsid)
+            console.log("Update Split");
+          }
+          else {
+            await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+          }
           // await update_fee_head_query(student, price, apply, new_receipt);
         }
         if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
@@ -8406,7 +8432,7 @@ exports.renderAllRefundedArray = async (req, res) => {
 exports.renderRemainingSetOffQuery = async (req, res) => {
   try {
     const { rcid, sid } = req.params;
-    const { amount, mode, type } = req.body;
+    const { amount, mode, type, nsid } = req.body;
     if (!sid && !rcid && !amount && !mode && !type)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -8565,7 +8591,14 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         student.admissionPaidFeeCount += price;
         if (req?.body?.fee_payment_mode === "Government/Scholarship") {
         } else {
-          await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+          if (remaining_fee_lists?.is_splited && remaining_fee_lists?.is_splited === "Yes") {
+            console.log("Update Split");
+            await update_fee_head_query_redesign_split(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt, nest_card, nsid)
+            console.log("Update Split");
+          }
+          else {
+            await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+          }
         }
         await lookup_applicable_grant(
           req?.body?.fee_payment_mode,
@@ -13187,6 +13220,7 @@ exports.renderMultipleInstallmentQuery = async (req, res) => {
     .populate({
         path: "parent_card",
     })
+    const remain = await RemainingList.findById({ _id: `${p_card?.parent_card?._id}`})
     if (inst_arr?.length > 0) {
       for (let ele of inst_arr) {
         p_card.remaining_array.push({
@@ -13196,7 +13230,8 @@ exports.renderMultipleInstallmentQuery = async (req, res) => {
           instituteId: p_card?.institute,
           appId: p_card?.appId,
           isEnable: true,
-          installmentValue: ele?.inst_type
+          installmentValue: ele?.inst_type,
+          fee_heads: [...ele?.fee_heads]
         }) 
       }
     }
@@ -13205,7 +13240,8 @@ exports.renderMultipleInstallmentQuery = async (req, res) => {
         val.remainAmount -= inst_price
       }
     }
-    await p_card.save()
+    remain.is_splited = "Yes"
+    await Promise.all([ p_card.save(), remain.save() ])
     res.status(200).send({ message: "Explore One Student Single Installment Query", access: true })
   }
   catch (e) {

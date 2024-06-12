@@ -3223,3 +3223,283 @@ exports.update_fee_head_query_deposit = async (
     console.log(e);
   }
 };
+
+exports.set_fee_head_query_redesign_split = async (
+  student_args,
+  price,
+  apply_args,
+  receipt_args,
+  nest_args,
+  nsid
+) => {
+  try {
+    const finance = await Finance.findById({ _id: `${receipt_args?.finance}` })
+      .select("show_receipt institute")
+    const structure = await FeeStructure.findById({ _id: `${receipt_args?.fee_structure}`})
+    var price_query = price;
+    var parent_head = {
+      ...structure?.applicable_fees_heads,
+      count: structure?.applicable_fees_heads?.length,
+    }
+    var exist_filter_student_heads = student_args?.active_fee_heads?.filter(
+      (stu) => {
+        if (`${stu.appId}` === `${apply_args}`) return stu;
+      }
+    );
+    if (exist_filter_student_heads?.length > 0) {
+      console.log("Exist APP SPLIT");
+      receipt_args.fee_flow = "FEE_HEADS";
+      for (var ref of exist_filter_student_heads) {
+        if (`${ref?.fee_structure}` === `${receipt_args?.fee_structure?._id}`) {
+          receipt_args.fee_heads.push({
+            head_id: ref?._id,
+            head_name: ref?.head_name,
+            paid_fee: ref?.paid_fee,
+            remain_fee: ref?.remain_fee,
+            applicable_fee: ref?.applicable_fee,
+            fee_structure: ref?.fee_structure,
+            master: ref?.master,
+            original_paid: ref?.original_paid,
+            appId: ref?.appId,
+            is_society: ref?.is_society,
+          });
+        }
+      }
+      console.log("EXISTED Split", receipt_args)
+      await receipt_args.save();
+    } else {
+      for (var i = 0; i < parent_head?.count; i++) {
+        var one_master = await FeeMaster.findOne({
+          $and: [
+            { _id: parent_head[`${i}`]?.master },
+            { finance: receipt_args?.fee_structure?.finance },
+          ],
+        });
+        if (one_master) {
+          if (one_master?.paid_student?.includes(`${student_args?._id}`)) {
+          } else {
+            one_master.paid_student.push(student_args?._id);
+            one_master.paid_student_count += 1;
+          }
+          if (`${one_master?.master_status}` === "Linked") {
+            // console.log("Master Linked", one_master?._id);
+            student_args.deposit_pending_amount +=
+              price_query >= parent_head[`${i}`]?.head_amount
+                ? parent_head[`${i}`].head_amount
+                : price_query;
+            one_master.deposit_amount +=
+              price_query >= parent_head[`${i}`]?.head_amount
+                ? parent_head[`${i}`].head_amount
+                : price_query;
+          }
+          await one_master.save();
+        }
+        student_args.active_fee_heads.push({
+          appId: apply_args,
+          head_name: parent_head[`${i}`]?.head_name,
+          is_society: parent_head[`${i}`]?.is_society,
+          applicable_fee: parent_head[`${i}`]?.head_amount,
+          // remain_fee:
+          //   price_query >= parent_head[`${i}`]?.head_amount
+          //     ? 0
+          //     : parent_head[`${i}`].head_amount - price_query,
+          // paid_fee:
+          //   price_query >= parent_head[`${i}`]?.head_amount
+          //     ? parent_head[`${i}`].head_amount
+          //     : price_query,
+          fee_structure: receipt_args?.fee_structure?._id,
+          master: parent_head[`${i}`]?.master,
+          // original_paid:
+          //   price_query >= parent_head[`${i}`]?.head_amount
+          //     ? parent_head[`${i}`].head_amount
+          //     : price_query,
+        });
+        // price_query =
+        //   price_query >= parent_head[`${i}`].head_amount
+        //     ? price_query - parent_head[`${i}`].head_amount
+        //     : 0;
+      }
+      receipt_args.fee_flow = "FEE_HEADS";
+      var nest_list = []
+      if (nest_args?.remaining_array?.length > 0) {
+        for (let ele of nest_args?.remaining_array) {
+          if (`${ele?._id}` === `${nsid}`) {
+            nest_list.push(...ele?.fee_heads)
+          }
+        }
+      }
+      for (let stu of student_args?.active_fee_heads) {
+        for (let val of nest_list) {
+          if (`${stu?.master}` === `${val?.master}`) {
+            stu.remain_fee = 
+              price_query >= stu?.applicable_fee
+              ? 0
+              : stu?.applicable_fee - price_query
+            stu.paid_fee =
+              price_query >= stu?.applicable_fee
+                ? stu?.applicable_fee
+                : price_query
+            stu.original_paid = 
+              price_query >= stu?.applicable_fee
+                ? stu?.applicable_fee
+              : price_query
+            price_query =
+              price_query >= stu?.applicable_fee
+                ? price_query - stu?.applicable_fee
+                : 0;
+          }
+        }
+      }
+      for (var ref of student_args?.active_fee_heads) {
+        if (`${ref?.fee_structure}` === `${receipt_args?.fee_structure?._id}`) {
+          receipt_args.fee_heads.push({
+            head_id: ref?._id,
+            head_name: ref?.head_name,
+            paid_fee: ref?.paid_fee,
+            remain_fee: ref?.remain_fee,
+            applicable_fee: ref?.applicable_fee,
+            fee_structure: ref?.fee_structure,
+            master: ref?.master,
+            original_paid: ref?.original_paid,
+            appId: ref?.appId,
+            is_society: ref?.is_society,
+          });
+        }
+      }
+      console.log("RECEIPT_ARGS SPLIT", receipt_args)
+      if (student_args?.fee_receipt?.includes(`${receipt_args?._id}`)) {
+      } else {
+        student_args.fee_receipt.push(receipt_args?._id);
+      }
+      await Promise.all([receipt_args.save(), student_args.save()]);
+      price_query = 0;
+      console.log("INSIDE FEE HEADS SPLIT");
+    }
+    if (finance?.show_receipt === "Normal") {
+      // await generateFeeReceipt(receipt_args?._id)
+      await admissionFeeReceipt(receipt_args?._id, apply_args)
+    }
+    else {
+      await societyAdmissionFeeReceipt(receipt_args?._id, finance?.institute)
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.update_fee_head_query_redesign_split = async (
+  student_args,
+  price,
+  apply_args,
+  receipt_args,
+  nest_args,
+  nsid
+) => {
+  try {
+    console.log("Enter Exist Fee Heads");
+    const finance = await Finance.findById({ _id: `${receipt_args?.finance}` })
+    .select("show_receipt institute")
+    var price_query = price;
+    var receipt_query = price;
+    for (var ref of student_args?.active_fee_heads) {
+      if (`${ref?.fee_structure}` === `${receipt_args?.fee_structure?._id}`) {
+        receipt_args.fee_heads.push({
+          head_id: ref?._id,
+          head_name: ref?.head_name,
+          paid_fee: ref?.paid_fee,
+          remain_fee: ref?.remain_fee,
+          applicable_fee: ref?.applicable_fee,
+          fee_structure: ref?.fee_structure,
+          master: ref?.master,
+          original_paid: 0,
+          appId: ref?.appId,
+          is_society: ref?.is_society,
+        });
+      }
+    }
+    await receipt_args.save();
+    var filter_student_heads = []
+    var filter_nest = []
+    if (nest_args?.remaining_array?.length > 0) {
+      for (let ele of nest_args?.remaining_array) {
+        if (`${ele?._id}` === `${nsid}`) {
+          filter_nest.push(...ele?.fee_heads)
+        }
+      }
+    }
+    for (let stu of student_args?.active_fee_heads) {
+      for (let val of filter_nest) {
+        if (`${stu.appId}` === `${apply_args._id}` && stu.remain_fee > 0 && `${stu?.master}` === `${val?.master}`) {
+          filter_student_heads.push(stu)
+        }
+      }
+    }
+    // student_args?.active_fee_heads?.filter(
+    //   (stu) => {
+    //     if (`${stu.appId}` === `${apply_args._id}` && stu.remain_fee > 0)
+    //       return stu;
+    //   }
+    // );
+    for (var ele of filter_student_heads) {
+      var one_master = await FeeMaster.findOne({
+        $and: [{ _id: ele?.master }, { master_status: "Linked" }],
+      });
+      if (one_master) {
+        student_args.deposit_pending_amount +=
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+        one_master.deposit_amount +=
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+        await one_master.save();
+      }
+      if (ele?.paid_fee == ele?.applicable_fee) {
+      } else {
+        ele.original_paid =
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+        ele.paid_fee +=
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+        price_query =
+          price_query >= ele.remain_fee ? price_query - ele.remain_fee : 0;
+        ele.remain_fee =
+          ele.paid_fee == ele.applicable_fee
+            ? 0
+            : ele.applicable_fee - ele.paid_fee;
+      }
+    }
+    if (student_args?.fee_receipt?.includes(`${receipt_args?._id}`)) {
+    } else {
+      student_args.fee_receipt.push(receipt_args?._id);
+    }
+    await student_args.save();
+    receipt_args.fee_flow = "FEE_HEADS";
+    const filter_receipt_heads = receipt_args?.fee_heads?.filter((rec) => {
+      if (rec.remain_fee > 0) return rec;
+    });
+    for (var ele of filter_receipt_heads) {
+      if (ele?.paid_fee == ele?.applicable_fee) {
+      } else {
+        ele.original_paid =
+          receipt_query >= ele.remain_fee ? ele.remain_fee : receipt_query;
+        ele.paid_fee +=
+          receipt_query >= ele.remain_fee ? ele.remain_fee : receipt_query;
+        receipt_query =
+          receipt_query >= ele.remain_fee ? receipt_query - ele.remain_fee : 0;
+        ele.remain_fee =
+          ele.paid_fee == ele.applicable_fee
+            ? 0
+            : ele.applicable_fee - ele.paid_fee;
+      }
+    }
+    await receipt_args.save();
+    console.log("EXIT FROM FEE HEADS");
+    if (finance?.show_receipt === "Normal") {
+      // await generateFeeReceipt(receipt_args?._id)
+      await admissionFeeReceipt(receipt_args?._id, apply_args?._id)
+    }
+    else {
+      await societyAdmissionFeeReceipt(receipt_args?._id, finance?.institute)
+    }
+    return student_args;
+  } catch (e) {
+    console.log(e);
+  }
+};

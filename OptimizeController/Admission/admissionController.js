@@ -4728,7 +4728,7 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
     //   });
     const oneApply = await NewApplication.findById({ _id: aid })
       .select(
-        "applicationName applicationType applicationAbout admissionProcess gr_initials applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type app_qr_code student_form_setting app_hindi_qr_code app_marathi_qr_code"
+        "applicationName applicationType applicationAbout admissionProcess gr_initials applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type app_qr_code student_form_setting app_hindi_qr_code app_marathi_qr_code pin"
       )
       .populate({
         path: "applicationDepartment",
@@ -14443,16 +14443,27 @@ exports.renderApplicationPinnedQuery = async (req, res) => {
     if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var one_ins = await Admission.findById({ _id: id })
+    var app = await NewApplication.findById({ _id: did })
     if (flow === "INDEPENDENT") {
       one_ins.independent_pinned_application.push(did)
-      await one_ins.save()
+      app.pin.status = "Pinned"
+      app.pin.flow = "INDEPENDENT"
+      app.pin.flow_id = app?._id
+      await Promise.all([ one_ins.save(), app.save() ])
     }
     else if (flow === "DEPENDENT") {
       one_ins.dependent_pinned_application.push({
         section_type: type,
         application: did
       })
-      await one_ins.save()
+      for (let ele of one_ins.dependent_pinned_application) {
+        if (`${ele?.application}` === `${app?._id}`) {
+          app.pin.flow_id = ele?._id
+        }
+      }
+      app.pin.status = "Pinned"
+      app.pin.flow = "DEPENDENT"
+      await Promise.all([ one_ins.save(), app.save() ])
     }
     res.status(200).send({ message: "Explore One Application Query", access: true})
   }
@@ -14468,17 +14479,24 @@ exports.renderApplicationUnPinnedQuery = async (req, res) => {
     if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var one_ins = await Admission.findById({ _id: id })
+    var app = await NewApplication.findById({ _id: did })
     if (flow === "INDEPENDENT") {
       one_ins.independent_pinned_application.pull(did)
-      await one_ins.save()
+      app.pin.status = ""
+      app.pin.flow = ""
+      app.pin.flow_id = null
+      await Promise.all([ one_ins.save(), app.save() ])
     }
     else if (flow === "DEPENDENT") {
       for (var ele of one_ins?.dependent_pinned_application) {
         if (`${ele?._id}` === `${did}`) {
-          one_ins.dependent_pinned_application.pull(ele?._id)   
+          one_ins.dependent_pinned_application.pull(ele?._id)
+          app.pin.status = ""
+          app.pin.flow = ""
+          app.pin.flow_id = null
         }
       }
-      await one_ins.save()
+      await Promise.all([ one_ins.save(), app.save() ])
     }
     res.status(200).send({ message: "Explore One Application Query", access: true})
   }
@@ -14486,6 +14504,83 @@ exports.renderApplicationUnPinnedQuery = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.retieveAdmissionAdminAllApplicationPinned = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const apply = await Admission.findById({ _id: aid }).select(
+      "newApplication"
+    );
+    var nums = await NewApplication.find({
+      $and: [
+        { _id: { $in: apply.newApplication } },
+        { applicationStatus: "Ongoing" },
+        { applicationTypeStatus: "Normal Application" },
+      ],
+    })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "applicationName applicationEndDate applicationTypeStatus receievedApplication pin selectedApplication confirmedApplication admissionAdmin selectCount confirmCount receievedCount allottedApplication allotCount applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch gr_initials cancelApplication cancelCount reviewApplication review_count FeeCollectionApplication fee_collect_count student_form_setting"
+      )
+      .populate({
+        path: "applicationDepartment",
+        select: "dName photoId photo",
+      })
+      .populate({
+        path: "admissionAdmin",
+        select: "institute",
+        populate: {
+          path: "institute",
+          select: "insName",
+        },
+      });
+
+    var ongoing_nums = nums?.filter((val) => {
+      if(`${val?.pin?.flow}` === "DEPENDENT") return val
+    })
+    var ongoing_stu = nums?.filter((val) => {
+      if(`${val?.pin?.flow}` === "INDEPENDENT") return val
+    })
+    var ongoing = [...ongoing_nums, ...ongoing_stu]
+    if (ongoing?.length > 0) {
+      for (var ref of ongoing) {
+        ref.selectCount = ref?.selectedApplication?.length;
+        ref.confirmCount = ref?.confirmedApplication?.length;
+        ref.receievedCount = ref?.receievedApplication?.length;
+        ref.allotCount = ref?.allottedApplication?.length;
+        ref.cancelCount = ref?.cancelApplication?.length;
+        ref.review_count = ref?.reviewApplication?.length;
+        ref.fee_collect_count = ref?.FeeCollectionApplication?.length;
+      }
+      const ads_obj = {
+        message: "All Ongoing Application from DB 🙌",
+        ongoing: ongoing,
+        ongoingCount: ongoing?.length,
+      }
+      const adsEncrypt = await encryptionPayload(ads_obj);
+      res.status(200).send({
+        encrypt: adsEncrypt,
+        ads_obj
+      });
+    } else {
+      const ads_obj = {
+        message: "Dark side in depth nothing to find", 
+        ongoing: []
+      }
+      const adsEncrypt = await encryptionPayload(ads_obj);
+      res
+        .status(200)
+        .send({ encrypt: adsEncrypt });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.form = async (req, res) => {
   try {

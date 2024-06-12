@@ -268,6 +268,11 @@ const newApplicationSchema = new mongoose.Schema({
   app_marathi_qr_code: {
     type: String
   },
+  pin: {
+    status: { type: String },
+    flow: { type: String },
+    flow_id: { type: String }
+  }
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

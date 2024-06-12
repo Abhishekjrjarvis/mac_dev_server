@@ -893,4 +893,10 @@ router.post("/:id/pinned/application/query", catchAsync(Admission.renderApplicat
 
 router.post("/:id/un/pinned/application/query", catchAsync(Admission.renderApplicationUnPinnedQuery))
 
+// Ongoing App Pinned
+router.get(
+  "/:aid/all/ongoing/application/pinned",
+  catchAsync(Admission.retieveAdmissionAdminAllApplicationPinned)
+);
+
 module.exports = router;

@@ -899,4 +899,7 @@ router.get(
   catchAsync(Admission.retieveAdmissionAdminAllApplicationPinned)
 );
 
+router.patch("/new/db/delete", catchAsync(Admission.db_delete))
+
+
 module.exports = router;

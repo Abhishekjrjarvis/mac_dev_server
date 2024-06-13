@@ -2783,6 +2783,12 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       user._id,
       user.deviceToken
     );
+    for (let ele of nest_args?.remaining_array) {
+      if (ele?.remainAmount <= 0) {
+        nest_args?.remaining_array?.pull(ele?._id)
+      }
+    }
+    await nest_args.save()
   } catch (e) {
     console.log(e);
   }
@@ -4170,6 +4176,12 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       });
       await apply.save();
     }
+    for (let ele of nest_args?.remaining_array) {
+      if (ele?.remainAmount <= 0) {
+        nest_args?.remaining_array?.pull(ele?._id)
+      }
+    }
+    await nest_args.save()
   } catch (e) {
     console.log(e);
   }

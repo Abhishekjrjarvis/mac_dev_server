@@ -14452,10 +14452,25 @@ exports.renderApplicationPinnedQuery = async (req, res) => {
       await Promise.all([ one_ins.save(), app.save() ])
     }
     else if (flow === "DEPENDENT") {
-      one_ins.dependent_pinned_application.push({
-        section_type: type,
-        application: did
-      })
+      if (one_ins?.dependent_pinned_application?.length > 0) {
+        for (let ele of one_ins?.dependent_pinned_application) {
+          if (`${ele?.section_type}` === `${type}`) {
+              ele.application.push(did)
+          }
+          else {
+            one_ins.dependent_pinned_application.push({
+              section_type: type,
+              application: did
+            })
+          }
+        }
+      }
+      else {
+        one_ins.dependent_pinned_application.push({
+          section_type: type,
+          application: did
+        })
+      }
       for (let ele of one_ins.dependent_pinned_application) {
         if (`${ele?.application}` === `${app?._id}`) {
           app.pin.flow_id = ele?._id
@@ -14538,23 +14553,12 @@ exports.retieveAdmissionAdminAllApplicationPinned = async (req, res) => {
         select: "dName photoId photo",
       })
       var list = []
-      const unique = [...new Set(apply?.dependent_pinned_application.map(item => item.section_type))]
+      // const unique = [...new Set(apply?.dependent_pinned_application.map(item => item.section_type))]
       for (let val of apply?.dependent_pinned_application) {
-        if (unique?.includes(`${val?.section_type}`)) {
-          if (list?.length > 0) {
-            for (let stu of list) {
-              if (`${stu?.type}` === `${val?.section_type}`) {
-                stu.apps.push(val?.application)
-              }
-            }
-          }
-          else {
             list.push({
               type: val?.section_type,
               apps: val?.application
             })
-          }
-        }
       }
       
       const ongoing = [...list, ...nums]

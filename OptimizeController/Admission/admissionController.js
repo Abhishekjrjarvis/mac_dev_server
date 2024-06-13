@@ -383,7 +383,7 @@ exports.retieveAdmissionAdminAllCApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationTypeStatus applicationStatus applicationSeats allotCount"
+        "applicationName applicationEndDate applicationTypeStatus applicationStatus applicationSeats allotCount pin"
       )
       .populate({
         path: "applicationDepartment",
@@ -14507,23 +14507,29 @@ exports.renderApplicationUnPinnedQuery = async (req, res) => {
 
 exports.retieveAdmissionAdminAllApplicationPinned = async (req, res) => {
   try {
-    const { aid } = req.params;
+    const { id } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const apply = await Admission.findById({ _id: aid }).select(
-      "newApplication"
+    const ins = await InstituteAdmin.findById({ _id: id }).select(
+      "admissionDepart"
     );
+    const apply = await Admission.findById({ _id: `${ins?.admissionDepart?.[0]}` })
+    .populate({
+      path: "dependent_pinned_application",
+      populate: {
+        path: "application",
+        populate: {
+          path: "applicationDepartment",
+          select: "dName photoId photo",
+        }
+      }
+    })
     var nums = await NewApplication.find({
       $and: [
-        { _id: { $in: apply.newApplication } },
-        { applicationStatus: "Ongoing" },
-        { applicationTypeStatus: "Normal Application" },
+        { _id: { $in: apply?.independent_pinned_application } },
       ],
     })
-      .sort("-createdAt")
-      .limit(limit)
-      .skip(skip)
       .select(
         "applicationName applicationEndDate applicationTypeStatus receievedApplication pin selectedApplication confirmedApplication admissionAdmin selectCount confirmCount receievedCount allottedApplication allotCount applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch gr_initials cancelApplication cancelCount reviewApplication review_count FeeCollectionApplication fee_collect_count student_form_setting"
       )
@@ -14531,52 +14537,17 @@ exports.retieveAdmissionAdminAllApplicationPinned = async (req, res) => {
         path: "applicationDepartment",
         select: "dName photoId photo",
       })
-      .populate({
-        path: "admissionAdmin",
-        select: "institute",
-        populate: {
-          path: "institute",
-          select: "insName",
-        },
-      });
-
-    var ongoing_nums = nums?.filter((val) => {
-      if(`${val?.pin?.flow}` === "DEPENDENT") return val
-    })
-    var ongoing_stu = nums?.filter((val) => {
-      if(`${val?.pin?.flow}` === "INDEPENDENT") return val
-    })
-    var ongoing = [...ongoing_nums, ...ongoing_stu]
-    if (ongoing?.length > 0) {
-      for (var ref of ongoing) {
-        ref.selectCount = ref?.selectedApplication?.length;
-        ref.confirmCount = ref?.confirmedApplication?.length;
-        ref.receievedCount = ref?.receievedApplication?.length;
-        ref.allotCount = ref?.allottedApplication?.length;
-        ref.cancelCount = ref?.cancelApplication?.length;
-        ref.review_count = ref?.reviewApplication?.length;
-        ref.fee_collect_count = ref?.FeeCollectionApplication?.length;
-      }
+    
       const ads_obj = {
         message: "All Ongoing Application from DB 🙌",
-        ongoing: ongoing,
-        ongoingCount: ongoing?.length,
+        depend: apply?.dependent_pinned_application,
+        independ: nums,
       }
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
         encrypt: adsEncrypt,
         ads_obj
       });
-    } else {
-      const ads_obj = {
-        message: "Dark side in depth nothing to find", 
-        ongoing: []
-      }
-      const adsEncrypt = await encryptionPayload(ads_obj);
-      res
-        .status(200)
-        .send({ encrypt: adsEncrypt });
-    }
   } catch (e) {
     console.log(e);
   }

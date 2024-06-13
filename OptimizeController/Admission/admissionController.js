@@ -14537,8 +14537,8 @@ exports.retieveAdmissionAdminAllApplicationPinned = async (req, res) => {
         path: "applicationDepartment",
         select: "dName photoId photo",
       })
-    
-      const ongoing = [...apply?.dependent_pinned_application, ...nums]
+      const unique = [...new Set(apply?.dependent_pinned_application.map(item => item.section_type))]
+      const ongoing = [...unique, ...nums]
       const ads_obj = {
         message: "All Ongoing Application from DB 🙌",
         depend: apply?.dependent_pinned_application,

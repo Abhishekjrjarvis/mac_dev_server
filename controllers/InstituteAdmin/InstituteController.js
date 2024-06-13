@@ -7812,8 +7812,9 @@ exports.render_all_classes_query = async (req, res) => {
   }
 }
 
-exports.render_auto_student_form_section_checklist_query_academic = async (req, res) => {
+exports.render_auto_student_form_section_checklist_query_academic = async (fcid) => {
   try {
+    // const { fcid } = req?.params
     var ifs = await InstituteStudentForm.findById({_id: fcid})
     // var all_ifs = await InstituteStudentForm.find({})
     var  i =0

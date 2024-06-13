@@ -3386,6 +3386,12 @@ exports.set_fee_head_query_redesign_split = async (
     else {
       await societyAdmissionFeeReceipt(receipt_args?._id, finance?.institute)
     }
+    for (let ele of nest_args?.remaining_array) {
+      if (ele?.remainAmount <= 0) {
+        nest_args?.remaining_array?.pull(ele?._id)
+      }
+    }
+    await nest_args.save()
   } catch (e) {
     console.log(e);
   }
@@ -3502,6 +3508,12 @@ exports.update_fee_head_query_redesign_split = async (
     else {
       await societyAdmissionFeeReceipt(receipt_args?._id, finance?.institute)
     }
+    for (let ele of nest_args?.remaining_array) {
+      if (ele?.remainAmount <= 0) {
+        nest_args?.remaining_array?.pull(ele?._id)
+      }
+    }
+    await nest_args.save()
     return student_args;
   } catch (e) {
     console.log(e);

@@ -14538,10 +14538,12 @@ exports.retieveAdmissionAdminAllApplicationPinned = async (req, res) => {
         select: "dName photoId photo",
       })
     
+      const ongoing = [...apply?.dependent_pinned_application, ...nums]
       const ads_obj = {
         message: "All Ongoing Application from DB 🙌",
         depend: apply?.dependent_pinned_application,
         independ: nums,
+        ongoing: ongoing
       }
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({

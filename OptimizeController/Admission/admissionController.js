@@ -14537,17 +14537,36 @@ exports.retieveAdmissionAdminAllApplicationPinned = async (req, res) => {
         path: "applicationDepartment",
         select: "dName photoId photo",
       })
+      var list = []
       const unique = [...new Set(apply?.dependent_pinned_application.map(item => item.section_type))]
-      const ongoing = [...unique, ...nums]
+      for (let val of apply?.dependent_pinned_application) {
+        if (unique?.includes(`${val?.section_type}`)) {
+          if (list?.length > 0) {
+            for (let stu of list) {
+              if (`${stu?.type}` === `${val?.section_type}`) {
+                stu.apps.push(val?.application)
+              }
+            }
+          }
+          else {
+            list.push({
+              type: val?.section_type,
+              apps: val?.application
+            })
+          }
+        }
+      }
+      
+      const ongoing = [...list, ...nums]
       const ads_obj = {
         message: "All Ongoing Application from DB 🙌",
-        depend: apply?.dependent_pinned_application,
-        independ: nums,
+        // depend: apply?.dependent_pinned_application,
+        // independ: nums,
         ongoing: ongoing
       }
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
-        encrypt: adsEncrypt,
+        // encrypt: adsEncrypt,
         ads_obj
       });
   } catch (e) {

@@ -895,7 +895,7 @@ router.post("/:id/un/pinned/application/query", catchAsync(Admission.renderAppli
 
 // Ongoing App Pinned
 router.get(
-  "/:aid/all/ongoing/application/pinned",
+  "/:id/all/ongoing/application/pinned",
   catchAsync(Admission.retieveAdmissionAdminAllApplicationPinned)
 );
 

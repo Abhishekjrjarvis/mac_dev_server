@@ -14452,17 +14452,12 @@ exports.renderApplicationPinnedQuery = async (req, res) => {
       await Promise.all([ one_ins.save(), app.save() ])
     }
     else if (flow === "DEPENDENT") {
-      if (one_ins?.dependent_pinned_application?.length > 0) {
-        for (let ele of one_ins?.dependent_pinned_application) {
-          if (`${ele?.section_type}` === `${type}`) {
-              ele.application.push(did)
-          }
-          else {
-            one_ins.dependent_pinned_application.push({
-              section_type: type,
-              application: did
-            })
-          }
+      let is_avail = one_ins?.dependent_pinned_application?.filter((val) => {
+        if(`${val?.section_type}` === `${type}`) return val
+      })
+      if (is_avail?.length > 0) {
+        for (let ele of is_avail) {
+          ele.application.push(did)
         }
       }
       else {
@@ -14471,6 +14466,15 @@ exports.renderApplicationPinnedQuery = async (req, res) => {
           application: did
         })
       }
+      // if (one_ins?.dependent_pinned_application?.length > 0) {
+
+      // }
+      // else {
+      //   one_ins.dependent_pinned_application.push({
+      //     section_type: type,
+      //     application: did
+      //   })
+      // }
       for (let ele of one_ins.dependent_pinned_application) {
         if (`${ele?.application}` === `${app?._id}`) {
           app.pin.flow_id = ele?._id
@@ -14481,6 +14485,17 @@ exports.renderApplicationPinnedQuery = async (req, res) => {
       await Promise.all([ one_ins.save(), app.save() ])
     }
     res.status(200).send({ message: "Explore One Application Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.db_delete = async (req, res) => {
+  try {
+    const ads = await Admission.findById({ _id: "6618a8d3f96be29bdeddf5ba" })
+    ads.dependent_pinned_application = []
+    await ads.save()
   }
   catch (e) {
     console.log(e)

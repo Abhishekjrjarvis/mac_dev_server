@@ -14566,7 +14566,7 @@ exports.retieveAdmissionAdminAllApplicationPinned = async (req, res) => {
       }
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
-        // encrypt: adsEncrypt,
+        encrypt: adsEncrypt,
         ads_obj
       });
   } catch (e) {

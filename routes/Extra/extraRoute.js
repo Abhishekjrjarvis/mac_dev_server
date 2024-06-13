@@ -484,5 +484,21 @@ router.patch(
   catchAsync(Extra.customGenerateApplicationFormQuery)
 );
 
+router.patch(
+  "/leaving/certificate/not/exist/ins/:id",
+  // isLoggedIn,
+  catchAsync(Extra.notExistStudentCertificateQuery)
+);
+router.patch(
+  "/leaving/certificate/not/exist/institute/profile/:id",
+  // isLoggedIn,
+  catchAsync(Extra.notExistStudentInstituteProfileQuery)
+);
+router.get(
+  "/institute/:id/certificate/autority/logs/query",
+  // isLoggedIn,
+  catchAsync(Extra.certificateInstituteLogsListQuery)
+);
+
 
 module.exports = router;

@@ -120,6 +120,7 @@ const InstituteLog = require("../../models/InstituteLog/InstituteLog");
 const InstituteCertificateLog = require("../../models/InstituteLog/InstituteCertificateLog");
 const NewApplication = require("../../models/Admission/NewApplication");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
+const NotExistStudentCertificate = require("../../models/Certificate/NotExistStudentCertificate");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -4119,6 +4120,235 @@ exports.customGenerateApplicationFormQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+
+exports.notExistStudentCertificateQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const {
+      studentCertificateNo,
+      leaving_date,
+      bookNo,
+      studentUidaiNumber,
+      studentPreviousSchool,
+      studentLeavingBehaviour,
+      studentLeavingStudy,
+      studentLeavingReason,
+      studentRemark,
+      instituteJoinDate,
+      instituteLeavingDate,
+      leaving_degree,
+      leaving_since_date,
+      leaving_course_duration,
+      elective_subject_one,
+      elective_subject_second,
+      leaving_project_work,
+      leaving_guide_name,
+      lcRegNo,
+      lcCaste,
+      lcBirth,
+      lcDOB,
+      lcAdmissionDate,
+      lcInstituteDate,
+      leaving_student_name,
+      leaving_nationality,
+      leaving_religion,
+      leaving_previous_school,
+      leaving_certificate_attach,
+      is_dublicate,
+
+      certificate_type,
+      certificate_attachment,
+      student_name,
+      staffId,
+    } = req.body;
+    const institute = await InstituteAdmin.findById({
+      _id: id,
+    });
+
+    const not_exist_certificate = new NotExistStudentCertificate({
+      institute: id,
+      studentCertificateNo: studentCertificateNo ?? "",
+      leaving_date: leaving_date ?? "",
+      studentBookNo: bookNo ?? "",
+      studentUidaiNumber: studentUidaiNumber ?? "",
+      studentPreviousSchool: studentPreviousSchool ?? "",
+      studentLeavingBehaviour: studentLeavingBehaviour ?? "",
+      studentLeavingStudy: studentLeavingStudy ?? "",
+      studentLeavingReason: studentLeavingReason ?? "",
+      studentRemark: studentRemark ?? "",
+      instituteJoinDate: instituteJoinDate ?? "",
+      leaving_degree: leaving_degree ?? "",
+      leaving_since_date: leaving_since_date ?? "",
+      leaving_course_duration: leaving_course_duration ?? "",
+      elective_subject_one: elective_subject_one ?? "",
+      elective_subject_second: elective_subject_second ?? "",
+      leaving_project_work: leaving_project_work ?? "",
+      leaving_guide_name: leaving_guide_name ?? "",
+      lcRegNo: lcRegNo ?? "",
+      lcCaste: lcCaste ?? "",
+      lcBirth: lcBirth ?? "",
+      lcDOB: lcDOB ?? "",
+      lcAdmissionDate: lcAdmissionDate ?? "",
+      lcInstituteDate: lcInstituteDate ?? "",
+      leaving_student_name: leaving_student_name ?? "",
+      leaving_nationality: leaving_nationality ?? "",
+      leaving_religion: leaving_religion ?? "",
+      leaving_previous_school: leaving_previous_school ?? "",
+      leaving_certificate_attach: leaving_certificate_attach ?? "",
+      certificate_type: certificate_type ?? "",
+      certificate_attachment: certificate_attachment ?? "",
+      is_dublicate: is_dublicate ? "Dublicate" : "Original",
+    });
+
+    if (instituteLeavingDate) {
+      not_exist_certificate.studentLeavingInsDate = new Date(
+        `${instituteLeavingDate}`
+      );
+    }
+
+    institute.l_certificate_count += 1;
+    institute.certificate_issued_count += 1;
+
+    await Promise.all([not_exist_certificate.save(), institute.save()]);
+    // Add Another Encryption
+    res.status(200).send({
+      message: "Student Leaving Certificate",
+    });
+
+    if (institute?.institute_log && not_exist_certificate?._id) {
+      const i_log = await InstituteLog.findById(institute?.institute_log);
+      const c_logs = new InstituteCertificateLog({
+        instituteId: institute?._id,
+        institute_log_id: i_log?._id,
+        student_name: student_name,
+        not_exist_student: not_exist_certificate?._id,
+        certificate_attachment: certificate_attachment,
+        certificate_type: certificate_type,
+        certificate_issue_type: is_dublicate ? "Dublicate" : "Original",
+      });
+      if (staffId) {
+        c_logs.issue_by_staff = staffId;
+        not_exist_certificate.issue_by_staff = staffId;
+      } else {
+        c_logs.issue_by_institute = "NIL";
+        not_exist_certificate.issue_by_institute = staffId;
+      }
+
+      i_log.certificate_logs.push(c_logs?._id);
+      not_exist_certificate.certificate_logs.push(c_logs?._id);
+      await Promise.all([
+        c_logs.save(),
+        i_log.save(),
+        not_exist_certificate.save(),
+      ]);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.notExistStudentInstituteProfileQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const institute = await InstituteAdmin.findById({
+      _id: id,
+    }).select(
+      "insName insAddress certificate_issued_count insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail leave_certificate_selection"
+    );
+
+    res.status(200).send({
+      message: "Student Leaving Certificate",
+      institute: institute,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.certificateInstituteLogsListQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+    var logs = [];
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      logs = await InstituteCertificateLog.find({
+        $and: [
+          {
+            instituteId: { $eq: `${id}` },
+          },
+          {
+            student_name: { $regex: req.query.search, $options: "i" },
+          },
+        ],
+      })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentProfilePhoto photoId",
+        })
+        .populate({
+          path: "issue_by_staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName staffROLLNO staffProfilePhoto photoId",
+        })
+        .select(
+          "student_name student certificate_attachment certificate_issue_type certificate_type created_at issue_by_institute issue_by_staff"
+        );
+    } else {
+      logs = await InstituteCertificateLog.find({
+        $and: [
+          {
+            instituteId: { $eq: `${id}` },
+          },
+        ],
+      })
+        .sort({ created_at: -1 })
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentProfilePhoto photoId",
+        })
+        .populate({
+          path: "issue_by_staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName staffROLLNO staffProfilePhoto photoId",
+        })
+        .select(
+          "student_name student certificate_attachment certificate_issue_type certificate_type created_at issue_by_institute issue_by_staff"
+        );
+    }
+    res.status(200).send({
+      message: "All institute logs schema is created.",
+      logs: logs,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
 
 
 

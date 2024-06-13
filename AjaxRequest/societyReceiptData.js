@@ -261,7 +261,10 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
     if (excess_obj?.paid_fee > 0) {
       receipt.fee_heads.push(excess_obj);
     }
-    receipt.fee_heads.push(gta_obj);
+    if (gta_obj?.paid_fee > 0) {
+      receipt.fee_heads.push(gta_obj)
+    }
+    // receipt.fee_heads.push(gta_obj);
     if (receipt?.finance?.show_receipt === "Normal") {
       receipt.student.active_fee_heads = [...receipt?.fee_heads];
     } else if (receipt?.finance?.show_receipt === "Society") {
@@ -315,6 +318,7 @@ const getInstituteProfile = async (instituteId) => {
 const societyReceiptData = async (receiptId, instituteId) => {
   // const ft = await getReceiptData(receiptId);
   const ft = await getReceiptDataByFunction(receiptId);
+  // console.log("665eed56fe80b4410e5b4eff", ft);
   const dt = await getInstituteProfile(instituteId);
   return { ft, dt };
 };

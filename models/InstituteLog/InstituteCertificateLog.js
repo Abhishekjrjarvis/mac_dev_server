@@ -28,6 +28,11 @@ const instituteCertificateLogSchema = new mongoose.Schema({
   issue_by_institute: {
     type: String,
   },
+  not_exist_student: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "NotExistStudentCertificate",
+  },
+
 });
 
 module.exports = mongoose.model(

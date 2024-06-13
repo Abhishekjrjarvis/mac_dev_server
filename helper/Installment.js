@@ -3328,9 +3328,11 @@ exports.set_fee_head_query_redesign_split = async (
           }
         }
       }
+      console.log("AMOUNT INSERTED", student_args?.active_fee_heads)
       for (let stu of student_args?.active_fee_heads) {
         for (let val of nest_list) {
           if (`${stu?.master}` === `${val?.master}`) {
+            console.log("INSERTED IN MASTER")
             stu.remain_fee = 
               price_query >= stu?.applicable_fee
               ? 0
@@ -3347,9 +3349,11 @@ exports.set_fee_head_query_redesign_split = async (
               price_query >= stu?.applicable_fee
                 ? price_query - stu?.applicable_fee
                 : 0;
+                console.log("INSERTED IN MASTER EXIT", stu)
           }
         }
       }
+      console.log("AMOUNT FILLING", student_args?.active_fee_heads)
       for (var ref of student_args?.active_fee_heads) {
         if (`${ref?.fee_structure}` === `${receipt_args?.fee_structure?._id}`) {
           receipt_args.fee_heads.push({

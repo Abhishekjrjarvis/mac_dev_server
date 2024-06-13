@@ -2590,7 +2590,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (`${new_remainFee?.applicable_card?._id}` === `${card_id}`) {
-      const nest_card = await NestedCard.findById({ _id: `${card_id}`})
+      var nest_card = await NestedCard.findById({ _id: `${card_id}`})
       new_remainFee.active_payment_type = `${type}`;
       nest_card.active_payment_type = `${type}`;
       new_remainFee.paid_fee += price;
@@ -3914,7 +3914,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     institute.payment_history.push(order._id);
     order.fee_receipt = new_receipt?._id;
     if (`${remaining_fee_lists?.applicable_card?._id}` === `${card_id}`) {
-      const nest_card = await NestedCard.findById({ _id: `${card_id}`})
+      var nest_card = await NestedCard.findById({ _id: `${card_id}`})
       remaining_fee_lists.active_payment_type = `${type}`;
       nest_card.active_payment_type = `${type}`;
       remaining_fee_lists.paid_fee += price;

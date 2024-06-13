@@ -13238,7 +13238,7 @@ exports.renderMultipleInstallmentQuery = async (req, res) => {
       }
     }
     for (var val of p_card.remaining_array) {
-      if (`${val?._id}` === `${raid}`) {
+      if (`${val?._id}` === `${raid}` && val?.status == "Not Paid") {
         val.remainAmount -= price
         if (val?.remainAmount <= 0) {
           p_card.remaining_array?.pull(val?._id)

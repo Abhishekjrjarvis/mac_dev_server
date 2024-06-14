@@ -1746,7 +1746,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "admissionModeratorDepartment",
-          select: "admission access_role active_tab",
+          select: "admission access_role active_tab access_application",
         })
         .populate({
           path: "financeModeratorDepartment",
@@ -1979,7 +1979,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "admissionModeratorDepartment",
-          select: "admission access_role active_tab",
+          select: "admission access_role active_tab access_application",
         })
         .populate({
           path: "financeModeratorDepartment",

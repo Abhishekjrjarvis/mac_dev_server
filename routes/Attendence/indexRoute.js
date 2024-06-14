@@ -83,7 +83,7 @@ router
 ///////////////////
 router
   .route("/subject/:sid/optional/student")
-  .get(isLoggedIn, catchAsync(Avail.getSubjectStudentList));
+  .get(catchAsync(Avail.getSubjectStudentList));
 router
   .route("/subject/:sid/student/attendance")
   .get(isLoggedIn, catchAsync(Avail.getAttendSubjectStudent))

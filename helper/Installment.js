@@ -3246,8 +3246,8 @@ exports.set_fee_head_query_redesign_split = async (
       for (let ele of nest_args?.remaining_array) {
         if (`${ele?._id}` === `${nsid}`) {
           parent_head = {
-            ...ele?.applicable_fees_heads,
-            count: ele?.applicable_fees_heads?.length,
+            ...ele?.fees_heads,
+            count: ele?.fees_heads?.length,
           }
         }
       }

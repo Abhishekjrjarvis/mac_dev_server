@@ -1107,6 +1107,13 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  new_app: {
+    appId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "NewApplication"
+    },
+    appName: { type: String },
+  }
 });
 
 const Student = mongoose.model("Student", studentSchema);

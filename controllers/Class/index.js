@@ -464,6 +464,8 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
           select: "userLegalName username batchName batchStatus",
         },
       })
+      .lean()
+      .exec();
       for (let stu of subject?.optionalStudent) {
         let subjectWise = {
           presentCount: 0,
@@ -471,7 +473,7 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
           totalPercentage: 0,
           todayStatus: "",
         };
-        for (let att of subjectAttend?.attendance) {
+        for (let att of subjectAttend?.attendance ?? []) {
           for (let pre of att?.presentStudent) {
             if (String(stu._id) === String(pre.student))
               subjectWise.presentCount += 1;
@@ -482,7 +484,7 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
           (subjectWise.presentCount * 100) /
           subjectWise.totalCount
         ).toFixed(2);
-        for (let att of subject?.attendance) {
+        for (let att of subject?.attendance ?? []) {
           for (let pre of att?.presentStudent) {
             if (String(stu._id) === String(pre.student))
               subjectWise.todayStatus = "P";
@@ -507,7 +509,7 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
         totalPercentage: 0,
         todayStatus: "",
       };
-      for (let att of subjectAttend?.attendance) {
+      for (let att of subjectAttend?.attendance ?? []) {
         for (let pre of att?.presentStudent) {
           if (String(stu._id) === String(pre.student))
             subjectWise.presentCount += 1;
@@ -518,7 +520,7 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
         (subjectWise.presentCount * 100) /
         subjectWise.totalCount
       ).toFixed(2);
-      for (let att of subject?.attendance) {
+      for (let att of subject?.attendance ?? []) {
         for (let pre of att?.presentStudent) {
           if (String(stu._id) === String(pre.student))
             subjectWise.todayStatus = "P";

@@ -1331,15 +1331,18 @@ exports.getSubjectStudentList = async (req, res) => {
         .exec();
       var students = [];
       for (let u_student of mixter_student) {
-        if (u_student?.studentOptionalSubject?.includes(subjects?._id)) {
+        if (subjects?.optionalStudent?.includes(u_student?._id)) {
           students.push(u_student);
         }
+        // if (u_student?.studentOptionalSubject?.includes(subjects?._id)) {
+        //   students.push(u_student);
+        // }
       }
       students.sort(function (st1, st2) {
         return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
       });
     } else {
-      var students = await Student.find({
+      var mixter_student = await Student.find({
         _id: { $in: subjects.class.ApproveStudent ?? [] },
       })
         .populate({
@@ -1354,10 +1357,18 @@ exports.getSubjectStudentList = async (req, res) => {
           select: "userLegalName username",
         })
         .select(
-          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO leave user student_prn_enroll_number"
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO studentOptionalSubject leave user student_prn_enroll_number"
         )
         .lean()
         .exec();
+        var students = [];
+      for (let u_student of mixter_student) {
+        // for (let ele of subjects?.optionalStudent) {
+          if (subjects?.optionalStudent?.includes(u_student?._id)) {
+            students.push(u_student);
+          }
+        // }
+      }
       students.sort(function (st1, st2) {
         return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
       });

@@ -3237,20 +3237,9 @@ exports.set_fee_head_query_redesign_split = async (
       .select("show_receipt institute")
     const structure = await FeeStructure.findById({ _id: `${receipt_args?.fee_structure}`})
     var price_query = price;
-    var parent_head;
-    // {
-    //   ...structure?.applicable_fees_heads,
-    //   count: structure?.applicable_fees_heads?.length,
-    // }
-    if (nest_args?.remaining_array?.length > 0) {
-      for (let ele of nest_args?.remaining_array) {
-        if (`${ele?._id}` === `${nsid}`) {
-          parent_head = {
-            ...ele?.fees_heads,
-            count: ele?.fees_heads?.length,
-          }
-        }
-      }
+    var parent_head = {
+      ...structure?.applicable_fees_heads,
+      count: structure?.applicable_fees_heads?.length,
     }
     var exist_filter_student_heads = student_args?.active_fee_heads?.filter(
       (stu) => {

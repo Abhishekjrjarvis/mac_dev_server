@@ -902,4 +902,23 @@ router.get(
 router.patch("/new/db/delete", catchAsync(Admission.db_delete))
 
 
+// Merged Ongoing App
+router.get(
+  "/:aid/all/merged/ongoing/application",
+  catchAsync(Admission.retieveAdmissionAdminAllMergedApplication)
+);
+
+// All Selected Application
+router.get(
+  "/:aid/all/merged/ongoing/docs/application",
+  catchAsync(Admission.fetchAllSelectMergedApplication)
+);
+
+// All Fee Collected Application
+router.get(
+  "/:aid/all/merged/ongoing/fees/collect/application",
+  catchAsync(Admission.fetchAllFeeCollectedMergedApplication)
+);
+
+
 module.exports = router;

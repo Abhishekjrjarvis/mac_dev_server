@@ -79,6 +79,10 @@ const aluminiSchema = new mongoose.Schema({
   photoId: {
     type: String,
   },
+  member_module_unique: {
+    type: String,
+    unique: true
+  }
 });
 
 module.exports = mongoose.model("Alumini", aluminiSchema);

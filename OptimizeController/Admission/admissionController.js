@@ -14633,7 +14633,8 @@ exports.retieveAdmissionAdminAllMergedApplication = async (req, res) => {
         review_count: 0,
         fee_collect_count: 0,
         docs_enable: "Yes",
-        fee_collect_enable: "Yes"
+        fee_collect_enable: "Yes",
+        confirm_enable: "Yes"
       }
       for (var ref of ongoing) {
         custom_obj.selectCount += ref?.selectedApplication?.length ?? 0;

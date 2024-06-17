@@ -504,7 +504,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
         : false,
     });
 
-    if (institute?.institute_log && student?._id) {
+    if (institute?.institute_log && student?._id && certificate_attachment) {
       const i_log = await InstituteLog.findById(institute?.institute_log);
       const c_logs = new InstituteCertificateLog({
         instituteId: institute?._id,

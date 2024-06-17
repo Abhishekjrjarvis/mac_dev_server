@@ -1341,11 +1341,13 @@ exports.retrieveApproveStudentList = async (req, res) => {
         { studentMiddleName: { $regex: `${search}`, $options: "i"}},
         { studentLastName: { $regex: `${search}`, $options: "i"}},
         { valid_full_name: { $regex: `${search}`, $options: "i"}},
-        { studentGRNO: { $regex: `${search}`, $options: "i"}}]
+          { studentGRNO: { $regex: `${search}`, $options: "i" } },
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
+        ]
       })
         .sort({ createdAt: -1 })
         .select(
-          "studentFirstName studentMiddleName studentLastName valid_full_name applicable_fees_pending government_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+          "studentFirstName studentMiddleName studentLastName valid_full_name qviple_student_pay_id applicable_fees_pending government_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -1374,7 +1376,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
           .skip(skip)
           .sort({ createdAt: -1 })
           .select(
-            "studentFirstName studentMiddleName studentLastName valid_full_name applicable_fees_pending government_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+            "studentFirstName studentMiddleName studentLastName valid_full_name qviple_student_pay_id applicable_fees_pending government_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
           )
           .populate({
             path: "user",
@@ -1455,13 +1457,14 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
           {
             studentGRNO: { $regex: search, $options: "i" },
           },
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
         ],
       })
         .sort({ createdAt: -1 })
         // .limit(limit)
         // .skip(skip)
         .select(
-          "studentFirstName studentMiddleName applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+          "studentFirstName studentMiddleName qviple_student_pay_id applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -1505,7 +1508,7 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
       })
         .sort({ createdAt: -1 })
         .select(
-          "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+          "studentFirstName studentMiddleName studentLastName qviple_student_pay_id applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -1693,13 +1696,14 @@ exports.retrieveFinanceApproveStudentListFilterQuery = async (req, res) => {
           {
             studentGRNO: { $regex: search, $options: "i" },
           },
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
         ],
       })
         .sort({ createdAt: -1 })
         // .limit(limit)
         // .skip(skip)
         .select(
-          "studentFirstName studentMiddleName applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+          "studentFirstName studentMiddleName qviple_student_pay_id applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -1743,7 +1747,7 @@ exports.retrieveFinanceApproveStudentListFilterQuery = async (req, res) => {
       })
         .sort({ createdAt: -1 })
         .select(
-          "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+          "studentFirstName studentMiddleName qviple_student_pay_id studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -1941,13 +1945,14 @@ exports.retrieveAdmissionApproveStudentListFilterQuery = async (req, res) => {
           {
             studentGRNO: { $regex: search, $options: "i" },
           },
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
         ],
       })
         .sort({ createdAt: -1 })
         // .limit(limit)
         // .skip(skip)
         .select(
-          "studentFirstName studentMiddleName applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+          "studentFirstName studentMiddleName qviple_student_pay_id applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -1991,7 +1996,7 @@ exports.retrieveAdmissionApproveStudentListFilterQuery = async (req, res) => {
       })
         .sort({ createdAt: -1 })
         .select(
-          "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+          "studentFirstName studentMiddleName qviple_student_pay_id studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -2191,13 +2196,14 @@ exports.retrieveApproveStudentSectionListFilterQuery = async (req, res) => {
           {
             studentGRNO: { $regex: search, $options: "i" },
           },
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
         ],
       })
         .sort({ createdAt: -1 })
         // .limit(limit)
         // .skip(skip)
         .select(
-          "studentFirstName studentMiddleName applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+          "studentFirstName studentMiddleName qviple_student_pay_id applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -2241,7 +2247,7 @@ exports.retrieveApproveStudentSectionListFilterQuery = async (req, res) => {
       })
         .sort({ createdAt: -1 })
         .select(
-          "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+          "studentFirstName studentMiddleName qviple_student_pay_id studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -2439,13 +2445,14 @@ exports.retrieveCertificateApproveStudentListFilterQuery = async (req, res) => {
           {
             studentGRNO: { $regex: search, $options: "i" },
           },
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
         ],
       })
         .sort({ createdAt: -1 })
         // .limit(limit)
         // .skip(skip)
         .select(
-          "studentFirstName studentMiddleName applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+          "studentFirstName studentMiddleName qviple_student_pay_id applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -2489,7 +2496,7 @@ exports.retrieveCertificateApproveStudentListFilterQuery = async (req, res) => {
       })
         .sort({ createdAt: -1 })
         .select(
-          "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+          "studentFirstName studentMiddleName qviple_student_pay_id studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -2689,13 +2696,14 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
           {
             studentGRNO: { $regex: search, $options: "i" },
           },
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
         ],
       })
         .sort({ createdAt: -1 })
         // .limit(limit)
         // .skip(skip)
         .select(
-          "studentFirstName studentMiddleName applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+          "studentFirstName studentMiddleName qviple_student_pay_id applicable_fees_pending studentGender studentCastCategory batches studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -2739,7 +2747,7 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
       })
         .sort({ createdAt: -1 })
         .select(
-          "studentFirstName studentMiddleName studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+          "studentFirstName studentMiddleName qviple_student_pay_id studentLastName applicable_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -2933,11 +2941,12 @@ exports.retrieveUnApproveStudentListQuery = async (req, res) => {
           {
             studentGRNO: { $regex: `${search}`, $options: "i" },
           },
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
         ],
       })
         .sort({ createdAt: -1 })
         .select(
-          "studentFirstName studentMiddleName applicable_fees_pending studentLastName valid_full_name photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+          "studentFirstName studentMiddleName qviple_student_pay_id applicable_fees_pending studentLastName valid_full_name photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -2975,7 +2984,7 @@ exports.retrieveUnApproveStudentListQuery = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "studentFirstName studentMiddleName studentLastName applicable_fees_pending valid_full_name photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+          "studentFirstName studentMiddleName qviple_student_pay_id studentLastName applicable_fees_pending valid_full_name photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
         )
         .populate({
           path: "user",

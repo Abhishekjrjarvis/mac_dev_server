@@ -14739,7 +14739,7 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
         { applicationTypeStatus: "Normal Application" },
       ]
       })
-        .select("selectCount applicationName")
+        .select("selectCount applicationName applicationDepartment applicationBatch applicationMaster")
         .populate({
           path: "selectedApplication",
           populate: {
@@ -14762,6 +14762,9 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
           for (let val of ele?.selectedApplication) {
             val.student.new_app.appId = ele?._id
             val.student.new_app.appName = ele?.applicationName
+            val.student.new_app.applicationDepartment = ele?.applicationDepartment
+            val.student.new_app.applicationBatch = ele?.applicationBatch
+            val.student.new_app.applicationMaster = ele?.applicationMaster
           }
           list.push(...ele?.selectedApplication)
         }
@@ -14849,7 +14852,7 @@ exports.fetchAllFeeCollectedMergedApplication = async (req, res) => {
         { applicationTypeStatus: "Normal Application" },
       ]
       })
-      .select("fee_collect_count applicationName")
+      .select("fee_collect_count applicationName applicationDepartment applicationBatch applicationMaster")
       .populate({
         path: "FeeCollectionApplication",
         populate: {
@@ -14861,6 +14864,9 @@ exports.fetchAllFeeCollectedMergedApplication = async (req, res) => {
         for (let val of ele?.FeeCollectionApplication) {
           val.student.new_app.appId = ele?._id
           val.student.new_app.appName = ele?.applicationName
+          val.student.new_app.applicationDepartment = ele?.applicationDepartment
+          val.student.new_app.applicationBatch = ele?.applicationBatch
+          val.student.new_app.applicationMaster = ele?.applicationMaster
         }
         list.push(...ele?.FeeCollectionApplication)
       }

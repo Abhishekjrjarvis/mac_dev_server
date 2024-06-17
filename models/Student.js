@@ -1113,6 +1113,18 @@ const studentSchema = new mongoose.Schema({
       ref: "NewApplication"
     },
     appName: { type: String },
+    applicationDepartment: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department"
+    },
+    applicationBatch: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch"
+    },
+    applicationMaster: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ClassMaster"
+    }
   }
 });
 

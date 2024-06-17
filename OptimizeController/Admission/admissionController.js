@@ -14971,15 +14971,11 @@ exports.fetchAllConfirmedMergedApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber form_no new_app",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto fee_receipt application_print studentGender studentPhoneNumber studentParentsPhoneNumber form_no new_app",
             populate: {
-              path: "fee_structure hostel_fee_structure",
+              path: "fee_structure hostel_fee_structure fee_receipt",
               select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-              populate: {
-                path: "category_master",
-                select: "category_name",
-              },
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
             },
           },
         });

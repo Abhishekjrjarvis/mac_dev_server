@@ -40,12 +40,12 @@ exports.timerFunction = () => {
   setInterval(async () => {
     await outstanding_reminder_disable_query();
   }, 86400000);
-  setInterval(async () => {
-    await renderDayBookReceipt();
-  }, 86400000);
-  setInterval(async () => {
-    await renderDayBookPayment();
-  }, 86400000);
+  // setInterval(async () => {
+  //   await renderDayBookReceipt();
+  // }, 86400000);
+  // setInterval(async () => {
+  //   await renderDayBookPayment();
+  // }, 86400000);
   // setInterval(async () => {
   //   await renderFindReceiptQuery();
   // }, 86400);

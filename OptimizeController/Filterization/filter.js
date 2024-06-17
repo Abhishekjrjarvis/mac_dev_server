@@ -9699,7 +9699,7 @@ exports.renderAllDayBookReceipt = async (req, res) => {
       res.status(200).send({
         message: "Explore All Day Book Receipts Query",
         access: true,
-        all_db: all_db,
+        all_db: []//all_db,
       });
     }
   } catch (e) {
@@ -9743,7 +9743,7 @@ exports.renderAllDayBookPayment = async (req, res) => {
       res.status(200).send({
         message: "Explore All Day Book Payments Query",
         access: true,
-        all_db: all_db,
+        all_db: []//all_db,
       });
     }
   } catch (e) {

@@ -6449,17 +6449,43 @@ exports.render_mark_society_head_query = async (req, res) => {
     
     var struct = await FeeStructure.findById({ _id: fsid })
     if (flow === "APPLICABLE") {
+      var apps = []
       for (let ele of struct?.applicable_fees_heads) {
         if (`${ele?._id}` === `${fhid}`) {
           ele.is_society = status
+          apps.push(ele)
+          struct?.applicable_fees_heads?.pull(ele?._id)
         }
+      }
+      for (let val of apps) {
+        struct.applicable_fees_heads.unshift({
+          head_name: val?.head_name,
+          head_amount: val?.head_amount,
+          master: val?.master,
+          created_at: val?.created_at,
+          is_society: val?.is_society,
+          _id: val?._id
+        })
       }
     }
     else if (flow === "GOVERNMENT") {
+      var govs = []
       for (let ele of struct?.government_fees_heads) {
         if (`${ele?._id}` === `${fhid}`) {
           ele.is_society = status
+          govs.push(ele)
+          struct?.government_fees_heads?.pull(ele?._id)
         }
+      }
+      for (let val of govs) {
+        struct.government_fees_heads.unshift({
+          head_name: val?.head_name,
+          head_amount: val?.head_amount,
+          master: val?.master,
+          created_at: val?.created_at,
+          is_society: val?.is_society,
+          _id: val?._id
+        })
       }
     }
     await struct.save()

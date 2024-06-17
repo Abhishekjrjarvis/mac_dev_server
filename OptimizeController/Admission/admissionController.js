@@ -14894,6 +14894,131 @@ exports.fetchAllFeeCollectedMergedApplication = async (req, res) => {
   }
 };
 
+exports.fetchAllConfirmedMergedApplication = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    // if (search) {
+    //   const filter_select = [];
+    //   const apply = await NewApplication.findById({ _id: aid })
+    //     .select("selectCount")
+    //     .populate({
+    //       path: "selectedApplication",
+    //       populate: {
+    //         path: "student",
+    //         match: {
+    //           $or: [
+    //             {studentFirstName: { $regex: `${search}`, $options: "i" },
+    //             },
+    //             {
+    //               studentMiddleName: { $regex: `${search}`, $options: "i" },
+    //             },
+    //             {
+    //               studentLastName: { $regex: `${search}`, $options: "i" },
+    //             },
+    //             {
+    //               valid_full_name: { $regex: `${search}`, $options: "i" },
+    //             },
+    //             {
+    //               form_no: { $regex: `${search}`, $options: "i" }
+    //             }
+    //           ]
+    //         },
+    //         select:
+    //           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name form_no",
+    //         populate: {
+    //           path: "fee_structure hostel_fee_structure",
+    //           select:
+    //             "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+    //           populate: {
+    //             path: "category_master",
+    //             select: "category_name",
+    //           },
+    //         },
+    //       },
+    //     });
+    //   for (let data of apply.selectedApplication) {
+    //     if (data.student !== null) {
+    //       filter_select.push(data);
+    //     }
+    //   }
+    //   if (filter_select?.length > 0) {
+    //     // const selectEncrypt = await encryptionPayload(apply);
+    //     res.status(200).send({
+    //       message:
+    //         "Lots of Selection required make sure you come up with Tea and Snack from DB 🙌",
+    //       select: filter_select?.reverse(),
+    //     });
+    //   } else {
+    //     res.status(200).send({
+    //       message: "Go To Outside for Dinner",
+    //       select: [],
+    //     });
+    //   }
+    // } else {
+      const ads = await Admission.findById({ _id: aid })
+      var apply = await NewApplication.find({ $and: [{ _id: { $in: ads.newApplication } },
+        { applicationStatus: "Ongoing" },
+        { applicationTypeStatus: "Normal Application" },
+      ]
+      })
+        .select("selectCount applicationName applicationDepartment applicationBatch applicationMaster")
+        .populate({
+          path: "confirmedApplication",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber form_no new_app",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+              populate: {
+                path: "category_master",
+                select: "category_name",
+              },
+            },
+          },
+        });
+        var list = []
+        for (let ele of apply) {
+          for (let val of ele?.confirmedApplication) {
+            val.student.new_app.appId = ele?._id
+            val.student.new_app.appName = ele?.applicationName
+            val.student.new_app.applicationDepartment = ele?.applicationDepartment
+            val.student.new_app.applicationBatch = ele?.applicationBatch
+            val.student.new_app.applicationMaster = ele?.applicationMaster
+          }
+          list.push(...ele?.confirmedApplication)
+        }
+      
+      var all_confirm_query = nested_document_limit(
+        page,
+        limit,
+        list?.reverse()
+      );
+      if (all_confirm_query?.length > 0) {
+        // const selectEncrypt = await encryptionPayload(apply);
+        res.status(200).send({
+          message:
+            "Lots of Confirmation required make sure you come up with Tea and Snack from DB 🙌",
+          confirm: all_confirm_query,
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          confirm: [],
+        });
+      }
+    // }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.form = async (req, res) => {
   try {
     const { sid } = req?.params

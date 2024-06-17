@@ -571,6 +571,7 @@ exports.email_sms_designation_application_apply = (
   file
 ) => {
   try {
+    // Click on below to download your admission application form - https://qviple-dev.s3.ap-south-1.amazonaws.com/${file}
     const bool = process.env.IS_GLOBAL;
     if (bool) {
       var message = `Dear ${name},
@@ -580,8 +581,6 @@ Once your application is verified you will receive selection email on this email
 After selection email, visit institute with Required documents, applicable fees along with print out of admission application form attached herewith.
 
 You can check your admission progress by logging into your account from site or Mobile Application: Qviple Your Institute Online : - For login use ${login} used while filing admission application.
-
-Click on below to download your admission application form - https://qviple-dev.s3.ap-south-1.amazonaws.com/${file}
 
 Stay updated for further updates.
 

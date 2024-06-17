@@ -34,7 +34,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentCastCategory",
+          "studentFirstName studentMiddleName studentGRNO studentLastName qviple_student_pay_id active_fee_heads active_society_fee_heads studentCastCategory",
         populate: {
           path: "remainingFeeList",
           select: "appId",
@@ -43,7 +43,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads hostel_fee_structure active_society_fee_heads studentCastCategory",
+          "studentFirstName studentMiddleName studentGRNO studentLastName qviple_student_pay_id active_fee_heads hostel_fee_structure active_society_fee_heads studentCastCategory",
         populate: {
           path: "fee_structure hostel_fee_structure",
           select:
@@ -118,7 +118,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number active_society_fee_heads studentCastCategory",
+          "studentFirstName studentMiddleName studentGRNO studentLastName qviple_student_pay_id active_fee_heads student_bed_number active_society_fee_heads studentCastCategory",
         populate: {
           path: "student_bed_number",
           select: "bed_number hostelRoom",
@@ -173,7 +173,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentCastCategory",
+          "studentFirstName studentMiddleName studentGRNO studentLastName qviple_student_pay_id active_fee_heads active_society_fee_heads studentCastCategory",
         populate: {
           path: "remainingFeeList",
           populate: {
@@ -262,7 +262,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       receipt.fee_heads.push(excess_obj);
     }
     if (gta_obj?.paid_fee > 0) {
-      receipt.fee_heads.push(gta_obj)
+      receipt.fee_heads.push(gta_obj);
     }
     // receipt.fee_heads.push(gta_obj);
     if (receipt?.finance?.show_receipt === "Normal") {

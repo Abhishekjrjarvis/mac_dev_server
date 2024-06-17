@@ -1,3 +1,4 @@
+
 exports.all_access_role = () => {
   const access_role = {
     FULL_ACCESS: {
@@ -93,6 +94,8 @@ exports.all_access_role = () => {
           "CONFIRMED TAB",
           "ALLOTTED TAB",
           "CANCELLED TAB",
+          "FEE COLLECTION TAB",
+          "REVIEW TAB"
         ],
         addons: [],
         accessStaff: "",
@@ -105,6 +108,21 @@ exports.all_access_role = () => {
       permission: {
         allow: true,
         bound: [".xlsx", ".pdf", ".doc"],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
+    COMBINED_APP_ACCESS: {
+      role: "COMBINED_APP_ACCESS",
+      permission: {
+        allow: true,
+        bound: [
+          "DOCS_COLLECT",
+          "FEES_COLLECT",
+          "CONFIRM_TAB",
+        ],
         addons: [],
         accessStaff: "",
         accessApplication: "",

@@ -6104,7 +6104,7 @@ exports.renderFinanceDepartmentQuery = async(req, res) => {
 
     const finance = await Finance.findById({ _id: fid })
 
-    var all_department = await Department.find({ institute: `${finance?.institute}` })
+    var all_department = await Department.find({ $and: [{ institute: `${finance?.institute}` }, { department_status: "Normal"}] })
 
     if(all_department?.length > 0){
       res.status(200).send({ message: "Explore All Department Query", access: true, all_department: all_department})

@@ -7,6 +7,7 @@ const util = require("util");
 const societyReceiptData = require("../AjaxRequest/societyReceiptData");
 const feeReceipt = require("../models/RazorPay/feeReceipt");
 const unlinkFile = util.promisify(fs.unlink);
+const moment = require("moment");
 
 const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
   const doc = new PDFDocument({
@@ -298,19 +299,54 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       });
   }
 
-  doc.rect(93, pos1, 0, 56).stroke();
-  doc.rect(pageWidth / 2 + 43, pos1, 0, 56).stroke();
-  doc.rect(pageWidth / 2 + 123, pos1, 0, 56).stroke();
-  doc.rect(doc.x, pos1, pageWidth - 40, 56).stroke();
+  doc.y += 2;
 
-  doc.moveDown(0.8);
+  doc.fontSize(10).font("Times-Bold").fillColor("#121212").text("Date: ", {
+    width: 70,
+    align: "right",
+  });
+  if (receiptData?.fee_transaction_date) {
+    let txn = moment(receiptData?.fee_transaction_date)?.format("DD/MM/yyyy");
+
+    doc.moveUp(1);
+    doc.fontSize(10).font("Times-Roman").fillColor("#2e2e2e").text(txn, {
+      indent: 80,
+    });
+  }
+
+  doc.moveUp(1);
+  doc
+    .fontSize(10)
+    .font("Times-Bold")
+    .fillColor("#121212")
+    .text("Id: ", {
+      width: pageWidth / 2 + 100,
+      align: "right",
+    });
+
+  if (receiptData?.student?.qviple_student_pay_id) {
+    doc.moveUp(1);
+    doc
+      .fontSize(10)
+      .font("Times-Roman")
+      .fillColor("#2e2e2e")
+      .text(receiptData?.student?.qviple_student_pay_id, {
+        indent: pageWidth / 2 + 110,
+      });
+  }
+  doc.rect(93, pos1, 0, 67).stroke();
+  doc.rect(pageWidth / 2 + 43, pos1, 0, 67).stroke();
+  doc.rect(pageWidth / 2 + 123, pos1, 0, 67).stroke();
+  doc.rect(doc.x, pos1, pageWidth - 40, 67).stroke();
+
+  doc.moveDown(0.4);
   doc.fontSize(13).text("Fee Details", { align: "center" });
   pos1 = doc.y;
 
   doc.y += 8;
 
   let paid_fee = receiptData?.student?.active_fee_heads?.filter((fd) => {
-    if (fd?.paid_fee > 0) {
+    if (fd?.paid_fee > 0 && fd?.original_paid > 0) {
       return fd;
     } else {
       return null;
@@ -350,13 +386,13 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .font("Times-Roman")
       .fillColor("#2e2e2e")
       // .text(100000, {
-      .text(data?.paid_fee, {
+      .text(data?.original_paid, {
         width: w1 - 15,
         align: "right",
         indent: 10,
       });
 
-    if (data?.paid_fee) paidAmount += data?.paid_fee;
+    if (data?.original_paid) paidAmount += data?.original_paid;
     ft += 1;
     data = paid_fee?.[ft];
     doc.moveUp(1);
@@ -384,13 +420,13 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .font("Times-Roman")
       .fillColor("#2e2e2e")
       // .text(100000, {
-      .text(data?.paid_fee, {
+      .text(data?.original_paid, {
         width: 2 * w1 - 15,
         align: "right",
         indent: 10,
       });
 
-    if (data?.paid_fee) paidAmount += data?.paid_fee;
+    if (data?.original_paid) paidAmount += data?.original_paid;
 
     ft += 1;
     data = paid_fee?.[ft];
@@ -415,18 +451,18 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .font("Times-Roman")
       .fillColor("#2e2e2e")
       // .text(100000, {
-      .text(data?.paid_fee, {
+      .text(data?.original_paid, {
         // width: pageWidth - 50,
         width: 3 * w1 - 10,
         indent: 10,
         align: "right",
       });
-    if (data?.paid_fee) paidAmount += data?.paid_fee;
+    if (data?.original_paid) paidAmount += data?.original_paid;
 
     doc.moveDown(0.2);
   }
   doc.rect(doc.x, pos1, pageWidth - 40, pos2).stroke();
-  doc.y = pos1 + pos2 + 8;
+  doc.y = pos1 + pos2 + 6;
   doc
     .fontSize(12)
     .font("Times-Roman")
@@ -472,7 +508,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       width: doc.widthOfString("Pending Fee For All Academic Year") + 40,
       align: "right",
     });
-  doc.rect(doc.x, pos1 + pos2, pageWidth - 40, 37).stroke();
+  doc.rect(doc.x, pos1 + pos2, pageWidth - 40, 34).stroke();
   doc.y += 7;
   doc
     .fontSize(7)
@@ -500,7 +536,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
   // active_fee_heads
   let society_paid_fee = receiptData?.student?.active_society_fee_heads?.filter(
     (fd) => {
-      if (fd?.paid_fee > 0) {
+      if (fd?.paid_fee > 0 && fd?.original_paid > 0) {
         return fd;
       } else {
         return null;
@@ -751,13 +787,47 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
           indent: pageWidth / 2 + 110,
         });
     }
+    doc.y += 2;
 
-    doc.rect(93, pos1, 0, 56).stroke();
-    doc.rect(pageWidth / 2 + 43, pos1, 0, 56).stroke();
-    doc.rect(pageWidth / 2 + 123, pos1, 0, 56).stroke();
-    doc.rect(doc.x, pos1, pageWidth - 40, 56).stroke();
+    doc.fontSize(10).font("Times-Bold").fillColor("#121212").text("Date: ", {
+      width: 70,
+      align: "right",
+    });
+    if (receiptData?.fee_transaction_date) {
+      let txn = moment(receiptData?.fee_transaction_date)?.format("DD/MM/yyyy");
 
-    doc.moveDown(0.8);
+      doc.moveUp(1);
+      doc.fontSize(10).font("Times-Roman").fillColor("#2e2e2e").text(txn, {
+        indent: 80,
+      });
+    }
+
+    doc.moveUp(1);
+    doc
+      .fontSize(10)
+      .font("Times-Bold")
+      .fillColor("#121212")
+      .text("Id: ", {
+        width: pageWidth / 2 + 100,
+        align: "right",
+      });
+
+    if (receiptData?.student?.qviple_student_pay_id) {
+      doc.moveUp(1);
+      doc
+        .fontSize(10)
+        .font("Times-Roman")
+        .fillColor("#2e2e2e")
+        .text(receiptData?.student?.qviple_student_pay_id, {
+          indent: pageWidth / 2 + 110,
+        });
+    }
+    doc.rect(93, pos1, 0, 67).stroke();
+    doc.rect(pageWidth / 2 + 43, pos1, 0, 67).stroke();
+    doc.rect(pageWidth / 2 + 123, pos1, 0, 67).stroke();
+    doc.rect(doc.x, pos1, pageWidth - 40, 67).stroke();
+
+    doc.moveDown(0.4);
     doc.fontSize(13).text("Fee Details", { align: "center" });
     pos1 = doc.y;
 
@@ -796,12 +866,12 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
         .font("Times-Roman")
         .fillColor("#2e2e2e")
         // .text(100000, {
-        .text(data?.paid_fee, {
+        .text(data?.original_paid, {
           width: w1 - 15,
           align: "right",
           indent: 10,
         });
-      if (data?.paid_fee) paidAmount += data?.paid_fee;
+      if (data?.original_paid) paidAmount += data?.original_paid;
 
       ft += 1;
       data = society_paid_fee?.[ft];
@@ -830,12 +900,12 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
         .font("Times-Roman")
         .fillColor("#2e2e2e")
         // .text(100000, {
-        .text(data?.paid_fee, {
+        .text(data?.original_paid, {
           width: 2 * w1 - 15,
           align: "right",
           indent: 10,
         });
-      if (data?.paid_fee) paidAmount += data?.paid_fee;
+      if (data?.original_paid) paidAmount += data?.original_paid;
 
       ft += 1;
       data = society_paid_fee?.[ft];
@@ -860,20 +930,20 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
         .font("Times-Roman")
         .fillColor("#2e2e2e")
         // .text(100000, {
-        .text(data?.paid_fee, {
+        .text(data?.original_paid, {
           // width: pageWidth - 50,
           width: 3 * w1 - 10,
           indent: 10,
           align: "right",
         });
-      if (data?.paid_fee) paidAmount += data?.paid_fee;
+      if (data?.original_paid) paidAmount += data?.original_paid;
 
       doc.moveDown(0.2);
       // pos2 += 14.3;
       // ht += 8;
     }
     doc.rect(doc.x, pos1, pageWidth - 40, pos2).stroke();
-    doc.y = pos1 + pos2 + 8;
+    doc.y = pos1 + pos2 + 6;
 
     doc
       .fontSize(12)
@@ -932,13 +1002,13 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
 
     if (pos1 + pos2 > doc.page.height) {
       doc
-        .rect(doc.x, pos1 + pos2 - doc.page.height, pageWidth - 40, 40)
+        .rect(doc.x, pos1 + pos2 - doc.page.height, pageWidth - 40, 38)
         .stroke();
     } else {
-      doc.rect(doc.x, pos1 + pos2, pageWidth - 40, 40).stroke();
+      doc.rect(doc.x, pos1 + pos2, pageWidth - 40, 38).stroke();
     }
 
-    doc.y += 7;
+    doc.y += 5;
     doc
       .fontSize(7)
       .font("Times-Roman")

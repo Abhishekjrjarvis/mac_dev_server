@@ -921,4 +921,11 @@ router.get(
 );
 
 
+// All Confirmed Application
+router.get(
+  "/:aid/all/merged/ongoing/confirm/application",
+  catchAsync(Admission.fetchAllConfirmedMergedApplication)
+);
+
+
 module.exports = router;

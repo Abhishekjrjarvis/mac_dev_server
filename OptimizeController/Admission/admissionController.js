@@ -14521,8 +14521,8 @@ exports.renderApplicationUnPinnedQuery = async (req, res) => {
     if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var one_ins = await Admission.findById({ _id: id })
-    var app = await NewApplication.findById({ _id: did })
     if (flow === "INDEPENDENT") {
+      var app = await NewApplication.findById({ _id: did })
       one_ins.independent_pinned_application.pull(did)
       app.pin.status = ""
       app.pin.flow = ""
@@ -14531,16 +14531,28 @@ exports.renderApplicationUnPinnedQuery = async (req, res) => {
     }
     else if (flow === "DEPENDENT") {
       for (var ele of one_ins?.dependent_pinned_application) {
-        if (`${ele?._id}` === `${did}`) {
-          one_ins.dependent_pinned_application.pull(ele?._id)
+        if (ele?.application?.includes(`${did}`)) {
+          var app = await NewApplication.findById({ _id: did })
+          ele.application.pull(did)
           app.pin.status = ""
           app.pin.flow = ""
           app.pin.flow_id = null
+          await app.save()
+        }
+        else if (`${ele?._id}` === `${did}`) {
+          for (let val of ele?.application) {
+            var app = await NewApplication.findById({ _id: `${val}` })
+            app.pin.status = ""
+            app.pin.flow = ""
+            app.pin.flow_id = null
+            await app.save()
+          }
+          one_ins.dependent_pinned_application.pull(did)
         }
       }
-      await Promise.all([ one_ins.save(), app.save() ])
+      await one_ins.save()
     }
-    res.status(200).send({ message: "Explore One Application Query", access: true})
+    res.status(200).send({ message: "Explore One Un Pin Application Query", access: true})
   }
   catch (e) {
     console.log(e)
@@ -14971,15 +14983,11 @@ exports.fetchAllConfirmedMergedApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber form_no new_app",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto fee_receipt application_print studentGender studentPhoneNumber studentParentsPhoneNumber form_no new_app",
             populate: {
-              path: "fee_structure hostel_fee_structure",
+              path: "fee_structure hostel_fee_structure fee_receipt",
               select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-              populate: {
-                path: "category_master",
-                select: "category_name",
-              },
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
             },
           },
         });

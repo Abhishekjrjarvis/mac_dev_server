@@ -597,6 +597,10 @@ router
 
 router
 .route("/one/student/all/fees/:sid")
-.get(catchAsync(Finance.render_one_student_all_fees));
+  .get(catchAsync(Finance.render_one_student_all_fees));
+
+router
+  .route("/fee/struct/:fid/existed")
+  .patch(catchAsync(Finance.render_mark_society_head_existed))
 
 module.exports = router;

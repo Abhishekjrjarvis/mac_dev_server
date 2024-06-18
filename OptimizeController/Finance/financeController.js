@@ -6651,6 +6651,41 @@ exports.render_one_student_all_fees = async (req, res) => {
   }
 }
 
+exports.render_mark_society_head_existed = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var all_struct = await FeeStructure.find({ $and: [{ finance: fid }] })
+    for (let stu of all_struct) {
+      var apps = []
+      for (let ele of stu?.applicable_fees_heads) {
+        if (ele?.is_society) {
+          apps.push(ele)
+          stu?.applicable_fees_heads?.pull(ele?._id)
+        }
+      }
+      for (let val of apps) {
+        stu.applicable_fees_heads.unshift({
+          head_name: val?.head_name,
+          head_amount: val?.head_amount,
+          master: val?.master,
+          created_at: val?.created_at,
+          is_society: val?.is_society,
+          _id: val?._id
+        })
+      }
+      // console.log(apps?.length)
+      // apps = []
+    await stu.save()
+    }  
+    res.status(200).send({ message: `wise society heads updated`, access: true, all_struct: all_struct, count: all_struct?.length})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 // exports.updateAlias = async(req, res) => {
 //   try{

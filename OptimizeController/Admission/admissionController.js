@@ -2680,13 +2680,13 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           install_type: "First Installment Paid",
           fee_remain: nest_card.remaining_fee ?? 0,
         });
-        // admission.confirmedApplication_query.push({
-        //   student: student._id,
-        //   payment_status: mode,
-        //   install_type: "First Installment Paid",
-        //   fee_remain: nest_card.remaining_fee ?? 0,
-        //   application: apply?._id
-        // });
+        admission.confirmedApplication_query.push({
+          student: student._id,
+          payment_status: mode,
+          install_type: "First Installment Paid",
+          fee_remain: nest_card.remaining_fee ?? 0,
+          application: apply?._id
+        });
     }
     new_remainFee.fee_receipts.push(new_receipt?._id);
     if (mode === "Offline") {
@@ -2730,19 +2730,19 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       } else {
       }
     }
-    // for (let app of admission?.FeeCollectionApplication) {
-    //   if (`${app.student}` === `${student._id}`) {
-    //     if (app?.status_id) {
-    //       const valid_status = await Status.findById({
-    //         _id: `${app?.status_id}`,
-    //       });
-    //       valid_status.isPaid = "Paid";
-    //       await valid_status.save();
-    //     }
-    //     admission.FeeCollectionApplication.pull(app?._id);
-    //   } else {
-    //   }
-    // }
+    for (let app of admission?.FeeCollectionApplication) {
+      if (`${app.student}` === `${student._id}`) {
+        if (app?.status_id) {
+          const valid_status = await Status.findById({
+            _id: `${app?.status_id}`,
+          });
+          valid_status.isPaid = "Paid";
+          await valid_status.save();
+        }
+        admission.FeeCollectionApplication.pull(app?._id);
+      } else {
+      }
+    }
     for (var val of all_status) {
       val.payment_status = "Paid"
       val.fee_receipt = new_receipt?._id
@@ -5430,7 +5430,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       user.save(),
       status.save(),
       notify.save(),
-      // admission.save()
+      admission.save()
     ]);
     res.status(200).send({
       message: "Look like a party mood",

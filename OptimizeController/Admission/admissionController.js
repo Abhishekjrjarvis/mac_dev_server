@@ -2772,10 +2772,10 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       status.save(),
       notify.save(),
     ]);
-    res.status(200).send({
-      message: "Look like a party mood",
-      confirm_status: true,
-    });
+    // res.status(200).send({
+    //   message: "Look like a party mood",
+    //   confirm_status: true,
+    // });
     invokeMemberTabNotification(
       "Admission Status",
       status.content,
@@ -2789,6 +2789,20 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       }
     }
     await nest_card.save()
+    if (new_receipt?.receipt_file) {
+      res.status(200).send({
+        message: "Look like a party mood",
+        confirm_status: true,
+        reciept_file: new_receipt?.receipt_file
+      });
+    }
+    else {
+      res.status(200).send({
+        message: "Look like a light mood",
+        confirm_status: false,
+        reciept_file: null
+      });
+    }
   } catch (e) {
     console.log(e);
   }

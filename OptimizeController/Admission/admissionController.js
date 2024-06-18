@@ -14576,6 +14576,9 @@ exports.renderApplicationPinnedQuery = async (req, res) => {
       if (is_avail?.length > 0) {
         for (let ele of is_avail) {
           ele.application.push(did)
+          app.pin.status = "Pinned"
+          app.pin.flow = "DEPENDENT"
+          app.pin.flow_id = app?._id
         }
       }
       else {
@@ -14583,6 +14586,9 @@ exports.renderApplicationPinnedQuery = async (req, res) => {
           section_type: type,
           application: did
         })
+        app.pin.status = "Pinned"
+        app.pin.flow = "DEPENDENT"
+        app.pin.flow_id = app?._id
       }
       // if (one_ins?.dependent_pinned_application?.length > 0) {
 
@@ -14598,8 +14604,6 @@ exports.renderApplicationPinnedQuery = async (req, res) => {
           app.pin.flow_id = ele?._id
         }
       }
-      app.pin.status = "Pinned"
-      app.pin.flow = "DEPENDENT"
       await Promise.all([ one_ins.save(), app.save() ])
     }
     res.status(200).send({ message: "Explore One Application Query", access: true})

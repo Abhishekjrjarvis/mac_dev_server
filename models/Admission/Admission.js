@@ -436,6 +436,107 @@ const admissionAdminSchema = new mongoose.Schema({
       ]
     }
   ],
+  selectedApplication: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      select_on: { type: Date, default: Date.now },
+      payment_status: { type: String, default: "Pending" },
+      install_type: { type: String },
+      fee_remain: { type: Number, default: 0 },
+      docs_collect: { type: String, default: "Not Collected" },
+      status_id: { type: mongoose.Schema.Types.ObjectId, ref: "Status" },
+      edited_struct: { type: Boolean, default: true },
+      revert_request_status: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Status",
+      },
+      application: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      }
+    },
+  ],
+  confirmedApplication_query: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      apply_on: { type: Date, default: Date.now },
+      payment_status: { type: String, default: "Pending" },
+      fee_remain: { type: Number, default: 0 },
+      paid_status: { type: "String" },
+      install_type: { type: String },
+      second_pay_mode: { type: "String" },
+      status_id: { type: mongoose.Schema.Types.ObjectId, ref: "Status" },
+      transfer_status: {
+        type: String,
+        default: "Not Transferred",
+      },
+      transfer_from_app: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
+      revert_request_status: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Status",
+      },
+      application: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      }
+    },
+  ],
+  FeeCollectionApplication: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      apply_on: { type: Date, default: Date.now },
+      payment_status: { type: String, default: "Pending" },
+      fee_remain: { type: Number, default: 0 },
+      paid_status: { type: "String" },
+      install_type: { type: String },
+      second_pay_mode: { type: "String" },
+      status_id: { type: mongoose.Schema.Types.ObjectId, ref: "Status" },
+      transfer_status: {
+        type: String,
+        default: "Not Transferred",
+      },
+      transfer_from_app: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
+      payment_flow: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "RemainingList"
+      },
+      app_card: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NestedCard"
+      },
+      gov_card: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NestedCard"
+      },
+      revert_request_status: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Status",
+      },
+      fee_struct: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeStructure"
+      },
+      application: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      }
+    },
+  ],
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

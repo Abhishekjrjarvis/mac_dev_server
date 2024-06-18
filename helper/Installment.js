@@ -2416,7 +2416,7 @@ exports.set_fee_head_query_redesign = async (
     else {
       await societyAdmissionFeeReceipt(receipt_args?._id, finance?.institute)
     }
-    return receipt_args?.receipt_file
+    // return receipt_args?.receipt_file
   } catch (e) {
     console.log(e);
   }

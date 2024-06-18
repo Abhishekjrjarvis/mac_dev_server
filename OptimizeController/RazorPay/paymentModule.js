@@ -502,6 +502,17 @@ exports.admissionInstituteFunction = async (
               }
             }
           }
+          for(var val of admission?.FeeCollectionApplication){
+            if(`${val?.student}` === `${student?._id}`){
+              admission.confirmedApplication_query.push({
+                student: student._id,
+                payment_status: "Online",
+                install_type: "First Installment Paid",
+                fee_remain: nest_card.remaining_fee ?? 0,
+              });
+              admission.FeeCollectionApplication.pull(val?._id)
+            }
+          }
         }
       }
       student.admissionPaidFeeCount += parseInt(tx_amount_ad);

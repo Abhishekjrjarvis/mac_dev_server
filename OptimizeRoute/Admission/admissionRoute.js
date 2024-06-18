@@ -927,5 +927,7 @@ router.get(
   catchAsync(Admission.fetchAllConfirmedMergedApplication)
 );
 
+router.patch("/new/db/insertion/app/:aid", catchAsync(Admission.retieveAdmissionAdminInsertion))
+
 
 module.exports = router;

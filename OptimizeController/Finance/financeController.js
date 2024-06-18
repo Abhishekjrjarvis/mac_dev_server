@@ -72,6 +72,7 @@ const generateFeeReceipt = require("../../scripts/feeReceipt");
 const societyAdmissionFeeReceipt = require("../../scripts/societyAdmissionFeeReceipt");
 const { admissionFeeReceipt } = require("../../scripts/admissionFeeReceipt");
 const OtherFees = require("../../models/Finance/Other/OtherFees");
+const QvipleId = require("../../models/Universal/QvipleId");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -3762,7 +3763,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
         populate: {
           path: "remainingFeeList",
           select: "appId",
@@ -3771,7 +3772,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
         populate: {
           path: "studentClass",
           select: "className classTitle",
@@ -3780,7 +3781,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads hostel_fee_structure active_society_fee_heads studentROLLNO qviple_student_pay_id",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads hostel_fee_structure active_society_fee_heads studentROLLNO qviple_student_pay_id user",
         populate: {
           path: "fee_structure hostel_fee_structure",
           select:
@@ -3844,7 +3845,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number active_society_fee_heads studentROLLNO qviple_student_pay_id",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number active_society_fee_heads studentROLLNO qviple_student_pay_id user",
         populate: {
           path: "student_bed_number",
           select: "bed_number hostelRoom",
@@ -3898,7 +3899,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentROLLNO qviple_student_pay_id",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentROLLNO qviple_student_pay_id user",
         populate: {
           path: "remainingFeeList",
           populate: {
@@ -3992,13 +3993,15 @@ exports.renderOneFeeReceipt = async (req, res) => {
       })
       receipt.student.active_fee_heads = [...receipt?.fee_heads]; 
     }
+    const qviple_id = await QvipleId({ user: receipt?.student?.user})
 
     const obj = {
       message: "Come up with Tea and Snacks",
       access: true,
       receipt: receipt,
       one_account: one_account,
-      all_remain: all_remain
+      all_remain: all_remain,
+      qviple_id: qviple_id
     }
     if (receipt?.finance?.show_receipt === "Normal") {
       // const obj_nums = await generateFeeReceipt(receipt?._id)

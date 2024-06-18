@@ -5,6 +5,7 @@ const https = require("https");
 const feeReceipt = require("../models/RazorPay/feeReceipt");
 const BankAccount = require("../models/Finance/BankAccount");
 const RemainingList = require("../models/Admission/RemainingList");
+const QvipleId = require("../models/Universal/QvipleId");
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 });
@@ -34,7 +35,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName qviple_student_pay_id active_fee_heads active_society_fee_heads studentCastCategory",
+          "studentFirstName studentMiddleName studentGRNO studentLastName qviple_student_pay_id user active_fee_heads active_society_fee_heads studentCastCategory",
         populate: {
           path: "remainingFeeList",
           select: "appId",
@@ -43,7 +44,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName qviple_student_pay_id active_fee_heads hostel_fee_structure active_society_fee_heads studentCastCategory",
+          "studentFirstName studentMiddleName studentGRNO studentLastName qviple_student_pay_id user active_fee_heads hostel_fee_structure active_society_fee_heads studentCastCategory",
         populate: {
           path: "fee_structure hostel_fee_structure",
           select:
@@ -118,7 +119,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName qviple_student_pay_id active_fee_heads student_bed_number active_society_fee_heads studentCastCategory",
+          "studentFirstName studentMiddleName studentGRNO studentLastName qviple_student_pay_id user active_fee_heads student_bed_number active_society_fee_heads studentCastCategory",
         populate: {
           path: "student_bed_number",
           select: "bed_number hostelRoom",
@@ -173,7 +174,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName qviple_student_pay_id active_fee_heads active_society_fee_heads studentCastCategory",
+          "studentFirstName studentMiddleName studentGRNO studentLastName qviple_student_pay_id user active_fee_heads active_society_fee_heads studentCastCategory",
         populate: {
           path: "remainingFeeList",
           populate: {
@@ -278,6 +279,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       });
       receipt.student.active_fee_heads = [...receipt?.fee_heads];
     }
+    const qviple_id = await QvipleId({ user: receipt?.student?.user})
 
     const obj = {
       message: "Come up with Tea and Snacks",
@@ -285,6 +287,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       receipt: receipt,
       one_account: one_account,
       all_remain: all_remain,
+      qviple_id: qviple_id
     };
     return obj;
   } catch (e) {

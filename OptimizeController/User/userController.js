@@ -3591,7 +3591,7 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
     let nums = user?.applyApplication?.reverse()
     if (nums?.length > 0) {
       const latest_app = await NewApplication.findById({ _id: nums?.[0] })
-        .select("applicationDepartment applicationName")
+        .select("applicationDepartment applicationName reviewApplication")
       var admission_application = []
       var document_verification = []
       var fees_payment = []
@@ -3693,12 +3693,16 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
         .select("department")
       var conditional = "Show";
       for (let ele of student) {
-        if (ele?.department) {
-          if (`${ele?.department}` === `${latest_app?.applicationDepartment}`) {
-            conditional = "Not Show"
-            break
-          }
+        if (latest_app?.reviewApplication?.includes(`${ele?._id}`)) {
+          conditional = "Not Show"
+          // break
         }
+        // if (ele?.department) {
+        //   if (`${ele?.department}` === `${latest_app?.applicationDepartment}`) {
+        //     conditional = "Not Show"
+        //     break
+        //   }
+        // }
       }
       res.status(200).send({
         message: "user Application Status",

@@ -2662,7 +2662,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           }
           else {
             console.log("Enter");
-            await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+            var test_data = await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
             // await set_fee_head_query(student, price, apply, new_receipt);
             console.log("Exit");
           }
@@ -2789,6 +2789,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       }
     }
     await nest_card.save()
+    console.log(test_data)
     if (new_receipt?.receipt_file) {
       res.status(200).send({
         message: "Look like a party mood",
@@ -2800,7 +2801,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       res.status(200).send({
         message: "Look like a light mood",
         confirm_status: false,
-        reciept_file: null
+        reciept_file: test_data
       });
     }
   } catch (e) {

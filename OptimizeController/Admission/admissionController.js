@@ -2366,12 +2366,13 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
       select: "insName",
     })
     const student = await Student.findById({ _id: sid })
-    const user = await User.findById({ _id: `${student?.user}` });
+    var user = await User.findById({ _id: `${student?.user}` });
     const status = new Status({});
     const notify = new StudentNotification({});
     for (let app of apply.receievedApplication) {
       if (`${app.student}` === `${student._id}`) {
         apply.receievedApplication.pull(app._id);
+        user.applyApplication.pull(apply?._id);
       } else {
       }
     }
@@ -5339,7 +5340,12 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     var status = new Status({});
     var notify = new StudentNotification({});
     var c_num = await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect", "")
-    if(structure?.applicable_fees <= 0){
+    for (let val of admission?.selectedApplication) {
+      if (`${val?.student}` === `${student?._id}`) {
+        admission.selectedApplication.pull(val?._id)
+      }
+    }
+    if (structure?.applicable_fees <= 0) {
       apply.confirmedApplication.push({
         student: student._id,
         payment_status: "Zero Applicable Fees",
@@ -5358,6 +5364,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         revert_request_status: revert_status,
         application: apply?._id
       })
+      await admission.save()
     }
     else{
       apply.FeeCollectionApplication.push({
@@ -5382,15 +5389,11 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         fee_struct: c_num?.fee_struct,
         application: apply?._id
       })
+      await admission.save()
     }
     apply.selectedApplication.pull(nest)
     if(apply?.selectCount >= 0){
       apply.selectCount -= 1
-    }
-    for (let val of admission?.selectedApplication) {
-      if (`${val?.student}` === `${student?._id}`) {
-        admission?.selectedApplication?.pull(val?._id)
-      }
     }
     // for (let app of apply.selectedApplication) {
     //   if (`${app.student}` === `${student._id}`) {
@@ -5429,8 +5432,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       apply.save(),
       user.save(),
       status.save(),
-      notify.save(),
-      // admission.save()
+      notify.save()
     ]);
     res.status(200).send({
       message: "Look like a party mood",

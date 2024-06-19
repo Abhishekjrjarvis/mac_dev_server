@@ -723,7 +723,8 @@ exports.promoteStudent = async (req, res) => {
               structure[numIndex]?._id,
               "BATCH_PROMOTE",
               re_ads,
-              classes
+              classes,
+              ""
             )
           }
           else {
@@ -733,7 +734,8 @@ exports.promoteStudent = async (req, res) => {
               structure[numIndex]?._id,
               "BATCH_PROMOTE",
               re_ads,
-              classes
+              classes,
+              ""
             )
           }
           roll += 1;

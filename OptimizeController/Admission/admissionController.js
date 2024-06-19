@@ -5339,12 +5339,11 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     var user = await User.findById({ _id: `${student?.user}` });
     var status = new Status({});
     var notify = new StudentNotification({});
-    var c_num = await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect", "")
-    for (let val of admission?.selectedApplication) {
-      if (`${val?.student}` === `${student?._id}`) {
-        admission.selectedApplication.pull(val?._id)
-      }
+    let obj = {
+      status_id: status?._id,
+      revert_request_status: revert_status
     }
+    var c_num = await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect", "", "", obj)
     if (structure?.applicable_fees <= 0) {
       apply.confirmedApplication.push({
         student: student._id,
@@ -5355,16 +5354,6 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         revert_request_status: revert_status
       })
       apply.confirmCount += 1
-      admission.confirmedApplication_query.push({
-        student: student._id,
-        payment_status: "Zero Applicable Fees",
-        install_type: "No Installment Required For Payment",
-        fee_remain: structure?.applicable_fees,
-        status_id: status?._id,
-        revert_request_status: revert_status,
-        application: apply?._id
-      })
-      await admission.save()
     }
     else{
       apply.FeeCollectionApplication.push({
@@ -5378,18 +5367,6 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         fee_struct: c_num?.fee_struct
       })
       apply.fee_collect_count += 1
-      admission.FeeCollectionApplication.push({
-        student: student?._id,
-        fee_remain: structure?.applicable_fees,
-        payment_flow: c_num?.card,
-        app_card: c_num?.app_card,
-        gov_card: c_num?.gov_card,
-        status_id: status?._id,
-        revert_request_status: revert_status,
-        fee_struct: c_num?.fee_struct,
-        application: apply?._id
-      })
-      await admission.save()
     }
     apply.selectedApplication.pull(nest)
     if(apply?.selectCount >= 0){

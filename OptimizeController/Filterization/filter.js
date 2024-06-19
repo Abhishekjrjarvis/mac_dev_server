@@ -2096,14 +2096,10 @@ exports.renderApplicationListQuery = async (req, res) => {
           //   "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
         },
       })
-      // .populate({
-      //   path: "reviewApplication",
-      //   populate: {
-      //     path: "student",
-      //     // select:
-      //     //   "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph",
-      //   },
-      // })
+      .populate({
+        path: "reviewApplication",
+        // select: "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph"
+      })
       .populate({
         path: "confirmedApplication",
         populate: {
@@ -2723,115 +2719,115 @@ exports.renderApplicationListQuery = async (req, res) => {
     //     });
     //   }
     // }
-    // else if (
-    //   `${flow}` === "Review_Query" &&
-    //   valid_apply?.reviewApplication?.length > 0
-    // ) {
-    //   var excel_list = [];
-    //   var numss = {};
-    //   for (var ref of valid_apply?.reviewApplication) {
-    //     for (let ele of ref?.student?.student_dynamic_field) {
-    //       // numss.push(
-    //       //   [ele?.key]: ele?.value,
-    //       // );
-    //       numss[ele?.key] = ele?.value;
-    //     }
-    //     excel_list.push({
-    //       RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-    //       Name: `${ref?.student?.studentFirstName} ${
-    //         ref?.student?.studentMiddleName
-    //           ? ref?.student?.studentMiddleName ??
-    //             ref?.student?.studentFatherName
-    //           : ""
-    //       } ${ref?.student?.studentLastName}`,
-    //       DOB: ref?.student?.studentDOB ?? "#NA",
-    //       Gender: ref?.student?.studentGender ?? "#NA",
-    //       CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
-    //       Religion: ref?.student?.studentReligion ?? "#NA",
-    //       MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
-    //       ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
-    //       Address: `${ref?.student?.studentAddress}` ?? "#NA",
-    //       AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
-    //       ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
-    //       AlternateContactNo:
-    //         ref?.student?.studentParentsPhoneNumber ?? "#NA",
-    //       NameAsMarksheet: ref?.student?.studentNameAsMarksheet,
-    //       NameAsCertificate: ref?.student?.studentNameAsCertificate,
-    //       BirthPlace: ref?.student?.studentBirthPlace,
-    //       Religion: ref?.student?.studentReligion,
-    //       Caste: ref?.student?.studentCast,
-    //       Nationality: ref?.student?.studentNationality,
-    //       RationCard: ref?.student?.studentFatherRationCardColor,
-    //       BloodGroup: ref?.student?.student_blood_group,
-    //       AadharNumber: ref?.student?.studentAadharNumber,
-    //       PhoneNumber: ref?.student?.studentPhoneNumber,
-    //       Email: ref?.student?.studentEmail,
-    //       ParentsPhoneNumber: ref?.student?.studentParentsPhoneNumber,
-    //       CurrentAddress: ref?.student?.studentCurrentAddress,
-    //       CurrentPinCode: ref?.student?.studentCurrentPincode,
-    //       CurrentState: ref?.student?.studentCurrentState,
-    //       CurrentDistrict: ref?.student?.studentCurrentDistrict,
-    //       Address: ref?.student?.studentAddress,
-    //       PinCode: ref?.student?.studentPincode,
-    //       State: ref?.student?.studentState,
-    //       District: ref?.student?.studentDistrict,
-    //       ParentsName: ref?.student?.studentParentsName,
-    //       ParentsEmail: ref?.student?.studentParentsEmail,
-    //       ParentsOccupation: ref?.student?.studentParentsOccupation,
-    //       ParentsOfficeAddress: ref?.student?.studentParentsAddress,
-    //       ParentsAnnualIncome: ref?.student?.studentParentsAnnualIncom,
-    //       SeatType: ref?.student?.student_seat_type,
-    //       PhysicallyHandicapped: ref?.student?.student_ph_type,
-    //       DefencePersonnel: ref?.student?.student_defence_personnel_word,
-    //       MaritalStatus: ref?.student?.student_marital_status,
-    //       PreviousBoard: ref?.student?.student_board_university,
-    //       PreviousSchool: ref?.student?.studentPreviousSchool,
-    //       UniversityCourse: ref?.student?.student_university_courses,
-    //       PassingYear: ref?.student?.student_year,
-    //       PreviousClass: ref?.student?.student_previous_class,
-    //       PreviousMarks: ref?.student?.student_previous_marks,
-    //       PreviousPercentage: ref?.student?.student_previous_percentage,
-    //       SeatNo: ref?.student?.student_previous_section,
-    //       StandardMOP: ref?.student?.month_of_passing,
-    //       StandardYOP: ref?.student?.year_of_passing,
-    //       StandardPercentage: ref?.student?.percentage,
-    //       StandardNameOfInstitute: ref?.student?.name_of_institute,
-    //       HSCMOP: ref?.student?.hsc_month,
-    //       HSCYOP: ref?.student?.hsc_year,
-    //       HSCPercentage: ref?.student?.hsc_percentage,
-    //       HSCNameOfInstitute: ref?.student?.hsc_name_of_institute,
-    //       HSCBoard: ref?.student?.hsc_board,
-    //       HSCCandidateType: ref?.student?.hsc_candidate_type,
-    //       HSCVocationalType: ref?.student?.hsc_vocational_type,
-    //       HSCPhysicsMarks: ref?.student?.hsc_physics_marks,
-    //       HSCChemistryMarks: ref?.student?.hsc_chemistry_marks,
-    //       HSCMathematicsMarks: ref?.student?.hsc_mathematics_marks,
-    //       HSCPCMTotal: ref?.student?.hsc_pcm_total,
-    //       HSCGrandTotal: ref?.student?.hsc_grand_total,
-    //       FormNo: ref?.student?.form_no,
-    //       QviplePayId: ref?.student?.qviple_student_pay_id,
-    //       ...numss,
-    //     });
-    //   }
+    else if (
+      `${flow}` === "Review_Query" &&
+      valid_apply?.reviewApplication?.length > 0
+    ) {
+      var excel_list = [];
+      var numss = {};
+      for (var ref of valid_apply?.reviewApplication) {
+        for (let ele of ref?.student_dynamic_field) {
+          // numss.push(
+          //   [ele?.key]: ele?.value,
+          // );
+          numss[ele?.key] = ele?.value;
+        }
+        excel_list.push({
+          RegistrationID: ref?.student_prn_enroll_number ?? "#NA",
+          Name: `${ref?.studentFirstName} ${
+            ref?.studentMiddleName
+              ? ref?.studentMiddleName ??
+                ref?.studentFatherName
+              : ""
+          } ${ref?.studentLastName}`,
+          DOB: ref?.studentDOB ?? "#NA",
+          Gender: ref?.studentGender ?? "#NA",
+          CasteCategory: ref?.studentCastCategory ?? "#NA",
+          Religion: ref?.studentReligion ?? "#NA",
+          MotherName: `${ref?.studentMotherName}` ?? "#NA",
+          ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+          Address: `${ref?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+          ContactNo: ref?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo:
+            ref?.studentParentsPhoneNumber ?? "#NA",
+          NameAsMarksheet: ref?.studentNameAsMarksheet,
+          NameAsCertificate: ref?.studentNameAsCertificate,
+          BirthPlace: ref?.studentBirthPlace,
+          Religion: ref?.studentReligion,
+          Caste: ref?.studentCast,
+          Nationality: ref?.studentNationality,
+          RationCard: ref?.studentFatherRationCardColor,
+          BloodGroup: ref?.student_blood_group,
+          AadharNumber: ref?.studentAadharNumber,
+          PhoneNumber: ref?.studentPhoneNumber,
+          Email: ref?.studentEmail,
+          ParentsPhoneNumber: ref?.studentParentsPhoneNumber,
+          CurrentAddress: ref?.studentCurrentAddress,
+          CurrentPinCode: ref?.studentCurrentPincode,
+          CurrentState: ref?.studentCurrentState,
+          CurrentDistrict: ref?.studentCurrentDistrict,
+          Address: ref?.studentAddress,
+          PinCode: ref?.studentPincode,
+          State: ref?.studentState,
+          District: ref?.studentDistrict,
+          ParentsName: ref?.studentParentsName,
+          ParentsEmail: ref?.studentParentsEmail,
+          ParentsOccupation: ref?.studentParentsOccupation,
+          ParentsOfficeAddress: ref?.studentParentsAddress,
+          ParentsAnnualIncome: ref?.studentParentsAnnualIncom,
+          SeatType: ref?.student_seat_type,
+          PhysicallyHandicapped: ref?.student_ph_type,
+          DefencePersonnel: ref?.student_defence_personnel_word,
+          MaritalStatus: ref?.student_marital_status,
+          PreviousBoard: ref?.student_board_university,
+          PreviousSchool: ref?.studentPreviousSchool,
+          UniversityCourse: ref?.student_university_courses,
+          PassingYear: ref?.student_year,
+          PreviousClass: ref?.student_previous_class,
+          PreviousMarks: ref?.student_previous_marks,
+          PreviousPercentage: ref?.student_previous_percentage,
+          SeatNo: ref?.student_previous_section,
+          StandardMOP: ref?.month_of_passing,
+          StandardYOP: ref?.year_of_passing,
+          StandardPercentage: ref?.percentage,
+          StandardNameOfInstitute: ref?.name_of_institute,
+          HSCMOP: ref?.hsc_month,
+          HSCYOP: ref?.hsc_year,
+          HSCPercentage: ref?.hsc_percentage,
+          HSCNameOfInstitute: ref?.hsc_name_of_institute,
+          HSCBoard: ref?.hsc_board,
+          HSCCandidateType: ref?.hsc_candidate_type,
+          HSCVocationalType: ref?.hsc_vocational_type,
+          HSCPhysicsMarks: ref?.hsc_physics_marks,
+          HSCChemistryMarks: ref?.hsc_chemistry_marks,
+          HSCMathematicsMarks: ref?.hsc_mathematics_marks,
+          HSCPCMTotal: ref?.hsc_pcm_total,
+          HSCGrandTotal: ref?.hsc_grand_total,
+          FormNo: ref?.form_no,
+          QviplePayId: ref?.qviple_student_pay_id,
+          ...numss,
+        });
+      }
 
-    //   var valid_back = await json_to_excel_admission_application_query(
-    //     excel_list,
-    //     valid_apply?.applicationName,
-    //     appId,
-    //     flow
-    //   );
-    //   if (valid_back?.back) {
-    //     res.status(200).send({
-    //       message: "Explore New Excel On Hostel Export TAB",
-    //       access: true,
-    //     });
-    //   } else {
-    //     res.status(200).send({
-    //       message: "No New Excel Exports ",
-    //       access: false,
-    //     });
-    //   }
-    // }
+      var valid_back = await json_to_excel_admission_application_query(
+        excel_list,
+        valid_apply?.applicationName,
+        appId,
+        flow
+      );
+      if (valid_back?.back) {
+        res.status(200).send({
+          message: "Explore New Excel On Hostel Export TAB",
+          access: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No New Excel Exports ",
+          access: false,
+        });
+      }
+    }
     else if (
       `${flow}` === "Allot_Query" &&
       valid_apply?.allottedApplication?.length > 0

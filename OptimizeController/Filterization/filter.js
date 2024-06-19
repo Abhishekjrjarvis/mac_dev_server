@@ -4270,17 +4270,22 @@ exports.renderNormalStudentQuery = async (req, res) => {
         $and: [{ student: `${ref?._id}` }],
       }).populate({
         path: "fee_structure",
-      });
+      })
+      .populate({
+        path: "applicable_card government_card",
+      })
       var pending = 0;
       var paid = 0;
       var applicable_pending = 0;
+      var gov_pending = 0;
       for (var ele of valid_card) {
         // ref.applicable_fees_pending +=
         //   ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
         //     ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
         //     : 0;
-        pending += ele?.remaining_fee;
-        paid += ele?.paid_fee;
+        pending += ele?.applicable_card?.remaining_fee + ele?.government_card?.remaining_fee;
+        paid += ele?.applicable_card?.paid_fee + ele?.government_card?.paid_fee;
+        gov_pending += ele?.government_card?.remaining_fee;
         applicable_pending +=
           ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
             ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
@@ -4290,13 +4295,18 @@ exports.renderNormalStudentQuery = async (req, res) => {
         var currentPaid = 0;
         var currentRemain = 0;
         var currentApplicableRemaining = 0;
+        var currentGovernmentPending = 0;
         var valid_card = await RemainingList.findOne({
           $and: [{ fee_structure: `${struct}` }, { student: `${ref?._id}` }],
         }).populate({
           path: "fee_structure",
-        });
-        currentPaid += valid_card?.paid_fee;
-        currentRemain += valid_card?.remaining_fee;
+        })
+        .populate({
+          path: "applicable_card government_card",
+        })
+        currentPaid += valid_card?.applicable_card?.paid_fee;
+        currentRemain += valid_card?.applicable_card?.remaining_fee + valid_card?.government_card?.remaining_fee;
+        currentGovernmentPending += valid_card?.government_card?.remaining_fee
         currentApplicableRemaining +=
           valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee > 0
             ? valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee
@@ -4364,9 +4374,11 @@ exports.renderNormalStudentQuery = async (req, res) => {
         CurrentYearPaidFees: currentPaid ?? "0",
         CurrentYearRemainingFees: currentRemain ?? "0",
         CurrentYearApplicableRemainingFees: currentApplicableRemaining ?? "0",
+        CurrentYearGovernmentRemainingFees: currentGovernmentPending ?? "0",
         TotalPaidFees: paid ?? "0",
         TotalRemainingFees: pending ?? "0",
         TotalApplicablePending: applicable_pending ?? "0",
+        GovernmentOutstanding: gov_pending ?? "0"
       });
     }
     await json_to_excel_normal_student_promote_query(

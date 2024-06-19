@@ -20,6 +20,7 @@ module.exports.form_params = [
                 form_checklist_placeholder: "Upload Passport Photo for ID Card",
                 form_checklist_lable: "Upload Passport Photo for ID Card",
                 form_checklist_typo: "CROPIMAGE",
+                form_checklist_required: true
             },
         ]
     },
@@ -197,7 +198,7 @@ module.exports.form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Enter Aadhar No.",
                 form_checklist_lable: "Aadhar No.",
-                form_checklist_typo: "TEXT",
+                form_checklist_typo: "NUMBER",
             },
         ]
     },
@@ -333,7 +334,7 @@ module.exports.form_params = [
                 form_checklist_visibility: true,
                 form_checklist_placeholder: "Enter Parent's Contact No.",
                 form_checklist_lable: "Parent's Contact No.",
-                form_checklist_typo: "TEXT",
+                form_checklist_typo: "NUMBER",
             },
             {
                 form_checklist_name: "Parent's Email ID",

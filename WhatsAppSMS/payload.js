@@ -538,11 +538,12 @@ exports.email_sms_designation_application = (
   try {
     const bool = process.env.IS_GLOBAL;
     if (bool) {
-        var message = `Dear ${name}, Your admission application in ${insName} for ${appName} has been rejected due to following reason: - ${reason}
+      var message = `Dear ${name}, 
+Your admission application in ${insName} for ${appName} has been rejected due to following reason: - ${reason}
       
-        Take action on given remarks and reapply for admission.
+Take action on given remarks and reapply for admission.
         
-        Do Not Click on this below link (if click then further emails won't be delievered to you)`
+Do Not Click on this below link (if click then further emails won't be delievered to you)`
       const subject = "Application Rejection";
       const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
       const encodeURL = encodeURI(url);
@@ -575,16 +576,18 @@ exports.email_sms_designation_application_apply = (
     const bool = process.env.IS_GLOBAL;
     if (bool) {
       var message = `Dear ${name},
-Your admission application for ${appName} have been filed successfully. Find attached herewith your admission application form and download the same.
-Kindly wait till your application gets verified by admission authority.
-Once your application is verified you will receive selection email on this email with applicable fees and required documents.
-After selection email, visit institute with Required documents, applicable fees along with print out of admission application form attached herewith.
 
-You can check your admission progress by logging into your account from site or Mobile Application: Qviple Your Institute Online : - For login use ${login} used while filing admission application.
-
-Stay updated for further updates.
-
-Do Not Click on this below link (if click then further emails won't be delievered to you)`
+Your admission application for ${appName} has been successfully submitted.
+            
+Kindly wait for your application to be verified by the admission authority. Once verified, you will receive a selection email at this email address, detailing applicable fees and required documents.
+            
+Upon receipt of the selection email, please visit the institute with the required documents, applicable fees, and a printed copy of the attached admission application form.
+            
+You can monitor the progress of your admission by logging into your account on our website or mobile application: Qviple Your Institute Online. Use the mobile number / Email ${login} that you used during the admission application process to log in.
+            
+Stay tuned for further updates.
+            
+Do Not Click on the link below (clicking it may prevent further emails from being delivered to you).`
       const subject = "Admission Application Submission";
       const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
       const encodeURL = encodeURI(url);

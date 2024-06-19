@@ -5430,7 +5430,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       user.save(),
       status.save(),
       notify.save(),
-      admission.save()
+      // admission.save()
     ]);
     res.status(200).send({
       message: "Look like a party mood",
@@ -15198,7 +15198,10 @@ exports.retieveAdmissionAdminInsertion = async (req, res) => {
       .select(
         "selectedApplication confirmedApplication admissionProcess application_flow applicationBatch gr_initials cancelApplication cancelCount reviewApplication review_count FeeCollectionApplication fee_collect_count student_form_setting pin"
     )
-    
+
+    // apply.selectedApplication = []
+    // apply.confirmedApplication_query = []
+    // apply.FeeCollectionApplication = []
     for (let all of ongoing) {
       for (let ele of all?.selectedApplication) {
         apply.selectedApplication.push({

@@ -324,13 +324,13 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       align: "right",
     });
 
-  if (receiptData?.student?.qviple_student_pay_id) {
+  if (result?.ft?.qviple_id?.qviple_id) {
     doc.moveUp(1);
     doc
       .fontSize(10)
       .font("Times-Roman")
       .fillColor("#2e2e2e")
-      .text(receiptData?.student?.qviple_student_pay_id, {
+      .text(result?.ft?.qviple_id?.qviple_id, {
         indent: pageWidth / 2 + 110,
       });
   }
@@ -339,12 +339,6 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
   doc.rect(pageWidth / 2 + 123, pos1, 0, 67).stroke();
   doc.rect(doc.x, pos1, pageWidth - 40, 67).stroke();
 
-  doc.moveDown(0.4);
-  doc.fontSize(13).text("Fee Details", { align: "center" });
-  pos1 = doc.y;
-
-  doc.y += 8;
-
   let paid_fee = receiptData?.student?.active_fee_heads?.filter((fd) => {
     if (fd?.paid_fee > 0 && fd?.original_paid > 0) {
       return fd;
@@ -352,6 +346,13 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       return null;
     }
   });
+
+  // if (paid_fee?.length > 0) {
+  doc.moveDown(0.4);
+  doc.fontSize(13).text("Fee Details", { align: "center" });
+  pos1 = doc.y;
+
+  doc.y += 8;
 
   let dft = Math.ceil(paid_fee?.length / 3);
   let mt = +dft === 1 ? 20 : 16;
@@ -504,7 +505,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     .fontSize(12)
     .font("Times-Roman")
     .fillColor("#121212")
-    .text("0", {
+    .text(`${result?.ft?.all_remain?.applicable_card?.remaining_fee}`, {
       width: doc.widthOfString("Pending Fee For All Academic Year") + 40,
       align: "right",
     });
@@ -531,6 +532,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     width: pageWidth - 50,
     align: "right",
   });
+  // }
 
   // active_society_fee_heads
   // active_fee_heads
@@ -812,13 +814,13 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
         align: "right",
       });
 
-    if (receiptData?.student?.qviple_student_pay_id) {
+    if (result?.ft?.qviple_id?.qviple_id) {
       doc.moveUp(1);
       doc
         .fontSize(10)
         .font("Times-Roman")
         .fillColor("#2e2e2e")
-        .text(receiptData?.student?.qviple_student_pay_id, {
+        .text(result?.ft?.qviple_id?.qviple_id, {
           indent: pageWidth / 2 + 110,
         });
     }
@@ -992,7 +994,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .fontSize(12)
       .font("Times-Roman")
       .fillColor("#121212")
-      .text("0", {
+      .text(result?.ft?.all_remain?.applicable_card?.remaining_fee, {
         width:
           doc.widthOfString(
             "Total Pending Fee TIll Date (Including All Academic Years):"

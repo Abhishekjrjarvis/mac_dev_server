@@ -5400,7 +5400,7 @@ exports.retrieveInstituteReportBlock = async (req, res) => {
 exports.renderStats = async (req, res) => {
   try {
     const { id } = req.params;
-    const { flow } = req?.body
+    const { flow } = req?.query
     if (!id)
       return res.status(200).send({
         message: "There is a bug need to fixed immediately 😡",

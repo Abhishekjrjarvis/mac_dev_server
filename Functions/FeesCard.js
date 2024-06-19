@@ -7,7 +7,7 @@ const FeesStructure = require("../models/Finance/FeesStructure");
 const InstituteAdmin = require("../models/InstituteAdmin");
 const Student = require("../models/Student");
 
-exports.render_new_fees_card = async (sid, appId, struct, flow, re_ads, classes) => {
+exports.render_new_fees_card = async (sid, appId, struct, flow, re_ads, classes, obj) => {
     try {
       var student = await Student.findById({ _id: sid });
       var apply = await NewApplication.findById({ _id: appId });
@@ -85,7 +85,34 @@ exports.render_new_fees_card = async (sid, appId, struct, flow, re_ads, classes)
       admission.remainingFeeCount += structure?.total_admission_fees;
     //   if(flow === "By_Admission_Admin_After_Docs_Collect"){
     //     student.offline_collect_admission_query.push(new_remainFee?._id)
-    //   }
+      //   }
+      admission.FeeCollectionApplication.push({
+        student: student?._id,
+        fee_remain: structure?.applicable_fees,
+        payment_flow: new_remainFee?._id,
+        app_card: new_remainFee?.applicable_card,
+        gov_card: new_remainFee?.government_card,
+        status_id: obj?.status_id,
+        revert_request_status: obj?.revert_request_status,
+        fee_struct: structure?._id,
+        application: apply?._id
+      })
+      if (structure?.applicable_fees <= 0) {
+        admission.confirmedApplication_query.push({
+          student: student._id,
+          payment_status: "Zero Applicable Fees",
+          install_type: "No Installment Required For Payment",
+          fee_remain: structure?.applicable_fees,
+          status_id: obj?.status_id,
+          revert_request_status: obj?.revert_request_status,
+          application: apply?._id
+        })
+      }
+      for (let val of admission?.selectedApplication) {
+        if (`${val?.student}` === `${student?._id}`) {
+          admission.selectedApplication.pull(val?._id)
+        }
+      }
       await Promise.all([
         new_remainFee.save(),
         admission.save(),

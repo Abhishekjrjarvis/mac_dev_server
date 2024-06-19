@@ -3786,6 +3786,9 @@ exports.renderNormalStudentQuery = async (req, res) => {
       .populate({
         path: "appId"
       })
+      .populate({
+        path: "applicable_card government_card",
+      })
       // all_remain = all_remain?.filter((val) => {
       //   if(`${val?.fee_structure?._id}` !== `${ref?.fee_structure?._id}`) return val
       // })
@@ -3794,17 +3797,21 @@ exports.renderNormalStudentQuery = async (req, res) => {
       for(var query of all_remain){
         pusher.push({
           BatchName: `${query?.fee_structure?.batch_master?.batchName}-PaidFees`,
-          Fees: query?.paid_fee
+          Fees: query?.applicable_card?.paid_fee + query?.government_card?.paid_fee
         })
         pusher.push({
           BatchName: `${query?.fee_structure?.batch_master?.batchName}-RemainingFees`,
-          Fees: query?.remaining_fee
+          Fees: query?.applicable_card?.remaining_fee + query?.government_card?.remaining_fee
         })
         pusher.push({
           BatchName: `${query?.fee_structure?.batch_master?.batchName}-ApplicableRemainingFees`,
           Fees: query?.fee_structure?.applicable_fees - query?.paid_fee > 0
           ? query?.fee_structure?.applicable_fees - query?.paid_fee
           : 0
+        })
+        pusher.push({
+          BatchName: `${query?.fee_structure?.batch_master?.batchName}-GovernmentRemainingFees`,
+          Fees: query?.government_card?.remaining_fee
         })
         pusher.push({
           BatchName: `${query?.fee_structure?.batch_master?.batchName}-Remark`,

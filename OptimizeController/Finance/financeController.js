@@ -3993,7 +3993,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       })
       receipt.student.active_fee_heads = [...receipt?.fee_heads]; 
     }
-    const qviple_id = await QvipleId({ user: receipt?.student?.user})
+    const qviple_id = await QvipleId.findOne({ user: receipt?.student?.user})
 
     const obj = {
       message: "Come up with Tea and Snacks",

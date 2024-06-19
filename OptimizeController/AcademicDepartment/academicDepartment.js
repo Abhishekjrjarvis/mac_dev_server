@@ -380,16 +380,17 @@ exports.render_all_students_query = async (req, res) => {
         const { cid } = req?.params
         const page = req.query.page ? parseInt(req.query.page) : 1;
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-        const skip = (page - 1) * limit;
+      const skip = (page - 1) * limit;
+      const { did } = req?.query
         if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
         const m_class = await ClassMaster.findById({ _id: cid })
         
         var nums = [...m_class?.classDivision]
         if (nums?.length > 0) {
-            const all_students = await Student.find({ studentClass: { $in: nums } })
+            const all_students = await Student.find({ $and: [{ studentClass: { $in: nums } }, { department: did }] })
                 .limit(limit)
                 .skip(skip)
-                .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO")
+                .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department")
                 .populate({
                     path: "studentClass",
                     select: "className"
@@ -497,7 +498,7 @@ exports.render_all_staff_query = async (req, res) => {
 exports.render_new_theory_classes = async (req, res) => {
   try {
     const { cid } = req?.params
-    const { staff } = req?.body
+    const { staff, did } = req?.body
     if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const classes = await ClassMaster.findById({ _id: cid })
@@ -511,7 +512,10 @@ exports.render_new_theory_classes = async (req, res) => {
       staffs.staffSubject.push(new_subject?._id)
       await staffs.save()
     }
-    classes.theory_classes.push(new_subject?._id)
+    classes.theory_classes.push({
+      subject: new_subject?._id,
+      did: did
+    })
     classes.theory_classes_count += 1
     await Promise.all([new_subject.save(), classes.save()])
     res.status(200).send({ message: "New Subject Add Query", access: true })            
@@ -527,17 +531,33 @@ exports.render_all_theory_classes = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
+    const { did } = req?.query
     if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const classes = await ClassMaster.findById({ _id: cid })
-    const all_subject = await Subject.find({ _id: { $in: classes?.theory_classes } })
-      .limit(limit)
-      .skip(skip)
-      .select("subjectName theory_students")
       .populate({
-        path: "subjectTeacherName",
-        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+        path: "theory_classes.subject",
+        select: "subjectName theory_students",
+        populate: {
+          path: "subjectTeacherName",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+        }
       })
+    var list = []
+    for (let ele of classes?.theory_classes) {
+      if (`${ele?.did}` === `${did}`) {
+        list.push(ele)
+      }
+    }
+    const all_subject = await nested_document_limit(page, limit, list)
+    // const all_subject = await Subject.find({ _id: { $in: classes?.theory_classes } })
+    //   .limit(limit)
+    //   .skip(skip)
+    //   .select("subjectName theory_students")
+    //   .populate({
+    //     path: "subjectTeacherName",
+    //     select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+    //   })
       res.status(200).send({ message: "All Subject Query", access: true, all_subject: all_subject })            
   }
   catch (e) {
@@ -610,7 +630,7 @@ exports.render_new_student_remove_query = async (req, res) => {
 exports.render_new_theory_practical = async (req, res) => {
   try {
     const { cid } = req?.params
-    const { staff } = req?.body
+    const { staff, did } = req?.body
     if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const classes = await ClassMaster.findById({ _id: cid })
@@ -621,7 +641,10 @@ exports.render_new_theory_practical = async (req, res) => {
       staffs.staffBatch.push(new_batch?._id)
       await staffs.save()
     }
-    classes.practical_batch.push(new_batch?._id)
+    classes.practical_batch.push({
+      batch: new_batch?._id,
+      did: did
+    })
     classes.practical_batch_count += 1
     await Promise.all([new_batch.save(), classes.save()])
     res.status(200).send({ message: "New Batch Add Query", access: true })            
@@ -637,17 +660,33 @@ exports.render_all_theory_practical = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
+    const { did } = req?.query
     if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const classes = await ClassMaster.findById({ _id: cid })
-    const all_batch = await Batch.find({ _id: { $in: classes?.practical_batch } })
-      .limit(limit)
-      .skip(skip)
-      .select("batchName class_student_query")
-      .populate({
+    .populate({
+      path: "practical_batch.batch",
+      select: "batchName class_student_query",
+      populate: {
         path: "batch_head",
         select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-      })
+      }
+    })
+    var list = []
+    for (let ele of classes?.practical_batch) {
+      if (`${ele?.did}` === `${did}`) {
+        list.push(ele)
+      }
+    }
+    const all_batch = await nested_document_limit(page, limit, list)
+    // const all_batch = await Batch.find({ _id: { $in: classes?.practical_batch } })
+    //   .limit(limit)
+    //   .skip(skip)
+    //   .select("batchName class_student_query")
+    //   .populate({
+    //     path: "batch_head",
+    //     select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+    //   })
       res.status(200).send({ message: "All Batches Query", access: true, all_batch: all_batch })            
   }
   catch (e) {

@@ -46,8 +46,14 @@ const classMasterSchema = new mongoose.Schema({
   },
   theory_classes: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Subject"
+      subject: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subject"
+      },
+      did: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Department"
+      }
     }
   ],
   theory_classes_count: {
@@ -56,8 +62,14 @@ const classMasterSchema = new mongoose.Schema({
   },
   practical_batch: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Subject"
+      batch: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Batch"
+      },
+      did: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Department"
+      }
     }
   ],
   practical_batch_count: {

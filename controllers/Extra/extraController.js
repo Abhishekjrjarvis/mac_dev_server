@@ -4348,6 +4348,36 @@ exports.certificateInstituteLogsListQuery = async (req, res) => {
   }
 };
 
+exports.customRemoveInstituteLogsQuery = async (req, res) => {
+  try {
+    const lltdst = await InstituteLog.find({});
+    let i = 0;
+    for (let dfg of lltdst) {
+      ++i;
+      console.log("-> i :", i);
+      let j = 0;
+      for (let df of dfg?.certificate_logs) {
+        if (df) {
+          const lt = await InstituteCertificateLog.findById(df);
+          if (lt?.certificate_attachment) {
+          } else {
+            ++j;
+            dfg.certificate_logs.pull(lt?._id);
+            await InstituteCertificateLog.findByIdAndDelete(df);
+            console.log("-> j :", j);
+          }
+        }
+      }
+      await dfg.save();
+    }
+    res.status(200).send({
+      message: "All null logs deleted.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 
 
 

@@ -500,5 +500,10 @@ router.get(
   catchAsync(Extra.certificateInstituteLogsListQuery)
 );
 
+router.patch(
+  "/custom/delete/certificate/logs",
+  catchAsync(Extra.customRemoveInstituteLogsQuery)
+);
+
 
 module.exports = router;

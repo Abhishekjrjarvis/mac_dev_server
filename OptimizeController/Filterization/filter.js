@@ -10291,6 +10291,50 @@ exports.render_daybook_query = async (req, res) => {
   }
 }
 
+exports.render_daybook_edit_query = async (req, res) => {
+  try {
+    const { baid } = req?.params
+    const { dbid, excel_file_name } = req?.body
+    if (!baid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const bank_acc = await BankAccount.findById({ _id: baid })
+    for (let ele of bank_acc?.day_book) {
+      if (`${ele?._id}` === `${dbid}`) {
+        ele.excel_file_name = excel_file_name ? excel_file_name : ele?.excel_file_name
+      }
+    }
+
+    await bank_acc.save()
+
+    res.status(200).send({ message: "Explore One Day Book Edit Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_daybook_delete_query = async (req, res) => {
+  try {
+    const { baid } = req?.params
+    const { dbid } = req?.body
+    if (!baid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const bank_acc = await BankAccount.findById({ _id: baid })
+    for (let ele of bank_acc?.day_book) {
+      if (`${ele?._id}` === `${dbid}`) {
+        bank_acc.day_book.pull(ele?._id)
+      }
+    }
+
+    await bank_acc.save()
+
+    res.status(200).send({ message: "Explore One Day Book Delete Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.fee_master_linking = async (req, res) => {
   try {
     const nums = [

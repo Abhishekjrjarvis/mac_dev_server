@@ -48,6 +48,7 @@ const NestedCard = require("../../models/Admission/NestedCard");
 const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 const { classes_status } = require("../Admission/admissionController");
 const OtherFees = require("../../models/Finance/Other/OtherFees");
+const FeeMaster = require("../../models/Finance/FeeMaster");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
   try {
@@ -1849,10 +1850,19 @@ exports.otherFeesFunction = async (
       }
     }
     new_internal.paid_students.push(student?._id);
+    new_internal.status = "Paid"
+    for (let val of new_internal?.fees_heads) {
+      const nums = await FeeMaster.findById({ _id: `${val?.master}` })
+      nums.paid_student.push(stu?._id)
+      nums.paid_student_count += 1
+      val.paid_amount += new_internal?.payable_amount
+      await nums.save()
+    }
     // library.pending_fee.pull(student?._id);
     for (let ele of student?.other_fees) {
       if (`${ele?.fees}` === `${new_internal?._id}`) {
         ele.fee_receipt = new_receipt?._id
+        ele.status = "Paid"
       }
     }
     if (is_author) {

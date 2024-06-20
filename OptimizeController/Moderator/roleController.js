@@ -267,7 +267,7 @@ exports.renderAdmissionAllAppModeratorArray = async (req, res) => {
       var all_mods = await AdmissionModerator.find({
         _id: { $in: ads_admin?.moderator_role },
       })
-        .sort("-1")
+        .sort({ created_at: -1})
         .limit(limit)
         .skip(skip)
         .populate({

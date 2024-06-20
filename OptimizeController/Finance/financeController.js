@@ -73,6 +73,8 @@ const societyAdmissionFeeReceipt = require("../../scripts/societyAdmissionFeeRec
 const { admissionFeeReceipt } = require("../../scripts/admissionFeeReceipt");
 const OtherFees = require("../../models/Finance/Other/OtherFees");
 const QvipleId = require("../../models/Universal/QvipleId");
+const feeReceipt = require("../../models/RazorPay/feeReceipt");
+const { fee_receipt_count_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -6520,20 +6522,88 @@ exports.render_control_receipt_query = async (req, res) => {
 exports.renderNewOtherFeesQuery = async (req, res) => {
   try {
     const { fid } = req?.params
-    const { heads, students } = req?.body
+    const { heads, students, struct } = req?.body
     if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var finance = await Finance.findById({ _id: fid })
-    var o_f = new OtherFees({...req?.body})
-    for (let ele of heads) {
-      o_f.fees_heads.push({
-        head_name: ele?.head_name,
-        head_amount: ele?.head_amount,
-        master: ele?.master,
-        is_society: false
-      })
+    var institute = await InstituteAdmin.findById({ _id: `${finance?.institute}` })
+    var o_f = new OtherFees({ ...req?.body })
+    if (heads?.length > 0) {
+      for (let ele of heads) {
+        o_f.fees_heads.push({
+          head_name: ele?.head_name,
+          head_amount: ele?.head_amount,
+          master: ele?.master,
+          is_society: false
+        })
+        o_f.other_fees_name = ele?.head_name
+      }
     }
-    if (students?.length > 0) {
+    else {
+      const structure = await FeeStructure.findById({ _id: struct})
+      o_f.fee_structure = structure?._id
+      for (let ele of structure?.applicable_fees_heads) {
+        o_f.fees_heads.push({
+          head_name: ele?.head_name,
+          head_amount: ele?.head_amount,
+          master: ele?.master,
+          is_society: ele?.is_society
+        })
+        o_f.other_fees_name = ele?.head_name
+      }
+    }
+    if (students?.length <= 1) {
+      for (let ele of students) {
+        const stu = await Student.findById({ _id: `${ele}` })
+        const user = await User.findById({ _id: `${stu?.user}` })
+        stu.other_fees_paid_price += o_f?.payable_amount
+        o_f.students.push(stu?._id)
+        o_f.paid_students.push(stu?._id)
+        o_f.status = "Paid"
+        o_f.student_count += 1
+        // o_f.remaining_students.push(stu?._id)
+        for (let val of o_f?.fees_heads) {
+          const nums = await FeeMaster.findById({ _id: `${val?.master}` })
+          nums.paid_student.push(stu?._id)
+          nums.paid_student_count += 1
+          val.paid_amount += o_f?.payable_amount
+          await nums.save()
+        }
+        const new_receipt = new FeeReceipt({ ...req.body });
+        new_receipt.student = stu?._id;
+        new_receipt.fee_structure = struct
+        new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+        new_receipt.other_fees = o_f?._id;
+        new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
+        new_receipt.finance = finance?._id;
+        new_receipt.receipt_status = "Already Generated";
+        order.payment_module_type = "Other Fees";
+        order.payment_to_end_user_id = institute?._id;
+        order.payment_by_end_user_id = user._id;
+        order.payment_module_id = o_f._id;
+        order.payment_amount = o_f?.payable_amount;
+        order.payment_status = "Captured";
+        order.payment_flag_to = "Credit";
+        order.payment_flag_by = "Debit";
+        order.payment_mode = mode;
+        order.payment_other_fees = o_f._id;
+        order.payment_from = stu._id;
+        order.payment_student = stu?._id;
+        order.payment_student_name = stu?.valid_full_name;
+        order.payment_student_gr = stu?.studentGRNO;
+        order.fee_receipt = new_receipt?._id;
+        fee_receipt_count_query(institute, new_receipt, order)
+        stu.other_fees.push({
+          fees: o_f?._id,
+          fee_receipt: new_receipt?._id,
+          status: "Paid"
+        })
+        user.payment_history.push(order._id);
+        institute.payment_history.push(order._id);
+        await Promise.all([ stu.save(), user.save(), institute.save(), new_receipt.save(), order.save()])
+      }
+    }
+    else {
       for (let ele of students) {
         const stu = await Student.findById({ _id: `${ele}` })
         stu.other_fees.push({
@@ -6541,6 +6611,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
         })
         stu.other_fees_remain_price += o_f?.payable_amount
         o_f.students.push(stu?._id)
+        o_f.student_count += 1
         o_f.remaining_students.push(stu?._id)
         await stu.save()
       }
@@ -6568,7 +6639,7 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
     var all_of = await OtherFees.find({ $and: [{ _id: { $in: finance?.other_fees } }, { other_fees_type: type}]})
       .limit(limit)
       .skip(skip)
-      .select("other_fees_name other_fees_type payable_amount")
+      .select("other_fees_name other_fees_type payable_amount student_count")
       .populate({
         path: "bank_account",
         select: "finance_bank_account_number finance_bank_name finance_bank_account_name"
@@ -6590,26 +6661,22 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
     if (!ofid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var one_of = await OtherFees.findById({ _id: ofid })
-      
-    if (type === "Paid") {
-      var all_student = await Student.find({ _id: { $in: one_of?.paid_students } })
-        .limit(limit)
-        .skip(skip)
-        .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_paid_price")
-      // for (let ele of all_student) {
-      //   for (let val of ele?.other_fees) {
-      //     if (`${val?.fees}` === `${one_of?._id}`) {
-            
-      //     }
-      //   }
-      // }
-    }
-    else {
       var all_student = await Student.find({ _id: { $in: one_of?.remaining_students } })
         .limit(limit)
         .skip(skip)
-        .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price")
-    }
+        .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj")
+        .populate({
+          path: "other_fees.fee_receipt",
+          select: "receipt_file"
+        })
+      for (let ele of all_student) {
+        for (let val of ele?.other_fees) {
+          if (`${val?.fees}` === `${one_of?._id}` && val?.fee_receipt) {
+            ele.other_fees_obj.status = "Paid"
+            ele.other_fees_obj.receipt_file = receipt_file
+          }
+        }
+      }
     res.status(200).send({ message: "Explore One Other Fees Remaining Student List Query", access: true, all_student: all_student})
   }
   catch (e) {
@@ -6642,8 +6709,7 @@ exports.render_one_student_all_fees = async (req, res) => {
       .populate({
         path: "other_fees",
         populate: {
-          path: "fees",
-          // select: "other_fees_name"
+          path: "fees fee_receipt",
         }
     })
     const all_fees = await nested_document_limit(page, limit, student?.other_fees)

@@ -252,6 +252,10 @@ router.patch("/:fid/daybook/heads/wise", catchAsync(Filter.render_daybook_heads_
 
 router.get("/:baid/all/daybook", catchAsync(Filter.render_daybook_query))
 
+router.patch("/:baid/all/daybook/edit", catchAsync(Filter.render_daybook_edit_query))
+
+router.delete("/:baid/all/daybook/delete", catchAsync(Filter.render_daybook_delete_query))
+
 router.patch("/insert/master/daybook", catchAsync(Filter.fee_master_linking))
 
 module.exports = router;

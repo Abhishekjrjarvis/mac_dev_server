@@ -1096,6 +1096,14 @@ const studentSchema = new mongoose.Schema({
       fee_receipt: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeReceipt"
+      },
+      status: {
+        type: String,
+        default: "Not Paid"
+      },
+      created_at: {
+        type: Date,
+        default: Date.now
       }
     }
   ],
@@ -1124,6 +1132,15 @@ const studentSchema = new mongoose.Schema({
     applicationMaster: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ClassMaster"
+    }
+  },
+  other_fees_obj: {
+    status: {
+      type: String,
+      default: "Not Paid"
+    },
+    receipt_file: {
+      type: String,
     }
   }
 });

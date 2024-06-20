@@ -26,9 +26,17 @@ const otherFeesSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "FeeMaster",
           },
-          is_society: { type: Boolean, default: false }
+            is_society: { type: Boolean, default: false },
+            paid_amount: {
+                type: Number,
+                default: 0
+          }
         },
     ],
+    fee_structure: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeStructure",
+    },
     finance: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Finance"
@@ -48,7 +56,15 @@ const otherFeesSchema = new mongoose.Schema({
     payable_amount: {
         type: Number,
         default: 0
-    }
+    },
+    status: {
+        type: String,
+        default: "Not Paid"
+    },
+    student_count: {
+        type: Number,
+        default: 0
+    },
 })
 
 module.exports = mongoose.model("OtherFees", otherFeesSchema)

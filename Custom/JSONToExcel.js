@@ -431,7 +431,8 @@ exports.internal_fee_heads_receipt_json_to_excel_query = async (
 exports.mismatch_scholar_transaction_json_to_excel_query = async (
   data_query,
   flow,
-  id
+  id,
+  excel_sheet_name
 ) => {
   try {
     var real_book = xlsx.utils.book_new();
@@ -446,7 +447,7 @@ exports.mismatch_scholar_transaction_json_to_excel_query = async (
     const ins_admin = await InstituteAdmin.findById({ _id: id });
     ins_admin.export_collection.push({
       excel_file: results,
-      excel_file_name: name,
+      excel_file_name: excel_sheet_name, //name,
       excel_val: "Mismatch_Scholarship"
     });
     ins_admin.export_collection_count += 1;

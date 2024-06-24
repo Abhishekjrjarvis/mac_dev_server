@@ -58,12 +58,14 @@ const {
   generate_excel_to_json_fee_structure_exist_query,
   generate_excel_to_json_student_fees_mapping,
   generate_excel_to_json_staff_department,
+  generate_excel_to_json_student_ongoing_query,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
   retrieveInstituteDirectJoinStaffAutoQuery,
   retrieveUnApprovedDirectJoinQuery,
   retrieveInstituteDirectJoinPayloadFeesQuery,
+  retrieveDirectJoinAdmissionQueryApplication,
 } = require("../Authentication/AuthController");
 const {
   renderFinanceAddFeeCategoryAutoQuery,
@@ -4066,6 +4068,57 @@ exports.renderExcelToJSONAddStaffDepartmentQuery = async (req, res) => {
       await render_staff_add_department(
         is_converted?.student_array,
         id
+      );
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.renderExcelToJSONAddExistApplicationStudentQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { excel_file } = req.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const ads = await Admission.findById({ _id: aid})
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${ads?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      instituteId: one_ins?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${ads?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.instituteId}` === `${update_ins?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_student_ongoing_query(val, aid);
+    if (is_converted?.value) {
+      await retrieveDirectJoinAdmissionQueryApplication(
+        is_converted?.student_array,
       );
     } else {
       console.log("false");

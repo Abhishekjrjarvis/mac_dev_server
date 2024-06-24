@@ -1820,8 +1820,20 @@ exports.otherFeesFunction = async (
     var finance_user = await User.findById({
       _id: `${finance?.financeHead?.user}`,
     });
-    var new_internal = await OtherFees.findById({ _id: moduleId });
-    var account = await BankAccount.findById({ _id: `${new_internal?.bank_account}` });
+    var new_internal = await OtherFees.findById({ _id: moduleId })
+    .populate({
+      path: "fee_structure",
+      select: "department",
+      populate: {
+        path: "bank_account"
+      }
+    });
+    if (new_internal?.bank_account) {
+      var account = await BankAccount.findById({ _id: `${new_internal?.bank_account}` });
+    }
+    else {
+      var account = await BankAccount.findById({ _id: `${new_internal?.fee_structure?.department?.bank_account?._id}` });
+    }
     const user = await User.findById({
       _id: `${finance.financeHead.user}`,
     });
@@ -1873,7 +1885,7 @@ exports.otherFeesFunction = async (
           paid_fee: new_internal?.payable_amount,
           applicable_fee: ele?.head_amount,
           remain_fee: new_receipt?.fee_payment_amount - new_internal?.payable_amount,
-          fee_structure: new_internal?.fee_structure ?? null,
+          fee_structure: new_internal?.fee_structure?._id ?? null,
           master: ele?.master,
           original_paid: new_receipt?.fee_payment_amount,
           is_society: ele?.is_society,

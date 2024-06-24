@@ -6829,6 +6829,180 @@ exports.renderFinanceAllFeeStructure = async (req, res) => {
   }
 }
 
+exports.renderOneOtherFeeReceipt = async (req, res) => {
+  try {
+    const { frid } = req.params;
+    if (!frid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const receipt = await FeeReceipt.findById({ _id: frid })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
+        // populate: {
+        //   path: "remainingFeeList",
+        //   select: "appId",
+        // },
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle",
+        },
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentROLLNO qviple_student_pay_id user",
+        // populate: {
+        //   path: "fee_structure",
+        //   select:
+        //     "category_master structure_name unique_structure_name department batch_master applicable_fees class_master structure_month",
+        //   populate: {
+        //     path: "category_master class_master batch_master department",
+        //     select: "category_name className batchName dName",
+        //   },
+        // },
+      })
+      .populate({
+        path: "finance",
+        select: "financeHead show_receipt institute",
+        populate: {
+          path: "financeHead",
+          select: "staffFirstName staffMiddleName staffLastName",
+        },
+      })
+      // .populate({
+      //   path: "application",
+      //   select: "applicationName applicationDepartment applicationHostel",
+      //   populate: {
+      //     path: "admissionAdmin",
+      //     select: "_id site_info",
+      //     populate: {
+      //       path: "institute",
+      //       select:
+      //         "insName name insAddress insPhoneNumber insEmail insState insDistrict insProfilePhoto photoId affliatedLogo insAffiliated insEditableText_one insEditableText_two",
+      //       populate: {
+      //         path: "displayPersonList",
+      //         select: "displayTitle",
+      //         populate: {
+      //           path: "displayUser displayStaff",
+      //           select:
+      //             "userLegalName staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
+      //         },
+      //       },
+      //     },
+      //   },
+      // })
+      // .populate({
+      //   path: "application",
+      //   select: "applicationName applicationDepartment applicationHostel",
+      //   populate: {
+      //     path: "admissionAdmin",
+      //     select: "_id site_info",
+      //     populate: {
+      //       path: "site_info",
+      //     },
+      //   },
+      // })
+      // .populate({
+      //   path: "application",
+      //   select:
+      //     "applicationName applicationDepartment applicationHostel applicationUnit",
+      //   populate: {
+      //     path: "applicationUnit",
+      //     select: "hostel_unit_name",
+      //   },
+      // })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number active_society_fee_heads studentROLLNO qviple_student_pay_id user",
+      })
+      .populate({
+        path: "other_fees",
+        populate: {
+          path: "fee_structure",
+          select:
+            "category_master structure_name unique_structure_name department batch_master applicable_fees class_master structure_month",
+          populate: {
+            path: "category_master class_master batch_master department",
+            select: "category_name className batchName dName",
+          },
+        },
+      })
+      .populate({
+        path: "order_history",
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentROLLNO qviple_student_pay_id user",
+        // populate: {
+        //   path: "remainingFeeList",
+        //   populate: {
+        //     path: "fee_structure",
+        //     select: "batch_master class_master",
+        //     populate: {
+        //       path: "batch_master class_master",
+        //       select: "batchName className",
+        //     },
+        //   },
+        // },
+      });
+
+    if (receipt?.other_fees?.fee_structure?._id) {
+      var one_account = await BankAccount.findOne({
+        departments: { $in: receipt?.other_fees?.fee_structure?.department },
+      }).select(
+        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+      );
+    }
+    if (receipt?.finance?.show_receipt === "Normal") {
+      receipt.fee_heads = [...receipt?.fee_heads];
+    }
+    else if (receipt?.finance?.show_receipt === "Society") {
+      receipt.fee_heads = receipt?.fee_heads?.filter((qwe) => {
+        if (!qwe?.is_society) {
+          return qwe
+        }
+        else {
+          receipt.student.active_society_fee_heads.push(qwe)
+          return null
+        }
+      })
+      receipt.fee_heads = [...receipt?.fee_heads]; 
+    }
+    const qviple_id = await QvipleId.findOne({ user: receipt?.student?.user})
+
+    const obj = {
+      message: "Come up with Tea and Snacks",
+      access: true,
+      receipt: receipt,
+      one_account: one_account,
+      qviple_id: qviple_id
+    }
+    if (receipt?.finance?.show_receipt === "Normal") {
+      // const obj_nums = await generateFeeReceipt(receipt?._id)
+      // await admissionFeeReceipt(receipt?._id, receipt?.application?._id)
+    }
+    else if (receipt?.finance?.show_receipt === "Society") {
+      // await societyAdmissionFeeReceipt(receipt?._id,receipt?.finance?.institute)
+    }
+    const all_encrypt = await encryptionPayload(obj)
+    res.status(200).send({ encrypt: all_encrypt });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 
 // exports.updateAlias = async(req, res) => {
 //   try{

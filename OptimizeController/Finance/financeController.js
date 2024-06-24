@@ -6522,7 +6522,7 @@ exports.render_control_receipt_query = async (req, res) => {
 exports.renderNewOtherFeesQuery = async (req, res) => {
   try {
     const { fid } = req?.params
-    const { heads, students, struct, is_collect } = req?.body
+    const { heads, students, struct, is_collect, mode } = req?.body
     if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var finance = await Finance.findById({ _id: fid })

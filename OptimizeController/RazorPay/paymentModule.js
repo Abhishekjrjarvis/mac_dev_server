@@ -1825,7 +1825,10 @@ exports.otherFeesFunction = async (
       path: "fee_structure",
       select: "department",
       populate: {
-        path: "bank_account"
+        path: "department",
+        populate: {
+          path: "bank_account"
+        }
       }
     });
     if (new_internal?.bank_account) {

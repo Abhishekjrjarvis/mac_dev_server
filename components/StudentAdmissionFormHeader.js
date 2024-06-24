@@ -39,7 +39,17 @@ const StudentAdmissionFormHeader = async (doc, x, y, pageWidth, institute) => {
 
   doc.fontSize(10).text(institute?.insAffiliated, 25, 25, { align: "center" });
   doc.moveDown(0.3);
-  doc.fontSize(16).text(institute?.insName, { align: "center" });
+  // doc.fontSize(16).text(institute?.insName, { align: "center" });
+  let in_string = institute?.insName;
+
+  let in_string_divid = Math.ceil(in_string?.length / 55);
+
+  for (let i = 0; i < +in_string_divid; i++) {
+    doc
+      .fontSize(16)
+      .text(in_string?.substring(55 * i, 55 + 55 * i), { align: "center" });
+  }
+
   doc.moveDown(0.3);
   doc.fontSize(10).text(institute?.insAddress, { align: "center" });
   doc.moveDown(0.3);
@@ -53,3 +63,4 @@ const StudentAdmissionFormHeader = async (doc, x, y, pageWidth, institute) => {
   );
 };
 module.exports = StudentAdmissionFormHeader;
+

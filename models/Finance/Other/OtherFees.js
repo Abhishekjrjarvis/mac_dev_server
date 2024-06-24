@@ -65,6 +65,10 @@ const otherFeesSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    other_fees_disable: {
+        type: String,
+        default: "Enable"
+    }
 })
 
 module.exports = mongoose.model("OtherFees", otherFeesSchema)

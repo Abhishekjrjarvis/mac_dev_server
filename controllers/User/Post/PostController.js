@@ -815,7 +815,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
     const query_search = req.query.search_key ? req.query.search_key : "";
     const skip = (page - 1) * limit;
     const user = await User.findById(id).select(
-      "id ageRestrict userPosts userInstituteFollowing"
+      "id ageRestrict userPosts userInstituteFollowing staff"
     );
     if (user && user.userPosts.length >= 1) {
       //
@@ -1093,11 +1093,16 @@ exports.retrieveAllUserPosts = async (req, res) => {
           // post.splice(5, 0, data_i_s);
           post.splice(2, 0, hash_tag_ads);
         }
-        post.splice(
-          Math.floor(Math.random() * (post.length - 6) + 6),
-          0,
-          data_ads
-        );
+        if (user?.staff?.length > 0) {
+          
+        }
+        else {
+          post.splice(
+            Math.floor(Math.random() * (post.length - 6) + 6),
+            0,
+            data_ads
+          );
+        }
         // const bind_data = {
         //   post: post,
         //   postCount: postCount.length,

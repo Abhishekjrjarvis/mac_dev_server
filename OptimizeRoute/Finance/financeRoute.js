@@ -603,4 +603,10 @@ router
   .route("/fee/struct/:fid/existed")
   .patch(catchAsync(Finance.render_mark_society_head_existed))
 
+
+router.get(
+  "/:fid/all/exist/fee/structure",
+  catchAsync(Finance.renderFinanceAllFeeStructure)
+);
+
 module.exports = router;

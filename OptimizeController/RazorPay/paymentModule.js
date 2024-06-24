@@ -1853,7 +1853,7 @@ exports.otherFeesFunction = async (
     new_internal.status = "Paid"
     for (let val of new_internal?.fees_heads) {
       const nums = await FeeMaster.findById({ _id: `${val?.master}` })
-      nums.paid_student.push(stu?._id)
+      nums.paid_student.push(student?._id)
       nums.paid_student_count += 1
       val.paid_amount += new_internal?.payable_amount
       await nums.save()

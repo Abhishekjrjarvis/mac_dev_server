@@ -6736,8 +6736,12 @@ exports.render_one_student_all_fees = async (req, res) => {
         path: "other_fees",
         populate: {
           path: "fees fee_receipt",
+          populate: {
+            path: "finance",
+            select: "institute"
+          }
         }
-    })
+      })
     const all_fees = await nested_document_limit(page, limit, student?.other_fees)
     res.status(200).send({ message: "Explore One Student All Fees Query", access: true, all_fees: all_fees})
   }

@@ -5507,8 +5507,8 @@ exports.retrieveDirectJoinAdmissionQueryApplication = async (student_list) => {
           student.photoId = "0";
           student.studentProfilePhoto = exist?.sample_pic;
         }
-        // user.profilePhoto = 
-        // student.studentProfilePhoto = 
+        user.profilePhoto = "DEFAULT_STAFF_STUDENT.jpeg"
+        student.studentProfilePhoto = "DEFAULT_STAFF_STUDENT.jpeg"
         student.student_form_flow.flow = "APPLICATION"
         student.student_form_flow.did = apply?._id
         institute.form_no_count += 1

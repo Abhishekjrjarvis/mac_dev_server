@@ -609,9 +609,9 @@ router.get(
   catchAsync(Finance.renderFinanceAllFeeStructure)
 );
 
-// router.get(
-//   "/:frid/one/receipt/other/fees",
-//   catchAsync(Finance.renderOneFeeReceipt)
-// );
+router.get(
+  "/:frid/one/receipt/other/fees",
+  catchAsync(Finance.renderOneOtherFeeReceipt)
+);
 
 module.exports = router;

@@ -1847,6 +1847,7 @@ exports.otherFeesFunction = async (
     new_receipt.fee_payment_amount = new_internal?.payable_amount;
     new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
     new_receipt.fee_payment_mode = "Payment Gateway - PG";
+    new_receipt.fee_structure = new_internal?.fee_structure?._id ?? null
     new_receipt.student = student?._id;
     new_receipt.fee_transaction_date = new Date();
     new_receipt.finance = finance?._id;
@@ -1885,9 +1886,9 @@ exports.otherFeesFunction = async (
         new_receipt.fee_heads.push({
           head_id: ele?._id,
           head_name: ele?.head_name,
-          paid_fee: new_internal?.payable_amount,
+          paid_fee: ele?.head_amount,
           applicable_fee: ele?.head_amount,
-          remain_fee: new_receipt?.fee_payment_amount - new_internal?.payable_amount,
+          remain_fee: new_receipt?.fee_payment_amount - ele?.head_amount,
           fee_structure: new_internal?.fee_structure?._id ?? null,
           master: ele?.master,
           original_paid: new_receipt?.fee_payment_amount,

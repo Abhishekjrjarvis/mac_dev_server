@@ -6542,7 +6542,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
         // o_f.other_fees_name = ele?.head_name
       }
     }
-    else {
+    else if(struct) {
       const structure = await FeeStructure.findById({ _id: struct})
       o_f.fee_structure = structure?._id
       for (let ele of structure?.applicable_fees_heads) {
@@ -6607,9 +6607,9 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
             new_receipt.fee_heads.push({
               head_id: ele?._id,
               head_name: ele?.head_name,
-              paid_fee: o_f?.payable_amount,
+              paid_fee: ele?.head_amount,
               applicable_fee: ele?.head_amount,
-              remain_fee: new_receipt?.fee_payment_amount - o_f?.payable_amount,
+              remain_fee: new_receipt?.fee_payment_amount - ele?.head_amount,
               fee_structure: o_f?.fee_structure ?? null,
               master: ele?.master,
               original_paid: new_receipt?.fee_payment_amount,
@@ -6842,7 +6842,7 @@ exports.renderOneOtherFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
         // populate: {
         //   path: "remainingFeeList",
         //   select: "appId",
@@ -6851,7 +6851,7 @@ exports.renderOneOtherFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
         populate: {
           path: "studentClass",
           select: "className classTitle",
@@ -6860,7 +6860,7 @@ exports.renderOneOtherFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentROLLNO qviple_student_pay_id user",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_society_fee_heads studentROLLNO qviple_student_pay_id user",
         // populate: {
         //   path: "fee_structure",
         //   select:
@@ -6924,7 +6924,7 @@ exports.renderOneOtherFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number active_society_fee_heads studentROLLNO qviple_student_pay_id user",
+          "studentFirstName studentMiddleName studentGRNO studentLastName student_bed_number active_society_fee_heads studentROLLNO qviple_student_pay_id user",
       })
       .populate({
         path: "other_fees",
@@ -6944,7 +6944,7 @@ exports.renderOneOtherFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentROLLNO qviple_student_pay_id user",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_society_fee_heads studentROLLNO qviple_student_pay_id user",
         // populate: {
         //   path: "remainingFeeList",
         //   populate: {
@@ -6997,7 +6997,7 @@ exports.renderOneOtherFeeReceipt = async (req, res) => {
       // await societyAdmissionFeeReceipt(receipt?._id,receipt?.finance?.institute)
     }
     const all_encrypt = await encryptionPayload(obj)
-    res.status(200).send({ encrypt: all_encrypt });
+    res.status(200).send({ encrypt: obj });
   } catch (e) {
     console.log(e);
   }

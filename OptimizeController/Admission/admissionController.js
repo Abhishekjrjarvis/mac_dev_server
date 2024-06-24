@@ -9103,7 +9103,7 @@ const type_calc = async (r_args) => {
   }
 };
 
-exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, id) => {
+exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, id, excel_sheet_name) => {
   try {
     var num_arr = []
     if (arr?.length > 0) {
@@ -9144,7 +9144,7 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, id) => {
           num_arr.push(ref)
         }
       }
-      await mismatch_scholar_transaction_json_to_excel_query(num_arr, "Mismatch", id)
+      await mismatch_scholar_transaction_json_to_excel_query(num_arr, "Mismatch", id, excel_sheet_name)
     } else {
       console.log("Bug In Excel")
     }

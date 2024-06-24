@@ -6522,12 +6522,15 @@ exports.render_control_receipt_query = async (req, res) => {
 exports.renderNewOtherFeesQuery = async (req, res) => {
   try {
     const { fid } = req?.params
-    const { heads, students, struct } = req?.body
+    const { heads, students, struct, is_collect } = req?.body
     if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var finance = await Finance.findById({ _id: fid })
     var institute = await InstituteAdmin.findById({ _id: `${finance?.institute}` })
     var o_f = new OtherFees({ ...req?.body })
+    if (req?.body?.other_fees_type === "Normal") {
+      o_f.other_fees_disable = "Disable"
+    }
     if (heads?.length > 0) {
       for (let ele of heads) {
         o_f.fees_heads.push({
@@ -6552,69 +6555,84 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
         o_f.other_fees_name = ele?.head_name
       }
     }
-    if (students?.length <= 1) {
-      for (let ele of students) {
-        const stu = await Student.findById({ _id: `${ele}` })
-        const user = await User.findById({ _id: `${stu?.user}` })
-        stu.other_fees_paid_price += o_f?.payable_amount
-        o_f.students.push(stu?._id)
-        o_f.paid_students.push(stu?._id)
-        o_f.status = "Paid"
-        o_f.student_count += 1
-        // o_f.remaining_students.push(stu?._id)
-        for (let val of o_f?.fees_heads) {
-          const nums = await FeeMaster.findById({ _id: `${val?.master}` })
-          nums.paid_student.push(stu?._id)
-          nums.paid_student_count += 1
-          val.paid_amount += o_f?.payable_amount
-          await nums.save()
+    if (is_collect === "Yes") {
+      if (students?.length <= 1) {
+        for (let ele of students) {
+          const stu = await Student.findById({ _id: `${ele}` })
+          const user = await User.findById({ _id: `${stu?.user}` })
+          stu.other_fees_paid_price += o_f?.payable_amount
+          o_f.students.push(stu?._id)
+          o_f.paid_students.push(stu?._id)
+          o_f.status = "Paid"
+          o_f.student_count += 1
+          // o_f.remaining_students.push(stu?._id)
+          for (let val of o_f?.fees_heads) {
+            const nums = await FeeMaster.findById({ _id: `${val?.master}` })
+            nums.paid_student.push(stu?._id)
+            nums.paid_student_count += 1
+            val.paid_amount += o_f?.payable_amount
+            await nums.save()
+          }
+          const new_receipt = new FeeReceipt({ ...req.body });
+          new_receipt.student = stu?._id;
+          new_receipt.fee_structure = struct
+          new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+          new_receipt.other_fees = o_f?._id;
+          new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
+          new_receipt.finance = finance?._id;
+          new_receipt.receipt_status = "Already Generated";
+          order.payment_module_type = "Other Fees";
+          order.payment_to_end_user_id = institute?._id;
+          order.payment_by_end_user_id = user._id;
+          order.payment_module_id = o_f._id;
+          order.payment_amount = o_f?.payable_amount;
+          order.payment_status = "Captured";
+          order.payment_flag_to = "Credit";
+          order.payment_flag_by = "Debit";
+          order.payment_mode = mode;
+          order.payment_other_fees = o_f._id;
+          order.payment_from = stu._id;
+          order.payment_student = stu?._id;
+          order.payment_student_name = stu?.valid_full_name;
+          order.payment_student_gr = stu?.studentGRNO;
+          order.fee_receipt = new_receipt?._id;
+          fee_receipt_count_query(institute, new_receipt, order)
+          stu.other_fees.push({
+            fees: o_f?._id,
+            fee_receipt: new_receipt?._id,
+            status: "Paid"
+          })
+          user.payment_history.push(order._id);
+          institute.payment_history.push(order._id);
+          await Promise.all([stu.save(), user.save(), institute.save(), new_receipt.save(), order.save()])
         }
-        const new_receipt = new FeeReceipt({ ...req.body });
-        new_receipt.student = stu?._id;
-        new_receipt.fee_structure = struct
-        new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
-        new_receipt.other_fees = o_f?._id;
-        new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
-        new_receipt.finance = finance?._id;
-        new_receipt.receipt_status = "Already Generated";
-        order.payment_module_type = "Other Fees";
-        order.payment_to_end_user_id = institute?._id;
-        order.payment_by_end_user_id = user._id;
-        order.payment_module_id = o_f._id;
-        order.payment_amount = o_f?.payable_amount;
-        order.payment_status = "Captured";
-        order.payment_flag_to = "Credit";
-        order.payment_flag_by = "Debit";
-        order.payment_mode = mode;
-        order.payment_other_fees = o_f._id;
-        order.payment_from = stu._id;
-        order.payment_student = stu?._id;
-        order.payment_student_name = stu?.valid_full_name;
-        order.payment_student_gr = stu?.studentGRNO;
-        order.fee_receipt = new_receipt?._id;
-        fee_receipt_count_query(institute, new_receipt, order)
-        stu.other_fees.push({
-          fees: o_f?._id,
-          fee_receipt: new_receipt?._id,
-          status: "Paid"
-        })
-        user.payment_history.push(order._id);
-        institute.payment_history.push(order._id);
-        await Promise.all([ stu.save(), user.save(), institute.save(), new_receipt.save(), order.save()])
+      }
+      else {
+        for (let ele of students) {
+          const stu = await Student.findById({ _id: `${ele}` })
+          stu.other_fees.push({
+            fees: o_f?._id,
+          })
+          stu.other_fees_remain_price += o_f?.payable_amount
+          o_f.students.push(stu?._id)
+          o_f.student_count += 1
+          o_f.remaining_students.push(stu?._id)
+          await stu.save()
+        }
       }
     }
     else {
-      for (let ele of students) {
-        const stu = await Student.findById({ _id: `${ele}` })
-        stu.other_fees.push({
-          fees: o_f?._id,
-        })
-        stu.other_fees_remain_price += o_f?.payable_amount
-        o_f.students.push(stu?._id)
-        o_f.student_count += 1
-        o_f.remaining_students.push(stu?._id)
-        await stu.save()
-      }
+        for (let ele of students) {
+          const stu = await Student.findById({ _id: `${ele}` })
+          stu.other_fees.push({
+            fees: o_f?._id,
+          })
+          stu.other_fees_remain_price += o_f?.payable_amount
+          o_f.students.push(stu?._id)
+          o_f.student_count += 1
+          o_f.remaining_students.push(stu?._id)
+          await stu.save()
+        }
     }
     finance.other_fees.push(o_f?._id)
     o_f.finance = finance?._id
@@ -6749,6 +6767,37 @@ exports.render_mark_society_head_existed = async (req, res) => {
     await stu.save()
     }  
     res.status(200).send({ message: `wise society heads updated`, access: true, all_struct: all_struct, count: all_struct?.length})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderFinanceAllFeeStructure = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req?.query
+    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const finance = await Finance.findById({ _id: fid })
+    if (search) {
+      const all_struct = await FeeStructure.find({
+        $and: [{ finance: finance?._id }],
+        $or: [{ structure_name: { $regex: `${search}`, $options: "i" } }]
+      })
+        .select("structure_name unique_structure_name applicable_fees total_installments total_admission_fees fee_structure_code")
+      res.status(200).send({ message: "Explore All Fee Structure", access: true, all_struct: all_struct})
+    }
+    else {
+      const all_struct = await FeeStructure.find({ $and: [{ finance: finance?._id }] })
+        .limit(limit)
+        .skip(skip)
+        .select("structure_name unique_structure_name applicable_fees total_installments total_admission_fees fee_structure_code")
+      res.status(200).send({ message: "Explore All Fee Structure", access: true, all_struct: all_struct})
+    }
   }
   catch (e) {
     console.log(e)

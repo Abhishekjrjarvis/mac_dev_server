@@ -6539,7 +6539,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
           master: ele?.master,
           is_society: false
         })
-        o_f.other_fees_name = ele?.head_name
+        // o_f.other_fees_name = ele?.head_name
       }
     }
     else {
@@ -6552,7 +6552,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
           master: ele?.master,
           is_society: ele?.is_society
         })
-        o_f.other_fees_name = ele?.head_name
+        // o_f.other_fees_name = ele?.head_name
       }
     }
     if (is_collect === "Yes") {
@@ -6603,6 +6603,19 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
             fee_receipt: new_receipt?._id,
             status: "Paid"
           })
+          for (let ele of o_f?.fees_heads) {
+            new_receipt.fee_heads.push({
+              head_id: ele?._id,
+              head_name: ele?.head_name,
+              paid_fee: o_f?.payable_amount,
+              applicable_fee: ele?.head_amount,
+              remain_fee: new_receipt?.fee_payment_amount - o_f?.payable_amount,
+              fee_structure: o_f?.fee_structure ?? null,
+              master: ele?.master,
+              original_paid: new_receipt?.fee_payment_amount,
+              is_society: ele?.is_society,
+            })
+          }
           user.payment_history.push(order._id);
           institute.payment_history.push(order._id);
           await Promise.all([stu.save(), user.save(), institute.save(), new_receipt.save(), order.save()])

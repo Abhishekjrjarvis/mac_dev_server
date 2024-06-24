@@ -1865,6 +1865,21 @@ exports.otherFeesFunction = async (
         ele.status = "Paid"
       }
     }
+    // if (new_internal?.fee_structure) {
+      for (let ele of new_internal?.fees_heads) {
+        new_receipt.fee_heads.push({
+          head_id: ele?._id,
+          head_name: ele?.head_name,
+          paid_fee: new_internal?.payable_amount,
+          applicable_fee: ele?.head_amount,
+          remain_fee: new_receipt?.fee_payment_amount - new_internal?.payable_amount,
+          fee_structure: new_internal?.fee_structure ?? null,
+          master: ele?.master,
+          original_paid: new_receipt?.fee_payment_amount,
+          is_society: ele?.is_society,
+        })
+      }
+    // }
     if (is_author) {
       finance.financeBankBalance =
         finance.financeBankBalance + parseInt(tx_amount);

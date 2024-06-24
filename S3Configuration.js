@@ -217,7 +217,7 @@ exports.uploadOneDocFile = uploadOneDocFile;
 function uploadDocsFile(file) {
   const fileStream = fs.createReadStream(file.path);
   const uploadParams = {
-    Bucket: new_bucket,
+    Bucket: bucketName,
     Body: fileStream,
     Key: file.filename,
     ContentType: file.mimetype,

@@ -4092,7 +4092,7 @@ exports.renderExcelToJSONAddExistApplicationStudentQuery = async (req, res) => {
     });
     one_ins.excel_data_query.push({
       excel_file: excel_file,
-      instituteId: one_ins?._id,
+      admissionId: ads?._id,
       status: "Uploaded",
     });
     await one_ins.save();
@@ -4108,7 +4108,7 @@ exports.renderExcelToJSONAddExistApplicationStudentQuery = async (req, res) => {
     for (var ref of update_ins?.excel_data_query) {
       if (
         `${ref.status}` === "Uploaded" &&
-        `${ref?.instituteId}` === `${update_ins?._id}`
+        `${ref?.admissionId}` === `${ads?._id}`
       ) {
         key = ref?.excel_file;
       }
@@ -4124,6 +4124,6 @@ exports.renderExcelToJSONAddExistApplicationStudentQuery = async (req, res) => {
       console.log("false");
     }
   } catch (e) {
-    console.log(e);
+    console.log("eeeee", e);
   }
 }

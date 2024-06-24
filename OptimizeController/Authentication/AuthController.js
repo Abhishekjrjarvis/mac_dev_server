@@ -5372,7 +5372,7 @@ exports.retrieveDirectJoinAdmissionQueryApplication = async (student_list) => {
       var id = exist?.studentPhoneNumber ?? exist?.studentEmail
       var valid_phone = `${exist?.studentPhoneNumber}`;
       var valid_email = valid_phone?.includes("@");
-      const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+      const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_DEV_ID}` });
       const valid = await filter_unique_username(
         exist?.studentFirstName,
         exist?.studentDOB
@@ -5502,11 +5502,13 @@ exports.retrieveDirectJoinAdmissionQueryApplication = async (student_list) => {
         if (studentOptionalSubject?.length > 0) {
           student.studentOptionalSubject.push(...studentOptionalSubject);
         }
-        if (sample_pic) {
-          user.profilePhoto = sample_pic;
+        if (exist?.sample_pic) {
+          user.profilePhoto = exist?.sample_pic;
           student.photoId = "0";
-          student.studentProfilePhoto = sample_pic;
+          student.studentProfilePhoto = exist?.sample_pic;
         }
+        // user.profilePhoto = 
+        // student.studentProfilePhoto = 
         student.student_form_flow.flow = "APPLICATION"
         student.student_form_flow.did = apply?._id
         institute.form_no_count += 1

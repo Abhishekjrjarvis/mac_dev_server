@@ -6574,6 +6574,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
             await nums.save()
           }
           const new_receipt = new FeeReceipt({ ...req.body });
+          const order = new OrderPayment({...req?.body})
           new_receipt.student = stu?._id;
           new_receipt.fee_structure = struct
           new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
@@ -6662,6 +6663,9 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
         path: "bank_account",
         select: "finance_bank_account_number finance_bank_name finance_bank_account_name"
       })
+      .populate({
+        path: "fee_structure",
+      })
     res.status(200).send({ message: "Explore All Other Fees Query", access: true, all_of: all_of})
   }
   catch (e) {
@@ -6679,7 +6683,7 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
     if (!ofid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var one_of = await OtherFees.findById({ _id: ofid })
-      var all_student = await Student.find({ _id: { $in: one_of?.remaining_students } })
+      var all_student = await Student.find({ _id: { $in: one_of?.students } })
         .limit(limit)
         .skip(skip)
         .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj")

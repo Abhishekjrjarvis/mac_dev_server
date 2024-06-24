@@ -482,4 +482,9 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONAddStaffDepartmentQuery)
 );
 
+router.patch(
+  "/excel/to/json/:aid/exist/application/student",
+  catchAsync(Extra.renderExcelToJSONAddExistApplicationStudentQuery)
+);
+
 module.exports = router;

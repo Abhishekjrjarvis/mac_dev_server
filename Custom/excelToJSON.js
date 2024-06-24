@@ -1111,6 +1111,39 @@ exports.generate_excel_to_json_staff_department = async (file, id) => {
   }
 };
 
+exports.generate_excel_to_json_student_ongoing_query = async (file, aid) => {
+  try {
+    const w_query = xlsx.read(file.Body, {
+      dateNF: "yyyy-mm-dd",
+    });
+
+    const w_sheet = w_query.Sheets["ApplicationExist"];
+
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var ref of data_query) {
+      var new_appId = await NewApplication.findOne({
+        $and: [
+          { admissionAdmin: aid },
+          { applicationName: {
+            $regex: `${ref?.appName}`,
+            $options: "i",
+          }, }
+        ],
+      });
+      if (new_appId?._id) {
+        ref.appId = new_appId?._id
+        new_data_query.push({
+          ...ref,
+        });
+      }
+    }
+    return { student_array: new_data_query, value: true }; 
+  } catch (e) {
+    console.log("Excel Query App Not Resolved", e);
+  }
+};
+
 
 // console.log(generate_excel_to_json_class_time_table_query(data_set, 5))
 

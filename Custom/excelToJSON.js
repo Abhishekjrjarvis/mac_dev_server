@@ -1113,9 +1113,7 @@ exports.generate_excel_to_json_staff_department = async (file, id) => {
 
 exports.generate_excel_to_json_student_ongoing_query = async (file, aid) => {
   try {
-    const w_query = xlsx.read(file.Body, {
-      dateNF: "yyyy-mm-dd",
-    });
+    const w_query = xlsx.read(file.Body);
 
     const w_sheet = w_query.Sheets["ApplicationExist"];
 

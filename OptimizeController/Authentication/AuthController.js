@@ -5372,7 +5372,7 @@ exports.retrieveDirectJoinAdmissionQueryApplication = async (student_list) => {
       var id = exist?.studentPhoneNumber ?? exist?.studentEmail
       var valid_phone = `${exist?.studentPhoneNumber}`;
       var valid_email = valid_phone?.includes("@");
-      const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_DEV_ID}` });
+      const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
       const valid = await filter_unique_username(
         exist?.studentFirstName,
         exist?.studentDOB

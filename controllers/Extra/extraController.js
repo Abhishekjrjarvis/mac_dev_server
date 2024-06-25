@@ -3968,11 +3968,15 @@ exports.customGenerateInstituteLogsQuery = async (req, res) => {
     });
     for (let st of inst) {
       if (st?._id) {
-        const lt = new InstituteLog({
-          instituteId: st?._id,
-        });
-        st.institute_log = lt?._id;
-        await Promise.all([lt.save(), st.save()]);
+        if (st?.institute_log) {
+        } else {
+          console.log(st?._id);
+          const lt = new InstituteLog({
+            instituteId: st?._id,
+          });
+          st.institute_log = lt?._id;
+          await Promise.all([lt.save(), st.save()]);
+        }
       }
     }
 
@@ -3980,7 +3984,7 @@ exports.customGenerateInstituteLogsQuery = async (req, res) => {
       message: "All institute logs schema is created.",
     });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
   }
 };
 
@@ -4342,36 +4346,6 @@ exports.certificateInstituteLogsListQuery = async (req, res) => {
     res.status(200).send({
       message: "All institute logs schema is created.",
       logs: logs,
-    });
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-exports.customRemoveInstituteLogsQuery = async (req, res) => {
-  try {
-    const lltdst = await InstituteLog.find({});
-    let i = 0;
-    for (let dfg of lltdst) {
-      ++i;
-      console.log("-> i :", i);
-      let j = 0;
-      for (let df of dfg?.certificate_logs) {
-        if (df) {
-          const lt = await InstituteCertificateLog.findById(df);
-          if (lt?.certificate_attachment) {
-          } else {
-            ++j;
-            dfg.certificate_logs.pull(lt?._id);
-            await InstituteCertificateLog.findByIdAndDelete(df);
-            console.log("-> j :", j);
-          }
-        }
-      }
-      await dfg.save();
-    }
-    res.status(200).send({
-      message: "All null logs deleted.",
     });
   } catch (e) {
     console.log(e);

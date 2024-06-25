@@ -6842,16 +6842,16 @@ exports.renderOneOtherFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
-        // populate: {
-        //   path: "remainingFeeList",
-        //   select: "appId",
-        // },
+          "studentFirstName studentMiddleName studentGRNO studentLastName other_fees_remain_price studentCastCategory active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
       })
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
+          "studentFirstName studentMiddleName studentGRNO studentLastName other_fees_remain_price studentCastCategory active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
         populate: {
           path: "studentClass",
           select: "className classTitle",
@@ -6860,16 +6860,11 @@ exports.renderOneOtherFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_society_fee_heads studentROLLNO qviple_student_pay_id user",
-        // populate: {
-        //   path: "fee_structure",
-        //   select:
-        //     "category_master structure_name unique_structure_name department batch_master applicable_fees class_master structure_month",
-        //   populate: {
-        //     path: "category_master class_master batch_master department",
-        //     select: "category_name className batchName dName",
-        //   },
-        // },
+          "studentFirstName studentMiddleName studentGRNO studentLastName other_fees_remain_price  studentCastCategory active_society_fee_heads studentROLLNO qviple_student_pay_id user",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
       })
       .populate({
         path: "finance",
@@ -6879,52 +6874,14 @@ exports.renderOneOtherFeeReceipt = async (req, res) => {
           select: "staffFirstName staffMiddleName staffLastName",
         },
       })
-      // .populate({
-      //   path: "application",
-      //   select: "applicationName applicationDepartment applicationHostel",
-      //   populate: {
-      //     path: "admissionAdmin",
-      //     select: "_id site_info",
-      //     populate: {
-      //       path: "institute",
-      //       select:
-      //         "insName name insAddress insPhoneNumber insEmail insState insDistrict insProfilePhoto photoId affliatedLogo insAffiliated insEditableText_one insEditableText_two",
-      //       populate: {
-      //         path: "displayPersonList",
-      //         select: "displayTitle",
-      //         populate: {
-      //           path: "displayUser displayStaff",
-      //           select:
-      //             "userLegalName staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
-      //         },
-      //       },
-      //     },
-      //   },
-      // })
-      // .populate({
-      //   path: "application",
-      //   select: "applicationName applicationDepartment applicationHostel",
-      //   populate: {
-      //     path: "admissionAdmin",
-      //     select: "_id site_info",
-      //     populate: {
-      //       path: "site_info",
-      //     },
-      //   },
-      // })
-      // .populate({
-      //   path: "application",
-      //   select:
-      //     "applicationName applicationDepartment applicationHostel applicationUnit",
-      //   populate: {
-      //     path: "applicationUnit",
-      //     select: "hostel_unit_name",
-      //   },
-      // })
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName student_bed_number active_society_fee_heads studentROLLNO qviple_student_pay_id user",
+          "studentFirstName studentMiddleName studentGRNO studentLastName other_fees_remain_price studentCastCategory student_bed_number active_society_fee_heads studentROLLNO qviple_student_pay_id user",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
       })
       .populate({
         path: "other_fees",
@@ -6944,18 +6901,11 @@ exports.renderOneOtherFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_society_fee_heads studentROLLNO qviple_student_pay_id user",
-        // populate: {
-        //   path: "remainingFeeList",
-        //   populate: {
-        //     path: "fee_structure",
-        //     select: "batch_master class_master",
-        //     populate: {
-        //       path: "batch_master class_master",
-        //       select: "batchName className",
-        //     },
-        //   },
-        // },
+          "studentFirstName studentMiddleName studentGRNO studentLastName other_fees_remain_price studentCastCategory active_society_fee_heads studentROLLNO qviple_student_pay_id user",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
       });
 
     if (receipt?.other_fees?.fee_structure?._id) {

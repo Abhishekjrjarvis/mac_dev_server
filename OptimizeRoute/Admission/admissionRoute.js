@@ -929,5 +929,8 @@ router.get(
 
 router.patch("/new/db/insertion/app/:aid", catchAsync(Admission.retieveAdmissionAdminInsertion))
 
+router.patch("/revert/data/:aid", catchAsync(Admission.retrieve_admission_revertion_query))
+
+router.patch("/revert/data/reject/:aid", catchAsync(Admission.retrieve_admission_revertion_reject_query))
 
 module.exports = router;

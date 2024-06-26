@@ -31,6 +31,7 @@ const {
   send_phone_login_query,
 } = require("../../helper/functions");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
+const Status = require("../../models/Admission/status");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.photoEditByStudent = async (req, res) => {
@@ -63,7 +64,7 @@ exports.photoEditByStudent = async (req, res) => {
 exports.formEditByClassTeacher = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send student id to perform task";
-    const { phone, email, regeneration_bool, appId, insId } = req.body;
+    const { phone, email, regeneration_bool, appId, insId, statusId } = req.body;
     var valid_phone = await handle_undefined(phone);
     var valid_email = await handle_undefined(email);
     const old_data = {
@@ -131,12 +132,22 @@ exports.formEditByClassTeacher = async (req, res) => {
     } else {
     }
     if (regeneration_bool === "Yes" && appId && insId) {
+      const apply = await NewApplication.findById({ _id: appId })
+      const status = await Status.findById({ _id: statusId })
       await generateStudentAdmissionForm(
         one_student?._id,
         insId,
         `${one_student?.studentFirstName} ${one_student?.studentMiddleName ? one_student?.studentMiddleName : one_student?.studentFatherName ? one_student?.studentFatherName : ""} ${one_student?.studentLastName}`,
-        `${appId}`,
+        `${apply?.applicationName}`,
       );
+
+      for (let ele of apply?.receievedApplication) {
+        if (`${ele?.student}` === `${one_student?._id}`) {
+          ele.reject_status = ""
+        }
+      }
+      status.rejection_modification = "No"
+      await Promise.all([ apply.save(), status.save()])
     }
   } catch (e) {
     console.log(e);

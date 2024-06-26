@@ -30,6 +30,7 @@ const {
   send_email_authentication_login_query,
   send_phone_login_query,
 } = require("../../helper/functions");
+const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.photoEditByStudent = async (req, res) => {
@@ -62,7 +63,7 @@ exports.photoEditByStudent = async (req, res) => {
 exports.formEditByClassTeacher = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send student id to perform task";
-    const { phone, email } = req.body;
+    const { phone, email, regeneration_bool, appId, insId } = req.body;
     var valid_phone = await handle_undefined(phone);
     var valid_email = await handle_undefined(email);
     const old_data = {
@@ -127,6 +128,14 @@ exports.formEditByClassTeacher = async (req, res) => {
       one_user.userEmail = valid_email ? valid_email : one_user?.userEmail;
       await one_user.save();
     } else {
+    }
+    if (regeneration_bool === "Yes" && appId && insId) {
+      await generateStudentAdmissionForm(
+        one_student?._id,
+        insId,
+        `${one_student?.studentFirstName} ${one_student?.studentMiddleName ? one_student?.studentMiddleName : one_student?.studentFatherName ? one_student?.studentFatherName : ""} ${one_student?.studentLastName}`,
+        `${appId}`,
+      );
     }
   } catch (e) {
     console.log(e);

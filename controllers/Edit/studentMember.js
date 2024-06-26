@@ -32,6 +32,7 @@ const {
 } = require("../../helper/functions");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 const Status = require("../../models/Admission/status");
+const NewApplication = require("../../models/Admission/NewApplication");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.photoEditByStudent = async (req, res) => {

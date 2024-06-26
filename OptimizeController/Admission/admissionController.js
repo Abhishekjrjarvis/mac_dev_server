@@ -15224,6 +15224,131 @@ exports.retieveAdmissionAdminInsertion = async (req, res) => {
   }
 };
 
+exports.retrieve_admission_revertion_query = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        select_status: false,
+      });
+    var new_apply = await NewApplication.findById({ _id: aid })
+    var ads_admin = await Admission.findById({ _id: `${new_apply?.admissionAdmin}` })
+    for (let ele of new_apply?.selectedApplication) {
+      console.log(ele?.revert_request_status)
+      const student = await Student.findById({ _id: ele?.student });
+      var user = await User.findById({ _id: `${student?.user}` });
+      var status = await Status.findById({ _id: ele?.revert_request_status });
+      if (`${ele.student}` === `${student._id}`) {
+        new_apply.selectedApplication.pull(ele._id);
+      }
+      if (`${ele.student}` === `${student._id}`) {
+        ads_admin.selectedApplication.pull(ele._id);
+      }
+      new_apply.receievedApplication.push({
+        student: student._id,
+      });
+      if (new_apply.selectCount > 0) {
+        new_apply.selectCount -= 1;
+      }
+      user.applicationStatus.pull(status?._id);
+      await Status.findByIdAndDelete(status?._id);
+      await user.save()
+    }
+    await Promise.all([ads_admin.save(), new_apply.save()])
+    res.status(200).send({
+      message: `Revert Back To Receieved Application`,
+      access: true,
+      new_apply: new_apply?.selectedApplication
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieve_admission_revertion_reject_query = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        cancel_status: false,
+      });
+    var apply = await NewApplication.findById({ _id: aid });
+    var admission_admin = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    }).populate({
+      path: "admissionAdminHead",
+      select: "user",
+    })
+      .populate({
+        path: "institute",
+        select: "insName",
+      })
+    for (let ele of apply?.receievedApplication) {
+    const student = await Student.findById({ _id: ele?.student })
+    var user = await User.findById({ _id: `${student?.user}` });
+    const status = new Status({});
+    const notify = new StudentNotification({});
+      if (`${ele.student}` === `${student._id}`) {
+        apply.receievedApplication.pull(ele._id);
+        user.applyApplication.pull(apply?._id);
+      }
+    if (apply.receievedCount > 0) {
+      apply.receievedCount -= 1;
+    }
+    status.content = `You have been rejected for ${apply.applicationName}. Reason - Time limit for document submission is over.`;
+    status.applicationId = apply._id;
+    status.studentId = student._id;
+    status.student = student._id;
+    user.applicationStatus.push(status._id);
+    if (user?.applyApplication?.includes(`${apply?._id}`)) {
+      user.applyApplication.pull(apply?._id);
+    }
+      apply.reject_student.push({
+        student: student?._id,
+        reason: "Time limit for document submission is over."
+      })
+    status.instituteId = admission_admin?.institute;
+    notify.notifyContent = `You have been rejected for ${apply.applicationName}. Reason - Time limit for document submission is over.`;
+    notify.notifySender = admission_admin?.admissionAdminHead?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByAdmissionPhoto = admission_admin?._id;
+    notify.notifyCategory = "Status Alert";
+    notify.redirectIndex = 29;
+    await Promise.all([
+      apply.save(),
+      student.save(),
+      user.save(),
+      status.save(),
+      notify.save(),
+    ]);
+    invokeMemberTabNotification(
+      "Admission Status",
+      status.content,
+      "Application Status",
+      user._id,
+      user.deviceToken
+    );
+    let name = `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`
+    if (student?.studentEmail) {
+      email_sms_designation_application(student?.studentEmail, name, apply?.applicationName, "Time limit for document submission is over.", admission_admin?.institute?.insName)
+    }
+    }
+    await apply.save()
+    res.status(200).send({
+      message: `Best of luck for next time 😥`,
+      cancel_status: true,
+      apply: apply?.receievedApplication
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {

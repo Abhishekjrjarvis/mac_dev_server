@@ -272,7 +272,16 @@ const newApplicationSchema = new mongoose.Schema({
     status: { type: String },
     flow: { type: String },
     flow_id: { type: String }
-  }
+  },
+  reject_student: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student"
+      },
+      reason: { type: String }
+    }
+  ]
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

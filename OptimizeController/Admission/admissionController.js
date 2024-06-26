@@ -15405,6 +15405,7 @@ exports.retrieveAdmissionCancelApplicationModify = async (req, res) => {
     notify.redirectIndex = 29;
     for (let ele of all_status) {
       ele.rejection_modification = "Enable"
+      ele.rejection_reason = reason
       await ele.save()
     }
     await Promise.all([

@@ -101,6 +101,9 @@ const statusSchema = new mongoose.Schema({
   },
   rejection_modification: {
     type: String
+  },
+  rejection_reason: {
+    type: String
   }
 });
 

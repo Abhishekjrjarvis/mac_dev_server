@@ -67,6 +67,7 @@ const newApplicationSchema = new mongoose.Schema({
       },
       apply_on: { type: Date, default: Date.now },
       fee_remain: { type: Number, default: 0 },
+      reject_status: { type: String }
     },
   ],
   selectedApplication: [

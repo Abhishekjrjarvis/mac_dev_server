@@ -98,6 +98,9 @@ const statusSchema = new mongoose.Schema({
   remaining_list: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "RemainingList"
+  },
+  rejection_modification: {
+    type: String
   }
 });
 

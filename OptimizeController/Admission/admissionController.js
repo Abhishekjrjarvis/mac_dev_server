@@ -15349,6 +15349,91 @@ exports.retrieve_admission_revertion_reject_query = async (req, res) => {
   }
 };
 
+exports.retrieveAdmissionCancelApplicationModify = async (req, res) => {
+  try {
+    const { sid, aid } = req.params;
+    const { reason } = req?.body
+    if (!sid && !aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        cancel_status: false,
+      });
+    const apply = await NewApplication.findById({ _id: aid });
+    const admission_admin = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    }).populate({
+      path: "admissionAdminHead",
+      select: "user",
+    })
+    .populate({
+      path: "institute",
+      select: "insName",
+    })
+    const student = await Student.findById({ _id: sid })
+    var user = await User.findById({ _id: `${student?.user}` });
+    const status = new Status({});
+    const notify = new StudentNotification({});
+    const all_status = await Status.find({ $and: [{ _id: { $in: user?.applicationStatus}},{ applicationId: apply?._id}, { group_by: "Admission_Application_Applied"}]})
+    for (let app of apply.receievedApplication) {
+      if (`${app.student}` === `${student._id}`) {
+        app.reject_status = reason
+        // apply.receievedApplication.pull(app._id);
+        // user.applyApplication.pull(apply?._id);
+      } else {
+      }
+    }
+    if (apply.receievedCount > 0) {
+      apply.receievedCount -= 1;
+    }
+    status.content = `You have been rejected for ${apply.applicationName}. ${reason}`;
+    status.applicationId = apply._id;
+    status.studentId = student._id;
+    status.student = student._id;
+    user.applicationStatus.push(status._id);
+    // if (user?.applyApplication?.includes(`${apply?._id}`)) {
+    //   user.applyApplication.pull(apply?._id);
+    // }
+    status.instituteId = admission_admin?.institute;
+    notify.notifyContent = `You have been rejected for ${apply.applicationName}. ${reason}`;
+    notify.notifySender = admission_admin?.admissionAdminHead?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByAdmissionPhoto = admission_admin?._id;
+    notify.notifyCategory = "Status Alert";
+    notify.redirectIndex = 29;
+    for (let ele of all_status) {
+      ele.rejection_modification = "Enable"
+      await ele.save()
+    }
+    await Promise.all([
+      apply.save(),
+      student.save(),
+      user.save(),
+      status.save(),
+      notify.save(),
+    ]);
+    res.status(200).send({
+      message: `Best of luck for next time 😥`,
+      cancel_status: true,
+    });
+    invokeMemberTabNotification(
+      "Admission Status",
+      status.content,
+      "Application Status",
+      user._id,
+      user.deviceToken
+    );
+    let name = `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`
+    if (student?.studentEmail) {
+      email_sms_designation_application(student?.studentEmail, name, apply?.applicationName, reason, admission_admin?.institute?.insName)
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {

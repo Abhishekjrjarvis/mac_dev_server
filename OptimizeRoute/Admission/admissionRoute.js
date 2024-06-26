@@ -929,8 +929,17 @@ router.get(
 
 router.patch("/new/db/insertion/app/:aid", catchAsync(Admission.retieveAdmissionAdminInsertion))
 
+// All Student Revertion From DOCS TAB
 router.patch("/revert/data/:aid", catchAsync(Admission.retrieve_admission_revertion_query))
 
+// All Student Reject From APPLICATION TAB
 router.patch("/revert/data/reject/:aid", catchAsync(Admission.retrieve_admission_revertion_reject_query))
+
+// One Student Reject + Modify Form
+router.post(
+  "/:sid/student/:aid/cancel/app/form/modify",
+  // isLoggedIn,
+  catchAsync(Admission.retrieveAdmissionCancelApplicationModify)
+);
 
 module.exports = router;

@@ -104,6 +104,7 @@ exports.formEditByClassTeacher = async (req, res) => {
       one_student[`${studentObj}`] = req.body?.student[studentObj];
     }
     one_student.student_dynamic_field = [...req.body?.student_dynamic_field]
+    one_student.application_print = []
     await one_student.save();
     res.status(200).send({
       message: "Student form edited successfully👍",

@@ -147,6 +147,7 @@ exports.formEditByClassTeacher = async (req, res) => {
         }
       }
       status.rejection_modification = "No"
+      status.rejection_reason = ""
       await Promise.all([ apply.save(), status.save()])
     }
   } catch (e) {

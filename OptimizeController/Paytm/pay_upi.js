@@ -12,6 +12,7 @@ const {
 } = require("../RazorPay/paymentModule");
 const { hostelInstituteFunction } = require("../RazorPay/hostelPaymentModule");
 const { orderID } = require("../../Generator/OrderId");
+const ErrorPayment = require("../../models/Acid/ErrorPayment");
 
 const order_history_query = async (
   module_type,
@@ -19,7 +20,8 @@ const order_history_query = async (
   amount_nocharges,
   to_end_user_id,
   txn_id,
-  body
+  body,
+  obj_nums
 ) => {
   try {
     // var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
@@ -35,6 +37,10 @@ const order_history_query = async (
     order_payment.payment_status = "Captured";
     institute.invoice_count += 1;
     order_payment.razorpay_payment_id = `${txn_id}`;
+    if (obj_nums) {
+      order_payment.paytm_obj.orderId = obj_nums?.oid ?? "",
+        order_payment.paytm_obj.checksum = obj_nums?.checksum ?? ""
+    }
     if (body) {
       order_payment.paytm_query.push(body);
     }
@@ -316,6 +322,10 @@ exports.callbackAdmission = async (req, res) => {
           var status = req?.body?.STATUS;
           var price_charge = req?.body?.TXNAMOUNT;
           var txn_id = req?.body?.TXNID;
+          var obj = {
+            oid: req.body?.ORDERID,
+            checksum: paytmParams?.head?.checksum
+          }
           if (status === "TXN_SUCCESS") {
             var order = await order_history_query(
               "Admission",
@@ -323,7 +333,8 @@ exports.callbackAdmission = async (req, res) => {
               price,
               paidTo,
               txn_id,
-              req?.body
+              req?.body,
+              obj
             );
             var paytm_author = false;
             var valid_status = ad_status_id === "null" ? "" : ad_status_id;
@@ -921,6 +932,92 @@ exports.callbackOtherFees = async (req, res) => {
       post_req.end();
     });
   } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.callback_payment_failed_regeneration_counter = async (req, res) => {
+  try {
+    const all_pay = await ErrorPayment.find({})
+    for (let ele of all_pay) {
+      var paytmParams = {};
+      paytmParams.body = {
+        mid: `${process.env.PAYTM_MID}`,
+        orderId: `${ele?.ORDERID}`,
+      };
+      PaytmChecksum.generateSignature(
+        JSON.stringify(paytmParams.body),
+        `${process.env.PAYTM_MERCHANT_KEY}`
+      ).then(function (checksum) {
+        paytmParams.head = {
+          signature: checksum,
+        };
+
+        var post_data = JSON.stringify(paytmParams);
+
+        var options = {
+          // hostname: "securegw-stage.paytm.in",
+          hostname: process.env.PAYTM_CALLBACK_URL_APK
+            ? "securegw.paytm.in"
+            : "securegw-stage.paytm.in",
+
+          port: 443,
+          path: "/v3/order/status",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Content-Length": post_data.length,
+          },
+        };
+
+        var response = "";
+        var post_req = https.request(options, function (post_res) {
+          post_res.on("data", function (chunk) {
+            response += chunk;
+          });
+
+          post_res.on("end", async function () {
+            // var status = req?.body?.STATUS;
+            // var price_charge = req?.body?.TXNAMOUNT;
+            // var txn_id = req?.body?.TXNID;
+              console.log("TXN_SUCCESS")
+              var order = await order_history_query(
+                ele?.error_flow,
+                ele?.error_module,
+                ele?.error_amount,
+                ele?.error_paid_to,
+                txn_id,
+                {},
+                {}
+              );
+              var paytm_author = false;
+              var valid_status = ele?.error_status_id === "null" ? "" : ele?.error_status_id;
+              var valid_card =
+                "";
+              var pay_remain = false
+              await admissionInstituteFunction(
+                order?._id,
+                ele?.error_student,
+                ele?.error_amount,
+                ele?.error_amount_charges,
+                ele?.error_module,
+                ele?.error_paid_to,
+                ele?.error_type,
+                paytm_author,
+                valid_card,
+                ele?.payment_remain_1,
+                ele?.error_payment_card,
+                pay_remain,
+                valid_status
+                // Boolean(ad_install)
+              );
+          });
+        });
+        post_req.write(post_data);
+        post_req.end();
+      });
+    }
+} catch (e) {
     console.log(e);
   }
 };

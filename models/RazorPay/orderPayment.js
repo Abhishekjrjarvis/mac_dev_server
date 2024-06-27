@@ -121,6 +121,10 @@ const orderPaymentSchema = new mongoose.Schema({
   payment_visible_status: {
     type: String,
     default: "Not Hide"
+  },
+  paytm_obj: {
+    orderId: { type: String },
+    checksum: { type: String }
   }
   // payment_expense_by_end_user_id: {
   //   type: mongoose.Schema.Types.ObjectId,

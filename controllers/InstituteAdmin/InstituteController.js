@@ -7757,7 +7757,7 @@ exports.render_enable_form_flow = async (req, res) => {
 
 exports.render_form_key_editable = async (req, res) => {
   try {
-    const all_check = await FormChecklist.find({ form_checklist_key: "studentCastCategory" })
+    const all_check = await FormChecklist.find({ form_checklist_key: "is_migrate_other" })
     for (let ele of all_check) {
       // ele.form_checklist_name = "Are you from other than Pune University"
       // ele.form_checklist_placeholder = "Are you from other than Pune University"
@@ -7765,7 +7765,9 @@ exports.render_form_key_editable = async (req, res) => {
       // ele.form_checklist_required = true
       // ele.form_common_key = "student_ph"
       // ele.form_checklist_typo = "NUMBER"
-      ele.form_checklist_typo_option_pl.push("SBC")
+      // ele.form_checklist_typo_option_pl.push("SBC")
+      ele.form_checklist_visibility = false
+      // ele.form_checklist_typo_option_pl = ["Yes", "No"],
         // ["General/OPEN", "OBC", "SBC", "EWS", "TFWS", "VJNT", "NT-A", "NT-B", "NT-C", "Physically Handicapped", "Defence Quota", "J&K & NEUT", "PMSS"]
       await ele.save()
     }
@@ -8491,11 +8493,67 @@ exports.render_auto_student_form_section_checklist_query_social = async (req, re
 
 exports.clear_form_fields_section = async (req, res) => {
   try {
+    var nums = [
+      {
+        form_checklist_name: "(Are you from other Board / University)",
+        form_checklist_key: "is_migrate_other",
+        form_checklist_visibility: true,
+        form_checklist_placeholder: "(Are you from other Board / University)",
+        form_checklist_lable: "(Are you from other Board / University)",
+        form_checklist_typo: "SELECT",
+        form_checklist_typo_option_pl: ["Yes", "No"],
+        form_checklist_enable: "true"
+      },
+      {
+        form_checklist_name: "Migration Certificate (Are you from other Board / University)",
+        form_checklist_key: "migrationCertificate_other",
+        form_checklist_visibility: true,
+        form_checklist_placeholder: "Upload Migration Certificate",
+        form_checklist_lable: "Upload Migration Certificate",
+        form_checklist_typo: "FILE",
+        form_common_key: "is_migrate_other"
+      },
+    ]
     const all_ifs = await InstituteStudentForm.find({})
     for (var ifs of all_ifs) {
       for (let val of ifs?.form_section) {
-        if (`${val?.section_key}` === "antiragging_affidavit_parents") {
-          val.section_pdf = val?.section_value
+        if (`${val?.section_key}` === "documents") {
+          for (let ele of nums) {
+            var fc = new FormChecklist({
+              form_checklist_name: ele?.form_checklist_name,
+              form_checklist_key: ele?.form_checklist_key,
+              form_checklist_visibility: ele?.form_checklist_visibility,
+              form_checklist_placeholder: ele?.form_checklist_placeholder,
+              form_checklist_lable: ele?.form_checklist_lable,
+              form_checklist_typo: ele?.form_checklist_typo,
+              // form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+              form_checklist_required: ele?.form_checklist_required ?? false,
+              // form_checklist_key_status: ele?.form_checklist_key_status,
+              width: ele?.width
+            })
+            if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+              ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+            }
+            if (ele?.form_checklist_sample) {
+              fc.form_checklist_sample = ele?.form_checklist_sample
+            }
+            if (ele?.form_checklist_pdf) {
+              fc.form_checklist_pdf = ele?.form_checklist_pdf
+            }
+            if (ele?.form_checklist_view) {
+              fc.form_checklist_view = ele?.form_checklist_view
+            }
+            if (ele?.form_common_key) {
+              fc.form_common_key = ele?.form_common_key
+            }
+            if (ele?.form_checklist_enable) {
+              fc.form_checklist_enable = ele?.form_checklist_enable
+            }
+            fc.form = ifs?._id
+            fc.form_section = val?._id
+            val.form_checklist.push(fc?._id)
+            await fc.save()
+          }
         }
       }
       await ifs.save()
@@ -8504,8 +8562,43 @@ exports.clear_form_fields_section = async (req, res) => {
     const all_dfs = await DepartmentStudentForm.find({})
     for (var dfs of all_dfs) {
       for (let val of dfs?.form_section) {
-        if (`${val?.section_key}` === "antiragging_affidavit_parents") {
-          val.section_pdf = val?.section_value
+        if (`${val?.section_key}` === "documents") {
+          for (let ele of nums) {
+            var fc = new FormChecklist({
+              form_checklist_name: ele?.form_checklist_name,
+              form_checklist_key: ele?.form_checklist_key,
+              form_checklist_visibility: ele?.form_checklist_visibility,
+              form_checklist_placeholder: ele?.form_checklist_placeholder,
+              form_checklist_lable: ele?.form_checklist_lable,
+              form_checklist_typo: ele?.form_checklist_typo,
+              // form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+              form_checklist_required: ele?.form_checklist_required ?? false,
+              form_checklist_key_status: ele?.form_checklist_key_status,
+              width: ele?.width
+            })
+            if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+              ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+            }
+            if (ele?.form_checklist_sample) {
+              fc.form_checklist_sample = ele?.form_checklist_sample
+            }
+            if (ele?.form_checklist_pdf) {
+              fc.form_checklist_pdf = ele?.form_checklist_pdf
+            }
+            if (ele?.form_checklist_view) {
+              fc.form_checklist_view = ele?.form_checklist_view
+            }
+            if (ele?.form_common_key) {
+              fc.form_common_key = ele?.form_common_key
+            }
+            if (ele?.form_checklist_enable) {
+              fc.form_checklist_enable = ele?.form_checklist_enable
+            }
+            fc.department_form = dfs?._id
+            fc.form_section = val?._id
+            val.form_checklist.push(fc?._id)
+            await fc.save()
+          }
         }
       }
       await dfs.save()
@@ -8514,8 +8607,43 @@ exports.clear_form_fields_section = async (req, res) => {
     const all_app = await InstituteApplicationForm.find({})
     for (var app of all_app) {
       for (let val of app?.form_section) {
-        if (`${val?.section_key}` === "antiragging_affidavit_parents") {
-          val.section_pdf = val?.section_value
+        if (`${val?.section_key}` === "documents") {
+          for (let ele of nums) {
+            var fc = new FormChecklist({
+              form_checklist_name: ele?.form_checklist_name,
+              form_checklist_key: ele?.form_checklist_key,
+              form_checklist_visibility: ele?.form_checklist_visibility,
+              form_checklist_placeholder: ele?.form_checklist_placeholder,
+              form_checklist_lable: ele?.form_checklist_lable,
+              form_checklist_typo: ele?.form_checklist_typo,
+              // form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+              form_checklist_required: ele?.form_checklist_required ?? false,
+              form_checklist_key_status: ele?.form_checklist_key_status,
+              width: ele?.width
+            })
+            if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+              ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+            }
+            if (ele?.form_checklist_sample) {
+              fc.form_checklist_sample = ele?.form_checklist_sample
+            }
+            if (ele?.form_checklist_pdf) {
+              fc.form_checklist_pdf = ele?.form_checklist_pdf
+            }
+            if (ele?.form_checklist_view) {
+              fc.form_checklist_view = ele?.form_checklist_view
+            }
+            if (ele?.form_common_key) {
+              fc.form_common_key = ele?.form_common_key
+            }
+            if (ele?.form_checklist_enable) {
+              fc.form_checklist_enable = ele?.form_checklist_enable
+            }
+            fc.application_form = app?._id
+            fc.form_section = val?._id
+            val.form_checklist.push(fc?._id)
+            await fc.save()
+          }
         }
       }
       await app.save()

@@ -2071,7 +2071,7 @@ exports.renderApplicationListQuery = async (req, res) => {
 
     var valid_apply = await NewApplication.findById({ _id: appId })
       .select(
-        "receievedApplication applicationUnit applicationName confirmedApplication allottedApplication applicationHostel"
+        "receievedApplication applicationUnit applicationName confirmedApplication allottedApplication applicationHostel admissionAdmin"
       )
       .populate({
         path: "receievedApplication",
@@ -2514,47 +2514,8 @@ exports.renderApplicationListQuery = async (req, res) => {
               ref?.student?.studentParentsPhoneNumber ?? "#NA",
           });
         }
-      } else {
-        const ads_admin = await Admission.findById({ _id: `${valid_apply?.admissionAdmin}` })
-        const all_group_select = await SubjectGroupSelect({ $and: [{ subject_group: { $in: ads_admin?.subject_groups } }] })
-        .populate({
-          path: "compulsory_subject",
-          select: "subjectName",
-        })
-        .populate({
-          path: "optional_subject",
-          populate: {
-            path: "optional_subject_options optional_subject_options_or.options",
-            select: "subjectName",
-          }
-        })
-        .populate({
-          path: "fixed_subject",
-          populate: {
-            path: "fixed_subject_options",
-            select: "subjectName",
-          }
-        })
-        var subject_list = []
-        for (let ele of all_group_select) {
-          subject_list.push(...ele?.compulsory_subject)
-        }
-        for (let ele of all_group_select) {
-          for (let val of ele?.fixed_subject) {
-            subject_list.push(...val?.fixed_subject_options)
-          }
-        }
-        for (let ele of all_group_select) {
-          for (let val of ele?.optional_subject) {
-            subject_list.push(...val?.optional_subject_options)
-          }
-          for (let val of ele?.optional_subject_options_or) {
-            subject_list.push(...val?.options)
-          }
-        }
+      } else { 
         var numss = {};
-        var n = []
-        console.log(subject_list)
       for (var ref of valid_apply?.confirmedApplication) {
         for (let ele of ref?.student?.student_dynamic_field) {
           // numss.push(
@@ -2562,25 +2523,6 @@ exports.renderApplicationListQuery = async (req, res) => {
           // );
           numss[ele?.key] = ele?.value;
         }
-        // for (let ele of ref?.student?.student_optional_subject) {
-        //   n.push(ele?._id)
-        // }
-        // for (let val of subject_list) {
-        //   for (let ele of ref?.student?.major_subject) {
-        //     if (`${val}` === `${ele?._id}`) {
-        //       val.value = `${ele?.subjectName} - (DSE)`
-        //     }
-        //   }
-        // }
-        // if (ref?.student?.nested_subject?.length > 0) {
-        //   for (let val of n) {
-        //     for (let ele of ref?.student?.nested_subject) {
-        //       if (`${val?.value}` === `${ele?.subjectName}`) {
-        //         val.value = `${ele?.subjectName}`
-        //       }
-        //     }
-        //   }
-        // }
         excel_list.push({
           RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
           Name: `${ref?.student?.studentFirstName} ${
@@ -2790,14 +2732,94 @@ exports.renderApplicationListQuery = async (req, res) => {
       `${flow}` === "Review_Query" &&
       valid_apply?.reviewApplication?.length > 0
     ) {
+      const ads_admin = await Admission.findById({ _id: `${valid_apply?.admissionAdmin}` })
+        const all_group_select = await SubjectGroupSelect.find({ $and: [{ subject_group: { $in: ads_admin?.subject_groups } }] })
+        .populate({
+          path: "compulsory_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "optional_subject",
+          populate: {
+            path: "optional_subject_options optional_subject_options_or.options",
+            select: "subjectName",
+          }
+        })
+        .populate({
+          path: "fixed_subject",
+          populate: {
+            path: "fixed_subject_options",
+            select: "subjectName",
+          }
+        })
+        var subject_list = []
+        for (let ele of all_group_select) {
+          subject_list.push(...ele?.compulsory_subject)
+        }
+        for (let ele of all_group_select) {
+          for (let val of ele?.fixed_subject) {
+            subject_list.push(...val?.fixed_subject_options)
+          }
+        }
+        for (let ele of all_group_select) {
+          for (let val of ele?.optional_subject) {
+            subject_list.push(...val?.optional_subject_options)
+          }
+          for (let val of ele?.optional_subject) {
+            for (let stu of val?.optional_subject_options_or) {
+              subject_list.push(...stu?.options)
+            }
+          }
+        }
       var excel_list = [];
       var numss = {};
+      var numsss = {};
       for (var ref of valid_apply?.reviewApplication) {
         for (let ele of ref?.student_dynamic_field) {
           // numss.push(
           //   [ele?.key]: ele?.value,
           // );
           numss[ele?.key] = ele?.value;
+        }
+        var nums_queue = {};
+        for (let stu of subject_list) {
+          ref.student_dynamic_subject.push({
+            subjectName: stu?.subjectName,
+            status: "No",
+            _id: stu?._id
+          })
+        }
+        for (let ele of ref.student_dynamic_subject) {
+          for (let val of ref?.student_optional_subject) {
+            if (`${ele?._id}` === `${val?._id}`) {
+              nums_queue[ele?.subjectName] = "Yes"
+              ele.status = "Yes"
+            }
+          }
+        }
+        for (let val of ref.student_dynamic_subject) {
+          for (let ele of ref?.major_subject) {
+            if (`${val?._id}` === `${ele?._id}`) {
+              nums_queue[val?.subjectName] = "Yes"
+              ele.status = "Yes"
+            }
+          }
+        }
+        if (ref?.nested_subject?.length > 0) {
+          for (let val of ref.student_dynamic_subject) {
+            for (let ele of ref?.nested_subject) {
+              if (`${val?._id}` === `${ele?._id}`) {
+                nums_queue[val?.subjectName] = "Yes"
+                ele.status = "Yes"
+              }
+            }
+          }
+        }
+        for (let ele of ref?.student_dynamic_subject) {
+          // numss.push(
+          //   [ele?.key]: ele?.value,
+          // );
+          numsss[ele?.subjectName] = ele?.status;
         }
         excel_list.push({
           RegistrationID: ref?.student_prn_enroll_number ?? "#NA",
@@ -2874,6 +2896,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           FormNo: ref?.form_no,
           QviplePayId: ref?.qviple_student_pay_id,
           ...numss,
+          ...numsss
         });
       }
 

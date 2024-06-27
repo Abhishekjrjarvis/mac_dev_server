@@ -1689,6 +1689,25 @@ module.exports.form_params = [
                 form_checklist_typo: "FILE",
                 form_common_key: "is_gap"
             },
+            {
+                form_checklist_name: "Are you from other board / university",
+                form_checklist_key: "is_migrate_other",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Are you from other board / university",
+                form_checklist_lable: "Are you from other board / university",
+                form_checklist_typo: "SELECT",
+                form_checklist_typo_option_pl: ["Yes", "No"],
+                form_checklist_enable: "true"
+            },
+            {
+                form_checklist_name: "Migration Certificate (Other)",
+                form_checklist_key: "migrationCertificate_other",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Upload Migration Certificate",
+                form_checklist_lable: "Upload Migration Certificate",
+                form_checklist_typo: "FILE",
+                form_common_key: "is_migrate_other"
+            },
         ]
     },
     {

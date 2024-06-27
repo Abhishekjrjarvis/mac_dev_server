@@ -70,6 +70,7 @@ const PaySlip = require("../../models/Finance/Payroll/PaySlip");
 const daybookData = require("../../AjaxRequest/daybookData");
 const bankDaybook = require("../../scripts/bankDaybook");
 const { nested_document_limit } = require("../../helper/databaseFunction");
+const SubjectGroupSelect = require("../../models/Admission/Optional/SubjectGroupSelect");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -2098,12 +2099,20 @@ exports.renderApplicationListQuery = async (req, res) => {
       })
       .populate({
         path: "reviewApplication",
+        populate: {
+          path: "student_optional_subject major_subject nested_subject",
+          select: "subjectName"
+        }
         // select: "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph"
       })
       .populate({
         path: "confirmedApplication",
         populate: {
           path: "student",
+          populate: {
+            path: "student_optional_subject major_subject nested_subject",
+            select: "subjectName"
+          }
         },
       })
       .populate({
@@ -2506,7 +2515,46 @@ exports.renderApplicationListQuery = async (req, res) => {
           });
         }
       } else {
-      var numss = {};
+        const ads_admin = await Admission.findById({ _id: `${valid_apply?.admissionAdmin}` })
+        const all_group_select = await SubjectGroupSelect({ $and: [{ subject_group: { $in: ads_admin?.subject_groups } }] })
+        .populate({
+          path: "compulsory_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "optional_subject",
+          populate: {
+            path: "optional_subject_options optional_subject_options_or.options",
+            select: "subjectName",
+          }
+        })
+        .populate({
+          path: "fixed_subject",
+          populate: {
+            path: "fixed_subject_options",
+            select: "subjectName",
+          }
+        })
+        var subject_list = []
+        for (let ele of all_group_select) {
+          subject_list.push(...ele?.compulsory_subject)
+        }
+        for (let ele of all_group_select) {
+          for (let val of ele?.fixed_subject) {
+            subject_list.push(...val?.fixed_subject_options)
+          }
+        }
+        for (let ele of all_group_select) {
+          for (let val of ele?.optional_subject) {
+            subject_list.push(...val?.optional_subject_options)
+          }
+          for (let val of ele?.optional_subject_options_or) {
+            subject_list.push(...val?.options)
+          }
+        }
+        var numss = {};
+        var n = []
+        console.log(subject_list)
       for (var ref of valid_apply?.confirmedApplication) {
         for (let ele of ref?.student?.student_dynamic_field) {
           // numss.push(
@@ -2514,6 +2562,25 @@ exports.renderApplicationListQuery = async (req, res) => {
           // );
           numss[ele?.key] = ele?.value;
         }
+        // for (let ele of ref?.student?.student_optional_subject) {
+        //   n.push(ele?._id)
+        // }
+        // for (let val of subject_list) {
+        //   for (let ele of ref?.student?.major_subject) {
+        //     if (`${val}` === `${ele?._id}`) {
+        //       val.value = `${ele?.subjectName} - (DSE)`
+        //     }
+        //   }
+        // }
+        // if (ref?.student?.nested_subject?.length > 0) {
+        //   for (let val of n) {
+        //     for (let ele of ref?.student?.nested_subject) {
+        //       if (`${val?.value}` === `${ele?.subjectName}`) {
+        //         val.value = `${ele?.subjectName}`
+        //       }
+        //     }
+        //   }
+        // }
         excel_list.push({
           RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
           Name: `${ref?.student?.studentFirstName} ${

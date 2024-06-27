@@ -163,6 +163,7 @@ module.exports.form_params = [
                     "NT-C",
                     "NT-D",
                     "VJ",
+                    "SBC"
                   ]
             },
             {

@@ -49,6 +49,7 @@ const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 const { classes_status } = require("../Admission/admissionController");
 const OtherFees = require("../../models/Finance/Other/OtherFees");
 const FeeMaster = require("../../models/Finance/FeeMaster");
+const ErrorPayment = require("../../models/Acid/ErrorPayment");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
   try {
@@ -661,6 +662,22 @@ exports.admissionInstituteFunction = async (
       ]);
     return `${user?.username}`;
   } catch (e) {
+    if (e) {
+      const error = new ErrorPayment({
+        error_flow: "Admission",
+        error_student: paidBy,
+        error_module: moduleId,
+        error_order: order,
+        error_message: e?.message,
+        error_payment_card: payment_card_id ?? null,
+        error_amount_charges: tx_amount_ad_charges,
+        error_amount: tx_amount_ad,
+        error_paid_to: paidTo,
+        error_status_id: statusId ?? "",
+        error_type: type
+      })
+      await error.save()
+    }
     console.log(e);
   }
 };

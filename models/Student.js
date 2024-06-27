@@ -975,6 +975,7 @@ const studentSchema = new mongoose.Schema({
   nationalityCertificate: { type: String },
   nonCreamyLayerCertificate: { type: String },
   migrationCertificate: { type: String },
+  migrationCertificate_other: { type: String },
   incomeCertificate: { type: String },
   student_dynamic_field: [
     {
@@ -1142,7 +1143,14 @@ const studentSchema = new mongoose.Schema({
     receipt_file: {
       type: String,
     }
-  }
+  },
+  student_dynamic_subject: [
+    {
+      subjectName: { type: String },
+      status: { type: String },
+      _id: { type: String }
+    }
+  ]
 });
 
 const Student = mongoose.model("Student", studentSchema);

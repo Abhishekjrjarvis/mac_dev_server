@@ -11677,7 +11677,16 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
       }
       await Promise.all([ nest_gov_card.save(), nest_app_card.save(), remain_list.save() ])
     }
-    res.status(200).send({ message: "Explore New Shifted Card Back To Applicable Fees Section", access: true, nest_app_card, nest_gov_card})
+    res.status(200).send({ message: "Explore New Shifted Card Back To Applicable Fees Section", access: true, nest_app_card, nest_gov_card })
+    var student = await Student.findById({ _id: `${remain_list?.student}`})
+    for (let ele of nest_app_card?.remaining_array) {
+      if (`${ele?.revert_status}` === "Government Fees (Pay By Student)") {
+        student.apps_fees_obj.appId = remain_list?.appId
+        student.apps_fees_obj.struct = remain_list?.fee_structure
+        student.apps_fees_obj.gta = ele?.remainAmount
+      }
+    }
+    await student.save()
   }
   catch (e) {
     console.log(e)

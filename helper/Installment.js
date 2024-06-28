@@ -5,6 +5,7 @@ const FeeStructure = require("../models/Finance/FeesStructure");
 const Student = require("../models/Student");
 const admissionFeeReceipt = require("../scripts/admissionFeeReceipt");
 const generateFeeReceipt = require("../scripts/feeReceipt");
+const normalAdmissionFeeReceipt = require("../scripts/normalAdmissionFeeReceipt");
 const societyAdmissionFeeReceipt = require("../scripts/societyAdmissionFeeReceipt");
 
 exports.add_all_installment = async (arg1, arg2, arg3, amount, arg4) => {
@@ -2411,7 +2412,7 @@ exports.set_fee_head_query_redesign = async (
     }
     if (finance?.show_receipt === "Normal") {
       // await generateFeeReceipt(receipt_args?._id)
-      await admissionFeeReceipt(receipt_args?._id, apply_args)
+      await normalAdmissionFeeReceipt(receipt_args?._id, apply_args)
     }
     else {
       await societyAdmissionFeeReceipt(receipt_args?._id, finance?.institute)
@@ -2511,7 +2512,7 @@ exports.update_fee_head_query_redesign = async (
     console.log("EXIT FROM FEE HEADS");
     if (finance?.show_receipt === "Normal") {
       // await generateFeeReceipt(receipt_args?._id)
-      await admissionFeeReceipt(receipt_args?._id, apply_args?._id)
+      await normalAdmissionFeeReceipt(receipt_args?._id, apply_args?._id)
     }
     else {
       await societyAdmissionFeeReceipt(receipt_args?._id, finance?.institute)
@@ -3382,7 +3383,7 @@ exports.set_fee_head_query_redesign_split = async (
     }
     if (finance?.show_receipt === "Normal") {
       // await generateFeeReceipt(receipt_args?._id)
-      await admissionFeeReceipt(receipt_args?._id, apply_args)
+      await normalAdmissionFeeReceipt(receipt_args?._id, apply_args)
     }
     else {
       await societyAdmissionFeeReceipt(receipt_args?._id, finance?.institute)
@@ -3498,7 +3499,7 @@ exports.update_fee_head_query_redesign_split = async (
     console.log("EXIT FROM FEE HEADS");
     if (finance?.show_receipt === "Normal") {
       // await generateFeeReceipt(receipt_args?._id)
-      await admissionFeeReceipt(receipt_args?._id, apply_args?._id)
+      await normalAdmissionFeeReceipt(receipt_args?._id, apply_args?._id)
     }
     else {
       await societyAdmissionFeeReceipt(receipt_args?._id, finance?.institute)

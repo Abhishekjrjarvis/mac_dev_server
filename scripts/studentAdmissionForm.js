@@ -108,7 +108,6 @@ const generateStudentAdmissionForm = async (
           doc.fillColor("#121212").text(`${itr?.key}: -`, 25);
           doc.moveDown(0.3);
           doc.fontSize(11);
-
           for (let i = 0; i < itr?.fields?.length; i++) {
             let ft = itr?.fields[i];
             doc
@@ -134,69 +133,72 @@ const generateStudentAdmissionForm = async (
           doc.text(`${itr?.key}: -`, 25);
           doc.moveDown(0.3);
           doc.fontSize(11);
-
-          let yt = doc.y;
+          let down_range = 11.53;
           doc
             .fontSize(10)
             .font("Times-Bold")
             .fillColor("#121212")
-            .text("On", 28, yt);
-
-          doc
-            .fontSize(10)
-            .font("Times-Bold")
-            .fillColor("#121212")
-            .text("Off", 57, yt);
-
-          // doc.y -= 5;
-          doc
-            .fontSize(10)
-            .font("Times-Bold")
-            .fillColor("#121212")
-            .text("On", pageWidth / 2 + 3, yt);
+            // .text("On", 28, yt);
+            .text("On", 28, doc.y);
 
           doc
             .fontSize(10)
             .font("Times-Bold")
             .fillColor("#121212")
-            .text("Off", pageWidth / 2 + 28, yt);
+            // .text("Off", 57, yt);
+            .text("Off", 57, doc.y - down_range);
+          doc
+            .fontSize(10)
+            .font("Times-Bold")
+            .fillColor("#121212")
+            // .text("On", pageWidth / 2 + 3, yt);
+            .text("On", pageWidth / 2 + 3, doc.y - down_range);
+          doc
+            .fontSize(10)
+            .font("Times-Bold")
+            .fillColor("#121212")
+            // .text("Off", pageWidth / 2 + 28, yt);
+            .text("Off", pageWidth / 2 + 28, doc.y - down_range);
           for (let i = 0; i < itr?.fields?.length; i++) {
             let ft = itr?.fields[i];
+            let inner_down_range = 20;
             if (i === 0) {
-              let sc_y = doc.y;
+              if (doc.y + 20 > doc.page.height - 25) {
+                doc.addPage();
+              }
               if (ft?.value) {
-                doc.image(path.join(__dirname, "./check.png"), 25, sc_y, {
+                doc.image(path.join(__dirname, "./check.png"), 25, doc.y, {
                   width: 20,
                   height: 20,
                 });
               } else {
-                doc.image(path.join(__dirname, "./uncheck.png"), 25, sc_y, {
+                doc.image(path.join(__dirname, "./uncheck.png"), 25, doc.y, {
                   width: 20,
                   height: 20,
                 });
               }
-              // doc.y -= 20;
-              doc.image(path.join(__dirname, "./uncheck.png"), 55, sc_y, {
-                width: 20,
-                height: 20,
-              });
-
-              // doc.y -= 12;
+              doc.image(
+                path.join(__dirname, "./uncheck.png"),
+                55,
+                doc.y - inner_down_range,
+                {
+                  width: 20,
+                  height: 20,
+                }
+              );
+              doc.y -= inner_down_range - 6;
               doc
                 .fontSize(10)
                 .font("Times-Bold")
                 .fillColor("#121212")
-                .text(`${ft?.form_checklist_name}`, 85, sc_y + 6);
+                .text(`${ft?.form_checklist_name}`, 85, doc.y);
             } else if (i % 2 !== 0) {
-              doc.moveUp(1);
-              let sc_y = doc.y;
-
-              // doc.y -= 8;
+              doc.y -= 17.53;
               if (ft?.value) {
                 doc.image(
                   path.join(__dirname, "./check.png"),
                   pageWidth / 2,
-                  sc_y,
+                  doc.y,
                   {
                     width: 20,
                     height: 20,
@@ -206,65 +208,59 @@ const generateStudentAdmissionForm = async (
                 doc.image(
                   path.join(__dirname, "./uncheck.png"),
                   pageWidth / 2,
-                  sc_y,
+                  doc.y,
                   {
                     width: 20,
                     height: 20,
                   }
                 );
               }
-              // doc.y -= 20;
               doc.image(
                 path.join(__dirname, "./uncheck.png"),
                 pageWidth / 2 + 30,
-                sc_y,
+                doc.y - inner_down_range,
                 {
                   width: 20,
                   height: 20,
                 }
               );
-              // doc.y -= 12;
+              doc.y -= inner_down_range - 6;
               doc
                 .fontSize(10)
                 .font("Times-Bold")
                 .fillColor("#121212")
-                .text(
-                  `${ft?.form_checklist_name}`,
-                  pageWidth / 2 + 60,
-                  sc_y + 6
-                  // {
-                  //   width: pageWidth,
-                  //   indent: pageWidth / 2 - 25,
-                  //   height: sc_y + 6,
-                  // }
-                );
-
-              // doc.y += 8;
+                .text(`${ft?.form_checklist_name}`, pageWidth / 2 + 60, doc.y);
             } else {
-              let sc_y = doc.y;
-
+              doc.y += 6;
+              if (doc.y + 20 > doc.page.height - 25) {
+                doc.addPage();
+              }
               if (ft?.value) {
-                doc.image(path.join(__dirname, "./check.png"), 25, sc_y, {
+                doc.image(path.join(__dirname, "./check.png"), 25, doc.y, {
                   width: 20,
                   height: 20,
                 });
               } else {
-                doc.image(path.join(__dirname, "./uncheck.png"), 25, sc_y, {
+                doc.image(path.join(__dirname, "./uncheck.png"), 25, doc.y, {
                   width: 20,
                   height: 20,
                 });
               }
-              // doc.y -= 20;
-              doc.image(path.join(__dirname, "./uncheck.png"), 55, sc_y, {
-                width: 20,
-                height: 20,
-              });
-              // doc.y -= 12;
+              doc.image(
+                path.join(__dirname, "./uncheck.png"),
+                55,
+                doc.y - inner_down_range,
+                {
+                  width: 20,
+                  height: 20,
+                }
+              );
+              doc.y -= inner_down_range - 6;
               doc
                 .fontSize(10)
                 .font("Times-Bold")
                 .fillColor("#121212")
-                .text(`${ft?.form_checklist_name}`, 85, sc_y + 6);
+                .text(`${ft?.form_checklist_name}`, 85, doc.y);
             }
           }
           doc
@@ -1132,7 +1128,7 @@ const generateStudentAdmissionForm = async (
       }
     }
   }
-
+  // console.log("add_last_page_images", add_last_page_images);
   if (add_last_page_images?.length > 0) {
     for (let dft of add_last_page_images) {
       doc.addPage();

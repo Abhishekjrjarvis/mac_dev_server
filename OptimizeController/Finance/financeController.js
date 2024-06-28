@@ -75,6 +75,7 @@ const OtherFees = require("../../models/Finance/Other/OtherFees");
 const QvipleId = require("../../models/Universal/QvipleId");
 const feeReceipt = require("../../models/RazorPay/feeReceipt");
 const { fee_receipt_count_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
+const normalAdmissionFeeReceipt = require("../../scripts/normalAdmissionFeeReceipt");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -3765,7 +3766,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user apps_fees_obj",
         populate: {
           path: "remainingFeeList",
           select: "appId",
@@ -3774,7 +3775,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO qviple_student_pay_id user apps_fees_obj",
         populate: {
           path: "studentClass",
           select: "className classTitle",
@@ -3783,7 +3784,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads hostel_fee_structure active_society_fee_heads studentROLLNO qviple_student_pay_id user",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads hostel_fee_structure active_society_fee_heads studentROLLNO qviple_student_pay_id user apps_fees_obj",
         populate: {
           path: "fee_structure hostel_fee_structure",
           select:
@@ -3847,7 +3848,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number active_society_fee_heads studentROLLNO qviple_student_pay_id user",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number active_society_fee_heads studentROLLNO qviple_student_pay_id user apps_fees_obj",
         populate: {
           path: "student_bed_number",
           select: "bed_number hostelRoom",
@@ -3901,7 +3902,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentROLLNO qviple_student_pay_id user",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentROLLNO qviple_student_pay_id user apps_fees_obj",
         populate: {
           path: "remainingFeeList",
           populate: {
@@ -3965,14 +3966,16 @@ exports.renderOneFeeReceipt = async (req, res) => {
             original_paid: 0,
             appId: all_remain?.appId,
     }
-    var gta_obj = {
-      head_name: "Government To Applicable",
-            paid_fee: all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee > 0 ? all_remain?.applicable_card?.paid_fee - all_remain?.applicable_card?.applicable_fee : 0,
-            remain_fee: 0,
-            applicable_fee: 0,
-            fee_structure: all_remain?.fee_structure?._id,
-            original_paid: 0,
-            appId: all_remain?.appId,
+    if (receipt?.student?.apps_fees_obj?.gta > 0 && receipt?.student?.apps_fees_obj?.appId == receipt?.application?._id && receipt?.student?.apps_fees_obj?.struct == receipt?.fee_structure) {
+      var gta_obj = {
+        head_name: "Government To Applicable",
+        paid_fee: receipt?.student?.apps_fees_obj?.gta ?? 0,
+        remain_fee: 0,
+        applicable_fee: 0,
+        fee_structure: all_remain?.fee_structure?._id,
+        original_paid: 0,
+        appId: all_remain?.appId,
+      }
     }
     if (excess_obj?.paid_fee > 0) {
       receipt.fee_heads.push(excess_obj)
@@ -4005,15 +4008,20 @@ exports.renderOneFeeReceipt = async (req, res) => {
       all_remain: all_remain,
       qviple_id: qviple_id
     }
-    if (receipt?.finance?.show_receipt === "Normal") {
-      // const obj_nums = await generateFeeReceipt(receipt?._id)
-      await admissionFeeReceipt(receipt?._id, receipt?.application?._id)
+    if (all_remain?.remaining_flow === "Hostel Application") {
+      
     }
-    else if (receipt?.finance?.show_receipt === "Society") {
-      await societyAdmissionFeeReceipt(receipt?._id,receipt?.finance?.institute)
+    else {
+      if (receipt?.finance?.show_receipt === "Normal") {
+        // const obj_nums = await generateFeeReceipt(receipt?._id)
+        await normalAdmissionFeeReceipt(receipt?._id, receipt?.application?._id)
+      }
+      else if (receipt?.finance?.show_receipt === "Society") {
+        await societyAdmissionFeeReceipt(receipt?._id, receipt?.finance?.institute)
+      }
     }
     const all_encrypt = await encryptionPayload(obj)
-    res.status(200).send({ encrypt: all_encrypt });
+    res.status(200).send({ encrypt: obj });
   } catch (e) {
     console.log(e);
   }

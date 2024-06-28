@@ -1150,7 +1150,12 @@ const studentSchema = new mongoose.Schema({
       status: { type: String },
       _id: { type: String }
     }
-  ]
+  ],
+  apps_fees_obj: {
+    appId: { type: String },
+    struct: { type: String },
+    gta: { type: Number, default: 0}
+  }
 });
 
 const Student = mongoose.model("Student", studentSchema);

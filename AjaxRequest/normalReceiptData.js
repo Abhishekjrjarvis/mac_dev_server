@@ -23,7 +23,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentROLLNO",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentROLLNO apps_fees_obj",
         populate: {
           path: "remainingFeeList",
           select: "appId",
@@ -32,7 +32,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentClass studentROLLNO apps_fees_obj",
         populate: {
           path: "studentClass",
           select: "className classTitle",
@@ -41,7 +41,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads hostel_fee_structure active_society_fee_heads studentROLLNO",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads hostel_fee_structure active_society_fee_heads studentROLLNO apps_fees_obj",
         populate: {
           path: "fee_structure hostel_fee_structure",
           select:
@@ -105,7 +105,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number active_society_fee_heads studentROLLNO",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads student_bed_number active_society_fee_heads studentROLLNO apps_fees_obj",
         populate: {
           path: "student_bed_number",
           select: "bed_number hostelRoom",
@@ -159,7 +159,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentROLLNO",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads active_society_fee_heads studentROLLNO apps_fees_obj",
         populate: {
           path: "remainingFeeList",
           populate: {
@@ -229,25 +229,23 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       original_paid: 0,
       appId: all_remain?.appId,
     };
-    var gta_obj = {
-      head_name: "Government To Applicable",
-      paid_fee:
-        all_remain?.applicable_card?.paid_fee -
-          all_remain?.applicable_card?.applicable_fee >
-        0
-          ? all_remain?.applicable_card?.paid_fee -
-            all_remain?.applicable_card?.applicable_fee
-          : 0,
-      remain_fee: 0,
-      applicable_fee: 0,
-      fee_structure: all_remain?.fee_structure?._id,
-      original_paid: 0,
-      appId: all_remain?.appId,
-    };
+      if (receipt?.student?.apps_fees_obj?.gta > 0 && receipt?.student?.apps_fees_obj?.appId == receipt?.application?._id && receipt?.student?.apps_fees_obj?.struct == receipt?.fee_structure) {
+          var gta_obj = {
+              head_name: "Government To Applicable",
+              paid_fee: receipt?.student?.apps_fees_obj?.gta ?? 0,
+              remain_fee: 0,
+              applicable_fee: 0,
+              fee_structure: all_remain?.fee_structure?._id,
+              original_paid: 0,
+              appId: all_remain?.appId,
+          };
+      }
     if (excess_obj?.paid_fee > 0) {
       receipt.fee_heads.push(excess_obj);
     }
-    receipt.fee_heads.push(gta_obj);
+      if (gta_obj?.paid_fee > 0) {
+          receipt.fee_heads.push(gta_obj);
+      }
     if (receipt?.finance?.show_receipt === "Normal") {
       receipt.student.active_fee_heads = [...receipt?.fee_heads];
     } else if (receipt?.finance?.show_receipt === "Society") {

@@ -234,7 +234,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
               head_name: "Government To Applicable",
               paid_fee: receipt?.student?.apps_fees_obj?.gta ?? 0,
               remain_fee: 0,
-              applicable_fee: 0,
+              applicable_fee: receipt?.student?.apps_fees_obj ?? 0,
               fee_structure: all_remain?.fee_structure?._id,
               original_paid: 0,
               appId: all_remain?.appId,

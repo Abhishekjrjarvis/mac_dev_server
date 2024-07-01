@@ -942,4 +942,14 @@ router.post(
   catchAsync(Admission.retrieveAdmissionCancelApplicationModify)
 );
 
+router.get(
+  "/:aid/all/subject/select",
+  catchAsync(Admission.render_subject_select_query)
+);
+
+router.get(
+  "/:sid/one/subject/all/:aid/student",
+  catchAsync(Admission.render_one_subject_student_query)
+);
+
 module.exports = router;

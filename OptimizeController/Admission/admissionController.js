@@ -15446,6 +15446,122 @@ exports.retrieveAdmissionCancelApplicationModify = async (req, res) => {
   }
 };
 
+exports.render_subject_select_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const apply = await NewApplication.findById({ _id: aid })
+      .select("subject_selected_group")
+    const all_group = await SubjectGroup.findById({ _id: `${apply?.subject_selected_group}`})
+    const all_group_select = await SubjectGroupSelect.find({ subject_group: { $in: all_group } })
+    .populate({
+      path: "compulsory_subject",
+      select: "subjectName",
+    })
+    .populate({
+      path: "optional_subject",
+      populate: {
+        path: "optional_subject_options optional_subject_options_or.options",
+        select: "subjectName",
+      }
+    })
+    .populate({
+      path: "fixed_subject",
+      populate: {
+        path: "fixed_subject_options",
+        select: "subjectName",
+      }
+    })
+    var subject_list = []
+    for (let ele of all_group_select) {
+      subject_list.push(...ele?.compulsory_subject)
+    }
+    for (let ele of all_group_select) {
+      for (let val of ele?.fixed_subject) {
+        subject_list.push(...val?.fixed_subject_options)
+      }
+    }
+    for (let ele of all_group_select) {
+      for (let val of ele?.optional_subject) {
+        subject_list.push(...val?.optional_subject_options)
+      }
+      for (let val of ele?.optional_subject) {
+        for (let stu of val?.optional_subject_options_or) {
+          subject_list.push(...stu?.options)
+        }
+      }
+    }
+    const unique = [...new Set(subject_list.map(item => item._id))];
+    const all_subjects = await SubjectMaster.find({ _id: { $in: unique } })
+    .select("subjectName")
+    res.status(200).send({ message: "Explore All Subject Master Query", access: true, subject: all_subjects})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_subject_student_query = async (req, res) => {
+  try {
+    const { sid, aid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+
+    const one_subject = await SubjectMaster.findById({ _id: sid })
+    // const apply = await NewApplication.findById({ _id: aid })
+    const nums = [aid]
+    const all_user = await User.find({ applyApplication: { $in: nums } })
+    const all_student = await Student.find({ user: { $in: all_user } })
+      .select("studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO")
+      .populate({
+        path: "user",
+        select: "userLegalName username"
+      })
+    .populate({
+      path: "student_optional_subject",
+      select: "subjectName"
+    })
+    .populate({
+      path: "major_subject",
+      select: "subjectName"
+    })
+    .populate({
+      path: "nested_subject",
+      select: "subjectName"
+    })
+    var n = []
+    for (let val of all_student) {
+      for (let ele of val?.student_optional_subject) {
+        if(`${ele?._id}` === `${one_subject?._id}`)
+        n.push(val)
+      }
+      for (let val of all_student) {
+        for (let ele of val?.major_subject) {
+          if (`${ele?._id}` === `${one_subject?._id}`) {
+            n.push(val)
+          }
+        }
+      }
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (`${ele?._id}` === `${one_subject?._id}`) {
+              n.push(val)
+            }
+          }
+        }
+    }
+    const all_students = await nested_document_limit(page, limit, n)
+    res.status(200).send({ message: "Explore All Students Master Query", access: true, student: all_students})
+
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {

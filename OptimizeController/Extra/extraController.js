@@ -59,6 +59,7 @@ const {
   generate_excel_to_json_student_fees_mapping,
   generate_excel_to_json_staff_department,
   generate_excel_to_json_student_ongoing_query,
+  generate_excel_to_json_spce,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -81,6 +82,7 @@ const {
   renderInstituteScholarNumberAutoQuery,
   renderGovernmentHeadsMoveGovernmentCardUpdateQuery,
   render_student_fees_mapping,
+  spce_student_name_sequencing,
 } = require("../Admission/admissionController");
 const {
   renderNewOfflineBookAutoQuery,
@@ -4118,6 +4120,56 @@ exports.renderExcelToJSONAddExistApplicationStudentQuery = async (req, res) => {
     const is_converted = await generate_excel_to_json_student_ongoing_query(val, aid);
     if (is_converted?.value) {
       await retrieveDirectJoinAdmissionQueryApplication(
+        is_converted?.student_array,
+      );
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log("eeeee", e);
+  }
+}
+
+exports.renderExcelToJSONSPCEQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { excel_file } = req.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const one_ins = await InstituteAdmin.findById({
+      _id: id,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      instituteId: one_ins?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: id,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.instituteId}` === `${update_ins?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_spce(val, id);
+    if (is_converted?.value) {
+      await spce_student_name_sequencing(
         is_converted?.student_array,
       );
     } else {

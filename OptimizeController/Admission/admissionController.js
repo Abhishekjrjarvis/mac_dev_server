@@ -15562,6 +15562,26 @@ exports.render_one_subject_student_query = async (req, res) => {
   }
 }
 
+exports.spce_student_name_sequencing = async (list) => {
+  try {
+    for (let ele of list) {
+      const student = await Student.findOne({ studentGRNO: ele?.studentGRNO })
+      if (student?._id) {
+        student.studentFirstName = ele?.studentFirstName
+        student.studentFatherName = ele?.studentFatherName
+        student.studentLastName = ele?.studentLastName
+        await student.save()
+      }
+      else {
+        console.log("Student Data Not Updated", student?._id)
+      }
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {

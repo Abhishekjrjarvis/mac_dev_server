@@ -487,4 +487,9 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONAddExistApplicationStudentQuery)
 );
 
+router.patch(
+  "/excel/to/json/:id/exist/spce/student",
+  catchAsync(Extra.renderExcelToJSONSPCEQuery)
+);
+
 module.exports = router;

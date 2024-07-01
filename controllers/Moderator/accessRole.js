@@ -129,6 +129,32 @@ exports.all_access_role = () => {
         appArray: [],
       },
     },
+    ONGOING_ACCESS: {
+      role: "ONGOING_ACCESS",
+      permission: {
+        allow: true,
+        bound: [
+          "ONGOING_APPLICATION",
+        ],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
+    ONGOING_VIEW_ACCESS: {
+      role: "ONGOING_VIEW_ACCESS",
+      permission: {
+        allow: true,
+        bound: [
+          "ONGOING_APPLICATION",
+        ],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
   };
   return access_role;
 };

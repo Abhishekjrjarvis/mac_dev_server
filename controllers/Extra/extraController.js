@@ -331,6 +331,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       certificate_attachment,
       student_name,
       staffId,
+      certificate_original_leaving_count,
     } = req.body;
     const institute = await InstituteAdmin.findById({
       _id: id,
@@ -355,7 +356,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "insName insAddress certificate_issued_count insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail leave_certificate_selection",
+          "insName insAddress certificate_issued_count insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail leave_certificate_selection certificate_original_leaving_count",
       })
       .populate({
         path: "remainingFeeList",
@@ -492,6 +493,11 @@ exports.retrieveLeavingGRNO = async (req, res) => {
         download = true;
       }
     }
+    if (!is_dublicate) {
+      institute.certificate_original_leaving_count =
+        certificate_original_leaving_count;
+    }
+
     await Promise.all([student.save(), institute.save()]);
     // Add Another Encryption
     var valid_student = await applicable_pending_calc_singleton(student);
@@ -528,7 +534,9 @@ exports.retrieveLeavingGRNO = async (req, res) => {
   } catch (e) {
     console.log(e);
   }
-}
+};
+
+
 
 exports.retrieveCertificateStatus = async (req, res) => {
   try {
@@ -4170,10 +4178,15 @@ exports.notExistStudentCertificateQuery = async (req, res) => {
       certificate_attachment,
       student_name,
       staffId,
+      certificate_original_leaving_count,
     } = req.body;
     const institute = await InstituteAdmin.findById({
       _id: id,
     });
+    if (!is_dublicate) {
+      institute.certificate_original_leaving_count =
+        certificate_original_leaving_count;
+    }
 
     const not_exist_certificate = new NotExistStudentCertificate({
       institute: id,
@@ -4257,6 +4270,7 @@ exports.notExistStudentCertificateQuery = async (req, res) => {
   }
 };
 
+
 exports.notExistStudentInstituteProfileQuery = async (req, res) => {
   try {
     const { id } = req.params;
@@ -4269,7 +4283,7 @@ exports.notExistStudentInstituteProfileQuery = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: id,
     }).select(
-      "insName insAddress certificate_issued_count insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail leave_certificate_selection"
+      "insName insAddress certificate_issued_count insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail leave_certificate_selection certificate_original_leaving_count"
     );
 
     res.status(200).send({
@@ -4280,6 +4294,7 @@ exports.notExistStudentInstituteProfileQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 exports.certificateInstituteLogsListQuery = async (req, res) => {
   try {
     const { id } = req.params;

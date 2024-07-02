@@ -10553,6 +10553,15 @@ exports.render_subject_application_export = async (req, res) => {
           }
         }
     }
+    var excel_list = []
+    for (let ele of n) {
+      excel_list.push({
+        Name: `${ele?.studentFirstName} ${ele?.studentFatherName} ${ele?.studentLastName}`,
+        Gender: ele?.studentGender,
+        Email: ele?.studentEmail,
+        PhoneNumber: ele?.studentPhoneNumber,
+      })
+    }
     var valid_back = await json_to_excel_admission_subject_application_query(
       excel_list,
       one_subject?.subjectName,

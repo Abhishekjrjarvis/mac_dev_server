@@ -784,4 +784,37 @@ exports.subject_marks_student_json_to_excel = async (
   }
 };
 
+exports.json_to_excel_admission_subject_application_query = async (
+  data_query,
+  app_name,
+  appId,
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, "SubjectStudentList");
+    var name = `${app_name}-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const apply = await NewApplication.findById({ _id: appId });
+      const ads_admin = await Admission.findById({
+        _id: `${apply?.admissionAdmin}`,
+      });
+      ads_admin.export_collection.push({
+        excel_file: results,
+        excel_file_name: name,
+      });
+      ads_admin.export_collection_count += 1;
+      await ads_admin.save();
+    return {
+      back: true,
+    };
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 

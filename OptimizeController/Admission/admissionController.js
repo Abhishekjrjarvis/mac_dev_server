@@ -15189,45 +15189,45 @@ exports.retieveAdmissionAdminInsertion = async (req, res) => {
         "selectedApplication confirmedApplication admissionProcess application_flow applicationBatch gr_initials cancelApplication cancelCount reviewApplication review_count FeeCollectionApplication fee_collect_count student_form_setting pin"
     )
 
-    // apply.selectedApplication = []
-    // apply.confirmedApplication_query = []
-    // apply.FeeCollectionApplication = []
-    for (let all of ongoing) {
-      for (let ele of all?.selectedApplication) {
-        apply.selectedApplication.push({
-          student: ele?.student,
-          fee_remain: ele?.fee_remain,
-          revert_request_status: ele?.revert_request_status,
-          application: all?._id
-        })
-      }
-    }
-    for (let all of ongoing) {
-      for (let ele of all?.FeeCollectionApplication) {
-        apply.FeeCollectionApplication.push({
-          student: ele?.student,
-          fee_remain: ele?.fee_remain,
-          payment_flow: ele?.payment_flow,
-          app_card: ele?.app_card,
-          gov_card: ele?.gov_card,
-          status_id: ele?.status_id,
-          revert_request_status: ele?.revert_request_status,
-          fee_struct: ele?.fee_struct,
-          application: all?._id
-        })
-      }
-    }
-    for (let all of ongoing) {
-      for (let ele of all?.confirmedApplication) {
-        apply.confirmedApplication_query.push({
-          student: ele?.student,
-          payment_status: ele?.payment_status,
-          install_type: ele?.install_type,
-          fee_remain: ele?.fee_remain,
-          application: all?._id
-        })
-      }
-    }
+    apply.selectedApplication = []
+    apply.confirmedApplication_query = []
+    apply.FeeCollectionApplication = []
+    // for (let all of ongoing) {
+    //   for (let ele of all?.selectedApplication) {
+    //     apply.selectedApplication.push({
+    //       student: ele?.student,
+    //       fee_remain: ele?.fee_remain,
+    //       revert_request_status: ele?.revert_request_status,
+    //       application: all?._id
+    //     })
+    //   }
+    // }
+    // for (let all of ongoing) {
+    //   for (let ele of all?.FeeCollectionApplication) {
+    //     apply.FeeCollectionApplication.push({
+    //       student: ele?.student,
+    //       fee_remain: ele?.fee_remain,
+    //       payment_flow: ele?.payment_flow,
+    //       app_card: ele?.app_card,
+    //       gov_card: ele?.gov_card,
+    //       status_id: ele?.status_id,
+    //       revert_request_status: ele?.revert_request_status,
+    //       fee_struct: ele?.fee_struct,
+    //       application: all?._id
+    //     })
+    //   }
+    // }
+    // for (let all of ongoing) {
+    //   for (let ele of all?.confirmedApplication) {
+    //     apply.confirmedApplication_query.push({
+    //       student: ele?.student,
+    //       payment_status: ele?.payment_status,
+    //       install_type: ele?.install_type,
+    //       fee_remain: ele?.fee_remain,
+    //       application: all?._id
+    //     })
+    //   }
+    // }
     await apply.save()
     res.status(200).send({ message: "Insertion Completed", apply})
   } catch (e) {
@@ -15554,7 +15554,7 @@ exports.render_one_subject_student_query = async (req, res) => {
         }
     }
     const all_students = await nested_document_limit(page, limit, n)
-    res.status(200).send({ message: "Explore All Students Master Query", access: true, student: all_students})
+    res.status(200).send({ message: "Explore All Students Master Query", access: true, student: all_students, student_count: n})
 
   }
   catch (e) {

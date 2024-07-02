@@ -258,4 +258,6 @@ router.delete("/:baid/all/daybook/delete", catchAsync(Filter.render_daybook_dele
 
 router.patch("/insert/master/daybook", catchAsync(Filter.fee_master_linking))
 
+router.patch("/;sid/subject/:aid/application/export", catchAsync(Filter.render_subject_application_export))
+
 module.exports = router;

@@ -34,6 +34,7 @@ const {
   json_to_excel_deposit_export_query,
   fee_heads_receipt_json_to_excel_daybook_query,
   json_to_excel_slip_export_query,
+  json_to_excel_admission_subject_application_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -71,6 +72,7 @@ const daybookData = require("../../AjaxRequest/daybookData");
 const bankDaybook = require("../../scripts/bankDaybook");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const SubjectGroupSelect = require("../../models/Admission/Optional/SubjectGroupSelect");
+const SubjectMaster = require("../../models/SubjectMaster");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -10495,6 +10497,79 @@ exports.fee_master_linking = async (req, res) => {
     }
 
     res.status(200).send({ message: "Explore", all: all})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_subject_application_export = async (req, res) => {
+  try {
+    const { sid, aid } = req?.params
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+
+    const one_subject = await SubjectMaster.findById({ _id: sid })
+    // const apply = await NewApplication.findById({ _id: aid })
+    const nums = [aid]
+    const all_user = await User.find({ applyApplication: { $in: nums } })
+    const all_student = await Student.find({ user: { $in: all_user } })
+      .select("studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO")
+      .populate({
+        path: "user",
+        select: "userLegalName username"
+      })
+    .populate({
+      path: "student_optional_subject",
+      select: "subjectName"
+    })
+    .populate({
+      path: "major_subject",
+      select: "subjectName"
+    })
+    .populate({
+      path: "nested_subject",
+      select: "subjectName"
+    })
+    res.status(200).send({ message: "Explore All Students Master Query", access: true})
+
+    var n = []
+    for (let val of all_student) {
+      for (let ele of val?.student_optional_subject) {
+        if(`${ele?._id}` === `${one_subject?._id}`)
+        n.push(val)
+      }
+      for (let val of all_student) {
+        for (let ele of val?.major_subject) {
+          if (`${ele?._id}` === `${one_subject?._id}`) {
+            n.push(val)
+          }
+        }
+      }
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (`${ele?._id}` === `${one_subject?._id}`) {
+              n.push(val)
+            }
+          }
+        }
+    }
+    var valid_back = await json_to_excel_admission_subject_application_query(
+      excel_list,
+      one_subject?.subjectName,
+      aid,
+    );
+    if (valid_back?.back) {
+      res.status(200).send({
+        message: "Explore New Excel On Subject Export TAB",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        access: false,
+      });
+    }
+
   }
   catch (e) {
     console.log(e)

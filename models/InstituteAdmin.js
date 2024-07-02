@@ -1366,6 +1366,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteLog",
   },
+  certificate_original_leaving_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

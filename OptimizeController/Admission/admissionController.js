@@ -15554,7 +15554,7 @@ exports.render_one_subject_student_query = async (req, res) => {
         }
     }
     const all_students = await nested_document_limit(page, limit, n)
-    res.status(200).send({ message: "Explore All Students Master Query", access: true, student: all_students, student_count: n})
+    res.status(200).send({ message: "Explore All Students Master Query", access: true, student: all_students, student_count: n?.length})
 
   }
   catch (e) {

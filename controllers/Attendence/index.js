@@ -1361,14 +1361,19 @@ exports.getSubjectStudentList = async (req, res) => {
         )
         .lean()
         .exec();
-        var students = [];
-      for (let u_student of mixter_student) {
-        // for (let ele of subjects?.optionalStudent) {
+      var students = [];
+      if (subjects?.optionalStudent?.length > 0) {
+        for (let u_student of mixter_student) {
+          // for (let ele of subjects?.optionalStudent) {
           if (subjects?.optionalStudent?.includes(u_student?._id)) {
             students.push(u_student);
           }
-        // }
+          // }
+        }
+      } else {
+        students = mixter_student;
       }
+
       students.sort(function (st1, st2) {
         return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
       });
@@ -1383,6 +1388,7 @@ exports.getSubjectStudentList = async (req, res) => {
     console.log(e);
   }
 };
+
 
 
 exports.getAttendSubjectStudent = async (req, res) => {

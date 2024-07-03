@@ -15511,10 +15511,10 @@ exports.render_one_subject_student_query = async (req, res) => {
     if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
 
     const one_subject = await SubjectMaster.findById({ _id: sid })
-    // const apply = await NewApplication.findById({ _id: aid })
-    const nums = [aid]
-    const all_user = await User.find({ applyApplication: { $in: nums } })
-    const all_student = await Student.find({ user: { $in: all_user } })
+    const apply = await NewApplication.findById({ _id: aid })
+    // const nums = [aid]
+    // const all_user = await User.find({ applyApplication: { $in: nums } })
+    const all_student = await Student.find({ _id: { $in: apply?.reviewApplication } })
       .select("studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO")
       .populate({
         path: "user",

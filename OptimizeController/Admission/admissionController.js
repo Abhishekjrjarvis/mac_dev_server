@@ -235,13 +235,6 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
         select:
           "_id insName insProfilePhoto status financeDepart hostelDepart random_institute_code alias_pronounciation profileQRCode",
       });
-    const ads_obj = {
-      message: "All Detail Admission Admin from DB 🙌",
-      // admission: cached.admission,
-      admission: admission,
-      roles: req?.query?.mod_id ? value?.permission : null,
-    }
-    const adsEncrypt = await encryptionPayload(ads_obj);
     // const cached = await connect_redis_miss(
     //   `Admission-Detail-${aid}`,
     //   admission
@@ -256,6 +249,13 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
         admission.enable_protection = false;
       }
     }
+    const ads_obj = {
+      message: "All Detail Admission Admin from DB 🙌",
+      // admission: cached.admission,
+      admission: admission,
+      roles: req?.query?.mod_id ? value?.permission : null,
+    }
+    const adsEncrypt = await encryptionPayload(ads_obj);
     res.status(200).send({
       encrypt: adsEncrypt
     });
@@ -15553,8 +15553,15 @@ exports.render_one_subject_student_query = async (req, res) => {
           }
         }
     }
-    const all_students = await nested_document_limit(page, limit, n)
-    res.status(200).send({ message: "Explore All Students Master Query", access: true, student: all_students, student_count: n?.length})
+    const unique = [...new Set(n.map(item => item._id))];
+    const all = await Student.find({ _id: { $in: unique } })
+      .select("studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO")
+      .populate({
+        path: "user",
+        select: "userLegalName username"
+      })
+      const all_students = await nested_document_limit(page, limit, all)
+    res.status(200).send({ message: "Explore All Students Master Query", access: true, student: all_students, student_count: unique?.length})
 
   }
   catch (e) {
@@ -15564,13 +15571,17 @@ exports.render_one_subject_student_query = async (req, res) => {
 
 exports.spce_student_name_sequencing = async (list) => {
   try {
+    var i = 0
     for (let ele of list) {
       const student = await Student.findOne({ studentGRNO: ele?.studentGRNO })
       if (student?._id) {
         student.studentFirstName = ele?.studentFirstName
         student.studentFatherName = ele?.studentFatherName
+        student.studentMiddleName = ele?.studentFatherName
         student.studentLastName = ele?.studentLastName
         await student.save()
+        console.log(i)
+        i+= 1
       }
       else {
         console.log("Student Data Not Updated", student?._id)

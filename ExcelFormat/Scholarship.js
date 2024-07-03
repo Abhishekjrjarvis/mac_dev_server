@@ -24,5 +24,10 @@ let requiredFormat = [
       name: "Name",
       Name: "Name",
       isRequired: true,
-    },
+  },
+  {
+    name: "Amount",
+    Amount: "Amount",
+    isRequired: true,
+  },
   ];

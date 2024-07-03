@@ -10553,8 +10553,15 @@ exports.render_subject_application_export = async (req, res) => {
           }
         }
     }
+    const unique = [...new Set(n.map(item => item._id))];
+    const all = await Student.find({ _id: { $in: unique } })
+      .select("studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO")
+      .populate({
+        path: "user",
+        select: "userLegalName username"
+      })
     var excel_list = []
-    for (let ele of n) {
+    for (let ele of all) {
       excel_list.push({
         Name: `${ele?.studentFirstName} ${ele?.studentFatherName} ${ele?.studentLastName}`,
         Gender: ele?.studentGender,

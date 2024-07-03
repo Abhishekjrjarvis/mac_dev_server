@@ -2596,8 +2596,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
     aStatus.student = student._id;
-    student.fee_structure =
-      is_remain === "No" ? fee_struct : batch_set[0]?.fee_struct;
+    // student.fee_structure =
+    //   is_remain === "No" ? fee_struct : batch_set[0]?.fee_struct;
     await student.save();
     await invokeFirebaseNotification(
       "Student Approval",
@@ -2606,15 +2606,15 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       user._id,
       user.deviceToken
     );
-    if (batch_set?.length > 0) {
-      await fee_reordering_direct_student(
-        student,
-        institute,
-        batch_set,
-        user,
-        finance
-      );
-    }
+    // if (batch_set?.length > 0) {
+    //   await fee_reordering_direct_student(
+    //     student,
+    //     institute,
+    //     batch_set,
+    //     user,
+    //     finance
+    //   );
+    // }
     await Promise.all([
       admins.save(),
       classes.save(),

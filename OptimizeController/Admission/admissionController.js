@@ -9108,6 +9108,12 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, id, excel_sh
     var num_arr = []
     if (arr?.length > 0) {
       for (var ref of arr) {
+        let names = `${ref?.Name}`
+        var student = await Student.findOne({
+          $or: [{ studentFirstName: { $regex: `${names}`, $options: "i" } },
+            { studentFatherName: { $regex: `${names}`, $options: "i" } },
+            { studentLastName: { $regex: `${names}`, $options: "i"}}]
+        })
         var valid_remain = await RemainingList.findOne({
           scholar_ship_number: `${ref?.ScholarNumber}`,
         }).populate({

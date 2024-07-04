@@ -1059,7 +1059,7 @@ exports.fetchExportStudentAllQuery = async (req, res) => {
 
     const valid_all_students = await Student.find({ _id: { $in: sorted_list } })
       .select(
-        "studentFirstName studentMiddleName remainingFeeList_count studentLastName studentDOB studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto admissionRemainFeeCount"
+        "studentFirstName studentMiddleName remainingFeeList_count studentLastName studentDOB studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto admissionRemainFeeCount studentPhoneNumber studentEmail"
       )
       .populate({
         path: "department",

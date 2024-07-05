@@ -23,12 +23,14 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
   let stu_name = `${receiptData?.student?.studentFirstName ?? ""} ${
     receiptData?.student?.studentMiddleName ?? ""
   } ${receiptData?.student?.studentLastName ?? ""}`;
-  const stream = fs.createWriteStream(
-    `./uploads/${stu_name}-other-fees-receipt.pdf`
-  );
+  // const stream = fs.createWriteStream(
+  //   `./uploads/${stu_name}-other-fees-receipt.pdf`
+  // );
 
   let name = `${date.getTime()}-${stu_name}`;
-  // const stream = fs.createWriteStream(`./uploads/${name}-other-fees-receipt.pdf`);
+  const stream = fs.createWriteStream(
+    `./uploads/${name}-other-fees-receipt.pdf`
+  );
 
   doc.pipe(stream);
   const pageWidth = doc.page.width;
@@ -355,14 +357,24 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
   doc.rect(pageWidth / 2 + 123, pos1, 0, 67).stroke();
   doc.rect(doc.x, pos1, pageWidth - 40, 67).stroke();
 
-  let paid_fee = receiptData?.fee_heads?.filter((fd) => {
-    if (fd?.paid_fee > 0 && fd?.original_paid > 0) {
-      return fd;
-    } else {
-      return null;
+  let paid_fee = [];
+  let society_paid_fee = [];
+  // receiptData?.fee_heads?.filter((fd) => {
+  //   if (fd?.paid_fee > 0) {
+  //     return fd;
+  //   } else {
+  //     return null;
+  //   }
+  // });
+  for (let fd of receiptData?.fee_heads) {
+    if (fd?.paid_fee > 0) {
+      if (fd?.is_society) {
+        society_paid_fee.push(fd);
+      } else {
+        paid_fee.push(fd);
+      }
     }
-  });
-
+  }
   // if (paid_fee?.length > 0) {
   doc.moveDown(0.4);
   doc.fontSize(13).text("Fee Details", { align: "center" });
@@ -403,13 +415,13 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
       .font("Times-Roman")
       .fillColor("#2e2e2e")
       // .text(100000, {
-      .text(data?.original_paid, {
+      .text(data?.paid_fee, {
         width: w1 - 15,
         align: "right",
         indent: 10,
       });
 
-    if (data?.original_paid) paidAmount += data?.original_paid;
+    if (data?.paid_fee) paidAmount += data?.paid_fee;
     ft += 1;
     data = paid_fee?.[ft];
     doc.moveUp(1);
@@ -437,13 +449,13 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
       .font("Times-Roman")
       .fillColor("#2e2e2e")
       // .text(100000, {
-      .text(data?.original_paid, {
+      .text(data?.paid_fee, {
         width: 2 * w1 - 15,
         align: "right",
         indent: 10,
       });
 
-    if (data?.original_paid) paidAmount += data?.original_paid;
+    if (data?.paid_fee) paidAmount += data?.paid_fee;
 
     ft += 1;
     data = paid_fee?.[ft];
@@ -468,13 +480,13 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
       .font("Times-Roman")
       .fillColor("#2e2e2e")
       // .text(100000, {
-      .text(data?.original_paid, {
+      .text(data?.paid_fee, {
         // width: pageWidth - 50,
         width: 3 * w1 - 10,
         indent: 10,
         align: "right",
       });
-    if (data?.original_paid) paidAmount += data?.original_paid;
+    if (data?.paid_fee) paidAmount += data?.paid_fee;
 
     doc.moveDown(0.2);
   }
@@ -554,21 +566,8 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
   // active_fee_heads
 
   if (receiptData?.other_fees?.other_fees_type === "Subject Other Fees") {
-    let society_paid_fee =
-      // receiptData?.student?.active_society_fee_heads?.filter((fd) => {
-      receiptData?.student?.active_society_fee_heads?.filter((fd) => {
-        if (fd?.paid_fee > 0 && fd?.original_paid > 0) {
-          return fd;
-        } else {
-          return null;
-        }
-      });
     if (society_paid_fee?.length > 0) {
-      //   for society related data
       doc.y += 10;
-      // let ac_border_height = doc.y;
-
-      // doc.y += 15;
       let ac_border_height = pageHeight / 2 - 10;
 
       doc.y = pageHeight / 2 + 10;
@@ -916,12 +915,12 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
           .font("Times-Roman")
           .fillColor("#2e2e2e")
           // .text(100000, {
-          .text(data?.original_paid, {
+          .text(data?.paid_fee, {
             width: w1 - 15,
             align: "right",
             indent: 10,
           });
-        if (data?.original_paid) paidAmount += data?.original_paid;
+        if (data?.paid_fee) paidAmount += data?.paid_fee;
 
         ft += 1;
         data = society_paid_fee?.[ft];
@@ -950,12 +949,12 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
           .font("Times-Roman")
           .fillColor("#2e2e2e")
           // .text(100000, {
-          .text(data?.original_paid, {
+          .text(data?.paid_fee, {
             width: 2 * w1 - 15,
             align: "right",
             indent: 10,
           });
-        if (data?.original_paid) paidAmount += data?.original_paid;
+        if (data?.paid_fee) paidAmount += data?.paid_fee;
 
         ft += 1;
         data = society_paid_fee?.[ft];
@@ -980,13 +979,13 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
           .font("Times-Roman")
           .fillColor("#2e2e2e")
           // .text(100000, {
-          .text(data?.original_paid, {
+          .text(data?.paid_fee, {
             // width: pageWidth - 50,
             width: 3 * w1 - 10,
             indent: 10,
             align: "right",
           });
-        if (data?.original_paid) paidAmount += data?.original_paid;
+        if (data?.paid_fee) paidAmount += data?.paid_fee;
 
         doc.moveDown(0.2);
         // pos2 += 14.3;
@@ -1091,17 +1090,17 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
 
   // Handle stream close event
   stream.on("finish", async () => {
-    // const fee_receipt = await feeReceipt.findById({ _id: receiptId });
+    const fee_receipt = await feeReceipt.findById({ _id: receiptId });
     console.log("created");
-    // let file = {
-    //   path: `uploads/${name}-other-fees-receipt.pdf`,
-    //   filename: `${name}-other-fees-receipt.pdf`,
-    //   mimetype: "application/pdf",
-    // };
-    // const results = await uploadDocsFile(file);
-    // fee_receipt.receipt_file = results?.Key;
-    // await unlinkFile(file.path);
-    // await fee_receipt.save();
+    let file = {
+      path: `uploads/${name}-other-fees-receipt.pdf`,
+      filename: `${name}-other-fees-receipt.pdf`,
+      mimetype: "application/pdf",
+    };
+    const results = await uploadDocsFile(file);
+    fee_receipt.receipt_file = results?.Key;
+    await unlinkFile(file.path);
+    await fee_receipt.save();
   });
 
   //   console.log(data);

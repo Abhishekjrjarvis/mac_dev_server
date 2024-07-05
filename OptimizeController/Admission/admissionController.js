@@ -15088,12 +15088,14 @@ exports.fetchAllConfirmedMergedApplication = async (req, res) => {
         }
       }
       for (let data of filter_confirm) {
-        const apps = await NewApplication.findById({ _id: `${data?.application}`})
-        data.student.new_app.appId = apps?._id
-        data.student.new_app.appName = apps?.applicationName
-        data.student.new_app.applicationDepartment = apps?.applicationDepartment
-        data.student.new_app.applicationBatch = apps?.applicationBatch
-        data.student.new_app.applicationMaster = apps?.applicationMaster
+        if (data?.application) {
+          const apps = await NewApplication.findById({ _id: `${data?.application}` })
+          data.student.new_app.appId = apps?._id
+          data.student.new_app.appName = apps?.applicationName
+          data.student.new_app.applicationDepartment = apps?.applicationDepartment
+          data.student.new_app.applicationBatch = apps?.applicationBatch
+          data.student.new_app.applicationMaster = apps?.applicationMaster
+        }
       }
       if (filter_confirm?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);
@@ -15134,12 +15136,14 @@ exports.fetchAllConfirmedMergedApplication = async (req, res) => {
         apply?.confirmedApplication_query?.reverse()
       );
       for (let data of all_confirm_query) {
-        const apps = await NewApplication.findById({ _id: `${data?.application}`})
-        data.student.new_app.appId = apps?._id
-        data.student.new_app.appName = apps?.applicationName
-        data.student.new_app.applicationDepartment = apps?.applicationDepartment
-        data.student.new_app.applicationBatch = apps?.applicationBatch
-        data.student.new_app.applicationMaster = apps?.applicationMaster
+        if (data?.application) {
+          const apps = await NewApplication.findById({ _id: `${data?.application}` })
+          data.student.new_app.appId = apps?._id
+          data.student.new_app.appName = apps?.applicationName
+          data.student.new_app.applicationDepartment = apps?.applicationDepartment
+          data.student.new_app.applicationBatch = apps?.applicationBatch
+          data.student.new_app.applicationMaster = apps?.applicationMaster
+        }
       }
       if (all_confirm_query?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);

@@ -291,15 +291,6 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
     console.log(e);
   }
 };
-const getReceiptDataByFunction = async (receiptId) => {
-  try {
-    const response = await renderOneFeeReceiptUploadQuery(receiptId);
-    return response;
-  } catch (e) {
-    console.log(e);
-    return {};
-  }
-};
 
 const getInstituteProfile = async (instituteId) => {
   try {
@@ -317,6 +308,7 @@ const getInstituteProfile = async (instituteId) => {
 };
 const otherFeesData = async (receiptId, instituteId) => {
   const ft = await getReceiptData(receiptId);
+  // await studentOtherFeeReceipt(frid, instituteId);
   // const ft = await getReceiptDataByFunction(receiptId);
   const dt = await getInstituteProfile(instituteId);
   return { ft, dt };

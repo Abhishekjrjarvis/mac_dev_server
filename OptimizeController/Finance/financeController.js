@@ -6659,6 +6659,21 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
           await stu.save()
         }
       }
+      else {
+        if (students?.length <= 1) {
+          for (let ele of students) {
+            const stu = await Student.findById({ _id: `${ele}` })
+            stu.other_fees.push({
+              fees: o_f?._id,
+            })
+            stu.other_fees_remain_price += o_f?.payable_amount
+            o_f.students.push(stu?._id)
+            o_f.student_count += 1
+            o_f.remaining_students.push(stu?._id)
+            await stu.save()
+          }
+        }
+      }
     }
     finance.other_fees.push(o_f?._id)
     o_f.finance = finance?._id

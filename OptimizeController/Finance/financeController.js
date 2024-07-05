@@ -6695,7 +6695,8 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
     if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var finance = await Finance.findById({ _id: fid })
-    var all_of = await OtherFees.find({ $and: [{ _id: { $in: finance?.other_fees } }, { other_fees_type: type}]})
+    var all_of = await OtherFees.find({ $and: [{ _id: { $in: finance?.other_fees } }, { other_fees_type: type }] })
+      .sort({ created_at: -1})
       .limit(limit)
       .skip(skip)
       .select("other_fees_name other_fees_type payable_amount student_count")

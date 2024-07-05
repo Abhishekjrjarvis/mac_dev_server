@@ -15567,7 +15567,7 @@ exports.render_one_subject_student_query = async (req, res) => {
         select: "userLegalName username"
       })
       const all_students = await nested_document_limit(page, limit, all)
-    res.status(200).send({ message: "Explore All Students Master Query", access: true, student: all_students, student_count: unique?.length})
+    res.status(200).send({ message: "Explore All Students Master Query", access: true, student: all_students?.length > 0 ? all_students : [], student_count: unique?.length})
 
   }
   catch (e) {

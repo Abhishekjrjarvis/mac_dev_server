@@ -707,7 +707,7 @@ exports.addInstituteModeratorQuery = async (req, res) => {
         ...all_role[`${mod_role}`]?.permission?.bound,
       ];
     }
-    if (`${mod_role}` === "SOCIAL_MEDIA_ACCESS") {
+    if (`${mod_role}` === "SOCIAL_MEDIA_ACCESS" || "SOCIAL_MEDIA_ASSISTANT_ACCESS") {
       const new_user_pass = bcrypt.genSaltSync(12);
       const hash_user_pass = bcrypt.hashSync(
         social_media_password_query,
@@ -743,7 +743,7 @@ exports.addInstituteModeratorQuery = async (req, res) => {
     notify.notifySender = institute?._id;
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Institute Moderator Designation";
-    if (`${mod_role}` === "SOCIAL_MEDIA_ACCESS") {
+    if (`${mod_role}` === "SOCIAL_MEDIA_ACCESS" || "SOCIAL_MEDIA_ASSISTANT_ACCESS") {
       notify.social = true;
     }
     user.uNotify.push(notify._id);
@@ -977,7 +977,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
         one_staff.staffDesignationCount -= 1;
       }
       await one_staff.save();
-      if (`${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS") {
+      if (`${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS" || "SOCIAL_MEDIA_ASSISTANT_ACCESS") {
         var one_user = await User.findById({
           _id: `${one_staff?.user}`,
         });
@@ -1002,7 +1002,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = one_moderator?.institute?._id;
-      if (`${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS") {
+      if (`${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS" || "SOCIAL_MEDIA_ASSISTANT_ACCESS") {
         const valid_ins = await InstituteAdmin.findById({
           _id: one_moderator?.institute?._id,
         });

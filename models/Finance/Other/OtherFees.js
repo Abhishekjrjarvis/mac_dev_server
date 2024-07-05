@@ -68,6 +68,10 @@ const otherFeesSchema = new mongoose.Schema({
     other_fees_disable: {
         type: String,
         default: "Enable"
+    },
+    created_at: {
+        type: Date,
+        default: Date.now
     }
 })
 

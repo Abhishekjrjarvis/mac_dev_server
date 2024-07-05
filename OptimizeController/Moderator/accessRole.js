@@ -301,21 +301,21 @@ exports.all_access_role_ins = () => {
         accessStaff: "",
       },
     },
-    SOCIAL_MEDIA_ACCESS: {
-      role: "SOCIAL_MEDIA_ACCESS",
-      permission: {
-        allow: true,
-        bound: [
-          "HANDLE_SOCIAL",
-          "MAKE_POST",
-          "MAKE_POLL",
-          "MAKE_QUESTION",
-          "MAKE_ANSWER",
-        ],
-        addons: [],
-        accessStaff: "",
-      },
-    },
+    // SOCIAL_MEDIA_ACCESS: {
+    //   role: "SOCIAL_MEDIA_ACCESS",
+    //   permission: {
+    //     allow: true,
+    //     bound: [
+    //       "HANDLE_SOCIAL",
+    //       "MAKE_POST",
+    //       "MAKE_POLL",
+    //       "MAKE_QUESTION",
+    //       "MAKE_ANSWER",
+    //     ],
+    //     addons: [],
+    //     accessStaff: "",
+    //   },
+    // },
     SITE_MANAGE_ACCESS: {
       role: "SITE_MANAGE_ACCESS",
       permission: {
@@ -345,6 +345,21 @@ exports.all_access_role_ins = () => {
     },
     SOCIAL_MEDIA_ACCESS: {
       role: "SOCIAL_MEDIA_ACCESS",
+      permission: {
+        allow: true,
+        bound: [
+          "CREATE_POST",
+          "EDIT_SITE_INFO",
+          "CREATE_POLL",
+          "CREATE_QUESTION",
+          "CREATE_ANNOUNCEMENT",
+        ],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    SOCIAL_MEDIA_ASSISTANT_ACCESS: {
+      role: "SOCIAL_MEDIA_ASSISTANT_ACCESS",
       permission: {
         allow: true,
         bound: [

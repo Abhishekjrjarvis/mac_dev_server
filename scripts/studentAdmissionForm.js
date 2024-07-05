@@ -25,12 +25,16 @@ const generateStudentAdmissionForm = async (
   studentName,
   applicationName
 ) => {
+  // console.log("studentId", studentId);
+
+  // if (`${studentId}` === "666db5569b434b407b86282e") {
+  //   return null;
+  // }
   const doc = new PDFDocument({
     font: "Times-Roman",
     size: "A4",
     margin: 25,
   });
-
   let date = new Date();
   let name = `${date.getTime()}-${studentName}`;
   // let name = `${studentName}`;
@@ -289,17 +293,18 @@ const generateStudentAdmissionForm = async (
               }
               doc.moveDown(2);
               if (oneProfile?.student_signature) {
-                doc.image(
-                  await dynamicImages("CUSTOM", oneProfile?.student_signature),
-                  pageWidth - 185,
-                  doc.y,
-                  {
+                let sig = await dynamicImages(
+                  "CUSTOM",
+                  oneProfile?.student_signature
+                );
+                if (sig) {
+                  doc.image(sig, pageWidth - 185, doc.y, {
                     width: 160,
                     height: 60,
                     align: "right",
-                  }
-                );
-                doc.moveDown(1);
+                  });
+                  doc.moveDown(1);
+                }
               }
               doc.font("Times-Bold").text("Signature of Candidate", 440, doc.y);
 
@@ -323,17 +328,18 @@ const generateStudentAdmissionForm = async (
               }
               doc.moveDown(2);
               if (oneProfile?.student_signature) {
-                doc.image(
-                  await dynamicImages("CUSTOM", oneProfile?.student_signature),
-                  pageWidth - 185,
-                  doc.y,
-                  {
+                let sig = await dynamicImages(
+                  "CUSTOM",
+                  oneProfile?.student_signature
+                );
+                if (sig) {
+                  doc.image(sig, pageWidth - 185, doc.y, {
                     width: 160,
                     height: 60,
                     align: "right",
-                  }
-                );
-                doc.moveDown(1);
+                  });
+                  doc.moveDown(1);
+                }
               }
               doc.font("Times-Bold").text("Signature of Candidate", 440, doc.y);
             }
@@ -352,20 +358,18 @@ const generateStudentAdmissionForm = async (
               }
               doc.moveDown(2);
               if (oneProfile?.student_parents_signature) {
-                doc.image(
-                  await dynamicImages(
-                    "CUSTOM",
-                    oneProfile?.student_parents_signature
-                  ),
-                  pageWidth - 185,
-                  doc.y,
-                  {
+                let p_sig = await dynamicImages(
+                  "CUSTOM",
+                  oneProfile?.student_parents_signature
+                );
+                if (p_sig) {
+                  doc.image(p_sig, pageWidth - 185, doc.y, {
                     width: 160,
                     height: 60,
                     align: "right",
-                  }
-                );
-                doc.moveDown(1);
+                  });
+                  doc.moveDown(1);
+                }
               }
               doc.font("Times-Bold").text("Signature of Parent", 440, doc.y);
             }
@@ -522,19 +526,18 @@ const generateStudentAdmissionForm = async (
 
               // for student profile
               if (oneProfile?.studentIdProfilePhoto) {
-                doc.image(
-                  await dynamicImages(
-                    "CUSTOM",
-                    oneProfile?.studentIdProfilePhoto
-                  ),
-                  pageWidth - 90,
-                  yAxis - 19,
-                  {
+                let pprf = await dynamicImages(
+                  "CUSTOM",
+                  // "C:/fakepath/IMG_20240627_113223.jpg"
+                  oneProfile?.studentIdProfilePhoto
+                );
+                if (pprf) {
+                  doc.image(pprf, pageWidth - 90, yAxis - 19, {
                     width: 65,
                     height: 65,
                     align: "right",
-                  }
-                );
+                  });
+                }
               }
             } else if (itr?.static_key === "other_details") {
               for (let i = 0; i < itr?.fields?.length; i++) {
@@ -1133,38 +1136,19 @@ const generateStudentAdmissionForm = async (
     for (let dft of add_last_page_images) {
       doc.addPage();
       if (dft?.attach) {
-        doc.image(await dynamicImages("CUSTOM", dft?.attach), {
-          width: 545.28,
-          height: 790.89,
-        });
+        let dfgt = await dynamicImages("CUSTOM", dft?.attach);
+        if (dfgt) {
+          doc.image(dfgt, {
+            width: 545.28,
+            height: 790.89,
+          });
+        }
       }
     }
   }
-  // doc.moveDown(2);
 
-  // if (oneProfile?.student_signature) {
-  //   doc.image(
-  //     await dynamicImages("CUSTOM", oneProfile?.student_signature),
-  //     pageWidth - 185,
-  //     doc.y,
-  //     {
-  //       width: 160,
-  //       height: 60,
-  //       align: "right",
-  //     }
-  //   );
-  //   doc.moveDown(1);
-  // }
-
-  // doc.font("Times-Bold").text("Signature of Candidate", 440, doc.y);
   doc.moveDown();
-  // doc.strokeColor("black").lineWidth(1);
-  // // doc.moveDown();
-  // doc
-  //   .moveTo(25, doc.y)
-  //   .lineTo(pageWidth - 25, doc.y)
-  //   .stroke();
-  // doc.moveDown();
+
   doc.end();
   stream.on("error", (err) => {
     console.error("Error creating PDF:", err);

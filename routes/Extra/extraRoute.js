@@ -505,5 +505,18 @@ router.patch(
   catchAsync(Extra.customRemoveInstituteLogsQuery)
 );
 
+router.patch(
+  "/generate/custom/oneapplication/:aid/student/form",
+  catchAsync(Extra.customGenerateOneApplicationFormQuery)
+);
+router.patch(
+  "/custom/check/generate/admission/:aid/all/application/form",
+  catchAsync(Extra.customGenerateCheckAllApplicationFormQuery)
+);
+router.patch(
+  "/custom/check/generate/admission/:aid/all/pay/receipt",
+  catchAsync(Extra.customGenerateCheckAllPayReceiptQuery)
+);
+
 
 module.exports = router;

@@ -986,7 +986,7 @@ exports.callback_payment_failed_regeneration_counter = async (req, res) => {
                 ele?.error_module,
                 ele?.error_amount,
                 ele?.error_paid_to,
-                txn_id,
+                "",
                 {},
                 {}
               );

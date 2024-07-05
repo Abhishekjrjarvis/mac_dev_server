@@ -62,6 +62,9 @@ const chapterTopicSchema = new mongoose.Schema({
   topic_link: {
     type: String,
   },
+  topic_time_in_minutes: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("ChapterTopic", chapterTopicSchema);

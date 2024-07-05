@@ -521,7 +521,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
     .fontSize(12)
     .font("Times-Roman")
     .fillColor("#121212")
-    .text(0, {
+    .text(receiptData?.student?.other_fees_remain_price, {
       width: doc.widthOfString("Pending Fee For All Academic Year") + 40,
       align: "right",
     });
@@ -556,7 +556,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
   if (receiptData?.other_fees?.other_fees_type === "Subject Other Fees") {
     let society_paid_fee =
       // receiptData?.student?.active_society_fee_heads?.filter((fd) => {
-      receiptData?.fee_heads?.filter((fd) => {
+      receiptData?.student?.active_society_fee_heads?.filter((fd) => {
         if (fd?.paid_fee > 0 && fd?.original_paid > 0) {
           return fd;
         } else {
@@ -1042,7 +1042,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         .fontSize(12)
         .font("Times-Roman")
         .fillColor("#121212")
-        .text(0, {
+        .text(receiptData?.student?.other_fees_remain_price, {
           width:
             doc.widthOfString(
               "Total Pending Fee TIll Date (Including All Academic Years):"

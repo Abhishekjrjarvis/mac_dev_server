@@ -15459,49 +15459,54 @@ exports.render_subject_select_query = async (req, res) => {
     
     const apply = await NewApplication.findById({ _id: aid })
       .select("subject_selected_group")
-    const all_group = await SubjectGroup.findById({ _id: `${apply?.subject_selected_group}`})
-    const all_group_select = await SubjectGroupSelect.find({ subject_group: { $in: all_group } })
-    .populate({
-      path: "compulsory_subject",
-      select: "subjectName",
-    })
-    .populate({
-      path: "optional_subject",
-      populate: {
-        path: "optional_subject_options optional_subject_options_or.options",
-        select: "subjectName",
+    if (apply?.subject_selected_group?.length > 0) {
+      const all_group = await SubjectGroup.findById({ _id: `${apply?.subject_selected_group}` })
+      const all_group_select = await SubjectGroupSelect.find({ subject_group: { $in: all_group } })
+        .populate({
+          path: "compulsory_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "optional_subject",
+          populate: {
+            path: "optional_subject_options optional_subject_options_or.options",
+            select: "subjectName",
+          }
+        })
+        .populate({
+          path: "fixed_subject",
+          populate: {
+            path: "fixed_subject_options",
+            select: "subjectName",
+          }
+        })
+      var subject_list = []
+      for (let ele of all_group_select) {
+        subject_list.push(...ele?.compulsory_subject)
       }
-    })
-    .populate({
-      path: "fixed_subject",
-      populate: {
-        path: "fixed_subject_options",
-        select: "subjectName",
-      }
-    })
-    var subject_list = []
-    for (let ele of all_group_select) {
-      subject_list.push(...ele?.compulsory_subject)
-    }
-    for (let ele of all_group_select) {
-      for (let val of ele?.fixed_subject) {
-        subject_list.push(...val?.fixed_subject_options)
-      }
-    }
-    for (let ele of all_group_select) {
-      for (let val of ele?.optional_subject) {
-        subject_list.push(...val?.optional_subject_options)
-      }
-      for (let val of ele?.optional_subject) {
-        for (let stu of val?.optional_subject_options_or) {
-          subject_list.push(...stu?.options)
+      for (let ele of all_group_select) {
+        for (let val of ele?.fixed_subject) {
+          subject_list.push(...val?.fixed_subject_options)
         }
       }
+      for (let ele of all_group_select) {
+        for (let val of ele?.optional_subject) {
+          subject_list.push(...val?.optional_subject_options)
+        }
+        for (let val of ele?.optional_subject) {
+          for (let stu of val?.optional_subject_options_or) {
+            subject_list.push(...stu?.options)
+          }
+        }
+      }
+      const unique = [...new Set(subject_list.map(item => item._id))];
+      const all_subjects = await SubjectMaster.find({ _id: { $in: unique } })
+        .select("subjectName")
+      res.status(200).send({ message: "Explore All Subject Master Query", access: true, subject: all_subjects })
     }
-    const unique = [...new Set(subject_list.map(item => item._id))];
-    const all_subjects = await SubjectMaster.find({ _id: { $in: unique } })
-    .select("subjectName")
-    res.status(200).send({ message: "Explore All Subject Master Query", access: true, subject: all_subjects})
+    else {
+      res.status(200).send({ message: "No Explore All Subject Master Query", access: true, subject: [] })
+    }
   }
   catch (e) {
     console.log(e)

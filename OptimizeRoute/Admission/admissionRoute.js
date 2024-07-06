@@ -952,4 +952,9 @@ router.get(
   catchAsync(Admission.render_one_subject_student_query)
 );
 
+router.get(
+  "/:sid/change/subject/query",
+  catchAsync(Admission.render_one_subject_change_student_query)
+);
+
 module.exports = router;

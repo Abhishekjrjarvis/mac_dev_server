@@ -15608,6 +15608,19 @@ exports.spce_student_name_sequencing = async (list) => {
   }
 }
 
+exports.render_one_subject_change_student_query = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    await Student.findByIdAndUpdate(sid, req?.body)
+    res.status(200).send({ message: "Explore Student Subject Change Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {

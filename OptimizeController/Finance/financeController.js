@@ -6844,14 +6844,17 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
         .skip(skip)
         .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj")
         .populate({
-          path: "other_fees.fee_receipt",
-          select: "receipt_file"
+          path: "other_fees",
+          populate: {
+            path: "fee_receipt",
+            select: "receipt_file"
+          }
         })
       for (let ele of all_student) {
         for (let val of ele?.other_fees) {
           if (`${val?.fees}` === `${one_of?._id}` && val?.fee_receipt) {
             ele.other_fees_obj.status = "Paid"
-            ele.other_fees_obj.receipt_file = receipt_file
+            ele.other_fees_obj.receipt_file = val?.fee_receipt?.receipt_file
           }
         }
       }

@@ -191,6 +191,9 @@ const feeReceiptSchema = new mongoose.Schema({
   },
   fee_diff_mode: {
     type: String
+  },
+  student_name: {
+    type: String
   }
 });
 

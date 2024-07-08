@@ -72,7 +72,11 @@ const otherFeesSchema = new mongoose.Schema({
     created_at: {
         type: Date,
         default: Date.now
-    }
+    },
+    student_name: {
+        type: String
+    },
+    students_list: []
 })
 
 module.exports = mongoose.model("OtherFees", otherFeesSchema)

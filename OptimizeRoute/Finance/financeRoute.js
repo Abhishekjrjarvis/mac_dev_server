@@ -582,6 +582,10 @@ router
   .post(catchAsync(Finance.renderNewOtherFeesQuery));
 
 router
+.route("/non/existing/other/fee/:fid")
+.post(catchAsync(Finance.renderNewOtherFeesNonExistingQuery));
+
+router
   .route("/all/other/fee/:fid")
   .get(catchAsync(Finance.renderAllOtherFeesQuery));
 

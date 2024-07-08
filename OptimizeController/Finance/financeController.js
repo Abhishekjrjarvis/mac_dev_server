@@ -6685,6 +6685,112 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
   }
 }
 
+exports.renderNewOtherFeesNonExistingQuery = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    const { heads, students, struct, is_collect, mode, student_name } = req?.body
+    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var finance = await Finance.findById({ _id: fid })
+    var institute = await InstituteAdmin.findById({ _id: `${finance?.institute}` })
+    var o_f = new OtherFees({ ...req?.body })
+    if (req?.body?.other_fees_type === "Normal") {
+      o_f.other_fees_disable = "Disable"
+    }
+    if (heads?.length > 0) {
+      for (let ele of heads) {
+        o_f.fees_heads.push({
+          head_name: ele?.head_name,
+          head_amount: ele?.head_amount,
+          master: ele?.master,
+          is_society: false
+        })
+        // o_f.other_fees_name = ele?.head_name
+      }
+    }
+    else if(struct) {
+      const structure = await FeeStructure.findById({ _id: struct})
+      o_f.fee_structure = structure?._id
+      for (let ele of structure?.applicable_fees_heads) {
+        o_f.fees_heads.push({
+          head_name: ele?.head_name,
+          head_amount: ele?.head_amount,
+          master: ele?.master,
+          is_society: ele?.is_society
+        })
+        // o_f.other_fees_name = ele?.head_name
+      }
+    }
+    if (is_collect === "Yes") {
+        // for (let ele of students) {
+          // const stu = await Student.findById({ _id: `${ele}` })
+          // const user = await User.findById({ _id: `${stu?.user}` })
+          // stu.other_fees_paid_price += o_f?.payable_amount
+          o_f.students_list.push(student_name)
+          // o_f.paid_students.push(stu?._id)
+          o_f.status = "Paid"
+          o_f.student_count += 1
+          for (let val of o_f?.fees_heads) {
+            val.paid_amount += o_f?.payable_amount
+          }
+          const new_receipt = new FeeReceipt({ ...req.body });
+          const order = new OrderPayment({...req?.body})
+          new_receipt.student_name = student_name
+          new_receipt.fee_structure = struct
+          new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+          new_receipt.other_fees = o_f?._id;
+          new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
+          new_receipt.finance = finance?._id;
+          new_receipt.receipt_status = "Already Generated";
+          order.payment_module_type = "Other Fees";
+          order.payment_to_end_user_id = institute?._id;
+          // order.payment_by_end_user_id = user._id;
+          order.payment_module_id = o_f._id;
+          order.payment_amount = o_f?.payable_amount;
+          order.payment_status = "Captured";
+          order.payment_flag_to = "Credit";
+          order.payment_flag_by = "Debit";
+          order.payment_mode = mode;
+          order.payment_other_fees = o_f._id;
+          // order.payment_from = stu._id;
+          // order.payment_student = stu?._id;
+          order.payment_student_name = student_name;
+          order.payment_student_gr = "";
+          order.fee_receipt = new_receipt?._id;
+          fee_receipt_count_query(institute, new_receipt, order)
+          // stu.other_fees.push({
+          //   fees: o_f?._id,
+          //   fee_receipt: new_receipt?._id,
+          //   status: "Paid"
+          // })
+          for (let ele of o_f?.fees_heads) {
+            new_receipt.fee_heads.push({
+              head_id: ele?._id,
+              head_name: ele?.head_name,
+              paid_fee: ele?.head_amount,
+              applicable_fee: ele?.head_amount,
+              remain_fee: new_receipt?.fee_payment_amount - ele?.head_amount,
+              fee_structure: o_f?.fee_structure ?? null,
+              master: ele?.master,
+              original_paid: new_receipt?.fee_payment_amount,
+              is_society: ele?.is_society,
+            })
+          }
+          // user.payment_history.push(order._id);
+          institute.payment_history.push(order._id);
+          await Promise.all([ institute.save(), new_receipt.save(), order.save()])
+        // }
+    }
+    finance.other_fees.push(o_f?._id)
+    o_f.finance = finance?._id
+    await Promise.all([finance.save(), o_f.save()])
+    res.status(200).send({ message: "Explore New Other Fees Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.renderAllOtherFeesQuery = async (req, res) => {
   try {
     const { fid } = req?.params
@@ -6699,7 +6805,7 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
       .sort({ created_at: -1})
       .limit(limit)
       .skip(skip)
-      .select("other_fees_name other_fees_type payable_amount student_count")
+      .select("other_fees_name other_fees_type payable_amount student_count student_name students_list")
       .populate({
         path: "bank_account",
         select: "finance_bank_account_number finance_bank_name finance_bank_account_name"

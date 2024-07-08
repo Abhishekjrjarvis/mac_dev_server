@@ -6781,7 +6781,9 @@ exports.renderNewOtherFeesNonExistingQuery = async (req, res) => {
       o_f.fee_receipt = new_receipt?._id
           // user.payment_history.push(order._id);
           institute.payment_history.push(order._id);
-          await Promise.all([ institute.save(), new_receipt.save(), order.save()])
+      await Promise.all([institute.save(), new_receipt.save(), order.save()])
+      await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
+      
         // }
     }
     finance.other_fees.push(o_f?._id)

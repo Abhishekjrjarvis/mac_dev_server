@@ -76,6 +76,7 @@ const QvipleId = require("../../models/Universal/QvipleId");
 const feeReceipt = require("../../models/RazorPay/feeReceipt");
 const { fee_receipt_count_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 const normalAdmissionFeeReceipt = require("../../scripts/normalAdmissionFeeReceipt");
+const studentOtherFeeReceipt = require("../../scripts/studentOtherFeeReceipt")
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -6547,7 +6548,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
           master: ele?.master,
           is_society: false
         })
-        // o_f.other_fees_name = ele?.head_name
+        o_f.other_fees_name = ele?.head_name
       }
     }
     else if(struct) {
@@ -6560,7 +6561,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
           master: ele?.master,
           is_society: ele?.is_society
         })
-        // o_f.other_fees_name = ele?.head_name
+        o_f.other_fees_name = ele?.head_name
       }
     }
     if (is_collect === "Yes") {
@@ -6627,6 +6628,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
           user.payment_history.push(order._id);
           institute.payment_history.push(order._id);
           await Promise.all([stu.save(), user.save(), institute.save(), new_receipt.save(), order.save()])
+          await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
         }
       }
       else {
@@ -6705,7 +6707,7 @@ exports.renderNewOtherFeesNonExistingQuery = async (req, res) => {
           master: ele?.master,
           is_society: false
         })
-        // o_f.other_fees_name = ele?.head_name
+        o_f.other_fees_name = ele?.head_name
       }
     }
     else if(struct) {
@@ -6718,7 +6720,7 @@ exports.renderNewOtherFeesNonExistingQuery = async (req, res) => {
           master: ele?.master,
           is_society: ele?.is_society
         })
-        // o_f.other_fees_name = ele?.head_name
+        o_f.other_fees_name = ele?.head_name
       }
     }
     if (is_collect === "Yes") {

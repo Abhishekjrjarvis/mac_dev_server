@@ -76,7 +76,11 @@ const otherFeesSchema = new mongoose.Schema({
     student_name: {
         type: String
     },
-    students_list: []
+    students_list: [],
+    fee_receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt"
+    }
 })
 
 module.exports = mongoose.model("OtherFees", otherFeesSchema)

@@ -6778,6 +6778,7 @@ exports.renderNewOtherFeesNonExistingQuery = async (req, res) => {
               is_society: ele?.is_society,
             })
           }
+      o_f.fee_receipt = new_receipt?._id
           // user.payment_history.push(order._id);
           institute.payment_history.push(order._id);
           await Promise.all([ institute.save(), new_receipt.save(), order.save()])
@@ -6811,6 +6812,10 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
       .populate({
         path: "bank_account",
         select: "finance_bank_account_number finance_bank_name finance_bank_account_name"
+      })
+      .populate({
+        path: "fee_receipt",
+        select: "receipt_file"
       })
       .populate({
         path: "fee_structure",

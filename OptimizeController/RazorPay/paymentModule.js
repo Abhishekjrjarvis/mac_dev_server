@@ -50,6 +50,7 @@ const { classes_status } = require("../Admission/admissionController");
 const OtherFees = require("../../models/Finance/Other/OtherFees");
 const FeeMaster = require("../../models/Finance/FeeMaster");
 const ErrorPayment = require("../../models/Acid/ErrorPayment");
+const studentOtherFeeReceipt = require("../../scripts/studentOtherFeeReceipt");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
   try {
@@ -1969,6 +1970,7 @@ exports.otherFeesFunction = async (
       account.save(),
       finance_user.save(),
     ]);
+    await studentOtherFeeReceipt(new_receipt._id, institute._id);
     return `${studentUser?.username}`;
   } catch (e) {
     console.log(e);

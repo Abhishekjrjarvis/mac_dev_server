@@ -13969,7 +13969,7 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
         }
         if (nest?.remaining_fee > 0) {
           if (ele?.status === "Not Paid") {
-            ele.remainAmount = nest?.remaining_fee
+            ele.remainAmount += nest?.remaining_fee
           }
           else {
             nest.remaining_array.push({

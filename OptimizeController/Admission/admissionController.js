@@ -13968,10 +13968,12 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
             await logs.save()
         }
         if (nest?.remaining_fee > 0) {
+          console.log("Enter")
           if (ele?.status === "Not Paid") {
             ele.remainAmount += nest?.remaining_fee
           }
           else {
+            console.log("Enter Else")
             nest.remaining_array.push({
               installmentValue: "Installment Remain",
               status: "Not Paid",

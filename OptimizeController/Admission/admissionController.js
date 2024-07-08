@@ -13918,14 +13918,24 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
           if (nest?.paid_fee >= ele?.remainAmount) {
             nest.paid_fee -= ele?.remainAmount
           }
-          // nest.remaining_fee += ele?.remainAmount
+          nest.remaining_fee += ele?.remainAmount
           if (new_fees?.paid_fee >= ele?.remainAmount) {
             new_fees.paid_fee -= ele?.remainAmount
           }
-          // new_fees.remaining_fee += ele?.remainAmount
+          new_fees.remaining_fee += ele?.remainAmount
           finance.delete_logs.push(logs?._id)
           nest?.remaining_array.pull(ele?._id)
           await logs.save()
+          if (nest?.remaining_fee > 0) {
+              nest.remaining_array.push({
+                installmentValue: "Installment Remain",
+                status: "Not Paid",
+                isEnable: true,
+                appId: new_fees?.appId,
+                instituteId: new_fees?.institute,
+                remainAmount: nest?.remaining_fee
+              })
+          }
         }
         else {
             const logs = new DeleteLogs({})

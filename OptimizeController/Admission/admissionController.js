@@ -14839,12 +14839,14 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
         }
       }
       for (let data of filter_select) {
-        const apps = await NewApplication.findById({ _id: `${data?.application}`})
-        data.student.new_app.appId = apps?._id
-        data.student.new_app.appName = apps?.applicationName
-        data.student.new_app.applicationDepartment = apps?.applicationDepartment
-        data.student.new_app.applicationBatch = apps?.applicationBatch
-        data.student.new_app.applicationMaster = apps?.applicationMaster
+        if (data?.application) {
+          const apps = await NewApplication.findById({ _id: `${data?.application}` })
+          data.student.new_app.appId = apps?._id
+          data.student.new_app.appName = apps?.applicationName
+          data.student.new_app.applicationDepartment = apps?.applicationDepartment
+          data.student.new_app.applicationBatch = apps?.applicationBatch
+          data.student.new_app.applicationMaster = apps?.applicationMaster
+        }
       }
       if (filter_select?.length > 0) {
         // const selectEncrypt = await encryptionPayload(apply);
@@ -14885,12 +14887,14 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
         apply?.selectedApplication?.reverse()
       );
       for (let data of all_select_query) {
-        const apps = await NewApplication.findById({ _id: `${data?.application}`})
-        data.student.new_app.appId = apps?._id
-        data.student.new_app.appName = apps?.applicationName
-        data.student.new_app.applicationDepartment = apps?.applicationDepartment
-        data.student.new_app.applicationBatch = apps?.applicationBatch
-        data.student.new_app.applicationMaster = apps?.applicationMaster
+        if (data?.application) {
+          const apps = await NewApplication.findById({ _id: `${data?.application}` })
+          data.student.new_app.appId = apps?._id
+          data.student.new_app.appName = apps?.applicationName
+          data.student.new_app.applicationDepartment = apps?.applicationDepartment
+          data.student.new_app.applicationBatch = apps?.applicationBatch
+          data.student.new_app.applicationMaster = apps?.applicationMaster
+        }
       }
       if (all_select_query?.length > 0) {
         // const selectEncrypt = await encryptionPayload(apply);
@@ -14963,12 +14967,14 @@ exports.fetchAllFeeCollectedMergedApplication = async (req, res) => {
         }
       }
       for (let data of filter_select) {
+        if (data?.application?._id) {
           const apps = await NewApplication.findById({ _id: `${data?.application?._id}` })
           data.student.new_app.appId = apps?._id
           data.student.new_app.appName = apps?.applicationName
           data.student.new_app.applicationDepartment = apps?.applicationDepartment
           data.student.new_app.applicationBatch = apps?.applicationBatch
           data.student.new_app.applicationMaster = apps?.applicationMaster
+        }
       }
       if (filter_select?.length > 0) {
         // const selectEncrypt = await encryptionPayload(apply);
@@ -15010,12 +15016,14 @@ exports.fetchAllFeeCollectedMergedApplication = async (req, res) => {
         apply?.FeeCollectionApplication?.reverse()
       );
       for (let data of all_select_query) {
+        if (data?.application?._id) {
           const apps = await NewApplication.findById({ _id: `${data?.application?._id}` })
           data.student.new_app.appId = apps?._id
           data.student.new_app.appName = apps?.applicationName
           data.student.new_app.applicationDepartment = apps?.applicationDepartment
           data.student.new_app.applicationBatch = apps?.applicationBatch
           data.student.new_app.applicationMaster = apps?.applicationMaster
+        }
       }
       if (all_select_query?.length > 0) {
         // const selectEncrypt = await encryptionPayload(apply);

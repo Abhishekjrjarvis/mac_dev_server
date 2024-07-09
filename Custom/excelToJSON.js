@@ -452,12 +452,25 @@ exports.generate_excel_to_json_direct_hostelities = async (file, hid, fid) => {
   }
 };
 
-exports.generate_excel_to_json_scholarship_query = async (file) => {
+exports.generate_excel_to_json_scholarship_query = async (excel_arr, excel_count) => {
   try {
-    const w_query = xlsx.read(file.Body);
-    const w_sheet = w_query.Sheets["ScholarshipDetail"];
-    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
-    return { scholar_array: data_query, value: true };
+    var new_data_query = [];
+    var obj = {}
+    for (var ref of excel_arr) {
+      for (var val = 0; val < excel_count; val++){
+        if (ref[`key${val}`]) {
+          obj[ref[`key${val}`].db_key] = ref[`key${val}`]?.value
+        }
+      }
+      new_data_query.push({
+        ...obj
+      });
+    }
+    // const w_query = xlsx.read(file.Body);
+    // const w_sheet = w_query.Sheets["ScholarshipDetail"];
+    // const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    console.log(new_data_query)
+    return { scholar_array: new_data_query, value: true };
   } catch (e) {
     console.log("Scholarship Excel Query Not Resolved", e);
   }

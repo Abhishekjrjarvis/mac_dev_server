@@ -1155,6 +1155,9 @@ const studentSchema = new mongoose.Schema({
     appId: { type: String },
     struct: { type: String },
     gta: { type: Number, default: 0}
+  },
+  scholar_name: {
+    type: String
   }
 });
 

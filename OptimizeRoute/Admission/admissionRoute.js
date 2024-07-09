@@ -958,8 +958,11 @@ router.get(
 );
 
 router.patch(
-  "/:sid/change/subject/query",
+  "/:fid/change/fee/receipt/query",
   catchAsync(Admission.render_one_subject_change_student_query)
 );
+
+router.patch("/all/student/name", catchAsync(Admission.renderAutoStudentNameQuery))
+
 
 module.exports = router;

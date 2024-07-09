@@ -1638,7 +1638,7 @@ exports.renderExcelToJSONHostelitiesQuery = async (req, res) => {
 exports.renderExcelToJSONAdmissionScholarshipQuery = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { excel_file, excel_sheet_name } = req.body;
+    const { excel_file, excel_sheet_name, scholar_batch, excel_arr, excel_count } = req.body;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -1674,13 +1674,13 @@ exports.renderExcelToJSONAdmissionScholarshipQuery = async (req, res) => {
     }
     const val = await simple_object(key);
 
-    const is_converted = await generate_excel_to_json_scholarship_query(val);
+    const is_converted = await generate_excel_to_json_scholarship_query(excel_arr, excel_count);
     if (is_converted?.value) {
       await renderAdmissionNewScholarNumberAutoQuery(
-        aid,
         is_converted?.scholar_array,
         one_ins?._id,
-        excel_sheet_name
+        excel_sheet_name,
+        scholar_batch
       );
     } else {
       console.log("false");

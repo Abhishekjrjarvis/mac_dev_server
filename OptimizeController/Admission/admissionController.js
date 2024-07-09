@@ -9103,19 +9103,18 @@ const type_calc = async (r_args) => {
   }
 };
 
-exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, id, excel_sheet_name) => {
+exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_name) => {
   try {
     var num_arr = []
     if (arr?.length > 0) {
       for (var ref of arr) {
-        let names = `${ref?.Name}`
+        let names = `${ref?.Name?.trim()}`
         var student = await Student.findOne({
-          $or: [{ studentFirstName: { $regex: `${names}`, $options: "i" } },
-            { studentFatherName: { $regex: `${names}`, $options: "i" } },
-            { studentLastName: { $regex: `${names}`, $options: "i"}}]
+          scholar_name: `${names?.toLowerCase()}`
         })
+        const apps = await NewApplication.find({ applicationBatch: scholar_batch})
         var valid_remain = await RemainingList.findOne({
-          scholar_ship_number: `${ref?.ScholarNumber}`,
+          $and: [{ student: student?._id }, { appId: { $in: apps  } }],
         }).populate({
           path: "fee_structure",
         });
@@ -9154,6 +9153,24 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, id, excel_sh
     } else {
       console.log("Bug In Excel")
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAutoStudentNameQuery = async (req, res) => {
+  try {
+    const all_student = await Student.find({})
+      .select("studentFirstName studentMiddleName studentLastName studentFatherName scholar_name")
+    var i = 0
+    for (let ele of all_student) {
+      let names = `${ele?.studentFirstName?.toLowerCase()}${ele?.studentMiddleName?.toLowerCase() ?? ele?.studentFatherName?.toLowerCase()}${ele?.studentLastName?.toLowerCase()}`
+      ele.scholar_name = names?.trim()
+      await ele.save()
+      console.log(i)
+      i+= 1
+    }
+    res.status(200).send({ message: "All Student Name"})
   } catch (e) {
     console.log(e);
   }
@@ -15634,6 +15651,83 @@ exports.render_one_subject_change_student_query = async (req, res) => {
     if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     await Student.findByIdAndUpdate(sid, req?.body)
+    res.status(200).send({ message: "Explore Student Subject Change Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_one_fee_receipt_change_student_query = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const receipt = await FeeReceipt.findById({ _id: fid })
+    const student = await Student.findById({ _id: `${receipt?.student}` })
+    const order = await OrderPayment.findOne({ fee_receipt: receipt?._id })
+    const remaining = await RemainingList.findOne({ $and: [{ fee_structure: receipt?.fee_structure }, { student: student?._id }] })
+    const nest_app = await NestedCard.findById({ _id: remaining?.applicable_card })
+    const nest_gov = await NestedCard.findById({ _id: remaining?.government_card })
+    for (let ele of nest_app?.remaining_array) {
+      if (`${ele?.fee_receipt}` === `${receipt?._id}`) {
+        if (nest_app?.paid_fee >= ele?.remainAmount) {
+          nest_app.paid_fee -= ele?.remainAmount
+        }
+        if (remaining?.paid_fee >= ele?.remainAmount) {
+          remaining.paid_fee -= ele?.remainAmount
+        }
+        nest_app.remaining_fee += ele?.remainAmount
+        remaining.remaining_fee += ele?.remainAmount
+        nest_app.remaining_array.pull(ele?._id)
+        if (nest_app?.remaining_fee > 0) {
+          if (ele?.status === "Not Paid") {
+            
+          }
+          else {
+            nest_app.remaining_array.push({
+              installmentValue: "Installment Remain",
+              status: "Not Paid",
+              isEnable: true,
+              appId: remaining?.appId,
+              instituteId: remaining?.institute,
+              remainAmount: nest_app?.remaining_fee
+            })
+          }
+        }
+      }
+    }
+    for (let ele of nest_gov?.remaining_array) {
+      if (`${ele?.fee_receipt}` === `${receipt?._id}`) {
+        if (nest_gov?.paid_fee >= ele?.remainAmount) {
+          nest_gov.paid_fee -= ele?.remainAmount
+        }
+        if (remaining?.paid_fee >= ele?.remainAmount) {
+          remaining.paid_fee -= ele?.remainAmount
+        }
+        nest_gov.remaining_fee += ele?.remainAmount
+        remaining.remaining_fee += ele?.remainAmount
+        nest_gov.remaining_array.pull(ele?._id)
+        if (nest_gov?.remaining_fee > 0) {
+          if (ele?.status === "Not Paid") {
+            
+          }
+          else {
+            nest_gov.remaining_array.push({
+              installmentValue: "Installment Remain",
+              status: "Not Paid",
+              isEnable: true,
+              appId: remaining?.appId,
+              instituteId: remaining?.institute,
+              remainAmount: nest_gov?.remaining_fee
+            })
+          }
+        }
+      }
+    }
+    await Promise.all([ nest_app.save(), nest_gov.save(), remaining.save()])
+    await FeeReceipt.findByIdAndDelete(receipt?._id)
+    await OrderPayment.findByIdAndDelete(order?._id)
     res.status(200).send({ message: "Explore Student Subject Change Query", access: true})
   }
   catch (e) {

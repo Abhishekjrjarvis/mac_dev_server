@@ -959,7 +959,7 @@ router.get(
 
 router.patch(
   "/:fid/change/fee/receipt/query",
-  catchAsync(Admission.render_one_subject_change_student_query)
+  catchAsync(Admission.render_one_fee_receipt_change_student_query)
 );
 
 router.patch("/all/student/name", catchAsync(Admission.renderAutoStudentNameQuery))

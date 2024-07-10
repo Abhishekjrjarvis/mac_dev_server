@@ -4,7 +4,7 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 exports.getSubjectTabManageQuery = async (req, res) => {
   try {
     const { sid } = req.params;
-    const { flow } = req.query;
+    const { flow, insId } = req.query;
 
     if (!sid) {
       return res.status(200).send({
@@ -17,11 +17,11 @@ exports.getSubjectTabManageQuery = async (req, res) => {
         select: "institute",
       });
       const inst = await InstituteAdmin.findById(
-        subject?.class?.institute
+        insId
       ).select("subject_tab_manage");
       res.status(200).send({
         message: "Subject Tab Manage toggle",
-        tab_manage: inst.subject_tab_manage,
+        tab_manage: inst?.subject_tab_manage,
       });
     } else {
       const inst = await InstituteAdmin.findById(sid).select(

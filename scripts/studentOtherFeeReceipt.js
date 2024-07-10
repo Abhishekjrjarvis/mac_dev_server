@@ -20,9 +20,15 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
   const receiptData = result?.ft?.receipt;
   // console.log("receiptData", receiptData);
   let date = new Date();
-  let stu_name = `${receiptData?.student?.studentFirstName ?? ""} ${
-    receiptData?.student?.studentMiddleName ?? ""
-  } ${receiptData?.student?.studentLastName ?? ""}`;
+  let stu_name = null;
+  if (receiptData?.student_name) {
+    stu_name = receiptData?.student_name ?? "";
+  } else {
+    stu_name = `${receiptData?.student?.studentFirstName ?? ""} ${
+      receiptData?.student?.studentMiddleName ?? ""
+    } ${receiptData?.student?.studentLastName ?? ""}`;
+  }
+
   // const stream = fs.createWriteStream(
   //   `./uploads/${stu_name}-other-fees-receipt.pdf`
   // );
@@ -528,15 +534,26 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
       align: "left",
     });
   doc.moveUp(1);
+  if (receiptData?.student?.other_fees_remain_price) {
+    doc
+      .fontSize(12)
+      .font("Times-Roman")
+      .fillColor("#121212")
+      .text(receiptData?.student?.other_fees_remain_price, {
+        width: doc.widthOfString("Pending Fee For All Academic Year") + 40,
+        align: "right",
+      });
+  } else {
+    doc
+      .fontSize(12)
+      .font("Times-Roman")
+      .fillColor("#121212")
+      .text(0, {
+        width: doc.widthOfString("Pending Fee For All Academic Year") + 40,
+        align: "right",
+      });
+  }
 
-  doc
-    .fontSize(12)
-    .font("Times-Roman")
-    .fillColor("#121212")
-    .text(receiptData?.student?.other_fees_remain_price, {
-      width: doc.widthOfString("Pending Fee For All Academic Year") + 40,
-      align: "right",
-    });
   doc.rect(doc.x, pos1 + pos2, pageWidth - 40, 34).stroke();
   doc.y += 7;
   doc
@@ -1036,18 +1053,31 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
           align: "left",
         });
       doc.moveUp(1);
-
-      doc
-        .fontSize(12)
-        .font("Times-Roman")
-        .fillColor("#121212")
-        .text(receiptData?.student?.other_fees_remain_price, {
-          width:
-            doc.widthOfString(
-              "Total Pending Fee TIll Date (Including All Academic Years):"
-            ) + 40,
-          align: "right",
-        });
+      if (receiptData?.student?.other_fees_remain_price) {
+        doc
+          .fontSize(12)
+          .font("Times-Roman")
+          .fillColor("#121212")
+          .text(receiptData?.student?.other_fees_remain_price, {
+            width:
+              doc.widthOfString(
+                "Total Pending Fee TIll Date (Including All Academic Years):"
+              ) + 40,
+            align: "right",
+          });
+      } else {
+        doc
+          .fontSize(12)
+          .font("Times-Roman")
+          .fillColor("#121212")
+          .text(0, {
+            width:
+              doc.widthOfString(
+                "Total Pending Fee TIll Date (Including All Academic Years):"
+              ) + 40,
+            align: "right",
+          });
+      }
 
       if (pos1 + pos2 > doc.page.height) {
         doc
@@ -1091,7 +1121,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
   // Handle stream close event
   stream.on("finish", async () => {
     const fee_receipt = await feeReceipt.findById({ _id: receiptId });
-    console.log("created");
+    // console.log("created");
     let file = {
       path: `uploads/${name}-other-fees-receipt.pdf`,
       filename: `${name}-other-fees-receipt.pdf`,

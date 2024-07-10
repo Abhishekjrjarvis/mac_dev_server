@@ -1770,115 +1770,112 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         return obj;
       };
       for (var ref of all_receipts) {
-        var remain_list = await RemainingList.findOne({
-          $and: [{ student: ref?.student }, { appId: ref?.application }],
-        })
-          .populate({
-            path: "fee_structure",
-            select:
-              "applicable_fees total_admission_fees class_master batch_master unique_structure_name",
-            populate: {
-              path: "class_master batch_master",
-              select: "className batchName",
-            },
+        if (ref?.student?.studentFirstName) {
+          console.log("ENTER")
+          var remain_list = await RemainingList.findOne({
+            $and: [{ student: ref?.student }, { appId: ref?.application }],
           })
-          .populate({
-            path: "appId",
-            select: "applicationDepartment applicationBatch",
-            populate: {
-              path: "applicationDepartment applicationBatch",
-              select: "dName batchName",
-            },
-          });
-        var head_array = [];
-        if (ref?.fee_heads?.length > 0) {
-          for (var val of ref?.fee_heads) {
+            .populate({
+              path: "fee_structure",
+              select:
+                "applicable_fees total_admission_fees class_master batch_master unique_structure_name",
+              populate: {
+                path: "class_master batch_master",
+                select: "className batchName",
+              },
+            })
+            .populate({
+              path: "appId",
+              select: "applicationDepartment applicationBatch",
+              populate: {
+                path: "applicationDepartment applicationBatch",
+                select: "dName batchName",
+              },
+            });
+          var head_array = [];
+          if (ref?.fee_heads?.length > 0) {
+            for (var val of ref?.fee_heads) {
+              if (`${val?.appId}` === `${ref?.application?._id}`) {
+                head_array.push({
+                  HeadsName: val?.head_name,
+                  PaidHeadFees: val?.original_paid,
+                });
+              }
+            }
+          }
+          if (remain_list?.paid_fee - remain_list?.applicable_fee > 0) {
             if (`${val?.appId}` === `${ref?.application?._id}`) {
               head_array.push({
-                HeadsName: val?.head_name,
-                PaidHeadFees: val?.original_paid,
+                HeadsName: "Excess Fees",
+                PaidHeadFees: remain_list?.paid_fee - remain_list?.applicable_fee,
               });
             }
           }
-        }
-        if (remain_list?.paid_fee - remain_list?.applicable_fee > 0) {
-          if (`${val?.appId}` === `${ref?.application?._id}`) {
-            head_array.push({
-              HeadsName: "Excess Fees",
-              PaidHeadFees: remain_list?.paid_fee - remain_list?.applicable_fee,
-            });
+          if (ref?.fee_heads?.length > 0) {
+            var result = await buildStructureObject(head_array);
           }
-        }
-        if (ref?.fee_heads?.length > 0) {
-          var result = await buildStructureObject(head_array);
-        }
-        if (result) {
-          head_list.push({
-            ReceiptNumber: ref?.invoice_count ?? "0",
-            ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
-            TransactionAmount: ref?.fee_payment_amount ?? "0",
-            TransactionDate:
-              moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
-            TransactionMode: ref?.fee_payment_mode ?? "#NA",
-            BankName: ref?.fee_bank_name ?? "#NA",
-            BankHolderName: ref?.fee_bank_holder ?? "#NA",
-            BankUTR: ref?.fee_utr_reference ?? "#NA",
-            GRNO: ref?.student?.studentGRNO ?? "#NA",
-            Name:
-              `${ref?.student?.studentFirstName} ${
-                ref?.student?.studentMiddleName
+          if (result) {
+            head_list.push({
+              ReceiptNumber: ref?.invoice_count ?? "0",
+              ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
+              TransactionAmount: ref?.fee_payment_amount ?? "0",
+              TransactionDate:
+                moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
+              TransactionMode: ref?.fee_payment_mode ?? "#NA",
+              BankName: ref?.fee_bank_name ?? "#NA",
+              BankHolderName: ref?.fee_bank_holder ?? "#NA",
+              BankUTR: ref?.fee_utr_reference ?? "#NA",
+              GRNO: ref?.student?.studentGRNO ?? "#NA",
+              Name:
+                `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName
                   : ""
-              } ${ref?.student?.studentLastName}` ?? "#NA",
-            Gender: ref?.student?.studentGender ?? "#NA",
-            Standard:
-              `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
-            Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
-            FeeStructure:
-              remain_list?.fee_structure?.unique_structure_name ?? "#NA",
-            TotalFees: remain_list?.fee_structure?.total_admission_fees ?? "0",
-            ApplicableFees: remain_list?.fee_structure?.applicable_fees ?? "0",
-            PaidByStudent: remain_list?.paid_fee,
-            PaidByGovernment: remain_list?.paid_by_government,
-            TotalPaidFees: remain_list?.paid_fee,
-            ApplicableOutstanding:
-              remain_list?.fee_structure?.applicable_fees -
-                remain_list?.paid_fee >
-              0
-                ? remain_list?.fee_structure?.applicable_fees -
+                } ${ref?.student?.studentLastName}` ?? "#NA",
+              Gender: ref?.student?.studentGender ?? "#NA",
+              Standard:
+                `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
+              Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
+              FeeStructure:
+                remain_list?.fee_structure?.unique_structure_name ?? "#NA",
+              TotalFees: remain_list?.fee_structure?.total_admission_fees ?? "0",
+              ApplicableFees: remain_list?.fee_structure?.applicable_fees ?? "0",
+              PaidByStudent: remain_list?.paid_fee,
+              PaidByGovernment: remain_list?.paid_by_government,
+              TotalPaidFees: remain_list?.paid_fee,
+              ApplicableOutstanding:
+                remain_list?.fee_structure?.applicable_fees -
+                  remain_list?.paid_fee >
+                  0
+                  ? remain_list?.fee_structure?.applicable_fees -
                   remain_list?.paid_fee
-                : 0,
-            TotalOutstanding: remain_list?.remaining_fee,
-            Remark: remain_list?.remark ?? "#NA",
-            DepartmentBankName:
-              ref?.application?.applicationDepartment?.bank_account
-                ?.finance_bank_name ?? "#NA",
-            DepartmentBankAccountNumber:
-              ref?.application?.applicationDepartment?.bank_account
-                ?.finance_bank_account_number ?? "#NA",
-            DepartmentBankAccountHolderName:
-              ref?.application?.applicationDepartment?.bank_account
-                ?.finance_bank_account_name ?? "#NA",
-            Narration: `Being Fees Received By ${
-              ref?.fee_payment_mode
-            } Date ${moment(ref?.fee_transaction_date).format(
-              "DD-MM-YYYY"
-            )} Rs. ${ref?.fee_payment_amount} out of Rs. ${
-              ref?.student.fee_structure?.total_admission_fees
-            } Paid By ${ref?.student?.studentFirstName} ${
-              ref?.student?.studentMiddleName
-                ? ref?.student?.studentMiddleName
-                : ""
-            } ${ref?.student?.studentLastName} (${
-              ref?.student.fee_structure?.category_master?.category_name
-            }) Towards Fees For ${ref?.student?.studentClass?.className}-${
-              ref?.student?.studentClass?.classTitle
-            } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
-            ...result,
-          });
-          result = [];
+                  : 0,
+              TotalOutstanding: remain_list?.remaining_fee,
+              Remark: remain_list?.remark ?? "#NA",
+              DepartmentBankName:
+                ref?.application?.applicationDepartment?.bank_account
+                  ?.finance_bank_name ?? "#NA",
+              DepartmentBankAccountNumber:
+                ref?.application?.applicationDepartment?.bank_account
+                  ?.finance_bank_account_number ?? "#NA",
+              DepartmentBankAccountHolderName:
+                ref?.application?.applicationDepartment?.bank_account
+                  ?.finance_bank_account_name ?? "#NA",
+              Narration: `Being Fees Received By ${ref?.fee_payment_mode
+                } Date ${moment(ref?.fee_transaction_date).format(
+                  "DD-MM-YYYY"
+                )} Rs. ${ref?.fee_payment_amount} out of Rs. ${ref?.student.fee_structure?.total_admission_fees
+                } Paid By ${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
+                  ? ref?.student?.studentMiddleName
+                  : ""
+                } ${ref?.student?.studentLastName} (${ref?.student.fee_structure?.category_master?.category_name
+                }) Towards Fees For ${ref?.student?.studentClass?.className}-${ref?.student?.studentClass?.classTitle
+                } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
+              ...result,
+            });
+            result = [];
+          }
+          head_array = [];
         }
-        head_array = [];
       }
 
       await fee_heads_receipt_json_to_excel_query(

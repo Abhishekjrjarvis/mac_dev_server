@@ -15666,7 +15666,7 @@ exports.render_one_fee_receipt_change_student_query = async (req, res) => {
     const receipt = await FeeReceipt.findById({ _id: fid })
     const student = await Student.findById({ _id: `${receipt?.student}` })
     const order = await OrderPayment.findOne({ fee_receipt: receipt?._id })
-    const remaining = await RemainingList.findOne({ $and: [{ fee_structure: receipt?.fee_structure }, { student: student?._id }] })
+    const remaining = await RemainingList.findOne({ $and: [{ appId: receipt?.application }, { student: student?._id }] })
     const nest_app = await NestedCard.findById({ _id: remaining?.applicable_card })
     const nest_gov = await NestedCard.findById({ _id: remaining?.government_card })
     for (let ele of nest_app?.remaining_array) {

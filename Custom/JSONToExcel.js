@@ -164,6 +164,7 @@ exports.fee_heads_receipt_json_to_excel_query = async (
     });
     ins_admin.export_collection_count += 1;
     await ins_admin.save();
+    console.log("GEN")
     return results
   } catch (e) {
     console.log(e);

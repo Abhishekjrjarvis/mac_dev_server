@@ -6048,7 +6048,7 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
       })
       .populate({
         path: "class",
-        select: "studentCount className classTitle",
+        select: "studentCount className classTitle institute",
       })
       .populate({
         path: "selected_batch_query",

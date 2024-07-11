@@ -15669,6 +15669,15 @@ exports.render_one_fee_receipt_change_student_query = async (req, res) => {
     const remaining = await RemainingList.findOne({ $and: [{ appId: receipt?.application }, { student: student?._id }] })
     const nest_app = await NestedCard.findById({ _id: remaining?.applicable_card })
     const nest_gov = await NestedCard.findById({ _id: remaining?.government_card })
+    if (nest_app?.paid_fee > nest_app?.applicable_fee) {
+      nest_app?.paid_fee -= receipt?.fee_payment_amount
+    }
+    if (remaining?.paid_fee > remaining?.applicable_fee) {
+      remaining?.paid_fee -= receipt?.fee_payment_amount
+    }
+    if (nest_gov?.paid_fee > nest_gov?.applicable_fee) {
+      nest_gov?.paid_fee -= receipt?.fee_payment_amount
+    }
     for (let ele of nest_app?.remaining_array) {
       if (`${ele?.fee_receipt}` === `${receipt?._id}`) {
         if (nest_app?.paid_fee >= ele?.remainAmount) {

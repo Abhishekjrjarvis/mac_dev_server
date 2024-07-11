@@ -12,7 +12,8 @@ const {
   callbackTransportStatus,
   callbackCertificate,
   callbackCertificateStatus,
-  callbackOtherFees
+  callbackOtherFees,
+  callbackOtherFeesStatus
   // callbackLibrary,
   // callbackLibraryStatus,
 } = require("../../OptimizeController/Paytm/pay_upi");
@@ -65,5 +66,8 @@ router.route("/status/success/certificate/query").post(callbackCertificateStatus
 // router.route("/status/success/library/query").post(callbackLibraryStatus);
 
 router.route("/status/success/transport/query").post(callbackTransportStatus);
+
+router.route("/status/success/other/fees/query").post(callbackOtherFeesStatus);
+
 
 module.exports = router;

@@ -936,6 +936,52 @@ exports.callbackOtherFees = async (req, res) => {
   }
 };
 
+exports.callbackOtherFeesStatus = async (req, res) => {
+  try {
+    const {
+      moduleId, paidBy, name, paidTo, isApk, price,
+      TXNAMOUNT,
+      STATUS,
+      TXNID,
+      apk_body,
+    } = req.body;
+    var status = STATUS;
+    var price_charge = TXNAMOUNT;
+    if (status === "TXN_SUCCESS") {
+      var order = await order_history_query(
+        "Other",
+        moduleId,
+        price,
+        paidTo,
+        TXNID,
+        apk_body
+      );
+      var paytm_author = false;
+      await otherFeesFunction(
+        order?._id,
+        paidBy,
+        price,
+        price_charge,
+        moduleId,
+        paytm_author,
+      );
+      if (isApk === "APK") {
+        res.status(200).send({
+          message: "Success with Other Fees Paytm Fees 😀",
+          check: true,
+        });
+      } else {
+        res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+      }
+    } else {
+      res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
 exports.callback_payment_failed_regeneration_counter = async (req, res) => {
   try {
     const all_pay = await ErrorPayment.find({})

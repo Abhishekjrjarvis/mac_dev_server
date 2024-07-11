@@ -55,5 +55,5 @@ exports.timerFunction = () => {
   // }, 86400000);
   setInterval(async () => {
     await callback_payment_failed_regeneration_counter();
-  }, 86400);
+  }, 86400000);
 };

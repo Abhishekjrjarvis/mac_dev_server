@@ -15670,13 +15670,13 @@ exports.render_one_fee_receipt_change_student_query = async (req, res) => {
     const nest_app = await NestedCard.findById({ _id: remaining?.applicable_card })
     const nest_gov = await NestedCard.findById({ _id: remaining?.government_card })
     if (nest_app?.paid_fee > nest_app?.applicable_fee) {
-      nest_app?.paid_fee -= receipt?.fee_payment_amount
+      nest_app.paid_fee -= receipt?.fee_payment_amount
     }
     if (remaining?.paid_fee > remaining?.applicable_fee) {
-      remaining?.paid_fee -= receipt?.fee_payment_amount
+      remaining.paid_fee -= receipt?.fee_payment_amount
     }
     if (nest_gov?.paid_fee > nest_gov?.applicable_fee) {
-      nest_gov?.paid_fee -= receipt?.fee_payment_amount
+      nest_gov.paid_fee -= receipt?.fee_payment_amount
     }
     for (let ele of nest_app?.remaining_array) {
       if (`${ele?.fee_receipt}` === `${receipt?._id}`) {

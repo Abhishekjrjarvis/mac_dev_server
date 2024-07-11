@@ -4,7 +4,7 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 exports.getSubjectTabManageQuery = async (req, res) => {
   try {
     const { sid } = req.params;
-    const { flow, insId } = req.query;
+    const { flow } = req.query;
 
     if (!sid) {
       return res.status(200).send({
@@ -12,17 +12,31 @@ exports.getSubjectTabManageQuery = async (req, res) => {
       });
     }
     if (flow === "Subject") {
-      const subject = await Subject.findById(sid).populate({
-        path: "class",
-        select: "institute",
-      });
-      const inst = await InstituteAdmin.findById(
-        insId
-      ).select("subject_tab_manage");
-      res.status(200).send({
-        message: "Subject Tab Manage toggle",
-        tab_manage: inst?.subject_tab_manage,
-      });
+      let subject = await Subject.findById(sid)
+        .populate({
+          path: "class",
+          select: "institute",
+        })
+        .populate({
+          path: "subjectMasterName",
+        });
+      if (subject?.class?.institute) {
+        const inst = await InstituteAdmin.findById(
+          subject?.class?.institute
+        ).select("subject_tab_manage");
+        res.status(200).send({
+          message: "Subject Tab Manage toggle",
+          tab_manage: inst.subject_tab_manage,
+        });
+      } else {
+        const inst = await InstituteAdmin.findById(
+          subject?.subjectMasterName?.institute
+        ).select("subject_tab_manage");
+        res.status(200).send({
+          message: "Subject Tab Manage toggle",
+          tab_manage: inst.subject_tab_manage,
+        });
+      }
     } else {
       const inst = await InstituteAdmin.findById(sid).select(
         "subject_tab_manage"

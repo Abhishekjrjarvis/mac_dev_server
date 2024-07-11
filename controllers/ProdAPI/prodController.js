@@ -16,6 +16,8 @@ const { generate_excel_to_json_accession_query } = require("../../Custom/excelTo
 const { simple_object } = require("../../S3Configuration");
 const Book = require("../../models/Library/Book");
 const { universal_random_password_student_code } = require("../../Generator/RandomPass");
+const FeeReceipt = require("../../models/RazorPay/feeReceipt");
+// const OrderPayment = require("../../models/RazorPay/orderPayment");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // exports.allUsers = async (req, res) => {
@@ -526,6 +528,25 @@ exports.render_student_code_insertion_query = async (req, res) => {
       await ele.save()
       console.log(i)
       i+=1
+    }
+    res.status(200).send({ message: "All Student Qviple Pay Code Inserted"})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.delete_payment = async (req, res) => {
+  try {
+    const all = await OrderPayment.find({ payment_invoice_number: "648381-7-2024-1722" })
+    var i =0
+    for (let ele of all) {
+      if (ele?.fee_receipt) {
+        await FeeReceipt.findByIdAndDelete(ele?.fee_receipt)
+      }
+      await OrderPayment.findByIdAndDelete(ele?._id)
+      console.log(i)
+      i+= 1
     }
     res.status(200).send({ message: "All Student Qviple Pay Code Inserted"})
   }

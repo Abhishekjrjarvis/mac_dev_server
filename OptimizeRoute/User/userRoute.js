@@ -355,5 +355,11 @@ router.get(
   catchAsync(User.retrieveUserDashboardOneApplicationQuery)
 );
 
+router.get(
+  "/:uid/mods/access/query",
+  catchAsync(User.retrieveUserModsAccessQuery)
+);
+
+
 
 module.exports = router;

@@ -40,6 +40,8 @@ const { calc_profile_percentage } = require("../../Functions/ProfilePercentage")
 const Status = require("../../models/Admission/status");
 const StudentMessage = require("../../models/Content/StudentMessage");
 const FinanceModerator = require("../../models/Moderator/FinanceModerator");
+const { render_institute_current_role } = require("../Moderator/roleController");
+const { generateAccessInsToken } = require("../../helper/functions");
 
 exports.retrieveProfileData = async (req, res) => {
   try {
@@ -1354,6 +1356,12 @@ exports.getDashDataQuery = async (req, res) => {
     user.qviple_id = qvipleId?.qviple_id
     if (user) {
       // Add Another Encryption
+      // if (req?.query?.mod_id) {
+      //   var value = await render_institute_current_role(
+      //     finance?.moderator_role,
+      //     mod_id
+      //   );
+      // }
       res.status(200).send({
         message: "Success",
         user,
@@ -3732,6 +3740,53 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
     }
 } catch (e) {
     console.log(e);
+  }
+}
+
+exports.retrieveUserModsAccessQuery = async (req, res) => {
+  try {
+    const { uid } = req?.params
+    if (!uid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const user = await User.findById({ _id: uid })
+      .select("staff userLegalName username")
+    
+    const all_staff = await Staff.find({ _id: { $in: user?.staff } })
+      .select("instituteModeratorDepartment")
+      .populate({
+        path: "instituteModeratorDepartment",
+        select: "institute access_role academic_department staff_institute_admin lms",
+        populate: {
+          path: "academic_department institute",
+          select: "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart",
+        },
+      })
+      var token_list = []
+    
+    for (let ele of all_staff) {
+      ele?.instituteModeratorDepartment?.filter((val) => {
+        if(`${val?.access_role}` === "SOCIAL_MEDIA_ASSISTANT_ACCESS") {
+          const token = generateAccessInsToken(
+            val?.institute?.name,
+            val?.institute?._id,
+            val?.institute?.insPassword
+          );
+          token_list.push({
+            token: `Bearer ${token}`,
+            _id: val?.institute?._id,
+            name: val?.institute?.name,
+            mods_id: val?._id,
+            access_by: val?.access_role,
+            financeDepart: val?.institute?.financeDepart?.[0],
+            admissionDepart: val?.institute?.admissionDepart?.[0],
+          })
+        }
+      })
+    }
+    res.status(200).send({ message: "Explore Mods List", access: true, token_list: token_list, user: user})
+  }
+  catch (e) {
+    console.log(e)
   }
 }
 

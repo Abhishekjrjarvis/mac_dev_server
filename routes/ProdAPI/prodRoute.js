@@ -61,4 +61,7 @@ router.patch(
 
 router.patch("/all/student/code/query", catchAsync(Prod.render_student_code_insertion_query))
 
+router.patch("/all/payment/delete/query", catchAsync(Prod.delete_payment))
+
+
 module.exports = router;

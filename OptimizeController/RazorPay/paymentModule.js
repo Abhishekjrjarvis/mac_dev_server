@@ -355,7 +355,8 @@ exports.admissionInstituteFunction = async (
   remain_1,
   payment_card_id,
   pay_remain,
-  statusId
+  statusId,
+  eid
 ) => {
   try {
     var student = await Student.findById({ _id: paidBy }).populate({
@@ -661,6 +662,12 @@ exports.admissionInstituteFunction = async (
         account.save(),
         user.save()
       ]);
+    if (eid) {
+      console.log("PAYMENT BUG CHECKED + FIXED")
+      const bug = await ErrorPayment.findById({ _id: eid })
+      bug.error_status = "Generated_Fixed"
+      await bug.save()
+    }
     return `${user?.username}`;
   } catch (e) {
     if (e) {

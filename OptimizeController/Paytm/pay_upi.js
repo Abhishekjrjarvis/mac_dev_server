@@ -984,7 +984,7 @@ exports.callbackOtherFeesStatus = async (req, res) => {
 
 exports.callback_payment_failed_regeneration_counter = async (req, res) => {
   try {
-    const all_pay = await ErrorPayment.find({})
+    const all_pay = await ErrorPayment.find({ error_status: "Generated"})
     for (let ele of all_pay) {
       var paytmParams = {};
       paytmParams.body = {
@@ -1054,7 +1054,8 @@ exports.callback_payment_failed_regeneration_counter = async (req, res) => {
                 ele?.payment_remain_1,
                 ele?.error_payment_card,
                 pay_remain,
-                valid_status
+                valid_status,
+                ele?._id
                 // Boolean(ad_install)
               );
           });

@@ -2073,7 +2073,7 @@ exports.renderApplicationListQuery = async (req, res) => {
 
     var valid_apply = await NewApplication.findById({ _id: appId })
       .select(
-        "receievedApplication applicationUnit applicationName confirmedApplication allottedApplication applicationHostel admissionAdmin"
+        "receievedApplication applicationUnit applicationName confirmedApplication allottedApplication applicationHostel admissionAdmin subject_selected_group"
       )
       .populate({
         path: "receievedApplication",
@@ -2735,7 +2735,7 @@ exports.renderApplicationListQuery = async (req, res) => {
       valid_apply?.reviewApplication?.length > 0
     ) {
       const ads_admin = await Admission.findById({ _id: `${valid_apply?.admissionAdmin}` })
-        const all_group_select = await SubjectGroupSelect.find({ $and: [{ subject_group: { $in: ads_admin?.subject_groups } }] })
+        const all_group_select = await SubjectGroupSelect.find({ $and: [{ subject_group: { $in: valid_apply?.subject_selected_group } }] })
         .populate({
           path: "compulsory_subject",
           select: "subjectName",
@@ -2823,6 +2823,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           // );
           numsss[ele?.subjectName] = ele?.status;
         }
+        // console.log(numsss)
         excel_list.push({
           RegistrationID: ref?.student_prn_enroll_number ?? "#NA",
           Name: `${ref?.studentFirstName} ${

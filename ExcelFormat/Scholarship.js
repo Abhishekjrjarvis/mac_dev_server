@@ -30,4 +30,9 @@ let requiredFormat = [
     Amount: "Amount",
     isRequired: true,
   },
+  {
+    name: "SCH_NUMBER",
+    SCH_NUMBER: "SCH_NUMBER",
+    isRequired: false,
+  },
   ];

@@ -8789,7 +8789,8 @@ const auto_scholar_query = async (
   fee_payment_mode,
   date_query,
   remark_query,
-  txn_id
+  txn_id,
+  SCH_NUMBER
 ) => {
   try {
     // const { sid, appId } = req.params;
@@ -8840,6 +8841,7 @@ const auto_scholar_query = async (
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     remaining_fee_lists.remark = remaining_fee_lists?.remark ? `${remaining_fee_lists.remark} ${remark_query}` : `${remark_query}`
     new_receipt.txn_id = txn_id ?? ""
+    remaining_fee_lists.scholar_ship_number = SCH_NUMBER ?? ""
     if (fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
@@ -9113,10 +9115,11 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
           ref.combine_name = `${ref?.combine_name ?? ""}${ele}`
         }
         let sp_name = ref?.combine_name?.toLowerCase()
+        console.log(sp_name)
         var student = await Student.findOne({
           scholar_name: `${sp_name}`
         })
-        // console.log("student", student)
+        console.log("student", student?._id)
         const batch = await Batch.findById({ _id: scholar_batch})
         const apps = await NewApplication.find({ applicationBatch: { $in: batch?.merged_batches} })
         // console.log("Apps", apps)
@@ -9150,7 +9153,8 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
             "Government/Scholarship",
             ref?.Date,
             ref?.Remark,
-            num_id
+            num_id,
+            ref?.SCH_NUMBER ?? ""
           );
         }
         else{

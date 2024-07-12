@@ -9115,50 +9115,53 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
           ref.combine_name = `${ref?.combine_name ?? ""}${ele}`
         }
         let sp_name = ref?.combine_name?.toLowerCase()
-        console.log(sp_name)
-        var student = await Student.findOne({
+        var student = await Student.find({
           scholar_name: `${sp_name}`
         })
-        console.log("student", student?._id)
-        const batch = await Batch.findById({ _id: scholar_batch})
-        const apps = await NewApplication.find({ applicationBatch: { $in: batch?.merged_batches} })
-        // console.log("Apps", apps)
-        var valid_remain = await RemainingList.findOne({
-          $and: [{ student: student?._id }, { appId: { $in: apps  } }],
-        }).populate({
-          path: "fee_structure",
-        });
-        // console.log("Valid", valid_remain)
-        if (valid_remain) {
-          const num_type = "Installment Remain"
-          const num_id = ref?.TXNID ?? ""
-          // if (valid_remain?.access_mode_card === "One_Time_Wise") {
-          //   var valid_type =
-          //     valid_remain?.active_payment_type === "No Process"
-          //       ? "One Time Fees"
-          //       : valid_remain?.active_payment_type === "One Time Fees"
-          //       ? "One Time Fees Remain"
-          //       : "";
-          // } else if (valid_remain?.access_mode_card === "Installment_Wise") {
-          //   var valid_type = await type_calc(valid_remain);
-          // } else {
-          // }s
-          await auto_scholar_query(
-            valid_remain?.student,
-            valid_remain?.appId,
-            ref?.Amount,
-            "Offline",
-            num_type,
-            valid_remain?._id,
-            "Government/Scholarship",
-            ref?.Date,
-            ref?.Remark,
-            num_id,
-            ref?.SCH_NUMBER ?? ""
-          );
-        }
-        else{
+        if (student?.length > 1) {
           num_arr.push(ref)
+        }
+        else {
+          const batch = await Batch.findById({ _id: scholar_batch })
+          const apps = await NewApplication.find({ applicationBatch: { $in: batch?.merged_batches } })
+          // console.log("Apps", apps)
+          var valid_remain = await RemainingList.findOne({
+            $and: [{ student: { $in: student} }, { appId: { $in: apps } }],
+          }).populate({
+            path: "fee_structure",
+          });
+          // console.log("Valid", valid_remain)
+          if (valid_remain) {
+            const num_type = "Installment Remain"
+            const num_id = ref?.TXNID ?? ""
+            // if (valid_remain?.access_mode_card === "One_Time_Wise") {
+            //   var valid_type =
+            //     valid_remain?.active_payment_type === "No Process"
+            //       ? "One Time Fees"
+            //       : valid_remain?.active_payment_type === "One Time Fees"
+            //       ? "One Time Fees Remain"
+            //       : "";
+            // } else if (valid_remain?.access_mode_card === "Installment_Wise") {
+            //   var valid_type = await type_calc(valid_remain);
+            // } else {
+            // }s
+            await auto_scholar_query(
+              valid_remain?.student,
+              valid_remain?.appId,
+              ref?.Amount,
+              "Offline",
+              num_type,
+              valid_remain?._id,
+              "Government/Scholarship",
+              ref?.Date,
+              ref?.Remark,
+              num_id,
+              ref?.SCH_NUMBER ?? ""
+            );
+          }
+          else {
+            num_arr.push(ref)
+          }
         }
       }
       await mismatch_scholar_transaction_json_to_excel_query(num_arr, "Mismatch", id, excel_sheet_name)

@@ -140,6 +140,19 @@ exports.preformedStructure = async (req, res) => {
         institute.admissionCount += 1;
         await Promise.all([new_app.save(), admission.save(), institute.save(), iaf.save()]);
         var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+        .select("form_section")
+    .populate({
+      path: "form_section",
+      populate: {
+        path: "form_checklist",
+        populate: {
+          path: "nested_form_checklist",
+          populate: {
+            path: "nested_form_checklist_nested"
+          }
+        }
+      }
+    })
       var nums = []
       for (var val of ifs?.form_section) {
         if (val?.form_checklist?.length > 0) {

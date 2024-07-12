@@ -9,7 +9,7 @@ const catchAsync = require("../../Utilities/catchAsync");
 router
   .route("/:bid")
   .get(isLoggedIn, batchController.allClasses)
-  .post(isLoggedIn, batchController.preformedStructure);
+  .post(batchController.preformedStructure);
 router
   .route("/subject/:sid")
   .patch(isLoggedIn, batchController.subjectComplete);

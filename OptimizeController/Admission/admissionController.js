@@ -9103,7 +9103,7 @@ const type_calc = async (r_args) => {
   }
 };
 
-exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_name) => {
+exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_name, scholar_batch) => {
   try {
     var num_arr = []
     if (arr?.length > 0) {
@@ -9114,12 +9114,14 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
         var student = await Student.findOne({
           scholar_name: `${names?.toLowerCase()}`
         })
-        const apps = await NewApplication.find({ applicationBatch: scholar_batch})
+        const apps = await NewApplication.find({ applicationBatch: scholar_batch })
+        console.log("Apps", apps)
         var valid_remain = await RemainingList.findOne({
           $and: [{ student: student?._id }, { appId: { $in: apps  } }],
         }).populate({
           path: "fee_structure",
         });
+        console.log("Valid", valid_remain)
         if (valid_remain) {
           const num_type = "Installment Remain"
           const num_id = ref?.TXNID ?? ""

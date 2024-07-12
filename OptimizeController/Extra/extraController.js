@@ -1674,7 +1674,7 @@ exports.renderExcelToJSONAdmissionScholarshipQuery = async (req, res) => {
     // }
     // const val = await simple_object(key);
 
-    const is_converted = await generate_excel_to_json_scholarship_query(excel_arr, excel_count);
+    const is_converted = await generate_excel_to_json_scholarship_query(excel_file, excel_count);
     if (is_converted?.value) {
       await renderAdmissionNewScholarNumberAutoQuery(
         is_converted?.scholar_array,

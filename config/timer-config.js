@@ -53,7 +53,7 @@ exports.timerFunction = () => {
   // setInterval(async () => {
   //   await renderRealTimeDailyUpdate();
   // }, 86400000);
-  setInterval(async () => {
-    await callback_payment_failed_regeneration_counter();
-  }, 86400);
+  // setInterval(async () => {
+  //   await callback_payment_failed_regeneration_counter();
+  // }, 86400000);
 };

@@ -17,6 +17,7 @@ const { simple_object } = require("../../S3Configuration");
 const Book = require("../../models/Library/Book");
 const { universal_random_password_student_code } = require("../../Generator/RandomPass");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
+const ErrorPayment = require("../../models/Acid/ErrorPayment");
 // const OrderPayment = require("../../models/RazorPay/orderPayment");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
@@ -536,17 +537,30 @@ exports.render_student_code_insertion_query = async (req, res) => {
   }
 }
 
+// exports.delete_payment = async (req, res) => {
+//   try {
+//     const all = await OrderPayment.find({ payment_invoice_number: "648381-7-2024-1722" })
+//     var i =0
+//     for (let ele of all) {
+//       if (ele?.fee_receipt) {
+//         await FeeReceipt.findByIdAndDelete(ele?.fee_receipt)
+//       }
+//       await OrderPayment.findByIdAndDelete(ele?._id)
+//       console.log(i)
+//       i+= 1
+//     }
+//     res.status(200).send({ message: "All Student Qviple Pay Code Inserted"})
+//   }
+//   catch (e) {
+//     console.log(e)
+//   }
+// }
+
 exports.delete_payment = async (req, res) => {
   try {
-    const all = await OrderPayment.find({ payment_invoice_number: "648381-7-2024-1722" })
-    var i =0
-    for (let ele of all) {
-      if (ele?.fee_receipt) {
-        await FeeReceipt.findByIdAndDelete(ele?.fee_receipt)
-      }
-      await OrderPayment.findByIdAndDelete(ele?._id)
-      console.log(i)
-      i+= 1
+    const all_e = await ErrorPayment.find({ error_student: "668639ebd9cbacccf389782e" })
+    for (let ele of all_e) {
+      await ErrorPayment.findByIdAndDelete(ele?._id)
     }
     res.status(200).send({ message: "All Student Qviple Pay Code Inserted"})
   }

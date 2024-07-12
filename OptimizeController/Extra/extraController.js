@@ -1655,10 +1655,10 @@ exports.renderExcelToJSONAdmissionScholarshipQuery = async (req, res) => {
     //   status: "Uploaded",
     // });
     // await one_ins.save();
-    // res.status(200).send({
-    //   message: "Update Excel To Backend Wait for Operation Completed",
-    //   access: true,
-    // });
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
 
     // const update_ins = await InstituteAdmin.findById({
     //   _id: `${one_ads?.institute}`,

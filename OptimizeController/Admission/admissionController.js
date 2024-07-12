@@ -9107,7 +9107,7 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
   try {
     var num_arr = []
     if (arr?.length > 0) {
-      for (var ref of arr) {c
+      for (var ref of arr) {
         console.log("Whole DS", ref)
         console.log("Batch", scholar_batch)
         let names = `${ref?.Name?.trim()}`

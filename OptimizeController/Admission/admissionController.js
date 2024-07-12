@@ -9107,7 +9107,9 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
   try {
     var num_arr = []
     if (arr?.length > 0) {
-      for (var ref of arr) {
+      for (var ref of arr) {c
+        console.log("Whole DS", ref)
+        console.log("Batch", scholar_batch)
         let names = `${ref?.Name?.trim()}`
         var student = await Student.findOne({
           scholar_name: `${names?.toLowerCase()}`
@@ -9119,7 +9121,7 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
           path: "fee_structure",
         });
         if (valid_remain) {
-          const num_type = ref?.InstallmentValue === "1" ? "First Installment" : "Installment Remain"
+          const num_type = "Installment Remain"
           const num_id = ref?.TXNID ?? ""
           // if (valid_remain?.access_mode_card === "One_Time_Wise") {
           //   var valid_type =

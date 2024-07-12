@@ -9112,6 +9112,7 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
         var student = await Student.findOne({
           scholar_name: `${names?.toLowerCase()}`
         })
+        console.log("student", student)
         const batch = await Batch.findById({ _id: scholar_batch})
         const apps = await NewApplication.find({ applicationBatch: { $in: batch?.merged_batches} })
         console.log("Apps", apps)

@@ -9113,7 +9113,7 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
           scholar_name: `${names?.toLowerCase()}`
         })
         const batch = await Batch.findById({ _id: scholar_batch})
-        const apps = await NewApplication.find({ applicationBatch: { $in: batch} })
+        const apps = await NewApplication.find({ applicationBatch: { $in: batch?.merged_batches} })
         console.log("Apps", apps)
         var valid_remain = await RemainingList.findOne({
           $and: [{ student: student?._id }, { appId: { $in: apps  } }],

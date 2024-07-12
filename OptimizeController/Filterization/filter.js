@@ -7595,10 +7595,10 @@ exports.renderStudentExcessFeesExcelQuery = async (req, res) => {
           },
         },
       });
-    res.status(200).send({
-      message: "Explore Excess Fees Query",
-      access: true,
-    });
+    // res.status(200).send({
+    //   message: "Explore Excess Fees Query",
+    //   access: true,
+    // });
     for (let data of ads_admin?.refundFeeList) {
       if (data.student !== null) {
         filter_refund.push(data);
@@ -7652,6 +7652,11 @@ exports.renderStudentExcessFeesExcelQuery = async (req, res) => {
         aid,
         "Excess Fees List"
       );
+      res.status(200).send({
+        message: "Explore Excess Fees Query",
+        access: true,
+        filtered
+      });
     } else {
       res.status(200).send({
         message: "No Excess Fees Data Query",

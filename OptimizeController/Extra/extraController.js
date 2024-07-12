@@ -1649,30 +1649,30 @@ exports.renderExcelToJSONAdmissionScholarshipQuery = async (req, res) => {
     const one_ins = await InstituteAdmin.findById({
       _id: `${one_ads?.institute}`,
     });
-    one_ins.excel_data_query.push({
-      excel_file: excel_file,
-      admissionId: one_ads?._id,
-      status: "Uploaded",
-    });
-    await one_ins.save();
-    res.status(200).send({
-      message: "Update Excel To Backend Wait for Operation Completed",
-      access: true,
-    });
+    // one_ins.excel_data_query.push({
+    //   excel_file: excel_file,
+    //   admissionId: one_ads?._id,
+    //   status: "Uploaded",
+    // });
+    // await one_ins.save();
+    // res.status(200).send({
+    //   message: "Update Excel To Backend Wait for Operation Completed",
+    //   access: true,
+    // });
 
-    const update_ins = await InstituteAdmin.findById({
-      _id: `${one_ads?.institute}`,
-    });
-    var key;
-    for (var ref of update_ins?.excel_data_query) {
-      if (
-        `${ref.status}` === "Uploaded" &&
-        `${ref?.admissionId}` === `${one_ads?._id}`
-      ) {
-        key = ref?.excel_file;
-      }
-    }
-    const val = await simple_object(key);
+    // const update_ins = await InstituteAdmin.findById({
+    //   _id: `${one_ads?.institute}`,
+    // });
+    // var key;
+    // for (var ref of update_ins?.excel_data_query) {
+    //   if (
+    //     `${ref.status}` === "Uploaded" &&
+    //     `${ref?.admissionId}` === `${one_ads?._id}`
+    //   ) {
+    //     key = ref?.excel_file;
+    //   }
+    // }
+    // const val = await simple_object(key);
 
     const is_converted = await generate_excel_to_json_scholarship_query(excel_arr, excel_count);
     if (is_converted?.value) {

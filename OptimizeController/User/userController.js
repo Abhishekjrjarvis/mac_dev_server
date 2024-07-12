@@ -3703,7 +3703,7 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
       for (let ele of student) {
         if (latest_app?.reviewApplication?.includes(`${ele?._id}`)) {
           conditional = "Not Show"
-          // break
+          break
         }
         // if (ele?.department) {
         //   if (`${ele?.department}` === `${latest_app?.applicationDepartment}`) {

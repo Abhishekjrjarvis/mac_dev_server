@@ -77,5 +77,13 @@ router
   .route("/newtimetable/sync/student/:sid/schedule")
   .get(catchAsync(timetable.getNewTimetableSyncWiseStudentQuery));
 
+  router
+  .route("/newtimetable/one/day/:sid/query")
+    .get(catchAsync(timetable.subjectTeacherOneDayTimetableQuery));
+  
+    router
+  .route("/newtimetable/user/staff/:sid/schedule")
+  .get(catchAsync(timetable.getNewTimetableUserStaffDateWise));
+
 
 module.exports = router;

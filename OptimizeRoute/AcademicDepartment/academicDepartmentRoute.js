@@ -102,5 +102,15 @@ router.get(
     "/:bid/new/student/remove/batch",
     catchAsync(AcademicDepartment.render_new_student_remove_query_batch)
   );
+    
+  router.patch(
+    "/:bid/select/academic/batch/:did",
+    catchAsync(AcademicDepartment.render_active_academic_batch_query)
+  );
+      
+  router.get(
+    "/:cid/one/class/details/:did",
+    catchAsync(AcademicDepartment.render_one_class_details_query)
+  );
 
 module.exports = router;

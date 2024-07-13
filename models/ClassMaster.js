@@ -53,6 +53,10 @@ const classMasterSchema = new mongoose.Schema({
       did: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Department"
+      },
+      batch: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Batch"
       }
     }
   ],
@@ -75,7 +79,13 @@ const classMasterSchema = new mongoose.Schema({
   practical_batch_count: {
     type: Number,
     default: 0
-  }
+  },
+  all_academic_student: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student"
+    }
+  ]
 });
 
 const ClassMaster = mongoose.model("ClassMaster", classMasterSchema);

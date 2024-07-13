@@ -88,6 +88,4 @@ router
   )
 );
 
-copoRoute.js
-
 module.exports = router;

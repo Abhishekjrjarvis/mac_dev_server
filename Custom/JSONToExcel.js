@@ -13,6 +13,7 @@ const { custom_date_time_reverse } = require("../helper/dayTimer");
 const Mentor = require("../models/MentorMentee/mentor");
 const StudentFeedback = require("../models/StudentFeedback/StudentFeedback");
 const Subject = require("../models/Subject");
+const BankAccount = require("../models/Finance/BankAccount");
 
 
 
@@ -143,7 +144,10 @@ exports.fee_heads_json_to_excel_query = async (
 exports.fee_heads_receipt_json_to_excel_query = async (
   data_query,
   insName,
-  id
+  id,
+  bank,
+  from,
+  to
 ) => {
   try {
     var real_book = xlsx.utils.book_new();
@@ -151,6 +155,10 @@ exports.fee_heads_receipt_json_to_excel_query = async (
 
     xlsx.utils.book_append_sheet(real_book, real_sheet, "Fee Receipt Heads");
     var name = `${insName}-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
+    if (bank) {
+      const bank_acc = await BankAccount.findById({ _id: bank })
+      var name = `${bank_acc?.finance_bank_account_name}-${from}-To-${to}-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
+    }
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
     const results = await uploadExcelFile(`${name}.xlsx`);

@@ -136,13 +136,6 @@ exports.formEditByClassTeacher = async (req, res) => {
     if (regeneration_bool === "Yes" && appId && insId) {
       const apply = await NewApplication.findById({ _id: appId })
       const status = await Status.findById({ _id: statusId })
-      await generateStudentAdmissionForm(
-        one_student?._id,
-        insId,
-        `${one_student?.studentFirstName} ${one_student?.studentMiddleName ? one_student?.studentMiddleName : one_student?.studentFatherName ? one_student?.studentFatherName : ""} ${one_student?.studentLastName}`,
-        `${apply?.applicationName}`,
-      );
-
       for (let ele of apply?.receievedApplication) {
         if (`${ele?.student}` === `${one_student?._id}`) {
           ele.reject_status = ""
@@ -151,6 +144,12 @@ exports.formEditByClassTeacher = async (req, res) => {
       status.rejection_modification = "No"
       status.rejection_reason = ""
       await Promise.all([ apply.save(), status.save()])
+      await generateStudentAdmissionForm(
+        one_student?._id,
+        insId,
+        `${one_student?.studentFirstName} ${one_student?.studentMiddleName ? one_student?.studentMiddleName : one_student?.studentFatherName ? one_student?.studentFatherName : ""} ${one_student?.studentLastName}`,
+        `${apply?.applicationName}`,
+      );
     }
   } catch (e) {
     console.log(e);

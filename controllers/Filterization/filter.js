@@ -3487,10 +3487,10 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
             account.due_repay >= price
               ? account.due_repay - price
               : price - account.due_repay;
-          repay.bank_account.push(account?._id);
-          repay.bank_account_count += 1;
           await department.save();
         }
+        repay.bank_account.push(account?._id);
+        repay.bank_account_count += 1;
         if (account?.due_repay >= price) {
           account.due_repay -= price;
         }
@@ -3499,8 +3499,6 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
         }
         await account.save();
       }
-      repay.bank_account.push(account?._id);
-      repay.bank_account_count += 1;
       repay.settlement_date = `${g_year}-${g_month}-${g_day} To ${l_year}-${l_month}-${l_day} Settlement`;
       await Promise.all([
         institute.save(),

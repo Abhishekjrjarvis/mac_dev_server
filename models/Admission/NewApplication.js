@@ -243,6 +243,7 @@ const newApplicationSchema = new mongoose.Schema({
       status: { type: String, default: "Transferred" },
     },
   ],
+  receieved_array: [],
   allot_array: [],
   confirm_array: [],
   select_array: [],

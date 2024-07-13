@@ -108,7 +108,7 @@ const { mismatch_scholar_transaction_json_to_excel_query } = require("../../Cust
 const NestedCard = require("../../models/Admission/NestedCard");
 const { render_new_fees_card, render_new_fees_card_install } = require("../../Functions/FeesCard");
 const Charges = require("../../models/SuperAdmin/Charges");
-const { fee_receipt_count_query, fee_receipt_count_query_new } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
+const { fee_receipt_count_query, fee_receipt_count_query_new, form_no_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 const { renderAllStudentToUnApprovedAutoCatalogQuery } = require("../Authentication/AuthController");
 const FeeMaster = require("../../models/Finance/FeeMaster");
 const DeleteLogs = require("../../models/RazorPay/DeleteLogs");
@@ -1145,8 +1145,7 @@ Note: Stay tuned for further updates.`;
       status.applicationId = apply._id;
       student.student_form_flow.flow = "APPLICATION"
       student.student_form_flow.did = apply._id
-      institute.form_no_count += 1
-      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+      form_no_query(institute, student)
       status.document_visible = true;
       status.instituteId = institute._id;
       status.finance = institute?.financeDepart?.[0];
@@ -1156,12 +1155,18 @@ Note: Stay tuned for further updates.`;
       status.bank_account = filtered_account?._id;
       user.applyApplication.push(apply._id);
       student.user = user._id;
-      user.applicationStatus.push(status._id);
+    user.applicationStatus.push(status._id);
+    if (apply?.receieved_array?.includes(`${student?._id}`)) {
+      
+    }
+    else {
       apply.receievedApplication.push({
         student: student._id,
         fee_remain: 0,
       });
       apply.receievedCount += 1;
+      apply.receieved_array.push(student?._id)
+    }
       notify.notifyContent = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -1232,7 +1237,12 @@ Note: Stay tuned for further updates.`;
     // }
     // }
   } catch (e) {
-    console.log(e);
+    res.status(201).send({
+      message: "Test And Send Back To Server",
+      student: null,
+      status: true,
+      error: e
+    });
   }
 };
 
@@ -2180,6 +2190,7 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     for (let app of apply.receievedApplication) {
       if (`${app.student}` === `${student._id}`) {
         apply.receievedApplication.pull(app._id);
+        apply.receieved_array.pull(student?._id)
       } else {
       }
     }
@@ -2373,6 +2384,7 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
       if (`${app.student}` === `${student._id}`) {
         apply.receievedApplication.pull(app._id);
         user.applyApplication.pull(apply?._id);
+        apply.receieved_array.pull(student._id);
       } else {
       }
     }
@@ -3224,6 +3236,7 @@ exports.retrieveClassAllotQuery = async (req, res) => {
           const notify = new Notification({});
           const aStatus = new Status({});
           apply.reviewApplication.pull(student._id);
+          apply.allot_array.push(student?._id)
           apply.allottedApplication.push({
             student: student._id,
             payment_status: "offline",
@@ -10288,6 +10301,7 @@ exports.retrieveAdmissionSelectedRevertedApplication = async (req, res) => {
     apply.receievedApplication.push({
       student: student._id,
     });
+    apply.receieved_array.push(student?._id)
     if (apply.selectCount > 0) {
       apply.selectCount -= 1;
     }
@@ -11501,12 +11515,17 @@ exports.renderReviewStudentQuery = async(req, res) => {
 
     var app = await NewApplication.findById({ _id: aid })
     if(student_arr?.length > 0){
-      for(var val of student_arr){
-        app.reviewApplication.push(val?.sid)
-        app.review_count += 1
-        app.confirmedApplication.pull(val?.cid)
-        if(app?.confirmCount >= 0){
-          app.confirmCount -= 1
+      for (var val of student_arr) {
+        if (app?.reviewApplication?.includes(`${val?.sid}`)) {
+          
+        }
+        else {
+          app.reviewApplication.push(val?.sid)
+          app.review_count += 1
+          app.confirmedApplication.pull(val?.cid)
+          if(app?.confirmCount >= 0){
+            app.confirmCount -= 1
+          }
         }
       }
       await app.save()
@@ -15308,7 +15327,7 @@ exports.retrieve_admission_revertion_query = async (req, res) => {
     var new_apply = await NewApplication.findById({ _id: aid })
     var ads_admin = await Admission.findById({ _id: `${new_apply?.admissionAdmin}` })
     for (let ele of new_apply?.selectedApplication) {
-      console.log(ele?.revert_request_status)
+      // console.log(ele?.revert_request_status)
       const student = await Student.findById({ _id: ele?.student });
       var user = await User.findById({ _id: `${student?.user}` });
       var status = await Status.findById({ _id: ele?.revert_request_status });

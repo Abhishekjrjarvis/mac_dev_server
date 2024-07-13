@@ -24,3 +24,13 @@ exports.fee_receipt_count_query_new = async (ins, receipt) => {
         console.log(e)
     }
 }
+
+exports.form_no_query = (ins, student) => {
+    try {
+        ins.form_no_count += 1;
+        student.form_no = `${ins?.random_institute_code}-${new Date().getFullYear()} / ${ins?.form_no_count}`;
+    }
+    catch (e) {
+        console.log(e)
+    }
+}

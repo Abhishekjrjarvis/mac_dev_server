@@ -81,6 +81,7 @@ const { universal_random_password } = require("../../Custom/universalId");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 const { generate_qr } = require("../../Utilities/qrGeneration/qr_generation");
 const { universal_random_password_student_code } = require("../../Generator/RandomPass");
+const { form_no_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -1606,8 +1607,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
 
       student.student_form_flow.flow = "INSTITUTE"
       student.student_form_flow.did = institute?._id
-      institute.form_no_count += 1
-      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+      form_no_query(institute, student)
       const notify = new StudentNotification({});
       const aStatus = new Status({});
       institute.student.push(student._id);
@@ -2044,8 +2044,7 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       }
       student.student_form_flow.flow = "APPLICATION"
       student.student_form_flow.did = apply?._id
-      institute.form_no_count += 1
-      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+      form_no_query(institute, student)
       status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -2066,8 +2065,7 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 
 Note: Stay tuned for further updates.`;
       status.group_by = "Admission_Application_Applied"
-      institute.form_no_count += 1
-      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+      form_no_query(institute, student)
       status.applicationId = apply._id;
       status.student = student?._id;
       status.document_visible = true;
@@ -2291,8 +2289,7 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
       }
       student.student_form_flow.flow = "INSTITUTE"
       student.student_form_flow.did = institute?._id
-      institute.form_no_count += 1
-      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+      form_no_query(institute, student)
       status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -2556,8 +2553,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     }
     student.student_form_flow.flow = "DEPARTMENT"
     student.student_form_flow.did = depart?._id
-    institute.form_no_count += 1
-    student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+    form_no_query(institute, student)
     student.institute = institute._id;
     student.user = user._id;
     student.studentStatus = "Approved";
@@ -3147,8 +3143,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     }
     student.student_form_flow.flow = "APPLICATION"
     student.student_form_flow.did = apply?._id
-    institute.form_no_count += 1
-    student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+    form_no_query(institute, student)
     user.student.push(student._id);
     user.applyApplication.push(apply._id);
     student.user = user._id;
@@ -3432,8 +3427,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         }
         student.student_form_flow.flow = "DEPARTMENT"
         student.student_form_flow.did = depart?._id
-        institute.form_no_count += 1
-        student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+        form_no_query(institute, student)
         if (studentOptionalSubject?.length > 0) {
           student.studentOptionalSubject.push(...studentOptionalSubject);
         }
@@ -4486,8 +4480,7 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
         institute.joinedPost.push(user._id);
         student.student_form_flow.flow = "INSTITUTE"
         student.student_form_flow.did = institute?._id
-        institute.form_no_count += 1
-        student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+        form_no_query(institute, student)
         if (institute.userFollowersList.includes(user?._id)) {
         } else {
           user.userInstituteFollowing.push(institute?._id);

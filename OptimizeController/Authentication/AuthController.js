@@ -85,6 +85,7 @@ const InstituteStaffForm = require("../../models/Form/InstituteStaffForm");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 const { generate_qr } = require("../../Utilities/qrGeneration/qr_generation");
 const { universal_random_password_student_code } = require("../../Generator/RandomPass");
+const { form_no_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -2278,8 +2279,7 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       }
       student.student_form_flow.flow = "APPLICATION"
       student.student_form_flow.did = apply?._id
-      institute.form_no_count += 1
-      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+      form_no_query(institute, student)
       status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -2300,8 +2300,7 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 
 Note: Stay tuned for further updates.`;
       status.group_by = "Admission_Application_Applied"
-      institute.form_no_count += 1
-      student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+      form_no_query(institute, student)
       status.applicationId = apply._id;
       status.student = student?._id;
       status.document_visible = true;
@@ -2370,7 +2369,15 @@ Note: Stay tuned for further updates.`;
       });
     }
   } catch (e) {
-    console.log(e);
+    res.status(200).send({
+      message:
+        "Account Creation Process Aborted & message: Test And Send Back To Server 😀✨",
+      user: null,
+      token: "",
+      login: false,
+      student: null,
+      error: e
+    });
   }
 };
 
@@ -3381,8 +3388,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     }
     student.student_form_flow.flow = "APPLICATION"
     student.student_form_flow.did = apply?._id
-    institute.form_no_count += 1
-    student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+    form_no_query(institute, student)
     user.student.push(student._id);
     user.applyApplication.push(apply._id);
     student.user = user._id;
@@ -5511,8 +5517,7 @@ exports.retrieveDirectJoinAdmissionQueryApplication = async (student_list) => {
         student.studentProfilePhoto = "DEFAULT_STAFF_STUDENT.jpeg"
         student.student_form_flow.flow = "APPLICATION"
         student.student_form_flow.did = apply?._id
-        institute.form_no_count += 1
-        student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+        form_no_query(institute, student)
         status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -5533,8 +5538,7 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 
 Note: Stay tuned for further updates.`;
         status.group_by = "Admission_Application_Applied"
-        institute.form_no_count += 1
-        student.form_no = `${new Date().getFullYear()} / ${institute?.form_no_count}`
+        form_no_query(institute, student)
         status.applicationId = apply._id;
         status.student = student?._id;
         status.document_visible = true;

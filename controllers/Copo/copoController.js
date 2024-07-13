@@ -13,6 +13,8 @@ const {
   generate_excel_to_json_subject_master_co_query,
 } = require("../../Custom/excelToJSON");
 const { simple_object } = require("../../S3Configuration");
+const SubjectInternalEvaluation = require("../../models/InternalEvaluation/SubjectInternalEvaluation");
+const SubjectInternalEvaluationTest = require("../../models/InternalEvaluation/SubjectInternalEvaluationTest");
 
 exports.getAllAttainmentQuery = async (req, res) => {
   try {
@@ -1184,3 +1186,387 @@ exports.getSubjectCoExcelQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+
+// for subject internal evaluation
+exports.subjectTeacherAllInternalEvaluationQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    var i_eva = [];
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      i_eva = await SubjectInternalEvaluation.find({
+        $and: [
+          {
+            subject: { $eq: `${sid}` },
+          },
+          {
+            $or: [
+              {
+                name: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                out_of: { $regex: req.query.search, $options: "i" },
+              },
+            ],
+          },
+        ],
+      }).select("name out_of");
+    } else {
+      i_eva = await SubjectInternalEvaluation.find({
+        $and: [
+          {
+            subject: { $eq: `${sid}` },
+          },
+        ],
+      })
+        .select("name out_of")
+        .sort("-1")
+        .skip(dropItem)
+        .limit(itemPerPage);
+    }
+
+    res.status(200).send({
+      message: "Internal Evaluation All list.",
+      i_eva: i_eva,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectTeacherAddInternalEvaluationQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { name, out_of } = req.body;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const subject = await Subject.findById(sid);
+    const i_eva = new SubjectInternalEvaluation({
+      name: name,
+      out_of: out_of,
+      subject: sid,
+      class: subject?.class,
+    });
+    subject.internal_evaluation.push(i_eva?._id);
+    await Promise.all([i_eva.save(), subject.save()]);
+    res.status(200).send({
+      message: "Internal Evaluation added successfully.",
+    });
+    if (subject?.class) {
+      let cls = await Class.findById(subject?.class);
+      i_eva.department = cls?.department;
+      i_eva.institute = cls?.institute;
+      await i_eva.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectTeacherUpdateInternalEvaluationQuery = async (req, res) => {
+  try {
+    const { ieid } = req.params;
+    const { name, out_of } = req.body;
+    if (!ieid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const i_eva = await SubjectInternalEvaluation.findById(ieid);
+    if (i_eva?.internal_evaluation_test?.length > 0) {
+      res.status(200).send({
+        message: "Internal Evaluation edited not allowed.",
+      });
+    } else {
+      i_eva.name = name;
+      i_eva.out_of = out_of;
+      await i_eva.save();
+      res.status(200).send({
+        message: "Internal Evaluation edited successfully.",
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectTeacherRemoveInternalEvaluationQuery = async (req, res) => {
+  try {
+    const { ieid } = req.params;
+    if (!ieid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const i_eva = await SubjectInternalEvaluation.findById(ieid);
+    if (i_eva?.internal_evaluation_test?.length > 0) {
+      res.status(200).send({
+        message: "Internal Evaluation deleted not allowed.",
+      });
+    } else {
+      const sub = await Subject.findById(i_eva?.subject);
+      sub.internal_evaluation.pull(i_eva?._id);
+      await sub.save();
+      await SubjectInternalEvaluation.findByIdAndDelete(ieid);
+      res.status(200).send({
+        message: "Internal Evaluation deleted successfully.",
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.subjectTeacherStudentInternalEvaluationQuery = async (req, res) => {
+  try {
+    const { ieid } = req.params;
+    if (!ieid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const i_eva = await SubjectInternalEvaluation.findById(ieid).select(
+      "student_list"
+    );
+
+    res.status(200).send({
+      message: "Internal Evaluation All list.",
+      student_list: i_eva?.student_list?.length > 0 ? i_eva?.student_list : [],
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.subjectTeacherAllInternalEvaluationTestQuery = async (req, res) => {
+  try {
+    const { ieid } = req.params;
+    if (!ieid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    var i_eva_test = [];
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      i_eva_test = await SubjectInternalEvaluationTest.find({
+        $and: [
+          {
+            internal_evaluation: { $eq: `${ieid}` },
+          },
+          {
+            $or: [
+              {
+                name: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                out_of: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                test_type: { $regex: req.query.search, $options: "i" },
+              },
+            ],
+          },
+        ],
+      }).select("name test_type out_of conversion_rate");
+    } else {
+      i_eva_test = await SubjectInternalEvaluationTest.find({
+        $and: [
+          {
+            internal_evaluation: { $eq: `${ieid}` },
+          },
+        ],
+      })
+        .select("name test_type out_of conversion_rate")
+        .sort("-1")
+        .skip(dropItem)
+        .limit(itemPerPage);
+    }
+
+    res.status(200).send({
+      message: "Internal Evaluation Test All list.",
+      i_eva_test: i_eva_test,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectTeacherStudentInternalEvaluationTestQuery = async (req, res) => {
+  try {
+    const { ietid } = req.params;
+    if (!ietid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const i_eva_test = await SubjectInternalEvaluationTest.findById(
+      ietid
+    ).select("student_list");
+
+    res.status(200).send({
+      message: "Internal Evaluation All list.",
+      student_list:
+        i_eva_test?.student_list?.length > 0 ? i_eva_test?.student_list : [],
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectTeacherAddInternalEvaluationTestQuery = async (req, res) => {
+  try {
+    const { ieid } = req.params;
+    const { name, out_of, test_type, conversion_rate } = req.body;
+    if (!ieid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const i_eva = await SubjectInternalEvaluation.findById(ieid);
+    const i_eva_test = new SubjectInternalEvaluationTest({
+      name: name,
+      out_of: out_of,
+      test_type: test_type,
+      conversion_rate: conversion_rate,
+      subject: i_eva.subject,
+      internal_evaluation: i_eva?._id,
+    });
+    i_eva.internal_evaluation_test.push(i_eva_test?._id);
+    await Promise.all([i_eva_test.save(), i_eva.save()]);
+    res.status(200).send({
+      message: "Internal Evaluation Test added successfully.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectTeacherUpdateInternalEvaluationTestQuery = async (req, res) => {
+  try {
+    const { ietid } = req.params;
+    const { name, out_of, conversion_rate } = req.body;
+    if (!ietid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const i_eva_test = await SubjectInternalEvaluationTest.findById(ietid);
+    if (i_eva_test?.student_list?.length > 0) {
+      res.status(200).send({
+        message: "Internal Evaluation Test edited not allowed.",
+      });
+    } else {
+      i_eva_test.name = name;
+      i_eva_test.out_of = out_of;
+      i_eva_test.conversion_rate = conversion_rate;
+      await i_eva_test.save();
+      res.status(200).send({
+        message: "Internal Evaluation Test edited successfully.",
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectTeacherRemoveInternalEvaluationTestQuery = async (req, res) => {
+  try {
+    const { ietid } = req.params;
+    if (!ietid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const i_eva_test = await SubjectInternalEvaluationTest.findById(ietid);
+    if (i_eva_test?.student_list?.length > 0) {
+      res.status(200).send({
+        message: "Internal Evaluation Test deleted not allowed.",
+      });
+    } else {
+      const i_eva = await SubjectInternalEvaluation.findById(
+        i_eva_test?.internal_evaluation
+      );
+      i_eva.internal_evaluation_test.pull(i_eva_test?._id);
+      await i_eva.save();
+      await SubjectInternalEvaluationTest.findByIdAndDelete(ietid);
+      res.status(200).send({
+        message: "Internal Evaluation Test deleted successfully.",
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectTeacherMarkUpdateInternalEvaluationTestQuery = async (
+  req,
+  res
+) => {
+  try {
+    const { ietid } = req.params;
+    const { student_data } = req.body;
+    if (!ietid || !student_data?.length) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const i_eva_test = await SubjectInternalEvaluationTest.findById(ietid);
+    i_eva_test.student_list = student_data;
+    await i_eva_test.save();
+    res.status(200).send({
+      message: "Internal Evaluation Test marks updated successfully.",
+    });
+    const i_eva = await SubjectInternalEvaluation.findById(
+      i_eva_test.internal_evaluation
+    );
+    let convert_rate = (
+      i_eva_test?.out_of / i_eva_test?.conversion_rate
+    )?.toFixed(2);
+    convert_rate = +convert_rate;
+    for (let i = 0; i < student_data?.length; i++) {
+      let stu = student_data[i];
+      let ob_mark = (stu?.obtain_marks / convert_rate)?.toFixed(2);
+      ob_mark = +ob_mark;
+      let flag = false;
+      for (let j = 0; j < i_eva?.student_list?.length; j++) {
+        let already_stu = i_eva?.student_list[j];
+        if (`${already_stu?.student}` === `${stu?.student}`) {
+          already_stu.obtain_marks += ob_mark;
+          flag = true;
+          break;
+        } else {
+          flag = false;
+        }
+      }
+      if (!flag) {
+        i_eva.student_list.push({
+          student: stu?.student,
+          obtain_marks: ob_mark,
+        });
+      }
+    }
+    await i_eva.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+

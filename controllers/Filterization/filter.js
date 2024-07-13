@@ -3501,7 +3501,7 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
       }
       repay.bank_account.push(account?._id);
       repay.bank_account_count += 1;
-      repay.settlement_date = `${g_date} To ${l_date} Settlement`;
+      repay.settlement_date = `${g_year}-${g_month}-${g_day} To ${l_year}-${l_month}-${l_day} Settlement`;
       await Promise.all([
         institute.save(),
         notify.save(),

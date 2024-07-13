@@ -15,6 +15,8 @@ const AttendenceDate = require("../../models/AttendenceDate");
 const User = require("../../models/User");
 // const Student = require("../../models/Student");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const SubjectTimetable = require("../../models/Timetable/SubjectTimetable");
+const Student = require("../../models/Student");
 
 exports.getDayWiseSchedule = async (req, res) => {
   try {
@@ -1389,4 +1391,308 @@ exports.insertTimetableDefaultFieldQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+
+//by Staff side enter timetable list
+
+exports.subjectTeacherAddTimetableQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { from, to, day } = req.body;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const subject = await Subject.findById(sid);
+    const t_sub = await SubjectTimetable.findOne({
+      $and: [
+        {
+          subject: { $eq: `${sid}` },
+        },
+        {
+          day: day,
+        },
+      ],
+    });
+
+    if (t_sub?._id) {
+      let in_which = t_sub.schedule?.length;
+      in_which += 1;
+      t_sub.schedule.push({
+        from: from,
+        to: to,
+        subject: sid,
+        subjectName: subject.subjectName,
+        assignStaff: subject.subjectTeacherName,
+        which_lecture: in_which,
+      });
+      await t_sub.save();
+    } else {
+      const n_sub = new SubjectTimetable({
+        day: day,
+        subject: sid,
+        schedule: [
+          {
+            from: from,
+            to: to,
+            subject: sid,
+            subjectName: subject?.subjectName,
+            assignStaff: subject.subjectTeacherName,
+          },
+        ],
+      });
+      subject.timetableDayWise.push(n_sub?._id);
+
+      await Promise.all([n_sub.save(), subject.save()]);
+    }
+    return res.status(200).send({
+      message: "Timetable added successfully.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectTeacherUpdateTimetableQuery = async (req, res) => {
+  try {
+    const { ddid } = req.params;
+    const { from, to, subjectId, innerId } = req.body;
+    if (!ddid || !subjectId || !innerId) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const subject = await Subject.findById(subjectId);
+    const t_sub = await SubjectTimetable.findById(ddid);
+
+    if (t_sub?._id && t_sub.schedule?.length > 0) {
+      for (let ttf of t_sub.schedule) {
+        if (`${ttf?._id}` === `${innerId}`) {
+          ttf.from = from;
+          ttf.to = to;
+          ttf.subject = subjectId;
+          ttf.subjectName = subject.subjectName;
+          ttf.assignStaff = subject.subjectTeacherName;
+        }
+      }
+      await t_sub.save();
+      return res.status(200).send({
+        message: "Timetable edited successfully.",
+      });
+    } else {
+      return res.status(200).send({
+        message: "No any Timetable found.",
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectTeacherDeleteTimetableQuery = async (req, res) => {
+  try {
+    const { ddid } = req.params;
+    const { innerId } = req.body;
+    if (!ddid || !innerId) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const t_sub = await SubjectTimetable.findById(ddid);
+
+    if (t_sub?._id && t_sub.schedule?.length > 0) {
+      t_sub.schedule = t_sub.schedule?.filter(
+        (ttf) => `${ttf?._id}` !== `${innerId}`
+      );
+      await t_sub.save();
+      return res.status(200).send({
+        message: "Timetable Deleted successfully.",
+      });
+    } else {
+      return res.status(200).send({
+        message: "No any Timetable found.",
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getNewTimetableSyncWiseStaffQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    var syncDay = {
+      Monday: [],
+      Tuesday: [],
+      Wednesday: [],
+      Thursday: [],
+      Friday: [],
+      Staurday: [],
+    };
+    const staff = await Staff.findById(req.params.sid).select("staffSubject");
+    const subjects = await Subject.find({
+      _id: { $in: staff.staffSubject },
+    })
+      .populate({
+        path: "timetableDayWise",
+      })
+      .populate({
+        path: "class",
+      });
+
+    if (subjects?.length > 0) {
+      for (let sub of subjects) {
+        if (sub?.timetableDayWise?.length > 0) {
+          for (let ttf of sub?.timetableDayWise) {
+            let synObj = [];
+            let not_sort_scheudle = [];
+            if (ttf?.schedule?.length > 0) {
+              for (let itf of ttf?.schedule) {
+                not_sort_scheudle.push({
+                  from: itf?.from,
+                  to: itf?.to,
+                  subjectName: sub?.subjectName,
+                  which_lecture: itf?.which_lecture,
+                  subjectId: itf?.subject,
+                  subjectName: itf?.subjectName,
+                  className: sub?.class?.className,
+                  classTitle: sub?.class?.classTitle,
+                  dayId: ttf?._id,
+                  innerId: itf?._id,
+                });
+              }
+            }
+            synObj = get_day_wise_sort(not_sort_scheudle);
+            syncDay[ttf.day]?.push(...synObj);
+          }
+        }
+      }
+    }
+
+    for (let obj in syncDay) {
+      let obj_data = syncDay[obj];
+      syncDay[obj] = get_day_wise_sort(obj_data);
+    }
+
+    // const studentEncrypt = await encryptionPayload(syncDay);
+    res.status(200).send({
+      message: "Staff side all schedule list",
+      syncScheduleList: syncDay,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getNewTimetableSyncWiseStudentQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    var syncDay = {
+      Monday: [],
+      Tuesday: [],
+      Wednesday: [],
+      Thursday: [],
+      Friday: [],
+      Staurday: [],
+    };
+    const student = await Student.findById(sid).populate({
+      path: "studentClass",
+      select: "subject",
+    });
+    const subjects = await Subject.find({
+      _id: { $in: student?.studentClass?.subject },
+    }).populate({
+      path: "timetableDayWise",
+      populate: {
+        path: "schedule.assignStaff",
+        select: "staffFirstName staffMiddleName staffLastName staffROLLNO",
+      },
+    });
+
+    if (subjects?.length > 0) {
+      for (let sub of subjects) {
+        if (sub?.timetableDayWise?.length > 0) {
+          if (sub?.optionalStudent?.length > 0) {
+            let flag = false;
+            for (let stu of sub?.optionalStudent) {
+              if (`${stu}` === `${sid}`) {
+                flag = true;
+                break;
+              }
+            }
+            if (flag) {
+              for (let ttf of sub?.timetableDayWise) {
+                let synObj = [];
+                let not_sort_scheudle = [];
+                if (ttf?.schedule?.length > 0) {
+                  for (let itf of ttf?.schedule) {
+                    not_sort_scheudle.push({
+                      from: itf?.from,
+                      to: itf?.to,
+                      subjectName: sub?.subjectName,
+                      which_lecture: itf?.which_lecture,
+                      subjectId: itf?.subject,
+                      subjectName: itf?.subjectName,
+                      assignStaff: itf?.assignStaff,
+                    });
+                  }
+                }
+                synObj = get_day_wise_sort(not_sort_scheudle);
+                syncDay[ttf.day]?.push(...synObj);
+              }
+            }
+          } else {
+            for (let ttf of sub?.timetableDayWise) {
+              let synObj = [];
+              let not_sort_scheudle = [];
+              if (ttf?.schedule?.length > 0) {
+                for (let itf of ttf?.schedule) {
+                  not_sort_scheudle.push({
+                    from: itf?.from,
+                    to: itf?.to,
+                    subjectName: sub?.subjectName,
+                    which_lecture: itf?.which_lecture,
+                    subjectId: itf?.subject,
+                    subjectName: itf?.subjectName,
+                    assignStaff: itf?.assignStaff,
+                  });
+                }
+              }
+              synObj = get_day_wise_sort(not_sort_scheudle);
+              syncDay[ttf.day]?.push(...synObj);
+            }
+          }
+        }
+      }
+    }
+
+    for (let obj in syncDay) {
+      let obj_data = syncDay[obj];
+      syncDay[obj] = get_day_wise_sort(obj_data);
+    }
+
+    // const studentEncrypt = await encryptionPayload(syncDay);
+    res.status(200).send({
+      message: "Student side all schedule list",
+      syncScheduleList: syncDay,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
 

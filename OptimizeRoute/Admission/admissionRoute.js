@@ -964,5 +964,14 @@ router.patch(
 
 router.patch("/all/student/name", catchAsync(Admission.renderAutoStudentNameQuery))
 
+router.post(
+  "/reverse/student/:aid/allot/class",
+  catchAsync(Admission.retrieveClassAllotQueryReverse)
+);
+
+router.patch("/all/group/name", catchAsync(Admission.subject_student_class))
+
+
+
 
 module.exports = router;

@@ -10294,9 +10294,17 @@ exports.render_daybook_heads_wise = async (req, res) => {
       for (let ele of all_receipts) {
         for (let val of ele?.fee_heads) {
           for (let ads of nest_obj) {
-            if (`${ads?._id}` === `${val?.master}`) {
-              ads.head_amount += val?.original_paid;
-              // t+= val?.original_paid
+            if (bank_acc?.bank_account_type === "Society") {
+              if (`${ads?._id}` === `${val?.master}` && val?.is_society == true) {
+                ads.head_amount += val?.original_paid;
+                // t+= val?.original_paid
+              }
+            }
+            else {
+              if (`${ads?._id}` === `${val?.master}` && val?.is_society == false) {
+                ads.head_amount += val?.original_paid;
+                // t+= val?.original_paid
+              }
             }
           }
         }
@@ -10310,10 +10318,10 @@ exports.render_daybook_heads_wise = async (req, res) => {
       //   access: true,
       //   // all_receipts,
       //   results: nest_obj,
-      //   account_info: bank_acc,
-      //   day_range_from: from,
-      //   day_range_to: to,
-      //   ins_info: institute,
+      //   // account_info: bank_acc,
+      //   // day_range_from: from,
+      //   // day_range_to: to,
+      //   // ins_info: institute,
       // });
     } else {
       // res.status(200).send({

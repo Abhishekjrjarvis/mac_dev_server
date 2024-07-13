@@ -312,6 +312,24 @@ const subjectSchema = new mongoose.Schema({
       ref: "AutomateSubjectMaster",
     },
   ],
+  timetableDayWise: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectTimetable",
+    },
+  ],
+  timetableDateWise: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectTimetable",
+    },
+  ],
+  internal_evaluation: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectInternalEvaluation",
+    },
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

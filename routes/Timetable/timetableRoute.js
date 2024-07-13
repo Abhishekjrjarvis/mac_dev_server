@@ -58,6 +58,24 @@ router
 
   router
   .route("/insert/default/field/timetable")
-  .patch(catchAsync(timetable.insertTimetableDefaultFieldQuery));
+    .patch(catchAsync(timetable.insertTimetableDefaultFieldQuery));
+  
+    router
+  .route("/newtimetable/staff/subject/:sid")
+  .post(catchAsync(timetable.subjectTeacherAddTimetableQuery));
+router
+  .route("/newtimetable/one/day/:ddid/updated")
+  .patch(catchAsync(timetable.subjectTeacherUpdateTimetableQuery));
+router
+  .route("/newtimetable/one/day/:ddid/delete/query")
+  .delete(catchAsync(timetable.subjectTeacherDeleteTimetableQuery));
+router
+  .route("/newtimetable/sync/staff/:sid/schedule")
+  .get(catchAsync(timetable.getNewTimetableSyncWiseStaffQuery));
+
+router
+  .route("/newtimetable/sync/student/:sid/schedule")
+  .get(catchAsync(timetable.getNewTimetableSyncWiseStudentQuery));
+
 
 module.exports = router;

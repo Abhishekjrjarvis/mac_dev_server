@@ -282,6 +282,12 @@ const newApplicationSchema = new mongoose.Schema({
       },
       reason: { type: String }
     }
+  ],
+  undo_student: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student"
+    }
   ]
 });
 

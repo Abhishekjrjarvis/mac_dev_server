@@ -15759,6 +15759,226 @@ exports.render_one_fee_receipt_change_student_query = async (req, res) => {
   }
 }
 
+exports.retrieveClassAllotQueryReverse = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        allot_status: false,
+      });
+    var apply = await NewApplication.findById({ _id: aid });
+    // var admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    // var admission = await Admission.findById({
+    //   _id: `${apply.admissionAdmin}`,
+    // }).select("institute");
+    // var institute = await InstituteAdmin.findById({
+    //   _id: `${admission.institute}`,
+    // });
+    // var depart = await Department.findById({
+    //   _id: `${apply.applicationDepartment}`,
+    // });
+    // var batch = await Batch.findById({ _id: `${apply.applicationBatch}` });
+    // var nums = ["66646a70d52ac4bcf8a0783f"]
+    // for (let ele of apply?.allottedApplication) {
+    //   nums.push(ele?.student)
+    // }
+    // if (nums?.length > 0) {
+    //   for (var sid of nums) {
+    //     const student = await Student.findById({ _id: sid });
+    //     if (student?.studentClass != null) {
+    //       var classes = await Class.findById({ _id: student?.studentClass });
+    //       const all_subjects = await Subject.find({ $and: [{ class: classes?._id }, { subjectMasterName: { $in: student?.student_optional_subject } }] })
+    //       // apply.reviewApplication.pull(student._id);
+    //       apply.undo_student.push(student?._id)
+    //       // apply.allottedApplication.push({
+    //       //   student: student._id,
+    //       //   payment_status: "offline",
+    //       //   alloted_class: `${classes.className} - ${classes.classTitle}`,
+    //       //   alloted_status: "Alloted",
+    //       //   fee_remain: student.admissionRemainFeeCount,
+    //       //   paid_status:
+    //       //     student.admissionRemainFeeCount == 0 ? "Paid" : "Not Paid",
+    //       // });
+    //       // apply.allotCount += 1;
+    //       // student.confirmApplication.pull(apply._id)
+    //       student.studentStatus = "Not Approved";
+    //       institute.ApproveStudent.pull(student._id);
+    //       student.institute = null;
+    //       admins.studentArray.pull(student._id);
+    //       if (admins.studentCount > 0) {
+    //         admins.studentCount -= 1;
+    //       }
+    //       if (institute.studentCount > 0) {
+    //         institute.studentCount -= 1;
+    //       }
+    //       if (classes.strength > 0) {
+    //         classes.strength -= 1;
+    //       }
+    //       classes.ApproveStudent.pull(student._id);
+    //       if (classes.studentCount > 0) {
+    //         classes.studentCount -= 1;
+    //       }
+    //       student.studentGRNO = "";
+    //       student.studentROLLNO = "";
+    //       student.studentClass = null;
+    //       student.studentAdmissionDate = new Date().toISOString();
+    //       depart.ApproveStudent.pull(student._id);
+    //       if (depart.studentCount > 0) {
+    //         depart.studentCount -= 1;
+    //       }
+    //       student.department = null;
+    //       batch.ApproveStudent.pull(student._id);
+    //       student.batches = null;
+    //       if (all_subjects?.length > 0) {
+    //         student.student_optional_subject_access = "Yes"
+    //         for (let ele of all_subjects) {
+    //           ele.optionalStudent.pull(student?._id);
+    //           await ele.save();
+    //         }
+    //       }
+    //       await Promise.all([
+    //         apply.save(),
+    //         student.save(),
+    //         admins.save(),
+    //         institute.save(),
+    //         classes.save(),
+    //         depart.save(),
+    //         batch.save(),
+    //       ]);
+    //       if (student.studentGender === "Male") {
+    //         classes.boyCount -= 1;
+    //         batch.student_category.boyCount -= 1;
+    //       } else if (student.studentGender === "Female") {
+    //         classes.girlCount -= 1;
+    //         batch.student_category.girlCount -= 1;
+    //       } else if (student.studentGender === "Other") {
+    //         classes.otherCount -= 1;
+    //         batch.student_category.otherCount -= 1;
+    //       } else {
+    //       }
+    //       if (student.studentCastCategory === "General") {
+    //         batch.student_category.generalCount -= 1;
+    //       } else if (student.studentCastCategory === "OBC") {
+    //         batch.student_category.obcCount -= 1;
+    //       } else if (student.studentCastCategory === "SC") {
+    //         batch.student_category.scCount -= 1;
+    //       } else if (student.studentCastCategory === "ST") {
+    //         batch.student_category.stCount -= 1;
+    //       } else if (student.studentCastCategory === "NT-A") {
+    //         batch.student_category.ntaCount -= 1;
+    //       } else if (student.studentCastCategory === "NT-B") {
+    //         batch.student_category.ntbCount -= 1;
+    //       } else if (student.studentCastCategory === "NT-C") {
+    //         batch.student_category.ntcCount -= 1;
+    //       } else if (student.studentCastCategory === "NT-D") {
+    //         batch.student_category.ntdCount -= 1;
+    //       } else if (student.studentCastCategory === "VJ") {
+    //         batch.student_category.vjCount -= 1;
+    //       } else {
+    //       }
+    //       await Promise.all([classes.save(), batch.save()]);
+    //     }
+    //   }
+    //   res.status(200).send({
+    //     message: `Distribute sweets to all family members`,
+    //     allot_status: true,
+    //     apply: apply?.undo_student
+    //   });
+    // }
+    var i =0
+    for (let ele of apply?.undo_student) {
+      if (apply.reviewApplication?.includes(`${ele?._id}`)) {
+        
+      }
+      else {
+        apply.reviewApplication.push(ele?._id)
+      }
+      console.log(i)
+      i+=1 
+    }
+    await apply.save()
+    res.status(200).send({
+      message: `Distribute sweets to all family members`,
+      allot_status: true,
+      apply: apply?.undo_student
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_student_class = async (req, res) => {
+  try {
+    // let nums = ["6653fe0b0e7630f3c0ca26dd"]
+    // const apps = await NewApplication.find({ subject_selected_group: { $in: nums } })
+    //   .select("_id")
+    // let nums = [
+    //   "6654ecb3367fb22e2d22c48f",
+    //   "665abaaf18ce55bfd5477436",
+    //   "665c8c4ced5b038fa0f185a5",
+    //   "665d9b7b8ccb86845ad26198",
+    //   "6660799111db27577deb9767",
+    //   "666098f3d8fd9817b7599e19",
+    //   "66617eae1409ddf7a9ab1ae0",
+    //   "6661807ed8fd9817b75c9931",
+    //   "6661b6af40f1f8d0d05c7c10",
+    //   "6661c7521def169acf9e5303",
+    //   "6661f885d3fc4fd9ec0df86e",
+    //   "6662e3c12b6eda0086207cda",
+    //   "66646225e6dd6bbe8832b321",
+    //   "6666c89abc3db0d80c0dfbcd",
+    //   "6666f007b8e26221ed03c701",
+    //   "66670b0b0cc627f95e9d435c",
+    //   "666816b898c7a5e7d2f6afbe",
+    //   "6668694c5f25de640340e60e",
+    //   "666a9fc38a25f504d23909b1",
+    //   "666aac8e7b7f82aa1d9f9c4d",
+    //   "666aaf6fd5db98ae0768227c",
+    //   "666ac46e2921e51fb3fa54ae",
+    //   "666b1bdd438f32cf20307acf",
+    //   "666bdd38380adf8aea8d711f",
+    //   "666f04f25c4f745988a5006a",
+    //   "6671370faca0ae8d1780c9b6",
+    //   "66713e4baca0ae8d1780ff14",
+    //   "66715c83a1a3cc99e82d2062",
+    //   "6673c1fa6c3f5b158e11681b",
+    //   "6673f3017c5d6b9d3cd3081c",
+    //   "6673f78413645f6224f2217b",
+    //   "66755797da1297a6b9ff3aa2",
+    //   "66759331b3d60fc2b7543864",
+    //   "667a6c792b6329957433f4f5",
+    //   "667bc3967964c3659bf3e03f",
+    //   "667d2d0962f9a83c4fb71464",
+    //   "667e8826059be654d96d778b",
+    //   "667e8a17059be654d96d8422",
+    //   "667ec6f68e98c621475a1205",
+    //   "6682237fc1775c56bcd8adb1",
+    //   "6682447cee0f23e006e16dae",
+    //   "66826be4c1aac0115ca07816",
+    //   "66829a5e04076da2fc636b14",
+    //   "6683a40076fdc6699a9e79e1",
+    //   "668e3c47e473898a9096f8c3",
+    //   "668e5f83f45ccd2d45d283e6",
+    //   "668f99ded8e2ed1572b14087",
+    //   "6690eab2cc7120d68e9d1aeb"
+    // ]
+    const all_student = await Student.find({ _id: { $in: nums} })
+      .select("_id student_optional_subject")
+    var subject_2 = "6640d3950728cf14e8bfab1f"
+    for (let ele of all_student) {
+      // if (ele?.student_optional_subject?.includes(`${subject}`)) {
+        ele.student_optional_subject.push(subject_2)
+        await ele.save()
+      // }
+    }
+    res.status(200).send({ message: "Explore Apps", all_student, len: all_student?.length})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {

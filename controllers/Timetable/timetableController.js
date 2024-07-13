@@ -1694,5 +1694,347 @@ exports.getNewTimetableSyncWiseStudentQuery = async (req, res) => {
   }
 };
 
+exports.subjectTeacherOneDayTimetableQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { day } = req.query;
+    if (!sid || !day) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const t_sub = await SubjectTimetable.findOne({
+      $and: [
+        {
+          subject: { $eq: `${sid}` },
+        },
+        {
+          day: { $eq: `${day}` },
+        },
+      ],
+    });
+
+    if (t_sub?.schedule?.length > 0) {
+      return res.status(200).send({
+        message: "One Day timetable list",
+        t_sub: t_sub,
+      });
+    } else {
+      return res.status(200).send({
+        message: "One Day timetable list",
+        t_sub: {
+          schedule: [],
+        },
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+exports.getNewTimetableUserStaffDateWise = async (req, res) => {
+  try {
+    let flow = "";
+    flow = req.query?.flow;
+    if (!req.params.sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    var subj = null;
+
+    if (flow === "Dashboard") {
+      const user = await User.findById(req.params.sid);
+      const s_time = await SubjectTimetable.find({
+        $and: [
+          {
+            $or: [
+              { date: { $eq: req.query.date } },
+              { day: { $eq: req.query.status } },
+            ],
+          },
+          {
+            $or: [
+              { "schedule.offStaff": { $in: user?.staff } },
+              { "schedule.assignStaff": { $in: user?.staff } },
+            ],
+          },
+        ],
+      })
+        .populate({
+          path: "class",
+          select: "className classTitle",
+        })
+        .lean()
+        .exec();
+
+      var st_id = [];
+      for (let st of user?.staff ?? []) {
+        st_id.push(`${st}`);
+      }
+      const staffSchedlue = [];
+      if (s_time?.length > 0) {
+        for (let table of s_time) {
+          for (let sched of table?.schedule) {
+            // if (String(sched.assignStaff) === req.params.sid) {
+            if (st_id?.includes(`${sched.assignStaff}`)) {
+              const assignment = await Assignment.find({
+                subject: { $eq: sched.subject },
+                dueDate: { $eq: req.query.date },
+              });
+              const assignmentObj = [];
+              for (let assign of assignment) {
+                assignmentObj.push({
+                  assignmentName: assign.assignmentName,
+                  _id: assign._id,
+                });
+              }
+              if (sched?.subject) {
+                subj = await Subject.findOne({
+                  $and: [
+                    {
+                      _id: sched?.subject,
+                    },
+                    {
+                      subjectStatus: "UnCompleted",
+                    },
+                  ],
+                })
+                  .populate({
+                    path: "class",
+                    select: "className classTitle classStatus classHeadTitle",
+                    populate: {
+                      path: "batch",
+                      select: "batchName batchStatus",
+                    },
+                  })
+                  .populate({
+                    path: "selected_batch_query",
+                    select: "batchName batchStatus",
+                  })
+                  .select(
+                    "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional subjectMasterName"
+                  );
+                if (subj) {
+                  staffSchedlue.push({
+                    _id: subj?.class?._id,
+                    className: subj?.class?.className,
+                    classTitle: subj?.class?.classTitle,
+                    from: sched.from,
+                    subjectName: sched.subjectName,
+                    to: sched.to,
+                    offPeriod: false,
+                    assignment: assignmentObj,
+                    which_lecture: sched?.which_lecture,
+                    subject: subj,
+                    assignStaff: sched?.assignStaff,
+                    offStaff: sched?.offStaff,
+                  });
+                }
+              }
+
+              // } else if (String(sched.offStaff) === req.params.sid) {
+            } else if (st_id?.includes(`${sched.offStaff}`)) {
+              if (sched?.subject) {
+                subj = await Subject.findOne({
+                  $and: [
+                    {
+                      _id: sched?.subject,
+                    },
+                    {
+                      subjectStatus: "UnCompleted",
+                    },
+                  ],
+                })
+                  .populate({
+                    path: "class",
+                    select: "className classTitle classStatus classHeadTitle",
+                    populate: {
+                      path: "batch",
+                      select: "batchName batchStatus",
+                    },
+                  })
+                  .populate({
+                    path: "selected_batch_query",
+                    select: "batchName batchStatus",
+                  })
+                  .select(
+                    "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional subjectMasterName"
+                  );
+                if (subj) {
+                  staffSchedlue.push({
+                    _id: subj?.class?._id,
+                    className: subj?.class?.className,
+                    classTitle: subj?.class?.classTitle,
+                    from: sched.from,
+                    subjectName: sched.subjectName,
+                    to: sched.to,
+                    offPeriod: true,
+                    assignment: [],
+                    which_lecture: sched?.which_lecture,
+                    subject: subj,
+                    assignStaff: sched?.assignStaff,
+                    offStaff: sched?.offStaff,
+                  });
+                }
+              }
+            } else {
+            }
+          }
+        }
+      }
+
+      // const staffScheduleEncrypt = await encryptionPayload(staffSchedlue);
+      res.status(200).send({
+        message: "In dashboard Staff side all schedule list",
+        staffSchedlue,
+      });
+    } else {
+      const s_time = await SubjectTimetable.find({
+        $and: [
+          {
+            $or: [
+              { date: { $eq: req.query.date } },
+              { day: { $eq: req.query.status } },
+            ],
+          },
+          {
+            $or: [
+              { "schedule.offStaff": { $eq: req.params.sid } },
+              { "schedule.assignStaff": { $eq: req.params.sid } },
+            ],
+          },
+        ],
+      })
+        .populate({
+          path: "class",
+          select: "className classTitle",
+        })
+        .lean()
+        .exec();
+      const staffSchedlue = [];
+      if (s_time?.length > 0) {
+        for (let table of s_time) {
+          for (let sched of table?.schedule) {
+            if (String(sched.assignStaff) === req.params.sid) {
+              const assignment = await Assignment.find({
+                subject: { $eq: sched.subject },
+                dueDate: { $eq: req.query.date },
+              });
+              const assignmentObj = [];
+              for (let assign of assignment) {
+                assignmentObj.push({
+                  assignmentName: assign.assignmentName,
+                  _id: assign._id,
+                });
+              }
+              if (sched?.subject) {
+                subj = await Subject.findOne({
+                  $and: [
+                    {
+                      _id: sched?.subject,
+                    },
+                    {
+                      subjectStatus: "UnCompleted",
+                    },
+                  ],
+                })
+                  .populate({
+                    path: "class",
+                    select: "className classTitle classStatus classHeadTitle",
+                    populate: {
+                      path: "batch",
+                      select: "batchName batchStatus",
+                    },
+                  })
+                  .populate({
+                    path: "selected_batch_query",
+                    select: "batchName batchStatus",
+                  })
+                  .select(
+                    "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional subjectMasterName"
+                  );
+                if (subj) {
+                  staffSchedlue.push({
+                    _id: subj?.class?._id,
+                    className: subj?.class?.className,
+                    classTitle: subj?.class?.classTitle,
+                    from: sched.from,
+                    subjectName: sched.subjectName,
+                    to: sched.to,
+                    offPeriod: false,
+                    assignment: assignmentObj,
+                    which_lecture: sched?.which_lecture,
+                    subject: subj,
+                    assignStaff: sched?.assignStaff,
+                    offStaff: sched?.offStaff,
+                  });
+                }
+              }
+            } else if (String(sched.offStaff) === req.params.sid) {
+              if (sched?.subject) {
+                subj = await Subject.findOne({
+                  $and: [
+                    {
+                      _id: sched?.subject,
+                    },
+                    {
+                      subjectStatus: "UnCompleted",
+                    },
+                  ],
+                })
+                  .populate({
+                    path: "class",
+                    select: "className classTitle classStatus classHeadTitle",
+                    populate: {
+                      path: "batch",
+                      select: "batchName batchStatus",
+                    },
+                  })
+                  .populate({
+                    path: "selected_batch_query",
+                    select: "batchName batchStatus",
+                  })
+                  .select(
+                    "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional subjectMasterName"
+                  );
+                if (subj) {
+                  staffSchedlue.push({
+                    _id: subj?.class?._id,
+                    className: subj?.class?.className,
+                    classTitle: subj?.class?.classTitle,
+                    from: sched.from,
+                    subjectName: sched.subjectName,
+                    to: sched.to,
+                    offPeriod: true,
+                    assignment: [],
+                    which_lecture: sched?.which_lecture,
+                    subject: subj,
+                    assignStaff: sched?.assignStaff,
+                    offStaff: sched?.offStaff,
+                  });
+                }
+              }
+            } else {
+            }
+          }
+        }
+      }
+
+      // const staffScheduleEncrypt = await encryptionPayload(staffSchedlue);
+      res.status(200).send({
+        message: "Staff side all schedule list",
+        staffSchedlue,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
+
 
 

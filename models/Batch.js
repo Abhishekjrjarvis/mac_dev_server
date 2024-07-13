@@ -139,7 +139,10 @@ const batchSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Staff"
-    }
+  },
+  active_academic_batch: {
+    type: String
+  }
 });
 
 const Batch = mongoose.model("Batch", batchSchema);

@@ -539,7 +539,11 @@ const departmentSchema = new mongoose.Schema({
       name: { type: String },
       attach: { type: String }
     }
-  ]
+  ],
+  active_academic_batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch"
+  }
 });
 
 const Department = mongoose.model("Department", departmentSchema);

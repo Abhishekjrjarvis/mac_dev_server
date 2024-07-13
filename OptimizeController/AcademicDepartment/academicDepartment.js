@@ -229,6 +229,10 @@ exports.retrieveDepartmentList = async (req, res) => {
                     select: "userBio userAbout",
                   },
         })
+          .populate({
+            path: "active_academic_batch",
+            select: "batchName batchStatus"
+      })
       if (all_depart) {
         res.status(200).send({ message: "Success", all_depart });
       } else {
@@ -380,22 +384,59 @@ exports.render_all_students_query = async (req, res) => {
         const { cid } = req?.params
         const page = req.query.page ? parseInt(req.query.page) : 1;
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-      const skip = (page - 1) * limit;
-      const { did } = req?.query
-        if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+        const skip = (page - 1) * limit;
+        const { did } = req?.query
+      if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+      
+      const depart = await Department.findById({ _id: did })
+        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
+            .select("subjectName department link_subject_master")
+            .populate({
+                path: "subjects",
+                select: "class",
+        })
+        
+      var numss = []
+      var nums = []
+        for (let ele of all_subjects) {
+            for (let val of ele?.subjects) {
+                if (numss?.includes(`${val?.class}`)) {
+                    
+                }
+                else {
+                    numss.push(val?.class)
+                }
+            }
+        }
         const m_class = await ClassMaster.findById({ _id: cid })
         
-        var nums = [...m_class?.classDivision]
+      for (let ele of m_class?.classDivision) {
+        for (let val of numss) {
+          if (`${val}` === `${ele}`) {
+            nums.push(val)
+          }
+        }
+      }
         if (nums?.length > 0) {
             const all_students = await Student.find({ $and: [{ studentClass: { $in: nums } }, { department: did }] })
-                .limit(limit)
-                .skip(skip)
+                // .limit(limit)
+                // .skip(skip)
                 .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department")
                 .populate({
                     path: "studentClass",
                     select: "className"
                 })
-            res.status(200).send({ message: "Explore All Students Query", access: true, all_students: all_students})
+            const all_stu = await nested_document_limit(page, limit, all_students)
+          res.status(200).send({ message: "Explore All Students Query", access: true, all_students: all_stu })
+          for (let ele of all_students) {
+            if (m_class.all_academic_student?.includes(`${ele?._id}`)) {
+              
+            }
+            else {
+              m_class.all_academic_student.push(ele?._id)
+            }
+          }
+          await m_class.save()
         }
         else {
             res.status(200).send({ message: "No Students Query", access: true, all_students: []})            
@@ -501,6 +542,8 @@ exports.render_new_theory_classes = async (req, res) => {
     const { staff, did } = req?.body
     if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
+    const depart = await Department.findById({ _id: did })
+    .select("active_academic_batch")
     const classes = await ClassMaster.findById({ _id: cid })
     const new_subject = new Subject({ ...req?.body })
     new_subject.subjectTitle = "Subject Teacher"
@@ -514,7 +557,8 @@ exports.render_new_theory_classes = async (req, res) => {
     }
     classes.theory_classes.push({
       subject: new_subject?._id,
-      did: did
+      did: did,
+      batch: depart?.active_academic_batch
     })
     classes.theory_classes_count += 1
     await Promise.all([new_subject.save(), classes.save()])
@@ -545,7 +589,9 @@ exports.render_all_theory_classes = async (req, res) => {
       })
     var list = []
     for (let ele of classes?.theory_classes) {
-      if (`${ele?.did}` === `${did}`) {
+      const depart = await Department.findById({ _id: did })
+      .select("active_academic_batch")
+      if (`${ele?.did}` === `${depart?._id}` && `${ele?.batch}` === `${depart?.active_academic_batch}`) {
         list.push(ele)
       }
     }
@@ -756,6 +802,52 @@ exports.render_new_student_remove_query_batch = async (req, res) => {
     }
     await one_batch.save()
     res.status(200).send({ message: "New Student Remove In Batch Query", access: true })            
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_active_academic_batch_query = async (req, res) => {
+  try {
+      const { bid, did } = req?.params
+      if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+      const depart = await Department.findById({ _id: did })
+      const batch = await Batch.findById({ _id: bid })
+      depart.active_academic_batch = batch?._id
+    await depart.save()
+      res.status(200).send({ message: "Active Batches Query", access: true})            
+  }
+  catch (e) {
+      console.log(e)
+  }
+}
+
+exports.render_one_class_details_query = async (req, res) => {
+  try {
+    const { cid, did } = req?.params
+    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    
+    const classes = await ClassMaster.findById({ _id: cid })
+    var list = []
+    for (let ele of classes?.theory_classes) {
+      if (`${ele?.did}` === `${did}`) {
+        list.push(ele)
+      }
+    }
+    var list_2 = []
+    for (let ele of classes?.practical_batch) {
+      if (`${ele?.did}` === `${did}`) {
+        list.push(ele)
+      }
+    }
+    let stats = {
+      theory_classes: list?.length ?? 0,
+      practical_batch: list_2?.length ?? 0,
+      all_student: classes?.all_academic_student?.length ?? 0
+    }
+    res.status(200).send({ message: "Explore One Class Master Details", access: true, stats})
   }
   catch (e) {
     console.log(e)

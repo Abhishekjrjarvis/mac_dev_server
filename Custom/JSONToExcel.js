@@ -14,6 +14,7 @@ const Mentor = require("../models/MentorMentee/mentor");
 const StudentFeedback = require("../models/StudentFeedback/StudentFeedback");
 const Subject = require("../models/Subject");
 const BankAccount = require("../models/Finance/BankAccount");
+const SubjectInternalEvaluation = require("../models/InternalEvaluation/SubjectInternalEvaluation");
 
 
 
@@ -825,5 +826,38 @@ exports.json_to_excel_admission_subject_application_query = async (
     console.log(e);
   }
 };
+
+exports.subject_internal_evaluation_marks_student_json_to_excel = async (
+  id,
+  list,
+  sheetName,
+  excelType,
+  exportTypeName
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(list);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, sheetName);
+    var name = `internal-evaluation-${exportTypeName}-${new Date().getHours()}-${new Date().getMinutes()}-${new Date().getSeconds()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const subject = await SubjectInternalEvaluation.findById(id);
+    subject.export_collection.push({
+      excel_type: excelType,
+      excel_file: results,
+      excel_file_name: name,
+    });
+    subject.export_collection_count += 1;
+    await subject.save();
+    return results;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
 
 

@@ -4242,6 +4242,10 @@ exports.fetchOneStaffDepartmentInfo = async (req, res) => {
         },
       })
       .populate({
+        path: "active_academic_batch",
+        select: "batchName batchStatus createdAt",
+      })
+      .populate({
         path: "displayPersonList",
         select: "displayTitle createdAt",
         populate: {

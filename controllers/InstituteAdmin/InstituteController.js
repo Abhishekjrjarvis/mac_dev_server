@@ -3633,6 +3633,10 @@ exports.getOneDepartment = async (req, res) => {
             select: "userLegalName username photoId profilePhoto",
           },
         })
+        .populate({
+          path: "active_academic_batch",
+          select: "batchName batchStatus createdAt",
+        })
         .lean()
         .exec();
       const ins = await InstituteAdmin.findById({ _id: `${department?.institute}` })

@@ -1000,7 +1000,7 @@ exports.getSyncWiseStaffQuery = async (req, res) => {
       Wednesday: [],
       Thursday: [],
       Friday: [],
-      Staurday: [],
+      Saturday: [],
     };
 
     for (let sub of subjects) {
@@ -1535,7 +1535,7 @@ exports.getNewTimetableSyncWiseStaffQuery = async (req, res) => {
       Wednesday: [],
       Thursday: [],
       Friday: [],
-      Staurday: [],
+      Saturday: [],
     };
     const staff = await Staff.findById(req.params.sid).select("staffSubject");
     const subjects = await Subject.find({
@@ -1606,7 +1606,7 @@ exports.getNewTimetableSyncWiseStudentQuery = async (req, res) => {
       Wednesday: [],
       Thursday: [],
       Friday: [],
-      Staurday: [],
+      Saturday: [],
     };
     const student = await Student.findById(sid).populate({
       path: "studentClass",

@@ -88,4 +88,8 @@ router
   )
 );
 
+router
+  .route("/internal/evaluation/export/:ieid/all/student/query")
+  .patch(catchAsync(copoController.internalEvaluationStudentExcelExportQuery));
+
 module.exports = router;

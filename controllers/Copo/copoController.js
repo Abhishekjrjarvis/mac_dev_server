@@ -15,6 +15,9 @@ const {
 const { simple_object } = require("../../S3Configuration");
 const SubjectInternalEvaluation = require("../../models/InternalEvaluation/SubjectInternalEvaluation");
 const SubjectInternalEvaluationTest = require("../../models/InternalEvaluation/SubjectInternalEvaluationTest");
+const {
+  subject_internal_evaluation_marks_student_json_to_excel,
+} = require("../../Custom/JSONToExcel");
 
 exports.getAllAttainmentQuery = async (req, res) => {
   try {
@@ -1342,14 +1345,23 @@ exports.subjectTeacherStudentInternalEvaluationQuery = async (req, res) => {
       "student_list"
     );
 
+    const student_list = {};
+
+    if (i_eva?.student_list?.length > 0) {
+      for (let dfg of i_eva?.student_list) {
+        student_list[dfg?.student] = dfg?.obtain_marks;
+      }
+    }
+
     res.status(200).send({
       message: "Internal Evaluation All list.",
-      student_list: i_eva?.student_list?.length > 0 ? i_eva?.student_list : [],
+      student_list: student_list,
     });
   } catch (e) {
     console.log(e);
   }
 };
+
 exports.subjectTeacherAllInternalEvaluationTestQuery = async (req, res) => {
   try {
     const { ieid } = req.params;
@@ -1421,15 +1433,25 @@ exports.subjectTeacherStudentInternalEvaluationTestQuery = async (req, res) => {
       ietid
     ).select("student_list");
 
+    const student_list = {};
+
+    if (i_eva_test?.student_list?.length > 0) {
+      for (let dfg of i_eva_test?.student_list) {
+        student_list[dfg?.student] = dfg?.obtain_marks;
+      }
+    }
+
     res.status(200).send({
       message: "Internal Evaluation All list.",
-      student_list:
+      student_list: student_list,
+      i_eva_test:
         i_eva_test?.student_list?.length > 0 ? i_eva_test?.student_list : [],
     });
   } catch (e) {
     console.log(e);
   }
 };
+
 
 exports.subjectTeacherAddInternalEvaluationTestQuery = async (req, res) => {
   try {
@@ -1515,7 +1537,6 @@ exports.subjectTeacherRemoveInternalEvaluationTestQuery = async (req, res) => {
     console.log(e);
   }
 };
-
 exports.subjectTeacherMarkUpdateInternalEvaluationTestQuery = async (
   req,
   res
@@ -1537,30 +1558,60 @@ exports.subjectTeacherMarkUpdateInternalEvaluationTestQuery = async (
     const i_eva = await SubjectInternalEvaluation.findById(
       i_eva_test.internal_evaluation
     );
-    let convert_rate = (
-      i_eva_test?.out_of / i_eva_test?.conversion_rate
-    )?.toFixed(2);
-    convert_rate = +convert_rate;
-    for (let i = 0; i < student_data?.length; i++) {
-      let stu = student_data[i];
-      let ob_mark = (stu?.obtain_marks / convert_rate)?.toFixed(2);
-      ob_mark = +ob_mark;
-      let flag = false;
-      for (let j = 0; j < i_eva?.student_list?.length; j++) {
-        let already_stu = i_eva?.student_list[j];
-        if (`${already_stu?.student}` === `${stu?.student}`) {
-          already_stu.obtain_marks += ob_mark;
-          flag = true;
-          break;
-        } else {
-          flag = false;
-        }
-      }
-      if (!flag) {
+    i_eva.student_list = [];
+    for (let ert of i_eva?.internal_evaluation_test) {
+      const dfg = await SubjectInternalEvaluationTest.findById(ert);
+      let convert_rate = (dfg?.out_of / dfg?.conversion_rate)?.toFixed(2);
+      convert_rate = +convert_rate;
+      // if (`${ert}` === `${ietid}`) {
+      //   for (let i = 0; i < student_data?.length; i++) {
+      //     let stu = student_data[i];
+      //     let ob_mark = (stu?.obtain_marks / convert_rate)?.toFixed(2);
+      //     ob_mark = +ob_mark;
+      //     let flag = false;
+      //     for (let j = 0; j < i_eva?.student_list?.length; j++) {
+      //       let already_stu = i_eva?.student_list[j];
+      //       if (`${already_stu?.student}` === `${stu?.student}`) {
+      //         already_stu.obtain_marks += ob_mark;
+      //         flag = true;
+      //         break;
+      //       } else {
+      //         flag = false;
+      //       }
+      //     }
+      //     if (!flag) {
+      //       i_eva.student_list.push({
+      //         student: stu?.student,
+      //         obtain_marks: ob_mark,
+      //       });
+      //     }
+      //   }
+      // } else {
+      for (let i = 0; i < dfg?.student_list?.length; i++) {
+        let stu = dfg?.student_list[i];
+        let ob_mark = (stu?.obtain_marks / convert_rate)?.toFixed(2);
+        ob_mark = +ob_mark;
+
         i_eva.student_list.push({
           student: stu?.student,
           obtain_marks: ob_mark,
         });
+
+        // let flag = false;
+        // for (let j = 0; j < i_eva?.student_list?.length; j++) {
+        //   let already_stu = i_eva?.student_list[j];
+        //   if (`${already_stu?.student}` === `${stu?.student}`) {
+        //     already_stu.obtain_marks += ob_mark;
+        //     flag = true;
+        //     break;
+        //   } else {
+        //     flag = false;
+        //   }
+        // }
+        // if (!flag) {
+
+        // }
+        // }
       }
     }
     await i_eva.save();
@@ -1568,5 +1619,89 @@ exports.subjectTeacherMarkUpdateInternalEvaluationTestQuery = async (
     console.log(e);
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+exports.internalEvaluationStudentExcelExportQuery = async (req, res) => {
+  try {
+    const { ieid } = req.params;
+    if (!ieid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const e_eval = await SubjectInternalEvaluation.findById(ieid)
+      .populate({
+        path: "internal_evaluation_test",
+        select: "",
+      })
+      .populate({
+        path: "student_list.student",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentROLLNO studentGRNO student_prn_enroll_number",
+      });
+
+    const students = [];
+
+    if (e_eval?.student_list?.length > 0) {
+      for (let otg of e_eval?.student_list) {
+        let obj = {
+          "Enrollment / PRN NO ":
+            otg?.student?.student_prn_enroll_number ?? "#NA",
+          GRNO: otg?.student?.studentGRNO ?? "#NA",
+          ROLLNO: otg?.student.studentROLLNO ?? "#NA",
+          Name: `${otg?.student?.studentFirstName} ${
+            otg?.student?.studentMiddleName
+              ? otg?.student?.studentMiddleName
+              : ""
+          } ${otg?.student?.studentLastName}`,
+          [`Total Obtain Marks (Out Of ${e_eval?.out_of})`]:
+            otg?.obtain_marks ?? "#NA",
+        };
+        for (let df of e_eval?.internal_evaluation_test) {
+          for (let rty of df?.student_list) {
+            if (`${otg?.student?._id}` === `${rty?.student}`) {
+              obj[`${df?.name} Obtain Marks (Out Of ${df?.out_of})`] =
+                rty?.obtain_marks ?? "#NA";
+            }
+          }
+        }
+        students.push(obj);
+      }
+    }
+
+    let excel_key = "";
+    if (students?.length > 0) {
+      excel_key = await subject_internal_evaluation_marks_student_json_to_excel(
+        ieid,
+        students,
+        "Students",
+        "INTERNAL_EVALUATION_MARKS",
+        "internal_evaluation_marks"
+      );
+    }
+    res.status(200).send({
+      message: "One Subject student excel export",
+      excel_key: excel_key,
+      // e_eval,
+      // students: students,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
 
 

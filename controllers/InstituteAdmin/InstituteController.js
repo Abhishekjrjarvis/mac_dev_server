@@ -7765,7 +7765,7 @@ exports.render_enable_form_flow = async (req, res) => {
 
 exports.render_form_key_editable = async (req, res) => {
   try {
-    const all_check = await FormChecklist.find({ form_checklist_key: "is_migrate_other" })
+    const all_check = await FormChecklist.find({ form_checklist_key: "student_seat_type" })
     for (let ele of all_check) {
       // ele.form_checklist_name = "Are you from other than Pune University"
       // ele.form_checklist_placeholder = "Are you from other than Pune University"
@@ -7774,9 +7774,9 @@ exports.render_form_key_editable = async (req, res) => {
       // ele.form_common_key = "student_ph"
       // ele.form_checklist_typo = "NUMBER"
       // ele.form_checklist_typo_option_pl.push("SBC")
-      ele.form_checklist_visibility = false
-      // ele.form_checklist_typo_option_pl = ["Yes", "No"],
-        // ["General/OPEN", "OBC", "SBC", "EWS", "TFWS", "VJNT", "NT-A", "NT-B", "NT-C", "Physically Handicapped", "Defence Quota", "J&K & NEUT", "PMSS"]
+      // ele.form_checklist_visibility = false
+      ele.form_checklist_typo_option_pl = ["General/OPEN", "OBC", "SBC", "EWS", "TFWS", "VJNT", "NT-A", "NT-B", "NT-C", "NT-D", "Defence Quota", "J&K & NEUT", "PMSS"]
+      //["Yes", "No"],
       await ele.save()
     }
     res.status(200).send({ message: "Institute Form Query", access: true })

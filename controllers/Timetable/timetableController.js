@@ -1694,33 +1694,70 @@ exports.getNewTimetableSyncWiseStudentQuery = async (req, res) => {
   }
 };
 
+
 exports.subjectTeacherOneDayTimetableQuery = async (req, res) => {
   try {
-    const { sid } = req.params;
-    const { day } = req.query;
-    if (!sid || !day) {
+    const { uid } = req.params;
+    const { day, staffId } = req.query;
+    if (!uid || !day) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
       });
     }
-    const t_sub = await SubjectTimetable.findOne({
+    let user = null;
+    let staff = null;
+    if (staffId) {
+      staff = await Staff.findById(staffId);
+    } else {
+      user = await User.findById(uid);
+      if (user?.staff?.[0]) {
+        staff = await Staff.findById(user?.staff?.[0]);
+      }
+    }
+
+    var t_raw_sub = await SubjectTimetable.find({
       $and: [
         {
-          subject: { $eq: `${sid}` },
+          subject: { $in: staff.staffSubject },
         },
         {
           day: { $eq: `${day}` },
         },
       ],
-    });
+    })
+      .populate({
+        path: "subject",
+        populate: {
+          path: "class",
+          select: "className classTitle classStatus classHeadTitle",
+          populate: {
+            path: "batch",
+            select: "batchName batchStatus",
+          },
+        },
+        select:
+          "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional subjectMasterName",
+      })
+      .lean();
 
-    if (t_sub?.schedule?.length > 0) {
-      return res.status(200).send({
+    var t_sub = { schedule: [] };
+    let not_sort_scheudle = [];
+    if (t_raw_sub?.length > 0) {
+      for (let dt of t_raw_sub) {
+        for (let dfg of dt?.schedule) {
+          not_sort_scheudle.push({
+            ...dfg,
+            subject: dt?.subject,
+          });
+        }
+      }
+      t_sub.schedule = get_day_wise_sort(not_sort_scheudle);
+      res.status(200).send({
         message: "One Day timetable list",
         t_sub: t_sub,
       });
     } else {
-      return res.status(200).send({
+      res.status(200).send({
         message: "One Day timetable list",
         t_sub: {
           schedule: [],
@@ -1731,6 +1768,7 @@ exports.subjectTeacherOneDayTimetableQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 
 
 exports.getNewTimetableUserStaffDateWise = async (req, res) => {

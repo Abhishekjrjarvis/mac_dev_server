@@ -78,7 +78,7 @@ router
   .get(catchAsync(timetable.getNewTimetableSyncWiseStudentQuery));
 
   router
-  .route("/newtimetable/one/day/:sid/query")
+  .route("/newtimetable/one/day/:uid/query")
     .get(catchAsync(timetable.subjectTeacherOneDayTimetableQuery));
   
     router

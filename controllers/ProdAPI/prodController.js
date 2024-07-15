@@ -537,30 +537,17 @@ exports.render_student_code_insertion_query = async (req, res) => {
   }
 }
 
-// exports.delete_payment = async (req, res) => {
-//   try {
-//     const all = await OrderPayment.find({ payment_invoice_number: "648381-7-2024-1722" })
-//     var i =0
-//     for (let ele of all) {
-//       if (ele?.fee_receipt) {
-//         await FeeReceipt.findByIdAndDelete(ele?.fee_receipt)
-//       }
-//       await OrderPayment.findByIdAndDelete(ele?._id)
-//       console.log(i)
-//       i+= 1
-//     }
-//     res.status(200).send({ message: "All Student Qviple Pay Code Inserted"})
-//   }
-//   catch (e) {
-//     console.log(e)
-//   }
-// }
-
 exports.delete_payment = async (req, res) => {
   try {
-    const all_e = await ErrorPayment.find({ error_student: "668639ebd9cbacccf389782e" })
-    for (let ele of all_e) {
-      await ErrorPayment.findByIdAndDelete(ele?._id)
+    const all = await FeeReceipt.find({ invoice_count: "648381-7-2024-1675" })
+    var i =0
+    for (let ele of all) {
+      // if (ele?.fee_receipt) {
+        await FeeReceipt.findByIdAndDelete(ele?._id)
+      // }
+      // await OrderPayment.findByIdAndDelete(ele?._id)
+      console.log(i)
+      i+= 1
     }
     res.status(200).send({ message: "All Student Qviple Pay Code Inserted"})
   }
@@ -568,3 +555,16 @@ exports.delete_payment = async (req, res) => {
     console.log(e)
   }
 }
+
+// exports.delete_payment = async (req, res) => {
+//   try {
+//     const all_e = await ErrorPayment.find({ error_student: "668639ebd9cbacccf389782e" })
+//     for (let ele of all_e) {
+//       await ErrorPayment.findByIdAndDelete(ele?._id)
+//     }
+//     res.status(200).send({ message: "All Student Qviple Pay Code Inserted"})
+//   }
+//   catch (e) {
+//     console.log(e)
+//   }
+// }

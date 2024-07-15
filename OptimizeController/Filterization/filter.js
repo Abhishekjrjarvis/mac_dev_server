@@ -1808,33 +1808,39 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         var head_array = [];
           if (ref?.fee_heads?.length > 0) {
             for (var val of ref?.fee_heads) {
-              if (bank) {
-                const bank_acc = await BankAccount.findById({ _id: bank })
-                if (bank_acc?.bank_account_type === "Society") {
-                  if (`${val?.appId}` === `${ref?.application?._id}` && val?.is_society == true) {
-                    head_array.push({
-                      HeadsName: val?.head_name,
-                      PaidHeadFees: val?.original_paid,
-                    });
-                  }
-                }
-                else {
-                  if (`${val?.appId}` === `${ref?.application?._id}` && val?.is_society == false) {
-                    head_array.push({
-                      HeadsName: val?.head_name,
-                      PaidHeadFees: val?.original_paid,
-                    });
-                  }
-                }
+              if (`${val?.appId}` === `${ref?.application?._id}`) {
+                head_array.push({
+                  HeadsName: val?.head_name,
+                  PaidHeadFees: val?.original_paid,
+                });
               }
-              else {
-                if (`${val?.appId}` === `${ref?.application?._id}` && val?.is_society == false) {
-                  head_array.push({
-                    HeadsName: val?.head_name,
-                    PaidHeadFees: val?.original_paid,
-                  });
-                }
-              }
+              // if (bank) {
+              //   const bank_acc = await BankAccount.findById({ _id: bank })
+              //   if (bank_acc?.bank_account_type === "Society") {
+              //     if (`${val?.appId}` === `${ref?.application?._id}` && val?.is_society == true) {
+              //       head_array.push({
+              //         HeadsName: val?.head_name,
+              //         PaidHeadFees: val?.original_paid,
+              //       });
+              //     }
+              //   }
+              //   else {
+              //     if (`${val?.appId}` === `${ref?.application?._id}` && val?.is_society == false) {
+              //       head_array.push({
+              //         HeadsName: val?.head_name,
+              //         PaidHeadFees: val?.original_paid,
+              //       });
+              //     }
+              //   }
+              // }
+              // else {
+              //   if (`${val?.appId}` === `${ref?.application?._id}` && val?.is_society == false) {
+              //     head_array.push({
+              //       HeadsName: val?.head_name,
+              //       PaidHeadFees: val?.original_paid,
+              //     });
+              //   }
+              // }
             }
           }
           if (remain_list?.paid_fee - remain_list?.applicable_fee > 0) {

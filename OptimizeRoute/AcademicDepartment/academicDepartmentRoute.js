@@ -112,5 +112,16 @@ router.get(
     "/:cid/one/class/details/:did",
     catchAsync(AcademicDepartment.render_one_class_details_query)
   );
+        
+  router.get(
+    "/:did/all/map/master/query",
+    catchAsync(AcademicDepartment.render_master_list_query)
+  );
+      
+  router.get(
+    "/:cid/all/dse/students/query",
+    catchAsync(AcademicDepartment.render_all_dse_students_query)
+  );
+
 
 module.exports = router;

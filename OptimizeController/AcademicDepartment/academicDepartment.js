@@ -855,3 +855,88 @@ exports.render_one_class_details_query = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.render_master_list_query = async (req, res) => {
+  try {
+    const { did } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+      if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+      
+      const depart = await Department.findById({ _id: did })
+      const subjects_extra = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master } })
+      .limit(limit)
+      .skip(skip)
+        .select("subjectName subjectStatus")
+      res.status(200).send({ message: "Explore All Subject Master Map Query", access: true, subjects_extra: subjects_extra?.length > 0 ? subjects_extra : []})
+
+  }
+  catch (e) {
+      console.log(e)
+  }
+}
+
+exports.render_all_dse_students_query = async (req, res) => {
+  try {
+      const { cid } = req?.params
+      const page = req.query.page ? parseInt(req.query.page) : 1;
+      const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+      const skip = (page - 1) * limit;
+      const { did } = req?.query
+    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const depart = await Department.findById({ _id: did })
+      const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
+          .select("subjectName department link_subject_master")
+          .populate({
+              path: "subjects",
+              select: "class",
+      })
+      
+    var numss = []
+    var nums = []
+      for (let ele of all_subjects) {
+          for (let val of ele?.subjects) {
+              if (numss?.includes(`${val?.class}`)) {
+                  
+              }
+              else {
+                  numss.push(val?.class)
+              }
+          }
+      }
+    // console.log(numss)
+      const m_class = await ClassMaster.findById({ _id: cid })
+      
+    for (let ele of m_class?.classDivision) {
+      for (let val of numss) {
+        if (`${val}` === `${ele}`) {
+          nums.push(val)
+        }
+      }
+    }
+    // console.log(nums)
+      if (nums?.length > 0) {
+          const all_students = await Student.find({ $and: [{ studentClass: { $in: nums } }] })
+              // .limit(limit)
+              // .skip(skip)
+              .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject")
+              .populate({
+                  path: "studentClass",
+                  select: "className"
+              })
+        let all_m = all_students?.filter((val) => {
+          if(val?.major_subject?.length > 0) return val
+          })
+          const all_stu = await nested_document_limit(page, limit, all_m)
+        res.status(200).send({ message: "Explore All DSE Students Query", access: true, all_students: all_stu })
+      }
+      else {
+          res.status(200).send({ message: "No DSE Students Query", access: true, all_students: []})            
+      }
+  }
+  catch (e) {
+      console.log(e)
+  }
+}

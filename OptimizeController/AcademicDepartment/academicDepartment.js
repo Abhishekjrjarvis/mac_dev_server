@@ -408,6 +408,7 @@ exports.render_all_students_query = async (req, res) => {
                 }
             }
         }
+      // console.log(numss)
         const m_class = await ClassMaster.findById({ _id: cid })
         
       for (let ele of m_class?.classDivision) {
@@ -417,8 +418,9 @@ exports.render_all_students_query = async (req, res) => {
           }
         }
       }
+      // console.log(nums)
         if (nums?.length > 0) {
-            const all_students = await Student.find({ $and: [{ studentClass: { $in: nums } }, { department: did }] })
+            const all_students = await Student.find({ $and: [{ studentClass: { $in: nums } }] })
                 // .limit(limit)
                 // .skip(skip)
                 .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department")

@@ -9129,9 +9129,10 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
         }
         let sp_name = ref?.combine_name?.toLowerCase()
         var student = await Student.find({
-          scholar_name: `${sp_name}`
+          $and: [{ scholar_name: `${sp_name}`}, {studentStatus: "Approved"}, { institute: id}]
         })
         if (student?.length > 1) {
+          ref.Remark = "Student With Same Name is more than 1"
           num_arr.push(ref)
         }
         else {
@@ -9173,6 +9174,7 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
             );
           }
           else {
+            ref.Remark = "Fees Card Not Find With Same Batch As Entered"
             num_arr.push(ref)
           }
         }

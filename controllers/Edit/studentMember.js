@@ -109,7 +109,7 @@ exports.formEditByClassTeacher = async (req, res) => {
     one_student.application_print = []
     one_student.studentMiddleName = one_student?.studentFatherName ? one_student?.studentFatherName: one_student?.studentMiddleName
     let FNAME = `${one_student?.studentFirstName} ${one_student?.studentMiddleName ?? one_student?.studentFatherName} ${one_student?.studentLastName}`
-    let names = ref?.FNAME?.split(" ")
+    let names = FNAME?.split(" ")
     var combine_name;
     for (let ele of names) {
       combine_name = `${ele}`

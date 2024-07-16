@@ -9138,13 +9138,13 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
         else {
           const batch = await Batch.findById({ _id: scholar_batch })
           const apps = await NewApplication.find({ applicationBatch: { $in: batch?.merged_batches } })
-          console.log("Apps", apps)
+          // console.log("Apps", apps)
           var valid_remain = await RemainingList.findOne({
             $and: [{ student: { $in: student} }, { appId: { $in: apps } }],
           }).populate({
             path: "fee_structure",
           });
-          console.log("Valid", valid_remain)
+          // console.log("Valid", valid_remain)
           if (valid_remain) {
             const num_type = "Installment Remain"
             const num_id = ref?.TXNID ?? ""

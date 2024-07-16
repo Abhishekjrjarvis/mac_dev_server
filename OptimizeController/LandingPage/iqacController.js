@@ -757,4 +757,49 @@ exports.render_all_naac_master_query = async (req, res) => {
         console.log(e)
     }
 }
+exports.render_edit_authority_query = async (req, res) => {
+    try {
+        const { caid } = req?.params
+        const { o_staff, n_staff } = req?.body 
+        if (!caid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false }) 
+
+        await CustomAuthority.findByIdAndUpdate(caid, req?.body)
+        if (n_staff) {
+            const new_custom = await CustomAuthority.findById({ _id: caid })
+            const staff = await Staff.findById({ _id: o_staff })
+            const new_staff = await Staff.findById({ _id: n_staff })
+            staff.custom_authority.pull(new_custom?._id)
+            new_staff.custom_authority.push(new_custom?._id)
+            await Promise.all([n_staff.save(), staff.save()])   
+        }
+        res.status(200).send({ message: "Explore Edit Custom Authority Query", access: true})
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+exports.render_delete_authority_query = async (req, res) => {
+    try {
+        const { qid, caid } = req?.params
+        if (!qid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false }) 
+
+        const iq = await IQAC.findById({ _id: qid })
+        const new_custom = await CustomAuthority.findById({ _id: caid })
+        if (new_custom?.custom_head_person) {
+            const staff = await Staff.findById({ _id: `${new_custom?.custom_head_person}` })
+            staff.custom_authority.pull(new_custom?._id)
+        await staff.save()
+        }
+        iq.authority.pull(new_custom?._id)
+        if (iq.authority_count > 0) {
+            iq.authority_count -= 1
+        }
+        await iq.save()
+        await CustomAuthority.findByIdAndDelete(new_custom?._id)
+        res.status(200).send({ message: "Explore Delete Custom Authority Query", access: true})
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
   

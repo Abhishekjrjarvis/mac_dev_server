@@ -75,4 +75,14 @@ router.patch("/:qcid/add/naac/documents/query", catchAsync(IQAC.render_add_naac_
 
 router.get("/:qcid/all/naac/master/query", catchAsync(IQAC.render_all_naac_master_query));
 
+router.patch(
+  "/:caid/edit/authority/query",
+  catchAsync(IQAC.render_edit_authority_query)
+);
+
+router.delete(
+  "/:qid/delete/:caid/authority/query",
+  catchAsync(IQAC.render_delete_authority_query)
+);
+
 module.exports = router;

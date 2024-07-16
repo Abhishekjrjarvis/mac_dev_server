@@ -123,5 +123,15 @@ router.get(
     catchAsync(AcademicDepartment.render_all_dse_students_query)
   );
 
+  router.patch(
+    "/:sid/edit/theory/classes",
+    catchAsync(AcademicDepartment.render_edit_theory_classes)
+  );
+
+  router.delete(
+    "/:sid/delete/theory/classes",
+    catchAsync(AcademicDepartment.render_delete_theory_classes)
+  );
+
 
 module.exports = router;

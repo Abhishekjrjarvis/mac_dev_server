@@ -66,13 +66,17 @@ const classMasterSchema = new mongoose.Schema({
   },
   practical_batch: [
     {
-      batch: {
+      subject: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Batch"
+        ref: "Subject"
       },
       did: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Department"
+      },
+      batch: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Batch"
       }
     }
   ],

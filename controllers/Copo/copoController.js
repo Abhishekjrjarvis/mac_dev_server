@@ -18,6 +18,13 @@ const SubjectInternalEvaluationTest = require("../../models/InternalEvaluation/S
 const {
   subject_internal_evaluation_marks_student_json_to_excel,
 } = require("../../Custom/JSONToExcel");
+const StudentTestSet = require("../../models/MCQ/StudentTestSet");
+const SubjectMasterTestSet = require("../../models/MCQ/SubjectMasterTestSet");
+const SubjectQuestion = require("../../models/MCQ/SubjectQuestion");
+const User = require("../../models/User");
+const StudentNotification = require("../../models/Marks/StudentNotification");
+const invokeMemberTabNotification = require("../../Firebase/MemberTab");
+const moment = require("moment");
 
 exports.getAllAttainmentQuery = async (req, res) => {
   try {
@@ -1397,7 +1404,12 @@ exports.subjectTeacherAllInternalEvaluationTestQuery = async (req, res) => {
             ],
           },
         ],
-      }).select("name test_type out_of conversion_rate");
+      })
+        .populate({
+          path: "testset",
+          select: "testName testTotalQuestion testTotalNumber",
+        })
+        .select("name test_type out_of conversion_rate");
     } else {
       i_eva_test = await SubjectInternalEvaluationTest.find({
         $and: [
@@ -1406,10 +1418,16 @@ exports.subjectTeacherAllInternalEvaluationTestQuery = async (req, res) => {
           },
         ],
       })
-        .select("name test_type out_of conversion_rate")
-        .sort("-1")
+        .sort({
+          createdAt: "-1",
+        })
         .skip(dropItem)
-        .limit(itemPerPage);
+        .limit(itemPerPage)
+        .populate({
+          path: "testset",
+          select: "testName testTotalQuestion testTotalNumber",
+        })
+        .select("name test_type out_of conversion_rate");
     }
 
     res.status(200).send({
@@ -1420,6 +1438,7 @@ exports.subjectTeacherAllInternalEvaluationTestQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 
 exports.subjectTeacherStudentInternalEvaluationTestQuery = async (req, res) => {
   try {
@@ -1456,7 +1475,7 @@ exports.subjectTeacherStudentInternalEvaluationTestQuery = async (req, res) => {
 exports.subjectTeacherAddInternalEvaluationTestQuery = async (req, res) => {
   try {
     const { ieid } = req.params;
-    const { name, out_of, test_type, conversion_rate } = req.body;
+    const { name, out_of, test_type, conversion_rate, mcq_testset } = req.body;
     if (!ieid) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
@@ -1471,6 +1490,9 @@ exports.subjectTeacherAddInternalEvaluationTestQuery = async (req, res) => {
       subject: i_eva.subject,
       internal_evaluation: i_eva?._id,
     });
+    if (mcq_testset) {
+      i_eva_test.testset = mcq_testset;
+    }
     i_eva.internal_evaluation_test.push(i_eva_test?._id);
     await Promise.all([i_eva_test.save(), i_eva.save()]);
     res.status(200).send({
@@ -1480,6 +1502,7 @@ exports.subjectTeacherAddInternalEvaluationTestQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 
 exports.subjectTeacherUpdateInternalEvaluationTestQuery = async (req, res) => {
   try {
@@ -1700,6 +1723,293 @@ exports.internalEvaluationStudentExcelExportQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.subjectTeacherTakeTestsetInternalEvaluationTestQuery = async (
+  req,
+  res
+) => {
+  try {
+    const { ietid } = req.params;
+    const { mcq_test_date, mcq_test_from, mcq_test_to, mcq_test_duration } =
+      req.body;
+    if (!ietid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let dt_date = new Date(mcq_test_date);
+    const i_eva_test = await SubjectInternalEvaluationTest.findById(ietid);
+    if (i_eva_test.mcq_test_date) {
+      i_eva_test.old_take_test.push({
+        take_test: i_eva_test.take_test,
+        mcq_test_date: i_eva_test.mcq_test_date,
+        mcq_test_from: i_eva_test.mcq_test_from,
+        mcq_test_to: i_eva_test.mcq_test_to,
+        mcq_test_duration: i_eva_test.mcq_test_duration,
+      });
+    }
+    i_eva_test.take_test = +i_eva_test.take_test + 1;
+    i_eva_test.mcq_test_date = dt_date;
+    i_eva_test.mcq_test_from = mcq_test_from;
+    i_eva_test.mcq_test_to = mcq_test_to;
+    i_eva_test.mcq_test_duration = mcq_test_duration;
+    await i_eva_test.save();
+    res.status(200).send({
+      message: "Internal Evaluation Test taken successfully.",
+    });
+    if (i_eva_test?.subject) {
+      const subject = await Subject.findById(i_eva_test?.subject)
+        .populate({
+          path: "selected_batch_query",
+          select: "class_student_query",
+        })
+        .populate({
+          path: "class",
+          select: "ApproveStudent",
+        });
+      let students = [];
+      if (subject?.selected_batch_query?._id) {
+        students = subject?.selected_batch_query?.class_student_query;
+      } else {
+        if (subject?.optionalStudent?.length > 0) {
+          students = subject?.optionalStudent;
+        } else {
+          students = subject?.class?.ApproveStudent;
+        }
+      }
+      const testSet = await SubjectMasterTestSet.findById(i_eva_test.testset);
+      const studentTestObject = {
+        subjectMaster: testSet?.subjectMaster,
+        classMaster: testSet?.classMaster,
+        subjectMasterTestSet: testSet._id,
+        testName: testSet?.testName,
+        testSubject: testSet?.testSubject,
+        testDate: dt_date,
+        testStart: mcq_test_from,
+        testEnd: mcq_test_to,
+        testDuration: mcq_test_duration,
+        testTotalQuestion: testSet?.testTotalQuestion,
+        testTotalNumber: testSet?.testTotalNumber,
+        questions: [],
+        student: "",
+      };
+
+      for (let quest of testSet?.questions) {
+        // another way of selecting item in array .option options.optionNumber options.image
+        const getQuestion = await SubjectQuestion.findById(quest).select(
+          "questionSNO questionNumber questionDescription questionImage options correctAnswer answerDescription answerImage isUniversal -_id"
+        );
+        studentTestObject.questions.push(getQuestion);
+      }
+
+      for (let i = 0; i < students?.length; i++) {
+        let studentId = students[i];
+        const student = await Student.findById(studentId);
+        studentTestObject.student = studentId;
+        const user = await User.findById({ _id: `${student.user}` });
+        const studentTestSet = new StudentTestSet(studentTestObject);
+        studentTestSet.internal_evaluation_test = i_eva_test?._id;
+        student.internal_evaluation_testset.push(studentTestSet._id);
+        const notify = new StudentNotification({
+          student_testset: studentTestSet?._id,
+          testset: testSet?._id,
+        });
+        notify.notifyContent = `New Internal Evaluation ${testSet?.testName} Test is created for ${testSet.testSubject}`;
+        notify.notify_hi_content = `नई $${testSet?.testName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`;
+        notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन $${testSet?.testName} चाचणी तयार केली आहे.`;
+        notify.notifySender = subject._id;
+        notify.notifyReceiever = user._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = student._id;
+        user.activity_tab.push(notify._id);
+        student.notification.push(notify._id);
+        notify.notifyBySubjectPhoto.subject_id = subject?._id;
+        notify.notifyBySubjectPhoto.subject_name = subject.subjectName;
+        notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+        notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle;
+        notify.notifyCategory = "EVALUATION_MCQ";
+        notify.redirectIndex = 66;
+        i_eva_test.student_notify.push(notify?._id);
+        await Promise.all([
+          studentTestSet.save(),
+          student.save(),
+          notify.save(),
+          user.save(),
+          i_eva_test.save(),
+        ]);
+        if (user.deviceToken) {
+          invokeMemberTabNotification(
+            "Student Activity",
+            notify,
+            "New Internal Evaluation MCQ Test Set",
+            user._id,
+            user.deviceToken,
+            "Student",
+            notify
+          );
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const get_time_convert_start = (args) => {
+  if (
+    args?.includes("Am") ||
+    args?.includes("am") ||
+    args?.includes("AM") ||
+    args?.includes("aM")
+  ) {
+    if (+args?.substring(0, 2) === 12) {
+      return +`${"0" + args?.substring(3, 5)}`;
+    } else {
+      return +`${args?.substring(0, 2) + args?.substring(3, 5)}`;
+    }
+  } else {
+    if (+args?.substring(0, 2) === 12) {
+      return +`${args?.substring(0, 2) + args?.substring(3, 5)}`;
+    } else {
+      return +`${`${+args?.substring(0, 2) + 12}` + args?.substring(3, 5)}`;
+    }
+  }
+};
+exports.sudentInternalEvaluationStartTestValidationQuery = async (req, res) => {
+  try {
+    const { stid } = req.params;
+    // console.log("stid", stid);
+    const { date, time } = req.body;
+    if (!stid || !date) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const stu_test = await StudentTestSet.findById(stid).select("-questions");
+    let dft = new Date(stu_test?.testDate);
+    dft = dft?.toISOString();
+    let is_format = moment(dft)?.format("yyyy-MM-DD");
+    // console.log("is_format", is_format, date);
+    let flag = false;
+    if (moment(is_format).isSame(date)) {
+      let time_hit = get_time_convert_start(time);
+      let time_start = get_time_convert_start(stu_test?.testStart);
+      let time_end = get_time_convert_start(stu_test?.testEnd);
+      // console.log(time_start, ": ", time_hit, ": ", time_end);
+      if (time_hit >= time_start && time_hit <= time_end) {
+        flag = true;
+      }
+    }
+    res.status(200).send({
+      message: "Internal Evaluation Test taken successfully.",
+      test_access: flag,
+      stu_test,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.sudentGetInternalEvaluationTestQuery = async (req, res) => {
+  try {
+    const { stid } = req.params;
+    if (!stid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const stu_test = await StudentTestSet.findById(stid).populate({
+      path: "student",
+      select:
+        "studentFirstName studentMiddleName studentLastName studentProfilePhoto studentROLLNO",
+    });
+
+    res.status(200).send({
+      message: "Internal Evaluation Test Detail successfully.",
+      stu_test,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.sudentGetInternalEvaluationSubmitTestQuery = async (req, res) => {
+  try {
+    const { stid } = req.params;
+    const { testSetComplete, notifyId } = req.body;
+
+    if (!stid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const stu_test = await StudentTestSet.findById(stid);
+    const studentNoti = await StudentNotification.findById(notifyId);
+
+    studentNoti.student_feedback_status = "Submitted";
+    await studentNoti.save();
+    if (!stu_test.testSetComplete) {
+      stu_test.testSetComplete = testSetComplete;
+      stu_test.testSetLeftTime = 0;
+      await stu_test.save();
+      res.status(200).send({
+        message: "Internal Evaluation Test submit successfully",
+        status: stu_test.testSetComplete,
+        stu_test,
+      });
+    } else {
+      res.status(200).send({
+        message: "Internal Evaluation Test not submit successfully",
+        status: stu_test.testSetComplete,
+        stu_test,
+      });
+    }
+    if (stu_test?.internal_evaluation_test) {
+      const i_eva_test = await SubjectInternalEvaluationTest.findById(
+        stu_test?.internal_evaluation_test
+      );
+      i_eva_test.student_list.push({
+        student: stu_test.student,
+        obtain_marks: stu_test.testObtainMarks,
+        studenttestset: stu_test?._id,
+      });
+      const i_eva = await SubjectInternalEvaluation.findById(
+        i_eva_test.internal_evaluation
+      );
+      let convert_rate = (
+        i_eva_test?.out_of / i_eva_test?.conversion_rate
+      )?.toFixed(2);
+      convert_rate = +convert_rate;
+
+      let ob_mark = (stu_test.testObtainMarks / convert_rate)?.toFixed(2);
+      ob_mark = +ob_mark;
+
+      let flag = false;
+
+      if (i_eva?.student_list?.length > 0) {
+        for (let i = 0; i < i_eva?.student_list?.length; i++) {
+          let stu = i_eva?.student_list[i];
+          if (`${stu?.student}` === `${stu_test.student}`) {
+            stu.obtain_marks += ob_mark;
+            flag = true;
+            break;
+          }
+        }
+      }
+      if (!flag) {
+        i_eva?.student_list.push({
+          student: stu_test.student,
+          obtain_marks: ob_mark,
+        });
+      }
+      await Promise.all([i_eva_test.save(), i_eva.save()]);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
 
 
 

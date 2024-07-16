@@ -92,4 +92,24 @@ router
   .route("/internal/evaluation/export/:ieid/all/student/query")
   .patch(catchAsync(copoController.internalEvaluationStudentExcelExportQuery));
 
+  router
+  .route("/internal/evaluation/take/test/:ietid/to/student/query")
+  .patch(
+    catchAsync(
+      copoController.subjectTeacherTakeTestsetInternalEvaluationTestQuery
+    )
+  );
+router
+  .route("/internal/evaluation/student/:stid/start/query")
+  .patch(
+    catchAsync(copoController.sudentInternalEvaluationStartTestValidationQuery)
+  );
+router
+  .route("/internal/evaluation/student/:stid/submit/query")
+  .patch(catchAsync(copoController.sudentGetInternalEvaluationSubmitTestQuery));
+router
+  .route("/internal/evaluation/student/:stid/detail/query")
+  .get(catchAsync(copoController.sudentGetInternalEvaluationTestQuery));
+
+
 module.exports = router;

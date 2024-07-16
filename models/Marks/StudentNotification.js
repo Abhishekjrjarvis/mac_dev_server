@@ -135,7 +135,14 @@ const studentNotificationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Class",
   },
-
+  student_testset: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "StudentTestSet",
+  },
+  testset: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SubjectMasterTestSet",
+  },
 });
 
 module.exports = mongoose.model(

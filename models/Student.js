@@ -1158,7 +1158,13 @@ const studentSchema = new mongoose.Schema({
   },
   scholar_name: {
     type: String
-  }
+  },
+  internal_evaluation_testset: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StudentTestSet",
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

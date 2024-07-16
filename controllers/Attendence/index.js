@@ -22,6 +22,9 @@ const Subject = require("../../models/Subject");
 const moment = require("moment");
 const ClassAttendanceTimeSlot = require("../../models/Timetable/ClassAttendanceTimeSlot");
 const SubjectLectureDay = require("../../models/Timetable/SubjectLectureDay");
+const {
+  subject_attendance_json_to_excel,
+} = require("../../Custom/JSONToExcel");
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
   const institute = await Student.findById(req.params.sid);
@@ -3374,6 +3377,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
     const { startRange, endRange } = req.body;
     let regularexp = "";
     var attendaceMappingDate = [];
+    var attendance_zip = null;
     if (is_type === "RANGE") {
       let range1 = startRange;
       let range2 = endRange;
@@ -3440,16 +3444,46 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         })
         .populate({
           path: "selected_batch_query",
-        });
-
-      var classes = await Class.findById(subjects?.class)
-        .populate({
-          path: "ApproveStudent",
-          select:
-            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
         })
-        .lean()
-        .exec();
+        .populate({
+          path: "class",
+          select: "className",
+        })
+        .select("attendance selected_batch_query class");
+
+      let student_list = [];
+      var classes = null;
+      if (subjects?.selected_batch_query?._id) {
+        student_list = await Student.find({
+          _id: { $in: subjects?.selected_batch_query?.class_student_query },
+        })
+          .select(
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number"
+          )
+          .lean()
+          .exec();
+      } else {
+        if (subjects?.optionalStudent?.length > 0) {
+          student_list = await Student.find({
+            _id: { $in: subjects?.optionalStudent },
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number"
+            )
+            .lean()
+            .exec();
+        } else {
+          classes = await Class.findById(subjects?.class)
+            .populate({
+              path: "ApproveStudent",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
+            })
+            .lean()
+            .exec();
+          student_list = classes?.ApproveStudent;
+        }
+      }
 
       let mapSubject = {
         subjectName: `${subjects?.subjectName} ${
@@ -3467,7 +3501,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         // className: `${classes?.className} - ${classes?.classTitle}`,
       };
       let students = [];
-      for (let stu of classes?.ApproveStudent) {
+      for (let stu of student_list) {
         let obj = {
           ...stu,
           subjectWise: {
@@ -3491,49 +3525,140 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
           stu.subjectWise.totalCount
         ).toFixed(2);
       }
-      return res.status(200).send({
-        message: "All student zip attendance wtih all subject wise",
-        attendance_zip: {
-          mapSubject,
-          students,
-          attendaceMappingDate,
-        },
-        access: false,
+
+      attendance_zip = {
+        mapSubject,
+        students,
+        attendaceMappingDate,
+      };
+
+      let obj = {
+        GRNO: "",
+        "Enrollment / PRN": "",
+        RollNo: "",
+        Name: "",
+        Gender: "",
+        [attendance_zip.mapSubject?.subjectName]: "",
+        [`${attendance_zip.mapSubject?.subjectName} Overall Percentage`]: "",
+      };
+      const student = attendance_zip?.students?.map((stu) => {
+        let dObj = { ...obj };
+        dObj.GRNO = stu?.studentGRNO ?? "N/A";
+        dObj["Enrollment / PRN"] = stu?.student_prn_enroll_number
+          ? stu?.student_prn_enroll_number
+          : "N/A";
+        dObj.RollNo = stu?.studentROLLNO;
+        dObj.Name = `${
+          stu?.studentFirstName +
+          " " +
+          stu?.studentMiddleName +
+          " " +
+          stu?.studentLastName
+        }`;
+        dObj.Gender = stu?.studentGender;
+        dObj[
+          attendance_zip.mapSubject?.subjectName
+        ] = `${stu.subjectWise.presentCount} out of ${stu.subjectWise.totalCount}`;
+        dObj[`${attendance_zip.mapSubject?.subjectName} Overall Percentage`] =
+          stu.subjectWise.totalPercentage;
+
+        return dObj;
       });
+
+      if (student?.length > 0) {
+        excel_key = await subject_attendance_json_to_excel(
+          sid,
+          student,
+          "Student Attendance",
+          "SUBJECT_SEMESTER_ATTENDANCE",
+          `semester-of-${subjects?.class?.className ?? ""}`
+        );
+      }
+      res.status(200).send({
+        message: "All student zip attendance wtih all subject wise",
+        excel_key: excel_key,
+      });
+      // console.log("excel_key", );
+      // return res.status(200).send({
+      //   message: "All student zip attendance wtih all subject wise",
+      //   attendance_zip: {
+      //     mapSubject,
+      //     students,
+      //     attendaceMappingDate,
+      //   },
+      //   access: false,
+      // });
     } else {
       regularexp = new RegExp(`\/${month}\/${year}$`);
 
-      var subjects = await Subject.findById(sid).populate({
-        path: "attendance",
-        match: {
-          attendDate: { $regex: regularexp },
-        },
-        // select: "attendDate presentStudent.student absentStudent.student",
-      });
+      var subjects = await Subject.findById(sid)
+        .populate({
+          path: "attendance",
+          match: {
+            attendDate: { $regex: regularexp },
+          },
+          // select: "attendDate presentStudent.student absentStudent.student",
+        })
+        .populate({
+          path: "selected_batch_query",
+          select: "class_student_query",
+        })
+        .populate({
+          path: "class",
+          select: "className",
+        })
+        .select("attendance selected_batch_query class");
+
       // .lean()
       // .exec();
-
-      var classes = await Class.findById(subjects?.class)
-        .populate({
-          path: "ApproveStudent",
-          select:
-            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number",
-          populate: {
-            path: "leave",
-            match: {
-              date: { $regex: regularexp },
-              status: { $eq: "Accepted" },
-            },
-            select: "date",
-          },
+      let student_list = [];
+      var classes = null;
+      if (subjects?.selected_batch_query?._id) {
+        student_list = await Student.find({
+          _id: { $in: subjects?.selected_batch_query?.class_student_query },
         })
-        .lean()
-        .exec();
+          .select(
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number"
+          )
+          .lean()
+          .exec();
+      } else {
+        if (subjects?.optionalStudent?.length > 0) {
+          student_list = await Student.find({
+            _id: { $in: subjects?.optionalStudent },
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number"
+            )
+            .lean()
+            .exec();
+        } else {
+          classes = await Class.findById(subjects?.class)
+            .populate({
+              path: "ApproveStudent",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number",
+              populate: {
+                path: "leave",
+                match: {
+                  date: { $regex: regularexp },
+                  status: { $eq: "Accepted" },
+                },
+                select: "date",
+              },
+            })
+            .lean()
+            .exec();
+          student_list = classes?.ApproveStudent;
+        }
+      }
+
       let students = [];
       for (let att of subjects?.attendance) {
         attendaceMappingDate.push(att?.attendDate);
       }
-      for (let stu of classes?.ApproveStudent) {
+      // for (let stu of classes?.ApproveStudent)
+      for (let stu of student_list) {
         let obj = {
           ...stu,
           availablity: [],
@@ -3568,19 +3693,82 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         ).toFixed(2);
         students.push(obj);
       }
-      return res.status(200).send({
-        message: "All month student zip attendance with subject wise",
-        attendance_zip: {
-          students: students,
-          attendaceMappingDate: attendaceMappingDate,
-        },
-        access: false,
+      attendance_zip = {
+        students: students,
+        attendaceMappingDate: attendaceMappingDate,
+      };
+
+      let newDate = new Date(`${year}-${month}-01`);
+      newDate = newDate?.toISOString();
+      let daysInMonth = moment(`${year}-${month}`, "YYYY-MM").daysInMonth();
+      const student = attendance_zip?.students?.map((stu) => {
+        let dObj = {};
+        for (let i = 1; i <= daysInMonth; i++) {
+          if (i < 10) {
+            let db = `0${i}/${month}/${year}`;
+            if (attendance_zip?.attendaceMappingDate?.includes(db))
+              dObj[db] = "";
+          } else {
+            let dbt = `${i}/${month}/${year}`;
+            if (attendance_zip?.attendaceMappingDate?.includes(dbt))
+              dObj[dbt] = "";
+          }
+        }
+        for (let avail of stu?.availablity) {
+          dObj[`${avail?.date}`] = avail?.status;
+        }
+
+        let obj = {
+          GRNO: stu?.studentGRNO ?? "N/A",
+          "Enrollment / PRN": stu?.student_prn_enroll_number
+            ? stu?.student_prn_enroll_number
+            : "N/A",
+          RollNo: stu?.studentROLLNO,
+          Name:
+            stu?.studentFirstName +
+            " " +
+            stu?.studentMiddleName +
+            " " +
+            stu?.studentLastName,
+          Gender: stu?.studentGender,
+          ...dObj,
+          "Total Count": `${stu?.subjectWise?.presentCount} out of ${stu?.subjectWise?.totalCount}`,
+          "Overall Percentage": stu?.subjectWise?.totalPercentage,
+        };
+        return obj;
       });
+
+      if (student?.length > 0) {
+        excel_key = await subject_attendance_json_to_excel(
+          sid,
+          student,
+          "Student Attendance",
+          "SUBJECT_MONTHLY_ATTENDANCE",
+          `montly-of-${subjects?.class?.className ?? ""}`
+        );
+      }
+      res.status(200).send({
+        message: "All month student zip attendance with subject wise",
+        excel_key: excel_key,
+        // student_list,
+        // attendance_zip,
+        // subjects,
+      });
+      // return res.status(200).send({
+      //   message: "All month student zip attendance with subject wise",
+      //   attendance_zip: {
+      //     students: students,
+      //     attendaceMappingDate: attendaceMappingDate,
+      //   },
+      //   access: false,
+      // });
     }
   } catch (e) {
     console.log(e);
   }
 };
+
+
 
 exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
   try {

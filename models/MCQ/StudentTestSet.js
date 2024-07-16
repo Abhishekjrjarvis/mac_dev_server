@@ -24,7 +24,6 @@ const studentTestSetShcema = new mongoose.Schema({
   allotedTestSet: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "AllotedTestSet",
-    required: true,
   },
   testName: {
     type: String,
@@ -153,6 +152,10 @@ const studentTestSetShcema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  internal_evaluation_test: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SubjectInternalEvaluationTest",
   },
 });
 

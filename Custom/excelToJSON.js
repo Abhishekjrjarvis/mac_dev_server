@@ -469,7 +469,6 @@ exports.generate_excel_to_json_scholarship_query = async (excel_arr, excel_count
     // const w_query = xlsx.read(file.Body);
     // const w_sheet = w_query.Sheets["ScholarshipDetail"];
     // const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
-    console.log(new_data_query)
     return { scholar_array: new_data_query, value: true };
   } catch (e) {
     console.log("Scholarship Excel Query Not Resolved", e);

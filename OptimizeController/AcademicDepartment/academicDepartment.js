@@ -681,21 +681,27 @@ exports.render_new_theory_practical = async (req, res) => {
     const { staff, did } = req?.body
     if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
+    const depart = await Department.findById({ _id: did })
+    .select("active_academic_batch")
     const classes = await ClassMaster.findById({ _id: cid })
-    const new_batch = new Batch({ ...req?.body })
+    const new_subject = new Subject({ ...req?.body })
+    new_subject.subjectTitle = "Subject Teacher"
+    const codess = universal_random_password()
+    new_subject.member_module_unique = `${codess}`
     if (staff) {
       const staffs = await Staff.findById({ _id: staff})
-      new_batch.batch_head = staffs
-      staffs.staffBatch.push(new_batch?._id)
+      new_subject.subjectTeacherName = staffs
+      staffs.staffSubject.push(new_subject?._id)
       await staffs.save()
     }
     classes.practical_batch.push({
-      batch: new_batch?._id,
-      did: did
+      subject: new_subject?._id,
+      did: did,
+      batch: depart?.active_academic_batch
     })
     classes.practical_batch_count += 1
-    await Promise.all([new_batch.save(), classes.save()])
-    res.status(200).send({ message: "New Batch Add Query", access: true })            
+    await Promise.all([new_subject.save(), classes.save()])
+    res.status(200).send({ message: "New Practical Subject Add Query", access: true })            
   }
   catch (e) {
     console.log(e)
@@ -713,16 +719,18 @@ exports.render_all_theory_practical = async (req, res) => {
     
     const classes = await ClassMaster.findById({ _id: cid })
     .populate({
-      path: "practical_batch.batch",
-      select: "batchName class_student_query",
+      path: "practical_batch.subject",
+      select: "subjectName theory_students",
       populate: {
-        path: "batch_head",
+        path: "subjectTeacherName",
         select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
       }
     })
     var list = []
     for (let ele of classes?.practical_batch) {
-      if (`${ele?.did}` === `${did}`) {
+      const depart = await Department.findById({ _id: did })
+      .select("active_academic_batch")
+      if (`${ele?.did}` === `${depart?._id}` && `${ele?.batch}` === `${depart?.active_academic_batch}`) {
         list.push(ele)
       }
     }
@@ -747,14 +755,14 @@ exports.render_one_theory_practical_batch = async (req, res) => {
     const { bid } = req?.params
     if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    const batch = await Batch.findById({ _id: bid })
-    .select("batchName class_student_query")
+    const batch = await Subject.findById({ _id: bid })
+    .select("subjectName theory_students")
     .populate({
-      path: "batch_head",
+      path: "subjectTeacherName",
       select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
     })
     .populate({
-      path: "class_student_query",
+      path: "theory_students",
       select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO"
     })
       res.status(200).send({ message: "One Batch Query", access: true, batch: batch })            
@@ -770,14 +778,14 @@ exports.render_new_student_add_query_batch = async (req, res) => {
     const { students } = req?.body
     if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    var one_batch = await Batch.findById({ _id: bid })
+    var one_batch = await Subject.findById({ _id: bid })
     var all_student = await Student.find({ _id: { $in: students } });
 
     for (var ref of all_student) {
-      one_batch.class_student_query.push(ref?._id);
-      one_batch.class_student_query_count += 1;
-      ref.class_selected_batch.push(one_batch?._id);
-      await ref.save();
+      one_batch.theory_students.push(ref?._id);
+      // one_batch.theory_students_count += 1;
+      // ref.class_selected_batch.push(one_batch?._id);
+      // await ref.save();
     }
     await one_batch.save()
     res.status(200).send({ message: "New Student In Batch Add Query", access: true })            
@@ -793,14 +801,14 @@ exports.render_new_student_remove_query_batch = async (req, res) => {
     const { students } = req?.body
     if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    var one_batch = await Batch.findById({ _id: bid })
+    var one_batch = await Subject.findById({ _id: bid })
     var all_student = await Student.find({ _id: { $in: students } });
 
     for (var ref of all_student) {
-      one_batch.class_student_query.pull(ref?._id);
-      one_batch.class_student_query_count += 1;
-      ref.class_selected_batch.pull(one_batch?._id);
-      await ref.save();
+      one_batch.theory_students.pull(ref?._id);
+      // one_batch.class_student_query_count += 1;
+      // ref.class_selected_batch.pull(one_batch?._id);
+      // await ref.save();
     }
     await one_batch.save()
     res.status(200).send({ message: "New Student Remove In Batch Query", access: true })            
@@ -938,5 +946,65 @@ exports.render_all_dse_students_query = async (req, res) => {
   }
   catch (e) {
       console.log(e)
+  }
+}
+exports.render_edit_theory_classes = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    const { o_staff, n_staff } = req?.body
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    await Subject.findByIdAndUpdate(sid, req?.body)
+    if (n_staff) {
+      const new_subject = await Subject.findById({ _id: sid })
+      const staffs = await Staff.findById({ _id: o_staff })
+      const new_staff = await Staff.findById({ _id: n_staff })
+      staffs.staffSubject.pull(new_subject?._id)
+      new_subject.subjectTeacherName = new_staff?._id
+      new_staff.staffSubject.push(new_subject?._id)
+      await Promise.all([staffs.save(), new_staff.save()])
+      await new_subject.save()
+    }
+    res.status(200).send({ message: "Edit Subject Add Query", access: true })            
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_delete_theory_classes = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    const { cid, flow } = req?.body
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const classes = await ClassMaster.findById({ _id: cid })
+    const new_subject = await Subject.findById({ _id: sid })
+    if (new_subject?.subjectTeacherName) {
+      const staffs = await Staff.findById({ _id: new_subject?.subjectTeacherName })
+      new_subject.subjectTeacherName = null
+      staffs.staffSubject.pull(new_subject?._id)
+      await staffs.save()
+    }
+    if (flow === "THEORY_CLASSES") {
+      for (let ele of classes?.theory_classes) {
+        if (`${ele?.subject}` === `${new_subject._id}`) {
+          classes?.theory_classes?.pull(ele?._id)
+        }
+      }
+    }
+    else if(flow === "PRACTICAL_BATCH") {
+      for (let ele of classes?.practical_batch) {
+        if (`${ele?.subject}` === `${new_subject._id}`) {
+          classes?.practical_batch?.pull(ele?._id)
+        }
+      }
+    }
+    await classes.save()
+    await Subject.findByIdAndDelete(new_subject?._id)
+    res.status(200).send({ message: "Delete Subject Add Query", access: true })            
+  }
+  catch (e) {
+    console.log(e)
   }
 }

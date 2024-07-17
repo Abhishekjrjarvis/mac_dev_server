@@ -160,6 +160,15 @@ exports.formEditByClassTeacher = async (req, res) => {
         `${apply?.applicationName}`,
       );
     }
+    if (regeneration_status === "Yes") {
+      const apply = await NewApplication.findById({ _id: one_student?.student_form_flow?.did })
+      await generateStudentAdmissionForm(
+        one_student?._id,
+        insId,
+        `${one_student?.studentFirstName} ${one_student?.studentMiddleName ? one_student?.studentMiddleName : one_student?.studentFatherName ? one_student?.studentFatherName : ""} ${one_student?.studentLastName}`,
+        `${apply?.applicationName}`,
+      );
+    }
   } catch (e) {
     console.log(e);
   }

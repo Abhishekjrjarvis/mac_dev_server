@@ -65,7 +65,7 @@ exports.photoEditByStudent = async (req, res) => {
 exports.formEditByClassTeacher = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send student id to perform task";
-    const { phone, email, regeneration_bool, appId, insId, statusId } = req.body;
+    const { phone, email, regeneration_bool, appId, insId, statusId, regeneration_status } = req.body;
     var valid_phone = await handle_undefined(phone);
     var valid_email = await handle_undefined(email);
     const old_data = {

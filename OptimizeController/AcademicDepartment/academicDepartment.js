@@ -585,8 +585,8 @@ exports.render_all_theory_classes = async (req, res) => {
         path: "theory_classes.subject",
         select: "subjectName theory_students",
         populate: {
-          path: "subjectTeacherName",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+          path: "subjectTeacherName subjectMasterName",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO subjectName"
         }
       })
     var list = []
@@ -722,8 +722,8 @@ exports.render_all_theory_practical = async (req, res) => {
       path: "practical_batch.subject",
       select: "subjectName theory_students",
       populate: {
-        path: "subjectTeacherName",
-        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+        path: "subjectTeacherName subjectMasterName",
+        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO subjectName"
       }
     })
     var list = []

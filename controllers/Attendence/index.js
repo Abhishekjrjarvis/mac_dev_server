@@ -1346,7 +1346,7 @@ exports.getSubjectStudentList = async (req, res) => {
       });
     } else {
       var mixter_student = await Student.find({
-        _id: { $in: subjects.class.ApproveStudent ?? [] },
+        _id: { $in: subjects?.class?.ApproveStudent ?? [] },
       })
         .populate({
           path: "leave",

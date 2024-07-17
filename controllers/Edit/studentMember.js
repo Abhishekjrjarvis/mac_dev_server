@@ -33,6 +33,7 @@ const {
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 const Status = require("../../models/Admission/status");
 const NewApplication = require("../../models/Admission/NewApplication");
+const Admission = require("../../models/Admission/Admission");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.photoEditByStudent = async (req, res) => {
@@ -162,9 +163,10 @@ exports.formEditByClassTeacher = async (req, res) => {
     }
     if (regeneration_status === "Yes") {
       const apply = await NewApplication.findById({ _id: one_student?.student_form_flow?.did })
+      const ads_admin = await Admission.findById({ _id: `${apply?.admissionAdmin}`})
       await generateStudentAdmissionForm(
         one_student?._id,
-        insId,
+        ads_admin?.institute,
         `${one_student?.studentFirstName} ${one_student?.studentMiddleName ? one_student?.studentMiddleName : one_student?.studentFatherName ? one_student?.studentFatherName : ""} ${one_student?.studentLastName}`,
         `${apply?.applicationName}`,
       );

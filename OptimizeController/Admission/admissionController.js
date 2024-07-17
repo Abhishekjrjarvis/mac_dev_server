@@ -2553,6 +2553,25 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       path: "fee_structure",
     });
     if (student?.fee_receipt?.length > 0) {
+      for (let ele of apply?.FeeCollectionApplication) {
+        if (`${ele?.student}` === `${student?._id}`) {
+          apply?.FeeCollectionApplication.pull(ele?._id)
+        }
+      }
+      for (let ele of apply?.confirmedApplication) {
+        if (`${ele?.student}` === `${student?._id}`) {
+          
+        }
+        else {
+          apply.confirmedApplication.push({
+            student: student._id,
+            payment_status: mode,
+            install_type: "First Installment Paid",
+            fee_remain: 0,
+          });
+        }
+      }
+      await apply.save()
       res.status(200).send({
         message: "Already Fee Collected ",
         confirm_status: false,

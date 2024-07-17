@@ -1160,7 +1160,7 @@ exports.retrieveActiveMemberRole = async (req, res) => {
   try {
     const { uid } = req.params;
     const { active_member_role } = req.query;
-    const active_user = await User.findById({ _id: uid });
+    var active_user = await User.findById({ _id: uid });
     const role =
       active_user?.staff?.length > 0
         ? active_user?.staff[0]

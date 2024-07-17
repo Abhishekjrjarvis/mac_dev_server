@@ -122,13 +122,15 @@ exports.formEditByClassTeacher = async (req, res) => {
     });
     new_data.gender = one_student?.studentGender;
     new_data.caste = one_student?.studentCastCategory;
-    await chart_category_student(
-      one_student?.batches,
-      "Edit_Student",
-      old_data,
-      new_data,
-      one_student?.studentClass
-    );
+    if (one_student?.batches) {
+      await chart_category_student(
+        one_student?.batches,
+        "Edit_Student",
+        old_data,
+        new_data,
+        one_student?.studentClass
+      );
+    }
     var one_user = await User.findById({ _id: `${one_student?.user}` });
     if (valid_phone) {
       one_user.userPhoneNumber = valid_phone

@@ -1167,7 +1167,59 @@ const studentSchema = new mongoose.Schema({
   ],
   intake_type: {
     type: String
-  }
+  },
+  student_application_obj: [
+    {
+      app: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication"
+      },
+      request_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      },
+      select_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      },
+      confirm_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      },
+      fee_collect_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      },
+      review_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      },
+      allot_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      },
+      cancel_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      },
+      reverted_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      },
+      docs_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      },
+      reject_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      },
+      assign_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      }
+    }
+  ]
 });
 
 const Student = mongoose.model("Student", studentSchema);

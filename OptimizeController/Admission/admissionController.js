@@ -2198,15 +2198,17 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
       student: student._id,
       fee_remain: structure.total_admission_fees,
       revert_request_status: status?._id,
-      staff: staffId
     });
     admission_admin.selectedApplication.push({
       student: student._id,
       fee_remain: structure.total_admission_fees,
       revert_request_status: status?._id,
       application: apply?._id,
-      staff: staffId
     });
+    student.student_application_obj.push({
+      app: apply?._id,
+      select_by: staffId
+    })
     apply.selectCount += 1;
     status.content = `You have been selected for ${apply.applicationName}. 
 Your fee structure will be ${structure?.structure_name}. And required documents are 'click here for details'.   
@@ -2362,7 +2364,7 @@ Payment modes available:`;
 exports.retrieveAdmissionCancelApplication = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { reason } = req?.body
+    const { reason, staffId } = req?.body
     if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2412,6 +2414,10 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
     notify.notifyByAdmissionPhoto = admission_admin?._id;
     notify.notifyCategory = "Status Alert";
     notify.redirectIndex = 29;
+    student.student_application_obj.push({
+      app: apply?._id,
+      reject_by: staffId
+    })
     await Promise.all([
       apply.save(),
       student.save(),
@@ -2571,7 +2577,6 @@ exports.payOfflineAdmissionFee = async (req, res) => {
             payment_status: mode,
             install_type: "First Installment Paid",
             fee_remain: 0,
-            staff: staffId
           });
         }
       }
@@ -2639,6 +2644,10 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       // order.payment_invoice_number = new_receipt?.invoice_count;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
+      student.student_application_obj.push({
+        app: apply?._id,
+        fee_collect_by: staffId
+      })
       if (`${new_remainFee?.applicable_card?._id}` === `${card_id}`) {
         var nest_card = await NestedCard.findById({ _id: `${card_id}` })
         new_remainFee.active_payment_type = `${type}`;
@@ -2722,7 +2731,6 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           payment_status: mode,
           install_type: "First Installment Paid",
           fee_remain: nest_card.remaining_fee ?? 0,
-          staff: staffId
         });
         admission.confirmedApplication_query.push({
           student: student._id,
@@ -2884,7 +2892,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
 exports.cancelAdmissionApplication = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { amount, mode, remainAmount, struct } = req.body;
+    const { amount, mode, remainAmount, struct, staffId } = req.body;
     if (!sid && !aid && !amount && !remainAmount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -3073,6 +3081,10 @@ exports.cancelAdmissionApplication = async (req, res) => {
       order.fee_receipt = new_receipt?._id;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
+      student.student_application_obj.push({
+        app: apply?._id,
+        cancel_by: staffId
+      })
       await Promise.all([
         apply.save(),
         student.save(),
@@ -3278,8 +3290,11 @@ exports.retrieveClassAllotQuery = async (req, res) => {
             fee_remain: student.admissionRemainFeeCount,
             paid_status:
               student.admissionRemainFeeCount == 0 ? "Paid" : "Not Paid",
-              staff: staffId
           });
+          student.student_application_obj.push({
+            app: apply?._id,
+            allot_by: staffId
+          })
           apply.allotCount += 1;
           // student.confirmApplication.pull(apply._id)
           student.studentStatus = "Approved";
@@ -4140,7 +4155,6 @@ exports.paidRemainingFeeStudent = async (req, res) => {
               payment_status: mode,
               install_type: "First Installment Paid",
               fee_remain: nest_card.remaining_fee ?? 0,
-              staff: staffId
             });
             apply.confirmCount += 1
             apply.FeeCollectionApplication.pull(val?._id)
@@ -4162,6 +4176,12 @@ exports.paidRemainingFeeStudent = async (req, res) => {
           }
         }
       }
+    }
+    if (staffId) {
+      student.student_application_obj.push({
+        app: apply?._id,
+        fee_collect_by: staffId
+      })
     }
     student.admissionPaidFeeCount += price;
     if (mode === "Online") {
@@ -5391,7 +5411,11 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       status_id: status?._id,
       revert_request_status: revert_status
     }
-    var c_num = await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect", "", "", obj, staffId)
+    student.student_application_obj.push({
+      app: apply?._id,
+      docs_by: staffId
+    })
+    var c_num = await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect", "", "", obj)
     if (structure?.applicable_fees <= 0) {
       apply.confirmedApplication.push({
         student: student._id,
@@ -5400,7 +5424,6 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         fee_remain: structure?.applicable_fees,
         status_id: status?._id,
         revert_request_status: revert_status,
-        staff: staffId
       })
       apply.confirmCount += 1
     }
@@ -5414,7 +5437,6 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         status_id: status?._id,
         revert_request_status: revert_status,
         fee_struct: c_num?.fee_struct,
-        staff: staffId
       })
       apply.fee_collect_count += 1
     }
@@ -7050,7 +7072,7 @@ exports.renderInstituteCompletedAppQuery = async (req, res) => {
 exports.renderEditStudentFeeStructureQuery = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { fee_struct } = req.body;
+    const { fee_struct, staffId } = req.body;
     if (!sid && !aid && !fee_struct)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -7101,6 +7123,10 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
         await ref.save();
       }
       student.fee_structure = structure?._id;
+      student.student_application_obj.push({
+        app: apply?._id,
+        assign_by: staffId
+      })
       await Promise.all([apply.save(), student.save()]);
       res.status(200).send({
         message: `congrats for new fee structure `,
@@ -10314,7 +10340,7 @@ exports.renderPendingCustomFilterBatchMasterQuery = async (req, res) => {
 exports.retrieveAdmissionSelectedRevertedApplication = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { statusId } = req.body;
+    const { statusId, staffId } = req.body;
     if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -10344,9 +10370,13 @@ exports.retrieveAdmissionSelectedRevertedApplication = async (req, res) => {
     if (apply.selectCount > 0) {
       apply.selectCount -= 1;
     }
+    student.student_application_obj.push({
+      app: apply?._id,
+      reverted_by: staffId
+    })
     user.applicationStatus.pull(status?._id);
     await Status.findByIdAndDelete(statusId);
-    await Promise.all([apply.save(), user.save(), ads_admin.save()]);
+    await Promise.all([apply.save(), user.save(), ads_admin.save(), student.save()]);
     res.status(200).send({
       message: `${student.studentFirstName} Revert Back To Receieved Application`,
       access: true,
@@ -10385,16 +10415,18 @@ exports.retrieveAdmissionCollectDocsRevertedQuery = async (req, res) => {
       student: student?._id,
       fee_remain: remain_card?.applicable_fee,
       revert_request_status: revert_status,
-      staff: staffId
     })
     ads_admin.selectedApplication.push({
       student: student?._id,
       fee_remain: remain_card?.applicable_fee,
       revert_request_status: revert_status,
       application: apply?._id,
-      staff: staffId
     })
-    apply.selectCount += 1
+      apply.selectCount += 1
+      student.student_application_obj.push({
+        app: apply?._id,
+        reverted_by: staffId
+      })
     student.remainingFeeList.pull(remain_card?._id)
     if(student?.remainingFeeList_count > 0){
       student.remainingFeeList_count -= 1
@@ -11551,12 +11583,13 @@ exports.renderManageTabQuery = async(req, res) => {
 exports.renderReviewStudentQuery = async(req, res) => {
   try{
     const { aid } = req?.params
-    const { student_arr } = req?.body
+    const { student_arr, staffId } = req?.body
     if(!aid && !student_arr) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     var app = await NewApplication.findById({ _id: aid })
     if(student_arr?.length > 0){
       for (var val of student_arr) {
+        const student = await Student.findById({ _id: val?.sid })
         if (app?.reviewApplication?.includes(`${val?.sid}`)) {
           
         }
@@ -11568,6 +11601,11 @@ exports.renderReviewStudentQuery = async(req, res) => {
             app.confirmCount -= 1
           }
         }
+        student.student_application_obj.push({
+          app: app?._id,
+          review_by: staffId
+        })
+        await student.save()
       }
       await app.save()
     }
@@ -12910,6 +12948,10 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
         fee_receipt: new_receipt?._id,
         refund_status: "Refunded",
       });
+      student.student_application_obj.push({
+        app: apply?._id,
+        cancel_by: staffId
+      })
       all_remain_fee_list.status = "Cancel"
       order.payment_module_type = "Expense";
       order.payment_to_end_user_id = institute._id;
@@ -12967,14 +13009,12 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
           payment_status: "Refund",
           refund_amount: price,
           from: "Allotted_Tab",
-          staff: staffId
         });
         admission.cancel_admission.push({
           student: student._id,
           payment_status: "Refund",
           refund_amount: price,
           from: "Allotted_Tab",
-          staff: staffId
         })
         admission.cancel_admission_count += price
         await Promise.all([apply.save(), admission.save()]);
@@ -15488,7 +15528,7 @@ exports.retrieve_admission_revertion_reject_query = async (req, res) => {
 exports.retrieveAdmissionCancelApplicationModify = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { reason } = req?.body
+    const { reason, staffId } = req?.body
     if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -15529,6 +15569,10 @@ exports.retrieveAdmissionCancelApplicationModify = async (req, res) => {
     // if (user?.applyApplication?.includes(`${apply?._id}`)) {
     //   user.applyApplication.pull(apply?._id);
     // }
+    student.student_application_obj.push({
+      app: apply?._id,
+      reject_by: staffId
+    })
     status.instituteId = admission_admin?.institute;
     notify.notifyContent = `You have been rejected for ${apply.applicationName}. ${reason}`;
     notify.notifySender = admission_admin?.admissionAdminHead?.user;
@@ -16047,10 +16091,14 @@ exports.staff_name_only = async (req, res) => {
     const { sid } = req?.params
     if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    const staff = await Staff.findById({ _id: sid })
-      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO")
+    const student = await Student.findById({ _id: sid })
+      .select("student_application_obj")
+      .populate({
+        path: "student_application_obj.staff",
+        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+      })
     
-    res.status(200).send({ message: "Explore Staff Name Only", access: true, only: staff})
+    res.status(200).send({ message: "Explore Staff Name Only", access: true, only: student})
   }
   catch (e) {
     console.log(e)

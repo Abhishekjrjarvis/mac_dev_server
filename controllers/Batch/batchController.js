@@ -37,6 +37,7 @@ const { app_status, docs_status, fees_status } = require("../../OptimizeControll
 const InstituteApplicationForm = require("../../models/Form/InstituteApplicationForm");
 const FormChecklist = require("../../models/Form/FormChecklist");
 const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
+const { generate_random_code_structure } = require("../../helper/functions");
 
 exports.preformedStructure = async (req, res) => {
   try {
@@ -101,6 +102,8 @@ exports.preformedStructure = async (req, res) => {
         department: department?._id,
         batch_master: identicalBatch?._id,
       });
+      const new_code = generate_random_code_structure()
+      new_struct.fee_structure_code = `${new_code}`
       department.fees_structures.push(new_struct?._id);
       department.fees_structures_count += 1;
       for (var one_head of one_struct?.fees_heads) {

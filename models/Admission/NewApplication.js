@@ -67,7 +67,11 @@ const newApplicationSchema = new mongoose.Schema({
       },
       apply_on: { type: Date, default: Date.now },
       fee_remain: { type: Number, default: 0 },
-      reject_status: { type: String }
+      reject_status: { type: String },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      }
     },
   ],
   selectedApplication: [
@@ -87,6 +91,10 @@ const newApplicationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Status",
       },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      }
     },
   ],
   confirmedApplication: [
@@ -114,6 +122,10 @@ const newApplicationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Status",
       },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      }
     },
   ],
   FeeCollectionApplication: [
@@ -156,6 +168,10 @@ const newApplicationSchema = new mongoose.Schema({
       fee_struct: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeStructure"
+      },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
       }
     },
   ],
@@ -179,6 +195,10 @@ const newApplicationSchema = new mongoose.Schema({
       paid_status: { type: "String" },
       install_type: { type: String },
       second_pay_mode: { type: "String" },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      }
     },
   ],
   cancelApplication: [
@@ -192,6 +212,10 @@ const newApplicationSchema = new mongoose.Schema({
       refund_amount: { type: Number, default: 0 },
       from: {
         type: String
+      },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
       }
     },
   ],
@@ -281,7 +305,11 @@ const newApplicationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Student"
       },
-      reason: { type: String }
+      reason: { type: String },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+      }
     }
   ],
   undo_student: [
@@ -289,7 +317,25 @@ const newApplicationSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Student"
     }
-  ]
+  ],
+  admission_intake: {
+    intake_visibility: {
+      type: Boolean,
+      default: false
+    },
+    total_intake: {
+      type: Number,
+      default: 0
+    },
+    cap_intake: {
+      type: Number,
+      default: 0
+    },
+    il_intake: {
+      type: Number,
+      default: 0
+    }
+  }
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

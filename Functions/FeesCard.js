@@ -7,7 +7,7 @@ const FeesStructure = require("../models/Finance/FeesStructure");
 const InstituteAdmin = require("../models/InstituteAdmin");
 const Student = require("../models/Student");
 
-exports.render_new_fees_card = async (sid, appId, struct, flow, re_ads, classes, obj) => {
+exports.render_new_fees_card = async (sid, appId, struct, flow, re_ads, classes, obj, staffId) => {
     try {
       var student = await Student.findById({ _id: sid });
       var apply = await NewApplication.findById({ _id: appId });
@@ -95,7 +95,8 @@ exports.render_new_fees_card = async (sid, appId, struct, flow, re_ads, classes,
         status_id: obj?.status_id,
         revert_request_status: obj?.revert_request_status,
         fee_struct: structure?._id,
-        application: apply?._id
+        application: apply?._id,
+        staff: staffId
       })
       if (structure?.applicable_fees <= 0) {
         admission.confirmedApplication_query.push({

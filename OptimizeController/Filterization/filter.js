@@ -10594,6 +10594,30 @@ exports.render_subject_application_export = async (req, res) => {
   }
 }
 
+exports.render_app_intake_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const apply = await NewApplication.findById({ _id: aid })
+
+    if (apply?._id) {
+      res.status(200).send({
+        message: "Explore New App Intake",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        access: false,
+      });
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 // exports.render_daybook_heads_wise_excel_query = async (req, res) => {
 //   try {
 //     const { fid } = req.params;

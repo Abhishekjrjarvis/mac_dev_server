@@ -583,10 +583,22 @@ exports.render_all_theory_classes = async (req, res) => {
     const classes = await ClassMaster.findById({ _id: cid })
       .populate({
         path: "theory_classes.subject",
-        select: "subjectName theory_students",
+        select: "subjectName theory_students optionalStudent",
         populate: {
-          path: "subjectTeacherName subjectMasterName",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO subjectName"
+          path: "subjectTeacherName",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+        }
+      })
+      .populate({
+        path: "theory_classes.subject",
+        select: "subjectName theory_students optionalStudent",
+        populate: {
+          path: "subjectMasterName",
+          select: "subjectName",
+          populate: {
+            path: "department",
+            select: "dName"
+          }
         }
       })
     var list = []
@@ -619,13 +631,13 @@ exports.render_one_theory_classes_subject = async (req, res) => {
     if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const subject = await Subject.findById({ _id: sid })
-    .select("subjectName theory_students")
+    .select("subjectName theory_students optionalStudent")
     .populate({
       path: "subjectTeacherName",
       select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
     })
     .populate({
-      path: "theory_students",
+      path: "theory_students optionalStudent",
       select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO"
     })
       res.status(200).send({ message: "One Subject Query", access: true, subject: subject })            
@@ -645,6 +657,7 @@ exports.render_new_student_add_query = async (req, res) => {
     if (students?.length > 0) {
       for (let ele of students) {
         subject.theory_students.push(ele) 
+        subject.optionalStudent.push(ele)
       }
     }
     await subject.save()
@@ -665,6 +678,7 @@ exports.render_new_student_remove_query = async (req, res) => {
     if (students?.length > 0) {
       for (let ele of students) {
         subject.theory_students.pull(ele) 
+        subject.optionalStudent.pull(ele)
       }
     }
     await subject.save()
@@ -720,10 +734,22 @@ exports.render_all_theory_practical = async (req, res) => {
     const classes = await ClassMaster.findById({ _id: cid })
     .populate({
       path: "practical_batch.subject",
-      select: "subjectName theory_students",
+      select: "subjectName theory_students optionalStudent",
       populate: {
-        path: "subjectTeacherName subjectMasterName",
-        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO subjectName"
+        path: "subjectTeacherName",
+        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+      }
+    })
+    .populate({
+      path: "practical_batch.subject",
+      select: "subjectName theory_students optionalStudent",
+      populate: {
+        path: "subjectMasterName",
+        select: "subjectName",
+        populate: {
+          path: "department",
+          select: "dName"
+        }
       }
     })
     var list = []
@@ -756,13 +782,13 @@ exports.render_one_theory_practical_batch = async (req, res) => {
     if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const batch = await Subject.findById({ _id: bid })
-    .select("subjectName theory_students")
+    .select("subjectName theory_students optionalStudent")
     .populate({
       path: "subjectTeacherName",
       select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
     })
     .populate({
-      path: "theory_students",
+      path: "theory_students optionalStudent",
       select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO"
     })
       res.status(200).send({ message: "One Batch Query", access: true, batch: batch })            
@@ -783,6 +809,7 @@ exports.render_new_student_add_query_batch = async (req, res) => {
 
     for (var ref of all_student) {
       one_batch.theory_students.push(ref?._id);
+      one_batch.optionalStudent.push(ref?._id)
       // one_batch.theory_students_count += 1;
       // ref.class_selected_batch.push(one_batch?._id);
       // await ref.save();
@@ -806,6 +833,7 @@ exports.render_new_student_remove_query_batch = async (req, res) => {
 
     for (var ref of all_student) {
       one_batch.theory_students.pull(ref?._id);
+      one_batch.optionalStudent.pull(ref?._id)
       // one_batch.class_student_query_count += 1;
       // ref.class_selected_batch.pull(one_batch?._id);
       // await ref.save();

@@ -337,6 +337,10 @@ const admissionAdminSchema = new mongoose.Schema({
       refund_amount: { type: Number, default: 0 },
       from: {
         type: String
+      },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
       }
     },
   ],
@@ -456,6 +460,10 @@ const admissionAdminSchema = new mongoose.Schema({
       application: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "NewApplication",
+      },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
       }
     },
   ],
@@ -487,6 +495,10 @@ const admissionAdminSchema = new mongoose.Schema({
       application: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "NewApplication",
+      },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
       }
     },
   ],
@@ -534,6 +546,10 @@ const admissionAdminSchema = new mongoose.Schema({
       application: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "NewApplication",
+      },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
       }
     },
   ],

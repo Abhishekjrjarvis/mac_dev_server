@@ -971,6 +971,12 @@ router.post(
 
 router.patch("/all/group/name", catchAsync(Admission.subject_student_class))
 
+router.get("/:sid/staff/name/only", catchAsync(Admission.staff_name_only))
+
+router.patch("/:aid/app/intake/query", catchAsync(Admission.render_admission_intake_query))
+
+
+
 
 
 

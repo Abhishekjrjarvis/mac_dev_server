@@ -8,7 +8,7 @@ const bookSchema = new mongoose.Schema({
   },
   author: { type: String, required: true },
   publication: { type: String },
-  language: { type: String, required: true },
+  language: { type: String },
   totalPage: { type: Number, default: 0 },
   price: { type: Number, default: 0 },
   totalCopies: { type: Number, default: 1 },
@@ -103,6 +103,9 @@ const bookSchema = new mongoose.Schema({
     type: String,
     default: "Available",
   },
+  book_type: {
+    type: String
+  }
 });
 
 module.exports = mongoose.model("Book", bookSchema);

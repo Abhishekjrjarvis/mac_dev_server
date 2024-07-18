@@ -1165,6 +1165,9 @@ const studentSchema = new mongoose.Schema({
       ref: "StudentTestSet",
     },
   ],
+  intake_type: {
+    type: String
+  }
 });
 
 const Student = mongoose.model("Student", studentSchema);

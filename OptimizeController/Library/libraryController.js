@@ -1025,7 +1025,8 @@ exports.renderNewOfflineBookAutoQuery = async (lid, book_array) => {
       accession_number: val?.accession_number,
       date: val?.date,
       publisher: val?.publisher,
-      totalPage: val?.totalPage,
+        totalPage: val?.totalPage,
+      book_type: val?.book_type,
       depart: val?.depart
       });
       library.books.push(book._id);

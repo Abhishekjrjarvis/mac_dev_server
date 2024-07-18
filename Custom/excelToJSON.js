@@ -542,6 +542,7 @@ exports.generate_excel_to_json_library_offline_book_query = async (file) => {
       val.date = val?.Date,
       val.publisher = val?.Publisher,
       val.totalPage = val?.Pages
+      val.book_type = val?.BookType ?? "",
       val.depart = val.Department
       new_data_query.push(val);
     }

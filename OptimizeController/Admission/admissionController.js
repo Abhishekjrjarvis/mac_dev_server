@@ -1377,7 +1377,7 @@ exports.fetchAllSelectApplication = async (req, res) => {
               ]
             },
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name form_no",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name form_no intake_type",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:
@@ -1415,7 +1415,7 @@ exports.fetchAllSelectApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber form_no",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber form_no intake_type",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:
@@ -1593,7 +1593,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
               ]
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
             populate: {
               path: "fee_structure hostel_fee_structure fee_receipt",
               select:
@@ -1631,7 +1631,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt institute form_no",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt institute form_no intake_type",
             populate: {
               path: "fee_structure hostel_fee_structure fee_receipt",
               select:
@@ -1690,7 +1690,7 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
               form_no: { $regex: `${search}`, $options: "i" }
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name form_no",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name form_no intake_type",
             populate: {
               path: "user fee_receipt",
               select: "userPhoneNumber userEmail receipt_file",
@@ -1723,7 +1723,7 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt form_no",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt form_no intake_type",
             populate: {
               path: "user fee_receipt",
               select: "userPhoneNumber userEmail receipt_file",
@@ -1780,7 +1780,7 @@ exports.fetchAllReviewApplication = async (req, res) => {
               }
             ]
           },
-          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no",
+          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
           populate: {
             path: "fee_structure hostel_fee_structure fee_receipt",
             select:
@@ -1809,7 +1809,7 @@ exports.fetchAllReviewApplication = async (req, res) => {
         .select("review_count")
         .populate({
           path: "reviewApplication",
-          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no",
+          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
           populate: {
             path: "fee_structure hostel_fee_structure fee_receipt",
             select:
@@ -1871,7 +1871,7 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
               }
             ]
           },
-          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no",
+          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
           populate: {
             path: "fee_structure hostel_fee_structure fee_receipt",
             select:
@@ -1900,7 +1900,7 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
         .select("review_count")
         .populate({
           path: "reviewApplication",
-          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no",
+          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
           populate: {
             path: "fee_structure hostel_fee_structure fee_receipt",
             select:
@@ -1973,7 +1973,7 @@ exports.fetchAllAllotApplication = async (req, res) => {
               ]
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentGRNO studentParentsPhoneNumber fee_receipt valid_full_name form_no",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentGRNO studentParentsPhoneNumber fee_receipt valid_full_name form_no intake_type",
               populate: {
                 path: "fee_structure hostel_fee_structure fee_receipt",
                 select:
@@ -2009,7 +2009,7 @@ exports.fetchAllAllotApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt form_no",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt form_no intake_type",
               populate: {
                 path: "fee_structure hostel_fee_structure fee_receipt",
                 select:
@@ -2092,7 +2092,7 @@ exports.fetchAllCancelApplication = async (req, res) => {
               ]
             },
             select:
-              "studentFirstName studentMiddleName studentLastName studentGRNO paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name form_no",
+              "studentFirstName studentMiddleName studentLastName studentGRNO paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name form_no intake_type",
             populate: {
               path: "user fee_receipt",
               select: "userPhoneNumber userEmail receipt_file",
@@ -2123,7 +2123,7 @@ exports.fetchAllCancelApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt form_no",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt form_no intake_type",
             populate: {
               path: "user fee_receipt",
               select: "userPhoneNumber userEmail receipt_file",
@@ -2161,7 +2161,7 @@ exports.fetchAllCancelApplication = async (req, res) => {
 exports.retrieveAdmissionSelectedApplication = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { fee_struct } = req.body;
+    const { fee_struct, staffId, intake_type } = req.body;
     if (!sid && !aid && !fee_struct)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2198,12 +2198,14 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
       student: student._id,
       fee_remain: structure.total_admission_fees,
       revert_request_status: status?._id,
+      staff: staffId
     });
     admission_admin.selectedApplication.push({
       student: student._id,
       fee_remain: structure.total_admission_fees,
       revert_request_status: status?._id,
-      application: apply?._id
+      application: apply?._id,
+      staff: staffId
     });
     apply.selectCount += 1;
     status.content = `You have been selected for ${apply.applicationName}. 
@@ -2234,6 +2236,7 @@ Start your admission process by confirming below.`;
     notify.notifyByAdmissionPhoto = admission_admin?._id;
     notify.notifyCategory = "Status Alert";
     notify.redirectIndex = 29;
+    student.intake_type = intake_type ?? ""
     await Promise.all([
       apply.save(),
       student.save(),
@@ -2541,7 +2544,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
   try {
     const { sid, aid } = req.params;
     const { receipt_status } = req.query;
-    const { amount, mode, card_id, rid, type, pay_remain, nsid } = req.body;
+    const { amount, mode, card_id, rid, type, pay_remain, nsid, staffId } = req.body;
     if (!sid && !aid && !amount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2568,6 +2571,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
             payment_status: mode,
             install_type: "First Installment Paid",
             fee_remain: 0,
+            staff: staffId
           });
         }
       }
@@ -2718,6 +2722,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           payment_status: mode,
           install_type: "First Installment Paid",
           fee_remain: nest_card.remaining_fee ?? 0,
+          staff: staffId
         });
         admission.confirmedApplication_query.push({
           student: student._id,
@@ -3234,6 +3239,7 @@ exports.retrieveAdmissionApplicationClass = async (req, res) => {
 exports.retrieveClassAllotQuery = async (req, res) => {
   try {
     const { aid, cid } = req.params;
+    const { staffId } = req?.body
     if (!aid && !cid && !req.body.dataList)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -3272,6 +3278,7 @@ exports.retrieveClassAllotQuery = async (req, res) => {
             fee_remain: student.admissionRemainFeeCount,
             paid_status:
               student.admissionRemainFeeCount == 0 ? "Paid" : "Not Paid",
+              staff: staffId
           });
           apply.allotCount += 1;
           // student.confirmApplication.pull(apply._id)
@@ -3928,7 +3935,7 @@ exports.oneStudentViewRemainingFee = async (req, res) => {
 exports.paidRemainingFeeStudent = async (req, res) => {
   try {
     const { aid, sid, appId } = req.params;
-    const { amount, mode, type, card_id, rid, raid, pay_remain, nsid } = req.body;
+    const { amount, mode, type, card_id, rid, raid, pay_remain, nsid, staffId } = req.body;
     const { receipt_status } = req.query;
     if (!sid && !aid && !appId && !amount && !mode && !type)
       return res.status(200).send({
@@ -4133,6 +4140,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
               payment_status: mode,
               install_type: "First Installment Paid",
               fee_remain: nest_card.remaining_fee ?? 0,
+              staff: staffId
             });
             apply.confirmCount += 1
             apply.FeeCollectionApplication.pull(val?._id)
@@ -4835,7 +4843,7 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
     //   });
     const oneApply = await NewApplication.findById({ _id: aid })
       .select(
-        "applicationName applicationType applicationAbout admissionProcess gr_initials applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type app_qr_code student_form_setting app_hindi_qr_code app_marathi_qr_code pin"
+        "applicationName applicationType applicationAbout admissionProcess gr_initials applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type app_qr_code student_form_setting app_hindi_qr_code app_marathi_qr_code pin admission_intake"
       )
       .populate({
         path: "applicationDepartment",
@@ -5354,7 +5362,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
 exports.retrieveAdmissionCollectDocs = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { mode, type, amount, nest, revert_status } = req.body;
+    const { mode, type, amount, nest, revert_status, staffId } = req.body;
     if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -5383,7 +5391,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       status_id: status?._id,
       revert_request_status: revert_status
     }
-    var c_num = await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect", "", "", obj)
+    var c_num = await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect", "", "", obj, staffId)
     if (structure?.applicable_fees <= 0) {
       apply.confirmedApplication.push({
         student: student._id,
@@ -5391,7 +5399,8 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         install_type: "No Installment Required For Payment",
         fee_remain: structure?.applicable_fees,
         status_id: status?._id,
-        revert_request_status: revert_status
+        revert_request_status: revert_status,
+        staff: staffId
       })
       apply.confirmCount += 1
     }
@@ -5404,7 +5413,8 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         gov_card: c_num?.gov_card,
         status_id: status?._id,
         revert_request_status: revert_status,
-        fee_struct: c_num?.fee_struct
+        fee_struct: c_num?.fee_struct,
+        staff: staffId
       })
       apply.fee_collect_count += 1
     }
@@ -10349,7 +10359,7 @@ exports.retrieveAdmissionSelectedRevertedApplication = async (req, res) => {
 exports.retrieveAdmissionCollectDocsRevertedQuery = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { statusId, fcid, rid, revert_status } = req.body;
+    const { statusId, fcid, rid, revert_status, staffId } = req.body;
     if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -10374,13 +10384,15 @@ exports.retrieveAdmissionCollectDocsRevertedQuery = async (req, res) => {
     apply.selectedApplication.push({
       student: student?._id,
       fee_remain: remain_card?.applicable_fee,
-      revert_request_status: revert_status
+      revert_request_status: revert_status,
+      staff: staffId
     })
     ads_admin.selectedApplication.push({
       student: student?._id,
       fee_remain: remain_card?.applicable_fee,
       revert_request_status: revert_status,
-      application: apply?._id
+      application: apply?._id,
+      staff: staffId
     })
     apply.selectCount += 1
     student.remainingFeeList.pull(remain_card?._id)
@@ -12728,7 +12740,7 @@ exports.renderGovernmentCardUpdateQuery = async (req, res) => {
 exports.cancelAllottedAdmissionApplication = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { amount, mode, remainAmount, struct, classId } = req.body;
+    const { amount, mode, remainAmount, struct, classId, staffId } = req.body;
     if (!sid && !aid && !amount && !remainAmount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -12954,13 +12966,15 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
           student: student._id,
           payment_status: "Refund",
           refund_amount: price,
-          from: "Allotted_Tab"
+          from: "Allotted_Tab",
+          staff: staffId
         });
         admission.cancel_admission.push({
           student: student._id,
           payment_status: "Refund",
           refund_amount: price,
-          from: "Allotted_Tab"
+          from: "Allotted_Tab",
+          staff: staffId
         })
         admission.cancel_admission_count += price
         await Promise.all([apply.save(), admission.save()]);
@@ -15308,7 +15322,8 @@ exports.retieveAdmissionAdminInsertion = async (req, res) => {
           student: ele?.student,
           fee_remain: ele?.fee_remain,
           revert_request_status: ele?.revert_request_status,
-          application: all?._id
+          application: all?._id,
+          staff: ele?.staff
         })
       }
     }
@@ -16021,6 +16036,35 @@ exports.subject_student_class = async (req, res) => {
       // }
     }
     res.status(200).send({ message: "Explore Apps", all_student, len: all_student?.length})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.staff_name_only = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const staff = await Staff.findById({ _id: sid })
+      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO")
+    
+    res.status(200).send({ message: "Explore Staff Name Only", access: true, only: staff})
+  }
+  catch (e) {
+    console.log(e)
+  }
+} 
+
+exports.render_admission_intake_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    await NewApplication.findByIdAndUpdate(aid, req?.body)
+
+    res.status(200).send({ message: "Explore New Application InTake Query"})
   }
   catch (e) {
     console.log(e)

@@ -16071,6 +16071,45 @@ exports.render_admission_intake_query = async (req, res) => {
   }
 }
 
+exports.render_all_move_to_confirm = async (req, res) => {
+  try {
+    const nums = ["66866ac748bcd4555dd23684", "6687ca05e0a07f2ba2aa759e", "66881bd6e0a07f2ba2ac2d33", "668b8774d65eae5968f405ad",
+      "666bdf1623dd2820dd62b970", "6663eb3115c994e9112bc445", "665ddaa5467341ec95e69031", "667d50584bb061c24301dedc", "666860c6e48bba3b26abb4c2",
+      "6688d3b2ed5a562f9ff9a70f", "668903e53a73a0ee9f580612", "667fc7d38e98c621475d6aa8", "667aa82cf4345c2cc2b6e1b5", "66655b82c158f217f7005dd7",
+      "66598d634e300b805b0160fd", "6661b6fd40f1f8d0d05c7ff2", "668cfb2835a5932c764eb0d2", "6684f4c2cf9bf8669c0c3b90", "668e251ee473898a909664af", 
+    "6689016dd5246b6e1de07747", "668bec17b11c7a84ed1733fb"
+    ]
+    const all_student = await Student.find({ _id: { $in: nums } })
+    .select("student_form_flow studentFirstName studentMiddleName studentLastName")
+    
+    var  i = 0
+    for (let ele of all_student) {
+      if (ele?.student_form_flow?.flow === "APPLICATION") {
+        const app = await NewApplication.findById({ _id: ele?.student_form_flow?.did })
+        app.confirmedApplication.push({
+          student: ele?._id,
+          payment_status: "Offline",
+          install_type: "First Installment Paid",
+          fee_remain: 0
+        })
+        app.confirmCount += 1
+        for (let val of app?.FeeCollectionApplication) {
+          if (`${val?.student}` === `${ele?._id}`) {
+            app?.FeeCollectionApplication?.pull(val?._id)
+          }
+        }
+        await app.save()
+        console.log(i)
+        i+=1
+      }
+    }
+    res.status(200).send({ message: "Explore All Student Query", access: true, all_student})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {

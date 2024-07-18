@@ -952,7 +952,7 @@ router.get(
   catchAsync(Admission.render_one_subject_student_query)
 );
 
-router.get(
+router.patch(
   "/:sid/change/subject/query",
   catchAsync(Admission.render_one_subject_change_student_query)
 );
@@ -975,9 +975,7 @@ router.get("/:sid/staff/name/only", catchAsync(Admission.staff_name_only))
 
 router.patch("/:aid/app/intake/query", catchAsync(Admission.render_admission_intake_query))
 
-
-
-
+router.patch("/all/move/to", catchAsync(Admission.render_all_move_to_confirm))
 
 
 module.exports = router;

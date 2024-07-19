@@ -73,6 +73,7 @@ const bankDaybook = require("../../scripts/bankDaybook");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const SubjectGroupSelect = require("../../models/Admission/Optional/SubjectGroupSelect");
 const SubjectMaster = require("../../models/SubjectMaster");
+const admissionIntakeReport = require("../../scripts/admissionIntakeReport");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -10691,6 +10692,8 @@ exports.render_app_intake_query = async (req, res) => {
     const { bid } = req?.body
     if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
+    await admissionIntakeReport(aid, bid)
+    res.status(200).send({ message: "Admission Intake Query", access: true})
     const ads_admin = await Admission.findById({ _id: aid })
       .populate({
         path: "institute",
@@ -10736,21 +10739,21 @@ exports.render_app_intake_query = async (req, res) => {
       }
     }
     const all = await removeDuplicates(ds)
-    if (all?.length > 0) {
-      res.status(200).send({
-        message: "Explore New App Intake",
-        access: true,
-        data_set: all,
-        ads_admin: ads_admin?.institute,
-        batch: batch?.batchName
-      });
-    } else {
-      res.status(200).send({
-        message: "No New Excel Exports ",
-        access: false,
-        data_set: []
-      });
-    }
+    // if (all?.length > 0) {
+    //   res.status(200).send({
+    //     message: "Explore New App Intake",
+    //     access: true,
+    //     data_set: all,
+    //     ads_admin: ads_admin?.institute,
+    //     batch: batch?.batchName
+    //   });
+    // } else {
+    //   res.status(200).send({
+    //     message: "No New Excel Exports ",
+    //     access: false,
+    //     data_set: []
+    //   });
+    // }
   }
   catch (e) {
     console.log(e)

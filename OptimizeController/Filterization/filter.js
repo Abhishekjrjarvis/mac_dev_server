@@ -10599,7 +10599,15 @@ exports.render_app_intake_query = async (req, res) => {
     const { aid } = req?.params
     if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
-    const apply = await NewApplication.findById({ _id: aid })
+    const ads_admin = await Admission.findById({ _id: aid })
+    const apply = await NewApplication.findById({ $and: [{ _id: { $in: ads_admin?.newApplication }}, {applicationTypeStatus: "Normal Application"}] })
+
+    const all_student = await Student.find({ "student_form_flow.did": { $in: ads_admin?.newApplication } })
+    for (let ele of all_student) {
+      for (let val of apply) {
+        // if()
+      }
+    }
 
     if (apply?._id) {
       res.status(200).send({

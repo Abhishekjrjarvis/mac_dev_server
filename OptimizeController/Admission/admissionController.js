@@ -2570,19 +2570,35 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           apply?.FeeCollectionApplication.pull(ele?._id)
         }
       }
-      for (let ele of apply?.confirmedApplication) {
-        if (`${ele?.student}` === `${student?._id}`) {
-          
-        }
-        else {
-          // apply.confirmedApplication.push({
-          //   student: student._id,
-          //   payment_status: mode,
-          //   install_type: "First Installment Paid",
-          //   fee_remain: 0,
-          // });
-        }
+      let exist = apply?.confirmedApplication?.filter((val) => {
+        if (`${val?.student}` === `${student?._id}`) return val
+      })
+      if (exist?.length > 0) {
+        
       }
+      else {
+        apply.confirmedApplication.push({
+              student: student._id,
+              payment_status: mode,
+              install_type: "First Installment Paid",
+              fee_remain: 0,
+            });
+      }
+      // for (let ele of apply?.confirmedApplication) {
+      //   if (`${ele?.student}` === `${student?._id}`) {
+          
+      //   }
+      //   else {
+      //     if (`${ele?.student}` === `${student?._id}`) {
+      //       // apply.confirmedApplication.push({
+      //       //   student: student._id,
+      //       //   payment_status: mode,
+      //       //   install_type: "First Installment Paid",
+      //       //   fee_remain: 0,
+      //       // });
+      //     }
+      //   }
+      // }
       await apply.save()
       res.status(200).send({
         message: "Already Fee Collected ",

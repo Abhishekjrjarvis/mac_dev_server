@@ -10605,9 +10605,9 @@ exports.render_app_intake_query = async (req, res) => {
         path: "institute",
         select: "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode"
     })
-    // const batch = await Batch.findById({ _id: bid})
-    // const apply = await NewApplication.findById({ $and: [{ _id: { $in: ads_admin?.newApplication } }, { applicationTypeStatus: "Normal Application" }, { applicationBatch: { $in: batch?.merged_batches } }] })
-    const apply = await NewApplication.find({ $and: [{ _id: { $in: ads_admin?.newApplication } }, { applicationTypeStatus: "Normal Application" }] })
+    const batch = await Batch.findById({ _id: bid})
+    const apply = await NewApplication.findById({ $and: [{ _id: { $in: ads_admin?.newApplication } }, { applicationTypeStatus: "Normal Application" }, { applicationBatch: { $in: batch?.merged_batches } }] })
+    // const apply = await NewApplication.find({ $and: [{ _id: { $in: ads_admin?.newApplication } }, { applicationTypeStatus: "Normal Application" }] })
     .select("applicationName admission_intake_data_set admission_intake")
 
     const all_student = await Student.find({ "student_form_flow.did": { $in: ads_admin?.newApplication } })

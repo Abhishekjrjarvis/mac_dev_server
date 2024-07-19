@@ -2207,7 +2207,8 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     });
     student.student_application_obj.push({
       app: apply?._id,
-      select_by: staffId
+      staff: staffId,
+      flow: "select_by"
     })
     apply.selectCount += 1;
     status.content = `You have been selected for ${apply.applicationName}. 
@@ -2416,7 +2417,8 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
     notify.redirectIndex = 29;
     student.student_application_obj.push({
       app: apply?._id,
-      reject_by: staffId
+      staff: staffId,
+      flow: "reject_by"
     })
     await Promise.all([
       apply.save(),
@@ -2646,7 +2648,8 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       institute.payment_history.push(order._id);
       student.student_application_obj.push({
         app: apply?._id,
-        confirm_by: staffId
+        staff: staffId,
+        flow: "confirm_by"
       })
       if (`${new_remainFee?.applicable_card?._id}` === `${card_id}`) {
         var nest_card = await NestedCard.findById({ _id: `${card_id}` })
@@ -3083,7 +3086,8 @@ exports.cancelAdmissionApplication = async (req, res) => {
       institute.payment_history.push(order._id);
       student.student_application_obj.push({
         app: apply?._id,
-        cancel_by: staffId
+        staff: staffId,
+        flow: "cancel_by"
       })
       await Promise.all([
         apply.save(),
@@ -3293,7 +3297,8 @@ exports.retrieveClassAllotQuery = async (req, res) => {
           });
           student.student_application_obj.push({
             app: apply?._id,
-            allot_by: staffId
+            staff: staffId,
+            flow: "allot_by"
           })
           apply.allotCount += 1;
           // student.confirmApplication.pull(apply._id)
@@ -4180,7 +4185,8 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     if (staffId) {
       student.student_application_obj.push({
         app: apply?._id,
-        fee_collect_by: staffId
+        staff: staffId,
+        flow: "fee_collect_by"
       })
     }
     student.admissionPaidFeeCount += price;
@@ -5413,7 +5419,8 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     }
     student.student_application_obj.push({
       app: apply?._id,
-      docs_by: staffId
+      staff: staffId,
+      flow: "docs_by"
     })
     var c_num = await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect", "", "", obj)
     if (structure?.applicable_fees <= 0) {
@@ -7125,7 +7132,8 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
       student.fee_structure = structure?._id;
       student.student_application_obj.push({
         app: apply?._id,
-        assign_by: staffId
+        staff: staffId,
+        flow: "assign_by"
       })
       await Promise.all([apply.save(), student.save()]);
       res.status(200).send({
@@ -10372,7 +10380,8 @@ exports.retrieveAdmissionSelectedRevertedApplication = async (req, res) => {
     }
     student.student_application_obj.push({
       app: apply?._id,
-      reverted_by: staffId
+      staff: staffId,
+      flow: "reverted_by"
     })
     user.applicationStatus.pull(status?._id);
     await Status.findByIdAndDelete(statusId);
@@ -10425,7 +10434,8 @@ exports.retrieveAdmissionCollectDocsRevertedQuery = async (req, res) => {
       apply.selectCount += 1
       student.student_application_obj.push({
         app: apply?._id,
-        reverted_by: staffId
+        staff: staffId,
+        flow: "reverted_by"
       })
     student.remainingFeeList.pull(remain_card?._id)
     if(student?.remainingFeeList_count > 0){
@@ -11603,7 +11613,8 @@ exports.renderReviewStudentQuery = async(req, res) => {
         }
         student.student_application_obj.push({
           app: app?._id,
-          review_by: staffId
+          staff: staffId,
+          flow: "review_by"
         })
         await student.save()
       }
@@ -12950,7 +12961,8 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
       });
       student.student_application_obj.push({
         app: apply?._id,
-        cancel_by: staffId
+        staff: staffId,
+        flow: "cancel_by"
       })
       all_remain_fee_list.status = "Cancel"
       order.payment_module_type = "Expense";
@@ -15571,7 +15583,8 @@ exports.retrieveAdmissionCancelApplicationModify = async (req, res) => {
     // }
     student.student_application_obj.push({
       app: apply?._id,
-      reject_by: staffId
+      staff: staffId,
+      flow: "reject_by"
     })
     status.instituteId = admission_admin?.institute;
     notify.notifyContent = `You have been rejected for ${apply.applicationName}. ${reason}`;
@@ -16092,13 +16105,38 @@ exports.staff_name_only = async (req, res) => {
     if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const student = await Student.findById({ _id: sid })
-      .select("student_application_obj")
+      .select("student_application_obj student_form_flow")
       .populate({
-        path: "student_application_obj.request_by student_application_obj.select_by student_application_obj.confirm_by student_application_obj.fee_collect_by student_application_obj.review_by student_application_obj.allot_by student_application_obj.cancel_by student_application_obj.reverted_by student_application_obj.docs_by student_application_obj.reject_by student_application_obj.assign_by",
+        path: "student_application_obj.staff",
         select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
       })
+      .lean()
+    .exec()
     
-    res.status(200).send({ message: "Explore Staff Name Only", access: true, only: student})
+    let list = []
+    // let nums = [
+    //   { request_by: "Accepted By"},
+    //   { select_by: "Selected By"},
+    //   { confirm_by: "Confirmed By"},
+    //   { fee_collect_by: "Fee Collected By"},
+    //   { review_by: "Reviewed By"},
+    //   { allot_by: "Allotted By"},
+    //   { cancel_by: "Cancelled By"},
+    //   { reverted_by: "Reverted By"},
+    //   { docs_by: "Docs Verified By"},
+    //   { reject_by: "Rejected By"},
+    //   { assign_by: "Fee Structure Assign By"},
+    // ]
+    for (let ele of student?.student_application_obj?.reverse()) {
+      if (`${student?.student_form_flow?.did}` === `${ele?.app}`) {
+          list.push({
+            key: ele?.flow === "request_by" ? "Accepted By" : ele?.flow === "select_by" ? "Selected By" : ele?.flow === "confirm_by" ? "Confirmed By" : ele?.flow === "fee_collect_by" ? "Fee Collected By" : ele?.flow === "review_by" ? "Reviewed By" : ele?.flow === "allot_by" ? "Allotted By" : ele?.flow === "cancel_by" ? "Cancelled By" : ele?.flow === "reverted_by" ? "Reverted By" : ele?.flow === "docs_by" ? "Docs Verified By" : ele?.flow === "reject_by" ? "Rejected By" : ele?.flow === "assign_by" ? "Fee Structure Assign By" : "",
+            value: `${ele?.staff?.staffFirstName} ${ele?.staff?.staffMiddleName ?? ""} ${ele?.staff?.staffLastName}`,
+            latest: ele?.created_at
+          })
+      }
+    }
+    res.status(200).send({ message: "Explore Staff Name Only", access: true, only: list})
   }
   catch (e) {
     console.log(e)

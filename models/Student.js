@@ -1186,6 +1186,17 @@ const studentSchema = new mongoose.Schema({
         type: String
       }
     }
+  ],
+  collect_docs: [
+    {
+      docs: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "RequiredDocument"
+      },
+      not_filled: {
+        type: String
+      }
+    }
   ]
 });
 const Student = mongoose.model("Student", studentSchema);

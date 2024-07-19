@@ -499,65 +499,149 @@
 //   level: "info",
 // };
 
-const dt = {
-    message: "Explore New App Intake",
-    access: true,
-    data_set: [
-      {
-        name: "Test All Form Fields",
-        value: {
-          total_intake: 0,
-          cap_intake: 0,
-          il_intake: 0,
-          ad_th_cap: 0,
-          ad_th_ag_cap: 0,
-          ad_th_il: 0,
-          ad_th_ews: 0,
-          ad_th_tfws: 0,
-          grand_total: 0,
-        },
-        _id: "66536cfb2632987a7ba47e57",
-      },
-      {
-        name: "Subject Validation",
-        value: {
-          total_intake: 0,
-          cap_intake: 0,
-          il_intake: 0,
-          ad_th_cap: 0,
-          ad_th_ag_cap: 0,
-          ad_th_il: 0,
-          ad_th_ews: 0,
-          ad_th_tfws: 0,
-          grand_total: 0,
-        },
-        _id: "6656290c3e20a3f34c6313cd",
-      },
-      null,
-      null,
-    ],
-    ads_admin: {
-      _id: "651ba22de39dbdf817dd520c",
-      insName: "Allahabad Central University (ACU)",
-      name: "ald_acu",
-      insState: "",
-      insDistrict: "",
-      insPincode: 234567,
-      insAddress: "Prayagraj, Uttar Pradesh India",
-      photoId: "0",
-      insProfilePhoto: "233f3b520ee3187f0fd4e64791562bda",
-      insAffiliated: "Central University",
-      affliatedLogo: "92f4dfbfaafe41cc60ddd0d618337c62",
-    },
-    batch: "U-2024-25",
-    level: "info",
-  };
+const Admission = require("../models/Admission/Admission");
+const NewApplication = require("../models/Admission/NewApplication");
+const Batch = require("../models/Batch");
+const Student = require("../models/Student");
+
+// const dt = {
+//     message: "Explore New App Intake",
+//     access: true,
+//     data_set: [
+//       {
+//         name: "Test All Form Fields",
+//         value: {
+//           total_intake: 0,
+//           cap_intake: 0,
+//           il_intake: 0,
+//           ad_th_cap: 0,
+//           ad_th_ag_cap: 0,
+//           ad_th_il: 0,
+//           ad_th_ews: 0,
+//           ad_th_tfws: 0,
+//           grand_total: 0,
+//         },
+//         _id: "66536cfb2632987a7ba47e57",
+//       },
+//       {
+//         name: "Subject Validation",
+//         value: {
+//           total_intake: 0,
+//           cap_intake: 0,
+//           il_intake: 0,
+//           ad_th_cap: 0,
+//           ad_th_ag_cap: 0,
+//           ad_th_il: 0,
+//           ad_th_ews: 0,
+//           ad_th_tfws: 0,
+//           grand_total: 0,
+//         },
+//         _id: "6656290c3e20a3f34c6313cd",
+//       },
+//       null,
+//       null,
+//     ],
+//     ads_admin: {
+//       _id: "651ba22de39dbdf817dd520c",
+//       insName: "Allahabad Central University (ACU)",
+//       name: "ald_acu",
+//       insState: "",
+//       insDistrict: "",
+//       insPincode: 234567,
+//       insAddress: "Prayagraj, Uttar Pradesh India",
+//       photoId: "0",
+//       insProfilePhoto: "233f3b520ee3187f0fd4e64791562bda",
+//       insAffiliated: "Central University",
+//       affliatedLogo: "92f4dfbfaafe41cc60ddd0d618337c62",
+//     },
+//     batch: "U-2024-25",
+//     level: "info",
+// };
+  
+const removeDuplicates = async(books) => {
+
+  // Declare a new array
+  let newArray = [];
+
+  // Declare an empty object
+  let uniqueObject = {};
+
+  // Loop for the array elements
+  for (let i in books) {
+
+      // Extract the title
+      objTitle = books[i]['name'];
+
+      // Use the title as the index
+      uniqueObject[objTitle] = books[i];
+  }
+
+  // Loop to push unique object into array
+  for (i in uniqueObject) {
+      newArray.push(uniqueObject[i]);
+  }
+
+  // Display the unique objects
+  return newArray;
+}
   
   const admissionIntakeQuery = async (admissionId, batchId) => {
-    // here write your function
+    const ads_admin = await Admission.findById({ _id: admissionId })
+      .populate({
+        path: "institute",
+        select: "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode insAffiliated affliatedLogo"
+    })
+    const batch = await Batch.findById({ _id: batchId})
+    const apply = await NewApplication.find({ $and: [{ _id: { $in: ads_admin?.newApplication } }, { applicationTypeStatus: "Normal Application" }, { applicationBatch: { $in: batch?.merged_batches } }] })
+    // const apply = await NewApplication.find({ $and: [{ _id: { $in: ads_admin?.newApplication } }, { applicationTypeStatus: "Normal Application" }] })
+    .select("applicationName admission_intake_data_set admission_intake")
+
+    const all_student = await Student.find({ "student_form_flow.did": { $in: ads_admin?.newApplication } })
+    var ds = []
+    for (let ele of all_student) {
+      for (let val of apply) {
+        if (`${val?._id}` === `${ele?.student_form_flow?.did}`) {
+          if (ele?.intake_type == "CAP") {
+            val.admission_intake_data_set.ad_th_cap += 1
+          }
+          else if (ele?.intake_type == "AGAINST_CAP") {
+            val.admission_intake_data_set.ad_th_ag_cap += 1
+          }
+          else if (ele?.intake_type == "IL") {
+            val.admission_intake_data_set.ad_th_il += 1
+          }
+          else if (ele?.intake_type == "EWS") {
+            val.admission_intake_data_set.ad_th_ews += 1
+          }
+          else if (ele?.intake_type == "TFWS") {
+            val.admission_intake_data_set.ad_th_tfws += 1
+          }
+          val.admission_intake_data_set.total_intake = val?.admission_intake?.total_intake ?? 0
+          val.admission_intake_data_set.cap_intake = val?.admission_intake?.cap_intake ?? 0
+          val.admission_intake_data_set.il_intake = val?.admission_intake?.il_intake ?? 0
+          val.admission_intake_data_set.grand_total = val?.admission_intake?.total_intake + val?.admission_intake?.cap_intake + val?.admission_intake?.il_intake + val?.admission_intake_data_set?.ad_th_cap + val?.admission_intake_data_set?.ad_th_ag_cap + val?.admission_intake_data_set?.ad_th_il + val?.admission_intake_data_set?.ad_th_ews + val?.admission_intake_data_set?.ad_th_tfws
+        }
+        if (val?._id != null) {
+          ds.push({
+            name: val?.applicationName,
+            value: val?.admission_intake_data_set,
+            _id: val?._id
+          })
+        }
+      }
+    }
+    const all = await removeDuplicates(ds)
+    const obj = {
+      message: "Explore New App Intake",
+        access: true,
+        data_set: all,
+        ads_admin: ads_admin?.institute,
+        batch: batch?.batchName
+    }
+    return obj
   };
   const admissionIntakeReportData = async (admissionId = "", batchId = "") => {
-    // const dt = await admissionIntakeQuery(admissionId, batchId);
+    const dt = await admissionIntakeQuery(admissionId, batchId);
     return { dt };
   };
   module.exports = admissionIntakeReportData;

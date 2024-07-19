@@ -551,6 +551,14 @@ const admissionAdminSchema = new mongoose.Schema({
       }
     },
   ],
+  admission_intake_set: [
+    {
+      excel_file: { type: String },
+      excel_file_name: { type: String },
+      batch: { type: String },
+      created_at: { type: Date, default: Date.now },
+    },
+    ],
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

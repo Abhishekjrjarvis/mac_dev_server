@@ -10429,6 +10429,70 @@ exports.render_daybook_delete_query = async (req, res) => {
   }
 }
 
+exports.render_admission_intake_set_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const bank_acc = await Admission.findById({ _id: aid })
+      .select("admission_intake_set")
+
+    const all_daybook = await nested_document_limit(page, limit, bank_acc?.admission_intake_set?.reverse())
+
+    res.status(200).send({ message: "Explore All Day Book Query", access: true, admission_intake_set: all_daybook})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_admission_intake_set_edit_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    const { dbid, excel_file_name } = req?.body
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const bank_acc = await Admission.findById({ _id: aid })
+    for (let ele of bank_acc?.admission_intake_set) {
+      if (`${ele?._id}` === `${dbid}`) {
+        ele.excel_file_name = excel_file_name ? excel_file_name : ele?.excel_file_name
+      }
+    }
+
+    await bank_acc.save()
+
+    res.status(200).send({ message: "Explore One Admission Intake Edit Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_admission_intake_set_delete_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    const { dbid } = req?.body
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const bank_acc = await Admission.findById({ _id: aid })
+    for (let ele of bank_acc?.admission_intake_set) {
+      if (`${ele?._id}` === `${dbid}`) {
+        bank_acc.admission_intake_set.pull(ele?._id)
+      }
+    }
+
+    await bank_acc.save()
+
+    res.status(200).send({ message: "Explore One Admission Intake Delete Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 exports.fee_master_linking = async (req, res) => {
   try {
     const nums = [

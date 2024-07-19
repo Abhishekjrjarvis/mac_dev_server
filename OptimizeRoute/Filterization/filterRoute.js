@@ -262,5 +262,11 @@ router.patch("/:sid/subject/:aid/application/export", catchAsync(Filter.render_s
 
 router.patch("/:aid/intake/record/query", catchAsync(Filter.render_app_intake_query))
 
+router.get("/:aid/all/admission/intake", catchAsync(Filter.render_admission_intake_set_query))
+
+router.patch("/:aid/all/admission/intake/edit", catchAsync(Filter.render_admission_intake_set_edit_query))
+
+router.delete("/:aid/all/admission/intake/delete", catchAsync(Filter.render_admission_intake_set_delete_query))
+
 
 module.exports = router;

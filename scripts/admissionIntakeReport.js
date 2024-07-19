@@ -4,6 +4,7 @@ const dynamicImages = require("../helper/dynamicImages");
 const { uploadDocsFile } = require("../S3Configuration");
 const util = require("util");
 const admissionIntakeReportData = require("../AjaxRequest/admissionIntakeReportData");
+const Admission = require("../models/Admission/Admission");
 const unlinkFile = util.promisify(fs.unlink);
 const admissionIntakeReport = async (admissionId, batchId) => {
   const doc = new PDFDocument({
@@ -326,13 +327,20 @@ const admissionIntakeReport = async (admissionId, batchId) => {
   // Handle stream close event
   stream.on("finish", async () => {
     console.log("created");
-    // let file = {
-    //   path: `uploads/${name}-admission-intake.pdf`,
-    //   filename: `${name}-admission-intake.pdf`,
-    //   mimetype: "application/pdf",
-    // };
-    // const results = await uploadDocsFile(file);
-    // await unlinkFile(file.path);
+    const ads_admin = await Admission.findById({ _id: admissionId})
+    let file = {
+      path: `uploads/${name}-admission-intake.pdf`,
+      filename: `${name}-admission-intake.pdf`,
+      mimetype: "application/pdf",
+    };
+    const results = await uploadDocsFile(file);
+    ads_admin.admission_intake_set.push({
+      excel_file: results?.Key,
+      excel_file_name: `${name}-admission-intake.pdf`,
+      batch: batchId
+    })
+    await unlinkFile(file.path);
+    await ads_admin.save();
   });
 
   //   console.log(data);

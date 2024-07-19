@@ -2646,7 +2646,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       institute.payment_history.push(order._id);
       student.student_application_obj.push({
         app: apply?._id,
-        fee_collect_by: staffId
+        confirm_by: staffId
       })
       if (`${new_remainFee?.applicable_card?._id}` === `${card_id}`) {
         var nest_card = await NestedCard.findById({ _id: `${card_id}` })
@@ -16094,7 +16094,7 @@ exports.staff_name_only = async (req, res) => {
     const student = await Student.findById({ _id: sid })
       .select("student_application_obj")
       .populate({
-        path: "student_application_obj.staff",
+        path: "student_application_obj.request_by student_application_obj.select_by student_application_obj.confirm_by student_application_obj.fee_collect_by student_application_obj.review_by student_application_obj.allot_by student_application_obj.cancel_by student_application_obj.reverted_by student_application_obj.docs_by student_application_obj.reject_by student_application_obj.assign_by",
         select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
       })
     

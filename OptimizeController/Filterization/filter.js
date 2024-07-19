@@ -10601,27 +10601,60 @@ exports.render_app_intake_query = async (req, res) => {
     if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const ads_admin = await Admission.findById({ _id: aid })
+      .populate({
+        path: "institute",
+        select: "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode"
+    })
     const batch = await Batch.findById({ _id: bid})
-    const apply = await NewApplication.findById({ $and: [{ _id: { $in: ads_admin?.newApplication }}, {applicationTypeStatus: "Normal Application"}, { applicationBatch: { $in: batch?.merged_batches}}] })
+    const apply = await NewApplication.findById({ $and: [{ _id: { $in: ads_admin?.newApplication } }, { applicationTypeStatus: "Normal Application" }, { applicationBatch: { $in: batch?.merged_batches } }] })
+    // const apply = await NewApplication.find({ $and: [{ _id: { $in: ads_admin?.newApplication } }, { applicationTypeStatus: "Normal Application" }] })
+    .select("applicationName admission_intake_data_set admission_intake")
 
     const all_student = await Student.find({ "student_form_flow.did": { $in: ads_admin?.newApplication } })
+    var ds = []
     for (let ele of all_student) {
       for (let val of apply) {
         if (`${val?._id}` === `${ele?.student_form_flow?.did}`) {
-          
+          if (ele?.intake_type == "CAP") {
+            val.admission_intake_data_set.ad_th_cap += 1
+          }
+          else if (ele?.intake_type == "AGAINST_CAP") {
+            val.admission_intake_data_set.ad_th_ag_cap += 1
+          }
+          else if (ele?.intake_type == "IL") {
+            val.admission_intake_data_set.ad_th_il += 1
+          }
+          else if (ele?.intake_type == "EWS") {
+            val.admission_intake_data_set.ad_th_ews += 1
+          }
+          else if (ele?.intake_type == "TFWS") {
+            val.admission_intake_data_set.ad_th_tfws += 1
+          }
+          val.admission_intake_data_set.total_intake = val?.admission_intake?.total_intake ?? 0
+          val.admission_intake_data_set.cap_intake = val?.admission_intake?.cap_intake ?? 0
+          val.admission_intake_data_set.il_intake = val?.admission_intake?.il_intake ?? 0
+          val.admission_intake_data_set.grand_total = val?.admission_intake?.total_intake + val?.admission_intake?.cap_intake + val?.admission_intake?.il_intake + val?.admission_intake_data_set?.ad_th_cap + val?.admission_intake_data_set?.ad_th_ag_cap + val?.admission_intake_data_set?.ad_th_il + val?.admission_intake_data_set?.ad_th_ews + val?.admission_intake_data_set?.ad_th_tfws
         }
+        ds.push({
+          name: val?.applicationName,
+          value: val?.admission_intake_data_set
+        })
       }
     }
 
-    if (apply?._id) {
+    if (ds?.length > 0) {
       res.status(200).send({
         message: "Explore New App Intake",
         access: true,
+        data_set: ds,
+        ads_admin: ads_admin?.institute,
+        // batch: batch?.batchName
       });
     } else {
       res.status(200).send({
         message: "No New Excel Exports ",
         access: false,
+        data_set: []
       });
     }
   }

@@ -2649,7 +2649,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       student.student_application_obj.push({
         app: apply?._id,
         staff: staffId,
-        flow: "confirm_by"
+        flow: "fee_collect_by"
       })
       if (`${new_remainFee?.applicable_card?._id}` === `${card_id}`) {
         var nest_card = await NestedCard.findById({ _id: `${card_id}` })
@@ -5488,7 +5488,8 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       apply.save(),
       user.save(),
       status.save(),
-      notify.save()
+      notify.save(),
+      student.save()
     ]);
     res.status(200).send({
       message: "Look like a party mood",
@@ -10450,7 +10451,7 @@ exports.retrieveAdmissionCollectDocsRevertedQuery = async (req, res) => {
       await NestedCard.findByIdAndDelete(remain_card?.government_card)
     }
     await RemainingList.findByIdAndDelete(remain_card?._id)
-    await Promise.all([apply.save(), user.save(), ads_admin.save()]);
+    await Promise.all([apply.save(), user.save(), ads_admin.save(), student.save()]);
     res.status(200).send({
       message: "Look like a party mood Reverted Query",
       access: true,
@@ -11614,7 +11615,7 @@ exports.renderReviewStudentQuery = async(req, res) => {
         student.student_application_obj.push({
           app: app?._id,
           staff: staffId,
-          flow: "review_by"
+          flow: "confirm_by"
         })
         await student.save()
       }
@@ -16127,16 +16128,21 @@ exports.staff_name_only = async (req, res) => {
     //   { reject_by: "Rejected By"},
     //   { assign_by: "Fee Structure Assign By"},
     // ]
-    for (let ele of student?.student_application_obj?.reverse()) {
-      if (`${student?.student_form_flow?.did}` === `${ele?.app}`) {
+    if (student?.student_application_obj?.length > 0) {
+      for (let ele of student?.student_application_obj?.reverse()) {
+        if (`${student?.student_form_flow?.did}` === `${ele?.app}`) {
           list.push({
             key: ele?.flow === "request_by" ? "Accepted By" : ele?.flow === "select_by" ? "Selected By" : ele?.flow === "confirm_by" ? "Confirmed By" : ele?.flow === "fee_collect_by" ? "Fee Collected By" : ele?.flow === "review_by" ? "Reviewed By" : ele?.flow === "allot_by" ? "Allotted By" : ele?.flow === "cancel_by" ? "Cancelled By" : ele?.flow === "reverted_by" ? "Reverted By" : ele?.flow === "docs_by" ? "Docs Verified By" : ele?.flow === "reject_by" ? "Rejected By" : ele?.flow === "assign_by" ? "Fee Structure Assign By" : "",
             value: `${ele?.staff?.staffFirstName} ${ele?.staff?.staffMiddleName ?? ""} ${ele?.staff?.staffLastName}`,
             latest: ele?.created_at
           })
+        }
       }
+      res.status(200).send({ message: "Explore Staff Name Only", access: true, only: list })
     }
-    res.status(200).send({ message: "Explore Staff Name Only", access: true, only: list})
+    else {
+      res.status(200).send({ message: "No Staff Name Only", access: true, only: [] })
+    }
   }
   catch (e) {
     console.log(e)

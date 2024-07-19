@@ -335,6 +335,17 @@ const newApplicationSchema = new mongoose.Schema({
       type: Number,
       default: 0
     }
+  },
+  admission_intake_data_set: {
+    total_intake: { type: Number, default: 0 },
+    cap_intake: { type: Number, default: 0 },
+    il_intake: { type: Number, default: 0 },
+    ad_th_cap: { type: Number, default: 0 },
+    ad_th_ag_cap: { type: Number, default: 0 },
+    ad_th_il: { type: Number, default: 0 },
+    ad_th_ews: { type: Number, default: 0 },
+    ad_th_tfws: { type: Number, default: 0 },
+    grand_total: { type: Number, default: 0 }
   }
 });
 

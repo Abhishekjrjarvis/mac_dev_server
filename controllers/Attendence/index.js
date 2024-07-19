@@ -1346,7 +1346,7 @@ exports.getSubjectStudentList = async (req, res) => {
       });
     } else {
       var mixter_student = await Student.find({
-        _id: { $in: subjects?.class?.ApproveStudent ?? [] },
+        _id: { $in: subjects.class.ApproveStudent ?? [] },
       })
         .populate({
           path: "leave",
@@ -1391,8 +1391,6 @@ exports.getSubjectStudentList = async (req, res) => {
     console.log(e);
   }
 };
-
-
 
 exports.getAttendSubjectStudent = async (req, res) => {
   try {
@@ -1466,16 +1464,19 @@ exports.getAttendSubjectStudent = async (req, res) => {
     };
     // console.log(subjects?.class);
     if (!subjects.attendance[0]?._id) {
-      const slot_based = await ClassAttendanceTimeSlot.findOne({
-        $and: [
-          {
-            date: { $eq: prevDate },
-          },
-          {
-            class: { $eq: `${subjects?.class?._id}` },
-          },
-        ],
-      });
+      var slot_based = null;
+      if (subjects?.class?._id) {
+        slot_based = await ClassAttendanceTimeSlot.findOne({
+          $and: [
+            {
+              date: { $eq: prevDate },
+            },
+            {
+              class: { $eq: `${subjects?.class?._id}` },
+            },
+          ],
+        });
+      }
 
       if (slot_based?.slot?.length > 0) {
         for (let t_slot of slot_based?.slot) {
@@ -1543,9 +1544,6 @@ exports.getAttendSubjectStudent = async (req, res) => {
     console.log(e);
   }
 };
-
-
-
 
 exports.getAttendSubjectStudentExtraQuery = async (req, res) => {
   try {
@@ -1645,7 +1643,6 @@ exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
     console.log(e);
   }
 };
-
 
 // exports.markAttendenceSubjectStudent = async (req, res) => {
 //   try {
@@ -1929,40 +1926,6 @@ exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
 //   }
 // };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 exports.markAttendenceSubjectStudent = async (req, res) => {
   try {
     const { sid } = req.params;
@@ -1984,16 +1947,20 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
     });
     var subject_taken = null;
     if (flow === "Normal_Lecture") {
-      const slot_based = await ClassAttendanceTimeSlot.findOne({
-        $and: [
-          {
-            date: { $eq: req.body.date },
-          },
-          {
-            class: { $eq: `${subjects?.class?._id}` },
-          },
-        ],
-      });
+      var slot_based = null;
+      if (subjects?.class?._id) {
+        slot_based = await ClassAttendanceTimeSlot.findOne({
+          $and: [
+            {
+              date: { $eq: req.body.date },
+            },
+            {
+              class: { $eq: `${subjects?.class?._id}` },
+            },
+          ],
+        });
+      }
+
       let flag = false;
       if (slot_based?.slot?.length > 0) {
         for (let t_slot of slot_based?.slot) {
@@ -2149,16 +2116,20 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         await Promise.all([attendence.save(), subjects.save()]);
       }
     } else if (flow === "Extra_Lecture") {
-      const slot_based = await ClassAttendanceTimeSlot.findOne({
-        $and: [
-          {
-            date: { $eq: req.body.date },
-          },
-          {
-            class: { $eq: `${subjects?.class?._id}` },
-          },
-        ],
-      });
+      var slot_based = null;
+      if (subjects?.class?._id) {
+        slot_based = await ClassAttendanceTimeSlot.findOne({
+          $and: [
+            {
+              date: { $eq: req.body.date },
+            },
+            {
+              class: { $eq: `${subjects?.class?._id}` },
+            },
+          ],
+        });
+      }
+
       let flag = false;
 
       if (slot_based?.slot?.length > 0) {
@@ -2322,10 +2293,6 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
     console.log(e);
   }
 };
-
-
-
-
 
 exports.markAttendenceSubjectStudentUpdate = async (req, res) => {
   try {
@@ -3768,23 +3735,26 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
   }
 };
 
-
-
 exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
   try {
     const { sid } = req.params;
     const { date, from, to, cid, flow, which_lecture } = req.body;
     const subjects = await Subject.findById({ _id: sid });
-    const slot_based = await ClassAttendanceTimeSlot.findOne({
-      $and: [
-        {
-          date: { $eq: date },
-        },
-        {
-          class: { $eq: `${cid}` },
-        },
-      ],
-    });
+
+    var slot_based = null;
+    if (cid) {
+      slot_based = await ClassAttendanceTimeSlot.findOne({
+        $and: [
+          {
+            date: { $eq: date },
+          },
+          {
+            class: { $eq: `${cid}` },
+          },
+        ],
+      });
+    }
+
     let already_slot_mark = false;
     var subject = null;
     var from_minutes = time_convertor(from);
@@ -3899,8 +3869,6 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
   }
 };
 
-
-
 exports.subjectTimeSlotFormatQuery = async (req, res) => {
   try {
     const ts = await ClassAttendanceTimeSlot.find({});
@@ -3982,16 +3950,20 @@ exports.subjectDeleteTodayAttendanceQuery = async (req, res) => {
 
     const studentAttendance = await AttendenceDate.findById(said);
     const subject = await Subject.findById(studentAttendance?.subject);
-    const slot_based = await ClassAttendanceTimeSlot.findOne({
-      $and: [
-        {
-          date: { $eq: studentAttendance?.attendDate },
-        },
-        {
-          class: { $eq: `${subject?.class}` },
-        },
-      ],
-    });
+    var slot_based = null;
+    if (subject?.class) {
+      slot_based = await ClassAttendanceTimeSlot.findOne({
+        $and: [
+          {
+            date: { $eq: studentAttendance?.attendDate },
+          },
+          {
+            class: { $eq: `${subject?.class}` },
+          },
+        ],
+      });
+    }
+
     obj.presentStudent = studentAttendance?.presentStudent;
     obj.absentStudent = studentAttendance?.absentStudent;
     for (let t_slot of slot_based?.slot) {
@@ -4054,7 +4026,6 @@ exports.subjectDeleteTodayAttendanceQuery = async (req, res) => {
   }
 };
 
-
 exports.subjectTimeSlotMarkListQuery = async (req, res) => {
   try {
     const { cid } = req.params;
@@ -4064,16 +4035,20 @@ exports.subjectTimeSlotMarkListQuery = async (req, res) => {
         access: false,
       });
     const { date } = req.query;
-    const slot_based = await ClassAttendanceTimeSlot.findOne({
-      $and: [
-        {
-          date: { $eq: date },
-        },
-        {
-          class: { $eq: `${cid}` },
-        },
-      ],
-    });
+
+    var slot_based = null;
+    if (cid) {
+      slot_based = await ClassAttendanceTimeSlot.findOne({
+        $and: [
+          {
+            date: { $eq: date },
+          },
+          {
+            class: { $eq: `${cid}` },
+          },
+        ],
+      });
+    }
 
     let slots = [];
     for (let st of slot_based?.slot ?? []) {
@@ -4112,16 +4087,20 @@ exports.subjectTodayUpdateAttendanceTimeQuery = async (req, res) => {
       path: "selected_batch_query",
       select: "class_student_query",
     });
-    const slot_based = await ClassAttendanceTimeSlot.findOne({
-      $and: [
-        {
-          date: { $eq: date },
-        },
-        {
-          class: { $eq: `${cid}` },
-        },
-      ],
-    });
+    var slot_based = null;
+    if (cid) {
+      slot_based = await ClassAttendanceTimeSlot.findOne({
+        $and: [
+          {
+            date: { $eq: date },
+          },
+          {
+            class: { $eq: `${cid}` },
+          },
+        ],
+      });
+    }
+
     let already_slot_mark = false;
     var subject = null;
     var from_minutes = time_convertor(from);
@@ -4312,7 +4291,6 @@ exports.subjectAttednaceAddLectureQuery = async (req, res) => {
   }
 };
 
-
 exports.getSubjectAttednaceLectureQuery = async (req, res) => {
   try {
     const { sid } = req.params;
@@ -4367,7 +4345,6 @@ exports.getSubjectAttednaceLectureQuery = async (req, res) => {
     console.log(e);
   }
 };
-
 
 exports.assignAttendanceToDefaultParameterQuery = async (req, res) => {
   try {
@@ -4479,14 +4456,3 @@ exports.getInstituteStaffMarkExcelQuery = async (req, res) => {
     console.log(e);
   }
 };
-
-
-
-
-
-
-
-
-
-
-

@@ -55,6 +55,10 @@ const subjectInternalEvaluationTestSchema = new mongoose.Schema({
   mcq_test_duration: {
     type: Number,
   },
+  single_student: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Student",
+  },
   old_take_test: [
     {
       take_test: {
@@ -72,6 +76,10 @@ const subjectInternalEvaluationTestSchema = new mongoose.Schema({
       },
       mcq_test_duration: {
         type: Number,
+      },
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
       },
     },
   ],

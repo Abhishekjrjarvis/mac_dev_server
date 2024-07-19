@@ -111,5 +111,14 @@ router
   .route("/internal/evaluation/student/:stid/detail/query")
   .get(catchAsync(copoController.sudentGetInternalEvaluationTestQuery));
 
+  router
+  .route("/internal/evaluation/single/take/test/:ietid/to/student/query")
+  .patch(
+    catchAsync(
+      copoController.subjectTeacherSingleTakeTestsetInternalEvaluationTestQuery
+    )
+  );
+
+
 
 module.exports = router;

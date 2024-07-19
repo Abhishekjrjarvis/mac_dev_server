@@ -10597,15 +10597,19 @@ exports.render_subject_application_export = async (req, res) => {
 exports.render_app_intake_query = async (req, res) => {
   try {
     const { aid } = req?.params
+    const { bid } = req?.body
     if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     const ads_admin = await Admission.findById({ _id: aid })
-    const apply = await NewApplication.findById({ $and: [{ _id: { $in: ads_admin?.newApplication }}, {applicationTypeStatus: "Normal Application"}] })
+    const batch = await Batch.findById({ _id: bid})
+    const apply = await NewApplication.findById({ $and: [{ _id: { $in: ads_admin?.newApplication }}, {applicationTypeStatus: "Normal Application"}, { applicationBatch: { $in: batch?.merged_batches}}] })
 
     const all_student = await Student.find({ "student_form_flow.did": { $in: ads_admin?.newApplication } })
     for (let ele of all_student) {
       for (let val of apply) {
-        // if()
+        if (`${val?._id}` === `${ele?.student_form_flow?.did}`) {
+          
+        }
       }
     }
 

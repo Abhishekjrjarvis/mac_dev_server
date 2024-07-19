@@ -2009,6 +2009,128 @@ exports.sudentGetInternalEvaluationSubmitTestQuery = async (req, res) => {
   }
 };
 
+exports.subjectTeacherSingleTakeTestsetInternalEvaluationTestQuery = async (
+  req,
+  res
+) => {
+  try {
+    const { ietid } = req.params;
+    const {
+      mcq_test_date,
+      mcq_test_from,
+      mcq_test_to,
+      mcq_test_duration,
+      studentId,
+    } = req.body;
+    if (!ietid || !studentId) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let dt_date = new Date(mcq_test_date);
+    const i_eva_test = await SubjectInternalEvaluationTest.findById(ietid);
+    if (i_eva_test.mcq_test_date) {
+      i_eva_test.old_take_test.push({
+        take_test: i_eva_test.take_test,
+        mcq_test_date: i_eva_test.mcq_test_date,
+        mcq_test_from: i_eva_test.mcq_test_from,
+        mcq_test_to: i_eva_test.mcq_test_to,
+        mcq_test_duration: i_eva_test.mcq_test_duration,
+        student: i_eva_test?.single_student,
+      });
+    }
+    i_eva_test.take_test = +i_eva_test.take_test + 1;
+    i_eva_test.mcq_test_date = dt_date;
+    i_eva_test.mcq_test_from = mcq_test_from;
+    i_eva_test.mcq_test_to = mcq_test_to;
+    i_eva_test.mcq_test_duration = mcq_test_duration;
+    i_eva_test.single_student = studentId;
+
+    await i_eva_test.save();
+    res.status(200).send({
+      message: "Internal Evaluation Test taken successfully.",
+    });
+
+    if (i_eva_test.testset && studentId && i_eva_test?.subject) {
+      const subject = await Subject.findById(i_eva_test?.subject);
+
+      const testSet = await SubjectMasterTestSet.findById(i_eva_test.testset);
+      const studentTestObject = {
+        subjectMaster: testSet?.subjectMaster,
+        classMaster: testSet?.classMaster,
+        subjectMasterTestSet: testSet._id,
+        testName: testSet?.testName,
+        testSubject: testSet?.testSubject,
+        testDate: dt_date,
+        testStart: mcq_test_from,
+        testEnd: mcq_test_to,
+        testDuration: mcq_test_duration,
+        testTotalQuestion: testSet?.testTotalQuestion,
+        testTotalNumber: testSet?.testTotalNumber,
+        questions: [],
+        student: "",
+      };
+
+      for (let quest of testSet?.questions) {
+        // another way of selecting item in array .option options.optionNumber options.image
+        const getQuestion = await SubjectQuestion.findById(quest).select(
+          "questionSNO questionNumber questionDescription questionImage options correctAnswer answerDescription answerImage isUniversal -_id"
+        );
+        studentTestObject.questions.push(getQuestion);
+      }
+
+      const student = await Student.findById(studentId);
+      studentTestObject.student = studentId;
+      const user = await User.findById({ _id: `${student.user}` });
+      const studentTestSet = new StudentTestSet(studentTestObject);
+      studentTestSet.internal_evaluation_test = i_eva_test?._id;
+      student.internal_evaluation_testset.push(studentTestSet._id);
+      const notify = new StudentNotification({
+        student_testset: studentTestSet?._id,
+        testset: testSet?._id,
+      });
+      notify.notifyContent = `New Internal Evaluation ${testSet?.testName} Test is created for ${testSet.testSubject}`;
+      notify.notify_hi_content = `नई $${testSet?.testName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`;
+      notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन $${testSet?.testName} चाचणी तयार केली आहे.`;
+      notify.notifySender = subject._id;
+      notify.notifyReceiever = user._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student._id;
+      user.activity_tab.push(notify._id);
+      student.notification.push(notify._id);
+      notify.notifyBySubjectPhoto.subject_id = subject?._id;
+      notify.notifyBySubjectPhoto.subject_name = subject.subjectName;
+      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+      notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle;
+      notify.notifyCategory = "EVALUATION_MCQ";
+      notify.redirectIndex = 66;
+      i_eva_test.student_notify.push(notify?._id);
+      await Promise.all([
+        studentTestSet.save(),
+        student.save(),
+        notify.save(),
+        user.save(),
+        i_eva_test.save(),
+      ]);
+      if (user.deviceToken) {
+        invokeMemberTabNotification(
+          "Student Activity",
+          notify,
+          "New Internal Evaluation MCQ Test Set",
+          user._id,
+          user.deviceToken,
+          "Student",
+          notify
+        );
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
 
 
 

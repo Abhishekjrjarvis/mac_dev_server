@@ -133,5 +133,9 @@ router.get(
     catchAsync(AcademicDepartment.render_delete_theory_classes)
   );
 
+  router.patch(
+    "/th/op",
+    catchAsync(AcademicDepartment.subject_query)
+  );
 
 module.exports = router;

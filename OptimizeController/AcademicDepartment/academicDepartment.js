@@ -905,6 +905,10 @@ exports.render_master_list_query = async (req, res) => {
       .limit(limit)
       .skip(skip)
         .select("subjectName subjectStatus")
+        .populate({
+          path: "department",
+          select: "dName"
+        })
       res.status(200).send({ message: "Explore All Subject Master Map Query", access: true, subjects_extra: subjects_extra?.length > 0 ? subjects_extra : []})
 
   }
@@ -1034,5 +1038,33 @@ exports.render_delete_theory_classes = async (req, res) => {
   }
   catch (e) {
     console.log(e)
+  }
+}
+
+exports.subject_query = async (req, res) => {
+  try {
+      const all_subject = await Subject.find({})
+        .select("theory_students optionalStudent")
+    var  i =0
+    for (let ele of all_subject) {
+      if (ele?.theory_students?.length > 0) {
+        for (let val of ele?.theory_students) {
+          if (ele?.optionalStudent?.includes(`${val}`)) {
+            
+          }
+          else {
+            ele.optionalStudent.push(val)
+          }
+        }
+      }
+      await ele.save()
+      console.log(i)
+      i+= 1
+      }
+      res.status(200).send({ message: "Explore All Subjects", access: true })
+
+  }
+  catch (e) {
+      console.log(e)
   }
 }

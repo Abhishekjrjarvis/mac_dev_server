@@ -1079,7 +1079,7 @@ exports.getStudentSubjectQuery = async (req, res) => {
 exports.subjectStudentAddCatalogQuery = async (req, res) => {
   try {
     const { sid } = req.params;
-    const { student_list } = req.body;
+    const { student_list, isBatch } = req.body;
     if (!sid || student_list?.length <= 0) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
@@ -1087,11 +1087,34 @@ exports.subjectStudentAddCatalogQuery = async (req, res) => {
     }
 
     const subject = await Subject.findById(sid);
+    if (isBatch) {
+      const batch = await Batch.findById(subject?.selected_batch_query);
+      let al_stu = batch.class_student_query;
+      if (batch?._id) {
+        for (let dt of student_list) {
+          let student = await Student.findById(dt);
+          if (al_stu?.includes(dt)) {
+          } else {
+            batch.class_student_query.push(dt);
+            student.class_selected_batch.push(batch?._id);
+            await student.save();
+          }
+        }
+        batch.class_student_query_count = batch?.class_student_query?.length;
 
-    for (let dt of student_list) {
-      subject.optionalStudent.push(dt);
+        await batch.save();
+      }
+    } else {
+      let al_sub_stu = subject.optionalStudent;
+      for (let dt of student_list) {
+        if (al_sub_stu?.includes(dt)) {
+        } else {
+          subject.optionalStudent.push(dt);
+        }
+      }
+      await subject.save();
     }
-    await subject.save();
+
     res.status(200).send({
       message: "Students add to this subject catalog",
     });
@@ -1099,20 +1122,35 @@ exports.subjectStudentAddCatalogQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 exports.subjectStudentRemoveCatalogQuery = async (req, res) => {
   try {
     const { sid } = req.params;
-    const { student_list } = req.body;
+    const { student_list, isBatch } = req.body;
     if (!sid || student_list?.length <= 0) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
       });
     }
     const subject = await Subject.findById(sid);
-    for (let dt of student_list) {
-      subject.optionalStudent.pull(dt);
+    if (isBatch) {
+      const batch = await Batch.findById(subject?.selected_batch_query);
+      if (batch?._id) {
+        for (let dt of student_list) {
+          let student = await Student.findById(dt);
+          batch.class_student_query.pull(dt);
+          student.class_selected_batch.pull(batch?._id);
+          await student.save();
+        }
+        batch.class_student_query_count = batch?.class_student_query?.length;
+        await batch.save();
+      }
+    } else {
+      for (let dt of student_list) {
+        subject.optionalStudent.pull(dt);
+      }
+      await subject.save();
     }
-    await subject.save();
     res.status(200).send({
       message: "Students remove to this subject catalog",
     });
@@ -1120,6 +1158,7 @@ exports.subjectStudentRemoveCatalogQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 
 
 

@@ -10594,6 +10594,33 @@ exports.render_subject_application_export = async (req, res) => {
   }
 }
 
+const removeDuplicates = async(books) => {
+
+  // Declare a new array
+  let newArray = [];
+
+  // Declare an empty object
+  let uniqueObject = {};
+
+  // Loop for the array elements
+  for (let i in books) {
+
+      // Extract the title
+      objTitle = books[i]['name'];
+
+      // Use the title as the index
+      uniqueObject[objTitle] = books[i];
+  }
+
+  // Loop to push unique object into array
+  for (i in uniqueObject) {
+      newArray.push(uniqueObject[i]);
+  }
+
+  // Display the unique objects
+  return newArray;
+}
+
 exports.render_app_intake_query = async (req, res) => {
   try {
     const { aid } = req?.params
@@ -10603,7 +10630,7 @@ exports.render_app_intake_query = async (req, res) => {
     const ads_admin = await Admission.findById({ _id: aid })
       .populate({
         path: "institute",
-        select: "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode"
+        select: "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode insAffiliated affliatedLogo"
     })
     const batch = await Batch.findById({ _id: bid})
     const apply = await NewApplication.findById({ $and: [{ _id: { $in: ads_admin?.newApplication } }, { applicationTypeStatus: "Normal Application" }, { applicationBatch: { $in: batch?.merged_batches } }] })
@@ -10635,20 +10662,23 @@ exports.render_app_intake_query = async (req, res) => {
           val.admission_intake_data_set.il_intake = val?.admission_intake?.il_intake ?? 0
           val.admission_intake_data_set.grand_total = val?.admission_intake?.total_intake + val?.admission_intake?.cap_intake + val?.admission_intake?.il_intake + val?.admission_intake_data_set?.ad_th_cap + val?.admission_intake_data_set?.ad_th_ag_cap + val?.admission_intake_data_set?.ad_th_il + val?.admission_intake_data_set?.ad_th_ews + val?.admission_intake_data_set?.ad_th_tfws
         }
-        ds.push({
-          name: val?.applicationName,
-          value: val?.admission_intake_data_set
-        })
+        if (val?._id != null) {
+          ds.push({
+            name: val?.applicationName,
+            value: val?.admission_intake_data_set,
+            _id: val?._id
+          })
+        }
       }
     }
-
-    if (ds?.length > 0) {
+    const all = await removeDuplicates(ds)
+    if (all?.length > 0) {
       res.status(200).send({
         message: "Explore New App Intake",
         access: true,
-        data_set: ds,
+        data_set: all,
         ads_admin: ads_admin?.institute,
-        // batch: batch?.batchName
+        batch: batch?.batchName
       });
     } else {
       res.status(200).send({

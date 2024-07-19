@@ -5,6 +5,7 @@ const { uploadDocsFile } = require("../S3Configuration");
 const util = require("util");
 const admissionIntakeReportData = require("../AjaxRequest/admissionIntakeReportData");
 const Admission = require("../models/Admission/Admission");
+const Batch = require("../models/Batch");
 const unlinkFile = util.promisify(fs.unlink);
 const admissionIntakeReport = async (admissionId, batchId) => {
   const doc = new PDFDocument({
@@ -327,7 +328,8 @@ const admissionIntakeReport = async (admissionId, batchId) => {
   // Handle stream close event
   stream.on("finish", async () => {
     console.log("created");
-    const ads_admin = await Admission.findById({ _id: admissionId})
+    const ads_admin = await Admission.findById({ _id: admissionId })
+    const batch = await Batch.findById({ _id: batchId})
     let file = {
       path: `uploads/${name}-admission-intake.pdf`,
       filename: `${name}-admission-intake.pdf`,
@@ -337,7 +339,7 @@ const admissionIntakeReport = async (admissionId, batchId) => {
     ads_admin.admission_intake_set.push({
       excel_file: results?.Key,
       excel_file_name: `${name}-admission-intake.pdf`,
-      batch: batchId
+      batch: batch?.batchName
     })
     await unlinkFile(file.path);
     await ads_admin.save();

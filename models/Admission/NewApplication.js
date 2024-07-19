@@ -346,7 +346,11 @@ const newApplicationSchema = new mongoose.Schema({
     ad_th_ews: { type: Number, default: 0 },
     ad_th_tfws: { type: Number, default: 0 },
     grand_total: { type: Number, default: 0 }
-  }
+  },
+  collect_docs: {
+      type: Boolean,
+      default: false
+  },
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

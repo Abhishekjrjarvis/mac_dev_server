@@ -180,10 +180,8 @@ const admissionAdminSchema = new mongoose.Schema({
   },
   required_document: [
     {
-      document_name: { type: String },
-      document_key: { type: String },
-      applicable_to: { type: String },
-      created_at: { type: Date, default: Date.now },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RequiredDocument"
     },
   ],
   required_document_count: {

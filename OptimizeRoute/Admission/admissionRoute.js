@@ -977,5 +977,8 @@ router.patch("/:aid/app/intake/query", catchAsync(Admission.render_admission_int
 
 router.patch("/all/move/to", catchAsync(Admission.render_all_move_to_confirm))
 
+router.patch("/:aid/docs/collect/query", catchAsync(Admission.render_admission_docs_collect_query))
+
+
 
 module.exports = router;

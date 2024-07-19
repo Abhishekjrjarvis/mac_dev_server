@@ -122,6 +122,7 @@ const SubjectMaster = require("../../models/SubjectMaster");
 const Subject = require("../../models/Subject");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 const { universal_random_password_student_code } = require("../../Generator/RandomPass");
+const RequiredDocument = require("../../models/Admission/RequiredDocument");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -4869,7 +4870,7 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
     //   });
     const oneApply = await NewApplication.findById({ _id: aid })
       .select(
-        "applicationName applicationType applicationAbout admissionProcess gr_initials applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type app_qr_code student_form_setting app_hindi_qr_code app_marathi_qr_code pin admission_intake"
+        "applicationName applicationType applicationAbout admissionProcess gr_initials applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type app_qr_code student_form_setting app_hindi_qr_code app_marathi_qr_code pin admission_intake collect_docs"
       )
       .populate({
         path: "applicationDepartment",
@@ -5388,7 +5389,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
 exports.retrieveAdmissionCollectDocs = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { mode, type, amount, nest, revert_status, staffId } = req.body;
+    const { mode, type, amount, nest, revert_status, staffId, collect_docs } = req.body;
     if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -5484,6 +5485,14 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     notify.notifyByAdmissionPhoto = admission?._id;
     notify.notifyCategory = "Status Alert";
     notify.redirectIndex = 29;
+    if (collect_docs?.length > 0) {
+      for (let ele of collect_docs) {
+        student.collect_docs.push({
+          docs: ele?.docs,
+          not_filled: ele?.not_filled
+        })
+      }
+    }
     await Promise.all([
       apply.save(),
       user.save(),
@@ -7157,13 +7166,11 @@ exports.renderAddDocumentQuery = async (req, res) => {
         access: false,
       });
     const ads_admin = await Admission.findById({ _id: aid });
-    ads_admin.required_document.push({
-      document_name: doc_name,
-      document_key: doc_key,
-      applicable_to: applicable_to,
-    });
+    const new_doc = new RequiredDocument({ ...req?.body })
+    ads_admin.required_document.push(new_doc?._id);
     ads_admin.required_document_count += 1;
-    await ads_admin.save();
+    new_doc.admission = ads_admin?._id
+    await Promise.all([ ads_admin.save(), new_doc.save() ]);
     res.status(200).send({
       message: "New Document Added to Required Document",
       access: true,
@@ -7178,6 +7185,7 @@ exports.renderAllDocumentArray = async (req, res) => {
     const { aid } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -7187,16 +7195,15 @@ exports.renderAllDocumentArray = async (req, res) => {
       "required_document"
     );
 
-    const all_docs = await nested_document_limit(
-      page,
-      limit,
-      ads_admin?.required_document
-    );
-    if (all_docs?.length > 0) {
+    const all_doc = await RequiredDocument.find({ _id: { $in: ads_admin?.required_document } })
+      .limit(limit)
+    .skip(skip)
+
+    if (all_doc?.length > 0) {
       res.status(200).send({
         message: "Explore All Documents",
         access: true,
-        all_docs: all_docs,
+        all_docs: all_doc,
         count: ads_admin?.required_document?.length,
       });
     } else {
@@ -7216,26 +7223,12 @@ exports.renderEditDocumentQuery = async (req, res) => {
   try {
     const { aid } = req.params;
     const { doc } = req.body;
-    if (!aid && !doc)
+    if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    const ads_admin = await Admission.findById({ _id: aid }).select(
-      "required_document"
-    );
-
-    for (var ref of ads_admin?.required_document) {
-      if (`${ref?._id}` === `${doc?.id}`) {
-        ref.document_name = doc.name;
-        ref.document_key = doc.newKey;
-        ref.applicable_to = doc.applicable_to;
-      }
-    }
-    if (doc?.oldKey) {
-      await deleteFile(doc?.oldKey);
-    }
-    await ads_admin.save();
+    await RequiredDocument.findByIdAndUpdate(doc, req?.body)
     res.status(200).send({
       message: "Document Updated",
       access: true,
@@ -7248,30 +7241,20 @@ exports.renderEditDocumentQuery = async (req, res) => {
 exports.renderDeleteExistingDocument = async (req, res) => {
   try {
     const { aid, docId } = req.params;
-    var old_image;
-    if (!aid && !docId)
+    if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    const ads_admin = await Admission.findById({ _id: aid }).select(
-      "required_document"
-    );
+    const ads_admin = await Admission.findById({ _id: aid })
 
-    for (var ref of ads_admin?.required_document) {
-      if (`${ref?._id}` === `${docId}`) {
-        old_image = ref?.document_key;
-        ads_admin.required_document.pull(ref?._id);
-        if (ads_admin?.required_document_count > 0) {
-          ads_admin.required_document_count -= 1;
-        }
-      }
-    }
-
-    if (old_image) {
-      await deleteFile(old_image);
+    const docs = await RequiredDocument.findById({ _id: docId })
+    ads_admin.required_document.pull(docs?._id)
+    if (ads_admin?.required_document_count > 0) {
+      ads_admin.required_document_count -= 1
     }
     await ads_admin.save();
+    await RequiredDocument.findByIdAndDelete(docs?._id)
     res.status(200).send({
       message: "Deletion Operation Completed",
       access: true,
@@ -16162,6 +16145,22 @@ exports.render_admission_intake_query = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.render_admission_docs_collect_query = async (req, res) => {
+  try {
+    const { aid } = req?.params
+    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    await NewApplication.findByIdAndUpdate(aid, req?.body)
+
+    res.status(200).send({ message: "Explore New Application Collect Docs Query"})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+
 
 exports.render_all_move_to_confirm = async (req, res) => {
   try {

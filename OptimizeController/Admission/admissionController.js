@@ -2575,12 +2575,12 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           
         }
         else {
-          apply.confirmedApplication.push({
-            student: student._id,
-            payment_status: mode,
-            install_type: "First Installment Paid",
-            fee_remain: 0,
-          });
+          // apply.confirmedApplication.push({
+          //   student: student._id,
+          //   payment_status: mode,
+          //   install_type: "First Installment Paid",
+          //   fee_remain: 0,
+          // });
         }
       }
       await apply.save()

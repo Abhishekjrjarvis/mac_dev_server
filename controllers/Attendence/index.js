@@ -25,6 +25,7 @@ const SubjectLectureDay = require("../../models/Timetable/SubjectLectureDay");
 const {
   subject_attendance_json_to_excel,
 } = require("../../Custom/JSONToExcel");
+const SubjectTimetable = require("../../models/Timetable/SubjectTimetable");
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
   const institute = await Student.findById(req.params.sid);
@@ -1312,77 +1313,121 @@ exports.getSubjectStudentList = async (req, res) => {
         ? +currentDateLocalFormat[1]
         : `0${+currentDateLocalFormat[1]}`;
     const year = +currentDateLocalFormat[0];
+    var students = [];
     if (subjects.subjectOptional !== "Mandatory") {
-      const mixter_student = await Student.find({
-        _id: { $in: subjects.class.ApproveStudent ?? [] },
-      })
-        .populate({
-          path: "leave",
-          match: {
-            date: { $in: [`${day}/${month}/${year}`] },
-          },
-          select: "date",
+      if (subjects?.class?.ApproveStudent?.length > 0) {
+        const mixter_student = await Student.find({
+          _id: { $in: subjects.class.ApproveStudent ?? [] },
         })
-        .populate({
-          path: "user",
-          select: "userLegalName username",
-        })
-        .select(
-          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO leave user studentOptionalSubject student_prn_enroll_number"
-        )
-        .lean()
-        .exec();
-      var students = [];
-      for (let u_student of mixter_student) {
-        if (subjects?.optionalStudent?.includes(u_student?._id)) {
-          students.push(u_student);
-        }
-        // if (u_student?.studentOptionalSubject?.includes(subjects?._id)) {
-        //   students.push(u_student);
-        // }
-      }
-      students.sort(function (st1, st2) {
-        return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
-      });
-    } else {
-      var mixter_student = await Student.find({
-        _id: { $in: subjects.class.ApproveStudent ?? [] },
-      })
-        .populate({
-          path: "leave",
-          match: {
-            date: { $in: [`${day}/${month}/${year}`] },
-          },
-          select: "date",
-        })
-        .populate({
-          path: "user",
-          select: "userLegalName username",
-        })
-        .select(
-          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO studentOptionalSubject leave user student_prn_enroll_number"
-        )
-        .lean()
-        .exec();
-      var students = [];
-      if (subjects?.optionalStudent?.length > 0) {
+          .populate({
+            path: "leave",
+            match: {
+              date: { $in: [`${day}/${month}/${year}`] },
+            },
+            select: "date",
+          })
+          .populate({
+            path: "user",
+            select: "userLegalName username",
+          })
+          .select(
+            "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO leave user studentOptionalSubject student_prn_enroll_number"
+          )
+          .lean()
+          .exec();
         for (let u_student of mixter_student) {
-          // for (let ele of subjects?.optionalStudent) {
           if (subjects?.optionalStudent?.includes(u_student?._id)) {
             students.push(u_student);
           }
-          // }
         }
+        students.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
       } else {
-        students = mixter_student;
+        students = await Student.find({
+          _id: { $in: subjects?.optionalStudent ?? [] },
+        })
+          .populate({
+            path: "leave",
+            match: {
+              date: { $in: [`${day}/${month}/${year}`] },
+            },
+            select: "date",
+          })
+          .populate({
+            path: "user",
+            select: "userLegalName username",
+          })
+          .select(
+            "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO leave user studentOptionalSubject student_prn_enroll_number"
+          )
+          .lean()
+          .exec();
+        students.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
       }
+    } else {
+      if (subjects?.class?.ApproveStudent?.length > 0) {
+        var mixter_student = await Student.find({
+          _id: { $in: subjects.class.ApproveStudent ?? [] },
+        })
+          .populate({
+            path: "leave",
+            match: {
+              date: { $in: [`${day}/${month}/${year}`] },
+            },
+            select: "date",
+          })
+          .populate({
+            path: "user",
+            select: "userLegalName username",
+          })
+          .select(
+            "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO studentOptionalSubject leave user student_prn_enroll_number"
+          )
+          .lean()
+          .exec();
+        var students = [];
+        if (subjects?.optionalStudent?.length > 0) {
+          for (let u_student of mixter_student) {
+            if (subjects?.optionalStudent?.includes(u_student?._id)) {
+              students.push(u_student);
+            }
+          }
+        } else {
+          students = mixter_student;
+        }
 
-      students.sort(function (st1, st2) {
-        return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
-      });
-
-      // const cEncrypt = await encryptionPayload(students);
+        students.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+      } else {
+        students = await Student.find({
+          _id: { $in: subjects?.optionalStudent ?? [] },
+        })
+          .populate({
+            path: "leave",
+            match: {
+              date: { $in: [`${day}/${month}/${year}`] },
+            },
+            select: "date",
+          })
+          .populate({
+            path: "user",
+            select: "userLegalName username",
+          })
+          .select(
+            "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO leave user studentOptionalSubject student_prn_enroll_number"
+          )
+          .lean()
+          .exec();
+        students.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+      }
     }
+    // const cEncrypt = await encryptionPayload(students);
     res.status(200).send({
       message: "Approve catalog with optional subject",
       students: students?.length ? students : [],
@@ -1436,18 +1481,18 @@ exports.getAttendSubjectStudent = async (req, res) => {
         select:
           "attendDate presentTotal absentTotal presentStudent absentStudent from to",
       })
-      .populate({
-        path: "class",
-        populate: {
-          path: "timetableDayWise",
-          match: {
-            day: { $eq: which_day },
-          },
-          select: "schedule.from schedule.to schedule.subject",
-        },
-        select: "timetableDayWise",
-        // select: "timetableDayWise attendance_time_slot",
-      })
+      // .populate({
+      //   path: "class",
+      //   populate: {
+      //     path: "timetableDayWise",
+      //     match: {
+      //       day: { $eq: which_day },
+      //     },
+      //     select: "schedule.from schedule.to schedule.subject",
+      //   },
+      //   select: "timetableDayWise",
+      //   // select: "timetableDayWise attendance_time_slot",
+      // })
       .select("_id")
       .lean()
       .exec();
@@ -1463,26 +1508,71 @@ exports.getAttendSubjectStudent = async (req, res) => {
       which_lecture: "",
     };
     // console.log(subjects?.class);
+
+    // class time table work then it is
+    // if (!subjects.attendance[0]?._id) {
+    //   var slot_based = null;
+    //   if (subjects?.class?._id) {
+    //     slot_based = await ClassAttendanceTimeSlot.findOne({
+    //       $and: [
+    //         {
+    //           date: { $eq: prevDate },
+    //         },
+    //         {
+    //           class: { $eq: `${subjects?.class?._id}` },
+    //         },
+    //       ],
+    //     });
+    //   }
+
+    //   if (slot_based?.slot?.length > 0) {
+    //     for (let t_slot of slot_based?.slot) {
+    //       if (
+    //         !t_slot?.is_extra &&
+    //         `${t_slot?.register_subject}` === `${req.params.sid}` &&
+    //         `${t_slot.which_lecture}` === `${which_lecture}`
+    //       ) {
+    //         obj.to = t_slot.to;
+    //         obj.from = t_slot.from;
+    //         obj.is_mark = t_slot.is_mark;
+    //         obj.which_lecture = t_slot?.which_lecture;
+    //         break;
+    //       }
+    //     }
+    //   }
+    //   // here start for time table
+    //   if (!obj?.to && !obj?.from) {
+    //     for (let time_table of subjects?.class?.timetableDayWise?.[0]
+    //       ?.schedule ?? []) {
+    //       if (`${time_table?.subject}` === `${req.params.sid}`) {
+    //         obj.to = time_table.to;
+    //         obj.from = time_table.from;
+    //         obj.is_timetable = true;
+    //         break;
+    //       }
+    //     }
+    //   }
+    // }
+
+    // talk to pankaj, not add student validation in same time mark student in other places also 21-07-2024 11:37 Am
     if (!subjects.attendance[0]?._id) {
       var slot_based = null;
-      if (subjects?.class?._id) {
+      if (req.params.sid) {
         slot_based = await ClassAttendanceTimeSlot.findOne({
           $and: [
             {
-              date: { $eq: prevDate },
+              subject: { $eq: `${req.params.sid}` },
             },
             {
-              class: { $eq: `${subjects?.class?._id}` },
+              date: { $eq: prevDate },
             },
           ],
         });
       }
-
       if (slot_based?.slot?.length > 0) {
         for (let t_slot of slot_based?.slot) {
           if (
             !t_slot?.is_extra &&
-            `${t_slot?.register_subject}` === `${req.params.sid}` &&
             `${t_slot.which_lecture}` === `${which_lecture}`
           ) {
             obj.to = t_slot.to;
@@ -1493,20 +1583,32 @@ exports.getAttendSubjectStudent = async (req, res) => {
           }
         }
       }
-      // here start for time table
+
+      // here start for time table if not already slot update or save
       if (!obj?.to && !obj?.from) {
-        for (let time_table of subjects?.class?.timetableDayWise?.[0]
-          ?.schedule ?? []) {
-          if (`${time_table?.subject}` === `${req.params.sid}`) {
-            obj.to = time_table.to;
-            obj.from = time_table.from;
-            obj.is_timetable = true;
-            break;
+        const sub_timetable = await SubjectTimetable.findOne({
+          $and: [
+            {
+              subject: { $eq: `${req.params.sid}` },
+            },
+            {
+              day: { $eq: `${which_day}` },
+            },
+          ],
+        });
+        if (sub_timetable?.schedule?.length > 0) {
+          for (let time_table of sub_timetable?.schedule ?? []) {
+            if (`${time_table?.which_lecture}` === `${which_lecture}`) {
+              obj.to = time_table.to;
+              obj.from = time_table.from;
+              obj.is_timetable = true;
+              obj.which_lecture = time_table?.which_lecture;
+              break;
+            }
           }
         }
       }
     }
-
     if (subjects.attendance?.length > 0) {
       const attend = subjects.attendance[0];
       const present = [];
@@ -1605,10 +1707,11 @@ exports.getAttendSubjectStudentExtraQuery = async (req, res) => {
 exports.getAttendSubjectStudentExtraOneQuery = async (req, res) => {
   try {
     const { sid, aid } = req?.params;
-    const subjects = await Subject.findById({ _id: sid }).populate({
-      path: "class",
-      select: "attendance_time_slot",
-    });
+    const subjects = await Subject.findById({ _id: sid });
+    // .populate({
+    //   path: "class",
+    //   select: "attendance_time_slot",
+    // });
     const attend = await AttendenceDate.findById({ _id: aid }).select(
       "attendDate presentTotal absentTotal presentStudent absentStudent attendence_name to from"
     );
@@ -1948,67 +2051,72 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
     var subject_taken = null;
     if (flow === "Normal_Lecture") {
       var slot_based = null;
-      if (subjects?.class?._id) {
+      if (subjects?._id) {
         slot_based = await ClassAttendanceTimeSlot.findOne({
           $and: [
             {
-              date: { $eq: req.body.date },
+              subject: { $eq: `${subjects?._id}` },
             },
             {
-              class: { $eq: `${subjects?.class?._id}` },
+              date: { $eq: req.body.date },
             },
+            // {
+            //   class: { $eq: `${subjects?.class?._id}` },
+            // },
           ],
         });
       }
 
       let flag = false;
-      if (slot_based?.slot?.length > 0) {
-        for (let t_slot of slot_based?.slot) {
-          if (!t_slot.is_mark) {
-          } else {
-            let slot_to = +t_slot?.to_minutes - 5;
-            let come_to_minutes = +to_minutes - 5;
-            if (from_minutes >= slot_to) {
-            } else if (come_to_minutes <= +t_slot?.from_minutes) {
-            } else {
-              if (subjects?.selected_batch_query) {
-                if (t_slot?.student?.length > 0) {
-                  for (let gt of t_slot?.student) {
-                    if (body_student?.includes(`${gt}`)) {
-                      subject_taken = await Subject.findById({
-                        _id: t_slot?.register_subject,
-                      })
-                        .populate({
-                          path: "subjectTeacherName",
-                          select:
-                            "staffFirstName staffLastName staffMiddleName",
-                        })
-                        .select("subjectName subjectTeacherName")
-                        .lean()
-                        .exec();
-                      flag = true;
-                      break;
-                    }
-                  }
-                }
-              } else {
-                subject_taken = await Subject.findById({
-                  _id: t_slot?.register_subject,
-                })
-                  .populate({
-                    path: "subjectTeacherName",
-                    select: "staffFirstName staffLastName staffMiddleName",
-                  })
-                  .select("subjectName subjectTeacherName")
-                  .lean()
-                  .exec();
-                flag = true;
-                break;
-              }
-            }
-          }
-        }
-      }
+
+      // for checking subject batch wise student attendance
+      // if (slot_based?.slot?.length > 0) {
+      //   for (let t_slot of slot_based?.slot) {
+      //     if (!t_slot.is_mark) {
+      //     } else {
+      //       let slot_to = +t_slot?.to_minutes - 5;
+      //       let come_to_minutes = +to_minutes - 5;
+      //       if (from_minutes >= slot_to) {
+      //       } else if (come_to_minutes <= +t_slot?.from_minutes) {
+      //       } else {
+      //         if (subjects?.selected_batch_query) {
+      //           if (t_slot?.student?.length > 0) {
+      //             for (let gt of t_slot?.student) {
+      //               if (body_student?.includes(`${gt}`)) {
+      //                 subject_taken = await Subject.findById({
+      //                   _id: t_slot?.register_subject,
+      //                 })
+      //                   .populate({
+      //                     path: "subjectTeacherName",
+      //                     select:
+      //                       "staffFirstName staffLastName staffMiddleName",
+      //                   })
+      //                   .select("subjectName subjectTeacherName")
+      //                   .lean()
+      //                   .exec();
+      //                 flag = true;
+      //                 break;
+      //               }
+      //             }
+      //           }
+      //         } else {
+      //           subject_taken = await Subject.findById({
+      //             _id: t_slot?.register_subject,
+      //           })
+      //             .populate({
+      //               path: "subjectTeacherName",
+      //               select: "staffFirstName staffLastName staffMiddleName",
+      //             })
+      //             .select("subjectName subjectTeacherName")
+      //             .lean()
+      //             .exec();
+      //           flag = true;
+      //           break;
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
       if (attendanceone || flag) {
         res.status(200).send({
           already_slot_mark: flag,
@@ -2028,7 +2136,7 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         for (let t_slot of slot_based?.slot) {
           if (
             !t_slot.is_extra &&
-            `${sid}` === `${t_slot.register_subject}` &&
+            // `${sid}` === `${t_slot.register_subject}` &&
             `${t_slot.which_lecture}` === `${which_lecture}`
           ) {
             t_slot.is_mark = true;
@@ -2117,68 +2225,71 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       }
     } else if (flow === "Extra_Lecture") {
       var slot_based = null;
-      if (subjects?.class?._id) {
+      if (subjects?._id) {
         slot_based = await ClassAttendanceTimeSlot.findOne({
           $and: [
             {
-              date: { $eq: req.body.date },
+              subject: { $eq: `${subjects?._id}` },
             },
             {
-              class: { $eq: `${subjects?.class?._id}` },
+              date: { $eq: req.body.date },
             },
+            // {
+            //   class: { $eq: `${subjects?.class?._id}` },
+            // },
           ],
         });
       }
 
       let flag = false;
 
-      if (slot_based?.slot?.length > 0) {
-        for (let t_slot of slot_based?.slot) {
-          if (!t_slot.is_mark) {
-          } else {
-            let slot_to = +t_slot?.to_minutes - 5;
-            let come_to_minutes = +to_minutes - 5;
-            if (from_minutes >= slot_to) {
-            } else if (come_to_minutes <= +t_slot?.from_minutes) {
-            } else {
-              if (subjects?.selected_batch_query) {
-                if (t_slot?.student?.length > 0) {
-                  for (let gt of t_slot?.student) {
-                    if (body_student?.includes(`${gt}`)) {
-                      subject_taken = await Subject.findById({
-                        _id: t_slot?.register_subject,
-                      })
-                        .populate({
-                          path: "subjectTeacherName",
-                          select:
-                            "staffFirstName staffLastName staffMiddleName",
-                        })
-                        .select("subjectName subjectTeacherName")
-                        .lean()
-                        .exec();
-                      flag = true;
-                      break;
-                    }
-                  }
-                }
-              } else {
-                subject_taken = await Subject.findById({
-                  _id: t_slot?.register_subject,
-                })
-                  .populate({
-                    path: "subjectTeacherName",
-                    select: "staffFirstName staffLastName staffMiddleName",
-                  })
-                  .select("subjectName subjectTeacherName")
-                  .lean()
-                  .exec();
-                flag = true;
-                break;
-              }
-            }
-          }
-        }
-      }
+      // if (slot_based?.slot?.length > 0) {
+      //   for (let t_slot of slot_based?.slot) {
+      //     if (!t_slot.is_mark) {
+      //     } else {
+      //       let slot_to = +t_slot?.to_minutes - 5;
+      //       let come_to_minutes = +to_minutes - 5;
+      //       if (from_minutes >= slot_to) {
+      //       } else if (come_to_minutes <= +t_slot?.from_minutes) {
+      //       } else {
+      //         if (subjects?.selected_batch_query) {
+      //           if (t_slot?.student?.length > 0) {
+      //             for (let gt of t_slot?.student) {
+      //               if (body_student?.includes(`${gt}`)) {
+      //                 subject_taken = await Subject.findById({
+      //                   _id: t_slot?.register_subject,
+      //                 })
+      //                   .populate({
+      //                     path: "subjectTeacherName",
+      //                     select:
+      //                       "staffFirstName staffLastName staffMiddleName",
+      //                   })
+      //                   .select("subjectName subjectTeacherName")
+      //                   .lean()
+      //                   .exec();
+      //                 flag = true;
+      //                 break;
+      //               }
+      //             }
+      //           }
+      //         } else {
+      //           subject_taken = await Subject.findById({
+      //             _id: t_slot?.register_subject,
+      //           })
+      //             .populate({
+      //               path: "subjectTeacherName",
+      //               select: "staffFirstName staffLastName staffMiddleName",
+      //             })
+      //             .select("subjectName subjectTeacherName")
+      //             .lean()
+      //             .exec();
+      //           flag = true;
+      //           break;
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
 
       if (flag) {
         res.status(200).send({
@@ -2200,7 +2311,7 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
       for (let t_slot of slot_based?.slot) {
         if (
           t_slot.is_extra &&
-          `${sid}` === `${t_slot.register_subject}` &&
+          // `${sid}` === `${t_slot.register_subject}` &&
           `${which_lecture}` === `${t_slot.which_extra_lecture}`
         ) {
           t_slot.is_mark = true;
@@ -3739,30 +3850,149 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
   try {
     const { sid } = req.params;
     const { date, from, to, cid, flow, which_lecture } = req.body;
-    const subjects = await Subject.findById({ _id: sid });
+    // const subjects = await Subject.findById({ _id: sid });
 
     var slot_based = null;
-    if (cid) {
-      slot_based = await ClassAttendanceTimeSlot.findOne({
-        $and: [
-          {
-            date: { $eq: date },
-          },
-          {
-            class: { $eq: `${cid}` },
-          },
-        ],
-      });
-    }
+    // if (cid) {
+    //   slot_based = await ClassAttendanceTimeSlot.findOne({
+    //     $and: [
+    //       {
+    //         date: { $eq: date },
+    //       },
+    //       {
+    //         class: { $eq: `${cid}` },
+    //       },
+    //     ],
+    //   });
+    //   let already_slot_mark = false;
+    //   var subject = null;
+    //   var from_minutes = time_convertor(from);
+    //   var to_minutes = time_convertor(to);
+    //   if (!slot_based?._id) {
+    //     const cls = await Class.findById(cid);
+    //     const slt = new ClassAttendanceTimeSlot({
+    //       date: date,
+    //       class: cid,
+    //       slot: [
+    //         {
+    //           date: date,
+    //           from: from,
+    //           from_minutes: from_minutes,
+    //           to: to,
+    //           to_minutes: to_minutes,
+    //           register_subject: sid,
+    //           is_mark: false,
+    //           is_extra: flow === "Normal_Lecture" ? false : true,
+    //           which_lecture: flow === "Normal_Lecture" ? which_lecture : "0",
+    //           which_extra_lecture:
+    //             flow === "Normal_Lecture" ? "0" : which_lecture,
+    //         },
+    //       ],
+    //     });
+    //     cls?.attendance_time_slot?.push(slt?._id);
+    //     await Promise.all([slt.save(), cls.save()]);
+    //   } else {
+    //     for (let t_slot of slot_based?.slot) {
+    //       if (!t_slot.is_mark) {
+    //       } else {
+    //         let slot_to = +t_slot?.to_minutes - 5;
+    //         let come_to_minutes = +to_minutes - 5;
+    //         if (from_minutes >= slot_to) {
+    //         } else if (come_to_minutes <= +t_slot?.from_minutes) {
+    //         } else {
+    //           if (subjects?.selected_batch_query) {
+    //           } else {
+    //             subject = await Subject.findById(t_slot.register_subject)
+    //               .populate({
+    //                 path: "subjectTeacherName",
+    //                 select: "staffFirstName staffLastName staffMiddleName",
+    //               })
+    //               .select("subjectName subjectTeacherName")
+    //               .lean()
+    //               .exec();
+    //             already_slot_mark = true;
+    //             break;
+    //           }
+    //         }
+    //       }
+    //     }
+    //     if (!already_slot_mark) {
+    //       let flag = true;
+    //       for (let t_slot of slot_based?.slot) {
+    //         if (`${t_slot?.register_subject}` === `${sid}`) {
+    //           if (t_slot?.is_extra && flow !== "Normal_Lecture") {
+    //             if (`${which_lecture}` === `${t_slot.which_extra_lecture}`) {
+    //               t_slot.date = date;
+    //               t_slot.from = from;
+    //               t_slot.to = to;
+    //               t_slot.from_minutes = from_minutes;
+    //               t_slot.to_minutes = to_minutes;
+    //               flag = false;
+    //               break;
+    //             }
+    //           }
+    //           if (!t_slot?.is_extra && flow === "Normal_Lecture") {
+    //             if (`${which_lecture}` === `${t_slot.which_lecture}`) {
+    //               t_slot.date = date;
+    //               t_slot.from = from;
+    //               t_slot.to = to;
+    //               t_slot.from_minutes = from_minutes;
+    //               t_slot.to_minutes = to_minutes;
+    //               flag = false;
+    //               break;
+    //             }
+    //           }
+    //         }
+    //       }
 
+    //       if (flag) {
+    //         slot_based?.slot.push({
+    //           date: date,
+    //           from: from,
+    //           to: to,
+    //           from_minutes: from_minutes,
+    //           to_minutes: to_minutes,
+    //           register_subject: sid,
+    //           is_mark: false,
+    //           is_extra: flow === "Normal_Lecture" ? false : true,
+    //           which_lecture: flow === "Normal_Lecture" ? which_lecture : "0",
+    //           which_extra_lecture:
+    //             flow === "Normal_Lecture" ? "0" : which_lecture,
+    //         });
+    //       }
+    //       await slot_based.save();
+    //     }
+    //   }
+    //   if (already_slot_mark)
+    //     res.status(200).send({
+    //       already_slot_mark,
+    //       subject: subject,
+    //       message: "For this time slot attendace has marked.",
+    //     });
+    //   else
+    //     res.status(200).send({
+    //       message: "Subject attendace time is set for taken attendance",
+    //     });
+    // } else {
+    slot_based = await ClassAttendanceTimeSlot.findOne({
+      $and: [
+        {
+          subject: { $eq: `${sid}` },
+        },
+        {
+          date: { $eq: date },
+        },
+      ],
+    });
     let already_slot_mark = false;
     var subject = null;
     var from_minutes = time_convertor(from);
     var to_minutes = time_convertor(to);
     if (!slot_based?._id) {
-      const cls = await Class.findById(cid);
+      const cls = await Subject.findById(sid);
       const slt = new ClassAttendanceTimeSlot({
         date: date,
+        subject: sid,
         class: cid,
         slot: [
           {
@@ -3791,47 +4021,42 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
           if (from_minutes >= slot_to) {
           } else if (come_to_minutes <= +t_slot?.from_minutes) {
           } else {
-            if (subjects?.selected_batch_query) {
-            } else {
-              subject = await Subject.findById(t_slot.register_subject)
-                .populate({
-                  path: "subjectTeacherName",
-                  select: "staffFirstName staffLastName staffMiddleName",
-                })
-                .select("subjectName subjectTeacherName")
-                .lean()
-                .exec();
-              already_slot_mark = true;
-              break;
-            }
+            subject = await Subject.findById(t_slot.register_subject)
+              .populate({
+                path: "subjectTeacherName",
+                select: "staffFirstName staffLastName staffMiddleName",
+              })
+              .select("subjectName subjectTeacherName")
+              .lean()
+              .exec();
+            already_slot_mark = true;
+            break;
           }
         }
       }
       if (!already_slot_mark) {
         let flag = true;
         for (let t_slot of slot_based?.slot) {
-          if (`${t_slot?.register_subject}` === `${sid}`) {
-            if (t_slot?.is_extra && flow !== "Normal_Lecture") {
-              if (`${which_lecture}` === `${t_slot.which_extra_lecture}`) {
-                t_slot.date = date;
-                t_slot.from = from;
-                t_slot.to = to;
-                t_slot.from_minutes = from_minutes;
-                t_slot.to_minutes = to_minutes;
-                flag = false;
-                break;
-              }
+          if (t_slot?.is_extra && flow !== "Normal_Lecture") {
+            if (`${which_lecture}` === `${t_slot.which_extra_lecture}`) {
+              t_slot.date = date;
+              t_slot.from = from;
+              t_slot.to = to;
+              t_slot.from_minutes = from_minutes;
+              t_slot.to_minutes = to_minutes;
+              flag = false;
+              break;
             }
-            if (!t_slot?.is_extra && flow === "Normal_Lecture") {
-              if (`${which_lecture}` === `${t_slot.which_lecture}`) {
-                t_slot.date = date;
-                t_slot.from = from;
-                t_slot.to = to;
-                t_slot.from_minutes = from_minutes;
-                t_slot.to_minutes = to_minutes;
-                flag = false;
-                break;
-              }
+          }
+          if (!t_slot?.is_extra && flow === "Normal_Lecture") {
+            if (`${which_lecture}` === `${t_slot.which_lecture}`) {
+              t_slot.date = date;
+              t_slot.from = from;
+              t_slot.to = to;
+              t_slot.from_minutes = from_minutes;
+              t_slot.to_minutes = to_minutes;
+              flag = false;
+              break;
             }
           }
         }
@@ -3864,27 +4089,7 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
       res.status(200).send({
         message: "Subject attendace time is set for taken attendance",
       });
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-exports.subjectTimeSlotFormatQuery = async (req, res) => {
-  try {
-    const ts = await ClassAttendanceTimeSlot.find({});
-
-    for (let ct of ts) {
-      for (let st of ct?.slot) {
-        let from_minutes = time_convertor(st?.from);
-        let to_minutes = time_convertor(st?.to);
-        st.from_minutes = from_minutes;
-        st.to_minutes = to_minutes;
-      }
-      await ct.save();
-    }
-    res.status(200).send({
-      message: "Subject attendace time is set for taken attendance",
-    });
+    // }
   } catch (e) {
     console.log(e);
   }
@@ -3951,15 +4156,18 @@ exports.subjectDeleteTodayAttendanceQuery = async (req, res) => {
     const studentAttendance = await AttendenceDate.findById(said);
     const subject = await Subject.findById(studentAttendance?.subject);
     var slot_based = null;
-    if (subject?.class) {
+    if (subject?._id) {
       slot_based = await ClassAttendanceTimeSlot.findOne({
         $and: [
           {
-            date: { $eq: studentAttendance?.attendDate },
+            subject: { $eq: `${subject?._id}` },
           },
           {
-            class: { $eq: `${subject?.class}` },
+            date: { $eq: studentAttendance?.attendDate },
           },
+          // {
+          //   class: { $eq: `${subject?.class}` },
+          // },
         ],
       });
     }
@@ -3967,25 +4175,25 @@ exports.subjectDeleteTodayAttendanceQuery = async (req, res) => {
     obj.presentStudent = studentAttendance?.presentStudent;
     obj.absentStudent = studentAttendance?.absentStudent;
     for (let t_slot of slot_based?.slot) {
-      if (`${t_slot?.register_subject}` === `${subject?._id}`) {
-        if (t_slot?.is_extra && flow !== "Normal_Lecture") {
-          if (
-            `${studentAttendance?.from}` === `${t_slot.from}` &&
-            `${studentAttendance?.to}` === `${t_slot.to}`
-          ) {
-            t_slot.is_mark = false;
-            t_slot.student = [];
-            break;
-          }
+      if (t_slot?.is_extra && flow !== "Normal_Lecture") {
+        if (
+          `${studentAttendance?.from}` === `${t_slot.from}` &&
+          `${studentAttendance?.to}` === `${t_slot.to}`
+        ) {
+          t_slot.is_mark = false;
+          t_slot.student = [];
+          t_slot.deleted_attendance = true;
+          break;
         }
-        if (!t_slot?.is_extra && flow === "Normal_Lecture") {
-          if (
-            `${studentAttendance?.which_lecture}` === `${t_slot.which_lecture}`
-          ) {
-            t_slot.is_mark = false;
-            t_slot.student = [];
-            break;
-          }
+      }
+      if (!t_slot?.is_extra && flow === "Normal_Lecture") {
+        if (
+          `${studentAttendance?.which_lecture}` === `${t_slot.which_lecture}`
+        ) {
+          t_slot.is_mark = false;
+          t_slot.student = [];
+          t_slot.deleted_attendance = true;
+          break;
         }
       }
     }
@@ -3998,22 +4206,22 @@ exports.subjectDeleteTodayAttendanceQuery = async (req, res) => {
     ]);
     res.status(200).send({
       message: "attendance is deleted",
-      i,
+      // i,
     });
-    var i = 0;
+    // var i = 0;
     for (let ct of obj?.presentStudent) {
-      i += 1;
+      // i += 1;
       const student = await Student.findById(ct?.student);
       student.subjectAttendance.pull(said);
       await student.save();
-      console.log("number exist: ", i);
+      // console.log("number exist: ", i);
     }
     for (let ct of obj?.absentStudent) {
-      i += 1;
+      // i += 1;
       const student = await Student.findById(ct?.student);
       student.subjectAttendance.pull(said);
       await student.save();
-      console.log("number exist absent : ", i);
+      // console.log("number exist absent : ", i);
     }
     subject.attendance.pull(said);
     await subject.save();
@@ -4041,11 +4249,14 @@ exports.subjectTimeSlotMarkListQuery = async (req, res) => {
       slot_based = await ClassAttendanceTimeSlot.findOne({
         $and: [
           {
-            date: { $eq: date },
+            subject: { $eq: `${cid}` },
           },
           {
-            class: { $eq: `${cid}` },
+            date: { $eq: date },
           },
+          // {
+          //   class: { $eq: `${cid}` },
+          // },
         ],
       });
     }
@@ -4083,20 +4294,23 @@ exports.subjectTodayUpdateAttendanceTimeQuery = async (req, res) => {
   try {
     const { sid } = req.params;
     const { date, from, to, cid, flow, said, which_lecture } = req.body;
-    const subjects = await Subject.findById({ _id: sid }).populate({
-      path: "selected_batch_query",
-      select: "class_student_query",
-    });
+    // const subjects = await Subject.findById({ _id: sid }).populate({
+    //   path: "selected_batch_query",
+    //   select: "class_student_query",
+    // });
     var slot_based = null;
-    if (cid) {
+    if (sid) {
       slot_based = await ClassAttendanceTimeSlot.findOne({
         $and: [
           {
-            date: { $eq: date },
+            subject: { $eq: `${sid}` },
           },
           {
-            class: { $eq: `${cid}` },
+            date: { $eq: date },
           },
+          // {
+          //   class: { $eq: `${cid}` },
+          // },
         ],
       });
     }
@@ -4108,7 +4322,7 @@ exports.subjectTodayUpdateAttendanceTimeQuery = async (req, res) => {
 
     for (let t_slot of slot_based?.slot) {
       if (!t_slot.is_mark) {
-      } else if (`${t_slot?.register_subject}` === `${sid}`) {
+      } else {
         if (
           t_slot?.is_extra &&
           flow !== "Normal_Lecture" &&
@@ -4153,71 +4367,28 @@ exports.subjectTodayUpdateAttendanceTimeQuery = async (req, res) => {
             break;
           }
         }
-      } else {
-        let slot_to = +t_slot?.to_minutes - 5;
-        let come_to_minutes = +to_minutes - 5;
-        if (from_minutes >= slot_to) {
-        } else if (come_to_minutes <= +t_slot?.from_minutes) {
-        } else {
-          if (subjects?.selected_batch_query) {
-            if (
-              subjects?.selected_batch_query?.class_student_query?.length > 0
-            ) {
-              for (let stu of subjects?.selected_batch_query
-                ?.class_student_query) {
-                for (let st of t_slot?.student ?? []) {
-                  if (`${stu}` === `${st}`) {
-                    subject = await Subject.findById(t_slot.register_subject)
-                      .populate({
-                        path: "subjectTeacherName",
-                        select: "staffFirstName staffLastName staffMiddleName",
-                      })
-                      .select("subjectName subjectTeacherName")
-                      .lean()
-                      .exec();
-                    already_slot_mark = true;
-                    break;
-                  }
-                }
-              }
-            }
-          } else {
-            subject = await Subject.findById(t_slot.register_subject)
-              .populate({
-                path: "subjectTeacherName",
-                select: "staffFirstName staffLastName staffMiddleName",
-              })
-              .select("subjectName subjectTeacherName")
-              .lean()
-              .exec();
-            already_slot_mark = true;
-            break;
-          }
-        }
       }
     }
     if (!already_slot_mark) {
       for (let t_slot of slot_based?.slot) {
-        if (`${t_slot?.register_subject}` === `${sid}`) {
-          if (t_slot?.is_extra && flow !== "Normal_Lecture") {
-            if (`${which_lecture}` === `${t_slot.which_extra_lecture}`) {
-              t_slot.date = date;
-              t_slot.from = from;
-              t_slot.to = to;
-              t_slot.from_minutes = from_minutes;
-              t_slot.to_minutes = to_minutes;
-              break;
-            }
+        if (t_slot?.is_extra && flow !== "Normal_Lecture") {
+          if (`${which_lecture}` === `${t_slot.which_extra_lecture}`) {
+            t_slot.date = date;
+            t_slot.from = from;
+            t_slot.to = to;
+            t_slot.from_minutes = from_minutes;
+            t_slot.to_minutes = to_minutes;
+            break;
           }
-          if (!t_slot?.is_extra && flow === "Normal_Lecture") {
-            if (`${which_lecture}` === `${t_slot.which_lecture}`) {
-              t_slot.date = date;
-              t_slot.from = from;
-              t_slot.to = to;
-              t_slot.from_minutes = from_minutes;
-              t_slot.to_minutes = to_minutes;
-              break;
-            }
+        }
+        if (!t_slot?.is_extra && flow === "Normal_Lecture") {
+          if (`${which_lecture}` === `${t_slot.which_lecture}`) {
+            t_slot.date = date;
+            t_slot.from = from;
+            t_slot.to = to;
+            t_slot.from_minutes = from_minutes;
+            t_slot.to_minutes = to_minutes;
+            break;
           }
         }
       }
@@ -4313,27 +4484,20 @@ exports.getSubjectAttednaceLectureQuery = async (req, res) => {
     }).select("lecture");
 
     const subjects = await Subject.findById(sid).populate({
-      path: "class",
-      populate: {
-        path: "timetableDayWise",
-        match: {
-          day: { $eq: which_day },
-        },
-        select: "schedule.from schedule.to schedule.subject",
+      path: "timetableDayWise",
+      match: {
+        day: { $eq: which_day },
       },
-      select: "timetableDayWise",
+      select: "schedule.from schedule.to schedule.subject",
     });
 
     var timetable_lecture = [];
     let ct = 1;
-    for (let time_table of subjects?.class?.timetableDayWise?.[0]?.schedule ??
-      []) {
-      if (`${time_table?.subject}` === `${sid}`) {
-        timetable_lecture.push({
-          which_lecture: `${ct}`,
-        });
-        ct += 1;
-      }
+    for (let time_table of subjects?.timetableDayWise?.[0]?.schedule ?? []) {
+      timetable_lecture.push({
+        which_lecture: `${ct}`,
+      });
+      ct += 1;
     }
     if (day_lecture?.lecture?.length > 0)
       timetable_lecture.push(...day_lecture?.lecture);

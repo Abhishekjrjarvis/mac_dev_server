@@ -2564,10 +2564,21 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     var student = await Student.findById({ _id: sid }).populate({
       path: "fee_structure",
     });
+    var admission = await Admission.findById({
+      _id: `${apply.admissionAdmin}`,
+    }).populate({
+      path: "admissionAdminHead",
+      select: "user",
+    });
     if (student?.fee_receipt?.length > 0) {
       for (let ele of apply?.FeeCollectionApplication) {
         if (`${ele?.student}` === `${student?._id}`) {
           apply?.FeeCollectionApplication.pull(ele?._id)
+        }
+      }
+      for (let ele of admission?.FeeCollectionApplication) {
+        if (`${ele?.student}` === `${student?._id}`) {
+          admission?.FeeCollectionApplication.pull(ele?._id)
         }
       }
       let exist = apply?.confirmedApplication?.filter((val) => {
@@ -2582,6 +2593,13 @@ exports.payOfflineAdmissionFee = async (req, res) => {
               payment_status: mode,
               install_type: "First Installment Paid",
               fee_remain: 0,
+            });
+            admission.confirmedApplication_query.push({
+              student: student._id,
+              payment_status: mode,
+              install_type: "First Installment Paid",
+              fee_remain: 0,
+              application: apply?._id
             });
       }
       // for (let ele of apply?.confirmedApplication) {
@@ -2599,19 +2617,13 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       //     }
       //   }
       // }
-      await apply.save()
+      await Promise.all([ apply.save(), admission.save()])
       res.status(200).send({
         message: "Already Fee Collected ",
         confirm_status: false,
       });
     }
     else {
-      const admission = await Admission.findById({
-        _id: `${apply.admissionAdmin}`,
-      }).populate({
-        path: "admissionAdminHead",
-        select: "user",
-      });
       var institute = await InstituteAdmin.findById({
         _id: `${admission.institute}`,
       });
@@ -16211,6 +16223,34 @@ exports.render_all_move_to_confirm = async (req, res) => {
       }
     }
     res.status(200).send({ message: "Explore All Student Query", access: true, all_student})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.render_excess = async (req, res) => {
+  try {
+    const all_struct = await FeeStructure.find({ finance: "662e8ff2a73be706305ec252" })
+    const all = await RemainingList.find({ fee_structure: all_struct })
+      .populate({
+      path: "student",
+      select: "studentFirstName studentMiddleName studentLastName studentFatherName"
+      })
+    .populate({
+      path: "applicable_card government_card",
+    })
+    
+    var nums = []
+    for (let ele of all) {
+      if (ele?.applicable_card?.paid_fee > ele?.applicable_card?.applicable_fee) {
+        nums.push({
+          student: ele?.student,
+          excess: ele?.applicable_card?.paid_fee - ele?.applicable_card?.applicable_fee
+        })
+      }
+    }
+    res.status(200).send({ message: "Explore All Excess Fees", access: true, nums})
   }
   catch (e) {
     console.log(e)

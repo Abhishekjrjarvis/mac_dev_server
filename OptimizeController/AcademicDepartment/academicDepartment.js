@@ -65,143 +65,166 @@ const DepartmentStudentForm = require("../../models/Form/DepartmentStudentForm")
 const InstituteStaffForm = require("../../models/Form/InstituteStaffForm");
 const { staff_form_params } = require("../../Constant/staff_form");
 const InstituteApplicationForm = require("../../models/Form/InstituteApplicationForm");
+const DepartmentSite = require("../../models/SiteModels/DepartmentSite");
+
+
 
 exports.retrieveAcademicDepartmentAdminHead = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { sid } = req.body;
-      var institute = await InstituteAdmin.findById({ _id: id });
-      var department = new Department({ ...req.body });
-      const code = universal_random_password()
-      department.member_module_unique = `${code}`
-      institute.depart.push(department._id);
-      institute.departmentCount += 1;
-        department.institute = institute._id;
-        department.department_status = "Academic"
-      if (sid) {
-        var staff = await Staff.findById({ _id: sid }).populate({
-          path: "user",
-        });
-        var user = await User.findById({ _id: `${staff.user._id}` });
-        var notify = new Notification({});
-        department.dHead = staff._id;
-        department.staffCount += 1;
-        staff.staffDepartment.push(department._id);
-        staff.staffDesignationCount += 1;
-        staff.recentDesignation = req.body.dTitle;
-        staff.designation_array.push({
-          role: "Department Head",
-          role_id: department?._id,
-        });
-        user.departmentChat.push({
-          isDepartmentHead: "Yes",
-          department: department._id,
-        });
-        if (
-          department.departmentChatGroup.length >= 1 &&
-          department.departmentChatGroup.includes(`${staff._id}`)
-        ) {
-        } else {
-          department.departmentChatGroup.push(staff._id);
-        }
-        notify.notifyContent = `you got the designation of ${department.dName} as ${department.dTitle}`;
-        notify.notifySender = id;
-        notify.notifyReceiever = user._id;
-        user.uNotify.push(notify._id);
-        notify.user = user._id;
-        notify.notifyByInsPhoto = institute._id;
-        notify.notifyCategory = "Department Designation";
-        await invokeFirebaseNotification(
-          "Designation Allocation",
-          notify,
-          institute.insName,
-          user._id,
-          user.deviceToken
-        );
-        await Promise.all([staff.save(), user.save(), notify.save()]);
-        designation_alarm(
-          user?.userPhoneNumber,
+  try {
+    const { id } = req.params;
+    const { sid } = req.body;
+    var institute = await InstituteAdmin.findById({ _id: id });
+    var department = new Department({ ...req.body });
+    const code = universal_random_password();
+    department.member_module_unique = `${code}`;
+    institute.depart.push(department._id);
+    institute.departmentCount += 1;
+    department.institute = institute._id;
+    department.department_status = "Academic";
+    if (sid) {
+      var staff = await Staff.findById({ _id: sid }).populate({
+        path: "user",
+      });
+      var user = await User.findById({ _id: `${staff.user._id}` });
+      var notify = new Notification({});
+      department.dHead = staff._id;
+      department.staffCount += 1;
+      staff.staffDepartment.push(department._id);
+      staff.staffDesignationCount += 1;
+      staff.recentDesignation = req.body.dTitle;
+      staff.designation_array.push({
+        role: "Department Head",
+        role_id: department?._id,
+      });
+      user.departmentChat.push({
+        isDepartmentHead: "Yes",
+        department: department._id,
+      });
+      if (
+        department.departmentChatGroup.length >= 1 &&
+        department.departmentChatGroup.includes(`${staff._id}`)
+      ) {
+      } else {
+        department.departmentChatGroup.push(staff._id);
+      }
+      notify.notifyContent = `you got the designation of ${department.dName} as ${department.dTitle}`;
+      notify.notifySender = id;
+      notify.notifyReceiever = user._id;
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByInsPhoto = institute._id;
+      notify.notifyCategory = "Department Designation";
+      await invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([staff.save(), user.save(), notify.save()]);
+      designation_alarm(
+        user?.userPhoneNumber,
+        "DHEAD",
+        institute?.sms_lang,
+        department?.dName,
+        department?.dTitle,
+        ""
+      );
+      if (user?.userEmail) {
+        email_sms_designation_alarm(
+          user?.userEmail,
           "DHEAD",
           institute?.sms_lang,
           department?.dName,
           department?.dTitle,
           ""
         );
-        if (user?.userEmail) {
-          email_sms_designation_alarm(
-            user?.userEmail,
-            "DHEAD",
-            institute?.sms_lang,
-            department?.dName,
-            department?.dTitle,
-            ""
-          );
-        }
-      } else {
-        department.dHead = null;
       }
-      var dfs = new DepartmentStudentForm({})
-        dfs.department = department?._id
-        department.student_form_setting = dfs?._id
-      await Promise.all([institute.save(), department.save()], dfs.save());
-      // const dEncrypt = await encryptionPayload(department._id);
-      res.status(200).send({
-        message: "Successfully Created Department",
-        department: department._id,
-      });
-      var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
-      .select("form_section")
-            .populate({
-              path: "form_section.form_checklist"
-            })
-      var nums = []
-      for (var val of ifs?.form_section) {
-        if (val?.form_checklist?.length > 0) {
-          for (var ele of val?.form_checklist) {
-            var fc = new FormChecklist({
-              form_checklist_name: ele?.form_checklist_name,
-              form_checklist_key: ele?.form_checklist_key,
-              form_checklist_visibility: ele?.form_checklist_visibility,
-              form_checklist_placeholder: ele?.form_checklist_placeholder,
-              form_checklist_lable: ele?.form_checklist_lable,
-              form_checklist_typo: ele?.form_checklist_typo,
-              form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
-              form_checklist_required: ele?.form_checklist_required,
-              width: ele?.width
-            })
-            if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
-              ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
-            }
-            fc.department_form = dfs?._id
-            fc.form_section = val?._id
-            nums.push(fc?._id)
-            await fc.save()
-          }
-        }
-        dfs.form_section.push({
-          section_name: val?.section_name,
-          section_visibilty: val?.section_visibilty,
-          section_key: val?.section_key,
-          section_pdf: val?.section_pdf,
-          section_value: val?.section_value,
-          ins_form_section_id: val?._id,
-          form_checklist: [...nums]
-        })
-        nums = []
-      }
-      await dfs.save()
-      const new_exam_fee = new ExamFeeStructure({
-        exam_fee_type: "Per student",
-        exam_fee_status: "Static Department Linked",
-      });
-      new_exam_fee.department = department?._id;
-      department.exam_fee_structure.push(new_exam_fee?._id);
-      department.exam_fee_structure_count += 1;
-      await Promise.all([department.save(), new_exam_fee.save()]);
-    } catch (e) {
-      console.log(e);
+    } else {
+      department.dHead = null;
     }
+    var dfs = new DepartmentStudentForm({});
+    dfs.department = department?._id;
+    department.student_form_setting = dfs?._id;
+
+    const departmentSite = new DepartmentSite({
+      related_department: department?._id,
+      department_site_status: department?.department_status,
+    });
+    department.site_info.push(departmentSite?._id);
+
+    await Promise.all(
+      [institute.save(), department.save(), departmentSite.save()],
+      dfs.save()
+    );
+    // const dEncrypt = await encryptionPayload(department._id);
+    res.status(200).send({
+      message: "Successfully Created Department",
+      department: department._id,
+    });
+    var ifs = await InstituteStudentForm.findById({
+      _id: `${institute?.student_form_setting}`,
+    })
+      .select("form_section")
+      .populate({
+        path: "form_section.form_checklist",
+      });
+    var nums = [];
+    for (var val of ifs?.form_section) {
+      if (val?.form_checklist?.length > 0) {
+        for (var ele of val?.form_checklist) {
+          var fc = new FormChecklist({
+            form_checklist_name: ele?.form_checklist_name,
+            form_checklist_key: ele?.form_checklist_key,
+            form_checklist_visibility: ele?.form_checklist_visibility,
+            form_checklist_placeholder: ele?.form_checklist_placeholder,
+            form_checklist_lable: ele?.form_checklist_lable,
+            form_checklist_typo: ele?.form_checklist_typo,
+            form_checklist_typo_option_pl: [
+              ...ele?.form_checklist_typo_option_pl,
+            ],
+            form_checklist_required: ele?.form_checklist_required,
+            width: ele?.width,
+          });
+          if (
+            ele?.form_checklist_typo_option_pl &&
+            ele?.form_checklist_typo_option_pl?.length > 0
+          ) {
+            ele.form_checklist_typo_option_pl = [
+              ...ele?.form_checklist_typo_option_pl,
+            ];
+          }
+          fc.department_form = dfs?._id;
+          fc.form_section = val?._id;
+          nums.push(fc?._id);
+          await fc.save();
+        }
+      }
+      dfs.form_section.push({
+        section_name: val?.section_name,
+        section_visibilty: val?.section_visibilty,
+        section_key: val?.section_key,
+        section_pdf: val?.section_pdf,
+        section_value: val?.section_value,
+        ins_form_section_id: val?._id,
+        form_checklist: [...nums],
+      });
+      nums = [];
+    }
+    await dfs.save();
+    const new_exam_fee = new ExamFeeStructure({
+      exam_fee_type: "Per student",
+      exam_fee_status: "Static Department Linked",
+    });
+    new_exam_fee.department = department?._id;
+    department.exam_fee_structure.push(new_exam_fee?._id);
+    department.exam_fee_structure_count += 1;
+    await Promise.all([department.save(), new_exam_fee.save()]);
+  } catch (e) {
+    console.log(e);
+  }
 };
+
 
 exports.retrieveDepartmentList = async (req, res) => {
     try {

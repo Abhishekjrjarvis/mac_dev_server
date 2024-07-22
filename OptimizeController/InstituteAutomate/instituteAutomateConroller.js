@@ -48,6 +48,7 @@ const { simple_object } = require("../../S3Configuration");
 const AutomateChapter = require("../../models/InstituteAutomate/AutomateChapter");
 const AutomateChapterTopic = require("../../models/InstituteAutomate/AutomateChapterTopic");
 const AutomateClassMaster = require("../../models/InstituteAutomate/AutomateClassMaster");
+const DepartmentSite = require("../../models/SiteModels/DepartmentSite");
 
 // testing done
 exports.addInstituteTypeQuery = async (req, res) => {
@@ -890,6 +891,11 @@ exports.createDepartmentInInstitiuteQuery = async (req, res) => {
     const department = new Department(req.body);
     department.member_module_unique = `${code}`;
     department.institute = id;
+    const departmentSite = new DepartmentSite({
+      related_department: department?._id,
+    });
+    department.site_info.push(departmentSite?._id);
+    await departmentSite.save();
     await department.save();
 
     // res.status(200).send({

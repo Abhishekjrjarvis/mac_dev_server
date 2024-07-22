@@ -180,13 +180,13 @@ exports.preformedStructure = async (req, res) => {
           class_user.uNotify.push(notify._id);
           notify.user = class_user._id;
           notify.notifyByInsPhoto = institute._id;
-          await invokeFirebaseNotification(
-            "Designation Allocation",
-            notify,
-            institute.insName,
-            class_user._id,
-            class_user.deviceToken
-          );
+          // await invokeFirebaseNotification(
+          //   "Designation Allocation",
+          //   notify,
+          //   institute.insName,
+          //   class_user._id,
+          //   class_user.deviceToken
+          // );
           await Promise.all([notify.save(), class_user.save(), staff.save()]);
         }
       }
@@ -242,13 +242,13 @@ exports.preformedStructure = async (req, res) => {
             subject_user.uNotify.push(notify_subject._id);
             notify_subject.user = subject_user._id;
             notify_subject.notifyByInsPhoto = institute._id;
-            await invokeFirebaseNotification(
-              "Designation Allocation",
-              notify_subject,
-              institute.insName,
-              subject_user._id,
-              subject_user.deviceToken
-            );
+            // await invokeFirebaseNotification(
+            //   "Designation Allocation",
+            //   notify_subject,
+            //   institute.insName,
+            //   subject_user._id,
+            //   subject_user.deviceToken
+            // );
             await Promise.all([
               notify_subject.save(),
               sujectStaff.save(),
@@ -1301,13 +1301,13 @@ exports.assignDesignationToStaffByBatch = async (req, res) => {
         class_user.uNotify.push(notify._id);
         notify.user = class_user._id;
         notify.notifyByInsPhoto = institute._id;
-        await invokeFirebaseNotification(
-          "Designation Allocation",
-          notify,
-          institute.insName,
-          class_user._id,
-          class_user.deviceToken
-        );
+        // await invokeFirebaseNotification(
+        //   "Designation Allocation",
+        //   notify,
+        //   institute.insName,
+        //   class_user._id,
+        //   class_user.deviceToken
+        // );
         await Promise.all([notify.save(), class_user.save(), staff.save()]);
 
         for (let subId of current_cls?.subject) {
@@ -1334,13 +1334,13 @@ exports.assignDesignationToStaffByBatch = async (req, res) => {
             subject_user.uNotify.push(notify_subject._id);
             notify_subject.user = subject_user._id;
             notify_subject.notifyByInsPhoto = institute._id;
-            await invokeFirebaseNotification(
-              "Designation Allocation",
-              notify_subject,
-              institute.insName,
-              subject_user._id,
-              subject_user.deviceToken
-            );
+            // await invokeFirebaseNotification(
+            //   "Designation Allocation",
+            //   notify_subject,
+            //   institute.insName,
+            //   subject_user._id,
+            //   subject_user.deviceToken
+            // );
             await Promise.all([
               notify_subject.save(),
               sujectStaff.save(),

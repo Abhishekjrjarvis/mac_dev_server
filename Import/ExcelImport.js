@@ -12,6 +12,9 @@ const { universal_random_password } = require("../Custom/universalId");
 const DepartmentStudentForm = require("../models/Form/DepartmentStudentForm");
 const InstituteStudentForm = require("../models/Form/InstituteStudentForm");
 const FormChecklist = require("../models/Form/FormChecklist");
+const DepartmentSite = require("../models/SiteModels/DepartmentSite");
+
+
 
 exports.render_new_department_query = async (arr, id) => {
   try {
@@ -25,140 +28,169 @@ exports.render_new_department_query = async (arr, id) => {
         institute.depart.push(department._id);
         institute.departmentCount += 1;
         department.institute = institute._id;
-        const code = universal_random_password()
-        department.member_module_unique = `${code}`
+        const code = universal_random_password();
+        department.member_module_unique = `${code}`;
         department.dHead = null;
-        var dfs = new DepartmentStudentForm({})
-        dfs.department = department?._id
-        department.student_form_setting = dfs?._id
+        var dfs = new DepartmentStudentForm({});
+        dfs.department = department?._id;
+        department.student_form_setting = dfs?._id;
+        const departmentSite = new DepartmentSite({
+          related_department: department?._id,
+        });
+        department.site_info.push(departmentSite?._id);
+
         await department.save();
-        var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
-        .select("form_section")
-        .populate({
-          path: "form_section",
-          populate: {
-            path: "form_checklist",
-            populate: {
-              path: "nested_form_checklist",
-              populate: {
-                path: "nested_form_checklist_nested"
-              }
-            }
-          }
+        await departmentSite.save();
+        var ifs = await InstituteStudentForm.findById({
+          _id: `${institute?.student_form_setting}`,
         })
-    var nums = []
-    for (var val of ifs?.form_section) {
-      if (val?.form_checklist?.length > 0) {
-        for (var ele of val?.form_checklist) {
-          var fc = new FormChecklist({
-            form_checklist_name: ele?.form_checklist_name,
-            form_checklist_key: ele?.form_checklist_key,
-            form_checklist_visibility: ele?.form_checklist_visibility,
-            form_checklist_placeholder: ele?.form_checklist_placeholder,
-            form_checklist_lable: ele?.form_checklist_lable,
-            form_checklist_typo: ele?.form_checklist_typo,
-            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
-            form_checklist_required: ele?.form_checklist_required,
-            form_checklist_key_status: ele?.form_checklist_key_status,
-            width: ele?.width
-          })
-          if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
-            ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
-          }
-          if (ele?.form_checklist_sample) {
-            fc.form_checklist_sample = ele?.form_checklist_sample
-          }
-          if (ele?.form_checklist_pdf) {
-            fc.form_checklist_pdf = ele?.form_checklist_pdf
-          }
-          if (ele?.form_checklist_view) {
-            fc.form_checklist_view = ele?.form_checklist_view
-          }
-          if (ele?.form_common_key) {
-            fc.form_common_key = ele?.form_common_key
-          }
-          if (ele?.form_checklist_enable) {
-            fc.form_checklist_enable = ele?.form_checklist_enable
-          }
-          fc.department_form = dfs?._id
-          fc.form_section = val?._id
-          if (ele?.nested_form_checklist?.length > 0) {
-            for (var stu of ele?.nested_form_checklist) {
-              var fcc = new FormChecklist({
-                form_checklist_name: stu?.form_checklist_name,
-                form_checklist_key: stu?.form_checklist_key,
-                form_checklist_visibility: stu?.form_checklist_visibility,
-                form_checklist_placeholder: stu?.form_checklist_placeholder,
-                form_checklist_lable: stu?.form_checklist_lable,
-                form_checklist_typo: stu?.form_checklist_typo,
-                form_checklist_required: stu?.form_checklist_required,
-                form_checklist_key_status: stu?.form_checklist_key_status,
-                width: stu?.width
-              })
-              if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
-                fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
+          .select("form_section")
+          .populate({
+            path: "form_section",
+            populate: {
+              path: "form_checklist",
+              populate: {
+                path: "nested_form_checklist",
+                populate: {
+                  path: "nested_form_checklist_nested",
+                },
+              },
+            },
+          });
+        var nums = [];
+        for (var val of ifs?.form_section) {
+          if (val?.form_checklist?.length > 0) {
+            for (var ele of val?.form_checklist) {
+              var fc = new FormChecklist({
+                form_checklist_name: ele?.form_checklist_name,
+                form_checklist_key: ele?.form_checklist_key,
+                form_checklist_visibility: ele?.form_checklist_visibility,
+                form_checklist_placeholder: ele?.form_checklist_placeholder,
+                form_checklist_lable: ele?.form_checklist_lable,
+                form_checklist_typo: ele?.form_checklist_typo,
+                form_checklist_typo_option_pl: [
+                  ...ele?.form_checklist_typo_option_pl,
+                ],
+                form_checklist_required: ele?.form_checklist_required,
+                form_checklist_key_status: ele?.form_checklist_key_status,
+                width: ele?.width,
+              });
+              if (
+                ele?.form_checklist_typo_option_pl &&
+                ele?.form_checklist_typo_option_pl?.length > 0
+              ) {
+                ele.form_checklist_typo_option_pl = [
+                  ...ele?.form_checklist_typo_option_pl,
+                ];
               }
-              if (stu?.form_checklist_sample) {
-                fcc.form_checklist_sample = stu?.form_checklist_sample
+              if (ele?.form_checklist_sample) {
+                fc.form_checklist_sample = ele?.form_checklist_sample;
               }
-              if (stu?.form_checklist_pdf) {
-                fcc.form_checklist_pdf = stu?.form_checklist_pdf
+              if (ele?.form_checklist_pdf) {
+                fc.form_checklist_pdf = ele?.form_checklist_pdf;
               }
-              if (stu?.form_checklist_view) {
-                fcc.form_checklist_view = stu?.form_checklist_view
+              if (ele?.form_checklist_view) {
+                fc.form_checklist_view = ele?.form_checklist_view;
               }
-              fcc.department_form = dfs?._id
-              fcc.form_section = val?._id
-              if (stu?.nested_form_checklist_nested) {
-                for (var qwes of stu?.nested_form_checklist_nested) {
-                  var fcca = new FormChecklist({
-                    form_checklist_name: qwes?.form_checklist_name,
-                    form_checklist_key: qwes?.form_checklist_key,
-                    form_checklist_visibility: qwes?.form_checklist_visibility,
-                    form_checklist_placeholder: qwes?.form_checklist_placeholder,
-                    form_checklist_lable: qwes?.form_checklist_lable,
-                    form_checklist_typo: qwes?.form_checklist_typo,
-                    form_checklist_required: qwes?.form_checklist_required,
-                    form_checklist_key_status: qwes?.form_checklist_key_status,
-                    width: qwes?.width
-                  })
-                  if (qwes?.form_checklist_typo_option_pl && qwes?.form_checklist_typo_option_pl?.length > 0) {
-                    fcca.form_checklist_typo_option_pl = [...qwes?.form_checklist_typo_option_pl]
+              if (ele?.form_common_key) {
+                fc.form_common_key = ele?.form_common_key;
+              }
+              if (ele?.form_checklist_enable) {
+                fc.form_checklist_enable = ele?.form_checklist_enable;
+              }
+              fc.department_form = dfs?._id;
+              fc.form_section = val?._id;
+              if (ele?.nested_form_checklist?.length > 0) {
+                for (var stu of ele?.nested_form_checklist) {
+                  var fcc = new FormChecklist({
+                    form_checklist_name: stu?.form_checklist_name,
+                    form_checklist_key: stu?.form_checklist_key,
+                    form_checklist_visibility: stu?.form_checklist_visibility,
+                    form_checklist_placeholder: stu?.form_checklist_placeholder,
+                    form_checklist_lable: stu?.form_checklist_lable,
+                    form_checklist_typo: stu?.form_checklist_typo,
+                    form_checklist_required: stu?.form_checklist_required,
+                    form_checklist_key_status: stu?.form_checklist_key_status,
+                    width: stu?.width,
+                  });
+                  if (
+                    stu?.form_checklist_typo_option_pl &&
+                    stu?.form_checklist_typo_option_pl?.length > 0
+                  ) {
+                    fcc.form_checklist_typo_option_pl = [
+                      ...stu?.form_checklist_typo_option_pl,
+                    ];
                   }
-                  if (qwes?.form_checklist_sample) {
-                    fcca.form_checklist_sample = qwes?.form_checklist_sample
+                  if (stu?.form_checklist_sample) {
+                    fcc.form_checklist_sample = stu?.form_checklist_sample;
                   }
-                  if (qwes?.form_checklist_pdf) {
-                    fcca.form_checklist_pdf = qwes?.form_checklist_pdf
+                  if (stu?.form_checklist_pdf) {
+                    fcc.form_checklist_pdf = stu?.form_checklist_pdf;
                   }
-                  if (qwes?.form_checklist_view) {
-                    fcca.form_checklist_view = qwes?.form_checklist_view
+                  if (stu?.form_checklist_view) {
+                    fcc.form_checklist_view = stu?.form_checklist_view;
                   }
-                  fcca.department_form = dfs?._id
-                  fcca.form_section = val?._id
-                  fcc.nested_form_checklist_nested.push(fcca?._id)
-                  await fcca.save()
+                  fcc.department_form = dfs?._id;
+                  fcc.form_section = val?._id;
+                  if (stu?.nested_form_checklist_nested) {
+                    for (var qwes of stu?.nested_form_checklist_nested) {
+                      var fcca = new FormChecklist({
+                        form_checklist_name: qwes?.form_checklist_name,
+                        form_checklist_key: qwes?.form_checklist_key,
+                        form_checklist_visibility:
+                          qwes?.form_checklist_visibility,
+                        form_checklist_placeholder:
+                          qwes?.form_checklist_placeholder,
+                        form_checklist_lable: qwes?.form_checklist_lable,
+                        form_checklist_typo: qwes?.form_checklist_typo,
+                        form_checklist_required: qwes?.form_checklist_required,
+                        form_checklist_key_status:
+                          qwes?.form_checklist_key_status,
+                        width: qwes?.width,
+                      });
+                      if (
+                        qwes?.form_checklist_typo_option_pl &&
+                        qwes?.form_checklist_typo_option_pl?.length > 0
+                      ) {
+                        fcca.form_checklist_typo_option_pl = [
+                          ...qwes?.form_checklist_typo_option_pl,
+                        ];
+                      }
+                      if (qwes?.form_checklist_sample) {
+                        fcca.form_checklist_sample =
+                          qwes?.form_checklist_sample;
+                      }
+                      if (qwes?.form_checklist_pdf) {
+                        fcca.form_checklist_pdf = qwes?.form_checklist_pdf;
+                      }
+                      if (qwes?.form_checklist_view) {
+                        fcca.form_checklist_view = qwes?.form_checklist_view;
+                      }
+                      fcca.department_form = dfs?._id;
+                      fcca.form_section = val?._id;
+                      fcc.nested_form_checklist_nested.push(fcca?._id);
+                      await fcca.save();
+                    }
+                  }
+                  await fcc.save();
+                  fc.nested_form_checklist.push(fcc?._id);
                 }
               }
-              await fcc.save()
-              fc.nested_form_checklist.push(fcc?._id)
+              nums.push(fc?._id);
+              await fc.save();
             }
           }
-          nums.push(fc?._id)
-          await fc.save()
+          dfs.form_section.push({
+            section_name: val?.section_name,
+            section_visibilty: val?.section_visibilty,
+            section_key: val?.section_key,
+            section_pdf: val?.section_pdf,
+            section_value: val?.section_value,
+            ins_form_section_id: val?._id,
+            form_checklist: [...nums],
+          });
         }
-      }
-      dfs.form_section.push({
-        section_name: val?.section_name,
-        section_visibilty: val?.section_visibilty,
-        section_key: val?.section_key,
-        section_pdf: val?.section_pdf,
-        section_value: val?.section_value,
-        ins_form_section_id: val?._id,
-        form_checklist: [...nums]
-      })
-    }
-    await dfs.save()
+        await dfs.save();
         const new_exam_fee = new ExamFeeStructure({
           exam_fee_type: "Per student",
           exam_fee_status: "Static Department Linked",
@@ -174,6 +206,8 @@ exports.render_new_department_query = async (arr, id) => {
     console.log(e);
   }
 };
+
+
 
 exports.render_new_class_master_query = async (arr, did) => {
   try {

@@ -81,14 +81,17 @@ exports.departmentEdit = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = institute._id;
-      await invokeFirebaseNotification(
-        "Designation Allocation",
-        notify,
-        institute.insName,
-        user._id,
-        user.deviceToken
-      );
       await Promise.all([staff.save(), user.save(), notify.save()]);
+
+      if (user.deviceToken) {
+        await invokeFirebaseNotification(
+          "Designation Allocation",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
+      }
     } else {
     }
     await department.save();
@@ -122,75 +125,98 @@ exports.departmentDelete = async (req, res) => {
   try {
     if (!req.params.did) throw "Please send department id to perform task";
     const department = await Department.findById(req.params.did);
-    if (department?.ApproveStudent?.length)
-      throw "You can't delete department because students existence";
-
-    for (let display of department?.displayPersonList) {
-      const displayPerson = await DisplayPerson.findById(display).populate({
-        path: "displayUser",
+    if (department?.ApproveStudent?.length) {
+      return res.status(200).send({
+        message: "You can't delete department because students existence",
+        error: true,
       });
-      displayPerson.displayUser.displayPersonArray?.pull(display);
-      await displayPerson.displayUser.save();
-      await DisplayPerson.findByIdAndDelete(display);
+    }
+    if (department?.displayPersonList?.length > 0) {
+      for (let display of department?.displayPersonList) {
+        const displayPerson = await DisplayPerson.findById(display).populate({
+          path: "displayUser",
+        });
+        displayPerson.displayUser.displayPersonArray?.pull(display);
+        await displayPerson.displayUser.save();
+        await DisplayPerson.findByIdAndDelete(display);
+      }
     }
     const institute = await InstituteAdmin.findById(department.institute);
+    if (department?.batches?.length > 0) {
+      for (let btId of department?.batches) {
+        const batch = await Batch.findById(btId);
+        institute?.idCardBatch?.pull(batch._id);
+        if (batch?.classroom?.length > 0) {
+          for (let cls of batch?.classroom) {
+            const classes = await Class.findById(cls);
+            if (classes?.displayPersonList?.length > 0) {
+              for (let display of classes?.displayPersonList) {
+                const displayPerson = await DisplayPerson.findById(
+                  display
+                ).populate({
+                  path: "displayUser",
+                });
+                displayPerson.displayUser.displayPersonArray?.pull(display);
+                await displayPerson.displayUser.save();
+                await DisplayPerson.findByIdAndDelete(display);
+              }
+            }
+            if (classes?.subject?.length > 0) {
+              for (let sub of classes?.subject) {
+                const subject = await Subject.findById(sub);
+                if (subject.subjectTeacherName) {
+                  const subjectTeacherName = await Staff.findById(
+                    subject.subjectTeacherName
+                  );
+                  subjectTeacherName?.staffSubject.pull(subject._id);
+                  subjectTeacherName.staffDesignationCount -= 1;
+                  await subjectTeacherName.save();
+                }
+                await Subject.findByIdAndDelete(sub);
+              }
+            }
+            if (classes.classTeacher) {
+              const classTeacher = await Staff.findById(classes.classTeacher);
+              classTeacher?.staffClass?.pull(classes._id);
+              classTeacher.staffDesignationCount -= 1;
+              institute?.classRooms?.pull(classes._id);
+              await classTeacher.save();
+            }
+            await Class.findByIdAndDelete(cls);
+          }
+        }
 
-    for (let btId of department?.batches) {
-      const batch = await Batch.findById(btId);
-      institute?.idCardBatch?.pull(batch._id);
-      for (let cls of batch?.classroom) {
-        const classes = await Class.findById(cls);
-        for (let display of classes?.displayPersonList) {
-          const displayPerson = await DisplayPerson.findById(display).populate({
-            path: "displayUser",
-          });
-          displayPerson.displayUser.displayPersonArray?.pull(display);
-          await displayPerson.displayUser.save();
-          await DisplayPerson.findByIdAndDelete(display);
-        }
-        for (let sub of classes?.subject) {
-          const subject = await Subject.findById(sub);
-          const subjectTeacherName = await Staff.findById(
-            subject.subjectTeacherName
-          );
-          subjectTeacherName?.staffSubject.pull(subject._id);
-          subjectTeacherName.staffDesignationCount -= 1;
-          await subjectTeacherName.save();
-          await Subject.findByIdAndDelete(sub);
-        }
-        const classTeacher = await Staff.findById(classes.classTeacher);
-        classTeacher?.staffClass?.pull(classes._id);
-        classTeacher.staffDesignationCount -= 1;
-        institute?.classRooms?.pull(classes._id);
-        await classTeacher.save();
-        await Class.findByIdAndDelete(cls);
+        await Batch.findByIdAndDelete(btId);
       }
-      await Batch.findByIdAndDelete(btId);
     }
-
-    for (let classMas of department?.departmentClassMasters) {
-      await ClassMaster.findByIdAndDelete(classMas);
+    if (department?.departmentClassMasters?.length > 0) {
+      for (let classMas of department?.departmentClassMasters) {
+        await ClassMaster.findByIdAndDelete(classMas);
+      }
     }
-    for (let subMas of department?.departmentSubjectMasters) {
-      await SubjectMaster.findByIdAndDelete(subMas);
+    if (department?.departmentSubjectMasters?.length > 0) {
+      for (let subMas of department?.departmentSubjectMasters) {
+        await SubjectMaster.findByIdAndDelete(subMas);
+      }
     }
     institute?.depart?.pull(department._id);
-    const dHead = await Staff.findById(department.dHead);
-    dHead?.staffDepartment?.pull(department._id);
-    dHead.staffDesignationCount -= 1;
-    await Promise.all([institute.save(), dHead.save()]);
+    if (department.dHead) {
+      const dHead = await Staff.findById(department.dHead);
+      dHead?.staffDepartment?.pull(department._id);
+      dHead.staffDesignationCount -= 1;
+      await dHead.save();
+    }
+    await institute.save();
     await Department.findByIdAndDelete(req.params.did);
     res.status(200).send({
       message: "Department deleted successfully👍",
-      deleted: "Yes",
+      error: false,
     });
   } catch (e) {
-    res.status(200).send({
-      message: e,
-      deleted: "No",
-    });
+    console.log(e);
   }
 };
+
 
 exports.batchEdit = async (req, res) => {
   try {

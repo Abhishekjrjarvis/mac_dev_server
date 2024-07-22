@@ -601,6 +601,7 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
 
 
 
+
 exports.getClassTabManageQuery = async (req, res) => {
   try {
     const { cid } = req.params;

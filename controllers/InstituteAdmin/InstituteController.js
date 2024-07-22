@@ -71,6 +71,7 @@ const InstituteApplicationForm = require("../../models/Form/InstituteApplication
 const { academic_form } = require("../../Constant/academic_form");
 const { social_reservation_information_section } = require("../../Constant/sris_form");
 const { universal_random_password_student_code } = require("../../Generator/RandomPass");
+const DepartmentSite = require("../../models/SiteModels/DepartmentSite");
 
 
 exports.getDashOneQuery = async (req, res) => {
@@ -890,8 +891,8 @@ exports.getNewDepartment = async (req, res) => {
     const { sid } = req.body;
     var institute = await InstituteAdmin.findById({ _id: id });
     var department = new Department({ ...req.body });
-    const code = universal_random_password()
-    department.member_module_unique = `${code}`
+    const code = universal_random_password();
+    department.member_module_unique = `${code}`;
     institute.depart.push(department._id);
     institute.departmentCount += 1;
     department.institute = institute._id;
@@ -957,30 +958,40 @@ exports.getNewDepartment = async (req, res) => {
     } else {
       department.dHead = null;
     }
-    var dfs = new DepartmentStudentForm({})
-      dfs.department = department?._id
-      department.student_form_setting = dfs?._id
-    await Promise.all([institute.save(), department.save()], dfs.save());
+    const departmentSite = new DepartmentSite({
+      related_department: department?._id,
+    });
+    department.site_info.push(departmentSite?._id);
+
+    var dfs = new DepartmentStudentForm({});
+    dfs.department = department?._id;
+    department.student_form_setting = dfs?._id;
+    await Promise.all(
+      [institute.save(), department.save(), departmentSite.save()],
+      dfs.save()
+    );
     // const dEncrypt = await encryptionPayload(department._id);
     res.status(200).send({
       message: "Successfully Created Department",
       department: department._id,
     });
-    var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
-    .select("form_section")
-    .populate({
-      path: "form_section",
-      populate: {
-        path: "form_checklist",
-        populate: {
-          path: "nested_form_checklist",
-          populate: {
-            path: "nested_form_checklist_nested"
-          }
-        }
-      }
+    var ifs = await InstituteStudentForm.findById({
+      _id: `${institute?.student_form_setting}`,
     })
-    var nums = []
+      .select("form_section")
+      .populate({
+        path: "form_section",
+        populate: {
+          path: "form_checklist",
+          populate: {
+            path: "nested_form_checklist",
+            populate: {
+              path: "nested_form_checklist_nested",
+            },
+          },
+        },
+      });
+    var nums = [];
     for (var val of ifs?.form_section) {
       if (val?.form_checklist?.length > 0) {
         for (var ele of val?.form_checklist) {
@@ -991,31 +1002,38 @@ exports.getNewDepartment = async (req, res) => {
             form_checklist_placeholder: ele?.form_checklist_placeholder,
             form_checklist_lable: ele?.form_checklist_lable,
             form_checklist_typo: ele?.form_checklist_typo,
-            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+            form_checklist_typo_option_pl: [
+              ...ele?.form_checklist_typo_option_pl,
+            ],
             form_checklist_required: ele?.form_checklist_required,
             form_checklist_key_status: ele?.form_checklist_key_status,
-            width: ele?.width
-          })
-          if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
-            ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+            width: ele?.width,
+          });
+          if (
+            ele?.form_checklist_typo_option_pl &&
+            ele?.form_checklist_typo_option_pl?.length > 0
+          ) {
+            ele.form_checklist_typo_option_pl = [
+              ...ele?.form_checklist_typo_option_pl,
+            ];
           }
           if (ele?.form_checklist_sample) {
-            fc.form_checklist_sample = ele?.form_checklist_sample
+            fc.form_checklist_sample = ele?.form_checklist_sample;
           }
           if (ele?.form_checklist_pdf) {
-            fc.form_checklist_pdf = ele?.form_checklist_pdf
+            fc.form_checklist_pdf = ele?.form_checklist_pdf;
           }
           if (ele?.form_checklist_view) {
-            fc.form_checklist_view = ele?.form_checklist_view
+            fc.form_checklist_view = ele?.form_checklist_view;
           }
           if (ele?.form_common_key) {
-            fc.form_common_key = ele?.form_common_key
+            fc.form_common_key = ele?.form_common_key;
           }
           if (ele?.form_checklist_enable) {
-            fc.form_checklist_enable = ele?.form_checklist_enable
+            fc.form_checklist_enable = ele?.form_checklist_enable;
           }
-          fc.department_form = dfs?._id
-          fc.form_section = val?._id
+          fc.department_form = dfs?._id;
+          fc.form_section = val?._id;
           if (ele?.nested_form_checklist?.length > 0) {
             for (var stu of ele?.nested_form_checklist) {
               var fcc = new FormChecklist({
@@ -1027,59 +1045,70 @@ exports.getNewDepartment = async (req, res) => {
                 form_checklist_typo: stu?.form_checklist_typo,
                 form_checklist_required: stu?.form_checklist_required,
                 form_checklist_key_status: stu?.form_checklist_key_status,
-                width: stu?.width
-              })
-              if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
-                fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
+                width: stu?.width,
+              });
+              if (
+                stu?.form_checklist_typo_option_pl &&
+                stu?.form_checklist_typo_option_pl?.length > 0
+              ) {
+                fcc.form_checklist_typo_option_pl = [
+                  ...stu?.form_checklist_typo_option_pl,
+                ];
               }
               if (stu?.form_checklist_sample) {
-                fcc.form_checklist_sample = stu?.form_checklist_sample
+                fcc.form_checklist_sample = stu?.form_checklist_sample;
               }
               if (stu?.form_checklist_pdf) {
-                fcc.form_checklist_pdf = stu?.form_checklist_pdf
+                fcc.form_checklist_pdf = stu?.form_checklist_pdf;
               }
               if (stu?.form_checklist_view) {
-                fcc.form_checklist_view = stu?.form_checklist_view
+                fcc.form_checklist_view = stu?.form_checklist_view;
               }
-              fcc.department_form = dfs?._id
-              fcc.form_section = val?._id
+              fcc.department_form = dfs?._id;
+              fcc.form_section = val?._id;
               if (stu?.nested_form_checklist_nested) {
                 for (var qwes of stu?.nested_form_checklist_nested) {
                   var fcca = new FormChecklist({
                     form_checklist_name: qwes?.form_checklist_name,
                     form_checklist_key: qwes?.form_checklist_key,
                     form_checklist_visibility: qwes?.form_checklist_visibility,
-                    form_checklist_placeholder: qwes?.form_checklist_placeholder,
+                    form_checklist_placeholder:
+                      qwes?.form_checklist_placeholder,
                     form_checklist_lable: qwes?.form_checklist_lable,
                     form_checklist_typo: qwes?.form_checklist_typo,
                     form_checklist_required: qwes?.form_checklist_required,
                     form_checklist_key_status: qwes?.form_checklist_key_status,
-                    width: qwes?.width
-                  })
-                  if (qwes?.form_checklist_typo_option_pl && qwes?.form_checklist_typo_option_pl?.length > 0) {
-                    fcca.form_checklist_typo_option_pl = [...qwes?.form_checklist_typo_option_pl]
+                    width: qwes?.width,
+                  });
+                  if (
+                    qwes?.form_checklist_typo_option_pl &&
+                    qwes?.form_checklist_typo_option_pl?.length > 0
+                  ) {
+                    fcca.form_checklist_typo_option_pl = [
+                      ...qwes?.form_checklist_typo_option_pl,
+                    ];
                   }
                   if (qwes?.form_checklist_sample) {
-                    fcca.form_checklist_sample = qwes?.form_checklist_sample
+                    fcca.form_checklist_sample = qwes?.form_checklist_sample;
                   }
                   if (qwes?.form_checklist_pdf) {
-                    fcca.form_checklist_pdf = qwes?.form_checklist_pdf
+                    fcca.form_checklist_pdf = qwes?.form_checklist_pdf;
                   }
                   if (qwes?.form_checklist_view) {
-                    fcca.form_checklist_view = qwes?.form_checklist_view
+                    fcca.form_checklist_view = qwes?.form_checklist_view;
                   }
-                  fcca.department_form = dfs?._id
-                  fcca.form_section = val?._id
-                  fcc.nested_form_checklist_nested.push(fcca?._id)
-                  await fcca.save()
+                  fcca.department_form = dfs?._id;
+                  fcca.form_section = val?._id;
+                  fcc.nested_form_checklist_nested.push(fcca?._id);
+                  await fcca.save();
                 }
               }
-              await fcc.save()
-              fc.nested_form_checklist.push(fcc?._id)
+              await fcc.save();
+              fc.nested_form_checklist.push(fcc?._id);
             }
           }
-          nums.push(fc?._id)
-          await fc.save()
+          nums.push(fc?._id);
+          await fc.save();
         }
       }
       dfs.form_section.push({
@@ -1089,11 +1118,11 @@ exports.getNewDepartment = async (req, res) => {
         section_pdf: val?.section_pdf,
         section_value: val?.section_value,
         ins_form_section_id: val?._id,
-        form_checklist: [...nums]
-      })
-      nums = []
+        form_checklist: [...nums],
+      });
+      nums = [];
     }
-    await dfs.save()
+    await dfs.save();
     const new_exam_fee = new ExamFeeStructure({
       exam_fee_type: "Per student",
       exam_fee_status: "Static Department Linked",
@@ -1106,6 +1135,7 @@ exports.getNewDepartment = async (req, res) => {
     console.log(e);
   }
 };
+
 
 exports.getNewStaffJoinCodeIns = async (req, res) => {
   try {
@@ -3556,121 +3586,156 @@ exports.getFullStudentInfo = async (req, res) => {
 exports.retrieveDepartmentList = async (req, res) => {
   try {
     const { id } = req.params;
+    const { which_type } = req.query;
     if (!id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    const institute = await InstituteAdmin.findById({ _id: id })
-      .select("insName")
-      .populate({
-        path: "depart",
-        select:
-          "dName photo photoId dTitle classMasterCount classCount departmentSelectBatch",
-        populate: {
-          path: "dHead",
-          select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
-          populate: {
-            path: "user",
-            select: "userBio userAbout",
+
+    if (which_type === "Normal") {
+      const institute = await InstituteAdmin.findById({ _id: id })
+        .select("insName")
+        .populate({
+          path: "depart",
+          match: {
+            department_status: "Normal",
           },
-        },
-      })
-      .lean()
-      .exec();
-    if (institute) {
-      // const iEncrypt = await encryptionPayload(institute);
-      res.status(200).send({ message: "Success", institute });
+          select:
+            "dName photo photoId dTitle classMasterCount classCount departmentSelectBatch",
+          populate: {
+            path: "dHead",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
+            populate: {
+              path: "user",
+              select: "userBio userAbout",
+            },
+          },
+        })
+        .lean()
+        .exec();
+      if (institute) {
+        // const iEncrypt = await encryptionPayload(institute);
+        res.status(200).send({ message: "Success", institute });
+      } else {
+        res.status(404).send({ message: "Failure" });
+      }
     } else {
-      res.status(404).send({ message: "Failure" });
+      const institute = await InstituteAdmin.findById({ _id: id })
+        .select("insName")
+        .populate({
+          path: "depart",
+          select:
+            "dName photo photoId dTitle classMasterCount classCount departmentSelectBatch",
+          populate: {
+            path: "dHead",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
+            populate: {
+              path: "user",
+              select: "userBio userAbout",
+            },
+          },
+        })
+        .lean()
+        .exec();
+      if (institute) {
+        // const iEncrypt = await encryptionPayload(institute);
+        res.status(200).send({ message: "Success", institute });
+      } else {
+        res.status(404).send({ message: "Failure" });
+      }
     }
   } catch (e) {
     console.log(e);
   }
 };
 
+
 exports.getOneDepartment = async (req, res) => {
   try {
     const { did } = req.params;
-    const options = { sort: { createdAt: -1 }}
-    if (did === "undefined") {
+    const options = { sort: { createdAt: -1 } };
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const department = await Department.findById({ _id: did })
+      .select(
+        "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo coverId cover election_date_setting pin_status pin_status_id pin_status_flow institute"
+      )
+      .populate({
+        path: "dHead",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
+        populate: {
+          path: "user",
+          select: "userBio userAbout",
+        },
+      })
+      .populate({
+        path: "batches",
+        select: "batchName batchStatus createdAt batch_type designation_send",
+        options,
+      })
+      .populate({
+        path: "departmentSelectBatch",
+        select: "batchName batchStatus createdAt ApproveStudent",
+        populate: {
+          path: "classroom",
+          select: "className classTitle",
+          populate: {
+            path: "ApproveStudent",
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+          },
+        },
+      })
+      .populate({
+        path: "displayPersonList",
+        select: "displayTitle createdAt",
+        populate: {
+          path: "displayUser",
+          select: "userLegalName username photoId profilePhoto",
+        },
+      })
+      .populate({
+        path: "active_academic_batch",
+        select: "batchName batchStatus createdAt",
+      })
+      .lean()
+      .exec();
+    const ins = await InstituteAdmin.findById({
+      _id: `${department?.institute}`,
+    }).select("independent_pinned_department dependent_pinned_department");
+    if (ins?.independent_pinned_department?.includes(`${department?._id}`)) {
+      department.pin_status = "Pinned";
+      department.pin_status_id = department?._id;
+      department.pin_status_flow = "INDEPENDENT";
     } else {
-      const department = await Department.findById({ _id: did })
-        .select(
-          "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo coverId cover election_date_setting pin_status pin_status_id pin_status_flow institute"
-        )
-        .populate({
-          path: "dHead",
-          select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
-          populate: {
-            path: "user",
-            select: "userBio userAbout",
-          },
-        })
-        .populate({
-          path: "batches",
-          select: "batchName batchStatus createdAt batch_type designation_send",
-          options
-        })
-        .populate({
-          path: "departmentSelectBatch",
-          select: "batchName batchStatus createdAt ApproveStudent",
-          populate: {
-            path: "classroom",
-            select: "className classTitle",
-            populate: {
-              path: "ApproveStudent",
-              select:
-                "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
-            },
-          },
-        })
-        .populate({
-          path: "displayPersonList",
-          select: "displayTitle createdAt",
-          populate: {
-            path: "displayUser",
-            select: "userLegalName username photoId profilePhoto",
-          },
-        })
-        .populate({
-          path: "active_academic_batch",
-          select: "batchName batchStatus createdAt",
-        })
-        .lean()
-        .exec();
-      const ins = await InstituteAdmin.findById({ _id: `${department?.institute}` })
-        .select("independent_pinned_department dependent_pinned_department")
-      if (ins?.independent_pinned_department?.includes(`${department?._id}`)) {
-        department.pin_status = "Pinned"
-        department.pin_status_id = department?._id
-        department.pin_status_flow = "INDEPENDENT"
-      }
-      else {
-        department.pin_status = "UnPinned"
-        department.pin_status_id = department?._id
-        department.pin_status_flow = "INDEPENDENT"
-      }
-      for (let ele of ins?.dependent_pinned_department) {
-        if (`${ele?.department}` === `${department?._id}`) {
-          department.pin_status = "Pinned"
-          department.pin_status_id = ele?._id
-          department.pin_status_flow = "DEPENDENT"
-        }
-        else {
-          department.pin_status = "UnPinned"
-          department.pin_status_id = ele?._id
-          department.pin_status_flow = "DEPENDENT"
-        }
-      }
-      if (department) {
-        // const oneEncrypt = await encryptionPayload(department);
-        res.status(200).send({ message: "Success", department });
+      department.pin_status = "UnPinned";
+      department.pin_status_id = department?._id;
+      department.pin_status_flow = "INDEPENDENT";
+    }
+    for (let ele of ins?.dependent_pinned_department) {
+      if (`${ele?.department}` === `${department?._id}`) {
+        department.pin_status = "Pinned";
+        department.pin_status_id = ele?._id;
+        department.pin_status_flow = "DEPENDENT";
       } else {
-        res.status(404).send({ message: "Failure" });
+        department.pin_status = "UnPinned";
+        department.pin_status_id = ele?._id;
+        department.pin_status_flow = "DEPENDENT";
       }
+    }
+    if (department) {
+      // const oneEncrypt = await encryptionPayload(department);
+      res.status(200).send({ message: "Success", department });
+    } else {
+      res.status(404).send({ message: "Failure" });
     }
   } catch (e) {
     console.log(e);

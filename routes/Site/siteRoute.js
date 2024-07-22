@@ -96,6 +96,8 @@ router.patch("/:aid/edit/video/gallery/query", catchAsync(siteController.render_
 router.delete("/:aid/delete/video/gallery/query", catchAsync(siteController.render_admission_delete_video_gallery_query));
 
 
-
+router
+  .route("/not/create/site/info/department")
+  .patch(siteController.notCreatedSiteInfoDepartmentQuery);
 
 module.exports = router;

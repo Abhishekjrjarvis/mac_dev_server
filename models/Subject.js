@@ -330,6 +330,12 @@ const subjectSchema = new mongoose.Schema({
       ref: "SubjectInternalEvaluation",
     },
   ],
+  attendance_time_slot: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ClassAttendanceTimeSlot",
+    },
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

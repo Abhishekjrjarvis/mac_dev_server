@@ -1424,3 +1424,29 @@ exports.render_admission_delete_video_gallery_query = async (req, res) => {
   }
 }
 
+// intiate query for all not created department
+exports.notCreatedSiteInfoDepartmentQuery = async (req, res) => {
+  try {
+    const department = await Department.find({});
+    for (let i = 0; i < department?.length; i++) {
+      let d_site = department[i];
+      if (d_site?.site_info?.[0]) {
+      } else {
+        const departmentSite = new DepartmentSite({
+          related_department: department?._id,
+          department_site_status: department?.department_status,
+        });
+        d_site.site_info.push(departmentSite?._id);
+        await Promise.all([departmentSite.save(), d_site.save()]);
+        console.log("Value of i", i);
+      }
+    }
+    res.status(200).send({
+      message: "Department site info is updated first time 😋😊😋",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+

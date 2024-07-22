@@ -33,8 +33,13 @@ const classAttendanceTimeSlotSchema = new mongoose.Schema({
         type: String,
         default: "0",
       },
+      deleted_attendance: Boolean,
     },
   ],
+  subject: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subject",
+  },
 });
 module.exports = mongoose.model(
   "ClassAttendanceTimeSlot",

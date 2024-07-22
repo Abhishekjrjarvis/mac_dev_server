@@ -268,5 +268,11 @@ router.patch("/:aid/all/admission/intake/edit", catchAsync(Filter.render_admissi
 
 router.delete("/:aid/all/admission/intake/delete", catchAsync(Filter.render_admission_intake_set_delete_query))
 
+router.patch(
+  "/combined/application/export/:appId",
+  catchAsync(Filter.renderApplicationCombinedListQuery)
+);
+
+
 
 module.exports = router;

@@ -312,27 +312,29 @@ exports.render_new_subject_query = async (arr, cid) => {
       });
       var depart = await Department.findById({ _id: `${classes?.department}` });
       for (var ref of arr) {
-        var subjectMaster = await SubjectMaster.findById({ _id: ref?.msid });
-        const subject = new Subject({
-          subjectTitle: ref?.subjectTitle,
-          subjectName: subjectMaster?.subjectName,
-          subjectMasterName: subjectMaster?._id,
-          subjectOptional: subjectMaster?.subjectType,
-          subject_category: ref?.subject_category,
-          batch: classes?.batch
-        });
-        const codess = universal_random_password()
-        subject.member_module_unique = `${codess}`
-        subject.subjectTeacherName = null;
-        classes.subject.push(subject._id);
-        classes.subjectCount += 1;
-        subjectMaster.subjects.push(subject._id);
-        subjectMaster.subjectCount += 1;
-        subject.class = classes._id;
-        if (ref?.selected_batch) {
-          subject.selected_batch_query = ref?.selected_batch;
+        if (ref?.msid) {
+          var subjectMaster = await SubjectMaster.findById({ _id: ref?.msid });
+          const subject = new Subject({
+            subjectTitle: ref?.subjectTitle,
+            subjectName: subjectMaster?.subjectName,
+            subjectMasterName: subjectMaster?._id,
+            subjectOptional: subjectMaster?.subjectType,
+            subject_category: ref?.subject_category,
+            batch: classes?.batch
+          });
+          const codess = universal_random_password()
+          subject.member_module_unique = `${codess}`
+          subject.subjectTeacherName = null;
+          classes.subject.push(subject._id);
+          classes.subjectCount += 1;
+          subjectMaster.subjects.push(subject._id);
+          subjectMaster.subjectCount += 1;
+          subject.class = classes._id;
+          if (ref?.selected_batch) {
+            subject.selected_batch_query = ref?.selected_batch;
+          }
+          await Promise.all([subjectMaster.save(), subject.save()]);
         }
-        await Promise.all([subjectMaster.save(), subject.save()]);
       }
       await Promise.all([classes.save(), depart.save()]);
     }

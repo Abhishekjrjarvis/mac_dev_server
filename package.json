@@ -29,7 +29,7 @@
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^6.5.1",
     "express-session": "^1.17.2",
-    "firebase-admin": "^11.0.0",
+    "firebase-admin": "^11.11.1",
     "get-video-duration": "^4.0.0",
     "helmet": "^5.1.1",
     "ioredis": "^5.2.4",

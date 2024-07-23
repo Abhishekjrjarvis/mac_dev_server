@@ -1450,3 +1450,55 @@ exports.notCreatedSiteInfoDepartmentQuery = async (req, res) => {
   }
 };
 
+exports.one_department_site_other_card_query = async (req, res) => {
+  try {
+    const { dsid, cid } = req.params;
+    const { sub_head_title, sub_heading_image, sub_head_body, flow } = req.body;
+    if (!dsid || !cid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    var d_site = await DepartmentSite.findById(dsid);
+    if (flow === "ABOUT") {
+      for (let dt of d_site?.about) {
+        if (`${dt?._id}` === `${cid}`) {
+          dt.sub_head_title = sub_head_title;
+          dt.sub_heading_image = sub_heading_image;
+          dt.sub_head_body = sub_head_body;
+        }
+      }
+    }
+    await d_site.save();
+    return res.status(200).send({
+      message: "About Edited successfully",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.one_department_site_other_card_delete_query = async (req, res) => {
+  try {
+    const { dsid, cid } = req.params;
+    const { flow } = req.body;
+
+    if (!dsid || !cid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    var d_site = await DepartmentSite.findById(dsid);
+    if (flow === "ABOUT") {
+      d_site.about = d_site?.about?.filter((dt) => `${dt?._id}` !== `${cid}`);
+    }
+    await d_site.save();
+    return res.status(200).send({
+      message: "About Deleted successfully",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+

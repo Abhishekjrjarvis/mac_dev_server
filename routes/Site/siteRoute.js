@@ -100,4 +100,13 @@ router
   .route("/not/create/site/info/department")
   .patch(siteController.notCreatedSiteInfoDepartmentQuery);
 
+  // for department edit and delete
+
+router
+.route("/department/:dsid/other/card/:cid/action/query")
+.patch(catchAsync(siteController.one_department_site_other_card_query))
+.delete(
+  catchAsync(siteController.one_department_site_other_card_delete_query)
+);
+
 module.exports = router;

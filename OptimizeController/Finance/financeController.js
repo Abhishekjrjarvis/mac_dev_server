@@ -6548,7 +6548,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
           master: ele?.master,
           is_society: false
         })
-        o_f.other_fees_name = ele?.head_name
+        o_f.other_fees_name = other_fees_name
       }
     }
     else if(struct) {
@@ -6561,7 +6561,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
           master: ele?.master,
           is_society: ele?.is_society
         })
-        o_f.other_fees_name = ele?.head_name
+        o_f.other_fees_name = other_fees_name
       }
     }
     if (is_collect === "Yes") {
@@ -6810,7 +6810,7 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
       .sort({ created_at: -1})
       .limit(limit)
       .skip(skip)
-      .select("other_fees_name other_fees_type payable_amount student_count student_name students_list")
+      .select("other_fees_name other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students remaining_students")
       .populate({
         path: "bank_account",
         select: "finance_bank_account_number finance_bank_name finance_bank_account_name"
@@ -6822,7 +6822,12 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
       .populate({
         path: "fee_structure",
       })
-    res.status(200).send({ message: "Explore All Other Fees Query", access: true, all_of: all_of})
+    
+    for (let ele of all_of) {
+      ele.paid_students_count = ele?.paid_students?.length
+      ele.remaining_students_count = ele?.remaining_students?.length
+    }
+    res.status(200).send({ message: "Explore All Other Fees Query", access: true, all_of: all_of, })
   }
   catch (e) {
     console.log(e)
@@ -6842,12 +6847,12 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
       var all_student = await Student.find({ _id: { $in: one_of?.students } })
         .limit(limit)
         .skip(skip)
-        .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj")
+        .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj other_fees_paid_price")
         .populate({
           path: "other_fees",
           populate: {
             path: "fee_receipt",
-            select: "receipt_file"
+            select: "receipt_file fee_payment_amount"
           }
         })
       for (let ele of all_student) {
@@ -6855,6 +6860,7 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
           if (`${val?.fees}` === `${one_of?._id}` && val?.fee_receipt) {
             ele.other_fees_obj.status = "Paid"
             ele.other_fees_obj.receipt_file = val?.fee_receipt?.receipt_file
+            ele.other_fees_obj.price = val?.fee_receipt?.fee_payment_amount
           }
         }
       }

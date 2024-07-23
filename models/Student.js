@@ -1142,6 +1142,10 @@ const studentSchema = new mongoose.Schema({
     },
     receipt_file: {
       type: String,
+    },
+    price: {
+      type: Number,
+      default: 0
     }
   },
   student_dynamic_subject: [

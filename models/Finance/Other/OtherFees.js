@@ -80,6 +80,14 @@ const otherFeesSchema = new mongoose.Schema({
     fee_receipt: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeReceipt"
+    },
+    paid_students_count: {
+        type: Number,
+        default: 0
+    },
+    remaining_students_count: {
+        type: Number,
+        default: 0
     }
 })
 

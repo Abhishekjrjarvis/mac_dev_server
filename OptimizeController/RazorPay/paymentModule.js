@@ -51,6 +51,7 @@ const OtherFees = require("../../models/Finance/Other/OtherFees");
 const FeeMaster = require("../../models/Finance/FeeMaster");
 const ErrorPayment = require("../../models/Acid/ErrorPayment");
 const studentOtherFeeReceipt = require("../../scripts/studentOtherFeeReceipt");
+const { email_sms_designation_other_fees_apply } = require("../../WhatsAppSMS/payload");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
   try {
@@ -1978,6 +1979,10 @@ exports.otherFeesFunction = async (
       finance_user.save(),
     ]);
     await studentOtherFeeReceipt(new_receipt._id, institute._id);
+    if (student?.studentEmail) {
+      let name = `${student?.studentFirstName} ${student?.studentMiddleName ?? student?.studentFatherName} ${student?.studentLastName}`
+      email_sms_designation_other_fees_apply(student?.studentEmail, name, new_internal?.other_fees_name)
+    }
     return `${studentUser?.username}`;
   } catch (e) {
     console.log(e);

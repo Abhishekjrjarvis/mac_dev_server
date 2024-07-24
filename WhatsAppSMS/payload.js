@@ -609,6 +609,54 @@ Do Not Click on the link below (clicking it may prevent further emails from bein
   }
 };
 
+exports.email_sms_designation_other_fees_apply = (
+  email,
+  name,
+  appName,
+  login,
+  file
+) => {
+  try {
+    // Click on below to download your admission application form - https://qviple-dev.s3.ap-south-1.amazonaws.com/${file}
+    const bool = process.env.IS_GLOBAL;
+    if (bool) {
+      var message = `Hi ${name},
+Your chosen subject ${appName} is now available for you to confirm.. Please pay the required fees through the Qviple app within the next two days. If the payment is not made within this period, your seat will be offered to other students.
+      
+To pay your fees, please follow these steps:
+1. Update the Qviple App to the latest version.
+2. On the home page, you will find the "Your Fees" tab below your name.
+3. Open the "Your Fees" tab.
+4. You will see three menus: Admission Fees, Department Fees, and Other Fees.
+5. Navigate to "Other Fees."
+6. From the "Other Fees" section, you can pay the fees for your additional subject of choice.
+      
+Note: Do not close the app from the background during payment. If you accidentally close the app, your fee receipt will not be generated. Please send a screenshot of your fee payment transaction to Qviple Helpdesk for support.
+      
+Thank you.
+      
+      
+Do Not Click on the link below (clicking it may prevent further emails from being delivered to you).`
+      const subject = "Other Fees Confirmation";
+      const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+      const encodeURL = encodeURI(url);
+      axios
+        .post(encodeURL)
+        .then((res) => {
+          console.log("Sended Successfully");
+        })
+        .catch((e) => {
+          console.log("SMS API Bug", e.message);
+        });
+      return true;
+    } else {
+      console.log("18 Dev");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 
 
 

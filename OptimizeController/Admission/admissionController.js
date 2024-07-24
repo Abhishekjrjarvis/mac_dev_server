@@ -15713,7 +15713,15 @@ exports.render_one_subject_student_query = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid })
     // const nums = [aid]
     // const all_user = await User.find({ applyApplication: { $in: nums } })
-    const all_student = await Student.find({ _id: { $in: apply?.reviewApplication } })
+    let numss = []
+    for (let ele of apply?.confirmedApplication) {
+      numss.push(ele?.student)
+    }
+    for (let ele of apply?.allottedApplication) {
+      numss.push(ele?.student)
+    }
+    let subject_num = [...numss, ...apply?.reviewApplication]
+    const all_student = await Student.find({ _id: { $in: subject_num } })
       .select("studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO")
       .populate({
         path: "user",

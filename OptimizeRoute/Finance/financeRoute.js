@@ -618,4 +618,9 @@ router.get(
   catchAsync(Finance.renderOneOtherFeeReceipt)
 );
 
+router.patch(
+  "/email/student/query",
+  catchAsync(Finance.all_email_student_query)
+);
+
 module.exports = router;

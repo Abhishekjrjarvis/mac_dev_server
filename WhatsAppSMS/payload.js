@@ -637,7 +637,7 @@ Thank you.
       
       
 Do Not Click on the link below (clicking it may prevent further emails from being delivered to you).`
-      const subject = "Other Fees Confirmation";
+      const subject = "Additional Subject Fees";
       const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
       const encodeURL = encodeURI(url);
       axios

@@ -66,7 +66,15 @@ exports.photoEditByStudent = async (req, res) => {
 exports.formEditByClassTeacher = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send student id to perform task";
-    const { phone, email, regeneration_bool, appId, insId, statusId, regeneration_status } = req.body;
+    const {
+      phone,
+      email,
+      regeneration_bool,
+      appId,
+      insId,
+      statusId,
+      regeneration_status,
+    } = req.body;
     var valid_phone = await handle_undefined(phone);
     var valid_email = await handle_undefined(email);
     const old_data = {
@@ -106,16 +114,20 @@ exports.formEditByClassTeacher = async (req, res) => {
     for (let studentObj in req.body?.student) {
       one_student[`${studentObj}`] = req.body?.student[studentObj];
     }
-    one_student.student_dynamic_field = [...req.body?.student_dynamic_field]
-    one_student.application_print = []
-    one_student.studentMiddleName = one_student?.studentFatherName ? one_student?.studentFatherName: one_student?.studentMiddleName
-    let FNAME = `${one_student?.studentFirstName} ${one_student?.studentMiddleName ?? one_student?.studentFatherName} ${one_student?.studentLastName}`
-    let names = FNAME?.split(" ")
+    one_student.student_dynamic_field = [...req.body?.student_dynamic_field];
+    one_student.application_print = [];
+    one_student.studentMiddleName = one_student?.studentFatherName
+      ? one_student?.studentFatherName
+      : one_student?.studentMiddleName;
+    let FNAME = `${one_student?.studentFirstName} ${
+      one_student?.studentMiddleName ?? one_student?.studentFatherName
+    } ${one_student?.studentLastName}`;
+    let names = FNAME?.split(" ");
     var combine_name;
     for (let ele of names) {
-      combine_name = `${ele}`
+      combine_name = `${ele}`;
     }
-    one_student.scholar_name = combine_name?.toLowerCase()
+    one_student.scholar_name = combine_name?.toLowerCase();
     await one_student.save();
     res.status(200).send({
       message: "Student form edited successfully👍",
@@ -144,31 +156,47 @@ exports.formEditByClassTeacher = async (req, res) => {
     } else {
     }
     if (regeneration_bool === "Yes" && appId && insId) {
-      const apply = await NewApplication.findById({ _id: appId })
-      const status = await Status.findById({ _id: statusId })
+      const apply = await NewApplication.findById({ _id: appId });
+      const status = await Status.findById({ _id: statusId });
       for (let ele of apply?.receievedApplication) {
         if (`${ele?.student}` === `${one_student?._id}`) {
-          ele.reject_status = ""
+          ele.reject_status = "";
         }
       }
-      status.rejection_modification = "No"
-      status.rejection_reason = ""
-      await Promise.all([ apply.save(), status.save()])
+      status.rejection_modification = "No";
+      status.rejection_reason = "";
+      await Promise.all([apply.save(), status.save()]);
       await generateStudentAdmissionForm(
         one_student?._id,
         insId,
-        `${one_student?.studentFirstName} ${one_student?.studentMiddleName ? one_student?.studentMiddleName : one_student?.studentFatherName ? one_student?.studentFatherName : ""} ${one_student?.studentLastName}`,
-        `${apply?.applicationName}`,
+        `${one_student?.studentFirstName} ${
+          one_student?.studentMiddleName
+            ? one_student?.studentMiddleName
+            : one_student?.studentFatherName
+            ? one_student?.studentFatherName
+            : ""
+        } ${one_student?.studentLastName}`,
+        `${apply?.applicationName}`
       );
     }
     if (regeneration_status === "Yes") {
-      const apply = await NewApplication.findById({ _id: one_student?.student_form_flow?.did })
-      const ads_admin = await Admission.findById({ _id: `${apply?.admissionAdmin}`})
+      const apply = await NewApplication.findById({
+        _id: one_student?.student_form_flow?.did,
+      });
+      const ads_admin = await Admission.findById({
+        _id: `${apply?.admissionAdmin}`,
+      });
       await generateStudentAdmissionForm(
         one_student?._id,
         ads_admin?.institute,
-        `${one_student?.studentFirstName} ${one_student?.studentMiddleName ? one_student?.studentMiddleName : one_student?.studentFatherName ? one_student?.studentFatherName : ""} ${one_student?.studentLastName}`,
-        `${apply?.applicationName}`,
+        `${one_student?.studentFirstName} ${
+          one_student?.studentMiddleName
+            ? one_student?.studentMiddleName
+            : one_student?.studentFatherName
+            ? one_student?.studentFatherName
+            : ""
+        } ${one_student?.studentLastName}`,
+        `${apply?.applicationName}`
       );
     }
   } catch (e) {
@@ -583,7 +611,7 @@ exports.instituteDepartmentOtherCount = async (req, res) => {
       coverId: institute_data?.coverId,
       _id: institute_data?._id,
       alias_pronounciation: institute_data?.alias_pronounciation,
-      landing_control: institute_data?.landing_control
+      landing_control: institute_data?.landing_control,
     };
     res.status(200).send({
       message: "All count and institute some details",
@@ -685,7 +713,7 @@ exports.getPromoteStudentByClass = async (req, res) => {
       message: "All promoted student list",
       promoteStudent: classes.promoteStudent ?? [],
       count: count,
-      search: true
+      search: true,
     });
   } catch (e) {
     res.status(200).send({ message: e, promoteStudent: [] });
@@ -1021,7 +1049,6 @@ exports.getPromoteStudentByClassQuery = async (req, res) => {
   }
 };
 
-
 exports.getStudentSubjectQuery = async (req, res) => {
   try {
     const { sid } = req?.params;
@@ -1065,10 +1092,26 @@ exports.getStudentSubjectQuery = async (req, res) => {
         }
       }
     }
+    if (student?.academic_subject?.length > 0) {
+      const aca_subject = await Subject.find({
+        _id: { $in: student?.academic_subject },
+      })
+        .select("subjectName subjectTeacherName")
+        .lean()
+        .exec();
+      if (aca_subject?.length > 0) {
+        for (let acu of aca_subject) {
+          if (acu?.subjectTeacherName) {
+            all_subject.push(acu);
+          }
+        }
+      }
+    }
     res.status(200).send({
       message: "All student side subject list",
+      student: student.studentClass,
       all_subject: all_subject,
-      subject: subject,
+      // subject: subject,
     });
   } catch (e) {
     res.status(200).send({ message: e });
@@ -1158,7 +1201,3 @@ exports.subjectStudentRemoveCatalogQuery = async (req, res) => {
     console.log(e);
   }
 };
-
-
-
-

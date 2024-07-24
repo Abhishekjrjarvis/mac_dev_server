@@ -102,7 +102,6 @@ exports.classReportSetting = async (req, res) => {
   } catch {}
 };
 
-
 exports.renderAllStudentMentors = async (req, res) => {
   try {
     const { sid } = req.params;
@@ -163,6 +162,26 @@ exports.renderAllStudentMentors = async (req, res) => {
       }
     }
 
+    if (student?.academic_subject?.length > 0) {
+      const aca_subject = await Subject.find({
+        _id: { $in: student?.academic_subject },
+      })
+        .select("subjectTeacherName subjectName subjectTitle")
+        .populate({
+          path: "subjectTeacherName",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        })
+        .lean()
+        .exec();
+      if (aca_subject?.length > 0) {
+        for (let acu of aca_subject) {
+          if (acu?.subjectTeacherName) {
+            ref_subject.push(acu);
+          }
+        }
+      }
+    }
     if (ref_subject?.length > 0 || classes) {
       res.status(200).send({
         message: "All Active Mentors ClassTeacher / Subject Teacher",
@@ -286,51 +305,55 @@ exports.renderAllBatchStudentQuery = async (req, res) => {
       });
 
     if (search) {
-      var valid_batch = await Batch.findById({ _id: bid }).select(
-        "class_student_query"
-      )
-      .populate({
-        path: "class_student_query",
-        match: {
-          $or: [
-            {
-              studentFirstName: { $regex: `${search}`, $options: "i" },
-            },
-            {
-              studentMiddleName: { $regex: `${search}`, $options: "i" },
-            },
-            {
-              studentLastName: { $regex: `${search}`, $options: "i" },
-            },
-            {
-              valid_full_name: { $regex: `${search}`, $options: "i" },
-            },
-            {
-              studentGRNO: { $regex: `${search}`, $options: "i" },
-            },
-          ],
-        },
-        select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO student_prn_enroll_number class_selected_batch",
-        populate: {
-          path: "class_selected_batch",
-          select: "batchName batchStatus",
-        }
-      })
-      var all_students = [...valid_batch?.class_student_query]
+      var valid_batch = await Batch.findById({ _id: bid })
+        .select("class_student_query")
+        .populate({
+          path: "class_student_query",
+          match: {
+            $or: [
+              {
+                studentFirstName: { $regex: `${search}`, $options: "i" },
+              },
+              {
+                studentMiddleName: { $regex: `${search}`, $options: "i" },
+              },
+              {
+                studentLastName: { $regex: `${search}`, $options: "i" },
+              },
+              {
+                valid_full_name: { $regex: `${search}`, $options: "i" },
+              },
+              {
+                studentGRNO: { $regex: `${search}`, $options: "i" },
+              },
+            ],
+          },
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO student_prn_enroll_number class_selected_batch",
+          populate: {
+            path: "class_selected_batch",
+            select: "batchName batchStatus",
+          },
+        });
+      var all_students = [...valid_batch?.class_student_query];
     } else {
-      var valid_batch = await Batch.findById({ _id: bid }).select(
-        "class_student_query"
-      )
-      .populate({
-        path: "class_student_query",
-        select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO student_prn_enroll_number class_selected_batch",
-        populate: {
-          path: "class_selected_batch",
-          select: "batchName batchStatus",
-        }
-      })
+      var valid_batch = await Batch.findById({ _id: bid })
+        .select("class_student_query")
+        .populate({
+          path: "class_student_query",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO student_prn_enroll_number class_selected_batch",
+          populate: {
+            path: "class_selected_batch",
+            select: "batchName batchStatus",
+          },
+        });
 
-      var all_students = await nested_document_limit(page, limit, valid_batch?.class_student_query)
+      var all_students = await nested_document_limit(
+        page,
+        limit,
+        valid_batch?.class_student_query
+      );
     }
 
     if (all_students?.length > 0) {
@@ -599,9 +622,6 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
   }
 };
 
-
-
-
 exports.getClassTabManageQuery = async (req, res) => {
   try {
     const { cid } = req.params;
@@ -653,23 +673,20 @@ exports.updateClassTabManageQuery = async (req, res) => {
 
 exports.getShuffleQuery = async (req, res) => {
   try {
-    const { cid } = req?.params
-    const classes = await Class.findById({ _id: cid })
-      .populate({
-        path: "ApproveStudent",
-        select: "studentFirstName studentMiddleName studentLastName studentGRNO"
-    })
+    const { cid } = req?.params;
+    const classes = await Class.findById({ _id: cid }).populate({
+      path: "ApproveStudent",
+      select: "studentFirstName studentMiddleName studentLastName studentGRNO",
+    });
 
     for (var val of classes?.ApproveStudent) {
-      var split_g = val?.studentGRNO?.split("undefined")
-      val.studentGRNO = `${split_g[1]}`
-      await val.save()
+      var split_g = val?.studentGRNO?.split("undefined");
+      val.studentGRNO = `${split_g[1]}`;
+      await val.save();
     }
-    
-    res.status(200).send({ message: "Sorted"})
-  }
-  catch (e) {
-    console.log(e)
-  }
-}
 
+    res.status(200).send({ message: "Sorted" });
+  } catch (e) {
+    console.log(e);
+  }
+};

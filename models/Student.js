@@ -379,7 +379,7 @@ const studentSchema = new mongoose.Schema({
         ref: "FeeMaster",
       },
       original_paid: { type: Number, default: 0 },
-      is_society: { type: Boolean, default: false }
+      is_society: { type: Boolean, default: false },
     },
   ],
   certificateBonaFideCopy: {
@@ -624,7 +624,7 @@ const studentSchema = new mongoose.Schema({
   },
   government_fees_pending: {
     type: Number,
-    default: 0
+    default: 0,
   },
   valid_full_name: {
     type: String,
@@ -740,7 +740,7 @@ const studentSchema = new mongoose.Schema({
     type: String,
   },
   student_anti_ragging_parents: {
-    type: String
+    type: String,
   },
   student_id_card_front: {
     type: String,
@@ -767,66 +767,66 @@ const studentSchema = new mongoose.Schema({
   },
   member_module_unique: {
     type: String,
-    unique: true
+    unique: true,
   },
   total_paid_fees: {
     type: Number,
-    default: 0
+    default: 0,
   },
   total_os_fees: {
     type: Number,
-    default: 0
+    default: 0,
   },
   applicable_os_fees: {
     type: Number,
-    default: 0
+    default: 0,
   },
   government_os_fees: {
     type: Number,
-    default: 0
+    default: 0,
   },
   offline_collect_admission_query: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "RemainingList"
-    }
+      ref: "RemainingList",
+    },
   ],
   admission_amount_stats: {
     total_fees: {
       type: Number,
-      default: 0
+      default: 0,
     },
     total_paid_fees: {
       type: Number,
-      default: 0
+      default: 0,
     },
     total_os_fees: {
       type: Number,
-      default: 0
+      default: 0,
     },
     total_app_fees: {
       type: Number,
-      default: 0
+      default: 0,
     },
     total_app_paid_fees: {
       type: Number,
-      default: 0
+      default: 0,
     },
     total_app_os_fees: {
       type: Number,
-      default: 0
+      default: 0,
     },
     total_gov_fees: {
       type: Number,
-      default: 0
+      default: 0,
     },
     total_gov_paid_fees: {
       type: Number,
-      default: 0
+      default: 0,
     },
     total_gov_os_fees: {
       type: Number,
-      default: 0
+      default: 0,
     },
   },
   promote_with_backlog: [
@@ -870,7 +870,7 @@ const studentSchema = new mongoose.Schema({
   ],
   studentCertificatePaidAmount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   library_qr_code: String,
   library_in_out: [
@@ -895,52 +895,52 @@ const studentSchema = new mongoose.Schema({
   },
   refund: {
     type: Number,
-    default: 0
+    default: 0,
   },
   leaving_date: {
-    type: String
+    type: String,
   },
   instituteJoinDate: {
-    type: String
+    type: String,
   },
   leaving_degree: {
-    type: String
+    type: String,
   },
   leaving_since_date: {
-    type: String
+    type: String,
   },
   leaving_course_duration: {
-    type: String
+    type: String,
   },
   elective_subject_one: {
-    type: String
+    type: String,
   },
   elective_subject_second: {
-    type: String
+    type: String,
   },
   leaving_project_work: {
-    type: String
+    type: String,
   },
   leaving_guide_name: {
-    type: String
+    type: String,
   },
   lcRegNo: {
-    type: String
+    type: String,
   },
   lcCaste: {
-    type: String
+    type: String,
   },
   lcBirth: {
-    type: String
+    type: String,
   },
   lcDOB: {
-    type: String
+    type: String,
   },
   lcAdmissionDate: {
-    type: String
+    type: String,
   },
   lcInstituteDate: {
-    type: String
+    type: String,
   },
   studentFatherName: { type: String },
   studentNameAsMarksheet: { type: String },
@@ -980,16 +980,16 @@ const studentSchema = new mongoose.Schema({
   student_dynamic_field: [
     {
       key: { type: String },
-      value: { type: String }
-    }
+      value: { type: String },
+    },
   ],
   student_form_flow: {
     flow: { type: String },
-    did: { type: String }
+    did: { type: String },
   },
   fee_category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "FeeCategory"
+    ref: "FeeCategory",
   },
   active_society_fee_heads: [],
   leaving_student_name: String,
@@ -1000,34 +1000,34 @@ const studentSchema = new mongoose.Schema({
   student_optional_subject: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SubjectMaster"
-    }
+      ref: "SubjectMaster",
+    },
   ],
   student_optional_subject_access: {
     type: String,
-    default: "No"
+    default: "No",
   },
   major_subject: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SubjectMaster"
-    }
+      ref: "SubjectMaster",
+    },
   ],
   nested_subject: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SubjectMaster"
-    }
+      ref: "SubjectMaster",
+    },
   ],
   std_tenth_details: {
-    type: String
+    type: String,
   },
   month_of_passing: { type: String },
   year_of_passing: { type: String },
   percentage: { type: String },
   name_of_institute: { type: String },
   hsc_diploma: {
-    type: String
+    type: String,
   },
   hsc_month: { type: String },
   hsc_year: { type: String },
@@ -1042,7 +1042,7 @@ const studentSchema = new mongoose.Schema({
   hsc_pcm_total: { type: String },
   hsc_grand_total: { type: String },
   ug_engineering: {
-    type: String
+    type: String,
   },
   pre_final_sem: { type: String },
   pre_marks_credit_obtain: { type: String },
@@ -1076,7 +1076,7 @@ const studentSchema = new mongoose.Schema({
   aieee_total: { type: String },
   aieee_percentile: { type: String },
   form_no: {
-    type: String
+    type: String,
   },
   student_undertakings_date: { type: String },
   certificate_logs: [
@@ -1086,82 +1086,82 @@ const studentSchema = new mongoose.Schema({
     },
   ],
   qviple_student_pay_id: {
-    type: String
+    type: String,
   },
   other_fees: [
     {
       fees: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "OtherFees"
+        ref: "OtherFees",
       },
       fee_receipt: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "FeeReceipt"
+        ref: "FeeReceipt",
       },
       status: {
         type: String,
-        default: "Not Paid"
+        default: "Not Paid",
       },
       created_at: {
         type: Date,
-        default: Date.now
-      }
-    }
+        default: Date.now,
+      },
+    },
   ],
   other_fees_remain_price: {
     type: Number,
-    default: 0
+    default: 0,
   },
   other_fees_paid_price: {
     type: Number,
-    default: 0
+    default: 0,
   },
   new_app: {
     appId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "NewApplication"
+      ref: "NewApplication",
     },
     appName: { type: String },
     applicationDepartment: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Department"
+      ref: "Department",
     },
     applicationBatch: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Batch"
+      ref: "Batch",
     },
     applicationMaster: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ClassMaster"
-    }
+      ref: "ClassMaster",
+    },
   },
   other_fees_obj: {
     status: {
       type: String,
-      default: "Not Paid"
+      default: "Not Paid",
     },
     receipt_file: {
       type: String,
     },
     price: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
   },
   student_dynamic_subject: [
     {
       subjectName: { type: String },
       status: { type: String },
-      _id: { type: String }
-    }
+      _id: { type: String },
+    },
   ],
   apps_fees_obj: {
     appId: { type: String },
     struct: { type: String },
-    gta: { type: Number, default: 0}
+    gta: { type: Number, default: 0 },
   },
   scholar_name: {
-    type: String
+    type: String,
   },
   internal_evaluation_testset: [
     {
@@ -1170,38 +1170,44 @@ const studentSchema = new mongoose.Schema({
     },
   ],
   intake_type: {
-    type: String
+    type: String,
   },
   student_application_obj: [
     {
       app: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "NewApplication"
+        ref: "NewApplication",
       },
       staff: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Staff"
+        ref: "Staff",
       },
       created_at: {
         type: Date,
-        default: Date.now
+        default: Date.now,
       },
       flow: {
-        type: String
-      }
-    }
+        type: String,
+      },
+    },
   ],
   collect_docs: [
     {
       docs: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "RequiredDocument"
+        ref: "RequiredDocument",
       },
       not_filled: {
-        type: String
-      }
-    }
-  ]
+        type: String,
+      },
+    },
+  ],
+  academic_subject: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject",
+    },
+  ],
 });
 const Student = mongoose.model("Student", studentSchema);
 

@@ -2148,7 +2148,7 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
           slot_based.save(),
           attendence.save(),
           subjects.save(),
-          subjects.class.save(),
+          // subjects.class.save(),
         ]);
         res
           .status(200)
@@ -2323,7 +2323,7 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         slot_based.save(),
         attendence.save(),
         subjects.save(),
-        subjects.class.save(),
+        // subjects.class.save(),
       ]);
       res
         .status(200)

@@ -1938,28 +1938,32 @@ exports.otherFeesFunction = async (
       account.total_repay += parseInt(tx_amount);
       account.collect_online += parseInt(tx_amount);
     }
-    notify.notifyContent = `${student.studentFirstName} ${
-      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-    } ${student.studentLastName} paid the ${new_internal?.other_fees_name} / (Rs.${parseInt(
-      tx_amount
-    )}) successfully`;
-    notify.notify_hi_content = `${student.studentFirstName} ${
-      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-    } ${student.studentLastName} ने ${new_internal?.other_fees_name} / (Rs.${parseInt(
-      tx_amount
-    )}) का सफलतापूर्वक पेमेंट किया |`;
-    notify.notify_mr_content = `${student.studentFirstName} ${
-      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-    } ${student.studentLastName} ने ${new_internal?.other_fees_name} / (रु.${parseInt(
-      tx_amount
-    )}) यशस्वीरित्या भरले`;
-    notify.notifySender = student._id;
+    notify.notifyContent = `Hi ${student?.studentFirstName} ${student?.studentMiddleName ?? student?.studentFatherName} ${student?.studentLastName},
+
+Your chosen subject ${new_internal?.other_fees_name} is now available for you to confirm.. Please pay the required fees through the Qviple app within the next two days. If the payment is not made within this period, your seat will be offered to other students.
+
+To pay your fees, please follow these steps:
+1. Update the Qviple App to the latest version.
+2. On the home page, you will find the "Your Fees" tab below your name.
+3. Open the "Your Fees" tab.
+4. You will see three menus: Admission Fees, Department Fees, and Other Fees.
+5. Navigate to "Other Fees."
+6. From the "Other Fees" section, you can pay the fees for your additional subject of choice.
+
+Note: Do not close the app from the background during payment. If you accidentally close the app, your fee receipt will not be generated. Please send a screenshot of your fee payment transaction to Qviple Helpdesk for support.
+
+Thank you.
+
+
+Do Not Click on the link below (clicking it may prevent further emails from being delivered to you).`;
+    notify.notifySender = finance?.financeHead?._id;
     notify.notifyReceiever = user._id;
-    notify.notifyCategory = "Online Fee";
+    notify.notifyPublisher = student?._id;
+    notify.notifyCategory = "Online Other Fee";
+    notify.notifyType = "Student";
     user.activity_tab.push(notify._id);
     finance_user.activity_tab.push(notify._id);
-    notify.user = user._id;
-    notify.notifyByStudentPhoto = student._id;
+    notify.notifyByFinancePhoto = finance?._id;
     studentUser.payment_history.push(order);
     institute.payment_history.push(order);
     orderPay.payment_other_fees = new_internal?._id;

@@ -6628,7 +6628,34 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
           }
           user.payment_history.push(order._id);
           institute.payment_history.push(order._id);
-          await Promise.all([stu.save(), user.save(), institute.save(), new_receipt.save(), order.save()])
+          const notify = new StudentNotification({});
+          notify.notifyContent = `Hi ${stu?.studentFirstName} ${stu?.studentMiddleName ?? stu?.studentFatherName} ${stu?.studentLastName},
+
+Your chosen subject ${o_f?.other_fees_name} is now available for you to confirm.. Please pay the required fees through the Qviple app within the next two days. If the payment is not made within this period, your seat will be offered to other students.
+
+To pay your fees, please follow these steps:
+1. Update the Qviple App to the latest version.
+2. On the home page, you will find the "Your Fees" tab below your name.
+3. Open the "Your Fees" tab.
+4. You will see three menus: Admission Fees, Department Fees, and Other Fees.
+5. Navigate to "Other Fees."
+6. From the "Other Fees" section, you can pay the fees for your additional subject of choice.
+
+Note: Do not close the app from the background during payment. If you accidentally close the app, your fee receipt will not be generated. Please send a screenshot of your fee payment transaction to Qviple Helpdesk for support.
+
+Thank you.
+
+
+Do Not Click on the link below (clicking it may prevent further emails from being delivered to you).`;
+      notify.notifySender = finance?.financeHead;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = stu?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByFinancePhoto = finance?._id;
+      notify.notifyCategory = "Online Other Fee";
+      notify.redirectIndex = 49;
+          await Promise.all([stu.save(), user.save(), institute.save(), new_receipt.save(), order.save(), notify.save()])
           await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
           if (stu?.studentEmail) {
             let name = `${stu?.studentFirstName} ${stu?.studentMiddleName ?? stu?.studentFatherName} ${stu?.studentLastName}`

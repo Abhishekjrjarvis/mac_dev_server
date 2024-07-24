@@ -42,6 +42,7 @@ const { nested_document_limit } = require("../../helper/databaseFunction");
 const {
   designation_alarm,
   email_sms_designation_alarm,
+  email_sms_designation_other_fees_apply,
 } = require("../../WhatsAppSMS/payload");
 const {
   connect_redis_hit,
@@ -6531,7 +6532,7 @@ exports.render_control_receipt_query = async (req, res) => {
 exports.renderNewOtherFeesQuery = async (req, res) => {
   try {
     const { fid } = req?.params
-    const { heads, students, struct, is_collect, mode } = req?.body
+    const { heads, students, struct, is_collect, mode, other_fees_name } = req?.body
     if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var finance = await Finance.findById({ _id: fid })
@@ -6627,8 +6628,39 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
           }
           user.payment_history.push(order._id);
           institute.payment_history.push(order._id);
-          await Promise.all([stu.save(), user.save(), institute.save(), new_receipt.save(), order.save()])
+          const notify = new StudentNotification({});
+          notify.notifyContent = `Hi ${stu?.studentFirstName} ${stu?.studentMiddleName ?? stu?.studentFatherName} ${stu?.studentLastName},
+
+Your chosen subject ${o_f?.other_fees_name} is now available for you to confirm.. Please pay the required fees through the Qviple app within the next two days. If the payment is not made within this period, your seat will be offered to other students.
+
+To pay your fees, please follow these steps:
+1. Update the Qviple App to the latest version.
+2. On the home page, you will find the "Your Fees" tab below your name.
+3. Open the "Your Fees" tab.
+4. You will see three menus: Admission Fees, Department Fees, and Other Fees.
+5. Navigate to "Other Fees."
+6. From the "Other Fees" section, you can pay the fees for your additional subject of choice.
+
+Note: Do not close the app from the background during payment. If you accidentally close the app, your fee receipt will not be generated. Please send a screenshot of your fee payment transaction to Qviple Helpdesk for support.
+
+Thank you.
+
+
+Do Not Click on the link below (clicking it may prevent further emails from being delivered to you).`;
+      notify.notifySender = finance?.financeHead;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = stu?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByFinancePhoto = finance?._id;
+      notify.notifyCategory = "Online Other Fee";
+      notify.redirectIndex = 49;
+          await Promise.all([stu.save(), user.save(), institute.save(), new_receipt.save(), order.save(), notify.save()])
           await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
+          if (stu?.studentEmail) {
+            let name = `${stu?.studentFirstName} ${stu?.studentMiddleName ?? stu?.studentFatherName} ${stu?.studentLastName}`
+            email_sms_designation_other_fees_apply(stu?.studentEmail, name, o_f?.other_fees_name)
+          }
         }
       }
       else {
@@ -6690,7 +6722,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
 exports.renderNewOtherFeesNonExistingQuery = async (req, res) => {
   try {
     const { fid } = req?.params
-    const { heads, students, struct, is_collect, mode, student_name } = req?.body
+    const { heads, students, struct, is_collect, mode, student_name, other_fees_name } = req?.body
     if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var finance = await Finance.findById({ _id: fid })
@@ -6707,7 +6739,7 @@ exports.renderNewOtherFeesNonExistingQuery = async (req, res) => {
           master: ele?.master,
           is_society: false
         })
-        o_f.other_fees_name = ele?.head_name
+        o_f.other_fees_name = other_fees_name
       }
     }
     else if(struct) {
@@ -6720,7 +6752,7 @@ exports.renderNewOtherFeesNonExistingQuery = async (req, res) => {
           master: ele?.master,
           is_society: ele?.is_society
         })
-        o_f.other_fees_name = ele?.head_name
+        o_f.other_fees_name = other_fees_name
       }
     }
     if (is_collect === "Yes") {
@@ -6810,7 +6842,7 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
       .sort({ created_at: -1})
       .limit(limit)
       .skip(skip)
-      .select("other_fees_name other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students remaining_students")
+      .select("other_fees_name other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students students")
       .populate({
         path: "bank_account",
         select: "finance_bank_account_number finance_bank_name finance_bank_account_name"
@@ -6825,9 +6857,9 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
     
     for (let ele of all_of) {
       ele.paid_students_count = ele?.paid_students?.length
-      ele.remaining_students_count = ele?.remaining_students?.length
+      ele.remaining_students_count = ele?.students?.length
     }
-    res.status(200).send({ message: "Explore All Other Fees Query", access: true, all_of: all_of, })
+    res.status(200).send({ message: "Explore All Other Fees Query", access: true, all_of: all_of })
   }
   catch (e) {
     console.log(e)

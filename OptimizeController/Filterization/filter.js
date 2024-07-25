@@ -2920,7 +2920,6 @@ exports.renderApplicationListQuery = async (req, res) => {
             }
           }
         }
-        var excel_list = [];
         var numss = {};
         var numsss = {};
         for (var ref of valid_apply?.allottedApplication) {

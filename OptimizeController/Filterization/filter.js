@@ -2892,7 +2892,7 @@ exports.renderApplicationListQuery = async (req, res) => {
               numss[ele?.key] = ele?.value;
             }
             excel_list.push({
-              RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              RegistrationID: ref?.student?.studentGRNO ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
                   ref?.student?.studentFatherName
@@ -3147,7 +3147,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
       var excel_list = [];
       for (var ref of valid_apply?.allottedApplication) {
         excel_list.push({
-          RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+          RegistrationID: ref?.student?.studentGRNO ?? "#NA",
           GRNO: ref?.student?.studentGRNO ?? "#NA",
           Name: `${ref?.student?.studentFirstName} ${
             ref?.student?.studentMiddleName
@@ -11633,7 +11633,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
               numss[ele?.key] = ele?.value;
             }
             excel_list.push({
-              RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              RegistrationID: ref?.student?.studentGRNO ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
                 ref?.student?.studentFatherName

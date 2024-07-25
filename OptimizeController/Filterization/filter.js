@@ -10212,7 +10212,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
         ],
       })
         .sort({ invoice_count: "1" })
-        .select("fee_heads application")
+        .select("fee_heads application invoice_count fee_payment_amount")
         .populate({
           path: "application",
           select: "applicationDepartment",
@@ -10339,11 +10339,16 @@ exports.render_daybook_heads_wise = async (req, res) => {
       //   head_name: "Total Fees",
       //   head_amount: t
       // })
+      // let n = []
+      // for (let ele of all_receipts) {
+      //   n.push(ele?.fee_payment_amount)
+      // }
       // res.status(200).send({
       //   message: "Explore Day Book Heads Query",
       //   access: true,
-      //   // all_receipts,
-      //   results: nest_obj,
+      //   all_receipts: all_receipts?.length,
+      //   n
+      //   // results: nest_obj,
       //   // account_info: bank_acc,
       //   // day_range_from: from,
       //   // day_range_to: to,
@@ -10580,7 +10585,15 @@ exports.render_subject_application_export = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid })
     // const nums = [aid]
     // const all_user = await User.find({ applyApplication: { $in: nums } })
-    const all_student = await Student.find({ _id: { $in: apply?.reviewApplication } })
+    let numss = []
+    for (let ele of apply?.confirmedApplication) {
+      numss.push(ele?.student)
+    }
+    for (let ele of apply?.allottedApplication) {
+      numss.push(ele?.student)
+    }
+    let subject_num = [...numss, ...apply?.reviewApplication]
+    const all_student = await Student.find({ _id: { $in: subject_num } })
       .select("studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO")
       .populate({
         path: "user",
@@ -10631,6 +10644,7 @@ exports.render_subject_application_export = async (req, res) => {
     var excel_list = []
     for (let ele of all) {
       excel_list.push({
+        GRNO: ele?.studentGRNO ?? "#NA",
         Name: `${ele?.studentFirstName} ${ele?.studentFatherName} ${ele?.studentLastName}`,
         Gender: ele?.studentGender,
         Email: ele?.studentEmail,

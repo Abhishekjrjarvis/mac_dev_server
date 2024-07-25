@@ -7020,12 +7020,12 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
         })
       for (let ele of all_student) {
         for (let val of ele?.other_fees) {
-          if (`${val?.fees}` === `${one_of?._id}` && val?.fee_receipt) {
+          if (`${val?.fees?._id}` === `${one_of?._id}` && val?.fee_receipt) {
             ele.other_fees_obj.status = "Paid"
             ele.other_fees_obj.receipt_file = val?.fee_receipt?.receipt_file
             ele.other_fees_obj.price = val?.fee_receipt?.fee_payment_amount
           }
-          else {
+          else if(`${val?.fees?._id}` === `${one_of?._id}`) {
             ele.other_fees_obj.status = val?.status
             ele.other_fees_obj.price = val?.fees?.payable_amount
           }

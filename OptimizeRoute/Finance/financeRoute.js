@@ -422,6 +422,12 @@ router.delete(
 );
 
 router.get(
+  "/:fid/all/master/head/other/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceAllMasterHeadOtherQuery)
+);
+
+router.get(
   "/:id/all/export/excel/array",
   catchAsync(Finance.renderAllExportExcelArrayQuery)
 );
@@ -618,9 +624,18 @@ router.get(
   catchAsync(Finance.renderOneOtherFeeReceipt)
 );
 
+router
+  .route("/collect/other/fee/:fid")
+  .post(catchAsync(Finance.renderOtherFeesCollectQuery));
+
 router.patch(
   "/email/student/query",
   catchAsync(Finance.all_email_student_query)
+);
+
+router.patch(
+  "/delete/fees",
+  catchAsync(Finance.deleteFeesQuery)
 );
 
 module.exports = router;

@@ -757,7 +757,17 @@ const financeSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "OtherFees"
       }
-    ]
+    ],
+    other_fee_master_array: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
+    ],
+    other_fee_master_array_count: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

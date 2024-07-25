@@ -7352,7 +7352,7 @@ exports.renderOtherFeesCollectQuery = async (req, res) => {
           const new_receipt = new FeeReceipt({ ...req.body });
           const order = new OrderPayment({...req?.body})
           new_receipt.student = stu?._id;
-          new_receipt.fee_structure = struct
+          new_receipt.fee_structure = o_f?.fee_structure
           new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
           new_receipt.other_fees = o_f?._id;
           new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";

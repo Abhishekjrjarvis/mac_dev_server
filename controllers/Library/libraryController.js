@@ -1449,6 +1449,7 @@ exports.renderNewOfflineBookAutoQuery = async (lid, book_array) => {
         class_number: val?.class_number,
         accession_number: val?.accession_number,
         date: val?.date,
+        book_type: val?.book_type,
         publisher: val?.publisher,
         totalPage: val?.totalPage,
         depart: val?.depart,

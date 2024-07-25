@@ -619,7 +619,7 @@ const removeDuplicates = async(books) => {
           val.admission_intake_data_set.total_intake = val?.admission_intake?.total_intake ?? 0
           val.admission_intake_data_set.cap_intake = val?.admission_intake?.cap_intake ?? 0
           val.admission_intake_data_set.il_intake = val?.admission_intake?.il_intake ?? 0
-          val.admission_intake_data_set.grand_total = val?.admission_intake?.total_intake + val?.admission_intake?.cap_intake + val?.admission_intake?.il_intake + val?.admission_intake_data_set?.ad_th_cap + val?.admission_intake_data_set?.ad_th_ag_cap + val?.admission_intake_data_set?.ad_th_il + val?.admission_intake_data_set?.ad_th_ews + val?.admission_intake_data_set?.ad_th_tfws
+          val.admission_intake_data_set.grand_total = val?.admission_intake_data_set?.ad_th_cap + val?.admission_intake_data_set?.ad_th_ag_cap + val?.admission_intake_data_set?.ad_th_il + val?.admission_intake_data_set?.ad_th_ews + val?.admission_intake_data_set?.ad_th_tfws
         }
         if (val?._id != null) {
           ds.push({

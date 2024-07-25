@@ -7014,8 +7014,8 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
         .populate({
           path: "other_fees",
           populate: {
-            path: "fee_receipt",
-            select: "receipt_file fee_payment_amount"
+            path: "fee_receipt fees",
+            select: "receipt_file fee_payment_amount payable_amount"
           }
         })
       for (let ele of all_student) {
@@ -7024,6 +7024,10 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
             ele.other_fees_obj.status = "Paid"
             ele.other_fees_obj.receipt_file = val?.fee_receipt?.receipt_file
             ele.other_fees_obj.price = val?.fee_receipt?.fee_payment_amount
+          }
+          else {
+            ele.other_fees_obj.status = val?.status
+            ele.other_fees_obj.price = val?.fees?.payable_amount
           }
         }
       }

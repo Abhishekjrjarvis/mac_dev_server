@@ -151,6 +151,7 @@ exports.fee_heads_receipt_json_to_excel_query = async (
   to
 ) => {
   try {
+    console.log("BANK", bank)
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 

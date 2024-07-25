@@ -2857,11 +2857,10 @@ exports.renderApplicationListQuery = async (req, res) => {
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
             GRNO: ref?.student?.studentGRNO ?? "#NA",
-            Name: `${ref?.student?.studentFirstName} ${
-              ref?.student?.studentMiddleName
+            Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName
                 : ""
-            } ${ref?.student?.studentLastName}`,
+              } ${ref?.student?.studentLastName}`,
             DOB: ref?.student?.studentDOB ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CPI: ref?.student?.student_hostel_cpi ?? "#NA",
@@ -2881,8 +2880,49 @@ exports.renderApplicationListQuery = async (req, res) => {
               ref?.student?.studentParentsPhoneNumber ?? "#NA",
           });
         }
-      } else {
+      }
+      else {
+        const all_group_select = await SubjectGroupSelect.find({ $and: [{ subject_group: { $in: valid_apply?.subject_selected_group } }] })
+          .populate({
+            path: "compulsory_subject",
+            select: "subjectName",
+          })
+          .populate({
+            path: "optional_subject",
+            populate: {
+              path: "optional_subject_options optional_subject_options_or.options",
+              select: "subjectName",
+            }
+          })
+          .populate({
+            path: "fixed_subject",
+            populate: {
+              path: "fixed_subject_options",
+              select: "subjectName",
+            }
+          })
+        var subject_list = []
+        for (let ele of all_group_select) {
+          subject_list.push(...ele?.compulsory_subject)
+        }
+        for (let ele of all_group_select) {
+          for (let val of ele?.fixed_subject) {
+            subject_list.push(...val?.fixed_subject_options)
+          }
+        }
+        for (let ele of all_group_select) {
+          for (let val of ele?.optional_subject) {
+            subject_list.push(...val?.optional_subject_options)
+          }
+          for (let val of ele?.optional_subject) {
+            for (let stu of val?.optional_subject_options_or) {
+              subject_list.push(...stu?.options)
+            }
+          }
+        }
+        var excel_list = [];
         var numss = {};
+        var numsss = {};
         for (var ref of valid_apply?.allottedApplication) {
           if (ref?.student?.studentFirstName != "") {
             for (let ele of ref?.student?.student_dynamic_field) {
@@ -2891,12 +2931,52 @@ exports.renderApplicationListQuery = async (req, res) => {
               // );
               numss[ele?.key] = ele?.value;
             }
+            var nums_queue = {};
+            for (let stu of subject_list) {
+              ref.student.student_dynamic_subject.push({
+                subjectName: stu?.subjectName,
+                status: "No",
+                _id: stu?._id
+              })
+            }
+            for (let ele of ref?.student?.student_dynamic_subject) {
+              for (let val of ref?.student?.student_optional_subject) {
+                if (`${ele?._id}` === `${val?._id}`) {
+                  nums_queue[ele?.subjectName] = "Yes"
+                  ele.status = "Yes"
+                }
+              }
+            }
+            for (let val of ref?.student?.student_dynamic_subject) {
+              for (let ele of ref?.student?.major_subject) {
+                if (`${val?._id}` === `${ele?._id}`) {
+                  nums_queue[val?.subjectName] = "Yes"
+                  ele.status = "Yes"
+                }
+              }
+            }
+            if (ref?.nested_subject?.length > 0) {
+              for (let val of ref?.student?.student_dynamic_subject) {
+                for (let ele of ref?.student?.nested_subject) {
+                  if (`${val?._id}` === `${ele?._id}`) {
+                    nums_queue[val?.subjectName] = "Yes"
+                    ele.status = "Yes"
+                  }
+                }
+              }
+            }
+            for (let ele of ref?.student?.student_dynamic_subject) {
+              // numss.push(
+              //   [ele?.key]: ele?.value,
+              // );
+              numsss[ele?.subjectName] = ele?.status;
+            }
             excel_list.push({
               RegistrationID: ref?.student?.studentGRNO ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
-                  ? ref?.student?.studentMiddleName ??
-                  ref?.student?.studentFatherName
-                  : ""
+                ? ref?.student?.studentMiddleName ??
+                ref?.student?.studentFatherName
+                : ""
                 } ${ref?.student?.studentLastName}`,
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
@@ -2965,28 +3045,28 @@ exports.renderApplicationListQuery = async (req, res) => {
               FormNo: ref?.student?.form_no,
               QviplePayId: ref?.student?.qviple_student_pay_id,
               ...numss,
+              ...numsss
+            });
+          }
+          var valid_back = await json_to_excel_admission_application_query(
+            excel_list,
+            valid_apply?.applicationName,
+            appId,
+            flow
+          );
+          if (valid_back?.back) {
+            res.status(200).send({
+              message: "Explore New Excel On Hostel Export TAB",
+              access: true,
+            });
+          } else {
+            res.status(200).send({
+              message: "No New Excel Exports ",
+              access: false,
             });
           }
         }
       }
-      var valid_back = await json_to_excel_admission_application_query(
-        excel_list,
-        valid_apply?.applicationName,
-        appId,
-        flow
-      );
-      if (valid_back?.back) {
-        res.status(200).send({
-          message: "Explore New Excel On Hostel Export TAB",
-          access: true,
-        });
-      } else {
-        res.status(200).send({
-          message: "No New Excel Exports ",
-          access: false,
-        });
-      }
-    } else {
       res.status(200).send({
         message: "No Applications Found",
         access: false,
@@ -10212,7 +10292,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
         ],
       })
         .sort({ invoice_count: "1" })
-        .select("fee_heads application")
+        .select("fee_heads application invoice_count fee_payment_amount")
         .populate({
           path: "application",
           select: "applicationDepartment",
@@ -10339,11 +10419,16 @@ exports.render_daybook_heads_wise = async (req, res) => {
       //   head_name: "Total Fees",
       //   head_amount: t
       // })
+      // let n = []
+      // for (let ele of all_receipts) {
+      //   n.push(ele?.fee_payment_amount)
+      // }
       // res.status(200).send({
       //   message: "Explore Day Book Heads Query",
       //   access: true,
-      //   // all_receipts,
-      //   results: nest_obj,
+      //   all_receipts: all_receipts?.length,
+      //   n
+      //   // results: nest_obj,
       //   // account_info: bank_acc,
       //   // day_range_from: from,
       //   // day_range_to: to,
@@ -10580,7 +10665,15 @@ exports.render_subject_application_export = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid })
     // const nums = [aid]
     // const all_user = await User.find({ applyApplication: { $in: nums } })
-    const all_student = await Student.find({ _id: { $in: apply?.reviewApplication } })
+    let numss = []
+    for (let ele of apply?.confirmedApplication) {
+      numss.push(ele?.student)
+    }
+    for (let ele of apply?.allottedApplication) {
+      numss.push(ele?.student)
+    }
+    let subject_num = [...numss, ...apply?.reviewApplication]
+    const all_student = await Student.find({ _id: { $in: subject_num } })
       .select("studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO")
       .populate({
         path: "user",
@@ -10631,6 +10724,7 @@ exports.render_subject_application_export = async (req, res) => {
     var excel_list = []
     for (let ele of all) {
       excel_list.push({
+        GRNO: ele?.studentGRNO ?? "#NA",
         Name: `${ele?.studentFirstName} ${ele?.studentFatherName} ${ele?.studentLastName}`,
         Gender: ele?.studentGender,
         Email: ele?.studentEmail,

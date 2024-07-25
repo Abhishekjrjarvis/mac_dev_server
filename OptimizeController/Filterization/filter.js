@@ -3047,23 +3047,23 @@ exports.renderApplicationListQuery = async (req, res) => {
               ...numsss
             });
           }
-          var valid_back = await json_to_excel_admission_application_query(
-            excel_list,
-            valid_apply?.applicationName,
-            appId,
-            flow
-          );
-          if (valid_back?.back) {
-            res.status(200).send({
-              message: "Explore New Excel On Hostel Export TAB",
-              access: true,
-            });
-          } else {
-            res.status(200).send({
-              message: "No New Excel Exports ",
-              access: false,
-            });
-          }
+        }
+        var valid_back = await json_to_excel_admission_application_query(
+          excel_list,
+          valid_apply?.applicationName,
+          appId,
+          flow
+        );
+        if (valid_back?.back) {
+          res.status(200).send({
+            message: "Explore New Excel On Hostel Export TAB",
+            access: true,
+          });
+        } else {
+          res.status(200).send({
+            message: "No New Excel Exports ",
+            access: false,
+          });
         }
       }
       res.status(200).send({

@@ -19,7 +19,7 @@ exports.end_poll = (val) => {
   return `${r_l_year}-${r_l_month}-${r_l_day}T${r_l_hrs}:${r_l_min}`;
 };
 
-exports.randomSixCode = async () => {
+exports.randomSixCode = () => {
   const r_1 = Math.floor(Math.random() * 9) + 1;
   const r_2 = Math.floor(Math.random() * 9) + 1;
   const r_3 = Math.floor(Math.random() * 9) + 1;

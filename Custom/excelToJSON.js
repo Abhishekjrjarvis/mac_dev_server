@@ -546,6 +546,7 @@ exports.generate_excel_to_json_library_offline_book_query = async (file) => {
       val.depart = val.Department
       new_data_query.push(val);
     }
+    console.log(new_data_query)
     return { book_array: new_data_query, value: true };
   } catch (e) {
     console.log("Library Offline Book Excel Query Not Resolved", e);

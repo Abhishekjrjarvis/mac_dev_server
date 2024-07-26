@@ -311,7 +311,13 @@ const hostelSchema = new mongoose.Schema({
       ref: "StoreLogs"
     }
   ],
-  maintanence: []
+  maintanence: [],
+  student: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student"
+    }
+  ],
 });
 
 module.exports = mongoose.model("Hostel", hostelSchema);

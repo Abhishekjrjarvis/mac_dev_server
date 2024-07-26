@@ -98,6 +98,9 @@ const {
 const FeeMaster = require("../../models/Finance/FeeMaster");
 const { universal_random_password } = require("../../Custom/universalId");
 const QvipleId = require("../../models/Universal/QvipleId");
+const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const { form_no_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
+const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 
 exports.renderActivateHostelQuery = async (req, res) => {
   try {
@@ -956,6 +959,9 @@ exports.renderHostelReceievedApplication = async (req, res) => {
       });
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
+    if (req.body?.studentFatherName) {
+      student.studentMiddleName = req.body?.studentFatherName
+    }
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
@@ -1006,6 +1012,7 @@ exports.renderHostelReceievedApplication = async (req, res) => {
     if (studentOptionalSubject?.length > 0) {
       student.studentOptionalSubject?.push(...studentOptionalSubject);
     }
+    one_hostel.student.push(student?._id)
     status.content = `Your application for ${valid_unit?.hostel_unit_name} have been filled successfully.
 
 Below is the Hostel Admission process:
@@ -1026,6 +1033,9 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 
 Note: Stay tuned for further updates.`;
     status.applicationId = apply._id;
+    student.student_form_flow.flow = "APPLICATION"
+    student.student_form_flow.did = apply._id
+    form_no_query(institute, student, "HOSTEL")
     status.document_visible = true;
     status.instituteId = institute._id;
     status.finance = institute?.financeDepart?.[0];
@@ -1034,13 +1044,20 @@ Note: Stay tuned for further updates.`;
     user.applyApplication.push(apply._id);
     status.bank_account = filtered_account?._id;
     status.flow_status = "Hostel Application";
+    status.group_by = "Admission_Application_Applied"
     student.user = user._id;
     user.applicationStatus.push(status._id);
-    apply.receievedApplication.push({
-      student: student._id,
-      fee_remain: 0,
-    });
-    apply.receievedCount += 1;
+    if (apply?.receieved_array?.includes(`${student?._id}`)) {
+      
+    }
+    else {
+      apply.receievedApplication.push({
+        student: student._id,
+        fee_remain: 0,
+      });
+      apply.receievedCount += 1;
+      apply.receieved_array.push(student?._id)
+    }
     if (institute.userFollowersList.includes(uid)) {
     } else {
       user.userInstituteFollowing.push(institute._id);
@@ -1076,6 +1093,8 @@ Note: Stay tuned for further updates.`;
     notify.notifyCategory = "Hostel Status Alert";
     notify.redirectIndex = 59;
     notify.notifyCategory = "Application Requested";
+    let nums = universal_random_password_student_code()
+    student.qviple_student_pay_id = nums
     await Promise.all([
       student.save(),
       user.save(),
@@ -1083,12 +1102,14 @@ Note: Stay tuned for further updates.`;
       apply.save(),
       institute.save(),
       notify.save(),
+      one_hostel.save()
     ]);
     res.status(201).send({
       message: "Taste a bite of sweets till your application is selected",
       student: student._id,
       status: true,
     });
+    let name = `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ?? ""} ${student?.studentLastName}`
     invokeMemberTabNotification(
       "Admission Status",
       status.content,
@@ -1096,8 +1117,19 @@ Note: Stay tuned for further updates.`;
       user._id,
       user.deviceToken
     );
+    await generateStudentAdmissionForm(
+      student?._id,
+      institute?._id,
+      `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
+      `${apply?.applicationName}`,
+    );
   } catch (e) {
-    console.log(e);
+    res.status(201).send({
+      message: "Test And Send Back To Server",
+      student: null,
+      status: true,
+      error: e
+    });
   }
 };
 
@@ -1121,7 +1153,7 @@ exports.renderHostelAllApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationStatus applicationSeats applicationAbout admissionProcess application_type selectCount confirmCount receievedCount selectedApplication confirmedApplication receievedApplication gr_initials"
+        "applicationName applicationEndDate applicationTypeStatus receievedApplication selectedApplication confirmedApplication admissionAdmin selectCount confirmCount receievedCount allottedApplication allotCount applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch gr_initials cancelApplication cancelCount reviewApplication review_count FeeCollectionApplication fee_collect_count student_form_setting pin"
       )
       .populate({
         path: "applicationHostel",
@@ -1140,16 +1172,32 @@ exports.renderHostelAllApplication = async (req, res) => {
         ref.selectCount = ref?.selectedApplication?.length;
         ref.confirmCount = ref?.confirmedApplication?.length;
         ref.receievedCount = ref?.receievedApplication?.length;
+        ref.allotCount = ref?.allottedApplication?.length;
+        ref.cancelCount = ref?.cancelApplication?.length;
+        ref.review_count = ref?.reviewApplication?.length;
+        ref.fee_collect_count = ref?.FeeCollectionApplication?.length;
       }
-      res.status(200).send({
-        message: "All Ongoing Hostel Application from DB 🙌",
+      const ads_obj = {
+        message: "All Hostel Ongoing Application from DB 🙌",
+        // ongoing: cached.ongoing,
+        // ongoingCount: cached.ongoingCount,
         ongoing: ongoing,
         ongoingCount: ongoing?.length,
+      }
+      const adsEncrypt = await encryptionPayload(ads_obj);
+      res.status(200).send({
+        encrypt: adsEncrypt,
+        ads_obj
       });
     } else {
+      const ads_obj = {
+        message: "Dark side in depth nothing to find", 
+        ongoing: []
+      }
+      const adsEncrypt = await encryptionPayload(ads_obj);
       res
         .status(200)
-        .send({ message: "Dark side in depth nothing to find", ongoing: [] });
+        .send({ encrypt: adsEncrypt });
     }
   } catch (e) {
     console.log(e);
@@ -1176,7 +1224,7 @@ exports.renderHostelAllCompletedApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationStatus applicationSeats allotCount"
+        "applicationName applicationEndDate applicationStatus applicationSeats allotCount pin"
       )
       .populate({
         path: "applicationHostel",
@@ -1188,15 +1236,26 @@ exports.renderHostelAllCompletedApplication = async (req, res) => {
       });
 
     if (completed?.length > 0) {
-      res.status(200).send({
-        message: "All Completed Hostel Applicationd from DB 🙌",
+      const ads_obj = {
+        message: "All Completed Applicationd from DB 🙌",
+        // completed: cached.completed,
+        // completedCount: cached.completedCount,
         completed: completed,
         completedCount: completed?.length,
+      }
+      const adsEncrypt = await encryptionPayload(ads_obj);
+      res.status(200).send({
+        encrypt: adsEncrypt
       });
     } else {
+      const ads_obj = {
+        message: "Dark side in depth nothing to find", 
+        completed: []
+      }
+      const adsEncrypt = await encryptionPayload(ads_obj);
       res
         .status(200)
-        .send({ message: "Dark side in depth nothing to find", completed: [] });
+        .send({ encrypt: adsEncrypt });
     }
   } catch (e) {
     console.log(e);

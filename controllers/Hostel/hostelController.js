@@ -56,7 +56,6 @@ const {
   filter_unique_username,
   generateAccessToken,
   generate_hash_pass,
-  generate_random_code_structure,
 } = require("../../helper/functions");
 const {
   custom_date_time,
@@ -98,6 +97,10 @@ const {
 } = require("../../helper/hostelMultipleStatus");
 const FeeMaster = require("../../models/Finance/FeeMaster");
 const { universal_random_password } = require("../../Custom/universalId");
+const QvipleId = require("../../models/Universal/QvipleId");
+const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const { form_no_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
+const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 
 exports.renderActivateHostelQuery = async (req, res) => {
   try {
@@ -584,6 +587,14 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
         .populate({
           path: "class_master",
           select: "className",
+        })
+        .populate({
+          path: "unit_master",
+          select: "hostel_unit_name",
+        })
+        .populate({
+          path: "batch_master",
+          select: "batchName",
         });
     } else {
       var all_structures = await FeeStructure.find({
@@ -604,6 +615,14 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
         .populate({
           path: "class_master",
           select: "className",
+        })
+        .populate({
+          path: "unit_master",
+          select: "hostel_unit_name",
+        })
+        .populate({
+          path: "batch_master",
+          select: "batchName",
         });
     }
     if (all_structures?.length > 0) {
@@ -956,12 +975,15 @@ exports.renderHostelReceievedApplication = async (req, res) => {
       });
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
-    const codess = universal_random_password()
-    student.member_module_unique = `${codess}`
+    if (req.body?.studentFatherName) {
+      student.studentMiddleName = req.body?.studentFatherName
+    }
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
     student.student_join_mode = "HOSTEL_PROCESS";
+    const codess = universal_random_password()
+    student.member_module_unique = `${codess}`
     const apply = await NewApplication.findById({ _id: aid });
     const valid_unit = await HostelUnit.findById({
       _id: `${apply?.applicationUnit}`,
@@ -1006,6 +1028,7 @@ exports.renderHostelReceievedApplication = async (req, res) => {
     if (studentOptionalSubject?.length > 0) {
       student.studentOptionalSubject?.push(...studentOptionalSubject);
     }
+    one_hostel.student.push(student?._id)
     status.content = `Your application for ${valid_unit?.hostel_unit_name} have been filled successfully.
 
 Below is the Hostel Admission process:
@@ -1026,6 +1049,9 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 
 Note: Stay tuned for further updates.`;
     status.applicationId = apply._id;
+    student.student_form_flow.flow = "APPLICATION"
+    student.student_form_flow.did = apply._id
+    form_no_query(institute, student, "HOSTEL")
     status.document_visible = true;
     status.instituteId = institute._id;
     status.finance = institute?.financeDepart?.[0];
@@ -1034,13 +1060,20 @@ Note: Stay tuned for further updates.`;
     user.applyApplication.push(apply._id);
     status.bank_account = filtered_account?._id;
     status.flow_status = "Hostel Application";
+    status.group_by = "Admission_Application_Applied"
     student.user = user._id;
     user.applicationStatus.push(status._id);
-    apply.receievedApplication.push({
-      student: student._id,
-      fee_remain: 0,
-    });
-    apply.receievedCount += 1;
+    if (apply?.receieved_array?.includes(`${student?._id}`)) {
+      
+    }
+    else {
+      apply.receievedApplication.push({
+        student: student._id,
+        fee_remain: 0,
+      });
+      apply.receievedCount += 1;
+      apply.receieved_array.push(student?._id)
+    }
     if (institute.userFollowersList.includes(uid)) {
     } else {
       user.userInstituteFollowing.push(institute._id);
@@ -1076,6 +1109,8 @@ Note: Stay tuned for further updates.`;
     notify.notifyCategory = "Hostel Status Alert";
     notify.redirectIndex = 59;
     notify.notifyCategory = "Application Requested";
+    let nums = universal_random_password_student_code()
+    student.qviple_student_pay_id = nums
     await Promise.all([
       student.save(),
       user.save(),
@@ -1083,12 +1118,14 @@ Note: Stay tuned for further updates.`;
       apply.save(),
       institute.save(),
       notify.save(),
+      one_hostel.save()
     ]);
     res.status(201).send({
       message: "Taste a bite of sweets till your application is selected",
       student: student._id,
       status: true,
     });
+    let name = `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ?? ""} ${student?.studentLastName}`
     invokeMemberTabNotification(
       "Admission Status",
       status.content,
@@ -1096,8 +1133,19 @@ Note: Stay tuned for further updates.`;
       user._id,
       user.deviceToken
     );
+    await generateStudentAdmissionForm(
+      student?._id,
+      institute?._id,
+      `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
+      `${apply?.applicationName}`,
+    );
   } catch (e) {
-    console.log(e);
+    res.status(201).send({
+      message: "Test And Send Back To Server",
+      student: null,
+      status: true,
+      error: e
+    });
   }
 };
 
@@ -1121,7 +1169,7 @@ exports.renderHostelAllApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationStatus applicationSeats applicationAbout admissionProcess application_type selectCount confirmCount receievedCount selectedApplication confirmedApplication receievedApplication gr_initials"
+        "applicationName applicationEndDate applicationTypeStatus receievedApplication selectedApplication confirmedApplication admissionAdmin selectCount confirmCount receievedCount allottedApplication allotCount applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch gr_initials cancelApplication cancelCount reviewApplication review_count FeeCollectionApplication fee_collect_count student_form_setting pin"
       )
       .populate({
         path: "applicationHostel",
@@ -1140,16 +1188,32 @@ exports.renderHostelAllApplication = async (req, res) => {
         ref.selectCount = ref?.selectedApplication?.length;
         ref.confirmCount = ref?.confirmedApplication?.length;
         ref.receievedCount = ref?.receievedApplication?.length;
+        ref.allotCount = ref?.allottedApplication?.length;
+        ref.cancelCount = ref?.cancelApplication?.length;
+        ref.review_count = ref?.reviewApplication?.length;
+        ref.fee_collect_count = ref?.FeeCollectionApplication?.length;
       }
-      res.status(200).send({
-        message: "All Ongoing Hostel Application from DB 🙌",
+      const ads_obj = {
+        message: "All Hostel Ongoing Application from DB 🙌",
+        // ongoing: cached.ongoing,
+        // ongoingCount: cached.ongoingCount,
         ongoing: ongoing,
         ongoingCount: ongoing?.length,
+      }
+      const adsEncrypt = await encryptionPayload(ads_obj);
+      res.status(200).send({
+        encrypt: adsEncrypt,
+        ads_obj
       });
     } else {
+      const ads_obj = {
+        message: "Dark side in depth nothing to find", 
+        ongoing: []
+      }
+      const adsEncrypt = await encryptionPayload(ads_obj);
       res
         .status(200)
-        .send({ message: "Dark side in depth nothing to find", ongoing: [] });
+        .send({ encrypt: adsEncrypt });
     }
   } catch (e) {
     console.log(e);
@@ -1176,7 +1240,7 @@ exports.renderHostelAllCompletedApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationStatus applicationSeats allotCount"
+        "applicationName applicationEndDate applicationStatus applicationSeats allotCount pin"
       )
       .populate({
         path: "applicationHostel",
@@ -1188,15 +1252,26 @@ exports.renderHostelAllCompletedApplication = async (req, res) => {
       });
 
     if (completed?.length > 0) {
-      res.status(200).send({
-        message: "All Completed Hostel Applicationd from DB 🙌",
+      const ads_obj = {
+        message: "All Completed Applicationd from DB 🙌",
+        // completed: cached.completed,
+        // completedCount: cached.completedCount,
         completed: completed,
         completedCount: completed?.length,
+      }
+      const adsEncrypt = await encryptionPayload(ads_obj);
+      res.status(200).send({
+        encrypt: adsEncrypt
       });
     } else {
+      const ads_obj = {
+        message: "Dark side in depth nothing to find", 
+        completed: []
+      }
+      const adsEncrypt = await encryptionPayload(ads_obj);
       res
         .status(200)
-        .send({ message: "Dark side in depth nothing to find", completed: [] });
+        .send({ encrypt: adsEncrypt });
     }
   } catch (e) {
     console.log(e);
@@ -1378,7 +1453,6 @@ exports.renderHostelSelectedQuery = async (req, res) => {
         tweleve_installments: structure?.tweleve_installments,
         fees_heads: [...structure?.fees_heads],
         fees_heads_count: structure?.fees_heads_count,
-        fee_structure_code: generate_random_code_structure()
       });
       new_structure.structure_month = valid_month;
       await structure_pricing_query(new_structure, valid_month);
@@ -1576,28 +1650,13 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
       student.remainingFeeList_count += 1;
       new_remainFee.student = student?._id;
       new_remainFee.fee_receipts.push(new_receipt?._id);
-      if (student?.hostel_fee_structure?.total_installments === "1" && new_remainFee.remaining_fee > 0) {
-        new_remainFee.remaining_array.push({
-          remainAmount: new_remainFee.remaining_fee,
-          appId: apply._id,
-          status: "Not Paid",
-          instituteId: institute._id,
-          installmentValue: "Installment Remain",
-          isEnable: true,
-        });
-      }
-      else {
-        await add_all_installment(
-          apply,
-          institute._id,
-          new_remainFee,
-          price,
-          student
-        );
-      }
-      // if (new_remainFee.remaining_fee > 0) {
-        
-      // }
+      await add_all_installment(
+        apply,
+        institute._id,
+        new_remainFee,
+        price,
+        student
+      );
     } else if (price > 0 && !is_install) {
       var new_remainFee = new RemainingList({
         appId: apply._id,
@@ -4588,7 +4647,6 @@ exports.renderHostelSelectedRenewalQuery = async (req, res) => {
         tweleve_installments: structure?.tweleve_installments,
         fees_heads: [...structure?.fees_heads],
         fees_heads_count: structure?.fees_heads_count,
-        fee_structure_code: generate_random_code_structure()
       });
       new_structure.structure_month = valid_month;
       await structure_pricing_query(new_structure, valid_month);
@@ -5453,7 +5511,6 @@ exports.renderHostelPayModeRenewal = async (req, res) => {
         tweleve_installments: structure?.tweleve_installments,
         fees_heads: [...structure?.fees_heads],
         fees_heads_count: structure?.fees_heads_count,
-        fee_structure_code: generate_random_code_structure()
       });
       new_structure.structure_month = valid_month;
       await structure_pricing_query(new_structure, valid_month);
@@ -6664,6 +6721,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       if (!valid?.exist) {
         const genUserPass = bcrypt.genSaltSync(12);
         const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+      const uqid = universal_random_password()
         var user = new User({
           userLegalName: `${req.body.studentFirstName} ${
             req.body.studentMiddleName ? req.body.studentMiddleName : ""
@@ -6679,14 +6737,12 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
           remindLater: rDate,
           next_date: c_date,
         });
-        const code = "qviple@161028520"
-        const new_user_pass = bcrypt.genSaltSync(12);
-        const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-        user.user_normal_password = `${code}`
-        user.user_universal_password = `${hash_user_pass}`
+        var qvipleId = new QvipleId({})
+      qvipleId.user = user?._id
+      qvipleId.qviple_id = `${uqid}`
         admins.users.push(user);
         admins.userCount += 1;
-        await Promise.all([admins.save(), user.save()]);
+        await Promise.all([admins.save(), user.save(), qvipleId.save()]);
         await universal_account_creation_feed(user);
         await user_date_of_birth(user);
       } else {
@@ -6695,12 +6751,12 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       var user = await User.findById({ _id: `${existing}` });
     }
     const student = new Student({ ...req.body });
-    const codess = universal_random_password()
-    student.member_module_unique = `${codess}`
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
     student.student_join_mode = "HOSTEL_PROCESS";
+    const codess = universal_random_password()
+    student.member_module_unique = `${codess}`
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
       : [];
@@ -6759,7 +6815,6 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
         tweleve_installments: structure?.tweleve_installments,
         fees_heads: [...structure?.fees_heads],
         fees_heads_count: structure?.fees_heads_count,
-        fee_structure_code: generate_random_code_structure()
       });
       new_structure.structure_month = valid_month;
       await structure_pricing_query(new_structure, valid_month);
@@ -6899,6 +6954,7 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         );
         const genUserPass = bcrypt.genSaltSync(12);
         const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+      const uqid = universal_random_password()
         var user = new User({
           userLegalName: `${ref?.studentFirstName} ${
             ref?.studentMiddleName ? ref?.studentMiddleName : ""
@@ -6915,14 +6971,12 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
           remindLater: rDate,
           next_date: c_date,
         });
-        const code = "qviple@161028520"
-        const new_user_pass = bcrypt.genSaltSync(12);
-        const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-        user.user_normal_password = `${code}`
-        user.user_universal_password = `${hash_user_pass}`
+        var qvipleId = new QvipleId({})
+      qvipleId.user = user?._id
+      qvipleId.qviple_id = `${uqid}`
         admins.users.push(user);
         admins.userCount += 1;
-        await Promise.all([admins.save(), user.save()]);
+        await Promise.all([admins.save(), user.save(), qvipleId.save()]);
         await universal_account_creation_feed(user);
         await user_date_of_birth(user);
       }
@@ -7022,7 +7076,6 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
           tweleve_installments: structure?.tweleve_installments,
           fees_heads: [...structure?.fees_heads],
           fees_heads_count: structure?.fees_heads_count,
-          fee_structure_code: generate_random_code_structure()
         });
         new_structure.structure_month = valid_month;
         await structure_pricing_query(new_structure, valid_month);
@@ -7851,44 +7904,6 @@ exports.renderPass = async(req, res) => {
       }
     }
     res.status(200).send({ message: "Pass"})
-  }
-  catch(e){
-    console.log(e)
-  }
-}
-
-exports.renderHostelCardQuery = async(req, res) => {
-  try{
-    var all_card = await RemainingList.find({ remaining_flow: "Hostel Application" })
-    .populate({
-      path: "student",
-      select: "hostel_fee_structure",
-      populate: {
-        path: "hostel_fee_structure",
-        select: "total_admission_fees finance",
-        populate: {
-          path: "finance",
-          select: "institute"
-        }
-      }
-    })
-    var i = 0
-    for (var val of all_card) {
-      if (val?.remaining_fee > 0) {
-        val.remaining_array.push({
-          remainAmount: val?.remaining_fee,
-          appId: val?.appId,
-          status: "Not Paid",
-          instituteId: val?.hostel_fee_structure?.finance?.institute,
-          installmentValue: "Installment Remain",
-          isEnable: true,
-        }) 
-      }
-      console.log(i)
-      await val.save()
-      i+= 1
-    }
-    res.status(200).send({ message: "Pass In Hostel", count: all_card?.length})
   }
   catch(e){
     console.log(e)

@@ -25,10 +25,16 @@ exports.fee_receipt_count_query_new = async (ins, receipt) => {
     }
 }
 
-exports.form_no_query = (ins, student) => {
+exports.form_no_query = (ins, student, flow) => {
     try {
-        ins.form_no_count += 1;
-        student.form_no = `${ins?.random_institute_code}-${new Date().getFullYear()} / ${ins?.form_no_count}`;
+        if (flow === "HOSTEL") {
+            ins.form_no_count += 1;
+            student.form_no = `H-${ins?.random_institute_code}-${new Date().getFullYear()} / ${ins?.form_no_count}`;
+        }
+        else {
+            ins.form_no_count += 1;
+            student.form_no = `${ins?.random_institute_code}-${new Date().getFullYear()} / ${ins?.form_no_count}`;
+        }
     }
     catch (e) {
         console.log(e)

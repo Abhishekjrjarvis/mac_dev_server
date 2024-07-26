@@ -513,6 +513,7 @@ exports.fetchAdmissionQuery = async (req, res) => {
 exports.retrieveAdmissionNewApplication = async (req, res) => {
   try {
     const { aid } = req.params;
+    const { flow } = req?.body
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -522,26 +523,46 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     req.body.applicationSeats = req.body?.applicationSeats
       ? parseInt(req.body?.applicationSeats)
       : 0;
-    var admission = await Admission.findById({ _id: aid });
-    var institute = await InstituteAdmin.findById({
-      _id: `${admission.institute}`,
-    });
-    const newApply = new NewApplication({ ...req.body });
-    // const child = JSON?.parse(req.body.applicationChildTypes);
-    // if (child) {
-    //   for (var i = 0; i < child.length; i++) {
-    //     newApply.applicationChildType.push(child[i]);
-    //   }
-    // }
-    var iaf = new InstituteApplicationForm({})
-    iaf.application = newApply?._id
-    newApply.student_form_setting = iaf?._id
-    admission.newApplication.push(newApply._id);
-    admission.newAppCount += 1;
-    newApply.admissionAdmin = admission._id;
-    institute.admissionCount += 1;
-    newApply.applicationTypeStatus = "Normal Application";
-    await Promise.all([admission.save(), newApply.save(), institute.save(), iaf.save()]);
+    if (flow === "HOSTEL") {
+      var one_hostel = await Hostel.findById({ _id: aid });
+      var institute = await InstituteAdmin.findById({
+        _id: `${one_hostel.institute}`,
+      });
+      var newApply = new NewApplication({ ...req.body });
+      var iaf = new InstituteApplicationForm({})
+      iaf.application = newApply?._id
+      newApply.student_form_setting = iaf?._id
+      one_hostel.newApplication.push(newApply._id);
+      one_hostel.newAppCount += 1;
+      newApply.hostelAdmin = one_hostel?._id;
+      newApply.applicationHostel = aid;
+      newApply.application_flow = "Hostel Application";
+      newApply.applicationTypeStatus = "Normal Application";
+      institute.hostelCount += 1;
+      await Promise.all([one_hostel.save(), newApply.save(), institute.save(), iaf.save()]);
+    }
+    else {
+      var admission = await Admission.findById({ _id: aid });
+      var institute = await InstituteAdmin.findById({
+        _id: `${admission.institute}`,
+      });
+      var newApply = new NewApplication({ ...req.body });
+      // const child = JSON?.parse(req.body.applicationChildTypes);
+      // if (child) {
+      //   for (var i = 0; i < child.length; i++) {
+      //     newApply.applicationChildType.push(child[i]);
+      //   }
+      // }
+      var iaf = new InstituteApplicationForm({})
+      iaf.application = newApply?._id
+      newApply.student_form_setting = iaf?._id
+      admission.newApplication.push(newApply._id);
+      admission.newAppCount += 1;
+      newApply.admissionAdmin = admission._id;
+      institute.admissionCount += 1;
+      newApply.applicationTypeStatus = "Normal Application";
+      await Promise.all([admission.save(), newApply.save(), institute.save(), iaf.save()]);
+    }
     res
       .status(200)
       .send({ message: "New Application is ongoing 👍", status: true });
@@ -690,159 +711,164 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     // post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     // await Promise.all([post.save(),
     await institute.save();
-    var valid_promote = await NewApplication.find({
-      $and: [
-        { applicationTypeStatus: "Promote Application" },
-        { admissionAdmin: admission?._id },
-        { applicationDepartment: newApply?.applicationDepartment },
-        { applicationBatch: newApply?.applicationBatch },
-      ],
-    });
-    if (valid_promote?.length > 0) {
-      // console.log("valid");
-    } else {
-      // console.log("no valid");
-      const new_app = new NewApplication({
-        applicationName: "Promote Student",
-        applicationDepartment: newApply?.applicationDepartment,
-        applicationBatch: newApply?.applicationBatch,
-        applicationMaster: newApply?.applicationMaster,
-        applicationTypeStatus: "Promote Application",
+    if (flow === "HOSTEL") {
+      
+    }
+    else {
+      var valid_promote = await NewApplication.find({
+        $and: [
+          { applicationTypeStatus: "Promote Application" },
+          { admissionAdmin: admission?._id },
+          { applicationDepartment: newApply?.applicationDepartment },
+          { applicationBatch: newApply?.applicationBatch },
+        ],
       });
-      var iaff = new InstituteApplicationForm({})
-      iaff.application = new_app?._id
-      new_app.student_form_setting = iaff?._id
-      admission.newApplication.push(new_app._id);
-      admission.newAppCount += 1;
-      new_app.admissionAdmin = admission._id;
-      institute.admissionCount += 1;
-      await Promise.all([new_app.save(), admission.save(), institute.save(), iaff.save()]);
-      var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
-      .select("form_section")
-      .populate({
-        path: "form_section",
-        populate: {
-          path: "form_checklist",
-          populate: {
-            path: "nested_form_checklist",
+      if (valid_promote?.length > 0) {
+        // console.log("valid");
+      } else {
+        // console.log("no valid");
+        const new_app = new NewApplication({
+          applicationName: "Promote Student",
+          applicationDepartment: newApply?.applicationDepartment,
+          applicationBatch: newApply?.applicationBatch,
+          applicationMaster: newApply?.applicationMaster,
+          applicationTypeStatus: "Promote Application",
+        });
+        var iaff = new InstituteApplicationForm({})
+        iaff.application = new_app?._id
+        new_app.student_form_setting = iaff?._id
+        admission.newApplication.push(new_app._id);
+        admission.newAppCount += 1;
+        new_app.admissionAdmin = admission._id;
+        institute.admissionCount += 1;
+        await Promise.all([new_app.save(), admission.save(), institute.save(), iaff.save()]);
+        var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+          .select("form_section")
+          .populate({
+            path: "form_section",
             populate: {
-              path: "nested_form_checklist_nested"
-            }
-          }
-        }
-      })
-    var numss = []
-    for (var val of ifs?.form_section) {
-      if (val?.form_checklist?.length > 0) {
-        for (var ele of val?.form_checklist) {
-          var fc = new FormChecklist({
-            form_checklist_name: ele?.form_checklist_name,
-            form_checklist_key: ele?.form_checklist_key,
-            form_checklist_visibility: ele?.form_checklist_visibility,
-            form_checklist_placeholder: ele?.form_checklist_placeholder,
-            form_checklist_lable: ele?.form_checklist_lable,
-            form_checklist_typo: ele?.form_checklist_typo,
-            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
-            form_checklist_required: ele?.form_checklist_required,
-            form_checklist_key_status: ele?.form_checklist_key_status,
-            width: ele?.width
-          })
-          if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
-            ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
-          }
-          if (ele?.form_checklist_sample) {
-            fc.form_checklist_sample = ele?.form_checklist_sample
-          }
-          if (ele?.form_checklist_pdf) {
-            fc.form_checklist_pdf = ele?.form_checklist_pdf
-          }
-          if (ele?.form_checklist_view) {
-            fc.form_checklist_view = ele?.form_checklist_view
-          }
-          if (ele?.form_common_key) {
-            fc.form_common_key = ele?.form_common_key
-          }
-          if (ele?.form_checklist_enable) {
-            fc.form_checklist_enable = ele?.form_checklist_enable
-          }
-          fc.application_form = iaff?._id
-          fc.form_section = val?._id
-          if (ele?.nested_form_checklist?.length > 0) {
-            for (var stu of ele?.nested_form_checklist) {
-              var fcc = new FormChecklist({
-                form_checklist_name: stu?.form_checklist_name,
-                form_checklist_key: stu?.form_checklist_key,
-                form_checklist_visibility: stu?.form_checklist_visibility,
-                form_checklist_placeholder: stu?.form_checklist_placeholder,
-                form_checklist_lable: stu?.form_checklist_lable,
-                form_checklist_typo: stu?.form_checklist_typo,
-                form_checklist_required: stu?.form_checklist_required,
-                form_checklist_key_status: stu?.form_checklist_key_status,
-                width: stu?.width
-              })
-              if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
-                fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
-              }
-              if (stu?.form_checklist_sample) {
-                fcc.form_checklist_sample = stu?.form_checklist_sample
-              }
-              if (stu?.form_checklist_pdf) {
-                fcc.form_checklist_pdf = stu?.form_checklist_pdf
-              }
-              if (stu?.form_checklist_view) {
-                fcc.form_checklist_view = stu?.form_checklist_view
-              }
-              fcc.application_form = iaf?._id
-              fcc.form_section = val?._id
-              if (stu?.nested_form_checklist_nested) {
-                for (var qwes of stu?.nested_form_checklist_nested) {
-                  var fcca = new FormChecklist({
-                    form_checklist_name: qwes?.form_checklist_name,
-                    form_checklist_key: qwes?.form_checklist_key,
-                    form_checklist_visibility: qwes?.form_checklist_visibility,
-                    form_checklist_placeholder: qwes?.form_checklist_placeholder,
-                    form_checklist_lable: qwes?.form_checklist_lable,
-                    form_checklist_typo: qwes?.form_checklist_typo,
-                    form_checklist_required: qwes?.form_checklist_required,
-                    form_checklist_key_status: qwes?.form_checklist_key_status,
-                    width: qwes?.width
-                  })
-                  if (qwes?.form_checklist_typo_option_pl && qwes?.form_checklist_typo_option_pl?.length > 0) {
-                    fcca.form_checklist_typo_option_pl = [...qwes?.form_checklist_typo_option_pl]
-                  }
-                  if (qwes?.form_checklist_sample) {
-                    fcca.form_checklist_sample = qwes?.form_checklist_sample
-                  }
-                  if (qwes?.form_checklist_pdf) {
-                    fcca.form_checklist_pdf = qwes?.form_checklist_pdf
-                  }
-                  if (qwes?.form_checklist_view) {
-                    fcca.form_checklist_view = qwes?.form_checklist_view
-                  }
-                  fcca.application_form = iaf?._id
-                  fcca.form_section = val?._id
-                  fcc.nested_form_checklist_nested.push(fcca?._id)
-                  await fcca.save()
+              path: "form_checklist",
+              populate: {
+                path: "nested_form_checklist",
+                populate: {
+                  path: "nested_form_checklist_nested"
                 }
               }
-              await fcc.save()
-              fc.nested_form_checklist.push(fcc?._id)
+            }
+          })
+        var numss = []
+        for (var val of ifs?.form_section) {
+          if (val?.form_checklist?.length > 0) {
+            for (var ele of val?.form_checklist) {
+              var fc = new FormChecklist({
+                form_checklist_name: ele?.form_checklist_name,
+                form_checklist_key: ele?.form_checklist_key,
+                form_checklist_visibility: ele?.form_checklist_visibility,
+                form_checklist_placeholder: ele?.form_checklist_placeholder,
+                form_checklist_lable: ele?.form_checklist_lable,
+                form_checklist_typo: ele?.form_checklist_typo,
+                form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+                form_checklist_required: ele?.form_checklist_required,
+                form_checklist_key_status: ele?.form_checklist_key_status,
+                width: ele?.width
+              })
+              if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
+                ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+              }
+              if (ele?.form_checklist_sample) {
+                fc.form_checklist_sample = ele?.form_checklist_sample
+              }
+              if (ele?.form_checklist_pdf) {
+                fc.form_checklist_pdf = ele?.form_checklist_pdf
+              }
+              if (ele?.form_checklist_view) {
+                fc.form_checklist_view = ele?.form_checklist_view
+              }
+              if (ele?.form_common_key) {
+                fc.form_common_key = ele?.form_common_key
+              }
+              if (ele?.form_checklist_enable) {
+                fc.form_checklist_enable = ele?.form_checklist_enable
+              }
+              fc.application_form = iaff?._id
+              fc.form_section = val?._id
+              if (ele?.nested_form_checklist?.length > 0) {
+                for (var stu of ele?.nested_form_checklist) {
+                  var fcc = new FormChecklist({
+                    form_checklist_name: stu?.form_checklist_name,
+                    form_checklist_key: stu?.form_checklist_key,
+                    form_checklist_visibility: stu?.form_checklist_visibility,
+                    form_checklist_placeholder: stu?.form_checklist_placeholder,
+                    form_checklist_lable: stu?.form_checklist_lable,
+                    form_checklist_typo: stu?.form_checklist_typo,
+                    form_checklist_required: stu?.form_checklist_required,
+                    form_checklist_key_status: stu?.form_checklist_key_status,
+                    width: stu?.width
+                  })
+                  if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
+                    fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
+                  }
+                  if (stu?.form_checklist_sample) {
+                    fcc.form_checklist_sample = stu?.form_checklist_sample
+                  }
+                  if (stu?.form_checklist_pdf) {
+                    fcc.form_checklist_pdf = stu?.form_checklist_pdf
+                  }
+                  if (stu?.form_checklist_view) {
+                    fcc.form_checklist_view = stu?.form_checklist_view
+                  }
+                  fcc.application_form = iaf?._id
+                  fcc.form_section = val?._id
+                  if (stu?.nested_form_checklist_nested) {
+                    for (var qwes of stu?.nested_form_checklist_nested) {
+                      var fcca = new FormChecklist({
+                        form_checklist_name: qwes?.form_checklist_name,
+                        form_checklist_key: qwes?.form_checklist_key,
+                        form_checklist_visibility: qwes?.form_checklist_visibility,
+                        form_checklist_placeholder: qwes?.form_checklist_placeholder,
+                        form_checklist_lable: qwes?.form_checklist_lable,
+                        form_checklist_typo: qwes?.form_checklist_typo,
+                        form_checklist_required: qwes?.form_checklist_required,
+                        form_checklist_key_status: qwes?.form_checklist_key_status,
+                        width: qwes?.width
+                      })
+                      if (qwes?.form_checklist_typo_option_pl && qwes?.form_checklist_typo_option_pl?.length > 0) {
+                        fcca.form_checklist_typo_option_pl = [...qwes?.form_checklist_typo_option_pl]
+                      }
+                      if (qwes?.form_checklist_sample) {
+                        fcca.form_checklist_sample = qwes?.form_checklist_sample
+                      }
+                      if (qwes?.form_checklist_pdf) {
+                        fcca.form_checklist_pdf = qwes?.form_checklist_pdf
+                      }
+                      if (qwes?.form_checklist_view) {
+                        fcca.form_checklist_view = qwes?.form_checklist_view
+                      }
+                      fcca.application_form = iaf?._id
+                      fcca.form_section = val?._id
+                      fcc.nested_form_checklist_nested.push(fcca?._id)
+                      await fcca.save()
+                    }
+                  }
+                  await fcc.save()
+                  fc.nested_form_checklist.push(fcc?._id)
+                }
+              }
+              numss.push(fc?._id)
+              await fc.save()
             }
           }
-          numss.push(fc?._id)
-          await fc.save()
+          iaff.form_section.push({
+            section_name: val?.section_name,
+            section_visibilty: val?.section_visibilty,
+            section_key: val?.section_key,
+            ins_form_section_id: val?._id,
+            form_checklist: [...numss]
+          })
+          numss = []
         }
+        await iaff.save()
       }
-      iaff.form_section.push({
-        section_name: val?.section_name,
-        section_visibilty: val?.section_visibilty,
-        section_key: val?.section_key,
-        ins_form_section_id: val?._id,
-        form_checklist: [...numss]
-      })
-      numss = []
-    }
-    await iaff.save()
     }
     // await new_admission_recommend_post(institute?._id, post?._id, expand);
   } catch (e) {

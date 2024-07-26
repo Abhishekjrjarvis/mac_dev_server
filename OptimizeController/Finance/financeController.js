@@ -4439,6 +4439,10 @@ exports.renderOneFeeStructure = async (req, res) => {
       .populate({
         path: "batch_master",
         select: "batchName batchStatus createdAt",
+      })
+      .populate({
+        path: "unit_master",
+        select: "hostel_unit_name",
       });
 
       // const structure_encrypt = await encryptionPayload(structure)

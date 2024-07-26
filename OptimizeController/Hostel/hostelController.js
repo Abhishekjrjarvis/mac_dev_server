@@ -587,6 +587,14 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
         .populate({
           path: "class_master",
           select: "className",
+        })
+        .populate({
+          path: "unit_master",
+          select: "hostel_unit_name",
+        })
+        .populate({
+          path: "batch_master",
+          select: "batchName",
         });
     } else {
       var all_structures = await FeeStructure.find({
@@ -607,6 +615,14 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
         .populate({
           path: "class_master",
           select: "className",
+        })
+        .populate({
+          path: "unit_master",
+          select: "hostel_unit_name",
+        })
+        .populate({
+          path: "batch_master",
+          select: "batchName",
         });
     }
     if (all_structures?.length > 0) {

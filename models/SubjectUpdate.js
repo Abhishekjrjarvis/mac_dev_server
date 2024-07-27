@@ -11,6 +11,9 @@ const subjectUpdateSchema = new mongoose.Schema({
   date: {
     type: Date,
   },
+  yt_link: {
+    type: String,
+  },
   upadateImage: [
     {
       documentType: {

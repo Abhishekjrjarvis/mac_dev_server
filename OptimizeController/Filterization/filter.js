@@ -2984,7 +2984,7 @@ exports.renderApplicationListQuery = async (req, res) => {
               MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
               ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
               Address: `${ref?.student?.studentAddress}` ?? "#NA",
-              AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+              AppliedOn: `${moment(ref?.allot_on).format("LL")}`,
               ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
               AlternateContactNo:
                 ref?.student?.studentParentsPhoneNumber ?? "#NA",
@@ -10218,11 +10218,11 @@ exports.render_daybook_heads_wise = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    //   res.status(200).send({
-    //     message: "Explore Day Book Heads Query",
-    //     access: true,
-    //   });
-    // await bankDaybook(fid, from, to, bank, payment_type)
+      res.status(200).send({
+        message: "Explore Day Book Heads Query",
+        access: true,
+      });
+    await bankDaybook(fid, from, to, bank, payment_type)
     var g_year;
     var l_year;
     var g_month;
@@ -10411,10 +10411,10 @@ exports.render_daybook_heads_wise = async (req, res) => {
               if (`${ads?._id}` === `${val?.master}` && val?.is_society == false) {
                 ads.head_amount += val?.original_paid;
                 if (val?.master == "6654be24e36490a31bccd1db") {
-                  t.push(`${ele?.invoice_count}------${val?.original_paid}`)
+                  t.push(`${val?.original_paid}`)
                 }
                 if (val?.master == "6654be3de36490a31bccd257") {
-                  l.push(`${ele?.invoice_count}------${val?.original_paid}`)
+                  l.push(`${val?.original_paid}`)
                 }
                 // t+= val?.original_paid
               }
@@ -10430,26 +10430,26 @@ exports.render_daybook_heads_wise = async (req, res) => {
       // for (let ele of all_receipts) {
       //   n.push(ele?.fee_payment_amount)
       // }
-      res.status(200).send({
-        message: "Explore Day Book Heads Query",
-        access: true,
-        all_receipts: all_receipts?.length,
-        t: t,
-        tl: t?.length,
-       l:l,
-       ll:l?.length
-        // results: nest_obj,
-        // account_info: bank_acc,
-        // day_range_from: from,
-        // day_range_to: to,
-        // ins_info: institute,
-      });
+      // res.status(200).send({
+      //   message: "Explore Day Book Heads Query",
+      //   access: true,
+      //   all_receipts: all_receipts?.length,
+      //   t: t,
+      //   tl: t?.length,
+      //  l:l,
+      //  ll:l?.length
+      //   // results: nest_obj,
+      //   // account_info: bank_acc,
+      //   // day_range_from: from,
+      //   // day_range_to: to,
+      //   // ins_info: institute,
+      // });
     } else {
-      res.status(200).send({
-        message: "No Day Book Heads Query",
-        access: false,
-        results: [],
-      });
+      // res.status(200).send({
+      //   message: "No Day Book Heads Query",
+      //   access: false,
+      //   results: [],
+      // });
     }
   } catch (e) {
     console.log(e);
@@ -11750,7 +11750,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
               MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
               ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
               Address: `${ref?.student?.studentAddress}` ?? "#NA",
-              AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+              AppliedOn: `${moment(ref?.allot_on).format("LL")}`,
               ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
               AlternateContactNo:
                 ref?.student?.studentParentsPhoneNumber ?? "#NA",

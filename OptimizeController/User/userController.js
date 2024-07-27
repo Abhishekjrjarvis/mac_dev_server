@@ -3599,7 +3599,7 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
     let nums = user?.applyApplication?.reverse()
     if (nums?.length > 0) {
       const latest_app = await NewApplication.findById({ _id: nums?.[0] })
-        .select("applicationDepartment applicationName reviewApplication")
+        .select("applicationDepartment applicationName reviewApplication allottedApplication")
       var admission_application = []
       var document_verification = []
       var fees_payment = []
@@ -3704,6 +3704,14 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
         if (latest_app?.reviewApplication?.includes(`${ele?._id}`)) {
           conditional = "Not Show"
           break
+        }
+        else {
+          for (let val of latest_app?.allottedApplication) {
+            if (`${val?.student}` == `${ele?._id}`) {
+              conditional = "Not Show"
+              break
+            }
+          }
         }
         // if (ele?.department) {
         //   if (`${ele?.department}` === `${latest_app?.applicationDepartment}`) {

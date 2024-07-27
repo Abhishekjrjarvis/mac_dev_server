@@ -101,6 +101,7 @@ const QvipleId = require("../../models/Universal/QvipleId");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { form_no_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
+const { universal_random_password_student_code } = require("../../Generator/RandomPass");
 
 exports.renderActivateHostelQuery = async (req, res) => {
   try {
@@ -1140,6 +1141,7 @@ Note: Stay tuned for further updates.`;
       `${apply?.applicationName}`,
     );
   } catch (e) {
+    console.log(e)
     res.status(201).send({
       message: "Test And Send Back To Server",
       student: null,

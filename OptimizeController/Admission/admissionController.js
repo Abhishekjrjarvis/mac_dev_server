@@ -16291,6 +16291,27 @@ exports.render_excess = async (req, res) => {
   }
 }
 
+exports.retrieveInstituteNewGRNO = async (gr) => {
+  try {
+    var i = 0
+    for (let ele of gr) {
+      let fName = ele?.Name?.replaceAll(" ", "")?.toLowerCase()
+      const student = await Student.findOne({ $and: [{ studentGRNO: `${ele?.RegistrationID}` }, { scholar_name: `${fName}` }] })
+      if (student?._id) {
+        student.studentGRNO = ele?.NewID
+        await student.save()
+      }
+      console.log(i)
+      i+= 1
+    }
+    console.log("DONE")
+    // res.status(200).send({ message: "Explore All New GRNO", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {

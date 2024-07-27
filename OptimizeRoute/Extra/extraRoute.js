@@ -492,4 +492,10 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONSPCEQuery)
 );
 
+router.patch(
+  "/excel/to/json/grno/:id",
+  // isLoggedIn,
+  catchAsync(Extra.renderExcelToJSONGRNOQuery)
+);
+
 module.exports = router;

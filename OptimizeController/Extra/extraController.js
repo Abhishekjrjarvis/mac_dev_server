@@ -60,6 +60,7 @@ const {
   generate_excel_to_json_staff_department,
   generate_excel_to_json_student_ongoing_query,
   generate_excel_to_json_spce,
+  generate_excel_to_json_grno,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -83,6 +84,7 @@ const {
   renderGovernmentHeadsMoveGovernmentCardUpdateQuery,
   render_student_fees_mapping,
   spce_student_name_sequencing,
+  retrieveInstituteNewGRNO,
 } = require("../Admission/admissionController");
 const {
   renderNewOfflineBookAutoQuery,
@@ -4179,3 +4181,56 @@ exports.renderExcelToJSONSPCEQuery = async (req, res) => {
     console.log("eeeee", e);
   }
 }
+
+exports.renderExcelToJSONGRNOQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { excel_file } = req.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const classes = await Class.findById({ _id: id })
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${classes?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      classId: classes?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${classes?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.classId}` === `${classes?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_grno(
+      val
+    );
+    if (is_converted?.value) {
+      await retrieveInstituteNewGRNO(
+        is_converted?.category_array
+      );
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

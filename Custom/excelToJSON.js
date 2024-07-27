@@ -1181,6 +1181,17 @@ exports.generate_excel_to_json_spce = async (file) => {
   }
 };
 
+exports.generate_excel_to_json_grno = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["GRNO"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    return { category_array: data_query, value: true };
+  } catch (e) {
+    console.log("Category Excel Query Not Resolved", e);
+  }
+};
+
 
 // console.log(generate_excel_to_json_class_time_table_query(data_set, 5))
 

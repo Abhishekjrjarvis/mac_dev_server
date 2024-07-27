@@ -2984,7 +2984,7 @@ exports.renderApplicationListQuery = async (req, res) => {
               MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
               ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
               Address: `${ref?.student?.studentAddress}` ?? "#NA",
-              AppliedOn: `${moment(ref?.allot_on).format("LL")}`,
+              AppliedOn: `${moment(ref?.student?.createdAt).format("LL")}`,
               ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
               AlternateContactNo:
                 ref?.student?.studentParentsPhoneNumber ?? "#NA",
@@ -11750,7 +11750,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
               MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
               ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
               Address: `${ref?.student?.studentAddress}` ?? "#NA",
-              AppliedOn: `${moment(ref?.allot_on).format("LL")}`,
+              AppliedOn: `${moment(ref?.student?.createdAt).format("LL")}`,
               ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
               AlternateContactNo:
                 ref?.student?.studentParentsPhoneNumber ?? "#NA",

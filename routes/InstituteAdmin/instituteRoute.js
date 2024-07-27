@@ -799,4 +799,9 @@ router.patch(
   catchAsync(Institute.render_middle_name_data)
 );
 
+router.get(
+  "/:id/unapprove-student/list/combined/query",
+  catchAsync(Institute.retrieveApproveUnApproveStudentListQuery)
+);
+
 module.exports = router;

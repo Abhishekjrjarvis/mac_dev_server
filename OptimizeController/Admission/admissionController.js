@@ -15934,141 +15934,141 @@ exports.retrieveClassAllotQueryReverse = async (req, res) => {
         allot_status: false,
       });
     var apply = await NewApplication.findById({ _id: aid });
-    // var admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    // var admission = await Admission.findById({
-    //   _id: `${apply.admissionAdmin}`,
-    // }).select("institute");
-    // var institute = await InstituteAdmin.findById({
-    //   _id: `${admission.institute}`,
-    // });
-    // var depart = await Department.findById({
-    //   _id: `${apply.applicationDepartment}`,
-    // });
-    // var batch = await Batch.findById({ _id: `${apply.applicationBatch}` });
-    // var nums = ["66646a70d52ac4bcf8a0783f"]
-    // for (let ele of apply?.allottedApplication) {
-    //   nums.push(ele?.student)
-    // }
-    // if (nums?.length > 0) {
-    //   for (var sid of nums) {
-    //     const student = await Student.findById({ _id: sid });
-    //     if (student?.studentClass != null) {
-    //       var classes = await Class.findById({ _id: student?.studentClass });
-    //       const all_subjects = await Subject.find({ $and: [{ class: classes?._id }, { subjectMasterName: { $in: student?.student_optional_subject } }] })
-    //       // apply.reviewApplication.pull(student._id);
-    //       apply.undo_student.push(student?._id)
-    //       // apply.allottedApplication.push({
-    //       //   student: student._id,
-    //       //   payment_status: "offline",
-    //       //   alloted_class: `${classes.className} - ${classes.classTitle}`,
-    //       //   alloted_status: "Alloted",
-    //       //   fee_remain: student.admissionRemainFeeCount,
-    //       //   paid_status:
-    //       //     student.admissionRemainFeeCount == 0 ? "Paid" : "Not Paid",
-    //       // });
-    //       // apply.allotCount += 1;
-    //       // student.confirmApplication.pull(apply._id)
-    //       student.studentStatus = "Not Approved";
-    //       institute.ApproveStudent.pull(student._id);
-    //       student.institute = null;
-    //       admins.studentArray.pull(student._id);
-    //       if (admins.studentCount > 0) {
-    //         admins.studentCount -= 1;
-    //       }
-    //       if (institute.studentCount > 0) {
-    //         institute.studentCount -= 1;
-    //       }
-    //       if (classes.strength > 0) {
-    //         classes.strength -= 1;
-    //       }
-    //       classes.ApproveStudent.pull(student._id);
-    //       if (classes.studentCount > 0) {
-    //         classes.studentCount -= 1;
-    //       }
-    //       student.studentGRNO = "";
-    //       student.studentROLLNO = "";
-    //       student.studentClass = null;
-    //       student.studentAdmissionDate = new Date().toISOString();
-    //       depart.ApproveStudent.pull(student._id);
-    //       if (depart.studentCount > 0) {
-    //         depart.studentCount -= 1;
-    //       }
-    //       student.department = null;
-    //       batch.ApproveStudent.pull(student._id);
-    //       student.batches = null;
-    //       if (all_subjects?.length > 0) {
-    //         student.student_optional_subject_access = "Yes"
-    //         for (let ele of all_subjects) {
-    //           ele.optionalStudent.pull(student?._id);
-    //           await ele.save();
-    //         }
-    //       }
-    //       await Promise.all([
-    //         apply.save(),
-    //         student.save(),
-    //         admins.save(),
-    //         institute.save(),
-    //         classes.save(),
-    //         depart.save(),
-    //         batch.save(),
-    //       ]);
-    //       if (student.studentGender === "Male") {
-    //         classes.boyCount -= 1;
-    //         batch.student_category.boyCount -= 1;
-    //       } else if (student.studentGender === "Female") {
-    //         classes.girlCount -= 1;
-    //         batch.student_category.girlCount -= 1;
-    //       } else if (student.studentGender === "Other") {
-    //         classes.otherCount -= 1;
-    //         batch.student_category.otherCount -= 1;
-    //       } else {
-    //       }
-    //       if (student.studentCastCategory === "General") {
-    //         batch.student_category.generalCount -= 1;
-    //       } else if (student.studentCastCategory === "OBC") {
-    //         batch.student_category.obcCount -= 1;
-    //       } else if (student.studentCastCategory === "SC") {
-    //         batch.student_category.scCount -= 1;
-    //       } else if (student.studentCastCategory === "ST") {
-    //         batch.student_category.stCount -= 1;
-    //       } else if (student.studentCastCategory === "NT-A") {
-    //         batch.student_category.ntaCount -= 1;
-    //       } else if (student.studentCastCategory === "NT-B") {
-    //         batch.student_category.ntbCount -= 1;
-    //       } else if (student.studentCastCategory === "NT-C") {
-    //         batch.student_category.ntcCount -= 1;
-    //       } else if (student.studentCastCategory === "NT-D") {
-    //         batch.student_category.ntdCount -= 1;
-    //       } else if (student.studentCastCategory === "VJ") {
-    //         batch.student_category.vjCount -= 1;
-    //       } else {
-    //       }
-    //       await Promise.all([classes.save(), batch.save()]);
-    //     }
-    //   }
-    //   res.status(200).send({
-    //     message: `Distribute sweets to all family members`,
-    //     allot_status: true,
-    //     apply: apply?.undo_student
-    //   });
-    // }
-    var i =0
-    for (let ele of apply?.undo_student) {
-      if (apply.reviewApplication?.includes(`${ele?._id}`)) {
-        
-      }
-      else {
-        apply.reviewApplication.push(ele?._id)
-      }
-      console.log(i)
-      i+=1 
-    }
-    await apply.save()
-    res.status(200).send({
-      message: `Distribute sweets to all family members`,
-      allot_status: true,
-      apply: apply?.undo_student
+    var admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    var admission = await Admission.findById({
+      _id: `${apply.admissionAdmin}`,
+    }).select("institute");
+    var institute = await InstituteAdmin.findById({
+      _id: `${admission.institute}`,
     });
+    var depart = await Department.findById({
+      _id: `${apply.applicationDepartment}`,
+    });
+    var batch = await Batch.findById({ _id: `${apply.applicationBatch}` });
+    var nums = []
+    for (let ele of apply?.allottedApplication) {
+      nums.push(ele?.student)
+    }
+    if (nums?.length > 0) {
+      for (var sid of nums) {
+        const student = await Student.findById({ _id: sid });
+        if (student?.studentClass != null) {
+          var classes = await Class.findById({ _id: student?.studentClass });
+          const all_subjects = await Subject.find({ $and: [{ class: classes?._id }, { subjectMasterName: { $in: student?.student_optional_subject } }] })
+          // apply.reviewApplication.pull(student._id);
+          apply.undo_student.push(student?._id)
+          // apply.allottedApplication.push({
+          //   student: student._id,
+          //   payment_status: "offline",
+          //   alloted_class: `${classes.className} - ${classes.classTitle}`,
+          //   alloted_status: "Alloted",
+          //   fee_remain: student.admissionRemainFeeCount,
+          //   paid_status:
+          //     student.admissionRemainFeeCount == 0 ? "Paid" : "Not Paid",
+          // });
+          // apply.allotCount += 1;
+          // student.confirmApplication.pull(apply._id)
+          student.studentStatus = "Not Approved";
+          institute.ApproveStudent.pull(student._id);
+          student.institute = null;
+          admins.studentArray.pull(student._id);
+          if (admins.studentCount > 0) {
+            admins.studentCount -= 1;
+          }
+          if (institute.studentCount > 0) {
+            institute.studentCount -= 1;
+          }
+          if (classes.strength > 0) {
+            classes.strength -= 1;
+          }
+          classes.ApproveStudent.pull(student._id);
+          if (classes.studentCount > 0) {
+            classes.studentCount -= 1;
+          }
+          student.studentGRNO = "";
+          student.studentROLLNO = "";
+          student.studentClass = null;
+          student.studentAdmissionDate = new Date().toISOString();
+          depart.ApproveStudent.pull(student._id);
+          if (depart.studentCount > 0) {
+            depart.studentCount -= 1;
+          }
+          student.department = null;
+          batch.ApproveStudent.pull(student._id);
+          student.batches = null;
+          if (all_subjects?.length > 0) {
+            student.student_optional_subject_access = "Yes"
+            for (let ele of all_subjects) {
+              ele.optionalStudent.pull(student?._id);
+              await ele.save();
+            }
+          }
+          await Promise.all([
+            apply.save(),
+            student.save(),
+            admins.save(),
+            institute.save(),
+            classes.save(),
+            depart.save(),
+            batch.save(),
+          ]);
+          if (student.studentGender === "Male") {
+            classes.boyCount -= 1;
+            batch.student_category.boyCount -= 1;
+          } else if (student.studentGender === "Female") {
+            classes.girlCount -= 1;
+            batch.student_category.girlCount -= 1;
+          } else if (student.studentGender === "Other") {
+            classes.otherCount -= 1;
+            batch.student_category.otherCount -= 1;
+          } else {
+          }
+          if (student.studentCastCategory === "General") {
+            batch.student_category.generalCount -= 1;
+          } else if (student.studentCastCategory === "OBC") {
+            batch.student_category.obcCount -= 1;
+          } else if (student.studentCastCategory === "SC") {
+            batch.student_category.scCount -= 1;
+          } else if (student.studentCastCategory === "ST") {
+            batch.student_category.stCount -= 1;
+          } else if (student.studentCastCategory === "NT-A") {
+            batch.student_category.ntaCount -= 1;
+          } else if (student.studentCastCategory === "NT-B") {
+            batch.student_category.ntbCount -= 1;
+          } else if (student.studentCastCategory === "NT-C") {
+            batch.student_category.ntcCount -= 1;
+          } else if (student.studentCastCategory === "NT-D") {
+            batch.student_category.ntdCount -= 1;
+          } else if (student.studentCastCategory === "VJ") {
+            batch.student_category.vjCount -= 1;
+          } else {
+          }
+          await Promise.all([classes.save(), batch.save()]);
+        }
+      }
+      res.status(200).send({
+        message: `Distribute sweets to all family members`,
+        allot_status: true,
+        apply: apply?.undo_student
+      });
+    }
+    // var i =0
+    // for (let ele of apply?.undo_student) {
+    //   if (apply.reviewApplication?.includes(`${ele?._id}`)) {
+        
+    //   }
+    //   else {
+    //     apply.reviewApplication.push(ele?._id)
+    //   }
+    //   console.log(i)
+    //   i+=1 
+    // }
+    // await apply.save()
+    // res.status(200).send({
+    //   message: `Distribute sweets to all family members`,
+    //   allot_status: true,
+    //   apply: apply?.undo_student
+    // });
   } catch (e) {
     console.log(e);
   }

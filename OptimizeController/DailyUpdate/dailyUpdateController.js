@@ -29,7 +29,7 @@ exports.getAlldailyUpdate = async (req, res) => {
     const dailyUpdate = await SubjectUpdate.find({
       _id: { $in: subject.dailyUpdate },
     })
-      .select("updateDate updateDescription date upadateImage createdAt")
+      .select("updateDate updateDescription date upadateImage createdAt yt_link")
       .populate({
         path: "daily_topic",
         populate: {
@@ -75,6 +75,7 @@ exports.createDailyUpdate = async (req, res) => {
       subject: req.params.sid,
       updateDescription: req.body?.updateDescription,
       date: req.body?.date,
+      yt_link: req?.body?.yt_link
     });
     // var all_topic = await ChapterTopic.find({ _id: { $in: valid_arr } });
     if (valid_arr?.length > 0) {

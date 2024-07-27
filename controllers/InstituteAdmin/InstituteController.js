@@ -8752,3 +8752,110 @@ exports.render_middle_name_data = async (req, res) => {
     console.log(e)
   }
 }
+
+exports.retrieveApproveUnApproveStudentListQuery = async (req, res) => {
+  try {
+    var { id } = req.params;
+    var page = req.query.page ? parseInt(req.query.page) : 1;
+    var limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    var skip = (page - 1) * limit;
+    var { search } = req.query;
+    if (search) {
+      const student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "UnApprovedStudent insName gr_initials ApproveStudent"
+      );
+      const nums = [...student_ins?.ApproveStudent, ...student_ins?.UnApprovedStudent]
+      const studentIns = await Student.find({
+        $and: [{ _id: { $in: nums } }],
+        $or: [
+          {
+            studentFirstName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            valid_full_name: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentGRNO: { $regex: `${search}`, $options: "i" },
+          },
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
+        ],
+      })
+        .sort({ createdAt: -1 })
+        .select(
+          "studentFirstName studentMiddleName qviple_student_pay_id applicable_fees_pending studentLastName valid_full_name photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        });
+      if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        var valid_list = await applicable_pending_calc(studentIns);
+        res
+          .status(200)
+          .send({ message: "All Student with limit", studentIns: valid_list });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
+    } else {
+      const student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "UnApprovedStudent insName gr_initials ApproveStudent"
+      );
+      const nums = [...student_ins?.ApproveStudent, ...student_ins?.UnApprovedStudent]
+      const studentIns = await Student.find({
+        _id: { $in: nums },
+      })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName qviple_student_pay_id studentLastName applicable_fees_pending valid_full_name photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        });
+      if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        var valid_list = await applicable_pending_calc(studentIns);
+        res
+          .status(200)
+          .send({ message: "Without Limit", studentIns: valid_list });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

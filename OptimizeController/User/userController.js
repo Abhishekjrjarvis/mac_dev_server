@@ -3553,33 +3553,61 @@ exports.render_specific_mods_query = async (req, res) => {
 exports.retrieveUserDashboardAllApplicationQuery = async(req, res) => {
   try{
     const { uid } = req?.params
+    const { flow } = req?.body
     if(!uid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     var one_user = await User.findById({ _id: uid })
     let nums = one_user?.applyApplication?.reverse()
-    var all_apps = await NewApplication.find({ $and: [{ _id: { $in: nums?.[0] } }, { application_flow: "Admission Application" }] })
-      .sort({ createdAt: -1 })
-      .select("applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster")
-      .populate({
-        path: "applicationDepartment",
-        select: "dName",
-      })
-      .populate({
-        path: "applicationBatch",
-        select: "batchName",
-      })
-      .populate({
-        path: "applicationMaster",
-        select: "className",
-      })
-    .populate({
-      path: "admissionAdmin",
-      select: "institute",
-      populate: {
-        path: "institute",
-        select: "insName name insProfilePhoto photoId"
-      }
-    })
+    if (flow === "HOSTEL") {
+      var all_apps = await NewApplication.find({ $and: [{ _id: { $in: nums?.[0] } }, { application_flow: "Hostel Application" }] })
+        .sort({ createdAt: -1 })
+        .select("applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster")
+        .populate({
+          path: "applicationDepartment",
+          select: "dName",
+        })
+        .populate({
+          path: "applicationBatch",
+          select: "batchName",
+        })
+        .populate({
+          path: "applicationMaster",
+          select: "className",
+        })
+        .populate({
+          path: "admissionAdmin",
+          select: "institute",
+          populate: {
+            path: "institute",
+            select: "insName name insProfilePhoto photoId"
+          }
+        })
+    }
+    else {
+      var all_apps = await NewApplication.find({ $and: [{ _id: { $in: nums?.[0] } }, { application_flow: "Admission Application" }] })
+        .sort({ createdAt: -1 })
+        .select("applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster")
+        .populate({
+          path: "applicationDepartment",
+          select: "dName",
+        })
+        .populate({
+          path: "applicationBatch",
+          select: "batchName",
+        })
+        .populate({
+          path: "applicationMaster",
+          select: "className",
+        })
+        .populate({
+          path: "admissionAdmin",
+          select: "institute",
+          populate: {
+            path: "institute",
+            select: "insName name insProfilePhoto photoId"
+          }
+        })
+    }
     if(all_apps?.length > 0){
       res.status(200).send({ message: "Explore All Applied Application Query", access: true, all_apps: all_apps, conditional: conditional})
     }

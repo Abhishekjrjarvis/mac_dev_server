@@ -453,7 +453,7 @@ exports.render_all_students_query = async (req, res) => {
                     select: "className"
                 })
             const all_stu = await nested_document_limit(page, limit, all_students)
-          res.status(200).send({ message: "Explore All Students Query", access: true, all_students: all_stu, count: all_students?.length })
+          res.status(200).send({ message: "Explore All Students Query", access: true, all_students: all_stu, count: all_stu?.length })
           for (let ele of all_students) {
             if (m_class.all_academic_student?.includes(`${ele?._id}`)) {
               
@@ -510,7 +510,7 @@ exports.render_all_students_tab_query = async (req, res) => {
                     select: "className"
                 })
           var all_stu = await nested_document_limit(page, limit, all_students)
-            res.status(200).send({ message: "Explore All Students Tab Query", access: true, all_students: all_stu, count: all_students?.length})
+            res.status(200).send({ message: "Explore All Students Tab Query", access: true, all_students: all_stu, count: all_stu?.length})
         }
         else {
             res.status(200).send({ message: "No Students Tab Query", access: true, all_students: []})            

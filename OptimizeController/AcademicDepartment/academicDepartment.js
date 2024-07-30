@@ -1157,37 +1157,43 @@ exports.render_all_dse_students_query = async (req, res) => {
       }
     }
     // console.log(nums)
-    if (nums?.length > 0) {
-      const all_students = await Student.find({
-        $and: [{ studentClass: { $in: nums } }],
-      })
-        // .limit(limit)
-        // .skip(skip)
-        .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject"
-        )
-        .populate({
-          path: "studentClass",
-          select: "className",
-        });
-      let all_m = all_students?.filter((val) => {
-        if (val?.major_subject?.length > 0) return val;
-      });
-      const all_stu = await nested_document_limit(page, limit, all_m);
-      res.status(200).send({
-        message: "Explore All DSE Students Query",
-        access: true,
-        all_students: all_stu,
-      });
-    } else {
-      res.status(200).send({
-        message: "No DSE Students Query",
-        access: true,
-        all_students: [],
-      });
-    }
-  } catch (e) {
-    console.log(e);
+      if (nums?.length > 0) {
+          const all_students = await Student.find({ $and: [{ studentClass: { $in: nums } }] })
+              // .limit(limit)
+              // .skip(skip)
+              .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject")
+              .populate({
+                  path: "studentClass",
+                  select: "className"
+              })
+        var numss = []
+        for (let ele of all_subjects) {
+          for (let val of all_students) {
+            if (val?.major_subject?.includes(`${ele?._id}`)) {
+              numss.push(val)
+            }
+          }
+        }
+        const unique = [...new Set(numss.map(item => item._id))];
+        // let all_m = all_students?.filter((val) => {
+        //   if(val?.major_subject?.length > 0) return val
+        //   })
+        const all_stu = await Student.find({ _id: { $in: unique} })
+              .limit(limit)
+              .skip(skip)
+              .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject")
+              .populate({
+                  path: "studentClass",
+                  select: "className"
+              })
+        res.status(200).send({ message: "Explore All DSE Students Query", access: true, all_students: all_stu, count: all_stu?.length })
+      }
+      else {
+          res.status(200).send({ message: "No DSE Students Query", access: true, all_students: []})            
+      }
+  }
+  catch (e) {
+      console.log(e)
   }
 };
 exports.render_edit_theory_classes = async (req, res) => {

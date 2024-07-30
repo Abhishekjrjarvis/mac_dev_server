@@ -1,6 +1,6 @@
 var firebase = require("firebase-admin");
 const { getFirestore } = require("firebase-admin/firestore");
-var serviceAccount = require("../Firebase/qviple-user-firebase-adminsdk-4qvna-aca6cd00fb.json");
+var serviceAccount = require("../Firebase/qviple-user-firebase-adminsdk-4qvna-8582f91ae3.json");
 
 firebase.initializeApp({
   credential: firebase.credential.cert(serviceAccount),

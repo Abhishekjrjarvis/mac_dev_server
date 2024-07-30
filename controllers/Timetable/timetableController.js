@@ -31,7 +31,7 @@ exports.getDayWiseSchedule = async (req, res) => {
             "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
         },
         select:
-        "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff schedule.which_lecture",
+          "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff schedule.which_lecture",
       })
       .populate({
         path: "timetableDayWise",
@@ -45,7 +45,7 @@ exports.getDayWiseSchedule = async (req, res) => {
           select: "subjectOptional selected_batch_query subject_category",
         },
         select:
-        "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff schedule.which_lecture",
+          "schedule._id schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff schedule.which_lecture",
       })
       .select("timetableDayWise")
       .lean()
@@ -74,7 +74,6 @@ exports.getDayWiseSchedule = async (req, res) => {
     console.log(e);
   }
 };
-
 
 exports.addDayWiseSchedule = async (req, res) => {
   try {
@@ -155,7 +154,6 @@ exports.addDayWiseSchedule = async (req, res) => {
     });
   }
 };
-
 
 exports.addDateWiseSchedule = async (req, res) => {
   try {
@@ -528,7 +526,6 @@ exports.getInstituteAllotStaff = async (req, res) => {
   }
 };
 
-
 exports.getStaffSideDateWise = async (req, res) => {
   try {
     let flow = "";
@@ -816,8 +813,6 @@ exports.getStaffSideDateWise = async (req, res) => {
   }
 };
 
-
-
 exports.getStudentSideDateWise = async (req, res) => {
   try {
     if (!req.params.cid) throw "Please send staff id to perform task";
@@ -1081,96 +1076,125 @@ exports.renderDestroyScheduleQuery = async (req, res) => {
   }
 };
 
-exports.getSubjectDateWiseScheduleQuery = async(req, res) => {
-  try{
-    const { sid } = req?.params
-    const { date, status } = req?.query
-    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.getSubjectDateWiseScheduleQuery = async (req, res) => {
+  try {
+    const { sid } = req?.params;
+    const { date, status } = req?.query;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const subject = await Subject.findById({ _id: sid })
-    const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subject?.class}`}], $or:[
-      {
-        date: { $eq: date }
-      },
-      {
-        day: `${status}`
-      }
-    ] })
+    const subject = await Subject.findById({ _id: sid });
+    const time_table = await ClassTimetable.findOne({
+      $and: [{ class: `${subject?.class}` }],
+      $or: [
+        {
+          date: { $eq: date },
+        },
+        {
+          day: `${status}`,
+        },
+      ],
+    });
 
     // console.log(time_table)
 
     var list = time_table?.schedule?.filter((val) => {
-      if(`${val?.subject}` === `${subject?._id}`) return val
-    })
+      if (`${val?.subject}` === `${subject?._id}`) return val;
+    });
 
-    res.status(200).send({ message: "Explore One Subject Time Table Query", access: true, list: list})
+    res.status(200).send({
+      message: "Explore One Subject Time Table Query",
+      access: true,
+      list: list,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.getSubjectDateWiseScheduleAttendenceQuery = async(req, res) => {
-  try{
-    const { sid } = req?.params
-    const { date, from, to } = req?.query
-    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.getSubjectDateWiseScheduleAttendenceQuery = async (req, res) => {
+  try {
+    const { sid } = req?.params;
+    const { date, from, to } = req?.query;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const subject = await Subject.findById({ _id: sid })
+    const subject = await Subject.findById({ _id: sid });
     const attend = await AttendenceDate.find({
-      $and: [{
-        subject: `${subject?._id}`
-      },
-    {
-      attendDate: { $eq: `${date}` },
-    },
-  {
-    from: `${from}`
-  }, 
-  {
-    to: `${to}`
-  }]
-    })
+      $and: [
+        {
+          subject: `${subject?._id}`,
+        },
+        {
+          attendDate: { $eq: `${date}` },
+        },
+        {
+          from: `${from}`,
+        },
+        {
+          to: `${to}`,
+        },
+      ],
+    });
 
-    res.status(200).send({ message: "Explore One Subject Time Table Query", access: true, attend: attend, attendence_exist: attend?.length, dynamic: attend?.length > 0 ? "Attendence Already Marked At This Timestamp" : "mark New Attendence At This Timestamp"})
-
+    res.status(200).send({
+      message: "Explore One Subject Time Table Query",
+      access: true,
+      attend: attend,
+      attendence_exist: attend?.length,
+      dynamic:
+        attend?.length > 0
+          ? "Attendence Already Marked At This Timestamp"
+          : "mark New Attendence At This Timestamp",
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.getSubjectDateWiseScheduleUpdateTimeTableQuery = async(req, res) => {
-  try{
-    const { sid } = req?.params
-    const { date, from, to, status } = req?.query
-    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.getSubjectDateWiseScheduleUpdateTimeTableQuery = async (req, res) => {
+  try {
+    const { sid } = req?.params;
+    const { date, from, to, status } = req?.query;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const subject = await Subject.findById({ _id: sid })
-    const time_table = await ClassTimetable.findOne({ $and: [{ class: `${subject?.class}`}],
-    $or:[
-      {
-        date: { $eq: date }
-      },
-      {
-        day: `${status}`
-      }
-    ]
-  })
+    const subject = await Subject.findById({ _id: sid });
+    const time_table = await ClassTimetable.findOne({
+      $and: [{ class: `${subject?.class}` }],
+      $or: [
+        {
+          date: { $eq: date },
+        },
+        {
+          day: `${status}`,
+        },
+      ],
+    });
 
     time_table?.schedule?.filter((val) => {
-      if(`${val?.subject}` === `${subject?._id}`){
-        val.from = `${from}`
-        val.to = `${to}`
+      if (`${val?.subject}` === `${subject?._id}`) {
+        val.from = `${from}`;
+        val.to = `${to}`;
       }
-    })
+    });
 
-    res.status(200).send({ message: "Explore One Subject Time Table Query", access: true})
+    res
+      .status(200)
+      .send({ message: "Explore One Subject Time Table Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.addDayWiseScheduleAutoQuery = async (req, res) => {
   try {
@@ -1234,7 +1258,6 @@ exports.addDayWiseScheduleAutoQuery = async (req, res) => {
   }
 };
 
-
 const convert_time_format = (data) => {
   let data_string = `${data}`?.trim();
   let hr =
@@ -1250,8 +1273,7 @@ const convert_time_format = (data) => {
     let rt = +hr - 12;
     hr = rt > 9 ? `${rt}` : `0${rt}`;
     meridian = "Pm";
-  }
-  else if (+hr === 12) {
+  } else if (+hr === 12) {
     meridian = "Pm";
   } else {
   }
@@ -1368,7 +1390,6 @@ exports.addTimeTableExcelQuery = async (rows, clsId) => {
   }
 };
 
-
 exports.insertTimetableDefaultFieldQuery = async (req, res) => {
   try {
     const timetable = await ClassTimetable.find({});
@@ -1391,7 +1412,6 @@ exports.insertTimetableDefaultFieldQuery = async (req, res) => {
     console.log(e);
   }
 };
-
 
 //by Staff side enter timetable list
 
@@ -1694,7 +1714,6 @@ exports.getNewTimetableSyncWiseStudentQuery = async (req, res) => {
   }
 };
 
-
 exports.subjectTeacherOneDayTimetableQuery = async (req, res) => {
   try {
     const { uid } = req.params;
@@ -1768,8 +1787,6 @@ exports.subjectTeacherOneDayTimetableQuery = async (req, res) => {
     console.log(e);
   }
 };
-
-
 
 exports.getNewTimetableUserStaffDateWise = async (req, res) => {
   try {
@@ -2071,8 +2088,118 @@ exports.getNewTimetableUserStaffDateWise = async (req, res) => {
   }
 };
 
+exports.getNewTimetableStudentDateWise = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { date, status } = req.query;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const student = await Student.findById(sid);
+    var all_subject = [];
 
+    const subject = await Subject.find({
+      class: { $eq: `${student.studentClass}` },
+    }).populate({
+      path: "selected_batch_query",
+    });
+    for (var ref of subject) {
+      if (ref?.selected_batch_query) {
+        if (ref?.selected_batch_query?.class_student_query?.length > 0) {
+          for (let ele of ref?.selected_batch_query?.class_student_query) {
+            if (`${ele}` === `${sid}`) {
+              all_subject.push(ref?._id);
+              break;
+            }
+          }
+        }
+      } else {
+        if (student?.student_optional_subject_access === "Yes") {
+          if (ref?.optionalStudent?.length > 0) {
+            for (let ele of ref?.optionalStudent) {
+              if (`${ele}` === `${sid}`) {
+                all_subject.push(ref?._id);
+                break;
+              }
+            }
+          }
+        } else {
+          all_subject.push(ref?._id);
+        }
+      }
+    }
+    if (student?.academic_subject?.length > 0) {
+      all_subject.push(...student?.academic_subject);
+    }
 
+    const s_time = await SubjectTimetable.find({
+      $and: [
+        { subject: { $in: all_subject } },
+        {
+          $or: [{ date: { $eq: date } }, { day: { $eq: status } }],
+        },
+      ],
+    })
+      .populate({
+        path: "schedule.assignStaff",
+        select: "staffFirstName staffMiddleName staffLastName staffGender",
+      })
+      .populate({
+        path: "schedule.offStaff",
+        select: "staffFirstName staffMiddleName staffLastName staffGender",
+      });
+    var studentSchedlue = [];
+    if (s_time?.length > 0) {
+      for (let table of s_time) {
+        if (table?.schedule?.length > 0) {
+          for (let sched of table?.schedule) {
+            const assignment = await Assignment.find({
+              subject: { $eq: sched.subject },
+              dueDate: { $eq: req.query.date },
+            });
+            const assignmentObj = [];
+            for (let assign of assignment) {
+              assignmentObj.push({
+                assignmentName: assign.assignmentName,
+                _id: assign._id,
+              });
+            }
+            var valid_date = custom_date_time(0);
+            // console.log(valid_date);
+            var one_topic = await ChapterTopic.find({
+              $and: [
+                {
+                  topic_last_date: `${valid_date}`,
+                },
+                {
+                  subject: sched?.subject,
+                },
+              ],
+            });
 
+            studentSchedlue.push({
+              from: sched.from,
+              subjectName: sched.subjectName,
+              to: sched.to,
+              assignment: assignmentObj,
+              assignStaff: sched.assignStaff,
+              offStaff: sched?.offStaff,
+              topic: one_topic,
+            });
+          }
+        }
+      }
+    }
 
-
+    studentSchedlue = get_day_wise_sort(studentSchedlue);
+    // const staffScheduleEncrypt = await encryptionPayload(staffSchedlue);
+    res.status(200).send({
+      message: "Student side all schedule list",
+      studentSchedlue,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

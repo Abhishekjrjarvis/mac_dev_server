@@ -1198,4 +1198,3 @@ const generateStudentAdmissionForm = async (
   });
 };
 module.exports = generateStudentAdmissionForm;
-

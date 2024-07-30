@@ -56,11 +56,11 @@ router
   .route("/subject/:sid/date/schedule/list/update/attendence")
   .patch(catchAsync(timetable.getSubjectDateWiseScheduleAttendenceQuery));
 
-  router
+router
   .route("/insert/default/field/timetable")
-    .patch(catchAsync(timetable.insertTimetableDefaultFieldQuery));
-  
-    router
+  .patch(catchAsync(timetable.insertTimetableDefaultFieldQuery));
+
+router
   .route("/newtimetable/staff/subject/:sid")
   .post(catchAsync(timetable.subjectTeacherAddTimetableQuery));
 router
@@ -77,13 +77,15 @@ router
   .route("/newtimetable/sync/student/:sid/schedule")
   .get(catchAsync(timetable.getNewTimetableSyncWiseStudentQuery));
 
-  router
+router
   .route("/newtimetable/one/day/:uid/query")
-    .get(catchAsync(timetable.subjectTeacherOneDayTimetableQuery));
-  
-    router
+  .get(catchAsync(timetable.subjectTeacherOneDayTimetableQuery));
+
+router
   .route("/newtimetable/user/staff/:sid/schedule")
   .get(catchAsync(timetable.getNewTimetableUserStaffDateWise));
-
+router
+  .route("/newtimetable/student/:sid/schedule/list")
+  .get(catchAsync(timetable.getNewTimetableStudentDateWise));
 
 module.exports = router;

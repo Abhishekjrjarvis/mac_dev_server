@@ -48,15 +48,22 @@ const {
 const { handle_undefined } = require("../../Handler/customError");
 const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
 const { applicable_pending_calc } = require("../../Functions/SetOff");
-const { send_phone_login_query, generateAccessToken } = require("../../helper/functions");
+const {
+  send_phone_login_query,
+  generateAccessToken,
+} = require("../../helper/functions");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const Chapter = require("../../models/Academics/Chapter");
 const Attainment = require("../../models/Marks/Attainment");
-const { calc_profile_percentage } = require("../../Functions/ProfilePercentage");
+const {
+  calc_profile_percentage,
+} = require("../../Functions/ProfilePercentage");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
 const invokeSpecificRegister = require("../../Firebase/specific");
-const { send_global_announcement_notification_query } = require("../../Feed/socialFeed");
+const {
+  send_global_announcement_notification_query,
+} = require("../../Feed/socialFeed");
 const FormChecklist = require("../../models/Form/FormChecklist");
 const { form_params } = require("../../Constant/form");
 const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
@@ -68,7 +75,6 @@ const InstituteApplicationForm = require("../../models/Form/InstituteApplication
 const DepartmentSite = require("../../models/SiteModels/DepartmentSite");
 const { json_to_excel_academic_export_query } = require("../../Custom/JSONToExcel");
 const moment = require("moment")
-
 
 exports.retrieveAcademicDepartmentAdminHead = async (req, res) => {
   try {
@@ -226,393 +232,472 @@ exports.retrieveAcademicDepartmentAdminHead = async (req, res) => {
   }
 };
 
-
 exports.retrieveDepartmentList = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const page = req.query.page ? parseInt(req.query.page) : 1;
+  try {
+    const { id } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-      if (!id)
-        return res.status(200).send({
-          message: "Their is a bug need to fixed immediatley",
-          access: false,
-        });
-        const institute = await InstituteAdmin.findById({ _id: id })
-          
-        const all_depart = await Department.find({ $and: [{ _id: { $in: institute?.depart } }, { department_status: "Academic" }] })
-            .limit(limit)
-        .skip(skip)    
-        .select("dName photo photoId dTitle classMasterCount classCount departmentSelectBatch")
-        .populate({
-          path: "dHead",
-          select:
-                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
-                populate: {
-                    path: "user",
-                    select: "userBio userAbout",
-                  },
-        })
-          .populate({
-            path: "active_academic_batch",
-            select: "batchName batchStatus"
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const institute = await InstituteAdmin.findById({ _id: id });
+
+    const all_depart = await Department.find({
+      $and: [
+        { _id: { $in: institute?.depart } },
+        { department_status: "Academic" },
+      ],
+    })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "dName photo photoId dTitle classMasterCount classCount departmentSelectBatch"
+      )
+      .populate({
+        path: "dHead",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
+        populate: {
+          path: "user",
+          select: "userBio userAbout",
+        },
       })
-      if (all_depart) {
-        res.status(200).send({ message: "Success", all_depart });
-      } else {
-        res.status(404).send({ message: "Failure" });
-      }
-    } catch (e) {
-      console.log(e);
+      .populate({
+        path: "active_academic_batch",
+        select: "batchName batchStatus",
+      });
+    if (all_depart) {
+      res.status(200).send({ message: "Success", all_depart });
+    } else {
+      res.status(404).send({ message: "Failure" });
     }
-  };
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_all_subject_master_query = async (req, res) => {
-    try {
-        const { did } = req?.params
-        const page = req.query.page ? parseInt(req.query.page) : 1;
+  try {
+    const { did } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-        if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-        const depart = await Department.findById({ _id: did })
-        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-            .limit(limit)
-            .skip(skip)
-            .select("subjectName department link_subject_master")
-            .populate({
-                path: "department",
-                select: "dName"
-            })
-            res.status(200).send({ message: "Explore All Subject Master Query", access: true, all_subjects: all_subjects})
-    }
-    catch (e) {
-        console.log(e)
-    }
-}
-  
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .limit(limit)
+      .skip(skip)
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "department",
+        select: "dName",
+      });
+    res.status(200).send({
+      message: "Explore All Subject Master Query",
+      access: true,
+      all_subjects: all_subjects,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.render_map_master_query = async (req, res) => {
-    try {
-        const { subId, mapId, did } = req?.body
-        if (!mapId) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-        
-        const depart = await Department.findById({ _id: did })
-        // const subjects = await SubjectMaster.findById({ _id: subId })
-        const subjects_extra = await SubjectMaster.findById({ _id: mapId })
+  try {
+    const { subId, mapId, did } = req?.body;
+    if (!mapId)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-        // subjects.link_subject_master = subjects_extra?._id
-        subjects_extra.link_department = depart?._id
-        depart.merged_subject_master.push(subjects_extra?._id)
+    const depart = await Department.findById({ _id: did });
+    // const subjects = await SubjectMaster.findById({ _id: subId })
+    const subjects_extra = await SubjectMaster.findById({ _id: mapId });
 
-        await Promise.all([ subjects_extra.save(), depart.save()])
-        res.status(200).send({ message: "Explore One Subject Master Map Query", access: true})
+    // subjects.link_subject_master = subjects_extra?._id
+    subjects_extra.link_department = depart?._id;
+    depart.merged_subject_master.push(subjects_extra?._id);
 
-    }
-    catch (e) {
-        console.log(e)
-    }
-}
+    await Promise.all([subjects_extra.save(), depart.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore One Subject Master Map Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_all_universal_batch_query = async (req, res) => {
-    try {
-        const { did } = req?.params
-        const page = req.query.page ? parseInt(req.query.page) : 1;
-        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-        const skip = (page - 1) * limit;
-        if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-        const depart = await Department.findById({ _id: did })
-        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-            .select("subjectName department link_subject_master")
-        
-        var nums = []
-        for (let ele of all_subjects) {
-            const all_batch = await Batch.find({ $and: [{ department: ele?.department }, { merged_batch: "Merged" }] })
-            for (let val of all_batch) {
-                if (nums?.includes(`${val?._id}`)) {
-                    
-                }
-                else {
-                    nums.push(val?._id)       
-                }
-            }
-        }
+  try {
+    const { did } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    }).select("subjectName department link_subject_master");
 
-        if (nums?.length > 0) {
-            const all_batch = await Batch.find({ _id: { $in: nums } })
-                .select("batchName batchStatus")
-                .populate({
-                    path: "u_batch",
-                    select: "batchName batchStatus"
-                })
-            res.status(200).send({ message: "Explore All Batches Query", access: true, all_batch: all_batch})
-        }
-        else {
-            res.status(200).send({ message: "No Batches Query", access: true, all_batch: []})            
-        }
-    }
-    catch (e) {
-        console.log(e)
-    }
-}
-
-exports.render_all_classes_query = async (req, res) => {
-    try {
-        const { did } = req?.params
-        const page = req.query.page ? parseInt(req.query.page) : 1;
-        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-        const skip = (page - 1) * limit;
-        if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-        const depart = await Department.findById({ _id: did })
-        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-            .select("subjectName department link_subject_master")
-            .populate({
-                path: "subjects",
-                select: "class",
-                populate: {
-                    path: "class",
-                    select: "masterClassName"
-                }
-        })
-        
-        var nums = []
-        for (let ele of all_subjects) {
-            for (let val of ele?.subjects) {
-                if (nums?.includes(`${val?.class?.masterClassName}`)) {
-                    
-                }
-                else {
-                    nums.push(val?.class?.masterClassName)
-                }
-            }
-        }
-
-        if (nums?.length > 0) {
-            const all_classes = await ClassMaster.find({ _id: { $in: nums } })
-                .select("className")
-                .populate({
-                    path: "department",
-                    select: "dName"
-                })
-            res.status(200).send({ message: "Explore All Class Master Query", access: true, all_classes: all_classes})
-        }
-        else {
-            res.status(200).send({ message: "No Class Master Query", access: true, all_classes: []})            
-        }
-    }
-    catch (e) {
-        console.log(e)
-    }
-}
-
-exports.render_all_students_query = async (req, res) => {
-    try {
-        const { cid } = req?.params
-        const page = req.query.page ? parseInt(req.query.page) : 1;
-        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-        const skip = (page - 1) * limit;
-        const { did } = req?.query
-      if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-      
-      const depart = await Department.findById({ _id: did })
-        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-            .select("subjectName department link_subject_master")
-            .populate({
-                path: "subjects",
-                select: "class",
-        })
-        
-      var numss = []
-      var nums = []
-        for (let ele of all_subjects) {
-            for (let val of ele?.subjects) {
-                if (numss?.includes(`${val?.class}`)) {
-                    
-                }
-                else {
-                    numss.push(val?.class)
-                }
-            }
-        }
-      // console.log(numss)
-        const m_class = await ClassMaster.findById({ _id: cid })
-        
-      for (let ele of m_class?.classDivision) {
-        for (let val of numss) {
-          if (`${val}` === `${ele}`) {
-            nums.push(val)
-          }
+    var nums = [];
+    for (let ele of all_subjects) {
+      const all_batch = await Batch.find({
+        $and: [{ department: ele?.department }, { merged_batch: "Merged" }],
+      });
+      for (let val of all_batch) {
+        if (nums?.includes(`${val?._id}`)) {
+        } else {
+          nums.push(val?._id);
         }
       }
-      // console.log(nums)
-        if (nums?.length > 0) {
-            const all_students = await Student.find({ $and: [{ studentClass: { $in: nums } }] })
-                // .limit(limit)
-                // .skip(skip)
-                .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department")
-                .populate({
-                    path: "studentClass",
-                    select: "className"
-                })
-            const all_stu = await nested_document_limit(page, limit, all_students)
-          res.status(200).send({ message: "Explore All Students Query", access: true, all_students: all_stu, count: all_students?.length })
-          for (let ele of all_students) {
-            if (m_class.all_academic_student?.includes(`${ele?._id}`)) {
-              
-            }
-            else {
-              m_class.all_academic_student.push(ele?._id)
-            }
-          }
-          await m_class.save()
-        }
-        else {
-            res.status(200).send({ message: "No Students Query", access: true, all_students: []})            
-        }
     }
-    catch (e) {
-        console.log(e)
+
+    if (nums?.length > 0) {
+      const all_batch = await Batch.find({ _id: { $in: nums } })
+        .select("batchName batchStatus")
+        .populate({
+          path: "u_batch",
+          select: "batchName batchStatus",
+        });
+      res.status(200).send({
+        message: "Explore All Batches Query",
+        access: true,
+        all_batch: all_batch,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Batches Query", access: true, all_batch: [] });
     }
-}
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_all_classes_query = async (req, res) => {
+  try {
+    const { did } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "class",
+        populate: {
+          path: "class",
+          select: "masterClassName",
+        },
+      });
+
+    var nums = [];
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        if (nums?.includes(`${val?.class?.masterClassName}`)) {
+        } else {
+          nums.push(val?.class?.masterClassName);
+        }
+      }
+    }
+
+    if (nums?.length > 0) {
+      const all_classes = await ClassMaster.find({ _id: { $in: nums } })
+        .select("className")
+        .populate({
+          path: "department",
+          select: "dName",
+        });
+      res.status(200).send({
+        message: "Explore All Class Master Query",
+        access: true,
+        all_classes: all_classes,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Class Master Query",
+        access: true,
+        all_classes: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_all_students_query = async (req, res) => {
+  try {
+    const { cid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { did } = req?.query;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "class",
+      });
+
+    var numss = [];
+    var nums = [];
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        if (numss?.includes(`${val?.class}`)) {
+        } else {
+          numss.push(val?.class);
+        }
+      }
+    }
+    // console.log(numss)
+    const m_class = await ClassMaster.findById({ _id: cid });
+
+    for (let ele of m_class?.classDivision) {
+      for (let val of numss) {
+        if (`${val}` === `${ele}`) {
+          nums.push(val);
+        }
+      }
+    }
+    // console.log(nums)
+    if (nums?.length > 0) {
+      const all_students = await Student.find({
+        $and: [{ studentClass: { $in: nums } }],
+      })
+        // .limit(limit)
+        // .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className",
+        });
+      const all_stu = await nested_document_limit(page, limit, all_students);
+      res.status(200).send({
+        message: "Explore All Students Query",
+        access: true,
+        all_students: all_stu,
+      });
+      for (let ele of all_students) {
+        if (m_class.all_academic_student?.includes(`${ele?._id}`)) {
+        } else {
+          m_class.all_academic_student.push(ele?._id);
+        }
+      }
+      await m_class.save();
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Students Query", access: true, all_students: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_all_students_tab_query = async (req, res) => {
-    try {
-        const { did } = req?.params
-        const page = req.query.page ? parseInt(req.query.page) : 1;
-        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-        const skip = (page - 1) * limit;
-        if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-        const depart = await Department.findById({ _id: did })
-        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-            .select("subjectName department link_subject_master")
-            .populate({
-                path: "subjects",
-                select: "class",
-        })
-        
-        var nums = []
-        for (let ele of all_subjects) {
-            for (let val of ele?.subjects) {
-                if (nums?.includes(`${val?.class}`)) {
-                    
-                }
-                else {
-                    nums.push(val?.class)
-                }
-            }
-        }
+  try {
+    const { did } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "class",
+      });
 
-        if (nums?.length > 0) {
-            const all_students = await Student.find({ studentClass: { $in: nums } })
-                // .limit(limit)
-                // .skip(skip)
-                .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO")
-                .populate({
-                    path: "studentClass",
-                    select: "className"
-                })
-          var all_stu = await nested_document_limit(page, limit, all_students)
-            res.status(200).send({ message: "Explore All Students Tab Query", access: true, all_students: all_stu, count: all_students?.length})
+    var nums = [];
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        if (nums?.includes(`${val?.class}`)) {
+        } else {
+          nums.push(val?.class);
         }
-        else {
-            res.status(200).send({ message: "No Students Tab Query", access: true, all_students: []})            
-        }
+      }
     }
-    catch (e) {
-        console.log(e)
+
+    if (nums?.length > 0) {
+      const all_students = await Student.find({ studentClass: { $in: nums } })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className",
+        });
+      res.status(200).send({
+        message: "Explore All Students Tab Query",
+        access: true,
+        all_students: all_students,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Students Tab Query",
+        access: true,
+        all_students: [],
+      });
     }
-}
+  } catch (e) {
+    console.log(e);
+  }
+};
 exports.render_all_staff_query = async (req, res) => {
-    try {
-        const { did } = req?.params
-        const page = req.query.page ? parseInt(req.query.page) : 1;
-        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-        const skip = (page - 1) * limit;
-        if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-        const depart = await Department.findById({ _id: did })
-        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-            .select("subjectName department link_subject_master")
-            .populate({
-                path: "subjects",
-                select: "subjectTeacherName",
-        })
-        
-        var nums = []
-        for (let ele of all_subjects) {
-            for (let val of ele?.subjects) {
-                if (nums?.includes(`${val?.subjectTeacherName}`)) {
-                    
-                }
-                else {
-                    nums.push(val?.subjectTeacherName)
-                }
-            }
-        }
+  try {
+    const { did } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "subjectTeacherName",
+      });
 
-        if (nums?.length > 0) {
-            const all_staff = await Staff.find({ _id: { $in: nums } })
-                .limit(limit)
-                .skip(skip)
-                .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffROLLNO current_designation teaching_type")
-            res.status(200).send({ message: "Explore All Staff Tab Query", access: true, all_staff: all_staff})
+    var nums = [];
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        if (nums?.includes(`${val?.subjectTeacherName}`)) {
+        } else {
+          nums.push(val?.subjectTeacherName);
         }
-        else {
-            res.status(200).send({ message: "No Staff Tab Query", access: true, all_staff: []})            
-        }
+      }
     }
-    catch (e) {
-        console.log(e)
+
+    if (nums?.length > 0) {
+      const all_staff = await Staff.find({ _id: { $in: nums } })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffROLLNO current_designation teaching_type"
+        );
+      res.status(200).send({
+        message: "Explore All Staff Tab Query",
+        access: true,
+        all_staff: all_staff,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Staff Tab Query", access: true, all_staff: [] });
     }
-}
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_new_theory_classes = async (req, res) => {
   try {
-    const { cid } = req?.params
-    const { staff, did } = req?.body
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const depart = await Department.findById({ _id: did })
-    .select("active_academic_batch")
-    const classes = await ClassMaster.findById({ _id: cid })
-    const new_subject = new Subject({ ...req?.body })
-    new_subject.subjectTitle = "Subject Teacher"
-    const codess = universal_random_password()
-    new_subject.member_module_unique = `${codess}`
+    const { cid } = req?.params;
+    const { staff, did } = req?.body;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did }).select(
+      "active_academic_batch"
+    );
+    const classes = await ClassMaster.findById({ _id: cid });
+    const new_subject = new Subject({ ...req?.body });
+    new_subject.subjectTitle = "Subject Teacher";
+    const codess = universal_random_password();
+    new_subject.member_module_unique = `${codess}`;
+    new_subject.class_master = cid;
     if (staff) {
-      const staffs = await Staff.findById({ _id: staff})
-      new_subject.subjectTeacherName = staffs
-      staffs.staffSubject.push(new_subject?._id)
-      await staffs.save()
+      const staffs = await Staff.findById({ _id: staff });
+      new_subject.subjectTeacherName = staffs;
+      staffs.staffSubject.push(new_subject?._id);
+      await staffs.save();
     }
     classes.theory_classes.push({
       subject: new_subject?._id,
       did: did,
-      batch: depart?.active_academic_batch
-    })
-    classes.theory_classes_count += 1
-    await Promise.all([new_subject.save(), classes.save()])
-    res.status(200).send({ message: "New Subject Add Query", access: true })            
+      batch: depart?.active_academic_batch,
+    });
+    classes.theory_classes_count += 1;
+    await Promise.all([new_subject.save(), classes.save()]);
+    res.status(200).send({ message: "New Subject Add Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_theory_classes = async (req, res) => {
   try {
-    const { cid } = req?.params
+    const { cid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { did } = req?.query
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { did } = req?.query;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     const classes = await ClassMaster.findById({ _id: cid })
       .populate({
         path: "theory_classes.subject",
         select: "subjectName theory_students optionalStudent",
         populate: {
           path: "subjectTeacherName",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-        }
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        },
       })
       .populate({
         path: "theory_classes.subject",
@@ -622,19 +707,23 @@ exports.render_all_theory_classes = async (req, res) => {
           select: "subjectName",
           populate: {
             path: "department",
-            select: "dName"
-          }
-        }
-      })
-    var list = []
+            select: "dName",
+          },
+        },
+      });
+    var list = [];
     for (let ele of classes?.theory_classes) {
-      const depart = await Department.findById({ _id: did })
-      .select("active_academic_batch")
-      if (`${ele?.did}` === `${depart?._id}` && `${ele?.batch}` === `${depart?.active_academic_batch}`) {
-        list.push(ele)
+      const depart = await Department.findById({ _id: did }).select(
+        "active_academic_batch"
+      );
+      if (
+        `${ele?.did}` === `${depart?._id}` &&
+        `${ele?.batch}` === `${depart?.active_academic_batch}`
+      ) {
+        list.push(ele);
       }
     }
-    const all_subject = await nested_document_limit(page, limit, list)
+    const all_subject = await nested_document_limit(page, limit, list);
     // const all_subject = await Subject.find({ _id: { $in: classes?.theory_classes } })
     //   .limit(limit)
     //   .skip(skip)
@@ -643,149 +732,196 @@ exports.render_all_theory_classes = async (req, res) => {
     //     path: "subjectTeacherName",
     //     select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
     //   })
-      res.status(200).send({ message: "All Subject Query", access: true, all_subject: all_subject })            
+    res.status(200).send({
+      message: "All Subject Query",
+      access: true,
+      all_subject: all_subject,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_theory_classes_subject = async (req, res) => {
   try {
-    const { sid } = req?.params
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { sid } = req?.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     const subject = await Subject.findById({ _id: sid })
-    .select("subjectName theory_students optionalStudent")
-    .populate({
-      path: "subjectTeacherName",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-    })
-    .populate({
-      path: "theory_students optionalStudent",
-      select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO"
-    })
-      res.status(200).send({ message: "One Subject Query", access: true, subject: subject })            
+      .select("subjectName theory_students optionalStudent")
+      .populate({
+        path: "subjectTeacherName",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      })
+      .populate({
+        path: "theory_students optionalStudent",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO",
+      });
+    res
+      .status(200)
+      .send({ message: "One Subject Query", access: true, subject: subject });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_new_student_add_query = async (req, res) => {
   try {
-    const { sid } = req?.params
-    const { students } = req?.body
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var subject = await Subject.findById({ _id: sid })
+    const { sid } = req?.params;
+    const { students } = req?.body;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var subject = await Subject.findById({ _id: sid });
     if (students?.length > 0) {
       for (let ele of students) {
-        subject.theory_students.push(ele) 
-        subject.optionalStudent.push(ele)
+        subject.theory_students.push(ele);
+        subject.optionalStudent.push(ele);
       }
     }
-    await subject.save()
-    res.status(200).send({ message: "New Student Add Query", access: true })            
+    await subject.save();
+    res.status(200).send({ message: "New Student Add Query", access: true });
+    if (students?.length > 0) {
+      for (let stu of students) {
+        const student = await Student.findById(stu);
+        student.academic_subject.push(sid);
+        await student.save();
+      }
+    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_new_student_remove_query = async (req, res) => {
   try {
-    const { sid } = req?.params
-    const { students } = req?.body
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var subject = await Subject.findById({ _id: sid })
+    const { sid } = req?.params;
+    const { students } = req?.body;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var subject = await Subject.findById({ _id: sid });
     if (students?.length > 0) {
       for (let ele of students) {
-        subject.theory_students.pull(ele) 
-        subject.optionalStudent.pull(ele)
+        subject.theory_students.pull(ele);
+        subject.optionalStudent.pull(ele);
       }
     }
-    await subject.save()
-    res.status(200).send({ message: "New Student Remove Query", access: true })            
+    await subject.save();
+    res.status(200).send({ message: "New Student Remove Query", access: true });
+    if (students?.length > 0) {
+      for (let stu of students) {
+        const student = await Student.findById(stu);
+        student.academic_subject.pull(sid);
+        await student.save();
+      }
+    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_new_theory_practical = async (req, res) => {
   try {
-    const { cid } = req?.params
-    const { staff, did } = req?.body
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const depart = await Department.findById({ _id: did })
-    .select("active_academic_batch")
-    const classes = await ClassMaster.findById({ _id: cid })
-    const new_subject = new Subject({ ...req?.body })
-    new_subject.subjectTitle = "Subject Teacher"
-    const codess = universal_random_password()
-    new_subject.member_module_unique = `${codess}`
+    const { cid } = req?.params;
+    const { staff, did } = req?.body;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did }).select(
+      "active_academic_batch"
+    );
+    const classes = await ClassMaster.findById({ _id: cid });
+    const new_subject = new Subject({ ...req?.body });
+    new_subject.subjectTitle = "Subject Teacher";
+    const codess = universal_random_password();
+    new_subject.member_module_unique = `${codess}`;
+    new_subject.class_master = cid;
+
     if (staff) {
-      const staffs = await Staff.findById({ _id: staff})
-      new_subject.subjectTeacherName = staffs
-      staffs.staffSubject.push(new_subject?._id)
-      await staffs.save()
+      const staffs = await Staff.findById({ _id: staff });
+      new_subject.subjectTeacherName = staffs;
+      staffs.staffSubject.push(new_subject?._id);
+      await staffs.save();
     }
     classes.practical_batch.push({
       subject: new_subject?._id,
       did: did,
-      batch: depart?.active_academic_batch
-    })
-    classes.practical_batch_count += 1
-    await Promise.all([new_subject.save(), classes.save()])
-    res.status(200).send({ message: "New Practical Subject Add Query", access: true })            
+      batch: depart?.active_academic_batch,
+    });
+    classes.practical_batch_count += 1;
+    await Promise.all([new_subject.save(), classes.save()]);
+    res
+      .status(200)
+      .send({ message: "New Practical Subject Add Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_theory_practical = async (req, res) => {
   try {
-    const { cid } = req?.params
+    const { cid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { did } = req?.query
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { did } = req?.query;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     const classes = await ClassMaster.findById({ _id: cid })
-    .populate({
-      path: "practical_batch.subject",
-      select: "subjectName theory_students optionalStudent",
-      populate: {
-        path: "subjectTeacherName",
-        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-      }
-    })
-    .populate({
-      path: "practical_batch.subject",
-      select: "subjectName theory_students optionalStudent",
-      populate: {
-        path: "subjectMasterName",
-        select: "subjectName",
+      .populate({
+        path: "practical_batch.subject",
+        select: "subjectName theory_students optionalStudent",
         populate: {
-          path: "department",
-          select: "dName"
-        }
-      }
-    })
-    var list = []
+          path: "subjectTeacherName",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        },
+      })
+      .populate({
+        path: "practical_batch.subject",
+        select: "subjectName theory_students optionalStudent",
+        populate: {
+          path: "subjectMasterName",
+          select: "subjectName",
+          populate: {
+            path: "department",
+            select: "dName",
+          },
+        },
+      });
+    var list = [];
     for (let ele of classes?.practical_batch) {
-      const depart = await Department.findById({ _id: did })
-      .select("active_academic_batch")
-      if (`${ele?.did}` === `${depart?._id}` && `${ele?.batch}` === `${depart?.active_academic_batch}`) {
-        list.push(ele)
+      const depart = await Department.findById({ _id: did }).select(
+        "active_academic_batch"
+      );
+      if (
+        `${ele?.did}` === `${depart?._id}` &&
+        `${ele?.batch}` === `${depart?.active_academic_batch}`
+      ) {
+        list.push(ele);
       }
     }
-    const all_batch = await nested_document_limit(page, limit, list)
+    const all_batch = await nested_document_limit(page, limit, list);
     // const all_batch = await Batch.find({ _id: { $in: classes?.practical_batch } })
     //   .limit(limit)
     //   .skip(skip)
@@ -794,190 +930,231 @@ exports.render_all_theory_practical = async (req, res) => {
     //     path: "batch_head",
     //     select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
     //   })
-      res.status(200).send({ message: "All Batches Query", access: true, all_batch: all_batch })            
+    res.status(200).send({
+      message: "All Batches Query",
+      access: true,
+      all_batch: all_batch,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_theory_practical_batch = async (req, res) => {
   try {
-    const { bid } = req?.params
-    if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { bid } = req?.params;
+    if (!bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     const batch = await Subject.findById({ _id: bid })
-    .select("subjectName theory_students optionalStudent")
-    .populate({
-      path: "subjectTeacherName",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-    })
-    .populate({
-      path: "theory_students optionalStudent",
-      select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO"
-    })
-      res.status(200).send({ message: "One Batch Query", access: true, batch: batch })            
+      .select("subjectName theory_students optionalStudent")
+      .populate({
+        path: "subjectTeacherName",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      })
+      .populate({
+        path: "theory_students optionalStudent",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO",
+      });
+    res
+      .status(200)
+      .send({ message: "One Batch Query", access: true, batch: batch });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_new_student_add_query_batch = async (req, res) => {
   try {
-    const { bid } = req?.params
-    const { students } = req?.body
-    if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var one_batch = await Subject.findById({ _id: bid })
+    const { bid } = req?.params;
+    const { students } = req?.body;
+    if (!bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_batch = await Subject.findById({ _id: bid });
     var all_student = await Student.find({ _id: { $in: students } });
 
     for (var ref of all_student) {
       one_batch.theory_students.push(ref?._id);
-      one_batch.optionalStudent.push(ref?._id)
+      one_batch.optionalStudent.push(ref?._id);
       // one_batch.theory_students_count += 1;
       // ref.class_selected_batch.push(one_batch?._id);
       // await ref.save();
     }
-    await one_batch.save()
-    res.status(200).send({ message: "New Student In Batch Add Query", access: true })            
+    await one_batch.save();
+    res
+      .status(200)
+      .send({ message: "New Student In Batch Add Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_new_student_remove_query_batch = async (req, res) => {
   try {
-    const { bid } = req?.params
-    const { students } = req?.body
-    if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var one_batch = await Subject.findById({ _id: bid })
+    const { bid } = req?.params;
+    const { students } = req?.body;
+    if (!bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_batch = await Subject.findById({ _id: bid });
     var all_student = await Student.find({ _id: { $in: students } });
 
     for (var ref of all_student) {
       one_batch.theory_students.pull(ref?._id);
-      one_batch.optionalStudent.pull(ref?._id)
+      one_batch.optionalStudent.pull(ref?._id);
       // one_batch.class_student_query_count += 1;
       // ref.class_selected_batch.pull(one_batch?._id);
       // await ref.save();
     }
-    await one_batch.save()
-    res.status(200).send({ message: "New Student Remove In Batch Query", access: true })            
+    await one_batch.save();
+    res
+      .status(200)
+      .send({ message: "New Student Remove In Batch Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_active_academic_batch_query = async (req, res) => {
   try {
-      const { bid, did } = req?.params
-      if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-      const depart = await Department.findById({ _id: did })
-      const batch = await Batch.findById({ _id: bid })
-      depart.active_academic_batch = batch?._id
-    await depart.save()
-      res.status(200).send({ message: "Active Batches Query", access: true})            
+    const { bid, did } = req?.params;
+    if (!bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const batch = await Batch.findById({ _id: bid });
+    depart.active_academic_batch = batch?._id;
+    await depart.save();
+    res.status(200).send({ message: "Active Batches Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-      console.log(e)
-  }
-}
+};
 
 exports.render_one_class_details_query = async (req, res) => {
   try {
-    const { cid, did } = req?.params
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    
-    const classes = await ClassMaster.findById({ _id: cid })
-    var list = []
+    const { cid, did } = req?.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const classes = await ClassMaster.findById({ _id: cid });
+    var list = [];
     for (let ele of classes?.theory_classes) {
       if (`${ele?.did}` === `${did}`) {
-        list.push(ele)
+        list.push(ele);
       }
     }
-    var list_2 = []
+    var list_2 = [];
     for (let ele of classes?.practical_batch) {
       if (`${ele?.did}` === `${did}`) {
-        list.push(ele)
+        list.push(ele);
       }
     }
     let stats = {
       theory_classes: list?.length ?? 0,
       practical_batch: list_2?.length ?? 0,
-      all_student: classes?.all_academic_student?.length ?? 0
-    }
-    res.status(200).send({ message: "Explore One Class Master Details", access: true, stats})
+      all_student: classes?.all_academic_student?.length ?? 0,
+    };
+    res.status(200).send({
+      message: "Explore One Class Master Details",
+      access: true,
+      stats,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_master_list_query = async (req, res) => {
   try {
-    const { did } = req?.params
+    const { did } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-      if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-      
-      const depart = await Department.findById({ _id: did })
-      const subjects_extra = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master } })
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const subjects_extra = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
       .limit(limit)
       .skip(skip)
-        .select("subjectName subjectStatus")
-        .populate({
-          path: "department",
-          select: "dName"
-        })
-      res.status(200).send({ message: "Explore All Subject Master Map Query", access: true, subjects_extra: subjects_extra?.length > 0 ? subjects_extra : []})
-
+      .select("subjectName subjectStatus")
+      .populate({
+        path: "department",
+        select: "dName",
+      });
+    res.status(200).send({
+      message: "Explore All Subject Master Map Query",
+      access: true,
+      subjects_extra: subjects_extra?.length > 0 ? subjects_extra : [],
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-      console.log(e)
-  }
-}
+};
 
 exports.render_all_dse_students_query = async (req, res) => {
   try {
-      const { cid } = req?.params
-      const page = req.query.page ? parseInt(req.query.page) : 1;
-      const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-      const skip = (page - 1) * limit;
-      const { did } = req?.query
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const depart = await Department.findById({ _id: did })
-      const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-          .select("subjectName department link_subject_master")
-          .populate({
-              path: "subjects",
-              select: "class",
-      })
-      
-    var numss = []
-    var nums = []
-      for (let ele of all_subjects) {
-          for (let val of ele?.subjects) {
-              if (numss?.includes(`${val?.class}`)) {
-                  
-              }
-              else {
-                  numss.push(val?.class)
-              }
-          }
+    const { cid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { did } = req?.query;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "class",
+      });
+
+    var numss = [];
+    var nums = [];
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        if (numss?.includes(`${val?.class}`)) {
+        } else {
+          numss.push(val?.class);
+        }
       }
+    }
     // console.log(numss)
-      const m_class = await ClassMaster.findById({ _id: cid })
-      
+    const m_class = await ClassMaster.findById({ _id: cid });
+
     for (let ele of m_class?.classDivision) {
       for (let val of numss) {
         if (`${val}` === `${ele}`) {
-          nums.push(val)
+          nums.push(val);
         }
       }
     }
@@ -1020,93 +1197,214 @@ exports.render_all_dse_students_query = async (req, res) => {
   catch (e) {
       console.log(e)
   }
-}
+};
 exports.render_edit_theory_classes = async (req, res) => {
   try {
-    const { sid } = req?.params
-    const { o_staff, n_staff } = req?.body
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    await Subject.findByIdAndUpdate(sid, req?.body)
+    const { sid } = req?.params;
+    const { o_staff, n_staff } = req?.body;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await Subject.findByIdAndUpdate(sid, req?.body);
     if (n_staff) {
-      const new_subject = await Subject.findById({ _id: sid })
-      const staffs = await Staff.findById({ _id: o_staff })
-      const new_staff = await Staff.findById({ _id: n_staff })
-      staffs.staffSubject.pull(new_subject?._id)
-      new_subject.subjectTeacherName = new_staff?._id
-      new_staff.staffSubject.push(new_subject?._id)
-      await Promise.all([staffs.save(), new_staff.save()])
-      await new_subject.save()
+      const new_subject = await Subject.findById({ _id: sid });
+      if (o_staff) {
+        const staffs = await Staff.findById({ _id: o_staff });
+        staffs.staffSubject.pull(new_subject?._id);
+        await staffs.save();
+      }
+      const new_staff = await Staff.findById({ _id: n_staff });
+      new_subject.subjectTeacherName = new_staff?._id;
+      new_staff.staffSubject.push(new_subject?._id);
+      await Promise.all([new_staff.save()]);
+      await new_subject.save();
     }
-    res.status(200).send({ message: "Edit Subject Add Query", access: true })            
+    res.status(200).send({ message: "Edit Subject Add Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_delete_theory_classes = async (req, res) => {
   try {
-    const { sid } = req?.params
-    const { cid, flow } = req?.body
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const classes = await ClassMaster.findById({ _id: cid })
-    const new_subject = await Subject.findById({ _id: sid })
+    const { sid } = req?.params;
+    const { cid, flow } = req?.body;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const classes = await ClassMaster.findById({ _id: cid });
+    const new_subject = await Subject.findById({ _id: sid });
     if (new_subject?.subjectTeacherName) {
-      const staffs = await Staff.findById({ _id: new_subject?.subjectTeacherName })
-      new_subject.subjectTeacherName = null
-      staffs.staffSubject.pull(new_subject?._id)
-      await staffs.save()
+      const staffs = await Staff.findById({
+        _id: new_subject?.subjectTeacherName,
+      });
+      new_subject.subjectTeacherName = null;
+      staffs.staffSubject.pull(new_subject?._id);
+      await staffs.save();
     }
     if (flow === "THEORY_CLASSES") {
       for (let ele of classes?.theory_classes) {
         if (`${ele?.subject}` === `${new_subject._id}`) {
-          classes?.theory_classes?.pull(ele?._id)
+          classes?.theory_classes?.pull(ele?._id);
         }
       }
-    }
-    else if(flow === "PRACTICAL_BATCH") {
+    } else if (flow === "PRACTICAL_BATCH") {
       for (let ele of classes?.practical_batch) {
         if (`${ele?.subject}` === `${new_subject._id}`) {
-          classes?.practical_batch?.pull(ele?._id)
+          classes?.practical_batch?.pull(ele?._id);
         }
       }
     }
-    await classes.save()
-    await Subject.findByIdAndDelete(new_subject?._id)
-    res.status(200).send({ message: "Delete Subject Add Query", access: true })            
+    await classes.save();
+    await Subject.findByIdAndDelete(new_subject?._id);
+    res.status(200).send({ message: "Delete Subject Add Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.subject_query = async (req, res) => {
   try {
-      const all_subject = await Subject.find({})
-        .select("theory_students optionalStudent")
-    var  i =0
+    const all_subject = await Subject.find({}).select(
+      "theory_students optionalStudent"
+    );
+    var i = 0;
     for (let ele of all_subject) {
       if (ele?.theory_students?.length > 0) {
         for (let val of ele?.theory_students) {
           if (ele?.optionalStudent?.includes(`${val}`)) {
-            
-          }
-          else {
-            ele.optionalStudent.push(val)
+          } else {
+            ele.optionalStudent.push(val);
           }
         }
       }
-      await ele.save()
-      console.log(i)
-      i+= 1
-      }
-      res.status(200).send({ message: "Explore All Subjects", access: true })
-
+      await ele.save();
+      console.log(i);
+      i += 1;
+    }
+    res.status(200).send({ message: "Explore All Subjects", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-      console.log(e)
+};
+
+// to inster all academic stubject to student
+exports.insert_academic_subject_to_student_query = async (req, res) => {
+  try {
+    const { sid } = req?.params;
+
+    const cls_master = await ClassMaster.find({
+      $or: [
+        {
+          theory_classes_count: { $gt: 0 },
+        },
+        {
+          practical_batch_count: { $gt: 0 },
+        },
+      ],
+    });
+    let i = 0;
+    if (cls_master?.length > 0) {
+      for (let ct of cls_master) {
+        console.log("-> i", i);
+        if (ct?.theory_classes?.length > 0) {
+          for (let dt of ct?.theory_classes) {
+            if (dt?.subject) {
+              let sub = await Subject.findById(dt?.subject);
+              if (sub?.optionalStudent?.length > 0) {
+                for (let stu of sub?.optionalStudent) {
+                  const student = await Student.findById(stu);
+                  // student.academic_subject = [];
+                  student.academic_subject.push(sub?._id);
+                  await student.save();
+                }
+              }
+            }
+          }
+        }
+        if (ct?.practical_batch?.length > 0) {
+          for (let dt of ct?.practical_batch) {
+            if (dt?.subject) {
+              let sub = await Subject.findById(dt?.subject);
+              if (sub?.optionalStudent?.length > 0) {
+                for (let stu of sub?.optionalStudent) {
+                  const student = await Student.findById(stu);
+                  // student.academic_subject = [];
+                  student.academic_subject.push(sub?._id);
+                  await student.save();
+                }
+              }
+            }
+          }
+        }
+        ++i;
+      }
+    }
+    res.status(200).send({
+      message: "Inseterd student",
+      gtgh: cls_master?.length,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// to inster all class mastet to academic department
+exports.insert_academic_class_master_to_subjectt_query = async (req, res) => {
+  try {
+    const cls_master = await ClassMaster.find({
+      $or: [
+        {
+          theory_classes_count: { $gt: 0 },
+        },
+        {
+          practical_batch_count: { $gt: 0 },
+        },
+      ],
+    });
+    let i = 0;
+    if (cls_master?.length > 0) {
+      for (let ct of cls_master) {
+        console.log("-> i", i);
+        if (ct?.theory_classes?.length > 0) {
+          for (let dt of ct?.theory_classes) {
+            if (dt?.subject) {
+              let sub = await Subject.findById(dt?.subject);
+              if (sub?._id) {
+                sub.class_master = ct?._id;
+                await sub.save();
+              }
+            }
+          }
+        }
+        if (ct?.practical_batch?.length > 0) {
+          for (let dt of ct?.practical_batch) {
+            if (dt?.subject) {
+              let sub = await Subject.findById(dt?.subject);
+              if (sub?._id) {
+                sub.class_master = ct?._id;
+                await sub.save();
+              }
+            }
+          }
+        }
+        ++i;
+      }
+    }
+    res.status(200).send({
+      message: "Inseterd student",
+      gtgh: cls_master?.length,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
 }
 
@@ -1647,3 +1945,4 @@ exports.render_all_subject_students_query_export = async (req, res) => {
     console.log(e)
   }
 }
+

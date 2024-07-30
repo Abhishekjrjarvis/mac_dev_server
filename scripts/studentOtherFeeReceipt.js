@@ -539,7 +539,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
       .fontSize(12)
       .font("Times-Roman")
       .fillColor("#121212")
-      .text(receiptData?.student?.other_fees_remain_price, {
+      .text(0, {
         width: doc.widthOfString("Pending Fee For All Academic Year") + 40,
         align: "right",
       });
@@ -1058,7 +1058,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
           .fontSize(12)
           .font("Times-Roman")
           .fillColor("#121212")
-          .text(receiptData?.student?.other_fees_remain_price, {
+          .text(0, {
             width:
               doc.widthOfString(
                 "Total Pending Fee TIll Date (Including All Academic Years):"
@@ -1136,4 +1136,3 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
   //   console.log(data);
 };
 module.exports = studentOtherFeeReceipt;
-

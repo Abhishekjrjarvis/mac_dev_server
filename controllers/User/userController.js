@@ -33,7 +33,9 @@ const { dateTimeSort } = require("../../Utilities/timeComparison");
 const { shuffleArray } = require("../../Utilities/Shuffle");
 const { valid_student_form_query } = require("../../Functions/validForm");
 const { handle_undefined } = require("../../Handler/customError");
-const { calc_profile_percentage } = require("../../Functions/ProfilePercentage");
+const {
+  calc_profile_percentage,
+} = require("../../Functions/ProfilePercentage");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { generateAccessInsToken } = require("../../helper/functions");
 const StudentMessage = require("../../models/Content/StudentMessage");
@@ -58,8 +60,8 @@ exports.retrieveProfileData = async (req, res) => {
     if (user && user?.userPosts?.length < 1) {
       var post = [];
     }
-    const qvipleId = await QvipleId.findOne({ user: `${user?._id}`})
-    user.qviple_id = qvipleId?.qviple_id
+    const qvipleId = await QvipleId.findOne({ user: `${user?._id}` });
+    user.qviple_id = qvipleId?.qviple_id;
     // Add Another Encryption
     res.status(200).send({
       message: "Limit User Profile Data ",
@@ -211,9 +213,9 @@ exports.updateUserFollowIns = async (req, res) => {
             $and: [{ author: sinstitute._id, postStatus: "Anyone" }],
           });
           post.forEach(async (ele) => {
-            ele.post_arr.push(user?._id)
+            ele.post_arr.push(user?._id);
             user.userPosts.push(ele);
-            await ele.save()
+            await ele.save();
           });
           await user.save();
         } else {
@@ -265,9 +267,9 @@ exports.removeUserFollowIns = async (req, res) => {
             $and: [{ author: sinstitute._id, postStatus: "Anyone" }],
           });
           post.forEach(async (ele) => {
-            ele.post_arr.pull(user?._id)
+            ele.post_arr.pull(user?._id);
             user.userPosts.pull(ele);
-            await ele.save()
+            await ele.save();
           });
           await user.save();
         } else {
@@ -340,9 +342,9 @@ exports.updateUserFollow = async (req, res) => {
           //
           if (user?.userPosts?.includes(ele)) {
           } else {
-            ele.post_arr.push(user?._id)
+            ele.post_arr.push(user?._id);
             user.userPosts.push(ele);
-            await ele.save()
+            await ele.save();
           }
           //
         });
@@ -384,8 +386,8 @@ exports.updateUserUnFollow = async (req, res) => {
       });
       post.forEach(async (ele) => {
         user.userPosts.pull(ele);
-        ele.post_arr.pull(user?._id)
-        await ele.save()
+        ele.post_arr.pull(user?._id);
+        await ele.save();
       });
       await user.save();
       //
@@ -457,9 +459,9 @@ exports.updateUserCircle = async (req, res) => {
         post.forEach(async (ele) => {
           if (user && user.userPosts?.includes(`${ele}`)) {
           } else {
-            ele.post_arr.push(user?._id)
+            ele.post_arr.push(user?._id);
             user.userPosts.push(ele);
-            await ele.save()
+            await ele.save();
           }
         });
         await user.save();
@@ -470,8 +472,8 @@ exports.updateUserCircle = async (req, res) => {
           if (suser && suser.userPosts?.includes(`${ele}`)) {
           } else {
             suser.userPosts.push(ele);
-            ele.post_arr.push(suser?._id)
-            await ele.save()
+            ele.post_arr.push(suser?._id);
+            await ele.save();
           }
         });
         await suser.save();
@@ -1061,21 +1063,29 @@ exports.getAllUserActivity = async (req, res) => {
 
 exports.getAllUserStudentMessage = async (req, res) => {
   try {
-    const { id } = req?.params
-    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    const { id } = req?.params;
+    if (!id)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
     var page = req.query.page ? parseInt(req.query.page) : 1;
     var limit = req.query.limit ? parseInt(req.query.limit) : 10;
     var skip = (page - 1) * limit;
     var user = await User.findById({ _id: id }).select("student_message");
-    var all_message = await StudentMessage.find({ $and: [{ _id: { $in: user?.student_message } }] })
-    .sort({ created_at: -1 })
-    .limit(limit)
-    .skip(skip)
-    .populate({
-      path: "from student_list institute",
+    var all_message = await StudentMessage.find({
+      $and: [{ _id: { $in: user?.student_message } }],
+    })
+      .sort({ created_at: -1 })
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "from student_list institute",
         select:
           "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO insName name photoId insProfilePhoto",
-    });
+      });
     if (all_message?.length > 0) {
       res.status(200).send({
         message: "Explore New All Message Query",
@@ -1361,8 +1371,8 @@ exports.getDashDataQuery = async (req, res) => {
     if (user?.userPosts && user?.userPosts.length < 1) {
       var post = [];
     }
-    const qvipleId = await QvipleId.findOne({ user: `${user?._id}`})
-    user.qviple_id = qvipleId?.qviple_id
+    const qvipleId = await QvipleId.findOne({ user: `${user?._id}` });
+    user.qviple_id = qvipleId?.qviple_id;
     if (user) {
       // Add Another Encryption
       res.status(200).send({
@@ -1754,10 +1764,12 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "instituteModeratorDepartment",
-          select: "institute access_role academic_department staff_institute_admin lms",
+          select:
+            "institute access_role academic_department staff_institute_admin lms",
           populate: {
             path: "academic_department institute",
-            select: "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart",
+            select:
+              "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart",
           },
         })
         .populate({
@@ -1778,8 +1790,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "lms_department",
-          select:
-            "id",
+          select: "id",
         })
         .populate({
           path: "mentorDepartment",
@@ -1801,9 +1812,9 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
             select: "institute",
             populate: {
               path: "institute",
-              select: "_id financeDepart admissionDepart storeStatus"
-            }
-          }
+              select: "_id financeDepart admissionDepart storeStatus",
+            },
+          },
         })
         .populate({
           path: "payrollDepartment",
@@ -1987,10 +1998,12 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "instituteModeratorDepartment",
-          select: "institute access_role academic_department staff_institute_admin lms",
+          select:
+            "institute access_role academic_department staff_institute_admin lms",
           populate: {
             path: "academic_department institute",
-            select: "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart",
+            select:
+              "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart",
           },
         })
         .populate({
@@ -2011,8 +2024,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "lms_department",
-          select:
-            "id",
+          select: "id",
         })
         .populate({
           path: "mentorDepartment",
@@ -2034,9 +2046,9 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
             select: "institute",
             populate: {
               path: "institute",
-              select: "_id financeDepart admissionDepart storeStatus"
-            }
-          }
+              select: "_id financeDepart admissionDepart storeStatus",
+            },
+          },
         })
         .populate({
           path: "payrollDepartment",
@@ -2054,9 +2066,12 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     //   `Staff-Designation-Member-${sid}`,
     //   staff
     // );
-    var token_list = []
+    var token_list = [];
     staff?.instituteModeratorDepartment?.filter((val) => {
-      if(`${val?.access_role}` === "INSTITUTE_ADMIN" || `${val?.access_role}` === "SOCIAL_MEDIA_ACCESS") {
+      if (
+        `${val?.access_role}` === "INSTITUTE_ADMIN" ||
+        `${val?.access_role}` === "SOCIAL_MEDIA_ACCESS"
+      ) {
         const token = generateAccessInsToken(
           val?.institute?.name,
           val?.institute?._id,
@@ -2070,9 +2085,9 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
           access_by: val?.access_role,
           financeDepart: val?.institute?.financeDepart?.[0],
           admissionDepart: val?.institute?.admissionDepart?.[0],
-        })
+        });
       }
-    })
+    });
     res.status(200).send({
       message: "All Staff Designation Feed from DB 🙌",
       // staff: cached.staff,
@@ -2103,7 +2118,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       if (isApk) {
         var student = await Student.findById({ _id: sid })
           .select(
-            "batchCount extraPoints studentFirstName fee_structure library_qr_code exist_linked_hostel student_hostel_cpi profile_percentage student_anti_ragging student_id_card_front student_id_card_back student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points studentEmail form_status online_amount_edit_access library studentBirthPlace studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName department studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode student_prn_enroll_number studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+            "batchCount extraPoints studentFirstName fee_structure library_qr_code exist_linked_hostel student_hostel_cpi profile_percentage student_anti_ragging student_id_card_front student_id_card_back student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points studentEmail form_status online_amount_edit_access library studentBirthPlace studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName department studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode student_prn_enroll_number studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO application_print"
           )
           .populate({
             path: "studentClass",
@@ -2241,7 +2256,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       } else {
         var student = await Student.findById({ _id: sid })
           .select(
-            "batchCount extraPoints studentFirstName exist_linked_hostel library_qr_code fee_structure student_hostel_cpi profile_percentage student_anti_ragging student_id_card_front student_id_card_back student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points studentEmail form_status online_amount_edit_access student_prn_enroll_number studentBirthPlace studentBankAccountHolderName department studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+            "batchCount extraPoints studentFirstName exist_linked_hostel library_qr_code fee_structure student_hostel_cpi profile_percentage student_anti_ragging student_id_card_front student_id_card_back student_blood_group query_lock_status student_programme student_branch student_year student_single_seater_room student_ph student_gate_score student_gate_year student_degree_institute student_degree_year student_pre_sem_obtained_points student_percentage_cpi student_pre_sem_total_points student_final_sem_total_points student_final_sem_obtained_points studentEmail form_status online_amount_edit_access student_prn_enroll_number studentBirthPlace studentBankAccountHolderName department studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO application_print"
           )
           .populate({
             path: "studentClass",
@@ -2336,14 +2351,14 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       //   `Student-Designation-Member-${sid}`,
       //   bind_student
       // );
-      await calc_profile_percentage(student)
+      await calc_profile_percentage(student);
       res.status(200).send({
         message: "All Student Designation Feed from DB 🙌",
         // student: cached.student,
         // average_points: cached.average_points,
         student: student,
         status: status,
-        average_points: (point == "0" || 0) ? 0 : parseInt(point),
+        average_points: point == "0" || 0 ? 0 : parseInt(point),
         re_admission_tab: re_admission_tab ? re_admission_tab : "" || null,
       });
     } else {
@@ -3044,51 +3059,73 @@ exports.renderMode = async (req, res) => {
 
 exports.render_specific_mods_query = async (req, res) => {
   try {
-    const { uid } = req?.params
-    if (!uid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var user = await User.findById({ _id: uid })
+    const { uid } = req?.params;
+    if (!uid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
 
-    var roles = ["SOCIAL_MEDIA_ACCESS", "INSTITUTE_ADMIN"]
-    if (user?.staff?.length > 0) {        
-      var all_staff = await FinanceModerator.find({ $and: [{ access_staff: { $in: user?.staff } }, { access_role: { $in: roles }}] })
-      .select("access_role")
-      .populate({
-        path: "access_staff",
-        select: "staffFirstName staffMiddleName staffLastName"
+    var user = await User.findById({ _id: uid });
+
+    var roles = ["SOCIAL_MEDIA_ACCESS", "INSTITUTE_ADMIN"];
+    if (user?.staff?.length > 0) {
+      var all_staff = await FinanceModerator.find({
+        $and: [
+          { access_staff: { $in: user?.staff } },
+          { access_role: { $in: roles } },
+        ],
       })
-      .populate({
-        path: "institute",
-        select: "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart"
-      })
-    
-      var token_list = []
+        .select("access_role")
+        .populate({
+          path: "access_staff",
+          select: "staffFirstName staffMiddleName staffLastName",
+        })
+        .populate({
+          path: "institute",
+          select:
+            "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart",
+        });
+
+      var token_list = [];
       for (var val of all_staff) {
-            const token = generateAccessInsToken(
-              val?.institute?.name,
-              val?.institute?._id,
-              val?.institute?.insPassword
-            );
-            token_list.push({
-              token: `Bearer ${token}`,
-              _id: val?.institute?._id,
-              name: val?.institute?.name,
-              mods_id: val?._id,
-              access_by: val?.access_role,
-              financeDepart: val?.institute?.financeDepart?.[0],
-              admissionDepart: val?.institute?.admissionDepart?.[0],
-            })
+        const token = generateAccessInsToken(
+          val?.institute?.name,
+          val?.institute?._id,
+          val?.institute?.insPassword
+        );
+        token_list.push({
+          token: `Bearer ${token}`,
+          _id: val?.institute?._id,
+          name: val?.institute?.name,
+          mods_id: val?._id,
+          access_by: val?.access_role,
+          financeDepart: val?.institute?.financeDepart?.[0],
+          admissionDepart: val?.institute?.admissionDepart?.[0],
+        });
       }
-      res.status(200).send({ message: "Explore Social / Institute Admin Mods Available", access: true, token_list: token_list})
+      res
+        .status(200)
+        .send({
+          message: "Explore Social / Institute Admin Mods Available",
+          access: true,
+          token_list: token_list,
+        });
+    } else {
+      res
+        .status(200)
+        .send({
+          message: "No Social / Institute Admin Mods Available",
+          access: false,
+          staff: [],
+        });
     }
-    else {
-      res.status(200).send({ message: "No Social / Institute Admin Mods Available", access: false, staff: []})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 // exports.getAllThreeCount = async (req, res) => {
 //   try {

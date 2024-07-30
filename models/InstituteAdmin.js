@@ -508,7 +508,7 @@ const instituteAdminSchema = new mongoose.Schema({
       nonCreamyLayerCertificate: { type: Boolean, default: false },
     },
     bankDetails: { type: Boolean, default: false },
-    experience: { type: Boolean, default: false}
+    experience: { type: Boolean, default: false },
   },
   studentFormSetting: {
     personalInfo: { type: Boolean, default: true },
@@ -951,12 +951,12 @@ const instituteAdminSchema = new mongoose.Schema({
   student_message: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "StudentMessage"
+      ref: "StudentMessage",
     },
   ],
   student_message_count: {
     type: Number,
-    default: 0
+    default: 0,
   },
   transport_linked_status: {
     type: String,
@@ -970,16 +970,16 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   nss_module: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "NSS"
+    ref: "NSS",
   },
   authority: {
-    type: String
+    type: String,
   },
   authority_signature: {
-    type: String
+    type: String,
   },
   autority_stamp_profile: {
-    type: String
+    type: String,
   },
   certificate_fund_charges: {
     bona_charges: {
@@ -1006,20 +1006,20 @@ const instituteAdminSchema = new mongoose.Schema({
   staff_leave_config: {
     casual_leave: {
       type: Number,
-      default: 0
+      default: 0,
     },
     medical_leave: {
       type: Number,
-      default: 0
+      default: 0,
     },
     sick_leave: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
   },
   facilities_module: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Facilities"
+    ref: "Facilities",
   },
   student_export_collection: [
     {
@@ -1033,17 +1033,17 @@ const instituteAdminSchema = new mongoose.Schema({
     default: 0,
   },
   naac_motto: {
-    type: String
+    type: String,
   },
   student_reminder: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "StudentMessage"
+      ref: "StudentMessage",
     },
   ],
   student_reminder_count: {
     type: Number,
-    default: 0
+    default: 0,
   },
   scholar_export_collection: [
     {
@@ -1057,7 +1057,7 @@ const instituteAdminSchema = new mongoose.Schema({
     default: 0,
   },
   qviple_id: {
-    type: String
+    type: String,
   },
   institute_id_setting: {
     affiliated: String,
@@ -1073,12 +1073,12 @@ const instituteAdminSchema = new mongoose.Schema({
   moderator_list: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "FinanceModerator"
-    }
+      ref: "FinanceModerator",
+    },
   ],
-  charges:{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Charges"
+  charges: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Charges",
   },
   certificate_fund_collection: {
     online: {
@@ -1093,12 +1093,12 @@ const instituteAdminSchema = new mongoose.Schema({
   lms_depart: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "LMS"
-    }
+      ref: "LMS",
+    },
   ],
   lms_status: {
     type: String,
-    default: "Disable"
+    default: "Disable",
   },
   student_feedback: [
     {
@@ -1112,27 +1112,27 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   leave_certificate_selection: {
     type: String,
-    default: "Standard"
+    default: "Standard",
   },
   governance_depart: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Governance"
-    }
+      ref: "Governance",
+    },
   ],
   governance_status: {
     type: String,
-    default: "Disable"
+    default: "Disable",
   },
   storeDepart: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "InventoryStore"
-    }
+      ref: "InventoryStore",
+    },
   ],
   storeStatus: {
     type: String,
-    default: "Disable"
+    default: "Disable",
   },
   department_tab_manage: {
     all_staff: {
@@ -1272,42 +1272,48 @@ const instituteAdminSchema = new mongoose.Schema({
       name: { type: String },
       image: { type: String },
       bio: { type: String },
-      link: { type: String }
-    }
+      link: { type: String },
+    },
   ],
   home_opener: [
     {
       image: { type: String },
       link: { type: String },
-      quick_links: [{ name: { type: String }, link: { type: String }, attach: { type: String}}]
-    }
+      quick_links: [
+        {
+          name: { type: String },
+          link: { type: String },
+          attach: { type: String },
+        },
+      ],
+    },
   ],
   iso_certificate: [
     {
       name: { type: String },
       image: { type: String },
-      link: { type: String }
-    }
+      link: { type: String },
+    },
   ],
   landing_control: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "LandingControl"
+    ref: "LandingControl",
   },
   student_form_setting: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "InstituteStudentForm"
+    ref: "InstituteStudentForm",
   },
   featured_post: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Post"
-    }
+      ref: "Post",
+    },
   ],
   independent_pinned_department: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Department"
-    }
+      ref: "Department",
+    },
   ],
   dependent_pinned_department: [
     {
@@ -1315,52 +1321,52 @@ const instituteAdminSchema = new mongoose.Schema({
       department: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Department"
-        }
-      ]
-    }
+          ref: "Department",
+        },
+      ],
+    },
   ],
   payroll_module: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "PayrollModule"
-    }
+      ref: "PayrollModule",
+    },
   ],
   payroll_module_status: {
     type: String,
-    default: "Disable"
+    default: "Disable",
   },
   iqac_module: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "IQAC"
-    }
+      ref: "IQAC",
+    },
   ],
   iqac_module_status: {
     type: String,
-    default: "Disable"
+    default: "Disable",
   },
   staff_form_setting: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "InstituteStaffForm"
+    ref: "InstituteStaffForm",
   },
   universal_batches: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Batch"
-    }
+      ref: "Batch",
+    },
   ],
   universal_batches_count: {
     type: Number,
-    default: 0
+    default: 0,
   },
   universal_selected_batch: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Batch"
+    ref: "Batch",
   },
   form_no_count: {
     type: Number,
-    default: 0
+    default: 0,
   },
   institute_log: {
     type: mongoose.Schema.Types.ObjectId,
@@ -1369,6 +1375,9 @@ const instituteAdminSchema = new mongoose.Schema({
   certificate_original_leaving_count: {
     type: Number,
     default: 0,
+  },
+  admission_form_print_case: {
+    type: String,
   },
 });
 

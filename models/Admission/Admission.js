@@ -124,16 +124,16 @@ const admissionAdminSchema = new mongoose.Schema({
       demand_cheque_status: { type: String, default: "Pending" },
       nested_card: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "NestedCard"
+        ref: "NestedCard",
       },
       nest_remain: {
-        type: String
-      }
+        type: String,
+      },
     },
   ],
   fee_receipt_request_count: {
     type: Number,
-    default: 0
+    default: 0,
   },
   fee_receipt_approve: [
     {
@@ -149,7 +149,7 @@ const admissionAdminSchema = new mongoose.Schema({
   ],
   fee_receipt_approve_count: {
     type: Number,
-    default: 0
+    default: 0,
   },
   fee_receipt_reject: [
     {
@@ -165,7 +165,7 @@ const admissionAdminSchema = new mongoose.Schema({
   ],
   fee_receipt_reject_count: {
     type: Number,
-    default: 0
+    default: 0,
   },
   alarm_count: {
     type: Number,
@@ -181,7 +181,7 @@ const admissionAdminSchema = new mongoose.Schema({
   required_document: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "RequiredDocument"
+      ref: "RequiredDocument",
     },
   ],
   required_document_count: {
@@ -264,52 +264,52 @@ const admissionAdminSchema = new mongoose.Schema({
   tab_manage: {
     all_students: {
       type: Boolean,
-      default: true
+      default: true,
     },
     ongoing_admission: {
       type: Boolean,
-      default: true
+      default: true,
     },
     admission_enquiry: {
       type: Boolean,
-      default: true
+      default: true,
     },
     offline_payment_verification: {
       type: Boolean,
-      default: true
+      default: true,
     },
     pending_fee: {
       type: Boolean,
-      default: true
+      default: true,
     },
     scholarships_management: {
       type: Boolean,
-      default: true
+      default: true,
     },
     excess_fee: {
       type: Boolean,
-      default: true
+      default: true,
     },
     complete_admission: {
       type: Boolean,
-      default: true
+      default: true,
     },
     required_documents: {
       type: Boolean,
-      default: true
+      default: true,
     },
     data_export: {
       type: Boolean,
-      default: true
+      default: true,
     },
     admission_mods: {
       type: Boolean,
-      default: true
+      default: true,
     },
   },
   member_module_unique: {
     type: String,
-    unique: true
+    unique: true,
   },
   online_amount_edit_access: {
     type: String,
@@ -318,12 +318,10 @@ const admissionAdminSchema = new mongoose.Schema({
   student: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Student"
-    }
+      ref: "Student",
+    },
   ],
-  admission_stats: {
-    
-  },
+  admission_stats: {},
   cancel_admission: [
     {
       student: {
@@ -334,17 +332,17 @@ const admissionAdminSchema = new mongoose.Schema({
       payment_status: { type: String, default: "Pending" },
       refund_amount: { type: Number, default: 0 },
       from: {
-        type: String
+        type: String,
       },
       staff: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Staff"
-      }
+        ref: "Staff",
+      },
     },
   ],
   cancel_admission_count: {
     type: Number,
-    default: 0
+    default: 0,
   },
   re_admission_list: [
     {
@@ -356,25 +354,25 @@ const admissionAdminSchema = new mongoose.Schema({
       payment_status: { type: String, default: "Pending" },
       fee_struct: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "FeeStructure"
+        ref: "FeeStructure",
       },
       appId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "NewApplication"
+        ref: "NewApplication",
       },
       app_card: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "NestedCard"
+        ref: "NestedCard",
       },
       gov_card: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "NestedCard"
-      }
-    }
+        ref: "NestedCard",
+      },
+    },
   ],
   re_admission_list_count: {
     type: Number,
-    default: 0
+    default: 0,
   },
   confirmedApplication: [
     {
@@ -385,47 +383,47 @@ const admissionAdminSchema = new mongoose.Schema({
       apply_on: { type: Date, default: Date.now },
       appId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "NewApplication"
+        ref: "NewApplication",
       },
       structure: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "FeeStructure"
+        ref: "FeeStructure",
       },
       class: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Class"
-      }
+        ref: "Class",
+      },
     },
   ],
   subject_groups: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SubjectGroup"
-    }
+      ref: "SubjectGroup",
+    },
   ],
   subject_selected_group: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SubjectGroup"
-    }
+      ref: "SubjectGroup",
+    },
   ],
   app_qr_code: {
-    type: String
+    type: String,
   },
   code_url: {
-    type: String
+    type: String,
   },
   app_hindi_qr_code: {
-    type: String
+    type: String,
   },
   app_marathi_qr_code: {
-    type: String
+    type: String,
   },
   independent_pinned_application: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "NewApplication"
-    }
+      ref: "NewApplication",
+    },
   ],
   dependent_pinned_application: [
     {
@@ -433,10 +431,10 @@ const admissionAdminSchema = new mongoose.Schema({
       application: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "NewApplication"
-        }
-      ]
-    }
+          ref: "NewApplication",
+        },
+      ],
+    },
   ],
   selectedApplication: [
     {
@@ -461,8 +459,8 @@ const admissionAdminSchema = new mongoose.Schema({
       },
       staff: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Staff"
-      }
+        ref: "Staff",
+      },
     },
   ],
   confirmedApplication_query: [
@@ -496,8 +494,8 @@ const admissionAdminSchema = new mongoose.Schema({
       },
       staff: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Staff"
-      }
+        ref: "Staff",
+      },
     },
   ],
   FeeCollectionApplication: [
@@ -523,15 +521,15 @@ const admissionAdminSchema = new mongoose.Schema({
       },
       payment_flow: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "RemainingList"
+        ref: "RemainingList",
       },
       app_card: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "NestedCard"
+        ref: "NestedCard",
       },
       gov_card: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "NestedCard"
+        ref: "NestedCard",
       },
       revert_request_status: {
         type: mongoose.Schema.Types.ObjectId,
@@ -539,7 +537,7 @@ const admissionAdminSchema = new mongoose.Schema({
       },
       fee_struct: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "FeeStructure"
+        ref: "FeeStructure",
       },
       application: {
         type: mongoose.Schema.Types.ObjectId,
@@ -547,8 +545,8 @@ const admissionAdminSchema = new mongoose.Schema({
       },
       staff: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Staff"
-      }
+        ref: "Staff",
+      },
     },
   ],
   admission_intake_set: [
@@ -558,7 +556,10 @@ const admissionAdminSchema = new mongoose.Schema({
       batch: { type: String },
       created_at: { type: Date, default: Date.now },
     },
-    ],
+  ],
+  admission_form_print_case: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

@@ -654,6 +654,7 @@ exports.render_new_theory_classes = async (req, res) => {
     new_subject.subjectTitle = "Subject Teacher";
     const codess = universal_random_password();
     new_subject.member_module_unique = `${codess}`;
+    new_subject.class_master = cid;
     if (staff) {
       const staffs = await Staff.findById({ _id: staff });
       new_subject.subjectTeacherName = staffs;
@@ -848,6 +849,8 @@ exports.render_new_theory_practical = async (req, res) => {
     new_subject.subjectTitle = "Subject Teacher";
     const codess = universal_random_password();
     new_subject.member_module_unique = `${codess}`;
+    new_subject.class_master = cid;
+
     if (staff) {
       const staffs = await Staff.findById({ _id: staff });
       new_subject.subjectTeacherName = staffs;
@@ -1328,6 +1331,58 @@ exports.insert_academic_subject_to_student_query = async (req, res) => {
                   student.academic_subject.push(sub?._id);
                   await student.save();
                 }
+              }
+            }
+          }
+        }
+        ++i;
+      }
+    }
+    res.status(200).send({
+      message: "Inseterd student",
+      gtgh: cls_master?.length,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// to inster all class mastet to academic department
+exports.insert_academic_class_master_to_subjectt_query = async (req, res) => {
+  try {
+    const cls_master = await ClassMaster.find({
+      $or: [
+        {
+          theory_classes_count: { $gt: 0 },
+        },
+        {
+          practical_batch_count: { $gt: 0 },
+        },
+      ],
+    });
+    let i = 0;
+    if (cls_master?.length > 0) {
+      for (let ct of cls_master) {
+        console.log("-> i", i);
+        if (ct?.theory_classes?.length > 0) {
+          for (let dt of ct?.theory_classes) {
+            if (dt?.subject) {
+              let sub = await Subject.findById(dt?.subject);
+              if (sub?._id) {
+                sub.class_master = ct?._id;
+                await sub.save();
+              }
+            }
+          }
+        }
+        if (ct?.practical_batch?.length > 0) {
+          for (let dt of ct?.practical_batch) {
+            if (dt?.subject) {
+              let sub = await Subject.findById(dt?.subject);
+              if (sub?._id) {
+                sub.class_master = ct?._id;
+                await sub.save();
               }
             }
           }

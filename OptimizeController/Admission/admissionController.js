@@ -104,12 +104,23 @@ const {
 } = require("../../Functions/hostelInstallment");
 const { universal_random_password } = require("../../Custom/universalId");
 const QvipleId = require("../../models/Universal/QvipleId");
-const { mismatch_scholar_transaction_json_to_excel_query } = require("../../Custom/JSONToExcel");
+const {
+  mismatch_scholar_transaction_json_to_excel_query,
+} = require("../../Custom/JSONToExcel");
 const NestedCard = require("../../models/Admission/NestedCard");
-const { render_new_fees_card, render_new_fees_card_install } = require("../../Functions/FeesCard");
+const {
+  render_new_fees_card,
+  render_new_fees_card_install,
+} = require("../../Functions/FeesCard");
 const Charges = require("../../models/SuperAdmin/Charges");
-const { fee_receipt_count_query, fee_receipt_count_query_new, form_no_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
-const { renderAllStudentToUnApprovedAutoCatalogQuery } = require("../Authentication/AuthController");
+const {
+  fee_receipt_count_query,
+  fee_receipt_count_query_new,
+  form_no_query,
+} = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
+const {
+  renderAllStudentToUnApprovedAutoCatalogQuery,
+} = require("../Authentication/AuthController");
 const FeeMaster = require("../../models/Finance/FeeMaster");
 const DeleteLogs = require("../../models/RazorPay/DeleteLogs");
 const InstituteApplicationForm = require("../../models/Form/InstituteApplicationForm");
@@ -121,7 +132,9 @@ const SubjectGroupSelect = require("../../models/Admission/Optional/SubjectGroup
 const SubjectMaster = require("../../models/SubjectMaster");
 const Subject = require("../../models/Subject");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
-const { universal_random_password_student_code } = require("../../Generator/RandomPass");
+const {
+  universal_random_password_student_code,
+} = require("../../Generator/RandomPass");
 const RequiredDocument = require("../../models/Admission/RequiredDocument");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
@@ -135,8 +148,8 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
       });
     var institute = await InstituteAdmin.findById({ _id: id });
     var admission = new Admission({});
-    const codess = universal_random_password()
-    admission.member_module_unique = `${codess}`
+    const codess = universal_random_password();
+    admission.member_module_unique = `${codess}`;
     if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });
@@ -220,7 +233,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   });
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber enable_protection tab_manage online_amount_edit_access fee_receipt_request_count fee_receipt_approve_count fee_receipt_reject_count moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status active_tab_index alarm_enable alarm_enable_status refundedCount app_qr_code code_url app_hindi_qr_code app_marathi_qr_code"
+        "admissionAdminEmail admissionAdminPhoneNumber enable_protection tab_manage online_amount_edit_access fee_receipt_request_count fee_receipt_approve_count fee_receipt_reject_count moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status active_tab_index alarm_enable alarm_enable_status refundedCount app_qr_code code_url app_hindi_qr_code app_marathi_qr_code admission_form_print_case"
       )
       .populate({
         path: "admissionAdminHead",
@@ -255,10 +268,10 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
       // admission: cached.admission,
       admission: admission,
       roles: req?.query?.mod_id ? value?.permission : null,
-    }
+    };
     const adsEncrypt = await encryptionPayload(ads_obj);
     res.status(200).send({
-      encrypt: adsEncrypt
+      encrypt: adsEncrypt,
     });
   } catch (e) {
     console.log(e);
@@ -334,21 +347,19 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
         // ongoingCount: cached.ongoingCount,
         ongoing: ongoing,
         ongoingCount: ongoing?.length,
-      }
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
         encrypt: adsEncrypt,
-        ads_obj
+        ads_obj,
       });
     } else {
       const ads_obj = {
-        message: "Dark side in depth nothing to find", 
-        ongoing: []
-      }
+        message: "Dark side in depth nothing to find",
+        ongoing: [],
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
-      res
-        .status(200)
-        .send({ encrypt: adsEncrypt });
+      res.status(200).send({ encrypt: adsEncrypt });
     }
   } catch (e) {
     console.log(e);
@@ -407,20 +418,18 @@ exports.retieveAdmissionAdminAllCApplication = async (req, res) => {
         // completedCount: cached.completedCount,
         completed: completed,
         completedCount: completed?.length,
-      }
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
-        encrypt: adsEncrypt
+        encrypt: adsEncrypt,
       });
     } else {
       const ads_obj = {
-        message: "Dark side in depth nothing to find", 
-        completed: []
-      }
+        message: "Dark side in depth nothing to find",
+        completed: [],
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
-      res
-        .status(200)
-        .send({ encrypt: adsEncrypt });
+      res.status(200).send({ encrypt: adsEncrypt });
     }
   } catch (e) {
     console.log(e);
@@ -482,20 +491,18 @@ exports.retieveAdmissionAdminAllCDetailApplication = async (req, res) => {
         // completedCount: cached.completedCount,
         completed: completed,
         completedCount: completed?.length,
-      }
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
-        encrypt: adsEncrypt
+        encrypt: adsEncrypt,
       });
     } else {
       const ads_obj = {
-        message: "Dark side in depth nothing to find", 
-        completed: []
-      }
+        message: "Dark side in depth nothing to find",
+        completed: [],
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
-      res
-        .status(200)
-        .send({ encrypt: adsEncrypt });
+      res.status(200).send({ encrypt: adsEncrypt });
     }
   } catch (e) {
     console.log(e);
@@ -513,7 +520,7 @@ exports.fetchAdmissionQuery = async (req, res) => {
 exports.retrieveAdmissionNewApplication = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { flow } = req?.body
+    const { flow } = req?.body;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -529,9 +536,9 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
         _id: `${one_hostel.institute}`,
       });
       var newApply = new NewApplication({ ...req.body });
-      var iaf = new InstituteApplicationForm({})
-      iaf.application = newApply?._id
-      newApply.student_form_setting = iaf?._id
+      var iaf = new InstituteApplicationForm({});
+      iaf.application = newApply?._id;
+      newApply.student_form_setting = iaf?._id;
       one_hostel.newApplication.push(newApply._id);
       one_hostel.newAppCount += 1;
       newApply.hostelAdmin = one_hostel?._id;
@@ -539,9 +546,13 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
       newApply.application_flow = "Hostel Application";
       newApply.applicationTypeStatus = "Normal Application";
       institute.hostelCount += 1;
-      await Promise.all([one_hostel.save(), newApply.save(), institute.save(), iaf.save()]);
-    }
-    else {
+      await Promise.all([
+        one_hostel.save(),
+        newApply.save(),
+        institute.save(),
+        iaf.save(),
+      ]);
+    } else {
       var admission = await Admission.findById({ _id: aid });
       var institute = await InstituteAdmin.findById({
         _id: `${admission.institute}`,
@@ -553,147 +564,172 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
       //     newApply.applicationChildType.push(child[i]);
       //   }
       // }
-      var iaf = new InstituteApplicationForm({})
-      iaf.application = newApply?._id
-      newApply.student_form_setting = iaf?._id
+      var iaf = new InstituteApplicationForm({});
+      iaf.application = newApply?._id;
+      newApply.student_form_setting = iaf?._id;
       admission.newApplication.push(newApply._id);
       admission.newAppCount += 1;
       newApply.admissionAdmin = admission._id;
       institute.admissionCount += 1;
       newApply.applicationTypeStatus = "Normal Application";
-      await Promise.all([admission.save(), newApply.save(), institute.save(), iaf.save()]);
+      await Promise.all([
+        admission.save(),
+        newApply.save(),
+        institute.save(),
+        iaf.save(),
+      ]);
     }
     res
       .status(200)
       .send({ message: "New Application is ongoing 👍", status: true });
-    var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
-    .select("form_section")
-    .populate({
-      path: "form_section",
-      populate: {
-        path: "form_checklist",
-        populate: {
-          path: "nested_form_checklist",
-          populate: {
-            path: "nested_form_checklist_nested"
-          }
-        }
-      }
+    var ifs = await InstituteStudentForm.findById({
+      _id: `${institute?.student_form_setting}`,
     })
-      var nums = []
-      for (var val of ifs?.form_section) {
-        if (val?.form_checklist?.length > 0) {
-          for (var ele of val?.form_checklist) {
-            var fc = new FormChecklist({
-              form_checklist_name: ele?.form_checklist_name,
-              form_checklist_key: ele?.form_checklist_key,
-              form_checklist_visibility: ele?.form_checklist_visibility,
-              form_checklist_placeholder: ele?.form_checklist_placeholder,
-              form_checklist_lable: ele?.form_checklist_lable,
-              form_checklist_typo: ele?.form_checklist_typo,
-              form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
-              form_checklist_required: ele?.form_checklist_required,
-              form_checklist_key_status: ele?.form_checklist_key_status,
-              width: ele?.width
-            })
-            if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
-              ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
-            }
-            if (ele?.form_checklist_sample) {
-              fc.form_checklist_sample = ele?.form_checklist_sample
-            }
-            if (ele?.form_checklist_pdf) {
-              fc.form_checklist_pdf = ele?.form_checklist_pdf
-            }
-            if (ele?.form_checklist_view) {
-              fc.form_checklist_view = ele?.form_checklist_view
-            }
-            if (ele?.form_common_key) {
-              fc.form_common_key = ele?.form_common_key
-            }
-            if (ele?.form_checklist_enable) {
-              fc.form_checklist_enable = ele?.form_checklist_enable
-            }
-            fc.application_form = iaf?._id
-            fc.form_section = val?._id
-            if (ele?.nested_form_checklist?.length > 0) {
-              for (var stu of ele?.nested_form_checklist) {
-                var fcc = new FormChecklist({
-                  form_checklist_name: stu?.form_checklist_name,
-                  form_checklist_key: stu?.form_checklist_key,
-                  form_checklist_visibility: stu?.form_checklist_visibility,
-                  form_checklist_placeholder: stu?.form_checklist_placeholder,
-                  form_checklist_lable: stu?.form_checklist_lable,
-                  form_checklist_typo: stu?.form_checklist_typo,
-                  form_checklist_required: stu?.form_checklist_required,
-                  form_checklist_key_status: stu?.form_checklist_key_status,
-                  width: stu?.width
-                })
-                if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
-                  fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
-                }
-                if (stu?.form_checklist_sample) {
-                  fcc.form_checklist_sample = stu?.form_checklist_sample
-                }
-                if (stu?.form_checklist_pdf) {
-                  fcc.form_checklist_pdf = stu?.form_checklist_pdf
-                }
-                if (stu?.form_checklist_view) {
-                  fcc.form_checklist_view = stu?.form_checklist_view
-                }
-                fcc.application_form = iaf?._id
-                fcc.form_section = val?._id
-                if (stu?.nested_form_checklist_nested) {
-                  for (var qwes of stu?.nested_form_checklist_nested) {
-                    var fcca = new FormChecklist({
-                      form_checklist_name: qwes?.form_checklist_name,
-                      form_checklist_key: qwes?.form_checklist_key,
-                      form_checklist_visibility: qwes?.form_checklist_visibility,
-                      form_checklist_placeholder: qwes?.form_checklist_placeholder,
-                      form_checklist_lable: qwes?.form_checklist_lable,
-                      form_checklist_typo: qwes?.form_checklist_typo,
-                      form_checklist_required: qwes?.form_checklist_required,
-                      form_checklist_key_status: qwes?.form_checklist_key_status,
-                      width: qwes?.width
-                    })
-                    if (qwes?.form_checklist_typo_option_pl && qwes?.form_checklist_typo_option_pl?.length > 0) {
-                      fcca.form_checklist_typo_option_pl = [...qwes?.form_checklist_typo_option_pl]
-                    }
-                    if (qwes?.form_checklist_sample) {
-                      fcca.form_checklist_sample = qwes?.form_checklist_sample
-                    }
-                    if (qwes?.form_checklist_pdf) {
-                      fcca.form_checklist_pdf = qwes?.form_checklist_pdf
-                    }
-                    if (qwes?.form_checklist_view) {
-                      fcca.form_checklist_view = qwes?.form_checklist_view
-                    }
-                    fcca.application_form = iaf?._id
-                    fcca.form_section = val?._id
-                    fcc.nested_form_checklist_nested.push(fcca?._id)
-                    await fcca.save()
-                  }
-                }
-                await fcc.save()
-                fc.nested_form_checklist.push(fcc?._id)
-              }
-            }
-            nums.push(fc?._id)
-            await fc.save()
+      .select("form_section")
+      .populate({
+        path: "form_section",
+        populate: {
+          path: "form_checklist",
+          populate: {
+            path: "nested_form_checklist",
+            populate: {
+              path: "nested_form_checklist_nested",
+            },
+          },
+        },
+      });
+    var nums = [];
+    for (var val of ifs?.form_section) {
+      if (val?.form_checklist?.length > 0) {
+        for (var ele of val?.form_checklist) {
+          var fc = new FormChecklist({
+            form_checklist_name: ele?.form_checklist_name,
+            form_checklist_key: ele?.form_checklist_key,
+            form_checklist_visibility: ele?.form_checklist_visibility,
+            form_checklist_placeholder: ele?.form_checklist_placeholder,
+            form_checklist_lable: ele?.form_checklist_lable,
+            form_checklist_typo: ele?.form_checklist_typo,
+            form_checklist_typo_option_pl: [
+              ...ele?.form_checklist_typo_option_pl,
+            ],
+            form_checklist_required: ele?.form_checklist_required,
+            form_checklist_key_status: ele?.form_checklist_key_status,
+            width: ele?.width,
+          });
+          if (
+            ele?.form_checklist_typo_option_pl &&
+            ele?.form_checklist_typo_option_pl?.length > 0
+          ) {
+            ele.form_checklist_typo_option_pl = [
+              ...ele?.form_checklist_typo_option_pl,
+            ];
           }
+          if (ele?.form_checklist_sample) {
+            fc.form_checklist_sample = ele?.form_checklist_sample;
+          }
+          if (ele?.form_checklist_pdf) {
+            fc.form_checklist_pdf = ele?.form_checklist_pdf;
+          }
+          if (ele?.form_checklist_view) {
+            fc.form_checklist_view = ele?.form_checklist_view;
+          }
+          if (ele?.form_common_key) {
+            fc.form_common_key = ele?.form_common_key;
+          }
+          if (ele?.form_checklist_enable) {
+            fc.form_checklist_enable = ele?.form_checklist_enable;
+          }
+          fc.application_form = iaf?._id;
+          fc.form_section = val?._id;
+          if (ele?.nested_form_checklist?.length > 0) {
+            for (var stu of ele?.nested_form_checklist) {
+              var fcc = new FormChecklist({
+                form_checklist_name: stu?.form_checklist_name,
+                form_checklist_key: stu?.form_checklist_key,
+                form_checklist_visibility: stu?.form_checklist_visibility,
+                form_checklist_placeholder: stu?.form_checklist_placeholder,
+                form_checklist_lable: stu?.form_checklist_lable,
+                form_checklist_typo: stu?.form_checklist_typo,
+                form_checklist_required: stu?.form_checklist_required,
+                form_checklist_key_status: stu?.form_checklist_key_status,
+                width: stu?.width,
+              });
+              if (
+                stu?.form_checklist_typo_option_pl &&
+                stu?.form_checklist_typo_option_pl?.length > 0
+              ) {
+                fcc.form_checklist_typo_option_pl = [
+                  ...stu?.form_checklist_typo_option_pl,
+                ];
+              }
+              if (stu?.form_checklist_sample) {
+                fcc.form_checklist_sample = stu?.form_checklist_sample;
+              }
+              if (stu?.form_checklist_pdf) {
+                fcc.form_checklist_pdf = stu?.form_checklist_pdf;
+              }
+              if (stu?.form_checklist_view) {
+                fcc.form_checklist_view = stu?.form_checklist_view;
+              }
+              fcc.application_form = iaf?._id;
+              fcc.form_section = val?._id;
+              if (stu?.nested_form_checklist_nested) {
+                for (var qwes of stu?.nested_form_checklist_nested) {
+                  var fcca = new FormChecklist({
+                    form_checklist_name: qwes?.form_checklist_name,
+                    form_checklist_key: qwes?.form_checklist_key,
+                    form_checklist_visibility: qwes?.form_checklist_visibility,
+                    form_checklist_placeholder:
+                      qwes?.form_checklist_placeholder,
+                    form_checklist_lable: qwes?.form_checklist_lable,
+                    form_checklist_typo: qwes?.form_checklist_typo,
+                    form_checklist_required: qwes?.form_checklist_required,
+                    form_checklist_key_status: qwes?.form_checklist_key_status,
+                    width: qwes?.width,
+                  });
+                  if (
+                    qwes?.form_checklist_typo_option_pl &&
+                    qwes?.form_checklist_typo_option_pl?.length > 0
+                  ) {
+                    fcca.form_checklist_typo_option_pl = [
+                      ...qwes?.form_checklist_typo_option_pl,
+                    ];
+                  }
+                  if (qwes?.form_checklist_sample) {
+                    fcca.form_checklist_sample = qwes?.form_checklist_sample;
+                  }
+                  if (qwes?.form_checklist_pdf) {
+                    fcca.form_checklist_pdf = qwes?.form_checklist_pdf;
+                  }
+                  if (qwes?.form_checklist_view) {
+                    fcca.form_checklist_view = qwes?.form_checklist_view;
+                  }
+                  fcca.application_form = iaf?._id;
+                  fcca.form_section = val?._id;
+                  fcc.nested_form_checklist_nested.push(fcca?._id);
+                  await fcca.save();
+                }
+              }
+              await fcc.save();
+              fc.nested_form_checklist.push(fcc?._id);
+            }
+          }
+          nums.push(fc?._id);
+          await fc.save();
         }
-        iaf.form_section.push({
-          section_name: val?.section_name,
-          section_visibilty: val?.section_visibilty,
-          section_key: val?.section_key,
-          section_pdf: val?.section_pdf,
-          section_value: val?.section_value,
-          ins_form_section_id: val?._id,
-          form_checklist: [...nums]
-        })
-        nums = []
       }
-      await iaf.save()
+      iaf.form_section.push({
+        section_name: val?.section_name,
+        section_visibilty: val?.section_visibilty,
+        section_key: val?.section_key,
+        section_pdf: val?.section_pdf,
+        section_value: val?.section_value,
+        ins_form_section_id: val?._id,
+        form_checklist: [...nums],
+      });
+      nums = [];
+    }
+    await iaf.save();
     // const post = new Post({});
     // post.imageId = "1";
     // institute.posts.push(post._id);
@@ -712,9 +748,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     // await Promise.all([post.save(),
     await institute.save();
     if (flow === "HOSTEL") {
-      
-    }
-    else {
+    } else {
       var valid_promote = await NewApplication.find({
         $and: [
           { applicationTypeStatus: "Promote Application" },
@@ -734,15 +768,22 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
           applicationMaster: newApply?.applicationMaster,
           applicationTypeStatus: "Promote Application",
         });
-        var iaff = new InstituteApplicationForm({})
-        iaff.application = new_app?._id
-        new_app.student_form_setting = iaff?._id
+        var iaff = new InstituteApplicationForm({});
+        iaff.application = new_app?._id;
+        new_app.student_form_setting = iaff?._id;
         admission.newApplication.push(new_app._id);
         admission.newAppCount += 1;
         new_app.admissionAdmin = admission._id;
         institute.admissionCount += 1;
-        await Promise.all([new_app.save(), admission.save(), institute.save(), iaff.save()]);
-        var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
+        await Promise.all([
+          new_app.save(),
+          admission.save(),
+          institute.save(),
+          iaff.save(),
+        ]);
+        var ifs = await InstituteStudentForm.findById({
+          _id: `${institute?.student_form_setting}`,
+        })
           .select("form_section")
           .populate({
             path: "form_section",
@@ -751,12 +792,12 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
               populate: {
                 path: "nested_form_checklist",
                 populate: {
-                  path: "nested_form_checklist_nested"
-                }
-              }
-            }
-          })
-        var numss = []
+                  path: "nested_form_checklist_nested",
+                },
+              },
+            },
+          });
+        var numss = [];
         for (var val of ifs?.form_section) {
           if (val?.form_checklist?.length > 0) {
             for (var ele of val?.form_checklist) {
@@ -767,31 +808,38 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
                 form_checklist_placeholder: ele?.form_checklist_placeholder,
                 form_checklist_lable: ele?.form_checklist_lable,
                 form_checklist_typo: ele?.form_checklist_typo,
-                form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+                form_checklist_typo_option_pl: [
+                  ...ele?.form_checklist_typo_option_pl,
+                ],
                 form_checklist_required: ele?.form_checklist_required,
                 form_checklist_key_status: ele?.form_checklist_key_status,
-                width: ele?.width
-              })
-              if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
-                ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+                width: ele?.width,
+              });
+              if (
+                ele?.form_checklist_typo_option_pl &&
+                ele?.form_checklist_typo_option_pl?.length > 0
+              ) {
+                ele.form_checklist_typo_option_pl = [
+                  ...ele?.form_checklist_typo_option_pl,
+                ];
               }
               if (ele?.form_checklist_sample) {
-                fc.form_checklist_sample = ele?.form_checklist_sample
+                fc.form_checklist_sample = ele?.form_checklist_sample;
               }
               if (ele?.form_checklist_pdf) {
-                fc.form_checklist_pdf = ele?.form_checklist_pdf
+                fc.form_checklist_pdf = ele?.form_checklist_pdf;
               }
               if (ele?.form_checklist_view) {
-                fc.form_checklist_view = ele?.form_checklist_view
+                fc.form_checklist_view = ele?.form_checklist_view;
               }
               if (ele?.form_common_key) {
-                fc.form_common_key = ele?.form_common_key
+                fc.form_common_key = ele?.form_common_key;
               }
               if (ele?.form_checklist_enable) {
-                fc.form_checklist_enable = ele?.form_checklist_enable
+                fc.form_checklist_enable = ele?.form_checklist_enable;
               }
-              fc.application_form = iaff?._id
-              fc.form_section = val?._id
+              fc.application_form = iaff?._id;
+              fc.form_section = val?._id;
               if (ele?.nested_form_checklist?.length > 0) {
                 for (var stu of ele?.nested_form_checklist) {
                   var fcc = new FormChecklist({
@@ -803,59 +851,73 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
                     form_checklist_typo: stu?.form_checklist_typo,
                     form_checklist_required: stu?.form_checklist_required,
                     form_checklist_key_status: stu?.form_checklist_key_status,
-                    width: stu?.width
-                  })
-                  if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
-                    fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
+                    width: stu?.width,
+                  });
+                  if (
+                    stu?.form_checklist_typo_option_pl &&
+                    stu?.form_checklist_typo_option_pl?.length > 0
+                  ) {
+                    fcc.form_checklist_typo_option_pl = [
+                      ...stu?.form_checklist_typo_option_pl,
+                    ];
                   }
                   if (stu?.form_checklist_sample) {
-                    fcc.form_checklist_sample = stu?.form_checklist_sample
+                    fcc.form_checklist_sample = stu?.form_checklist_sample;
                   }
                   if (stu?.form_checklist_pdf) {
-                    fcc.form_checklist_pdf = stu?.form_checklist_pdf
+                    fcc.form_checklist_pdf = stu?.form_checklist_pdf;
                   }
                   if (stu?.form_checklist_view) {
-                    fcc.form_checklist_view = stu?.form_checklist_view
+                    fcc.form_checklist_view = stu?.form_checklist_view;
                   }
-                  fcc.application_form = iaf?._id
-                  fcc.form_section = val?._id
+                  fcc.application_form = iaf?._id;
+                  fcc.form_section = val?._id;
                   if (stu?.nested_form_checklist_nested) {
                     for (var qwes of stu?.nested_form_checklist_nested) {
                       var fcca = new FormChecklist({
                         form_checklist_name: qwes?.form_checklist_name,
                         form_checklist_key: qwes?.form_checklist_key,
-                        form_checklist_visibility: qwes?.form_checklist_visibility,
-                        form_checklist_placeholder: qwes?.form_checklist_placeholder,
+                        form_checklist_visibility:
+                          qwes?.form_checklist_visibility,
+                        form_checklist_placeholder:
+                          qwes?.form_checklist_placeholder,
                         form_checklist_lable: qwes?.form_checklist_lable,
                         form_checklist_typo: qwes?.form_checklist_typo,
                         form_checklist_required: qwes?.form_checklist_required,
-                        form_checklist_key_status: qwes?.form_checklist_key_status,
-                        width: qwes?.width
-                      })
-                      if (qwes?.form_checklist_typo_option_pl && qwes?.form_checklist_typo_option_pl?.length > 0) {
-                        fcca.form_checklist_typo_option_pl = [...qwes?.form_checklist_typo_option_pl]
+                        form_checklist_key_status:
+                          qwes?.form_checklist_key_status,
+                        width: qwes?.width,
+                      });
+                      if (
+                        qwes?.form_checklist_typo_option_pl &&
+                        qwes?.form_checklist_typo_option_pl?.length > 0
+                      ) {
+                        fcca.form_checklist_typo_option_pl = [
+                          ...qwes?.form_checklist_typo_option_pl,
+                        ];
                       }
                       if (qwes?.form_checklist_sample) {
-                        fcca.form_checklist_sample = qwes?.form_checklist_sample
+                        fcca.form_checklist_sample =
+                          qwes?.form_checklist_sample;
                       }
                       if (qwes?.form_checklist_pdf) {
-                        fcca.form_checklist_pdf = qwes?.form_checklist_pdf
+                        fcca.form_checklist_pdf = qwes?.form_checklist_pdf;
                       }
                       if (qwes?.form_checklist_view) {
-                        fcca.form_checklist_view = qwes?.form_checklist_view
+                        fcca.form_checklist_view = qwes?.form_checklist_view;
                       }
-                      fcca.application_form = iaf?._id
-                      fcca.form_section = val?._id
-                      fcc.nested_form_checklist_nested.push(fcca?._id)
-                      await fcca.save()
+                      fcca.application_form = iaf?._id;
+                      fcca.form_section = val?._id;
+                      fcc.nested_form_checklist_nested.push(fcca?._id);
+                      await fcca.save();
                     }
                   }
-                  await fcc.save()
-                  fc.nested_form_checklist.push(fcc?._id)
+                  await fcc.save();
+                  fc.nested_form_checklist.push(fcc?._id);
                 }
               }
-              numss.push(fc?._id)
-              await fc.save()
+              numss.push(fc?._id);
+              await fc.save();
             }
           }
           iaff.form_section.push({
@@ -863,11 +925,11 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
             section_visibilty: val?.section_visibilty,
             section_key: val?.section_key,
             ins_form_section_id: val?._id,
-            form_checklist: [...numss]
-          })
-          numss = []
+            form_checklist: [...numss],
+          });
+          numss = [];
         }
-        await iaff.save()
+        await iaff.save();
       }
     }
     // await new_admission_recommend_post(institute?._id, post?._id, expand);
@@ -965,20 +1027,20 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
         // allAppCount: cached.allAppCount,
         allApp: newApp,
         allAppCount: newApp?.length,
-      }
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
-        encrypt: adsEncrypt
+        encrypt: adsEncrypt,
       });
       // }
     } else {
       const ads_obj = {
         message: "get a better lens to find what you need 🔍",
         allApp: [],
-      }
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
-        encrypt: adsEncrypt
+        encrypt: adsEncrypt,
       });
     }
   } catch (e) {
@@ -986,7 +1048,13 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
   }
 };
 
-module.exports.app_status = async (apply, institute, student, filtered_account, user) => {
+module.exports.app_status = async (
+  apply,
+  institute,
+  student,
+  filtered_account,
+  user
+) => {
   const status = new Status({});
   status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
@@ -1007,46 +1075,59 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 7. For cancellation and refund, contact the admission department.
 
 Note: Stay tuned for further updates.`;
-      status.applicationId = apply._id;
-      status.document_visible = true;
-      status.instituteId = institute._id;
-      status.finance = institute?.financeDepart?.[0];
-      status.student = student?._id;
-      status.group_by = "Admission_Application_Applied"
-      status.bank_account = filtered_account?._id;
+  status.applicationId = apply._id;
+  status.document_visible = true;
+  status.instituteId = institute._id;
+  status.finance = institute?.financeDepart?.[0];
+  status.student = student?._id;
+  status.group_by = "Admission_Application_Applied";
+  status.bank_account = filtered_account?._id;
   user.applicationStatus.push(status._id);
   user.applyApplication.push(apply._id);
-      await Promise.all([ status.save(), user.save() ])
-}
+  await Promise.all([status.save(), user.save()]);
+};
 
-module.exports.docs_status = async (apply, institute, student, user, structure) => {
+module.exports.docs_status = async (
+  apply,
+  institute,
+  student,
+  user,
+  structure
+) => {
   const status = new Status({});
   status.content = `You have been selected for ${apply.applicationName}. 
 Your fee structure will be ${structure?.structure_name}. And required documents are 'click here for details'.   
 Start your admission process by confirming below.`;
-    status.applicationId = apply._id;
-    status.for_docs = "Yes";
-    status.studentId = student._id;
-    status.group_by = "Admission_Document_Verification"
-    status.student = student._id;
-    status.admissionFee = structure.total_admission_fees;
-    status.instituteId = institute?._id;
-    status.feeStructure = structure?._id;
-    status.document_visible = true;
-    status.finance = institute?.financeDepart?.[0]
-    user.applicationStatus.push(status._id);
-    status.structure_edited = "Edited";
-    await Promise.all([ status.save(), user.save() ])
-}
+  status.applicationId = apply._id;
+  status.for_docs = "Yes";
+  status.studentId = student._id;
+  status.group_by = "Admission_Document_Verification";
+  status.student = student._id;
+  status.admissionFee = structure.total_admission_fees;
+  status.instituteId = institute?._id;
+  status.feeStructure = structure?._id;
+  status.document_visible = true;
+  status.finance = institute?.financeDepart?.[0];
+  user.applicationStatus.push(status._id);
+  status.structure_edited = "Edited";
+  await Promise.all([status.save(), user.save()]);
+};
 
-module.exports.fees_status = async (apply, institute, student, user, structure, c_num) => {
+module.exports.fees_status = async (
+  apply,
+  institute,
+  student,
+  user,
+  structure,
+  c_num
+) => {
   const status = new Status({});
   status.content = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
   status.applicationId = apply._id;
   user.applicationStatus.push(status._id);
-  status.group_by = "Admission_Fees_Payment"
-  status.remaining_list = c_num?.card
-  status.payment_status = "Not Paid"
+  status.group_by = "Admission_Fees_Payment";
+  status.remaining_list = c_num?.card;
+  status.payment_status = "Not Paid";
   status.finance = institute?.financeDepart?.[0];
   status.feeStructure = structure?._id;
   status.for_selection = "Yes";
@@ -1054,30 +1135,36 @@ module.exports.fees_status = async (apply, institute, student, user, structure, 
   status.studentId = student?._id;
   status.student = student?._id;
   status.instituteId = institute._id;
-  await Promise.all([ status.save(), user.save() ])
-}
+  await Promise.all([status.save(), user.save()]);
+};
 
 const class_status = async (apply, institute, depart, user, classes) => {
   const status = new Status({});
   status.content = `Welcome to ${depart.dName} ${classes.classTitle} Enjoy your Learning.`;
-  status.group_by = "Admission_Class_Allotment"
-  status.classes = classes?._id
+  status.group_by = "Admission_Class_Allotment";
+  status.classes = classes?._id;
   status.applicationId = apply._id;
   user.applicationStatus.push(status._id);
   status.instituteId = institute._id;
-  await Promise.all([ status.save(), user.save() ])
-}
+  await Promise.all([status.save(), user.save()]);
+};
 
-module.exports.classes_status = async (apply, institute, depart, user, classes) => {
+module.exports.classes_status = async (
+  apply,
+  institute,
+  depart,
+  user,
+  classes
+) => {
   const status = new Status({});
   status.content = `Welcome to ${depart.dName} ${classes.classTitle} Enjoy your Learning.`;
-  status.group_by = "Admission_Class_Allotment"
-  status.classes = classes?._id
+  status.group_by = "Admission_Class_Allotment";
+  status.classes = classes?._id;
   status.applicationId = apply._id;
   user.applicationStatus.push(status._id);
   status.instituteId = institute._id;
-  await Promise.all([ status.save(), user.save() ])
-}
+  await Promise.all([status.save(), user.save()]);
+};
 
 exports.retrieveAdmissionReceievedApplication = async (req, res) => {
   try {
@@ -1087,7 +1174,7 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         status: false,
       });
-      console.log(req?.body)
+    console.log(req?.body);
     const user = await User.findById({ _id: uid });
     // if (user?.applyApplication?.includes(`${aid}`)) {
     //   res.status(200).send({
@@ -1098,59 +1185,59 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     // } else {
     const student = new Student({ ...req.body });
     if (req.body?.studentFatherName) {
-      student.studentMiddleName = req.body?.studentFatherName
+      student.studentMiddleName = req.body?.studentFatherName;
     }
-      student.valid_full_name = `${student?.studentFirstName} ${
-        student?.studentMiddleName ?? ""
-      } ${student?.studentLastName}`;
-      const codess = universal_random_password()
-      student.member_module_unique = `${codess}`
-      student.student_join_mode = "ADMISSION_PROCESS";
-      const apply = await NewApplication.findById({ _id: aid });
-      const admission = await Admission.findById({
-        _id: `${apply.admissionAdmin}`,
-      })
-        .select("institute admissionAdminHead student")
-        .populate({
-          path: "admissionAdminHead",
-          select: "user",
+    student.valid_full_name = `${student?.studentFirstName} ${
+      student?.studentMiddleName ?? ""
+    } ${student?.studentLastName}`;
+    const codess = universal_random_password();
+    student.member_module_unique = `${codess}`;
+    student.student_join_mode = "ADMISSION_PROCESS";
+    const apply = await NewApplication.findById({ _id: aid });
+    const admission = await Admission.findById({
+      _id: `${apply.admissionAdmin}`,
+    })
+      .select("institute admissionAdminHead student")
+      .populate({
+        path: "admissionAdminHead",
+        select: "user",
+      });
+    const institute = await InstituteAdmin.findById({
+      _id: `${admission.institute}`,
+    });
+    const status = new Status({});
+    const notify = new StudentNotification({});
+    var filtered_account = await BankAccount.findOne({
+      departments: { $in: apply?.applicationDepartment },
+    });
+    const studentOptionalSubject = req.body?.optionalSubject
+      ? req.body?.optionalSubject
+      : [];
+    for (var file of req.body?.fileArray) {
+      if (file.name === "file") {
+        student.photoId = "0";
+        student.studentProfilePhoto = file.key;
+      } else if (file.name === "addharFrontCard")
+        student.studentAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        student.studentAadharBackCard = file.key;
+      else if (file.name === "bankPassbook")
+        student.studentBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        student.studentCasteCertificatePhoto = file.key;
+      else {
+        student.studentDocuments.push({
+          documentName: file.name,
+          documentKey: file.key,
+          documentType: file.type,
         });
-      const institute = await InstituteAdmin.findById({
-        _id: `${admission.institute}`,
-      });
-      const status = new Status({});
-      const notify = new StudentNotification({});
-      var filtered_account = await BankAccount.findOne({
-        departments: { $in: apply?.applicationDepartment },
-      });
-      const studentOptionalSubject = req.body?.optionalSubject
-        ? req.body?.optionalSubject
-        : [];
-      for (var file of req.body?.fileArray) {
-        if (file.name === "file") {
-          student.photoId = "0";
-          student.studentProfilePhoto = file.key;
-        } else if (file.name === "addharFrontCard")
-          student.studentAadharFrontCard = file.key;
-        else if (file.name === "addharBackCard")
-          student.studentAadharBackCard = file.key;
-        else if (file.name === "bankPassbook")
-          student.studentBankPassbook = file.key;
-        else if (file.name === "casteCertificate")
-          student.studentCasteCertificatePhoto = file.key;
-        else {
-          student.studentDocuments.push({
-            documentName: file.name,
-            documentKey: file.key,
-            documentType: file.type,
-          });
-        }
       }
-      if (studentOptionalSubject?.length > 0) {
-        student.studentOptionalSubject?.push(...studentOptionalSubject);
-      }
-      admission.student.push(student?._id)
-      status.content = `Your application for ${apply?.applicationName} have been filled successfully.
+    }
+    if (studentOptionalSubject?.length > 0) {
+      student.studentOptionalSubject?.push(...studentOptionalSubject);
+    }
+    admission.student.push(student?._id);
+    status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
 1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)
@@ -1169,32 +1256,30 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 7. For cancellation and refund, contact the admission department.
 
 Note: Stay tuned for further updates.`;
-      status.applicationId = apply._id;
-      student.student_form_flow.flow = "APPLICATION"
-      student.student_form_flow.did = apply._id
-      form_no_query(institute, student)
-      status.document_visible = true;
-      status.instituteId = institute._id;
-      status.finance = institute?.financeDepart?.[0];
-      status.student = student?._id;
-      status.group_by = "Admission_Application_Applied"
-      user.student.push(student._id);
-      status.bank_account = filtered_account?._id;
-      user.applyApplication.push(apply._id);
-      student.user = user._id;
+    status.applicationId = apply._id;
+    student.student_form_flow.flow = "APPLICATION";
+    student.student_form_flow.did = apply._id;
+    form_no_query(institute, student);
+    status.document_visible = true;
+    status.instituteId = institute._id;
+    status.finance = institute?.financeDepart?.[0];
+    status.student = student?._id;
+    status.group_by = "Admission_Application_Applied";
+    user.student.push(student._id);
+    status.bank_account = filtered_account?._id;
+    user.applyApplication.push(apply._id);
+    student.user = user._id;
     user.applicationStatus.push(status._id);
     if (apply?.receieved_array?.includes(`${student?._id}`)) {
-      
-    }
-    else {
+    } else {
       apply.receievedApplication.push({
         student: student._id,
         fee_remain: 0,
       });
       apply.receievedCount += 1;
-      apply.receieved_array.push(student?._id)
+      apply.receieved_array.push(student?._id);
     }
-      notify.notifyContent = `Your application for ${apply?.applicationName} have been filled successfully.
+    notify.notifyContent = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
 1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)
@@ -1213,51 +1298,61 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 7. For cancellation and refund, contact the admission department.
 
 Note: Stay tuned for further updates.`;
-      notify.notifySender = admission?.admissionAdminHead?.user;
-      notify.notifyReceiever = user?._id;
-      notify.notifyType = "Student";
-      notify.notifyPublisher = student?._id;
-      user.activity_tab.push(notify?._id);
-      notify.notifyByAdmissionPhoto = admission?._id;
-      notify.notifyCategory = "Status Alert";
-      notify.redirectIndex = 29;
-      if (institute.userFollowersList.includes(uid)) {
-      } else {
-        user.userInstituteFollowing.push(institute._id);
-        user.followingUICount += 1;
-        institute.userFollowersList.push(uid);
-        institute.followersCount += 1;
-      }
-      let nums = universal_random_password_student_code()
-      student.qviple_student_pay_id = nums
-      await Promise.all([
-        student.save(),
-        user.save(),
-        status.save(),
-        apply.save(),
-        institute.save(),
-        notify.save(),
-        admission.save()
-      ]);
-      res.status(201).send({
-        message: "Taste a bite of sweets till your application is selected",
-        student: student._id,
-        status: true,
-      });
-    let name = `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ?? ""} ${student?.studentLastName}`
-      invokeMemberTabNotification(
-        "Admission Status",
-        status.content,
-        "Application Status",
-        user._id,
-        user.deviceToken
-      );
-      await generateStudentAdmissionForm(
-        student?._id,
-        institute?._id,
-        `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
-        `${apply?.applicationName}`,
-      );
+    notify.notifySender = admission?.admissionAdminHead?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByAdmissionPhoto = admission?._id;
+    notify.notifyCategory = "Status Alert";
+    notify.redirectIndex = 29;
+    if (institute.userFollowersList.includes(uid)) {
+    } else {
+      user.userInstituteFollowing.push(institute._id);
+      user.followingUICount += 1;
+      institute.userFollowersList.push(uid);
+      institute.followersCount += 1;
+    }
+    let nums = universal_random_password_student_code();
+    student.qviple_student_pay_id = nums;
+    await Promise.all([
+      student.save(),
+      user.save(),
+      status.save(),
+      apply.save(),
+      institute.save(),
+      notify.save(),
+      admission.save(),
+    ]);
+    res.status(201).send({
+      message: "Taste a bite of sweets till your application is selected",
+      student: student._id,
+      status: true,
+    });
+    let name = `${student?.studentFirstName} ${
+      student?.studentMiddleName
+        ? student?.studentMiddleName
+        : student?.studentFatherName ?? ""
+    } ${student?.studentLastName}`;
+    invokeMemberTabNotification(
+      "Admission Status",
+      status.content,
+      "Application Status",
+      user._id,
+      user.deviceToken
+    );
+    await generateStudentAdmissionForm(
+      student?._id,
+      institute?._id,
+      `${student?.studentFirstName} ${
+        student?.studentMiddleName
+          ? student?.studentMiddleName
+          : student?.studentFatherName
+          ? student?.studentFatherName
+          : ""
+      } ${student?.studentLastName}`,
+      `${apply?.applicationName}`
+    );
     // if (student?.studentEmail && student?.application_print?.length > 0) {
     //   let login = user?.userPhoneNumber ? user?.userPhoneNumber : user?.userEmail ?? ""
     //   email_sms_designation_application_apply(student?.studentEmail, name, apply?.applicationName, login, student?.application_print?.[0]?.value)
@@ -1268,7 +1363,7 @@ Note: Stay tuned for further updates.`;
       message: "Test And Send Back To Server",
       student: null,
       status: true,
-      error: e
+      error: e,
     });
   }
 };
@@ -1290,8 +1385,7 @@ exports.fetchAllRequestApplication = async (req, res) => {
             path: "student",
             match: {
               $or: [
-                {studentFirstName: { $regex: `${search}`, $options: "i" },
-                },
+                { studentFirstName: { $regex: `${search}`, $options: "i" } },
                 {
                   studentMiddleName: { $regex: `${search}`, $options: "i" },
                 },
@@ -1302,9 +1396,9 @@ exports.fetchAllRequestApplication = async (req, res) => {
                   valid_full_name: { $regex: `${search}`, $options: "i" },
                 },
                 {
-                  form_no: { $regex: `${search}`, $options: "i" }
-                }
-              ]
+                  form_no: { $regex: `${search}`, $options: "i" },
+                },
+              ],
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
@@ -1387,8 +1481,7 @@ exports.fetchAllSelectApplication = async (req, res) => {
             path: "student",
             match: {
               $or: [
-                {studentFirstName: { $regex: `${search}`, $options: "i" },
-                },
+                { studentFirstName: { $regex: `${search}`, $options: "i" } },
                 {
                   studentMiddleName: { $regex: `${search}`, $options: "i" },
                 },
@@ -1399,9 +1492,9 @@ exports.fetchAllSelectApplication = async (req, res) => {
                   valid_full_name: { $regex: `${search}`, $options: "i" },
                 },
                 {
-                  form_no: { $regex: `${search}`, $options: "i" }
-                }
-              ]
+                  form_no: { $regex: `${search}`, $options: "i" },
+                },
+              ],
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name form_no intake_type",
@@ -1495,8 +1588,7 @@ exports.fetchAllFeeCollectedApplication = async (req, res) => {
             path: "student payment_flow app_card gov_card fee_struct",
             match: {
               $or: [
-                {studentFirstName: { $regex: `${search}`, $options: "i" },
-                },
+                { studentFirstName: { $regex: `${search}`, $options: "i" } },
                 {
                   studentMiddleName: { $regex: `${search}`, $options: "i" },
                 },
@@ -1507,9 +1599,9 @@ exports.fetchAllFeeCollectedApplication = async (req, res) => {
                   valid_full_name: { $regex: `${search}`, $options: "i" },
                 },
                 {
-                  form_no: { $regex: `${search}`, $options: "i" }
-                }
-              ]
+                  form_no: { $regex: `${search}`, $options: "i" },
+                },
+              ],
             },
             // select:
             //   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name",
@@ -1603,8 +1695,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             path: "student",
             match: {
               $or: [
-                {studentFirstName: { $regex: `${search}`, $options: "i" },
-                },
+                { studentFirstName: { $regex: `${search}`, $options: "i" } },
                 {
                   studentMiddleName: { $regex: `${search}`, $options: "i" },
                 },
@@ -1615,9 +1706,9 @@ exports.fetchAllConfirmApplication = async (req, res) => {
                   valid_full_name: { $regex: `${search}`, $options: "i" },
                 },
                 {
-                  form_no: { $regex: `${search}`, $options: "i" }
-                }
-              ]
+                  form_no: { $regex: `${search}`, $options: "i" },
+                },
+              ],
             },
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
@@ -1714,7 +1805,7 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
               studentMiddleName: { $regex: `${search}`, $options: "i" },
               studentLastName: { $regex: `${search}`, $options: "i" },
               valid_full_name: { $regex: `${search}`, $options: "i" },
-              form_no: { $regex: `${search}`, $options: "i" }
+              form_no: { $regex: `${search}`, $options: "i" },
             },
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name form_no intake_type",
@@ -1803,11 +1894,12 @@ exports.fetchAllReviewApplication = async (req, res) => {
                 valid_full_name: { $regex: `${search}`, $options: "i" },
               },
               {
-                form_no: { $regex: `${search}`, $options: "i" }
-              }
-            ]
+                form_no: { $regex: `${search}`, $options: "i" },
+              },
+            ],
           },
-          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
+          select:
+            "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
           populate: {
             path: "fee_structure hostel_fee_structure fee_receipt",
             select:
@@ -1816,8 +1908,8 @@ exports.fetchAllReviewApplication = async (req, res) => {
             //   path: "category_master",
             //   select: "category_name",
             // },
-          }
-      })
+          },
+        });
       if (apply?.reviewApplication?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);
         res.status(200).send({
@@ -1836,7 +1928,8 @@ exports.fetchAllReviewApplication = async (req, res) => {
         .select("review_count")
         .populate({
           path: "reviewApplication",
-          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
+          select:
+            "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
           populate: {
             path: "fee_structure hostel_fee_structure fee_receipt",
             select:
@@ -1845,9 +1938,13 @@ exports.fetchAllReviewApplication = async (req, res) => {
             //   path: "category_master",
             //   select: "category_name",
             // },
-          }
-        })
-      var all_student = await nested_document_limit(page, limit, apply?.reviewApplication)
+          },
+        });
+      var all_student = await nested_document_limit(
+        page,
+        limit,
+        apply?.reviewApplication
+      );
       if (all_student?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);
         res.status(200).send({
@@ -1894,11 +1991,12 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
                 valid_full_name: { $regex: `${search}`, $options: "i" },
               },
               {
-                form_no: { $regex: `${search}`, $options: "i" }
-              }
-            ]
+                form_no: { $regex: `${search}`, $options: "i" },
+              },
+            ],
           },
-          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
+          select:
+            "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
           populate: {
             path: "fee_structure hostel_fee_structure fee_receipt",
             select:
@@ -1907,8 +2005,8 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
             //   path: "category_master",
             //   select: "category_name",
             // },
-          }
-      })
+          },
+        });
       if (apply?.reviewApplication?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);
         res.status(200).send({
@@ -1927,7 +2025,8 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
         .select("review_count")
         .populate({
           path: "reviewApplication",
-          select: "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
+          select:
+            "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no intake_type",
           populate: {
             path: "fee_structure hostel_fee_structure fee_receipt",
             select:
@@ -1936,8 +2035,8 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
             //   path: "category_master",
             //   select: "category_name",
             // },
-          }
-        })
+          },
+        });
       if (apply?.reviewApplication?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);
         res.status(200).send({
@@ -1980,8 +2079,7 @@ exports.fetchAllAllotApplication = async (req, res) => {
             path: "student",
             match: {
               $or: [
-                {studentFirstName: { $regex: `${search}`, $options: "i" },
-                },
+                { studentFirstName: { $regex: `${search}`, $options: "i" } },
                 {
                   studentMiddleName: { $regex: `${search}`, $options: "i" },
                 },
@@ -1995,21 +2093,21 @@ exports.fetchAllAllotApplication = async (req, res) => {
                   studentGRNO: { $regex: `${search}`, $options: "i" },
                 },
                 {
-                  form_no: { $regex: `${search}`, $options: "i" }
-                }
-              ]
+                  form_no: { $regex: `${search}`, $options: "i" },
+                },
+              ],
             },
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentGRNO studentParentsPhoneNumber fee_receipt valid_full_name form_no intake_type",
-              populate: {
-                path: "fee_structure hostel_fee_structure fee_receipt",
-                select:
-                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
-                // populate: {
-                //   path: "category_master",
-                //   select: "category_name",
-                // },
-              }
+            populate: {
+              path: "fee_structure hostel_fee_structure fee_receipt",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
+              // populate: {
+              //   path: "category_master",
+              //   select: "category_name",
+              // },
+            },
           },
         });
       for (let data of apply.allottedApplication) {
@@ -2037,15 +2135,15 @@ exports.fetchAllAllotApplication = async (req, res) => {
             path: "student",
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt form_no intake_type",
-              populate: {
-                path: "fee_structure hostel_fee_structure fee_receipt",
-                select:
-                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
-                // populate: {
-                //   path: "category_master",
-                //   select: "category_name",
-                // },
-              }
+            populate: {
+              path: "fee_structure hostel_fee_structure fee_receipt",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
+              // populate: {
+              //   path: "category_master",
+              //   select: "category_name",
+              // },
+            },
           },
         });
       var all_allot_query = nested_document_limit(
@@ -2099,8 +2197,7 @@ exports.fetchAllCancelApplication = async (req, res) => {
             path: "student",
             match: {
               $or: [
-                {studentFirstName: { $regex: `${search}`, $options: "i" },
-                },
+                { studentFirstName: { $regex: `${search}`, $options: "i" } },
                 {
                   studentMiddleName: { $regex: `${search}`, $options: "i" },
                 },
@@ -2114,9 +2211,9 @@ exports.fetchAllCancelApplication = async (req, res) => {
                   studentGRNO: { $regex: `${search}`, $options: "i" },
                 },
                 {
-                  form_no: { $regex: `${search}`, $options: "i" }
-                }
-              ]
+                  form_no: { $regex: `${search}`, $options: "i" },
+                },
+              ],
             },
             select:
               "studentFirstName studentMiddleName studentLastName studentGRNO paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name form_no intake_type",
@@ -2217,7 +2314,7 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     for (let app of apply.receievedApplication) {
       if (`${app.student}` === `${student._id}`) {
         apply.receievedApplication.pull(app._id);
-        apply.receieved_array.pull(student?._id)
+        apply.receieved_array.pull(student?._id);
       } else {
       }
     }
@@ -2235,8 +2332,8 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     student.student_application_obj.push({
       app: apply?._id,
       staff: staffId,
-      flow: "select_by"
-    })
+      flow: "select_by",
+    });
     apply.selectCount += 1;
     status.content = `You have been selected for ${apply.applicationName}. 
 Your fee structure will be ${structure?.structure_name}. And required documents are 'click here for details'.   
@@ -2244,7 +2341,7 @@ Start your admission process by confirming below.`;
     status.applicationId = apply._id;
     status.for_docs = "Yes";
     status.studentId = student._id;
-    status.group_by = "Admission_Document_Verification"
+    status.group_by = "Admission_Document_Verification";
     status.student = student._id;
     status.admissionFee = structure.total_admission_fees;
     status.instituteId = admission_admin?.institute;
@@ -2266,14 +2363,14 @@ Start your admission process by confirming below.`;
     notify.notifyByAdmissionPhoto = admission_admin?._id;
     notify.notifyCategory = "Status Alert";
     notify.redirectIndex = 29;
-    student.intake_type = intake_type ?? ""
+    student.intake_type = intake_type ?? "";
     await Promise.all([
       apply.save(),
       student.save(),
       user.save(),
       status.save(),
       notify.save(),
-      admission_admin.save()
+      admission_admin.save(),
     ]);
     res.status(200).send({
       message: `congrats ${student.studentFirstName} `,
@@ -2392,7 +2489,7 @@ Payment modes available:`;
 exports.retrieveAdmissionCancelApplication = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { reason, staffId } = req?.body
+    const { reason, staffId } = req?.body;
     if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2401,15 +2498,16 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid });
     const admission_admin = await Admission.findById({
       _id: `${apply?.admissionAdmin}`,
-    }).populate({
-      path: "admissionAdminHead",
-      select: "user",
     })
-    .populate({
-      path: "institute",
-      select: "insName",
-    })
-    const student = await Student.findById({ _id: sid })
+      .populate({
+        path: "admissionAdminHead",
+        select: "user",
+      })
+      .populate({
+        path: "institute",
+        select: "insName",
+      });
+    const student = await Student.findById({ _id: sid });
     var user = await User.findById({ _id: `${student?.user}` });
     const status = new Status({});
     const notify = new StudentNotification({});
@@ -2445,8 +2543,8 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
     student.student_application_obj.push({
       app: apply?._id,
       staff: staffId,
-      flow: "reject_by"
-    })
+      flow: "reject_by",
+    });
     await Promise.all([
       apply.save(),
       student.save(),
@@ -2465,9 +2563,17 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
       user._id,
       user.deviceToken
     );
-    let name = `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`
+    let name = `${student?.studentFirstName} ${
+      student?.studentMiddleName ?? ""
+    } ${student?.studentLastName}`;
     if (student?.studentEmail) {
-      email_sms_designation_application(student?.studentEmail, name, apply?.applicationName, reason, admission_admin?.institute?.insName)
+      email_sms_designation_application(
+        student?.studentEmail,
+        name,
+        apply?.applicationName,
+        reason,
+        admission_admin?.institute?.insName
+      );
     }
   } catch (e) {
     console.log(e);
@@ -2556,7 +2662,7 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
           receipt: receipt?._id,
           status: "Requested",
         });
-        admin_ins.fee_receipt_request_count += 1
+        admin_ins.fee_receipt_request_count += 1;
         status.receipt_status = "Requested";
       }
       institute.invoice_count += 1;
@@ -2579,7 +2685,8 @@ exports.payOfflineAdmissionFee = async (req, res) => {
   try {
     const { sid, aid } = req.params;
     const { receipt_status } = req.query;
-    const { amount, mode, card_id, rid, type, pay_remain, nsid, staffId } = req.body;
+    const { amount, mode, card_id, rid, type, pay_remain, nsid, staffId } =
+      req.body;
     if (!sid && !aid && !amount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2599,38 +2706,36 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     if (student?.fee_receipt?.length > 0) {
       for (let ele of apply?.FeeCollectionApplication) {
         if (`${ele?.student}` === `${student?._id}`) {
-          apply?.FeeCollectionApplication.pull(ele?._id)
+          apply?.FeeCollectionApplication.pull(ele?._id);
         }
       }
       for (let ele of admission?.FeeCollectionApplication) {
         if (`${ele?.student}` === `${student?._id}`) {
-          admission?.FeeCollectionApplication.pull(ele?._id)
+          admission?.FeeCollectionApplication.pull(ele?._id);
         }
       }
       let exist = apply?.confirmedApplication?.filter((val) => {
-        if (`${val?.student}` === `${student?._id}`) return val
-      })
+        if (`${val?.student}` === `${student?._id}`) return val;
+      });
       if (exist?.length > 0) {
-        
-      }
-      else {
+      } else {
         apply.confirmedApplication.push({
-              student: student._id,
-              payment_status: mode,
-              install_type: "First Installment Paid",
-              fee_remain: 0,
-            });
-            admission.confirmedApplication_query.push({
-              student: student._id,
-              payment_status: mode,
-              install_type: "First Installment Paid",
-              fee_remain: 0,
-              application: apply?._id
-            });
+          student: student._id,
+          payment_status: mode,
+          install_type: "First Installment Paid",
+          fee_remain: 0,
+        });
+        admission.confirmedApplication_query.push({
+          student: student._id,
+          payment_status: mode,
+          install_type: "First Installment Paid",
+          fee_remain: 0,
+          application: apply?._id,
+        });
       }
       // for (let ele of apply?.confirmedApplication) {
       //   if (`${ele?.student}` === `${student?._id}`) {
-          
+
       //   }
       //   else {
       //     if (`${ele?.student}` === `${student?._id}`) {
@@ -2643,35 +2748,42 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       //     }
       //   }
       // }
-      await Promise.all([ apply.save(), admission.save()])
+      await Promise.all([apply.save(), admission.save()]);
       res.status(200).send({
         message: "Already Fee Collected ",
         confirm_status: false,
       });
-    }
-    else {
+    } else {
       var institute = await InstituteAdmin.findById({
         _id: `${admission.institute}`,
       });
       var finance = await Finance.findById({
         _id: `${institute.financeDepart[0]}`,
       });
-      var all_status = await Status.find({ $and: [{ applicationId: apply?._id }, { student: student?._id }, { payment_status: "Not Paid" }] })
+      var all_status = await Status.find({
+        $and: [
+          { applicationId: apply?._id },
+          { student: student?._id },
+          { payment_status: "Not Paid" },
+        ],
+      });
       var new_remainFee = await RemainingList.findById({ _id: rid })
         .populate({
-          path: "applicable_card"
+          path: "applicable_card",
         })
         .populate({
-          path: "government_card"
-        })
+          path: "government_card",
+        });
       const user = await User.findById({ _id: `${student.user}` });
       const status = new Status({});
       const order = new OrderPayment({});
       const notify = new StudentNotification({});
       const new_receipt = new FeeReceipt({ ...req.body });
       new_receipt.student = student?._id;
-      new_receipt.fee_structure = new_remainFee?.fee_structure
-      new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+      new_receipt.fee_structure = new_remainFee?.fee_structure;
+      new_receipt.fee_transaction_date = new Date(
+        `${req.body.transaction_date}`
+      );
       new_receipt.application = apply?._id;
       new_receipt.receipt_generated_from = "BY_ADMISSION";
       new_receipt.finance = finance?._id;
@@ -2693,7 +2805,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       order.payment_student_name = student?.valid_full_name;
       order.payment_student_gr = student?.studentGRNO;
       order.fee_receipt = new_receipt?._id;
-      fee_receipt_count_query(institute, new_receipt, order)
+      fee_receipt_count_query(institute, new_receipt, order);
       // institute.invoice_count += 1;
       // new_receipt.invoice_count = `${
       //   new Date().getMonth() + 1
@@ -2704,36 +2816,33 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       student.student_application_obj.push({
         app: apply?._id,
         staff: staffId,
-        flow: "fee_collect_by"
-      })
+        flow: "fee_collect_by",
+      });
       if (`${new_remainFee?.applicable_card?._id}` === `${card_id}`) {
-        var nest_card = await NestedCard.findById({ _id: `${card_id}` })
+        var nest_card = await NestedCard.findById({ _id: `${card_id}` });
         new_remainFee.active_payment_type = `${type}`;
         nest_card.active_payment_type = `${type}`;
         new_remainFee.paid_fee += price;
         nest_card.paid_fee += price;
         if (new_remainFee?.remaining_fee >= price) {
-          new_remainFee.remaining_fee -= price
+          new_remainFee.remaining_fee -= price;
         }
         if (nest_card?.remaining_fee >= price) {
-          nest_card.remaining_fee -= price
-        }
-        else {
-          nest_card.remaining_fee = 0
+          nest_card.remaining_fee -= price;
+        } else {
+          nest_card.remaining_fee = 0;
         }
         if (student.admissionRemainFeeCount >= price) {
-          student.admissionRemainFeeCount -= price
+          student.admissionRemainFeeCount -= price;
         }
         if (apply.remainingFee >= price) {
-          apply.remainingFee -= price
+          apply.remainingFee -= price;
         }
         if (admission.remainingFeeCount >= price) {
-          admission.remainingFeeCount -= price
+          admission.remainingFeeCount -= price;
         }
         var valid_one_time_fees =
-          student?.fee_structure?.applicable_fees - price == 0
-            ? true
-            : false;
+          student?.fee_structure?.applicable_fees - price == 0 ? true : false;
         if (valid_one_time_fees) {
           admission.remainingFee.pull(student._id);
         } else {
@@ -2751,9 +2860,8 @@ exports.payOfflineAdmissionFee = async (req, res) => {
             institute,
             nest_card,
             type
-          )
-        }
-        else {
+          );
+        } else {
           await render_installment(
             type,
             student,
@@ -2768,18 +2876,32 @@ exports.payOfflineAdmissionFee = async (req, res) => {
             nest_card
           );
         }
-        await nest_card.save()
+        await nest_card.save();
         if (req.body?.fee_payment_mode === "Government/Scholarship") {
           // New Logic
         } else {
-          if (new_remainFee?.is_splited && new_remainFee?.is_splited === "Yes") {
+          if (
+            new_remainFee?.is_splited &&
+            new_remainFee?.is_splited === "Yes"
+          ) {
             console.log("Enter Split");
-            await set_fee_head_query_redesign_split(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt, nest_card, nsid)
+            await set_fee_head_query_redesign_split(
+              student,
+              new_receipt?.fee_payment_amount,
+              apply?._id,
+              new_receipt,
+              nest_card,
+              nsid
+            );
             console.log("Exit Split");
-          }
-          else {
+          } else {
             console.log("Enter");
-            await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+            await set_fee_head_query_redesign(
+              student,
+              new_receipt?.fee_payment_amount,
+              apply?._id,
+              new_receipt
+            );
             // await set_fee_head_query(student, price, apply, new_receipt);
             console.log("Exit");
           }
@@ -2795,7 +2917,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           payment_status: mode,
           install_type: "First Installment Paid",
           fee_remain: nest_card.remaining_fee ?? 0,
-          application: apply?._id
+          application: apply?._id,
         });
       }
       new_remainFee.fee_receipts.push(new_receipt?._id);
@@ -2854,9 +2976,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         }
       }
       for (var val of all_status) {
-        val.payment_status = "Paid"
-        val.fee_receipt = new_receipt?._id
-        await val.save()
+        val.payment_status = "Paid";
+        val.fee_receipt = new_receipt?._id;
+        await val.save();
       }
       student.admissionPaidFeeCount += price;
       student.paidFeeList.push({
@@ -2864,7 +2986,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         appId: apply._id,
       });
       status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
-      status.group_by = "Admission_Confirmation"
+      status.group_by = "Admission_Confirmation";
       status.applicationId = apply._id;
       user.applicationStatus.push(status._id);
       status.instituteId = institute._id;
@@ -2892,7 +3014,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
             receipt: new_receipt?._id,
             demand_cheque_status: "Requested",
           });
-          admission.fee_receipt_request_count += 1
+          admission.fee_receipt_request_count += 1;
         }
       }
       await Promise.all([
@@ -2922,10 +3044,10 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       );
       for (let ele of nest_card?.remaining_array) {
         if (ele?.remainAmount <= 0) {
-          nest_card?.remaining_array?.pull(ele?._id)
+          nest_card?.remaining_array?.pull(ele?._id);
         }
       }
-      await nest_card.save()
+      await nest_card.save();
       // // console.log(test_data)
       // if (new_receipt?.receipt_file) {
       //   res.status(200).send({
@@ -3079,17 +3201,18 @@ exports.cancelAdmissionApplication = async (req, res) => {
         refund_from: apply?._id,
       });
       const all_remain_fee_list = await RemainingList.findOne({
-        $and: [{ fee_structure: struct }, { student: student?._id}]
+        $and: [{ fee_structure: struct }, { student: student?._id }],
       });
-      new_receipt.fee_structure = all_remain_fee_list?.fee_structure
+      new_receipt.fee_structure = all_remain_fee_list?.fee_structure;
       const nest_app_card = await NestedCard.findById({
-        _id: `${all_remain_fee_list?.applicable_card}`
+        _id: `${all_remain_fee_list?.applicable_card}`,
       });
-      const filter_student_install =
-      nest_app_card?.remaining_array?.filter((stu) => {
+      const filter_student_install = nest_app_card?.remaining_array?.filter(
+        (stu) => {
           if (`${stu.appId}` === `${apply._id}` && stu.status === "Not Paid")
             return stu;
-        });
+        }
+      );
       for (var can = 0; can < filter_student_install?.length; can++) {
         nest_app_card?.remaining_array.pull(filter_student_install[can]);
       }
@@ -3102,7 +3225,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
         nest_app_card.paid_fee -= price;
       }
       all_remain_fee_list.remaining_fee = 0;
-      nest_app_card.remaining_fee = 0
+      nest_app_card.remaining_fee = 0;
       for (var ele of student?.active_fee_heads) {
         if (`${ele?.appId}` === `${apply?._id}`) {
           ele.paid_fee = 0;
@@ -3120,7 +3243,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
         fee_receipt: new_receipt?._id,
         refund_status: "Refunded",
       });
-      all_remain_fee_list.status = "Cancel"
+      all_remain_fee_list.status = "Cancel";
       order.payment_module_type = "Expense";
       order.payment_to_end_user_id = institute._id;
       order.payment_by_end_user_id = user._id;
@@ -3135,15 +3258,15 @@ exports.cancelAdmissionApplication = async (req, res) => {
       order.payment_student = student?._id;
       order.payment_student_name = student?.valid_full_name;
       order.payment_student_gr = student?.studentGRNO;
-      fee_receipt_count_query(institute, new_receipt, order)
+      fee_receipt_count_query(institute, new_receipt, order);
       order.fee_receipt = new_receipt?._id;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
       student.student_application_obj.push({
         app: apply?._id,
         staff: staffId,
-        flow: "cancel_by"
-      })
+        flow: "cancel_by",
+      });
       await Promise.all([
         apply.save(),
         student.save(),
@@ -3157,7 +3280,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
         all_remain_fee_list.save(),
         new_receipt.save(),
         notify.save(),
-        nest_app_card.save()
+        nest_app_card.save(),
       ]);
       res.status(200).send({
         message: "Refund & Cancellation of Admission",
@@ -3172,26 +3295,26 @@ exports.cancelAdmissionApplication = async (req, res) => {
       );
       if (apply.reviewApplication?.length > 0) {
         if (apply?.reviewApplication?.includes(`${student?._id}`)) {
-          apply.reviewApplication?.pull(student?._id)
+          apply.reviewApplication?.pull(student?._id);
         }
         // for (var val of apply.reviewApplication) {
         //   if (`${val?.student}` === `${student?._id}`) {
-        //     apply.reviewApplication.pull(val?._id);   
+        //     apply.reviewApplication.pull(val?._id);
         //   }
         // }
         apply.cancelApplication.push({
           student: student._id,
           payment_status: "Refund",
           refund_amount: price,
-          from: "Cancel_Tab"
+          from: "Cancel_Tab",
         });
         admission.cancel_admission.push({
           student: student._id,
           payment_status: "Refund",
           refund_amount: price,
-          from: "Cancel_Tab"
-        })
-        admission.cancel_admission_count += price
+          from: "Cancel_Tab",
+        });
+        admission.cancel_admission_count += price;
         await Promise.all([apply.save(), admission.save()]);
       }
       if (admission?.remainingFee?.length > 0) {
@@ -3310,7 +3433,7 @@ exports.retrieveAdmissionApplicationClass = async (req, res) => {
 exports.retrieveClassAllotQuery = async (req, res) => {
   try {
     const { aid, cid } = req.params;
-    const { staffId } = req?.body
+    const { staffId } = req?.body;
     if (!aid && !cid && !req.body.dataList)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -3336,11 +3459,16 @@ exports.retrieveClassAllotQuery = async (req, res) => {
         } else {
           const student = await Student.findById({ _id: sid });
           const user = await User.findById({ _id: `${student.user}` });
-          const all_subjects = await Subject.find({ $and: [{ class: classes?._id}, { subjectMasterName: { $in: student?.student_optional_subject}}]})
+          const all_subjects = await Subject.find({
+            $and: [
+              { class: classes?._id },
+              { subjectMasterName: { $in: student?.student_optional_subject } },
+            ],
+          });
           const notify = new Notification({});
           const aStatus = new Status({});
           apply.reviewApplication.pull(student._id);
-          apply.allot_array.push(student?._id)
+          apply.allot_array.push(student?._id);
           apply.allottedApplication.push({
             student: student._id,
             payment_status: "offline",
@@ -3353,8 +3481,8 @@ exports.retrieveClassAllotQuery = async (req, res) => {
           student.student_application_obj.push({
             app: apply?._id,
             staff: staffId,
-            flow: "allot_by"
-          })
+            flow: "allot_by",
+          });
           apply.allotCount += 1;
           // student.confirmApplication.pull(apply._id)
           student.studentStatus = "Approved";
@@ -3401,13 +3529,13 @@ exports.retrieveClassAllotQuery = async (req, res) => {
           notify.notifyByStudentPhoto = student._id;
           notify.notifyCategory = "Approve Student";
           aStatus.content = `Welcome to ${depart.dName} ${classes.classTitle} Enjoy your Learning.`;
-          aStatus.group_by = "Admission_Class_Allotment"
-          aStatus.classes = classes?._id
+          aStatus.group_by = "Admission_Class_Allotment";
+          aStatus.classes = classes?._id;
           aStatus.applicationId = apply._id;
           user.applicationStatus.push(aStatus._id);
           aStatus.instituteId = institute._id;
           if (all_subjects?.length > 0) {
-            student.student_optional_subject_access = "Yes"
+            student.student_optional_subject_access = "Yes";
             for (let ele of all_subjects) {
               ele.optionalStudent.push(student?._id);
               await ele.save();
@@ -3777,7 +3905,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             select: "applicable_fees",
           })
           .populate({
-            path: "applicable_card"
+            path: "applicable_card",
           })
           .populate({
             path: "student",
@@ -3806,8 +3934,11 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
         for (var ele of all_remain) {
           if (ele?.student != null) {
             ele.student.applicable_fees_pending +=
-              ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee > 0
-                ? ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee
+              ele?.fee_structure?.applicable_fees -
+                ele?.applicable_card?.paid_fee >
+              0
+                ? ele?.fee_structure?.applicable_fees -
+                  ele?.applicable_card?.paid_fee
                 : 0;
             if (student?.includes(ele?.student)) {
             } else {
@@ -3829,7 +3960,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             select: "applicable_fees",
           })
           .populate({
-            path: "applicable_card"
+            path: "applicable_card",
           })
           .populate({
             path: "student",
@@ -3842,8 +3973,11 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           });
         for (var ele of all_remain) {
           ele.student.applicable_fees_pending +=
-            ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee > 0
-              ? ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee
+            ele?.fee_structure?.applicable_fees -
+              ele?.applicable_card?.paid_fee >
+            0
+              ? ele?.fee_structure?.applicable_fees -
+                ele?.applicable_card?.paid_fee
               : 0;
           if (student?.includes(ele?.student)) {
           } else {
@@ -3895,7 +4029,7 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
           select: "applicable_fees",
         })
         .populate({
-          path: "applicable_card"
+          path: "applicable_card",
         })
         .populate({
           path: "student",
@@ -3924,8 +4058,11 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
       for (var ele of all_remain) {
         if (ele?.student != null) {
           ele.student.applicable_fees_pending +=
-            ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee > 0
-              ? ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee
+            ele?.fee_structure?.applicable_fees -
+              ele?.applicable_card?.paid_fee >
+            0
+              ? ele?.fee_structure?.applicable_fees -
+                ele?.applicable_card?.paid_fee
               : 0;
           if (student?.includes(ele?.student)) {
           } else {
@@ -3947,7 +4084,7 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
           select: "applicable_fees",
         })
         .populate({
-          path: "applicable_card"
+          path: "applicable_card",
         })
         .populate({
           path: "student",
@@ -3960,8 +4097,10 @@ exports.retrieveAdmissionApplicableRemainingArray = async (req, res) => {
         });
       for (var ele of all_remain) {
         ele.student.applicable_fees_pending +=
-          ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee > 0
-            ? ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee
+          ele?.fee_structure?.applicable_fees - ele?.applicable_card?.paid_fee >
+          0
+            ? ele?.fee_structure?.applicable_fees -
+              ele?.applicable_card?.paid_fee
             : 0;
         if (student?.includes(ele?.student)) {
         } else {
@@ -3997,10 +4136,10 @@ exports.oneStudentViewRemainingFee = async (req, res) => {
     const ads_obj = {
       message: "Remaining fee view",
       remain_fee: student.admissionPaymentStatus,
-    }
+    };
     const adsEncrypt = await encryptionPayload(ads_obj);
     res.status(200).send({
-      encrypt: adsEncrypt
+      encrypt: adsEncrypt,
     });
   } catch (e) {
     console.log(e);
@@ -4010,7 +4149,17 @@ exports.oneStudentViewRemainingFee = async (req, res) => {
 exports.paidRemainingFeeStudent = async (req, res) => {
   try {
     const { aid, sid, appId } = req.params;
-    const { amount, mode, type, card_id, rid, raid, pay_remain, nsid, staffId } = req.body;
+    const {
+      amount,
+      mode,
+      type,
+      card_id,
+      rid,
+      raid,
+      pay_remain,
+      nsid,
+      staffId,
+    } = req.body;
     const { receipt_status } = req.query;
     if (!sid && !aid && !appId && !amount && !mode && !type)
       return res.status(200).send({
@@ -4049,15 +4198,21 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       ? receipt_status
       : "Already Generated";
     const notify = new StudentNotification({});
-    var all_status = await Status.find({ $and: [{ applicationId: apply?._id}, { student: student?._id }, { payment_status: "Not Paid"}]})
+    var all_status = await Status.find({
+      $and: [
+        { applicationId: apply?._id },
+        { student: student?._id },
+        { payment_status: "Not Paid" },
+      ],
+    });
     var remaining_fee_lists = await RemainingList.findById({ _id: rid })
-    .populate({
-      path: "applicable_card"
-    })
-    .populate({
-      path: "government_card"
-    })
-    new_receipt.fee_structure = remaining_fee_lists?.fee_structure
+      .populate({
+        path: "applicable_card",
+      })
+      .populate({
+        path: "government_card",
+      });
+    new_receipt.fee_structure = remaining_fee_lists?.fee_structure;
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     var order = new OrderPayment({});
     order.payment_module_type = "Admission Fees";
@@ -4074,165 +4229,188 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     order.payment_student = student?._id;
     order.payment_student_name = student?.valid_full_name;
     order.payment_student_gr = student?.studentGRNO;
-    fee_receipt_count_query(institute, new_receipt, order)
+    fee_receipt_count_query(institute, new_receipt, order);
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     order.fee_receipt = new_receipt?._id;
     if (`${remaining_fee_lists?.applicable_card?._id}` === `${card_id}`) {
-      var nest_card = await NestedCard.findById({ _id: `${card_id}`})
+      var nest_card = await NestedCard.findById({ _id: `${card_id}` });
       remaining_fee_lists.active_payment_type = `${type}`;
       nest_card.active_payment_type = `${type}`;
       remaining_fee_lists.paid_fee += price;
       nest_card.paid_fee += price;
-      
-      if(remaining_fee_lists?.remaining_fee >= price){
-        remaining_fee_lists.remaining_fee -= price
-      }
-      else {
-        remaining_fee_lists.remaining_fee = 0
-      }
-      if(nest_card?.remaining_fee >= price){
-        nest_card.remaining_fee -= price
-      }
-      else {
-        nest_card.remaining_fee = 0
-      }
-      if(student.admissionRemainFeeCount >= price){
-        student.admissionRemainFeeCount -= price
-      }
-      if(apply.remainingFee >= price){
-        apply.remainingFee -= price
-      }
-      if(admin_ins.remainingFeeCount >= price){
-        admin_ins.remainingFeeCount -= price
-      }
-        var valid_one_time_fees =
-        student?.fee_structure?.applicable_fees - price == 0
-          ? true
-          : false;
-          if (valid_one_time_fees) {
-            admin_ins.remainingFee.pull(student._id);
-          } else {
-            // nest_card.remaining_array.push({
-            //   remainAmount: student?.fee_structure?.applicable_fees - price,
-            //   appId: apply._id,
-            //   status: "Not Paid",
-            //   instituteId: institute._id,
-            //   installmentValue: "One Time Fees Remain",
-            //   isEnable: true,
-            // });
-          }
-        var extra_price = 0
-        await nest_card.save()
-      if (type === "First Installment") {
-          if (remaining_fee_lists?.is_splited && remaining_fee_lists?.is_splited === "Yes") {
-            console.log("Enter Split");
-            await set_fee_head_query_redesign_split(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt, nest_card, nsid)
-            console.log("Exit Split");
-          }
-          else {
-            await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt);
-          }
+
+      if (remaining_fee_lists?.remaining_fee >= price) {
+        remaining_fee_lists.remaining_fee -= price;
       } else {
-          if (remaining_fee_lists?.is_splited && remaining_fee_lists?.is_splited === "Yes") {
-            console.log("Update Split");
-            await update_fee_head_query_redesign_split(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt, nest_card, nsid)
-            console.log("Update Split");
-          }
-          else {
-            await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
-          }
-          // await update_fee_head_query(student, price, apply, new_receipt);
-        }
-        if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
-          await exempt_installment(
-            req?.body?.fee_payment_mode,
-            remaining_fee_lists,
+        remaining_fee_lists.remaining_fee = 0;
+      }
+      if (nest_card?.remaining_fee >= price) {
+        nest_card.remaining_fee -= price;
+      } else {
+        nest_card.remaining_fee = 0;
+      }
+      if (student.admissionRemainFeeCount >= price) {
+        student.admissionRemainFeeCount -= price;
+      }
+      if (apply.remainingFee >= price) {
+        apply.remainingFee -= price;
+      }
+      if (admin_ins.remainingFeeCount >= price) {
+        admin_ins.remainingFeeCount -= price;
+      }
+      var valid_one_time_fees =
+        student?.fee_structure?.applicable_fees - price == 0 ? true : false;
+      if (valid_one_time_fees) {
+        admin_ins.remainingFee.pull(student._id);
+      } else {
+        // nest_card.remaining_array.push({
+        //   remainAmount: student?.fee_structure?.applicable_fees - price,
+        //   appId: apply._id,
+        //   status: "Not Paid",
+        //   instituteId: institute._id,
+        //   installmentValue: "One Time Fees Remain",
+        //   isEnable: true,
+        // });
+      }
+      var extra_price = 0;
+      await nest_card.save();
+      if (type === "First Installment") {
+        if (
+          remaining_fee_lists?.is_splited &&
+          remaining_fee_lists?.is_splited === "Yes"
+        ) {
+          console.log("Enter Split");
+          await set_fee_head_query_redesign_split(
             student,
-            admin_ins,
-            apply,
-            finance,
-            price,
+            new_receipt?.fee_payment_amount,
+            apply?._id,
             new_receipt,
-            nest_card
+            nest_card,
+            nsid
+          );
+          console.log("Exit Split");
+        } else {
+          await set_fee_head_query_redesign(
+            student,
+            new_receipt?.fee_payment_amount,
+            apply?._id,
+            new_receipt
+          );
+        }
+      } else {
+        if (
+          remaining_fee_lists?.is_splited &&
+          remaining_fee_lists?.is_splited === "Yes"
+        ) {
+          console.log("Update Split");
+          await update_fee_head_query_redesign_split(
+            student,
+            new_receipt?.fee_payment_amount,
+            apply?._id,
+            new_receipt,
+            nest_card,
+            nsid
+          );
+          console.log("Update Split");
+        } else {
+          await update_fee_head_query_redesign(
+            student,
+            new_receipt?.fee_payment_amount,
+            apply?._id,
+            new_receipt
+          );
+        }
+        // await update_fee_head_query(student, price, apply, new_receipt);
+      }
+      if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
+        await exempt_installment(
+          req?.body?.fee_payment_mode,
+          remaining_fee_lists,
+          student,
+          admin_ins,
+          apply,
+          finance,
+          price,
+          new_receipt,
+          nest_card
+        );
+      } else {
+        console.log("Enter");
+        if (pay_remain) {
+          await all_installment_paid(
+            remaining_fee_lists,
+            student?.fee_structure,
+            mode,
+            price,
+            admin_ins,
+            student,
+            new_receipt,
+            apply,
+            institute,
+            nest_card,
+            type
           );
         } else {
-          console.log("Enter")
-          if (pay_remain) {
-            await all_installment_paid(
-              remaining_fee_lists,
-              student?.fee_structure,
-              mode,
-              price,
-              admin_ins,
-              student,
-              new_receipt,
-              apply,
-              institute,
-              nest_card,
-              type
-            )
-          }
-          else {
-            await render_installment(
-              type,
-              student,
-              mode,
-              price,
-              admin_ins,
-              student?.fee_structure,
-              remaining_fee_lists,
-              new_receipt,
-              apply,
-              institute,
-              nest_card
-            );
-          }
-          console.log("Exit")
-          if (
-            `${new_receipt?.fee_payment_mode}` === "Demand Draft" ||
-            `${new_receipt?.fee_payment_mode}` === "Cheque"
-          ) {
-            if (admin_ins?.request_array?.includes(`${new_receipt?._id}`)) {
-            } else {
-              admin_ins.request_array.push(new_receipt?._id);
-              admin_ins.fee_receipt_request.push({
-                receipt: new_receipt?._id,
-                demand_cheque_status: "Requested",
-                nested_card: nest_card?._id,
-                nest_remain: raid
-              });
-              admin_ins.fee_receipt_request_count += 1
-            }
+          await render_installment(
+            type,
+            student,
+            mode,
+            price,
+            admin_ins,
+            student?.fee_structure,
+            remaining_fee_lists,
+            new_receipt,
+            apply,
+            institute,
+            nest_card
+          );
+        }
+        console.log("Exit");
+        if (
+          `${new_receipt?.fee_payment_mode}` === "Demand Draft" ||
+          `${new_receipt?.fee_payment_mode}` === "Cheque"
+        ) {
+          if (admin_ins?.request_array?.includes(`${new_receipt?._id}`)) {
+          } else {
+            admin_ins.request_array.push(new_receipt?._id);
+            admin_ins.fee_receipt_request.push({
+              receipt: new_receipt?._id,
+              demand_cheque_status: "Requested",
+              nested_card: nest_card?._id,
+              nest_remain: raid,
+            });
+            admin_ins.fee_receipt_request_count += 1;
           }
         }
-        if(type === "First Installment"){
-          console.log("Enter")
-        for(var val of apply?.FeeCollectionApplication){
-          if(`${val?.student}` === `${student?._id}`){
+      }
+      if (type === "First Installment") {
+        console.log("Enter");
+        for (var val of apply?.FeeCollectionApplication) {
+          if (`${val?.student}` === `${student?._id}`) {
             apply.confirmedApplication.push({
               student: student._id,
               payment_status: mode,
               install_type: "First Installment Paid",
               fee_remain: nest_card.remaining_fee ?? 0,
             });
-            apply.confirmCount += 1
-            apply.FeeCollectionApplication.pull(val?._id)
-            if(apply?.fee_collect_count > 0){
-              apply.fee_collect_count -= 1
+            apply.confirmCount += 1;
+            apply.FeeCollectionApplication.pull(val?._id);
+            if (apply?.fee_collect_count > 0) {
+              apply.fee_collect_count -= 1;
             }
           }
         }
-        for(var val of admin_ins?.FeeCollectionApplication){
-          if(`${val?.student}` === `${student?._id}`){
+        for (var val of admin_ins?.FeeCollectionApplication) {
+          if (`${val?.student}` === `${student?._id}`) {
             admin_ins.confirmedApplication_query.push({
               student: student._id,
               payment_status: mode,
               install_type: "First Installment Paid",
               fee_remain: nest_card.remaining_fee ?? 0,
-              application: apply?._id
+              application: apply?._id,
             });
-            admin_ins.FeeCollectionApplication.pull(val?._id)
+            admin_ins.FeeCollectionApplication.pull(val?._id);
           }
         }
       }
@@ -4241,8 +4419,8 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       student.student_application_obj.push({
         app: apply?._id,
         staff: staffId,
-        flow: "fee_collect_by"
-      })
+        flow: "fee_collect_by",
+      });
     }
     student.admissionPaidFeeCount += price;
     if (mode === "Online") {
@@ -4275,9 +4453,9 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       }
     }
     for (var val of all_status) {
-      val.payment_status = "Paid"
-      val.fee_receipt = new_receipt?._id
-      await val.save()
+      val.payment_status = "Paid";
+      val.fee_receipt = new_receipt?._id;
+      await val.save();
     }
     await Promise.all([
       admin_ins.save(),
@@ -4362,10 +4540,10 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     }
     for (let ele of nest_card?.remaining_array) {
       if (ele?.remainAmount <= 0) {
-        nest_card?.remaining_array?.pull(ele?._id)
+        nest_card?.remaining_array?.pull(ele?._id);
       }
     }
-    await nest_card.save()
+    await nest_card.save();
   } catch (e) {
     console.log(e);
   }
@@ -4408,14 +4586,18 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findById({
-      _id: rid
+      _id: rid,
     });
-    new_receipt.fee_structure = remaining_fee_lists?.fee_structure
+    new_receipt.fee_structure = remaining_fee_lists?.fee_structure;
     if (remaining_fee_lists?.government_card) {
-      var nest_gov = await NestedCard.findById({ _id: `${remaining_fee_lists?.government_card}` })
+      var nest_gov = await NestedCard.findById({
+        _id: `${remaining_fee_lists?.government_card}`,
+      });
     }
     if (remaining_fee_lists?.applicable_card) {
-      var nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.applicable_card}` })
+      var nest_card = await NestedCard.findById({
+        _id: `${remaining_fee_lists?.applicable_card}`,
+      });
     }
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     var order = new OrderPayment({});
@@ -4433,7 +4615,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     order.payment_student = student?._id;
     order.payment_student_name = student?.valid_full_name;
     order.payment_student_gr = student?.studentGRNO;
-    fee_receipt_count_query(institute, new_receipt, order)
+    fee_receipt_count_query(institute, new_receipt, order);
     order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
@@ -4501,7 +4683,10 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     //   }
     // }
     if (nest_card) {
-      var app_count = nest_card?.paid_fee >= nest_card?.applicable_fee ? nest_card?.paid_fee - nest_card?.applicable_fee : 0
+      var app_count =
+        nest_card?.paid_fee >= nest_card?.applicable_fee
+          ? nest_card?.paid_fee - nest_card?.applicable_fee
+          : 0;
       if (nest_card?.paid_fee >= app_count) {
         nest_card.paid_fee -= app_count;
       }
@@ -4517,11 +4702,14 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
           fee_receipt: new_receipt?._id,
         });
       }
-      await nest_card.save()
+      await nest_card.save();
     }
 
     if (nest_gov) {
-      var gov_count = nest_gov?.paid_fee >= nest_gov?.applicable_fee ? nest_gov?.paid_fee - nest_gov?.applicable_fee : 0
+      var gov_count =
+        nest_gov?.paid_fee >= nest_gov?.applicable_fee
+          ? nest_gov?.paid_fee - nest_gov?.applicable_fee
+          : 0;
       if (nest_gov?.paid_fee >= gov_count) {
         nest_gov.paid_fee -= gov_count;
       }
@@ -4533,11 +4721,12 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
           instituteId: institute?._id,
           installmentValue: "All Installment Paid",
           refund_status: "Refunded",
-          cover_status: "Excess Government/Scholarship Transfer To Applicable Fees",
+          cover_status:
+            "Excess Government/Scholarship Transfer To Applicable Fees",
           isEnable: true,
         });
       }
-      await nest_gov.save()
+      await nest_gov.save();
     }
     const filter_student_refund = admin_ins?.refundFeeList?.filter((stu) => {
       if (`${stu.student}` === `${student?._id}`) return stu;
@@ -4774,7 +4963,12 @@ const request_mode_query_by_student = async (
     // await set_fee_head_query(student, price, apply);
     if (new_receipt?.fee_payment_mode === "Government/Scholarship") {
     } else {
-      await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+      await update_fee_head_query_redesign(
+        student,
+        new_receipt?.fee_payment_amount,
+        apply?._id,
+        new_receipt
+      );
       // await update_fee_head_query(student, price, apply, new_receipt);
     }
     if (remaining_fee_lists) {
@@ -4978,8 +5172,8 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
           populate: {
             path: "compulsory_subject",
             select: "subjectName",
-          }
-        }
+          },
+        },
       })
       .populate({
         path: "subject_selected_group",
@@ -4990,9 +5184,9 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
             populate: {
               path: "optional_subject_options optional_subject_options_or.options",
               select: "subjectName",
-            }
-          }
-        }
+            },
+          },
+        },
       })
       .populate({
         path: "subject_selected_group",
@@ -5003,9 +5197,9 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
             populate: {
               path: "fixed_subject_options",
               select: "subjectName",
-            }
-          }
-        }
+            },
+          },
+        },
       })
       .lean()
       .exec();
@@ -5019,10 +5213,10 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
         "Sit with a paper and pen to note down all details carefully from DB 🙌",
       // oneApply: cached.oneApply,
       oneApply: oneApply,
-    }
+    };
     const adsEncrypt = await encryptionPayload(ads_obj);
     res.status(200).send({
-      encrypt: adsEncrypt
+      encrypt: adsEncrypt,
     });
   } catch (e) {
     console.log(e);
@@ -5380,11 +5574,14 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
     for (var ref of valid_remain) {
       count +=
         ref?.applicable_card?.paid_fee >= ref?.applicable_card?.applicable_fee
-          ? ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee
+          ? ref?.applicable_card?.paid_fee -
+            ref?.applicable_card?.applicable_fee
           : 0;
-      count += ref?.government_card?.paid_fee >= ref?.government_card?.applicable_fee
-      ? ref?.government_card?.paid_fee - ref?.government_card?.applicable_fee
-      : 0;
+      count +=
+        ref?.government_card?.paid_fee >= ref?.government_card?.applicable_fee
+          ? ref?.government_card?.paid_fee -
+            ref?.government_card?.applicable_fee
+          : 0;
       if (ref?.applicable_fee === ref?.remaining_fee) {
         ref.drop_status = "Enable";
       } else {
@@ -5397,7 +5594,15 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         ref?.fee_structure?.applicable_fees - ref?.applicable_card?.paid_fee > 0
           ? ref?.fee_structure?.applicable_fees - ref?.applicable_card?.paid_fee
           : 0;
-      ref.excess_fee = (ref?.applicable_card?.paid_fee > ref?.applicable_card?.applicable_fee ? ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee : 0) + (ref?.government_card?.paid_fee > ref?.government_card?.applicable_fee ? ref?.government_card?.paid_fee - ref?.government_card?.applicable_fee : 0)
+      ref.excess_fee =
+        (ref?.applicable_card?.paid_fee > ref?.applicable_card?.applicable_fee
+          ? ref?.applicable_card?.paid_fee -
+            ref?.applicable_card?.applicable_fee
+          : 0) +
+        (ref?.government_card?.paid_fee > ref?.government_card?.applicable_fee
+          ? ref?.government_card?.paid_fee -
+            ref?.government_card?.applicable_fee
+          : 0);
     }
     for (var ref of valid_remain) {
       ref.setOffPrice = count;
@@ -5415,13 +5620,12 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         // array: cached.valid_remain,
         array: valid_remain,
         // student: student,
-      }
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
         encrypt: adsEncrypt,
         // ads_obj,
         array: valid_remain,
-
       });
     } else {
       const ads_obj = {
@@ -5429,10 +5633,10 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         get: false,
         array: [],
         // student: student,
-      }
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
-        encrypt: adsEncrypt
+        encrypt: adsEncrypt,
       });
     }
   } catch (e) {
@@ -5443,7 +5647,8 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
 exports.retrieveAdmissionCollectDocs = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { mode, type, amount, nest, revert_status, staffId, collect_docs } = req.body;
+    const { mode, type, amount, nest, revert_status, staffId, collect_docs } =
+      req.body;
     if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -5470,14 +5675,22 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     var notify = new StudentNotification({});
     let obj = {
       status_id: status?._id,
-      revert_request_status: revert_status
-    }
+      revert_request_status: revert_status,
+    };
     student.student_application_obj.push({
       app: apply?._id,
       staff: staffId,
-      flow: "docs_by"
-    })
-    var c_num = await render_new_fees_card(student?._id, apply?._id, structure?._id, "By_Admission_Admin_After_Docs_Collect", "", "", obj)
+      flow: "docs_by",
+    });
+    var c_num = await render_new_fees_card(
+      student?._id,
+      apply?._id,
+      structure?._id,
+      "By_Admission_Admin_After_Docs_Collect",
+      "",
+      "",
+      obj
+    );
     if (structure?.applicable_fees <= 0) {
       apply.confirmedApplication.push({
         student: student._id,
@@ -5486,10 +5699,9 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         fee_remain: structure?.applicable_fees,
         status_id: status?._id,
         revert_request_status: revert_status,
-      })
-      apply.confirmCount += 1
-    }
-    else{
+      });
+      apply.confirmCount += 1;
+    } else {
       apply.FeeCollectionApplication.push({
         student: student?._id,
         fee_remain: structure?.applicable_fees,
@@ -5499,12 +5711,12 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         status_id: status?._id,
         revert_request_status: revert_status,
         fee_struct: c_num?.fee_struct,
-      })
-      apply.fee_collect_count += 1
+      });
+      apply.fee_collect_count += 1;
     }
-    apply.selectedApplication.pull(nest)
-    if(apply?.selectCount >= 0){
-      apply.selectCount -= 1
+    apply.selectedApplication.pull(nest);
+    if (apply?.selectCount >= 0) {
+      apply.selectCount -= 1;
     }
     // for (let app of apply.selectedApplication) {
     //   if (`${app.student}` === `${student._id}`) {
@@ -5517,9 +5729,9 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     status.content = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
-    status.group_by = "Admission_Fees_Payment"
-    status.remaining_list = c_num?.card
-    status.payment_status = "Not Paid"
+    status.group_by = "Admission_Fees_Payment";
+    status.remaining_list = c_num?.card;
+    status.payment_status = "Not Paid";
     status.finance = institute?.financeDepart?.[0];
     status.feeStructure = structure?._id;
     status.for_selection = "Yes";
@@ -5543,8 +5755,8 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       for (let ele of collect_docs) {
         student.collect_docs.push({
           docs: ele?.docs,
-          not_filled: ele?.not_filled
-        })
+          not_filled: ele?.not_filled,
+        });
       }
     }
     await Promise.all([
@@ -5552,7 +5764,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       user.save(),
       status.save(),
       notify.save(),
-      student.save()
+      student.save(),
     ]);
     res.status(200).send({
       message: "Look like a party mood",
@@ -5706,7 +5918,7 @@ exports.renderAllInquiryQuery = async (req, res) => {
         $and: [
           { _id: { $in: admission_admin?.inquiryList } },
           { inquiry_status: status },
-          { inquiry_application: appId }
+          { inquiry_application: appId },
         ],
         $or: [{ inquiry_student_name: { $regex: search, $options: "i" } }],
       })
@@ -5722,7 +5934,7 @@ exports.renderAllInquiryQuery = async (req, res) => {
         $and: [
           { _id: { $in: admission_admin?.inquiryList } },
           { inquiry_status: status },
-          { inquiry_application: appId }
+          { inquiry_application: appId },
         ],
       })
         .limit(limit)
@@ -5837,7 +6049,7 @@ exports.renderNewDirectInquiry = async (req, res) => {
     if (!valid?.exist) {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
-      const uqid = universal_random_password()
+      const uqid = universal_random_password();
       var user = new User({
         userLegalName: req.body.inquiry_student_name,
         userGender: req.body.inquiry_student_gender,
@@ -5851,14 +6063,14 @@ exports.renderNewDirectInquiry = async (req, res) => {
         remindLater: custom_date_time(21),
         next_date: custom_date_time(0),
       });
-      const code = "qviple@161028520"
+      const code = "qviple@161028520";
       const new_user_pass = bcrypt.genSaltSync(12);
       const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-      user.user_normal_password = `${code}`
-      user.user_universal_password = `${hash_user_pass}`
-      var qvipleId = new QvipleId({})
-      qvipleId.user = user?._id
-      qvipleId.qviple_id = `${uqid}`
+      user.user_normal_password = `${code}`;
+      user.user_universal_password = `${hash_user_pass}`;
+      var qvipleId = new QvipleId({});
+      qvipleId.user = user?._id;
+      qvipleId.qviple_id = `${uqid}`;
       admins.users.push(user);
       admins.userCount += 1;
       await Promise.all([admins.save(), user.save(), qvipleId.save()]);
@@ -6384,7 +6596,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         if (`${ele._id}` === `${reqId}`) {
           ads_admin.fee_receipt_request.pull(reqId);
           if (ads_admin?.fee_receipt_request_count > 0) {
-            ads_admin.fee_receipt_request_count -= 1
+            ads_admin.fee_receipt_request_count -= 1;
           }
         }
       }
@@ -6393,7 +6605,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         receipt: one_receipt?._id,
         status: "Approved",
       });
-      ads_admin.fee_receipt_approve_count += 1
+      ads_admin.fee_receipt_approve_count += 1;
       if (one_status) {
         one_status.receipt_status = "Approved";
       }
@@ -6419,7 +6631,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         if (`${ele._id}` === `${reqId}`) {
           ads_admin.fee_receipt_request.pull(reqId);
           if (ads_admin?.fee_receipt_request_count > 0) {
-            ads_admin.fee_receipt_request_count -= 1
+            ads_admin.fee_receipt_request_count -= 1;
           }
         }
       }
@@ -6429,7 +6641,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         status: "Rejected",
         reason: reason,
       });
-      ada_admin.fee_receipt_reject_count += 1
+      ada_admin.fee_receipt_reject_count += 1;
       if (remaining_lists) {
         for (var ref of remaining_lists?.remaining_array) {
           if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
@@ -6455,7 +6667,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         if (`${ele._id}` === `${reqId}`) {
           ads_admin.fee_receipt_reject.pull(reqId);
           if (ads_admin?.fee_receipt_request_count > 0) {
-            ads_admin.fee_receipt_request_count -= 1
+            ads_admin.fee_receipt_request_count -= 1;
           }
         }
       }
@@ -6465,7 +6677,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         status: "Approved",
         over_status: "After Rejection Approved By Admission Admin",
       });
-      ads_admin.fee_receipt_approve_count += 1
+      ads_admin.fee_receipt_approve_count += 1;
       if (one_status) {
         one_status.receipt_status = "Approved";
       }
@@ -6695,7 +6907,12 @@ exports.renderOneReceiptStatus = async (req, res) => {
       if (one_receipt?.fee_payment_mode === "Government/Scholarship") {
         // New Logic
       } else {
-        await set_fee_head_query_redesign(student, one_receipt?.fee_payment_amount, one_app?._id, one_receipt)
+        await set_fee_head_query_redesign(
+          student,
+          one_receipt?.fee_payment_amount,
+          one_app?._id,
+          one_receipt
+        );
         // await set_fee_head_query(student, price, one_app, one_receipt);
       }
       if (is_install) {
@@ -6747,7 +6964,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
       order.fee_receipt = one_receipt?._id;
       institute.payment_history.push(order._id);
       status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
-      status.group_by = "Admission_Confirmation"
+      status.group_by = "Admission_Confirmation";
       status.applicationId = one_app._id;
       user.applicationStatus.push(status._id);
       status.instituteId = institute._id;
@@ -6869,26 +7086,28 @@ exports.renderTriggerAlarmQuery = async (req, res) => {
   try {
     const { aid } = req.params;
     const { alarm_mode } = req.query;
-    const { all_arr, title, doc, content } = req?.body
+    const { all_arr, title, doc, content } = req?.body;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-      const ads_admin = await Admission.findById({ _id: aid }).select(
-        "alarm_count institute"
-      );
-      var all_student = await Student.find({ _id: { $in: all_arr }})
-      .select("studentFirstName studentMiddleName studentLastName valid_full_name")
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "alarm_count institute"
+    );
+    var all_student = await Student.find({ _id: { $in: all_arr } })
+      .select(
+        "studentFirstName studentMiddleName studentLastName valid_full_name"
+      )
       .populate({
         path: "user",
         select: "deviceToken userEmail",
       })
       .populate({
-            path: "institute",
-            select: "insName",
-          });
+        path: "institute",
+        select: "insName",
+      });
 
     // if (alarm_count > 3) {
     //   res.status(200).send({
@@ -7081,7 +7300,7 @@ exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
       status.save(),
       aStatus.save(),
       notify.save(),
-      admission_admin.save()
+      admission_admin.save(),
     ]);
     res.status(200).send({
       message: `Best of luck for next time 😥`,
@@ -7197,8 +7416,8 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
       student.student_application_obj.push({
         app: apply?._id,
         staff: staffId,
-        flow: "assign_by"
-      })
+        flow: "assign_by",
+      });
       await Promise.all([apply.save(), student.save()]);
       res.status(200).send({
         message: `congrats for new fee structure `,
@@ -7220,11 +7439,11 @@ exports.renderAddDocumentQuery = async (req, res) => {
         access: false,
       });
     const ads_admin = await Admission.findById({ _id: aid });
-    const new_doc = new RequiredDocument({ ...req?.body })
+    const new_doc = new RequiredDocument({ ...req?.body });
     ads_admin.required_document.push(new_doc?._id);
     ads_admin.required_document_count += 1;
-    new_doc.admission = ads_admin?._id
-    await Promise.all([ ads_admin.save(), new_doc.save() ]);
+    new_doc.admission = ads_admin?._id;
+    await Promise.all([ads_admin.save(), new_doc.save()]);
     res.status(200).send({
       message: "New Document Added to Required Document",
       access: true,
@@ -7249,9 +7468,11 @@ exports.renderAllDocumentArray = async (req, res) => {
       "required_document"
     );
 
-    const all_doc = await RequiredDocument.find({ _id: { $in: ads_admin?.required_document } })
+    const all_doc = await RequiredDocument.find({
+      _id: { $in: ads_admin?.required_document },
+    })
       .limit(limit)
-    .skip(skip)
+      .skip(skip);
 
     if (all_doc?.length > 0) {
       res.status(200).send({
@@ -7282,7 +7503,7 @@ exports.renderEditDocumentQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    await RequiredDocument.findByIdAndUpdate(doc, req?.body)
+    await RequiredDocument.findByIdAndUpdate(doc, req?.body);
     res.status(200).send({
       message: "Document Updated",
       access: true,
@@ -7300,15 +7521,15 @@ exports.renderDeleteExistingDocument = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    const ads_admin = await Admission.findById({ _id: aid })
+    const ads_admin = await Admission.findById({ _id: aid });
 
-    const docs = await RequiredDocument.findById({ _id: docId })
-    ads_admin.required_document.pull(docs?._id)
+    const docs = await RequiredDocument.findById({ _id: docId });
+    ads_admin.required_document.pull(docs?._id);
     if (ads_admin?.required_document_count > 0) {
-      ads_admin.required_document_count -= 1
+      ads_admin.required_document_count -= 1;
     }
     await ads_admin.save();
-    await RequiredDocument.findByIdAndDelete(docs?._id)
+    await RequiredDocument.findByIdAndDelete(docs?._id);
     res.status(200).send({
       message: "Deletion Operation Completed",
       access: true,
@@ -7344,15 +7565,14 @@ exports.renderRefundArrayQuery = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO remainingFeeList refund",
+            populate: {
+              path: "remainingFeeList",
+              select: "applicable_card government_card",
               populate: {
-                path: "remainingFeeList",
-                select:
-                  "applicable_card government_card",
-                  populate: {
-                    path: "applicable_card government_card",
-                    select: "paid_fee applicable_fee"
-                  },
+                path: "applicable_card government_card",
+                select: "paid_fee applicable_fee",
               },
+            },
           },
         });
       for (let data of ads_admin?.refundFeeList) {
@@ -7370,42 +7590,50 @@ exports.renderRefundArrayQuery = async (req, res) => {
             path: "student",
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO remainingFeeList refund",
+            populate: {
+              path: "remainingFeeList",
+              select: "applicable_card government_card",
               populate: {
-                path: "remainingFeeList",
-                select:
-                  "applicable_card government_card",
-                  populate: {
-                    path: "applicable_card government_card",
-                    select: "paid_fee applicable_fee"
-                  },
+                path: "applicable_card government_card",
+                select: "paid_fee applicable_fee",
               },
+            },
           },
         });
-        var filter_refund = [];
-        for (let data of ads_admin?.refundFeeList) {
-          if (data.student !== null) {
-            filter_refund.push(data);
-          }
+      var filter_refund = [];
+      for (let data of ads_admin?.refundFeeList) {
+        if (data.student !== null) {
+          filter_refund.push(data);
         }
-      
-      var all_refund_list = [...filter_refund]
+      }
+
+      var all_refund_list = [...filter_refund];
     }
-    var total = 0
+    var total = 0;
     if (all_refund_list?.length > 0) {
       for (var stu of all_refund_list) {
         if (stu?.student?.remainingFeeList?.length > 0) {
           for (var val of stu?.student?.remainingFeeList) {
-            stu.student.refund += (val?.applicable_card?.paid_fee > val?.applicable_card?.applicable_fee ? val?.applicable_card?.paid_fee - val?.applicable_card?.applicable_fee : 0) + (val?.government_card?.paid_fee > val?.government_card?.applicable_fee ? val?.government_card?.paid_fee - val?.government_card?.applicable_fee : 0)
+            stu.student.refund +=
+              (val?.applicable_card?.paid_fee >
+              val?.applicable_card?.applicable_fee
+                ? val?.applicable_card?.paid_fee -
+                  val?.applicable_card?.applicable_fee
+                : 0) +
+              (val?.government_card?.paid_fee >
+              val?.government_card?.applicable_fee
+                ? val?.government_card?.paid_fee -
+                  val?.government_card?.applicable_fee
+                : 0);
           }
-          stu.refund = stu.student.refund
-          total += stu.student.refund
+          stu.refund = stu.student.refund;
+          total += stu.student.refund;
         }
       }
       let nest_list = all_refund_list?.filter((val) => {
-        if(val?.refund > 0) return val
-      })
-      let nest_lists = 
-      await nested_document_limit(
+        if (val?.refund > 0) return val;
+      });
+      let nest_lists = await nested_document_limit(
         page,
         limit,
         nest_list?.reverse()
@@ -7417,7 +7645,7 @@ exports.renderRefundArrayQuery = async (req, res) => {
         access: true,
         all_refund_list: nest_lists,
         refundCount: total,
-        array: nest_lists?.length
+        array: nest_lists?.length,
       });
     } else {
       res.status(200).send({
@@ -7471,23 +7699,22 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
     new_receipt.receipt_generated_from = "BY_ADMISSION";
-    new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP"
+    new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP";
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findById({
-      _id: rid
-    })
-      .populate({
-      path: "applicable_card"
-      })
-      new_receipt.fee_structure = remaining_fee_lists?.fee_structure
+      _id: rid,
+    }).populate({
+      path: "applicable_card",
+    });
+    new_receipt.fee_structure = remaining_fee_lists?.fee_structure;
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     if (req?.body?.fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
-        finance.scholarship_candidates.push(new_receipt?._id);
-        finance.scholarship_candidates_count += 1;
-      
+      finance.scholarship_candidates.push(new_receipt?._id);
+      finance.scholarship_candidates_count += 1;
+
       finance.government_receipt_count += 1;
       // if (price >= remaining_fee_lists?.remaining_fee) {
       //   extra_price += price - remaining_fee_lists?.remaining_fee;
@@ -7540,21 +7767,25 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     order.payment_student = student?._id;
     order.payment_student_name = student?.valid_full_name;
     order.payment_student_gr = student?.studentGRNO;
-    fee_receipt_count_query(institute, new_receipt, order)
+    fee_receipt_count_query(institute, new_receipt, order);
     user.payment_history.push(order._id);
     order.fee_receipt = new_receipt?._id;
     institute.payment_history.push(order._id);
-      if (req?.body?.fee_payment_mode === "Government/Scholarship") {
-        remaining_fee_lists.paid_fee += price;
-        // if (remaining_fee_lists.remaining_fee >= price) {
-        //   remaining_fee_lists.remaining_fee -= price;
-        // }
-      }
-      if (remaining_fee_lists?.applicable_card?._id) {
-        var nest_app = await NestedCard.findById({ _id: `${remaining_fee_lists?.applicable_card?._id}` })
-      }
+    if (req?.body?.fee_payment_mode === "Government/Scholarship") {
+      remaining_fee_lists.paid_fee += price;
+      // if (remaining_fee_lists.remaining_fee >= price) {
+      //   remaining_fee_lists.remaining_fee -= price;
+      // }
+    }
+    if (remaining_fee_lists?.applicable_card?._id) {
+      var nest_app = await NestedCard.findById({
+        _id: `${remaining_fee_lists?.applicable_card?._id}`,
+      });
+    }
     if (remaining_fee_lists?.government_card) {
-      const nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.government_card}` })
+      const nest_card = await NestedCard.findById({
+        _id: `${remaining_fee_lists?.government_card}`,
+      });
       remaining_fee_lists.active_payment_type = `${type}`;
       nest_card.active_payment_type = `${type}`;
       nest_card.paid_fee += price;
@@ -7562,44 +7793,43 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
         // if(remaining_fee_lists?.remaining_fee >= price){
         //   remaining_fee_lists.remaining_fee -= price
         // }
-        nest_card.remaining_fee -= price
-      }
-      else {
+        nest_card.remaining_fee -= price;
+      } else {
         // if(remaining_fee_lists?.remaining_fee >= nest_card.remaining_fee){
         //   remaining_fee_lists.remaining_fee -= nest_card.remaining_fee
         // }
         // else{
         //   remaining_fee_lists.remaining_fee = 0
         // }
-        nest_card.remaining_fee = 0
+        nest_card.remaining_fee = 0;
       }
-      if(student.admissionRemainFeeCount >= price){
-        student.admissionRemainFeeCount -= price
+      if (student.admissionRemainFeeCount >= price) {
+        student.admissionRemainFeeCount -= price;
       }
-      if(apply.remainingFee >= price){
-        apply.remainingFee -= price
+      if (apply.remainingFee >= price) {
+        apply.remainingFee -= price;
       }
-      if(admin_ins.remainingFeeCount >= price){
-        admin_ins.remainingFeeCount -= price
+      if (admin_ins.remainingFeeCount >= price) {
+        admin_ins.remainingFeeCount -= price;
       }
-        await nest_card.save()
-      console.log("Enter")
+      await nest_card.save();
+      console.log("Enter");
       // console.log(nest_app)
-            await render_government_installment_query(
-              type,
-              student,
-              mode,
-              price,
-              admin_ins,
-              student?.fee_structure,
-              remaining_fee_lists,
-              new_receipt,
-              apply,
-              institute,
-              nest_card,
-              nest_app
-            );
-            console.log("Exit")
+      await render_government_installment_query(
+        type,
+        student,
+        mode,
+        price,
+        admin_ins,
+        student?.fee_structure,
+        remaining_fee_lists,
+        new_receipt,
+        apply,
+        institute,
+        nest_card,
+        nest_app
+      );
+      console.log("Exit");
     }
     student.admissionPaidFeeCount += price;
     if (mode === "Online") {
@@ -8284,12 +8514,11 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
         access: false,
       });
 
-    if(flow === "BY_FINANCE"){
+    if (flow === "BY_FINANCE") {
       var scholar = await Finance.findById({ _id: sid }).select(
         "scholarship_candidates scholarship_candidates_count"
       );
-    }
-    else{
+    } else {
       var scholar = await ScholarShip.findById({ _id: sid }).select(
         "scholarship_candidates scholarship_candidates_count"
       );
@@ -8380,8 +8609,12 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
           path: "application",
           select: "applicationName",
         });
-      
-      var all_exempt = await nested_document_limit(page, limit, all_exempt_query?.reverse())
+
+      var all_exempt = await nested_document_limit(
+        page,
+        limit,
+        all_exempt_query?.reverse()
+      );
     }
     if (all_exempt?.length > 0) {
       res.status(200).send({
@@ -8488,7 +8721,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-      var one_app = await NewApplication.findById({ _id: appId });
+    var one_app = await NewApplication.findById({ _id: appId });
 
     var one_student = await Student.findById({ _id: sid });
     var old_struct = await FeeStructure.findById({ _id: old_fee_struct });
@@ -8496,87 +8729,97 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
     var one_remain_list = await RemainingList.findById({
       _id: rid,
     });
-    one_remain_list.applicable_fee = new_struct?.total_admission_fees
-    one_remain_list.fee_structure = new_struct?._id
+    one_remain_list.applicable_fee = new_struct?.total_admission_fees;
+    one_remain_list.fee_structure = new_struct?._id;
     if (one_remain_list?.applicable_card) {
-      var nest_app = await NestedCard.findById({ _id: `${one_remain_list?.applicable_card}` })
-      nest_app.applicable_fee = new_struct?.applicable_fees
-      nest_app.remaining_fee = nest_app?.applicable_fee > nest_app?.paid_fee ? nest_app?.applicable_fee - nest_app?.paid_fee : 0
-      one_remain_list.remaining_fee = nest_app?.applicable_fee > nest_app?.paid_fee ? nest_app?.applicable_fee - nest_app?.paid_fee : 0
+      var nest_app = await NestedCard.findById({
+        _id: `${one_remain_list?.applicable_card}`,
+      });
+      nest_app.applicable_fee = new_struct?.applicable_fees;
+      nest_app.remaining_fee =
+        nest_app?.applicable_fee > nest_app?.paid_fee
+          ? nest_app?.applicable_fee - nest_app?.paid_fee
+          : 0;
+      one_remain_list.remaining_fee =
+        nest_app?.applicable_fee > nest_app?.paid_fee
+          ? nest_app?.applicable_fee - nest_app?.paid_fee
+          : 0;
       for (var val of nest_app?.remaining_array) {
         if (`${val?.status}` === "Paid") {
-          
-        }
-        else {
-          val.remainAmount = nest_app?.remaining_fee > 0 ? nest_app?.remaining_fee : 0
+        } else {
+          val.remainAmount =
+            nest_app?.remaining_fee > 0 ? nest_app?.remaining_fee : 0;
           if (val.remainAmount <= 0) {
-            nest_app?.remaining_array.pull(val?._id)
+            nest_app?.remaining_array.pull(val?._id);
           }
           if (nest_app?.remaining_fee > 0 && val) {
-            
-          }
-          else {
+          } else {
             nest_app.remaining_array.push({
               status: "Not Paid",
               remainAmount: nest_app?.remaining_fee,
               appId: one_remain_list?.appId,
               instituteId: one_remain_list?.institute,
               isEnable: true,
-              installmentValue: "Installment Remain"
-            })
+              installmentValue: "Installment Remain",
+            });
           }
         }
       }
-      await nest_app.save()
+      await nest_app.save();
     }
     if (one_remain_list?.government_card) {
-      var nest_gov = await NestedCard.findById({ _id: `${one_remain_list?.government_card}` })
-      nest_gov.applicable_fee = new_struct?.total_admission_fees - new_struct?.applicable_fees
-      nest_gov.remaining_fee = nest_gov?.applicable_fee > nest_gov?.paid_fee ? nest_gov?.applicable_fee - nest_gov?.paid_fee : 0
+      var nest_gov = await NestedCard.findById({
+        _id: `${one_remain_list?.government_card}`,
+      });
+      nest_gov.applicable_fee =
+        new_struct?.total_admission_fees - new_struct?.applicable_fees;
+      nest_gov.remaining_fee =
+        nest_gov?.applicable_fee > nest_gov?.paid_fee
+          ? nest_gov?.applicable_fee - nest_gov?.paid_fee
+          : 0;
       for (var val of nest_gov?.remaining_array) {
         if (`${val?.status}` === "Paid") {
-          
-        }
-        else {
-          val.remainAmount = nest_gov?.remaining_fee > 0 ? nest_gov?.remaining_fee : 0
+        } else {
+          val.remainAmount =
+            nest_gov?.remaining_fee > 0 ? nest_gov?.remaining_fee : 0;
           if (val.remainAmount <= 0) {
-            nest_gov?.remaining_array.pull(val?._id)
+            nest_gov?.remaining_array.pull(val?._id);
           }
           if (nest_gov?.remaining_fee > 0 && val) {
-            
-          }
-          else {
+          } else {
             nest_gov.remaining_array.push({
               status: "Not Paid",
               remainAmount: nest_gov?.remaining_fee,
               appId: one_remain_list?.appId,
               instituteId: one_remain_list?.institute,
               isEnable: true,
-              installmentValue: "Installment Remain"
-            })
+              installmentValue: "Installment Remain",
+            });
           }
         }
       }
-      await nest_gov.save()
+      await nest_gov.save();
     }
-    
-      await one_remain_list.save()
-      res
-        .status(200)
-        .send({ message: "Zero Paid Fees Structure Edited", access: true });
-    var all_fees = await FeeReceipt.find({ $and: [{ student: one_student?._id }, { fee_structure: old_struct?._id }] })
+
+    await one_remain_list.save();
+    res
+      .status(200)
+      .send({ message: "Zero Paid Fees Structure Edited", access: true });
+    var all_fees = await FeeReceipt.find({
+      $and: [{ student: one_student?._id }, { fee_structure: old_struct?._id }],
+    });
     for (var val of all_fees) {
-      val.fee_structure = new_struct?._id
+      val.fee_structure = new_struct?._id;
       for (var ele of val?.fee_heads) {
-        ele.fee_structure = new_struct?._id
+        ele.fee_structure = new_struct?._id;
       }
-      await val.save()
+      await val.save();
     }
     for (var val of one_student?.active_fee_heads) {
-      if(`${val?.appId}` === `${one_app?._id}`)
-      val.fee_structure = new_struct?._id
+      if (`${val?.appId}` === `${one_app?._id}`)
+        val.fee_structure = new_struct?._id;
     }
-    await one_student.save()
+    await one_student.save();
   } catch (e) {
     console.log(e);
   }
@@ -8667,13 +8910,13 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
       _id: { $in: student?.remainingFeeList },
     })
       .populate({
-      path: "applicable_card"
+        path: "applicable_card",
       })
       .populate({
-        path: "government_card"
-      })
+        path: "government_card",
+      });
     var valid_price = await set_off_amount(all_remain_list);
-    console.log(valid_price)
+    console.log(valid_price);
     // console.log("Valid Set Off", valid_price);
     if (valid_price?.total > 0) {
       var filtered_card = valid_price?.set_off_arr?.filter((val) => {
@@ -8682,13 +8925,16 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
       if (filtered_card?.length >= 1) {
         var valid_remain_card = await RemainingList.findById({
           _id: filtered_card?.[0]?.remain,
-        })
-          .populate({
-            path: "appId",
-            select: "applicationName"
-        })
-        var nest_card_set = await NestedCard.findById({ _id: `${valid_remain_card?.applicable_card}` })
-        var nest_gov_card_set = await NestedCard.findById({ _id: `${valid_remain_card?.government_card}`})
+        }).populate({
+          path: "appId",
+          select: "applicationName",
+        });
+        var nest_card_set = await NestedCard.findById({
+          _id: `${valid_remain_card?.applicable_card}`,
+        });
+        var nest_gov_card_set = await NestedCard.findById({
+          _id: `${valid_remain_card?.government_card}`,
+        });
 
         // console.log("Enter in This Zone");
         const new_receipt = new FeeReceipt({ ...req.body });
@@ -8704,9 +8950,11 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         }
         const remaining_fee_lists = await RemainingList.findOne({
           $and: [{ student: student?._id }, { appId: apply?._id }],
-        })
-        var nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.applicable_card}`})
-        new_receipt.fee_structure = remaining_fee_lists?.fee_structure
+        });
+        var nest_card = await NestedCard.findById({
+          _id: `${remaining_fee_lists?.applicable_card}`,
+        });
+        new_receipt.fee_structure = remaining_fee_lists?.fee_structure;
         remaining_fee_lists.fee_receipts.push(new_receipt?._id);
         var order = new OrderPayment({});
         order.payment_module_type = "Admission Fees";
@@ -8723,22 +8971,24 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         order.payment_student = student?._id;
         order.payment_student_name = student?.valid_full_name;
         order.payment_student_gr = student?.studentGRNO;
-        fee_receipt_count_query(institute, new_receipt, order)
+        fee_receipt_count_query(institute, new_receipt, order);
         user.payment_history.push(order._id);
         institute.payment_history.push(order._id);
         order.fee_receipt = new_receipt?._id;
-            remaining_fee_lists.paid_fee += price;
-            if (remaining_fee_lists.remaining_fee >= price) {
-              remaining_fee_lists.remaining_fee -= price;
-            }
-            if (nest_card.remaining_fee >= price) {
-              nest_card.remaining_fee -= price;
-            }
+        remaining_fee_lists.paid_fee += price;
+        if (remaining_fee_lists.remaining_fee >= price) {
+          remaining_fee_lists.remaining_fee -= price;
+        }
+        if (nest_card.remaining_fee >= price) {
+          nest_card.remaining_fee -= price;
+        }
         nest_card.paid_fee += price;
-        let excess_fee = nest_card_set?.paid_fee - nest_card_set?.applicable_fee
-        let g_excess_fee = nest_gov_card_set?.paid_fee - nest_gov_card_set?.applicable_fee
+        let excess_fee =
+          nest_card_set?.paid_fee - nest_card_set?.applicable_fee;
+        let g_excess_fee =
+          nest_gov_card_set?.paid_fee - nest_gov_card_set?.applicable_fee;
         // nest_card.applicable_fee += price;
-        if ((nest_card_set?.paid_fee - nest_card_set?.applicable_fee) > 0) {
+        if (nest_card_set?.paid_fee - nest_card_set?.applicable_fee > 0) {
           if (nest_card_set.paid_fee >= excess_fee) {
             nest_card_set.paid_fee -= excess_fee;
           }
@@ -8749,10 +8999,13 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
             isEnable: true,
             installmentValue: `Excess Fees Set Off`,
             status: "Paid",
-            receipt_status: "Setoff"
-          })
+            receipt_status: "Setoff",
+          });
         }
-        if ((nest_gov_card_set?.paid_fee - nest_gov_card_set?.applicable_fee) > 0) {
+        if (
+          nest_gov_card_set?.paid_fee - nest_gov_card_set?.applicable_fee >
+          0
+        ) {
           if (nest_gov_card_set.paid_fee >= g_excess_fee) {
             nest_gov_card_set.paid_fee -= g_excess_fee;
           }
@@ -8763,22 +9016,22 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
             isEnable: true,
             installmentValue: `Excess Fees Set Off`,
             status: "Paid",
-            receipt_status: "Setoff"
-          })
+            receipt_status: "Setoff",
+          });
         }
-            await render_installment(
-              type,
-              student,
-              mode,
-              price,
-              admin_ins,
-              student?.fee_structure,
-              remaining_fee_lists,
-              new_receipt,
-              apply,
-              institute,
-              nest_card
-            );
+        await render_installment(
+          type,
+          student,
+          mode,
+          price,
+          admin_ins,
+          student?.fee_structure,
+          remaining_fee_lists,
+          new_receipt,
+          apply,
+          institute,
+          nest_card
+        );
         if (admin_ins?.remainingFeeCount >= price) {
           admin_ins.remainingFeeCount -= price;
         }
@@ -8791,13 +9044,27 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         student.admissionPaidFeeCount += price;
         if (req?.body?.fee_payment_mode === "Government/Scholarship") {
         } else {
-          if (remaining_fee_lists?.is_splited && remaining_fee_lists?.is_splited === "Yes") {
+          if (
+            remaining_fee_lists?.is_splited &&
+            remaining_fee_lists?.is_splited === "Yes"
+          ) {
             console.log("Update Split");
-            await update_fee_head_query_redesign_split(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt, nest_card, nsid)
+            await update_fee_head_query_redesign_split(
+              student,
+              new_receipt?.fee_payment_amount,
+              apply?._id,
+              new_receipt,
+              nest_card,
+              nsid
+            );
             console.log("Update Split");
-          }
-          else {
-            await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+          } else {
+            await update_fee_head_query_redesign(
+              student,
+              new_receipt?.fee_payment_amount,
+              apply?._id,
+              new_receipt
+            );
           }
         }
         await lookup_applicable_grant(
@@ -8824,15 +9091,19 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
           valid_remain_card.save(),
           nest_card.save(),
           nest_card_set.save(),
-          nest_gov_card_set.save()
+          nest_gov_card_set.save(),
         ]);
-        res
-        .status(200)
-          .send({ message: "Price set off is under processing...", access: true, remaining_fee_lists, nest_card, valid_remain_card });
-          for (let ele of all_remain_list) {
-            ele.setOffPrice = 0
-            await ele.save()
-          }
+        res.status(200).send({
+          message: "Price set off is under processing...",
+          access: true,
+          remaining_fee_lists,
+          nest_card,
+          valid_remain_card,
+        });
+        for (let ele of all_remain_list) {
+          ele.setOffPrice = 0;
+          await ele.save();
+        }
         var is_refund =
           remaining_fee_lists?.paid_fee - remaining_fee_lists?.applicable_fee;
         if (is_refund > 0) {
@@ -8955,15 +9226,19 @@ const auto_scholar_query = async (
     new_receipt.application = apply?._id;
     new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.finance = finance?._id;
-    new_receipt.fee_transaction_date = date_query ? new Date(`${date_query}`) : new Date()
-    new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP"
+    new_receipt.fee_transaction_date = date_query
+      ? new Date(`${date_query}`)
+      : new Date();
+    new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP";
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findById({ _id: rcid });
-    new_receipt.fee_structure = remaining_fee_lists?.fee_structure
+    new_receipt.fee_structure = remaining_fee_lists?.fee_structure;
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
-    remaining_fee_lists.remark = remaining_fee_lists?.remark ? `${remaining_fee_lists.remark} ${remark_query}` : `${remark_query}`
-    new_receipt.txn_id = txn_id ?? ""
-    remaining_fee_lists.scholar_ship_number = SCH_NUMBER ?? ""
+    remaining_fee_lists.remark = remaining_fee_lists?.remark
+      ? `${remaining_fee_lists.remark} ${remark_query}`
+      : `${remark_query}`;
+    new_receipt.txn_id = txn_id ?? "";
+    remaining_fee_lists.scholar_ship_number = SCH_NUMBER ?? "";
     if (fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
@@ -9020,7 +9295,7 @@ const auto_scholar_query = async (
     order.payment_student = student?._id;
     order.payment_student_name = student?.valid_full_name;
     order.payment_student_gr = student?.studentGRNO;
-    fee_receipt_count_query(institute, new_receipt, order)
+    fee_receipt_count_query(institute, new_receipt, order);
     order.fee_receipt = new_receipt?._id;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
@@ -9031,55 +9306,58 @@ const auto_scholar_query = async (
       // }
     }
     if (remaining_fee_lists?.applicable_card) {
-      var nest_app = await NestedCard.findById({ _id: `${remaining_fee_lists?.applicable_card}` })
+      var nest_app = await NestedCard.findById({
+        _id: `${remaining_fee_lists?.applicable_card}`,
+      });
     }
-  if (remaining_fee_lists?.government_card) {
-    const nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.government_card}`})
-    remaining_fee_lists.active_payment_type = `${type}`;
-    nest_card.active_payment_type = `${type}`;
-    nest_card.paid_fee += price;
-    if (nest_card?.remaining_fee >= price) {
-      // if(remaining_fee_lists?.remaining_fee >= price){
-      //   remaining_fee_lists.remaining_fee -= price
-      // }
-      nest_card.remaining_fee -= price
+    if (remaining_fee_lists?.government_card) {
+      const nest_card = await NestedCard.findById({
+        _id: `${remaining_fee_lists?.government_card}`,
+      });
+      remaining_fee_lists.active_payment_type = `${type}`;
+      nest_card.active_payment_type = `${type}`;
+      nest_card.paid_fee += price;
+      if (nest_card?.remaining_fee >= price) {
+        // if(remaining_fee_lists?.remaining_fee >= price){
+        //   remaining_fee_lists.remaining_fee -= price
+        // }
+        nest_card.remaining_fee -= price;
+      } else {
+        // if(remaining_fee_lists?.remaining_fee >= nest_card.remaining_fee){
+        //   remaining_fee_lists.remaining_fee -= nest_card.remaining_fee
+        // }
+        // else{
+        //   remaining_fee_lists.remaining_fee = 0
+        // }
+        nest_card.remaining_fee = 0;
+      }
+      if (student.admissionRemainFeeCount >= price) {
+        student.admissionRemainFeeCount -= price;
+      }
+      if (apply.remainingFee >= price) {
+        apply.remainingFee -= price;
+      }
+      if (admin_ins.remainingFeeCount >= price) {
+        admin_ins.remainingFeeCount -= price;
+      }
+      await nest_card.save();
+      console.log("Enter");
+      await render_government_installment_query(
+        type,
+        student,
+        mode,
+        price,
+        admin_ins,
+        student?.fee_structure,
+        remaining_fee_lists,
+        new_receipt,
+        apply,
+        institute,
+        nest_card,
+        nest_app
+      );
+      console.log("Exit");
     }
-    else {
-      // if(remaining_fee_lists?.remaining_fee >= nest_card.remaining_fee){
-      //   remaining_fee_lists.remaining_fee -= nest_card.remaining_fee
-      // }
-      // else{
-      //   remaining_fee_lists.remaining_fee = 0
-      // }
-      nest_card.remaining_fee = 0
-    }
-    if(student.admissionRemainFeeCount >= price){
-      student.admissionRemainFeeCount -= price
-    }
-    if(apply.remainingFee >= price){
-      apply.remainingFee -= price
-    }
-    if(admin_ins.remainingFeeCount >= price){
-      admin_ins.remainingFeeCount -= price
-    }
-      await nest_card.save()
-    console.log("Enter")
-          await render_government_installment_query(
-            type,
-            student,
-            mode,
-            price,
-            admin_ins,
-            student?.fee_structure,
-            remaining_fee_lists,
-            new_receipt,
-            apply,
-            institute,
-            nest_card,
-            nest_app
-          );
-          console.log("Exit")
-  }
     student.admissionPaidFeeCount += price;
     if (mode === "Online") {
       admin_ins.onlineFee += price + extra_price;
@@ -9227,36 +9505,46 @@ const type_calc = async (r_args) => {
   }
 };
 
-exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_name, scholar_batch) => {
+exports.renderAdmissionNewScholarNumberAutoQuery = async (
+  arr,
+  id,
+  excel_sheet_name,
+  scholar_batch
+) => {
   try {
-    var num_arr = []
+    var num_arr = [];
     if (arr?.length > 0) {
       for (var ref of arr) {
-        let names = ref?.Name?.split(" ")
+        let names = ref?.Name?.split(" ");
         for (let ele of names) {
-          ref.combine_name = `${ref?.combine_name ?? ""}${ele}`
+          ref.combine_name = `${ref?.combine_name ?? ""}${ele}`;
         }
-        let sp_name = ref?.combine_name?.toLowerCase()
+        let sp_name = ref?.combine_name?.toLowerCase();
         var student = await Student.find({
-          $and: [{ scholar_name: `${sp_name}`}, {studentStatus: "Approved"}, { institute: id}]
-        })
+          $and: [
+            { scholar_name: `${sp_name}` },
+            { studentStatus: "Approved" },
+            { institute: id },
+          ],
+        });
         if (student?.length > 1) {
-          ref.Remark = "Student With Same Name is more than 1"
-          num_arr.push(ref)
-        }
-        else {
-          const batch = await Batch.findById({ _id: scholar_batch })
-          const apps = await NewApplication.find({ applicationBatch: { $in: batch?.merged_batches } })
+          ref.Remark = "Student With Same Name is more than 1";
+          num_arr.push(ref);
+        } else {
+          const batch = await Batch.findById({ _id: scholar_batch });
+          const apps = await NewApplication.find({
+            applicationBatch: { $in: batch?.merged_batches },
+          });
           // console.log("Apps", apps)
           var valid_remain = await RemainingList.findOne({
-            $and: [{ student: { $in: student} }, { appId: { $in: apps } }],
+            $and: [{ student: { $in: student } }, { appId: { $in: apps } }],
           }).populate({
             path: "fee_structure",
           });
           // console.log("Valid", valid_remain)
           if (valid_remain) {
-            const num_type = "Installment Remain"
-            const num_id = ref?.TXNID ?? ""
+            const num_type = "Installment Remain";
+            const num_id = ref?.TXNID ?? "";
             // if (valid_remain?.access_mode_card === "One_Time_Wise") {
             //   var valid_type =
             //     valid_remain?.active_payment_type === "No Process"
@@ -9281,16 +9569,20 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
               num_id,
               ref?.SCH_NUMBER ?? ""
             );
-          }
-          else {
-            ref.Remark = "Fees Card Not Find With Same Batch As Entered"
-            num_arr.push(ref)
+          } else {
+            ref.Remark = "Fees Card Not Find With Same Batch As Entered";
+            num_arr.push(ref);
           }
         }
       }
-      await mismatch_scholar_transaction_json_to_excel_query(num_arr, "Mismatch", id, excel_sheet_name)
+      await mismatch_scholar_transaction_json_to_excel_query(
+        num_arr,
+        "Mismatch",
+        id,
+        excel_sheet_name
+      );
     } else {
-      console.log("Bug In Excel")
+      console.log("Bug In Excel");
     }
   } catch (e) {
     console.log(e);
@@ -9299,17 +9591,21 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (arr, id, excel_sheet_n
 
 exports.renderAutoStudentNameQuery = async (req, res) => {
   try {
-    const all_student = await Student.find({})
-      .select("studentFirstName studentMiddleName studentLastName studentFatherName scholar_name")
-    var i = 0
+    const all_student = await Student.find({}).select(
+      "studentFirstName studentMiddleName studentLastName studentFatherName scholar_name"
+    );
+    var i = 0;
     for (let ele of all_student) {
-      let names = `${ele?.studentFirstName?.toLowerCase()}${ele?.studentMiddleName?.toLowerCase() ?? ele?.studentFatherName?.toLowerCase()}${ele?.studentLastName?.toLowerCase()}`
-      ele.scholar_name = names?.trim()
-      await ele.save()
-      console.log(i)
-      i+= 1
+      let names = `${ele?.studentFirstName?.toLowerCase()}${
+        ele?.studentMiddleName?.toLowerCase() ??
+        ele?.studentFatherName?.toLowerCase()
+      }${ele?.studentLastName?.toLowerCase()}`;
+      ele.scholar_name = names?.trim();
+      await ele.save();
+      console.log(i);
+      i += 1;
     }
-    res.status(200).send({ message: "All Student Name"})
+    res.status(200).send({ message: "All Student Name" });
   } catch (e) {
     console.log(e);
   }
@@ -9318,26 +9614,27 @@ exports.renderAutoStudentNameQuery = async (req, res) => {
 exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
   try {
     if (arr?.length > 0) {
-    for (var ref of arr) {
-      var one_student = await Student.findOne({
-        studentGRNO: `${ref?.GRNO}`,
-      });
-      var all_remain = await RemainingList.find({
-        student: `${one_student?._id}`,
-      }).populate({
-        path: "fee_structure",
-      });
-      for (var ele of all_remain) {
-        if (`${ele?.fee_structure?.batch_master}` === `${ref?.batchId?._id}`) {
-          ele.scholar_ship_number = `${ref?.ScholarNumber}`;
-          await ele.save();
-          console.log("Add");
+      for (var ref of arr) {
+        var one_student = await Student.findOne({
+          studentGRNO: `${ref?.GRNO}`,
+        });
+        var all_remain = await RemainingList.find({
+          student: `${one_student?._id}`,
+        }).populate({
+          path: "fee_structure",
+        });
+        for (var ele of all_remain) {
+          if (
+            `${ele?.fee_structure?.batch_master}` === `${ref?.batchId?._id}`
+          ) {
+            ele.scholar_ship_number = `${ref?.ScholarNumber}`;
+            await ele.save();
+            console.log("Add");
+          }
         }
+        console.log("push");
       }
-      console.log("push")
-    }
     } else {
-
     }
   } catch (e) {
     console.log(e);
@@ -9440,7 +9737,7 @@ exports.renderAddFeesCardStudentQuery = async (req, res) => {
         access: false,
       });
 
-    await render_new_fees_card(sid, appId, struct, "", "")
+    await render_new_fees_card(sid, appId, struct, "", "");
     res
       .status(200)
       .send({ message: "Explore New Remaining Fees Card Query", access: true });
@@ -9497,7 +9794,7 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
       new_receipt.receipt_status = receipt_status
         ? receipt_status
         : "Already Generated";
-        new_receipt.fee_structure = valid_remain_list?.fee_structure
+      new_receipt.fee_structure = valid_remain_list?.fee_structure;
       const notify = new StudentNotification({});
       var order = new OrderPayment({});
       order.payment_module_type = "Admission Fees";
@@ -9540,7 +9837,12 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
         });
         // console.log("Card 2", card_2)
         if (type === "First Installment") {
-          await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+          await set_fee_head_query_redesign(
+            student,
+            new_receipt?.fee_payment_amount,
+            apply?._id,
+            new_receipt
+          );
           // await set_fee_head_query(student, price, apply, new_receipt);
           student.paidFeeList.push({
             paidAmount: price,
@@ -9586,7 +9888,12 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
             await Promise.all([classes.save(), batch.save(), depart.save()]);
           }
         } else {
-          await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+          await update_fee_head_query_redesign(
+            student,
+            new_receipt?.fee_payment_amount,
+            apply?._id,
+            new_receipt
+          );
           // await update_fee_head_query(student, price, apply, new_receipt);
           for (var match of student?.paidFeeList) {
             if (`${match.appId}` === `${apply._id}`) {
@@ -9809,36 +10116,33 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
-    if(flow === "BY_FINANCE"){
-
-    }
-    else{
+    if (flow === "BY_FINANCE") {
+    } else {
       var scholar = await ScholarShip.findById({ _id: scid });
-    var corpus = await FundCorpus.findById({
-      _id: `${scholar?.fund_corpus}`,
-    });
+      var corpus = await FundCorpus.findById({
+        _id: `${scholar?.fund_corpus}`,
+      });
     }
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
     new_receipt.receipt_generated_from = "BY_ADMISSION";
-    new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP"
+    new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP";
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     const notify = new StudentNotification({});
     const valid_remain_list = await RemainingList.findById({
       _id: rid,
     });
-    new_receipt.fee_structure = valid_remain_list?.fee_structure
+    new_receipt.fee_structure = valid_remain_list?.fee_structure;
     valid_remain_list.fee_receipts.push(new_receipt?._id);
     if (req?.body?.fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
-      if(flow === "BY_FINANCE"){
+      if (flow === "BY_FINANCE") {
         finance.scholarship_candidates.push(new_receipt?._id);
-      finance.scholarship_candidates_count += 1;
-      }
-      else{
+        finance.scholarship_candidates_count += 1;
+      } else {
         scholar.scholarship_candidates.push(new_receipt?._id);
         scholar.scholarship_candidates_count += 1;
       }
@@ -9937,7 +10241,12 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
           return val;
       });
       if (type === "First Installment") {
-        await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+        await set_fee_head_query_redesign(
+          student,
+          new_receipt?.fee_payment_amount,
+          apply?._id,
+          new_receipt
+        );
         // await set_fee_head_query(student, price, apply, new_receipt);
         student.paidFeeList.push({
           paidAmount: price,
@@ -9983,7 +10292,12 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
           await Promise.all([classes.save(), batch.save(), depart.save()]);
         }
       } else {
-        await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+        await update_fee_head_query_redesign(
+          student,
+          new_receipt?.fee_payment_amount,
+          apply?._id,
+          new_receipt
+        );
         // await update_fee_head_query(student, price, apply, new_receipt);
         for (var match of student?.paidFeeList) {
           if (`${match.appId}` === `${apply._id}`) {
@@ -10029,17 +10343,16 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
       new_receipt.order_history = order?._id;
       order.fee_receipt = new_receipt?._id;
     }
-    if(flow === "BY_FINANCE"){
-    }
-    else{
+    if (flow === "BY_FINANCE") {
+    } else {
       if (corpus.unused_corpus >= price) {
-      corpus.unused_corpus -= price;
-    }
+        corpus.unused_corpus -= price;
+      }
     }
     if (finance?.financeTotalBalance >= price + extra_price) {
       finance.financeTotalBalance -= price + extra_price;
     }
-    if(flow === "BY_FINANCE"){
+    if (flow === "BY_FINANCE") {
       await Promise.all([
         admin_ins.save(),
         student.save(),
@@ -10053,8 +10366,7 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
         // scholar.save(),
         // corpus.save(),
       ]);
-    }
-    else{
+    } else {
       await Promise.all([
         admin_ins.save(),
         student.save(),
@@ -10393,7 +10705,9 @@ exports.retrieveAdmissionSelectedRevertedApplication = async (req, res) => {
         select_status: false,
       });
     const apply = await NewApplication.findById({ _id: aid });
-    const ads_admin = await Admission.findById({ _id: `${apply?.admissionAdmin}`})
+    const ads_admin = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    });
     const student = await Student.findById({ _id: sid });
     var user = await User.findById({ _id: `${student?.user}` });
     var status = await Status.findById({ _id: statusId });
@@ -10412,18 +10726,23 @@ exports.retrieveAdmissionSelectedRevertedApplication = async (req, res) => {
     apply.receievedApplication.push({
       student: student._id,
     });
-    apply.receieved_array.push(student?._id)
+    apply.receieved_array.push(student?._id);
     if (apply.selectCount > 0) {
       apply.selectCount -= 1;
     }
     student.student_application_obj.push({
       app: apply?._id,
       staff: staffId,
-      flow: "reverted_by"
-    })
+      flow: "reverted_by",
+    });
     user.applicationStatus.pull(status?._id);
     await Status.findByIdAndDelete(statusId);
-    await Promise.all([apply.save(), user.save(), ads_admin.save(), student.save()]);
+    await Promise.all([
+      apply.save(),
+      user.save(),
+      ads_admin.save(),
+      student.save(),
+    ]);
     res.status(200).send({
       message: `${student.studentFirstName} Revert Back To Receieved Application`,
       access: true,
@@ -10443,60 +10762,67 @@ exports.retrieveAdmissionCollectDocsRevertedQuery = async (req, res) => {
         docs_status: false,
       });
     var apply = await NewApplication.findById({ _id: aid });
-    var ads_admin = await Admission.findById({ _id: `${apply?.admissionAdmin}`})
+    var ads_admin = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    });
     var student = await Student.findById({ _id: sid });
     var user = await User.findById({ _id: `${student?.user}` });
     var status = await Status.findById({ _id: statusId });
-    var remain_card = await RemainingList.findById({_id: rid })
-    if(remain_card?.paid_fee >= 0){
-      apply.FeeCollectionApplication.pull(fcid)
+    var remain_card = await RemainingList.findById({ _id: rid });
+    if (remain_card?.paid_fee >= 0) {
+      apply.FeeCollectionApplication.pull(fcid);
       for (let ele of ads_admin?.FeeCollectionApplication) {
         if (`${ele?.student}` === `${student?._id}`) {
-          ads_admin?.FeeCollectionApplication?.pull(ele?._id)
+          ads_admin?.FeeCollectionApplication?.pull(ele?._id);
         }
       }
-    if(apply?.fee_collect_count > 0){
-      apply.fee_collect_count -= 1
-    }
-    apply.selectedApplication.push({
-      student: student?._id,
-      fee_remain: remain_card?.applicable_fee,
-      revert_request_status: revert_status,
-    })
-    ads_admin.selectedApplication.push({
-      student: student?._id,
-      fee_remain: remain_card?.applicable_fee,
-      revert_request_status: revert_status,
-      application: apply?._id,
-    })
-      apply.selectCount += 1
+      if (apply?.fee_collect_count > 0) {
+        apply.fee_collect_count -= 1;
+      }
+      apply.selectedApplication.push({
+        student: student?._id,
+        fee_remain: remain_card?.applicable_fee,
+        revert_request_status: revert_status,
+      });
+      ads_admin.selectedApplication.push({
+        student: student?._id,
+        fee_remain: remain_card?.applicable_fee,
+        revert_request_status: revert_status,
+        application: apply?._id,
+      });
+      apply.selectCount += 1;
       student.student_application_obj.push({
         app: apply?._id,
         staff: staffId,
-        flow: "reverted_by"
-      })
-    student.remainingFeeList.pull(remain_card?._id)
-    if(student?.remainingFeeList_count > 0){
-      student.remainingFeeList_count -= 1
-    }
-    user.applicationStatus.pull(status?._id);
-    await Status.findByIdAndDelete(statusId);
-    if(remain_card?.applicable_card){
-      await NestedCard.findByIdAndDelete(remain_card?.applicable_card)
-    }
-    if(remain_card?.government_card){
-      await NestedCard.findByIdAndDelete(remain_card?.government_card)
-    }
-    await RemainingList.findByIdAndDelete(remain_card?._id)
-    await Promise.all([apply.save(), user.save(), ads_admin.save(), student.save()]);
-    res.status(200).send({
-      message: "Look like a party mood Reverted Query",
-      access: true,
-    });
-    }
-    else{
+        flow: "reverted_by",
+      });
+      student.remainingFeeList.pull(remain_card?._id);
+      if (student?.remainingFeeList_count > 0) {
+        student.remainingFeeList_count -= 1;
+      }
+      user.applicationStatus.pull(status?._id);
+      await Status.findByIdAndDelete(statusId);
+      if (remain_card?.applicable_card) {
+        await NestedCard.findByIdAndDelete(remain_card?.applicable_card);
+      }
+      if (remain_card?.government_card) {
+        await NestedCard.findByIdAndDelete(remain_card?.government_card);
+      }
+      await RemainingList.findByIdAndDelete(remain_card?._id);
+      await Promise.all([
+        apply.save(),
+        user.save(),
+        ads_admin.save(),
+        student.save(),
+      ]);
       res.status(200).send({
-        message: "Fees Already Collected By Admission Admin Revert Opts Not Working",
+        message: "Look like a party mood Reverted Query",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message:
+          "Fees Already Collected By Admission Admin Revert Opts Not Working",
         access: false,
       });
     }
@@ -10545,13 +10871,15 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
       for (var ele of ads_admin?.fee_receipt_request) {
         if (`${ele._id}` === `${reqId}`) {
           if (ele?.nested_card) {
-            const nest_card = await NestedCard.findById({ _id: `${ele?.nested_card}` })
+            const nest_card = await NestedCard.findById({
+              _id: `${ele?.nested_card}`,
+            });
             for (var val of nest_card?.remaining_array) {
               if (`${val?._id}` === `${ele?.nest_remain}`) {
-                val.receipt_status = "Approved"
+                val.receipt_status = "Approved";
               }
-            } 
-            await nest_card.save()
+            }
+            await nest_card.save();
           }
           ads_admin.fee_receipt_request.pull(reqId);
         }
@@ -10570,14 +10898,16 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
       for (var ele of ads_admin?.fee_receipt_request) {
         if (`${ele._id}` === `${reqId}`) {
           if (ele?.nested_card) {
-            const nest_card = await NestedCard.findById({ _id: `${ele?.nested_card}` })
+            const nest_card = await NestedCard.findById({
+              _id: `${ele?.nested_card}`,
+            });
             for (var val of nest_card?.remaining_array) {
               if (`${val?._id}` === `${ele?.nest_remain}`) {
-                val.receipt_status = "Rejected"
-                val.reason = reason
+                val.receipt_status = "Rejected";
+                val.reason = reason;
               }
             }
-            await nest_card.save()
+            await nest_card.save();
           }
           ads_admin.fee_receipt_request.pull(reqId);
         }
@@ -10597,13 +10927,15 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
       for (var ele of ads_admin?.fee_receipt_reject) {
         if (`${ele._id}` === `${reqId}`) {
           if (ele?.nested_card) {
-            const nest_card = await NestedCard.findById({ _id: `${ele?.nested_card}` })
+            const nest_card = await NestedCard.findById({
+              _id: `${ele?.nested_card}`,
+            });
             for (var val of nest_card?.remaining_array) {
               if (`${val?._id}` === `${ele?.nest_remain}`) {
-                val.receipt_status = "Approved"
+                val.receipt_status = "Approved";
               }
-            } 
-            await nest_card.save()
+            }
+            await nest_card.save();
           }
           ads_admin.fee_receipt_reject.pull(reqId);
         }
@@ -10628,14 +10960,16 @@ exports.renderDemandChequeApprovalQuery = async (req, res) => {
       for (var ele of ads_admin?.fee_receipt_reject) {
         if (`${ele._id}` === `${reqId}`) {
           if (ele?.nested_card) {
-            const nest_card = await NestedCard.findById({ _id: `${ele?.nested_card}` })
+            const nest_card = await NestedCard.findById({
+              _id: `${ele?.nested_card}`,
+            });
             for (var val of nest_card?.remaining_array) {
               if (`${val?._id}` === `${ele?.nest_remain}`) {
-                val.receipt_status = "Rejected"
-                val.reason = reason
+                val.receipt_status = "Rejected";
+                val.reason = reason;
               }
             }
-            await nest_card.save()
+            await nest_card.save();
           }
           ele.reason = reason;
         }
@@ -10901,13 +11235,12 @@ exports.renderFeeHeadsQuery = async (req, res) => {
           finance: finance?._id,
         },
       ],
-    })
-    .populate({
+    }).populate({
       path: "student",
       populate: {
         path: "fee_structure",
       },
-    })
+    });
     // .populate({
     //   path: "student",
     //   populate: {
@@ -11056,15 +11389,13 @@ exports.retrieveAdmissionReceievedValidApplicationQuery = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         status: false,
       });
-    let valid_email = uid?.includes("@")
+    let valid_email = uid?.includes("@");
     if (uid?.length == 10) {
-      var user = await User.findOne({ userPhoneNumber: uid }); 
-    }
-    else if(valid_email) {
-      var user = await User.findOne({ userEmail: uid }); 
-    }
-    else {
-      var user = await User.findOne({ _id: uid }); 
+      var user = await User.findOne({ userPhoneNumber: uid });
+    } else if (valid_email) {
+      var user = await User.findOne({ userEmail: uid });
+    } else {
+      var user = await User.findOne({ _id: uid });
     }
     if (user?.applyApplication?.includes(`${aid}`)) {
       res.status(200).send({
@@ -11106,59 +11437,59 @@ exports.renderAllOrderQuery = async (req, res) => {
 
 exports.renderFindStudentReceiptQuery = async (req, res) => {
   try {
-    var nums = ["6501a1fcdf2fe86f89504caa"]
+    var nums = ["6501a1fcdf2fe86f89504caa"];
     // var fine = ["644a09d6d1679fcd6e76e5ef"]
     // var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
 
     // var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
     var all_remain = await RemainingList.find({ _id: { $in: nums } })
-    .populate({
-      path: "fee_structure",
-    })
-    .populate({
-      path: "student",
-    });
-    var  i =0
+      .populate({
+        path: "fee_structure",
+      })
+      .populate({
+        path: "student",
+      });
+    var i = 0;
     for (var sub of all_remain) {
       if (sub?.applicable_card) {
-        var nest_app = await NestedCard.findById({ _id: `${sub?.applicable_card}` })
-          .populate({
-            path: "remaining_array",
+        var nest_app = await NestedCard.findById({
+          _id: `${sub?.applicable_card}`,
+        }).populate({
+          path: "remaining_array",
+          populate: {
+            path: "fee_receipt",
             populate: {
-              path: "fee_receipt",
-              populate: {
-                path: "fee_structure"
-              }
-            }
-        })
-        var filtered = []
+              path: "fee_structure",
+            },
+          },
+        });
+        var filtered = [];
         for (var qwe of nest_app?.remaining_array) {
           if (`${qwe?.status}` === "Paid" && qwe?.fee_receipt) {
-            filtered.push(qwe)
+            filtered.push(qwe);
           }
         }
-        console.log("SET")
-          await set_fee_head_query_redesign(
-            sub?.student,
-            filtered?.[0]?.remainAmount,
-            sub?.appId,
-            filtered?.[0]?.fee_receipt
-          )
-          filtered.splice(filtered?.[0], 1)
-          
-        
-        for (var dtw of filtered) {
-          console.log("UPDATE")
-          await update_fee_head_query_redesign(
+        console.log("SET");
+        await set_fee_head_query_redesign(
           sub?.student,
-          dtw?.remainAmount,
+          filtered?.[0]?.remainAmount,
           sub?.appId,
-          dtw?.fee_receipt
-          )
+          filtered?.[0]?.fee_receipt
+        );
+        filtered.splice(filtered?.[0], 1);
+
+        for (var dtw of filtered) {
+          console.log("UPDATE");
+          await update_fee_head_query_redesign(
+            sub?.student,
+            dtw?.remainAmount,
+            sub?.appId,
+            dtw?.fee_receipt
+          );
         }
       }
-      console.log(i)
-      i += 1
+      console.log(i);
+      i += 1;
     }
 
     res.status(200).send({
@@ -11172,45 +11503,46 @@ exports.renderFindStudentReceiptQuery = async (req, res) => {
 
 exports.renderStudentHeadsQuery = async (req, res) => {
   try {
-    var nums = ["6501a1fcdf2fe86f89504caa"]
+    var nums = ["6501a1fcdf2fe86f89504caa"];
     // var fine = ["644a09d6d1679fcd6e76e5ef"]
     // var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
 
     // var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
     var all_remain = await RemainingList.find({ _id: { $in: nums } })
-    .populate({
-      path: "fee_structure",
-    })
-    .populate({
-      path: "student",
-    });
-    var  i =0
+      .populate({
+        path: "fee_structure",
+      })
+      .populate({
+        path: "student",
+      });
+    var i = 0;
     for (var sub of all_remain) {
       if (sub?.applicable_card) {
-        var nest_app = await NestedCard.findById({ _id: `${sub?.applicable_card}` })
-          .populate({
-            path: "remaining_array",
-            populate: {
-              path: "fee_receipt",
-            }
-        })
-        var filtered = []
+        var nest_app = await NestedCard.findById({
+          _id: `${sub?.applicable_card}`,
+        }).populate({
+          path: "remaining_array",
+          populate: {
+            path: "fee_receipt",
+          },
+        });
+        var filtered = [];
         for (var qwe of nest_app?.remaining_array) {
           if (`${qwe?.status}` === "Paid" && qwe?.fee_receipt) {
-            filtered.push(qwe)
+            filtered.push(qwe);
           }
         }
         for (var dtw of filtered) {
-          dtw.fee_receipt.fee_heads = []
-          await dtw.fee_receipt.save()
+          dtw.fee_receipt.fee_heads = [];
+          await dtw.fee_receipt.save();
         }
       }
       if (sub.student) {
-        sub.student.active_fee_heads = []
-        await sub.student.save()
+        sub.student.active_fee_heads = [];
+        await sub.student.save();
       }
-      console.log(i)
-      i += 1
+      console.log(i);
+      i += 1;
     }
 
     res.status(200).send({
@@ -11500,7 +11832,7 @@ exports.renderCardFeeHeadsQuery = async (req, res) => {
     //       }
     //       await ref.student.save();
     //     }
-    //   } 
+    //   }
     //   if (ref?.applicable_card) {
     //     var nest_app = await NestedCard.findById({ _id: `${ref?.applicable_card}` })
     //       .populate({
@@ -11592,146 +11924,185 @@ exports.render_old_data_receipt_query = async (req, res) => {
   }
 };
 
-exports.renderArrangeClassQuery = async(req, res) => {
-  try{
-    const { cid } = req?.params
-    if(!cid) return res.status(200).send({  message: "Their is a bug need to fixed immediately", access: false})
+exports.renderArrangeClassQuery = async (req, res) => {
+  try {
+    const { cid } = req?.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const classes = await Class.findById({ _id: cid })
+    const classes = await Class.findById({ _id: cid });
 
-    const all_student = await Student.find({ _id: { $in: classes?.ApproveStudent}})
+    const all_student = await Student.find({
+      _id: { $in: classes?.ApproveStudent },
+    });
 
-    var total = 0
-    for(var ele of all_student){
-      total += 1
-      ele.studentROLLNO = `${total}`
-      ele.studentGRNO = `PH0${total}`
-      await ele.save()
+    var total = 0;
+    for (var ele of all_student) {
+      total += 1;
+      ele.studentROLLNO = `${total}`;
+      ele.studentGRNO = `PH0${total}`;
+      await ele.save();
     }
-    res.status(200).send({ message: "Explore Query", access: true})
+    res.status(200).send({ message: "Explore Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
+};
+
+exports.renderManageTabQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await Admission.findByIdAndUpdate(aid, req?.body);
+    res
+      .status(200)
+      .send({ message: "Explore Available Tabs Queyr", access: true });
+  } catch (e) {
+    console.log(e);
   }
-}
+};
 
-exports.renderManageTabQuery = async(req, res) => {
-  try{
-    const { aid } = req.params
-    if(!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.renderReviewStudentQuery = async (req, res) => {
+  try {
+    const { aid } = req?.params;
+    const { student_arr, staffId } = req?.body;
+    if (!aid && !student_arr)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    await Admission.findByIdAndUpdate(aid, req?.body)
-    res.status(200).send({ message: "Explore Available Tabs Queyr", access: true})
-  }
-  catch(e){
-    console.log(e)
-  }
-}
-
-exports.renderReviewStudentQuery = async(req, res) => {
-  try{
-    const { aid } = req?.params
-    const { student_arr, staffId } = req?.body
-    if(!aid && !student_arr) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
-
-    var app = await NewApplication.findById({ _id: aid })
-    if(student_arr?.length > 0){
+    var app = await NewApplication.findById({ _id: aid });
+    if (student_arr?.length > 0) {
       for (var val of student_arr) {
-        const student = await Student.findById({ _id: val?.sid })
+        const student = await Student.findById({ _id: val?.sid });
         if (app?.reviewApplication?.includes(`${val?.sid}`)) {
-          
-        }
-        else {
-          app.reviewApplication.push(val?.sid)
-          app.review_count += 1
-          app.confirmedApplication.pull(val?.cid)
-          if(app?.confirmCount >= 0){
-            app.confirmCount -= 1
+        } else {
+          app.reviewApplication.push(val?.sid);
+          app.review_count += 1;
+          app.confirmedApplication.pull(val?.cid);
+          if (app?.confirmCount >= 0) {
+            app.confirmCount -= 1;
           }
         }
         student.student_application_obj.push({
           app: app?._id,
           staff: staffId,
-          flow: "confirm_by"
-        })
-        await student.save()
+          flow: "confirm_by",
+        });
+        await student.save();
       }
-      await app.save()
+      await app.save();
     }
-    res.status(200).send({ message: "Explore Student Review Status Query", access: true})
+    res
+      .status(200)
+      .send({ message: "Explore Student Review Status Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
   try {
-    const { rid } = req?.params
-    const { price } = req?.body
-    if (!rid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var remain_list = await RemainingList.findById({ _id: rid })
+    const { rid } = req?.params;
+    const { price } = req?.body;
+    if (!rid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var remain_list = await RemainingList.findById({ _id: rid });
     if (remain_list?.government_card) {
-      var nest_gov_card = await NestedCard.findById({ _id: `${remain_list?.government_card}` })
-      var nest_app_card = await NestedCard.findById({ _id: `${remain_list?.applicable_card}` })
-      var shift_num = 0
+      var nest_gov_card = await NestedCard.findById({
+        _id: `${remain_list?.government_card}`,
+      });
+      var nest_app_card = await NestedCard.findById({
+        _id: `${remain_list?.applicable_card}`,
+      });
+      var shift_num = 0;
       for (var val of nest_gov_card?.remaining_array) {
         if (price && price > 0) {
           if (`${val?.status}` === "Not Paid") {
             if (price <= val?.remainAmount) {
-              val.remainAmount = val.remainAmount - price == 0 ? val.remainAmount : val.remainAmount - price
+              val.remainAmount =
+                val.remainAmount - price == 0
+                  ? val.remainAmount
+                  : val.remainAmount - price;
             }
-            shift_num += price
+            shift_num += price;
             if (val.remainAmount - price == 0) {
-              val.status = "Paid"
+              val.status = "Paid";
+            } else if (val.remainAmount > 0) {
+              val.status = "Not Paid";
+            } else {
+              val.status = "Paid";
             }
-            else if (val.remainAmount > 0) {
-              val.status = "Not Paid"
-            }
-            else {
-              val.status = "Paid"
-            }
-            val.revert_status = "Government Fees Shifted To Applicable Fees"
+            val.revert_status = "Government Fees Shifted To Applicable Fees";
             if (nest_gov_card?.remaining_fee >= price) {
-              nest_gov_card.remaining_fee -= price
+              nest_gov_card.remaining_fee -= price;
             }
             if (nest_gov_card?.applicable_fee >= price) {
-              nest_gov_card.applicable_fee -= price
+              nest_gov_card.applicable_fee -= price;
             }
           }
-        }
-        else {
+        } else {
           if (`${val?.status}` === "Not Paid") {
-            shift_num += val?.remainAmount
-            val.status = "Paid"
-            val.revert_status = "Government Fees Shifted To Applicable Fees"
+            shift_num += val?.remainAmount;
+            val.status = "Paid";
+            val.revert_status = "Government Fees Shifted To Applicable Fees";
             if (nest_gov_card?.remaining_fee >= val?.remainAmount) {
-              nest_gov_card.remaining_fee -= val?.remainAmount
+              nest_gov_card.remaining_fee -= val?.remainAmount;
             }
             if (nest_gov_card?.applicable_fee >= val?.remainAmount) {
-              nest_gov_card.applicable_fee -= val?.remainAmount
+              nest_gov_card.applicable_fee -= val?.remainAmount;
             }
           }
         }
-        
       }
-      if (nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.status === "Not Paid") {
-        nest_app_card.remaining_array[nest_app_card?.remaining_array?.length -  1].component.app = nest_app_card.remaining_array[nest_app_card?.remaining_array?.length -  1].remainAmount
-        nest_app_card.remaining_array[nest_app_card?.remaining_array?.length -  1].component.gov = shift_num
-        nest_app_card.remaining_array[nest_app_card?.remaining_array?.length - 1].remainAmount += shift_num
-        nest_app_card.applicable_fee += shift_num
-        nest_app_card.remaining_fee += shift_num
-      }
-      else {
-        var valid_count = remain_list?.paid_fee > nest_app_card?.applicable_fee ? remain_list?.paid_fee - nest_app_card?.applicable_fee : 0
+      if (
+        nest_app_card?.remaining_array[
+          nest_app_card?.remaining_array?.length - 1
+        ]?.status === "Not Paid"
+      ) {
+        nest_app_card.remaining_array[
+          nest_app_card?.remaining_array?.length - 1
+        ].component.app =
+          nest_app_card.remaining_array[
+            nest_app_card?.remaining_array?.length - 1
+          ].remainAmount;
+        nest_app_card.remaining_array[
+          nest_app_card?.remaining_array?.length - 1
+        ].component.gov = shift_num;
+        nest_app_card.remaining_array[
+          nest_app_card?.remaining_array?.length - 1
+        ].remainAmount += shift_num;
+        nest_app_card.applicable_fee += shift_num;
+        nest_app_card.remaining_fee += shift_num;
+      } else {
+        var valid_count =
+          remain_list?.paid_fee > nest_app_card?.applicable_fee
+            ? remain_list?.paid_fee - nest_app_card?.applicable_fee
+            : 0;
         // console.log(valid_count)
         // console.log(shift_num)
         if (valid_count > 0) {
-          console.log("VALID COUNT EXIST", valid_count)
+          console.log("VALID COUNT EXIST", valid_count);
           if (valid_count > shift_num) {
-            console.log("VALID COUNT GREATER SHIFT NUM")
-            if (nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.cover_status) {
+            console.log("VALID COUNT GREATER SHIFT NUM");
+            if (
+              nest_app_card?.remaining_array[
+                nest_app_card?.remaining_array?.length - 1
+              ]?.cover_status
+            ) {
               nest_app_card.remaining_array.push({
                 remainAmount: shift_num,
                 appId: remain_list?.appId,
@@ -11740,22 +12111,36 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
                 isEnable: true,
                 status: "Paid",
                 revert_status: "Government Fees (Pay By Student)",
-                mode: nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.mode,
-                fee_receipt: nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.fee_receipt,
-                cover_status: `${nest_app_card?.remaining_array[nest_app_card?.remaining_array?.length - 1]?.cover_status} - Government Fees Set Off With the Excess Fees ${shift_num}`
-              })
+                mode: nest_app_card?.remaining_array[
+                  nest_app_card?.remaining_array?.length - 1
+                ]?.mode,
+                fee_receipt:
+                  nest_app_card?.remaining_array[
+                    nest_app_card?.remaining_array?.length - 1
+                  ]?.fee_receipt,
+                cover_status: `${
+                  nest_app_card?.remaining_array[
+                    nest_app_card?.remaining_array?.length - 1
+                  ]?.cover_status
+                } - Government Fees Set Off With the Excess Fees ${shift_num}`,
+              });
               // if (remain_list.paid_fee > valid_count) {
               //   remain_list.paid_fee -= valid_count
               // }
-            }
-            else {
-              console.log("ENTER IN COVER ELSE")
-            var set_clear;
-            if (nest_app_card?.paid_fee > nest_app_card?.applicable_fee) {
-              set_clear = (nest_app_card?.paid_fee - nest_app_card?.applicable_fee - shift_num) == 0 ? "CLEAR" : "NOT CLEAR"
-            }
+            } else {
+              console.log("ENTER IN COVER ELSE");
+              var set_clear;
+              if (nest_app_card?.paid_fee > nest_app_card?.applicable_fee) {
+                set_clear =
+                  nest_app_card?.paid_fee -
+                    nest_app_card?.applicable_fee -
+                    shift_num ==
+                  0
+                    ? "CLEAR"
+                    : "NOT CLEAR";
+              }
               if (set_clear === "CLEAR") {
-                console.log("ENTER CLEAR")
+                console.log("ENTER CLEAR");
                 nest_app_card.remaining_array.push({
                   remainAmount: shift_num,
                   appId: remain_list?.appId,
@@ -11764,45 +12149,44 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
                   isEnable: true,
                   status: "Paid",
                   revert_status: "Government Fees (Pay By Student)",
-                  set_off_message: "Govt/Scholarship transferred to applicable adjusted against fees paid",
-                  set_off: shift_num
-                })
+                  set_off_message:
+                    "Govt/Scholarship transferred to applicable adjusted against fees paid",
+                  set_off: shift_num,
+                });
 
                 if (nest_app_card?.remaining_fee >= shift_num) {
-                  nest_app_card.remaining_fee - shift_num
+                  nest_app_card.remaining_fee - shift_num;
                 }
                 if (remain_list?.remaining_fee >= shift_num) {
-                  remain_list.remaining_fee - shift_num
+                  remain_list.remaining_fee - shift_num;
                 }
                 if (remain_list?.remaining_fee <= 0) {
-                  remain_list.status = "Paid"
+                  remain_list.status = "Paid";
                 }
-              }
-              else {
-                console.log("NOT CLEAR")
+              } else {
+                console.log("NOT CLEAR");
                 var set_nclear = {
                   p: 0,
-                  s: ""
-                }
+                  s: "",
+                };
                 var sets = {
                   p: 0,
-                  s: ""
-                }
+                  s: "",
+                };
                 if (nest_app_card?.paid_fee > nest_app_card?.applicable_fee) {
-                  set_nclear.p = nest_app_card?.paid_fee - nest_app_card?.applicable_fee
+                  set_nclear.p =
+                    nest_app_card?.paid_fee - nest_app_card?.applicable_fee;
                 }
-                console.log(set_nclear.p)
+                console.log(set_nclear.p);
                 if (set_nclear.p > shift_num) {
-                  sets.p = set_nclear.p - shift_num
-                  sets.s = "Paid"
-                }
-                else if(set_nclear.p < shift_num) {
-                  sets.p = shift_num - set_nclear.p
-                  sets.s = "Not Paid"
-                }
-                else {
-                  sets.p = set_nclear.p
-                  sets.s = "Paid"
+                  sets.p = set_nclear.p - shift_num;
+                  sets.s = "Paid";
+                } else if (set_nclear.p < shift_num) {
+                  sets.p = shift_num - set_nclear.p;
+                  sets.s = "Not Paid";
+                } else {
+                  sets.p = set_nclear.p;
+                  sets.s = "Paid";
                 }
                 nest_app_card.remaining_array.push({
                   remainAmount: sets.p,
@@ -11812,18 +12196,17 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
                   isEnable: true,
                   status: sets.s,
                   revert_status: "Government Fees (Pay By Student)",
-                })
-                
+                });
+
                 if (sets.s === "Paid") {
-                  nest_app_card.remaining_fee = 0
-                  remain_list.remaining_fee = 0
-                  remain_list.status = "Not Paid"
+                  nest_app_card.remaining_fee = 0;
+                  remain_list.remaining_fee = 0;
+                  remain_list.status = "Not Paid";
                 }
               }
             }
-          }
-          else if (valid_count < shift_num) {
-            console.log("VALID COUNT LESS SHIFT NUM")
+          } else if (valid_count < shift_num) {
+            console.log("VALID COUNT LESS SHIFT NUM");
             nest_app_card.remaining_array.push({
               remainAmount: shift_num,
               appId: remain_list?.appId,
@@ -11831,87 +12214,100 @@ exports.renderShiftGovernmentApplicableQuery = async (req, res) => {
               installmentValue: "Installment Remain",
               isEnable: true,
               revert_status: "Government Fees (Pay By Student)",
-              set_off: valid_count
-            }) 
-            nest_app_card.remaining_fee += shift_num
-            remain_list.remaining_fee += shift_num
-            remain_list.status = "Not Paid"
+              set_off: valid_count,
+            });
+            nest_app_card.remaining_fee += shift_num;
+            remain_list.remaining_fee += shift_num;
+            remain_list.status = "Not Paid";
             // if (remain_list.paid_fee > valid_count) {
             //   remain_list.paid_fee -= valid_count
             // }
+          } else {
+            console.log("Bug Generated");
           }
-          else {
-          console.log("Bug Generated")
-          }
-        }
-        else {
-          console.log("ENTER IN ELSE")
+        } else {
+          console.log("ENTER IN ELSE");
           nest_app_card.remaining_array.push({
             remainAmount: shift_num,
             appId: remain_list?.appId,
             instituteId: remain_list?.institute,
             installmentValue: "Installment Remain",
             isEnable: true,
-            revert_status: "Government Fees (Pay By Student)"
-          })
-          nest_app_card.remaining_fee += shift_num
-          remain_list.remaining_fee += shift_num
-          remain_list.status = "Not Paid"
+            revert_status: "Government Fees (Pay By Student)",
+          });
+          nest_app_card.remaining_fee += shift_num;
+          remain_list.remaining_fee += shift_num;
+          remain_list.status = "Not Paid";
         }
-        nest_app_card.applicable_fee += shift_num
+        nest_app_card.applicable_fee += shift_num;
       }
-      await Promise.all([ nest_gov_card.save(), nest_app_card.save(), remain_list.save() ])
+      await Promise.all([
+        nest_gov_card.save(),
+        nest_app_card.save(),
+        remain_list.save(),
+      ]);
     }
-    res.status(200).send({ message: "Explore New Shifted Card Back To Applicable Fees Section", access: true, nest_app_card, nest_gov_card })
-    var student = await Student.findById({ _id: `${remain_list?.student}`})
+    res.status(200).send({
+      message: "Explore New Shifted Card Back To Applicable Fees Section",
+      access: true,
+      nest_app_card,
+      nest_gov_card,
+    });
+    var student = await Student.findById({ _id: `${remain_list?.student}` });
     for (let ele of nest_app_card?.remaining_array) {
       if (`${ele?.revert_status}` === "Government Fees (Pay By Student)") {
-        student.apps_fees_obj.appId = remain_list?.appId
-        student.apps_fees_obj.struct = remain_list?.fee_structure
-        student.apps_fees_obj.gta = ele?.remainAmount
+        student.apps_fees_obj.appId = remain_list?.appId;
+        student.apps_fees_obj.struct = remain_list?.fee_structure;
+        student.apps_fees_obj.gta = ele?.remainAmount;
       }
     }
-    await student.save()
+    await student.save();
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderShiftApplicableToGovernmentQuery = async (req, res) => {
   try {
-    const { rid } = req?.params
-    const { raid, amount } = req?.body
-    if (!rid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var remain_list = await RemainingList.findById({ _id: rid })
+    const { rid } = req?.params;
+    const { raid, amount } = req?.body;
+    if (!rid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var remain_list = await RemainingList.findById({ _id: rid });
     if (remain_list?.government_card) {
-      var nest_gov_card = await NestedCard.findById({ _id: `${remain_list?.government_card}` })
-      var nest_app_card = await NestedCard.findById({ _id: `${remain_list?.applicable_card}` })
+      var nest_gov_card = await NestedCard.findById({
+        _id: `${remain_list?.government_card}`,
+      });
+      var nest_app_card = await NestedCard.findById({
+        _id: `${remain_list?.applicable_card}`,
+      });
       for (var val of nest_app_card?.remaining_array) {
         if (`${val?.status}` === "Not Paid" && `${val?._id}` === `${raid}`) {
           if (val?.remainAmount - amount > 0) {
-            val.status = "Not Paid" 
+            val.status = "Not Paid";
+          } else {
+            val.status = "Paid";
           }
-          else {
-            val.status = "Paid"
-          }
-          val.remainAmount -= amount
-          val.revert_status = "Applicable Fees Shifted To Government Fees"
-          val.set_off += amount
-          val.set_off_message = `Applicable Fees set off ${val.set_off} with government fees`
+          val.remainAmount -= amount;
+          val.revert_status = "Applicable Fees Shifted To Government Fees";
+          val.set_off += amount;
+          val.set_off_message = `Applicable Fees set off ${val.set_off} with government fees`;
           if (nest_app_card?.remaining_fee >= amount) {
-            nest_app_card.remaining_fee -= amount
+            nest_app_card.remaining_fee -= amount;
           }
           if (remain_list?.remaining_fee >= amount) {
-            remain_list.remaining_fee -= amount
+            remain_list.remaining_fee -= amount;
           }
           if (nest_app_card?.applicable_fee >= amount) {
-            nest_app_card.applicable_fee -= amount
+            nest_app_card.applicable_fee -= amount;
           }
-          nest_gov_card.applicable_fee += amount
+          nest_gov_card.applicable_fee += amount;
           if (remain_list?.remaining_fee <= 0) {
-            remain_list.status = "Paid"
+            remain_list.status = "Paid";
           }
           if (amount > 0) {
             nest_gov_card.remaining_array.push({
@@ -11920,308 +12316,418 @@ exports.renderShiftApplicableToGovernmentQuery = async (req, res) => {
               appId: remain_list?.appId,
               isEnable: true,
               installmentValue: "Installment Remain",
-              remainAmount: amount
-            })
+              remainAmount: amount,
+            });
           }
         }
       }
-      await Promise.all([ nest_gov_card.save(), nest_app_card.save(), remain_list.save() ])
+      await Promise.all([
+        nest_gov_card.save(),
+        nest_app_card.save(),
+        remain_list.save(),
+      ]);
     }
-    res.status(200).send({ message: "Explore New Shifted Card Back To Government Fees Section", access: true})
+    res.status(200).send({
+      message: "Explore New Shifted Card Back To Government Fees Section",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 const remove_duplicated = (arr) => {
   jsonObject = arr.map(JSON.stringify);
   uniqueSet = new Set(jsonObject);
   uniqueArray = Array.from(uniqueSet).map(JSON.parse);
-  return uniqueArray
-}
+  return uniqueArray;
+};
 
-exports.renderAllOutstandingQuery = async(req, res) => {
-  try{
+exports.renderAllOutstandingQuery = async (req, res) => {
+  try {
     const { aid } = req.params;
-    const { all_depart, batch_status, master, depart, batch } = req?.body
+    const { all_depart, batch_status, master, depart, batch } = req?.body;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-      var ads_admin = await Admission.findById({ _id: aid }).select(
-        "alarm_count institute"
-      );
-    if(all_depart === "ALL"){
-      var arr = []
-      var all_dept = await Department.find({ institute: ads_admin?.institute })
-      var all_student = await Student.find({ department: { $in: all_dept }})
-      .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-      .populate({
-        path: "user",
-        select: "deviceToken userEmail",
+    var ads_admin = await Admission.findById({ _id: aid }).select(
+      "alarm_count institute"
+    );
+    if (all_depart === "ALL") {
+      var arr = [];
+      var all_dept = await Department.find({ institute: ads_admin?.institute });
+      var all_student = await Student.find({ department: { $in: all_dept } })
+        .select(
+          "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "deviceToken userEmail",
+        })
+        .populate({
+          path: "institute",
+          select: "insName",
+        });
+      var all_remain = await RemainingList.find({
+        student: { $in: all_student },
       })
-      .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student, count: all_student?.length})
-    }
-    else if(all_depart === "PARTICULAR"){
-      if(batch_status === "ALL_BATCH"){
-        var arr = []
-        var valid_dept = await Department.findById({ _id: depart })
-        const all_classes = await Class.find({ masterClassName: { $in: master }})
-        if(all_classes?.length > 0){
-          var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: { $in: valid_dept?.batches } }, { studentClass: { $in: all_classes }}]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
         .populate({
-          path: "user",
-          select: "deviceToken userEmail",
+          path: "fee_structure",
         })
         .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All For All Batch With Standard Student Query", access: true, all_student: all_student, count: all_student?.length})
-        }
-        var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: { $in: valid_dept?.batches } }]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
-        })
-        .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All Student For All Batch Query", access: true, all_student: all_student, count: all_student?.length})
-      }
-      else if(batch_status === "PARTICULAR_BATCH"){
-        var arr = []
-        const all_classes = await Class.find({ masterClassName: { $in: master }})
-        if(all_classes?.length > 0){
-          var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }, { studentClass: { $in: all_classes }}]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
-        })
-        .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All For Particular Batch with Standard Student Query", access: true, all_student: all_student, count: all_student?.length})
-        }
-        else{
-        var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
-        })
-        .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All For Particular Batch Student Query", access: true, all_student: all_student, count: all_student?.length})
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+          populate: {
+            path: "user",
+            select: "userEmail deviceToken",
+          },
+        });
+      for (var ref of all_remain) {
+        if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+          arr.push(ref?.student);
         }
       }
-      if(!batch_status){
-        var arr = []
-      var valid_dept = await Department.findById({ _id: depart })
-        const all_classes = await Class.find({ masterClassName: { $in: master }})
-        if(all_classes?.length > 0){
-          var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { studentClass: { $in: all_classes }}]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
+      all_student = remove_duplicated(arr);
+      res.status(200).send({
+        message: "Explore All Student Query",
+        access: true,
+        all_student: all_student,
+        count: all_student?.length,
+      });
+    } else if (all_depart === "PARTICULAR") {
+      if (batch_status === "ALL_BATCH") {
+        var arr = [];
+        var valid_dept = await Department.findById({ _id: depart });
+        const all_classes = await Class.find({
+          masterClassName: { $in: master },
+        });
+        if (all_classes?.length > 0) {
+          var all_student = await Student.find({
+            $and: [
+              { department: valid_dept?._id },
+              { batches: { $in: valid_dept?.batches } },
+              { studentClass: { $in: all_classes } },
+            ],
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            )
+            .populate({
+              path: "user",
+              select: "deviceToken userEmail",
+            })
+            .populate({
+              path: "institute",
+              select: "insName",
+            });
+          var all_remain = await RemainingList.find({
+            student: { $in: all_student },
+          })
+            .populate({
+              path: "fee_structure",
+            })
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+              populate: {
+                path: "user",
+                select: "userEmail deviceToken",
+              },
+            });
+          for (var ref of all_remain) {
+            if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+              arr.push(ref?.student);
+            }
+          }
+          all_student = remove_duplicated(arr);
+          res.status(200).send({
+            message: "Explore All For All Batch With Standard Student Query",
+            access: true,
+            all_student: all_student,
+            count: all_student?.length,
+          });
+        }
+        var all_student = await Student.find({
+          $and: [
+            { department: valid_dept?._id },
+            { batches: { $in: valid_dept?.batches } },
+          ],
         })
-        .populate({
+          .select(
+            "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+          )
+          .populate({
+            path: "user",
+            select: "deviceToken userEmail",
+          })
+          .populate({
             path: "institute",
             select: "insName",
           });
-        }
-        var all_student = await Student.find({ $and: [{ department: valid_dept?._id }]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
+        var all_remain = await RemainingList.find({
+          student: { $in: all_student },
         })
-        .populate({
+          .populate({
+            path: "fee_structure",
+          })
+          .populate({
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+            populate: {
+              path: "user",
+              select: "userEmail deviceToken",
+            },
+          });
+        for (var ref of all_remain) {
+          if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+            arr.push(ref?.student);
+          }
+        }
+        all_student = remove_duplicated(arr);
+        res.status(200).send({
+          message: "Explore All Student For All Batch Query",
+          access: true,
+          all_student: all_student,
+          count: all_student?.length,
+        });
+      } else if (batch_status === "PARTICULAR_BATCH") {
+        var arr = [];
+        const all_classes = await Class.find({
+          masterClassName: { $in: master },
+        });
+        if (all_classes?.length > 0) {
+          var all_student = await Student.find({
+            $and: [
+              { department: depart },
+              { batches: batch },
+              { studentClass: { $in: all_classes } },
+            ],
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            )
+            .populate({
+              path: "user",
+              select: "deviceToken userEmail",
+            })
+            .populate({
+              path: "institute",
+              select: "insName",
+            });
+          var all_remain = await RemainingList.find({
+            student: { $in: all_student },
+          })
+            .populate({
+              path: "fee_structure",
+            })
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+              populate: {
+                path: "user",
+                select: "userEmail deviceToken",
+              },
+            });
+          for (var ref of all_remain) {
+            if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+              arr.push(ref?.student);
+            }
+          }
+          all_student = remove_duplicated(arr);
+          res.status(200).send({
+            message:
+              "Explore All For Particular Batch with Standard Student Query",
+            access: true,
+            all_student: all_student,
+            count: all_student?.length,
+          });
+        } else {
+          var all_student = await Student.find({
+            $and: [{ department: depart }, { batches: batch }],
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            )
+            .populate({
+              path: "user",
+              select: "deviceToken userEmail",
+            })
+            .populate({
+              path: "institute",
+              select: "insName",
+            });
+          var all_remain = await RemainingList.find({
+            student: { $in: all_student },
+          })
+            .populate({
+              path: "fee_structure",
+            })
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+              populate: {
+                path: "user",
+                select: "userEmail deviceToken",
+              },
+            });
+          for (var ref of all_remain) {
+            if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+              arr.push(ref?.student);
+            }
+          }
+          all_student = remove_duplicated(arr);
+          res.status(200).send({
+            message: "Explore All For Particular Batch Student Query",
+            access: true,
+            all_student: all_student,
+            count: all_student?.length,
+          });
+        }
+      }
+      if (!batch_status) {
+        var arr = [];
+        var valid_dept = await Department.findById({ _id: depart });
+        const all_classes = await Class.find({
+          masterClassName: { $in: master },
+        });
+        if (all_classes?.length > 0) {
+          var all_student = await Student.find({
+            $and: [
+              { department: valid_dept?._id },
+              { studentClass: { $in: all_classes } },
+            ],
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            )
+            .populate({
+              path: "user",
+              select: "deviceToken userEmail",
+            })
+            .populate({
+              path: "institute",
+              select: "insName",
+            });
+        }
+        var all_student = await Student.find({
+          $and: [{ department: valid_dept?._id }],
+        })
+          .select(
+            "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+          )
+          .populate({
+            path: "user",
+            select: "deviceToken userEmail",
+          })
+          .populate({
             path: "institute",
             select: "insName",
           });
 
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
+        var all_remain = await RemainingList.find({
+          student: { $in: all_student },
+        })
           .populate({
-            path: "fee_structure"
+            path: "fee_structure",
           })
           .populate({
             path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
             populate: {
               path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
+              select: "userEmail deviceToken",
+            },
+          });
+        for (var ref of all_remain) {
+          if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+            arr.push(ref?.student);
           }
-          all_student = remove_duplicated(arr)
-          console.log("Alert")
-          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student, count: all_student?.length})
         }
+        all_student = remove_duplicated(arr);
+        console.log("Alert");
+        res.status(200).send({
+          message: "Explore All Student Query",
+          access: true,
+          all_student: all_student,
+          count: all_student?.length,
+        });
+      }
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.renderReAdmissionQuery = async (req, res) => {
   try {
-    const { fid, sid } = req?.params
-    if (!fid && !sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const remain_card = await RemainingList.findOne({ $and: [{ fee_structure: fid }, { student: sid }] })
-    .populate({
-      path: "fee_structure",
-      populate: {
-        path: "category_master",
-        select: "category_name"
-      }
-    })
-    .populate({
-      path: "applicable_card"
+    const { fid, sid } = req?.params;
+    if (!fid && !sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const remain_card = await RemainingList.findOne({
+      $and: [{ fee_structure: fid }, { student: sid }],
     })
       .populate({
-      path: "government_card"
-    })
-    res.status(200).send({ message: "Explore New One Re-Admission Fee Structure Query", access: true, remain_card: remain_card})
+        path: "fee_structure",
+        populate: {
+          path: "category_master",
+          select: "category_name",
+        },
+      })
+      .populate({
+        path: "applicable_card",
+      })
+      .populate({
+        path: "government_card",
+      });
+    res.status(200).send({
+      message: "Explore New One Re-Admission Fee Structure Query",
+      access: true,
+      remain_card: remain_card,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderInstituteChargesQuery = async (req, res) => {
   try {
-    const { id } = req?.params
-    if (!id) return res.status(200).send({
-      message: "Their is a bug need to fixed immediately",
-      access: false
-    })
-    const new_charges = await Charges.findOne({ institute: id })
-    res.status(200).send({ message: "Explore One Institute Charges Query", access: true, new_charges: new_charges})
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const new_charges = await Charges.findOne({ institute: id });
+    res.status(200).send({
+      message: "Explore One Institute Charges Query",
+      access: true,
+      new_charges: new_charges,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.government_card_removal_query = async (req, res) => {
   try {
-    const { card_arr } = req?.body
+    const { card_arr } = req?.body;
     // const { aid } = req?.params
     // if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     // var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
-    // var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine} }, { total_installments: "1" }] }) 
+    // var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine} }, { total_installments: "1" }] })
     // var nums = []
     // var cards = []
     // // var all_remain = await RemainingList.find({ _id: { $in: nums } })
@@ -12229,41 +12735,44 @@ exports.government_card_removal_query = async (req, res) => {
     //   path: "fee_structure"
     // })
 
-    var all_remain = await RemainingList.find({ _id: { $in: card_arr }})
-    .populate({
-      path: "fee_structure"
-    })
+    var all_remain = await RemainingList.find({
+      _id: { $in: card_arr },
+    }).populate({
+      path: "fee_structure",
+    });
     // .populate({
     //   path: "student",
     //   select: "studentFirstName studentMiddleName studentLastName"
     // })
-    
-    var i = 0
+
+    var i = 0;
     for (var val of all_remain) {
-      if(val?.applicable_card){
-        var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
+      if (val?.applicable_card) {
+        var n_app = await NestedCard.findById({
+          _id: `${val?.applicable_card}`,
+        });
         n_app.remaining_array.push({
           remainAmount: n_app?.remaining_fee,
           isEnable: true,
           instituteId: val?.institute,
           appId: val?.appId,
-          installmentValue: "Installment Remain"
-        })
-        val.remaining_fee = n_app?.remaining_fee
+          installmentValue: "Installment Remain",
+        });
+        val.remaining_fee = n_app?.remaining_fee;
         if (val?.remaining_fee > 0) {
-          val.status = "Not Paid"
+          val.status = "Not Paid";
         }
-          // .populate({
-          //   path: "remaining_array",
-          //   populate: {
-          //     path: "fee_receipt"
-          //   }
-          // })
+        // .populate({
+        //   path: "remaining_array",
+        //   populate: {
+        //     path: "fee_receipt"
+        //   }
+        // })
         // if (n_app?.paid_fee > 0 && n_app?.paid_fee < n_app?.applicable_fee) {
         //   // n_app.remaining_fee = 0
         //   // val.remaining_fee = 0
-          console.log(i)
-          i += 1
+        console.log(i);
+        i += 1;
         // }
         // for (var ele of n_app?.remaining_array) {
         //   if (ele?.fee_receipt?.fee_payment_mode === "Government/Scholarship") {
@@ -12283,46 +12792,61 @@ exports.government_card_removal_query = async (req, res) => {
         // if (val?.remaining_fee <= 0) {
         //   val.status = "Paid"
         // }
-        await n_app.save()
+        await n_app.save();
       }
-      await val.save()
+      await val.save();
     }
-    res.status(200).send({ message: "Explore All Student Nested Government Remaining Card + Installment Modify + Clear", access: true})
+    res.status(200).send({
+      message:
+        "Explore All Student Nested Government Remaining Card + Installment Modify + Clear",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
-
+};
 
 exports.renderAllFeeStructureListQuery = async (req, res) => {
   try {
-    const { fid } = req?.params
-    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { fid } = req?.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     // const all_struct = await FeeStructure.findById({ _id: "6480700bbff5c201991d438f"})
     //   all_struct.total_installments = "1"
     //   all_struct.two_installments.fees = 0
     //   await all_struct.save()
 
-    const all_struct = await FeeStructure.find({ $and: [{ finance: fid }, { total_installments: "2" }] })
+    const all_struct = await FeeStructure.find({
+      $and: [{ finance: fid }, { total_installments: "2" }],
+    });
     // .select("structure_name unique_structure_name total_installments")
     for (var val of all_struct) {
-      val.total_installments = "1"
-      val.two_installments.fees = 0
-      await val.save()
+      val.total_installments = "1";
+      val.two_installments.fees = 0;
+      await val.save();
     }
     if (all_struct?.length > 0) {
-      res.status(200).send({ message: "Explore All Fee Structures greater than 2 or equal ", access: true, all_struct: all_struct, count: all_struct?.length})
+      res.status(200).send({
+        message: "Explore All Fee Structures greater than 2 or equal ",
+        access: true,
+        all_struct: all_struct,
+        count: all_struct?.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Fee Structure Available",
+        access: false,
+        all_struct: [],
+      });
     }
-    else {
-      res.status(200).send({ message: "No Fee Structure Available", access: false, all_struct: []})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderAllStudentQuery = async (req, res) => {
   try {
@@ -12331,31 +12855,36 @@ exports.renderAllStudentQuery = async (req, res) => {
     // if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     // 648144d2bff5c2019924603f, 64814215bff5c20199240782
     // var nums = ["64809b0dbff5c201991f3aed"]
-    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
-    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine} }, { total_installments: "1" }] }) 
+    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"];
+    var all_struct = await FeeStructure.find({
+      $and: [{ finance: { $in: fine } }, { total_installments: "1" }],
+    });
     // var nums = []
     // for (var val of all_struct) {
     //   nums.push(val?._id)
     // }
-      var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct }})
-      .populate({
-      path: "fee_structure"
-      })
-    
+    var all_remain = await RemainingList.find({
+      fee_structure: { $in: all_struct },
+    }).populate({
+      path: "fee_structure",
+    });
+
     //   var all_remain = await RemainingList.find({ _id: { $in: nums }})
     //   .populate({
     //   path: "fee_structure"
     // })
-    
-    var i = 0
+
+    var i = 0;
     for (var val of all_remain) {
-      if(val?.applicable_card){
-        var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
-        
+      if (val?.applicable_card) {
+        var n_app = await NestedCard.findById({
+          _id: `${val?.applicable_card}`,
+        });
+
         if (n_app?.paid_fee <= n_app?.applicable_fee) {
           if (`${val?.access_mode_card}` === "One_Time_Wise") {
-            console.log("INSERTED IR")
-            const numss = n_app?.applicable_fee - n_app?.paid_fee
+            console.log("INSERTED IR");
+            const numss = n_app?.applicable_fee - n_app?.paid_fee;
             if (numss > 0) {
               // ele.remainAmount = numss
               n_app.remaining_array.push({
@@ -12363,19 +12892,18 @@ exports.renderAllStudentQuery = async (req, res) => {
                 isEnable: true,
                 instituteId: val?.institute,
                 appId: val?.appId,
-                installmentValue: "Installment Remain"
-              })
+                installmentValue: "Installment Remain",
+              });
             }
-              n_app.remaining_fee = n_app?.applicable_fee - n_app?.paid_fee
-              val.remaining_fee = n_app?.applicable_fee - n_app?.paid_fee
+            n_app.remaining_fee = n_app?.applicable_fee - n_app?.paid_fee;
+            val.remaining_fee = n_app?.applicable_fee - n_app?.paid_fee;
             if (val?.remaining_fee <= 0) {
-              val.status = "Paid"
+              val.status = "Paid";
+            } else {
+              val.status = "Not Paid";
             }
-            else {
-              val.status = "Not Paid"
-            }
-            console.log(i)
-          i += 1
+            console.log(i);
+            i += 1;
           }
           // if (`${ele?.installmentValue}` === "Installment Remain") {
           //   console.log("INSERTED IR")
@@ -12393,11 +12921,11 @@ exports.renderAllStudentQuery = async (req, res) => {
           //   }
           // }
         }
-      // var n_gov = await NestedCard.findById({ _id: `${val?.government_card}` })
+        // var n_gov = await NestedCard.findById({ _id: `${val?.government_card}` })
         // if (val?.fee_structure?.total_installments === "1") {
         //   // for (var ele of n_app.remaining_array) {
         //   //   // if (ele?.status === "Paid") {
-              
+
         //   //   // }
         //   //   // else {
         //   //   //   // if (`${ele?.installmentValue}` === "First Installment") {
@@ -12477,82 +13005,90 @@ exports.renderAllStudentQuery = async (req, res) => {
         //   //   //   //     }
         //   //   //   //   }
         //   //   //   // }
-              
+
         //   //   // }
         //   // }
         // }
-        await n_app.save()
+        await n_app.save();
       }
-      await val.save()
+      await val.save();
     }
-    res.status(200).send({ message: "Explore All Student Nested Remaining Card Modify + Clear + One", access: true})
+    res.status(200).send({
+      message: "Explore All Student Nested Remaining Card Modify + Clear + One",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderTransferAllCardQuery = async (req, res) => {
   try {
-    var ins = ["64b63a46c1b160cdcedbb85d", "6449c83598fec071fbffd3ad"]
-    const all_remain = await RemainingList.find({ institute: { $in: ins } })
-    var i = 0 
+    var ins = ["64b63a46c1b160cdcedbb85d", "6449c83598fec071fbffd3ad"];
+    const all_remain = await RemainingList.find({ institute: { $in: ins } });
+    var i = 0;
     for (var val of all_remain) {
-        // await render_new_fees_card_install(val?.fee_structure, val)
-        await val.save()
-        console.log(i)
-        i += 1
+      // await render_new_fees_card_install(val?.fee_structure, val)
+      await val.save();
+      console.log(i);
+      i += 1;
     }
-    res.status(200).send({ message: "Explore One Fees Card Query", access: true})
+    res
+      .status(200)
+      .send({ message: "Explore One Fees Card Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderAllStudentStatusQuery = async (req, res) => {
   try {
-    var ins = ["64b63a46c1b160cdcedbb85d", "6449c83598fec071fbffd3ad"]
-    const all_student = await Student.find({ institute: { $in: ins }})
+    var ins = ["64b63a46c1b160cdcedbb85d", "6449c83598fec071fbffd3ad"];
+    const all_student = await Student.find({ institute: { $in: ins } });
 
-    var i = 0 
+    var i = 0;
     for (var val of all_student) {
-      val.admission_amount_stats.total_fees = 0
-        val.admission_amount_stats.total_paid_fees = 0 
-        val.admission_amount_stats.total_os_fees = 0 
-        val.admission_amount_stats.total_app_fees = 0 
-        val.admission_amount_stats.total_app_paid_fees = 0 
-        val.admission_amount_stats.total_app_os_fees = 0 
-        val.admission_amount_stats.total_gov_fees = 0
-        val.admission_amount_stats.total_gov_paid_fees = 0
-      val.admission_amount_stats.total_gov_os_fees = 0
-      await val.save()
-      console.log(i)
-      i += 1
+      val.admission_amount_stats.total_fees = 0;
+      val.admission_amount_stats.total_paid_fees = 0;
+      val.admission_amount_stats.total_os_fees = 0;
+      val.admission_amount_stats.total_app_fees = 0;
+      val.admission_amount_stats.total_app_paid_fees = 0;
+      val.admission_amount_stats.total_app_os_fees = 0;
+      val.admission_amount_stats.total_gov_fees = 0;
+      val.admission_amount_stats.total_gov_paid_fees = 0;
+      val.admission_amount_stats.total_gov_os_fees = 0;
+      await val.save();
+      console.log(i);
+      i += 1;
     }
-    res.status(200).send({ message: "Explore Student Admission Amount Status Query", access: true})
+    res.status(200).send({
+      message: "Explore Student Admission Amount Status Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderAllStudentQueryNestedRemove = async (req, res) => {
   try {
     // const { aid } = req?.params
     // if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     // var ins = ["64b63a46c1b160cdcedbb85d", "6449c83598fec071fbffd3ad"]
-    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
-    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }}, { total_installments: "1" }]})
-    var nums = []
-    var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
+    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"];
+    var all_struct = await FeeStructure.find({
+      $and: [{ finance: { $in: fine } }, { total_installments: "1" }],
+    });
+    var nums = [];
+    var all_remain = await RemainingList.find({
+      fee_structure: { $in: all_struct },
+    });
 
-    var i = 0
+    var i = 0;
     for (var val of all_remain) {
-      if(val?.applicable_card){
+      if (val?.applicable_card) {
         // var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
         // if (n_app?.remaining_array?.length > 0) {
-          
         // }
         // else {
         //   n_app.remaining_fee = val?.paid_fee >= val?.applicable_fee ? val?.paid_fee - val?.applicable_fee : val?.applicable_fee - val?.paid_fee;
@@ -12561,37 +13097,39 @@ exports.renderAllStudentQueryNestedRemove = async (req, res) => {
         //   }
         //   await n_app.save()
         // }
-      }
-      else {
+      } else {
         // var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
         // if (n_app?.remaining_array?.length > 0) {
-          
+
         // }
         // else {
-          await render_new_fees_card_install(val?.fee_structure, val)
-          // n_app.remaining_fee = val?.paid_fee >= val?.applicable_fee ? val?.paid_fee - val?.applicable_fee : val?.applicable_fee - val?.paid_fee;
-          // for (var ele of val?.remaining_array) {
-          //   n_app.remaining_array.push(ele)
-          // }
-          // await n_app.save()
+        await render_new_fees_card_install(val?.fee_structure, val);
+        // n_app.remaining_fee = val?.paid_fee >= val?.applicable_fee ? val?.paid_fee - val?.applicable_fee : val?.applicable_fee - val?.paid_fee;
+        // for (var ele of val?.remaining_array) {
+        //   n_app.remaining_array.push(ele)
         // }
-        nums.push(val)
-        console.log(i)
-      i += 1
+        // await n_app.save()
+        // }
+        nums.push(val);
+        console.log(i);
+        i += 1;
       }
       // await Promise.all([n_app.save(), val.save()])
-      
     }
-    res.status(200).send({ message: "Explore All Student Nested Remaining Card Clear", access: true, nums, count: nums?.length})
+    res.status(200).send({
+      message: "Explore All Student Nested Remaining Card Clear",
+      access: true,
+      nums,
+      count: nums?.length,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderAllStudentArray = async (req, res) => {
   try {
-    const { arr } = req?.body
+    const { arr } = req?.body;
     // 64bd56efac3512e4520fb9fa
     // 644a09d6d1679fcd6e76e5ef
     // var fine = ["644a09d6d1679fcd6e76e5ef"]
@@ -12599,104 +13137,113 @@ exports.renderAllStudentArray = async (req, res) => {
     // var nums = []
     // var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
 
-    var all_remain = await RemainingList.find({ _id: { $in: arr } })
+    var all_remain = await RemainingList.find({ _id: { $in: arr } });
 
-    var i = 0
+    var i = 0;
     for (var val of all_remain) {
-      if(val?.applicable_card){
-        var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
+      if (val?.applicable_card) {
+        var n_app = await NestedCard.findById({
+          _id: `${val?.applicable_card}`,
+        });
         // if (n_app?.paid_fee >= n_app?.applicable_fee && n_app?.remaining_fee > 0) {
-          // n_app.remaining_fee = 0
-          // val.remaining_fee = 0
-          // if (val?.remaining_fee <= 0) {
-          //   val.status = "Paid"
-          // }
-          // await n_app.save()
+        // n_app.remaining_fee = 0
+        // val.remaining_fee = 0
+        // if (val?.remaining_fee <= 0) {
+        //   val.status = "Paid"
+        // }
+        // await n_app.save()
         // }
         // if (n_app?.paid_fee < n_app?.applicable_fee && n_app?.remaining_fee > 0 && val?.status === "Paid") {
-          // n_app.paid_fee += n_app.remaining_fee
-          // n_app.remaining_fee = 0
-          // val.remaining_fee = 0
-          // if (val?.remaining_fee <= 0) {
-          //   val.status = "Paid"
-          // }
-          // await n_app.save()
-          // nums.push(val)
+        // n_app.paid_fee += n_app.remaining_fee
+        // n_app.remaining_fee = 0
+        // val.remaining_fee = 0
+        // if (val?.remaining_fee <= 0) {
+        //   val.status = "Paid"
+        // }
+        // await n_app.save()
+        // nums.push(val)
         //   console.log("I", i)
         //   i+= 1
         // }
         n_app.remaining_array.push({
-              remainAmount: n_app?.remaining_fee,
-              isEnable: true,
-              instituteId: val?.institute,
-              appId: val?.appId,
-              installmentValue: "Installment Remain"
-        })
-        await n_app.save()
-           console.log("I", i)
-          i+= 1
+          remainAmount: n_app?.remaining_fee,
+          isEnable: true,
+          instituteId: val?.institute,
+          appId: val?.appId,
+          installmentValue: "Installment Remain",
+        });
+        await n_app.save();
+        console.log("I", i);
+        i += 1;
         // if (n_app?.paid_fee < n_app?.applicable_fee && n_app?.remaining_fee > 0 && val?.status === "Not Paid") {
         //   for (var stu of n_app?.remaining_array) {
-            
+
         //   }
         // }
       }
       // await val.save()
     }
-    res.status(200).send({ message: "Explore All Student Outstanding Fees Matching Query", access: true})
+    res.status(200).send({
+      message: "Explore All Student Outstanding Fees Matching Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderChargesCardQuery = async (req, res) => {
   try {
-    let nums = ["65c48434896ca745f41b7381"]
-    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}`})
-    const all_ins = await InstituteAdmin.find({ _id: { $in: nums} })
-    
-    for (var val of all_ins) {
-      const new_charge = new Charges({})
-      new_charge.institute = val?._id
-      new_charge.admin = admin?._id
-      admin.charges.push(new_charge?._id)
-      val.charges = new_charge?._id
-      admin.charges_count += 1
-      await Promise.all([ val.save(), new_charge.save()])
-    }
-    await admin.save()
-    res.status(200).send({ message: "Put Institute Charges In Queue", access: true})
-  }
-  catch (e) {
-    console.log(e)
-  }
-}
+    let nums = ["65c48434896ca745f41b7381"];
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const all_ins = await InstituteAdmin.find({ _id: { $in: nums } });
 
-exports.renderValidateAppQuery = async(req, res) => {
-  try{
-    const exist_app = await NewApplication.find({ $and: [{ applicationDepartment: `${req.body?.depart}`}, { applicationMaster: `${req.body?.master}`}, { applicationBatch: `${req.body?.batch}`}]})
-    if(exist_app?.length > 0){
+    for (var val of all_ins) {
+      const new_charge = new Charges({});
+      new_charge.institute = val?._id;
+      new_charge.admin = admin?._id;
+      admin.charges.push(new_charge?._id);
+      val.charges = new_charge?._id;
+      admin.charges_count += 1;
+      await Promise.all([val.save(), new_charge.save()]);
+    }
+    await admin.save();
+    res
+      .status(200)
+      .send({ message: "Put Institute Charges In Queue", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderValidateAppQuery = async (req, res) => {
+  try {
+    const exist_app = await NewApplication.find({
+      $and: [
+        { applicationDepartment: `${req.body?.depart}` },
+        { applicationMaster: `${req.body?.master}` },
+        { applicationBatch: `${req.body?.batch}` },
+      ],
+    });
+    if (exist_app?.length > 0) {
       res.status(200).send({
         message: "Fee Application Already Exists",
         access: false,
         avail_app: exist_app?.length,
-        exist_app: exist_app
+        exist_app: exist_app,
       });
-    }
-    else{
+    } else {
       res.status(200).send({
         message: "Proceed with new Application",
         access: true,
         avail_app: 0,
-        exist_app: []
+        exist_app: [],
       });
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 // exports.renderRemainingCardQuery = async (req, res) => {
 //   try {
@@ -12750,53 +13297,55 @@ exports.renderValidateAppQuery = async(req, res) => {
 
 exports.renderRemainingCardQuery = async (req, res) => {
   try {
-    const remain_all = await RemainingList.find({})
+    const remain_all = await RemainingList.find({});
 
-    var  i = 0
+    var i = 0;
     for (var val of remain_all) {
       if (val?.remaining_fee <= 0) {
-        val.status = "Paid"
+        val.status = "Paid";
       }
-      await val.save()
-      console.log(i)
-      i += 1
+      await val.save();
+      console.log(i);
+      i += 1;
     }
 
-    res.status(200).send({ message: "Fee Heads Insertion"})
+    res.status(200).send({ message: "Fee Heads Insertion" });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderGovernmentCardUpdateQuery = async (req, res) => {
   try {
-    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
-    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }}, { total_installments: "1" }]})
-    var nums = []
-    var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
-      .populate({
-        path: "institute",
-        select: "financeDepart invoice_count random_institute_code"
-    })
+    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"];
+    var all_struct = await FeeStructure.find({
+      $and: [{ finance: { $in: fine } }, { total_installments: "1" }],
+    });
+    var nums = [];
+    var all_remain = await RemainingList.find({
+      fee_structure: { $in: all_struct },
+    }).populate({
+      path: "institute",
+      select: "financeDepart invoice_count random_institute_code",
+    });
 
-    var i = 0
+    var i = 0;
     for (var val of all_remain) {
       if (val?.government_card) {
-        var nest_gov = await NestedCard.findById({ _id: val?.government_card })
+        var nest_gov = await NestedCard.findById({ _id: val?.government_card });
         if (nest_gov?.paid_fee > 0 && nest_gov?.applicable_fee <= 0) {
-          const new_receipt = new FeeReceipt({})
-          new_receipt.fee_payment_amount = nest_gov?.paid_fee
-          new_receipt.paid_by_government = nest_gov?.paid_fee
-          new_receipt.fee_payment_mode = "Government/Scholarship"
+          const new_receipt = new FeeReceipt({});
+          new_receipt.fee_payment_amount = nest_gov?.paid_fee;
+          new_receipt.paid_by_government = nest_gov?.paid_fee;
+          new_receipt.fee_payment_mode = "Government/Scholarship";
           new_receipt.student = val?.student;
           new_receipt.fee_transaction_date = new Date();
           new_receipt.application = val?.appId;
           new_receipt.receipt_generated_from = "BY_ADMISSION";
           new_receipt.finance = val?.institute?.financeDepart?.[0];
           new_receipt.receipt_status = "Already Generated";
-          new_receipt.fee_update = true
-          await fee_receipt_count_query_new(val?.institute, new_receipt)
+          new_receipt.fee_update = true;
+          await fee_receipt_count_query_new(val?.institute, new_receipt);
           nest_gov.remaining_array.push({
             remainAmount: nest_gov?.paid_fee,
             appId: val?.appId,
@@ -12806,23 +13355,26 @@ exports.renderGovernmentCardUpdateQuery = async (req, res) => {
             isEnable: true,
             fee_update: true,
             fee_receipt: new_receipt?._id,
-            mode: "Government/Scholarship"
+            mode: "Government/Scholarship",
           });
-          nest_gov.fee_update = true
-          await nest_gov.save()
+          nest_gov.fee_update = true;
+          await nest_gov.save();
           // nums.push(val?._id)
-          console.log(i)
-          i+= 1
+          console.log(i);
+          i += 1;
         }
       }
-
     }
-    res.status(200).send({ message: "Explore All Paid Government Card Fees Update Query", access: true, all_remain: all_remain, count: all_remain?.length })
+    res.status(200).send({
+      message: "Explore All Paid Government Card Fees Update Query",
+      access: true,
+      all_remain: all_remain,
+      count: all_remain?.length,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.cancelAllottedAdmissionApplication = async (req, res) => {
   try {
@@ -12956,17 +13508,18 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
         refund_from: apply?._id,
       });
       const all_remain_fee_list = await RemainingList.findOne({
-        $and: [{ fee_structure: struct }, { student: student?._id}]
+        $and: [{ fee_structure: struct }, { student: student?._id }],
       });
-      new_receipt.fee_structure = all_remain_fee_list?.fee_structure
+      new_receipt.fee_structure = all_remain_fee_list?.fee_structure;
       const nest_app_card = await NestedCard.findById({
-        _id: `${all_remain_fee_list?.applicable_card}`
+        _id: `${all_remain_fee_list?.applicable_card}`,
       });
-      const filter_student_install =
-      nest_app_card?.remaining_array?.filter((stu) => {
+      const filter_student_install = nest_app_card?.remaining_array?.filter(
+        (stu) => {
           if (`${stu.appId}` === `${apply._id}` && stu.status === "Not Paid")
             return stu;
-        });
+        }
+      );
       for (var can = 0; can < filter_student_install?.length; can++) {
         nest_app_card?.remaining_array.pull(filter_student_install[can]);
       }
@@ -12979,7 +13532,7 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
         nest_app_card.paid_fee -= price;
       }
       all_remain_fee_list.remaining_fee = 0;
-      nest_app_card.remaining_fee = 0
+      nest_app_card.remaining_fee = 0;
       for (var ele of student?.active_fee_heads) {
         if (`${ele?.appId}` === `${apply?._id}`) {
           ele.paid_fee = 0;
@@ -13000,9 +13553,9 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
       student.student_application_obj.push({
         app: apply?._id,
         staff: staffId,
-        flow: "cancel_by"
-      })
-      all_remain_fee_list.status = "Cancel"
+        flow: "cancel_by",
+      });
+      all_remain_fee_list.status = "Cancel";
       order.payment_module_type = "Expense";
       order.payment_to_end_user_id = institute._id;
       order.payment_by_end_user_id = user._id;
@@ -13017,11 +13570,14 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
       order.payment_student = student?._id;
       order.payment_student_name = student?.valid_full_name;
       order.payment_student_gr = student?.studentGRNO;
-      fee_receipt_count_query(institute, new_receipt, order)
+      fee_receipt_count_query(institute, new_receipt, order);
       order.fee_receipt = new_receipt?._id;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
-      await renderAllStudentToUnApprovedAutoCatalogQuery(student?.studentClass, [sid])
+      await renderAllStudentToUnApprovedAutoCatalogQuery(
+        student?.studentClass,
+        [sid]
+      );
       await Promise.all([
         apply.save(),
         student.save(),
@@ -13035,7 +13591,7 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
         all_remain_fee_list.save(),
         new_receipt.save(),
         notify.save(),
-        nest_app_card.save()
+        nest_app_card.save(),
       ]);
       res.status(200).send({
         message: "Refund & Cancellation of Admission",
@@ -13051,7 +13607,7 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
       if (apply.allottedApplication?.length > 0) {
         for (var val of apply.allottedApplication) {
           if (`${val?.student}` === `${student?._id}`) {
-            apply.allottedApplication.pull(val?._id);   
+            apply.allottedApplication.pull(val?._id);
           }
         }
         apply.cancelApplication.push({
@@ -13065,8 +13621,8 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
           payment_status: "Refund",
           refund_amount: price,
           from: "Allotted_Tab",
-        })
-        admission.cancel_admission_count += price
+        });
+        admission.cancel_admission_count += price;
         await Promise.all([apply.save(), admission.save()]);
       }
       if (admission?.remainingFee?.length > 0) {
@@ -13083,145 +13639,165 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
 
 exports.one_fees_card_query = async (req, res) => {
   try {
-    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
-    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }}, { total_installments: "1" }]})
-    var nums = []
-    var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
+    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"];
+    var all_struct = await FeeStructure.find({
+      $and: [{ finance: { $in: fine } }, { total_installments: "1" }],
+    });
+    var nums = [];
+    var all_remain = await RemainingList.find({
+      fee_structure: { $in: all_struct },
+    })
       .populate({
         path: "institute",
-        select: "financeDepart invoice_count random_institute_code"
+        select: "financeDepart invoice_count random_institute_code",
       })
       .populate({
         path: "student",
-        select: "studentFirstName studentMiddleName studentLastName"
-    })
+        select: "studentFirstName studentMiddleName studentLastName",
+      });
 
-    var i = 0
+    var i = 0;
     for (var val of all_remain) {
       if (val?.applicable_card) {
-        var n_app = await NestedCard.findById({ _id: `${val?.applicable_card}` })
+        var n_app = await NestedCard.findById({
+          _id: `${val?.applicable_card}`,
+        });
         if (n_app?.applicable_fee - n_app?.paid_fee == 1) {
-          nums.push(val?.student)
-          console.log(i)
-          i+= 1
+          nums.push(val?.student);
+          console.log(i);
+          i += 1;
         }
       }
     }
-    res.status(200).send({ message: "Explore 1 Rs. diff Card", access: true, nums})
+    res
+      .status(200)
+      .send({ message: "Explore 1 Rs. diff Card", access: true, nums });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 // Fee Heads Move To Applicable Fee Heads
 exports.renderFeeHeadsMoveGovernmentCardUpdateQuery = async (req, res) => {
   try {
     // var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
-    var fine = ["644a09d6d1679fcd6e76e5ef"]
-    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
+    var fine = ["644a09d6d1679fcd6e76e5ef"];
+    var all_struct = await FeeStructure.find({
+      $and: [{ finance: { $in: fine } }],
+    });
     // var nums = []
     // var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
-    var i = 0
+    var i = 0;
     for (var val of all_struct) {
       for (var ele of val?.fees_heads) {
         // ele.head_type = "BY_APPLICABLE"
-        val.applicable_fees_heads.push(ele)
-        val.applicable_fees_heads_count += 1
+        val.applicable_fees_heads.push(ele);
+        val.applicable_fees_heads_count += 1;
       }
-      console.log(i)
-      i += 1
-      await val.save()
+      console.log(i);
+      i += 1;
+      await val.save();
     }
 
-    res.status(200).send({ message: "Explore Fees Structure Applicable Fees Heads Move Query", access: true })
+    res.status(200).send({
+      message: "Explore Fees Structure Applicable Fees Heads Move Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 // Excel Government Fee Heads Query
-exports.renderGovernmentHeadsMoveGovernmentCardUpdateQuery = async (fid, structures) => {
+exports.renderGovernmentHeadsMoveGovernmentCardUpdateQuery = async (
+  fid,
+  structures
+) => {
   try {
     if (structures?.length > 0) {
       // console.log(structures, "jkahdkjhd")
-      var i = 0
+      var i = 0;
       for (var val of structures) {
-        var codes = await FeeStructure.findOne({ fee_structure_code: `${val?.fee_structure_code}` })
+        var codes = await FeeStructure.findOne({
+          fee_structure_code: `${val?.fee_structure_code}`,
+        });
         if (codes?._id) {
           for (var ele of val?.heads) {
-            codes.government_fees_heads.push(ele)
-            codes.government_fees_heads_count += 1
-            console.log(i)
-            i += 1
+            codes.government_fees_heads.push(ele);
+            codes.government_fees_heads_count += 1;
+            console.log(i);
+            i += 1;
           }
-          await codes.save()
-        } 
+          await codes.save();
+        }
       }
     }
-    console.log("DONE")
+    console.log("DONE");
     // res.status(200).send({ message: "Explore Fees Structure Applicable Fees Heads Move Query", access: true })
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
-
-
+};
 
 // Remove transfer Applicable + Government ALSO
 exports.removeTTOAQuery = async (req, res) => {
   try {
-    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"]
+    var fine = ["64bd56efac3512e4520fb9fa", "644a09d6d1679fcd6e76e5ef"];
     // var fine = ["651ba371e39dbdf817dd5285"]
-    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
-    var nums_app = []
-    var nums_gov = []
-    var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
-      .select("applicable_card government_card")
-      // .populate({
-      //   path: "student",
-      //   select: "studentFirstName studentMiddleName studentLastName valid_full_name"
-      // })
-    
-    var  i =0
+    var all_struct = await FeeStructure.find({
+      $and: [{ finance: { $in: fine } }],
+    });
+    var nums_app = [];
+    var nums_gov = [];
+    var all_remain = await RemainingList.find({
+      fee_structure: { $in: all_struct },
+    }).select("applicable_card government_card");
+    // .populate({
+    //   path: "student",
+    //   select: "studentFirstName studentMiddleName studentLastName valid_full_name"
+    // })
+
+    var i = 0;
     for (var val of all_remain) {
       if (val?.applicable_card) {
-        var nest_app = await NestedCard.findById({ _id: `${val?.applicable_card}` }) 
+        var nest_app = await NestedCard.findById({
+          _id: `${val?.applicable_card}`,
+        });
         for (var ele of nest_app?.remaining_array) {
           if (ele?.revert_status) {
             if (nums_app?.includes(`${val?._id}`)) {
-              
-            }
-            else {
-              nums_app.push(val?._id)
+            } else {
+              nums_app.push(val?._id);
             }
           }
         }
       }
       if (val?.government_card) {
-        var nest_gov = await NestedCard.findById({ _id: `${val?.government_card}` }) 
+        var nest_gov = await NestedCard.findById({
+          _id: `${val?.government_card}`,
+        });
         for (var ele of nest_gov?.remaining_array) {
           if (ele?.revert_status) {
             if (nums_gov?.includes(`${val?._id}`)) {
-              
-            }
-            else {
-              nums_gov.push(val?._id)
+            } else {
+              nums_gov.push(val?._id);
             }
           }
         }
       }
-      console.log(i)
-      i+= 1
+      console.log(i);
+      i += 1;
     }
-    res.status(200).send({ message: "Explore Fees Structure Applicable Fees Heads Move Query", access: true, nums_app, nums_gov })
+    res.status(200).send({
+      message: "Explore Fees Structure Applicable Fees Heads Move Query",
+      access: true,
+      nums_app,
+      nums_gov,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.removeTTOAQuery = async (req, res) => {
   try {
@@ -13236,53 +13812,59 @@ exports.removeTTOAQuery = async (req, res) => {
       "6480b55dbff5c20199212ee5", // DONE
       "6480bca4bff5c2019922dbb1", // DONE
       "6480949fbff5c201991ed54c", // DONE
-      "64809495bff5c201991ed4d9" // DONE
-    ]
+      "64809495bff5c201991ed4d9", // DONE
+    ];
     var all_remain = await RemainingList.find({ _id: { $in: nums_app } })
       .select("applicable_card government_card")
       .populate({
         path: "student",
-        select: "studentFirstName studentMiddleName studentLastName valid_full_name"
-      })
-    
-    var  i =0
+        select:
+          "studentFirstName studentMiddleName studentLastName valid_full_name",
+      });
+
+    var i = 0;
     for (var val of all_remain) {
-      
     }
-    res.status(200).send({ message: "Explore Fees Structure Applicable Fees Heads Move Query", access: true, nums_app, nums_gov })
+    res.status(200).send({
+      message: "Explore Fees Structure Applicable Fees Heads Move Query",
+      access: true,
+      nums_app,
+      nums_gov,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 // Fee Structure Set To Fee Receipt
 exports.setFeeStructureToFeeReceiptAQuery = async (req, res) => {
   try {
     // var fine = ["644a09d6d1679fcd6e76e5ef"]
-    var nums = ["6501a1fcdf2fe86f89504caa"]
+    var nums = ["6501a1fcdf2fe86f89504caa"];
     // var nums = ["6481449fbff5c201992459c0", "64d8a21332c4819d5ee626a9", "6501fa70b830dd56a617afee"]
     // var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
     // var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
-    var all_remain = await RemainingList.find({ _id: { $in: nums } })
-    
+    var all_remain = await RemainingList.find({ _id: { $in: nums } });
 
-    var i = 0
+    var i = 0;
     for (var val of all_remain) {
-      var all_receipt = await FeeReceipt.find({ $and: [{ student: val?.student }, { application: val?.appId }] })
+      var all_receipt = await FeeReceipt.find({
+        $and: [{ student: val?.student }, { application: val?.appId }],
+      });
       for (var ele of all_receipt) {
-        ele.fee_structure = val?.fee_structure
-        console.log(i)
-        i += 1
-        await ele.save()
+        ele.fee_structure = val?.fee_structure;
+        console.log(i);
+        i += 1;
+        await ele.save();
       }
     }
-    res.status(200).send({ message: "Explore Fee Receipt Query", access: true, })
+    res
+      .status(200)
+      .send({ message: "Explore Fee Receipt Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderAllCancelAppsQuery = async (req, res) => {
   try {
@@ -13301,8 +13883,7 @@ exports.renderAllCancelAppsQuery = async (req, res) => {
             path: "student",
             match: {
               $or: [
-                {studentFirstName: { $regex: `${search}`, $options: "i" },
-                },
+                { studentFirstName: { $regex: `${search}`, $options: "i" } },
                 {
                   studentMiddleName: { $regex: `${search}`, $options: "i" },
                 },
@@ -13314,8 +13895,8 @@ exports.renderAllCancelAppsQuery = async (req, res) => {
                 },
                 {
                   studentGRNO: { $regex: `${search}`, $options: "i" },
-                }
-              ]
+                },
+              ],
             },
             select:
               "studentFirstName studentMiddleName studentLastName studentGRNO paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user fee_receipt valid_full_name",
@@ -13380,86 +13961,90 @@ exports.renderAllCancelAppsQuery = async (req, res) => {
 
 exports.renderAllCancelAppsSequenceQuery = async (req, res) => {
   try {
-    const { aid } = req?.params
-    if (!aid) return res.status(200).send({ message: "Bug" })
-    var nums = []
-    const ads_admin = await Admission.findById({ _id: aid })
-      .select("cancel_admission institute")
-    
-    const ins = await InstituteAdmin.findById({ _id: req?.query?.id })
-      .select("ApproveStudent")
-    var i = 0
+    const { aid } = req?.params;
+    if (!aid) return res.status(200).send({ message: "Bug" });
+    var nums = [];
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "cancel_admission institute"
+    );
+
+    const ins = await InstituteAdmin.findById({ _id: req?.query?.id }).select(
+      "ApproveStudent"
+    );
+    var i = 0;
     for (var val of ads_admin?.cancel_admission) {
       if (ins?.ApproveStudent?.includes(`${val?.student}`)) {
-        nums.push(val?.student)
-        console.log(i)
-        i+= 1
+        nums.push(val?.student);
+        console.log(i);
+        i += 1;
       }
     }
 
-    const all_student = await Student.find({ _id: { $in: nums } })
-    res.status(200).send({ message: "Explore Mismatch Query", all_student})
+    const all_student = await Student.find({ _id: { $in: nums } });
+    res.status(200).send({ message: "Explore Mismatch Query", all_student });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
-
+};
 
 exports.renderDepositQuery = async (req, res) => {
   try {
-    var fine = ["644a09d6d1679fcd6e76e5ef"]
-    var all_struct = await FeeStructure.find({ $and: [{ finance: { $in: fine }} ]})
+    var fine = ["644a09d6d1679fcd6e76e5ef"];
+    var all_struct = await FeeStructure.find({
+      $and: [{ finance: { $in: fine } }],
+    });
     // var nums = ["6507f64850f6dfea855c2af5"]
 
-        // var all_remain = await RemainingList.find({ _id: { $in: nums } })
-    var all_remain = await RemainingList.find({ fee_structure: { $in: all_struct } })
-    .populate({
-      path: "fee_structure",
+    // var all_remain = await RemainingList.find({ _id: { $in: nums } })
+    var all_remain = await RemainingList.find({
+      fee_structure: { $in: all_struct },
     })
-    .populate({
-      path: "student",
-    });
-    var  i =0
+      .populate({
+        path: "fee_structure",
+      })
+      .populate({
+        path: "student",
+      });
+    var i = 0;
     for (var sub of all_remain) {
       if (sub?.applicable_card) {
-        var nest_app = await NestedCard.findById({ _id: `${sub?.applicable_card}` })
-          .populate({
-            path: "remaining_array",
+        var nest_app = await NestedCard.findById({
+          _id: `${sub?.applicable_card}`,
+        }).populate({
+          path: "remaining_array",
+          populate: {
+            path: "fee_receipt",
             populate: {
-              path: "fee_receipt",
-              populate: {
-                path: "fee_structure"
-              }
-            }
-        })
-        var filtered = []
+              path: "fee_structure",
+            },
+          },
+        });
+        var filtered = [];
         for (var qwe of nest_app?.remaining_array) {
           if (`${qwe?.status}` === "Paid" && qwe?.fee_receipt) {
-            filtered.push(qwe)
+            filtered.push(qwe);
           }
         }
-        console.log("SET")
-          await set_fee_head_query_deposit(
-            sub?.student,
-            filtered?.[0]?.remainAmount,
-            filtered?.[0]?.fee_receipt
-          )
-          filtered.splice(filtered?.[0], 1)
-          
-        
-        for (var dtw of filtered) {
-          console.log("UPDATE")
-          await update_fee_head_query_deposit(
+        console.log("SET");
+        await set_fee_head_query_deposit(
           sub?.student,
-          dtw?.remainAmount,
-          sub?.appId,
-          // dtw?.fee_receipt
-          )
+          filtered?.[0]?.remainAmount,
+          filtered?.[0]?.fee_receipt
+        );
+        filtered.splice(filtered?.[0], 1);
+
+        for (var dtw of filtered) {
+          console.log("UPDATE");
+          await update_fee_head_query_deposit(
+            sub?.student,
+            dtw?.remainAmount,
+            sub?.appId
+            // dtw?.fee_receipt
+          );
         }
       }
-      console.log(i)
-      i += 1
+      console.log(i);
+      i += 1;
     }
 
     res.status(200).send({
@@ -13477,21 +14062,21 @@ exports.renderDepositToZeroQuery = async (req, res) => {
       $and: [
         { _id: "644a0b07d1679fcd6e76e7f5" },
         { finance: "644a09d6d1679fcd6e76e5ef" },
-        { master_status: "Linked"}
+        { master_status: "Linked" },
       ],
     });
-    var i=0
+    var i = 0;
     for (var val of one_master?.deleted_student) {
-      const one_student = await Student.findById({ _id: `${val}` })
+      const one_student = await Student.findById({ _id: `${val}` });
       if (one_student?._id) {
-        one_student.deposit_pending_amount = 0
-        await one_student.save()
+        one_student.deposit_pending_amount = 0;
+        await one_student.save();
         // one_master.deleted_student.push(val)
-        console.log(i)
-        i+=1
-      } 
+        console.log(i);
+        i += 1;
       }
-      
+    }
+
     // one_master.paid_student = []
     // one_master.paid_student_count = 0
     // one_master.deposit_amount = 0
@@ -13499,7 +14084,7 @@ exports.renderDepositToZeroQuery = async (req, res) => {
     res.status(200).send({
       message: "Explore All Student Fee Deposit To ZERO Insertion Query",
       access: true,
-      one_master
+      one_master,
     });
   } catch (e) {
     console.log(e);
@@ -13508,16 +14093,21 @@ exports.renderDepositToZeroQuery = async (req, res) => {
 
 exports.renderMultipleInstallmentQuery = async (req, res) => {
   try {
-    const { pid } = req?.params
-    const { inst_arr, raid } = req?.body
-    if (!raid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const p_card = await NestedCard.findById({ _id: pid })
-    .populate({
-        path: "parent_card",
-    })
-    var price = 0
-    const remain = await RemainingList.findById({ _id: `${p_card?.parent_card?._id}`})
+    const { pid } = req?.params;
+    const { inst_arr, raid } = req?.body;
+    if (!raid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const p_card = await NestedCard.findById({ _id: pid }).populate({
+      path: "parent_card",
+    });
+    var price = 0;
+    const remain = await RemainingList.findById({
+      _id: `${p_card?.parent_card?._id}`,
+    });
     if (inst_arr?.length > 0) {
       for (let ele of inst_arr) {
         p_card.remaining_array.push({
@@ -13528,59 +14118,62 @@ exports.renderMultipleInstallmentQuery = async (req, res) => {
           appId: remain?.appId,
           isEnable: true,
           installmentValue: ele?.inst_type,
-          fee_heads: [...ele?.fee_heads]
-        }) 
-        price += ele?.inst_price
+          fee_heads: [...ele?.fee_heads],
+        });
+        price += ele?.inst_price;
       }
     }
     for (var val of p_card.remaining_array) {
       if (`${val?._id}` === `${raid}` && val?.status == "Not Paid") {
-        val.remainAmount -= price
+        val.remainAmount -= price;
         if (val?.remainAmount <= 0) {
-          p_card.remaining_array?.pull(val?._id)
+          p_card.remaining_array?.pull(val?._id);
         }
       }
     }
-    remain.is_splited = "Yes"
-    await Promise.all([ p_card.save(), remain.save() ])
-    res.status(200).send({ message: "Explore One Student Single Installment Query", access: true })
+    remain.is_splited = "Yes";
+    await Promise.all([p_card.save(), remain.save()]);
+    res.status(200).send({
+      message: "Explore One Student Single Installment Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderFeeStructureUpdate = async (req, res) => {
   try {
-    const { fsid } = req?.params
-    if (!fsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const structure = await FeeStructure.findById({ _id: fsid })
-    var nums = []
+    const { fsid } = req?.params;
+    if (!fsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const structure = await FeeStructure.findById({ _id: fsid });
+    var nums = [];
     var all = await RemainingList.find({ fee_structure: structure?._id })
       .populate({
-      path: "applicable_card"
+        path: "applicable_card",
       })
       .populate({
-      path: "government_card"
+        path: "government_card",
       })
       .populate({
         path: "student",
-        select: "studentGRNO"
-      })
-    
+        select: "studentGRNO",
+      });
+
     for (var val of all) {
-      nums.push(val?._id)
+      nums.push(val?._id);
       // val.applicable_card.applicable_fee = structure?.applicable_fees
       // val.government_card.applicable_fee = structure?.total_admission_fees - structure?.applicable_fees
       // await Promise.all([ val.applicable_card.save(),val.government_card.save() ])
     }
-    res.status(200).send({ message: "Fees", nums})
-  }
-  catch (e) {
-    
-  }
-}
+    res.status(200).send({ message: "Fees", nums });
+  } catch (e) {}
+};
 
 exports.renderAllReadmissionQuery = async (req, res) => {
   try {
@@ -13599,8 +14192,7 @@ exports.renderAllReadmissionQuery = async (req, res) => {
             path: "student fee_struct appId app_card gov_card",
             match: {
               $or: [
-                {studentFirstName: { $regex: `${search}`, $options: "i" },
-                },
+                { studentFirstName: { $regex: `${search}`, $options: "i" } },
                 {
                   studentMiddleName: { $regex: `${search}`, $options: "i" },
                 },
@@ -13610,7 +14202,7 @@ exports.renderAllReadmissionQuery = async (req, res) => {
                 {
                   valid_full_name: { $regex: `${search}`, $options: "i" },
                 },
-              ]
+              ],
             },
             // select:
             //   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_card government_card applicable_fees structure_month applicationName",
@@ -13667,7 +14259,7 @@ exports.renderAllReadmissionQuery = async (req, res) => {
   } catch (e) {
     console.log(e);
   }
-}
+};
 
 exports.renderAllConfirmedReadmissionQuery = async (req, res) => {
   try {
@@ -13686,8 +14278,7 @@ exports.renderAllConfirmedReadmissionQuery = async (req, res) => {
             path: "student fee_struct appId class",
             match: {
               $or: [
-                {studentFirstName: { $regex: `${search}`, $options: "i" },
-                },
+                { studentFirstName: { $regex: `${search}`, $options: "i" } },
                 {
                   studentMiddleName: { $regex: `${search}`, $options: "i" },
                 },
@@ -13697,7 +14288,7 @@ exports.renderAllConfirmedReadmissionQuery = async (req, res) => {
                 {
                   valid_full_name: { $regex: `${search}`, $options: "i" },
                 },
-              ]
+              ],
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName className classTitle fee_receipt",
@@ -13726,19 +14317,18 @@ exports.renderAllConfirmedReadmissionQuery = async (req, res) => {
         });
       }
     } else {
-      var apply = await Admission.findById({ _id: aid })
-        .populate({
-          path: "confirmedApplication",
-          populate: {
-            path: "student fee_struct appId class",
-            select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName className classTitle fee_receipt",
-              // populate: {
-              //   path: "fee_receipt",
-              //   select: "receipt_file"
-              //   }
-          },
-        });
+      var apply = await Admission.findById({ _id: aid }).populate({
+        path: "confirmedApplication",
+        populate: {
+          path: "student fee_struct appId class",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month applicationName className classTitle fee_receipt",
+          // populate: {
+          //   path: "fee_receipt",
+          //   select: "receipt_file"
+          //   }
+        },
+      });
       var all_select_query = nested_document_limit(
         page,
         limit,
@@ -13747,8 +14337,7 @@ exports.renderAllConfirmedReadmissionQuery = async (req, res) => {
       if (all_select_query?.length > 0) {
         // const selectEncrypt = await encryptionPayload(apply);
         res.status(200).send({
-          message:
-            "Lots of Confirmed Admission From DB 🙌",
+          message: "Lots of Confirmed Admission From DB 🙌",
           fees: all_select_query,
         });
       } else {
@@ -13761,13 +14350,14 @@ exports.renderAllConfirmedReadmissionQuery = async (req, res) => {
   } catch (e) {
     console.log(e);
   }
-}
+};
 
-exports.renderReAdmissionFeesQuery = async(req, res) => {
+exports.renderReAdmissionFeesQuery = async (req, res) => {
   try {
     const { sid, aid } = req.params;
     const { receipt_status } = req.query;
-    const { amount, mode, card_id, rid, type, pay_remain, flow, appId } = req.body;
+    const { amount, mode, card_id, rid, type, pay_remain, flow, appId } =
+      req.body;
     if (!sid && !aid && !amount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -13790,14 +14380,20 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
     const student = await Student.findById({ _id: sid }).populate({
       path: "fee_structure",
     });
-    var all_status = await Status.find({ $and: [{ applicationId: apply?._id}, { student: student?._id }, { payment_status: "Not Paid"}]})
+    var all_status = await Status.find({
+      $and: [
+        { applicationId: apply?._id },
+        { student: student?._id },
+        { payment_status: "Not Paid" },
+      ],
+    });
     var new_remainFee = await RemainingList.findById({ _id: rid })
-    .populate({
-      path: "applicable_card"
-    })
-    .populate({
-      path: "government_card"
-    })
+      .populate({
+        path: "applicable_card",
+      })
+      .populate({
+        path: "government_card",
+      });
     if (flow === "RE_ADMISSION") {
       const user = await User.findById({ _id: `${student.user}` });
       const status = new Status({});
@@ -13805,8 +14401,10 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
       const notify = new StudentNotification({});
       const new_receipt = new FeeReceipt({ ...req.body });
       new_receipt.student = student?._id;
-      new_receipt.fee_structure = new_remainFee?.fee_structure
-      new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+      new_receipt.fee_structure = new_remainFee?.fee_structure;
+      new_receipt.fee_transaction_date = new Date(
+        `${req.body.transaction_date}`
+      );
       new_receipt.application = apply?._id;
       new_receipt.receipt_generated_from = "BY_ADMISSION";
       new_receipt.finance = finance?._id;
@@ -13828,37 +14426,34 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
       order.payment_student_name = student?.valid_full_name;
       order.payment_student_gr = student?.studentGRNO;
       order.fee_receipt = new_receipt?._id;
-      fee_receipt_count_query(institute, new_receipt, order)
+      fee_receipt_count_query(institute, new_receipt, order);
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
       if (`${new_remainFee?.applicable_card?._id}` === `${card_id}`) {
-        const nest_card = await NestedCard.findById({ _id: `${card_id}` })
+        const nest_card = await NestedCard.findById({ _id: `${card_id}` });
         new_remainFee.active_payment_type = `${type}`;
         nest_card.active_payment_type = `${type}`;
         new_remainFee.paid_fee += price;
         nest_card.paid_fee += price;
         if (new_remainFee?.remaining_fee >= price) {
-          new_remainFee.remaining_fee -= price
+          new_remainFee.remaining_fee -= price;
         }
         if (nest_card?.remaining_fee >= price) {
-          nest_card.remaining_fee -= price
-        }
-        else {
-          nest_card.remaining_fee = 0
+          nest_card.remaining_fee -= price;
+        } else {
+          nest_card.remaining_fee = 0;
         }
         if (student.admissionRemainFeeCount >= price) {
-          student.admissionRemainFeeCount -= price
+          student.admissionRemainFeeCount -= price;
         }
         if (apply.remainingFee >= price) {
-          apply.remainingFee -= price
+          apply.remainingFee -= price;
         }
         if (admission.remainingFeeCount >= price) {
-          admission.remainingFeeCount -= price
+          admission.remainingFeeCount -= price;
         }
         var valid_one_time_fees =
-          student?.fee_structure?.applicable_fees - price == 0
-            ? true
-            : false;
+          student?.fee_structure?.applicable_fees - price == 0 ? true : false;
         if (valid_one_time_fees) {
           admission.remainingFee.pull(student._id);
         } else {
@@ -13876,9 +14471,8 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
             institute,
             nest_card,
             type
-          )
-        }
-        else {
+          );
+        } else {
           await render_installment(
             type,
             student,
@@ -13893,12 +14487,17 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
             nest_card
           );
         }
-        await nest_card.save()
+        await nest_card.save();
         if (req.body?.fee_payment_mode === "Government/Scholarship") {
           // New Logic
         } else {
           console.log("Enter");
-          await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+          await set_fee_head_query_redesign(
+            student,
+            new_receipt?.fee_payment_amount,
+            apply?._id,
+            new_receipt
+          );
           // await set_fee_head_query(student, price, apply, new_receipt);
           console.log("Exit");
         }
@@ -13938,9 +14537,9 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
         }
       }
       for (var val of all_status) {
-        val.payment_status = "Paid"
-        val.fee_receipt = new_receipt?._id
-        await val.save()
+        val.payment_status = "Paid";
+        val.fee_receipt = new_receipt?._id;
+        await val.save();
       }
       student.admissionPaidFeeCount += price;
       student.paidFeeList.push({
@@ -13948,7 +14547,7 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
         appId: apply._id,
       });
       status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
-      status.group_by = "Admission_Confirmation"
+      status.group_by = "Admission_Confirmation";
       status.applicationId = apply._id;
       user.applicationStatus.push(status._id);
       status.instituteId = institute._id;
@@ -13976,7 +14575,7 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
             receipt: new_receipt?._id,
             demand_cheque_status: "Requested",
           });
-          admission.fee_receipt_request_count += 1
+          admission.fee_receipt_request_count += 1;
         }
       }
       if (
@@ -14019,9 +14618,9 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
           student: student?._id,
           fee_struct: new_remainFee?.fee_structure,
           appId: apply?._id,
-          class: classes?._id
-        })
-        await class_status(apply, institute, depart, user, classes)
+          class: classes?._id,
+        });
+        await class_status(apply, institute, depart, user, classes);
         await Promise.all([classes.save(), batch.save(), depart.save()]);
       }
       await Promise.all([
@@ -14048,147 +14647,167 @@ exports.renderReAdmissionFeesQuery = async(req, res) => {
         user._id,
         user.deviceToken
       );
-  
     }
-} catch (e) {
+  } catch (e) {
     console.log(e);
   }
-}
+};
 
 exports.render_student_fees_mapping = async (map) => {
   try {
     if (map?.length > 0) {
       for (let ele of map) {
-        const student = await Student.findOne({ studentGRNO: `${ele?.studentGRNO}` })
-        student.fee_category = ele?.fee_category
-        await student.save()
+        const student = await Student.findOne({
+          studentGRNO: `${ele?.studentGRNO}`,
+        });
+        student.fee_category = ele?.fee_category;
+        await student.save();
       }
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderDeleteInstallmentCardQuery = async (req, res) => {
   try {
-    const { nid, rid } = req?.params
-    const { fid } = req?.body
-    if (!nid && !rid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var nest = await NestedCard.findById({ _id: nid })
-    var new_fees = await RemainingList.findById({ _id: `${nest?.parent_card}` })
-    const finance = await Finance.findById({ _id: fid })
+    const { nid, rid } = req?.params;
+    const { fid } = req?.body;
+    if (!nid && !rid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var nest = await NestedCard.findById({ _id: nid });
+    var new_fees = await RemainingList.findById({
+      _id: `${nest?.parent_card}`,
+    });
+    const finance = await Finance.findById({ _id: fid });
     for (var ele of nest?.remaining_array) {
       if (`${ele?._id}` === `${rid}`) {
         if (nest?.paid_fee >= nest?.applicable_fee) {
-          const logs = new DeleteLogs({})
+          const logs = new DeleteLogs({});
           if (ele?.fee_receipt) {
-            var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt })
-            fees.visible_status = "Hide"
-            await fees.save()
+            var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt });
+            fees.visible_status = "Hide";
+            await fees.save();
           }
           if (fees?.order_history) {
-            const order = await OrderPayment.findById({ _id: fees?.order_history })
-            order.payment_visible_status = "Hide"
-            await order.save()
+            const order = await OrderPayment.findById({
+              _id: fees?.order_history,
+            });
+            order.payment_visible_status = "Hide";
+            await order.save();
           }
-          logs.fee_receipt = ele?.fee_receipt
-          logs.nested_card = nest?._id
-          ele.status = "Not Paid"
-          ele.installmentValue = (ele.installmentValue === "All Installment Paid" || ele.installmentValue === "All Installment Paid") ? "Installment Remain" : ele.installmentValue
-          ele.mode = ""
-          ele.fee_receipt = null
+          logs.fee_receipt = ele?.fee_receipt;
+          logs.nested_card = nest?._id;
+          ele.status = "Not Paid";
+          ele.installmentValue =
+            ele.installmentValue === "All Installment Paid" ||
+            ele.installmentValue === "All Installment Paid"
+              ? "Installment Remain"
+              : ele.installmentValue;
+          ele.mode = "";
+          ele.fee_receipt = null;
           if (nest?.paid_fee >= ele?.remainAmount) {
-            nest.paid_fee -= ele?.remainAmount
+            nest.paid_fee -= ele?.remainAmount;
           }
-          nest.remaining_fee += ele?.remainAmount
+          nest.remaining_fee += ele?.remainAmount;
           if (new_fees?.paid_fee >= ele?.remainAmount) {
-            new_fees.paid_fee -= ele?.remainAmount
+            new_fees.paid_fee -= ele?.remainAmount;
           }
-          new_fees.remaining_fee += ele?.remainAmount
-          finance.delete_logs.push(logs?._id)
-          nest?.remaining_array.pull(ele?._id)
-          await logs.save()
+          new_fees.remaining_fee += ele?.remainAmount;
+          finance.delete_logs.push(logs?._id);
+          nest?.remaining_array.pull(ele?._id);
+          await logs.save();
           if (nest?.remaining_fee > 0) {
-              nest.remaining_array.push({
-                installmentValue: "Installment Remain",
-                status: "Not Paid",
-                isEnable: true,
-                appId: new_fees?.appId,
-                instituteId: new_fees?.institute,
-                remainAmount: nest?.remaining_fee
-              })
-          }
-        }
-        else {
-            const logs = new DeleteLogs({})
-            if (ele?.fee_receipt) {
-              var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt })
-              fees.visible_status = "Hide"
-              await fees.save()
-            }
-            if (fees?.order_history) {
-              const order = await OrderPayment.findById({ _id: fees?.order_history })
-              order.payment_visible_status = "Hide"
-              await order.save()
-            }
-            logs.fee_receipt = ele?.fee_receipt
-            logs.nested_card = nest?._id
-            ele.status = "Not Paid"
-            ele.installmentValue = (ele.installmentValue === "All Installment Paid" || ele.installmentValue === "All Installment Paid") ? "Installment Remain" : ele.installmentValue
-            ele.mode = ""
-            ele.fee_receipt = null
-            if (nest?.paid_fee >= ele?.remainAmount) {
-              nest.paid_fee -= ele?.remainAmount
-            }
-            nest.remaining_fee += ele?.remainAmount
-            if (new_fees?.paid_fee >= ele?.remainAmount) {
-              new_fees.paid_fee -= ele?.remainAmount
-            }
-            new_fees.remaining_fee += ele?.remainAmount
-            finance.delete_logs.push(logs?._id)
-            nest?.remaining_array.pull(ele?._id)
-            await logs.save()
-        }
-        if (nest?.remaining_fee > 0) {
-          console.log("Enter")
-          if (ele?.status === "Not Paid") {
-            ele.remainAmount += nest?.remaining_fee
-          }
-          else {
-            console.log("Enter Else")
             nest.remaining_array.push({
               installmentValue: "Installment Remain",
               status: "Not Paid",
               isEnable: true,
               appId: new_fees?.appId,
               instituteId: new_fees?.institute,
-              remainAmount: nest?.remaining_fee
-            })
+              remainAmount: nest?.remaining_fee,
+            });
+          }
+        } else {
+          const logs = new DeleteLogs({});
+          if (ele?.fee_receipt) {
+            var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt });
+            fees.visible_status = "Hide";
+            await fees.save();
+          }
+          if (fees?.order_history) {
+            const order = await OrderPayment.findById({
+              _id: fees?.order_history,
+            });
+            order.payment_visible_status = "Hide";
+            await order.save();
+          }
+          logs.fee_receipt = ele?.fee_receipt;
+          logs.nested_card = nest?._id;
+          ele.status = "Not Paid";
+          ele.installmentValue =
+            ele.installmentValue === "All Installment Paid" ||
+            ele.installmentValue === "All Installment Paid"
+              ? "Installment Remain"
+              : ele.installmentValue;
+          ele.mode = "";
+          ele.fee_receipt = null;
+          if (nest?.paid_fee >= ele?.remainAmount) {
+            nest.paid_fee -= ele?.remainAmount;
+          }
+          nest.remaining_fee += ele?.remainAmount;
+          if (new_fees?.paid_fee >= ele?.remainAmount) {
+            new_fees.paid_fee -= ele?.remainAmount;
+          }
+          new_fees.remaining_fee += ele?.remainAmount;
+          finance.delete_logs.push(logs?._id);
+          nest?.remaining_array.pull(ele?._id);
+          await logs.save();
+        }
+        if (nest?.remaining_fee > 0) {
+          console.log("Enter");
+          if (ele?.status === "Not Paid") {
+            ele.remainAmount += nest?.remaining_fee;
+          } else {
+            console.log("Enter Else");
+            nest.remaining_array.push({
+              installmentValue: "Installment Remain",
+              status: "Not Paid",
+              isEnable: true,
+              appId: new_fees?.appId,
+              instituteId: new_fees?.institute,
+              remainAmount: nest?.remaining_fee,
+            });
           }
         }
       }
     }
-    await Promise.all([nest.save(), new_fees.save(), finance.save()])
-    res.status(200).send({ message: "I Think you press the wrong button", access: true })
+    await Promise.all([nest.save(), new_fees.save(), finance.save()]);
+    res
+      .status(200)
+      .send({ message: "I Think you press the wrong button", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderAllDeleteLogsQuery = async (req, res) => {
   try {
-    const { fid } = req?.params
+    const { fid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var finance = await Finance.findById({ _id: fid })
-      .select("delete_logs")
-    
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var finance = await Finance.findById({ _id: fid }).select("delete_logs");
+
     var all_logs = await DeleteLogs.find({ _id: { $in: finance?.delete_logs } })
       .limit(limit)
       .skip(skip)
@@ -14196,54 +14815,69 @@ exports.renderAllDeleteLogsQuery = async (req, res) => {
         path: "fee_receipt",
         populate: {
           path: "student",
-          select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO"
-        }
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+        },
       })
       .populate({
-        path: "nested_card"
-      })
-    
+        path: "nested_card",
+      });
+
     if (all_logs?.length > 0) {
-      res.status(200).send({ message: "Explore All Delete Logs Query", access: true, all_logs: all_logs })
+      res.status(200).send({
+        message: "Explore All Delete Logs Query",
+        access: true,
+        all_logs: all_logs,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Deleted Logs", access: false, all_logs: [] });
     }
-    else {
-      res.status(200).send({ message: "No Deleted Logs", access: false, all_logs: [] }) 
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_new_student_form_section_query = async (req, res) => {
   try {
-    const { fcid } = req?.params
-    const { form } = req?.body
-    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var iaf = await InstituteApplicationForm.findById({ _id: fcid })
+    const { fcid } = req?.params;
+    const { form } = req?.body;
+    if (!fcid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var iaf = await InstituteApplicationForm.findById({ _id: fcid });
     for (var val of form) {
       iaf.form_section.push({
         section_name: val?.section_name,
         section_visibilty: val?.section_visibilty,
         section_key: val?.section_key,
-      })
+      });
     }
-    await iaf.save()
-    res.status(200).send({ message: "Explore One Application Form Section Query", access: true })
+    await iaf.save();
+    res.status(200).send({
+      message: "Explore One Application Form Section Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_new_student_form_checklist_query = async (req, res) => {
   try {
-    const { fcid } = req?.params
-    const { checklist, fsid } = req?.body
-    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var iaf = await InstituteApplicationForm.findById({ _id: fcid })
+    const { fcid } = req?.params;
+    const { checklist, fsid } = req?.body;
+    if (!fcid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var iaf = await InstituteApplicationForm.findById({ _id: fcid });
     for (var val of iaf?.form_section) {
       if (`${val?._id}` === `${fsid}`) {
         for (var ele of checklist) {
@@ -14254,357 +14888,469 @@ exports.render_new_student_form_checklist_query = async (req, res) => {
             form_checklist_placeholder: ele?.form_checklist_placeholder,
             form_checklist_lable: ele?.form_checklist_lable,
             form_checklist_typo: ele?.form_checklist_typo,
-            form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
+            form_checklist_typo_option_pl: [
+              ...ele?.form_checklist_typo_option_pl,
+            ],
             form_checklist_required: ele?.form_checklist_required,
-            form_checklist_key_status: "DYNAMIC"
-          })
-          if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
-            ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
+            form_checklist_key_status: "DYNAMIC",
+          });
+          if (
+            ele?.form_checklist_typo_option_pl &&
+            ele?.form_checklist_typo_option_pl?.length > 0
+          ) {
+            ele.form_checklist_typo_option_pl = [
+              ...ele?.form_checklist_typo_option_pl,
+            ];
           }
-          fc.application_form = iaf?._id
-          fc.form_section = val?._id
-          val.form_checklist.push(fc?._id)
-          await fc.save()
+          fc.application_form = iaf?._id;
+          fc.form_section = val?._id;
+          val.form_checklist.push(fc?._id);
+          await fc.save();
         }
       }
     }
-    await iaf.save()
-    res.status(200).send({ message: "Explore One Application Form Section Nested Checklist Query", access: true }) 
+    await iaf.save();
+    res.status(200).send({
+      message: "Explore One Application Form Section Nested Checklist Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_edit_student_form_section_query = async (req, res) => {
   try {
-    const { fcid } = req?.params
-    const { fsid, section_name, section_key, section_visibilty } = req?.body
-    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var iaf = await InstituteApplicationForm.findById({ _id: fcid })
+    const { fcid } = req?.params;
+    const { fsid, section_name, section_key, section_visibilty } = req?.body;
+    if (!fcid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var iaf = await InstituteApplicationForm.findById({ _id: fcid });
     for (var val of iaf?.form_section) {
       if (`${val?._id}` === `${fsid}`) {
-        val.section_name = section_name ? section_name : val?.section_name
-        val.section_key = section_key ? section_key : val?.section_key
-        val.section_visibilty = section_visibilty
+        val.section_name = section_name ? section_name : val?.section_name;
+        val.section_key = section_key ? section_key : val?.section_key;
+        val.section_visibilty = section_visibilty;
       }
     }
-    await iaf.save()
-    res.status(200).send({ message: "Edit One Application Form Section + Nested Checklist Query", access: true})
+    await iaf.save();
+    res.status(200).send({
+      message: "Edit One Application Form Section + Nested Checklist Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_edit_student_form_section_checklist_query = async (req, res) => {
   try {
-    const { fcid } = req?.params
-    const { checkID, fsid, form_checklist_visibility, form_checklist_required } = req?.body
-    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { fcid } = req?.params;
+    const {
+      checkID,
+      fsid,
+      form_checklist_visibility,
+      form_checklist_required,
+    } = req?.body;
+    if (!fcid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     var iaf = await InstituteApplicationForm.findById({ _id: fcid })
-    .select("form_section")
+      .select("form_section")
       .populate({
-      path: "form_section.form_checklist"
-      })
+        path: "form_section.form_checklist",
+      });
     for (var val of iaf?.form_section) {
       if (`${val?._id}` === `${fsid}`) {
-          for (var ele of val?.form_checklist) {
-            if (`${ele?._id}` === `${checkID}`) {
-              ele.form_checklist_visibility = form_checklist_visibility
-              ele.form_checklist_required = form_checklist_required
-              await ele.save()
-              if (ele?.form_common_key) {
-                let exist = await FormChecklist.find({ $and: [{ application_form: iaf?._id }, { form_checklist_key: ele?.form_common_key }] })
-                for (let stu of exist) {
-                  stu.form_checklist_visibility = ele?.form_checklist_visibility
-                  await stu.save()
-                }
+        for (var ele of val?.form_checklist) {
+          if (`${ele?._id}` === `${checkID}`) {
+            ele.form_checklist_visibility = form_checklist_visibility;
+            ele.form_checklist_required = form_checklist_required;
+            await ele.save();
+            if (ele?.form_common_key) {
+              let exist = await FormChecklist.find({
+                $and: [
+                  { application_form: iaf?._id },
+                  { form_checklist_key: ele?.form_common_key },
+                ],
+              });
+              for (let stu of exist) {
+                stu.form_checklist_visibility = ele?.form_checklist_visibility;
+                await stu.save();
               }
             }
           }
         }
+      }
     }
-    await iaf.save()
-    res.status(200).send({ message: "Edit One Application Form Section + Nested Checklist Query", access: true})
+    await iaf.save();
+    res.status(200).send({
+      message: "Edit One Application Form Section + Nested Checklist Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_shuffle_student_form_section_query = async (req, res) => {
   try {
-    const { fcid } = req?.params
-    const { shuffle_arr } = req?.body
-    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { fcid } = req?.params;
+    const { shuffle_arr } = req?.body;
+    if (!fcid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     if (shuffle_arr?.length > 0) {
-      var iaf = await InstituteApplicationForm.findById({ _id: fcid })
-      iaf.form_section = []
-      await iaf.save()
-      for(var val of shuffle_arr){
-        iaf.form_section.push(val)
+      var iaf = await InstituteApplicationForm.findById({ _id: fcid });
+      iaf.form_section = [];
+      await iaf.save();
+      for (var val of shuffle_arr) {
+        iaf.form_section.push(val);
       }
-      await iaf.save()
-      res.status(200).send({ message: "Explore Application Form Section Shuffling Query", access: true})
-      }
-    else{
-      res.status(200).send({ message: "No Application Form Section Shuffling Query", access: false})
+      await iaf.save();
+      res.status(200).send({
+        message: "Explore Application Form Section Shuffling Query",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Application Form Section Shuffling Query",
+        access: false,
+      });
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_student_form_section_query = async (req, res) => {
   try {
-    const { fcid } = req?.params
-    if (!fcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { fcid } = req?.params;
+    if (!fcid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     var iaf = await InstituteApplicationForm.findById({ _id: fcid })
       .select("form_section image_content")
       .populate({
-      path: "form_section.form_checklist"
-      })
-      iaf?.form_section?.splice(0, 1)
-      for (let nums of iaf?.form_section) {
-        if (`${nums?.section_key}` === "undertakings" || `${nums?.section_key}` === "antiragging_affidavit" || `${nums?.section_key}` === "antiragging_affidavit_parents") {
-          nums.form_checklist = []
-        }
-        if (`${nums?.section_key}` === "contactDetails") {
-          for (let ele of nums?.form_checklist) {
-            if (`${ele?.form_checklist_typo}` === "Same As") {
-              nums?.form_checklist?.pull(ele?._id)
-            }
+        path: "form_section.form_checklist",
+      });
+    iaf?.form_section?.splice(0, 1);
+    for (let nums of iaf?.form_section) {
+      if (
+        `${nums?.section_key}` === "undertakings" ||
+        `${nums?.section_key}` === "antiragging_affidavit" ||
+        `${nums?.section_key}` === "antiragging_affidavit_parents"
+      ) {
+        nums.form_checklist = [];
+      }
+      if (`${nums?.section_key}` === "contactDetails") {
+        for (let ele of nums?.form_checklist) {
+          if (`${ele?.form_checklist_typo}` === "Same As") {
+            nums?.form_checklist?.pull(ele?._id);
           }
         }
-        if (`${nums?.section_key}` === "documents") {
-          for (let ele of nums?.form_checklist) {
-            if (`${ele?.form_checklist_enable}` === "true") {
-              nums?.form_checklist?.pull(ele?._id)
-            }
-          }
-        }
-        if (`${nums?.section_key}` === "social_reservation_information_section") {
+      }
+      if (`${nums?.section_key}` === "documents") {
         for (let ele of nums?.form_checklist) {
           if (`${ele?.form_checklist_enable}` === "true") {
-            nums?.form_checklist?.pull(ele?._id)
+            nums?.form_checklist?.pull(ele?._id);
           }
         }
       }
+      if (`${nums?.section_key}` === "social_reservation_information_section") {
+        for (let ele of nums?.form_checklist) {
+          if (`${ele?.form_checklist_enable}` === "true") {
+            nums?.form_checklist?.pull(ele?._id);
+          }
+        }
       }
-      iaf.form_section.push(
-        {
-          section_name: "Form Images / Attachment",
-          section_visibilty: true,
-          section_key: "form_attach",
-          section_view: "View Sample",
-          section_pdf: "",
-          section_stats: "form_attach",
-          section_value: "",
-          form_checklist: [...iaf?.image_content]
-      })
-    res.status(200).send({ message: "Explore One Application Student Form Section Query", access: true, section: iaf?.form_section})
+    }
+    iaf.form_section.push({
+      section_name: "Form Images / Attachment",
+      section_visibilty: true,
+      section_key: "form_attach",
+      section_view: "View Sample",
+      section_pdf: "",
+      section_stats: "form_attach",
+      section_value: "",
+      form_checklist: [...iaf?.image_content],
+    });
+    res.status(200).send({
+      message: "Explore One Application Student Form Section Query",
+      access: true,
+      section: iaf?.form_section,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_student_form_section_enable_query = async (req, res) => {
   try {
-    const { id } = req?.params
-    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var app = await NewApplication.findById({ _id: id })
-    .select("student_form_setting")
-    var iaf = await InstituteApplicationForm.findById({ _id: `${app?.student_form_setting}` })
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var app = await NewApplication.findById({ _id: id }).select(
+      "student_form_setting"
+    );
+    var iaf = await InstituteApplicationForm.findById({
+      _id: `${app?.student_form_setting}`,
+    })
       .select("form_section")
       .populate({
-      path: "form_section.form_checklist"
-      })
-    
+        path: "form_section.form_checklist",
+      });
+
     var all_section = iaf?.form_section?.filter((val) => {
-      if(val?.section_visibilty) return val
-    })
+      if (val?.section_visibilty) return val;
+    });
 
     for (var ele of all_section) {
       for (var stu of ele?.form_checklist) {
         if (stu?.form_checklist_visibility) {
-          
-        }
-        else {
-          ele?.form_checklist?.pull(stu?._id)
+        } else {
+          ele?.form_checklist?.pull(stu?._id);
         }
       }
     }
-    res.status(200).send({ message: "Explore One Department Student Form Section Enable Query", access: true, section: all_section})
+    res.status(200).send({
+      message: "Explore One Department Student Form Section Enable Query",
+      access: true,
+      section: all_section,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_fee_receipt_query = async (req, res) => {
   try {
-    await generateFeeReceipt("663c9573f2b92516a81bfb10")
+    await generateFeeReceipt("663c9573f2b92516a81bfb10");
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_add_subject_query = async (req, res) => {
   try {
-    const { aid } = req?.params
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const ads_admin = await Admission.findById({ _id: aid })
-    const new_group = new SubjectGroup({...req?.body})
-    new_group.admission = ads_admin?._id
-    ads_admin.subject_groups.push(new_group?._id)
-    await Promise.all([new_group.save(), ads_admin.save()])
-    res.status(200).send({ message: "New Group Section Query", access: true })
+    const { aid } = req?.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid });
+    const new_group = new SubjectGroup({ ...req?.body });
+    new_group.admission = ads_admin?._id;
+    ads_admin.subject_groups.push(new_group?._id);
+    await Promise.all([new_group.save(), ads_admin.save()]);
+    res.status(200).send({ message: "New Group Section Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_delete_subject_query = async (req, res) => {
   try {
-    const { aid } = req?.params
-    const { sgid } = req?.body
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const ads_admin = await Admission.findById({ _id: aid })
-    const new_group = await SubjectGroup.findById({ _id: sgid })
-    ads_admin.subject_groups.pull(new_group?._id)
-    await ads_admin.save()
-    await SubjectGroup.findByIdAndDelete(sgid)
-    res.status(200).send({ message: "New Group Section Delete Query", access: true })
+    const { aid } = req?.params;
+    const { sgid } = req?.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid });
+    const new_group = await SubjectGroup.findById({ _id: sgid });
+    ads_admin.subject_groups.pull(new_group?._id);
+    await ads_admin.save();
+    await SubjectGroup.findByIdAndDelete(sgid);
+    res
+      .status(200)
+      .send({ message: "New Group Section Delete Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_subject_query = async (req, res) => {
   try {
-    const { aid } = req?.params
+    const { aid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const ads_admin = await Admission.findById({ _id: aid })
-    .select("subject_groups")
-    const all_group = await SubjectGroup.find({ _id: { $in: ads_admin?.subject_groups } })
-      .sort({ created_at: -1})
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "subject_groups"
+    );
+    const all_group = await SubjectGroup.find({
+      _id: { $in: ads_admin?.subject_groups },
+    })
+      .sort({ created_at: -1 })
       .limit(limit)
       .skip(skip)
-    .select("subject_group_name no_of_group")
+      .select("subject_group_name no_of_group");
     if (all_group?.length > 0) {
-      res.status(200).send({ message: "All Group Section Query", access: true, all_group: all_group}) 
+      res.status(200).send({
+        message: "All Group Section Query",
+        access: true,
+        all_group: all_group,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Group Section Query",
+        access: false,
+        all_group: [],
+      });
     }
-    else {
-      res.status(200).send({ message: "No Group Section Query", access: false, all_group: [] }) 
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_subject_query = async (req, res) => {
   try {
-    const { osid } = req?.params
-    if (!osid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const group = await SubjectGroup.findById({ _id: osid })
-      .select("subject_group_name no_of_group")
-      res.status(200).send({ message: "One Group Query", access: false, group}) 
+    const { osid } = req?.params;
+    if (!osid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const group = await SubjectGroup.findById({ _id: osid }).select(
+      "subject_group_name no_of_group"
+    );
+    res.status(200).send({ message: "One Group Query", access: false, group });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_add_subject_group_query = async (req, res) => {
   try {
-    const { sgid } = req?.params
-    const { group_name } = req?.body
-    if (!sgid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const group = await SubjectGroup.findById({ _id: sgid })
-    const group_select = new SubjectGroupSelect({ ...req?.body })
-    group_select.group_name = group_name
-    group_select.subject_group = group?._id
-    group.subject_group_select.push(group_select?._id)
-    await Promise.all([group_select.save(), group.save()])
-    res.status(200).send({ message: "New Group Select Section Query", access: true })
+    const { sgid } = req?.params;
+    const { group_name } = req?.body;
+    if (!sgid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const group = await SubjectGroup.findById({ _id: sgid });
+    const group_select = new SubjectGroupSelect({ ...req?.body });
+    group_select.group_name = group_name;
+    group_select.subject_group = group?._id;
+    group.subject_group_select.push(group_select?._id);
+    await Promise.all([group_select.save(), group.save()]);
+    res
+      .status(200)
+      .send({ message: "New Group Select Section Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_delete_subject_group_query = async (req, res) => {
   try {
-    const { sgid } = req?.params
-    const { ssid } = req?.body
-    if (!sgid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const group = await SubjectGroup.findById({ _id: sgid })
-    const group_select = await SubjectGroupSelect.findById({ _id: ssid })
-    group.subject_group_select.pull(group_select?._id)
-    await group.save()
-    await SubjectGroupSelect.findByIdAndDelete(ssid)
-    res.status(200).send({ message: "New Group Select Section Delete Query", access: true })
+    const { sgid } = req?.params;
+    const { ssid } = req?.body;
+    if (!sgid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const group = await SubjectGroup.findById({ _id: sgid });
+    const group_select = await SubjectGroupSelect.findById({ _id: ssid });
+    group.subject_group_select.pull(group_select?._id);
+    await group.save();
+    await SubjectGroupSelect.findByIdAndDelete(ssid);
+    res
+      .status(200)
+      .send({ message: "New Group Select Section Delete Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_subject_group_query = async (req, res) => {
   try {
-    const { sgid } = req?.params
+    const { sgid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!sgid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const group = await SubjectGroup.findById({ _id: sgid })
-    .select("subject_group_select")
-    const all_group_select = await SubjectGroupSelect.find({ _id: { $in: group?.subject_group_select } })
-      .sort({ created_at: -1})
+    if (!sgid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const group = await SubjectGroup.findById({ _id: sgid }).select(
+      "subject_group_select"
+    );
+    const all_group_select = await SubjectGroupSelect.find({
+      _id: { $in: group?.subject_group_select },
+    })
+      .sort({ created_at: -1 })
       .limit(limit)
       .skip(skip)
-    .select("group_name compulsory_subject_count optional_subject_count subject_group created_at fixed_subject_count")
+      .select(
+        "group_name compulsory_subject_count optional_subject_count subject_group created_at fixed_subject_count"
+      );
     if (all_group_select?.length > 0) {
-      res.status(200).send({ message: "All Group Section Query", access: true, all_group_select: all_group_select}) 
+      res.status(200).send({
+        message: "All Group Section Query",
+        access: true,
+        all_group_select: all_group_select,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Group Section Query",
+        access: false,
+        all_group_select: [],
+      });
     }
-    else {
-      res.status(200).send({ message: "No Group Section Query", access: false, all_group_select: [] }) 
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_subject_group_query = async (req, res) => {
   try {
-    const { osid } = req?.params
-    if (!osid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { osid } = req?.params;
+    if (!osid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     const group = await SubjectGroupSelect.findById({ _id: osid })
-      .select("group_name compulsory_subject_count optional_subject_count subject_group created_at fixed_subject_count")
+      .select(
+        "group_name compulsory_subject_count optional_subject_count subject_group created_at fixed_subject_count"
+      )
       .populate({
         path: "compulsory_subject",
         select: "subjectName",
@@ -14614,58 +15360,71 @@ exports.render_one_subject_group_query = async (req, res) => {
         populate: {
           path: "optional_subject_options optional_subject_options_or.options",
           select: "subjectName",
-        }
+        },
       })
       .populate({
         path: "fixed_subject",
         populate: {
           path: "fixed_subject_options",
           select: "subjectName",
-        }
+        },
       })
       .populate({
         path: "subject_group",
         select: "subject_group_name no_of_group",
-    })
-      res.status(200).send({ message: "One Group Select Query", access: false, group}) 
+      });
+    res
+      .status(200)
+      .send({ message: "One Group Select Query", access: false, group });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_subject_list_query = async (req, res) => {
   try {
-    const { did } = req?.params
+    const { did } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var subject = []
+    var subject = [];
     // const ins = await InstituteAdmin.findById({ _id: id })
     // .select("depart")
-    const all_master = await SubjectMaster.find({ department: did })
-    .select("subjectName")
+    const all_master = await SubjectMaster.find({ department: did }).select(
+      "subjectName"
+    );
     // var all_subjects = await nested_document_limit(page, limit, subject)
-    res.status(200).send({ message: "All Subjects Query", access: false, all_subjects: all_master}) 
+    res.status(200).send({
+      message: "All Subjects Query",
+      access: false,
+      all_subjects: all_master,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_add_subject_group_select_query = async (req, res) => {
   try {
-    const { ssid } = req?.params
-    const { cs, os, fs } = req?.body
-    if (!ssid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const group = await SubjectGroupSelect.findById({ _id: ssid })
+    const { ssid } = req?.params;
+    const { cs, os, fs } = req?.body;
+    if (!ssid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const group = await SubjectGroupSelect.findById({ _id: ssid });
     if (cs?.length > 0) {
       for (var ele of cs) {
-        group.compulsory_subject.push(ele)
-        group.compulsory_subject_count += 1
+        group.compulsory_subject.push(ele);
+        group.compulsory_subject_count += 1;
       }
     }
     if (os?.length > 0) {
@@ -14680,8 +15439,8 @@ exports.render_add_subject_group_select_query = async (req, res) => {
           major_select_max: ele?.major_select_max,
           nested_select_name: ele?.nested_select_name,
           nested_select_min: ele?.nested_select_min,
-        })
-        group.optional_subject_count += 1
+        });
+        group.optional_subject_count += 1;
       }
     }
     if (fs?.length > 0) {
@@ -14695,92 +15454,111 @@ exports.render_add_subject_group_select_query = async (req, res) => {
           major_select_max: ele?.major_select_max,
           nested_select_name: ele?.nested_select_name,
           nested_select_min: ele?.nested_select_min,
-        })
-        group.fixed_subject_count += 1
+        });
+        group.fixed_subject_count += 1;
       }
     }
-    await group.save()
-    res.status(200).send({ message: "New Group Select Subject Section Query", access: true })
+    await group.save();
+    res.status(200).send({
+      message: "New Group Select Subject Section Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_subject_data_query = async (req, res) => {
   try {
-    const { aid } = req?.params
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const ads_admin = await Admission.findById({ _id: aid })
-    .select("subject_groups")
-    const all_group = await SubjectGroup.find({ _id: { $in: ads_admin?.subject_groups } })
-    .select("subject_group_name no_of_group")
+    const { aid } = req?.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "subject_groups"
+    );
+    const all_group = await SubjectGroup.find({
+      _id: { $in: ads_admin?.subject_groups },
+    }).select("subject_group_name no_of_group");
     if (all_group?.length > 0) {
-      res.status(200).send({ message: "All Group Section Query", access: true, all_group: all_group}) 
+      res.status(200).send({
+        message: "All Group Section Query",
+        access: true,
+        all_group: all_group,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Group Section Query",
+        access: false,
+        all_group: [],
+      });
     }
-    else {
-      res.status(200).send({ message: "No Group Section Query", access: false, all_group: [] }) 
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_select_group_query = async (req, res) => {
   try {
-    const { aid } = req?.params
-    const { select } = req?.body
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const app = await NewApplication.findById({ _id: aid })
+    const { aid } = req?.params;
+    const { select } = req?.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const app = await NewApplication.findById({ _id: aid });
     for (let ele of select) {
-      app.subject_selected_group.push(ele)
+      app.subject_selected_group.push(ele);
     }
-    await app.save()
-    res.status(200).send({ message: "Explore Selected Subject "})
+    await app.save();
+    res.status(200).send({ message: "Explore Selected Subject " });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderApplicationPinnedQuery = async (req, res) => {
   try {
-    const { id } = req?.params
-    const { did, type, flow } = req?.body
-    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var one_ins = await Admission.findById({ _id: id })
-    var app = await NewApplication.findById({ _id: did })
+    const { id } = req?.params;
+    const { did, type, flow } = req?.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_ins = await Admission.findById({ _id: id });
+    var app = await NewApplication.findById({ _id: did });
     if (flow === "INDEPENDENT") {
-      one_ins.independent_pinned_application.push(did)
-      app.pin.status = "Pinned"
-      app.pin.flow = "INDEPENDENT"
-      app.pin.flow_id = app?._id
-      await Promise.all([ one_ins.save(), app.save() ])
-    }
-    else if (flow === "DEPENDENT") {
+      one_ins.independent_pinned_application.push(did);
+      app.pin.status = "Pinned";
+      app.pin.flow = "INDEPENDENT";
+      app.pin.flow_id = app?._id;
+      await Promise.all([one_ins.save(), app.save()]);
+    } else if (flow === "DEPENDENT") {
       let is_avail = one_ins?.dependent_pinned_application?.filter((val) => {
-        if(`${val?.section_type}` === `${type}`) return val
-      })
+        if (`${val?.section_type}` === `${type}`) return val;
+      });
       if (is_avail?.length > 0) {
         for (let ele of is_avail) {
-          ele.application.push(did)
-          app.pin.status = "Pinned"
-          app.pin.flow = "DEPENDENT"
-          app.pin.flow_id = app?._id
+          ele.application.push(did);
+          app.pin.status = "Pinned";
+          app.pin.flow = "DEPENDENT";
+          app.pin.flow_id = app?._id;
         }
-      }
-      else {
+      } else {
         one_ins.dependent_pinned_application.push({
           section_type: type,
-          application: did
-        })
-        app.pin.status = "Pinned"
-        app.pin.flow = "DEPENDENT"
-        app.pin.flow_id = app?._id
+          application: did,
+        });
+        app.pin.status = "Pinned";
+        app.pin.flow = "DEPENDENT";
+        app.pin.flow_id = app?._id;
       }
       // if (one_ins?.dependent_pinned_application?.length > 0) {
 
@@ -14793,73 +15571,76 @@ exports.renderApplicationPinnedQuery = async (req, res) => {
       // }
       for (let ele of one_ins.dependent_pinned_application) {
         if (`${ele?.application}` === `${app?._id}`) {
-          app.pin.flow_id = ele?._id
+          app.pin.flow_id = ele?._id;
         }
       }
-      await Promise.all([ one_ins.save(), app.save() ])
+      await Promise.all([one_ins.save(), app.save()]);
     }
-    res.status(200).send({ message: "Explore One Application Query", access: true})
+    res
+      .status(200)
+      .send({ message: "Explore One Application Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.db_delete = async (req, res) => {
   try {
-    const ads = await Admission.findById({ _id: "6618a8d3f96be29bdeddf5ba" })
-    ads.dependent_pinned_application = []
-    await ads.save()
+    const ads = await Admission.findById({ _id: "6618a8d3f96be29bdeddf5ba" });
+    ads.dependent_pinned_application = [];
+    await ads.save();
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderApplicationUnPinnedQuery = async (req, res) => {
   try {
-    const { id } = req?.params
-    const { did, flow } = req?.body
-    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var one_ins = await Admission.findById({ _id: id })
+    const { id } = req?.params;
+    const { did, flow } = req?.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_ins = await Admission.findById({ _id: id });
     if (flow === "INDEPENDENT") {
-      var app = await NewApplication.findById({ _id: did })
-      one_ins.independent_pinned_application.pull(did)
-      app.pin.status = ""
-      app.pin.flow = ""
-      app.pin.flow_id = null
-      await Promise.all([ one_ins.save(), app.save() ])
-    }
-    else if (flow === "DEPENDENT") {
+      var app = await NewApplication.findById({ _id: did });
+      one_ins.independent_pinned_application.pull(did);
+      app.pin.status = "";
+      app.pin.flow = "";
+      app.pin.flow_id = null;
+      await Promise.all([one_ins.save(), app.save()]);
+    } else if (flow === "DEPENDENT") {
       for (var ele of one_ins?.dependent_pinned_application) {
         if (ele?.application?.includes(`${did}`)) {
-          var app = await NewApplication.findById({ _id: did })
-          ele.application.pull(did)
-          app.pin.status = ""
-          app.pin.flow = ""
-          app.pin.flow_id = null
-          await app.save()
-        }
-        else if (`${ele?._id}` === `${did}`) {
+          var app = await NewApplication.findById({ _id: did });
+          ele.application.pull(did);
+          app.pin.status = "";
+          app.pin.flow = "";
+          app.pin.flow_id = null;
+          await app.save();
+        } else if (`${ele?._id}` === `${did}`) {
           for (let val of ele?.application) {
-            var app = await NewApplication.findById({ _id: `${val}` })
-            app.pin.status = ""
-            app.pin.flow = ""
-            app.pin.flow_id = null
-            await app.save()
+            var app = await NewApplication.findById({ _id: `${val}` });
+            app.pin.status = "";
+            app.pin.flow = "";
+            app.pin.flow_id = null;
+            await app.save();
           }
-          one_ins.dependent_pinned_application.pull(did)
+          one_ins.dependent_pinned_application.pull(did);
         }
       }
-      await one_ins.save()
+      await one_ins.save();
     }
-    res.status(200).send({ message: "Explore One Un Pin Application Query", access: true})
+    res
+      .status(200)
+      .send({ message: "Explore One Un Pin Application Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.retieveAdmissionAdminAllApplicationPinned = async (req, res) => {
   try {
@@ -14870,21 +15651,20 @@ exports.retieveAdmissionAdminAllApplicationPinned = async (req, res) => {
     const ins = await InstituteAdmin.findById({ _id: id }).select(
       "admissionDepart"
     );
-    const apply = await Admission.findById({ _id: `${ins?.admissionDepart?.[0]}` })
-    .populate({
+    const apply = await Admission.findById({
+      _id: `${ins?.admissionDepart?.[0]}`,
+    }).populate({
       path: "dependent_pinned_application",
       populate: {
         path: "application",
         populate: {
           path: "applicationDepartment",
           select: "dName photoId photo",
-        }
-      }
-    })
+        },
+      },
+    });
     var nums = await NewApplication.find({
-      $and: [
-        { _id: { $in: apply?.independent_pinned_application } },
-      ],
+      $and: [{ _id: { $in: apply?.independent_pinned_application } }],
     })
       .select(
         "applicationName applicationEndDate applicationTypeStatus receievedApplication pin selectedApplication confirmedApplication admissionAdmin selectCount confirmCount receievedCount allottedApplication allotCount applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch gr_initials cancelApplication cancelCount reviewApplication review_count FeeCollectionApplication fee_collect_count student_form_setting"
@@ -14892,28 +15672,28 @@ exports.retieveAdmissionAdminAllApplicationPinned = async (req, res) => {
       .populate({
         path: "applicationDepartment",
         select: "dName photoId photo",
-      })
-      var list = []
-      // const unique = [...new Set(apply?.dependent_pinned_application.map(item => item.section_type))]
-      for (let val of apply?.dependent_pinned_application) {
-            list.push({
-              type: val?.section_type,
-              apps: val?.application
-            })
-      }
-      
-      const ongoing = [...list, ...nums]
-      const ads_obj = {
-        message: "All Ongoing Application from DB 🙌",
-        // depend: apply?.dependent_pinned_application,
-        // independ: nums,
-        ongoing: ongoing
-      }
-      const adsEncrypt = await encryptionPayload(ads_obj);
-      res.status(200).send({
-        encrypt: adsEncrypt,
-        ads_obj
       });
+    var list = [];
+    // const unique = [...new Set(apply?.dependent_pinned_application.map(item => item.section_type))]
+    for (let val of apply?.dependent_pinned_application) {
+      list.push({
+        type: val?.section_type,
+        apps: val?.application,
+      });
+    }
+
+    const ongoing = [...list, ...nums];
+    const ads_obj = {
+      message: "All Ongoing Application from DB 🙌",
+      // depend: apply?.dependent_pinned_application,
+      // independ: nums,
+      ongoing: ongoing,
+    };
+    const adsEncrypt = await encryptionPayload(ads_obj);
+    res.status(200).send({
+      encrypt: adsEncrypt,
+      ads_obj,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -14935,7 +15715,7 @@ exports.retieveAdmissionAdminAllMergedApplication = async (req, res) => {
       .sort("-createdAt")
       .select(
         "applicationName applicationEndDate applicationTypeStatus receievedApplication selectedApplication confirmedApplication admissionAdmin selectCount confirmCount receievedCount allottedApplication allotCount applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch gr_initials cancelApplication cancelCount reviewApplication review_count FeeCollectionApplication fee_collect_count student_form_setting pin"
-      )
+      );
 
     if (ongoing?.length > 0) {
       const custom_obj = {
@@ -14948,8 +15728,8 @@ exports.retieveAdmissionAdminAllMergedApplication = async (req, res) => {
         fee_collect_count: 0,
         docs_enable: "Yes",
         fee_collect_enable: "Yes",
-        confirm_enable: "Yes"
-      }
+        confirm_enable: "Yes",
+      };
       for (var ref of ongoing) {
         custom_obj.selectCount += ref?.selectedApplication?.length ?? 0;
         custom_obj.confirmCount += ref?.confirmedApplication?.length ?? 0;
@@ -14957,26 +15737,25 @@ exports.retieveAdmissionAdminAllMergedApplication = async (req, res) => {
         custom_obj.allotCount += ref?.allottedApplication?.length ?? 0;
         custom_obj.cancelCount += ref?.cancelApplication?.length ?? 0;
         custom_obj.review_count += ref?.reviewApplication?.length ?? 0;
-        custom_obj.fee_collect_count += ref?.FeeCollectionApplication?.length ?? 0;
+        custom_obj.fee_collect_count +=
+          ref?.FeeCollectionApplication?.length ?? 0;
       }
 
       const ads_obj = {
         message: "All Ongoing Application from DB 🙌",
-        custom_obj: custom_obj
-      }
+        custom_obj: custom_obj,
+      };
       res.status(200).send({
-        ads_obj
+        ads_obj,
       });
     } else {
       const ads_obj = {
-        message: "Dark side in depth nothing to find", 
-        custom_obj: null
-      }
-      res
-        .status(200)
-        .send({
-          ads_obj
-        });
+        message: "Dark side in depth nothing to find",
+        custom_obj: null,
+      };
+      res.status(200).send({
+        ads_obj,
+      });
     }
   } catch (e) {
     console.log(e);
@@ -15000,8 +15779,7 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
             path: "student",
             match: {
               $or: [
-                {studentFirstName: { $regex: `${search}`, $options: "i" },
-                },
+                { studentFirstName: { $regex: `${search}`, $options: "i" } },
                 {
                   studentMiddleName: { $regex: `${search}`, $options: "i" },
                 },
@@ -15012,9 +15790,9 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
                   valid_full_name: { $regex: `${search}`, $options: "i" },
                 },
                 {
-                  form_no: { $regex: `${search}`, $options: "i" }
-                }
-              ]
+                  form_no: { $regex: `${search}`, $options: "i" },
+                },
+              ],
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name form_no new_app",
@@ -15036,12 +15814,15 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
       }
       for (let data of filter_select) {
         if (data?.application) {
-          const apps = await NewApplication.findById({ _id: `${data?.application}` })
-          data.student.new_app.appId = apps?._id
-          data.student.new_app.appName = apps?.applicationName
-          data.student.new_app.applicationDepartment = apps?.applicationDepartment
-          data.student.new_app.applicationBatch = apps?.applicationBatch
-          data.student.new_app.applicationMaster = apps?.applicationMaster
+          const apps = await NewApplication.findById({
+            _id: `${data?.application}`,
+          });
+          data.student.new_app.appId = apps?._id;
+          data.student.new_app.appName = apps?.applicationName;
+          data.student.new_app.applicationDepartment =
+            apps?.applicationDepartment;
+          data.student.new_app.applicationBatch = apps?.applicationBatch;
+          data.student.new_app.applicationMaster = apps?.applicationMaster;
         }
       }
       if (filter_select?.length > 0) {
@@ -15084,12 +15865,15 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
       );
       for (let data of all_select_query) {
         if (data?.application) {
-          const apps = await NewApplication.findById({ _id: `${data?.application}` })
-          data.student.new_app.appId = apps?._id
-          data.student.new_app.appName = apps?.applicationName
-          data.student.new_app.applicationDepartment = apps?.applicationDepartment
-          data.student.new_app.applicationBatch = apps?.applicationBatch
-          data.student.new_app.applicationMaster = apps?.applicationMaster
+          const apps = await NewApplication.findById({
+            _id: `${data?.application}`,
+          });
+          data.student.new_app.appId = apps?._id;
+          data.student.new_app.appName = apps?.applicationName;
+          data.student.new_app.applicationDepartment =
+            apps?.applicationDepartment;
+          data.student.new_app.applicationBatch = apps?.applicationBatch;
+          data.student.new_app.applicationMaster = apps?.applicationMaster;
         }
       }
       if (all_select_query?.length > 0) {
@@ -15121,15 +15905,14 @@ exports.fetchAllFeeCollectedMergedApplication = async (req, res) => {
     if (search) {
       const filter_select = [];
       const apply = await Admission.findById({ _id: aid })
-      .select("FeeCollectionApplication")
+        .select("FeeCollectionApplication")
         .populate({
           path: "FeeCollectionApplication",
           populate: {
             path: "student payment_flow app_card gov_card fee_struct application",
             match: {
               $or: [
-                {studentFirstName: { $regex: `${search}`, $options: "i" },
-                },
+                { studentFirstName: { $regex: `${search}`, $options: "i" } },
                 {
                   studentMiddleName: { $regex: `${search}`, $options: "i" },
                 },
@@ -15140,9 +15923,9 @@ exports.fetchAllFeeCollectedMergedApplication = async (req, res) => {
                   valid_full_name: { $regex: `${search}`, $options: "i" },
                 },
                 {
-                  form_no: { $regex: `${search}`, $options: "i" }
-                }
-              ]
+                  form_no: { $regex: `${search}`, $options: "i" },
+                },
+              ],
             },
             // select:
             //   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber valid_full_name",
@@ -15164,12 +15947,15 @@ exports.fetchAllFeeCollectedMergedApplication = async (req, res) => {
       }
       for (let data of filter_select) {
         if (data?.application?._id) {
-          const apps = await NewApplication.findById({ _id: `${data?.application?._id}` })
-          data.student.new_app.appId = apps?._id
-          data.student.new_app.appName = apps?.applicationName
-          data.student.new_app.applicationDepartment = apps?.applicationDepartment
-          data.student.new_app.applicationBatch = apps?.applicationBatch
-          data.student.new_app.applicationMaster = apps?.applicationMaster
+          const apps = await NewApplication.findById({
+            _id: `${data?.application?._id}`,
+          });
+          data.student.new_app.appId = apps?._id;
+          data.student.new_app.appName = apps?.applicationName;
+          data.student.new_app.applicationDepartment =
+            apps?.applicationDepartment;
+          data.student.new_app.applicationBatch = apps?.applicationBatch;
+          data.student.new_app.applicationMaster = apps?.applicationMaster;
         }
       }
       if (filter_select?.length > 0) {
@@ -15213,12 +15999,15 @@ exports.fetchAllFeeCollectedMergedApplication = async (req, res) => {
       );
       for (let data of all_select_query) {
         if (data?.application?._id) {
-          const apps = await NewApplication.findById({ _id: `${data?.application?._id}` })
-          data.student.new_app.appId = apps?._id
-          data.student.new_app.appName = apps?.applicationName
-          data.student.new_app.applicationDepartment = apps?.applicationDepartment
-          data.student.new_app.applicationBatch = apps?.applicationBatch
-          data.student.new_app.applicationMaster = apps?.applicationMaster
+          const apps = await NewApplication.findById({
+            _id: `${data?.application?._id}`,
+          });
+          data.student.new_app.appId = apps?._id;
+          data.student.new_app.appName = apps?.applicationName;
+          data.student.new_app.applicationDepartment =
+            apps?.applicationDepartment;
+          data.student.new_app.applicationBatch = apps?.applicationBatch;
+          data.student.new_app.applicationMaster = apps?.applicationMaster;
         }
       }
       if (all_select_query?.length > 0) {
@@ -15257,8 +16046,7 @@ exports.fetchAllConfirmedMergedApplication = async (req, res) => {
             path: "student",
             match: {
               $or: [
-                {studentFirstName: { $regex: `${search}`, $options: "i" },
-                },
+                { studentFirstName: { $regex: `${search}`, $options: "i" } },
                 {
                   studentMiddleName: { $regex: `${search}`, $options: "i" },
                 },
@@ -15269,9 +16057,9 @@ exports.fetchAllConfirmedMergedApplication = async (req, res) => {
                   valid_full_name: { $regex: `${search}`, $options: "i" },
                 },
                 {
-                  form_no: { $regex: `${search}`, $options: "i" }
-                }
-              ]
+                  form_no: { $regex: `${search}`, $options: "i" },
+                },
+              ],
             },
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber fee_receipt valid_full_name institute form_no new_app",
@@ -15293,12 +16081,15 @@ exports.fetchAllConfirmedMergedApplication = async (req, res) => {
       }
       for (let data of filter_confirm) {
         if (data?.application) {
-          const apps = await NewApplication.findById({ _id: `${data?.application}` })
-          data.student.new_app.appId = apps?._id
-          data.student.new_app.appName = apps?.applicationName
-          data.student.new_app.applicationDepartment = apps?.applicationDepartment
-          data.student.new_app.applicationBatch = apps?.applicationBatch
-          data.student.new_app.applicationMaster = apps?.applicationMaster
+          const apps = await NewApplication.findById({
+            _id: `${data?.application}`,
+          });
+          data.student.new_app.appId = apps?._id;
+          data.student.new_app.appName = apps?.applicationName;
+          data.student.new_app.applicationDepartment =
+            apps?.applicationDepartment;
+          data.student.new_app.applicationBatch = apps?.applicationBatch;
+          data.student.new_app.applicationMaster = apps?.applicationMaster;
         }
       }
       if (filter_confirm?.length > 0) {
@@ -15341,12 +16132,15 @@ exports.fetchAllConfirmedMergedApplication = async (req, res) => {
       );
       for (let data of all_confirm_query) {
         if (data?.application) {
-          const apps = await NewApplication.findById({ _id: `${data?.application}` })
-          data.student.new_app.appId = apps?._id
-          data.student.new_app.appName = apps?.applicationName
-          data.student.new_app.applicationDepartment = apps?.applicationDepartment
-          data.student.new_app.applicationBatch = apps?.applicationBatch
-          data.student.new_app.applicationMaster = apps?.applicationMaster
+          const apps = await NewApplication.findById({
+            _id: `${data?.application}`,
+          });
+          data.student.new_app.appId = apps?._id;
+          data.student.new_app.appName = apps?.applicationName;
+          data.student.new_app.applicationDepartment =
+            apps?.applicationDepartment;
+          data.student.new_app.applicationBatch = apps?.applicationBatch;
+          data.student.new_app.applicationMaster = apps?.applicationMaster;
         }
       }
       if (all_confirm_query?.length > 0) {
@@ -15370,27 +16164,32 @@ exports.fetchAllConfirmedMergedApplication = async (req, res) => {
 
 exports.form = async (req, res) => {
   try {
-    const { sid } = req?.params
-    const { id, aid } = req?.body
-    const student = await Student.findById({ _id: sid })
-    const institute = await InstituteAdmin.findById({ _id: id })
-    const apply = await NewApplication.findById({ _id: aid })
+    const { sid } = req?.params;
+    const { id, aid } = req?.body;
+    const student = await Student.findById({ _id: sid });
+    const institute = await InstituteAdmin.findById({ _id: id });
+    const apply = await NewApplication.findById({ _id: aid });
     await generateStudentAdmissionForm(
       student?._id,
       institute?._id,
-      `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
-      `${apply?.applicationName}`,
+      `${student?.studentFirstName} ${
+        student?.studentMiddleName
+          ? student?.studentMiddleName
+          : student?.studentFatherName
+          ? student?.studentFatherName
+          : ""
+      } ${student?.studentLastName}`,
+      `${apply?.applicationName}`
     );
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.retieveAdmissionAdminInsertion = async (req, res) => {
   try {
     const { aid } = req.params;
-    const apply = await Admission.findById({ _id: aid })
+    const apply = await Admission.findById({ _id: aid });
     var ongoing = await NewApplication.find({
       $and: [
         { _id: { $in: apply.newApplication } },
@@ -15401,7 +16200,7 @@ exports.retieveAdmissionAdminInsertion = async (req, res) => {
       .sort("-createdAt")
       .select(
         "selectedApplication confirmedApplication admissionProcess application_flow applicationBatch gr_initials cancelApplication cancelCount reviewApplication review_count FeeCollectionApplication fee_collect_count student_form_setting pin"
-    )
+      );
 
     // apply.selectedApplication = []
     // apply.confirmedApplication_query = []
@@ -15413,8 +16212,8 @@ exports.retieveAdmissionAdminInsertion = async (req, res) => {
           fee_remain: ele?.fee_remain,
           revert_request_status: ele?.revert_request_status,
           application: all?._id,
-          staff: ele?.staff
-        })
+          staff: ele?.staff,
+        });
       }
     }
     for (let all of ongoing) {
@@ -15428,8 +16227,8 @@ exports.retieveAdmissionAdminInsertion = async (req, res) => {
           status_id: ele?.status_id,
           revert_request_status: ele?.revert_request_status,
           fee_struct: ele?.fee_struct,
-          application: all?._id
-        })
+          application: all?._id,
+        });
       }
     }
     for (let all of ongoing) {
@@ -15439,12 +16238,12 @@ exports.retieveAdmissionAdminInsertion = async (req, res) => {
           payment_status: ele?.payment_status,
           install_type: ele?.install_type,
           fee_remain: ele?.fee_remain,
-          application: all?._id
-        })
+          application: all?._id,
+        });
       }
     }
-    await apply.save()
-    res.status(200).send({ message: "Insertion Completed", apply})
+    await apply.save();
+    res.status(200).send({ message: "Insertion Completed", apply });
   } catch (e) {
     console.log(e);
   }
@@ -15458,8 +16257,10 @@ exports.retrieve_admission_revertion_query = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         select_status: false,
       });
-    var new_apply = await NewApplication.findById({ _id: aid })
-    var ads_admin = await Admission.findById({ _id: `${new_apply?.admissionAdmin}` })
+    var new_apply = await NewApplication.findById({ _id: aid });
+    var ads_admin = await Admission.findById({
+      _id: `${new_apply?.admissionAdmin}`,
+    });
     for (let ele of new_apply?.selectedApplication) {
       // console.log(ele?.revert_request_status)
       const student = await Student.findById({ _id: ele?.student });
@@ -15479,13 +16280,13 @@ exports.retrieve_admission_revertion_query = async (req, res) => {
       }
       user.applicationStatus.pull(status?._id);
       await Status.findByIdAndDelete(status?._id);
-      await user.save()
+      await user.save();
     }
-    await Promise.all([ads_admin.save(), new_apply.save()])
+    await Promise.all([ads_admin.save(), new_apply.save()]);
     res.status(200).send({
       message: `Revert Back To Receieved Application`,
       access: true,
-      new_apply: new_apply?.selectedApplication
+      new_apply: new_apply?.selectedApplication,
     });
   } catch (e) {
     console.log(e);
@@ -15503,72 +16304,81 @@ exports.retrieve_admission_revertion_reject_query = async (req, res) => {
     var apply = await NewApplication.findById({ _id: aid });
     var admission_admin = await Admission.findById({
       _id: `${apply?.admissionAdmin}`,
-    }).populate({
-      path: "admissionAdminHead",
-      select: "user",
     })
+      .populate({
+        path: "admissionAdminHead",
+        select: "user",
+      })
       .populate({
         path: "institute",
         select: "insName",
-      })
+      });
     for (let ele of apply?.receievedApplication) {
-    const student = await Student.findById({ _id: ele?.student })
-    var user = await User.findById({ _id: `${student?.user}` });
-    const status = new Status({});
-    const notify = new StudentNotification({});
+      const student = await Student.findById({ _id: ele?.student });
+      var user = await User.findById({ _id: `${student?.user}` });
+      const status = new Status({});
+      const notify = new StudentNotification({});
       if (`${ele.student}` === `${student._id}`) {
         apply.receievedApplication.pull(ele._id);
         user.applyApplication.pull(apply?._id);
       }
-    if (apply.receievedCount > 0) {
-      apply.receievedCount -= 1;
-    }
-    status.content = `You have been rejected for ${apply.applicationName}. Reason - Time limit for document submission is over.`;
-    status.applicationId = apply._id;
-    status.studentId = student._id;
-    status.student = student._id;
-    user.applicationStatus.push(status._id);
-    if (user?.applyApplication?.includes(`${apply?._id}`)) {
-      user.applyApplication.pull(apply?._id);
-    }
+      if (apply.receievedCount > 0) {
+        apply.receievedCount -= 1;
+      }
+      status.content = `You have been rejected for ${apply.applicationName}. Reason - Time limit for document submission is over.`;
+      status.applicationId = apply._id;
+      status.studentId = student._id;
+      status.student = student._id;
+      user.applicationStatus.push(status._id);
+      if (user?.applyApplication?.includes(`${apply?._id}`)) {
+        user.applyApplication.pull(apply?._id);
+      }
       apply.reject_student.push({
         student: student?._id,
-        reason: "Time limit for document submission is over."
-      })
-    status.instituteId = admission_admin?.institute;
-    notify.notifyContent = `You have been rejected for ${apply.applicationName}. Reason - Time limit for document submission is over.`;
-    notify.notifySender = admission_admin?.admissionAdminHead?.user;
-    notify.notifyReceiever = user?._id;
-    notify.notifyType = "Student";
-    notify.notifyPublisher = student?._id;
-    user.activity_tab.push(notify?._id);
-    notify.notifyByAdmissionPhoto = admission_admin?._id;
-    notify.notifyCategory = "Status Alert";
-    notify.redirectIndex = 29;
-    await Promise.all([
-      apply.save(),
-      student.save(),
-      user.save(),
-      status.save(),
-      notify.save(),
-    ]);
-    invokeMemberTabNotification(
-      "Admission Status",
-      status.content,
-      "Application Status",
-      user._id,
-      user.deviceToken
-    );
-    let name = `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`
-    if (student?.studentEmail) {
-      email_sms_designation_application(student?.studentEmail, name, apply?.applicationName, "Time limit for document submission is over.", admission_admin?.institute?.insName)
+        reason: "Time limit for document submission is over.",
+      });
+      status.instituteId = admission_admin?.institute;
+      notify.notifyContent = `You have been rejected for ${apply.applicationName}. Reason - Time limit for document submission is over.`;
+      notify.notifySender = admission_admin?.admissionAdminHead?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByAdmissionPhoto = admission_admin?._id;
+      notify.notifyCategory = "Status Alert";
+      notify.redirectIndex = 29;
+      await Promise.all([
+        apply.save(),
+        student.save(),
+        user.save(),
+        status.save(),
+        notify.save(),
+      ]);
+      invokeMemberTabNotification(
+        "Admission Status",
+        status.content,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
+      let name = `${student?.studentFirstName} ${
+        student?.studentMiddleName ?? ""
+      } ${student?.studentLastName}`;
+      if (student?.studentEmail) {
+        email_sms_designation_application(
+          student?.studentEmail,
+          name,
+          apply?.applicationName,
+          "Time limit for document submission is over.",
+          admission_admin?.institute?.insName
+        );
+      }
     }
-    }
-    await apply.save()
+    await apply.save();
     res.status(200).send({
       message: `Best of luck for next time 😥`,
       cancel_status: true,
-      apply: apply?.receievedApplication
+      apply: apply?.receievedApplication,
     });
   } catch (e) {
     console.log(e);
@@ -15578,7 +16388,7 @@ exports.retrieve_admission_revertion_reject_query = async (req, res) => {
 exports.retrieveAdmissionCancelApplicationModify = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { reason, staffId } = req?.body
+    const { reason, staffId } = req?.body;
     if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -15587,22 +16397,29 @@ exports.retrieveAdmissionCancelApplicationModify = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid });
     const admission_admin = await Admission.findById({
       _id: `${apply?.admissionAdmin}`,
-    }).populate({
-      path: "admissionAdminHead",
-      select: "user",
     })
-    .populate({
-      path: "institute",
-      select: "insName",
-    })
-    const student = await Student.findById({ _id: sid })
+      .populate({
+        path: "admissionAdminHead",
+        select: "user",
+      })
+      .populate({
+        path: "institute",
+        select: "insName",
+      });
+    const student = await Student.findById({ _id: sid });
     var user = await User.findById({ _id: `${student?.user}` });
     const status = new Status({});
     const notify = new StudentNotification({});
-    const all_status = await Status.find({ $and: [{ _id: { $in: user?.applicationStatus}},{ applicationId: apply?._id}, { group_by: "Admission_Application_Applied"}]})
+    const all_status = await Status.find({
+      $and: [
+        { _id: { $in: user?.applicationStatus } },
+        { applicationId: apply?._id },
+        { group_by: "Admission_Application_Applied" },
+      ],
+    });
     for (let app of apply.receievedApplication) {
       if (`${app.student}` === `${student._id}`) {
-        app.reject_status = reason
+        app.reject_status = reason;
         // apply.receievedApplication.pull(app._id);
         // user.applyApplication.pull(apply?._id);
       } else {
@@ -15622,8 +16439,8 @@ exports.retrieveAdmissionCancelApplicationModify = async (req, res) => {
     student.student_application_obj.push({
       app: apply?._id,
       staff: staffId,
-      flow: "reject_by"
-    })
+      flow: "reject_by",
+    });
     status.instituteId = admission_admin?.institute;
     notify.notifyContent = `You have been rejected for ${apply.applicationName}. ${reason}`;
     notify.notifySender = admission_admin?.admissionAdminHead?.user;
@@ -15635,9 +16452,9 @@ exports.retrieveAdmissionCancelApplicationModify = async (req, res) => {
     notify.notifyCategory = "Status Alert";
     notify.redirectIndex = 29;
     for (let ele of all_status) {
-      ele.rejection_modification = "Enable"
-      ele.rejection_reason = reason
-      await ele.save()
+      ele.rejection_modification = "Enable";
+      ele.rejection_reason = reason;
+      await ele.save();
     }
     await Promise.all([
       apply.save(),
@@ -15657,9 +16474,17 @@ exports.retrieveAdmissionCancelApplicationModify = async (req, res) => {
       user._id,
       user.deviceToken
     );
-    let name = `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`
+    let name = `${student?.studentFirstName} ${
+      student?.studentMiddleName ?? ""
+    } ${student?.studentLastName}`;
     if (student?.studentEmail) {
-      email_sms_designation_application(student?.studentEmail, name, apply?.applicationName, reason, admission_admin?.institute?.insName)
+      email_sms_designation_application(
+        student?.studentEmail,
+        name,
+        apply?.applicationName,
+        reason,
+        admission_admin?.institute?.insName
+      );
     }
   } catch (e) {
     console.log(e);
@@ -15668,14 +16493,23 @@ exports.retrieveAdmissionCancelApplicationModify = async (req, res) => {
 
 exports.render_subject_select_query = async (req, res) => {
   try {
-    const { aid } = req?.params
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const apply = await NewApplication.findById({ _id: aid })
-      .select("subject_selected_group")
+    const { aid } = req?.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const apply = await NewApplication.findById({ _id: aid }).select(
+      "subject_selected_group"
+    );
     if (apply?.subject_selected_group?.length > 0) {
-      const all_group = await SubjectGroup.findById({ _id: `${apply?.subject_selected_group}` })
-      const all_group_select = await SubjectGroupSelect.find({ subject_group: { $in: all_group } })
+      const all_group = await SubjectGroup.findById({
+        _id: `${apply?.subject_selected_group}`,
+      });
+      const all_group_select = await SubjectGroupSelect.find({
+        subject_group: { $in: all_group },
+      })
         .populate({
           path: "compulsory_subject",
           select: "subjectName",
@@ -15685,204 +16519,232 @@ exports.render_subject_select_query = async (req, res) => {
           populate: {
             path: "optional_subject_options optional_subject_options_or.options",
             select: "subjectName",
-          }
+          },
         })
         .populate({
           path: "fixed_subject",
           populate: {
             path: "fixed_subject_options",
             select: "subjectName",
-          }
-        })
-      var subject_list = []
+          },
+        });
+      var subject_list = [];
       for (let ele of all_group_select) {
-        subject_list.push(...ele?.compulsory_subject)
+        subject_list.push(...ele?.compulsory_subject);
       }
       for (let ele of all_group_select) {
         for (let val of ele?.fixed_subject) {
-          subject_list.push(...val?.fixed_subject_options)
+          subject_list.push(...val?.fixed_subject_options);
         }
       }
       for (let ele of all_group_select) {
         for (let val of ele?.optional_subject) {
-          subject_list.push(...val?.optional_subject_options)
+          subject_list.push(...val?.optional_subject_options);
         }
         for (let val of ele?.optional_subject) {
           for (let stu of val?.optional_subject_options_or) {
-            subject_list.push(...stu?.options)
+            subject_list.push(...stu?.options);
           }
         }
       }
-      const unique = [...new Set(subject_list.map(item => item._id))];
-      const all_subjects = await SubjectMaster.find({ _id: { $in: unique } })
-        .select("subjectName")
-      res.status(200).send({ message: "Explore All Subject Master Query", access: true, subject: all_subjects })
+      const unique = [...new Set(subject_list.map((item) => item._id))];
+      const all_subjects = await SubjectMaster.find({
+        _id: { $in: unique },
+      }).select("subjectName");
+      res.status(200).send({
+        message: "Explore All Subject Master Query",
+        access: true,
+        subject: all_subjects,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Explore All Subject Master Query",
+        access: true,
+        subject: [],
+      });
     }
-    else {
-      res.status(200).send({ message: "No Explore All Subject Master Query", access: true, subject: [] })
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_subject_student_query = async (req, res) => {
   try {
-    const { sid, aid } = req?.params
+    const { sid, aid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const one_subject = await SubjectMaster.findById({ _id: sid })
-    const apply = await NewApplication.findById({ _id: aid })
+    const one_subject = await SubjectMaster.findById({ _id: sid });
+    const apply = await NewApplication.findById({ _id: aid });
     // const nums = [aid]
     // const all_user = await User.find({ applyApplication: { $in: nums } })
-    let numss = []
+    let numss = [];
     for (let ele of apply?.confirmedApplication) {
-      numss.push(ele?.student)
+      numss.push(ele?.student);
     }
     for (let ele of apply?.allottedApplication) {
-      numss.push(ele?.student)
+      numss.push(ele?.student);
     }
-    let subject_num = [...numss, ...apply?.reviewApplication]
+    let subject_num = [...numss, ...apply?.reviewApplication];
     const all_student = await Student.find({ _id: { $in: subject_num } })
-      .select("studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO")
+      .select(
+        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+      )
       .populate({
         path: "user",
-        select: "userLegalName username"
+        select: "userLegalName username",
       })
-    .populate({
-      path: "student_optional_subject",
-      select: "subjectName"
-    })
-    .populate({
-      path: "major_subject",
-      select: "subjectName"
-    })
-    .populate({
-      path: "nested_subject",
-      select: "subjectName"
-    })
-    var n = []
+      .populate({
+        path: "student_optional_subject",
+        select: "subjectName",
+      })
+      .populate({
+        path: "major_subject",
+        select: "subjectName",
+      })
+      .populate({
+        path: "nested_subject",
+        select: "subjectName",
+      });
+    var n = [];
     for (let val of all_student) {
       for (let ele of val?.student_optional_subject) {
-        if(`${ele?._id}` === `${one_subject?._id}`)
-        n.push(val)
+        if (`${ele?._id}` === `${one_subject?._id}`) n.push(val);
       }
       for (let val of all_student) {
         for (let ele of val?.major_subject) {
           if (`${ele?._id}` === `${one_subject?._id}`) {
-            n.push(val)
+            n.push(val);
           }
         }
       }
-        for (let val of all_student) {
-          for (let ele of val?.nested_subject) {
-            if (`${ele?._id}` === `${one_subject?._id}`) {
-              n.push(val)
-            }
+      for (let val of all_student) {
+        for (let ele of val?.nested_subject) {
+          if (`${ele?._id}` === `${one_subject?._id}`) {
+            n.push(val);
           }
         }
+      }
     }
-    const unique = [...new Set(n.map(item => item._id))];
+    const unique = [...new Set(n.map((item) => item._id))];
     const all = await Student.find({ _id: { $in: unique } })
-      .select("studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO")
+      .select(
+        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+      )
       .populate({
         path: "user",
-        select: "userLegalName username"
-      })
-      const all_students = await nested_document_limit(page, limit, all)
-    res.status(200).send({ message: "Explore All Students Master Query", access: true, student: all_students?.length > 0 ? all_students : [], student_count: unique?.length})
-
+        select: "userLegalName username",
+      });
+    const all_students = await nested_document_limit(page, limit, all);
+    res.status(200).send({
+      message: "Explore All Students Master Query",
+      access: true,
+      student: all_students?.length > 0 ? all_students : [],
+      student_count: unique?.length,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.spce_student_name_sequencing = async (list) => {
   try {
-    var i = 0
+    var i = 0;
     for (let ele of list) {
-      const student = await Student.findOne({ studentGRNO: ele?.studentGRNO })
+      const student = await Student.findOne({ studentGRNO: ele?.studentGRNO });
       if (student?._id) {
-        student.studentFirstName = ele?.studentFirstName
-        student.studentFatherName = ele?.studentFatherName
-        student.studentMiddleName = ele?.studentFatherName
-        student.studentLastName = ele?.studentLastName
-        await student.save()
-        console.log(i)
-        i+= 1
-      }
-      else {
-        console.log("Student Data Not Updated", student?._id)
+        student.studentFirstName = ele?.studentFirstName;
+        student.studentFatherName = ele?.studentFatherName;
+        student.studentMiddleName = ele?.studentFatherName;
+        student.studentLastName = ele?.studentLastName;
+        await student.save();
+        console.log(i);
+        i += 1;
+      } else {
+        console.log("Student Data Not Updated", student?._id);
       }
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_subject_change_student_query = async (req, res) => {
   try {
-    const { sid } = req?.params
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    await Student.findByIdAndUpdate(sid, req?.body)
-    res.status(200).send({ message: "Explore Student Subject Change Query", access: true})
+    const { sid } = req?.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await Student.findByIdAndUpdate(sid, req?.body);
+    res
+      .status(200)
+      .send({ message: "Explore Student Subject Change Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_fee_receipt_change_student_query = async (req, res) => {
   try {
-    const { fid } = req?.params
-    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const receipt = await FeeReceipt.findById({ _id: fid })
-    const student = await Student.findById({ _id: `${receipt?.student}` })
-    const order = await OrderPayment.findOne({ fee_receipt: receipt?._id })
-    const remaining = await RemainingList.findOne({ $and: [{ appId: receipt?.application }, { student: student?._id }] })
-    const nest_app = await NestedCard.findById({ _id: remaining?.applicable_card })
-    const nest_gov = await NestedCard.findById({ _id: remaining?.government_card })
+    const { fid } = req?.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const receipt = await FeeReceipt.findById({ _id: fid });
+    const student = await Student.findById({ _id: `${receipt?.student}` });
+    const order = await OrderPayment.findOne({ fee_receipt: receipt?._id });
+    const remaining = await RemainingList.findOne({
+      $and: [{ appId: receipt?.application }, { student: student?._id }],
+    });
+    const nest_app = await NestedCard.findById({
+      _id: remaining?.applicable_card,
+    });
+    const nest_gov = await NestedCard.findById({
+      _id: remaining?.government_card,
+    });
     if (nest_app?.paid_fee > nest_app?.applicable_fee) {
-      nest_app.paid_fee -= receipt?.fee_payment_amount
+      nest_app.paid_fee -= receipt?.fee_payment_amount;
     }
     if (remaining?.paid_fee > remaining?.applicable_fee) {
-      remaining.paid_fee -= receipt?.fee_payment_amount
+      remaining.paid_fee -= receipt?.fee_payment_amount;
     }
     if (nest_gov?.paid_fee > nest_gov?.applicable_fee) {
-      nest_gov.paid_fee -= receipt?.fee_payment_amount
+      nest_gov.paid_fee -= receipt?.fee_payment_amount;
     }
     for (let ele of nest_app?.remaining_array) {
       if (`${ele?.fee_receipt}` === `${receipt?._id}`) {
         if (nest_app?.paid_fee >= ele?.remainAmount) {
-          nest_app.paid_fee -= ele?.remainAmount
+          nest_app.paid_fee -= ele?.remainAmount;
         }
         if (remaining?.paid_fee >= ele?.remainAmount) {
-          remaining.paid_fee -= ele?.remainAmount
+          remaining.paid_fee -= ele?.remainAmount;
         }
-        nest_app.remaining_fee += ele?.remainAmount
-        remaining.remaining_fee += ele?.remainAmount
-        nest_app.remaining_array.pull(ele?._id)
+        nest_app.remaining_fee += ele?.remainAmount;
+        remaining.remaining_fee += ele?.remainAmount;
+        nest_app.remaining_array.pull(ele?._id);
         if (nest_app?.remaining_fee > 0) {
           if (ele?.status === "Not Paid") {
-            
-          }
-          else {
+          } else {
             nest_app.remaining_array.push({
               installmentValue: "Installment Remain",
               status: "Not Paid",
               isEnable: true,
               appId: remaining?.appId,
               instituteId: remaining?.institute,
-              remainAmount: nest_app?.remaining_fee
-            })
+              remainAmount: nest_app?.remaining_fee,
+            });
           }
         }
       }
@@ -15890,40 +16752,39 @@ exports.render_one_fee_receipt_change_student_query = async (req, res) => {
     for (let ele of nest_gov?.remaining_array) {
       if (`${ele?.fee_receipt}` === `${receipt?._id}`) {
         if (nest_gov?.paid_fee >= ele?.remainAmount) {
-          nest_gov.paid_fee -= ele?.remainAmount
+          nest_gov.paid_fee -= ele?.remainAmount;
         }
         if (remaining?.paid_fee >= ele?.remainAmount) {
-          remaining.paid_fee -= ele?.remainAmount
+          remaining.paid_fee -= ele?.remainAmount;
         }
-        nest_gov.remaining_fee += ele?.remainAmount
-        remaining.remaining_fee += ele?.remainAmount
-        nest_gov.remaining_array.pull(ele?._id)
+        nest_gov.remaining_fee += ele?.remainAmount;
+        remaining.remaining_fee += ele?.remainAmount;
+        nest_gov.remaining_array.pull(ele?._id);
         if (nest_gov?.remaining_fee > 0) {
           if (ele?.status === "Not Paid") {
-            
-          }
-          else {
+          } else {
             nest_gov.remaining_array.push({
               installmentValue: "Installment Remain",
               status: "Not Paid",
               isEnable: true,
               appId: remaining?.appId,
               instituteId: remaining?.institute,
-              remainAmount: nest_gov?.remaining_fee
-            })
+              remainAmount: nest_gov?.remaining_fee,
+            });
           }
         }
       }
     }
-    await Promise.all([ nest_app.save(), nest_gov.save(), remaining.save()])
-    await FeeReceipt.findByIdAndDelete(receipt?._id)
-    await OrderPayment.findByIdAndDelete(order?._id)
-    res.status(200).send({ message: "Explore Student Subject Change Query", access: true})
+    await Promise.all([nest_app.save(), nest_gov.save(), remaining.save()]);
+    await FeeReceipt.findByIdAndDelete(receipt?._id);
+    await OrderPayment.findByIdAndDelete(order?._id);
+    res
+      .status(200)
+      .send({ message: "Explore Student Subject Change Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.retrieveClassAllotQueryReverse = async (req, res) => {
   try {
@@ -15945,18 +16806,23 @@ exports.retrieveClassAllotQueryReverse = async (req, res) => {
       _id: `${apply.applicationDepartment}`,
     });
     var batch = await Batch.findById({ _id: `${apply.applicationBatch}` });
-    var nums = []
+    var nums = [];
     for (let ele of apply?.allottedApplication) {
-      nums.push(ele?.student)
+      nums.push(ele?.student);
     }
     if (nums?.length > 0) {
       for (var sid of nums) {
         const student = await Student.findById({ _id: sid });
         if (student?.studentClass != null) {
           var classes = await Class.findById({ _id: student?.studentClass });
-          const all_subjects = await Subject.find({ $and: [{ class: classes?._id }, { subjectMasterName: { $in: student?.student_optional_subject } }] })
+          const all_subjects = await Subject.find({
+            $and: [
+              { class: classes?._id },
+              { subjectMasterName: { $in: student?.student_optional_subject } },
+            ],
+          });
           // apply.reviewApplication.pull(student._id);
-          apply.undo_student.push(student?._id)
+          apply.undo_student.push(student?._id);
           // apply.allottedApplication.push({
           //   student: student._id,
           //   payment_status: "offline",
@@ -15997,7 +16863,7 @@ exports.retrieveClassAllotQueryReverse = async (req, res) => {
           batch.ApproveStudent.pull(student._id);
           student.batches = null;
           if (all_subjects?.length > 0) {
-            student.student_optional_subject_access = "Yes"
+            student.student_optional_subject_access = "Yes";
             for (let ele of all_subjects) {
               ele.optionalStudent.pull(student?._id);
               await ele.save();
@@ -16049,19 +16915,19 @@ exports.retrieveClassAllotQueryReverse = async (req, res) => {
       res.status(200).send({
         message: `Distribute sweets to all family members`,
         allot_status: true,
-        apply: apply?.undo_student
+        apply: apply?.undo_student,
       });
     }
     // var i =0
     // for (let ele of apply?.undo_student) {
     //   if (apply.reviewApplication?.includes(`${ele?._id}`)) {
-        
+
     //   }
     //   else {
     //     apply.reviewApplication.push(ele?._id)
     //   }
     //   console.log(i)
-    //   i+=1 
+    //   i+=1
     // }
     // await apply.save()
     // res.status(200).send({
@@ -16129,37 +16995,44 @@ exports.subject_student_class = async (req, res) => {
     //   "668f99ded8e2ed1572b14087",
     //   "6690eab2cc7120d68e9d1aeb"
     // ]
-    const all_student = await Student.find({ _id: { $in: nums} })
-      .select("_id student_optional_subject")
-    var subject_2 = "6640d3950728cf14e8bfab1f"
+    const all_student = await Student.find({ _id: { $in: nums } }).select(
+      "_id student_optional_subject"
+    );
+    var subject_2 = "6640d3950728cf14e8bfab1f";
     for (let ele of all_student) {
       // if (ele?.student_optional_subject?.includes(`${subject}`)) {
-        ele.student_optional_subject.push(subject_2)
-        await ele.save()
+      ele.student_optional_subject.push(subject_2);
+      await ele.save();
       // }
     }
-    res.status(200).send({ message: "Explore Apps", all_student, len: all_student?.length})
+    res
+      .status(200)
+      .send({ message: "Explore Apps", all_student, len: all_student?.length });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.staff_name_only = async (req, res) => {
   try {
-    const { sid } = req?.params
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { sid } = req?.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     const student = await Student.findById({ _id: sid })
       .select("student_application_obj student_form_flow")
       .populate({
         path: "student_application_obj.staff",
-        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
       })
       .lean()
-    .exec()
-    
-    let list = []
+      .exec();
+
+    let list = [];
     // let nums = [
     //   { request_by: "Accepted By"},
     //   { select_by: "Selected By"},
@@ -16177,153 +17050,220 @@ exports.staff_name_only = async (req, res) => {
       for (let ele of student?.student_application_obj?.reverse()) {
         if (`${student?.student_form_flow?.did}` === `${ele?.app}`) {
           list.push({
-            key: ele?.flow === "request_by" ? "Accepted By" : ele?.flow === "select_by" ? "Selected By" : ele?.flow === "confirm_by" ? "Confirmed By" : ele?.flow === "fee_collect_by" ? "Fee Collected By" : ele?.flow === "review_by" ? "Reviewed By" : ele?.flow === "allot_by" ? "Allotted By" : ele?.flow === "cancel_by" ? "Cancelled By" : ele?.flow === "reverted_by" ? "Reverted By" : ele?.flow === "docs_by" ? "Docs Verified By" : ele?.flow === "reject_by" ? "Rejected By" : ele?.flow === "assign_by" ? "Fee Structure Assign By" : "",
-            value: `${ele?.staff?.staffFirstName} ${ele?.staff?.staffMiddleName ?? ""} ${ele?.staff?.staffLastName}`,
-            latest: ele?.created_at
-          })
+            key:
+              ele?.flow === "request_by"
+                ? "Accepted By"
+                : ele?.flow === "select_by"
+                ? "Selected By"
+                : ele?.flow === "confirm_by"
+                ? "Confirmed By"
+                : ele?.flow === "fee_collect_by"
+                ? "Fee Collected By"
+                : ele?.flow === "review_by"
+                ? "Reviewed By"
+                : ele?.flow === "allot_by"
+                ? "Allotted By"
+                : ele?.flow === "cancel_by"
+                ? "Cancelled By"
+                : ele?.flow === "reverted_by"
+                ? "Reverted By"
+                : ele?.flow === "docs_by"
+                ? "Docs Verified By"
+                : ele?.flow === "reject_by"
+                ? "Rejected By"
+                : ele?.flow === "assign_by"
+                ? "Fee Structure Assign By"
+                : "",
+            value: `${ele?.staff?.staffFirstName} ${
+              ele?.staff?.staffMiddleName ?? ""
+            } ${ele?.staff?.staffLastName}`,
+            latest: ele?.created_at,
+          });
         }
       }
-      res.status(200).send({ message: "Explore Staff Name Only", access: true, only: list })
+      res
+        .status(200)
+        .send({ message: "Explore Staff Name Only", access: true, only: list });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Staff Name Only", access: true, only: [] });
     }
-    else {
-      res.status(200).send({ message: "No Staff Name Only", access: true, only: [] })
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-} 
+};
 
 exports.render_admission_intake_query = async (req, res) => {
   try {
-    const { aid } = req?.params
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    await NewApplication.findByIdAndUpdate(aid, req?.body)
+    const { aid } = req?.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    res.status(200).send({ message: "Explore New Application InTake Query"})
+    await NewApplication.findByIdAndUpdate(aid, req?.body);
+
+    res.status(200).send({ message: "Explore New Application InTake Query" });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_admission_docs_collect_query = async (req, res) => {
   try {
-    const { aid } = req?.params
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    await NewApplication.findByIdAndUpdate(aid, req?.body)
+    const { aid } = req?.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    res.status(200).send({ message: "Explore New Application Collect Docs Query"})
+    await NewApplication.findByIdAndUpdate(aid, req?.body);
+
+    res
+      .status(200)
+      .send({ message: "Explore New Application Collect Docs Query" });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
-
-
+};
 
 exports.render_all_move_to_confirm = async (req, res) => {
   try {
-    const nums = ["66866ac748bcd4555dd23684", "6687ca05e0a07f2ba2aa759e", "66881bd6e0a07f2ba2ac2d33", "668b8774d65eae5968f405ad",
-      "666bdf1623dd2820dd62b970", "6663eb3115c994e9112bc445", "665ddaa5467341ec95e69031", "667d50584bb061c24301dedc", "666860c6e48bba3b26abb4c2",
-      "6688d3b2ed5a562f9ff9a70f", "668903e53a73a0ee9f580612", "667fc7d38e98c621475d6aa8", "667aa82cf4345c2cc2b6e1b5", "66655b82c158f217f7005dd7",
-      "66598d634e300b805b0160fd", "6661b6fd40f1f8d0d05c7ff2", "668cfb2835a5932c764eb0d2", "6684f4c2cf9bf8669c0c3b90", "668e251ee473898a909664af", 
-    "6689016dd5246b6e1de07747", "668bec17b11c7a84ed1733fb"
-    ]
-    const all_student = await Student.find({ _id: { $in: nums } })
-    .select("student_form_flow studentFirstName studentMiddleName studentLastName")
-    
-    var  i = 0
+    const nums = [
+      "66866ac748bcd4555dd23684",
+      "6687ca05e0a07f2ba2aa759e",
+      "66881bd6e0a07f2ba2ac2d33",
+      "668b8774d65eae5968f405ad",
+      "666bdf1623dd2820dd62b970",
+      "6663eb3115c994e9112bc445",
+      "665ddaa5467341ec95e69031",
+      "667d50584bb061c24301dedc",
+      "666860c6e48bba3b26abb4c2",
+      "6688d3b2ed5a562f9ff9a70f",
+      "668903e53a73a0ee9f580612",
+      "667fc7d38e98c621475d6aa8",
+      "667aa82cf4345c2cc2b6e1b5",
+      "66655b82c158f217f7005dd7",
+      "66598d634e300b805b0160fd",
+      "6661b6fd40f1f8d0d05c7ff2",
+      "668cfb2835a5932c764eb0d2",
+      "6684f4c2cf9bf8669c0c3b90",
+      "668e251ee473898a909664af",
+      "6689016dd5246b6e1de07747",
+      "668bec17b11c7a84ed1733fb",
+    ];
+    const all_student = await Student.find({ _id: { $in: nums } }).select(
+      "student_form_flow studentFirstName studentMiddleName studentLastName"
+    );
+
+    var i = 0;
     for (let ele of all_student) {
       if (ele?.student_form_flow?.flow === "APPLICATION") {
-        const app = await NewApplication.findById({ _id: ele?.student_form_flow?.did })
+        const app = await NewApplication.findById({
+          _id: ele?.student_form_flow?.did,
+        });
         app.confirmedApplication.push({
           student: ele?._id,
           payment_status: "Offline",
           install_type: "First Installment Paid",
-          fee_remain: 0
-        })
-        app.confirmCount += 1
+          fee_remain: 0,
+        });
+        app.confirmCount += 1;
         for (let val of app?.FeeCollectionApplication) {
           if (`${val?.student}` === `${ele?._id}`) {
-            app?.FeeCollectionApplication?.pull(val?._id)
+            app?.FeeCollectionApplication?.pull(val?._id);
           }
         }
-        await app.save()
-        console.log(i)
-        i+=1
+        await app.save();
+        console.log(i);
+        i += 1;
       }
     }
-    res.status(200).send({ message: "Explore All Student Query", access: true, all_student})
+    res.status(200).send({
+      message: "Explore All Student Query",
+      access: true,
+      all_student,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_excess = async (req, res) => {
   try {
-    const all_struct = await FeeStructure.find({ finance: "662e8ff2a73be706305ec252" })
+    const all_struct = await FeeStructure.find({
+      finance: "662e8ff2a73be706305ec252",
+    });
     const all = await RemainingList.find({ fee_structure: all_struct })
       .populate({
-      path: "student",
-      select: "studentFirstName studentMiddleName studentLastName studentFatherName"
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentFatherName",
       })
-    .populate({
-      path: "applicable_card government_card",
-    })
-    
-    var nums = []
+      .populate({
+        path: "applicable_card government_card",
+      });
+
+    var nums = [];
     for (let ele of all) {
-      if (ele?.applicable_card?.paid_fee > ele?.applicable_card?.applicable_fee) {
+      if (
+        ele?.applicable_card?.paid_fee > ele?.applicable_card?.applicable_fee
+      ) {
         nums.push({
           student: ele?.student,
-          excess: ele?.applicable_card?.paid_fee - ele?.applicable_card?.applicable_fee
-        })
+          excess:
+            ele?.applicable_card?.paid_fee -
+            ele?.applicable_card?.applicable_fee,
+        });
       }
     }
-    res.status(200).send({ message: "Explore All Excess Fees", access: true, nums})
+    res
+      .status(200)
+      .send({ message: "Explore All Excess Fees", access: true, nums });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.retrieveInstituteNewGRNO = async (gr) => {
   try {
-    var i = 0
+    var i = 0;
     for (let ele of gr) {
-      let fName = ele?.Name?.replaceAll(" ", "")?.toLowerCase()
-      const student = await Student.findOne({ $and: [{ studentGRNO: `${ele?.RegistrationID}` }, { scholar_name: `${fName}` }] })
+      let fName = ele?.Name?.replaceAll(" ", "")?.toLowerCase();
+      const student = await Student.findOne({
+        $and: [
+          { studentGRNO: `${ele?.RegistrationID}` },
+          { scholar_name: `${fName}` },
+        ],
+      });
       if (student?._id) {
-        student.studentGRNO = ele?.NewID
-        await student.save()
+        student.studentGRNO = ele?.NewID;
+        await student.save();
       }
-      console.log(i)
-      i+= 1
+      console.log(i);
+      i += 1;
     }
-    console.log("DONE")
+    console.log("DONE");
     // res.status(200).send({ message: "Explore All New GRNO", access: true})
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
-
+};
 
 // exports.renderAllCancelAppsQuery = async (req, res) => {
 //   try {
 //     const { aid } = req?.params
 //     if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+
 //     const ads_admin = await Admission.findById({ _id: aid })
 //       .select("newApplication cancel_admission cancel_admission_count")
-    
+
 //     const all_apps = await NewApplication.find({ _id: { $in: ads_admin?.newApplication } })
 //     .select("cancelApplication")
-    
+
 //     for (var val of all_apps) {
 //       for (var ele of val?.cancelApplication) {
 //         ads_admin.cancel_admission.push(ele)
@@ -16338,3 +17278,29 @@ exports.retrieveInstituteNewGRNO = async (gr) => {
 //   }
 // }
 
+exports.admission_form_print_case_query = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { admission_form_print_case } = req.body;
+
+    if (!aid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const admission = await Admission.findById(aid);
+    admission.admission_form_print_case = admission_form_print_case;
+    if (admission.institute) {
+      const institute = await InstituteAdmin.findById(admission.institute);
+      institute.admission_form_print_case = admission_form_print_case;
+      await institute.save();
+    }
+    await admission.save();
+    res.status(200).send({
+      message: "Print case is updated successfully.",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

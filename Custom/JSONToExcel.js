@@ -923,6 +923,29 @@ exports.json_to_excel_admission_query = async (
   }
 };
 
+exports.json_to_excel_academic_export_query= async (
+  data_query,
+  c_name
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(
+      real_book,
+      real_sheet,
+      `Academic Student List`
+    );
+    var name = `${c_name}-academic-students-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+    return results
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 
 
 

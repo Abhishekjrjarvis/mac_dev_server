@@ -1,5 +1,5 @@
 var firebase = require("firebase-admin");
-var serviceAccount = require("./qviple-user-firebase-adminsdk-4qvna-aca6cd00fb.json");
+var serviceAccount = require("./qviple-user-firebase-adminsdk-4qvna-8582f91ae3.json");
 
 const invokeMemberTabNotification = (
   type,

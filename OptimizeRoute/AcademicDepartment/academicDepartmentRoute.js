@@ -138,19 +138,24 @@ router.get(
     catchAsync(AcademicDepartment.subject_query)
   );
 
-  router.get(
+  router.patch(
     "/:cid/all/students/query/export",
     catchAsync(AcademicDepartment.render_all_students_query_export)
   );
 
-  router.get(
+  router.patch(
     "/:did/all/students/tab/query/export",
     catchAsync(AcademicDepartment.render_all_students_tab_query_export)
   );
 
-  router.get(
+  router.patch(
     "/:cid/all/dse/students/query/export",
     catchAsync(AcademicDepartment.render_all_dse_students_query_export)
+  );
+
+  router.patch(
+    "/:sid/all/students/query/export",
+    catchAsync(AcademicDepartment.render_all_subject_students_query_export)
   );
 
 module.exports = router;

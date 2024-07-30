@@ -137,5 +137,9 @@ router.patch(
   "/insert/subject/student",
   catchAsync(AcademicDepartment.insert_academic_subject_to_student_query)
 );
+router.patch(
+  "/insert/class/master/to/subject",
+  catchAsync(AcademicDepartment.insert_academic_class_master_to_subjectt_query)
+);
 
 module.exports = router;

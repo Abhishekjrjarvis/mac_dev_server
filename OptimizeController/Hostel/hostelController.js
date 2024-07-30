@@ -213,7 +213,7 @@ exports.renderHostelDashQuery = async (req, res) => {
 
     const one_hostel = await Hostel.findById({ _id: hid })
       .select(
-        "created_at moderator_role moderator_role_count fees_structures_count batchCount departmentSelectBatch ug_undertakings_hostel_admission pg_undertakings_hostel_admission onlineFee offlineFee exemptAmount requested_status remainingFeeCount collected_fee hostel_unit_count hostel_photo hostel_wardens_count boy_count girl_count other_count bed_count room_count"
+        "created_at moderator_role moderator_role_count fees_structures_count batchCount departmentSelectBatch ug_undertakings_hostel_admission pg_undertakings_hostel_admission onlineFee offlineFee exemptAmount requested_status remainingFeeCount collected_fee hostel_unit_count hostel_photo hostel_wardens_count boy_count girl_count other_count bed_count room_count app_qr_code app_hindi_qr_code app_marathi_qr_code code_url"
       )
       .populate({
         path: "hostel_manager",
@@ -1413,7 +1413,7 @@ exports.renderOneHostelApplicationQuery = async (req, res) => {
     const { aid } = req.params;
     const oneApply = await NewApplication.findById({ _id: aid })
       .select(
-        "applicationName applicationType applicationAbout applicationMaster admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount"
+        "applicationName applicationType applicationAbout applicationMaster admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount app_qr_code student_form_setting app_hindi_qr_code app_marathi_qr_code pin code_url"
       )
       .populate({
         path: "applicationHostel",

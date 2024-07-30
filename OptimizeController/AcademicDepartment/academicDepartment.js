@@ -73,6 +73,7 @@ const InstituteStaffForm = require("../../models/Form/InstituteStaffForm");
 const { staff_form_params } = require("../../Constant/staff_form");
 const InstituteApplicationForm = require("../../models/Form/InstituteApplicationForm");
 const DepartmentSite = require("../../models/SiteModels/DepartmentSite");
+const { json_to_excel_academic_export_query } = require("../../Custom/JSONToExcel");
 
 exports.retrieveAcademicDepartmentAdminHead = async (req, res) => {
   try {
@@ -1186,7 +1187,7 @@ exports.render_all_dse_students_query = async (req, res) => {
                   path: "studentClass",
                   select: "className"
               })
-        res.status(200).send({ message: "Explore All DSE Students Query", access: true, all_students: all_stu, count: all_stu?.length })
+        res.status(200).send({ message: "Explore All DSE Students Query", access: true, all_students: all_stu, count: unique?.length })
       }
       else {
           res.status(200).send({ message: "No DSE Students Query", access: true, all_students: []})            
@@ -1404,4 +1405,547 @@ exports.insert_academic_class_master_to_subjectt_query = async (req, res) => {
   } catch (e) {
     console.log(e);
   }
-};
+}
+
+exports.render_all_students_query_export = async (req, res) => {
+  try {
+      const { cid } = req?.params
+      const { did } = req?.query
+    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const depart = await Department.findById({ _id: did })
+      const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
+          .select("subjectName department link_subject_master")
+          .populate({
+              path: "subjects",
+              select: "class",
+      })
+      
+    var numss = []
+    var nums = []
+      for (let ele of all_subjects) {
+          for (let val of ele?.subjects) {
+              if (numss?.includes(`${val?.class}`)) {
+                  
+              }
+              else {
+                  numss.push(val?.class)
+              }
+          }
+      }
+    // console.log(numss)
+      const m_class = await ClassMaster.findById({ _id: cid })
+      
+    for (let ele of m_class?.classDivision) {
+      for (let val of numss) {
+        if (`${val}` === `${ele}`) {
+          nums.push(val)
+        }
+      }
+    }
+    // console.log(nums)
+      if (nums?.length > 0) {
+          const all_students = await Student.find({ $and: [{ studentClass: { $in: nums } }] })
+              // .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department")
+              .populate({
+                  path: "studentClass",
+                  select: "className"
+              })
+        var excel_list = []
+        var numss = {};
+        for (let ref of all_students) {
+          for (let ele of ref?.student_dynamic_field) {
+            // numss.push(
+            //   [ele?.key]: ele?.value,
+            // );
+            numss[ele?.key] = ele?.value;
+          }
+          excel_list.push({
+            RegistrationID: ref?.studentGRNO ?? "#NA",
+            Name: `${ref?.studentFirstName} ${ref?.studentMiddleName
+              ? ref?.studentMiddleName ??
+              ref?.studentFatherName
+              : ""
+              } ${ref?.studentLastName}`,
+            DOB: ref?.studentDOB ?? "#NA",
+            Gender: ref?.studentGender ?? "#NA",
+            CasteCategory: ref?.studentCastCategory ?? "#NA",
+            Religion: ref?.studentReligion ?? "#NA",
+            MotherName: `${ref?.studentMotherName}` ?? "#NA",
+            ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+            Address: `${ref?.studentAddress}` ?? "#NA",
+            AppliedOn: `${moment(ref?.createdAt).format("LL")}`,
+            ContactNo: ref?.studentPhoneNumber ?? "#NA",
+            AlternateContactNo:
+              ref?.studentParentsPhoneNumber ?? "#NA",
+            NameAsMarksheet: ref?.studentNameAsMarksheet,
+            NameAsCertificate: ref?.studentNameAsCertificate,
+            BirthPlace: ref?.studentBirthPlace,
+            Religion: ref?.studentReligion,
+            Caste: ref?.studentCast,
+            Nationality: ref?.studentNationality,
+            RationCard: ref?.studentFatherRationCardColor,
+            BloodGroup: ref?.student_blood_group,
+            AadharNumber: ref?.studentAadharNumber,
+            PhoneNumber: ref?.studentPhoneNumber,
+            Email: ref?.studentEmail,
+            ParentsPhoneNumber: ref?.studentParentsPhoneNumber,
+            CurrentAddress: ref?.studentCurrentAddress,
+            CurrentPinCode: ref?.studentCurrentPincode,
+            CurrentState: ref?.studentCurrentState,
+            CurrentDistrict: ref?.studentCurrentDistrict,
+            Address: ref?.studentAddress,
+            PinCode: ref?.studentPincode,
+            State: ref?.studentState,
+            District: ref?.studentDistrict,
+            ParentsName: ref?.studentParentsName,
+            ParentsEmail: ref?.studentParentsEmail,
+            ParentsOccupation: ref?.studentParentsOccupation,
+            ParentsOfficeAddress: ref?.studentParentsAddress,
+            ParentsAnnualIncome: ref?.studentParentsAnnualIncom,
+            SeatType: ref?.student_seat_type,
+            PhysicallyHandicapped: ref?.student_ph_type,
+            DefencePersonnel: ref?.student_defence_personnel_word,
+            MaritalStatus: ref?.student_marital_status,
+            PreviousBoard: ref?.student_board_university,
+            PreviousSchool: ref?.studentPreviousSchool,
+            UniversityCourse: ref?.student_university_courses,
+            PassingYear: ref?.student_year,
+            PreviousClass: ref?.student_previous_class,
+            PreviousMarks: ref?.student_previous_marks,
+            PreviousPercentage: ref?.student_previous_percentage,
+            SeatNo: ref?.student_previous_section,
+            StandardMOP: ref?.month_of_passing,
+            StandardYOP: ref?.year_of_passing,
+            StandardPercentage: ref?.percentage,
+            StandardNameOfInstitute: ref?.name_of_institute,
+            HSCMOP: ref?.hsc_month,
+            HSCYOP: ref?.hsc_year,
+            HSCPercentage: ref?.hsc_percentage,
+            HSCNameOfInstitute: ref?.hsc_name_of_institute,
+            HSCBoard: ref?.hsc_board,
+            HSCCandidateType: ref?.hsc_candidate_type,
+            HSCVocationalType: ref?.hsc_vocational_type,
+            HSCPhysicsMarks: ref?.hsc_physics_marks,
+            HSCChemistryMarks: ref?.hsc_chemistry_marks,
+            HSCMathematicsMarks: ref?.hsc_mathematics_marks,
+            HSCPCMTotal: ref?.hsc_pcm_total,
+            HSCGrandTotal: ref?.hsc_grand_total,
+            FormNo: ref?.form_no,
+            QviplePayId: ref?.qviple_student_pay_id,
+            ...numss
+          });
+        }
+        var valid_back = await json_to_excel_academic_export_query(
+          excel_list,
+          m_class?.className,
+        );
+        res.status(200).send({ message: "Explore All Students Export Query", access: true, set: valid_back})
+      }
+      else {
+          res.status(200).send({ message: "No Students Query", access: true, set: ""})            
+      }
+  }
+  catch (e) {
+      console.log(e)
+  }
+}
+
+exports.render_all_students_tab_query_export = async (req, res) => {
+  try {
+      const { did } = req?.params
+      if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+      const depart = await Department.findById({ _id: did })
+      const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
+          .select("subjectName department link_subject_master")
+          .populate({
+              path: "subjects",
+              select: "class",
+      })
+      
+      var nums = []
+      for (let ele of all_subjects) {
+          for (let val of ele?.subjects) {
+              if (nums?.includes(`${val?.class}`)) {
+                  
+              }
+              else {
+                  nums.push(val?.class)
+              }
+          }
+      }
+
+      if (nums?.length > 0) {
+          const all_students = await Student.find({ studentClass: { $in: nums } })
+              // .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO")
+              .populate({
+                  path: "studentClass",
+                  select: "className"
+              })
+              var excel_list = []
+              var numss = {};
+              for (let ref of all_students) {
+                for (let ele of ref?.student_dynamic_field) {
+                  // numss.push(
+                  //   [ele?.key]: ele?.value,
+                  // );
+                  numss[ele?.key] = ele?.value;
+                }
+                excel_list.push({
+                  RegistrationID: ref?.studentGRNO ?? "#NA",
+                  Name: `${ref?.studentFirstName} ${ref?.studentMiddleName
+                    ? ref?.studentMiddleName ??
+                    ref?.studentFatherName
+                    : ""
+                    } ${ref?.studentLastName}`,
+                  DOB: ref?.studentDOB ?? "#NA",
+                  Gender: ref?.studentGender ?? "#NA",
+                  CasteCategory: ref?.studentCastCategory ?? "#NA",
+                  Religion: ref?.studentReligion ?? "#NA",
+                  MotherName: `${ref?.studentMotherName}` ?? "#NA",
+                  ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+                  Address: `${ref?.studentAddress}` ?? "#NA",
+                  AppliedOn: `${moment(ref?.createdAt).format("LL")}`,
+                  ContactNo: ref?.studentPhoneNumber ?? "#NA",
+                  AlternateContactNo:
+                    ref?.studentParentsPhoneNumber ?? "#NA",
+                  NameAsMarksheet: ref?.studentNameAsMarksheet,
+                  NameAsCertificate: ref?.studentNameAsCertificate,
+                  BirthPlace: ref?.studentBirthPlace,
+                  Religion: ref?.studentReligion,
+                  Caste: ref?.studentCast,
+                  Nationality: ref?.studentNationality,
+                  RationCard: ref?.studentFatherRationCardColor,
+                  BloodGroup: ref?.student_blood_group,
+                  AadharNumber: ref?.studentAadharNumber,
+                  PhoneNumber: ref?.studentPhoneNumber,
+                  Email: ref?.studentEmail,
+                  ParentsPhoneNumber: ref?.studentParentsPhoneNumber,
+                  CurrentAddress: ref?.studentCurrentAddress,
+                  CurrentPinCode: ref?.studentCurrentPincode,
+                  CurrentState: ref?.studentCurrentState,
+                  CurrentDistrict: ref?.studentCurrentDistrict,
+                  Address: ref?.studentAddress,
+                  PinCode: ref?.studentPincode,
+                  State: ref?.studentState,
+                  District: ref?.studentDistrict,
+                  ParentsName: ref?.studentParentsName,
+                  ParentsEmail: ref?.studentParentsEmail,
+                  ParentsOccupation: ref?.studentParentsOccupation,
+                  ParentsOfficeAddress: ref?.studentParentsAddress,
+                  ParentsAnnualIncome: ref?.studentParentsAnnualIncom,
+                  SeatType: ref?.student_seat_type,
+                  PhysicallyHandicapped: ref?.student_ph_type,
+                  DefencePersonnel: ref?.student_defence_personnel_word,
+                  MaritalStatus: ref?.student_marital_status,
+                  PreviousBoard: ref?.student_board_university,
+                  PreviousSchool: ref?.studentPreviousSchool,
+                  UniversityCourse: ref?.student_university_courses,
+                  PassingYear: ref?.student_year,
+                  PreviousClass: ref?.student_previous_class,
+                  PreviousMarks: ref?.student_previous_marks,
+                  PreviousPercentage: ref?.student_previous_percentage,
+                  SeatNo: ref?.student_previous_section,
+                  StandardMOP: ref?.month_of_passing,
+                  StandardYOP: ref?.year_of_passing,
+                  StandardPercentage: ref?.percentage,
+                  StandardNameOfInstitute: ref?.name_of_institute,
+                  HSCMOP: ref?.hsc_month,
+                  HSCYOP: ref?.hsc_year,
+                  HSCPercentage: ref?.hsc_percentage,
+                  HSCNameOfInstitute: ref?.hsc_name_of_institute,
+                  HSCBoard: ref?.hsc_board,
+                  HSCCandidateType: ref?.hsc_candidate_type,
+                  HSCVocationalType: ref?.hsc_vocational_type,
+                  HSCPhysicsMarks: ref?.hsc_physics_marks,
+                  HSCChemistryMarks: ref?.hsc_chemistry_marks,
+                  HSCMathematicsMarks: ref?.hsc_mathematics_marks,
+                  HSCPCMTotal: ref?.hsc_pcm_total,
+                  HSCGrandTotal: ref?.hsc_grand_total,
+                  FormNo: ref?.form_no,
+                  QviplePayId: ref?.qviple_student_pay_id,
+                  ...numss
+                });
+              }
+              var valid_back = await json_to_excel_academic_export_query(
+                excel_list,
+                depart?.dName,
+              );
+          res.status(200).send({ message: "Explore All Students Tab Query", access: true, set: valid_back})
+      }
+      else {
+          res.status(200).send({ message: "No Students Tab Query", access: true, set: ""})            
+      }
+  }
+  catch (e) {
+      console.log(e)
+  }
+}
+
+exports.render_all_dse_students_query_export = async (req, res) => {
+  try {
+      const { cid } = req?.params
+      const { did } = req?.query
+    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const depart = await Department.findById({ _id: did })
+      const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
+          .select("subjectName department link_subject_master")
+          .populate({
+              path: "subjects",
+              select: "class",
+      })
+      
+    var numss = []
+    var nums = []
+      for (let ele of all_subjects) {
+          for (let val of ele?.subjects) {
+              if (numss?.includes(`${val?.class}`)) {
+                  
+              }
+              else {
+                  numss.push(val?.class)
+              }
+          }
+      }
+    // console.log(numss)
+      const m_class = await ClassMaster.findById({ _id: cid })
+      
+    for (let ele of m_class?.classDivision) {
+      for (let val of numss) {
+        if (`${val}` === `${ele}`) {
+          nums.push(val)
+        }
+      }
+    }
+    // console.log(nums)
+      if (nums?.length > 0) {
+          const all_students = await Student.find({ $and: [{ studentClass: { $in: nums } }] })
+              .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject")
+              .populate({
+                  path: "studentClass",
+                  select: "className"
+              })
+        var numss = []
+        for (let ele of all_subjects) {
+          for (let val of all_students) {
+            if (val?.major_subject?.includes(`${ele?._id}`)) {
+              numss.push(val)
+            }
+          }
+        }
+        const unique = [...new Set(numss.map(item => item._id))];
+        const all_stu = await Student.find({ _id: { $in: unique} })
+              // .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject")
+              .populate({
+                  path: "studentClass",
+                  select: "className"
+              })
+              var excel_list = []
+              var numss = {};
+              for (let ref of all_stu) {
+                for (let ele of ref?.student_dynamic_field) {
+                  // numss.push(
+                  //   [ele?.key]: ele?.value,
+                  // );
+                  numss[ele?.key] = ele?.value;
+                }
+                excel_list.push({
+                  RegistrationID: ref?.studentGRNO ?? "#NA",
+                  Name: `${ref?.studentFirstName} ${ref?.studentMiddleName
+                    ? ref?.studentMiddleName ??
+                    ref?.studentFatherName
+                    : ""
+                    } ${ref?.studentLastName}`,
+                  DOB: ref?.studentDOB ?? "#NA",
+                  Gender: ref?.studentGender ?? "#NA",
+                  CasteCategory: ref?.studentCastCategory ?? "#NA",
+                  Religion: ref?.studentReligion ?? "#NA",
+                  MotherName: `${ref?.studentMotherName}` ?? "#NA",
+                  ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+                  Address: `${ref?.studentAddress}` ?? "#NA",
+                  AppliedOn: `${moment(ref?.createdAt).format("LL")}`,
+                  ContactNo: ref?.studentPhoneNumber ?? "#NA",
+                  AlternateContactNo:
+                    ref?.studentParentsPhoneNumber ?? "#NA",
+                  NameAsMarksheet: ref?.studentNameAsMarksheet,
+                  NameAsCertificate: ref?.studentNameAsCertificate,
+                  BirthPlace: ref?.studentBirthPlace,
+                  Religion: ref?.studentReligion,
+                  Caste: ref?.studentCast,
+                  Nationality: ref?.studentNationality,
+                  RationCard: ref?.studentFatherRationCardColor,
+                  BloodGroup: ref?.student_blood_group,
+                  AadharNumber: ref?.studentAadharNumber,
+                  PhoneNumber: ref?.studentPhoneNumber,
+                  Email: ref?.studentEmail,
+                  ParentsPhoneNumber: ref?.studentParentsPhoneNumber,
+                  CurrentAddress: ref?.studentCurrentAddress,
+                  CurrentPinCode: ref?.studentCurrentPincode,
+                  CurrentState: ref?.studentCurrentState,
+                  CurrentDistrict: ref?.studentCurrentDistrict,
+                  Address: ref?.studentAddress,
+                  PinCode: ref?.studentPincode,
+                  State: ref?.studentState,
+                  District: ref?.studentDistrict,
+                  ParentsName: ref?.studentParentsName,
+                  ParentsEmail: ref?.studentParentsEmail,
+                  ParentsOccupation: ref?.studentParentsOccupation,
+                  ParentsOfficeAddress: ref?.studentParentsAddress,
+                  ParentsAnnualIncome: ref?.studentParentsAnnualIncom,
+                  SeatType: ref?.student_seat_type,
+                  PhysicallyHandicapped: ref?.student_ph_type,
+                  DefencePersonnel: ref?.student_defence_personnel_word,
+                  MaritalStatus: ref?.student_marital_status,
+                  PreviousBoard: ref?.student_board_university,
+                  PreviousSchool: ref?.studentPreviousSchool,
+                  UniversityCourse: ref?.student_university_courses,
+                  PassingYear: ref?.student_year,
+                  PreviousClass: ref?.student_previous_class,
+                  PreviousMarks: ref?.student_previous_marks,
+                  PreviousPercentage: ref?.student_previous_percentage,
+                  SeatNo: ref?.student_previous_section,
+                  StandardMOP: ref?.month_of_passing,
+                  StandardYOP: ref?.year_of_passing,
+                  StandardPercentage: ref?.percentage,
+                  StandardNameOfInstitute: ref?.name_of_institute,
+                  HSCMOP: ref?.hsc_month,
+                  HSCYOP: ref?.hsc_year,
+                  HSCPercentage: ref?.hsc_percentage,
+                  HSCNameOfInstitute: ref?.hsc_name_of_institute,
+                  HSCBoard: ref?.hsc_board,
+                  HSCCandidateType: ref?.hsc_candidate_type,
+                  HSCVocationalType: ref?.hsc_vocational_type,
+                  HSCPhysicsMarks: ref?.hsc_physics_marks,
+                  HSCChemistryMarks: ref?.hsc_chemistry_marks,
+                  HSCMathematicsMarks: ref?.hsc_mathematics_marks,
+                  HSCPCMTotal: ref?.hsc_pcm_total,
+                  HSCGrandTotal: ref?.hsc_grand_total,
+                  FormNo: ref?.form_no,
+                  QviplePayId: ref?.qviple_student_pay_id,
+                  ...numss
+                });
+              }
+              var valid_back = await json_to_excel_academic_export_query(
+                excel_list,
+                m_class?.className,
+              );
+        res.status(200).send({ message: "Explore All DSE Students Query", access: true, set: valid_back})
+      }
+      else {
+          res.status(200).send({ message: "No DSE Students Query", access: true, set: ""})            
+      }
+  }
+  catch (e) {
+      console.log(e)
+  }
+}
+
+exports.render_all_subject_students_query_export = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var subject = await Subject.findById({ _id: sid })
+    var all_students = await Student.find({ _id: { $in: subject?.optionalStudent } })
+    // .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject")
+    .populate({
+      path: "studentClass",
+      select: "className"
+  })
+  var excel_list = []
+  var numss = {};
+  for (let ref of all_students) {
+    for (let ele of ref?.student_dynamic_field) {
+      // numss.push(
+      //   [ele?.key]: ele?.value,
+      // );
+      numss[ele?.key] = ele?.value;
+    }
+    excel_list.push({
+      RegistrationID: ref?.studentGRNO ?? "#NA",
+      Name: `${ref?.studentFirstName} ${ref?.studentMiddleName
+        ? ref?.studentMiddleName ??
+        ref?.studentFatherName
+        : ""
+        } ${ref?.studentLastName}`,
+      DOB: ref?.studentDOB ?? "#NA",
+      Gender: ref?.studentGender ?? "#NA",
+      CasteCategory: ref?.studentCastCategory ?? "#NA",
+      Religion: ref?.studentReligion ?? "#NA",
+      MotherName: `${ref?.studentMotherName}` ?? "#NA",
+      ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+      Address: `${ref?.studentAddress}` ?? "#NA",
+      AppliedOn: `${moment(ref?.createdAt).format("LL")}`,
+      ContactNo: ref?.studentPhoneNumber ?? "#NA",
+      AlternateContactNo:
+        ref?.studentParentsPhoneNumber ?? "#NA",
+      NameAsMarksheet: ref?.studentNameAsMarksheet,
+      NameAsCertificate: ref?.studentNameAsCertificate,
+      BirthPlace: ref?.studentBirthPlace,
+      Religion: ref?.studentReligion,
+      Caste: ref?.studentCast,
+      Nationality: ref?.studentNationality,
+      RationCard: ref?.studentFatherRationCardColor,
+      BloodGroup: ref?.student_blood_group,
+      AadharNumber: ref?.studentAadharNumber,
+      PhoneNumber: ref?.studentPhoneNumber,
+      Email: ref?.studentEmail,
+      ParentsPhoneNumber: ref?.studentParentsPhoneNumber,
+      CurrentAddress: ref?.studentCurrentAddress,
+      CurrentPinCode: ref?.studentCurrentPincode,
+      CurrentState: ref?.studentCurrentState,
+      CurrentDistrict: ref?.studentCurrentDistrict,
+      Address: ref?.studentAddress,
+      PinCode: ref?.studentPincode,
+      State: ref?.studentState,
+      District: ref?.studentDistrict,
+      ParentsName: ref?.studentParentsName,
+      ParentsEmail: ref?.studentParentsEmail,
+      ParentsOccupation: ref?.studentParentsOccupation,
+      ParentsOfficeAddress: ref?.studentParentsAddress,
+      ParentsAnnualIncome: ref?.studentParentsAnnualIncom,
+      SeatType: ref?.student_seat_type,
+      PhysicallyHandicapped: ref?.student_ph_type,
+      DefencePersonnel: ref?.student_defence_personnel_word,
+      MaritalStatus: ref?.student_marital_status,
+      PreviousBoard: ref?.student_board_university,
+      PreviousSchool: ref?.studentPreviousSchool,
+      UniversityCourse: ref?.student_university_courses,
+      PassingYear: ref?.student_year,
+      PreviousClass: ref?.student_previous_class,
+      PreviousMarks: ref?.student_previous_marks,
+      PreviousPercentage: ref?.student_previous_percentage,
+      SeatNo: ref?.student_previous_section,
+      StandardMOP: ref?.month_of_passing,
+      StandardYOP: ref?.year_of_passing,
+      StandardPercentage: ref?.percentage,
+      StandardNameOfInstitute: ref?.name_of_institute,
+      HSCMOP: ref?.hsc_month,
+      HSCYOP: ref?.hsc_year,
+      HSCPercentage: ref?.hsc_percentage,
+      HSCNameOfInstitute: ref?.hsc_name_of_institute,
+      HSCBoard: ref?.hsc_board,
+      HSCCandidateType: ref?.hsc_candidate_type,
+      HSCVocationalType: ref?.hsc_vocational_type,
+      HSCPhysicsMarks: ref?.hsc_physics_marks,
+      HSCChemistryMarks: ref?.hsc_chemistry_marks,
+      HSCMathematicsMarks: ref?.hsc_mathematics_marks,
+      HSCPCMTotal: ref?.hsc_pcm_total,
+      HSCGrandTotal: ref?.hsc_grand_total,
+      FormNo: ref?.form_no,
+      QviplePayId: ref?.qviple_student_pay_id,
+      ...numss
+    });
+  }
+  var valid_back = await json_to_excel_academic_export_query(
+    excel_list,
+    subject?.subjectName,
+  );
+    res.status(200).send({ message: "New Student Export Query", access: true, set: valid_back ?? "" })            
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+

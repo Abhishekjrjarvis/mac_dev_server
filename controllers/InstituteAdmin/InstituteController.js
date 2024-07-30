@@ -6021,13 +6021,14 @@ exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
         institute.insName,
         user._id,
         user.deviceToken
-      );
-      await Promise.all([
-        student.save(),
-        user.save(),
-        notify.save(),
-        aStatus.save(),
-      ]);
+        );
+        await Promise.all([
+          student.save(),
+          user.save(),
+          notify.save(),
+          aStatus.save(),
+        ]);
+        res.status(200).send({ message: "Explore Un Approve Student Query", access: true})
       if (student.studentGender === "Male") {
         classes.boyCount += 1;
         batch.student_category.boyCount += 1;
@@ -6066,7 +6067,7 @@ exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
         user?.userPhoneNumber,
         studentName,
         institute?.insName
-      );
+        );
       whats_app_sms_payload(
         user?.userPhoneNumber,
         studentName,

@@ -99,9 +99,13 @@ const FeeMaster = require("../../models/Finance/FeeMaster");
 const { universal_random_password } = require("../../Custom/universalId");
 const QvipleId = require("../../models/Universal/QvipleId");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
-const { form_no_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
+const {
+  form_no_query,
+} = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
-const { universal_random_password_student_code } = require("../../Generator/RandomPass");
+const {
+  universal_random_password_student_code,
+} = require("../../Generator/RandomPass");
 
 exports.renderActivateHostelQuery = async (req, res) => {
   try {
@@ -109,8 +113,8 @@ exports.renderActivateHostelQuery = async (req, res) => {
     const { sid } = req.body;
     var institute = await InstituteAdmin.findById({ _id: id });
     var hostel = new Hostel({});
-    const codess = universal_random_password()
-      hostel.member_module_unique = `${codess}`
+    const codess = universal_random_password();
+    hostel.member_module_unique = `${codess}`;
     if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });
@@ -563,42 +567,74 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
     const one_hostel = await Hostel.findById({ _id: hid }).select(
       "fees_structures"
     );
+    var all_structures = [];
     if (master_query) {
-      var all_structures = await FeeStructure.find({
-        $and: [
-          { _id: { $in: one_hostel?.fees_structures } },
-          { batch_master: master_query },
-          { document_update: false },
-        ],
-        $or: [
-          {
-            class_master: `${master_by}`,
-          },
-        ],
-      })
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "total_admission_fees structure_name unique_structure_name applicable_fees"
-        )
-        .populate({
-          path: "category_master",
-          select: "category_name",
+      if (master_by) {
+        all_structures = await FeeStructure.find({
+          $and: [
+            { _id: { $in: one_hostel?.fees_structures } },
+            { batch_master: master_query },
+            { document_update: false },
+          ],
+          $or: [
+            {
+              class_master: `${master_by}`,
+            },
+          ],
         })
-        .populate({
-          path: "class_master",
-          select: "className",
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "total_admission_fees structure_name unique_structure_name applicable_fees"
+          )
+          .populate({
+            path: "category_master",
+            select: "category_name",
+          })
+          .populate({
+            path: "class_master",
+            select: "className",
+          })
+          .populate({
+            path: "unit_master",
+            select: "hostel_unit_name",
+          })
+          .populate({
+            path: "batch_master",
+            select: "batchName",
+          });
+      } else {
+        all_structures = await FeeStructure.find({
+          $and: [
+            { _id: { $in: one_hostel?.fees_structures } },
+            { batch_master: master_query },
+            { document_update: false },
+          ],
         })
-        .populate({
-          path: "unit_master",
-          select: "hostel_unit_name",
-        })
-        .populate({
-          path: "batch_master",
-          select: "batchName",
-        });
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "total_admission_fees structure_name unique_structure_name applicable_fees"
+          )
+          .populate({
+            path: "category_master",
+            select: "category_name",
+          })
+          .populate({
+            path: "class_master",
+            select: "className",
+          })
+          .populate({
+            path: "unit_master",
+            select: "hostel_unit_name",
+          })
+          .populate({
+            path: "batch_master",
+            select: "batchName",
+          });
+      }
     } else {
-      var all_structures = await FeeStructure.find({
+      all_structures = await FeeStructure.find({
         $and: [
           { _id: { $in: one_hostel?.fees_structures } },
           { document_update: false },
@@ -977,14 +1013,14 @@ exports.renderHostelReceievedApplication = async (req, res) => {
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
     if (req.body?.studentFatherName) {
-      student.studentMiddleName = req.body?.studentFatherName
+      student.studentMiddleName = req.body?.studentFatherName;
     }
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
     student.student_join_mode = "HOSTEL_PROCESS";
-    const codess = universal_random_password()
-    student.member_module_unique = `${codess}`
+    const codess = universal_random_password();
+    student.member_module_unique = `${codess}`;
     const apply = await NewApplication.findById({ _id: aid });
     const valid_unit = await HostelUnit.findById({
       _id: `${apply?.applicationUnit}`,
@@ -1029,7 +1065,7 @@ exports.renderHostelReceievedApplication = async (req, res) => {
     if (studentOptionalSubject?.length > 0) {
       student.studentOptionalSubject?.push(...studentOptionalSubject);
     }
-    one_hostel.student.push(student?._id)
+    one_hostel.student.push(student?._id);
     status.content = `Your application for ${valid_unit?.hostel_unit_name} have been filled successfully.
 
 Below is the Hostel Admission process:
@@ -1050,9 +1086,9 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 
 Note: Stay tuned for further updates.`;
     status.applicationId = apply._id;
-    student.student_form_flow.flow = "APPLICATION"
-    student.student_form_flow.did = apply._id
-    form_no_query(institute, student, "HOSTEL")
+    student.student_form_flow.flow = "APPLICATION";
+    student.student_form_flow.did = apply._id;
+    form_no_query(institute, student, "HOSTEL");
     status.document_visible = true;
     status.instituteId = institute._id;
     status.finance = institute?.financeDepart?.[0];
@@ -1061,19 +1097,17 @@ Note: Stay tuned for further updates.`;
     user.applyApplication.push(apply._id);
     status.bank_account = filtered_account?._id;
     status.flow_status = "Hostel Application";
-    status.group_by = "Admission_Application_Applied"
+    status.group_by = "Admission_Application_Applied";
     student.user = user._id;
     user.applicationStatus.push(status._id);
     if (apply?.receieved_array?.includes(`${student?._id}`)) {
-      
-    }
-    else {
+    } else {
       apply.receievedApplication.push({
         student: student._id,
         fee_remain: 0,
       });
       apply.receievedCount += 1;
-      apply.receieved_array.push(student?._id)
+      apply.receieved_array.push(student?._id);
     }
     if (institute.userFollowersList.includes(uid)) {
     } else {
@@ -1110,8 +1144,8 @@ Note: Stay tuned for further updates.`;
     notify.notifyCategory = "Hostel Status Alert";
     notify.redirectIndex = 59;
     notify.notifyCategory = "Application Requested";
-    let nums = universal_random_password_student_code()
-    student.qviple_student_pay_id = nums
+    let nums = universal_random_password_student_code();
+    student.qviple_student_pay_id = nums;
     await Promise.all([
       student.save(),
       user.save(),
@@ -1119,14 +1153,18 @@ Note: Stay tuned for further updates.`;
       apply.save(),
       institute.save(),
       notify.save(),
-      one_hostel.save()
+      one_hostel.save(),
     ]);
     res.status(201).send({
       message: "Taste a bite of sweets till your application is selected",
       student: student._id,
       status: true,
     });
-    let name = `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ?? ""} ${student?.studentLastName}`
+    let name = `${student?.studentFirstName} ${
+      student?.studentMiddleName
+        ? student?.studentMiddleName
+        : student?.studentFatherName ?? ""
+    } ${student?.studentLastName}`;
     invokeMemberTabNotification(
       "Admission Status",
       status.content,
@@ -1137,16 +1175,22 @@ Note: Stay tuned for further updates.`;
     await generateStudentAdmissionForm(
       student?._id,
       institute?._id,
-      `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
-      `${apply?.applicationName}`,
+      `${student?.studentFirstName} ${
+        student?.studentMiddleName
+          ? student?.studentMiddleName
+          : student?.studentFatherName
+          ? student?.studentFatherName
+          : ""
+      } ${student?.studentLastName}`,
+      `${apply?.applicationName}`
     );
   } catch (e) {
-    console.log(e)
+    console.log(e);
     res.status(201).send({
       message: "Test And Send Back To Server",
       student: null,
       status: true,
-      error: e
+      error: e,
     });
   }
 };
@@ -1201,21 +1245,19 @@ exports.renderHostelAllApplication = async (req, res) => {
         // ongoingCount: cached.ongoingCount,
         ongoing: ongoing,
         ongoingCount: ongoing?.length,
-      }
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
         encrypt: adsEncrypt,
-        ads_obj
+        ads_obj,
       });
     } else {
       const ads_obj = {
-        message: "Dark side in depth nothing to find", 
-        ongoing: []
-      }
+        message: "Dark side in depth nothing to find",
+        ongoing: [],
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
-      res
-        .status(200)
-        .send({ encrypt: adsEncrypt });
+      res.status(200).send({ encrypt: adsEncrypt });
     }
   } catch (e) {
     console.log(e);
@@ -1260,20 +1302,18 @@ exports.renderHostelAllCompletedApplication = async (req, res) => {
         // completedCount: cached.completedCount,
         completed: completed,
         completedCount: completed?.length,
-      }
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
-        encrypt: adsEncrypt
+        encrypt: adsEncrypt,
       });
     } else {
       const ads_obj = {
-        message: "Dark side in depth nothing to find", 
-        completed: []
-      }
+        message: "Dark side in depth nothing to find",
+        completed: [],
+      };
       const adsEncrypt = await encryptionPayload(ads_obj);
-      res
-        .status(200)
-        .send({ encrypt: adsEncrypt });
+      res.status(200).send({ encrypt: adsEncrypt });
     }
   } catch (e) {
     console.log(e);
@@ -2249,7 +2289,7 @@ exports.renderAllotHostedBedQuery = async (req, res) => {
         one_hostel.hostelities_count += 1;
         student.student_bed_number = bed?._id;
         student.student_unit = one_unit?._id;
-        student.institute = institute?.id
+        student.institute = institute?.id;
         apply.allottedApplication.push({
           student: student._id,
           payment_status: "offline",
@@ -6723,7 +6763,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       if (!valid?.exist) {
         const genUserPass = bcrypt.genSaltSync(12);
         const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
-      const uqid = universal_random_password()
+        const uqid = universal_random_password();
         var user = new User({
           userLegalName: `${req.body.studentFirstName} ${
             req.body.studentMiddleName ? req.body.studentMiddleName : ""
@@ -6739,9 +6779,9 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
           remindLater: rDate,
           next_date: c_date,
         });
-        var qvipleId = new QvipleId({})
-      qvipleId.user = user?._id
-      qvipleId.qviple_id = `${uqid}`
+        var qvipleId = new QvipleId({});
+        qvipleId.user = user?._id;
+        qvipleId.qviple_id = `${uqid}`;
         admins.users.push(user);
         admins.userCount += 1;
         await Promise.all([admins.save(), user.save(), qvipleId.save()]);
@@ -6757,8 +6797,8 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
     student.student_join_mode = "HOSTEL_PROCESS";
-    const codess = universal_random_password()
-    student.member_module_unique = `${codess}`
+    const codess = universal_random_password();
+    student.member_module_unique = `${codess}`;
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
       : [];
@@ -6956,7 +6996,7 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         );
         const genUserPass = bcrypt.genSaltSync(12);
         const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
-      const uqid = universal_random_password()
+        const uqid = universal_random_password();
         var user = new User({
           userLegalName: `${ref?.studentFirstName} ${
             ref?.studentMiddleName ? ref?.studentMiddleName : ""
@@ -6973,9 +7013,9 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
           remindLater: rDate,
           next_date: c_date,
         });
-        var qvipleId = new QvipleId({})
-      qvipleId.user = user?._id
-      qvipleId.qviple_id = `${uqid}`
+        var qvipleId = new QvipleId({});
+        qvipleId.user = user?._id;
+        qvipleId.qviple_id = `${uqid}`;
         admins.users.push(user);
         admins.userCount += 1;
         await Promise.all([admins.save(), user.save(), qvipleId.save()]);
@@ -7010,8 +7050,8 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         studentPhoneNumber: ref?.studentPhoneNumber,
         student_join_mode: "HOSTEL_PROCESS",
       });
-      const codess = universal_random_password()
-      student.member_module_unique = `${codess}`
+      const codess = universal_random_password();
+      student.member_module_unique = `${codess}`;
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
       } ${student?.studentLastName}`;
@@ -7889,28 +7929,26 @@ exports.renderOneLinkedQuery = async (req, res) => {
   }
 };
 
-exports.renderPass = async(req, res) => {
-  try{
-    var all_student = await Student.find({})
-    .populate({
+exports.renderPass = async (req, res) => {
+  try {
+    var all_student = await Student.find({}).populate({
       path: "hostel_fee_structure",
       populate: {
         path: "finance",
-        select: "institute"
-      }
-    })
-    for(var ref of all_student){
-      if(ref?.hostel_fee_structure?._id){
-        ref.institute = ref?.hostel_fee_structure?.finance?.institute
-        await ref.save()
+        select: "institute",
+      },
+    });
+    for (var ref of all_student) {
+      if (ref?.hostel_fee_structure?._id) {
+        ref.institute = ref?.hostel_fee_structure?.finance?.institute;
+        await ref.save();
       }
     }
-    res.status(200).send({ message: "Pass"})
+    res.status(200).send({ message: "Pass" });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 // exports.renderHostelAllAppsQuery = async (req, res) => {
 //   try {

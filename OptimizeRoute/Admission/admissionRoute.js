@@ -648,24 +648,36 @@ router.patch(
   catchAsync(Admission.render_old_data_receipt_query)
 );
 
-router.patch("/arrange/:cid", catchAsync(Admission.renderArrangeClassQuery))
+router.patch("/arrange/:cid", catchAsync(Admission.renderArrangeClassQuery));
 
 router
   .route("/manage/tab/:aid")
   .patch(catchAsync(Admission.renderManageTabQuery));
 
-router.patch("/:aid/student/review/query", catchAsync(Admission.renderReviewStudentQuery))
+router.patch(
+  "/:aid/student/review/query",
+  catchAsync(Admission.renderReviewStudentQuery)
+);
 
-router.patch("/:rid/shift/government/to/applicable/query", catchAsync(Admission.renderShiftGovernmentApplicableQuery))
+router.patch(
+  "/:rid/shift/government/to/applicable/query",
+  catchAsync(Admission.renderShiftGovernmentApplicableQuery)
+);
 
-router.patch("/:rid/shift/applicable/to/government/query", catchAsync(Admission.renderShiftApplicableToGovernmentQuery))
+router.patch(
+  "/:rid/shift/applicable/to/government/query",
+  catchAsync(Admission.renderShiftApplicableToGovernmentQuery)
+);
 
 router.patch(
   "/:aid/all/outstanding/query",
   catchAsync(Admission.renderAllOutstandingQuery)
 );
 
-router.patch("/:fid/readmission/student/:sid/query", catchAsync(Admission.renderReAdmissionQuery))
+router.patch(
+  "/:fid/readmission/student/:sid/query",
+  catchAsync(Admission.renderReAdmissionQuery)
+);
 
 router.get(
   "/one/institute/charges/:id/query",
@@ -677,10 +689,7 @@ router.patch(
   catchAsync(Admission.renderAllFeeStructureListQuery)
 );
 
-router.patch(
-  "/all/student/query",
-  catchAsync(Admission.renderAllStudentQuery)
-);
+router.patch("/all/student/query", catchAsync(Admission.renderAllStudentQuery));
 
 router.patch(
   "/all/student/query/list",
@@ -691,9 +700,6 @@ router.patch(
   "/all/government/card/query",
   catchAsync(Admission.government_card_removal_query)
 );
-
-
-
 
 // For Moving Outer Array To Inner Nested Card Array
 
@@ -709,7 +715,10 @@ router.patch(
   catchAsync(Admission.renderAllStudentStatusQuery)
 );
 
-router.patch("/all/student/outstanding/query", catchAsync(Admission.renderAllStudentArray))
+router.patch(
+  "/all/student/outstanding/query",
+  catchAsync(Admission.renderAllStudentArray)
+);
 
 // Remove Government Card API
 
@@ -725,7 +734,6 @@ router
 router
   .route("/all/remaining/card/update")
   .patch(catchAsync(Admission.renderRemainingCardQuery));
-
 
 router
   .route("/all/government/card/update/query")
@@ -745,23 +753,21 @@ router
   .route("/all/fee/heads/move/query")
   .patch(catchAsync(Admission.renderFeeHeadsMoveGovernmentCardUpdateQuery));
 
-  router
-  .route("/remove/tta/query")
-    .patch(catchAsync(Admission.removeTTOAQuery));
-  
-    router
-  .route("/set/receipt/tta/query")
-      .patch(catchAsync(Admission.setFeeStructureToFeeReceiptAQuery));
-  
-      router.patch(
-        "/student/deposit/query",
-        catchAsync(Admission.renderDepositQuery)
-      );
+router.route("/remove/tta/query").patch(catchAsync(Admission.removeTTOAQuery));
 
-      router.patch(
-        "/student/deposit/to/zero/query",
-        catchAsync(Admission.renderDepositToZeroQuery)
-      );
+router
+  .route("/set/receipt/tta/query")
+  .patch(catchAsync(Admission.setFeeStructureToFeeReceiptAQuery));
+
+router.patch(
+  "/student/deposit/query",
+  catchAsync(Admission.renderDepositQuery)
+);
+
+router.patch(
+  "/student/deposit/to/zero/query",
+  catchAsync(Admission.renderDepositToZeroQuery)
+);
 router
   .route("/:aid/all/cancel/app/query")
   .get(catchAsync(Admission.renderAllCancelAppsQuery));
@@ -775,17 +781,35 @@ router
   .route("/:pid/multiple/installment/query")
   .patch(catchAsync(Admission.renderMultipleInstallmentQuery));
 
-router.patch("/:fsid/update/fs", catchAsync(Admission.renderFeeStructureUpdate))
+router.patch(
+  "/:fsid/update/fs",
+  catchAsync(Admission.renderFeeStructureUpdate)
+);
 
-router.get("/:aid/all/readmission/query", catchAsync(Admission.renderAllReadmissionQuery))
+router.get(
+  "/:aid/all/readmission/query",
+  catchAsync(Admission.renderAllReadmissionQuery)
+);
 
-router.patch("/:aid/fees/student/:sid/re/admission", catchAsync(Admission.renderReAdmissionFeesQuery))
+router.patch(
+  "/:aid/fees/student/:sid/re/admission",
+  catchAsync(Admission.renderReAdmissionFeesQuery)
+);
 
-router.get("/:aid/all/confirmed/readmission/query", catchAsync(Admission.renderAllConfirmedReadmissionQuery))
+router.get(
+  "/:aid/all/confirmed/readmission/query",
+  catchAsync(Admission.renderAllConfirmedReadmissionQuery)
+);
 
-router.patch("/:nid/delete/:rid/installment/card/query", catchAsync(Admission.renderDeleteInstallmentCardQuery))
+router.patch(
+  "/:nid/delete/:rid/installment/card/query",
+  catchAsync(Admission.renderDeleteInstallmentCardQuery)
+);
 
-router.get("/:fid/all/delete/logs/query", catchAsync(Admission.renderAllDeleteLogsQuery))
+router.get(
+  "/:fid/all/delete/logs/query",
+  catchAsync(Admission.renderAllDeleteLogsQuery)
+);
 
 router.post(
   "/new/form/:fcid/section/student/query",
@@ -887,11 +911,17 @@ router.post(
   catchAsync(Admission.render_select_group_query)
 );
 
-router.patch("/new/form/:sid", catchAsync(Admission.form))
+router.patch("/new/form/:sid", catchAsync(Admission.form));
 
-router.post("/:id/pinned/application/query", catchAsync(Admission.renderApplicationPinnedQuery))
+router.post(
+  "/:id/pinned/application/query",
+  catchAsync(Admission.renderApplicationPinnedQuery)
+);
 
-router.post("/:id/un/pinned/application/query", catchAsync(Admission.renderApplicationUnPinnedQuery))
+router.post(
+  "/:id/un/pinned/application/query",
+  catchAsync(Admission.renderApplicationUnPinnedQuery)
+);
 
 // Ongoing App Pinned
 router.get(
@@ -899,8 +929,7 @@ router.get(
   catchAsync(Admission.retieveAdmissionAdminAllApplicationPinned)
 );
 
-router.patch("/new/db/delete", catchAsync(Admission.db_delete))
-
+router.patch("/new/db/delete", catchAsync(Admission.db_delete));
 
 // Merged Ongoing App
 router.get(
@@ -920,20 +949,28 @@ router.get(
   catchAsync(Admission.fetchAllFeeCollectedMergedApplication)
 );
 
-
 // All Confirmed Application
 router.get(
   "/:aid/all/merged/ongoing/confirm/application",
   catchAsync(Admission.fetchAllConfirmedMergedApplication)
 );
 
-router.patch("/new/db/insertion/app/:aid", catchAsync(Admission.retieveAdmissionAdminInsertion))
+router.patch(
+  "/new/db/insertion/app/:aid",
+  catchAsync(Admission.retieveAdmissionAdminInsertion)
+);
 
 // All Student Revertion From DOCS TAB
-router.patch("/revert/data/:aid", catchAsync(Admission.retrieve_admission_revertion_query))
+router.patch(
+  "/revert/data/:aid",
+  catchAsync(Admission.retrieve_admission_revertion_query)
+);
 
 // All Student Reject From APPLICATION TAB
-router.patch("/revert/data/reject/:aid", catchAsync(Admission.retrieve_admission_revertion_reject_query))
+router.patch(
+  "/revert/data/reject/:aid",
+  catchAsync(Admission.retrieve_admission_revertion_reject_query)
+);
 
 // One Student Reject + Modify Form
 router.post(
@@ -962,26 +999,37 @@ router.patch(
   catchAsync(Admission.render_one_fee_receipt_change_student_query)
 );
 
-router.patch("/all/student/name", catchAsync(Admission.renderAutoStudentNameQuery))
+router.patch(
+  "/all/student/name",
+  catchAsync(Admission.renderAutoStudentNameQuery)
+);
 
 router.post(
   "/reverse/student/:aid/allot/class",
   catchAsync(Admission.retrieveClassAllotQueryReverse)
 );
 
-router.patch("/all/group/name", catchAsync(Admission.subject_student_class))
+router.patch("/all/group/name", catchAsync(Admission.subject_student_class));
 
-router.get("/:sid/staff/name/only", catchAsync(Admission.staff_name_only))
+router.get("/:sid/staff/name/only", catchAsync(Admission.staff_name_only));
 
-router.patch("/:aid/app/intake/query", catchAsync(Admission.render_admission_intake_query))
+router.patch(
+  "/:aid/app/intake/query",
+  catchAsync(Admission.render_admission_intake_query)
+);
 
-router.patch("/all/move/to", catchAsync(Admission.render_all_move_to_confirm))
+router.patch("/all/move/to", catchAsync(Admission.render_all_move_to_confirm));
 
-router.patch("/:aid/docs/collect/query", catchAsync(Admission.render_admission_docs_collect_query))
+router.patch(
+  "/:aid/docs/collect/query",
+  catchAsync(Admission.render_admission_docs_collect_query)
+);
 
-router.patch("/all/excess/to", catchAsync(Admission.render_excess))
+router.patch("/all/excess/to", catchAsync(Admission.render_excess));
 
-
-
+router.patch(
+  "/form/:aid/print/case",
+  catchAsync(Admission.admission_form_print_case_query)
+);
 
 module.exports = router;

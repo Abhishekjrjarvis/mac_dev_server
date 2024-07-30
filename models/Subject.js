@@ -228,12 +228,12 @@ const subjectSchema = new mongoose.Schema({
   shuffled_students: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Student"
-    }
+      ref: "Student",
+    },
   ],
   member_module_unique: {
     type: String,
-    unique: true
+    unique: true,
   },
   course_passing_credit: {
     type: Number,
@@ -303,8 +303,8 @@ const subjectSchema = new mongoose.Schema({
   theory_students: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Student"
-    }
+      ref: "Student",
+    },
   ],
   teaching_plan_copy: [
     {
@@ -336,6 +336,10 @@ const subjectSchema = new mongoose.Schema({
       ref: "ClassAttendanceTimeSlot",
     },
   ],
+  class_master: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ClassMaster",
+  },
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

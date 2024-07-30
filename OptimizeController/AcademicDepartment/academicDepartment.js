@@ -452,7 +452,7 @@ exports.render_all_students_query = async (req, res) => {
                     select: "className"
                 })
             const all_stu = await nested_document_limit(page, limit, all_students)
-          res.status(200).send({ message: "Explore All Students Query", access: true, all_students: all_stu })
+          res.status(200).send({ message: "Explore All Students Query", access: true, all_students: all_stu, count: all_students?.length })
           for (let ele of all_students) {
             if (m_class.all_academic_student?.includes(`${ele?._id}`)) {
               
@@ -501,14 +501,15 @@ exports.render_all_students_tab_query = async (req, res) => {
 
         if (nums?.length > 0) {
             const all_students = await Student.find({ studentClass: { $in: nums } })
-                .limit(limit)
-                .skip(skip)
+                // .limit(limit)
+                // .skip(skip)
                 .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO")
                 .populate({
                     path: "studentClass",
                     select: "className"
                 })
-            res.status(200).send({ message: "Explore All Students Tab Query", access: true, all_students: all_students})
+          var all_stu = await nested_document_limit(page, limit, all_students)
+            res.status(200).send({ message: "Explore All Students Tab Query", access: true, all_students: all_stu, count: all_students?.length})
         }
         else {
             res.status(200).send({ message: "No Students Tab Query", access: true, all_students: []})            
@@ -1009,7 +1010,7 @@ exports.render_all_dse_students_query = async (req, res) => {
                   path: "studentClass",
                   select: "className"
               })
-        res.status(200).send({ message: "Explore All DSE Students Query", access: true, all_students: all_stu, count: all_stu?.length })
+        res.status(200).send({ message: "Explore All DSE Students Query", access: true, all_students: all_stu, count: unique?.length })
       }
       else {
           res.status(200).send({ message: "No DSE Students Query", access: true, all_students: []})            

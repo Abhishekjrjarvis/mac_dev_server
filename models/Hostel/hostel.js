@@ -318,6 +318,18 @@ const hostelSchema = new mongoose.Schema({
       ref: "Student"
     }
   ],
+  app_qr_code: {
+    type: String
+  },
+  code_url: {
+    type: String
+  },
+  app_hindi_qr_code: {
+    type: String
+  },
+  app_marathi_qr_code: {
+    type: String
+  },
 });
 
 module.exports = mongoose.model("Hostel", hostelSchema);

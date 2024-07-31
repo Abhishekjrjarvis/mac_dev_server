@@ -3270,10 +3270,11 @@ exports.retrieveUnApproveStudentListQuery = async (req, res) => {
     var { search } = req.query;
     if (search) {
       const student_ins = await InstituteAdmin.findById({ _id: id }).select(
-        "UnApprovedStudent insName gr_initials"
+        "UnApprovedStudent ApproveStudent insName gr_initials"
       );
+      const nums = [...student_ins?.UnApprovedStudent, ...student_ins?.ApproveStudent]
       const studentIns = await Student.find({
-        $and: [{ _id: { $in: student_ins?.UnApprovedStudent } }],
+        $and: [{ _id: { $in: nums } }],
         $or: [
           {
             studentFirstName: { $regex: `${search}`, $options: "i" },
@@ -3290,7 +3291,7 @@ exports.retrieveUnApproveStudentListQuery = async (req, res) => {
           {
             studentGRNO: { $regex: `${search}`, $options: "i" },
           },
-          { qviple_student_pay_id: { $regex: `${search}`, $options: "i" } },
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
         ],
       })
         .sort({ createdAt: -1 })
@@ -3324,10 +3325,11 @@ exports.retrieveUnApproveStudentListQuery = async (req, res) => {
       }
     } else {
       const student_ins = await InstituteAdmin.findById({ _id: id }).select(
-        "UnApprovedStudent insName gr_initials"
+        "UnApprovedStudent ApproveStudent insName gr_initials"
       );
+      const nums = [...student_ins?.UnApprovedStudent, ...student_ins?.ApproveStudent]
       const studentIns = await Student.find({
-        _id: { $in: student_ins?.UnApprovedStudent },
+        _id: { $in: nums },
       })
         .sort({ createdAt: -1 })
         .limit(limit)

@@ -123,6 +123,7 @@ const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm
 const NotExistStudentCertificate = require("../../models/Certificate/NotExistStudentCertificate");
 const { admissionFeeReceipt } = require("../../scripts/admissionFeeReceipt");
 const societyAdmissionFeeReceipt = require("../../scripts/societyAdmissionFeeReceipt");
+const staffLeaveRequest = require("../../scripts/staffLeaveRequest");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -4786,6 +4787,18 @@ exports.customGenerateCheckAllPayReceiptQuery = async (req, res) => {
       message: "All application form is created.",
       not_generate_student_list: not_generate_student_list,
       a_app: a_app,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// for generated duumy pdf
+exports.generateDummyPdfQuery = async (req, res) => {
+  try {
+    await staffLeaveRequest();
+    res.status(200).send({
+      message: "Dummy pdf generate",
     });
   } catch (e) {
     console.log(e);

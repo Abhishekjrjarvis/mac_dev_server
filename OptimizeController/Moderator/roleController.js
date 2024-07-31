@@ -709,20 +709,22 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       ];
     }
     if (`${mod_role}` === "SOCIAL_MEDIA_ACCESS" || "SOCIAL_MEDIA_ASSISTANT_ACCESS") {
-      const new_user_pass = bcrypt.genSaltSync(12);
-      const hash_user_pass = bcrypt.hashSync(
-        social_media_password_query,
-        new_user_pass
-      );
-      institute.social_media_password_query = hash_user_pass;
-      user.social_media_password_query = hash_user_pass;
-      new_mod.social_media_password_query = hash_user_pass;
+      if (social_media_password_query) {
+        const new_user_pass = bcrypt.genSaltSync(12);
+        const hash_user_pass = bcrypt.hashSync(
+          social_media_password_query,
+          new_user_pass
+        );
+        institute.social_media_password_query = hash_user_pass;
+        user.social_media_password_query = hash_user_pass;
+        new_mod.social_media_password_query = hash_user_pass;
+      }
     }
     if (`${mod_role}` === "ACADEMIC_ADMINISTRATOR_ACCESS") {
       new_mod.academic_department = academic_department;
     }
     new_mod.institute = institute?._id;
-    if (`${new_mod?.access_role}` === "LEAVE_RECOMMENDATION_ACCESS" || `${new_mod?.access_role}` === "LEAVE_REVIEW_ACCESS" || `${new_mod?.access_role}` === "LEAVE_SANCTION_ACCESS") {
+    if (`${mod_role}` === "LEAVE_RECOMMENDATION_ACCESS" || `${mod_role}` === "LEAVE_REVIEW_ACCESS" || `${mod_role}` === "LEAVE_SANCTION_ACCESS") {
       
     }
     else {
@@ -751,7 +753,7 @@ exports.addInstituteModeratorQuery = async (req, res) => {
     notify.user = user._id;
     notify.notifyPid = "1";
     notify.notifyByInsPhoto = institute._id;
-    if (`${new_mod?.access_role}` === "LEAVE_RECOMMENDATION_ACCESS") {
+    if (`${mod_role}` === "LEAVE_RECOMMENDATION_ACCESS") {
       var lms = await LMS.findById({ _id: lmid})
       var all_staff = await Staff.find({ _id: { $in: staff_array}})
       for(var ele of all_staff){
@@ -765,7 +767,7 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       new_mod.lms = lms?._id
       await lms.save()
     } 
-    if (`${new_mod?.access_role}` === "LEAVE_REVIEW_ACCESS") {
+    if (`${mod_role}` === "LEAVE_REVIEW_ACCESS") {
       var lms = await LMS.findById({ _id: lmid})
       var all_staff = await Staff.find({ _id: { $in: staff_array}})
       for(var ele of all_staff){
@@ -779,7 +781,7 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       new_mod.lms = lms?._id
       await lms.save()
     }
-    if (`${new_mod?.access_role}` === "LEAVE_SANCTION_ACCESS") {
+    if (`${mod_role}` === "LEAVE_SANCTION_ACCESS") {
       var lms = await LMS.findById({ _id: lmid})
       var all_mods = await FinanceModerator.find({ _id: { $in: rev_array}})
       for(var ele of all_mods){
@@ -795,13 +797,6 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       new_mod.lms = lms?._id
       await lms.save()
     }
-    await invokeFirebaseNotification(
-      "Designation Allocation",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
     await Promise.all([
       staff.save(),
       institute.save(),
@@ -815,6 +810,13 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       institute: institute._id,
       access: true,
     });
+    await invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      institute.insName,
+      user._id,
+      user.deviceToken
+    );
     designation_alarm(
       user?.userPhoneNumber,
       "INSTITUTE_MODERATOR",

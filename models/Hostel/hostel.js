@@ -151,6 +151,10 @@ const hostelSchema = new mongoose.Schema({
       demand_cheque_status: { type: String, default: "Pending" },
     },
   ],
+  fee_receipt_request_count: {
+    type: Number,
+    default: 0,
+  },
   fee_receipt_approve: [
     {
       receipt: {
@@ -163,6 +167,10 @@ const hostelSchema = new mongoose.Schema({
       demand_cheque_status: { type: String, default: "Pending" },
     },
   ],
+  fee_receipt_approve_count: {
+    type: Number,
+    default: 0,
+  },
   fee_receipt_reject: [
     {
       receipt: {
@@ -171,10 +179,14 @@ const hostelSchema = new mongoose.Schema({
       },
       status: { type: String, default: "Pending" },
       created_at: { type: Date, default: Date.now },
-      reason: { type: String },
       demand_cheque_status: { type: String, default: "Pending" },
+      reason: { type: String },
     },
   ],
+  fee_receipt_reject_count: {
+    type: Number,
+    default: 0,
+  },
   student_form_query: {
     personalInfo: { type: Boolean, default: true },
     otherPersonalInfo: { type: Boolean, default: false },
@@ -329,6 +341,217 @@ const hostelSchema = new mongoose.Schema({
   },
   app_marathi_qr_code: {
     type: String
+  },
+  independent_pinned_application: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "NewApplication",
+    },
+  ],
+  dependent_pinned_application: [
+    {
+      section_type: { type: String },
+      application: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "NewApplication",
+        },
+      ],
+    },
+  ],
+  selectedApplication: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      select_on: { type: Date, default: Date.now },
+      payment_status: { type: String, default: "Pending" },
+      install_type: { type: String },
+      fee_remain: { type: Number, default: 0 },
+      docs_collect: { type: String, default: "Not Collected" },
+      status_id: { type: mongoose.Schema.Types.ObjectId, ref: "Status" },
+      edited_struct: { type: Boolean, default: true },
+      revert_request_status: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Status",
+      },
+      application: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff",
+      },
+    },
+  ],
+  confirmedApplication_query: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      apply_on: { type: Date, default: Date.now },
+      payment_status: { type: String, default: "Pending" },
+      fee_remain: { type: Number, default: 0 },
+      paid_status: { type: "String" },
+      install_type: { type: String },
+      second_pay_mode: { type: "String" },
+      status_id: { type: mongoose.Schema.Types.ObjectId, ref: "Status" },
+      transfer_status: {
+        type: String,
+        default: "Not Transferred",
+      },
+      transfer_from_app: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
+      revert_request_status: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Status",
+      },
+      application: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff",
+      },
+    },
+  ],
+  FeeCollectionApplication: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      apply_on: { type: Date, default: Date.now },
+      payment_status: { type: String, default: "Pending" },
+      fee_remain: { type: Number, default: 0 },
+      paid_status: { type: "String" },
+      install_type: { type: String },
+      second_pay_mode: { type: "String" },
+      status_id: { type: mongoose.Schema.Types.ObjectId, ref: "Status" },
+      transfer_status: {
+        type: String,
+        default: "Not Transferred",
+      },
+      transfer_from_app: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
+      payment_flow: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "RemainingList",
+      },
+      app_card: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NestedCard",
+      },
+      gov_card: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NestedCard",
+      },
+      revert_request_status: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Status",
+      },
+      fee_struct: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeStructure",
+      },
+      application: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff",
+      },
+    },
+  ],
+  re_admission_list: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      apply_on: { type: Date, default: Date.now },
+      payment_status: { type: String, default: "Pending" },
+      fee_struct: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeStructure",
+      },
+      appId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
+      app_card: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NestedCard",
+      },
+      gov_card: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NestedCard",
+      },
+    },
+  ],
+  re_admission_list_count: {
+    type: Number,
+    default: 0,
+  },
+  confirmedApplication: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      apply_on: { type: Date, default: Date.now },
+      appId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
+      structure: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeStructure",
+      },
+      class: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class",
+      },
+    },
+  ],
+  refundFeeList: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      refund: { type: Number, default: 0 },
+    },
+  ],
+  refundCount: {
+    type: Number,
+    default: 0,
+  },
+  refundedFeeList: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      refund: { type: Number, default: 0 },
+      fee_receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+    },
+  ],
+  refundedCount: {
+    type: Number,
+    default: 0,
   },
 });
 

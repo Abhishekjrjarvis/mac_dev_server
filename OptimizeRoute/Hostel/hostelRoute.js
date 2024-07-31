@@ -169,7 +169,7 @@ router.post(
 );
 
 router.post(
-  "/:hid/paid/remaining/fee/:sid/student/:appId",
+  "/:aid/paid/remaining/fee/:sid/student/:appId",
   catchAsync(Hostel.renderPaidRemainingFeeStudentQuery)
 );
 
@@ -365,5 +365,66 @@ router.patch(
 );
 
 router.patch("/pass", catchAsync(Hostel.renderHostelCardQuery));
+
+// One Student Reject + Modify Form
+router.post(
+  "/:sid/student/:aid/cancel/app/form/modify",
+  // isLoggedIn,
+  catchAsync(Hostel.retrieveHostelCancelApplicationModify)
+);
+
+router.patch(
+  "/:aid/student/:sid/edit/structure",
+  catchAsync(Hostel.renderEditStudentFeeStructureQuery)
+);
+
+router.post(
+  "/:sid/student/:aid/collect/docs",
+  // isLoggedIn,
+  catchAsync(Hostel.retrieveHostelCollectDocs)
+);
+
+router.post(
+  "/:sid/student/:aid/revert/back/select/query",
+  catchAsync(Hostel.retrieveHostelSelectedRevertedApplication)
+);
+
+router.post(
+  "/:sid/student/:aid/collect/revert/back/docs/query",
+  catchAsync(Hostel.retrieveHostelCollectDocsRevertedQuery)
+);
+
+router.patch(
+  "/:aid/student/review/query",
+  catchAsync(Hostel.renderReviewStudentQuery)
+);
+
+router.get("/:sid/staff/name/only", catchAsync(Hostel.staff_name_only));
+
+router.get(
+  "/:aid/all/merged/ongoing/application",
+  catchAsync(Hostel.retieveHostelAdminAllMergedApplication)
+);
+
+// All Selected Application
+router.get(
+  "/:aid/all/merged/ongoing/docs/application",
+  catchAsync(Hostel.fetchAllSelectMergedApplication)
+);
+
+// All Fee Collected Application
+router.get(
+  "/:aid/all/merged/ongoing/fees/collect/application",
+  catchAsync(Hostel.fetchAllFeeCollectedMergedApplication)
+);
+
+// All Confirmed Application
+router.get(
+  "/:aid/all/merged/ongoing/confirm/application",
+  catchAsync(Hostel.fetchAllConfirmedMergedApplication)
+);
+
+
+
 
 module.exports = router;

@@ -8161,26 +8161,6 @@ exports.renderOneLinkedQuery = async (req, res) => {
   }
 };
 
-exports.renderPass = async (req, res) => {
-  try {
-    var all_student = await Student.find({}).populate({
-      path: "hostel_fee_structure",
-      populate: {
-        path: "finance",
-        select: "institute",
-      },
-    });
-    for (var ref of all_student) {
-      if (ref?.hostel_fee_structure?._id) {
-        ref.institute = ref?.hostel_fee_structure?.finance?.institute;
-        await ref.save();
-      }
-    }
-    res.status(200).send({ message: "Pass" });
-  } catch (e) {
-    console.log(e);
-  }
-};
 
 exports.retrieveHostelCancelApplicationModify = async (req, res) => {
   try {
@@ -8287,6 +8267,7 @@ exports.retrieveHostelCancelApplicationModify = async (req, res) => {
     console.log(e);
   }
 };
+
 
 exports.renderEditStudentFeeStructureQuery = async (req, res) => {
   try {

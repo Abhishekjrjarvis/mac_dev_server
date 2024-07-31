@@ -293,7 +293,6 @@ exports.retrieveBonafideGRNO = async (req, res) => {
   }
 };
 
-
 exports.retrieveLeavingGRNO = async (req, res) => {
   try {
     const { gr, id } = req.params;
@@ -542,8 +541,6 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     console.log(e);
   }
 };
-
-
 
 exports.retrieveCertificateStatus = async (req, res) => {
   try {
@@ -972,18 +969,22 @@ exports.fetchExportStudentAllQuery = async (req, res) => {
         .populate({
           path: "fee_structure",
         });
-      
-        var all_studentsv2 = await Student.find({
-          $and: [{ batches: { $nin: sorted_batch } }, { institute: institute?._id }, { studentStatus: "Approved"}],
-        })
-          .select(
-            "studentClass batches department studentGender studentCastCategory"
-          )
-          .populate({
-            path: "fee_structure",
-          });
-      
-      var all_students = [...all_studentsv1, ...all_studentsv2]
+
+      var all_studentsv2 = await Student.find({
+        $and: [
+          { batches: { $nin: sorted_batch } },
+          { institute: institute?._id },
+          { studentStatus: "Approved" },
+        ],
+      })
+        .select(
+          "studentClass batches department studentGender studentCastCategory"
+        )
+        .populate({
+          path: "fee_structure",
+        });
+
+      var all_students = [...all_studentsv1, ...all_studentsv2];
     } else if (all_depart === "Particular") {
       var all_students = await Student.find({
         $and: [{ _id: { $in: institute?.ApproveStudent } }],
@@ -2157,7 +2158,10 @@ exports.renderExcelToJSONSubjectChapterQuery = async (req, res) => {
     // }
     // const val = await simple_object(key);
 
-    const is_converted = await generate_excel_to_json_subject_chapter_query(excel_file, excel_count);
+    const is_converted = await generate_excel_to_json_subject_chapter_query(
+      excel_file,
+      excel_count
+    );
     if (is_converted?.value) {
       await renderNewOneChapterTopicQuery(sid, is_converted?.chapter_array);
     } else {
@@ -2280,7 +2284,8 @@ exports.renderAllClassMatesQuery = async (req, res) => {
 
 exports.renderFilteredMessageQuery = async (req, res) => {
   try {
-    const { filtered_arr, message, from, type, flow, m_title, m_doc } = req.body;
+    const { filtered_arr, message, from, type, flow, m_title, m_doc } =
+      req.body;
     const { id } = req.query;
     if (!filtered_arr)
       return res.status(200).send({
@@ -2301,10 +2306,10 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         message_title: m_title,
         message_document: m_doc,
         institute: valid_ins?._id,
-        message_mode: "STUDENT_MESSAGE"
-      })
+        message_mode: "STUDENT_MESSAGE",
+      });
       valid_ins.student_message.push(new_message?._id);
-      valid_ins.student_message_count += 1
+      valid_ins.student_message_count += 1;
       await Promise.all([new_message.save(), valid_ins.save()]);
       res
         .status(200)
@@ -2321,11 +2326,11 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         notify.notifyType = "Student";
         notify.notifyPublisher = ref?._id;
         user.activity_tab.push(notify?._id);
-        user.student_message.push(new_message?._id)
+        user.student_message.push(new_message?._id);
         notify.notifyByInsPhoto = valid_ins?._id;
         notify.notifyCategory = "Reminder Alert";
         notify.redirectIndex = 59;
-        notify.student_message = new_message?._id
+        notify.student_message = new_message?._id;
         await Promise.all([user.save(), notify.save()]);
         invokeSpecificRegister(
           "Specific Notification",
@@ -2348,10 +2353,10 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         message_title: m_title,
         message_document: m_doc,
         institute: institute?._id,
-        message_mode: "STUDENT_MESSAGE"
-      })
+        message_mode: "STUDENT_MESSAGE",
+      });
       institute.student_message.push(new_message?._id);
-      institute.student_message_count += 1
+      institute.student_message_count += 1;
       await Promise.all([new_message.save(), institute.save()]);
       res
         .status(200)
@@ -2370,11 +2375,11 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         notify.notifyType = "Student";
         notify.notifyPublisher = ref?._id;
         user.activity_tab.push(notify?._id);
-        user.student_message.push(new_message?._id)
+        user.student_message.push(new_message?._id);
         notify.notifyByStaffPhoto = valid_staff?._id;
         notify.notifyCategory = "Reminder Alert";
         notify.redirectIndex = 59;
-        notify.student_message = new_message?._id
+        notify.student_message = new_message?._id;
         await Promise.all([user.save(), notify.save()]);
         invokeSpecificRegister(
           "Specific Notification",
@@ -2414,28 +2419,40 @@ exports.renderAllFilteredMessageQuery = async (req, res) => {
         access: false,
       });
     if (flow === "INSTITUTE_ADMIN") {
-      var valid_ins = await InstituteAdmin.findById({ _id: sid })
-        .select("student_message")
-      var all_message = await StudentMessage.find({ $and:[{ _id: { $in: valid_ins?.student_message } }, { message_mode: "STUDENT_MESSAGE"}] })
+      var valid_ins = await InstituteAdmin.findById({ _id: sid }).select(
+        "student_message"
+      );
+      var all_message = await StudentMessage.find({
+        $and: [
+          { _id: { $in: valid_ins?.student_message } },
+          { message_mode: "STUDENT_MESSAGE" },
+        ],
+      })
         .sort({ created_at: -1 })
         .limit(limit)
         .skip(skip)
         .populate({
           path: "from student_list",
-            select:
-              "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
         });
     } else {
-      var valid_staff = await Staff.findById({ _id: sid })
-        .select("student_message")
-        var all_message = await StudentMessage.find({ $and: [{ _id: { $in: valid_staff?.student_message } }, { message_mode: "STUDENT_MESSAGE"}] })
+      var valid_staff = await Staff.findById({ _id: sid }).select(
+        "student_message"
+      );
+      var all_message = await StudentMessage.find({
+        $and: [
+          { _id: { $in: valid_staff?.student_message } },
+          { message_mode: "STUDENT_MESSAGE" },
+        ],
+      })
         .sort({ created_at: -1 })
         .limit(limit)
         .skip(skip)
         .populate({
           path: "from student_list",
-            select:
-              "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
         });
     }
 
@@ -3238,7 +3255,7 @@ exports.renderExcelToJSONSubjectQuery = async (req, res) => {
       });
 
     const classes = await Class.findById({ _id: cid });
-    const depart = await Department.findById({ _id: `${classes?.department}`})
+    const depart = await Department.findById({ _id: `${classes?.department}` });
     const one_ins = await InstituteAdmin.findById({
       _id: `${classes?.institute}`,
     });
@@ -3267,7 +3284,11 @@ exports.renderExcelToJSONSubjectQuery = async (req, res) => {
     }
     const val = await simple_object(key);
 
-    const is_converted = await generate_excel_to_json_subject_query(val, depart?._id, classes?._id);
+    const is_converted = await generate_excel_to_json_subject_query(
+      val,
+      depart?._id,
+      classes?._id
+    );
     if (is_converted?.value) {
       await render_new_subject_query(is_converted?.subject_array, cid);
     } else {
@@ -3303,11 +3324,11 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
         message_title: m_title,
         message_document: m_doc,
         institute: valid_ins?._id,
-        message_mode: "STUDENT_MESSAGE"
-      })
+        message_mode: "STUDENT_MESSAGE",
+      });
       valid_ins.student_message.push(new_message?._id);
-      valid_ins.student_message_count += 1
-      await Promise.all([ new_message.save(), valid_ins.save()]);
+      valid_ins.student_message_count += 1;
+      await Promise.all([new_message.save(), valid_ins.save()]);
       res
         .status(200)
         .send({ message: "Explore Filtered Message Query", access: true });
@@ -3319,11 +3340,11 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       notify.notifyType = "Student";
       notify.notifyPublisher = student?._id;
       user.activity_tab.push(notify?._id);
-      user.student_message.push(new_message?._id)
+      user.student_message.push(new_message?._id);
       notify.notifyByInsPhoto = valid_ins?._id;
       notify.notifyCategory = "Reminder Alert";
       notify.redirectIndex = 59;
-      notify.student_message = new_message?._id
+      notify.student_message = new_message?._id;
       await Promise.all([user.save(), notify.save()]);
       invokeSpecificRegister(
         "Specific Notification",
@@ -3349,11 +3370,11 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
         message_title: m_title,
         message_document: m_doc,
         institute: institute?._id,
-        message_mode: "STUDENT_MESSAGE"
-      })
+        message_mode: "STUDENT_MESSAGE",
+      });
       institute.student_message.push(new_message?._id);
-      institute.student_message_count += 1
-      await Promise.all([ new_message.save(), institute.save() ]);
+      institute.student_message_count += 1;
+      await Promise.all([new_message.save(), institute.save()]);
       res
         .status(200)
         .send({ message: "Explore Filtered Message Query", access: true });
@@ -3367,11 +3388,11 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       notify.notifyType = "Student";
       notify.notifyPublisher = student?._id;
       user.activity_tab.push(notify?._id);
-      user.student_message.push(new_message?._id)
+      user.student_message.push(new_message?._id);
       notify.notifyByStaffPhoto = valid_staff?._id;
       notify.notifyCategory = "Reminder Alert";
       notify.redirectIndex = 59;
-      notify.student_message = new_message?._id
+      notify.student_message = new_message?._id;
       await Promise.all([user.save(), notify.save()]);
       invokeSpecificRegister(
         "Specific Notification",
@@ -3523,8 +3544,7 @@ exports.renderStudentAllCertificateQuery = async (req, res) => {
       })
       .populate({
         path: "fee_receipt",
-        select:
-          "fee_payment_amount fee_payment_mode invoice_count",
+        select: "fee_payment_amount fee_payment_mode invoice_count",
       });
     res.status(200).send({
       message: "Explore All Certificate Query",
@@ -3568,8 +3588,7 @@ exports.renderStudentAllCertificateQueryStatus = async (req, res) => {
       })
       .populate({
         path: "fee_receipt",
-        select:
-          "fee_payment_amount fee_payment_mode invoice_count",
+        select: "fee_payment_amount fee_payment_mode invoice_count",
       });
     res.status(200).send({
       message: `Explore All ${status} Certificate Query`,
@@ -3623,12 +3642,10 @@ exports.renderUpdateCertificateFundQuery = async (req, res) => {
       migration_charges,
     } = req?.body;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const ins = await InstituteAdmin.findById({ _id: id });
     if (bona_charges) {
@@ -3644,12 +3661,10 @@ exports.renderUpdateCertificateFundQuery = async (req, res) => {
       ins.certificate_fund_charges.migration_charges = migration_charges;
     }
     await ins.save();
-    res
-      .status(200)
-      .send({
-        message: "Explore New Certificate Fund Charges Query",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Explore New Certificate Fund Charges Query",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -3750,9 +3765,8 @@ exports.renderDeleteOneExcel = async (req, res) => {
   }
 };
 
-
-exports.renderShuffledStudentQuery = async(req, res) => {
-  try{
+exports.renderShuffledStudentQuery = async (req, res) => {
+  try {
     const { cid, bid, flow, shuffle_arr } = req.body;
     if (!flow)
       return res.status(200).send({
@@ -3760,44 +3774,47 @@ exports.renderShuffledStudentQuery = async(req, res) => {
         access: false,
       });
 
-    if(flow === "CLASS_WISE"){
-      if(shuffle_arr?.length > 0){
-      const classes = await Class.findById({ _id: cid })
-      classes.ApproveStudent = []
-      await classes.save()
-      var i = 0
-      for(var val of shuffle_arr){
-        classes.ApproveStudent.push(val)
-        const student = await Student.findById({ _id: `${val}`})
-        student.studentROLLNO = i + 1
-        i += 1
-        await student.save()
+    if (flow === "CLASS_WISE") {
+      if (shuffle_arr?.length > 0) {
+        const classes = await Class.findById({ _id: cid });
+        classes.ApproveStudent = [];
+        await classes.save();
+        var i = 0;
+        for (var val of shuffle_arr) {
+          classes.ApproveStudent.push(val);
+          const student = await Student.findById({ _id: `${val}` });
+          student.studentROLLNO = i + 1;
+          i += 1;
+          await student.save();
+        }
+        classes.shuffle_on = true;
+        await classes.save();
+        res.status(200).send({
+          message: "Explore Class Wise Shuffling Query",
+          access: true,
+        });
       }
-      classes.shuffle_on = true
-      await classes.save()
-      res.status(200).send({ message: "Explore Class Wise Shuffling Query", access: true})
-    }
-    }
-    else if(flow === "BATCH_WISE"){
-      if(shuffle_arr?.length > 0){
-      const batch = await Batch.findById({ _id: bid })
-      batch.class_student_query = []
-      await batch.save()
-      for(var val of shuffle_arr){
-        batch.class_student_query.push(val)
+    } else if (flow === "BATCH_WISE") {
+      if (shuffle_arr?.length > 0) {
+        const batch = await Batch.findById({ _id: bid });
+        batch.class_student_query = [];
+        await batch.save();
+        for (var val of shuffle_arr) {
+          batch.class_student_query.push(val);
+        }
+        await batch.save();
+        res.status(200).send({
+          message: "Explore Batch Wise Shuffling Query",
+          access: true,
+        });
       }
-      await batch.save()
-      res.status(200).send({ message: "Explore Batch Wise Shuffling Query", access: true})
+    } else {
+      res.status(200).send({ message: "Invalid Flow Query", access: false });
     }
-    }
-    else{
-      res.status(200).send({ message: "Invalid Flow Query", access: false})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.renderAllFilteredAlarmQuery = async (req, res) => {
   try {
@@ -3810,16 +3827,22 @@ exports.renderAllFilteredAlarmQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-      var valid_ins = await InstituteAdmin.findById({ _id: id })
-      .select("student_reminder")
-    var all_message = await StudentMessage.find({ $and: [{ _id: { $in: valid_ins?.student_reminder } }, { message_mode: "STUDENT_REMINDER"}] })
+    var valid_ins = await InstituteAdmin.findById({ _id: id }).select(
+      "student_reminder"
+    );
+    var all_message = await StudentMessage.find({
+      $and: [
+        { _id: { $in: valid_ins?.student_reminder } },
+        { message_mode: "STUDENT_REMINDER" },
+      ],
+    })
       .sort({ created_at: -1 })
       .limit(limit)
       .skip(skip)
       .populate({
         path: "from student_list",
-          select:
-            "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
       });
 
     if (all_message?.length > 0) {
@@ -3883,71 +3906,83 @@ exports.instituteidCardRequiredFieldUpdate = async (req, res) => {
 
 exports.renderAllInstituteFundChargesQuery = async (req, res) => {
   try {
-    const { id } = req?.params
-    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
-    
-    const ins = await InstituteAdmin.findById({ _id: id })
-      .select("certificate_fund_collection certificate_fund_charges")
-    res.status(200).send({ message: "Explore All Institute Fund Charges + Collection", access: true, certificate: ins})
-  }
-  catch (e) {
-    console.log(e)
-  }
-}
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
-exports.renderOldMessageQuery = async (req, res) => {
-  try {
-    var valid_ins = await InstituteAdmin.find({ status: "Approved"})
-      .select("ApproveStaff")
-    
-    var i = 0
-    for (var val of valid_ins) {
-      var all_staff = await Staff.find({ _id: { $in: val?.ApproveStaff } })
-      for (var ele of all_staff) {
-        ele.student_message = []
-        await ele.save()
-      }
-      console.log(i)
-      i+= 1
-      val.student_message = []
-      await val.save()
-    }
-      res
-        .status(200)
-        .send({ message: "Explore Institute Side Filtered Message Query", access: true });
+    const ins = await InstituteAdmin.findById({ _id: id }).select(
+      "certificate_fund_collection certificate_fund_charges"
+    );
+    res.status(200).send({
+      message: "Explore All Institute Fund Charges + Collection",
+      access: true,
+      certificate: ins,
+    });
   } catch (e) {
     console.log(e);
   }
 };
 
-exports.renderShuffledStaffQuery = async(req, res) => {
-  try{
+exports.renderOldMessageQuery = async (req, res) => {
+  try {
+    var valid_ins = await InstituteAdmin.find({ status: "Approved" }).select(
+      "ApproveStaff"
+    );
+
+    var i = 0;
+    for (var val of valid_ins) {
+      var all_staff = await Staff.find({ _id: { $in: val?.ApproveStaff } });
+      for (var ele of all_staff) {
+        ele.student_message = [];
+        await ele.save();
+      }
+      console.log(i);
+      i += 1;
+      val.student_message = [];
+      await val.save();
+    }
+    res.status(200).send({
+      message: "Explore Institute Side Filtered Message Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderShuffledStaffQuery = async (req, res) => {
+  try {
     const { id, shuffle_arr } = req.body;
     if (!shuffle_arr)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-      if(shuffle_arr?.length > 0){
-      const institute = await InstituteAdmin.findById({ _id: id })
-      institute.ApproveStaff = []
-      await institute.save()
-      var i = 0
-      for(var val of shuffle_arr){
-        institute.ApproveStaff.push(val)
-        const staff = await Staff.findById({ _id: `${val}`})
-        staff.staffROLLNO = i + 1
-        i += 1
-        await staff.save()
+    if (shuffle_arr?.length > 0) {
+      const institute = await InstituteAdmin.findById({ _id: id });
+      institute.ApproveStaff = [];
+      await institute.save();
+      var i = 0;
+      for (var val of shuffle_arr) {
+        institute.ApproveStaff.push(val);
+        const staff = await Staff.findById({ _id: `${val}` });
+        staff.staffROLLNO = i + 1;
+        i += 1;
+        await staff.save();
       }
-      await institute.save()
-      res.status(200).send({ message: "Explore Institute Wise Shuffling Query", access: true})
+      await institute.save();
+      res.status(200).send({
+        message: "Explore Institute Wise Shuffling Query",
+        access: true,
+      });
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.renderExcelToJSONTimeTableQuery = async (req, res) => {
   try {
@@ -3963,10 +3998,13 @@ exports.renderExcelToJSONTimeTableQuery = async (req, res) => {
       access: true,
     });
 
-    const is_converted = await generate_excel_to_json_class_time_table_query(excel_file, excel_count);
+    const is_converted = await generate_excel_to_json_class_time_table_query(
+      excel_file,
+      excel_count
+    );
     if (is_converted?.value) {
       for (var val of is_converted?.chapter_array) {
-        await addTimeTableExcelQuery(val, cid); 
+        await addTimeTableExcelQuery(val, cid);
       }
     } else {
       console.log("false");
@@ -4059,7 +4097,6 @@ exports.issueCertificateInstituteLogsQuery = async (req, res) => {
   }
 };
 
-
 exports.customGenerateApplicationFormQuery = async (req, res) => {
   try {
     const { aid } = req.params;
@@ -4139,7 +4176,6 @@ exports.customGenerateApplicationFormQuery = async (req, res) => {
     console.log(e);
   }
 };
-
 
 exports.notExistStudentCertificateQuery = async (req, res) => {
   try {
@@ -4276,8 +4312,6 @@ exports.notExistStudentCertificateQuery = async (req, res) => {
     console.log(e);
   }
 };
-
-
 
 exports.notExistStudentInstituteProfileQuery = async (req, res) => {
   try {
@@ -4501,40 +4535,40 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
     let a_app = [];
     let all_app = [];
     const admission = await Admission.findById(aid);
-    all_app = await NewApplication.find({
-      $and: [
-        {
-          admissionAdmin: { $eq: `${aid}` },
-        },
-        {
-          applicationStatus: { $eq: "Ongoing" },
-        },
-        {
-          applicationTypeStatus: { $eq: "Normal Application" },
-        },
-      ],
-    });
-    // all_app = await NewApplication.findById("6679a1a72b63299574311159");
+    // all_app = await NewApplication.find({
+    //   $and: [
+    //     {
+    //       admissionAdmin: { $eq: `${aid}` },
+    //     },
+    //     {
+    //       applicationStatus: { $eq: "Ongoing" },
+    //     },
+    //     {
+    //       applicationTypeStatus: { $eq: "Normal Application" },
+    //     },
+    //   ],
+    // });
+    all_app = await NewApplication.findById("666a78c330ee0b50462c00ef");
 
-    for (let i = 0; i < all_app?.length; i++) {
-      // for (let dfg of all_app) {
-      // let new_app = all_app;
-      let new_app = all_app[i];
-      // let new_app = dfg;
-      a_app.push(new_app?.applicationName);
-      console.log(new_app?.applicationName);
-      if (
-        false
-        // new_app?.applicationName === "F.Y. M.Sc (Analytical Chemistry - 2024-25)"
-      ) {
-      } else {
-        if (admission?.institute) {
-          for (let st of new_app?.receievedApplication) {
-            if (st?.student) {
-              const stu = await Student.findById(st?.student);
-              if (stu?._id) {
-                // if (stu?.application_print?.length > 0) {
-                // } else {
+    // for (let i = 0; i < all_app?.length; i++) {
+    // for (let dfg of all_app) {
+    let new_app = all_app;
+    // let new_app = all_app[i];
+    // let new_app = dfg;
+    a_app.push(new_app?.applicationName);
+    console.log(new_app?.applicationName);
+    if (
+      false
+      // new_app?.applicationName === "F.Y. M.Sc (Analytical Chemistry - 2024-25)"
+    ) {
+    } else {
+      if (admission?.institute) {
+        for (let st of new_app?.receievedApplication) {
+          if (st?.student) {
+            const stu = await Student.findById(st?.student);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
                 not_generate_student_list.push(stu?._id);
                 await generateStudentAdmissionForm(
                   stu?._id,
@@ -4544,16 +4578,16 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
                   } ${stu?.studentLastName ?? ""}`,
                   new_app?.applicationName
                 );
-                // }
               }
             }
           }
-          for (let st of new_app?.selectedApplication) {
-            if (st?.student) {
-              const stu = await Student.findById(st?.student);
-              if (stu?._id) {
-                // if (stu?.application_print?.length > 0) {
-                // } else {
+        }
+        for (let st of new_app?.selectedApplication) {
+          if (st?.student) {
+            const stu = await Student.findById(st?.student);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
                 not_generate_student_list.push(stu?._id);
                 await generateStudentAdmissionForm(
                   stu?._id,
@@ -4563,16 +4597,16 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
                   } ${stu?.studentLastName ?? ""}`,
                   new_app?.applicationName
                 );
-                // }
               }
             }
           }
-          for (let st of new_app?.FeeCollectionApplication) {
-            if (st?.student) {
-              const stu = await Student.findById(st?.student);
-              if (stu?._id) {
-                // if (stu?.application_print?.length > 0) {
-                // } else {
+        }
+        for (let st of new_app?.FeeCollectionApplication) {
+          if (st?.student) {
+            const stu = await Student.findById(st?.student);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
                 not_generate_student_list.push(stu?._id);
                 await generateStudentAdmissionForm(
                   stu?._id,
@@ -4582,16 +4616,16 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
                   } ${stu?.studentLastName ?? ""}`,
                   new_app?.applicationName
                 );
-                // }
               }
             }
           }
-          for (let st of new_app?.confirmedApplication) {
-            if (st?.student) {
-              const stu = await Student.findById(st?.student);
-              if (stu?._id) {
-                // if (stu?.application_print?.length > 0) {
-                // } else {
+        }
+        for (let st of new_app?.confirmedApplication) {
+          if (st?.student) {
+            const stu = await Student.findById(st?.student);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
                 not_generate_student_list.push(stu?._id);
                 await generateStudentAdmissionForm(
                   stu?._id,
@@ -4601,16 +4635,16 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
                   } ${stu?.studentLastName ?? ""}`,
                   new_app?.applicationName
                 );
-                // }
               }
             }
           }
-          for (let st of new_app?.reviewApplication) {
-            if (st) {
-              const stu = await Student.findById(st);
-              if (stu?._id) {
-                // if (stu?.application_print?.length > 0) {
-                // } else {
+        }
+        for (let st of new_app?.reviewApplication) {
+          if (st) {
+            const stu = await Student.findById(st);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
                 not_generate_student_list.push(stu?._id);
                 await generateStudentAdmissionForm(
                   stu?._id,
@@ -4620,13 +4654,13 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
                   } ${stu?.studentLastName ?? ""}`,
                   new_app?.applicationName
                 );
-                // }
               }
             }
           }
         }
       }
     }
+    // }
 
     res.status(200).send({
       message: "All application form is created.",
@@ -4757,9 +4791,3 @@ exports.customGenerateCheckAllPayReceiptQuery = async (req, res) => {
     console.log(e);
   }
 };
-
-
-
-
-
-

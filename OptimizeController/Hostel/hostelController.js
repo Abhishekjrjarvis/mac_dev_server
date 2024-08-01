@@ -8368,7 +8368,7 @@ exports.retrieveHostelCollectDocs = async (req, res) => {
     });
     var student = await Student.findById({ _id: sid });
     const structure = await FeeStructure.findById({
-      _id: `${student?.fee_structure}`,
+      _id: `${student?.hostel_fee_structure}`,
     });
     var user = await User.findById({ _id: `${student?.user}` });
     var status = new Status({});

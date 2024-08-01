@@ -424,6 +424,21 @@ router.get(
   catchAsync(Hostel.fetchAllConfirmedMergedApplication)
 );
 
+router.post(
+  "/:id/pinned/application/query",
+  catchAsync(Hostel.renderApplicationPinnedQuery)
+);
+
+router.post(
+  "/:id/un/pinned/application/query",
+  catchAsync(Hostel.renderApplicationUnPinnedQuery)
+);
+
+// Ongoing App Pinned
+router.get(
+  "/:id/all/ongoing/application/pinned",
+  catchAsync(Hostel.retieveHostelAdminAllApplicationPinned)
+);
 
 
 

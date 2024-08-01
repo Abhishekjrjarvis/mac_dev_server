@@ -9224,6 +9224,174 @@ exports.fetchAllConfirmedMergedApplication = async (req, res) => {
   }
 };
 
+exports.renderApplicationPinnedQuery = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    const { did, type, flow } = req?.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_ins = await Hostel.findById({ _id: id });
+    var app = await NewApplication.findById({ _id: did });
+    if (flow === "INDEPENDENT") {
+      one_ins.independent_pinned_application.push(did);
+      app.pin.status = "Pinned";
+      app.pin.flow = "INDEPENDENT";
+      app.pin.flow_id = app?._id;
+      await Promise.all([one_ins.save(), app.save()]);
+    } else if (flow === "DEPENDENT") {
+      let is_avail = one_ins?.dependent_pinned_application?.filter((val) => {
+        if (`${val?.section_type}` === `${type}`) return val;
+      });
+      if (is_avail?.length > 0) {
+        for (let ele of is_avail) {
+          ele.application.push(did);
+          app.pin.status = "Pinned";
+          app.pin.flow = "DEPENDENT";
+          app.pin.flow_id = app?._id;
+        }
+      } else {
+        one_ins.dependent_pinned_application.push({
+          section_type: type,
+          application: did,
+        });
+        app.pin.status = "Pinned";
+        app.pin.flow = "DEPENDENT";
+        app.pin.flow_id = app?._id;
+      }
+      // if (one_ins?.dependent_pinned_application?.length > 0) {
+
+      // }
+      // else {
+      //   one_ins.dependent_pinned_application.push({
+      //     section_type: type,
+      //     application: did
+      //   })
+      // }
+      for (let ele of one_ins.dependent_pinned_application) {
+        if (`${ele?.application}` === `${app?._id}`) {
+          app.pin.flow_id = ele?._id;
+        }
+      }
+      await Promise.all([one_ins.save(), app.save()]);
+    }
+    res
+      .status(200)
+      .send({ message: "Explore One Application Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderApplicationUnPinnedQuery = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    const { did, flow } = req?.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_ins = await Hostel.findById({ _id: id });
+    if (flow === "INDEPENDENT") {
+      var app = await NewApplication.findById({ _id: did });
+      one_ins.independent_pinned_application.pull(did);
+      app.pin.status = "";
+      app.pin.flow = "";
+      app.pin.flow_id = null;
+      await Promise.all([one_ins.save(), app.save()]);
+    } else if (flow === "DEPENDENT") {
+      for (var ele of one_ins?.dependent_pinned_application) {
+        if (ele?.application?.includes(`${did}`)) {
+          var app = await NewApplication.findById({ _id: did });
+          ele.application.pull(did);
+          app.pin.status = "";
+          app.pin.flow = "";
+          app.pin.flow_id = null;
+          await app.save();
+        } else if (`${ele?._id}` === `${did}`) {
+          for (let val of ele?.application) {
+            var app = await NewApplication.findById({ _id: `${val}` });
+            app.pin.status = "";
+            app.pin.flow = "";
+            app.pin.flow_id = null;
+            await app.save();
+          }
+          one_ins.dependent_pinned_application.pull(did);
+        }
+      }
+      await one_ins.save();
+    }
+    res
+      .status(200)
+      .send({ message: "Explore One Un Pin Application Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retieveHostelAdminAllApplicationPinned = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const ins = await InstituteAdmin.findById({ _id: id }).select(
+      "admissionDepart hostelDepart"
+    );
+    const apply = await Hostel.findById({
+      _id: `${ins?.hostelDepart?.[0]}`,
+    }).populate({
+      path: "dependent_pinned_application",
+      populate: {
+        path: "application",
+        populate: {
+          path: "applicationUnit",
+          select: "hostel_unit_name",
+        },
+      },
+    });
+    var nums = await NewApplication.find({
+      $and: [{ _id: { $in: apply?.independent_pinned_application } }],
+    })
+      .select(
+        "applicationName applicationEndDate applicationTypeStatus receievedApplication pin selectedApplication confirmedApplication admissionAdmin selectCount confirmCount receievedCount allottedApplication allotCount applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch gr_initials cancelApplication cancelCount reviewApplication review_count FeeCollectionApplication fee_collect_count student_form_setting"
+      )
+      .populate({
+        path: "applicationUnit",
+        select: "hostel_unit_name",
+      });
+    var list = [];
+    // const unique = [...new Set(apply?.dependent_pinned_application.map(item => item.section_type))]
+    for (let val of apply?.dependent_pinned_application) {
+      list.push({
+        type: val?.section_type,
+        apps: val?.application,
+      });
+    }
+
+    const ongoing = [...list, ...nums];
+    const ads_obj = {
+      message: "All Ongoing Application from DB 🙌",
+      // depend: apply?.dependent_pinned_application,
+      // independ: nums,
+      ongoing: ongoing,
+    };
+    const adsEncrypt = await encryptionPayload(ads_obj);
+    res.status(200).send({
+      encrypt: adsEncrypt,
+      ads_obj,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
 
 // exports.renderHostelAllAppsQuery = async (req, res) => {
 //   try {

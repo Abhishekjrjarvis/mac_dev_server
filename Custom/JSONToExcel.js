@@ -224,6 +224,7 @@ exports.json_to_excel_admission_application_query = async (
   flow
 ) => {
   try {
+    const apply = await NewApplication.findById({ _id: appId });
     var sheet_name;
     if (apply?.applicationHostel) {
       sheet_name = "Hostel Application Students"
@@ -240,7 +241,6 @@ exports.json_to_excel_admission_application_query = async (
 
     const results = await uploadExcelFile(`${name}.xlsx`);
 
-    const apply = await NewApplication.findById({ _id: appId });
     if (apply?.applicationHostel) {
       const hostel_admin = await Hostel.findById({
         _id: `${apply?.applicationHostel}`,

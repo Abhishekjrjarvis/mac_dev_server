@@ -16823,6 +16823,7 @@ exports.retrieveClassAllotQueryReverse = async (req, res) => {
           });
           // apply.reviewApplication.pull(student._id);
           apply.undo_student.push(student?._id);
+          apply.reviewApplication.push(student?._id)
           // apply.allottedApplication.push({
           //   student: student._id,
           //   payment_status: "offline",

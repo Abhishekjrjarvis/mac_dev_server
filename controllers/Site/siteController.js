@@ -16,7 +16,6 @@ const Activity = require("../../models/LandingModel/RND/Activity");
 const Staff = require("../../models/Staff");
 const Batch = require("../../models/Batch");
 
-
 exports.getDepartmentInfo = async (req, res) => {
   try {
     const { did } = req.params;
@@ -29,7 +28,7 @@ exports.getDepartmentInfo = async (req, res) => {
     if (department.site_info?.[0]) {
       const departmentSite = await DepartmentSite.findById(
         department.site_info[0]
-      )
+      );
       res.status(200).send({
         message: "get Department site info detail 😋😊😋",
         department_site: departmentSite,
@@ -91,7 +90,7 @@ exports.updateDepartmentInfo = async (req, res) => {
         department_image: req.body.department_image,
         department_contact: req.body.department_contact,
         related_department: department?._id,
-        department_site_status: department?.department_status
+        department_site_status: department?.department_status,
       });
       department.site_info.push(departmentSite?._id);
       await Promise.all([departmentSite.save(), department.save()]);
@@ -579,309 +578,384 @@ exports.updateTransportInfo = async (req, res) => {
 
 exports.render_one_department_extra_docs_query = async (req, res) => {
   try {
-    const { dsid } = req?.params
-    const { flow, title, image, description } = req?.body
-    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var d_site = await DepartmentSite.findById({ _id: dsid })
+    const { dsid } = req?.params;
+    const { flow, title, image, description } = req?.body;
+    if (!dsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var d_site = await DepartmentSite.findById({ _id: dsid });
     if (flow === "PROFESSIONAL_BODY") {
       d_site.professional_body.push({
         title: title,
         description: description,
-        image: image
-      })
+        image: image,
+      });
     } else if (flow === "STUDENT_ASSOCIATIONS") {
       d_site.student_associations.push({
         title: title,
         description: description,
-        image: image
-      })
-    }
-    else if (flow === "STUDENT_ACHIEVEMENTS") {
+        image: image,
+      });
+    } else if (flow === "STUDENT_ACHIEVEMENTS") {
       d_site.student_achievements.push({
         title: title,
         description: description,
-        image: image
-      })
-    }
-    else if (flow === "INNOVATIVE_PRACTICES") {
+        image: image,
+      });
+    } else if (flow === "INNOVATIVE_PRACTICES") {
       d_site.innovative_practices.push({
         title: title,
         description: description,
-        image: image
-      })
+        image: image,
+      });
     }
-    await d_site.save()
-    res.status(200).send({ message: "Explore Department Site Updated Query", access: true})
+    await d_site.save();
+    res
+      .status(200)
+      .send({ message: "Explore Department Site Updated Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_department_syllabus_projects_query = async (req, res) => {
   try {
-    const { dsid } = req?.params
-    const { flow, name, attach } = req?.body
-    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var d_site = await DepartmentSite.findById({ _id: dsid })
+    const { dsid } = req?.params;
+    const { flow, name, attach } = req?.body;
+    if (!dsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var d_site = await DepartmentSite.findById({ _id: dsid });
     if (flow === "SYLLABUS") {
       d_site.syllabus.push({
         name: name,
-        attach: attach
-      })
+        attach: attach,
+      });
     } else if (flow === "PROJECTS") {
       d_site.projects.push({
         name: name,
-        attach: attach
-      })
+        attach: attach,
+      });
     }
-    await d_site.save()
-    res.status(200).send({ message: "Explore Department Site Updated Syllabus + Projects Query", access: true})
+    await d_site.save();
+    res.status(200).send({
+      message: "Explore Department Site Updated Syllabus + Projects Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_department_pso_query = async (req, res) => {
   try {
-    const { dsid } = req?.params
-    const { title, description } = req?.body
-    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const { dsid } = req?.params;
+    const { title, description, attach } = req?.body;
+    if (!dsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var d_site = await DepartmentSite.findById({ _id: dsid })
+    var d_site = await DepartmentSite.findById({ _id: dsid });
     d_site.po_pso.push({
       title: title,
-      description: description
-    })
-    await d_site.save()
-    res.status(200).send({ message: "Explore Department Site Updated PO / PSO Query", access: true})
+      description: description,
+      attach: attach,
+    });
+    await d_site.save();
+    res.status(200).send({
+      message: "Explore Department Site Updated PO / PSO Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_department_edit_extra_docs_query = async (req, res) => {
   try {
-    const { dsid } = req?.params
-    const { flow, title, image, description, cid } = req?.body
-    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var d_site = await DepartmentSite.findById({ _id: dsid })
+    const { dsid } = req?.params;
+    const { flow, title, image, description, cid } = req?.body;
+    if (!dsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var d_site = await DepartmentSite.findById({ _id: dsid });
     if (flow === "PROFESSIONAL_BODY") {
       for (let ele of d_site?.professional_body) {
         if (`${ele?._id}` === `${cid}`) {
-          ele.title = title ? title : ele?.title
-          ele.description = description ? description : ele?.description
-          ele.image = image ? image : ele?.image
+          ele.title = title ? title : ele?.title;
+          ele.description = description ? description : ele?.description;
+          ele.image = image ? image : ele?.image;
         }
       }
     } else if (flow === "STUDENT_ASSOCIATIONS") {
       for (let ele of d_site?.student_associations) {
         if (`${ele?._id}` === `${cid}`) {
-          ele.title = title ? title : ele?.title
-          ele.description = description ? description : ele?.description
-          ele.image = image ? image : ele?.image
+          ele.title = title ? title : ele?.title;
+          ele.description = description ? description : ele?.description;
+          ele.image = image ? image : ele?.image;
         }
       }
-    }
-    else if (flow === "STUDENT_ACHIEVEMENTS") {
+    } else if (flow === "STUDENT_ACHIEVEMENTS") {
       for (let ele of d_site?.student_achievements) {
         if (`${ele?._id}` === `${cid}`) {
-          ele.title = title ? title : ele?.title
-          ele.description = description ? description : ele?.description
-          ele.image = image ? image : ele?.image
+          ele.title = title ? title : ele?.title;
+          ele.description = description ? description : ele?.description;
+          ele.image = image ? image : ele?.image;
         }
       }
-    }
-    else if (flow === "INNOVATIVE_PRACTICES") {
+    } else if (flow === "INNOVATIVE_PRACTICES") {
       for (let ele of d_site?.innovative_practices) {
         if (`${ele?._id}` === `${cid}`) {
-          ele.title = title ? title : ele?.title
-          ele.description = description ? description : ele?.description
-          ele.image = image ? image : ele?.image
+          ele.title = title ? title : ele?.title;
+          ele.description = description ? description : ele?.description;
+          ele.image = image ? image : ele?.image;
         }
       }
     }
-    await d_site.save()
-    res.status(200).send({ message: "Explore Edit Department Site Updated Query", access: true})
+    await d_site.save();
+    res.status(200).send({
+      message: "Explore Edit Department Site Updated Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
-exports.render_one_department_edit_syllabus_projects_query = async (req, res) => {
+exports.render_one_department_edit_syllabus_projects_query = async (
+  req,
+  res
+) => {
   try {
-    const { dsid } = req?.params
-    const { flow, name, attach, cid } = req?.body
-    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var d_site = await DepartmentSite.findById({ _id: dsid })
+    const { dsid } = req?.params;
+    const { flow, name, attach, cid } = req?.body;
+    if (!dsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var d_site = await DepartmentSite.findById({ _id: dsid });
     if (flow === "SYLLABUS") {
       for (let ele of d_site?.syllabus) {
         if (`${ele?._id}` === `${cid}`) {
-          ele.name = name ? name : ele?.name
-          ele.attach = attach ? attach : ele?.attach
+          ele.name = name ? name : ele?.name;
+          ele.attach = attach ? attach : ele?.attach;
         }
       }
     } else if (flow === "PROJECTS") {
       for (let ele of d_site?.projects) {
         if (`${ele?._id}` === `${cid}`) {
-          ele.name = name ? name : ele?.name
-          ele.attach = attach ? attach : ele?.attach
+          ele.name = name ? name : ele?.name;
+          ele.attach = attach ? attach : ele?.attach;
         }
       }
     }
-    await d_site.save()
-    res.status(200).send({ message: "Explore Edit Department Site Updated Syllabus + Projects Query", access: true})
+    await d_site.save();
+    res.status(200).send({
+      message: "Explore Edit Department Site Updated Syllabus + Projects Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_department_edit_pso_query = async (req, res) => {
   try {
-    const { dsid } = req?.params
-    const { title, description, cid } = req?.body
-    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const { dsid } = req?.params;
+    const { title, description, cid } = req?.body;
+    if (!dsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var d_site = await DepartmentSite.findById({ _id: dsid })
+    var d_site = await DepartmentSite.findById({ _id: dsid });
     for (let ele of d_site?.po_pso) {
-      if (`${ele?._id}` === `${cid}`) { 
-        ele.title = title ? title : ele?.title
-        ele.description = description ? description : ele?.description
+      if (`${ele?._id}` === `${cid}`) {
+        ele.title = title ? title : ele?.title;
+        ele.description = description ? description : ele?.description;
+        ele.attach = attach;
       }
     }
-    await d_site.save()
-    res.status(200).send({ message: "Explore Edit Department Site Updated PO / PSO Query", access: true})
+    await d_site.save();
+    res.status(200).send({
+      message: "Explore Edit Department Site Updated PO / PSO Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_department_delete_extra_docs_query = async (req, res) => {
   try {
-    const { dsid } = req?.params
-    const { cid, flow } = req?.body
-    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var d_site = await DepartmentSite.findById({ _id: dsid })
+    const { dsid } = req?.params;
+    const { cid, flow } = req?.body;
+    if (!dsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var d_site = await DepartmentSite.findById({ _id: dsid });
     if (flow === "PROFESSIONAL_BODY") {
       for (let ele of d_site?.professional_body) {
         if (`${ele?._id}` === `${cid}`) {
-          d_site?.professional_body.pull(ele?._id)
+          d_site?.professional_body.pull(ele?._id);
         }
       }
     } else if (flow === "STUDENT_ASSOCIATIONS") {
       for (let ele of d_site?.student_associations) {
         if (`${ele?._id}` === `${cid}`) {
-          d_site?.student_associations.pull(ele?._id)
+          d_site?.student_associations.pull(ele?._id);
         }
       }
-    }
-    else if (flow === "STUDENT_ACHIEVEMENTS") {
+    } else if (flow === "STUDENT_ACHIEVEMENTS") {
       for (let ele of d_site?.student_achievements) {
         if (`${ele?._id}` === `${cid}`) {
-          d_site?.student_achievements.pull(ele?._id)
+          d_site?.student_achievements.pull(ele?._id);
         }
       }
-    }
-    else if (flow === "INNOVATIVE_PRACTICES") {
+    } else if (flow === "INNOVATIVE_PRACTICES") {
       for (let ele of d_site?.innovative_practices) {
         if (`${ele?._id}` === `${cid}`) {
-          d_site?.innovative_practices.pull(ele?._id)
+          d_site?.innovative_practices.pull(ele?._id);
         }
       }
     }
-    await d_site.save()
-    res.status(200).send({ message: "Explore Delete Department Site Updated Query", access: true})
+    await d_site.save();
+    res.status(200).send({
+      message: "Explore Delete Department Site Updated Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
-exports.render_one_department_delete_syllabus_projects_query = async (req, res) => {
+exports.render_one_department_delete_syllabus_projects_query = async (
+  req,
+  res
+) => {
   try {
-    const { dsid } = req?.params
-    const { cid, flow } = req?.body
-    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var d_site = await DepartmentSite.findById({ _id: dsid })
+    const { dsid } = req?.params;
+    const { cid, flow } = req?.body;
+    if (!dsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var d_site = await DepartmentSite.findById({ _id: dsid });
     if (flow === "SYLLABUS") {
       for (let ele of d_site?.syllabus) {
         if (`${ele?._id}` === `${cid}`) {
-          d_site?.syllabus.pull(ele?._id)
+          d_site?.syllabus.pull(ele?._id);
         }
       }
     } else if (flow === "PROJECTS") {
       for (let ele of d_site?.projects) {
         if (`${ele?._id}` === `${cid}`) {
-          d_site?.projects.pull(ele?._id)
+          d_site?.projects.pull(ele?._id);
         }
       }
     }
-    await d_site.save()
-    res.status(200).send({ message: "Explore Delete Department Site Updated Syllabus + Projects Query", access: true})
+    await d_site.save();
+    res.status(200).send({
+      message:
+        "Explore Delete Department Site Updated Syllabus + Projects Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_department_delete_pso_query = async (req, res) => {
   try {
-    const { dsid } = req?.params
-    const { cid } = req?.body
-    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const { dsid } = req?.params;
+    const { cid } = req?.body;
+    if (!dsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var d_site = await DepartmentSite.findById({ _id: dsid })
+    var d_site = await DepartmentSite.findById({ _id: dsid });
     for (let ele of d_site?.po_pso) {
-      if (`${ele?._id}` === `${cid}`) { 
-        d_site?.po_pso.pull(ele?._id)
+      if (`${ele?._id}` === `${cid}`) {
+        d_site?.po_pso.pull(ele?._id);
       }
     }
-    await d_site.save()
-    res.status(200).send({ message: "Explore Delete Department Site Updated PO / PSO Query", access: true})
+    await d_site.save();
+    res.status(200).send({
+      message: "Explore Delete Department Site Updated PO / PSO Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_edit_academic_sub_head_query = async (req, res) => {
   try {
-    const { dsid } = req?.params
-    const { sub_head_title, sub_heading_image, sub_head_body } = req?.body
-    if (!dsid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const site = await DepartmentSite.findById({ _id: dsid })
+    const { dsid } = req?.params;
+    const { sub_head_title, sub_heading_image, sub_head_body } = req?.body;
+    if (!dsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const site = await DepartmentSite.findById({ _id: dsid });
     site.about.push({
       sub_head_title: sub_head_title,
       sub_heading_image: sub_heading_image,
-      sub_head_body: sub_head_body
-    })
-    await site.save()
-    res.status(200).send({ message: "Explore Sub Head Edit Query", access: true})
+      sub_head_body: sub_head_body,
+    });
+    await site.save();
+    res
+      .status(200)
+      .send({ message: "Explore Sub Head Edit Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_add_mou_collab_query = async (req, res) => {
   try {
-    const { did } = req?.params
-    const { srn, org_name, institution_industry, durations, link, attach, batch, student_count, staff_count } = req?.body
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
-    
-    const depart = await Department.findById({ _id: did })
+    const { did } = req?.params;
+    const {
+      srn,
+      org_name,
+      institution_industry,
+      durations,
+      link,
+      attach,
+      batch,
+      student_count,
+      staff_count,
+    } = req?.body;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
     depart.mou_collab.push({
       srn: srn,
       org_name: org_name,
@@ -891,325 +965,418 @@ exports.render_add_mou_collab_query = async (req, res) => {
       attach: attach ?? "",
       batch: batch,
       student_count: student_count,
-      staff_count: staff_count
-    })
-    await depart.save()
-    res.status(200).send({ message: "Explore All Mou/Collab Query", access: true})
+      staff_count: staff_count,
+    });
+    await depart.save();
+    res
+      .status(200)
+      .send({ message: "Explore All Mou/Collab Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_mou_query = async (req, res) => {
   try {
-    const { did } = req?.params
+    const { did } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { batch } = req?.query
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
-    
+    const { batch } = req?.query;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
     var site = await Department.findById({ _id: did })
       .populate({
         path: "mou_collab",
         populate: {
           path: "batch",
-          select: "batchName batchStatus"
-        }
+          select: "batchName batchStatus",
+        },
       })
       .populate({
         path: "mou_collab",
         populate: {
           path: "activities",
-          select: "activity_name activity_type"
-        }
-    })
+          select: "activity_name activity_type",
+        },
+      });
     if (batch) {
       var nums = site?.mou_collab?.filter((ele) => {
-        if (`${ele?.batch?._id}` === `${batch}`) return ele
-      })
-      var all_mou = await nested_document_limit(page, limit, nums)
+        if (`${ele?.batch?._id}` === `${batch}`) return ele;
+      });
+      var all_mou = await nested_document_limit(page, limit, nums);
+    } else {
+      var all_mou = await nested_document_limit(page, limit, site?.mou_collab);
     }
-    else {
-      var all_mou = await nested_document_limit(page, limit, site?.mou_collab)
-    }
-    res.status(200).send({ message: "Explore All MOU / Collab Query", access: true, all_mou: all_mou})
+    res.status(200).send({
+      message: "Explore All MOU / Collab Query",
+      access: true,
+      all_mou: all_mou,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_edit_mou_collab_query = async (req, res) => {
   try {
-    const { did } = req?.params
-    const { srn, org_name, institution_industry, durations, link, attach, batch, student_count, staff_count, mid } = req?.body
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
-    
-    const depart = await Department.findById({ _id: did })
+    const { did } = req?.params;
+    const {
+      srn,
+      org_name,
+      institution_industry,
+      durations,
+      link,
+      attach,
+      batch,
+      student_count,
+      staff_count,
+      mid,
+    } = req?.body;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
     for (let ele of depart?.mou_collab) {
       if (`${ele?._id}` === `${mid}`) {
-        ele.srn = srn
-        ele.org_name = org_name
-        ele.institution_industry = institution_industry
-        ele.durations = durations
-        ele.link = link ?? ""
-        ele.attach = attach ?? ""
-        ele.batch = batch
-        ele.student_count = student_count
-        ele.staff_count = staff_count
+        ele.srn = srn;
+        ele.org_name = org_name;
+        ele.institution_industry = institution_industry;
+        ele.durations = durations;
+        ele.link = link ?? "";
+        ele.attach = attach ?? "";
+        ele.batch = batch;
+        ele.student_count = student_count;
+        ele.staff_count = staff_count;
       }
     }
-    await depart.save()
-    res.status(200).send({ message: "Explore Edit Mou/Collab Query", access: true})
+    await depart.save();
+    res
+      .status(200)
+      .send({ message: "Explore Edit Mou/Collab Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_delete_mou_collab_query = async (req, res) => {
   try {
-    const { did } = req?.params
-    const { mid } = req?.body
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
-    
-    const depart = await Department.findById({ _id: did })
+    const { did } = req?.params;
+    const { mid } = req?.body;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
     for (let ele of depart?.mou_collab) {
       if (`${ele?._id}` === `${mid}`) {
-        depart?.mou_collab?.pull(ele?._id)
+        depart?.mou_collab?.pull(ele?._id);
       }
     }
-    await depart.save()
-    res.status(200).send({ message: "Explore Delete Mou/Collab Query", access: true})
+    await depart.save();
+    res
+      .status(200)
+      .send({ message: "Explore Delete Mou/Collab Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_universal_batch_query = async (req, res) => {
   try {
-    const { did } = req?.params
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
-    
-    const depart = await Department.findById({ _id: did })
-    const all_batch = await Batch.find({ $and: [{ department: depart?._id }, { merged_batch: "Merged" }] })
+    const { did } = req?.params;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const all_batch = await Batch.find({
+      $and: [{ department: depart?._id }, { merged_batch: "Merged" }],
+    })
       .select("_id u_batch")
       .populate({
         path: "u_batch",
-        select: "batchName batchStatus"
-      })
-    res.status(200).send({ message: "Explore All Site Batches Query", access: true, all_batch: all_batch})
+        select: "batchName batchStatus",
+      });
+    res.status(200).send({
+      message: "Explore All Site Batches Query",
+      access: true,
+      all_batch: all_batch,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_add_activity_query = async (req, res) => {
   try {
-    const { did } = req?.params
-    const { staff_id, mid } = req?.body
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
-    
-    const depart = await Department.findById({ _id: did })
-    const staff = await Staff.findById({ _id: staff_id })
-    const new_act = new Activity({ ...req?.body })
-    new_act.activity_staff = staff?._id
-    new_act.activity_department = depart?._id
-    depart.activity.push(new_act?._id)
-    staff.activity.push(new_act?._id)
+    const { did } = req?.params;
+    const { staff_id, mid } = req?.body;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const staff = await Staff.findById({ _id: staff_id });
+    const new_act = new Activity({ ...req?.body });
+    new_act.activity_staff = staff?._id;
+    new_act.activity_department = depart?._id;
+    depart.activity.push(new_act?._id);
+    staff.activity.push(new_act?._id);
     if (mid) {
       for (let val of depart?.mou_collab) {
         if (`${val?._id}` === `${mid}`) {
-          val.activities = new_act?._id
+          val.activities = new_act?._id;
         }
       }
     }
-    await Promise.all([ depart.save(), staff.save(), new_act.save() ])
-    res.status(200).send({ message: "Explore Add Activity Query", access: true})
+    await Promise.all([depart.save(), staff.save(), new_act.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore Add Activity Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_activity_query = async (req, res) => {
   try {
-    const { sid, flow } = req?.query
+    const { sid, flow } = req?.query;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
-    
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
     if (flow === "STAFF") {
-      const staff = await Staff.findById({ _id: sid })
+      const staff = await Staff.findById({ _id: sid });
       const all_act = await Activity.find({ _id: { $in: staff?.activity } })
         .select("activity_name activity_type")
         .populate({
           path: "activity_staff",
-          select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffGender staffROLLNO"
+          select:
+            "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffGender staffROLLNO",
         })
         .populate({
           path: "activity_department",
-          select: "dName"
+          select: "dName",
         })
         .populate({
           path: "activity_batch",
-          select: "batchName"
+          select: "batchName",
         })
         .limit(limit)
-        .skip(skip)
-    res.status(200).send({ message: "Explore All Activity Query", access: true, all_act: all_act})
-      
-    }
-    else if (flow === "DEPARTMENT") {
-      const depart = await Department.findById({ _id: sid })
+        .skip(skip);
+      res.status(200).send({
+        message: "Explore All Activity Query",
+        access: true,
+        all_act: all_act,
+      });
+    } else if (flow === "DEPARTMENT") {
+      const depart = await Department.findById({ _id: sid });
       const all_act = await Activity.find({ _id: { $in: depart?.activity } })
         .select("activity_name activity_type")
         .populate({
           path: "activity_staff",
-          select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffGender staffROLLNO"
+          select:
+            "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffGender staffROLLNO",
         })
         .populate({
           path: "activity_department",
-          select: "dName"
+          select: "dName",
         })
         .populate({
           path: "activity_batch",
-          select: "batchName"
+          select: "batchName",
         })
         .limit(limit)
-        .skip(skip)
-    res.status(200).send({ message: "Explore All Activity Query", access: true, all_act: all_act})
-      
+        .skip(skip);
+      res.status(200).send({
+        message: "Explore All Activity Query",
+        access: true,
+        all_act: all_act,
+      });
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_activity_query_type = async (req, res) => {
   try {
-    const { id, type } = req?.query
+    const { id, type } = req?.query;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
-      const ins = await InstituteAdmin.findById({ _id: id })
-      const all_act = await Activity.find({ $and: [{ activity_department: { $in: ins?.depart }}, { activity_type: type }] })
-        .select("activity_name activity_type")
-        .populate({
-          path: "activity_staff",
-          select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffGender staffROLLNO"
-        })
-        .populate({
-          path: "activity_department",
-          select: "dName"
-        })
-        .populate({
-          path: "activity_batch",
-          select: "batchName"
-        })
-        .limit(limit)
-        .skip(skip)
-    res.status(200).send({ message: "Explore All Activity Query", access: true, all_act: all_act})
+    const ins = await InstituteAdmin.findById({ _id: id });
+    const all_act = await Activity.find({
+      $and: [
+        { activity_department: { $in: ins?.depart } },
+        { activity_type: type },
+      ],
+    })
+      .select("activity_name activity_type")
+      .populate({
+        path: "activity_staff",
+        select:
+          "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffGender staffROLLNO",
+      })
+      .populate({
+        path: "activity_department",
+        select: "dName",
+      })
+      .populate({
+        path: "activity_batch",
+        select: "batchName",
+      })
+      .limit(limit)
+      .skip(skip);
+    res.status(200).send({
+      message: "Explore All Activity Query",
+      access: true,
+      all_act: all_act,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_activity_query = async (req, res) => {
   try {
-    const { acid } = req?.params
-    if (!acid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    const { acid } = req?.params;
+    if (!acid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
     const act = await Activity.findById({ _id: acid })
-    .populate({
-      path: "activity_staff",
-      select: "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffGender staffROLLNO"
-    })
-    .populate({
-      path: "activity_department",
-      select: "dName"
-    })
-    .populate({
-      path: "activity_batch",
-      select: "batchName"
-    })
-    res.status(200).send({ message: "Explore One Activity Query", access: true, act: act})
+      .populate({
+        path: "activity_staff",
+        select:
+          "staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId staffGender staffROLLNO",
+      })
+      .populate({
+        path: "activity_department",
+        select: "dName",
+      })
+      .populate({
+        path: "activity_batch",
+        select: "batchName",
+      });
+    res
+      .status(200)
+      .send({ message: "Explore One Activity Query", access: true, act: act });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_delete_activity_query = async (req, res) => {
   try {
-    const { acid } = req?.params
-    if (!acid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    const { acid } = req?.params;
+    if (!acid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
-    const act = await Activity.findById({ _id: acid })
-    const depart = await Department.findById({ _id: act?.activity_department })
-    const staff = await Staff.findById({ _id: act?.activity_staff })
+    const act = await Activity.findById({ _id: acid });
+    const depart = await Department.findById({ _id: act?.activity_department });
+    const staff = await Staff.findById({ _id: act?.activity_staff });
 
-    staff.activity.pull(act?._id)
-    depart.activity.pull(act?._id)
-    await Promise.all([staff.save(), depart.save()])
-    await Activity.findByIdAndDelete(acid)
-    res.status(200).send({ message: "Explore One Activity Delete Query", access: true})
+    staff.activity.pull(act?._id);
+    depart.activity.pull(act?._id);
+    await Promise.all([staff.save(), depart.save()]);
+    await Activity.findByIdAndDelete(acid);
+    res
+      .status(200)
+      .send({ message: "Explore One Activity Delete Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_add_activity_documents_query = async (req, res) => {
   try {
-    const { acid } = req?.params
-    const { name, attach, flow } = req?.body
-    if (!acid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    const { acid } = req?.params;
+    const { name, attach, flow } = req?.body;
+    if (!acid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
-    var act = await Activity.findById({ _id: acid })
+    var act = await Activity.findById({ _id: acid });
     if (flow === "NOTICE") {
-      act.notice.push(attach)
-    }
-    else if (flow === "PERMISSION_LETTER") {
-      act.permission_letter.push(attach)
-    }
-    else if (flow === "ACTIVITY_REPORTS") {
-      act.activity_report.push(attach)
-    }
-    else if (flow === "ATTENDANCE") {
-      act.attendance.push(attach)
-    }
-    else if (flow === "OTHER") { 
+      act.notice.push(attach);
+    } else if (flow === "PERMISSION_LETTER") {
+      act.permission_letter.push(attach);
+    } else if (flow === "ACTIVITY_REPORTS") {
+      act.activity_report.push(attach);
+    } else if (flow === "ATTENDANCE") {
+      act.attendance.push(attach);
+    } else if (flow === "OTHER") {
       act.other.push({
         name: name,
-        attach: attach
-      })
+        attach: attach,
+      });
     }
-    await act.save()
-    res.status(200).send({ message: "Explore One Activity Documents Query", access: true})
+    await act.save();
+    res
+      .status(200)
+      .send({ message: "Explore One Activity Documents Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_add_projects_query = async (req, res) => {
   try {
-    const { did } = req?.params
-    const { srn, title, student, classes, subject, guide_name, link, attach, abstract, department, sid } = req?.body
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
-    
-    const depart = await Department.findById({ _id: did })
-    const staff = await Staff.findById({ _id: sid })
+    const { did } = req?.params;
+    const {
+      srn,
+      title,
+      student,
+      classes,
+      subject,
+      guide_name,
+      link,
+      attach,
+      abstract,
+      department,
+      sid,
+    } = req?.body;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const staff = await Staff.findById({ _id: sid });
     depart.projects.push({
       srn: srn,
       title: title,
@@ -1220,8 +1387,8 @@ exports.render_add_projects_query = async (req, res) => {
       subject: subject,
       guide_name: guide_name,
       abstract: abstract,
-      department: department
-    })
+      department: department,
+    });
     staff.projects.push({
       srn: srn,
       title: title,
@@ -1232,197 +1399,254 @@ exports.render_add_projects_query = async (req, res) => {
       subject: subject,
       guide_name: guide_name,
       abstract: abstract,
-      department: department
-    })
-    await Promise.all([ staff.save(), depart.save()])
-    res.status(200).send({ message: "Explore Add Projects Query", access: true})
+      department: department,
+    });
+    await Promise.all([staff.save(), depart.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore Add Projects Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_projects_query = async (req, res) => {
   try {
-    const { did, flow } = req?.query
+    const { did, flow } = req?.query;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
     if (flow === "DEPARTMENT") {
-      const depart = await Department.findById({ _id: did })
-      .populate({
+      const depart = await Department.findById({ _id: did }).populate({
         path: "projects",
         populate: {
-            path: "student classes department",
-            select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO className classTitle dName"
-        }
-})
-      const all_act = await nested_document_limit(page, limit, depart?.projects)
-      res.status(200).send({ message: "Explore All Projects Department Query", access: true, all_act: all_act })
-    }
-    else if (flow === "STAFF") {
-      const staff = await Staff.findById({ _id: did })
-      .populate({
+          path: "student classes department",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO className classTitle dName",
+        },
+      });
+      const all_act = await nested_document_limit(
+        page,
+        limit,
+        depart?.projects
+      );
+      res.status(200).send({
+        message: "Explore All Projects Department Query",
+        access: true,
+        all_act: all_act,
+      });
+    } else if (flow === "STAFF") {
+      const staff = await Staff.findById({ _id: did }).populate({
         path: "projects",
         populate: {
-            path: "student classes department",
-            select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO className classTitle dName"
-        }
-})
-      const all_act = await nested_document_limit(page, limit, staff?.projects)
-      res.status(200).send({ message: "Explore All Projects Satff Query", access: true, all_act: all_act })
+          path: "student classes department",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO className classTitle dName",
+        },
+      });
+      const all_act = await nested_document_limit(page, limit, staff?.projects);
+      res.status(200).send({
+        message: "Explore All Projects Satff Query",
+        access: true,
+        all_act: all_act,
+      });
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_delete_projects_query = async (req, res) => {
   try {
-    const { did } = req?.params
-    const { pid, sid } = req?.body
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    const { did } = req?.params;
+    const { pid, sid } = req?.body;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
-    const depart = await Department.findById({ _id: did })
-    const staff = await Staff.findById({ _id: sid })
+    const depart = await Department.findById({ _id: did });
+    const staff = await Staff.findById({ _id: sid });
     for (let val of depart?.projects) {
       if (`${val?._id}` === `${pid}`) {
-        depart?.projects?.pull(val?._id)
+        depart?.projects?.pull(val?._id);
       }
     }
     for (let val of staff?.projects) {
       if (`${val?._id}` === `${pid}`) {
-        staff?.projects?.pull(val?._id)
+        staff?.projects?.pull(val?._id);
       }
     }
-    await Promise.all([ staff.save(), depart.save()])
-    res.status(200).send({ message: "Explore One Projects Delete Query", access: true})
+    await Promise.all([staff.save(), depart.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore One Projects Delete Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_add_hall_ticket_query = async (req, res) => {
   try {
-    const { did } = req?.params
-    const { name, attach } = req?.body
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
-    
-    const depart = await Department.findById({ _id: did })
+    const { did } = req?.params;
+    const { name, attach } = req?.body;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
     depart.hall_ticket.push({
       name: name,
-      attach: attach
-    })
-    await depart.save()
-    res.status(200).send({ message: "Explore Add Hall Ticket Query", access: true})
+      attach: attach,
+    });
+    await depart.save();
+    res
+      .status(200)
+      .send({ message: "Explore Add Hall Ticket Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_hall_ticket_query = async (req, res) => {
   try {
-    const { did, flow } = req?.query
+    const { did, flow } = req?.query;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
-      const depart = await Department.findById({ _id: did })
-      const all_ticket = await nested_document_limit(page, limit, depart?.hall_ticket)
-    res.status(200).send({ message: "Explore All Hall Ticket Query", access: true, all_ticket: all_ticket})
+    const depart = await Department.findById({ _id: did });
+    const all_ticket = await nested_document_limit(
+      page,
+      limit,
+      depart?.hall_ticket
+    );
+    res.status(200).send({
+      message: "Explore All Hall Ticket Query",
+      access: true,
+      all_ticket: all_ticket,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_delete_hall_ticket_query = async (req, res) => {
   try {
-    const { did } = req?.params
-    const { pid } = req?.body
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
+    const { did } = req?.params;
+    const { pid } = req?.body;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
-    const depart = await Department.findById({ _id: did })
+    const depart = await Department.findById({ _id: did });
     for (let val of depart?.hall_ticket) {
       if (`${val?._id}` === `${pid}`) {
-        depart?.hall_ticket?.pull(val?._id)
+        depart?.hall_ticket?.pull(val?._id);
       }
     }
-    await depart.save()
-    res.status(200).send({ message: "Explore One Hall Ticket Delete Query", access: true})
+    await depart.save();
+    res
+      .status(200)
+      .send({ message: "Explore One Hall Ticket Delete Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_admission_video_gallery_query = async (req, res) => {
   try {
-    const { aid } = req?.params
-    const { title, video, link } = req?.body
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
-    
-    const ads = await AdmissionSite.findById({ _id: aid })
+    const { aid } = req?.params;
+    const { title, video, link } = req?.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const ads = await AdmissionSite.findById({ _id: aid });
     ads.video_gallery.push({
       title: title,
       video: video,
-      link: link
-    })
-    await ads.save()
-    res.status(200).send({ message: "Explore New Video By Admission Site", access: true })
+      link: link,
+    });
+    await ads.save();
+    res
+      .status(200)
+      .send({ message: "Explore New Video By Admission Site", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_admission_edit_video_gallery_query = async (req, res) => {
   try {
-    const { aid } = req?.params
-    const { title, video, link, vid } = req?.body
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
-    
-    const ads = await AdmissionSite.findById({ _id: aid })
+    const { aid } = req?.params;
+    const { title, video, link, vid } = req?.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const ads = await AdmissionSite.findById({ _id: aid });
     for (let ele of ads?.video_gallery) {
       if (`${ele?._id}` === `${vid}`) {
-        ele.title = title
-        ele.video = video
-        ele.link = link
+        ele.title = title;
+        ele.video = video;
+        ele.link = link;
       }
     }
-    await ads.save()
-    res.status(200).send({ message: "Explore Edit Video By Admission Site", access: true })
+    await ads.save();
+    res
+      .status(200)
+      .send({ message: "Explore Edit Video By Admission Site", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_admission_delete_video_gallery_query = async (req, res) => {
   try {
-    const { aid } = req?.params
-    const { vid } = req?.body
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false })
-    
-    const ads = await AdmissionSite.findById({ _id: aid })
+    const { aid } = req?.params;
+    const { vid } = req?.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const ads = await AdmissionSite.findById({ _id: aid });
     for (let ele of ads?.video_gallery) {
       if (`${ele?._id}` === `${vid}`) {
-        ads?.video_gallery?.pull(ele?._id)
+        ads?.video_gallery?.pull(ele?._id);
       }
     }
-    await ads.save()
-    res.status(200).send({ message: "Explore Delete Video By Admission Site", access: true })
+    await ads.save();
+    res.status(200).send({
+      message: "Explore Delete Video By Admission Site",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 // intiate query for all not created department
 exports.notCreatedSiteInfoDepartmentQuery = async (req, res) => {
@@ -1500,5 +1724,3 @@ exports.one_department_site_other_card_delete_query = async (req, res) => {
     console.log(e);
   }
 };
-
-

@@ -21,87 +21,88 @@ const departmentSiteSchema = new mongoose.Schema({
   po_pso: [
     {
       title: {
-        type: String
+        type: String,
       },
       description: {
-        type: String 
-      }
-    }
+        type: String,
+      },
+      attach: { type: String },
+    },
   ],
   syllabus: [
     {
       name: { type: String },
-      attach: { type: String }
-    }
+      attach: { type: String },
+    },
   ],
   professional_body: [
     {
       title: {
-        type: String
+        type: String,
       },
       description: {
-        type: String 
+        type: String,
       },
       image: {
-        type: String
-      }
-    }
+        type: String,
+      },
+    },
   ],
   student_associations: [
     {
       title: {
-        type: String
+        type: String,
       },
       description: {
-        type: String 
+        type: String,
       },
       image: {
-        type: String
-      }
-    }
+        type: String,
+      },
+    },
   ],
   student_achievements: [
     {
       title: {
-        type: String
+        type: String,
       },
       description: {
-        type: String 
+        type: String,
       },
       image: {
-        type: String
-      }
-    }
+        type: String,
+      },
+    },
   ],
   innovative_practices: [
     {
       title: {
-        type: String
+        type: String,
       },
       description: {
-        type: String 
+        type: String,
       },
       image: {
-        type: String
-      }
-    }
+        type: String,
+      },
+    },
   ],
   projects: [
     {
       name: { type: String },
-      attach: { type: String }
-    }
+      attach: { type: String },
+    },
   ],
   about: [
     {
-      sub_head_title:String,
-      sub_heading_image:String,
-      sub_head_body:String,
-    }
+      sub_head_title: String,
+      sub_heading_image: String,
+      sub_head_body: String,
+    },
   ],
   department_site_status: {
     type: String,
-    default: "Normal"
+    default: "Normal",
   },
 });
 

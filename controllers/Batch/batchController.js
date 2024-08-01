@@ -33,7 +33,11 @@ const Finance = require("../../models/Finance");
 const { universal_random_password } = require("../../Custom/universalId");
 const { render_new_fees_card } = require("../../Functions/FeesCard");
 const BankAccount = require("../../models/Finance/BankAccount");
-const { app_status, docs_status, fees_status } = require("../../OptimizeController/Admission/admissionController");
+const {
+  app_status,
+  docs_status,
+  fees_status,
+} = require("../../OptimizeController/Admission/admissionController");
 const InstituteApplicationForm = require("../../models/Form/InstituteApplicationForm");
 const FormChecklist = require("../../models/Form/FormChecklist");
 const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
@@ -102,8 +106,8 @@ exports.preformedStructure = async (req, res) => {
         department: department?._id,
         batch_master: identicalBatch?._id,
       });
-      const new_code = generate_random_code_structure()
-      new_struct.fee_structure_code = `${new_code}`
+      const new_code = generate_random_code_structure();
+      new_struct.fee_structure_code = `${new_code}`;
       department.fees_structures.push(new_struct?._id);
       department.fees_structures_count += 1;
       for (var one_head of one_struct?.fees_heads) {
@@ -148,11 +152,12 @@ exports.preformedStructure = async (req, res) => {
         // classTeacher: oneClass?.classTeacher,
         finalReportsSettings: oneClass?.finalReportsSettings,
       });
-      const codes = universal_random_password()
-      identicalClass.member_module_unique = `${codes}`
-      identicalClass.multiple_batches_count = oneClass?.multiple_batches?.length
-      if(oneClass?.classTeacher){
-        identicalClass.classTeacher = oneClass?.classTeacher
+      const codes = universal_random_password();
+      identicalClass.member_module_unique = `${codes}`;
+      identicalClass.multiple_batches_count =
+        oneClass?.multiple_batches?.length;
+      if (oneClass?.classTeacher) {
+        identicalClass.classTeacher = oneClass?.classTeacher;
       }
       classMaster?.classDivision.push(identicalClass._id);
       classMaster.classCount += 1;
@@ -162,7 +167,7 @@ exports.preformedStructure = async (req, res) => {
       department.classCount += 1;
       identicalBatch?.classroom.push(identicalClass._id);
       if (req?.body?.with_designation === "No") {
-        if(oneClass?.classTeacher){
+        if (oneClass?.classTeacher) {
           const staff = await Staff.findById(oneClass?.classTeacher);
           const class_user = await User.findById({ _id: `${staff?.user}` });
           staff?.staffClass.push(identicalClass._id);
@@ -209,18 +214,18 @@ exports.preformedStructure = async (req, res) => {
           tutorial_analytic: oneSubject?.tutorial_analytic,
           subject_category: oneSubject?.subject_category,
           selected_batch_query: oneSubject?.selected_batch_query,
-          batch: identicalClass?.batch
+          batch: identicalClass?.batch,
         });
-        const code = universal_random_password()
-        identicalSubject.member_module_unique = `${code}`
-        if(oneSubject?.subjectTeacherName){
-          identicalSubject.subjectTeacherName = oneSubject?.subjectTeacherName
+        const code = universal_random_password();
+        identicalSubject.member_module_unique = `${code}`;
+        if (oneSubject?.subjectTeacherName) {
+          identicalSubject.subjectTeacherName = oneSubject?.subjectTeacherName;
         }
         subjectMaster?.subjects.push(identicalSubject._id);
         subjectMaster.subjectCount += 1;
         identicalClass?.subject.push(identicalSubject?._id);
         if (req?.body?.with_designation === "No") {
-          if(oneSubject?.subjectTeacherName){
+          if (oneSubject?.subjectTeacherName) {
             const sujectStaff = await Staff.findById(
               oneSubject?.subjectTeacherName
             );
@@ -281,139 +286,164 @@ exports.preformedStructure = async (req, res) => {
           applicationMaster: ref?.applicationMaster,
           applicationTypeStatus: "Promote Application",
         });
-        var iaf = new InstituteApplicationForm({})
-        iaf.application = new_app?._id
-        new_app.student_form_setting = iaf?._id
+        var iaf = new InstituteApplicationForm({});
+        iaf.application = new_app?._id;
+        new_app.student_form_setting = iaf?._id;
         admission.newApplication.push(new_app._id);
         admission.newAppCount += 1;
         new_app.admissionAdmin = admission._id;
         institute.admissionCount += 1;
-        await Promise.all([new_app.save(), admission.save(), institute.save(), iaf.save()]);
-        var ifs = await InstituteStudentForm.findById({ _id: `${institute?.student_form_setting}` })
-        .select("form_section")
-    .populate({
-      path: "form_section",
-      populate: {
-        path: "form_checklist",
-        populate: {
-          path: "nested_form_checklist",
-          populate: {
-            path: "nested_form_checklist_nested"
-          }
-        }
-      }
-    })
-      var nums = []
-      for (var val of ifs?.form_section) {
-        if (val?.form_checklist?.length > 0) {
-          for (var ele of val?.form_checklist) {
-            var fc = new FormChecklist({
-              form_checklist_name: ele?.form_checklist_name,
-              form_checklist_key: ele?.form_checklist_key,
-              form_checklist_visibility: ele?.form_checklist_visibility,
-              form_checklist_placeholder: ele?.form_checklist_placeholder,
-              form_checklist_lable: ele?.form_checklist_lable,
-              form_checklist_typo: ele?.form_checklist_typo,
-              form_checklist_typo_option_pl: [...ele?.form_checklist_typo_option_pl],
-              form_checklist_required: ele?.form_checklist_required,
-              form_checklist_key_status: ele?.form_checklist_key_status,
-              width: ele?.width
-            })
-            if (ele?.form_checklist_typo_option_pl && ele?.form_checklist_typo_option_pl?.length > 0) {
-              ele.form_checklist_typo_option_pl = [...ele?.form_checklist_typo_option_pl]
-            }
-            if (ele?.form_checklist_sample) {
-              fc.form_checklist_sample = ele?.form_checklist_sample
-            }
-            if (ele?.form_checklist_pdf) {
-              fc.form_checklist_pdf = ele?.form_checklist_pdf
-            }
-            if (ele?.form_checklist_view) {
-              fc.form_checklist_view = ele?.form_checklist_view
-            }
-            if (ele?.form_common_key) {
-              fc.form_common_key = ele?.form_common_key
-            }
-            if (ele?.form_checklist_enable) {
-              fc.form_checklist_enable = ele?.form_checklist_enable
-            }
-            fc.application_form = iaf?._id
-            fc.form_section = val?._id
-            for (var stu of ele?.nested_form_checklist) {
-              var fcc = new FormChecklist({
-                form_checklist_name: stu?.form_checklist_name,
-                form_checklist_key: stu?.form_checklist_key,
-                form_checklist_visibility: stu?.form_checklist_visibility,
-                form_checklist_placeholder: stu?.form_checklist_placeholder,
-                form_checklist_lable: stu?.form_checklist_lable,
-                form_checklist_typo: stu?.form_checklist_typo,
-                form_checklist_required: stu?.form_checklist_required,
-                form_checklist_key_status: stu?.form_checklist_key_status,
-                width: stu?.width
-              })
-              if (stu?.form_checklist_typo_option_pl && stu?.form_checklist_typo_option_pl?.length > 0) {
-                fcc.form_checklist_typo_option_pl = [...stu?.form_checklist_typo_option_pl]
-              }
-              if (stu?.form_checklist_sample) {
-                fcc.form_checklist_sample = stu?.form_checklist_sample
-              }
-              if (stu?.form_checklist_pdf) {
-                fcc.form_checklist_pdf = stu?.form_checklist_pdf
-              }
-              if (stu?.form_checklist_view) {
-                fcc.form_checklist_view = stu?.form_checklist_view
-              }
-              fcc.application_form = iaf?._id
-              fcc.form_section = val?._id
-              if (stu?.nested_form_checklist_nested) {
-                for (var qwe of stu?.nested_form_checklist_nested) {
-                  var fcca = new FormChecklist({
-                    form_checklist_name: qwe?.form_checklist_name,
-                    form_checklist_key: qwe?.form_checklist_key,
-                    form_checklist_visibility: qwe?.form_checklist_visibility,
-                    form_checklist_placeholder: qwe?.form_checklist_placeholder,
-                    form_checklist_lable: qwe?.form_checklist_lable,
-                    form_checklist_typo: qwe?.form_checklist_typo,
-                    form_checklist_required: qwe?.form_checklist_required,
-                    form_checklist_key_status: qwe?.form_checklist_key_status,
-                    width: qwe?.width
-                  })
-                  if (qwe?.form_checklist_typo_option_pl && qwe?.form_checklist_typo_option_pl?.length > 0) {
-                    fcca.form_checklist_typo_option_pl = [...qwe?.form_checklist_typo_option_pl]
-                  }
-                  if (qwe?.form_checklist_sample) {
-                    fcca.form_checklist_sample = qwe?.form_checklist_sample
-                  }
-                  if (qwe?.form_checklist_pdf) {
-                    fcca.form_checklist_pdf = qwe?.form_checklist_pdf
-                  }
-                  if (qwe?.form_checklist_view) {
-                    fcca.form_checklist_view = qwe?.form_checklist_view
-                  }
-                  fcca.application_form = iaf?._id
-                  fcca.form_section = val?._id
-                  fcc.nested_form_checklist_nested.push(fcca?._id)
-                  await fcca.save()
-                }
-              }
-              await fcc.save()
-              fc.nested_form_checklist.push(fcc?._id)
-            }
-            nums.push(fc?._id)
-            await fc.save()
-          }
-        }
-        iaf.form_section.push({
-          section_name: val?.section_name,
-          section_visibilty: val?.section_visibilty,
-          section_key: val?.section_key,
-          section_pdf: val?.section_pdf,
-          section_value: val?.section_value,
-          ins_form_section_id: val?._id,
-          form_checklist: [...nums]
+        await Promise.all([
+          new_app.save(),
+          admission.save(),
+          institute.save(),
+          iaf.save(),
+        ]);
+        var ifs = await InstituteStudentForm.findById({
+          _id: `${institute?.student_form_setting}`,
         })
-      }
-      await iaf.save()
+          .select("form_section")
+          .populate({
+            path: "form_section",
+            populate: {
+              path: "form_checklist",
+              populate: {
+                path: "nested_form_checklist",
+                populate: {
+                  path: "nested_form_checklist_nested",
+                },
+              },
+            },
+          });
+        var nums = [];
+        for (var val of ifs?.form_section) {
+          if (val?.form_checklist?.length > 0) {
+            for (var ele of val?.form_checklist) {
+              var fc = new FormChecklist({
+                form_checklist_name: ele?.form_checklist_name,
+                form_checklist_key: ele?.form_checklist_key,
+                form_checklist_visibility: ele?.form_checklist_visibility,
+                form_checklist_placeholder: ele?.form_checklist_placeholder,
+                form_checklist_lable: ele?.form_checklist_lable,
+                form_checklist_typo: ele?.form_checklist_typo,
+                form_checklist_typo_option_pl: [
+                  ...ele?.form_checklist_typo_option_pl,
+                ],
+                form_checklist_required: ele?.form_checklist_required,
+                form_checklist_key_status: ele?.form_checklist_key_status,
+                width: ele?.width,
+              });
+              if (
+                ele?.form_checklist_typo_option_pl &&
+                ele?.form_checklist_typo_option_pl?.length > 0
+              ) {
+                ele.form_checklist_typo_option_pl = [
+                  ...ele?.form_checklist_typo_option_pl,
+                ];
+              }
+              if (ele?.form_checklist_sample) {
+                fc.form_checklist_sample = ele?.form_checklist_sample;
+              }
+              if (ele?.form_checklist_pdf) {
+                fc.form_checklist_pdf = ele?.form_checklist_pdf;
+              }
+              if (ele?.form_checklist_view) {
+                fc.form_checklist_view = ele?.form_checklist_view;
+              }
+              if (ele?.form_common_key) {
+                fc.form_common_key = ele?.form_common_key;
+              }
+              if (ele?.form_checklist_enable) {
+                fc.form_checklist_enable = ele?.form_checklist_enable;
+              }
+              fc.application_form = iaf?._id;
+              fc.form_section = val?._id;
+              for (var stu of ele?.nested_form_checklist) {
+                var fcc = new FormChecklist({
+                  form_checklist_name: stu?.form_checklist_name,
+                  form_checklist_key: stu?.form_checklist_key,
+                  form_checklist_visibility: stu?.form_checklist_visibility,
+                  form_checklist_placeholder: stu?.form_checklist_placeholder,
+                  form_checklist_lable: stu?.form_checklist_lable,
+                  form_checklist_typo: stu?.form_checklist_typo,
+                  form_checklist_required: stu?.form_checklist_required,
+                  form_checklist_key_status: stu?.form_checklist_key_status,
+                  width: stu?.width,
+                });
+                if (
+                  stu?.form_checklist_typo_option_pl &&
+                  stu?.form_checklist_typo_option_pl?.length > 0
+                ) {
+                  fcc.form_checklist_typo_option_pl = [
+                    ...stu?.form_checklist_typo_option_pl,
+                  ];
+                }
+                if (stu?.form_checklist_sample) {
+                  fcc.form_checklist_sample = stu?.form_checklist_sample;
+                }
+                if (stu?.form_checklist_pdf) {
+                  fcc.form_checklist_pdf = stu?.form_checklist_pdf;
+                }
+                if (stu?.form_checklist_view) {
+                  fcc.form_checklist_view = stu?.form_checklist_view;
+                }
+                fcc.application_form = iaf?._id;
+                fcc.form_section = val?._id;
+                if (stu?.nested_form_checklist_nested) {
+                  for (var qwe of stu?.nested_form_checklist_nested) {
+                    var fcca = new FormChecklist({
+                      form_checklist_name: qwe?.form_checklist_name,
+                      form_checklist_key: qwe?.form_checklist_key,
+                      form_checklist_visibility: qwe?.form_checklist_visibility,
+                      form_checklist_placeholder:
+                        qwe?.form_checklist_placeholder,
+                      form_checklist_lable: qwe?.form_checklist_lable,
+                      form_checklist_typo: qwe?.form_checklist_typo,
+                      form_checklist_required: qwe?.form_checklist_required,
+                      form_checklist_key_status: qwe?.form_checklist_key_status,
+                      width: qwe?.width,
+                    });
+                    if (
+                      qwe?.form_checklist_typo_option_pl &&
+                      qwe?.form_checklist_typo_option_pl?.length > 0
+                    ) {
+                      fcca.form_checklist_typo_option_pl = [
+                        ...qwe?.form_checklist_typo_option_pl,
+                      ];
+                    }
+                    if (qwe?.form_checklist_sample) {
+                      fcca.form_checklist_sample = qwe?.form_checklist_sample;
+                    }
+                    if (qwe?.form_checklist_pdf) {
+                      fcca.form_checklist_pdf = qwe?.form_checklist_pdf;
+                    }
+                    if (qwe?.form_checklist_view) {
+                      fcca.form_checklist_view = qwe?.form_checklist_view;
+                    }
+                    fcca.application_form = iaf?._id;
+                    fcca.form_section = val?._id;
+                    fcc.nested_form_checklist_nested.push(fcca?._id);
+                    await fcca.save();
+                  }
+                }
+                await fcc.save();
+                fc.nested_form_checklist.push(fcc?._id);
+              }
+              nums.push(fc?._id);
+              await fc.save();
+            }
+          }
+          iaf.form_section.push({
+            section_name: val?.section_name,
+            section_visibilty: val?.section_visibilty,
+            section_key: val?.section_key,
+            section_pdf: val?.section_pdf,
+            section_value: val?.section_value,
+            ins_form_section_id: val?._id,
+            form_checklist: [...nums],
+          });
+        }
+        await iaf.save();
       }
     }
   } catch (e) {
@@ -530,7 +560,9 @@ exports.promoteStudent = async (req, res) => {
     const { departmentId, batchId, classId } = req.body;
     const { flow, re_ads } = req.query;
     if (`${req.params.cid}` === `${classId}`)
-      return res.status(200).send({ message: "Same Class Promotion Not Possible", access: false})
+      return res
+        .status(200)
+        .send({ message: "Same Class Promotion Not Possible", access: false });
     const previousclasses = await Class.findById(req.params.cid);
     const classes = await Class.findById(classId);
     const batch = await Batch.findById(batchId);
@@ -587,7 +619,7 @@ exports.promoteStudent = async (req, res) => {
               if (
                 `${ref?.class_master}` === `${classes?.masterClassName}` &&
                 `${ref?.category_master?._id}` ===
-                `${student?.fee_structure?.category_master?._id}` &&
+                  `${student?.fee_structure?.category_master?._id}` &&
                 `${ref?.batch_master}` === `${batch?._id}`
               )
                 return ref;
@@ -601,19 +633,18 @@ exports.promoteStudent = async (req, res) => {
                 if (
                   `${ref?.class_master}` === `${classes?.masterClassName}` &&
                   `${ref?.category_master?._id}` ===
-                  `${student?.fee_structure?.category_master?.secondary_category}` &&
+                    `${student?.fee_structure?.category_master?.secondary_category}` &&
                   `${ref?.batch_master}` === `${batch?._id}`
                 )
                   return ref;
               });
             }
-          }
-          else {
+          } else {
             var structure = department?.fees_structures?.filter((ref) => {
               if (
                 `${ref?.class_master}` === `${classes?.masterClassName}` &&
                 `${ref?.category_master?._id}` ===
-                `${student?.fee_structure?.category_master?._id}` &&
+                  `${student?.fee_structure?.category_master?._id}` &&
                 `${ref?.batch_master}` === `${batch?._id}`
               )
                 return ref;
@@ -634,7 +665,7 @@ exports.promoteStudent = async (req, res) => {
           //   if (val?.unique_structure_name?.includes("SY")) return val;
           // });
           // if(numIndex < 0){
-            numIndex = 0
+          numIndex = 0;
           // }
           const user = await User.findById({ _id: `${student.user}` });
           const previousData = new StudentPreviousData({
@@ -821,9 +852,8 @@ exports.promoteStudent = async (req, res) => {
               re_ads,
               classes,
               ""
-            )
-          }
-          else {
+            );
+          } else {
             var c = await render_new_fees_card(
               student?._id,
               apply?._id,
@@ -832,16 +862,29 @@ exports.promoteStudent = async (req, res) => {
               re_ads,
               classes,
               ""
-            )
+            );
           }
           roll += 1;
-          if (`${re_ads}` === "WITH_RE_ADMISSION") { 
+          if (`${re_ads}` === "WITH_RE_ADMISSION") {
             var filtered_account = await BankAccount.findOne({
               departments: { $in: apply?.applicationDepartment },
             });
-            await app_status(apply, institute, student, filtered_account, user)
-            await docs_status(apply, institute, student, user, structure[numIndex]?._id)
-            await fees_status(apply, institute, student, user, structure[numIndex]?._id, c)
+            await app_status(apply, institute, student, filtered_account, user);
+            await docs_status(
+              apply,
+              institute,
+              student,
+              user,
+              structure[numIndex]?._id
+            );
+            await fees_status(
+              apply,
+              institute,
+              student,
+              user,
+              structure[numIndex]?._id,
+              c
+            );
           }
           if (`${re_ads}` === "WITH_RE_ADMISSION") {
             if (classes?.UnApproveStudent?.includes(student._id)) {
@@ -1377,20 +1420,22 @@ exports.batchCompleteAndUncomplete = async (req, res) => {
         if (classes.classStatus !== "Completed") {
           for (let subId of classes?.subject) {
             const subject = await Subject.findById(subId);
-            if (subject.subjectStatus !== "Completed") {
-              subject.subjectStatus = "Completed";
-              if (subject?.subjectTeacherName) {
-                const subStaff = await Staff.findById(
-                  subject?.subjectTeacherName
-                );
-                if (subStaff.staffDesignationCount > 0) {
-                  subStaff.staffDesignationCount -= 1;
+            if (subject) {
+              if (subject?.subjectStatus !== "Completed") {
+                subject.subjectStatus = "Completed";
+                if (subject?.subjectTeacherName) {
+                  const subStaff = await Staff.findById(
+                    subject?.subjectTeacherName
+                  );
+                  if (subStaff.staffDesignationCount > 0) {
+                    subStaff.staffDesignationCount -= 1;
+                  }
+                  subStaff.previousStaffSubject?.push(subject._id);
+                  subStaff.staffSubject.pull(subject._id);
+                  await subStaff.save();
                 }
-                subStaff.previousStaffSubject?.push(subject._id);
-                subStaff.staffSubject.pull(subject._id);
-                await subStaff.save()
+                await subject.save();
               }
-              await subject.save()
             }
           }
           if (classes?.classTeacher) {
@@ -1407,25 +1452,26 @@ exports.batchCompleteAndUncomplete = async (req, res) => {
       }
       batch.batchStatus = "Locked";
       await batch.save();
-    }
-    else {
+    } else {
       for (let clsId of batch?.classroom) {
         const classes = await Class.findById(clsId);
         if (classes.classStatus === "Completed") {
           for (let subId of classes?.subject) {
             const subject = await Subject.findById(subId);
-            if (subject.subjectStatus === "Completed") {
-              subject.subjectStatus = "UnCompleted";
-              if (subject?.subjectTeacherName) {
-                const subStaff = await Staff.findById(
-                  subject?.subjectTeacherName
-                );
-                subStaff.staffDesignationCount += 1;
-                subStaff.previousStaffSubject?.pull(subject._id);
-                subStaff.staffSubject.push(subject._id);
-                await subStaff.save();
+            if (subject) {
+              if (subject?.subjectStatus === "Completed") {
+                subject.subjectStatus = "UnCompleted";
+                if (subject?.subjectTeacherName) {
+                  const subStaff = await Staff.findById(
+                    subject?.subjectTeacherName
+                  );
+                  subStaff.staffDesignationCount += 1;
+                  subStaff.previousStaffSubject?.pull(subject._id);
+                  subStaff.staffSubject.push(subject._id);
+                  await subStaff.save();
+                }
+                await subject.save();
               }
-              await subject.save();
             }
           }
           if (classes?.classTeacher) {
@@ -1470,7 +1516,6 @@ exports.subjectCreditUpdate = async (req, res) => {
     console.log(e);
   }
 };
-
 
 exports.undo = async (req, res) => {
   try {
@@ -1650,7 +1695,6 @@ exports.undo = async (req, res) => {
     console.log(e);
   }
 };
-
 
 exports.subjectPassingCreditUpdate = async (req, res) => {
   try {

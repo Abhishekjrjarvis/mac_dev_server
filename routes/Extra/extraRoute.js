@@ -430,10 +430,7 @@ router.delete(
   catchAsync(Extra.renderDeleteOneExcel)
 );
 
-router.patch(
-  "/shuffled/query",
-  catchAsync(Extra.renderShuffledStudentQuery)
-);
+router.patch("/shuffled/query", catchAsync(Extra.renderShuffledStudentQuery));
 
 router.get(
   "/all/filtered/alarm/:id/query",
@@ -446,18 +443,13 @@ router
   .patch(catchAsync(Extra.instituteidCardRequiredFieldUpdate));
 
 router.get(
-    "/institute/:id/all/fund/charges",
-    catchAsync(Extra.renderAllInstituteFundChargesQuery)
+  "/institute/:id/all/fund/charges",
+  catchAsync(Extra.renderAllInstituteFundChargesQuery)
 );
-  
-
 
 // Transform Older Student Message To New Student Message Schema
 
-router.patch(
-  "/send/old/message",
-  catchAsync(Extra.renderOldMessageQuery)
-);
+router.patch("/send/old/message", catchAsync(Extra.renderOldMessageQuery));
 
 router.patch(
   "/staff/shuffled/query",
@@ -517,6 +509,6 @@ router.patch(
   "/custom/check/generate/admission/:aid/all/pay/receipt",
   catchAsync(Extra.customGenerateCheckAllPayReceiptQuery)
 );
-
+router.get("/dummy/pdf/generate", catchAsync(Extra.generateDummyPdfQuery));
 
 module.exports = router;

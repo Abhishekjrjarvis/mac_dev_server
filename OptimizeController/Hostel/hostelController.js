@@ -1452,7 +1452,7 @@ exports.renderOneHostelApplicationQuery = async (req, res) => {
 exports.renderHostelSelectedQuery = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { fee_struct, month, renew } = req.body;
+    const { fee_struct, month, renew, staffId } = req.body;
     if (!sid && !aid && !fee_struct)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -1515,7 +1515,7 @@ exports.renderHostelSelectedQuery = async (req, res) => {
     apply.selectedApplication.push({
       student: student._id,
       fee_remain: structure.total_admission_fees,
-      status_id: status?._id,
+      revert_request_status: status?._id,
     });
     apply.selectCount += 1;
 
@@ -1563,6 +1563,11 @@ Start your admission process by confirming below.`;
       var month_query = custom_month_query(valid_month);
       student.hostel_renewal = new Date(`${month_query}`);
     }
+    student.student_application_obj.push({
+      app: apply?._id,
+      staff: staffId,
+      flow: "select_by",
+    });
     await Promise.all([
       apply.save(),
       student.save(),

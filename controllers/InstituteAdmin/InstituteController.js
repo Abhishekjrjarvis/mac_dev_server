@@ -3270,10 +3270,11 @@ exports.retrieveUnApproveStudentListQuery = async (req, res) => {
     var { search } = req.query;
     if (search) {
       const student_ins = await InstituteAdmin.findById({ _id: id }).select(
-        "UnApprovedStudent insName gr_initials"
+        "UnApprovedStudent ApproveStudent insName gr_initials"
       );
+      const nums = [...student_ins?.UnApprovedStudent, ...student_ins?.ApproveStudent]
       const studentIns = await Student.find({
-        $and: [{ _id: { $in: student_ins?.UnApprovedStudent } }],
+        $and: [{ _id: { $in: nums } }],
         $or: [
           {
             studentFirstName: { $regex: `${search}`, $options: "i" },
@@ -3290,7 +3291,7 @@ exports.retrieveUnApproveStudentListQuery = async (req, res) => {
           {
             studentGRNO: { $regex: `${search}`, $options: "i" },
           },
-          { qviple_student_pay_id: { $regex: `${search}`, $options: "i" } },
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
         ],
       })
         .sort({ createdAt: -1 })
@@ -3324,10 +3325,11 @@ exports.retrieveUnApproveStudentListQuery = async (req, res) => {
       }
     } else {
       const student_ins = await InstituteAdmin.findById({ _id: id }).select(
-        "UnApprovedStudent insName gr_initials"
+        "UnApprovedStudent ApproveStudent insName gr_initials"
       );
+      const nums = [...student_ins?.UnApprovedStudent, ...student_ins?.ApproveStudent]
       const studentIns = await Student.find({
-        _id: { $in: student_ins?.UnApprovedStudent },
+        _id: { $in: nums },
       })
         .sort({ createdAt: -1 })
         .limit(limit)
@@ -6078,13 +6080,14 @@ exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
         institute.insName,
         user._id,
         user.deviceToken
-      );
-      await Promise.all([
-        student.save(),
-        user.save(),
-        notify.save(),
-        aStatus.save(),
-      ]);
+        );
+        await Promise.all([
+          student.save(),
+          user.save(),
+          notify.save(),
+          aStatus.save(),
+        ]);
+        res.status(200).send({ message: "Explore Un Approve Student Query", access: true})
       if (student.studentGender === "Male") {
         classes.boyCount += 1;
         batch.student_category.boyCount += 1;
@@ -6123,7 +6126,7 @@ exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
         user?.userPhoneNumber,
         studentName,
         institute?.insName
-      );
+        );
       whats_app_sms_payload(
         user?.userPhoneNumber,
         studentName,
@@ -6911,7 +6914,7 @@ exports.render_edit_student_form_section_checklist_query = async (req, res) => {
             if (ele?.form_common_key) {
               let exist = await FormChecklist.findOne({
                 $and: [
-                  { form: iaf?._id },
+                  { form: ifs?._id },
                   { form_checklist_key: ele?.form_common_key },
                 ],
               });

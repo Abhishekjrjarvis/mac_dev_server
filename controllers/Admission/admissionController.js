@@ -8729,6 +8729,18 @@ exports.renderApplicationAutoQRCodeQuery = async (req, res) => {
       }
       await new_ads.save();
     }
+    else if (flow === "HOSTEL") {
+      var new_ads = await Hostel.findById({ _id: aid });
+      new_ads.app_qr_code = qr_code;
+      new_ads.code_url = code_url
+      if (hn_qr_code) {
+        new_ads.app_hindi_qr_code = hn_qr_code;
+      }
+      if (mt_qr_code) {
+        new_ads.app_marathi_qr_code = mt_qr_code;
+      }
+      await new_ads.save();
+    }
     res
       .status(200)
       .send({ message: `Explore New ${flow} QR Code Query`, access: true });

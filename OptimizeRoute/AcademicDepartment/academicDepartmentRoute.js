@@ -142,4 +142,24 @@ router.patch(
   catchAsync(AcademicDepartment.insert_academic_class_master_to_subjectt_query)
 );
 
+  router.patch(
+    "/:cid/all/students/query/export",
+    catchAsync(AcademicDepartment.render_all_students_query_export)
+  );
+
+  router.patch(
+    "/:did/all/students/tab/query/export",
+    catchAsync(AcademicDepartment.render_all_students_tab_query_export)
+  );
+
+  router.patch(
+    "/:cid/all/dse/students/query/export",
+    catchAsync(AcademicDepartment.render_all_dse_students_query_export)
+  );
+
+  router.patch(
+    "/:sid/all/students/query/export",
+    catchAsync(AcademicDepartment.render_all_subject_students_query_export)
+  );
+
 module.exports = router;

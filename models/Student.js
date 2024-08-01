@@ -1134,6 +1134,10 @@ const studentSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "ClassMaster",
     },
+    applicationUnit: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "HostelUnit",
+    },
   },
   other_fees_obj: {
     status: {

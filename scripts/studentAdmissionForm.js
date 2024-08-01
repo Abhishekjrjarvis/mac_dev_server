@@ -281,6 +281,7 @@ const generateStudentAdmissionForm = async (
             ]?.includes(itr?.static_key)
           ) {
             if (itr?.static_key === "undertakings") {
+              doc.addPage();
               doc.fontSize(12);
               doc.font("Times-Bold");
               doc.fillColor("#121212").text(`${itr?.key}: -`, 25);

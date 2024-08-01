@@ -4000,7 +4000,9 @@ exports.renderOneFeeReceipt = async (req, res) => {
       qviple_id: qviple_id,
     };
     if (all_remain?.remaining_flow === "Hostel Application") {
-    } else {
+    }
+    else {
+
       if (receipt?.finance?.show_receipt === "Normal") {
         // const obj_nums = await generateFeeReceipt(receipt?._id)
         await normalAdmissionFeeReceipt(

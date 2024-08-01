@@ -224,10 +224,17 @@ exports.json_to_excel_admission_application_query = async (
   flow
 ) => {
   try {
+    var sheet_name;
+    if (apply?.applicationHostel) {
+      sheet_name = "Hostel Application Students"
+    }
+    else {
+      sheet_name = "Admission Application Students"
+    }
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 
-    xlsx.utils.book_append_sheet(real_book, real_sheet, "Admission Application Students");
+    xlsx.utils.book_append_sheet(real_book, real_sheet, sheet_name);
     var name = `${app_name}-${flow}-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
@@ -918,6 +925,29 @@ exports.json_to_excel_admission_query = async (
     return {
       back: true,
     };
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.json_to_excel_academic_export_query= async (
+  data_query,
+  c_name
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(
+      real_book,
+      real_sheet,
+      `Academic Student List`
+    );
+    var name = `${c_name}-academic-students-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+    return results
   } catch (e) {
     console.log(e);
   }

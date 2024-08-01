@@ -224,10 +224,17 @@ exports.json_to_excel_admission_application_query = async (
   flow
 ) => {
   try {
+    var sheet_name;
+    if (apply?.applicationHostel) {
+      sheet_name = "Hostel Application Students"
+    }
+    else {
+      sheet_name = "Admission Application Students"
+    }
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 
-    xlsx.utils.book_append_sheet(real_book, real_sheet, "Admission Application Students");
+    xlsx.utils.book_append_sheet(real_book, real_sheet, sheet_name);
     var name = `${app_name}-${flow}-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 

@@ -2434,7 +2434,7 @@ exports.retrieveUserAllApplicationQuery = async(req, res) => {
     if(!uid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
     var one_user = await User.findById({ _id: uid })
-    var all_apps = await NewApplication.find({ $and: [{ _id: { $in: one_user?.applyApplication } }, { application_flow: "Admission Application" }] })
+    var all_ads_apps = await NewApplication.find({ $and: [{ _id: { $in: one_user?.applyApplication } }, { application_flow: "Admission Application" }] })
       .sort({ createdAt: -1 })
       .select("applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster")
       .populate({
@@ -2457,13 +2457,37 @@ exports.retrieveUserAllApplicationQuery = async(req, res) => {
         select: "insName name insProfilePhoto photoId"
       }
     })
+    var all_hostel_apps = await NewApplication.find({ $and: [{ _id: { $in: one_user?.applyApplication } }, { application_flow: "Hostel Application" }] })
+      .sort({ createdAt: -1 })
+      .select("applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster")
+      .populate({
+        path: "applicationBatch",
+        select: "batchName",
+      })
+      .populate({
+        path: "applicationMaster",
+        select: "className",
+      })
+      .populate({
+        path: "applicationUnit",
+        select: "hostel_unit_name",
+      })
+      .populate({
+        path: "hostelAdmin",
+        select: "institute",
+        populate: {
+          path: "institute",
+          select: "insName name insProfilePhoto photoId"
+        }
+      })
 
-    if(all_apps?.length > 0){
-      res.status(200).send({ message: "Explore All Applied Application Query", access: true, all_apps: all_apps})
-    }
-    else{
-      res.status(200).send({ message: "No Applied Application Query", access: false, all_apps: []})
-    }
+      var all_apps = [...all_ads_apps, ...all_hostel_apps]
+      if(all_apps?.length > 0){
+        res.status(200).send({ message: "Explore All Applied Application Query", access: true, all_apps: all_apps})
+      }
+      else{
+        res.status(200).send({ message: "No Applied Application Query", access: false, all_apps: []})
+      }
   }
   catch(e){
     console.log(e)

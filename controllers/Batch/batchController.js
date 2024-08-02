@@ -44,7 +44,7 @@ exports.preformedStructure = async (req, res) => {
     const batch = await Batch.findById(req.params.bid).populate({
       path: "classroom",
       populate: {
-        path: "subject",
+        path: "subject multiple_batches",
       },
     });
     var valid_structure = await FeeStructure.find({
@@ -161,6 +161,15 @@ exports.preformedStructure = async (req, res) => {
       department?.class.push(identicalClass._id);
       department.classCount += 1;
       identicalBatch?.classroom.push(identicalClass._id);
+      for (let ele of oneClass?.multiple_batches) {
+        var new_id_batch = new Batch({
+          batchName: ele?.batchName,
+          class_batch_select: identicalClass?._id
+        })
+        identicalClass.multiple_batches.push(new_id_batch?._id)
+        identicalClass.multiple_batches_count += 1
+        await new_id_batch.save()
+      }
       if (req?.body?.with_designation === "No") {
         if(oneClass?.classTeacher){
           const staff = await Staff.findById(oneClass?.classTeacher);

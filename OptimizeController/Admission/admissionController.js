@@ -16781,6 +16781,12 @@ exports.render_one_fee_receipt_change_student_query = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore Student Subject Change Query", access: true });
+    for (let ele of student?.active_fee_heads) {
+      if (`${ele?.appId}` === `${receipt?.application}`) {
+        student?.active_fee_heads?.pull(ele)
+      }
+    }
+    await student.save()
   } catch (e) {
     console.log(e);
   }

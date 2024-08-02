@@ -246,7 +246,7 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(itemPerPage)
         .skip(dropItem)
-        .select("updateDate updateDescription date upadateImage createdAt")
+        .select("updateDate updateDescription date upadateImage createdAt yt_link")
         .populate({
           path: "daily_topic",
           populate: {
@@ -275,7 +275,7 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(itemPerPage)
         .skip(dropItem)
-        .select("updateDate updateDescription date upadateImage createdAt")
+        .select("updateDate updateDescription date upadateImage createdAt yt_link")
         .populate({
           path: "daily_topic",
           populate: {

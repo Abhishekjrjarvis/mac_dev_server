@@ -1767,6 +1767,7 @@ exports.subjectTeacherOneDayTimetableQuery = async (req, res) => {
           not_sort_scheudle.push({
             ...dfg,
             subject: dt?.subject,
+            ddid: dt?._id,
           });
         }
       }

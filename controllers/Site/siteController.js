@@ -579,7 +579,7 @@ exports.updateTransportInfo = async (req, res) => {
 exports.render_one_department_extra_docs_query = async (req, res) => {
   try {
     const { dsid } = req?.params;
-    const { flow, title, image, description } = req?.body;
+    const { flow, title, image, description, attach } = req?.body;
     if (!dsid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -592,24 +592,28 @@ exports.render_one_department_extra_docs_query = async (req, res) => {
         title: title,
         description: description,
         image: image,
+        attach: attach,
       });
     } else if (flow === "STUDENT_ASSOCIATIONS") {
       d_site.student_associations.push({
         title: title,
         description: description,
         image: image,
+        attach: attach,
       });
     } else if (flow === "STUDENT_ACHIEVEMENTS") {
       d_site.student_achievements.push({
         title: title,
         description: description,
         image: image,
+        attach: attach,
       });
     } else if (flow === "INNOVATIVE_PRACTICES") {
       d_site.innovative_practices.push({
         title: title,
         description: description,
         image: image,
+        attach: attach,
       });
     }
     await d_site.save();
@@ -696,6 +700,7 @@ exports.render_one_department_edit_extra_docs_query = async (req, res) => {
           ele.title = title ? title : ele?.title;
           ele.description = description ? description : ele?.description;
           ele.image = image ? image : ele?.image;
+          ele.attach = attach;
         }
       }
     } else if (flow === "STUDENT_ASSOCIATIONS") {
@@ -704,6 +709,7 @@ exports.render_one_department_edit_extra_docs_query = async (req, res) => {
           ele.title = title ? title : ele?.title;
           ele.description = description ? description : ele?.description;
           ele.image = image ? image : ele?.image;
+          ele.attach = attach;
         }
       }
     } else if (flow === "STUDENT_ACHIEVEMENTS") {
@@ -712,6 +718,7 @@ exports.render_one_department_edit_extra_docs_query = async (req, res) => {
           ele.title = title ? title : ele?.title;
           ele.description = description ? description : ele?.description;
           ele.image = image ? image : ele?.image;
+          ele.attach = attach;
         }
       }
     } else if (flow === "INNOVATIVE_PRACTICES") {
@@ -720,6 +727,7 @@ exports.render_one_department_edit_extra_docs_query = async (req, res) => {
           ele.title = title ? title : ele?.title;
           ele.description = description ? description : ele?.description;
           ele.image = image ? image : ele?.image;
+          ele.attach = attach;
         }
       }
     }
@@ -913,7 +921,8 @@ exports.render_one_department_delete_pso_query = async (req, res) => {
 exports.render_edit_academic_sub_head_query = async (req, res) => {
   try {
     const { dsid } = req?.params;
-    const { sub_head_title, sub_heading_image, sub_head_body } = req?.body;
+    const { sub_head_title, sub_heading_image, sub_head_body, attach } =
+      req?.body;
     if (!dsid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -925,6 +934,7 @@ exports.render_edit_academic_sub_head_query = async (req, res) => {
       sub_head_title: sub_head_title,
       sub_heading_image: sub_heading_image,
       sub_head_body: sub_head_body,
+      attach: attach,
     });
     await site.save();
     res
@@ -1677,7 +1687,8 @@ exports.notCreatedSiteInfoDepartmentQuery = async (req, res) => {
 exports.one_department_site_other_card_query = async (req, res) => {
   try {
     const { dsid, cid } = req.params;
-    const { sub_head_title, sub_heading_image, sub_head_body, flow } = req.body;
+    const { sub_head_title, sub_heading_image, sub_head_body, flow, attach } =
+      req.body;
     if (!dsid || !cid) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
@@ -1690,6 +1701,7 @@ exports.one_department_site_other_card_query = async (req, res) => {
           dt.sub_head_title = sub_head_title;
           dt.sub_heading_image = sub_heading_image;
           dt.sub_head_body = sub_head_body;
+          dt.attach = attach;
         }
       }
     }

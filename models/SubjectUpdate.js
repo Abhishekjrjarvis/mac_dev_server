@@ -53,9 +53,12 @@ const subjectUpdateSchema = new mongoose.Schema({
       extra_lecture: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "AttendenceDate"
-        }
-      ]
+          ref: "AttendenceDate",
+        },
+      ],
+      teaching_method: {
+        type: String,
+      },
     },
   ],
   daily_topic_list: [],

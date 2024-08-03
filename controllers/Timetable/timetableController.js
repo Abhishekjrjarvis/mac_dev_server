@@ -1944,6 +1944,7 @@ exports.getNewTimetableUserStaffDateWise = async (req, res) => {
       res.status(200).send({
         message: "In dashboard Staff side all schedule list",
         staffSchedlue,
+        isStudent: user?.staff?.length > 0 ? false : true,
       });
     } else {
       const s_time = await SubjectTimetable.find({
@@ -2081,6 +2082,7 @@ exports.getNewTimetableUserStaffDateWise = async (req, res) => {
       res.status(200).send({
         message: "Staff side all schedule list",
         staffSchedlue,
+        isStudent: false,
       });
     }
   } catch (e) {

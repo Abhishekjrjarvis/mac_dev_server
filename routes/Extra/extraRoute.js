@@ -511,4 +511,9 @@ router.patch(
 );
 router.get("/dummy/pdf/generate", catchAsync(Extra.generateDummyPdfQuery));
 
+router.patch(
+  "/insert/department/status",
+  catchAsync(Extra.insertDepartmentStatusQuery)
+);
+
 module.exports = router;

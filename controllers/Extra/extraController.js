@@ -4804,3 +4804,32 @@ exports.generateDummyPdfQuery = async (req, res) => {
     console.log(e);
   }
 };
+// for insert department status
+exports.insertDepartmentStatusQuery = async (req, res) => {
+  try {
+    const dept = await Department.find({});
+    // const dept = await Department.findById("64a7a847a59e4e19fe7cff4f");
+
+    let list = [];
+    if (dept?.length > 0) {
+      for (let i = 0; i < dept?.length; i++) {
+        console.log(i);
+        let dt = dept[i];
+        if (dt?.department_status) {
+        } else {
+          list.push(dt?._id);
+          dt.department_status = "Normal";
+          await dt.save();
+        }
+      }
+    }
+    res.status(200).send({
+      message: "Inserted data to department",
+      list: dept?.length,
+      dt: list,
+      // dept: dept.department_status,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

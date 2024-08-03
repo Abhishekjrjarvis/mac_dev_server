@@ -46,6 +46,7 @@ const departmentSiteSchema = new mongoose.Schema({
       image: {
         type: String,
       },
+      attach: { type: String }, //
     },
   ],
   student_associations: [
@@ -59,6 +60,7 @@ const departmentSiteSchema = new mongoose.Schema({
       image: {
         type: String,
       },
+      attach: { type: String }, //
     },
   ],
   student_achievements: [
@@ -72,6 +74,7 @@ const departmentSiteSchema = new mongoose.Schema({
       image: {
         type: String,
       },
+      attach: { type: String }, //
     },
   ],
   innovative_practices: [
@@ -85,6 +88,7 @@ const departmentSiteSchema = new mongoose.Schema({
       image: {
         type: String,
       },
+      attach: { type: String }, //
     },
   ],
   projects: [
@@ -98,6 +102,7 @@ const departmentSiteSchema = new mongoose.Schema({
       sub_head_title: String,
       sub_heading_image: String,
       sub_head_body: String,
+      attach: { type: String },
     },
   ],
   department_site_status: {

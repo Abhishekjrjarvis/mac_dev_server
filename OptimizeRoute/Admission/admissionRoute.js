@@ -1032,4 +1032,14 @@ router.patch(
   catchAsync(Admission.admission_form_print_case_query)
 );
 
+router.get(
+  "/:aid/all/subject/query",
+  catchAsync(Admission.render_all_subject_query)
+);
+
+router.get(
+  "/:aid/one/application/subject/sequence",
+  catchAsync(Admission.render_one_application_subject_sequence_query)
+);
+
 module.exports = router;

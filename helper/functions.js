@@ -466,6 +466,20 @@ exports.generate_random_code_structure = () => {
   return pass;
 };
 
+exports.new_chat_username_unique = async (LName) => {
+  const u_1 = Math.floor(Math.random() * 9);
+  const u_2 = Math.floor(Math.random() * 9);
+  const u_3 = Math.floor(Math.random() * 9);
+  const u_4 = Math.floor(Math.random() * 9);
+  const u_5 = Math.floor(Math.random() * 9);
+  const u_6 = Math.floor(Math.random() * 9);
+  const u_7 = Math.floor(Math.random() * 9)
+  const new_query = `${u_1}${u_2}${u_3}${u_4}${u_5}${u_6}${u_7}`;
+  let splitted = LName?.split(" ")
+  let combined_list = `${splitted[0]?.toUpperCase()}_${new_query}`
+  return combined_list
+}
+
 // console.log(
 //   send_email_authentication_promotional("pankajphad.stuff@gmail.com")
 // );

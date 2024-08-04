@@ -63,5 +63,8 @@ router.patch("/all/student/code/query", catchAsync(Prod.render_student_code_inse
 
 router.patch("/all/payment/delete/query", catchAsync(Prod.delete_payment))
 
+router.patch("/all/new/chat/query", catchAsync(Prod.new_chat_username))
+
+
 
 module.exports = router;

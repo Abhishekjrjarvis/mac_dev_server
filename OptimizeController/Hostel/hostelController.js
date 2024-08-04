@@ -57,6 +57,7 @@ const {
   filter_unique_username,
   generateAccessToken,
   generate_hash_pass,
+  new_chat_username_unique,
 } = require("../../helper/functions");
 const {
   custom_date_time,
@@ -7021,6 +7022,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
         qvipleId.qviple_id = `${uqid}`;
         admins.users.push(user);
         admins.userCount += 1;
+        user.username_chat = await new_chat_username_unique(user?.userLegalName)
         await Promise.all([admins.save(), user.save(), qvipleId.save()]);
         await universal_account_creation_feed(user);
         await user_date_of_birth(user);
@@ -7255,6 +7257,7 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         qvipleId.qviple_id = `${uqid}`;
         admins.users.push(user);
         admins.userCount += 1;
+        user.username_chat = await new_chat_username_unique(user?.userLegalName)
         await Promise.all([admins.save(), user.save(), qvipleId.save()]);
         await universal_account_creation_feed(user);
         await user_date_of_birth(user);
@@ -9390,6 +9393,70 @@ exports.retieveHostelAdminAllApplicationPinned = async (req, res) => {
     res.status(200).send({
       encrypt: adsEncrypt,
       ads_obj,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.completeHostelApplication = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        complete_status: false,
+      });
+    const apply = await NewApplication.findById({ _id: aid });
+    const admission = await Hostel.findById({
+      _id: `${apply.hostelAdmin}`,
+    });
+    const admission_ins = await InstituteAdmin.findById({
+      _id: `${admission.institute}`,
+    });
+    apply.applicationStatus = "Completed";
+    if (admission_ins?.hostelCount > 0) {
+      admission_ins.hostelCount -= 1;
+    }
+    if (admission?.newAppCount > 0) {
+      admission.newAppCount -= 1;
+    }
+    admission.completedCount += 1;
+    await Promise.all([apply.save(), admission.save(), admission_ins.save()]);
+    res.status(200).send({
+      message: "Enjoy your work load is empty go for party",
+      complete_status: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.inCompleteHostelApplication = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        complete_status: false,
+      });
+    const apply = await NewApplication.findById({ _id: aid });
+    const admission = await Hostel.findById({
+      _id: `${apply.hostelAdmin}`,
+    });
+    const admission_ins = await InstituteAdmin.findById({
+      _id: `${admission.institute}`,
+    });
+    apply.applicationStatus = "Ongoing";
+    admission_ins.hostelCount += 1;
+    admission.newAppCount += 1;
+    if (admission?.completedCount > 0) {
+      admission.completedCount -= 1;
+    }
+    await Promise.all([apply.save(), admission.save(), admission_ins.save()]);
+    res.status(200).send({
+      message: "Enjoy your work load.",
+      complete_status: true,
     });
   } catch (e) {
     console.log(e);

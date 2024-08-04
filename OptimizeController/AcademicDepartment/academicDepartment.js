@@ -422,31 +422,31 @@ exports.render_all_students_query = async (req, res) => {
         
       var numss = []
       var nums = []
+      const m_class = await ClassMaster.findById({ _id: cid })
         for (let ele of all_subjects) {
-            for (let val of ele?.subjects) {
-                if (numss?.includes(`${val?.class}`)) {
-                    
-                }
-                else {
-                    numss.push(val?.class)
+          for (let val of ele?.subjects) {
+            for (let cls of m_class?.classDivision) {
+                if (`${val?.class}` === `${cls}`) {
+                  nums.push(val?._id)
                 }
             }
+                // if (numss?.includes(`${val?.class}`)) {
+                    
+                // }
+                // else {
+                //     numss.push(val?.class)
+                // }
+            }
         }
-      // console.log(numss)
-        const m_class = await ClassMaster.findById({ _id: cid })
-        
-      for (let ele of m_class?.classDivision) {
-        for (let val of numss) {
-          if (`${val}` === `${ele}`) {
-            nums.push(val)
-          }
-        }
+      const all_subject = await Subject.find({ _id: { $in: nums } })
+      .select("optionalStudent")
+      let ds = []
+      for (let ele of all_subject) {
+        ds.push(...ele?.optionalStudent)
       }
-      // console.log(nums)
+      const unique = [...new Set(ds.map(item => item))];
         if (nums?.length > 0) {
-            const all_students = await Student.find({ $and: [{ studentClass: { $in: nums } }] })
-                // .limit(limit)
-                // .skip(skip)
+            const all_students = await Student.find({ $and: [{ _id: { $in: unique } }] })
                 .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department")
                 .populate({
                     path: "studentClass",
@@ -454,19 +454,12 @@ exports.render_all_students_query = async (req, res) => {
                 })
             
             const all_stu = await nested_document_limit(page, limit, all_students)
-          res.status(200).send({ message: "Explore All Students Query", access: true, all_students: all_stu, count: all_stu?.length })
-          for (let ele of all_students) {
-            if (m_class.all_academic_student?.includes(`${ele?._id}`)) {
-              
-            }
-            else {
-              m_class.all_academic_student.push(ele?._id)
-            }
-          }
+          res.status(200).send({ message: "Explore All Students Query", access: true, all_students: all_stu, count: all_students?.length })
+          m_class.all_academic_student_count = all_students?.length
           await m_class.save()
         }
         else {
-            res.status(200).send({ message: "No Students Query", access: true, all_students: []})            
+            res.status(200).send({ message: "No Students Query", access: true, all_students: [], count: 0})            
         }
     }
     catch (e) {
@@ -511,10 +504,10 @@ exports.render_all_students_tab_query = async (req, res) => {
                     select: "className"
                 })
           var all_stu = await nested_document_limit(page, limit, all_students)
-            res.status(200).send({ message: "Explore All Students Tab Query", access: true, all_students: all_stu, count: all_stu?.length})
+            res.status(200).send({ message: "Explore All Students Tab Query", access: true, all_students: all_stu, count: all_students?.length})
         }
         else {
-            res.status(200).send({ message: "No Students Tab Query", access: true, all_students: []})            
+            res.status(200).send({ message: "No Students Tab Query", access: true, all_students: [], count: 0})            
         }
     }
     catch (e) {
@@ -909,7 +902,7 @@ exports.render_one_class_details_query = async (req, res) => {
     let stats = {
       theory_classes: list?.length ?? 0,
       practical_batch: list_2?.length ?? 0,
-      all_student: classes?.all_academic_student?.length ?? 0
+      all_student: classes?.all_academic_student_count ?? 0
     }
     res.status(200).send({ message: "Explore One Class Master Details", access: true, stats})
   }
@@ -1015,7 +1008,7 @@ exports.render_all_dse_students_query = async (req, res) => {
         res.status(200).send({ message: "Explore All DSE Students Query", access: true, all_students: all_stu, count: unique?.length })
       }
       else {
-          res.status(200).send({ message: "No DSE Students Query", access: true, all_students: []})            
+          res.status(200).send({ message: "No DSE Students Query", access: true, all_students: [], count: 0})            
       }
   }
   catch (e) {
@@ -1127,29 +1120,25 @@ exports.render_all_students_query_export = async (req, res) => {
       
     var numss = []
     var nums = []
-      for (let ele of all_subjects) {
-          for (let val of ele?.subjects) {
-              if (numss?.includes(`${val?.class}`)) {
-                  
-              }
-              else {
-                  numss.push(val?.class)
-              }
-          }
-      }
-    // console.log(numss)
-      const m_class = await ClassMaster.findById({ _id: cid })
-      
-    for (let ele of m_class?.classDivision) {
-      for (let val of numss) {
-        if (`${val}` === `${ele}`) {
-          nums.push(val)
+    const m_class = await ClassMaster.findById({ _id: cid })
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        for (let cls of m_class?.classDivision) {
+            if (`${val?.class}` === `${cls}`) {
+              nums.push(val?._id)
+            }
         }
-      }
+        }
     }
-    // console.log(nums)
+  const all_subject = await Subject.find({ _id: { $in: nums } })
+  .select("optionalStudent")
+  let ds = []
+  for (let ele of all_subject) {
+    ds.push(...ele?.optionalStudent)
+  }
+  const unique = [...new Set(ds.map(item => item))];
       if (nums?.length > 0) {
-          const all_students = await Student.find({ $and: [{ studentClass: { $in: nums } }] })
+          const all_students = await Student.find({ $and: [{ _id: { $in: unique } }] })
               // .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department")
               .populate({
                   path: "studentClass",

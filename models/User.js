@@ -506,7 +506,8 @@ const userSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "StudentMessage"
       }
-    ]
+    ],
+    username_chat: { type: String, required: true, unique: true },
   },
   { timestamps: true }
 );

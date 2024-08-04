@@ -56,6 +56,7 @@ const {
   filter_unique_username,
   generateAccessToken,
   generate_hash_pass,
+  new_chat_username_unique,
 } = require("../../helper/functions");
 const {
   custom_date_time,
@@ -6073,6 +6074,7 @@ exports.renderNewDirectInquiry = async (req, res) => {
       qvipleId.qviple_id = `${uqid}`;
       admins.users.push(user);
       admins.userCount += 1;
+      user.username_chat = await new_chat_username_unique(user?.userLegalName)
       await Promise.all([admins.save(), user.save(), qvipleId.save()]);
       var uInstitute = await InstituteAdmin.findOne({
         isUniversal: "Universal",
@@ -16876,6 +16878,7 @@ exports.retrieveClassAllotQueryReverse = async (req, res) => {
               await ele.save();
             }
           }
+          student.academic_subject = []
           await Promise.all([
             apply.save(),
             student.save(),
@@ -17311,3 +17314,104 @@ exports.admission_form_print_case_query = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.render_all_subject_query = async (req, res) => {
+  try {
+    const { aid } = req?.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid })
+    const apply = await NewApplication.find({ $and: [{_id: { $in: ads_admin?.newApplication }}, { applicationStatus: "Ongoing"}, { applicationTypeStatus: "Normal Application"}] })
+      .select(
+      "applicationName applicationStatus applicationTypeStatus subject_selected_group"
+    );
+    var nums = []
+    for (let ele of apply) {
+      if (ele?.subject_selected_group?.length > 0) { 
+        nums.push(ele)
+      }
+    }
+    res.status(200).send({
+      message: "Explore All Application Having Subject Group Query",
+      access: true,
+      apps: nums ?? [],
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.render_one_application_subject_sequence_query = async (req, res) => {
+  try {
+    const { aid } = req?.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const apply = await NewApplication.findById({ _id: aid }).select(
+      "subject_selected_group"
+    );
+      const all_group = await SubjectGroup.findById({
+        _id: `${apply?.subject_selected_group}`,
+      });
+      const all_group_select = await SubjectGroupSelect.find({
+        subject_group: { $in: all_group },
+      })
+        .populate({
+          path: "compulsory_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "optional_subject",
+          populate: {
+            path: "optional_subject_options optional_subject_options_or.options",
+            select: "subjectName",
+          },
+        })
+        .populate({
+          path: "fixed_subject",
+          populate: {
+            path: "fixed_subject_options",
+            select: "subjectName",
+          },
+        });
+      var subject_list = [];
+      for (let ele of all_group_select) {
+        subject_list.push(...ele?.compulsory_subject);
+      }
+      for (let ele of all_group_select) {
+        for (let val of ele?.fixed_subject) {
+          subject_list.push(...val?.fixed_subject_options);
+        }
+      }
+      for (let ele of all_group_select) {
+        for (let val of ele?.optional_subject) {
+          subject_list.push(...val?.optional_subject_options);
+        }
+        for (let val of ele?.optional_subject) {
+          for (let stu of val?.optional_subject_options_or) {
+            subject_list.push(...stu?.options);
+          }
+        }
+      }
+      const unique_sub = [...new Set(subject_list.map((item) => item._id))];
+      const all_subjects = await SubjectMaster.find({
+        _id: { $in: unique_sub },
+      }).select("subjectName studentCount");
+      
+      res.status(200).send({
+        message: "Explore All Student With Subject Master Query",
+        access: true,
+        subject_student: all_subjects ?? [],
+      });
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+

@@ -89,7 +89,11 @@ const classMasterSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Student"
     }
-  ]
+  ],
+  all_academic_student_count: {
+    type: Number,
+    default: 0
+  }
 });
 
 const ClassMaster = mongoose.model("ClassMaster", classMasterSchema);

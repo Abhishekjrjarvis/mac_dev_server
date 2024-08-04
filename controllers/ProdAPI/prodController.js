@@ -556,6 +556,38 @@ exports.delete_payment = async (req, res) => {
   }
 }
 
+exports.new_chat_username = async (req, res) => {
+  try {
+    
+    const all_user = await User.find({})
+      .select("userLegalName username_chat")
+    
+    var i = 0
+    for (let ele of all_user) {
+      const u_1 = Math.floor(Math.random() * 9);
+      const u_2 = Math.floor(Math.random() * 9);
+      const u_3 = Math.floor(Math.random() * 9);
+      const u_4 = Math.floor(Math.random() * 9);
+      const u_5 = Math.floor(Math.random() * 9);
+      const u_6 = Math.floor(Math.random() * 9);
+      const u_7 = Math.floor(Math.random() * 9);
+
+      const new_query = `${u_1}${u_2}${u_3}${u_4}${u_5}${u_6}${u_7}`;
+      let splitted = ele?.userLegalName?.split(" ")
+      let combined_list = `${splitted[0]?.toUpperCase()}_${new_query}`
+      ele.username_chat = combined_list
+      await ele.save()
+      console.log(i)
+      i+= 1
+    }
+    res.status(200).send({ message: "Explore All User With New Chat", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+
 // exports.delete_payment = async (req, res) => {
 //   try {
 //     const all_e = await ErrorPayment.find({ error_student: "668639ebd9cbacccf389782e" })

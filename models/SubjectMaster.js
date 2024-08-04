@@ -107,6 +107,10 @@ const subjectMasterSchema = new mongoose.Schema({
   link_department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department"
+  },
+  studentCount: {
+    type: Number,
+    default: 0
   }
 });
 

@@ -440,6 +440,18 @@ router.get(
   catchAsync(Hostel.retieveHostelAdminAllApplicationPinned)
 );
 
+// Mark App Complete
+router.patch(
+  "/:aid/application/complete",
+  catchAsync(Hostel.completeHostelApplication)
+);
+
+router.patch(
+  "/:aid/application/incomplete",
+  catchAsync(Hostel.inCompleteHostelApplication)
+);
+
+
 
 
 module.exports = router;

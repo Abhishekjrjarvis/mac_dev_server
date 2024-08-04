@@ -46,6 +46,7 @@ const {
   generateAccessToken,
   send_email_authentication,
   generateAccessDesignationToken,
+  new_chat_username_unique,
 } = require("../../helper/functions");
 
 const { user_date_of_birth } = require("../../helper/dayTimer");
@@ -680,6 +681,7 @@ exports.profileByUser = async (req, res) => {
         }
         admins.users.push(user);
         admins.userCount += 1;
+        user.username_chat = await new_chat_username_unique(user?.userLegalName)
         await Promise.all([admins.save(), user.save()]);
         if (req.file) {
           await unlinkFile(req.file.path);
@@ -786,6 +788,7 @@ exports.profileByGoogle = async (req, res) => {
       user.user_universal_password = `${hash_user_pass}`
     admins.users.push(user);
     admins.userCount += 1;
+    user.username_chat = await new_chat_username_unique(user?.userLegalName)
     await Promise.all([admins.save(), user.save()]);
     const token = generateAccessToken(user?.username, user?._id);
     res.status(200).send({
@@ -1503,6 +1506,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       user.user_universal_password = `${hash_user_pass}`
       admins.users.push(user);
       admins.userCount += 1;
+      user.username_chat = await new_chat_username_unique(user?.userLegalName)
       await Promise.all([admins.save(), user.save()]);
       var uInstitute = await InstituteAdmin.findOne({
         isUniversal: "Universal",
@@ -1743,6 +1747,7 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
       user.user_universal_password = `${hash_user_pass}`
       admins.users.push(user);
       admins.userCount += 1;
+      user.username_chat = await new_chat_username_unique(user?.userLegalName)
       await Promise.all([admins.save(), user.save()]);
       var uInstitute = await InstituteAdmin.findOne({
         isUniversal: "Universal",
@@ -1938,6 +1943,7 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       user.user_universal_password = `${hash_user_pass}`
       admins.users.push(user);
       admins.userCount += 1;
+      user.username_chat = await new_chat_username_unique(user?.userLegalName)
       await Promise.all([admins.save(), user.save()]);
       var uInstitute = await InstituteAdmin.findOne({
         isUniversal: "Universal",
@@ -2183,6 +2189,7 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
       user.user_universal_password = `${hash_user_pass}`
       admins.users.push(user);
       admins.userCount += 1;
+      user.username_chat = await new_chat_username_unique(user?.userLegalName)
       await Promise.all([admins.save(), user.save()]);
       var uInstitute = await InstituteAdmin.findOne({
         isUniversal: "Universal",
@@ -2425,6 +2432,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
         user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
+        user.username_chat = await new_chat_username_unique(user?.userLegalName)
         await Promise.all([admins.save(), user.save()]);
         var uInstitute = await InstituteAdmin.findOne({
           isUniversal: "Universal",
@@ -2794,6 +2802,7 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
         user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
+        user.username_chat = await new_chat_username_unique(user?.userLegalName)
         await Promise.all([admins.save(), user.save()]);
         var uInstitute = await InstituteAdmin.findOne({
           isUniversal: "Universal",
@@ -3089,6 +3098,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
         user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
+        user.username_chat = await new_chat_username_unique(user?.userLegalName)
         await Promise.all([admins.save(), user.save()]);
         await universal_account_creation_feed(user);
         await user_date_of_birth(user);
@@ -3325,6 +3335,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
+        user.username_chat = await new_chat_username_unique(user?.userLegalName)
         await Promise.all([admins.save(), user.save()]);
         var uInstitute = await InstituteAdmin.findOne({
           isUniversal: "Universal",
@@ -3864,6 +3875,7 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
         user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
+        user.username_chat = await new_chat_username_unique(user?.userLegalName)
         await Promise.all([admins.save(), user.save()]);
         var uInstitute = await InstituteAdmin.findOne({
           isUniversal: "Universal",
@@ -4386,6 +4398,7 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
         user.user_universal_password = `${hash_user_pass}`
         admins.users.push(user);
         admins.userCount += 1;
+        user.username_chat = await new_chat_username_unique(user?.userLegalName)
         await Promise.all([admins.save(), user.save()]);
         var uInstitute = await InstituteAdmin.findOne({
           isUniversal: "Universal",

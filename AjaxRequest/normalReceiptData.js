@@ -229,23 +229,27 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       original_paid: 0,
       appId: all_remain?.appId,
     };
-      if (receipt?.student?.apps_fees_obj?.gta > 0 && receipt?.student?.apps_fees_obj?.appId == receipt?.application?._id && receipt?.student?.apps_fees_obj?.struct == receipt?.fee_structure) {
-          var gta_obj = {
-              head_name: "Government To Applicable",
-              paid_fee: receipt?.student?.apps_fees_obj?.gta ?? 0,
-              remain_fee: 0,
-              applicable_fee: receipt?.student?.apps_fees_obj?.gta ?? 0,
-              fee_structure: all_remain?.fee_structure?._id,
-              original_paid: 0,
-              appId: all_remain?.appId,
-          };
-      }
+    if (
+      receipt?.student?.apps_fees_obj?.gta > 0 &&
+      receipt?.student?.apps_fees_obj?.appId == receipt?.application?._id &&
+      receipt?.student?.apps_fees_obj?.struct == receipt?.fee_structure
+    ) {
+      var gta_obj = {
+        head_name: "Government To Applicable",
+        paid_fee: receipt?.student?.apps_fees_obj?.gta ?? 0,
+        remain_fee: 0,
+        applicable_fee: receipt?.student?.apps_fees_obj?.gta ?? 0,
+        fee_structure: all_remain?.fee_structure?._id,
+        original_paid: 0,
+        appId: all_remain?.appId,
+      };
+    }
     if (excess_obj?.paid_fee > 0) {
       receipt.fee_heads.push(excess_obj);
     }
-      if (gta_obj?.paid_fee > 0) {
-          receipt.fee_heads.push(gta_obj);
-      }
+    if (gta_obj?.paid_fee > 0) {
+      receipt.fee_heads.push(gta_obj);
+    }
     if (receipt?.finance?.show_receipt === "Normal") {
       receipt.student.active_fee_heads = [...receipt?.fee_heads];
     } else if (receipt?.finance?.show_receipt === "Society") {
@@ -278,32 +282,58 @@ const admissionModifyReceiptData = (
   selectedApplicationId = ""
 ) => {
   // console.info("args1", args1, args2);
-  let institute = {
-    // instituteImage: args2?.application?.admissionAdmin?.institute
-    //   ?.insProfilePhoto
-    //   ? `${imageShowUrl1}/${args2?.application?.admissionAdmin?.institute?.insProfilePhoto}`
-    //   : "/images/certificate/logodemo.jpg",
-    instituteImage:
-      args2?.application?.admissionAdmin?.institute?.insProfilePhoto ?? "",
-    affiliatedImage:
-      args2?.application?.admissionAdmin?.institute?.affliatedLogo ?? "",
-    //   affiliatedImage: args2?.application?.admissionAdmin?.institute
-    //   ?.affliatedLogo
-    //   ? `${imageShowUrl1}/${args2?.application?.admissionAdmin?.institute?.affliatedLogo}`
-    //   : "/images/certificate/logodemo.jpg",
-    insName: args2?.application?.admissionAdmin?.institute?.insName ?? "N/A",
-    insAffiliated:
-      args2?.application?.admissionAdmin?.institute?.insAffiliated ?? "",
-    insAddress:
-      args2?.application?.admissionAdmin?.institute?.insAddress ?? "N/A",
-    ediatbel1:
-      args2?.application?.admissionAdmin?.institute?.insEditableText_one ?? "",
-    ediatbel2:
-      args2?.application?.admissionAdmin?.institute?.insEditableText_two ?? "",
-    insPhoneNumber:
-      args2?.application?.admissionAdmin?.institute?.insPhoneNumber ?? "N/A",
-    insEmail: args2?.application?.admissionAdmin?.institute?.insEmail ?? "N/A",
-  };
+  let institute = null;
+  if (args2?.application?.admissionAdmin?.institute) {
+    institute = {
+      // instituteImage: args2?.application?.admissionAdmin?.institute
+      //   ?.insProfilePhoto
+      //   ? `${imageShowUrl1}/${args2?.application?.admissionAdmin?.institute?.insProfilePhoto}`
+      //   : "/images/certificate/logodemo.jpg",
+      instituteImage:
+        args2?.application?.admissionAdmin?.institute?.insProfilePhoto ?? "",
+      affiliatedImage:
+        args2?.application?.admissionAdmin?.institute?.affliatedLogo ?? "",
+      //   affiliatedImage: args2?.application?.admissionAdmin?.institute
+      //   ?.affliatedLogo
+      //   ? `${imageShowUrl1}/${args2?.application?.admissionAdmin?.institute?.affliatedLogo}`
+      //   : "/images/certificate/logodemo.jpg",
+      insName: args2?.application?.admissionAdmin?.institute?.insName ?? "N/A",
+      insAffiliated:
+        args2?.application?.admissionAdmin?.institute?.insAffiliated ?? "",
+      insAddress:
+        args2?.application?.admissionAdmin?.institute?.insAddress ?? "N/A",
+      ediatbel1:
+        args2?.application?.admissionAdmin?.institute?.insEditableText_one ??
+        "",
+      ediatbel2:
+        args2?.application?.admissionAdmin?.institute?.insEditableText_two ??
+        "",
+      insPhoneNumber:
+        args2?.application?.admissionAdmin?.institute?.insPhoneNumber ?? "N/A",
+      insEmail:
+        args2?.application?.admissionAdmin?.institute?.insEmail ?? "N/A",
+    };
+  } else {
+    institute = {
+      instituteImage:
+        args2?.application?.hostelAdmin?.institute?.insProfilePhoto ?? "",
+      affiliatedImage:
+        args2?.application?.hostelAdmin?.institute?.affliatedLogo ?? "",
+
+      insName: args2?.application?.hostelAdmin?.institute?.insName ?? "N/A",
+      insAffiliated:
+        args2?.application?.hostelAdmin?.institute?.insAffiliated ?? "",
+      insAddress:
+        args2?.application?.hostelAdmin?.institute?.insAddress ?? "N/A",
+      ediatbel1:
+        args2?.application?.hostelAdmin?.institute?.insEditableText_one ?? "",
+      ediatbel2:
+        args2?.application?.hostelAdmin?.institute?.insEditableText_two ?? "",
+      insPhoneNumber:
+        args2?.application?.hostelAdmin?.institute?.insPhoneNumber ?? "N/A",
+      insEmail: args2?.application?.hostelAdmin?.institute?.insEmail ?? "N/A",
+    };
+  }
 
   let selectedApplication = args2?.student?.remainingFeeList?.find(
     (val) => val?.appId === selectedApplicationId
@@ -431,4 +461,3 @@ const normalReceiptData = async (receiptId, appId) => {
   return { institute, studentInfo, paymentReceiptInfo };
 };
 module.exports = normalReceiptData;
-

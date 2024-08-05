@@ -273,6 +273,6 @@ router.patch(
   catchAsync(Filter.renderApplicationCombinedListQuery)
 );
 
-
+router.patch("/:fid/daybook/other/fees/heads/wise", catchAsync(Filter.render_other_fees_daybook_heads_wise))
 
 module.exports = router;

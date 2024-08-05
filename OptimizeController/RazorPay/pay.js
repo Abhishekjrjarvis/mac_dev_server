@@ -20,6 +20,7 @@ const {
   directHostelInstituteFunction,
   hostelInstituteFunction,
 } = require("./hostelPaymentModule");
+const { nested_document_limit } = require("../../helper/databaseFunction");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 var instance = new Razorpay({
@@ -1029,6 +1030,327 @@ exports.fetchPaymentOneHistory = async (req, res) => {
     res
       .status(200)
       .send({ message: "One Payment Detail", deny: false, one_pay });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.fetchPaymentOtherHistoryQueryTo = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { uid } = req.query;
+    const skip = (page - 1) * limit;
+    const { filter, search } = req.query;
+    var filtered_array = [];
+    if (filter) {
+      if (search) {
+        var order = await OrderPayment.find({
+          $and: [
+            { payment_to_end_user_id: uid },
+            { payment_module_type: filter },
+            { payment_amount: { $gt: 0 } },
+            { payment_visible_status: "Not Hide"}
+          ],
+          $or: [
+            {
+              razorpay_payment_id: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_invoice_number: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_student_name: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_student_gr: { $regex: `${search}`, $options: "i" },
+            },
+          ],
+        })
+          .sort("-created_at")
+          .select(
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          )
+          .populate({
+            path: "payment_student",
+            match: {
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+              studentMiddleName: { $regex: `${search}`, $options: "i" },
+              studentLastName: { $regex: `${search}`, $options: "i" },
+              valid_full_name: { $regex: `${search}`, $options: "i" },
+              studentGRNO: { $regex: `${search}`, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          })
+          .populate({
+            path: "payment_fee",
+            select: "feeName",
+          })
+          .populate({
+            path: "payment_admission",
+            select: "applicationName",
+          })
+          .populate({
+            path: "payment_checklist",
+            select: "checklistName",
+          })
+          .populate({
+            path: "payment_income",
+            select: "incomeDesc",
+          })
+          .populate({
+            path: "payment_expense",
+            select: "expenseDesc",
+          })
+          .populate({
+            path: "payment_by_end_user_id",
+            select: "userLegalName photoId profilePhoto",
+          })
+          .populate({
+            path: "payment_to_end_user_id",
+            select: "insName photoId insProfilePhoto",
+          })
+          .populate({
+            path: "fee_receipt",
+          });
+      } else {
+        var order = await OrderPayment.find({
+          $and: [
+            { payment_to_end_user_id: uid },
+            { payment_module_type: filter },
+            { payment_amount: { $gt: 0 } },
+            { payment_visible_status: "Not Hide"}
+          ],
+        })
+          .sort("-created_at")
+          .select(
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          )
+          .populate({
+            path: "payment_fee",
+            select: "feeName",
+          })
+          .populate({
+            path: "payment_admission",
+            select: "applicationName",
+          })
+          .populate({
+            path: "payment_checklist",
+            select: "checklistName",
+          })
+          .populate({
+            path: "payment_income",
+            select: "incomeDesc",
+          })
+          .populate({
+            path: "payment_expense",
+            select: "expenseDesc",
+          })
+          .populate({
+            path: "payment_by_end_user_id",
+            select: "userLegalName photoId profilePhoto",
+          })
+          .populate({
+            path: "payment_to_end_user_id",
+            select: "insName photoId insProfilePhoto",
+          })
+          .populate({
+            path: "fee_receipt",
+          })
+          .populate({
+            path: "payment_student",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          });
+      }
+      // .populate({
+      //   path: "payment_expense_by_end_user_id",
+      //   select: "insName photoId insProfilePhoto",
+      // })
+      // .populate({
+      //   path: "payment_expense_to_end_user_id",
+      //   select: "userLegalName photoId profilePhoto",
+      // });
+      if (order?.length > 0) {
+        // const oEncrypt = await encryptionPayload(order);
+        var new_order = order?.filter((ref) => {
+          if (ref?.fee_receipt?.other_fees) return ref;
+        });
+        let all = await nested_document_limit(page, limit, new_order)
+        res.status(200).send({ message: "User Pay History", history: all });
+      } else {
+        res.status(200).send({ message: "No User Pay History", history: [] });
+      }
+    } else {
+      if (search) {
+        var order = await OrderPayment.find({
+          $and: [
+            {
+              payment_to_end_user_id: uid,
+            },
+            {
+              payment_module_type: { $ne: "Expense" },
+            },
+            {
+              payment_amount: { $gt: 0 },
+            },
+            { payment_visible_status: "Not Hide"}
+          ],
+          $or: [
+            {
+              razorpay_payment_id: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_invoice_number: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_student_name: { $regex: `${search}`, $options: "i" },
+            },
+            {
+              payment_student_gr: { $regex: `${search}`, $options: "i" },
+            },
+          ],
+        })
+          .sort("-created_at")
+          .select(
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          )
+          .populate({
+            path: "payment_student",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          })
+          .populate({
+            path: "payment_fee",
+            select: "feeName",
+          })
+          .populate({
+            path: "payment_admission",
+            select: "applicationName",
+          })
+          .populate({
+            path: "payment_checklist",
+            select: "checklistName",
+          })
+          .populate({
+            path: "payment_income",
+            select: "incomeDesc",
+          })
+          .populate({
+            path: "payment_expense",
+            select: "expenseDesc",
+          })
+          .populate({
+            path: "payment_by_end_user_id",
+            select: "userLegalName photoId profilePhoto",
+          })
+          .populate({
+            path: "payment_to_end_user_id",
+            select: "insName photoId insProfilePhoto",
+          })
+          .populate({
+            path: "fee_receipt",
+          });
+      } else {
+        var order = await OrderPayment.find({
+          $and: [
+            {
+              payment_to_end_user_id: uid,
+            },
+            {
+              payment_module_type: { $ne: "Expense" },
+            },
+            {
+              payment_amount: { $gt: 0 },
+            },
+            { payment_visible_status: "Not Hide"}
+          ],
+        })
+          .sort("-created_at")
+          .select(
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+          )
+          .populate({
+            path: "payment_fee",
+            select: "feeName",
+          })
+          .populate({
+            path: "payment_admission",
+            select: "applicationName",
+          })
+          .populate({
+            path: "payment_checklist",
+            select: "checklistName",
+          })
+          .populate({
+            path: "payment_income",
+            select: "incomeDesc",
+          })
+          .populate({
+            path: "payment_expense",
+            select: "expenseDesc",
+          })
+          .populate({
+            path: "payment_by_end_user_id",
+            select: "userLegalName photoId profilePhoto",
+          })
+          .populate({
+            path: "payment_to_end_user_id",
+            select: "insName photoId insProfilePhoto",
+          })
+          .populate({
+            path: "fee_receipt",
+          })
+          .populate({
+            path: "payment_student",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto fee_structure hostel_fee_structure studentGRNO",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select: "unique_structure_name",
+            },
+          });
+      }
+      // .populate({
+      //   path: "payment_expense_by_end_user_id",
+      //   select: "insName photoId insProfilePhoto",
+      // })
+      // .populate({
+      //   path: "payment_expense_to_end_user_id",
+      //   select: "userLegalName photoId profilePhoto",
+      // });
+      // for (var filteredData of order) {
+      //   if (
+      //     `${filteredData?.payment_module_type}` != "Expense" &&
+      //     filteredData?.payment_amount > 0
+      //   ) {
+      //     filtered_array.push(filteredData);
+      //   }
+      // }
+      if (order?.length > 0) {
+        // const oEncrypt = await encryptionPayload(order);
+        var new_order = order?.filter((ref) => {
+          if (ref?.fee_receipt?.other_fees) return ref;
+        });
+        let all = await nested_document_limit(page, limit, new_order)
+        res.status(200).send({ message: "User Pay History", history: all });
+      } else {
+        res.status(200).send({ message: "No User Pay History", history: [] });
+      }
+    }
   } catch (e) {
     console.log(e);
   }

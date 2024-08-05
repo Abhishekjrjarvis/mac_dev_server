@@ -638,4 +638,12 @@ router.patch(
   catchAsync(Finance.deleteFeesQuery)
 );
 
+router
+  .route("/add/student/other/fee/:fid")
+  .post(catchAsync(Finance.renderNewOtherFeesAddStudentQuery));
+
+  router
+  .route("/remove/student/other/fee/:ofid")
+  .post(catchAsync(Finance.renderNewOtherFeesRemoveStudentQuery));
+
 module.exports = router;

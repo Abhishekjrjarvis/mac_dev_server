@@ -12773,3 +12773,213 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
   }
 };
 
+exports.render_other_fees_daybook_heads_wise = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const { from, to, bank, payment_type } = req.query;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+      res.status(200).send({
+        message: "Explore Day Book Heads Query",
+        access: true,
+      });
+    await bankDaybook(fid, from, to, bank, payment_type)
+    var g_year;
+    var l_year;
+    var g_month;
+    var l_month;
+
+    let pg = ["Payment Gateway - PG", "By Cash", "Payment Gateway / Online"]
+    var sorted_array = [];
+    const bank_acc = await BankAccount.findById({ _id: bank });
+    const finance = await Finance.findById({ _id: fid }).select("institute");
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    }).select(
+      "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode insAbout insAffiliated"
+    );
+
+    var g_year = new Date(`${from}`).getFullYear();
+    var g_day = new Date(`${from}`).getDate();
+    var l_year = new Date(`${to}`).getFullYear();
+    var l_day = new Date(`${to}`).getDate();
+    var g_month = new Date(`${from}`).getMonth() + 1;
+    if (g_month < 10) {
+      g_month = `0${g_month}`;
+    }
+    if (g_day < 10) {
+      g_day = `0${g_day}`;
+    }
+    var l_month = new Date(`${to}`).getMonth() + 1;
+    if (l_month < 10) {
+      l_month = `0${l_month}`;
+    }
+    if (l_day < 10) {
+      l_day = `0${l_day}`;
+    }
+    const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+    const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
+    if (payment_type) {
+      var all_receipts = await FeeReceipt.find({
+        $and: [
+          { finance: fid },
+          // { fee_flow: "FEE_HEADS" },
+          {
+            created_at: {
+              $gte: g_date,
+              $lt: l_date,
+            },
+          },
+          {
+            receipt_generated_from: "BY_FINANCE_MANAGER",
+          },
+          {
+            refund_status: "No Refund",
+          },
+          {
+            fee_payment_mode: payment_type,
+          },
+          // { student: { $in: sorted_array } },
+        ],
+      })
+        .sort({ invoice_count: "1" })
+        .select("fee_heads other_fees")
+        .populate({
+          path: "other_fees",
+          select: "bank_account fees_heads",
+          populate: {
+            path: "bank_account",
+            select: "finance_bank_account_number finance_bank_name finance_bank_account_name",
+          },
+        })
+        .lean()
+        .exec();
+    } else {
+      var all_receipts = await FeeReceipt.find({
+        $and: [
+          { finance: fid },
+          // { fee_flow: "FEE_HEADS" },
+          {
+            created_at: {
+              $gte: g_date,
+              $lt: l_date,
+            },
+          },
+          {
+            receipt_generated_from: "BY_FINANCE_MANAGER",
+          },
+          {
+            refund_status: "No Refund",
+          },
+          // { student: { $in: sorted_array } },
+        ],
+      })
+        .sort({ invoice_count: "1" })
+        .select("fee_heads other_fees")
+        .populate({
+          path: "other_fees",
+          select: "bank_account fees_heads",
+          populate: {
+            path: "bank_account",
+            select: "finance_bank_account_number finance_bank_name finance_bank_account_name",
+          },
+        })
+        .lean()
+        .exec();
+    }
+    // console.log(all_receipts)
+    all_receipts = all_receipts?.filter((val) => {
+      if (val?.other_fees?._id) return val;
+    });
+    if (bank_acc?.bank_account_type === "Society") {
+      
+    }
+    else{
+      all_receipts = all_receipts?.filter((val) => {
+        if (
+          `${val?.other_fees?.bank_account?._id}` ===
+          `${bank}`
+        )
+          return val;
+      });
+    }
+    let heads_queue = [];
+    for (let i of all_receipts) {
+      for (let j of i?.other_fees?.fees_heads) {
+        heads_queue.push(j?.master)
+      }
+    }
+    const unique = [...new Set(heads_queue.map(item => item))];
+    const all_master = await FeeMaster.find({
+      _id: { $in: unique },
+    }).select("master_name");
+    var obj = {};
+    var nest_obj = [];
+    for (let ele of all_master) {
+      obj["head_name"] = ele?.master_name;
+      obj["head_amount"] = 0;
+      obj["_id"] = ele?._id;
+      nest_obj.push(obj);
+      obj = {};
+    }
+    if (all_receipts?.length > 0) {
+      for (let ele of all_receipts) {
+        if (ele?.fee_heads?.length > 0) {
+          for (let val of ele?.fee_heads) {
+            for (let ads of nest_obj) {
+              if (bank_acc?.bank_account_type === "Society") {
+                if (`${ads?._id}` === `${val?.master}` && val?.is_society == true) {
+                  ads.head_amount += val?.original_paid;
+                  // t+= val?.original_paid
+                }
+              }
+              else {
+                if (`${ads?._id}` === `${val?.master}` && val?.is_society == false) {
+                  ads.head_amount += val?.original_paid;
+                  console.log(ads.head_amount)
+                }
+              }
+            }
+          }
+        }
+        else {
+          console.log("NO")
+        }
+      }
+      // nest_obj.push({
+      //   head_name: "Total Fees",
+      //   head_amount: t
+      // })
+      // let n = []
+      // for (let ele of all_receipts) {
+      //   n.push(ele?.fee_payment_amount)
+      // }
+      // res.status(200).send({
+      //   message: "Explore Other Fees Day Book Heads Query",
+      //   access: true,
+      //   all_receipts: all_receipts?.length,
+      // //   t: t,
+      // //   tl: t?.length,
+      // //  l:l,
+      // //  ll:l?.length
+      //   results: nest_obj,
+      //   // account_info: bank_acc,
+      //   // day_range_from: from,
+      //   // day_range_to: to,
+      //   // ins_info: institute,
+      // });
+    } else {
+      // res.status(200).send({
+      //   message: "No Day Book Heads Query",
+      //   access: false,
+      //   results: [],
+      // });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+

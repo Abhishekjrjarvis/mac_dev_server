@@ -7449,6 +7449,190 @@ exports.deleteFeesQuery = async (req, res) => {
   }
 }
 
+exports.renderNewOtherFeesAddStudentQuery = async (req, res) => {
+  try {
+    const { fid } = req?.params
+    const { students, ofid } = req?.body
+    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var finance = await Finance.findById({ _id: fid })
+    var o_f = new OtherFees.findById({ _id: ofid })
+      if (students?.length > 0) {
+        for (let ele of students) {
+          const stu = await Student.findById({ _id: `${ele}` })
+          const user = await User.findById({ _id: `${stu?.user}`})
+          stu.other_fees.push({
+            fees: o_f?._id,
+          })
+          stu.other_fees_remain_price += o_f?.payable_amount
+          o_f.students.push(stu?._id)
+          o_f.student_count += 1
+          o_f.remaining_students.push(stu?._id)
+          const notify = new StudentNotification({});
+          notify.notifyContent = `Hi ${stu?.studentFirstName} ${stu?.studentMiddleName ?? stu?.studentFatherName} ${stu?.studentLastName},
+
+Your chosen subject ${o_f?.other_fees_name} is now available for you to confirm.. Please pay the required fees through the Qviple app within the next two days. If the payment is not made within this period, your seat will be offered to other students.
+
+To pay your fees, please follow these steps:
+1. Update the Qviple App to the latest version.
+2. On the home page, you will find the "Your Fees" tab below your name.
+3. Open the "Your Fees" tab.
+4. You will see three menus: Admission Fees, Department Fees, and Other Fees.
+5. Navigate to "Other Fees."
+6. From the "Other Fees" section, you can pay the fees for your additional subject of choice.
+
+Note: Do not close the app from the background during payment. If you accidentally close the app, your fee receipt will not be generated. Please send a screenshot of your fee payment transaction to Qviple Helpdesk for support.
+
+Thank you.
+
+
+Do Not Click on the link below (clicking it may prevent further emails from being delivered to you).`;
+      notify.notifySender = finance?.financeHead;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = stu?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByFinancePhoto = finance?._id;
+      notify.notifyCategory = "Online Other Fee";
+      notify.redirectIndex = 49;
+            await Promise.all([stu.save(), user.save(), notify.save()])
+            if (stu?.studentEmail) {
+              let name = `${stu?.studentFirstName} ${stu?.studentMiddleName ?? stu?.studentFatherName} ${stu?.studentLastName}`
+              email_sms_designation_other_fees_apply(stu?.studentEmail, name, o_f?.other_fees_name)
+            }
+        }
+      }
+    await o_f.save()
+    res.status(200).send({ message: "Explore New Student In Other Fees Query", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.renderNewOtherFeesRemoveStudentQuery = async (req, res) => {
+  try {
+    const { ofid } = req?.params
+    const { students } = req?.body
+    if (!ofid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    var message;
+    var o_f = new OtherFees.findById({ _id: ofid })
+      if (students?.length > 0) {
+        for (let ele of students) {
+          const stu = await Student.findById({ _id: `${ele}` })
+          for (let val of stu?.other_fees) {
+            if (val?.fee_receipt) {
+              message = "Removal of Student Denied. Due To Valid Fee Receipt Exist"
+            }
+            else {
+              if (`${val?.fees}` === `${o_f?._id}`) {
+                stu.other_fees.pull(val?._id)
+                if (stu.other_fees_remain_price >= o_f?.payable_amount) {
+                  stu.other_fees_remain_price -= o_f?.payable_amount
+                }
+                message = "Removal of Student Successfully."
+              }
+            }
+          }
+          o_f.students.pull(stu?._id)
+          if (o_f.student_count > 0) {
+            o_f.student_count -= 1
+          }
+          o_f.remaining_students.pull(stu?._id)
+          await stu.save()
+        }
+      }
+    await o_f.save()
+    res.status(200).send({ message: message, access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+// exports.renderExistingOtherFeesNonExistingQuery = async (req, res) => {
+//   try {
+//     const { fid } = req?.params
+//     const { struct, is_collect, mode, student_name, other_fees_name, ofid } = req?.body
+//     if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+//     var finance = await Finance.findById({ _id: fid })
+//     var institute = await InstituteAdmin.findById({ _id: `${finance?.institute}` })
+//     var o_f = await OtherFees.findById({ _id: ofid })
+//     if (is_collect === "Yes") {
+//         // for (let ele of students) {
+//           // const stu = await Student.findById({ _id: `${ele}` })
+//           // const user = await User.findById({ _id: `${stu?.user}` })
+//           // stu.other_fees_paid_price += o_f?.payable_amount
+//           o_f.students_list.push(student_name)
+//           // o_f.paid_students.push(stu?._id)
+//           o_f.status = "Paid"
+//           o_f.student_count += 1
+//           for (let val of o_f?.fees_heads) {
+//             val.paid_amount += o_f?.payable_amount
+//           }
+//           const new_receipt = new FeeReceipt({ ...req.body });
+//           const order = new OrderPayment({...req?.body})
+//           new_receipt.student_name = student_name
+//           new_receipt.fee_structure = o_f?.fee_structure
+//           new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+//           new_receipt.other_fees = o_f?._id;
+//           new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
+//           new_receipt.finance = finance?._id;
+//           new_receipt.receipt_status = "Already Generated";
+//           order.payment_module_type = "Other Fees";
+//           order.payment_to_end_user_id = institute?._id;
+//           // order.payment_by_end_user_id = user._id;
+//           order.payment_module_id = o_f._id;
+//           order.payment_amount = o_f?.payable_amount;
+//           order.payment_status = "Captured";
+//           order.payment_flag_to = "Credit";
+//           order.payment_flag_by = "Debit";
+//           order.payment_mode = mode;
+//           order.payment_other_fees = o_f._id;
+//           // order.payment_from = stu._id;
+//           // order.payment_student = stu?._id;
+//           order.payment_student_name = student_name;
+//           order.payment_student_gr = "";
+//           order.fee_receipt = new_receipt?._id;
+//           fee_receipt_count_query(institute, new_receipt, order)
+//           // stu.other_fees.push({
+//           //   fees: o_f?._id,
+//           //   fee_receipt: new_receipt?._id,
+//           //   status: "Paid"
+//           // })
+//           for (let ele of o_f?.fees_heads) {
+//             new_receipt.fee_heads.push({
+//               head_id: ele?._id,
+//               head_name: ele?.head_name,
+//               paid_fee: ele?.head_amount,
+//               applicable_fee: ele?.head_amount,
+//               remain_fee: new_receipt?.fee_payment_amount - ele?.head_amount,
+//               fee_structure: o_f?.fee_structure ?? null,
+//               master: ele?.master,
+//               original_paid: new_receipt?.fee_payment_amount,
+//               is_society: ele?.is_society,
+//             })
+//           }
+//       o_f.fee_receipt = new_receipt?._id
+//           // user.payment_history.push(order._id);
+//           institute.payment_history.push(order._id);
+//       await Promise.all([institute.save(), new_receipt.save(), order.save()])
+//       await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
+      
+//         // }
+//     }
+//     finance.other_fees.push(o_f?._id)
+//     o_f.finance = finance?._id
+//     await Promise.all([finance.save(), o_f.save()])
+//     res.status(200).send({ message: "Explore New Other Fees Query", access: true})
+//   }
+//   catch (e) {
+//     console.log(e)
+//   }
+// }
+
 
 // exports.updateAlias = async(req, res) => {
 //   try{

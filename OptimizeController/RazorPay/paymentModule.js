@@ -1880,6 +1880,7 @@ exports.otherFeesFunction = async (
     new_receipt.order_history = orderPay?._id;
     orderPay.fee_receipt = new_receipt?._id;
     orderPay.payment_student = student?._id;
+    orderPay.payment_module_type = "Other Fees"
     new_receipt.other_fees = new_internal?._id;
     student.other_fees_paid_price += parseInt(tx_amount);
     if (student.other_fees_remain_price >= parseInt(tx_amount)) {

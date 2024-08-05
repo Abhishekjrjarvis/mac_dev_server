@@ -68,7 +68,17 @@ const bankDaybook = async (fid, from, to, bank, payment_type) => {
     .fontSize(10)
     .text(instituteData?.insAffiliated, 20, 20, { align: "center" });
   doc.moveDown(0.3);
-  doc.fontSize(16).text(instituteData?.insName, { align: "center" });
+  let in_string = instituteData?.insName;
+
+  let in_string_divid = Math.ceil(in_string?.length / 55);
+
+  for (let i = 0; i < +in_string_divid; i++) {
+    doc
+      .fontSize(16)
+      .text(in_string?.substring(55 * i, 55 + 55 * i), { align: "center" });
+  }
+
+  // doc.fontSize(16).text(instituteData?.insName, { align: "center" });
   doc.moveDown(0.3);
   doc.fontSize(10).text(instituteData?.insAddress, { align: "center" });
   doc.moveDown(0.3);
@@ -176,27 +186,26 @@ const bankDaybook = async (fid, from, to, bank, payment_type) => {
 
   // Handle stream close event
   stream.on("finish", async () => {
-      console.log("created");
-      const bank_acc = await BankAccount.findById({ _id: bank })
-      let file = {
-        path: `uploads/${name}-bank-daybook.pdf`,
-        filename: `${name}-bank-daybook.pdf`,
-        mimetype: "application/pdf",
-      };
-      const results = await uploadDocsFile(file);
-      bank_acc.day_book.push({
-        excel_file: results?.Key,
-        excel_file_name: `${name}-bank-daybook.pdf`,
-        from: from,
-        to: to,
-        payment_type: payment_type,
-        bank: bank
-      })
-      await unlinkFile(file.path);
-      await bank_acc.save();
+    console.log("created");
+    const bank_acc = await BankAccount.findById({ _id: bank });
+    let file = {
+      path: `uploads/${name}-bank-daybook.pdf`,
+      filename: `${name}-bank-daybook.pdf`,
+      mimetype: "application/pdf",
+    };
+    const results = await uploadDocsFile(file);
+    bank_acc.day_book.push({
+      excel_file: results?.Key,
+      excel_file_name: `${name}-bank-daybook.pdf`,
+      from: from,
+      to: to,
+      payment_type: payment_type,
+      bank: bank,
+    });
+    await unlinkFile(file.path);
+    await bank_acc.save();
   });
 
   //   console.log(data);
 };
 module.exports = bankDaybook;
-

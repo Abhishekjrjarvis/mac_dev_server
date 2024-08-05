@@ -29,7 +29,9 @@ exports.getAlldailyUpdate = async (req, res) => {
     const dailyUpdate = await SubjectUpdate.find({
       _id: { $in: subject.dailyUpdate },
     })
-      .select("updateDate updateDescription date upadateImage createdAt yt_link")
+      .select(
+        "updateDate updateDescription date upadateImage createdAt yt_link"
+      )
       .populate({
         path: "daily_topic",
         populate: {
@@ -76,7 +78,7 @@ exports.createDailyUpdate = async (req, res) => {
       subject: req.params.sid,
       updateDescription: req.body?.updateDescription,
       date: req.body?.date,
-      yt_link: req?.body?.yt_link
+      yt_link: req?.body?.yt_link,
     });
     await dailyUpdate.save();
     res.status(201).send({
@@ -91,7 +93,8 @@ exports.createDailyUpdate = async (req, res) => {
           topic: val?.topicId,
           status: rec_status,
           current_status: val?.current_status,
-          extra_lecture: [...valid_extra_lecture]
+          extra_lecture: [...valid_extra_lecture],
+          teaching_method: val?.teaching_method ?? "",
         });
         if (val?.current_status === "Completed") {
           var valid_date = custom_date_time(0);
@@ -246,7 +249,9 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(itemPerPage)
         .skip(dropItem)
-        .select("updateDate updateDescription date upadateImage createdAt yt_link")
+        .select(
+          "updateDate updateDescription date upadateImage createdAt yt_link"
+        )
         .populate({
           path: "daily_topic",
           populate: {
@@ -275,7 +280,9 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(itemPerPage)
         .skip(dropItem)
-        .select("updateDate updateDescription date upadateImage createdAt yt_link")
+        .select(
+          "updateDate updateDescription date upadateImage createdAt yt_link"
+        )
         .populate({
           path: "daily_topic",
           populate: {

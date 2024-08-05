@@ -49,7 +49,7 @@ const normalAdmissionFeeReceipt = async (receiptId, appId) => {
     doc.image(
       await dynamicImages("CUSTOM", institute?.affiliatedImage),
       doc.page.width - 90,
-      doc.y,
+      doc.y - 65,
       {
         width: 65,
         height: 65,
@@ -60,7 +60,16 @@ const normalAdmissionFeeReceipt = async (receiptId, appId) => {
 
   doc.fontSize(10).text(institute?.insAffiliated, 25, 25, { align: "center" });
   doc.moveDown(0.3);
-  doc.fontSize(16).text(institute?.insName, { align: "center" });
+  // doc.fontSize(16).text(institute?.insName, { align: "center" });
+  let in_string = institute?.insName;
+
+  let in_string_divid = Math.ceil(in_string?.length / 55);
+
+  for (let i = 0; i < +in_string_divid; i++) {
+    doc
+      .fontSize(16)
+      .text(in_string?.substring(55 * i, 55 + 55 * i), { align: "center" });
+  }
   doc.moveDown(0.3);
   doc.fontSize(10).text(institute?.insAddress, { align: "center" });
   doc.moveDown(0.3);
@@ -276,4 +285,3 @@ const normalAdmissionFeeReceipt = async (receiptId, appId) => {
 };
 
 module.exports = normalAdmissionFeeReceipt;
-

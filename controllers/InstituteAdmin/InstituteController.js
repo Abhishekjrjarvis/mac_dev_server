@@ -8252,9 +8252,9 @@ exports.render_form_key_editable = async (req, res) => {
       form_checklist_key: "student_seat_type",
     });
     for (let ele of all_check) {
-      // ele.form_checklist_name = "Are you from other than Pune University"
-      // ele.form_checklist_placeholder = "Are you from other than Pune University"
-      // ele.form_checklist_lable = "Are you from other than Pune University"
+      ele.form_checklist_name = "Admission Category"
+      ele.form_checklist_placeholder = "Select Admission Category"
+      ele.form_checklist_lable = "Admission Category"
       // ele.form_checklist_required = true
       // ele.form_common_key = "student_ph"
       // ele.form_checklist_typo = "NUMBER"
@@ -8266,7 +8266,14 @@ exports.render_form_key_editable = async (req, res) => {
         "SBC",
         "EWS",
         "TFWS",
-        "VJNT",
+        "SEBC",
+        "VJ",
+        "NT",
+        "DT",
+        "SC",
+        "ST",
+        "EBC",
+        "Girls Freeship",
         "NT-A",
         "NT-B",
         "NT-C",
@@ -8274,6 +8281,7 @@ exports.render_form_key_editable = async (req, res) => {
         "Defence Quota",
         "J&K & NEUT",
         "PMSS",
+        "VJNT"
       ];
       //["Yes", "No"],
       await ele.save();

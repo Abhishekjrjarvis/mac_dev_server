@@ -1481,7 +1481,7 @@ exports.circleArray = async (req, res) => {
         ],
       })
         .select(
-          "userLegalName username photoId one_line_about profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
+          "userLegalName username photoId one_line_about profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy username_chat"
         )
         .limit(limit)
         .skip(skip);
@@ -1493,7 +1493,7 @@ exports.circleArray = async (req, res) => {
         ],
       })
         .select(
-          "userLegalName username photoId one_line_about profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
+          "userLegalName username photoId one_line_about profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy username_chat"
         )
         .limit(limit)
         .skip(skip);
@@ -2409,10 +2409,10 @@ exports.circleArrayQuery = async (req, res) => {
   try {
     const { uid } = req.params;
     const user = await User.findById({ _id: uid })
-      .select("userLegalName username photoId profilePhoto")
+      .select("userLegalName username photoId profilePhoto username_chat")
       .populate({
         path: "userCircle",
-        select: "userLegalName username photoId profilePhoto",
+        select: "userLegalName username photoId profilePhoto username_chat",
       });
     // const uEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "Success", user });

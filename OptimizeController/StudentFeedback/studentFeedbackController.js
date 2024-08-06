@@ -296,13 +296,23 @@ exports.feedbackTakenByInstituteQuery = async (req, res) => {
 
     const department = await Department.find({
       institute: id,
-    }).select("departmentSelectBatch");
+    })
+      .populate({
+        path: "departmentSelectBatch",
+      })
+      .select("departmentSelectBatch");
 
     const all_batches = [];
 
     for (let dt of department) {
-      all_batches.push(dt?.departmentSelectBatch);
+      if (dt?.departmentSelectBatch?.batchStatus === "UnLocked") {
+        all_batches.push(dt?.departmentSelectBatch?._id);
+      }
     }
+    // res.status(200).send({
+    //   message: "student feedback taken by Institute Admin",
+    //   feedback,
+    // });
     const cls = await Class.find({
       batch: { $in: all_batches },
     })
@@ -348,89 +358,154 @@ exports.feedbackTakenByInstituteQuery = async (req, res) => {
       cls_student[ct?._id]["staff"] = arr;
     }
 
+    let sended_id = [
+      "66a67ffcde6cdcd86d1acdcb",
+      "66a68012de6cdcd86d1acf13",
+      "66a68022de6cdcd86d1acff4",
+      "66a6827bde6cdcd86d1adb1a",
+      "66a68292de6cdcd86d1adc33",
+      "66a682a4de6cdcd86d1add55",
+      "66a682b2de6cdcd86d1ade46",
+      "66a684e6de6cdcd86d1ae8fa",
+      "66a684f2de6cdcd86d1ae9aa",
+      "66a684fdde6cdcd86d1aea5b",
+      "66a68674de6cdcd86d1af18f",
+      "66a68682de6cdcd86d1af236",
+      "66a6868bde6cdcd86d1af299",
+      "66a68696de6cdcd86d1af312",
+      "66a68697de6cdcd86d1af31e",
+      "66a687e3de6cdcd86d1afcb6",
+      "66a687f6de6cdcd86d1afda3",
+      "66a6880fde6cdcd86d1aff28",
+      "66a6881fde6cdcd86d1b0029",
+      "66a6882ede6cdcd86d1b00fc",
+      "66a6882fde6cdcd86d1b0107",
+      "66a6883dde6cdcd86d1b01a1",
+      "66a6883ede6cdcd86d1b01ac",
+      "66a6883fde6cdcd86d1b01b7",
+      "66a68840de6cdcd86d1b01c2",
+      "66ab3f000a9333e4a5acd790",
+      "66ab3f6155671c796a91ebd6",
+    ];
+
     for (let obj in cls_student) {
       let data = cls_student[obj];
-      for (let st of data["staff"] ?? []) {
-        const staff = await Staff.findById(st?.staffId);
-        const master = await SubjectMaster.findById(st?.master);
-        var staff_feedbaack = await StaffStudentFeedback.findOne({
-          $and: [
-            {
-              staff: { $eq: `${staff?._id}` },
-            },
-            {
-              feedbackId: { $eq: `${feedback?._id}` },
-            },
-          ],
-        });
-        if (staff_feedbaack) {
-          staff_feedbaack.subject_master?.push(master?._id);
-          staff_feedbaack.classes?.push(obj);
-          await staff_feedbaack.save();
-        } else {
-          staff_feedbaack = new StaffStudentFeedback({
-            institute: id,
-            feedbackId: feedback?._id,
-            staff: staff?._id,
-            subject_master: [master?._id],
+      feedback.cls_student.push({
+        class: obj,
+        sent: false,
+        staff: data["staff"],
+        student: data["student"],
+      });
+      await feedback.save();
+
+      if (sended_id?.includes(obj)) {
+        console.log(true);
+      } else {
+        for (let st of data["staff"] ?? []) {
+          const staff = await Staff.findById(st?.staffId);
+          const master = await SubjectMaster.findById(st?.master);
+          var staff_feedbaack = await StaffStudentFeedback.findOne({
+            $and: [
+              {
+                staff: { $eq: `${staff?._id}` },
+              },
+              {
+                feedbackId: { $eq: `${feedback?._id}` },
+              },
+            ],
           });
-          staff.student_feedback?.push(staff_feedbaack?._id);
-          feedback.feedback_staff?.push(staff_feedbaack?._id);
-          staff_feedbaack.classes?.push(obj);
-          await staff_feedbaack.save();
-        }
-
-        let all_student = st?.is_batch ? st?.student : data["student"];
-        if (all_student?.length > 0) {
-          for (let stu of all_student) {
-            const student = await Student.findById(stu);
-            const user = await User.findById(student?.user);
-            const notify = new StudentNotification({});
-            notify.notifyContent = `Give your valuable feedback to your beloved teacher - ${
-              staff?.staffFirstName
-            } ${staff?.staffMiddleName ? `${staff?.staffMiddleName} ` : ""}${
-              staff?.staffLastName ?? ""
-            } of - ${master?.subjectName}`;
-            notify.notifySender = institute._id;
-            notify.notifyReceiever = user._id;
-            notify.notifyType = "Student";
-            notify.notifyPublisher = student._id;
-            notify.instituteId = institute._id;
-            user.activity_tab.push(notify._id);
-            notify.notifyByInsPhoto = institute._id;
-            notify.notifyCategory = "Subject Teacher Feedback";
-            notify.redirectIndex = 89;
-            notify.student_feedback = feedback?._id;
-            notify.staffId = staff?._id;
-            notify.subjectMasterId = master?._id;
-            notify.staffFeedbackId = staff_feedbaack?._id;
-            notify.feedbackClassId = obj;
-
-            feedback.feedback_notify?.push(notify?._id);
-            feedback.feedback_notify_count += 1;
-
-            if (user?.deviceToken) {
-              invokeMemberTabNotification(
-                "Student Activity",
-                notify,
-                "Staff Feedback",
-                user._id,
-                user.deviceToken,
-                "Student",
-                notify
-              );
+          if (staff_feedbaack) {
+            staff_feedbaack.subject_master?.push(master?._id);
+            staff_feedbaack.classes?.push(obj);
+            await staff_feedbaack.save();
+          } else {
+            staff_feedbaack = new StaffStudentFeedback({
+              institute: id,
+              feedbackId: feedback?._id,
+              staff: staff?._id,
+              subject_master: [master?._id],
+            });
+            staff.student_feedback?.push(staff_feedbaack?._id);
+            feedback.feedback_staff?.push(staff_feedbaack?._id);
+            staff_feedbaack.classes?.push(obj);
+            await staff_feedbaack.save();
+          }
+          let all_student = st?.is_batch ? st?.student : data["student"];
+          if (all_student?.length > 0) {
+            for (let stu of all_student) {
+              if (stu) {
+                const student = await Student.findById(stu);
+                if (student?.user) {
+                  const user = await User.findById(student?.user);
+                  const notify = new StudentNotification({});
+                  notify.notifyContent = `Give your valuable feedback to your beloved teacher - ${
+                    staff?.staffFirstName
+                  } ${
+                    staff?.staffMiddleName ? `${staff?.staffMiddleName} ` : ""
+                  }${staff?.staffLastName ?? ""} of - ${master?.subjectName}`;
+                  notify.notifySender = institute?._id;
+                  notify.notifyReceiever = user?._id;
+                  notify.notifyType = "Student";
+                  notify.notifyPublisher = student?._id;
+                  notify.instituteId = institute?._id;
+                  user.activity_tab.push(notify?._id);
+                  notify.notifyByInsPhoto = institute?._id;
+                  notify.notifyCategory = "Subject Teacher Feedback";
+                  notify.redirectIndex = 89;
+                  notify.student_feedback = feedback?._id;
+                  notify.staffId = staff?._id;
+                  notify.subjectMasterId = master?._id;
+                  notify.staffFeedbackId = staff_feedbaack?._id;
+                  notify.feedbackClassId = obj;
+                  feedback.feedback_notify?.push(notify?._id);
+                  feedback.feedback_notify_count += 1;
+                  if (user?.deviceToken) {
+                    invokeMemberTabNotification(
+                      "Student Activity",
+                      notify,
+                      "Staff Feedback",
+                      user._id,
+                      user.deviceToken,
+                      "Student",
+                      notify
+                    );
+                  }
+                  await Promise.all([notify.save(), user.save()]);
+                }
+              }
             }
-            await Promise.all([notify.save(), user.save()]);
+          }
+          await Promise.all([
+            feedback.save(),
+            // staff_feedbaack.save(),
+            staff.save(),
+          ]);
+        }
+      }
+
+      // if ("66ab3f6155671c796a91ebd6" === obj) {
+      // } else {
+      const fd_td = await StudentFeedback.findById(ifid);
+      let f_index = null;
+      if (fd_td?.cls_student?.length > 0) {
+        for (let i = 0; i < fd_td?.cls_student?.length; i++) {
+          let ct = fd_td?.cls_student[i];
+          if (`${ct?.class}` === `${obj}`) {
+            f_index = i;
+            break;
           }
         }
-
-        await Promise.all([
-          feedback.save(),
-          // staff_feedbaack.save(),
-          staff.save(),
-        ]);
       }
+      if (fd_td?.cls_student[f_index]) {
+        fd_td.cls_student[f_index]["sent"] = true;
+        await fd_td.save();
+      }
+      // }
     }
+    // res.status(200).send({
+    //   message: "student feedback taken by Institute Admin",
+    //   feedback: feedback?.cls_student,
+    // });
   } catch (e) {
     console.log(e);
   }
@@ -1330,8 +1405,6 @@ exports.feedbackAnalyticsProcessInstituteQuery = async (req, res) => {
 //   }
 // };
 
-
-
 exports.getOneStaffAnalyticQuery = async (req, res) => {
   try {
     const { ifid, sid } = req.params;
@@ -1479,7 +1552,6 @@ exports.removeDublicateMasterQuery = async (req, res) => {
   }
 };
 
-
 exports.getOneDepartmentAnalyticQuery = async (req, res) => {
   try {
     const { did } = req.params;
@@ -1621,6 +1693,175 @@ exports.getOneDepartmentAnalyticQuery = async (req, res) => {
       message: "staff Feedback info",
       // excel_list: excel_list,
       excel_key: excel_key,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+//if feedback crash then this api hit
+exports.feedbackRemoveByInstituteQuery = async (req, res) => {
+  try {
+    const { ifid } = req.params;
+    if (!ifid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const feedback = await StudentFeedback.findById(ifid);
+
+    if (feedback?.feedback_notify?.length > 0) {
+      for (let dt of feedback?.feedback_notify) {
+        const notify = await StudentNotification(dt);
+
+        if (notify?.notifyReceiever) {
+          const user = await User.findById(notify?.notifyReceiever);
+          user.activity_tab.pull(notify?._id);
+          await user.save();
+        }
+        await StudentNotification.findByIdAndDelete(dt);
+      }
+    }
+
+    if (feedback?.feedback_staff?.length > 0) {
+      for (let st of feedback?.feedback_staff) {
+        let st_d = await StaffStudentFeedback.findById(st);
+        if (st_d?.staff) {
+          const staff = await Staff.findById(st_d?.staff);
+          staff.student_feedback.pull(st);
+          await staff.save();
+        }
+
+        await StaffStudentFeedback.findByIdAndDelete(st);
+      }
+    }
+    if (feedback?.institute) {
+      const institute = await InstituteAdmin.findById(feedback?.institute);
+      institute.student_feedback.pull(ifid);
+      institute.student_feedback_count -= 1;
+      await institute.save();
+    }
+    await StudentFeedback.findByIdAndDelete(ifid);
+
+    res.status(200).send({
+      message: "Student feedback deleted successfully.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+//if feedback crash then only delete notification for student
+exports.feedbackOnlyRemoveNotificationByInstituteQuery = async (req, res) => {
+  try {
+    const { ifid } = req.params;
+    if (!ifid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const feedback = await StudentFeedback.findById(ifid);
+
+    // let already_sent_notification = [
+    //   "66b0aa0466cfdeac8303e0da",
+    //   "66b0aa0566cfdeac8303e0e8",
+    //   "66b0aa0566cfdeac8303e0f4",
+    //   "66b0aa0666cfdeac8303e0fd",
+    //   "66b0aa0666cfdeac8303e105",
+    //   "66b0aa0666cfdeac8303e10d",
+    //   "66b0aa0766cfdeac8303e116",
+    //   "66b0aa0766cfdeac8303e122",
+    //   "66b0aa0866cfdeac8303e12a",
+    //   "66b0aa0866cfdeac8303e132",
+    //   "66b0aa0866cfdeac8303e13b",
+    //   "66b0aa0966cfdeac8303e143",
+    //   "66b0aa0966cfdeac8303e14b",
+    //   "66b0aa0966cfdeac8303e151",
+    //   "66b0aa0966cfdeac8303e158",
+    //   "66b0aa0a66cfdeac8303e160",
+    //   "66b0aa0a66cfdeac8303e168",
+    //   "66b0aa0a66cfdeac8303e171",
+    //   "66b0aa0b66cfdeac8303e179",
+    //   "66b0aa0b66cfdeac8303e181",
+    //   "66b0aa0b66cfdeac8303e189",
+    //   "66b0aa0c66cfdeac8303e192",
+    //   "66b0aa0c66cfdeac8303e19a",
+    //   "66b0aa0c66cfdeac8303e1a2",
+    //   "66b0aa0c66cfdeac8303e1ab",
+    //   "66b0aa0d66cfdeac8303e1b3",
+    //   "66b0aa0d66cfdeac8303e1b9",
+    //   "66b0aa0d66cfdeac8303e1c1",
+    //   "66b0aa0e66cfdeac8303e1ca",
+    //   "66b0aa0e66cfdeac8303e1d2",
+    //   "66b0aa0e66cfdeac8303e1db",
+    //   "66b0aa0f66cfdeac8303e1e3",
+    //   "66b0aa0f66cfdeac8303e1eb",
+    //   "66b0aa0f66cfdeac8303e1f3",
+    //   "66b0aa0f66cfdeac8303e1fb",
+    //   "66b0aa1066cfdeac8303e203",
+    //   "66b0aa1066cfdeac8303e20c",
+    //   "66b0aa1066cfdeac8303e212",
+    //   "66b0aa1166cfdeac8303e217",
+    //   "66b0aa1166cfdeac8303e21c",
+    //   "66b0aa1166cfdeac8303e221",
+    //   "66b0aa1266cfdeac8303e226",
+    //   "66b0aa1266cfdeac8303e22b",
+    //   "66b0aa1266cfdeac8303e231",
+    //   "66b0aa1366cfdeac8303e237",
+    //   "66b0aa1366cfdeac8303e23d",
+    //   "66b0aa1366cfdeac8303e245",
+    //   "66b0aa1466cfdeac8303e24a",
+    //   "66b0aa1466cfdeac8303e252",
+    //   "66b0aa1466cfdeac8303e25a",
+    //   "66b0aa1566cfdeac8303e263",
+    //   "66b0aa1566cfdeac8303e269",
+    //   "66b0aa1566cfdeac8303e26e",
+    //   "66b0aa1566cfdeac8303e273",
+    //   "66b0aa1666cfdeac8303e278",
+    //   "66b0aa1666cfdeac8303e27d",
+    //   "66b0aa1666cfdeac8303e282",
+    //   "66b0aa1766cfdeac8303e287",
+    //   "66b0aa1766cfdeac8303e28c",
+    //   "66b0aa1766cfdeac8303e291",
+    //   "66b0aa1866cfdeac8303e296",
+    //   "66b0aa1866cfdeac8303e29b",
+    //   "66b0aa1866cfdeac8303e2a0",
+    //   "66b0aa1866cfdeac8303e2a5",
+    //   "66b0aa1966cfdeac8303e2aa",
+    //   "66b0aa1966cfdeac8303e2af",
+    // ];
+
+    if (feedback?.feedback_notify?.length > 0) {
+      for (let dt of feedback?.feedback_notify) {
+        // for (let dt of already_sent_notification) {
+        const notify = await StudentNotification.findById(dt);
+
+        if (notify?.notifyReceiever) {
+          const user = await User.findById(notify?.notifyReceiever);
+          user.activity_tab.pull(notify?._id);
+          await user.save();
+        }
+        await StudentNotification.findByIdAndDelete(dt);
+        feedback.feedback_notify.pull(dt);
+      }
+    }
+
+    if (feedback?.feedback_staff?.length > 0) {
+      for (let st of feedback?.feedback_staff) {
+        let st_d = await StaffStudentFeedback.findById(st);
+        if (st_d?.staff) {
+          const staff = await Staff.findById(st_d?.staff);
+          staff.student_feedback.pull(st);
+          await staff.save();
+        }
+        await StaffStudentFeedback.findByIdAndDelete(st);
+      }
+    }
+    feedback.feedback_notify_count = 0;
+    await feedback.save();
+
+    res.status(200).send({
+      message: "Student feedback deleted successfully.",
+      count: already_sent_notification?.length,
     });
   } catch (e) {
     console.log(e);

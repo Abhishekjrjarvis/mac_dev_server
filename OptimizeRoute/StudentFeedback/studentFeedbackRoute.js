@@ -90,7 +90,14 @@ router.route("/department/analytic/:did/class/feedback/query").patch(
   catchAsync(studentFeedbackController.getOneDepartmentAnalyticQuery)
 );
 
-
-
+router.route("/crash/taken/:ifid/by/query").delete(
+  // isLoggedIn,
+  catchAsync(studentFeedbackController.feedbackRemoveByInstituteQuery)
+);
+router.route("/crash/only/notification/taken/:ifid/by/query").delete(
+  // isLoggedIn,
+  catchAsync(
+    studentFeedbackController.feedbackOnlyRemoveNotificationByInstituteQuery
+  )
+);
 module.exports = router;
-

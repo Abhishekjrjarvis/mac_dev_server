@@ -7456,7 +7456,7 @@ exports.renderNewOtherFeesAddStudentQuery = async (req, res) => {
     if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var finance = await Finance.findById({ _id: fid })
-    var o_f = new OtherFees.findById({ _id: ofid })
+    var o_f = await OtherFees.findById({ _id: ofid })
       if (students?.length > 0) {
         for (let ele of students) {
           const stu = await Student.findById({ _id: `${ele}` })
@@ -7517,7 +7517,7 @@ exports.renderNewOtherFeesRemoveStudentQuery = async (req, res) => {
     if (!ofid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var message;
-    var o_f = new OtherFees.findById({ _id: ofid })
+    var o_f = await OtherFees.findById({ _id: ofid })
       if (students?.length > 0) {
         for (let ele of students) {
           const stu = await Student.findById({ _id: `${ele}` })

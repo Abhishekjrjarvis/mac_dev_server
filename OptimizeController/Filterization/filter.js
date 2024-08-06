@@ -10520,11 +10520,14 @@ exports.render_daybook_query = async (req, res) => {
       })
     }
     else {
-      for (let ele of bank_acc?.day_book) {
-        if (`${ele?.types}` === "Normal Other Fees") {
-          bank_acc?.day_book?.pull(ele?._id)
+      var book = bank_acc?.day_book?.filter((ele) => {
+        if (`${ele?.types}` === `Normal Other Fees`) {
+          return
         }
-      }
+        else {
+         return ele
+        }
+      })
     }
 
     if (type) {
@@ -10538,7 +10541,7 @@ exports.render_daybook_query = async (req, res) => {
       var all_daybook = await nested_document_limit(
         page,
         limit,
-        bank_acc?.day_book?.reverse()
+        book?.reverse()
       );
     }
 

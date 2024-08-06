@@ -33,13 +33,25 @@ const {
   set_fee_head_query,
   remain_one_time_query,
   update_fee_head_query,
-  hostel_lookup_applicable_grant,
-} = require("../../Functions/hostelInstallment");
+  lookup_applicable_grant,
+  all_installment_paid,
+  set_fee_head_query_redesign,
+  update_fee_head_query_redesign,
+} = require("../../helper/Installment");
 const Hostel = require("../../models/Hostel/hostel");
 const Renewal = require("../../models/Hostel/renewal");
 const { custom_month_query } = require("../../helper/dayTimer");
 const BankAccount = require("../../models/Finance/BankAccount");
+const Batch = require("../../models/Batch");
 const { universal_random_password } = require("../../Custom/universalId");
+const NestedCard = require("../../models/Admission/NestedCard");
+const CertificateQuery = require("../../models/Certificate/CertificateQuery");
+const { classes_status } = require("../Admission/admissionController");
+const OtherFees = require("../../models/Finance/Other/OtherFees");
+const FeeMaster = require("../../models/Finance/FeeMaster");
+const ErrorPayment = require("../../models/Acid/ErrorPayment");
+const studentOtherFeeReceipt = require("../../scripts/studentOtherFeeReceipt");
+const Hostel = require("../../models/Hostel/hostel");
 
 exports.hostelInstituteFunction = async (
   order,
@@ -47,84 +59,201 @@ exports.hostelInstituteFunction = async (
   tx_amount_ad,
   tx_amount_ad_charges,
   moduleId,
-  statusId,
   paidTo,
   type,
   is_author,
-  rid
+  payment_type,
+  remain_1,
+  payment_card_id,
+  pay_remain,
+  statusId,
+  eid
 ) => {
   try {
+    console.log(
+      order,
+      paidBy,
+      tx_amount_ad,
+      tx_amount_ad_charges,
+      moduleId,
+      paidTo,
+      type,
+      is_author,
+      payment_type,
+      remain_1,
+      payment_card_id,
+      pay_remain,
+      statusId,
+      eid
+    )
     var student = await Student.findById({ _id: paidBy }).populate({
       path: "hostel_fee_structure",
     });
-    var user = await User.findById({ _id: `${student.user}` });
+    var user = await User.findById({ _id: `${student?.user}` });
     var apply = await NewApplication.findById({ _id: moduleId });
     var orderPay = await OrderPayment.findById({ _id: order });
     var admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    var one_hostel = await Hostel.findById({
+    var admission = await Hostel.findById({
       _id: `${apply.hostelAdmin}`,
     });
-    // var depart = await Department.findById({ _id: `${apply?.applicationDepartment}`})
-    var account = await BankAccount.findOne({ hostel: `${one_hostel?._id}` });
     var ins = await InstituteAdmin.findById({ _id: `${paidTo}` });
+    // var depart = await Department.findById({
+    //   _id: `${apply?.applicationDepartment}`,
+    // });
+    var account = await BankAccount.findOne({
+      hostel: admission?._id,
+    });
     var finance = await Finance.findById({
       _id: `${ins?.financeDepart[0]}`,
     }).populate({
       path: "financeHead",
       select: "user",
     });
+    var all_status = await Status.find({ $and: [{ applicationId: apply?._id}, { student: student?._id }, { payment_status: "Not Paid"}]})
     var finance_user = await User.findById({
       _id: `${finance?.financeHead?.user}`,
     });
-    var is_install;
-    if (
-      parseInt(tx_amount_ad) <=
-        student?.hostel_fee_structure?.total_admission_fees &&
-      parseInt(tx_amount_ad) >
-        student?.hostel_fee_structure?.one_installments?.fees
-    ) {
-      is_install = false;
-    } else {
-      is_install = true;
-    }
-    if (apply?.gstSlab > 0) {
-      var business_data = new BusinessTC({});
-      business_data.b_to_c_month = new Date().toISOString();
-      business_data.b_to_c_i_slab = parseInt(apply?.gstSlab) / 2;
-      business_data.b_to_c_s_slab = parseInt(apply?.gstSlab) / 2;
-      business_data.b_to_c_name = "Hostel Fees";
-      business_data.finance = finance._id;
-      finance.gst_format.b_to_c.push(business_data?._id);
-      business_data.b_to_c_total_amount = parseInt(tx_amount_ad);
-      await business_data.save();
-    }
-    if (statusId) {
-      var total_amount = add_total_installment(student);
-      const status = await Status.findById({ _id: statusId });
-      const aStatus = new Status({});
-      var renew = new Renewal({});
+      console.log("EXISTING BLOCK");
       const new_receipt = new FeeReceipt({
         fee_payment_mode: "Payment Gateway / Online",
         fee_payment_amount: parseInt(tx_amount_ad),
       });
-      new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
       new_receipt.student = student?._id;
-      new_receipt.fee_transaction_date = new Date();
       new_receipt.application = apply?._id;
+      new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
       new_receipt.finance = finance?._id;
-      renew.renewal_student = student?._id;
-      renew.renewal_application = apply?._id;
-      ins.invoice_count += 1;
-      new_receipt.invoice_count = `${
-        new Date().getMonth() + 1
-      }${new Date().getFullYear()}${ins.invoice_count}`;
-      const notify = new Notification({});
-      one_hostel.onlineFee += parseInt(tx_amount_ad);
-      // one_hostel.collected_fee += parseInt(tx_amount_ad);
+      new_receipt.fee_transaction_date = new Date();
+      var remaining_fee_lists = await RemainingList.findById({ _id: payment_card_id })
+      .populate({
+        path: "applicable_card"
+      })
+      .populate({
+        path: "government_card"
+      })
+      new_receipt.fee_structure = remaining_fee_lists?.fee_structure
+      remaining_fee_lists.fee_receipts.push(new_receipt?._id);
+      new_receipt.invoice_count = orderPay?.payment_invoice_number;
+      if (remaining_fee_lists?.applicable_card?._id) {
+        const nest_card = await NestedCard.findById({ _id: `${remaining_fee_lists?.applicable_card?._id}`})
+        remaining_fee_lists.active_payment_type = `${type}`;
+        nest_card.active_payment_type = `${type}`;
+        remaining_fee_lists.paid_fee += parseInt(tx_amount_ad);
+        nest_card.paid_fee += parseInt(tx_amount_ad);
+        
+        if(remaining_fee_lists?.remaining_fee >= parseInt(tx_amount_ad)){
+          remaining_fee_lists.remaining_fee -= parseInt(tx_amount_ad)
+        }
+        if(nest_card?.remaining_fee >= parseInt(tx_amount_ad)){
+          nest_card.remaining_fee -= parseInt(tx_amount_ad)
+        }
+        else{
+          // if(nest_card?.remaining_fee > 0){
+            nest_card.remaining_fee = parseInt(tx_amount_ad) - nest_card?.remaining_fee
+            nest_card.excess_fee += parseInt(tx_amount_ad) - nest_card?.remaining_fee
+          // }
+        }
+        if(student.hostelRemainFeeCount >= parseInt(tx_amount_ad)){
+          student.hostelRemainFeeCount -= parseInt(tx_amount_ad)
+        }
+        if(apply.remainingFee >= parseInt(tx_amount_ad)){
+          apply.remainingFee -= parseInt(tx_amount_ad)
+        }
+        if(admission.remainingFeeCount >= parseInt(tx_amount_ad)){
+          admission.remainingFeeCount -= parseInt(tx_amount_ad)
+        }
+          var valid_one_time_fees =
+          student?.hostel_fee_structure?.applicable_fees - parseInt(tx_amount_ad) == 0
+            ? true
+            : false;
+            if (valid_one_time_fees) {
+              admission.remainingFee.pull(student._id);
+            } else {
+              // nest_card.remaining_array.push({
+              //   remainAmount: student?.fee_structure?.applicable_fees - price,
+              //   appId: apply._id,
+              //   status: "Not Paid",
+              //   instituteId: institute._id,
+              //   installmentValue: "One Time Fees Remain",
+              //   isEnable: true,
+              // });
+            }
+          var extra_price = 0
+          await nest_card.save()
+        if (type === "First Installment") {
+            await set_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+            // await set_fee_head_query(student, parseInt(tx_amount_ad), apply, new_receipt);
+        } else {
+            await update_fee_head_query_redesign(student, new_receipt?.fee_payment_amount, apply?._id, new_receipt)
+            // await update_fee_head_query(student, parseInt(tx_amount_ad), apply, new_receipt);
+          }
+        if (pay_remain) {
+          await all_installment_paid(
+            remaining_fee_lists,
+            student?.hostel_fee_structure,
+            "Online",
+            parseInt(tx_amount_ad),
+            admission,
+            student,
+            new_receipt,
+            apply,
+            ins,
+            nest_card,
+            type
+          )
+        }
+        else {
+          await render_installment(
+            type,
+            student,
+            "Online",
+            parseInt(tx_amount_ad),
+            admission,
+            student?.hostel_fee_structure,
+            remaining_fee_lists,
+            new_receipt,
+            apply,
+            ins,
+            nest_card
+          );
+        }
+          if(type === "First Installment"){
+            console.log("Enter")
+          for(var val of apply?.FeeCollectionApplication){
+            if(`${val?.student}` === `${student?._id}`){
+              apply.confirmedApplication.push({
+                student: student._id,
+                payment_status: "Online",
+                install_type: "First Installment Paid",
+                fee_remain: nest_card.remaining_fee ?? 0,
+              });
+              apply.confirmCount += 1
+              apply.FeeCollectionApplication.pull(val?._id)
+              if(apply?.fee_collect_count > 0){
+                apply.fee_collect_count -= 1
+              }
+            }
+          }
+          for(var val of admission?.FeeCollectionApplication){
+            if(`${val?.student}` === `${student?._id}`){
+              admission.confirmedApplication_query.push({
+                student: student._id,
+                payment_status: "Online",
+                install_type: "First Installment Paid",
+                fee_remain: nest_card.remaining_fee ?? 0,
+              });
+              admission.FeeCollectionApplication.pull(val?._id)
+            }
+          }
+        }
+      }
+      student.hostelPaidFeeCount += parseInt(tx_amount_ad);
+      if (remaining_fee_lists.remaining_fee <= 0) {
+        remaining_fee_lists.status = "Paid";
+      }
+      admission.onlineFee += parseInt(tx_amount_ad);
       apply.onlineFee += parseInt(tx_amount_ad);
       apply.collectedFeeCount += parseInt(tx_amount_ad);
-      finance.financeHostelBalance += parseInt(tx_amount_ad);
-      student.hostelPaidFeeCount += parseInt(tx_amount_ad);
+      finance.financeAdmissionBalance += parseInt(tx_amount_ad);
       if (is_author) {
         finance.financeBankBalance =
           finance.financeBankBalance + parseInt(tx_amount_ad);
@@ -134,173 +263,42 @@ exports.hostelInstituteFunction = async (
       } else {
         admin.returnAmount += parseInt(tx_amount_ad_charges);
         ins.adminRepayAmount += parseInt(tx_amount_ad);
-        // depart.due_repay += parseInt(tx_amount);
-        // depart.total_repay += parseInt(tx_amount);
+        // depart.due_repay += parseInt(tx_amount_ad);
+        // depart.total_repay += parseInt(tx_amount_ad);
         account.due_repay += parseInt(tx_amount_ad);
         account.total_repay += parseInt(tx_amount_ad);
         account.collect_online += parseInt(tx_amount_ad);
       }
       // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
-      if (parseInt(tx_amount_ad) > 0 && is_install) {
-        one_hostel.remainingFee.push(student._id);
-        student.hostelRemainFeeCount += total_amount - parseInt(tx_amount_ad);
-        apply.remainingFee += total_amount - parseInt(tx_amount_ad);
-        one_hostel.remainingFeeCount += total_amount - parseInt(tx_amount_ad);
-        var new_remainFee = new RemainingList({
-          appId: apply._id,
-          applicable_fee: total_amount,
-          remaining_flow: "Hostel Application",
-          institute: ins?._id,
-        });
-        new_remainFee.access_mode_card = "Installment_Wise";
-        new_remainFee.remaining_array.push({
-          remainAmount: parseInt(tx_amount_ad),
-          appId: apply._id,
-          status: "Paid",
-          instituteId: ins._id,
-          installmentValue: "First Installment",
-          mode: "online",
-          fee_receipt: new_receipt?._id,
-        });
-        new_remainFee.active_payment_type = "First Installment";
-        new_remainFee.paid_fee += parseInt(tx_amount_ad);
-        new_remainFee.fee_structure = student?.hostel_fee_structure?._id;
-        new_remainFee.remaining_fee += total_amount - parseInt(tx_amount_ad);
-        student.remainingFeeList.push(new_remainFee?._id);
-        student.remainingFeeList_count += 1;
-        new_remainFee.student = student?._id;
-        new_remainFee.fee_receipts.push(new_receipt?._id);
-        if (student?.hostel_fee_structure?.total_installments === "1" && new_remainFee.remaining_fee > 0) {
-          new_remainFee.remaining_array.push({
-            remainAmount: new_remainFee.remaining_fee,
-            appId: apply._id,
-            status: "Not Paid",
-            instituteId: ins._id,
-            installmentValue: "Installment Remain",
-            isEnable: true,
-          });
-        }
-        else {
-          await add_all_installment(
-            apply,
-            ins._id,
-            new_remainFee,
-            parseInt(tx_amount_ad),
-            student
-          );
-        }
-      } else if (parseInt(tx_amount_ad) > 0 && !is_install) {
-        var new_remainFee = new RemainingList({
-          appId: apply._id,
-          applicable_fee: student?.hostel_fee_structure?.total_admission_fees,
-          institute: ins?._id,
-          remaining_flow: "Hostel Application",
-        });
-        new_remainFee.access_mode_card = "One_Time_Wise";
-        new_remainFee.remaining_array.push({
-          remainAmount: parseInt(tx_amount_ad),
-          appId: apply._id,
-          status: "Paid",
-          instituteId: ins._id,
-          installmentValue: "One Time Fees",
-          mode: "online",
-          fee_receipt: new_receipt?._id,
-        });
-        new_remainFee.active_payment_type = "One Time Fees";
-        new_remainFee.paid_fee += parseInt(tx_amount_ad);
-        new_remainFee.fee_structure = student?.hostel_fee_structure?._id;
-        new_remainFee.remaining_fee +=
-          student?.hostel_fee_structure?.total_admission_fees -
-          parseInt(tx_amount_ad);
-        student.remainingFeeList.push(new_remainFee?._id);
-        student.remainingFeeList_count += 1;
-        new_remainFee.student = student?._id;
-        new_remainFee.fee_receipts.push(new_receipt?._id);
-        one_hostel.remainingFee.push(student._id);
-        student.hostelRemainFeeCount +=
-          student?.hostel_fee_structure?.total_admission_fees -
-          parseInt(tx_amount_ad);
-        apply.remainingFee +=
-          student?.hostel_fee_structure?.total_admission_fees -
-          parseInt(tx_amount_ad);
-        one_hostel.remainingFeeCount +=
-          student?.hostel_fee_structure?.total_admission_fees -
-          parseInt(tx_amount_ad);
-        const valid_one_time_fees =
-          student?.hostel_fee_structure?.total_admission_fees -
-            parseInt(tx_amount_ad) ==
-          0
-            ? true
-            : false;
-        if (valid_one_time_fees) {
-          one_hostel.remainingFee.pull(student._id);
-        } else {
-          new_remainFee.remaining_array.push({
-            remainAmount:
-              student?.hostel_fee_structure?.total_admission_fees -
-              parseInt(tx_amount_ad),
-            appId: apply._id,
-            status: "Not Paid",
-            instituteId: ins._id,
-            installmentValue: "One Time Fees Remain",
-            isEnable: true,
-          });
-        }
-      } else {
-      }
-      await set_fee_head_query(
-        student,
+      await lookup_applicable_grant(
+        new_receipt?.fee_payment_mode,
         parseInt(tx_amount_ad),
-        apply,
+        remaining_fee_lists,
         new_receipt
       );
-      for (let app of apply?.selectedApplication) {
-        if (`${app.student}` === `${student._id}`) {
-          apply.selectedApplication.pull(app._id);
-        } else {
+      for (var match of student.paidFeeList) {
+        if (`${match.appId}` === `${apply._id}`) {
+          match.paidAmount += parseInt(tx_amount_ad);
         }
       }
-      apply.confirmedApplication.push({
-        student: student._id,
-        payment_status: "Online",
-        install_type: is_install
-          ? "First Installment Paid"
-          : "One Time Fees Paid",
-        fee_remain: is_install
-          ? total_amount - parseInt(tx_amount_ad)
-          : student?.hostel_fee_structure?.total_admission_fees -
-            parseInt(tx_amount_ad),
-      });
-      apply.confirmCount += 1;
-      // for (var match of student.paidFeeList) {
-      //   if (`${match.appId}` === `${apply._id}`) {
-      //     match.paidAmount += parseInt(tx_amount_ad);
-      //   }
-      // }
-      new_remainFee.renewal_start = new Date();
-      new_remainFee.renewal_end = student?.hostel_renewal;
-      renew.renewal_start = new Date();
-      renew.renewal_end = student?.hostel_renewal;
-      renew.renewal_status = "Current Stay";
-      renew.renewal_hostel = one_hostel?._id;
-      student.student_renewal.push(renew?._id);
-      student.paidFeeList.push({
-        paidAmount: parseInt(tx_amount_ad),
-        appId: apply._id,
-      });
-      aStatus.content = `Your hostel seat has been confirmed, You will be alloted your bed shortly, Stay Updated!`;
+      if (statusId) {
+        const status = await Status.findById({ _id: statusId });
+        const aStatus = new Status({});
+        const notify = new StudentNotification({});
+        aStatus.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`;
+        aStatus.group_by = "Admission_Confirmation"
       aStatus.applicationId = apply._id;
-      aStatus.fee_receipt = new_receipt?._id;
       aStatus.document_visible = false;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = ins._id;
-      user.payment_history.push(order);
+      aStatus.fee_receipt = new_receipt?._id;
       (status.payMode = "online"), (status.isPaid = "Paid");
+      status.for_selection = "Yes";
       notify.notifyContent = `${student.studentFirstName} ${
         student.studentMiddleName ? `${student.studentMiddleName} ` : ""
       } ${
         student.studentLastName
-      } your transaction is successfull for Hostel Admission Fee ${parseInt(
+      } your transaction is successfull for Admission Fee ${parseInt(
         tx_amount_ad
       )}`;
       notify.notify_hi_content = `${student.studentFirstName} ${
@@ -313,164 +311,72 @@ exports.hostelInstituteFunction = async (
       } ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${
         student.studentLastName
       } तुमचा व्यवहार यशस्वी झाला आहे ${parseInt(tx_amount_ad)}`;
-      notify.notifySender = one_hostel?._id;
+      notify.notifySender = admission._id;
       notify.notifyReceiever = user._id;
       // ins.iNotify.push(notify._id);
       // notify.institute = ins._id;
       user.activity_tab.push(notify._id);
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
       finance_user.activity_tab.push(notify._id);
-      notify.notifyCategory = "Hostel Online Fee";
+      notify.notifyCategory = "Admission Online Fee";
       notify.user = user._id;
-      notify.notifyByStudentPhoto = student._id;
+        notify.notifyByStudentPhoto = student._id;
+        await Promise.all([ status.save(), aStatus.save(), notify.save(), finance_user.save()])
+      }
+      user.payment_history.push(order);
       ins.payment_history.push(order);
       orderPay.payment_admission = apply._id;
       orderPay.payment_by_end_user_id = user?._id;
       new_receipt.order_history = orderPay?._id;
       orderPay.fee_receipt = new_receipt?._id;
       orderPay.payment_student = student?._id;
+      // if (
+      //   remaining_fee_lists?.re_admission_class != null &&
+      //   remaining_fee_lists?.re_admission_flow
+      // ) {
+      //   var classes = await Class.findById({
+      //     _id: `${remaining_fee_lists?.re_admission_class}`,
+      //   });
+      //   var batch = await Batch.findById({ _id: `${classes?.batch}` });
+      //   var depart = await Department.findById({
+      //     _id: `${batch?.department}`,
+      //   });
+      //   if (classes?.ApproveStudent?.includes(student._id)) {
+      //   } else {
+      //     classes?.ApproveStudent.push(student._id);
+      //     classes?.UnApproveStudent.pull(student._id);
+      //   }
+      //   if (batch?.ApproveStudent?.includes(student._id)) {
+      //   } else {
+      //     batch?.ApproveStudent.push(student._id);
+      //     batch?.UnApproveStudent.pull(student._id);
+      //   }
+      //   if (depart?.ApproveStudent?.includes(student._id)) {
+      //   } else {
+      //     depart?.ApproveStudent.push(student._id);
+      //     depart?.UnApproveStudent.pull(student._id);
+      //   }
+      //   classes.studentCount += 1;
+      //   if (student.studentGender === "Male") {
+      //     classes.boyCount += 1;
+      //   } else if (student.studentGender === "Female") {
+      //     classes.girlCount += 1;
+      //   } else if (student.studentGender === "Other") {
+      //     classes.otherCount += 1;
+      //   } else {
+      //   }
+      //   student.studentROLLNO = classes.ApproveStudent?.length + 1;
+      //   await classes_status(apply, institute, depart, user, classes)
+      //   await Promise.all([classes.save(), batch.save(), depart.save()]);
+      // }
+      for (var val of all_status) {
+        val.payment_status = "Paid"
+        val.fee_receipt = new_receipt?._id
+        await val.save()
+      }
       await Promise.all([
-        student.save(),
-        user.save(),
-        apply.save(),
-        finance.save(),
-        ins.save(),
-        admin.save(),
-        status.save(),
-        aStatus.save(),
-        one_hostel.save(),
-        notify.save(),
-        orderPay.save(),
-        new_receipt.save(),
-        new_remainFee.save(),
-        renew.save(),
-        account.save(),
-        finance_user.save(),
-      ]);
-    } else {
-      const new_receipt = new FeeReceipt({
-        fee_payment_mode: "Payment Gateway / Online",
-        fee_payment_amount: parseInt(tx_amount_ad),
-      });
-      new_receipt.student = student?._id;
-      new_receipt.application = apply?._id;
-      new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
-      new_receipt.finance = finance?._id;
-      new_receipt.fee_transaction_date = new Date();
-      const remaining_fee_lists = await RemainingList.findById({
-        _id: rid,
-      });
-      remaining_fee_lists.fee_receipts.push(new_receipt?._id);
-      ins.invoice_count += 1;
-      new_receipt.invoice_count = `${
-        new Date().getMonth() + 1
-      }${new Date().getFullYear()}${ins.invoice_count}`;
-      await render_installment(
-        type,
-        student,
-        "Online",
-        parseInt(tx_amount_ad),
-        one_hostel,
-        student?.hostel_fee_structure,
-        remaining_fee_lists,
-        new_receipt,
-        apply,
-        ins
-      );
-      remaining_fee_lists.paid_fee += parseInt(tx_amount_ad);
-      if (remaining_fee_lists.remaining_fee >= parseInt(tx_amount_ad)) {
-        remaining_fee_lists.remaining_fee -= parseInt(tx_amount_ad);
-      }
-      student.hostelPaidFeeCount += parseInt(tx_amount_ad);
-      if (one_hostel?.remainingFeeCount >= parseInt(tx_amount_ad)) {
-        one_hostel.remainingFeeCount -= parseInt(tx_amount_ad);
-      }
-      if (apply?.remainingFee >= parseInt(tx_amount_ad)) {
-        apply.remainingFee -= parseInt(tx_amount_ad);
-      }
-      if (student?.hostelRemainFeeCount >= parseInt(tx_amount_ad)) {
-        student.hostelRemainFeeCount -= parseInt(tx_amount_ad);
-      }
-      // admission.remainingFee.pull(student._id);
-      one_hostel.onlineFee += parseInt(tx_amount_ad);
-      // one_hostel.collected_fee += parseInt(tx_amount_ad);
-      apply.onlineFee += parseInt(tx_amount_ad);
-      apply.collectedFeeCount += parseInt(tx_amount_ad);
-      finance.financeHostelBalance += parseInt(tx_amount_ad);
-      if (is_author) {
-        finance.financeBankBalance =
-          finance.financeBankBalance + parseInt(tx_amount_ad);
-        finance.financeTotalBalance =
-          finance.financeTotalBalance + parseInt(tx_amount_ad);
-        ins.insBankBalance = ins.insBankBalance + parseInt(tx_amount_ad);
-      } else {
-        admin.returnAmount += parseInt(tx_amount_ad_charges);
-        ins.adminRepayAmount += parseInt(tx_amount_ad);
-        account.due_repay += parseInt(tx_amount_ad);
-        account.total_repay += parseInt(tx_amount_ad);
-        account.collect_online += parseInt(tx_amount_ad);
-      }
-      // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
-      await update_fee_head_query(
-        student,
-        parseInt(tx_amount_ad),
-        apply,
-        new_receipt
-      );
-      await hostel_lookup_applicable_grant(
-        new_receipt?.fee_payment_mode,
-        parseInt(tx_amount_ad),
-        remaining_fee_lists,
-        new_receipt
-      );
-      for (var match of student.paidFeeList) {
-        if (`${match.appId}` === `${apply._id}`) {
-          match.paidAmount += parseInt(tx_amount_ad);
-        }
-      }
-      if (type === "One Time Fees Remain") {
-        await remain_one_time_query(
-          one_hostel,
-          remaining_fee_lists,
-          apply,
-          ins,
-          student,
-          parseInt(tx_amount_ad),
-          new_receipt
-        );
-      }
-      if (apply?.allottedApplication?.length > 0) {
-        apply?.allottedApplication.forEach((ele) => {
-          if (`${ele.student}` === `${student._id}`) {
-            ele.paid_status = "Paid";
-            ele.second_pay_mode = "Online";
-            if (apply?.remainingFee >= parseInt(tx_amount_ad)) {
-              apply.remainingFee -= parseInt(tx_amount_ad);
-            }
-          }
-        });
-      }
-      if (apply?.confirmedApplication?.length > 0) {
-        apply?.confirmedApplication.forEach((ele) => {
-          if (`${ele.student}` === `${student._id}`) {
-            ele.paid_status = "Paid";
-            ele.second_pay_mode = "Online";
-            if (ele.fee_remain >= parseInt(tx_amount_ad)) {
-              ele.fee_remain -= parseInt(tx_amount_ad);
-            }
-            if (apply?.remainingFee >= parseInt(tx_amount_ad)) {
-              apply.remainingFee -= parseInt(tx_amount_ad);
-            }
-          }
-        });
-      }
-      ins.payment_history.push(order);
-      orderPay.payment_admission = apply._id;
-      orderPay.payment_by_end_user_id = user?._id;
-      new_receipt.order_history = orderPay?._id;
-      orderPay.fee_receipt = new_receipt?._id;
-      orderPay.payment_student = student?._id;
-      await Promise.all([
-        one_hostel.save(),
+        admission.save(),
         student.save(),
         apply.save(),
         finance.save(),
@@ -479,11 +385,34 @@ exports.hostelInstituteFunction = async (
         admin.save(),
         new_receipt.save(),
         remaining_fee_lists.save(),
+        // depart.save(),
         account.save(),
+        user.save()
       ]);
+    if (eid) {
+      console.log("PAYMENT BUG CHECKED + FIXED")
+      const bug = await ErrorPayment.findById({ _id: eid })
+      bug.error_status = "Generated_Fixed"
+      await bug.save()
     }
     return `${user?.username}`;
   } catch (e) {
+    if (e) {
+      const error = new ErrorPayment({
+        error_flow: "Admission",
+        error_student: paidBy,
+        error_module: moduleId,
+        error_order: order,
+        error_message: e?.message,
+        error_payment_card: payment_card_id ?? null,
+        error_amount_charges: tx_amount_ad_charges,
+        error_amount: tx_amount_ad,
+        error_paid_to: paidTo,
+        error_status_id: statusId ?? "",
+        error_type: type
+      })
+      await error.save()
+    }
     console.log(e);
   }
 };

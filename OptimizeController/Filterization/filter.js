@@ -10519,6 +10519,13 @@ exports.render_daybook_query = async (req, res) => {
         if(`${ele?.types}` === `${type}`) return ele
       })
     }
+    else {
+      for (let ele of bank_acc?.day_book) {
+        if (`${ele?.types}` === "Normal Other Fees") {
+          bank_acc?.day_book?.pull(ele?._id)
+        }
+      }
+    }
 
     if (type) {
       var all_daybook = await nested_document_limit(

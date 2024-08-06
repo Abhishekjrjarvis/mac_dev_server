@@ -51,7 +51,6 @@ const OtherFees = require("../../models/Finance/Other/OtherFees");
 const FeeMaster = require("../../models/Finance/FeeMaster");
 const ErrorPayment = require("../../models/Acid/ErrorPayment");
 const studentOtherFeeReceipt = require("../../scripts/studentOtherFeeReceipt");
-const Hostel = require("../../models/Hostel/hostel");
 
 exports.hostelInstituteFunction = async (
   order,

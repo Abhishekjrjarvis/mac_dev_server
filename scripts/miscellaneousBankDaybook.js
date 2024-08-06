@@ -4,27 +4,37 @@ const dynamicImages = require("../helper/dynamicImages");
 const numToWords = require("../helper/numToWords");
 const { uploadDocsFile } = require("../S3Configuration");
 const util = require("util");
-const daybookData = require("../AjaxRequest/daybookData");
+const miscellaneousDaybookData = require("../AjaxRequest/miscellaneousDaybookData");
 const BankAccount = require("../models/Finance/BankAccount");
 const unlinkFile = util.promisify(fs.unlink);
-const bankDaybook = async (fid, from, to, bank, payment_type) => {
+const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type) => {
   const doc = new PDFDocument({
     font: "Times-Roman",
     size: "A4",
     margins: { top: 20, bottom: 20, left: 20, right: 20 },
   });
-  const result = await daybookData(fid, from, to, bank, payment_type);
+  const result = await miscellaneousDaybookData(
+    fid,
+    from,
+    to,
+    bank,
+    payment_type
+  );
 
+  // console.log(result);
   const instituteData = result?.ft?.ins_info;
   const daybook = result?.ft?.results;
   const account_other = result?.ft;
 
+  // console.log("daybook", result?.ft?.results?.[0]);
   let date = new Date();
   let stu_name = `${instituteData?.name}`;
-  // const stream = fs.createWriteStream(`./uploads/${stu_name}-bank-daybook.pdf`);
+  // const stream = fs.createWriteStream(`./uploads/${stu_name}-miscellaneous-bank-daybook.pdf`);
 
-  let name = `${date.getTime()}-${stu_name}`;
-  const stream = fs.createWriteStream(`./uploads/${name}-bank-daybook.pdf`);
+  let name = `${stu_name}-${date.getTime()}`;
+  const stream = fs.createWriteStream(
+    `./uploads/${name}-miscellaneous-bank-daybook.pdf`
+  );
 
   doc.pipe(stream);
   const pageWidth = doc.page.width;
@@ -189,18 +199,19 @@ const bankDaybook = async (fid, from, to, bank, payment_type) => {
     console.log("created");
     const bank_acc = await BankAccount.findById({ _id: bank });
     let file = {
-      path: `uploads/${name}-bank-daybook.pdf`,
-      filename: `${name}-bank-daybook.pdf`,
+      path: `uploads/${name}-miscellaneous-bank-daybook.pdf`,
+      filename: `${name}-miscellaneous-bank-daybook.pdf`,
       mimetype: "application/pdf",
     };
     const results = await uploadDocsFile(file);
     bank_acc.day_book.push({
       excel_file: results?.Key,
-      excel_file_name: `${name}-bank-daybook.pdf`,
+      excel_file_name: `${name}-miscellaneous-bank-daybook.pdf`,
       from: from,
       to: to,
       payment_type: payment_type,
       bank: bank,
+      types: "Normal Other Fees"
     });
     await unlinkFile(file.path);
     await bank_acc.save();
@@ -208,4 +219,4 @@ const bankDaybook = async (fid, from, to, bank, payment_type) => {
 
   //   console.log(data);
 };
-module.exports = bankDaybook;
+module.exports = miscellaneousBankDaybook;

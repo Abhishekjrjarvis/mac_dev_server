@@ -82,7 +82,16 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
     .fontSize(10)
     .text(instituteData?.insAffiliated, 20, 20, { align: "center" });
   doc.moveDown(0.3);
-  doc.fontSize(16).text(instituteData?.insName, { align: "center" });
+  let in_string = instituteData?.insName;
+
+  let in_string_divid = Math.ceil(in_string?.length / 55);
+
+  for (let i = 0; i < +in_string_divid; i++) {
+    doc
+      .fontSize(16)
+      .text(in_string?.substring(55 * i, 55 + 55 * i), { align: "center" });
+  }
+  // doc.fontSize(16).text(instituteData?.insName, { align: "center" });
   doc.moveDown(0.3);
   doc.fontSize(10).text(instituteData?.insAddress, { align: "center" });
   doc.moveDown(0.3);
@@ -593,7 +602,16 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
 
       doc.fontSize(10).text(instituteData?.insAffiliated, { align: "center" });
       doc.moveDown(0.3);
-      doc.fontSize(16).text(instituteData?.insName, { align: "center" });
+      let in_string = instituteData?.insName;
+
+      let in_string_divid = Math.ceil(in_string?.length / 55);
+
+      for (let i = 0; i < +in_string_divid; i++) {
+        doc
+          .fontSize(16)
+          .text(in_string?.substring(55 * i, 55 + 55 * i), { align: "center" });
+      }
+      // doc.fontSize(16).text(instituteData?.insName, { align: "center" });
       doc.moveDown(0.3);
       doc.fontSize(10).text(instituteData?.insAddress, { align: "center" });
       if (instituteData?.insProfilePhoto) {

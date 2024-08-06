@@ -386,7 +386,7 @@ const departmentSchema = new mongoose.Schema({
   },
   member_module_unique: {
     type: String,
-    unique: true
+    unique: true,
   },
   po_attainment_count: {
     type: Number,
@@ -399,7 +399,7 @@ const departmentSchema = new mongoose.Schema({
     },
   ],
   last_update: {
-    type: Date
+    type: Date,
   },
   course_passing_credit: {
     type: Number,
@@ -410,8 +410,8 @@ const departmentSchema = new mongoose.Schema({
   request: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "RequestGoods"
-    }
+      ref: "RequestGoods",
+    },
   ],
   institute_type: {
     type: String,
@@ -447,46 +447,46 @@ const departmentSchema = new mongoose.Schema({
   issue: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "IssueGoods"
-    }
+      ref: "IssueGoods",
+    },
   ],
   return: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ReturnGoods"
-    }
+      ref: "ReturnGoods",
+    },
   ],
   consume: [],
   stock_take: [],
   register: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "StoreLogs"
-    }
+      ref: "StoreLogs",
+    },
   ],
   maintanence: [],
   student_form_setting: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "DepartmentStudentForm"
+    ref: "DepartmentStudentForm",
   },
   pin_status: {
-    type: String
+    type: String,
   },
   pin_status_id: {
-    type: String
+    type: String,
   },
   pin_status_flow: {
-    type: String
+    type: String,
   },
   department_status: {
     type: String,
-    default: "Normal"
+    default: "Normal",
   },
   merged_subject_master: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SubjectMaster"
-    }
+      ref: "SubjectMaster",
+    },
   ],
   mou_collab: [
     {
@@ -498,27 +498,27 @@ const departmentSchema = new mongoose.Schema({
       attach: { type: String },
       batch: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Batch"
+        ref: "Batch",
       },
       activities: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Activity"
+        ref: "Activity",
       },
       student_count: {
         type: Number,
-        default: 0
+        default: 0,
       },
       staff_count: {
         type: Number,
-        default: 0
-      }
-    }
+        default: 0,
+      },
+    },
   ],
   activity: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Activity"
-    }
+      ref: "Activity",
+    },
   ],
   projects: [
     {
@@ -531,19 +531,19 @@ const departmentSchema = new mongoose.Schema({
       guide_name: { type: String },
       link: { type: String },
       attach: { type: String },
-      abstract: { type: String }
-    }
+      abstract: { type: String },
+    },
   ],
   hall_ticket: [
     {
       name: { type: String },
-      attach: { type: String }
-    }
+      attach: { type: String },
+    },
   ],
   active_academic_batch: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Batch"
-  }
+    ref: "Batch",
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

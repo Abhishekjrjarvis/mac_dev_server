@@ -105,6 +105,14 @@ const studentFeedbackSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  cls_student: [
+    {
+      class: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },
+      sent: Boolean,
+      staff: [],
+      student: [],
+    },
+  ],
 });
 
 module.exports = mongoose.model("StudentFeedback", studentFeedbackSchema);

@@ -1524,6 +1524,8 @@ exports.renderHostelSelectedQuery = async (req, res) => {
     status.for_docs = "Yes";
     status.studentId = student._id;
     status.student = student?._id;
+    status.admissionFee = structure.total_admission_fees;
+    status.group_by = "Admission_Document_Verification";
     if (valid_month > 0 && valid_month <= 60 && valid_month !== 12) {
       status.content = `You have been selected for ${apply.applicationName}. 
 Your fee structure will be ${new_structure?.structure_name}. And required documents are 'click here for details'.   
@@ -8441,6 +8443,7 @@ exports.retrieveHostelCollectDocs = async (req, res) => {
     status.structure_edited = "Edited";
     status.studentId = student?._id;
     status.student = student?._id;
+    status.is_hostel = true
     status.instituteId = institute._id;
     notify.notifyContent = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
     // console.log(

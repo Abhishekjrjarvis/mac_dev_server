@@ -69,22 +69,6 @@ exports.hostelInstituteFunction = async (
   eid
 ) => {
   try {
-    console.log(
-      order,
-      paidBy,
-      tx_amount_ad,
-      tx_amount_ad_charges,
-      moduleId,
-      paidTo,
-      type,
-      is_author,
-      payment_type,
-      remain_1,
-      payment_card_id,
-      pay_remain,
-      statusId,
-      eid
-    )
     var student = await Student.findById({ _id: paidBy }).populate({
       path: "hostel_fee_structure",
     });

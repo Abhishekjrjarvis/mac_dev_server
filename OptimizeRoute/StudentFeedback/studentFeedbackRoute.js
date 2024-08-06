@@ -100,4 +100,12 @@ router.route("/crash/only/notification/taken/:ifid/by/query").delete(
     studentFeedbackController.feedbackOnlyRemoveNotificationByInstituteQuery
   )
 );
+router
+  .route("/crash/resend/one/subject/notification/taken/:ifid/by/query")
+  .patch(
+    // isLoggedIn,
+    catchAsync(
+      studentFeedbackController.feedbackResendNotificationOneSubjectByInstituteQuery
+    )
+  );
 module.exports = router;

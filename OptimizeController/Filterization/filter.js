@@ -75,6 +75,7 @@ const { nested_document_limit } = require("../../helper/databaseFunction");
 const SubjectGroupSelect = require("../../models/Admission/Optional/SubjectGroupSelect");
 const SubjectMaster = require("../../models/SubjectMaster");
 const admissionIntakeReport = require("../../scripts/admissionIntakeReport");
+const miscellaneousBankDaybook = require("../../scripts/miscellaneousBankDaybook");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -1808,115 +1809,121 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             },
           });
         var head_array = [];
-          if (ref?.fee_heads?.length > 0) {
-            for (var val of ref?.fee_heads) {
-              if (`${val?.appId}` === `${ref?.application?._id}`) {
-                head_array.push({
-                  HeadsName: val?.head_name,
-                  PaidHeadFees: val?.original_paid,
-                });
-              }
-              // if (bank) {
-              //   const bank_acc = await BankAccount.findById({ _id: bank })
-              //   if (bank_acc?.bank_account_type === "Society") {
-              //     if (`${val?.appId}` === `${ref?.application?._id}` && val?.is_society == true) {
-              //       head_array.push({
-              //         HeadsName: val?.head_name,
-              //         PaidHeadFees: val?.original_paid,
-              //       });
-              //     }
-              //   }
-              //   else {
-              //     if (`${val?.appId}` === `${ref?.application?._id}` && val?.is_society == false) {
-              //       head_array.push({
-              //         HeadsName: val?.head_name,
-              //         PaidHeadFees: val?.original_paid,
-              //       });
-              //     }
-              //   }
-              // }
-              // else {
-              //   if (`${val?.appId}` === `${ref?.application?._id}` && val?.is_society == false) {
-              //     head_array.push({
-              //       HeadsName: val?.head_name,
-              //       PaidHeadFees: val?.original_paid,
-              //     });
-              //   }
-              // }
-            }
-          }
-          if (remain_list?.paid_fee - remain_list?.applicable_fee > 0) {
+        if (ref?.fee_heads?.length > 0) {
+          for (var val of ref?.fee_heads) {
             if (`${val?.appId}` === `${ref?.application?._id}`) {
               head_array.push({
-                HeadsName: "Excess Fees",
-                PaidHeadFees: remain_list?.paid_fee - remain_list?.applicable_fee,
+                HeadsName: val?.head_name,
+                PaidHeadFees: val?.original_paid,
               });
             }
+            // if (bank) {
+            //   const bank_acc = await BankAccount.findById({ _id: bank })
+            //   if (bank_acc?.bank_account_type === "Society") {
+            //     if (`${val?.appId}` === `${ref?.application?._id}` && val?.is_society == true) {
+            //       head_array.push({
+            //         HeadsName: val?.head_name,
+            //         PaidHeadFees: val?.original_paid,
+            //       });
+            //     }
+            //   }
+            //   else {
+            //     if (`${val?.appId}` === `${ref?.application?._id}` && val?.is_society == false) {
+            //       head_array.push({
+            //         HeadsName: val?.head_name,
+            //         PaidHeadFees: val?.original_paid,
+            //       });
+            //     }
+            //   }
+            // }
+            // else {
+            //   if (`${val?.appId}` === `${ref?.application?._id}` && val?.is_society == false) {
+            //     head_array.push({
+            //       HeadsName: val?.head_name,
+            //       PaidHeadFees: val?.original_paid,
+            //     });
+            //   }
+            // }
           }
-          if (ref?.fee_heads?.length > 0) {
-            var result = await buildStructureObject(head_array);
-          }
-          if (result) {
-            head_list.push({
-              ReceiptNumber: ref?.invoice_count ?? "0",
-              ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
-              TransactionAmount: ref?.fee_payment_amount ?? "0",
-              TransactionDate:
-                moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
-              TransactionMode: ref?.fee_payment_mode ?? "#NA",
-              BankName: ref?.fee_bank_name ?? "#NA",
-              BankHolderName: ref?.fee_bank_holder ?? "#NA",
-              BankUTR: ref?.fee_utr_reference ?? "#NA",
-              GRNO: ref?.student?.studentGRNO ?? "#NA",
-              Name:
-                `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
-                  ? ref?.student?.studentMiddleName
-                  : ""
-                } ${ref?.student?.studentLastName}` ?? "#NA",
-              Gender: ref?.student?.studentGender ?? "#NA",
-              Standard:
-                `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
-              Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
-              FeeStructure:
-                remain_list?.fee_structure?.unique_structure_name ?? "#NA",
-              TotalFees: remain_list?.fee_structure?.total_admission_fees ?? "0",
-              ApplicableFees: remain_list?.fee_structure?.applicable_fees ?? "0",
-              PaidByStudent: remain_list?.paid_fee,
-              PaidByGovernment: remain_list?.paid_by_government,
-              TotalPaidFees: remain_list?.paid_fee,
-              ApplicableOutstanding:
-                remain_list?.fee_structure?.applicable_fees -
-                  remain_list?.paid_fee >
-                  0
-                  ? remain_list?.fee_structure?.applicable_fees -
-                  remain_list?.paid_fee
-                  : 0,
-              TotalOutstanding: remain_list?.remaining_fee,
-              Remark: remain_list?.remark ?? "#NA",
-              DepartmentBankName:
-                ref?.application?.applicationDepartment?.bank_account
-                  ?.finance_bank_name ?? "#NA",
-              DepartmentBankAccountNumber:
-                ref?.application?.applicationDepartment?.bank_account
-                  ?.finance_bank_account_number ?? "#NA",
-              DepartmentBankAccountHolderName:
-                ref?.application?.applicationDepartment?.bank_account
-                  ?.finance_bank_account_name ?? "#NA",
-              Narration: `Being Fees Received By ${ref?.fee_payment_mode
-                } Date ${moment(ref?.fee_transaction_date).format(
-                  "DD-MM-YYYY"
-                )} Rs. ${ref?.fee_payment_amount} out of Rs. ${ref?.student.fee_structure?.total_admission_fees
-                } Paid By ${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
-                  ? ref?.student?.studentMiddleName
-                  : ""
-                } ${ref?.student?.studentLastName} (${ref?.student.fee_structure?.category_master?.category_name
-                }) Towards Fees For ${ref?.student?.studentClass?.className}-${ref?.student?.studentClass?.classTitle
-                } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
-              ...result,
+        }
+        if (remain_list?.paid_fee - remain_list?.applicable_fee > 0) {
+          if (`${val?.appId}` === `${ref?.application?._id}`) {
+            head_array.push({
+              HeadsName: "Excess Fees",
+              PaidHeadFees: remain_list?.paid_fee - remain_list?.applicable_fee,
             });
-            result = [];
           }
-          head_array = [];
+        }
+        if (ref?.fee_heads?.length > 0) {
+          var result = await buildStructureObject(head_array);
+        }
+        if (result) {
+          head_list.push({
+            ReceiptNumber: ref?.invoice_count ?? "0",
+            ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
+            TransactionAmount: ref?.fee_payment_amount ?? "0",
+            TransactionDate:
+              moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
+            TransactionMode: ref?.fee_payment_mode ?? "#NA",
+            BankName: ref?.fee_bank_name ?? "#NA",
+            BankHolderName: ref?.fee_bank_holder ?? "#NA",
+            BankUTR: ref?.fee_utr_reference ?? "#NA",
+            GRNO: ref?.student?.studentGRNO ?? "#NA",
+            Name:
+              `${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
+                  ? ref?.student?.studentMiddleName
+                  : ""
+              } ${ref?.student?.studentLastName}` ?? "#NA",
+            Gender: ref?.student?.studentGender ?? "#NA",
+            Standard:
+              `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
+            Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
+            FeeStructure:
+              remain_list?.fee_structure?.unique_structure_name ?? "#NA",
+            TotalFees: remain_list?.fee_structure?.total_admission_fees ?? "0",
+            ApplicableFees: remain_list?.fee_structure?.applicable_fees ?? "0",
+            PaidByStudent: remain_list?.paid_fee,
+            PaidByGovernment: remain_list?.paid_by_government,
+            TotalPaidFees: remain_list?.paid_fee,
+            ApplicableOutstanding:
+              remain_list?.fee_structure?.applicable_fees -
+                remain_list?.paid_fee >
+              0
+                ? remain_list?.fee_structure?.applicable_fees -
+                  remain_list?.paid_fee
+                : 0,
+            TotalOutstanding: remain_list?.remaining_fee,
+            Remark: remain_list?.remark ?? "#NA",
+            DepartmentBankName:
+              ref?.application?.applicationDepartment?.bank_account
+                ?.finance_bank_name ?? "#NA",
+            DepartmentBankAccountNumber:
+              ref?.application?.applicationDepartment?.bank_account
+                ?.finance_bank_account_number ?? "#NA",
+            DepartmentBankAccountHolderName:
+              ref?.application?.applicationDepartment?.bank_account
+                ?.finance_bank_account_name ?? "#NA",
+            Narration: `Being Fees Received By ${
+              ref?.fee_payment_mode
+            } Date ${moment(ref?.fee_transaction_date).format(
+              "DD-MM-YYYY"
+            )} Rs. ${ref?.fee_payment_amount} out of Rs. ${
+              ref?.student.fee_structure?.total_admission_fees
+            } Paid By ${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName
+                : ""
+            } ${ref?.student?.studentLastName} (${
+              ref?.student.fee_structure?.category_master?.category_name
+            }) Towards Fees For ${ref?.student?.studentClass?.className}-${
+              ref?.student?.studentClass?.classTitle
+            } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
+            ...result,
+          });
+          result = [];
+        }
+        head_array = [];
       }
 
       await fee_heads_receipt_json_to_excel_query(
@@ -2129,8 +2136,8 @@ exports.renderApplicationListQuery = async (req, res) => {
         path: "reviewApplication",
         populate: {
           path: "student_optional_subject major_subject nested_subject",
-          select: "subjectName"
-        }
+          select: "subjectName",
+        },
         // select: "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph"
       })
       .populate({
@@ -2139,8 +2146,8 @@ exports.renderApplicationListQuery = async (req, res) => {
           path: "student",
           populate: {
             path: "student_optional_subject major_subject nested_subject",
-            select: "subjectName"
-          }
+            select: "subjectName",
+          },
         },
       })
       .populate({
@@ -2149,8 +2156,8 @@ exports.renderApplicationListQuery = async (req, res) => {
           path: "student",
           populate: {
             path: "student_optional_subject major_subject nested_subject",
-            select: "subjectName"
-          }
+            select: "subjectName",
+          },
         },
       });
 
@@ -2199,11 +2206,12 @@ exports.renderApplicationListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-              Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
+              Name: `${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
-                  ref?.student?.studentFatherName
+                    ref?.student?.studentFatherName
                   : ""
-                } ${ref?.student?.studentLastName}`,
+              } ${ref?.student?.studentLastName}`,
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -2286,7 +2294,7 @@ exports.renderApplicationListQuery = async (req, res) => {
         res.status(200).send({
           message: "Explore New Excel On Hostel Export TAB",
           access: true,
-          excel_list
+          excel_list,
         });
       } else {
         res.status(200).send({
@@ -2295,8 +2303,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           // excel_list: excel_list,
         });
       }
-    }
-    else if (
+    } else if (
       `${flow}` === "Docs_Query" &&
       valid_apply?.selectedApplication?.length > 0
     ) {
@@ -2312,11 +2319,12 @@ exports.renderApplicationListQuery = async (req, res) => {
           }
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-            Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
-                ref?.student?.studentFatherName
+                  ref?.student?.studentFatherName
                 : ""
-              } ${ref?.student?.studentLastName}`,
+            } ${ref?.student?.studentLastName}`,
             DOB: ref?.student?.studentDOB ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -2405,8 +2413,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           access: false,
         });
       }
-    }
-    else if (
+    } else if (
       `${flow}` === "Fees_Query" &&
       valid_apply?.FeeCollectionApplication?.length > 0
     ) {
@@ -2422,11 +2429,12 @@ exports.renderApplicationListQuery = async (req, res) => {
           }
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-            Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
-                ref?.student?.studentFatherName
+                  ref?.student?.studentFatherName
                 : ""
-              } ${ref?.student?.studentLastName}`,
+            } ${ref?.student?.studentLastName}`,
             DOB: ref?.student?.studentDOB ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -2515,8 +2523,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           access: false,
         });
       }
-    }
-    else if (
+    } else if (
       `${flow}` === "Confirm_Query" &&
       valid_apply?.confirmedApplication?.length > 0
     ) {
@@ -2549,7 +2556,7 @@ exports.renderApplicationListQuery = async (req, res) => {
               ref?.student?.studentParentsPhoneNumber ?? "#NA",
           });
         }
-      } else { 
+      } else {
         var numss = {};
         for (var ref of valid_apply?.confirmedApplication) {
           if (ref?.student?.studentFirstName != "") {
@@ -2561,11 +2568,12 @@ exports.renderApplicationListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-              Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
+              Name: `${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
-                  ref?.student?.studentFatherName
+                    ref?.student?.studentFatherName
                   : ""
-                } ${ref?.student?.studentLastName}`,
+              } ${ref?.student?.studentLastName}`,
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -2635,7 +2643,7 @@ exports.renderApplicationListQuery = async (req, res) => {
               ...numss,
             });
           }
-      }
+        }
       }
       var valid_back = await json_to_excel_admission_application_query(
         excel_list,
@@ -2654,13 +2662,16 @@ exports.renderApplicationListQuery = async (req, res) => {
           access: false,
         });
       }
-    }
-    else if (
+    } else if (
       `${flow}` === "Review_Query" &&
       valid_apply?.reviewApplication?.length > 0
     ) {
-      const ads_admin = await Admission.findById({ _id: `${valid_apply?.admissionAdmin}` })
-        const all_group_select = await SubjectGroupSelect.find({ $and: [{ subject_group: { $in: valid_apply?.subject_selected_group } }] })
+      const ads_admin = await Admission.findById({
+        _id: `${valid_apply?.admissionAdmin}`,
+      });
+      const all_group_select = await SubjectGroupSelect.find({
+        $and: [{ subject_group: { $in: valid_apply?.subject_selected_group } }],
+      })
         .populate({
           path: "compulsory_subject",
           select: "subjectName",
@@ -2670,34 +2681,34 @@ exports.renderApplicationListQuery = async (req, res) => {
           populate: {
             path: "optional_subject_options optional_subject_options_or.options",
             select: "subjectName",
-          }
+          },
         })
         .populate({
           path: "fixed_subject",
           populate: {
             path: "fixed_subject_options",
             select: "subjectName",
-          }
-        })
-        var subject_list = []
-        for (let ele of all_group_select) {
-          subject_list.push(...ele?.compulsory_subject)
+          },
+        });
+      var subject_list = [];
+      for (let ele of all_group_select) {
+        subject_list.push(...ele?.compulsory_subject);
+      }
+      for (let ele of all_group_select) {
+        for (let val of ele?.fixed_subject) {
+          subject_list.push(...val?.fixed_subject_options);
         }
-        for (let ele of all_group_select) {
-          for (let val of ele?.fixed_subject) {
-            subject_list.push(...val?.fixed_subject_options)
+      }
+      for (let ele of all_group_select) {
+        for (let val of ele?.optional_subject) {
+          subject_list.push(...val?.optional_subject_options);
+        }
+        for (let val of ele?.optional_subject) {
+          for (let stu of val?.optional_subject_options_or) {
+            subject_list.push(...stu?.options);
           }
         }
-        for (let ele of all_group_select) {
-          for (let val of ele?.optional_subject) {
-            subject_list.push(...val?.optional_subject_options)
-          }
-          for (let val of ele?.optional_subject) {
-            for (let stu of val?.optional_subject_options_or) {
-              subject_list.push(...stu?.options)
-            }
-          }
-        }
+      }
       var excel_list = [];
       var numss = {};
       var numsss = {};
@@ -2714,22 +2725,22 @@ exports.renderApplicationListQuery = async (req, res) => {
             ref.student_dynamic_subject.push({
               subjectName: stu?.subjectName,
               status: "No",
-              _id: stu?._id
-            })
+              _id: stu?._id,
+            });
           }
           for (let ele of ref.student_dynamic_subject) {
             for (let val of ref?.student_optional_subject) {
               if (`${ele?._id}` === `${val?._id}`) {
-                nums_queue[ele?.subjectName] = "Yes"
-                ele.status = "Yes"
+                nums_queue[ele?.subjectName] = "Yes";
+                ele.status = "Yes";
               }
             }
           }
           for (let val of ref.student_dynamic_subject) {
             for (let ele of ref?.major_subject) {
               if (`${val?._id}` === `${ele?._id}`) {
-                nums_queue[val?.subjectName] = "Yes"
-                ele.status = "Yes"
+                nums_queue[val?.subjectName] = "Yes";
+                ele.status = "Yes";
               }
             }
           }
@@ -2737,8 +2748,8 @@ exports.renderApplicationListQuery = async (req, res) => {
             for (let val of ref.student_dynamic_subject) {
               for (let ele of ref?.nested_subject) {
                 if (`${val?._id}` === `${ele?._id}`) {
-                  nums_queue[val?.subjectName] = "Yes"
-                  ele.status = "Yes"
+                  nums_queue[val?.subjectName] = "Yes";
+                  ele.status = "Yes";
                 }
               }
             }
@@ -2752,11 +2763,11 @@ exports.renderApplicationListQuery = async (req, res) => {
           // console.log(numsss)
           excel_list.push({
             RegistrationID: ref?.student_prn_enroll_number ?? "#NA",
-            Name: `${ref?.studentFirstName} ${ref?.studentMiddleName
-                ? ref?.studentMiddleName ??
-                ref?.studentFatherName
+            Name: `${ref?.studentFirstName} ${
+              ref?.studentMiddleName
+                ? ref?.studentMiddleName ?? ref?.studentFatherName
                 : ""
-              } ${ref?.studentLastName}`,
+            } ${ref?.studentLastName}`,
             DOB: ref?.studentDOB ?? "#NA",
             Gender: ref?.studentGender ?? "#NA",
             CasteCategory: ref?.studentCastCategory ?? "#NA",
@@ -2766,8 +2777,7 @@ exports.renderApplicationListQuery = async (req, res) => {
             Address: `${ref?.studentAddress}` ?? "#NA",
             AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
             ContactNo: ref?.studentPhoneNumber ?? "#NA",
-            AlternateContactNo:
-              ref?.studentParentsPhoneNumber ?? "#NA",
+            AlternateContactNo: ref?.studentParentsPhoneNumber ?? "#NA",
             NameAsMarksheet: ref?.studentNameAsMarksheet,
             NameAsCertificate: ref?.studentNameAsCertificate,
             BirthPlace: ref?.studentBirthPlace,
@@ -2824,7 +2834,7 @@ exports.renderApplicationListQuery = async (req, res) => {
             FormNo: ref?.form_no,
             QviplePayId: ref?.qviple_student_pay_id,
             ...numss,
-            ...numsss
+            ...numsss,
           });
         }
       }
@@ -2846,8 +2856,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           access: false,
         });
       }
-    }
-    else if (
+    } else if (
       `${flow}` === "Allot_Query" &&
       valid_apply?.allottedApplication?.length > 0
     ) {
@@ -2857,10 +2866,11 @@ exports.renderApplicationListQuery = async (req, res) => {
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
             GRNO: ref?.student?.studentGRNO ?? "#NA",
-            Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName
                 : ""
-              } ${ref?.student?.studentLastName}`,
+            } ${ref?.student?.studentLastName}`,
             DOB: ref?.student?.studentDOB ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CPI: ref?.student?.student_hostel_cpi ?? "#NA",
@@ -2880,9 +2890,12 @@ exports.renderApplicationListQuery = async (req, res) => {
               ref?.student?.studentParentsPhoneNumber ?? "#NA",
           });
         }
-      }
-      else {
-        const all_group_select = await SubjectGroupSelect.find({ $and: [{ subject_group: { $in: valid_apply?.subject_selected_group } }] })
+      } else {
+        const all_group_select = await SubjectGroupSelect.find({
+          $and: [
+            { subject_group: { $in: valid_apply?.subject_selected_group } },
+          ],
+        })
           .populate({
             path: "compulsory_subject",
             select: "subjectName",
@@ -2892,31 +2905,31 @@ exports.renderApplicationListQuery = async (req, res) => {
             populate: {
               path: "optional_subject_options optional_subject_options_or.options",
               select: "subjectName",
-            }
+            },
           })
           .populate({
             path: "fixed_subject",
             populate: {
               path: "fixed_subject_options",
               select: "subjectName",
-            }
-          })
-        var subject_list = []
+            },
+          });
+        var subject_list = [];
         for (let ele of all_group_select) {
-          subject_list.push(...ele?.compulsory_subject)
+          subject_list.push(...ele?.compulsory_subject);
         }
         for (let ele of all_group_select) {
           for (let val of ele?.fixed_subject) {
-            subject_list.push(...val?.fixed_subject_options)
+            subject_list.push(...val?.fixed_subject_options);
           }
         }
         for (let ele of all_group_select) {
           for (let val of ele?.optional_subject) {
-            subject_list.push(...val?.optional_subject_options)
+            subject_list.push(...val?.optional_subject_options);
           }
           for (let val of ele?.optional_subject) {
             for (let stu of val?.optional_subject_options_or) {
-              subject_list.push(...stu?.options)
+              subject_list.push(...stu?.options);
             }
           }
         }
@@ -2935,22 +2948,22 @@ exports.renderApplicationListQuery = async (req, res) => {
               ref.student.student_dynamic_subject.push({
                 subjectName: stu?.subjectName,
                 status: "No",
-                _id: stu?._id
-              })
+                _id: stu?._id,
+              });
             }
             for (let ele of ref?.student?.student_dynamic_subject) {
               for (let val of ref?.student?.student_optional_subject) {
                 if (`${ele?._id}` === `${val?._id}`) {
-                  nums_queue[ele?.subjectName] = "Yes"
-                  ele.status = "Yes"
+                  nums_queue[ele?.subjectName] = "Yes";
+                  ele.status = "Yes";
                 }
               }
             }
             for (let val of ref?.student?.student_dynamic_subject) {
               for (let ele of ref?.student?.major_subject) {
                 if (`${val?._id}` === `${ele?._id}`) {
-                  nums_queue[val?.subjectName] = "Yes"
-                  ele.status = "Yes"
+                  nums_queue[val?.subjectName] = "Yes";
+                  ele.status = "Yes";
                 }
               }
             }
@@ -2958,8 +2971,8 @@ exports.renderApplicationListQuery = async (req, res) => {
               for (let val of ref?.student?.student_dynamic_subject) {
                 for (let ele of ref?.student?.nested_subject) {
                   if (`${val?._id}` === `${ele?._id}`) {
-                    nums_queue[val?.subjectName] = "Yes"
-                    ele.status = "Yes"
+                    nums_queue[val?.subjectName] = "Yes";
+                    ele.status = "Yes";
                   }
                 }
               }
@@ -2972,11 +2985,12 @@ exports.renderApplicationListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.studentGRNO ?? "#NA",
-              Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
-                ? ref?.student?.studentMiddleName ??
-                ref?.student?.studentFatherName
-                : ""
-                } ${ref?.student?.studentLastName}`,
+              Name: `${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
+                  ? ref?.student?.studentMiddleName ??
+                    ref?.student?.studentFatherName
+                  : ""
+              } ${ref?.student?.studentLastName}`,
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -3044,7 +3058,7 @@ exports.renderApplicationListQuery = async (req, res) => {
               FormNo: ref?.student?.form_no,
               QviplePayId: ref?.student?.qviple_student_pay_id,
               ...numss,
-              ...numsss
+              ...numsss,
             });
           }
         }
@@ -4430,12 +4444,13 @@ exports.renderNormalStudentQuery = async (req, res) => {
         : "";
       var valid_card = await RemainingList.find({
         $and: [{ student: `${ref?._id}` }],
-      }).populate({
-        path: "fee_structure",
       })
-      .populate({
-        path: "applicable_card government_card",
-      })
+        .populate({
+          path: "fee_structure",
+        })
+        .populate({
+          path: "applicable_card government_card",
+        });
       var pending = 0;
       var paid = 0;
       var applicable_pending = 0;
@@ -4445,7 +4460,9 @@ exports.renderNormalStudentQuery = async (req, res) => {
         //   ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
         //     ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
         //     : 0;
-        pending += ele?.applicable_card?.remaining_fee + ele?.government_card?.remaining_fee;
+        pending +=
+          ele?.applicable_card?.remaining_fee +
+          ele?.government_card?.remaining_fee;
         paid += ele?.applicable_card?.paid_fee + ele?.government_card?.paid_fee;
         gov_pending += ele?.government_card?.remaining_fee;
         applicable_pending +=
@@ -4460,15 +4477,18 @@ exports.renderNormalStudentQuery = async (req, res) => {
         var currentGovernmentPending = 0;
         var valid_card = await RemainingList.findOne({
           $and: [{ fee_structure: `${struct}` }, { student: `${ref?._id}` }],
-        }).populate({
-          path: "fee_structure",
         })
-        .populate({
-          path: "applicable_card government_card",
-        })
+          .populate({
+            path: "fee_structure",
+          })
+          .populate({
+            path: "applicable_card government_card",
+          });
         currentPaid += valid_card?.applicable_card?.paid_fee;
-        currentRemain += valid_card?.applicable_card?.remaining_fee + valid_card?.government_card?.remaining_fee;
-        currentGovernmentPending += valid_card?.government_card?.remaining_fee
+        currentRemain +=
+          valid_card?.applicable_card?.remaining_fee +
+          valid_card?.government_card?.remaining_fee;
+        currentGovernmentPending += valid_card?.government_card?.remaining_fee;
         currentApplicableRemaining +=
           valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee > 0
             ? valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee
@@ -4540,7 +4560,7 @@ exports.renderNormalStudentQuery = async (req, res) => {
         TotalPaidFees: paid ?? "0",
         TotalRemainingFees: pending ?? "0",
         TotalApplicablePending: applicable_pending ?? "0",
-        GovernmentOutstanding: gov_pending ?? "0"
+        GovernmentOutstanding: gov_pending ?? "0",
       });
     }
     await json_to_excel_normal_student_promote_query(
@@ -5069,16 +5089,17 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
       for (var ref of valid_all_students) {
         var one_remain = await RemainingList.findOne({
           $and: [{ student: ref?._id }, { fee_structure: { $in: structure } }],
-        }).populate({
-          path: "fee_structure",
-          populate: {
-            path: "class_master batch_master",
-            select: "className batchName",
-          },
         })
-        .populate({
-          path: "applicable_card government_card",
-        });
+          .populate({
+            path: "fee_structure",
+            populate: {
+              path: "class_master batch_master",
+              select: "className batchName",
+            },
+          })
+          .populate({
+            path: "applicable_card government_card",
+          });
         var head_array = [];
         if (ref?.active_fee_heads?.length > 0) {
           for (var val of ref?.active_fee_heads) {
@@ -5112,14 +5133,24 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
           DOB: ref?.studentDOB ?? "#NA",
           Gender: ref?.studentGender ?? "#NA",
           TotalApplicableFees: one_remain?.applicable_card?.applicable_fee ?? 0,
-          TotalGovernmentApplicableFees: one_remain?.government_card?.applicable_fee ?? 0,
-          TotalFees: one_remain?.applicable_card?.applicable_fee + one_remain?.government_card?.applicable_fee ?? 0,
+          TotalGovernmentApplicableFees:
+            one_remain?.government_card?.applicable_fee ?? 0,
+          TotalFees:
+            one_remain?.applicable_card?.applicable_fee +
+              one_remain?.government_card?.applicable_fee ?? 0,
           ApplicablePaidFees: one_remain?.applicable_card?.paid_fee ?? 0,
-          GovernmentApplicablePaidFees: one_remain?.government_card?.paid_fee ?? 0,
-          TotalPaidFees: one_remain?.applicable_card?.paid_fee + one_remain?.government_card?.paid_fee,
-          TotalApplicableOutstandingFees: one_remain?.applicable_card?.remaining_fee,
-          TotalGovernmentOutstandingFees: one_remain?.government_card?.remaining_fee,
-          TotalOutstandingFees: one_remain?.applicable_card?.remaining_fee + one_remain?.government_card?.remaining_fee,
+          GovernmentApplicablePaidFees:
+            one_remain?.government_card?.paid_fee ?? 0,
+          TotalPaidFees:
+            one_remain?.applicable_card?.paid_fee +
+            one_remain?.government_card?.paid_fee,
+          TotalApplicableOutstandingFees:
+            one_remain?.applicable_card?.remaining_fee,
+          TotalGovernmentOutstandingFees:
+            one_remain?.government_card?.remaining_fee,
+          TotalOutstandingFees:
+            one_remain?.applicable_card?.remaining_fee +
+            one_remain?.government_card?.remaining_fee,
           Standard: `${one_remain?.fee_structure}`
             ? `${one_remain?.fee_structure?.class_master?.className}`
             : "#NA",
@@ -7724,7 +7755,7 @@ exports.renderStudentExcessFeesExcelQuery = async (req, res) => {
       res.status(200).send({
         message: "Explore Excess Fees Query",
         access: true,
-        filtered
+        filtered,
       });
     } else {
       res.status(200).send({
@@ -9874,7 +9905,7 @@ exports.renderAllDayBookReceipt = async (req, res) => {
       res.status(200).send({
         message: "Explore All Day Book Receipts Query",
         access: true,
-        all_db: []//all_db,
+        all_db: [], //all_db,
       });
     }
   } catch (e) {
@@ -9918,7 +9949,7 @@ exports.renderAllDayBookPayment = async (req, res) => {
       res.status(200).send({
         message: "Explore All Day Book Payments Query",
         access: true,
-        all_db: []//all_db,
+        all_db: [], //all_db,
       });
     }
   } catch (e) {
@@ -10218,11 +10249,11 @@ exports.render_daybook_heads_wise = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-      res.status(200).send({
-        message: "Explore Day Book Heads Query",
-        access: true,
-      });
-    await bankDaybook(fid, from, to, bank, payment_type)
+    res.status(200).send({
+      message: "Explore Day Book Heads Query",
+      access: true,
+    });
+    await bankDaybook(fid, from, to, bank, payment_type);
     var g_year;
     var l_year;
     var g_month;
@@ -10233,13 +10264,15 @@ exports.render_daybook_heads_wise = async (req, res) => {
     const finance = await Finance.findById({ _id: fid }).select("institute");
     if (bank_acc?.bank_account_type === "Society") {
       var all_struct = await FeeStructure.find({
-        $and: [{finance: finance?._id}, { document_update: false}],
+        $and: [{ finance: finance?._id }, { document_update: false }],
       });
-    }
-    else {
+    } else {
       var all_struct = await FeeStructure.find({
-        $and: [{department: { $in: bank_acc?.departments }}, { document_update: false}],
-      }); 
+        $and: [
+          { department: { $in: bank_acc?.departments } },
+          { document_update: false },
+        ],
+      });
     }
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
@@ -10347,9 +10380,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
     }
     // console.log(all_receipts)
     if (bank_acc?.bank_account_type === "Society") {
-      
-    }
-    else{
+    } else {
       all_receipts = all_receipts?.filter((val) => {
         if (
           `${val?.application?.applicationDepartment?.bank_account?._id}` ===
@@ -10395,26 +10426,31 @@ exports.render_daybook_heads_wise = async (req, res) => {
       obj = {};
     }
     // var t = 0
-    var t = []
-    var l = []
+    var t = [];
+    var l = [];
     if (all_receipts?.length > 0) {
       for (let ele of all_receipts) {
         for (let val of ele?.fee_heads) {
           for (let ads of nest_obj) {
             if (bank_acc?.bank_account_type === "Society") {
-              if (`${ads?._id}` === `${val?.master}` && val?.is_society == true) {
+              if (
+                `${ads?._id}` === `${val?.master}` &&
+                val?.is_society == true
+              ) {
                 ads.head_amount += val?.original_paid;
                 // t+= val?.original_paid
               }
-            }
-            else {
-              if (`${ads?._id}` === `${val?.master}` && val?.is_society == false) {
+            } else {
+              if (
+                `${ads?._id}` === `${val?.master}` &&
+                val?.is_society == false
+              ) {
                 ads.head_amount += val?.original_paid;
                 if (val?.master == "6654be24e36490a31bccd1db") {
-                  t.push(`${val?.original_paid}`)
+                  t.push(`${val?.original_paid}`);
                 }
                 if (val?.master == "6654be3de36490a31bccd257") {
-                  l.push(`${val?.original_paid}`)
+                  l.push(`${val?.original_paid}`);
                 }
                 // t+= val?.original_paid
               }
@@ -10458,137 +10494,186 @@ exports.render_daybook_heads_wise = async (req, res) => {
 
 exports.render_daybook_query = async (req, res) => {
   try {
-    const { baid } = req?.params
+    const { baid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!baid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const bank_acc = await BankAccount.findById({ _id: baid })
-      .populate({
-        path: "day_book",
-        populate: {
-          path: "bank",
-          select: "finance_bank_account_number finance_bank_name finance_bank_account_name"
-        }
-    })
+    if (!baid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const all_daybook = await nested_document_limit(page, limit, bank_acc?.day_book?.reverse())
+    const bank_acc = await BankAccount.findById({ _id: baid }).populate({
+      path: "day_book",
+      populate: {
+        path: "bank",
+        select:
+          "finance_bank_account_number finance_bank_name finance_bank_account_name",
+      },
+    });
 
-    res.status(200).send({ message: "Explore All Day Book Query", access: true, all_daybook: all_daybook})
+    const all_daybook = await nested_document_limit(
+      page,
+      limit,
+      bank_acc?.day_book?.reverse()
+    );
+
+    res.status(200).send({
+      message: "Explore All Day Book Query",
+      access: true,
+      all_daybook: all_daybook,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_daybook_edit_query = async (req, res) => {
   try {
-    const { baid } = req?.params
-    const { dbid, excel_file_name } = req?.body
-    if (!baid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const bank_acc = await BankAccount.findById({ _id: baid })
+    const { baid } = req?.params;
+    const { dbid, excel_file_name } = req?.body;
+    if (!baid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const bank_acc = await BankAccount.findById({ _id: baid });
     for (let ele of bank_acc?.day_book) {
       if (`${ele?._id}` === `${dbid}`) {
-        ele.excel_file_name = excel_file_name ? excel_file_name : ele?.excel_file_name
+        ele.excel_file_name = excel_file_name
+          ? excel_file_name
+          : ele?.excel_file_name;
       }
     }
 
-    await bank_acc.save()
+    await bank_acc.save();
 
-    res.status(200).send({ message: "Explore One Day Book Edit Query", access: true})
+    res
+      .status(200)
+      .send({ message: "Explore One Day Book Edit Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_daybook_delete_query = async (req, res) => {
   try {
-    const { baid } = req?.params
-    const { dbid } = req?.body
-    if (!baid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const bank_acc = await BankAccount.findById({ _id: baid })
+    const { baid } = req?.params;
+    const { dbid } = req?.body;
+    if (!baid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const bank_acc = await BankAccount.findById({ _id: baid });
     for (let ele of bank_acc?.day_book) {
       if (`${ele?._id}` === `${dbid}`) {
-        bank_acc.day_book.pull(ele?._id)
+        bank_acc.day_book.pull(ele?._id);
       }
     }
 
-    await bank_acc.save()
+    await bank_acc.save();
 
-    res.status(200).send({ message: "Explore One Day Book Delete Query", access: true})
+    res
+      .status(200)
+      .send({ message: "Explore One Day Book Delete Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_admission_intake_set_query = async (req, res) => {
   try {
-    const { aid } = req?.params
+    const { aid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const bank_acc = await Admission.findById({ _id: aid })
-      .select("admission_intake_set")
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const all_daybook = await nested_document_limit(page, limit, bank_acc?.admission_intake_set?.reverse())
+    const bank_acc = await Admission.findById({ _id: aid }).select(
+      "admission_intake_set"
+    );
 
-    res.status(200).send({ message: "Explore All Day Book Query", access: true, admission_intake_set: all_daybook})
+    const all_daybook = await nested_document_limit(
+      page,
+      limit,
+      bank_acc?.admission_intake_set?.reverse()
+    );
+
+    res.status(200).send({
+      message: "Explore All Day Book Query",
+      access: true,
+      admission_intake_set: all_daybook,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_admission_intake_set_edit_query = async (req, res) => {
   try {
-    const { aid } = req?.params
-    const { dbid, excel_file_name } = req?.body
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const bank_acc = await Admission.findById({ _id: aid })
+    const { aid } = req?.params;
+    const { dbid, excel_file_name } = req?.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const bank_acc = await Admission.findById({ _id: aid });
     for (let ele of bank_acc?.admission_intake_set) {
       if (`${ele?._id}` === `${dbid}`) {
-        ele.excel_file_name = excel_file_name ? excel_file_name : ele?.excel_file_name
+        ele.excel_file_name = excel_file_name
+          ? excel_file_name
+          : ele?.excel_file_name;
       }
     }
 
-    await bank_acc.save()
+    await bank_acc.save();
 
-    res.status(200).send({ message: "Explore One Admission Intake Edit Query", access: true})
+    res.status(200).send({
+      message: "Explore One Admission Intake Edit Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_admission_intake_set_delete_query = async (req, res) => {
   try {
-    const { aid } = req?.params
-    const { dbid } = req?.body
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const bank_acc = await Admission.findById({ _id: aid })
+    const { aid } = req?.params;
+    const { dbid } = req?.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const bank_acc = await Admission.findById({ _id: aid });
     for (let ele of bank_acc?.admission_intake_set) {
       if (`${ele?._id}` === `${dbid}`) {
-        bank_acc.admission_intake_set.pull(ele?._id)
+        bank_acc.admission_intake_set.pull(ele?._id);
       }
     }
 
-    await bank_acc.save()
+    await bank_acc.save();
 
-    res.status(200).send({ message: "Explore One Admission Intake Delete Query", access: true})
+    res.status(200).send({
+      message: "Explore One Admission Intake Delete Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.fee_master_linking = async (req, res) => {
   try {
@@ -10609,27 +10694,26 @@ exports.fee_master_linking = async (req, res) => {
       "66603103f8bc7a5d88f2a70e",
       "66602995f8bc7a5d88f27fd7",
       "6660256cf8bc7a5d88f26c69",
-      "666017c7f8bc7a5d88f22f3b"
-    ]
-    const all = await FeeReceipt.find({ _id: { $in: nums } })
-    .select("fee_heads fee_structure")
-    const struct = []
+      "666017c7f8bc7a5d88f22f3b",
+    ];
+    const all = await FeeReceipt.find({ _id: { $in: nums } }).select(
+      "fee_heads fee_structure"
+    );
+    const struct = [];
     for (let ele of all) {
       if (struct?.includes(`${ele?.fee_structure}`)) {
-        
-      }
-      else {
-        struct.push(ele?.fee_structure)
+      } else {
+        struct.push(ele?.fee_structure);
       }
     }
-    const all_struct = await FeeStructure.find({ _id: { $in: struct } })
-    var heads_queue = []
+    const all_struct = await FeeStructure.find({ _id: { $in: struct } });
+    var heads_queue = [];
     for (let ele of all_struct) {
       for (let val of ele?.applicable_fees_heads) {
-          if (heads_queue?.includes(`${val?.master}`)) {
-          } else {
-            heads_queue.push(val?.master);
-          }
+        if (heads_queue?.includes(`${val?.master}`)) {
+        } else {
+          heads_queue.push(val?.master);
+        }
       }
     }
 
@@ -10649,89 +10733,97 @@ exports.fee_master_linking = async (req, res) => {
     for (let ele of all) {
       for (let val of ele?.fee_heads) {
         for (let ads of nest_obj) {
-            if (`${ads?.head_name}` === `${val?.head_name}`) {
-              val.master = ads?._id
-              // t+= val?.original_paid
-            }
+          if (`${ads?.head_name}` === `${val?.head_name}`) {
+            val.master = ads?._id;
+            // t+= val?.original_paid
+          }
           // }
         }
       }
-      await ele.save()
+      await ele.save();
     }
 
-    res.status(200).send({ message: "Explore", all: all})
+    res.status(200).send({ message: "Explore", all: all });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_subject_application_export = async (req, res) => {
   try {
-    const { sid, aid } = req?.params
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const { sid, aid } = req?.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const one_subject = await SubjectMaster.findById({ _id: sid })
-    const apply = await NewApplication.findById({ _id: aid })
+    const one_subject = await SubjectMaster.findById({ _id: sid });
+    const apply = await NewApplication.findById({ _id: aid });
     // const nums = [aid]
     // const all_user = await User.find({ applyApplication: { $in: nums } })
-    let numss = []
+    let numss = [];
     for (let ele of apply?.confirmedApplication) {
-      numss.push(ele?.student)
+      numss.push(ele?.student);
     }
     for (let ele of apply?.allottedApplication) {
-      numss.push(ele?.student)
+      numss.push(ele?.student);
     }
-    let subject_num = [...numss, ...apply?.reviewApplication]
+    let subject_num = [...numss, ...apply?.reviewApplication];
     const all_student = await Student.find({ _id: { $in: subject_num } })
-      .select("studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO")
+      .select(
+        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+      )
       .populate({
         path: "user",
-        select: "userLegalName username"
+        select: "userLegalName username",
       })
-    .populate({
-      path: "student_optional_subject",
-      select: "subjectName"
-    })
-    .populate({
-      path: "major_subject",
-      select: "subjectName"
-    })
-    .populate({
-      path: "nested_subject",
-      select: "subjectName"
-    })
-    res.status(200).send({ message: "Explore All Students Master Query", access: true})
+      .populate({
+        path: "student_optional_subject",
+        select: "subjectName",
+      })
+      .populate({
+        path: "major_subject",
+        select: "subjectName",
+      })
+      .populate({
+        path: "nested_subject",
+        select: "subjectName",
+      });
+    res
+      .status(200)
+      .send({ message: "Explore All Students Master Query", access: true });
 
-    var n = []
+    var n = [];
     for (let val of all_student) {
       for (let ele of val?.student_optional_subject) {
-        if(`${ele?._id}` === `${one_subject?._id}`)
-        n.push(val)
+        if (`${ele?._id}` === `${one_subject?._id}`) n.push(val);
       }
       for (let val of all_student) {
         for (let ele of val?.major_subject) {
           if (`${ele?._id}` === `${one_subject?._id}`) {
-            n.push(val)
+            n.push(val);
           }
         }
       }
-        for (let val of all_student) {
-          for (let ele of val?.nested_subject) {
-            if (`${ele?._id}` === `${one_subject?._id}`) {
-              n.push(val)
-            }
+      for (let val of all_student) {
+        for (let ele of val?.nested_subject) {
+          if (`${ele?._id}` === `${one_subject?._id}`) {
+            n.push(val);
           }
         }
+      }
     }
-    const unique = [...new Set(n.map(item => item._id))];
+    const unique = [...new Set(n.map((item) => item._id))];
     const all = await Student.find({ _id: { $in: unique } })
-      .select("studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO")
+      .select(
+        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+      )
       .populate({
         path: "user",
-        select: "userLegalName username"
-      })
-    var excel_list = []
+        select: "userLegalName username",
+      });
+    var excel_list = [];
     for (let ele of all) {
       excel_list.push({
         GRNO: ele?.studentGRNO ?? "#NA",
@@ -10739,12 +10831,12 @@ exports.render_subject_application_export = async (req, res) => {
         Gender: ele?.studentGender,
         Email: ele?.studentEmail,
         PhoneNumber: ele?.studentPhoneNumber,
-      })
+      });
     }
     var valid_back = await json_to_excel_admission_subject_application_query(
       excel_list,
       one_subject?.subjectName,
-      aid,
+      aid
     );
     if (valid_back?.back) {
       res.status(200).send({
@@ -10757,15 +10849,12 @@ exports.render_subject_application_export = async (req, res) => {
         access: false,
       });
     }
-
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
-const removeDuplicates = async(books) => {
-
+const removeDuplicates = async (books) => {
   // Declare a new array
   let newArray = [];
 
@@ -10774,76 +10863,91 @@ const removeDuplicates = async(books) => {
 
   // Loop for the array elements
   for (let i in books) {
+    // Extract the title
+    objTitle = books[i]["name"];
 
-      // Extract the title
-      objTitle = books[i]['name'];
-
-      // Use the title as the index
-      uniqueObject[objTitle] = books[i];
+    // Use the title as the index
+    uniqueObject[objTitle] = books[i];
   }
 
   // Loop to push unique object into array
   for (i in uniqueObject) {
-      newArray.push(uniqueObject[i]);
+    newArray.push(uniqueObject[i]);
   }
 
   // Display the unique objects
   return newArray;
-}
+};
 
 exports.render_app_intake_query = async (req, res) => {
   try {
-    const { aid } = req?.params
-    const { bid } = req?.body
-    if (!aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    await admissionIntakeReport(aid, bid)
-    res.status(200).send({ message: "Admission Intake Query", access: true})
-    const ads_admin = await Admission.findById({ _id: aid })
-      .populate({
-        path: "institute",
-        select: "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode insAffiliated affliatedLogo"
-    })
-    const batch = await Batch.findById({ _id: bid})
-    const apply = await NewApplication.find({ $and: [{ _id: { $in: ads_admin?.newApplication } }, { applicationTypeStatus: "Normal Application" }, { applicationBatch: { $in: batch?.merged_batches } }] })
-    // const apply = await NewApplication.find({ $and: [{ _id: { $in: ads_admin?.newApplication } }, { applicationTypeStatus: "Normal Application" }] })
-    .select("applicationName admission_intake_data_set admission_intake")
+    const { aid } = req?.params;
+    const { bid } = req?.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const all_student = await Student.find({ "student_form_flow.did": { $in: ads_admin?.newApplication } })
-    var ds = []
+    await admissionIntakeReport(aid, bid);
+    res.status(200).send({ message: "Admission Intake Query", access: true });
+    const ads_admin = await Admission.findById({ _id: aid }).populate({
+      path: "institute",
+      select:
+        "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode insAffiliated affliatedLogo",
+    });
+    const batch = await Batch.findById({ _id: bid });
+    const apply = await NewApplication.find({
+      $and: [
+        { _id: { $in: ads_admin?.newApplication } },
+        { applicationTypeStatus: "Normal Application" },
+        { applicationBatch: { $in: batch?.merged_batches } },
+      ],
+    })
+      // const apply = await NewApplication.find({ $and: [{ _id: { $in: ads_admin?.newApplication } }, { applicationTypeStatus: "Normal Application" }] })
+      .select("applicationName admission_intake_data_set admission_intake");
+
+    const all_student = await Student.find({
+      "student_form_flow.did": { $in: ads_admin?.newApplication },
+    });
+    var ds = [];
     for (let ele of all_student) {
       for (let val of apply) {
         if (`${val?._id}` === `${ele?.student_form_flow?.did}`) {
           if (ele?.intake_type == "CAP") {
-            val.admission_intake_data_set.ad_th_cap += 1
+            val.admission_intake_data_set.ad_th_cap += 1;
+          } else if (ele?.intake_type == "AGAINST_CAP") {
+            val.admission_intake_data_set.ad_th_ag_cap += 1;
+          } else if (ele?.intake_type == "IL") {
+            val.admission_intake_data_set.ad_th_il += 1;
+          } else if (ele?.intake_type == "EWS") {
+            val.admission_intake_data_set.ad_th_ews += 1;
+          } else if (ele?.intake_type == "TFWS") {
+            val.admission_intake_data_set.ad_th_tfws += 1;
           }
-          else if (ele?.intake_type == "AGAINST_CAP") {
-            val.admission_intake_data_set.ad_th_ag_cap += 1
-          }
-          else if (ele?.intake_type == "IL") {
-            val.admission_intake_data_set.ad_th_il += 1
-          }
-          else if (ele?.intake_type == "EWS") {
-            val.admission_intake_data_set.ad_th_ews += 1
-          }
-          else if (ele?.intake_type == "TFWS") {
-            val.admission_intake_data_set.ad_th_tfws += 1
-          }
-          val.admission_intake_data_set.total_intake = val?.admission_intake?.total_intake ?? 0
-          val.admission_intake_data_set.cap_intake = val?.admission_intake?.cap_intake ?? 0
-          val.admission_intake_data_set.il_intake = val?.admission_intake?.il_intake ?? 0
-          val.admission_intake_data_set.grand_total = val?.admission_intake_data_set?.ad_th_cap + val?.admission_intake_data_set?.ad_th_ag_cap + val?.admission_intake_data_set?.ad_th_il + val?.admission_intake_data_set?.ad_th_ews + val?.admission_intake_data_set?.ad_th_tfws
+          val.admission_intake_data_set.total_intake =
+            val?.admission_intake?.total_intake ?? 0;
+          val.admission_intake_data_set.cap_intake =
+            val?.admission_intake?.cap_intake ?? 0;
+          val.admission_intake_data_set.il_intake =
+            val?.admission_intake?.il_intake ?? 0;
+          val.admission_intake_data_set.grand_total =
+            val?.admission_intake_data_set?.ad_th_cap +
+            val?.admission_intake_data_set?.ad_th_ag_cap +
+            val?.admission_intake_data_set?.ad_th_il +
+            val?.admission_intake_data_set?.ad_th_ews +
+            val?.admission_intake_data_set?.ad_th_tfws;
         }
         if (val?._id != null) {
           ds.push({
             name: val?.applicationName,
             value: val?.admission_intake_data_set,
-            _id: val?._id
-          })
+            _id: val?._id,
+          });
         }
       }
     }
-    const all = await removeDuplicates(ds)
+    const all = await removeDuplicates(ds);
     // if (all?.length > 0) {
     //   res.status(200).send({
     //     message: "Explore New App Intake",
@@ -10859,11 +10963,10 @@ exports.render_app_intake_query = async (req, res) => {
     //     data_set: []
     //   });
     // }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 // exports.render_daybook_heads_wise_excel_query = async (req, res) => {
 //   try {
@@ -10890,7 +10993,7 @@ exports.render_app_intake_query = async (req, res) => {
 //     else {
 //       var all_struct = await FeeStructure.find({
 //         $and: [{department: { $in: bank_acc?.departments }}, { document_update: false}],
-//       }); 
+//       });
 //     }
 //     const institute = await InstituteAdmin.findById({
 //       _id: `${finance?.institute}`,
@@ -10998,7 +11101,7 @@ exports.render_app_intake_query = async (req, res) => {
 //     }
 //     // console.log(all_receipts)
 //     if (bank_acc?.bank_account_type === "Society") {
-      
+
 //     }
 //     else{
 //       all_receipts = all_receipts?.filter((val) => {
@@ -11117,8 +11220,13 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
         access: false,
       });
 
-    var ads_admin = await Admission.findById({ _id: appId })
-    var all_apps = await NewApplication.find({ $and: [{ _id: { $in: ads_admin?.newApplication}}, { applicationTypeStatus: "Normal Application"}] })
+    var ads_admin = await Admission.findById({ _id: appId });
+    var all_apps = await NewApplication.find({
+      $and: [
+        { _id: { $in: ads_admin?.newApplication } },
+        { applicationTypeStatus: "Normal Application" },
+      ],
+    })
       .select(
         "receievedApplication applicationUnit applicationName confirmedApplication allottedApplication applicationHostel admissionAdmin subject_selected_group"
       )
@@ -11150,8 +11258,8 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
         path: "reviewApplication",
         populate: {
           path: "student_optional_subject major_subject nested_subject",
-          select: "subjectName"
-        }
+          select: "subjectName",
+        },
         // select: "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph"
       })
       .populate({
@@ -11160,8 +11268,8 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
           path: "student",
           populate: {
             path: "student_optional_subject major_subject nested_subject",
-            select: "subjectName"
-          }
+            select: "subjectName",
+          },
         },
       })
       .populate({
@@ -11170,12 +11278,12 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
           path: "student",
           populate: {
             path: "student_optional_subject major_subject nested_subject",
-            select: "subjectName"
-          }
+            select: "subjectName",
+          },
         },
       });
 
-      var excel_list = [];
+    var excel_list = [];
     for (let valid_apply of all_apps) {
       if (
         `${flow}` === "Request_Query" &&
@@ -11194,11 +11302,12 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-              Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
-                ? ref?.student?.studentMiddleName ??
-                ref?.student?.studentFatherName
-                : ""
-                } ${ref?.student?.studentLastName}`,
+              Name: `${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
+                  ? ref?.student?.studentMiddleName ??
+                    ref?.student?.studentFatherName
+                  : ""
+              } ${ref?.student?.studentLastName}`,
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -11270,8 +11379,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
           }
         }
         // var valid_back = null;
-      }
-      else if (
+      } else if (
         `${flow}` === "Docs_Query" &&
         valid_apply?.selectedApplication?.length > 0
       ) {
@@ -11288,11 +11396,12 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-              Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
-                ? ref?.student?.studentMiddleName ??
-                ref?.student?.studentFatherName
-                : ""
-                } ${ref?.student?.studentLastName}`,
+              Name: `${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
+                  ? ref?.student?.studentMiddleName ??
+                    ref?.student?.studentFatherName
+                  : ""
+              } ${ref?.student?.studentLastName}`,
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -11363,8 +11472,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             });
           }
         }
-      }
-      else if (
+      } else if (
         `${flow}` === "Fees_Query" &&
         valid_apply?.FeeCollectionApplication?.length > 0
       ) {
@@ -11381,11 +11489,12 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-              Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
-                ? ref?.student?.studentMiddleName ??
-                ref?.student?.studentFatherName
-                : ""
-                } ${ref?.student?.studentLastName}`,
+              Name: `${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
+                  ? ref?.student?.studentMiddleName ??
+                    ref?.student?.studentFatherName
+                  : ""
+              } ${ref?.student?.studentLastName}`,
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -11456,8 +11565,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             });
           }
         }
-      }
-      else if (
+      } else if (
         `${flow}` === "Confirm_Query" &&
         valid_apply?.confirmedApplication?.length > 0
       ) {
@@ -11474,11 +11582,12 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-              Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
-                ? ref?.student?.studentMiddleName ??
-                ref?.student?.studentFatherName
-                : ""
-                } ${ref?.student?.studentLastName}`,
+              Name: `${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
+                  ? ref?.student?.studentMiddleName ??
+                    ref?.student?.studentFatherName
+                  : ""
+              } ${ref?.student?.studentLastName}`,
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -11549,13 +11658,18 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             });
           }
         }
-      }
-      else if (
+      } else if (
         `${flow}` === "Review_Query" &&
         valid_apply?.reviewApplication?.length > 0
       ) {
-        const ads_admin = await Admission.findById({ _id: `${valid_apply?.admissionAdmin}` })
-        const all_group_select = await SubjectGroupSelect.find({ $and: [{ subject_group: { $in: valid_apply?.subject_selected_group } }] })
+        const ads_admin = await Admission.findById({
+          _id: `${valid_apply?.admissionAdmin}`,
+        });
+        const all_group_select = await SubjectGroupSelect.find({
+          $and: [
+            { subject_group: { $in: valid_apply?.subject_selected_group } },
+          ],
+        })
           .populate({
             path: "compulsory_subject",
             select: "subjectName",
@@ -11565,31 +11679,31 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             populate: {
               path: "optional_subject_options optional_subject_options_or.options",
               select: "subjectName",
-            }
+            },
           })
           .populate({
             path: "fixed_subject",
             populate: {
               path: "fixed_subject_options",
               select: "subjectName",
-            }
-          })
-        var subject_list = []
+            },
+          });
+        var subject_list = [];
         for (let ele of all_group_select) {
-          subject_list.push(...ele?.compulsory_subject)
+          subject_list.push(...ele?.compulsory_subject);
         }
         for (let ele of all_group_select) {
           for (let val of ele?.fixed_subject) {
-            subject_list.push(...val?.fixed_subject_options)
+            subject_list.push(...val?.fixed_subject_options);
           }
         }
         for (let ele of all_group_select) {
           for (let val of ele?.optional_subject) {
-            subject_list.push(...val?.optional_subject_options)
+            subject_list.push(...val?.optional_subject_options);
           }
           for (let val of ele?.optional_subject) {
             for (let stu of val?.optional_subject_options_or) {
-              subject_list.push(...stu?.options)
+              subject_list.push(...stu?.options);
             }
           }
         }
@@ -11608,22 +11722,22 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
               ref.student_dynamic_subject.push({
                 subjectName: stu?.subjectName,
                 status: "No",
-                _id: stu?._id
-              })
+                _id: stu?._id,
+              });
             }
             for (let ele of ref.student_dynamic_subject) {
               for (let val of ref?.student_optional_subject) {
                 if (`${ele?._id}` === `${val?._id}`) {
-                  nums_queue[ele?.subjectName] = "Yes"
-                  ele.status = "Yes"
+                  nums_queue[ele?.subjectName] = "Yes";
+                  ele.status = "Yes";
                 }
               }
             }
             for (let val of ref.student_dynamic_subject) {
               for (let ele of ref?.major_subject) {
                 if (`${val?._id}` === `${ele?._id}`) {
-                  nums_queue[val?.subjectName] = "Yes"
-                  ele.status = "Yes"
+                  nums_queue[val?.subjectName] = "Yes";
+                  ele.status = "Yes";
                 }
               }
             }
@@ -11631,8 +11745,8 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
               for (let val of ref.student_dynamic_subject) {
                 for (let ele of ref?.nested_subject) {
                   if (`${val?._id}` === `${ele?._id}`) {
-                    nums_queue[val?.subjectName] = "Yes"
-                    ele.status = "Yes"
+                    nums_queue[val?.subjectName] = "Yes";
+                    ele.status = "Yes";
                   }
                 }
               }
@@ -11646,11 +11760,11 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             // console.log(numsss)
             excel_list.push({
               RegistrationID: ref?.student_prn_enroll_number ?? "#NA",
-              Name: `${ref?.studentFirstName} ${ref?.studentMiddleName
-                ? ref?.studentMiddleName ??
-                ref?.studentFatherName
-                : ""
-                } ${ref?.studentLastName}`,
+              Name: `${ref?.studentFirstName} ${
+                ref?.studentMiddleName
+                  ? ref?.studentMiddleName ?? ref?.studentFatherName
+                  : ""
+              } ${ref?.studentLastName}`,
               DOB: ref?.studentDOB ?? "#NA",
               Gender: ref?.studentGender ?? "#NA",
               CasteCategory: ref?.studentCastCategory ?? "#NA",
@@ -11660,8 +11774,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
               Address: `${ref?.studentAddress}` ?? "#NA",
               AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
               ContactNo: ref?.studentPhoneNumber ?? "#NA",
-              AlternateContactNo:
-                ref?.studentParentsPhoneNumber ?? "#NA",
+              AlternateContactNo: ref?.studentParentsPhoneNumber ?? "#NA",
               NameAsMarksheet: ref?.studentNameAsMarksheet,
               NameAsCertificate: ref?.studentNameAsCertificate,
               BirthPlace: ref?.studentBirthPlace,
@@ -11718,12 +11831,11 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
               FormNo: ref?.form_no,
               QviplePayId: ref?.qviple_student_pay_id,
               ...numss,
-              ...numsss
+              ...numsss,
             });
           }
         }
-      }
-      else if (
+      } else if (
         `${flow}` === "Allot_Query" &&
         valid_apply?.allottedApplication?.length > 0
       ) {
@@ -11738,11 +11850,12 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.studentGRNO ?? "#NA",
-              Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
-                ? ref?.student?.studentMiddleName ??
-                ref?.student?.studentFatherName
-                : ""
-                } ${ref?.student?.studentLastName}`,
+              Name: `${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
+                  ? ref?.student?.studentMiddleName ??
+                    ref?.student?.studentFatherName
+                  : ""
+              } ${ref?.student?.studentLastName}`,
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -11831,7 +11944,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
       res.status(200).send({
         message: "Explore New Excel On Hostel Export TAB",
         access: true,
-        excel_list: excel_list?.length
+        excel_list: excel_list?.length,
       });
     } else {
       res.status(200).send({
@@ -11887,8 +12000,8 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
         path: "reviewApplication",
         populate: {
           path: "student_optional_subject major_subject nested_subject",
-          select: "subjectName"
-        }
+          select: "subjectName",
+        },
         // select: "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentParentsPhoneNumber studentDOB student_prn_enroll_number studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto student_hostel_cpi student_programme student_branch student_year student_single_seater_room student_ph"
       })
       .populate({
@@ -11897,112 +12010,113 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
           path: "student",
           populate: {
             path: "student_optional_subject major_subject nested_subject",
-            select: "subjectName"
-          }
+            select: "subjectName",
+          },
         },
-      })
-      // .populate({
-      //   path: "allottedApplication",
-      //   populate: {
-      //     path: "student",
-      //     populate: {
-      //       path: "student_optional_subject major_subject nested_subject",
-      //       select: "subjectName"
-      //     }
-      //   },
-      // });
+      });
+    // .populate({
+    //   path: "allottedApplication",
+    //   populate: {
+    //     path: "student",
+    //     populate: {
+    //       path: "student_optional_subject major_subject nested_subject",
+    //       select: "subjectName"
+    //     }
+    //   },
+    // });
 
     if (
       `${flow}` === "Request_Query" &&
       valid_apply?.receievedApplication?.length > 0
     ) {
       var excel_list = [];
-        var numss = {};
-        for (var ref of valid_apply?.receievedApplication) {
-          if (ref?.student?.studentFirstName != "") {
-            for (let ele of ref?.student?.student_dynamic_field) {
-              // numss.push(
-              //   [ele?.key]: ele?.value,
-              // );
-              numss[ele?.key] = ele?.value;
-            }
-            excel_list.push({
-              RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-              Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
-                  ? ref?.student?.studentMiddleName ??
-                  ref?.student?.studentFatherName
-                  : ""
-                } ${ref?.student?.studentLastName}`,
-              DOB: ref?.student?.studentDOB ?? "#NA",
-              Gender: ref?.student?.studentGender ?? "#NA",
-              CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
-              Religion: ref?.student?.studentReligion ?? "#NA",
-              MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
-              ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
-              Address: `${ref?.student?.studentAddress}` ?? "#NA",
-              AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
-              ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
-              AlternateContactNo:
-                ref?.student?.studentParentsPhoneNumber ?? "#NA",
-              NameAsMarksheet: ref?.student?.studentNameAsMarksheet,
-              NameAsCertificate: ref?.student?.studentNameAsCertificate,
-              BirthPlace: ref?.student?.studentBirthPlace,
-              Religion: ref?.student?.studentReligion,
-              Caste: ref?.student?.studentCast,
-              Nationality: ref?.student?.studentNationality,
-              RationCard: ref?.student?.studentFatherRationCardColor,
-              BloodGroup: ref?.student?.student_blood_group,
-              AadharNumber: ref?.student?.studentAadharNumber,
-              PhoneNumber: ref?.student?.studentPhoneNumber,
-              Email: ref?.student?.studentEmail,
-              ParentsPhoneNumber: ref?.student?.studentParentsPhoneNumber,
-              CurrentAddress: ref?.student?.studentCurrentAddress,
-              CurrentPinCode: ref?.student?.studentCurrentPincode,
-              CurrentState: ref?.student?.studentCurrentState,
-              CurrentDistrict: ref?.student?.studentCurrentDistrict,
-              Address: ref?.student?.studentAddress,
-              PinCode: ref?.student?.studentPincode,
-              State: ref?.student?.studentState,
-              District: ref?.student?.studentDistrict,
-              ParentsName: ref?.student?.studentParentsName,
-              ParentsEmail: ref?.student?.studentParentsEmail,
-              ParentsOccupation: ref?.student?.studentParentsOccupation,
-              ParentsOfficeAddress: ref?.student?.studentParentsAddress,
-              ParentsAnnualIncome: ref?.student?.studentParentsAnnualIncom,
-              SeatType: ref?.student?.student_seat_type,
-              PhysicallyHandicapped: ref?.student?.student_ph_type,
-              DefencePersonnel: ref?.student?.student_defence_personnel_word,
-              MaritalStatus: ref?.student?.student_marital_status,
-              PreviousBoard: ref?.student?.student_board_university,
-              PreviousSchool: ref?.student?.studentPreviousSchool,
-              UniversityCourse: ref?.student?.student_university_courses,
-              PassingYear: ref?.student?.student_year,
-              PreviousClass: ref?.student?.student_previous_class,
-              PreviousMarks: ref?.student?.student_previous_marks,
-              PreviousPercentage: ref?.student?.student_previous_percentage,
-              SeatNo: ref?.student?.student_previous_section,
-              StandardMOP: ref?.student?.month_of_passing,
-              StandardYOP: ref?.student?.year_of_passing,
-              StandardPercentage: ref?.student?.percentage,
-              StandardNameOfInstitute: ref?.student?.name_of_institute,
-              HSCMOP: ref?.student?.hsc_month,
-              HSCYOP: ref?.student?.hsc_year,
-              HSCPercentage: ref?.student?.hsc_percentage,
-              HSCNameOfInstitute: ref?.student?.hsc_name_of_institute,
-              HSCBoard: ref?.student?.hsc_board,
-              HSCCandidateType: ref?.student?.hsc_candidate_type,
-              HSCVocationalType: ref?.student?.hsc_vocational_type,
-              HSCPhysicsMarks: ref?.student?.hsc_physics_marks,
-              HSCChemistryMarks: ref?.student?.hsc_chemistry_marks,
-              HSCMathematicsMarks: ref?.student?.hsc_mathematics_marks,
-              HSCPCMTotal: ref?.student?.hsc_pcm_total,
-              HSCGrandTotal: ref?.student?.hsc_grand_total,
-              FormNo: ref?.student?.form_no,
-              QviplePayId: ref?.student?.qviple_student_pay_id,
-              ...numss,
-            });
+      var numss = {};
+      for (var ref of valid_apply?.receievedApplication) {
+        if (ref?.student?.studentFirstName != "") {
+          for (let ele of ref?.student?.student_dynamic_field) {
+            // numss.push(
+            //   [ele?.key]: ele?.value,
+            // );
+            numss[ele?.key] = ele?.value;
           }
+          excel_list.push({
+            RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName ??
+                  ref?.student?.studentFatherName
+                : ""
+            } ${ref?.student?.studentLastName}`,
+            DOB: ref?.student?.studentDOB ?? "#NA",
+            Gender: ref?.student?.studentGender ?? "#NA",
+            CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
+            Religion: ref?.student?.studentReligion ?? "#NA",
+            MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+            ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+            Address: `${ref?.student?.studentAddress}` ?? "#NA",
+            AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+            AlternateContactNo:
+              ref?.student?.studentParentsPhoneNumber ?? "#NA",
+            NameAsMarksheet: ref?.student?.studentNameAsMarksheet,
+            NameAsCertificate: ref?.student?.studentNameAsCertificate,
+            BirthPlace: ref?.student?.studentBirthPlace,
+            Religion: ref?.student?.studentReligion,
+            Caste: ref?.student?.studentCast,
+            Nationality: ref?.student?.studentNationality,
+            RationCard: ref?.student?.studentFatherRationCardColor,
+            BloodGroup: ref?.student?.student_blood_group,
+            AadharNumber: ref?.student?.studentAadharNumber,
+            PhoneNumber: ref?.student?.studentPhoneNumber,
+            Email: ref?.student?.studentEmail,
+            ParentsPhoneNumber: ref?.student?.studentParentsPhoneNumber,
+            CurrentAddress: ref?.student?.studentCurrentAddress,
+            CurrentPinCode: ref?.student?.studentCurrentPincode,
+            CurrentState: ref?.student?.studentCurrentState,
+            CurrentDistrict: ref?.student?.studentCurrentDistrict,
+            Address: ref?.student?.studentAddress,
+            PinCode: ref?.student?.studentPincode,
+            State: ref?.student?.studentState,
+            District: ref?.student?.studentDistrict,
+            ParentsName: ref?.student?.studentParentsName,
+            ParentsEmail: ref?.student?.studentParentsEmail,
+            ParentsOccupation: ref?.student?.studentParentsOccupation,
+            ParentsOfficeAddress: ref?.student?.studentParentsAddress,
+            ParentsAnnualIncome: ref?.student?.studentParentsAnnualIncom,
+            SeatType: ref?.student?.student_seat_type,
+            PhysicallyHandicapped: ref?.student?.student_ph_type,
+            DefencePersonnel: ref?.student?.student_defence_personnel_word,
+            MaritalStatus: ref?.student?.student_marital_status,
+            PreviousBoard: ref?.student?.student_board_university,
+            PreviousSchool: ref?.student?.studentPreviousSchool,
+            UniversityCourse: ref?.student?.student_university_courses,
+            PassingYear: ref?.student?.student_year,
+            PreviousClass: ref?.student?.student_previous_class,
+            PreviousMarks: ref?.student?.student_previous_marks,
+            PreviousPercentage: ref?.student?.student_previous_percentage,
+            SeatNo: ref?.student?.student_previous_section,
+            StandardMOP: ref?.student?.month_of_passing,
+            StandardYOP: ref?.student?.year_of_passing,
+            StandardPercentage: ref?.student?.percentage,
+            StandardNameOfInstitute: ref?.student?.name_of_institute,
+            HSCMOP: ref?.student?.hsc_month,
+            HSCYOP: ref?.student?.hsc_year,
+            HSCPercentage: ref?.student?.hsc_percentage,
+            HSCNameOfInstitute: ref?.student?.hsc_name_of_institute,
+            HSCBoard: ref?.student?.hsc_board,
+            HSCCandidateType: ref?.student?.hsc_candidate_type,
+            HSCVocationalType: ref?.student?.hsc_vocational_type,
+            HSCPhysicsMarks: ref?.student?.hsc_physics_marks,
+            HSCChemistryMarks: ref?.student?.hsc_chemistry_marks,
+            HSCMathematicsMarks: ref?.student?.hsc_mathematics_marks,
+            HSCPCMTotal: ref?.student?.hsc_pcm_total,
+            HSCGrandTotal: ref?.student?.hsc_grand_total,
+            FormNo: ref?.student?.form_no,
+            QviplePayId: ref?.student?.qviple_student_pay_id,
+            ...numss,
+          });
         }
+      }
       // var valid_back = null;
       var valid_back = await json_to_excel_admission_application_query(
         excel_list,
@@ -12014,7 +12128,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
         res.status(200).send({
           message: "Explore New Excel On Hostel Export TAB",
           access: true,
-          excel_list
+          excel_list,
         });
       } else {
         res.status(200).send({
@@ -12023,8 +12137,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
           // excel_list: excel_list,
         });
       }
-    }
-    else if (
+    } else if (
       `${flow}` === "Docs_Query" &&
       valid_apply?.selectedApplication?.length > 0
     ) {
@@ -12040,11 +12153,12 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
           }
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-            Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
-                ref?.student?.studentFatherName
+                  ref?.student?.studentFatherName
                 : ""
-              } ${ref?.student?.studentLastName}`,
+            } ${ref?.student?.studentLastName}`,
             DOB: ref?.student?.studentDOB ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -12133,8 +12247,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
           access: false,
         });
       }
-    }
-    else if (
+    } else if (
       `${flow}` === "Fees_Query" &&
       valid_apply?.FeeCollectionApplication?.length > 0
     ) {
@@ -12150,11 +12263,12 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
           }
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-            Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
-                ref?.student?.studentFatherName
+                  ref?.student?.studentFatherName
                 : ""
-              } ${ref?.student?.studentLastName}`,
+            } ${ref?.student?.studentLastName}`,
             DOB: ref?.student?.studentDOB ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -12243,97 +12357,97 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
           access: false,
         });
       }
-    }
-    else if (
+    } else if (
       `${flow}` === "Confirm_Query" &&
       valid_apply?.confirmedApplication?.length > 0
     ) {
       var excel_list = [];
-        var numss = {};
-        for (var ref of valid_apply?.confirmedApplication) {
-          if (ref?.student?.studentFirstName != "") {
-            for (let ele of ref?.student?.student_dynamic_field) {
-              // numss.push(
-              //   [ele?.key]: ele?.value,
-              // );
-              numss[ele?.key] = ele?.value;
-            }
-            excel_list.push({
-              RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-              Name: `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
-                  ? ref?.student?.studentMiddleName ??
-                  ref?.student?.studentFatherName
-                  : ""
-                } ${ref?.student?.studentLastName}`,
-              DOB: ref?.student?.studentDOB ?? "#NA",
-              Gender: ref?.student?.studentGender ?? "#NA",
-              CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
-              Religion: ref?.student?.studentReligion ?? "#NA",
-              MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
-              ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
-              Address: `${ref?.student?.studentAddress}` ?? "#NA",
-              AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
-              ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
-              AlternateContactNo:
-                ref?.student?.studentParentsPhoneNumber ?? "#NA",
-              NameAsMarksheet: ref?.student?.studentNameAsMarksheet,
-              NameAsCertificate: ref?.student?.studentNameAsCertificate,
-              BirthPlace: ref?.student?.studentBirthPlace,
-              Religion: ref?.student?.studentReligion,
-              Caste: ref?.student?.studentCast,
-              Nationality: ref?.student?.studentNationality,
-              RationCard: ref?.student?.studentFatherRationCardColor,
-              BloodGroup: ref?.student?.student_blood_group,
-              AadharNumber: ref?.student?.studentAadharNumber,
-              PhoneNumber: ref?.student?.studentPhoneNumber,
-              Email: ref?.student?.studentEmail,
-              ParentsPhoneNumber: ref?.student?.studentParentsPhoneNumber,
-              CurrentAddress: ref?.student?.studentCurrentAddress,
-              CurrentPinCode: ref?.student?.studentCurrentPincode,
-              CurrentState: ref?.student?.studentCurrentState,
-              CurrentDistrict: ref?.student?.studentCurrentDistrict,
-              Address: ref?.student?.studentAddress,
-              PinCode: ref?.student?.studentPincode,
-              State: ref?.student?.studentState,
-              District: ref?.student?.studentDistrict,
-              ParentsName: ref?.student?.studentParentsName,
-              ParentsEmail: ref?.student?.studentParentsEmail,
-              ParentsOccupation: ref?.student?.studentParentsOccupation,
-              ParentsOfficeAddress: ref?.student?.studentParentsAddress,
-              ParentsAnnualIncome: ref?.student?.studentParentsAnnualIncom,
-              SeatType: ref?.student?.student_seat_type,
-              PhysicallyHandicapped: ref?.student?.student_ph_type,
-              DefencePersonnel: ref?.student?.student_defence_personnel_word,
-              MaritalStatus: ref?.student?.student_marital_status,
-              PreviousBoard: ref?.student?.student_board_university,
-              PreviousSchool: ref?.student?.studentPreviousSchool,
-              UniversityCourse: ref?.student?.student_university_courses,
-              PassingYear: ref?.student?.student_year,
-              PreviousClass: ref?.student?.student_previous_class,
-              PreviousMarks: ref?.student?.student_previous_marks,
-              PreviousPercentage: ref?.student?.student_previous_percentage,
-              SeatNo: ref?.student?.student_previous_section,
-              StandardMOP: ref?.student?.month_of_passing,
-              StandardYOP: ref?.student?.year_of_passing,
-              StandardPercentage: ref?.student?.percentage,
-              StandardNameOfInstitute: ref?.student?.name_of_institute,
-              HSCMOP: ref?.student?.hsc_month,
-              HSCYOP: ref?.student?.hsc_year,
-              HSCPercentage: ref?.student?.hsc_percentage,
-              HSCNameOfInstitute: ref?.student?.hsc_name_of_institute,
-              HSCBoard: ref?.student?.hsc_board,
-              HSCCandidateType: ref?.student?.hsc_candidate_type,
-              HSCVocationalType: ref?.student?.hsc_vocational_type,
-              HSCPhysicsMarks: ref?.student?.hsc_physics_marks,
-              HSCChemistryMarks: ref?.student?.hsc_chemistry_marks,
-              HSCMathematicsMarks: ref?.student?.hsc_mathematics_marks,
-              HSCPCMTotal: ref?.student?.hsc_pcm_total,
-              HSCGrandTotal: ref?.student?.hsc_grand_total,
-              FormNo: ref?.student?.form_no,
-              QviplePayId: ref?.student?.qviple_student_pay_id,
-              ...numss,
-            });
+      var numss = {};
+      for (var ref of valid_apply?.confirmedApplication) {
+        if (ref?.student?.studentFirstName != "") {
+          for (let ele of ref?.student?.student_dynamic_field) {
+            // numss.push(
+            //   [ele?.key]: ele?.value,
+            // );
+            numss[ele?.key] = ele?.value;
           }
+          excel_list.push({
+            RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName ??
+                  ref?.student?.studentFatherName
+                : ""
+            } ${ref?.student?.studentLastName}`,
+            DOB: ref?.student?.studentDOB ?? "#NA",
+            Gender: ref?.student?.studentGender ?? "#NA",
+            CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
+            Religion: ref?.student?.studentReligion ?? "#NA",
+            MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+            ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+            Address: `${ref?.student?.studentAddress}` ?? "#NA",
+            AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+            AlternateContactNo:
+              ref?.student?.studentParentsPhoneNumber ?? "#NA",
+            NameAsMarksheet: ref?.student?.studentNameAsMarksheet,
+            NameAsCertificate: ref?.student?.studentNameAsCertificate,
+            BirthPlace: ref?.student?.studentBirthPlace,
+            Religion: ref?.student?.studentReligion,
+            Caste: ref?.student?.studentCast,
+            Nationality: ref?.student?.studentNationality,
+            RationCard: ref?.student?.studentFatherRationCardColor,
+            BloodGroup: ref?.student?.student_blood_group,
+            AadharNumber: ref?.student?.studentAadharNumber,
+            PhoneNumber: ref?.student?.studentPhoneNumber,
+            Email: ref?.student?.studentEmail,
+            ParentsPhoneNumber: ref?.student?.studentParentsPhoneNumber,
+            CurrentAddress: ref?.student?.studentCurrentAddress,
+            CurrentPinCode: ref?.student?.studentCurrentPincode,
+            CurrentState: ref?.student?.studentCurrentState,
+            CurrentDistrict: ref?.student?.studentCurrentDistrict,
+            Address: ref?.student?.studentAddress,
+            PinCode: ref?.student?.studentPincode,
+            State: ref?.student?.studentState,
+            District: ref?.student?.studentDistrict,
+            ParentsName: ref?.student?.studentParentsName,
+            ParentsEmail: ref?.student?.studentParentsEmail,
+            ParentsOccupation: ref?.student?.studentParentsOccupation,
+            ParentsOfficeAddress: ref?.student?.studentParentsAddress,
+            ParentsAnnualIncome: ref?.student?.studentParentsAnnualIncom,
+            SeatType: ref?.student?.student_seat_type,
+            PhysicallyHandicapped: ref?.student?.student_ph_type,
+            DefencePersonnel: ref?.student?.student_defence_personnel_word,
+            MaritalStatus: ref?.student?.student_marital_status,
+            PreviousBoard: ref?.student?.student_board_university,
+            PreviousSchool: ref?.student?.studentPreviousSchool,
+            UniversityCourse: ref?.student?.student_university_courses,
+            PassingYear: ref?.student?.student_year,
+            PreviousClass: ref?.student?.student_previous_class,
+            PreviousMarks: ref?.student?.student_previous_marks,
+            PreviousPercentage: ref?.student?.student_previous_percentage,
+            SeatNo: ref?.student?.student_previous_section,
+            StandardMOP: ref?.student?.month_of_passing,
+            StandardYOP: ref?.student?.year_of_passing,
+            StandardPercentage: ref?.student?.percentage,
+            StandardNameOfInstitute: ref?.student?.name_of_institute,
+            HSCMOP: ref?.student?.hsc_month,
+            HSCYOP: ref?.student?.hsc_year,
+            HSCPercentage: ref?.student?.hsc_percentage,
+            HSCNameOfInstitute: ref?.student?.hsc_name_of_institute,
+            HSCBoard: ref?.student?.hsc_board,
+            HSCCandidateType: ref?.student?.hsc_candidate_type,
+            HSCVocationalType: ref?.student?.hsc_vocational_type,
+            HSCPhysicsMarks: ref?.student?.hsc_physics_marks,
+            HSCChemistryMarks: ref?.student?.hsc_chemistry_marks,
+            HSCMathematicsMarks: ref?.student?.hsc_mathematics_marks,
+            HSCPCMTotal: ref?.student?.hsc_pcm_total,
+            HSCGrandTotal: ref?.student?.hsc_grand_total,
+            FormNo: ref?.student?.form_no,
+            QviplePayId: ref?.student?.qviple_student_pay_id,
+            ...numss,
+          });
+        }
       }
       var valid_back = await json_to_excel_admission_application_query(
         excel_list,
@@ -12352,49 +12466,48 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
           access: false,
         });
       }
-    }
-    else if (
+    } else if (
       `${flow}` === "Review_Query" &&
       valid_apply?.reviewApplication?.length > 0
     ) {
-        // const all_group_select = await SubjectGroupSelect.find({ $and: [{ subject_group: { $in: valid_apply?.subject_selected_group } }] })
-        // .populate({
-        //   path: "compulsory_subject",
-        //   select: "subjectName",
-        // })
-        // .populate({
-        //   path: "optional_subject",
-        //   populate: {
-        //     path: "optional_subject_options optional_subject_options_or.options",
-        //     select: "subjectName",
-        //   }
-        // })
-        // .populate({
-        //   path: "fixed_subject",
-        //   populate: {
-        //     path: "fixed_subject_options",
-        //     select: "subjectName",
-        //   }
-        // })
-        // var subject_list = []
-        // for (let ele of all_group_select) {
-        //   subject_list.push(...ele?.compulsory_subject)
-        // }
-        // for (let ele of all_group_select) {
-        //   for (let val of ele?.fixed_subject) {
-        //     subject_list.push(...val?.fixed_subject_options)
-        //   }
-        // }
-        // for (let ele of all_group_select) {
-        //   for (let val of ele?.optional_subject) {
-        //     subject_list.push(...val?.optional_subject_options)
-        //   }
-        //   for (let val of ele?.optional_subject) {
-        //     for (let stu of val?.optional_subject_options_or) {
-        //       subject_list.push(...stu?.options)
-        //     }
-        //   }
-        // }
+      // const all_group_select = await SubjectGroupSelect.find({ $and: [{ subject_group: { $in: valid_apply?.subject_selected_group } }] })
+      // .populate({
+      //   path: "compulsory_subject",
+      //   select: "subjectName",
+      // })
+      // .populate({
+      //   path: "optional_subject",
+      //   populate: {
+      //     path: "optional_subject_options optional_subject_options_or.options",
+      //     select: "subjectName",
+      //   }
+      // })
+      // .populate({
+      //   path: "fixed_subject",
+      //   populate: {
+      //     path: "fixed_subject_options",
+      //     select: "subjectName",
+      //   }
+      // })
+      // var subject_list = []
+      // for (let ele of all_group_select) {
+      //   subject_list.push(...ele?.compulsory_subject)
+      // }
+      // for (let ele of all_group_select) {
+      //   for (let val of ele?.fixed_subject) {
+      //     subject_list.push(...val?.fixed_subject_options)
+      //   }
+      // }
+      // for (let ele of all_group_select) {
+      //   for (let val of ele?.optional_subject) {
+      //     subject_list.push(...val?.optional_subject_options)
+      //   }
+      //   for (let val of ele?.optional_subject) {
+      //     for (let stu of val?.optional_subject_options_or) {
+      //       subject_list.push(...stu?.options)
+      //     }
+      //   }
+      // }
       var excel_list = [];
       var numss = {};
       // var numsss = {};
@@ -12449,11 +12562,11 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
           // console.log(numsss)
           excel_list.push({
             RegistrationID: ref?.student_prn_enroll_number ?? "#NA",
-            Name: `${ref?.studentFirstName} ${ref?.studentMiddleName
-                ? ref?.studentMiddleName ??
-                ref?.studentFatherName
+            Name: `${ref?.studentFirstName} ${
+              ref?.studentMiddleName
+                ? ref?.studentMiddleName ?? ref?.studentFatherName
                 : ""
-              } ${ref?.studentLastName}`,
+            } ${ref?.studentLastName}`,
             DOB: ref?.studentDOB ?? "#NA",
             Gender: ref?.studentGender ?? "#NA",
             CasteCategory: ref?.studentCastCategory ?? "#NA",
@@ -12463,8 +12576,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
             Address: `${ref?.studentAddress}` ?? "#NA",
             AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
             ContactNo: ref?.studentPhoneNumber ?? "#NA",
-            AlternateContactNo:
-              ref?.studentParentsPhoneNumber ?? "#NA",
+            AlternateContactNo: ref?.studentParentsPhoneNumber ?? "#NA",
             NameAsMarksheet: ref?.studentNameAsMarksheet,
             NameAsCertificate: ref?.studentNameAsCertificate,
             BirthPlace: ref?.studentBirthPlace,
@@ -12776,23 +12888,23 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
 exports.render_other_fees_daybook_heads_wise = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { from, to, bank, payment_type } = req.query;
+    const { from, to, bank, payment_type } = req.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-      res.status(200).send({
-        message: "Explore Day Book Heads Query",
-        access: true,
-      });
-    await bankDaybook(fid, from, to, bank, payment_type)
+    res.status(200).send({
+      message: "Explore Day Book Heads Query",
+      access: true,
+    });
+    await miscellaneousBankDaybook(fid, from, to, bank, payment_type);
     var g_year;
     var l_year;
     var g_month;
     var l_month;
 
-    let pg = ["Payment Gateway - PG", "By Cash", "Payment Gateway / Online"]
+    let pg = ["Payment Gateway - PG", "By Cash", "Payment Gateway / Online"];
     var sorted_array = [];
     const bank_acc = await BankAccount.findById({ _id: bank });
     const finance = await Finance.findById({ _id: fid }).select("institute");
@@ -12852,7 +12964,8 @@ exports.render_other_fees_daybook_heads_wise = async (req, res) => {
           select: "bank_account fees_heads",
           populate: {
             path: "bank_account",
-            select: "finance_bank_account_number finance_bank_name finance_bank_account_name",
+            select:
+              "finance_bank_account_number finance_bank_name finance_bank_account_name",
           },
         })
         .lean()
@@ -12884,7 +12997,8 @@ exports.render_other_fees_daybook_heads_wise = async (req, res) => {
           select: "bank_account fees_heads",
           populate: {
             path: "bank_account",
-            select: "finance_bank_account_number finance_bank_name finance_bank_account_name",
+            select:
+              "finance_bank_account_number finance_bank_name finance_bank_account_name",
           },
         })
         .lean()
@@ -12895,24 +13009,18 @@ exports.render_other_fees_daybook_heads_wise = async (req, res) => {
       if (val?.other_fees?._id) return val;
     });
     if (bank_acc?.bank_account_type === "Society") {
-      
-    }
-    else{
+    } else {
       all_receipts = all_receipts?.filter((val) => {
-        if (
-          `${val?.other_fees?.bank_account?._id}` ===
-          `${bank}`
-        )
-          return val;
+        if (`${val?.other_fees?.bank_account?._id}` === `${bank}`) return val;
       });
     }
     let heads_queue = [];
     for (let i of all_receipts) {
       for (let j of i?.other_fees?.fees_heads) {
-        heads_queue.push(j?.master)
+        heads_queue.push(j?.master);
       }
     }
-    const unique = [...new Set(heads_queue.map(item => item))];
+    const unique = [...new Set(heads_queue.map((item) => item))];
     const all_master = await FeeMaster.find({
       _id: { $in: unique },
     }).select("master_name");
@@ -12931,22 +13039,26 @@ exports.render_other_fees_daybook_heads_wise = async (req, res) => {
           for (let val of ele?.fee_heads) {
             for (let ads of nest_obj) {
               if (bank_acc?.bank_account_type === "Society") {
-                if (`${ads?._id}` === `${val?.master}` && val?.is_society == true) {
+                if (
+                  `${ads?._id}` === `${val?.master}` &&
+                  val?.is_society == true
+                ) {
                   ads.head_amount += val?.original_paid;
                   // t+= val?.original_paid
                 }
-              }
-              else {
-                if (`${ads?._id}` === `${val?.master}` && val?.is_society == false) {
+              } else {
+                if (
+                  `${ads?._id}` === `${val?.master}` &&
+                  val?.is_society == false
+                ) {
                   ads.head_amount += val?.original_paid;
-                  console.log(ads.head_amount)
+                  console.log(ads.head_amount);
                 }
               }
             }
           }
-        }
-        else {
-          console.log("NO")
+        } else {
+          console.log("NO");
         }
       }
       // nest_obj.push({
@@ -12982,4 +13094,3 @@ exports.render_other_fees_daybook_heads_wise = async (req, res) => {
     console.log(e);
   }
 };
-

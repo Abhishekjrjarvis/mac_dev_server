@@ -6588,7 +6588,7 @@ exports.render_new_student_form_section_query = async (req, res) => {
       _id: `${ifs?.institute}`,
     }).select("depart admissionDepart");
     var all_app = await NewApplication.find({
-      admissionAdmin: ins?.admissionDepart?.[0],
+      $and: [{admissionAdmin: ins?.admissionDepart?.[0]}, { applicationStatus: "Ongoing"}, { applicationTypeStatus: "Normal Application"}],
     });
     for (var val of form) {
       ifs.form_section.push({

@@ -24,7 +24,7 @@ const render_other_fees_daybook_heads_wise = async (
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
     }).select(
-      "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode insAbout insAffiliated"
+      "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode insAbout insAffiliated affliatedLogo"
     );
 
     var g_year = new Date(`${from}`).getFullYear();

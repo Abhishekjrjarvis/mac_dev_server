@@ -4833,3 +4833,27 @@ exports.insertDepartmentStatusQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// for setting control of student fill form or not
+
+exports.certificateLeavingStudentFormSettingQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { certificate_leaving_form_student } = req.body;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const institute = await InstituteAdmin.findById(id);
+
+    institute.certificate_leaving_form_student =
+      certificate_leaving_form_student;
+    res.status(200).send({
+      message: "Certificate setting form updated",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

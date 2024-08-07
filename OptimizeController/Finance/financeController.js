@@ -2861,12 +2861,10 @@ exports.renderFinanceMarkScholarApplicableQuery = async (req, res) => {
   try {
     const { fcid } = req?.params;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     await FeeCategory.findByIdAndUpdate(fcid, req?.body);
 
@@ -4000,9 +3998,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       qviple_id: qviple_id,
     };
     if (all_remain?.remaining_flow === "Hostel Application") {
-    }
-    else {
-
+    } else {
       if (receipt?.finance?.show_receipt === "Normal") {
         // const obj_nums = await generateFeeReceipt(receipt?._id)
         await normalAdmissionFeeReceipt(
@@ -4451,13 +4447,11 @@ exports.renderOneFeeStructure = async (req, res) => {
 
     // const structure_encrypt = await encryptionPayload(structure)
 
-    res
-      .status(200)
-      .send({
-        message: "Explore One Fees Structure",
-        access: true,
-        structure: structure,
-      });
+    res.status(200).send({
+      message: "Explore One Fees Structure",
+      access: true,
+      structure: structure,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -6120,12 +6114,10 @@ exports.renderAllInternalFeesQuery = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     if (!fid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var finance = await Finance.findById({ _id: fid });
     var all_fees = await Fees.find({ _id: { $in: finance?.fees } })
@@ -6134,21 +6126,17 @@ exports.renderAllInternalFeesQuery = async (req, res) => {
       .skip(skip);
 
     if (all_fees?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore All Internal Fees Query ",
-          access: true,
-          all_fees: all_fees,
-        });
+      res.status(200).send({
+        message: "Explore All Internal Fees Query ",
+        access: true,
+        all_fees: all_fees,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No Internal Fees Query",
-          access: false,
-          all_fees: [],
-        });
+      res.status(200).send({
+        message: "No Internal Fees Query",
+        access: false,
+        all_fees: [],
+      });
     }
   } catch (e) {
     console.log(e);
@@ -6159,12 +6147,10 @@ exports.renderManageTabQuery = async (req, res) => {
   try {
     const { fid } = req.params;
     if (!fid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     await Finance.findByIdAndUpdate(fid, req?.body);
     res
@@ -6208,12 +6194,10 @@ exports.renderFinanceDepartmentQuery = async (req, res) => {
   try {
     const { fid } = req?.params;
     if (!fid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const finance = await Finance.findById({ _id: fid });
 
@@ -6225,21 +6209,17 @@ exports.renderFinanceDepartmentQuery = async (req, res) => {
     });
 
     if (all_department?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore All Department Query",
-          access: true,
-          all_department: all_department,
-        });
+      res.status(200).send({
+        message: "Explore All Department Query",
+        access: true,
+        all_department: all_department,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No Department Query",
-          access: false,
-          all_department: [],
-        });
+      res.status(200).send({
+        message: "No Department Query",
+        access: false,
+        all_department: [],
+      });
     }
   } catch (e) {
     console.log(e);
@@ -6250,12 +6230,10 @@ exports.renderFinanceUploadAllExcelQuery = async (req, res) => {
   try {
     const { fid } = req?.params;
     if (!fid)
-      return res
-        .status(200)
-        .send({
-          message: "Thier is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Thier is a bug need to fixed immediately",
+        access: false,
+      });
 
     const one_finance = await Finance.findById({ _id: fid }).select(
       "mismatch_excel mismatch_excel_count"
@@ -6268,21 +6246,17 @@ exports.renderFinanceUploadAllExcelQuery = async (req, res) => {
     );
 
     if (all_nested_excel?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore All Mismatch Excel Entries Query",
-          access: true,
-          all_nested_excel: all_nested_excel,
-        });
+      res.status(200).send({
+        message: "Explore All Mismatch Excel Entries Query",
+        access: true,
+        all_nested_excel: all_nested_excel,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No Mismatch Excel Entries Found Query",
-          access: false,
-          all_nested_excel: [],
-        });
+      res.status(200).send({
+        message: "No Mismatch Excel Entries Found Query",
+        access: false,
+        all_nested_excel: [],
+      });
     }
 
     res
@@ -6297,35 +6271,29 @@ exports.renderValidScholarQuery = async (req, res) => {
   try {
     const { num } = req?.query;
     if (!num)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediatley",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
     var valid = await RemainingList.find({
       scholar_ship_number: `${num}`,
     }).select("scholar_ship_number");
 
     if (valid?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Scholarship Number Already Exists",
-          access: true,
-          count: valid?.length,
-          exists: valid,
-        });
+      res.status(200).send({
+        message: "Scholarship Number Already Exists",
+        access: true,
+        count: valid?.length,
+        exists: valid,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "Add New Scholar Number",
-          access: false,
-          count: 0,
-          exists: [],
-        });
+      res.status(200).send({
+        message: "Add New Scholar Number",
+        access: false,
+        count: 0,
+        exists: [],
+      });
     }
   } catch (e) {
     console.log(e);
@@ -6336,12 +6304,10 @@ exports.renderOneInternalFeesQuery = async (req, res) => {
   try {
     const { fid } = req?.params;
     if (!fid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var sorted_arr = [];
     const one_fees = await Fees.findById({ _id: fid });
@@ -6357,22 +6323,18 @@ exports.renderOneInternalFeesQuery = async (req, res) => {
     );
 
     if (all_students?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore All Students Query",
-          access: true,
-          all_students: all_students,
-          one_fees: one_fees,
-        });
+      res.status(200).send({
+        message: "Explore All Students Query",
+        access: true,
+        all_students: all_students,
+        one_fees: one_fees,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No All Students Query",
-          access: true,
-          all_students: all_students,
-        });
+      res.status(200).send({
+        message: "No All Students Query",
+        access: true,
+        all_students: all_students,
+      });
     }
   } catch (e) {
     console.log();
@@ -6429,12 +6391,10 @@ exports.renderRefreshScholarshipFundsQuery = async (req, res) => {
   try {
     const { did } = req?.body;
     if (!did)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const depart = await Department.findById({ _id: did });
     var custom_classes = [];
@@ -6523,12 +6483,10 @@ exports.renderScholarshipFundsQuery = async (req, res) => {
   try {
     const { did } = req?.query;
     if (!did)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const depart = await Department.findById({ _id: did });
     var custom_classes = [];
@@ -6542,22 +6500,18 @@ exports.renderScholarshipFundsQuery = async (req, res) => {
       });
     }
     if (custom_classes?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore All Scholarship Funds Query",
-          access: true,
-          custom_classes: custom_classes,
-          last_update: depart?.last_update,
-        });
+      res.status(200).send({
+        message: "Explore All Scholarship Funds Query",
+        access: true,
+        custom_classes: custom_classes,
+        last_update: depart?.last_update,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No Scholarship Funds Query",
-          access: false,
-          custom_classes: [],
-        });
+      res.status(200).send({
+        message: "No Scholarship Funds Query",
+        access: false,
+        custom_classes: [],
+      });
     }
   } catch (e) {
     console.log(e);
@@ -6590,12 +6544,10 @@ exports.renderFundsTabSegregationQuery = async (req, res) => {
   try {
     const { fid } = req?.params;
     if (!fid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const all_receipt = await FeeReceipt.find({ finance: fid }).select(
       "fee_payment_mode fee_payment_amount"
@@ -6673,12 +6625,10 @@ exports.render_mark_society_head_query = async (req, res) => {
     const { fsid } = req?.params;
     const { flow, fhid, status } = req?.body;
     if (!fsid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var struct = await FeeStructure.findById({ _id: fsid });
     if (flow === "APPLICABLE") {
@@ -6734,12 +6684,10 @@ exports.render_control_receipt_query = async (req, res) => {
     const { fid } = req?.params;
     const { show_receipt } = req?.body;
     if (!fid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const finance = await Finance.findById({ _id: fid }).select("show_receipt");
 
@@ -6759,12 +6707,10 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
     const { heads, students, struct, is_collect, mode, other_fees_name } =
       req?.body;
     if (!fid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var finance = await Finance.findById({ _id: fid });
     var institute = await InstituteAdmin.findById({
@@ -7065,12 +7011,10 @@ exports.renderNewOtherFeesNonExistingQuery = async (req, res) => {
       other_fees_name,
     } = req?.body;
     if (!fid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var finance = await Finance.findById({ _id: fid });
     var institute = await InstituteAdmin.findById({
@@ -7187,12 +7131,10 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
     const skip = (page - 1) * limit;
     const { type } = req?.query;
     if (!fid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var finance = await Finance.findById({ _id: fid });
     var all_of = await OtherFees.find({
@@ -7221,13 +7163,11 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
       ele.paid_students_count = ele?.paid_students?.length;
       ele.remaining_students_count = ele?.student_count;
     }
-    res
-      .status(200)
-      .send({
-        message: "Explore All Other Fees Query",
-        access: true,
-        all_of: all_of,
-      });
+    res.status(200).send({
+      message: "Explore All Other Fees Query",
+      access: true,
+      all_of: all_of,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -7241,12 +7181,10 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
     const skip = (page - 1) * limit;
     const { type } = req?.query;
     if (!ofid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var one_of = await OtherFees.findById({ _id: ofid });
     var all_student = await Student.find({ _id: { $in: one_of?.students } })
@@ -7274,13 +7212,11 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
         }
       }
     }
-    res
-      .status(200)
-      .send({
-        message: "Explore One Other Fees Remaining Student List Query",
-        access: true,
-        all_student: all_student,
-      });
+    res.status(200).send({
+      message: "Explore One Other Fees Remaining Student List Query",
+      access: true,
+      all_student: all_student,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -7290,12 +7226,10 @@ exports.render_one_other_fees_edit_query = async (req, res) => {
   try {
     const { ofid } = req?.params;
     if (!ofid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     await OtherFees.findByIdAndUpdate(ofid, req?.body);
     res
@@ -7313,12 +7247,10 @@ exports.render_one_student_all_fees = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     if (!sid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const student = await Student.findById({ _id: sid }).populate({
       path: "other_fees",
@@ -7335,13 +7267,11 @@ exports.render_one_student_all_fees = async (req, res) => {
       limit,
       student?.other_fees
     );
-    res
-      .status(200)
-      .send({
-        message: "Explore One Student All Fees Query",
-        access: true,
-        all_fees: all_fees,
-      });
+    res.status(200).send({
+      message: "Explore One Student All Fees Query",
+      access: true,
+      all_fees: all_fees,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -7351,12 +7281,10 @@ exports.render_mark_society_head_existed = async (req, res) => {
   try {
     const { fid } = req?.params;
     if (!fid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var all_struct = await FeeStructure.find({ $and: [{ finance: fid }] });
     for (let stu of all_struct) {
@@ -7381,14 +7309,12 @@ exports.render_mark_society_head_existed = async (req, res) => {
       // apps = []
       await stu.save();
     }
-    res
-      .status(200)
-      .send({
-        message: `wise society heads updated`,
-        access: true,
-        all_struct: all_struct,
-        count: all_struct?.length,
-      });
+    res.status(200).send({
+      message: `wise society heads updated`,
+      access: true,
+      all_struct: all_struct,
+      count: all_struct?.length,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -7402,12 +7328,10 @@ exports.renderFinanceAllFeeStructure = async (req, res) => {
     const skip = (page - 1) * limit;
     const { search } = req?.query;
     if (!fid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const finance = await Finance.findById({ _id: fid });
     if (search) {
@@ -7417,13 +7341,11 @@ exports.renderFinanceAllFeeStructure = async (req, res) => {
       }).select(
         "structure_name unique_structure_name applicable_fees total_installments total_admission_fees fee_structure_code"
       );
-      res
-        .status(200)
-        .send({
-          message: "Explore All Fee Structure",
-          access: true,
-          all_struct: all_struct,
-        });
+      res.status(200).send({
+        message: "Explore All Fee Structure",
+        access: true,
+        all_struct: all_struct,
+      });
     } else {
       const all_struct = await FeeStructure.find({
         $and: [{ finance: finance?._id }],
@@ -7433,13 +7355,11 @@ exports.renderFinanceAllFeeStructure = async (req, res) => {
         .select(
           "structure_name unique_structure_name applicable_fees total_installments total_admission_fees fee_structure_code"
         );
-      res
-        .status(200)
-        .send({
-          message: "Explore All Fee Structure",
-          access: true,
-          all_struct: all_struct,
-        });
+      res.status(200).send({
+        message: "Explore All Fee Structure",
+        access: true,
+        all_struct: all_struct,
+      });
     }
   } catch (e) {
     console.log(e);
@@ -7632,12 +7552,10 @@ exports.renderOtherFeesCollectQuery = async (req, res) => {
     const { fid } = req?.params;
     const { sid, mode, ofid } = req?.body;
     if (!fid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var finance = await Finance.findById({ _id: fid });
     var institute = await InstituteAdmin.findById({
@@ -7764,31 +7682,39 @@ exports.deleteFeesQuery = async (req, res) => {
   } catch (e) {
     console.log(e);
   }
-}
+};
 
 exports.renderNewOtherFeesAddStudentQuery = async (req, res) => {
   try {
-    const { fid } = req?.params
-    const { students, ofid } = req?.body
-    if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var finance = await Finance.findById({ _id: fid })
-    var o_f = await OtherFees.findById({ _id: ofid })
-      if (students?.length > 0) {
-        for (let ele of students) {
-          const stu = await Student.findById({ _id: `${ele}` })
-          const user = await User.findById({ _id: `${stu?.user}`})
-          stu.other_fees.push({
-            fees: o_f?._id,
-          })
-          stu.other_fees_remain_price += o_f?.payable_amount
-          o_f.students.push(stu?._id)
-          o_f.student_count += 1
-          o_f.remaining_students.push(stu?._id)
-          const notify = new StudentNotification({});
-          notify.notifyContent = `Hi ${stu?.studentFirstName} ${stu?.studentMiddleName ?? stu?.studentFatherName} ${stu?.studentLastName},
+    const { fid } = req?.params;
+    const { students, ofid } = req?.body;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-Your chosen subject ${o_f?.other_fees_name} is now available for you to confirm.. Please pay the required fees through the Qviple app within the next two days. If the payment is not made within this period, your seat will be offered to other students.
+    var finance = await Finance.findById({ _id: fid });
+    var o_f = await OtherFees.findById({ _id: ofid });
+    if (students?.length > 0) {
+      for (let ele of students) {
+        const stu = await Student.findById({ _id: `${ele}` });
+        const user = await User.findById({ _id: `${stu?.user}` });
+        stu.other_fees.push({
+          fees: o_f?._id,
+        });
+        stu.other_fees_remain_price += o_f?.payable_amount;
+        o_f.students.push(stu?._id);
+        o_f.student_count += 1;
+        o_f.remaining_students.push(stu?._id);
+        const notify = new StudentNotification({});
+        notify.notifyContent = `Hi ${stu?.studentFirstName} ${
+          stu?.studentMiddleName ?? stu?.studentFatherName
+        } ${stu?.studentLastName},
+
+Your chosen subject ${
+          o_f?.other_fees_name
+        } is now available for you to confirm.. Please pay the required fees through the Qviple app within the next two days. If the payment is not made within this period, your seat will be offered to other students.
 
 To pay your fees, please follow these steps:
 1. Update the Qviple App to the latest version.
@@ -7804,76 +7730,87 @@ Thank you.
 
 
 Do Not Click on the link below (clicking it may prevent further emails from being delivered to you).`;
-      notify.notifySender = finance?.financeHead;
-      notify.notifyReceiever = user?._id;
-      notify.notifyType = "Student";
-      notify.notifyPublisher = stu?._id;
-      user.activity_tab.push(notify?._id);
-      notify.notifyByFinancePhoto = finance?._id;
-      notify.notifyCategory = "Online Other Fee";
-      notify.redirectIndex = 49;
-            await Promise.all([stu.save(), user.save(), notify.save()])
-            if (stu?.studentEmail) {
-              let name = `${stu?.studentFirstName} ${stu?.studentMiddleName ?? stu?.studentFatherName} ${stu?.studentLastName}`
-              email_sms_designation_other_fees_apply(stu?.studentEmail, name, o_f?.other_fees_name)
-            }
+        notify.notifySender = finance?.financeHead;
+        notify.notifyReceiever = user?._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = stu?._id;
+        user.activity_tab.push(notify?._id);
+        notify.notifyByFinancePhoto = finance?._id;
+        notify.notifyCategory = "Online Other Fee";
+        notify.redirectIndex = 49;
+        await Promise.all([stu.save(), user.save(), notify.save()]);
+        if (stu?.studentEmail) {
+          let name = `${stu?.studentFirstName} ${
+            stu?.studentMiddleName ?? stu?.studentFatherName
+          } ${stu?.studentLastName}`;
+          email_sms_designation_other_fees_apply(
+            stu?.studentEmail,
+            name,
+            o_f?.other_fees_name
+          );
         }
       }
-    await o_f.save()
-    res.status(200).send({ message: "Explore New Student In Other Fees Query", access: true})
+    }
+    await o_f.save();
+    res.status(200).send({
+      message: "Explore New Student In Other Fees Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderNewOtherFeesRemoveStudentQuery = async (req, res) => {
   try {
-    const { ofid } = req?.params
-    const { students } = req?.body
-    if (!ofid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { ofid } = req?.params;
+    const { students } = req?.body;
+    if (!ofid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     var message;
-    var o_f = await OtherFees.findById({ _id: ofid })
-      if (students?.length > 0) {
-        for (let ele of students) {
-          const stu = await Student.findById({ _id: `${ele}` })
-          for (let val of stu?.other_fees) {
-            if (val?.fee_receipt) {
-              message = "Removal of Student Denied. Due To Valid Fee Receipt Exist"
-            }
-            else {
-              if (`${val?.fees}` === `${o_f?._id}`) {
-                stu.other_fees.pull(val?._id)
-                if (stu.other_fees_remain_price >= o_f?.payable_amount) {
-                  stu.other_fees_remain_price -= o_f?.payable_amount
-                }
-                message = "Removal of Student Successfully."
+    var o_f = await OtherFees.findById({ _id: ofid });
+    if (students?.length > 0) {
+      for (let ele of students) {
+        const stu = await Student.findById({ _id: `${ele}` });
+        for (let val of stu?.other_fees) {
+          if (val?.fee_receipt) {
+            message =
+              "Removal of Student Denied. Due To Valid Fee Receipt Exist";
+          } else {
+            if (`${val?.fees}` === `${o_f?._id}`) {
+              stu.other_fees.pull(val?._id);
+              if (stu.other_fees_remain_price >= o_f?.payable_amount) {
+                stu.other_fees_remain_price -= o_f?.payable_amount;
               }
+              message = "Removal of Student Successfully.";
             }
           }
-          o_f.students.pull(stu?._id)
-          if (o_f.student_count > 0) {
-            o_f.student_count -= 1
-          }
-          o_f.remaining_students.pull(stu?._id)
-          await stu.save()
         }
+        o_f.students.pull(stu?._id);
+        if (o_f.student_count > 0) {
+          o_f.student_count -= 1;
+        }
+        o_f.remaining_students.pull(stu?._id);
+        await stu.save();
       }
-    await o_f.save()
-    res.status(200).send({ message: message, access: true})
+    }
+    await o_f.save();
+    res.status(200).send({ message: message, access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 // exports.renderExistingOtherFeesNonExistingQuery = async (req, res) => {
 //   try {
 //     const { fid } = req?.params
 //     const { struct, is_collect, mode, student_name, other_fees_name, ofid } = req?.body
 //     if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+
 //     var finance = await Finance.findById({ _id: fid })
 //     var institute = await InstituteAdmin.findById({ _id: `${finance?.institute}` })
 //     var o_f = await OtherFees.findById({ _id: ofid })
@@ -7937,7 +7874,7 @@ exports.renderNewOtherFeesRemoveStudentQuery = async (req, res) => {
 //           institute.payment_history.push(order._id);
 //       await Promise.all([institute.save(), new_receipt.save(), order.save()])
 //       await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
-      
+
 //         // }
 //     }
 //     finance.other_fees.push(o_f?._id)

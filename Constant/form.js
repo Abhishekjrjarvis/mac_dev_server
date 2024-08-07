@@ -435,11 +435,11 @@ module.exports.form_params = [
                 form_common_key: "student_ph"
             },
             {
-                form_checklist_name: "Defence Personnel Word",
+                form_checklist_name: "Defence Personnel Ward",
                 form_checklist_key: "student_defence_personnel_word",
                 form_checklist_visibility: true,
-                form_checklist_placeholder: "Select Defence Personnel Word",
-                form_checklist_lable: "Defence Personnel Word",
+                form_checklist_placeholder: "Select Defence Personnel Ward",
+                form_checklist_lable: "Defence Personnel Ward",
                 form_checklist_typo: "SELECT",
                 form_checklist_typo_option_pl: ["Yes", "No"]
             },

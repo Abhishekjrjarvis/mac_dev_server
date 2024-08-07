@@ -1237,6 +1237,7 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     if (studentOptionalSubject?.length > 0) {
       student.studentOptionalSubject?.push(...studentOptionalSubject);
     }
+    user.profilePhoto = student?.studentProfilePhoto
     admission.student.push(student?._id);
     status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 

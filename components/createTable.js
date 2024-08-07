@@ -3,7 +3,8 @@ const createTable = (doc, paymentReceiptInfo) => {
     head_name: "TOTAL",
     applicable_fee: paymentReceiptInfo?.applicableFee,
     paid_fee: paymentReceiptInfo?.paidFee,
-    remain_fee: paymentReceiptInfo?.remaingFeeManual ?? 0,
+    // remain_fee: paymentReceiptInfo?.remaingFeeManual ?? 0,
+    remain_fee: paymentReceiptInfo?.remainFee ?? 0,
   };
 
   const table = {
@@ -64,4 +65,3 @@ const createTable = (doc, paymentReceiptInfo) => {
 };
 
 module.exports = createTable;
-

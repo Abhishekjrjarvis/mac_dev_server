@@ -8,16 +8,16 @@ const dynamicImages = require("../helper/dynamicImages");
 const moment = require("moment");
 const feeReceipt = require("../models/RazorPay/feeReceipt");
 const { uploadDocsFile } = require("../S3Configuration");
-const normalReceiptData = require("../AjaxRequest/normalReceiptData");
+const normalHostelReceiptData = require("../AjaxRequest/normalHostelReceiptData");
 
-const normalAdmissionFeeReceipt = async (receiptId, appId) => {
+const normalHostelFeeReceipt = async (receiptId, appId) => {
   const doc = new PDFDocument({
     font: "Times-Roman",
     size: "A4",
     margins: { top: 25, bottom: 25, left: 25, right: 25 },
   });
 
-  const result = await normalReceiptData(receiptId, appId);
+  const result = await normalHostelReceiptData(receiptId, appId);
 
   const institute = result?.institute;
   const studentInfo = result?.studentInfo;
@@ -89,18 +89,18 @@ const normalAdmissionFeeReceipt = async (receiptId, appId) => {
   doc.fontSize(11).text("Name : " + studentInfo?.name, 25, heightBar);
   doc
     .fontSize(11)
-    .text("GRNo : " + studentInfo?.grNumber, pageWidth / 2 + 5, heightBar);
+    .text("Bed No. : " + studentInfo?.bednumber, pageWidth / 2 + 5, heightBar);
   heightBar = doc.y;
   doc.fontSize(11).text("A Y : " + studentInfo?.batchName, 25, heightBar);
   doc
     .fontSize(11)
     .text(
-      "Department : " + studentInfo?.departmentName,
+      "Hostel Unit : " + studentInfo?.hostelUnit,
       pageWidth / 2 + 5,
       heightBar
     );
   heightBar = doc.y;
-  doc.fontSize(11).text("Class : " + studentInfo?.standard, 25, heightBar);
+  doc.fontSize(11).text("Room No. : " + studentInfo?.room, 25, heightBar);
   doc
     .fontSize(11)
     .text(
@@ -284,4 +284,4 @@ const normalAdmissionFeeReceipt = async (receiptId, appId) => {
   });
 };
 
-module.exports = normalAdmissionFeeReceipt;
+module.exports = normalHostelFeeReceipt;

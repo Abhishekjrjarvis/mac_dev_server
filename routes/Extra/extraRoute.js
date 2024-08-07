@@ -516,4 +516,10 @@ router.patch(
   catchAsync(Extra.insertDepartmentStatusQuery)
 );
 
+router.patch(
+  "/certificate/autority/:id/leaving/form/setting",
+  // isLoggedIn,
+  catchAsync(Extra.certificateLeavingStudentFormSettingQuery)
+);
+
 module.exports = router;

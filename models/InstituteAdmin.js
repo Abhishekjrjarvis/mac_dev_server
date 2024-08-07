@@ -1379,6 +1379,9 @@ const instituteAdminSchema = new mongoose.Schema({
   admission_form_print_case: {
     type: String,
   },
+  certificate_leaving_form_student: {
+    type: Boolean,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

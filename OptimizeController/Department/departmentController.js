@@ -182,17 +182,7 @@ exports.render_application_tab_query = async (req, res) => {
           numss.push(ele?.student);
         }
       }
-    }
-    else {
-      var apply = await NewApplication.findById({ _id: aid })
-        .select("receievedApplication")
-      for (let ele of apply?.receievedApplication) {
-        if (ele.student !== null) {
-          numss.push(ele?.student);
-        }
-      }
-    }
-    const all_student = await Student.find({ _id: { $in: numss } })
+      const all_student = await Student.find({ _id: { $in: numss } })
       .select(
         "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
       )
@@ -233,21 +223,84 @@ exports.render_application_tab_query = async (req, res) => {
       }
     }
     const unique = [...new Set(n.map((item) => item._id))];
-    const all = await Student.find({ _id: { $in: unique } })
+    const all = apply?.receievedApplication?.filter((ele) => {
+      if(unique?.includes(`${ele?.student}`)) return ele
+    })
+    res.status(200).send({
+      message: "Explore All Receieved Application Students Master Query",
+      access: true,
+      student: all?.length > 0 ? all : [],
+      student_count: all?.length ?? 0,
+    });
+    }
+    else {
+      var apply = await NewApplication.findById({ _id: aid })
+        .select("receievedApplication")
+      for (let ele of apply?.receievedApplication) {
+        if (ele.student !== null) {
+          numss.push(ele?.student);
+        }
+      }
+      const all_student = await Student.find({ _id: { $in: numss } })
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no"
+        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
       )
       .populate({
         path: "user",
-        select: "userLegalName username userPhone Number userEmail",
+        select: "userLegalName username",
+      })
+      .populate({
+        path: "student_optional_subject",
+        select: "subjectName",
+      })
+      .populate({
+        path: "major_subject",
+        select: "subjectName",
+      })
+      .populate({
+        path: "nested_subject",
+        select: "subjectName",
       });
+    var n = [];
+    for (let val of all_student) {
+      for (let ele of val?.student_optional_subject) {
+        if (`${ele?._id}` === `${one_subject?._id}`) n.push(val);
+      }
+      for (let val of all_student) {
+        for (let ele of val?.major_subject) {
+          if (`${ele?._id}` === `${one_subject?._id}`) {
+            n.push(val);
+          }
+        }
+      }
+      for (let val of all_student) {
+        for (let ele of val?.nested_subject) {
+          if (`${ele?._id}` === `${one_subject?._id}`) {
+            n.push(val);
+          }
+        }
+      }
+    }
+    const unique = [...new Set(n.map((item) => item._id))];
+    const all = apply?.receievedApplication?.filter((ele) => {
+      if(unique?.includes(`${ele?.student}`)) return ele
+    })
     const all_students = await nested_document_limit(page, limit, all);
     res.status(200).send({
       message: "Explore All Receieved Application Students Master Query",
       access: true,
       student: all_students?.length > 0 ? all_students : [],
-      student_count: unique?.length,
+      student_count: all?.length,
     });
+    }
+    // await Student.find({ _id: { $in: unique } })
+    //   .select(
+    //     "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no"
+    //   )
+    //   .populate({
+    //     path: "user",
+    //     select: "userLegalName username userPhone Number userEmail",
+    //   });
   } catch (e) {
     console.log(e);
   }

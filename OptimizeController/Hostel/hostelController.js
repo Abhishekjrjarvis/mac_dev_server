@@ -577,15 +577,13 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
           $and: [
             { _id: { $in: one_hostel?.fees_structures } },
             { batch_master: master_query },
-            { document_update: false },
-          ],
-          $or: [
             {
               class_master: `${master_by}`,
             },
             {
               unit_master: unit_by
-            }
+            },
+            { document_update: false },
           ],
         })
           .limit(limit)

@@ -22,7 +22,7 @@ router.get(
 );
 
 router.get(
-  "/:aid/application/tab/query",
+  "/:aid/application/:sid/tab/query",
   catchAsync(Depart.render_application_tab_query)
 );
 module.exports = router;

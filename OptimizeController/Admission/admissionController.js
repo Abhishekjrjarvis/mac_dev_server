@@ -1237,6 +1237,7 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     if (studentOptionalSubject?.length > 0) {
       student.studentOptionalSubject?.push(...studentOptionalSubject);
     }
+    user.profilePhoto = student?.studentProfilePhoto
     admission.student.push(student?._id);
     status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
@@ -16920,12 +16921,29 @@ exports.retrieveClassAllotQueryReverse = async (req, res) => {
           } else {
           }
           await Promise.all([classes.save(), batch.save()]);
+          for (let ele of apply?.allottedApplication) {
+            if (`${ele?.student}` === `${student?._id}`) {
+              apply.allottedApplication.pull(ele?._id)
+              apply.allot_array.pull(student?._id)
+              if (apply?.allotCount > 0) {
+                apply.allotCount -= 1
+              }
+            }
+          }
+          await apply.save()
         }
       }
       res.status(200).send({
         message: `Distribute sweets to all family members`,
         allot_status: true,
-        apply: apply?.undo_student,
+        // apply: apply?.undo_student,
+      });
+    }
+    else {
+      res.status(200).send({
+        message: `Take sweets to all family members. No Student Found`,
+        allot_status: false,
+        // apply: [],
       });
     }
     // var i =0

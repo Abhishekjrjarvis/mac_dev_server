@@ -1848,7 +1848,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
         student.photoId = "0";
         student.studentProfilePhoto = sample_pic;
       }
-
+      user.profilePhoto = student?.studentProfilePhoto
       const notify = new StudentNotification({});
       const aStatus = new Status({});
       institute.student.push(student._id);
@@ -2283,6 +2283,7 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         student.photoId = "0";
         student.studentProfilePhoto = sample_pic;
       }
+      user.profilePhoto = student?.studentProfilePhoto
       student.student_form_flow.flow = "APPLICATION"
       student.student_form_flow.did = apply?._id
       form_no_query(institute, student)
@@ -2545,6 +2546,7 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
         student.photoId = "0";
         student.studentProfilePhoto = sample_pic;
       }
+      user.profilePhoto = student?.studentProfilePhoto
       status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -2792,6 +2794,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       student.photoId = "0";
       student.studentProfilePhoto = sample_pic;
     }
+    user.profilePhoto = student?.studentProfilePhoto
     for (let subjChoose of student?.studentOptionalSubject) {
       const subject = await Subject.findById(subjChoose);
       subject.optionalStudent.push(student?._id);
@@ -3396,6 +3399,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       student.photoId = "0";
       student.studentProfilePhoto = sample_pic;
     }
+    user.profilePhoto = student?.studentProfilePhoto
     student.student_form_flow.flow = "APPLICATION"
     student.student_form_flow.did = apply?._id
     form_no_query(institute, student)
@@ -3704,6 +3708,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           student.studentProfilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
         } else {
         }
+        user.profilePhoto = student?.studentProfilePhoto
         for (let subjChoose of student?.studentOptionalSubject) {
           const subject = await Subject.findById(subjChoose);
           subject.optionalStudent.push(student?._id);
@@ -4883,6 +4888,7 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
           user.profilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
         } else {
         }
+        user.profilePhoto = student?.studentProfilePhoto
         const aStatus = new Status({});
         institute.UnApprovedStudent.push(student._id);
         institute.un_approved_student_count += 1;

@@ -113,7 +113,7 @@ exports.initiate = async (req, res) => {
           ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/certificate/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/type/${cert_type}/content/${cert_content}/original/${is_original}`
           : type === "Other"
           ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/other/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}`
-          : `${process.env.CALLBACK_URLS}/v2/paytm/callback/hostel/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/install/${payment_installment}/remain/${payment_remain_1}/status/${ad_status_id}`,
+          : `${process.env.CALLBACK_URLS}/v2/paytm/callback/hostel/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_fees}/status/${ad_status_id}`,
       txnAmount: {
         value: Math.ceil(data),
         currency: "INR",
@@ -388,8 +388,11 @@ exports.callbackHostel = async (req, res) => {
       amount_nocharges,
       isApk,
       payment_installment,
+      payment_card_type,
       payment_remain_1,
       ad_status_id,
+      payment_card_id,
+      payment_remain_fees,
       price,
     } = req.params;
     var paytmParams = {};
@@ -432,6 +435,10 @@ exports.callbackHostel = async (req, res) => {
           var status = req?.body?.STATUS;
           var price_charge = req?.body?.TXNAMOUNT;
           var txn_id = req?.body?.TXNID;
+          var obj = {
+            oid: req.body?.ORDERID,
+            checksum: paytmParams?.head?.checksum
+          }
           if (status === "TXN_SUCCESS") {
             var order = await order_history_query(
               "Hostel",
@@ -439,26 +446,33 @@ exports.callbackHostel = async (req, res) => {
               price,
               paidTo,
               txn_id,
-              req?.body
+              req?.body,
+              obj
             );
             var paytm_author = false;
             var valid_status = ad_status_id === "null" ? "" : ad_status_id;
+            var valid_card =
+              payment_card_type === "null" ? "" : payment_card_type;
+            var pay_remain = payment_remain_fees === "false" ? false : true
             await hostelInstituteFunction(
               order?._id,
               paidBy,
               price,
               price_charge,
               moduleId,
-              valid_status,
               paidTo,
               payment_installment,
               paytm_author,
-              payment_remain_1
+              valid_card,
+              payment_remain_1,
+              payment_card_id,
+              pay_remain,
+              valid_status
               // Boolean(ad_install)
             );
             if (isApk === "APK") {
               res.status(200).send({
-                message: "Success with Hostel Admission Paytm Fees 😀",
+                message: "Success with Hostel Paytm Fees 😀",
                 check: true,
               });
             } else {
@@ -688,8 +702,11 @@ exports.callbackHostelStatus = async (req, res) => {
       paidTo,
       isApk,
       payment_installment,
+      payment_card_type,
       payment_remain_1,
       ad_status_id,
+      payment_card_id,
+      payment_remain_fees,
       price,
       TXNAMOUNT,
       STATUS,
@@ -709,17 +726,22 @@ exports.callbackHostelStatus = async (req, res) => {
       );
       var paytm_author = false;
       var valid_status = ad_status_id === "null" ? "" : ad_status_id;
+      var valid_card = payment_card_type === "null" ? "" : payment_card_type;
+      var pay_remain = payment_remain_fees === "false" ? false : true
       await hostelInstituteFunction(
         order?._id,
         paidBy,
         price,
         price_charge,
         moduleId,
-        valid_status,
         paidTo,
         payment_installment,
         paytm_author,
-        payment_remain_1
+        valid_card,
+        payment_remain_1,
+        payment_card_id,
+        pay_remain,
+        valid_status
         // Boolean(ad_install)
       );
       if (isApk === "APK") {

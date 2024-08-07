@@ -4012,7 +4012,6 @@ exports.renderOneFeeReceipt = async (req, res) => {
         );
       }
     }
-    // const all_encrypt = obj;
     const all_encrypt = await encryptionPayload(obj);
     res.status(200).send({ encrypt: all_encrypt });
   } catch (e) {

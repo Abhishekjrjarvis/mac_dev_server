@@ -1468,7 +1468,7 @@ exports.circleArray = async (req, res) => {
         ],
       })
         .select(
-          "userLegalName username photoId one_line_about profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
+          "userLegalName username photoId one_line_about profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy username_chat"
         )
         .limit(limit)
         .skip(skip);
@@ -1480,7 +1480,7 @@ exports.circleArray = async (req, res) => {
         ],
       })
         .select(
-          "userLegalName username photoId one_line_about profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
+          "userLegalName username photoId one_line_about profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy username_chat"
         )
         .limit(limit)
         .skip(skip);
@@ -2323,10 +2323,10 @@ exports.circleArrayQuery = async (req, res) => {
   try {
     const { uid } = req.params;
     const user = await User.findById({ _id: uid })
-      .select("userLegalName username photoId profilePhoto")
+      .select("userLegalName username photoId profilePhoto username_chat")
       .populate({
         path: "userCircle",
-        select: "userLegalName username photoId profilePhoto",
+        select: "userLegalName username photoId profilePhoto username_chat",
       });
     // const uEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "Success", user });
@@ -2528,7 +2528,7 @@ exports.retrieveUserOneApplicationQuery = async(req, res) => {
       .populate({
         path: "feeStructure hostel_fee_structure",
           select:
-            "one_installments total_admission_fees applicable_fees structure_name structure_month two_installments three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments",
+            "one_installments total_admission_fees applicable_fees structure_name structure_month two_installments three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments",
           populate: {
             path: "category_master",
             select: "category_name",
@@ -2649,7 +2649,7 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
         populate: {
           path: "feeStructure hostel_fee_structure",
           select:
-            "one_installments total_admission_fees applicable_fees structure_name structure_month two_installments three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments",
+            "one_installments total_admission_fees applicable_fees structure_name structure_month two_installments three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments",
           populate: {
             path: "category_master",
             select: "category_name",
@@ -3681,7 +3681,7 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
         .populate({
           path: "feeStructure hostel_fee_structure",
           select:
-            "one_installments total_admission_fees applicable_fees structure_name structure_month two_installments three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments",
+            "one_installments total_admission_fees applicable_fees structure_name structure_month two_installments three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments",
           populate: {
             path: "category_master",
             select: "category_name",

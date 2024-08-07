@@ -560,7 +560,7 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { filter_by, master_by } = req.query;
+    const { filter_by, master_by, unit_by } = req.query;
     const master_query = await handle_undefined(filter_by);
     if (!hid)
       return res.status(200).send({
@@ -583,6 +583,9 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
             {
               class_master: `${master_by}`,
             },
+            {
+              unit_master: unit_by
+            }
           ],
         })
           .limit(limit)
@@ -611,6 +614,7 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
           $and: [
             { _id: { $in: one_hostel?.fees_structures } },
             { batch_master: master_query },
+            { unit_master: unit_by },
             { document_update: false },
           ],
         })
@@ -1524,6 +1528,8 @@ exports.renderHostelSelectedQuery = async (req, res) => {
     status.for_docs = "Yes";
     status.studentId = student._id;
     status.student = student?._id;
+    status.admissionFee = structure.total_admission_fees;
+    status.group_by = "Admission_Document_Verification";
     if (valid_month > 0 && valid_month <= 60 && valid_month !== 12) {
       status.content = `You have been selected for ${apply.applicationName}. 
 Your fee structure will be ${new_structure?.structure_name}. And required documents are 'click here for details'.   
@@ -8330,7 +8336,7 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
         ref.feeStructure = structure?._id;
         await ref.save();
       }
-      student.fee_structure = structure?._id;
+      student.hostel_fee_structure = structure?._id;
       student.student_application_obj.push({
         app: apply?._id,
         staff: staffId,
@@ -8441,6 +8447,7 @@ exports.retrieveHostelCollectDocs = async (req, res) => {
     status.structure_edited = "Edited";
     status.studentId = student?._id;
     status.student = student?._id;
+    status.is_hostel = true
     status.instituteId = institute._id;
     notify.notifyContent = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
     // console.log(

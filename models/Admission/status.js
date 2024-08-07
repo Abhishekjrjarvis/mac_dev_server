@@ -104,6 +104,10 @@ const statusSchema = new mongoose.Schema({
   },
   rejection_reason: {
     type: String
+  },
+  is_hostel: {
+    type: Boolean,
+    default: false
   }
 });
 

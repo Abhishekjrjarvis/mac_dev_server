@@ -385,13 +385,35 @@ module.exports.form_params = [
         section_key: "admissionDetails",
         form_checklist: [
             {
-                form_checklist_name: "Seat Type",
+                form_checklist_name: "Admission Category",
                 form_checklist_key: "student_seat_type",
                 form_checklist_visibility: true,
-                form_checklist_placeholder: "Select Seat Type",
-                form_checklist_lable: "Seat Type",
+                form_checklist_placeholder: "Select Admission Category",
+                form_checklist_lable: "Admission Category",
                 form_checklist_typo: "SELECT",
-                form_checklist_typo_option_pl: ["General/OPEN", "OBC", "SBC", "EWS", "TFWS", "VJNT", "NT-A", "NT-B", "NT-C", "NT-D", "Defence Quota", "J&K & NEUT", "PMSS"]
+                form_checklist_typo_option_pl: [
+                    "General/OPEN",
+        "OBC",
+        "SBC",
+        "EWS",
+        "TFWS",
+        "SEBC",
+        "VJ",
+        "NT",
+        "DT",
+        "SC",
+        "ST",
+        "EBC",
+        "Girls Freeship",
+        "NT-A",
+        "NT-B",
+        "NT-C",
+        "NT-D",
+        "Defence Quota",
+        "J&K & NEUT",
+        "PMSS",
+        "VJNT"
+                ]
             },
             {
                 form_checklist_name: "Physically Handicapped",
@@ -413,11 +435,11 @@ module.exports.form_params = [
                 form_common_key: "student_ph"
             },
             {
-                form_checklist_name: "Defence Personnel Word",
+                form_checklist_name: "Defence Personnel Ward",
                 form_checklist_key: "student_defence_personnel_word",
                 form_checklist_visibility: true,
-                form_checklist_placeholder: "Select Defence Personnel Word",
-                form_checklist_lable: "Defence Personnel Word",
+                form_checklist_placeholder: "Select Defence Personnel Ward",
+                form_checklist_lable: "Defence Personnel Ward",
                 form_checklist_typo: "SELECT",
                 form_checklist_typo_option_pl: ["Yes", "No"]
             },

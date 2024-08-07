@@ -473,8 +473,10 @@ exports.new_chat_username_unique = async (LName) => {
   const u_4 = Math.floor(Math.random() * 9);
   const u_5 = Math.floor(Math.random() * 9);
   const u_6 = Math.floor(Math.random() * 9);
-  const u_7 = Math.floor(Math.random() * 9)
-  const new_query = `${u_1}${u_2}${u_3}${u_4}${u_5}${u_6}${u_7}`;
+  const u_7 = Math.floor(Math.random() * 9);
+  const u_8 = Math.floor(Math.random() * 9);
+  const u_9 = Math.floor(Math.random() * 9)
+  const new_query = `${u_1}${u_2}${u_3}${u_4}${u_5}${u_6}${u_7}${u_8}${u_9}`;
   let splitted = LName?.split(" ")
   let combined_list = `${splitted[0]?.toUpperCase()}_${new_query}`
   return combined_list

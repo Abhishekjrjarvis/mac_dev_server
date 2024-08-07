@@ -515,14 +515,11 @@ router.patch(
   "/insert/department/status",
   catchAsync(Extra.insertDepartmentStatusQuery)
 );
-<<<<<<< HEAD
 
 router.patch(
   "/certificate/autority/:id/leaving/form/setting",
   // isLoggedIn,
   catchAsync(Extra.certificateLeavingStudentFormSettingQuery)
 );
-=======
->>>>>>> origin/main
 
 module.exports = router;

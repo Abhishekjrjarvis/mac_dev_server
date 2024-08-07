@@ -211,10 +211,7 @@ const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type) => {
       to: to,
       payment_type: payment_type,
       bank: bank,
-<<<<<<< HEAD
-=======
-      types: "Normal Other Fees"
->>>>>>> origin/main
+      types: "Normal Other Fees",
     });
     await unlinkFile(file.path);
     await bank_acc.save();

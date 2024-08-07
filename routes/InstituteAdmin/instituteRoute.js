@@ -804,4 +804,9 @@ router.get(
   catchAsync(Institute.retrieveApproveUnApproveStudentListQuery)
 );
 
+router.patch(
+  "/insert/:id/new/section",
+  catchAsync(Institute.new_checklist_section_query)
+);
+
 module.exports = router;

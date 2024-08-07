@@ -416,6 +416,25 @@ module.exports.form_params = [
                 ]
             },
             {
+                form_checklist_name: "Are You Sponsored Candidate",
+                form_checklist_key: "student_sponser",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Are You Sponsored Candidate",
+                form_checklist_lable: "Are You Sponsored Candidate",
+                form_checklist_typo: "SELECT",
+                form_checklist_typo_option_pl: ["Yes", "No"],
+                form_checklist_enable: "true"
+            },
+            {
+                form_checklist_name: "Upload Experience Certificate",
+                form_checklist_key: "student_sponser_upload",
+                form_checklist_visibility: true,
+                form_checklist_placeholder: "Upload Experience Certificate",
+                form_checklist_lable: "Upload Experience Certificate",
+                form_checklist_typo: "FILE",
+                form_common_key: "student_sponser"
+            },
+            {
                 form_checklist_name: "Physically Handicapped",
                 form_checklist_key: "student_ph",
                 form_checklist_visibility: true,

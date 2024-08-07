@@ -544,6 +544,12 @@ const departmentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch",
   },
+  filter_application: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "NewApplication"
+    }
+  ]
 });
 
 const Department = mongoose.model("Department", departmentSchema);

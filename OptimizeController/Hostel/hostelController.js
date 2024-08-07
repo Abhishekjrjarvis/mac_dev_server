@@ -560,7 +560,7 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { filter_by, master_by } = req.query;
+    const { filter_by, master_by, unit_by } = req.query;
     const master_query = await handle_undefined(filter_by);
     if (!hid)
       return res.status(200).send({
@@ -583,6 +583,9 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
             {
               class_master: `${master_by}`,
             },
+            {
+              unit_master: unit_by
+            }
           ],
         })
           .limit(limit)
@@ -611,6 +614,7 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
           $and: [
             { _id: { $in: one_hostel?.fees_structures } },
             { batch_master: master_query },
+            { unit_master: unit_by },
             { document_update: false },
           ],
         })
@@ -8332,7 +8336,7 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
         ref.feeStructure = structure?._id;
         await ref.save();
       }
-      student.fee_structure = structure?._id;
+      student.hostel_fee_structure = structure?._id;
       student.student_application_obj.push({
         app: apply?._id,
         staff: staffId,

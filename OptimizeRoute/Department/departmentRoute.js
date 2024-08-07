@@ -11,4 +11,18 @@ router.patch(
   catchAsync(Depart.renderFormUpdateQuery)
 );
 
+router.patch(
+  "/:did/add/application",
+  catchAsync(Depart.renderAddApplicationQuery)
+);
+
+router.get(
+  "/:did/all/application",
+  catchAsync(Depart.retieveDepartmentAllApplication)
+);
+
+router.get(
+  "/:aid/application/tab/query",
+  catchAsync(Depart.render_application_tab_query)
+);
 module.exports = router;

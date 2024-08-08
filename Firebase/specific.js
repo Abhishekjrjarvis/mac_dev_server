@@ -12,18 +12,21 @@
 
 //     // const messaging = admin.messaging();
   
-//   const message = {
-//     notification: {
-//       title: `${title}`,
-//       body: `${info}`,
-//     },
-//     data: {
-//       type: `${type}`,
-//       userId: `${id}`,
-//       click_action: "FLUTTER_NOTIFICATION_CLICK",
-//       sound: "default",
-//     },
-//     token: firebaseToken // Replace with the device token you want to send to
+//     const ds = {
+//       message: {
+//         notification: {
+//           title: `${title}`,
+//           body: `${info}`,
+//         },
+//         data: {
+//           type: `${type}`,
+//           userId: `${id}`,
+//           click_action: "FLUTTER_NOTIFICATION_CLICK",
+//           sound: "default",
+//         },
+//         token: firebaseToken // Replace with the device token you want to send to
+//       },
+//       token: firebaseToken // Replace with the device token you want to send to
 //   };
   
 //     // const options = {
@@ -32,7 +35,7 @@
 //     // };
 
 //     // try {
-//     admin.messaging().send(message)
+//     admin.messaging().send(ds)
 //       .then(() => {
 //         console.log("Notification sent successfully:")
 //       }).catch((e) => {

@@ -482,6 +482,20 @@ exports.new_chat_username_unique = async (LName) => {
   return combined_list
 }
 
+exports.send_email_student_message_query = (email, message) => {
+  const subject = "Qviple Student Message";
+  const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+  const encodeURL = encodeURI(url);
+  axios
+    .post(encodeURL)
+    .then((res) => {
+      console.log("Sended Successfully");
+    })
+    .catch((e) => {
+      console.log("SMS API Bug", e.message);
+    });
+};
+
 // console.log(
 //   send_email_authentication_promotional("pankajphad.stuff@gmail.com")
 // );

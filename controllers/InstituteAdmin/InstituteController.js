@@ -4339,7 +4339,7 @@ exports.fetchOneStaffDepartmentInfo = async (req, res) => {
       })
       .populate({
         path: "institute",
-        select: "insName financeStatus storeStatus storeDepart",
+        select: "insName financeStatus storeStatus storeDepart financeDepart admissionDepart admissionStatus",
       })
       .populate({
         path: "userBatch",

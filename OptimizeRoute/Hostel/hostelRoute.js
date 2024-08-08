@@ -451,7 +451,9 @@ router.patch(
   catchAsync(Hostel.inCompleteHostelApplication)
 );
 
-
-
+router.patch(
+  "/all/student/bed/query",
+  catchAsync(Hostel.all_student_bed_query)
+);
 
 module.exports = router;

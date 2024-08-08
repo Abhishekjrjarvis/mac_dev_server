@@ -131,6 +131,7 @@ const LMS = require("../../models/Leave/LMS");
 const { fetchBiometricStaffQuery } = require("../../controllers/LMS/LMSController");
 const { renderAutoStaffLeaveConfigQuery } = require("../../controllers/ComplaintLeaveTransfer/ComplaintController");
 const { render_staff_add_department } = require("../../controllers/InstituteAdmin/InstituteController");
+const { send_email_student_message_query } = require("../../helper/functions");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -2149,7 +2150,7 @@ exports.renderAllClassMatesQuery = async (req, res) => {
 
 exports.renderFilteredMessageQuery = async (req, res) => {
   try {
-    const { filtered_arr, message, from, type, flow, m_title, m_doc } = req.body;
+    const { filtered_arr, message, from, type, flow, m_title, m_doc, status } = req.body;
     const { id } = req.query;
     if (!filtered_arr)
       return res.status(200).send({
@@ -2196,14 +2197,19 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         notify.redirectIndex = 59;
         notify.student_message = new_message?._id
         await Promise.all([user.save(), notify.save()]);
-        invokeSpecificRegister(
-          "Specific Notification",
-          `${m_title} - ${type},
-      Institute Admin`,
-          "Student Alert",
-          user._id,
-          user.deviceToken
-        );
+        if (status === "EMAIL_NOTIFICATION") {
+          send_email_student_message_query(ref?.studentEmail ?? user?.userEmail, message)
+        }
+        else {
+          invokeSpecificRegister(
+            "Specific Notification",
+            `${m_title} - ${type},
+            Institute Admin`,
+            "Student Alert",
+            user._id,
+            user.deviceToken
+          );
+        }
       }
     } else {
       var valid_staff = await Staff.findById({ _id: `${from}` });
@@ -2245,16 +2251,19 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         notify.redirectIndex = 59;
         notify.student_message = new_message?._id
         await Promise.all([user.save(), notify.save()]);
-        invokeSpecificRegister(
-          "Specific Notification",
-          `${m_title} - ${type},
-      ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${
-            valid_staff?.staffLastName
-          }`,
-          "Student Alert",
-          user._id,
-          user.deviceToken
-        );
+        if (status === "EMAIL_NOTIFICATION") {
+          send_email_student_message_query(ref?.studentEmail ?? user?.userEmail, message)
+        }
+        else {
+          invokeSpecificRegister(
+            "Specific Notification",
+            `${m_title} - ${type},
+             ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${valid_staff?.staffLastName}`,
+            "Student Alert",
+            user._id,
+            user.deviceToken
+          );
+        }
       }
 
       // valid_staff.student_message.push({
@@ -3203,7 +3212,7 @@ exports.renderExcelToJSONSubjectQuery = async (req, res) => {
 
 exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
   try {
-    const { sid, message, from, type, flow, m_title, m_doc } = req.body;
+    const { sid, message, from, type, flow, m_title, m_doc, status } = req.body;
     const { id } = req?.query;
     if (!sid)
       return res.status(200).send({
@@ -3248,14 +3257,19 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       notify.redirectIndex = 59;
       notify.student_message = new_message?._id
       await Promise.all([user.save(), notify.save()]);
-      invokeSpecificRegister(
-        "Specific Notification",
-        `${m_title} - ${type},
-    Institute Admin`,
-        "Student Alert",
-        user._id,
-        user.deviceToken
-      );
+      if (status === "EMAIL_NOTIFICATION") {
+        send_email_student_message_query(student?.studentEmail ?? user?.userEmail, message)
+      }
+      else {
+        invokeSpecificRegister(
+          "Specific Notification",
+          `${m_title} - ${type},
+          Institute Admin`,
+          "Student Alert",
+          user._id,
+          user.deviceToken
+        );
+      }
     } else {
       var student = await Student.findById({ _id: sid });
       var valid_staff = await Staff.findById({ _id: `${from}` });
@@ -3296,16 +3310,20 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       notify.redirectIndex = 59;
       notify.student_message = new_message?._id
       await Promise.all([user.save(), notify.save()]);
-      invokeSpecificRegister(
-        "Specific Notification",
-        `${m_title} - ${type},
-      ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${
-          valid_staff?.staffLastName
-        }`,
-        "Student Alert",
-        user._id,
-        user.deviceToken
-      );
+      if (status === "EMAIL_NOTIFICATION") {
+        send_email_student_message_query(student?.studentEmail ?? user?.userEmail, message)
+      }
+      else {
+        invokeSpecificRegister(
+          "Specific Notification",
+          `${m_title} - ${type},
+      ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${valid_staff?.staffLastName
+          }`,
+          "Student Alert",
+          user._id,
+          user.deviceToken
+        );
+      }
 
       // valid_staff.student_message.push({
       //   message: `${message}`,

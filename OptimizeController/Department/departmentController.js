@@ -1,6 +1,16 @@
+const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const { email_sms_designation_application } = require("../../WhatsAppSMS/payload");
+const Admission = require("../../models/Admission/Admission");
 const NewApplication = require("../../models/Admission/NewApplication");
+const Status = require("../../models/Admission/status");
 const Department = require("../../models/Department");
+const Finance = require("../../models/Finance");
+const FeeStructure = require("../../models/Finance/FeesStructure");
+const InstituteAdmin = require("../../models/InstituteAdmin");
+const StudentNotification = require("../../models/Marks/StudentNotification");
+const Student = require("../../models/Student");
+const User = require("../../models/User");
 
 exports.renderStudentFormQuery = async (req, res) => {
   try {
@@ -1388,3 +1398,204 @@ exports.render_cancelled_tab_query = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.retrieveDepartmentSelectedApplication = async (req, res) => {
+  try {
+    const { sid, aid } = req.params;
+    const { fee_struct, staffId, intake_type } = req.body;
+    if (!sid && !aid && !fee_struct)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        select_status: false,
+      });
+    const apply = await NewApplication.findById({ _id: aid });
+    const admission_admin = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    })
+      .select("institute admissionAdminHead selectedApplication")
+      .populate({
+        path: "admissionAdminHead",
+        select: "user",
+      });
+    const student = await Student.findById({ _id: sid });
+    const user = await User.findById({ _id: `${student.user}` });
+    const structure = await FeeStructure.findById({ _id: fee_struct });
+    const institute = await InstituteAdmin.findById({
+      _id: `${admission_admin?.institute}`,
+    });
+    const finance = await Finance.findOne({
+      institute: admission_admin?.institute,
+    });
+    const status = new Status({});
+    const notify = new StudentNotification({});
+    for (let app of apply.receievedApplication) {
+      if (`${app.student}` === `${student._id}`) {
+        apply.receievedApplication.pull(app._id);
+        apply.receieved_array.pull(student?._id);
+      } else {
+      }
+    }
+    apply.selectedApplication.push({
+      student: student._id,
+      fee_remain: structure.total_admission_fees,
+      revert_request_status: status?._id,
+    });
+    admission_admin.selectedApplication.push({
+      student: student._id,
+      fee_remain: structure.total_admission_fees,
+      revert_request_status: status?._id,
+      application: apply?._id,
+    });
+    student.student_application_obj.push({
+      app: apply?._id,
+      staff: staffId,
+      flow: "select_by",
+    });
+    apply.selectCount += 1;
+    status.content = `You have been selected for ${apply.applicationName}. 
+Your fee structure will be ${structure?.structure_name}. And required documents are 'click here for details'.   
+Start your admission process by confirming below.`;
+    status.applicationId = apply._id;
+    status.for_docs = "Yes";
+    status.studentId = student._id;
+    status.group_by = "Admission_Document_Verification";
+    status.student = student._id;
+    status.admissionFee = structure.total_admission_fees;
+    status.instituteId = admission_admin?.institute;
+    status.feeStructure = structure?._id;
+    student.fee_structure = structure?._id;
+    status.document_visible = true;
+    status.finance = finance?._id;
+    user.applicationStatus.push(status._id);
+    student.active_status.push(status?._id);
+    status.structure_edited = "Edited";
+    notify.notifyContent = `You have been selected for ${apply.applicationName}. 
+Your fee structure will be ${structure?.structure_name}. And required documents are 'click here for details'. 
+Start your admission process by confirming below.`;
+    notify.notifySender = admission_admin?.admissionAdminHead?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByAdmissionPhoto = admission_admin?._id;
+    notify.notifyCategory = "Status Alert";
+    notify.redirectIndex = 29;
+    student.intake_type = intake_type ?? "";
+    await Promise.all([
+      apply.save(),
+      student.save(),
+      user.save(),
+      status.save(),
+      notify.save(),
+      admission_admin.save(),
+    ]);
+    res.status(200).send({
+      message: `congrats ${student.studentFirstName} `,
+      select_status: true,
+    });
+    invokeMemberTabNotification(
+      "Admission Status",
+      status.content,
+      "Application Status",
+      user._id,
+      user.deviceToken
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveDepartmentCancelApplication = async (req, res) => {
+  try {
+    const { sid, aid } = req.params;
+    const { reason, staffId } = req?.body;
+    if (!sid && !aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        cancel_status: false,
+      });
+    const apply = await NewApplication.findById({ _id: aid });
+    const admission_admin = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    })
+      .populate({
+        path: "admissionAdminHead",
+        select: "user",
+      })
+      .populate({
+        path: "institute",
+        select: "insName",
+      });
+    const student = await Student.findById({ _id: sid });
+    var user = await User.findById({ _id: `${student?.user}` });
+    const status = new Status({});
+    const notify = new StudentNotification({});
+    for (let app of apply.receievedApplication) {
+      if (`${app.student}` === `${student._id}`) {
+        apply.receievedApplication.pull(app._id);
+        user.applyApplication.pull(apply?._id);
+        apply.receieved_array.pull(student._id);
+      } else {
+      }
+    }
+    if (apply.receievedCount > 0) {
+      apply.receievedCount -= 1;
+    }
+    status.content = `You have been rejected for ${apply.applicationName}. Best of luck for next time `;
+    status.applicationId = apply._id;
+    status.studentId = student._id;
+    status.student = student._id;
+    user.applicationStatus.push(status._id);
+    if (user?.applyApplication?.includes(`${apply?._id}`)) {
+      user.applyApplication.pull(apply?._id);
+    }
+    status.instituteId = admission_admin?.institute;
+    notify.notifyContent = `You have been rejected for ${apply.applicationName}. Best of luck for next time `;
+    notify.notifySender = admission_admin?.admissionAdminHead?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByAdmissionPhoto = admission_admin?._id;
+    notify.notifyCategory = "Status Alert";
+    notify.redirectIndex = 29;
+    student.student_application_obj.push({
+      app: apply?._id,
+      staff: staffId,
+      flow: "reject_by",
+    });
+    await Promise.all([
+      apply.save(),
+      student.save(),
+      user.save(),
+      status.save(),
+      notify.save(),
+    ]);
+    res.status(200).send({
+      message: `Best of luck for next time 😥`,
+      cancel_status: true,
+    });
+    invokeMemberTabNotification(
+      "Admission Status",
+      status.content,
+      "Application Status",
+      user._id,
+      user.deviceToken
+    );
+    let name = `${student?.studentFirstName} ${
+      student?.studentMiddleName ?? ""
+    } ${student?.studentLastName}`;
+    if (student?.studentEmail) {
+      email_sms_designation_application(
+        student?.studentEmail,
+        name,
+        apply?.applicationName,
+        reason,
+        admission_admin?.institute?.insName
+      );
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+

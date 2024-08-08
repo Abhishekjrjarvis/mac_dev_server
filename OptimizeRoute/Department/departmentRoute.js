@@ -55,4 +55,14 @@ router.get(
   "/:aid/cancelled/:did/tab/query",
   catchAsync(Depart.render_cancelled_tab_query)
 );
+
+router.post(
+  "/:sid/student/:aid/select",
+  catchAsync(Depart.retrieveDepartmentSelectedApplication)
+);
+
+router.post(
+  "/:sid/student/:aid/cancel/app",
+  catchAsync(Depart.retrieveDepartmentCancelApplication)
+);
 module.exports = router;

@@ -2334,7 +2334,7 @@ exports.renderHostelRemainingArray = async (req, res) => {
 exports.renderAllotHostedBedQuery = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { huid, hrid, id } = req.query;
+    const { huid, hrid, id } = req.body;
     if (!aid && !req.body.dataList && !hrid && !huid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2353,102 +2353,108 @@ exports.renderAllotHostedBedQuery = async (req, res) => {
     // var batch = await Batch.findById({ _id: `${apply.applicationBatch}` });
     var one_unit = await HostelUnit.findById({ _id: huid });
     var room = await HostelRoom.findById({ _id: hrid });
-    var array = req.body.dataList;
+    var array = req?.body?.dataList;
     if (array?.length > 0) {
       for (var sid of array) {
-        const student = await Student.findById({ _id: sid });
-        const bed = new HostelBed({});
-        // const remain_list = await RemainingList.findOne({
-        //   $and: [
-        //     { _id: { $in: student?.remainingFeeList } },
-        //     { appId: apply?._id },
-        //     {
-        //       remaining_flow: "Hostel Application",
-        //     },
-        //   ],
-        // });
-        const user = await User.findById({ _id: `${student.user}` });
-        var exist_stu = await Student.find({
-          $and: [{ institute: institute?._id }, { user: user?._id }],
-        });
-        if (exist_stu?.length > 0) {
-          exist_stu[0].exist_linked_hostel.status = "Linked";
-          exist_stu[0].exist_linked_hostel.exist_student = student?._id;
-          await exist_stu[0].save();
+        if (apply?.allot_array?.includes(`${sid}`)) {
+          
         }
-        const notify = new StudentNotification({});
-        const aStatus = new Status({});
-        for (let app of apply.confirmedApplication) {
-          if (`${app.student}` === `${student._id}`) {
-            apply.confirmedApplication.pull(app._id);
+        else {
+          const student = await Student.findById({ _id: sid });
+          const bed = new HostelBed({});
+          // const remain_list = await RemainingList.findOne({
+          //   $and: [
+          //     { _id: { $in: student?.remainingFeeList } },
+          //     { appId: apply?._id },
+          //     {
+          //       remaining_flow: "Hostel Application",
+          //     },
+          //   ],
+          // });
+          const user = await User.findById({ _id: `${student.user}` });
+          var exist_stu = await Student.find({
+            $and: [{ institute: institute?._id }, { user: user?._id }],
+          });
+          if (exist_stu?.length > 0) {
+            exist_stu[0].exist_linked_hostel.status = "Linked";
+            exist_stu[0].exist_linked_hostel.exist_student = student?._id;
+            await exist_stu[0].save();
+          }
+          const notify = new StudentNotification({});
+          const aStatus = new Status({});
+          for (let app of apply.reviewApplication) {
+            if (`${app}` === `${student._id}`) {
+              apply.reviewApplication.pull(app);
+            } else {
+            }
+          }
+          bed.bed_allotted_candidate = student?._id;
+          bed.hostelRoom = room?._id;
+          bed.bed_number = room.bed_count + 1 - room.vacant_count;
+          if (room?.vacant_count > 0) {
+            room.vacant_count -= 1;
+          }
+          room.beds.push(bed?._id);
+          one_unit.hostelities_count += 1;
+          one_unit.hostelities.push(student?._id);
+          one_hostel.hostelities_count += 1;
+          student.student_bed_number = bed?._id;
+          student.student_unit = one_unit?._id;
+          student.institute = institute?.id;
+          apply.allottedApplication.push({
+            student: student._id,
+            payment_status: "offline",
+            alloted_room: room?.room_name,
+            alloted_status: "Alloted",
+            fee_remain: student.hostelRemainFeeCount,
+            paid_status: student.hostelRemainFeeCount == 0 ? "Paid" : "Not Paid",
+          });
+          // remain_list.batchId = batch?._id;
+          apply.allotCount += 1;
+          apply.allot_array.push(student?._id)
+          notify.notifyContent = `Welcome to ${room?.room_name} Enjoy your Hostel Life.`;
+          notify.notifySender = one_hostel?.hostel_manager?.user;
+          notify.notifyReceiever = user?._id;
+          notify.notifyType = "Student";
+          notify.notifyPublisher = student?._id;
+          user.activity_tab.push(notify?._id);
+          notify.notifyByHostelPhoto = one_hostel?._id;
+          notify.notifyCategory = "Hostel Status Alert";
+          notify.redirectIndex = 55;
+          notify.notifyCategory = "Bed Allottment";
+          aStatus.content = `Welcome to ${room?.room_name} Enjoy your Hostel Life.`;
+          aStatus.applicationId = apply._id;
+          user.applicationStatus.push(aStatus._id);
+          aStatus.instituteId = institute._id;
+          if (student?.studentGender === "Male") {
+            one_hostel.boy_count += 1;
+          } else if (student?.studentGender === "Female") {
+            one_hostel.girl_count += 1;
+          } else if (student?.studentGender === "Other") {
+            one_hostel.other_count += 1;
           } else {
           }
+          await Promise.all([
+            student.save(),
+            apply.save(),
+            user.save(),
+            aStatus.save(),
+            institute.save(),
+            notify.save(),
+            // remain_list.save(),
+            room.save(),
+            bed.save(),
+            one_hostel.save(),
+            one_unit.save(),
+          ]);
+          invokeMemberTabNotification(
+            "Admission Status",
+            aStatus.content,
+            "Hostel Status",
+            user._id,
+            user.deviceToken
+          );
         }
-        bed.bed_allotted_candidate = student?._id;
-        bed.hostelRoom = room?._id;
-        bed.bed_number = room.bed_count + 1 - room.vacant_count;
-        if (room?.vacant_count > 0) {
-          room.vacant_count -= 1;
-        }
-        room.beds.push(bed?._id);
-        one_unit.hostelities_count += 1;
-        one_unit.hostelities.push(student?._id);
-        one_hostel.hostelities_count += 1;
-        student.student_bed_number = bed?._id;
-        student.student_unit = one_unit?._id;
-        student.institute = institute?.id;
-        apply.allottedApplication.push({
-          student: student._id,
-          payment_status: "offline",
-          alloted_room: room?.room_name,
-          alloted_status: "Alloted",
-          fee_remain: student.hostelRemainFeeCount,
-          paid_status: student.hostelRemainFeeCount == 0 ? "Paid" : "Not Paid",
-        });
-        // remain_list.batchId = batch?._id;
-        apply.allotCount += 1;
-        notify.notifyContent = `Welcome to ${room?.room_name} Enjoy your Hostel Life.`;
-        notify.notifySender = one_hostel?.hostel_manager?.user;
-        notify.notifyReceiever = user?._id;
-        notify.notifyType = "Student";
-        notify.notifyPublisher = student?._id;
-        user.activity_tab.push(notify?._id);
-        notify.notifyByHostelPhoto = one_hostel?._id;
-        notify.notifyCategory = "Hostel Status Alert";
-        notify.redirectIndex = 55;
-        notify.notifyCategory = "Bed Allottment";
-        aStatus.content = `Welcome to ${room?.room_name} Enjoy your Hostel Life.`;
-        aStatus.applicationId = apply._id;
-        user.applicationStatus.push(aStatus._id);
-        aStatus.instituteId = institute._id;
-        if (student?.studentGender === "Male") {
-          one_hostel.boy_count += 1;
-        } else if (student?.studentGender === "Female") {
-          one_hostel.girl_count += 1;
-        } else if (student?.studentGender === "Other") {
-          one_hostel.other_count += 1;
-        } else {
-        }
-        await Promise.all([
-          student.save(),
-          apply.save(),
-          user.save(),
-          aStatus.save(),
-          institute.save(),
-          notify.save(),
-          // remain_list.save(),
-          room.save(),
-          bed.save(),
-          one_hostel.save(),
-          one_unit.save(),
-        ]);
-        invokeMemberTabNotification(
-          "Admission Status",
-          aStatus.content,
-          "Hostel Status",
-          user._id,
-          user.deviceToken
-        );
       }
       res.status(200).send({
         message: `Distribute sweets to all family members`,
@@ -9467,6 +9473,38 @@ exports.inCompleteHostelApplication = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.all_student_bed_query = async (req, res) => {
+  try {
+    // const all = await HostelUnit.findById({ _id: "64c29db52031578e33d6dac7" })
+    // const all_room = await HostelRoom.find({ _id: { $in: all?.rooms } })
+    
+    // for (let ele of all_room) {
+    //   ele.room_name = `L-${ele.room_name}`
+    //   await ele.save()
+    // }
+    // const all_student = await Student.find({ institute: "6449c83598fec071fbffd3ad" })
+    
+    // let all_student_bed = all_student?.filter((val) => {
+    //   if(val?.student_bed_number) return val
+    // })
+    // var i = 0
+    // for (let ele of all_student_bed) {
+    //   const bed = await HostelBed.findById({ _id: ele?.student_bed_number })
+    //   const room = await HostelRoom.findById({ _id: `${bed?.hostelRoom}` })
+    //   room.vacant_count += 1
+    //   ele.student_bed_number = null
+    //   await Promise.all([ele.save(), room.save()])
+    //   await HostelBed.findByIdAndDelete(bed?._id)
+    //   console.log(i)
+    //   i+= 1
+    // }
+    res.status(200).send({ message: "Explore All Bed Delete", access: true, all_student_bed: all_student_bed?.length, all_student: all_student?.length})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
 
 
 

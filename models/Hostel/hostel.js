@@ -553,6 +553,28 @@ const hostelSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  cancel_admission: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      cancel_on: { type: Date, default: Date.now },
+      payment_status: { type: String, default: "Pending" },
+      refund_amount: { type: Number, default: 0 },
+      from: {
+        type: String,
+      },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff",
+      },
+    },
+  ],
+  cancel_admission_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Hostel", hostelSchema);

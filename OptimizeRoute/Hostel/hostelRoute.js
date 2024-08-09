@@ -456,4 +456,9 @@ router.patch(
   catchAsync(Hostel.all_student_bed_query)
 );
 
+router.post(
+  "/:sid/allotted/student/:aid/pay/refund",
+  catchAsync(Hostel.cancelAllottedHostelApplication)
+);
+
 module.exports = router;

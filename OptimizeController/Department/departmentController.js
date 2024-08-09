@@ -233,14 +233,19 @@ exports.render_application_tab_query = async (req, res) => {
         }
       }
     }
-    const unique = [...new Set(n.map((item) => item._id))];
-    let all = []
-      for (let stu of apply?.receievedApplication) {
-        for (let cls of unique) {
-          if (`${cls}` === `${stu?.student}`) {
-            all.push(stu)
-          } 
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = []
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.receievedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student}`) {
+              all.push(stu)
+            }
+          }
         }
+      }
+      else {
+        all = [...apply?.receievedApplication]
       }
     res.status(200).send({
       message: "Explore All Receieved Application Students Master Query",
@@ -298,13 +303,18 @@ exports.render_application_tab_query = async (req, res) => {
       }
     }
     const unique = [...new Set(n.map((item) => item._id))];
-    let all = []
-      for (let stu of apply?.receievedApplication) {
-        for (let cls of unique) {
-          if (`${cls}` === `${stu?.student}`) {
-            all.push(stu)
-          } 
+    var all = []
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.receievedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student}`) {
+              all.push(stu)
+            }
+          }
         }
+      }
+      else {
+        all = [...apply?.receievedApplication]
       }
     const all_students = await nested_document_limit(page, limit, all);
     res.status(200).send({
@@ -425,14 +435,19 @@ exports.render_selected_tab_query = async (req, res) => {
       }
     }
     const unique = [...new Set(n.map((item) => item._id))];
-    let all = []
+    var all = []
+    if (depart?.department_status === "Academic") {
       for (let stu of apply?.selectedApplication) {
         for (let cls of unique) {
           if (`${cls}` === `${stu?.student}`) {
             all.push(stu)
-          } 
+          }
         }
       }
+    }
+    else {
+      all = [...apply?.selectedApplication]
+    }
     res.status(200).send({
       message: "Explore All Receieved Application Students Master Query",
       access: true,
@@ -489,13 +504,18 @@ exports.render_selected_tab_query = async (req, res) => {
       }
     }
       const unique = [...new Set(n.map((item) => item._id))];
-      let all = []
-      for (let stu of apply?.selectedApplication) {
-        for (let cls of unique) {
-          if (`${cls}` === `${stu?.student}`) {
-            all.push(stu)
+      var all = []
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.selectedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student}`) {
+              all.push(stu)
+            }
           }
         }
+      }
+      else {
+        all = [...apply?.selectedApplication]
       }
     const all_students = await nested_document_limit(page, limit, all);
     res.status(200).send({
@@ -616,13 +636,18 @@ exports.render_fees_tab_query = async (req, res) => {
       }
     }
     const unique = [...new Set(n.map((item) => item._id))];
-    let all = []
-      for (let stu of apply?.FeeCollectionApplication) {
-        for (let cls of unique) {
-          if (`${cls}` === `${stu?.student}`) {
-            all.push(stu)
-          } 
+    var all = []
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.FeeCollectionApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student}`) {
+              all.push(stu)
+            }
+          }
         }
+      }
+      else {
+        all = [...apply?.FeeCollectionApplication]
       }
     res.status(200).send({
       message: "Explore All Receieved Application Students Master Query",
@@ -680,14 +705,19 @@ exports.render_fees_tab_query = async (req, res) => {
       }
     }
     const unique = [...new Set(n.map((item) => item._id))];
-    let all = []
+    var all = []
+    if (depart?.department_status === "Academic") {
       for (let stu of apply?.FeeCollectionApplication) {
         for (let cls of unique) {
           if (`${cls}` === `${stu?.student}`) {
             all.push(stu)
-          } 
+          }
         }
       }
+    }
+    else {
+      all = [...apply?.FeeCollectionApplication]
+    }
     const all_students = await nested_document_limit(page, limit, all);
     res.status(200).send({
       message: "Explore All Fees Application Students Master Query",
@@ -807,13 +837,18 @@ exports.render_confirm_tab_query = async (req, res) => {
       }
     }
     const unique = [...new Set(n.map((item) => item._id))];
-    let all = []
-      for (let stu of apply?.confirmedApplication) {
-        for (let cls of unique) {
-          if (`${cls}` === `${stu?.student}`) {
-            all.push(stu)
-          } 
+    var all = []
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.confirmedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student}`) {
+              all.push(stu)
+            }
+          }
         }
+      }
+      else {
+        all = [...apply?.confirmedApplication]
       }
     res.status(200).send({
       message: "Explore All Receieved Application Students Master Query",
@@ -871,13 +906,18 @@ exports.render_confirm_tab_query = async (req, res) => {
       }
     }
     const unique = [...new Set(n.map((item) => item._id))];
-    let all = []
-      for (let stu of apply?.confirmedApplication) {
-        for (let cls of unique) {
-          if (`${cls}` === `${stu?.student}`) {
-            all.push(stu)
-          } 
+    var all = []
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.confirmedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student}`) {
+              all.push(stu)
+            }
+          }
         }
+      }
+      else {
+        all = [...apply?.confirmedApplication]
       }
     const all_students = await nested_document_limit(page, limit, all);
     res.status(200).send({
@@ -994,15 +1034,20 @@ exports.render_review_tab_query = async (req, res) => {
         }
       }
     }
-    const unique = [...new Set(n.map((item) => item._id))];
-    let all = []
-    for (let stu of apply?.reviewApplication) {
-      for (let cls of unique) {
-        if (`${cls}` === `${stu}`) {
-          all.push(stu)
-        } 
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = []
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.reviewApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu}`) {
+              all.push(stu)
+            }
+          }
+        }
       }
-    }
+      else {
+        all = [...apply?.reviewApplication]
+      }
     res.status(200).send({
       message: "Explore All Review Application Students Master Query",
       access: true,
@@ -1059,14 +1104,19 @@ exports.render_review_tab_query = async (req, res) => {
       }
     }
     const unique = [...new Set(n.map((item) => item._id))];
-    let all = []
-    for (let stu of apply?.reviewApplication) {
-      for (let cls of unique) {
-        if (`${cls}` === `${stu}`) {
-          all.push(stu)
-        } 
+    var all = []
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.reviewApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu}`) {
+              all.push(stu)
+            }
+          }
+        }
       }
-    }
+      else {
+        all = [...apply?.reviewApplication]
+      }
     const all_students = await nested_document_limit(page, limit, all);
     res.status(200).send({
       message: "Explore All Review Application Students Master Query",
@@ -1185,14 +1235,19 @@ exports.render_allotted_tab_query = async (req, res) => {
         }
       }
     }
-    const unique = [...new Set(n.map((item) => item._id))];
-    let all = []
-      for (let stu of apply?.allottedApplication) {
-        for (let cls of unique) {
-          if (`${cls}` === `${stu?.student}`) {
-            all.push(stu)
-          } 
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = []
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.allottedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student}`) {
+              all.push(stu)
+            }
+          }
         }
+      }
+      else {
+        all = [...apply?.allottedApplication]
       }
     res.status(200).send({
       message: "Explore All Allotted Application Students Master Query",
@@ -1250,13 +1305,18 @@ exports.render_allotted_tab_query = async (req, res) => {
       }
     }
     const unique = [...new Set(n.map((item) => item._id))];
-    let all = []
-      for (let stu of apply?.allottedApplication) {
-        for (let cls of unique) {
-          if (`${cls}` === `${stu?.student}`) {
-            all.push(stu)
-          } 
+    var all = []
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.allottedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student}`) {
+              all.push(stu)
+            }
+          }
         }
+      }
+      else {
+        all = [...apply?.allottedApplication]
       }
     const all_students = await nested_document_limit(page, limit, all);
     res.status(200).send({
@@ -1377,13 +1437,18 @@ exports.render_cancelled_tab_query = async (req, res) => {
       }
     }
     const unique = [...new Set(n.map((item) => item._id))];
-    let all = []
-      for (let stu of apply?.cancelApplication) {
-        for (let cls of unique) {
-          if (`${cls}` === `${stu?.student}`) {
-            all.push(stu)
-          } 
+    var all = []
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.cancelApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student}`) {
+              all.push(stu)
+            }
+          }
         }
+      }
+      else {
+        all = [...apply?.cancelApplication]
       }
     res.status(200).send({
       message: "Explore All Cancelled Application Students Master Query",
@@ -1441,13 +1506,18 @@ exports.render_cancelled_tab_query = async (req, res) => {
       }
     }
     const unique = [...new Set(n.map((item) => item._id))];
-    let all = []
-      for (let stu of apply?.cancelApplication) {
-        for (let cls of unique) {
-          if (`${cls}` === `${stu?.student}`) {
-            all.push(stu)
-          } 
+    var all = []
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.cancelApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student}`) {
+              all.push(stu)
+            }
+          }
         }
+      }
+      else {
+        all = [...apply?.cancelApplication]
       }
     const all_students = await nested_document_limit(page, limit, all);
     res.status(200).send({

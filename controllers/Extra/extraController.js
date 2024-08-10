@@ -505,12 +505,23 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     if (leaving_certificate_attach) {
       student.leaving_certificate_attach = leaving_certificate_attach;
     }
-    student.ldoc1 = ldoc1;
-    student.ldoc2 = ldoc2;
-    student.ldoc3 = ldoc3;
-    student.ldoc4 = ldoc4;
-    institute.l_certificate_count += 1;
-    institute.certificate_issued_count += 1;
+    if (ldoc1) {
+      student.ldoc1 = ldoc1;
+    }
+    if (ldoc2) {
+      student.ldoc2 = ldoc2;
+    }
+    if (ldoc3) {
+      student.ldoc3 = ldoc3;
+    }
+    if (ldoc4) {
+      student.ldoc4 = ldoc4;
+    }
+    if (certificate_attachment || leaving_certificate_attach) {
+      institute.l_certificate_count += 1;
+      institute.certificate_issued_count += 1;
+    }
+
     student.studentLeavingStatus = "Ready";
     if (institute?.original_copy) {
       student.certificateLeavingCopy.thirdCopy = false;
@@ -4906,6 +4917,7 @@ exports.certificateLeavingStudentFormSettingQuery = async (req, res) => {
 
     institute.certificate_leaving_form_student =
       certificate_leaving_form_student;
+    await institute.save();
     res.status(200).send({
       message: "Certificate setting form updated",
     });

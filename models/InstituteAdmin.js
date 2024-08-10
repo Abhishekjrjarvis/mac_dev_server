@@ -1380,7 +1380,7 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
   },
   certificate_leaving_form_student: {
-    type: Boolean,
+    type: String,
   },
 });
 

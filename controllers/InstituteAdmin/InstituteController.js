@@ -89,7 +89,7 @@ exports.getDashOneQuery = async (req, res) => {
     const { id } = req.params;
     const { mod_id, user_mod_id } = req.query;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId qviple_id blockStatus profile_modification leave_config random_institute_code merchant_options staff_leave_config certificate_fund_charges certificate_issued_count name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus lms_depart lms_status storeStatus storeDepart student_form_setting landing_control payroll_module payroll_module_status iqac_module iqac_module_status staff_form_setting"
+      "insName name insAbout photoId qviple_id blockStatus profile_modification leave_config random_institute_code merchant_options staff_leave_config certificate_fund_charges certificate_issued_count name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus lms_depart lms_status storeStatus storeDepart student_form_setting landing_control payroll_module payroll_module_status iqac_module iqac_module_status staff_form_setting certificate_leaving_form_student"
     );
     // const encrypt = await encryptionPayload(institute);
     if (req?.query?.mod_id) {
@@ -612,12 +612,10 @@ exports.render_destroy_announcement_query = async (req, res) => {
   try {
     const { aid } = req?.params;
     if (!aid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var announce = await InsAnnouncement.findById({ _id: aid });
     var ins = await InstituteAdmin.findById({ _id: `${announce?.institute}` });
@@ -630,12 +628,10 @@ exports.render_destroy_announcement_query = async (req, res) => {
       await InsDocument.findByIdAndDelete(announce?.announcementDocument);
     }
     await ins.save();
-    res
-      .status(200)
-      .send({
-        message: "Annoucement Deletion Operation Completed",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Annoucement Deletion Operation Completed",
+      access: true,
+    });
     for (var num of ins?.userFollowersList) {
       const user = await User.findById({ _id: `${num}` });
       if (user) {
@@ -3272,7 +3268,10 @@ exports.retrieveUnApproveStudentListQuery = async (req, res) => {
       const student_ins = await InstituteAdmin.findById({ _id: id }).select(
         "UnApprovedStudent ApproveStudent insName gr_initials"
       );
-      const nums = [...student_ins?.UnApprovedStudent, ...student_ins?.ApproveStudent]
+      const nums = [
+        ...student_ins?.UnApprovedStudent,
+        ...student_ins?.ApproveStudent,
+      ];
       const studentIns = await Student.find({
         $and: [{ _id: { $in: nums } }],
         $or: [
@@ -3291,7 +3290,7 @@ exports.retrieveUnApproveStudentListQuery = async (req, res) => {
           {
             studentGRNO: { $regex: `${search}`, $options: "i" },
           },
-          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i" } },
         ],
       })
         .sort({ createdAt: -1 })
@@ -3327,7 +3326,10 @@ exports.retrieveUnApproveStudentListQuery = async (req, res) => {
       const student_ins = await InstituteAdmin.findById({ _id: id }).select(
         "UnApprovedStudent ApproveStudent insName gr_initials"
       );
-      const nums = [...student_ins?.UnApprovedStudent, ...student_ins?.ApproveStudent]
+      const nums = [
+        ...student_ins?.UnApprovedStudent,
+        ...student_ins?.ApproveStudent,
+      ];
       const studentIns = await Student.find({
         _id: { $in: nums },
       })
@@ -6080,14 +6082,16 @@ exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
         institute.insName,
         user._id,
         user.deviceToken
-        );
-        await Promise.all([
-          student.save(),
-          user.save(),
-          notify.save(),
-          aStatus.save(),
-        ]);
-        res.status(200).send({ message: "Explore Un Approve Student Query", access: true})
+      );
+      await Promise.all([
+        student.save(),
+        user.save(),
+        notify.save(),
+        aStatus.save(),
+      ]);
+      res
+        .status(200)
+        .send({ message: "Explore Un Approve Student Query", access: true });
       if (student.studentGender === "Male") {
         classes.boyCount += 1;
         batch.student_category.boyCount += 1;
@@ -6126,7 +6130,7 @@ exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
         user?.userPhoneNumber,
         studentName,
         institute?.insName
-        );
+      );
       whats_app_sms_payload(
         user?.userPhoneNumber,
         studentName,
@@ -6357,12 +6361,10 @@ exports.renderApproveStaffShuffleQuery = async (req, res) => {
   try {
     const { id } = req?.params;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var one_ins = await InstituteAdmin.findById({ _id: id })
       .select("ApproveStaff")
@@ -6373,13 +6375,11 @@ exports.renderApproveStaffShuffleQuery = async (req, res) => {
       });
 
     if (one_ins?.ApproveStaff?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore All Staff Query",
-          access: true,
-          all_staff: one_ins?.ApproveStaff,
-        });
+      res.status(200).send({
+        message: "Explore All Staff Query",
+        access: true,
+        all_staff: one_ins?.ApproveStaff,
+      });
     } else {
       res
         .status(200)
@@ -6395,12 +6395,10 @@ exports.renderDepartmentPinnedQuery = async (req, res) => {
     const { id } = req?.params;
     const { did, type, flow } = req?.body;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var one_ins = await InstituteAdmin.findById({ _id: id });
     if (flow === "INDEPENDENT") {
@@ -6426,12 +6424,10 @@ exports.renderDepartmentUnPinnedQuery = async (req, res) => {
     const { id } = req?.params;
     const { did, flow } = req?.body;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var one_ins = await InstituteAdmin.findById({ _id: id });
     if (flow === "INDEPENDENT") {
@@ -6482,12 +6478,10 @@ exports.renderRemoveStaffQuery = async (req, res) => {
   try {
     const { sid } = req?.params;
     if (!sid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var staff = await Staff.findById({ _id: sid });
     var user = await User.findById({ _id: `${staff?.user}` });
@@ -6576,12 +6570,10 @@ exports.render_new_student_form_section_query = async (req, res) => {
     const { fcid } = req?.params;
     const { form } = req?.body;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ifs = await InstituteStudentForm.findById({ _id: fcid });
     var ins = await InstituteAdmin.findById({
@@ -6659,12 +6651,10 @@ exports.render_new_student_form_checklist_query = async (req, res) => {
     const { fcid } = req?.params;
     const { checklist, fsid } = req?.body;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ifs = await InstituteStudentForm.findById({ _id: fcid });
     var ins = await InstituteAdmin.findById({
@@ -6706,12 +6696,10 @@ exports.render_new_student_form_checklist_query = async (req, res) => {
       }
     }
     await ifs.save();
-    res
-      .status(200)
-      .send({
-        message: "Explore One Form Section Nested Checklist Query",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Explore One Form Section Nested Checklist Query",
+      access: true,
+    });
     var all_depart = await DepartmentStudentForm.find({
       department: { $in: ins?.depart },
     });
@@ -6805,12 +6793,10 @@ exports.render_edit_student_form_section_query = async (req, res) => {
       cid,
     } = req?.body;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ifs = await InstituteStudentForm.findById({ _id: fcid });
     for (var val of ifs?.form_section) {
@@ -6857,12 +6843,10 @@ exports.render_edit_student_form_section_query = async (req, res) => {
       }
     }
     await ifs.save();
-    res
-      .status(200)
-      .send({
-        message: "Edit One Form Section + Nested Checklist Query",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Edit One Form Section + Nested Checklist Query",
+      access: true,
+    });
     var ins = await InstituteAdmin.findById({ _id: ifs?.institute });
     var all_dfs = await DepartmentStudentForm.find({
       department: { $in: ins?.depart },
@@ -6892,12 +6876,10 @@ exports.render_edit_student_form_section_checklist_query = async (req, res) => {
       form_checklist_required,
     } = req?.body;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ifs = await InstituteStudentForm.findById({ _id: fcid })
       .select("form_section")
@@ -6926,12 +6908,10 @@ exports.render_edit_student_form_section_checklist_query = async (req, res) => {
       }
     }
     await ifs.save();
-    res
-      .status(200)
-      .send({
-        message: "Edit One Form Section + Nested Checklist Query",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Edit One Form Section + Nested Checklist Query",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -6942,12 +6922,10 @@ exports.render_shuffle_student_form_section_query = async (req, res) => {
     const { fcid } = req?.params;
     const { shuffle_arr } = req?.body;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     if (shuffle_arr?.length > 0) {
       var ifs = await InstituteStudentForm.findById({ _id: fcid });
@@ -6957,12 +6935,10 @@ exports.render_shuffle_student_form_section_query = async (req, res) => {
         ifs.form_section.push(val);
       }
       await ifs.save();
-      res
-        .status(200)
-        .send({
-          message: "Explore Form Section Shuffling Query",
-          access: true,
-        });
+      res.status(200).send({
+        message: "Explore Form Section Shuffling Query",
+        access: true,
+      });
     } else {
       res
         .status(200)
@@ -6977,12 +6953,10 @@ exports.render_one_student_form_section_query = async (req, res) => {
   try {
     const { fcid } = req?.params;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ifs = await InstituteStudentForm.findById({ _id: fcid })
       .select("form_section image_content")
@@ -7040,13 +7014,11 @@ exports.render_one_student_form_section_query = async (req, res) => {
       section_value: "",
       form_checklist: [...ifs?.image_content],
     });
-    res
-      .status(200)
-      .send({
-        message: "Explore One Institute Student Form Section Query",
-        access: true,
-        section: ifs?.form_section,
-      });
+    res.status(200).send({
+      message: "Explore One Institute Student Form Section Query",
+      access: true,
+      section: ifs?.form_section,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -7056,12 +7028,10 @@ exports.render_one_student_form_section_enable_query = async (req, res) => {
   try {
     const { id } = req?.params;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ins = await InstituteAdmin.findById({ _id: id }).select(
       "student_form_setting"
@@ -7086,13 +7056,11 @@ exports.render_one_student_form_section_enable_query = async (req, res) => {
         }
       }
     }
-    res
-      .status(200)
-      .send({
-        message: "Explore One Institute Student Form Section Enable Query",
-        access: true,
-        section: all_section,
-      });
+    res.status(200).send({
+      message: "Explore One Institute Student Form Section Enable Query",
+      access: true,
+      section: all_section,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -7121,12 +7089,10 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
   try {
     const { fcid } = req?.params;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ifs = await InstituteStudentForm.findById({ _id: fcid });
     // var all_ifs = await InstituteStudentForm.find({})
@@ -7332,12 +7298,10 @@ exports.render_auto_student_form_section_checklist_query = async (req, res) => {
       }
       await Promise.all([iaf.save(), qwe.save()]);
     }
-    res
-      .status(200)
-      .send({
-        message: "Explore One Form Section Nested Checklist Query",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Explore One Form Section Nested Checklist Query",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -7350,12 +7314,10 @@ exports.render_auto_student_form_section_checklist_query_manual = async (
   try {
     const { fcid } = req?.params;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ifs = await InstituteStudentForm.findById({ _id: fcid });
     // var all_ifs = await InstituteStudentForm.find({})
@@ -7631,12 +7593,10 @@ exports.render_auto_student_form_section_checklist_query_manual = async (
     //     }
     //     await Promise.all([iaf.save(), qwe.save()])
     //   }
-    res
-      .status(200)
-      .send({
-        message: "Explore One Form Section Nested Checklist Query",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Explore One Form Section Nested Checklist Query",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -7736,12 +7696,10 @@ exports.render_new_staff_form_section_query = async (req, res) => {
     const { fcid } = req?.params;
     const { form } = req?.body;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ifs = await InstituteStaffForm.findById({ _id: fcid });
     var ins = await InstituteAdmin.findById({
@@ -7769,12 +7727,10 @@ exports.render_new_staff_form_checklist_query = async (req, res) => {
     const { fcid } = req?.params;
     const { checklist, fsid } = req?.body;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ifs = await InstituteStaffForm.findById({ _id: fcid });
     for (var val of ifs?.form_section) {
@@ -7810,12 +7766,10 @@ exports.render_new_staff_form_checklist_query = async (req, res) => {
       }
     }
     await ifs.save();
-    res
-      .status(200)
-      .send({
-        message: "Explore One Form Section Nested Checklist Query",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Explore One Form Section Nested Checklist Query",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -7833,12 +7787,10 @@ exports.render_edit_staff_form_section_query = async (req, res) => {
       cid,
     } = req?.body;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ifs = await InstituteStaffForm.findById({ _id: fcid });
     for (var val of ifs?.form_section) {
@@ -7885,12 +7837,10 @@ exports.render_edit_staff_form_section_query = async (req, res) => {
       }
     }
     await ifs.save();
-    res
-      .status(200)
-      .send({
-        message: "Edit One Form Section + Nested Checklist Query",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Edit One Form Section + Nested Checklist Query",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -7906,12 +7856,10 @@ exports.render_edit_staff_form_section_checklist_query = async (req, res) => {
       form_checklist_required,
     } = req?.body;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ifs = await InstituteStaffForm.findById({ _id: fcid })
       .select("form_section")
@@ -7930,12 +7878,10 @@ exports.render_edit_staff_form_section_checklist_query = async (req, res) => {
       }
     }
     await ifs.save();
-    res
-      .status(200)
-      .send({
-        message: "Edit One Form Section + Nested Checklist Query",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Edit One Form Section + Nested Checklist Query",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -7946,12 +7892,10 @@ exports.render_shuffle_staff_form_section_query = async (req, res) => {
     const { fcid } = req?.params;
     const { shuffle_arr } = req?.body;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     if (shuffle_arr?.length > 0) {
       var ifs = await InstituteStaffForm.findById({ _id: fcid });
@@ -7961,12 +7905,10 @@ exports.render_shuffle_staff_form_section_query = async (req, res) => {
       ifs.form_section.push(...shuffle_arr);
       // }
       await ifs.save();
-      res
-        .status(200)
-        .send({
-          message: "Explore Form Section Shuffling Query",
-          access: true,
-        });
+      res.status(200).send({
+        message: "Explore Form Section Shuffling Query",
+        access: true,
+      });
     } else {
       res
         .status(200)
@@ -7981,12 +7923,10 @@ exports.render_one_staff_form_section_query = async (req, res) => {
   try {
     const { fcid } = req?.params;
     if (!fcid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ifs = await InstituteStaffForm.findById({ _id: fcid })
       .select("form_section")
@@ -8004,13 +7944,11 @@ exports.render_one_staff_form_section_query = async (req, res) => {
         }
       }
     }
-    res
-      .status(200)
-      .send({
-        message: "Explore One Institute Staff Form Section Query",
-        access: true,
-        section: ifs?.form_section,
-      });
+    res.status(200).send({
+      message: "Explore One Institute Staff Form Section Query",
+      access: true,
+      section: ifs?.form_section,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -8020,12 +7958,10 @@ exports.render_one_staff_form_section_enable_query = async (req, res) => {
   try {
     const { id } = req?.params;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var ins = await InstituteAdmin.findById({ _id: id }).select(
       "student_form_setting"
@@ -8050,13 +7986,11 @@ exports.render_one_staff_form_section_enable_query = async (req, res) => {
         }
       }
     }
-    res
-      .status(200)
-      .send({
-        message: "Explore One Institute Staff Form Section Enable Query",
-        access: true,
-        section: all_section,
-      });
+    res.status(200).send({
+      message: "Explore One Institute Staff Form Section Enable Query",
+      access: true,
+      section: all_section,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -8066,12 +8000,10 @@ exports.render_dynamic_form_query = async (req, res) => {
   try {
     const { sid } = req?.params;
     if (!sid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var staff = await Staff.findById({ _id: sid }).populate({
       path: "staff_department",
@@ -8132,13 +8064,11 @@ exports.render_dynamic_form_query = async (req, res) => {
       }
     }
     head_arrays?.splice(0, 1);
-    res
-      .status(200)
-      .send({
-        message: "Explore One Staff Institute Dynamic Form Query",
-        access: true,
-        result: [...head_arrays],
-      });
+    res.status(200).send({
+      message: "Explore One Staff Institute Dynamic Form Query",
+      access: true,
+      result: [...head_arrays],
+    });
   } catch (e) {
     console.log(e);
   }
@@ -8148,12 +8078,10 @@ exports.render_dynamic_form_details_query = async (req, res) => {
   try {
     const { flow, did } = req?.query;
     if (!flow && !did)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     if (flow === "INSTITUTE") {
       const all_depart = await Department.find({ institute: did }).select(
@@ -8188,13 +8116,11 @@ exports.render_dynamic_form_details_query = async (req, res) => {
             ele?.section_key === "self_about" ? false : true;
         }
       }
-      res
-        .status(200)
-        .send({
-          message: "Institute Form Query",
-          access: true,
-          ins_form: all_section,
-        });
+      res.status(200).send({
+        message: "Institute Form Query",
+        access: true,
+        ins_form: all_section,
+      });
     }
   } catch (e) {
     console.log(e);
@@ -8252,9 +8178,9 @@ exports.render_form_key_editable = async (req, res) => {
       form_checklist_key: "student_defence_personnel_word",
     });
     for (let ele of all_check) {
-      ele.form_checklist_name = "Defence Personnel Ward"
-      ele.form_checklist_placeholder = "Select Defence Personnel Ward"
-      ele.form_checklist_lable = "Defence Personnel Ward"
+      ele.form_checklist_name = "Defence Personnel Ward";
+      ele.form_checklist_placeholder = "Select Defence Personnel Ward";
+      ele.form_checklist_lable = "Defence Personnel Ward";
       // ele.form_checklist_required = true
       // ele.form_common_key = "student_ph"
       // ele.form_checklist_typo = "NUMBER"
@@ -8324,12 +8250,10 @@ exports.render_all_classes_query = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const ins = await InstituteAdmin.findById({ _id: id }).select("classRooms");
 
@@ -8337,13 +8261,11 @@ exports.render_all_classes_query = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select("className classTitle");
-    res
-      .status(200)
-      .send({
-        message: "All Classes Query",
-        access: true,
-        all_classes: all_classes,
-      });
+    res.status(200).send({
+      message: "All Classes Query",
+      access: true,
+      all_classes: all_classes,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -8877,13 +8799,10 @@ exports.render_auto_student_form_section_checklist_query_single_application =
           }
         }
       }
-      res
-        .status(200)
-        .send({
-          message:
-            "Explore One Form Section Nested Application Checklist Query",
-          access: true,
-        });
+      res.status(200).send({
+        message: "Explore One Form Section Nested Application Checklist Query",
+        access: true,
+      });
     } catch (e) {
       console.log(e);
     }

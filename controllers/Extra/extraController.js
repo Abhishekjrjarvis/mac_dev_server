@@ -335,40 +335,77 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       student_name,
       staffId,
       certificate_original_leaving_count,
+      ldoc1,
+      ldoc2,
+      ldoc3,
+      ldoc4,
+      accessFrom,
     } = req.body;
     const institute = await InstituteAdmin.findById({
       _id: id,
     });
-    const validGR = await valid_initials(institute?.gr_initials, gr);
-    if (!validGR)
-      return res.status(200).send({ message: "I Think you lost in space" });
-    const student = await Student.findOne({
-      $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
-    })
-      .select(
-        "studentFirstName studentLeavingPreviousYear studentEmail leaving_guide_name leaving_certificate_attach leaving_previous_school leaving_religion leaving_nationality leaving_student_name studentLeavingInsDate studentRemark student_prn_enroll_number studentCertificateNo studentLeavingStudy studentLeavingReason studentRemark leaving_project_work elective_subject_second elective_subject_one leaving_course_duration leaving_since_date leaving_degree leaving_date instituteJoinDate duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount lcRegNo lcCaste lcBirth lcDOB lcAdmissionDate lcInstituteDate studentLeavingRemark certificate_logs"
-      )
-      .populate({
-        path: "studentClass",
-        select: "className classTitle",
+    var validGR = null;
+    var student = null;
+    if (accessFrom === "Student") {
+      student = await Student.findById(gr)
+        .select(
+          "studentFirstName studentLeavingPreviousYear studentEmail leaving_guide_name leaving_certificate_attach leaving_previous_school leaving_religion leaving_nationality leaving_student_name studentLeavingInsDate studentRemark student_prn_enroll_number studentCertificateNo studentLeavingStudy studentLeavingReason studentRemark leaving_project_work elective_subject_second elective_subject_one leaving_course_duration leaving_since_date leaving_degree leaving_date instituteJoinDate duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount lcRegNo lcCaste lcBirth lcDOB lcAdmissionDate lcInstituteDate studentLeavingRemark certificate_logs ldoc1 ldoc2 ldoc3 ldoc4"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "batches",
+          select: "batchName",
+        })
+        .populate({
+          path: "institute",
+          select:
+            "insName insAddress certificate_issued_count insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail leave_certificate_selection certificate_original_leaving_count",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        });
+    } else {
+      validGR = await valid_initials(institute?.gr_initials, gr);
+      if (!validGR)
+        return res.status(200).send({ message: "I Think you lost in space" });
+
+      student = await Student.findOne({
+        $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
       })
-      .populate({
-        path: "batches",
-        select: "batchName",
-      })
-      .populate({
-        path: "institute",
-        select:
-          "insName insAddress certificate_issued_count insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail leave_certificate_selection certificate_original_leaving_count",
-      })
-      .populate({
-        path: "remainingFeeList",
-        select: "paid_fee fee_structure",
-        populate: {
-          path: "fee_structure",
-          select: "applicable_fees",
-        },
-      });
+        .select(
+          "studentFirstName studentLeavingPreviousYear studentEmail leaving_guide_name leaving_certificate_attach leaving_previous_school leaving_religion leaving_nationality leaving_student_name studentLeavingInsDate studentRemark student_prn_enroll_number studentCertificateNo studentLeavingStudy studentLeavingReason studentRemark leaving_project_work elective_subject_second elective_subject_one leaving_course_duration leaving_since_date leaving_degree leaving_date instituteJoinDate duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount lcRegNo lcCaste lcBirth lcDOB lcAdmissionDate lcInstituteDate studentLeavingRemark certificate_logs ldoc1 ldoc2 ldoc3 ldoc4"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "batches",
+          select: "batchName",
+        })
+        .populate({
+          path: "institute",
+          select:
+            "insName insAddress certificate_issued_count insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insEditableText_one insEditableText_two insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto affliatedLogo insEmail leave_certificate_selection certificate_original_leaving_count",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        });
+    }
+
     if (
       institute.studentFormSetting.previousSchoolAndDocument
         .previousSchoolDocument &&
@@ -468,6 +505,10 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     if (leaving_certificate_attach) {
       student.leaving_certificate_attach = leaving_certificate_attach;
     }
+    student.ldoc1 = ldoc1;
+    student.ldoc2 = ldoc2;
+    student.ldoc3 = ldoc3;
+    student.ldoc4 = ldoc4;
     institute.l_certificate_count += 1;
     institute.certificate_issued_count += 1;
     student.studentLeavingStatus = "Ready";
@@ -3915,7 +3956,7 @@ exports.renderAllInstituteFundChargesQuery = async (req, res) => {
       });
 
     const ins = await InstituteAdmin.findById({ _id: id }).select(
-      "certificate_fund_collection certificate_fund_charges"
+      "certificate_fund_collection certificate_fund_charges certificate_leaving_form_student leave_certificate_selection"
     );
     res.status(200).send({
       message: "Explore All Institute Fund Charges + Collection",
@@ -4549,7 +4590,7 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
     //     },
     //   ],
     // });
-    all_app = await NewApplication.findById("666a78c330ee0b50462c00ef");
+    all_app = await NewApplication.findById("666a78a530ee0b50462bff97");
 
     // for (let i = 0; i < all_app?.length; i++) {
     // for (let dfg of all_app) {
@@ -4570,6 +4611,7 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
             if (stu?._id) {
               if (stu?.application_print?.length > 0) {
               } else {
+                console.log("Application");
                 not_generate_student_list.push(stu?._id);
                 await generateStudentAdmissionForm(
                   stu?._id,
@@ -4589,6 +4631,8 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
             if (stu?._id) {
               if (stu?.application_print?.length > 0) {
               } else {
+                console.log("Document");
+
                 not_generate_student_list.push(stu?._id);
                 await generateStudentAdmissionForm(
                   stu?._id,
@@ -4608,6 +4652,8 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
             if (stu?._id) {
               if (stu?.application_print?.length > 0) {
               } else {
+                console.log("FEE");
+
                 not_generate_student_list.push(stu?._id);
                 await generateStudentAdmissionForm(
                   stu?._id,
@@ -4627,6 +4673,8 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
             if (stu?._id) {
               if (stu?.application_print?.length > 0) {
               } else {
+                console.log("CONFIRM");
+
                 not_generate_student_list.push(stu?._id);
                 await generateStudentAdmissionForm(
                   stu?._id,
@@ -4646,6 +4694,8 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
             if (stu?._id) {
               if (stu?.application_print?.length > 0) {
               } else {
+                console.log("REVIEW");
+
                 not_generate_student_list.push(stu?._id);
                 await generateStudentAdmissionForm(
                   stu?._id,
@@ -4796,7 +4846,13 @@ exports.customGenerateCheckAllPayReceiptQuery = async (req, res) => {
 // for generated duumy pdf
 exports.generateDummyPdfQuery = async (req, res) => {
   try {
-    await staffLeaveRequest();
+    // await staffLeaveRequest();
+    await generateStudentAdmissionForm(
+      "66b1fa62446e7c9bcbe4eb89",
+      "6669446aca43f4f89fb5d6b7",
+      "Sadhavi Sagar Gawde",
+      "FY Junior Commerce (Batch 2024-25)"
+    );
     res.status(200).send({
       message: "Dummy pdf generate",
     });
@@ -4852,6 +4908,168 @@ exports.certificateLeavingStudentFormSettingQuery = async (req, res) => {
       certificate_leaving_form_student;
     res.status(200).send({
       message: "Certificate setting form updated",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// for hostel all application form
+exports.customGenerateCheckHostelAllApplicationFormQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+
+    if (!hid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let not_generate_student_list = [];
+    let a_app = [];
+    let all_app = [];
+    const hostel = await Hostel.findById(hid);
+    // all_app = await NewApplication.find({
+    //   $and: [
+    //     {
+    //      _id: { $in: hostel?.newApplication },
+    //     },
+    //     {
+    //       applicationStatus: { $eq: "Ongoing" },
+    //     },
+    //     {
+    //       applicationTypeStatus: { $eq: "Normal Application" },
+    //     },
+    //     {
+    //      application_flow: "Hostel Application"
+    //     },
+    //   ],
+    // });
+    all_app = await NewApplication.findById("66a924421e1bc45b685554c7");
+    // for (let i = 0; i < all_app?.length; i++) {
+    // for (let dfg of all_app) {
+    let new_app = all_app;
+    // let new_app = all_app[i];
+    // let new_app = dfg;
+    a_app.push(new_app?.applicationName);
+    console.log(new_app?.applicationName);
+    if (
+      false
+      // new_app?.applicationName === "F.Y. M.Sc (Analytical Chemistry - 2024-25)"
+    ) {
+    } else {
+      if (hostel?.institute) {
+        for (let st of new_app?.receievedApplication) {
+          if (st?.student) {
+            const stu = await Student.findById(st?.student);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
+                console.log("Application");
+                not_generate_student_list.push(stu?._id);
+                await generateStudentAdmissionForm(
+                  stu?._id,
+                  hostel?.institute,
+                  `${stu?.studentFirstName ?? ""} ${
+                    stu?.studentMiddleName ?? ""
+                  } ${stu?.studentLastName ?? ""}`,
+                  new_app?.applicationName
+                );
+              }
+            }
+          }
+        }
+        for (let st of new_app?.selectedApplication) {
+          if (st?.student) {
+            const stu = await Student.findById(st?.student);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
+                console.log("Document");
+
+                not_generate_student_list.push(stu?._id);
+                await generateStudentAdmissionForm(
+                  stu?._id,
+                  hostel?.institute,
+                  `${stu?.studentFirstName ?? ""} ${
+                    stu?.studentMiddleName ?? ""
+                  } ${stu?.studentLastName ?? ""}`,
+                  new_app?.applicationName
+                );
+              }
+            }
+          }
+        }
+        for (let st of new_app?.FeeCollectionApplication) {
+          if (st?.student) {
+            const stu = await Student.findById(st?.student);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
+                console.log("FEE");
+
+                not_generate_student_list.push(stu?._id);
+                await generateStudentAdmissionForm(
+                  stu?._id,
+                  hostel?.institute,
+                  `${stu?.studentFirstName ?? ""} ${
+                    stu?.studentMiddleName ?? ""
+                  } ${stu?.studentLastName ?? ""}`,
+                  new_app?.applicationName
+                );
+              }
+            }
+          }
+        }
+        for (let st of new_app?.confirmedApplication) {
+          if (st?.student) {
+            const stu = await Student.findById(st?.student);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
+                console.log("CONFIRM");
+
+                not_generate_student_list.push(stu?._id);
+                await generateStudentAdmissionForm(
+                  stu?._id,
+                  hostel?.institute,
+                  `${stu?.studentFirstName ?? ""} ${
+                    stu?.studentMiddleName ?? ""
+                  } ${stu?.studentLastName ?? ""}`,
+                  new_app?.applicationName
+                );
+              }
+            }
+          }
+        }
+        for (let st of new_app?.reviewApplication) {
+          if (st) {
+            const stu = await Student.findById(st);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
+                console.log("REVIEW");
+
+                not_generate_student_list.push(stu?._id);
+                await generateStudentAdmissionForm(
+                  stu?._id,
+                  hostel?.institute,
+                  `${stu?.studentFirstName ?? ""} ${
+                    stu?.studentMiddleName ?? ""
+                  } ${stu?.studentLastName ?? ""}`,
+                  new_app?.applicationName
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+    // }
+
+    res.status(200).send({
+      message: "All application form is created.",
+      not_generate_student_list: not_generate_student_list,
+      a_app: a_app,
     });
   } catch (e) {
     console.log(e);

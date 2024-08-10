@@ -716,6 +716,12 @@ const studentSchema = new mongoose.Schema({
   student_ph_type: {
     type: String,
   },
+  student_sponser_upload: {
+    type: String
+  },
+  student_sponser: {
+    type: String
+  },
   query_lock_status: {
     type: String,
     default: "Unlocked",

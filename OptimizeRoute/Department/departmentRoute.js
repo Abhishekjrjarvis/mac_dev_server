@@ -22,7 +22,47 @@ router.get(
 );
 
 router.get(
-  "/:aid/application/tab/query",
+  "/:aid/application/:did/tab/query",
   catchAsync(Depart.render_application_tab_query)
+);
+
+router.get(
+  "/:aid/selected/:did/tab/query",
+  catchAsync(Depart.render_selected_tab_query)
+);
+
+router.get(
+  "/:aid/fees/:did/tab/query",
+  catchAsync(Depart.render_fees_tab_query)
+);
+
+router.get(
+  "/:aid/confirm/:did/tab/query",
+  catchAsync(Depart.render_confirm_tab_query)
+);
+
+router.get(
+  "/:aid/review/:did/tab/query",
+  catchAsync(Depart.render_review_tab_query)
+);
+
+router.get(
+  "/:aid/allotted/:did/tab/query",
+  catchAsync(Depart.render_allotted_tab_query)
+);
+
+router.get(
+  "/:aid/cancelled/:did/tab/query",
+  catchAsync(Depart.render_cancelled_tab_query)
+);
+
+router.post(
+  "/:sid/student/:aid/select",
+  catchAsync(Depart.retrieveDepartmentSelectedApplication)
+);
+
+router.post(
+  "/:sid/student/:aid/cancel/app",
+  catchAsync(Depart.retrieveDepartmentCancelApplication)
 );
 module.exports = router;

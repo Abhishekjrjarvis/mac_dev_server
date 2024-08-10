@@ -112,16 +112,9 @@ const {
   render_new_hostel_fees_card,
 } = require("../../Functions/FeesCard");
 const NestedCard = require("../../models/Admission/NestedCard");
-const {
-  all_installment_paid,
-  render_installment,
-  set_fee_head_query_redesign_split,
-  set_fee_head_query_redesign,
-  lookup_applicable_grant,
-  update_fee_head_query_redesign_split,
-  update_fee_head_query_redesign,
-  exempt_installment,
-} = require("../../helper/Installment");
+
+const { all_installment_paid, render_installment, set_fee_head_query_redesign_split, set_fee_head_query_redesign, lookup_applicable_grant, update_fee_head_query_redesign_split, update_fee_head_query_redesign, exempt_installment } = require("../../helper/Installment");
+const { renderAllStudentToUnApprovedAutoCatalogQuery } = require("../Authentication/AuthController");
 
 exports.renderActivateHostelQuery = async (req, res) => {
   try {
@@ -590,15 +583,15 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
           $and: [
             { _id: { $in: one_hostel?.fees_structures } },
             { batch_master: master_query },
-            { document_update: false },
-          ],
-          $or: [
             {
               class_master: `${master_by}`,
             },
             {
-              unit_master: unit_by,
+
+              unit_master: unit_by
             },
+            { document_update: false },
+
           ],
         })
           .limit(limit)
@@ -2004,7 +1997,7 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
 exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { amount, mode, remainAmount } = req.body;
+    const { amount, mode, remainAmount, struct, staffId } = req.body;
     if (!sid && !aid && !amount && !remainAmount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2014,36 +2007,52 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
     var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
-    const apply = await NewApplication.findById({ _id: aid });
-    const one_hostel = await Hostel.findById({
+    const apply = await NewApplication.findById({ _id: aid }).populate({
+      path: "applicationDepartment",
+      select: "dName",
+    });
+    const admission = await Hostel.findById({
       _id: `${apply.hostelAdmin}`,
     }).populate({
       path: "hostel_manager",
       select: "user",
     });
     const institute = await InstituteAdmin.findById({
-      _id: `${one_hostel?.institute}`,
+      _id: `${admission.institute}`,
     });
     const finance = await Finance.findById({
-      _id: `${institute?.financeDepart[0]}`,
+      _id: `${institute.financeDepart[0]}`,
     });
     const aStatus = new Status({});
     const notify = new StudentNotification({});
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.refund_status = "Refunded";
     new_receipt.student = student?._id;
-    new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
     new_receipt.application = apply?._id;
+    new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date();
     if (
       price &&
+      mode === "Offline" &&
       price > finance.financeTotalBalance &&
-      price > one_hostel.offlineFee &&
+      price > admission.offlineFee &&
       price > finance.financeSubmitBalance
     ) {
       res.status(200).send({
-        message: "insufficient Balance in Finance Department to make refund",
+        message:
+          "insufficient Cash Balance in Finance Department to make refund",
+      });
+    } else if (
+      price &&
+      mode === "Online" &&
+      price > finance.financeTotalBalance &&
+      price > admission.onlineFee &&
+      price > finance.financeBankBalance
+    ) {
+      res.status(200).send({
+        message:
+          "insufficient Bank Balance in Finance Department to make refund",
       });
     } else {
       const order = new OrderPayment({});
@@ -2052,8 +2061,8 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
         apply.remainingFee -= parseInt(remainAmount);
       }
       if (mode === "Offline") {
-        if (finance.financeHostelBalance >= price) {
-          finance.financeHostelBalance -= price;
+        if (finance.financeAdmissionBalance >= price) {
+          finance.financeAdmissionBalance -= price;
         }
         if (finance.financeTotalBalance >= price) {
           finance.financeTotalBalance -= price;
@@ -2061,11 +2070,11 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
         if (finance.financeSubmitBalance >= price) {
           finance.financeSubmitBalance -= price;
         }
-        if (one_hostel.offlineFee >= price) {
-          one_hostel.offlineFee -= price;
+        if (admission.offlineFee >= price) {
+          admission.offlineFee -= price;
         }
-        if (one_hostel.collected_fee >= price) {
-          one_hostel.collected_fee -= price;
+        if (admission.collected_fee >= price) {
+          admission.collected_fee -= price;
         }
         if (apply.offlineFee >= price) {
           apply.offlineFee -= price;
@@ -2074,8 +2083,8 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
           apply.collectedFeeCount -= price;
         }
       } else if (mode === "Online") {
-        if (one_hostel.onlineFee >= price) {
-          one_hostel.onlineFee -= price;
+        if (admission.onlineFee >= price) {
+          admission.onlineFee -= price;
         }
         if (apply.onlineFee >= price) {
           apply.onlineFee -= price;
@@ -2083,8 +2092,8 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
         if (apply.collectedFeeCount >= price) {
           apply.collectedFeeCount -= price;
         }
-        if (finance.financeHostelBalance >= price) {
-          finance.financeHostelBalance -= price;
+        if (finance.financeAdmissionBalance >= price) {
+          finance.financeAdmissionBalance -= price;
         }
         if (finance.financeTotalBalance >= price) {
           finance.financeTotalBalance -= price;
@@ -2093,59 +2102,62 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
           finance.financeBankBalance -= price;
         }
       }
-      if (one_hostel.remainingFeeCount >= parseInt(remainAmount)) {
-        one_hostel.remainingFeeCount -= parseInt(remainAmount);
+      if (admission.remainingFeeCount >= parseInt(remainAmount)) {
+        admission.remainingFeeCount -= parseInt(remainAmount);
       }
-      aStatus.content = `your hostel admission has been cancelled successfully with refund of Rs. ${price}`;
+      aStatus.content = `your admission has been cancelled successfully with refund of Rs. ${price}`;
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
-      notify.notifyContent = `your hostel admission has been cancelled successfully with refund of Rs. ${price}`;
-      notify.notifySender = one_hostel?.hostel_manager?.user;
+      notify.notifyContent = `your admission has been cancelled successfully with refund of Rs. ${price}`;
+      notify.notifySender = admission?.hostel_manager?.user;
       notify.notifyReceiever = user?._id;
       notify.notifyType = "Student";
       notify.notifyPublisher = student?._id;
       user.activity_tab.push(notify?._id);
-      notify.notifyByHostelPhoto = one_hostel?._id;
+      notify.notifyByAdmissionPhoto = admission?._id;
       notify.notifyCategory = "Hostel Status Alert";
-      notify.redirectIndex = 56;
-      notify.notifyCategory = "Cancellation & Refund";
-      student.hostelRemainFeeCount = 0;
+      notify.redirectIndex = 29;
+      student.admissionRemainFeeCount = 0;
       student.refundAdmission.push({
         refund_status: "Refund",
-        refund_reason: "Cancellation of Hostel Admission",
+        refund_reason: "Cancellation of Admission",
         refund_amount: price,
         refund_from: apply?._id,
       });
-
       const all_remain_fee_list = await RemainingList.findOne({
-        $and: [
-          { student: student?._id },
-          { appId: apply?._id },
-          { remaining_flow: "Hostel Application" },
-        ],
+        $and: [{ fee_structure: struct }, { student: student?._id }],
       });
-      const filter_student_install =
-        all_remain_fee_list?.remaining_array?.filter((stu) => {
+      new_receipt.fee_structure = all_remain_fee_list?.fee_structure;
+      const nest_app_card = await NestedCard.findById({
+        _id: `${all_remain_fee_list?.applicable_card}`,
+      });
+      const filter_student_install = nest_app_card?.remaining_array?.filter(
+        (stu) => {
           if (`${stu.appId}` === `${apply._id}` && stu.status === "Not Paid")
             return stu;
-        });
+        }
+      );
       for (var can = 0; can < filter_student_install?.length; can++) {
-        all_remain_fee_list?.remaining_array.pull(filter_student_install[can]);
+        nest_app_card?.remaining_array.pull(filter_student_install[can]);
       }
       all_remain_fee_list.fee_receipts.push(new_receipt?._id);
       all_remain_fee_list.refund_fee += price;
       if (all_remain_fee_list.paid_fee >= price) {
         all_remain_fee_list.paid_fee -= price;
       }
+      if (nest_app_card.paid_fee >= price) {
+        nest_app_card.paid_fee -= price;
+      }
       all_remain_fee_list.remaining_fee = 0;
+      nest_app_card.remaining_fee = 0;
       for (var ele of student?.active_fee_heads) {
         if (`${ele?.appId}` === `${apply?._id}`) {
           ele.paid_fee = 0;
           ele.remain_fee = 0;
         }
       }
-      all_remain_fee_list.remaining_array.push({
+      nest_app_card.remaining_array.push({
         remainAmount: price,
         appId: apply._id,
         status: "Paid",
@@ -2156,6 +2168,7 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
         fee_receipt: new_receipt?._id,
         refund_status: "Refunded",
       });
+      all_remain_fee_list.status = "Cancel";
       order.payment_module_type = "Expense";
       order.payment_to_end_user_id = institute._id;
       order.payment_by_end_user_id = user._id;
@@ -2170,19 +2183,20 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
       order.payment_student = student?._id;
       order.payment_student_name = student?.valid_full_name;
       order.payment_student_gr = student?.studentGRNO;
-      institute.invoice_count += 1;
-      new_receipt.invoice_count = `${
-        new Date().getMonth() + 1
-      }${new Date().getFullYear()}${institute?.invoice_count}`;
-      order.payment_invoice_number = new_receipt?.invoice_count;
+      fee_receipt_count_query(institute, new_receipt, order);
+      order.fee_receipt = new_receipt?._id;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
-      order.fee_receipt = new_receipt?._id;
+      student.student_application_obj.push({
+        app: apply?._id,
+        staff: staffId,
+        flow: "cancel_by",
+      });
       await Promise.all([
         apply.save(),
         student.save(),
         finance.save(),
-        one_hostel.save(),
+        admission.save(),
         aStatus.save(),
         user.save(),
         order.save(),
@@ -2191,37 +2205,48 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
         all_remain_fee_list.save(),
         new_receipt.save(),
         notify.save(),
+        nest_app_card.save(),
       ]);
       res.status(200).send({
-        message: "Refund & Cancellation of Hostel Admission",
+        message: "Refund & Cancellation of Admission",
         refund_status: true,
       });
       invokeMemberTabNotification(
         "Admission Status",
         aStatus.content,
-        "Hostel Status",
+        "Application Status",
         user._id,
         user.deviceToken
       );
-      if (apply.confirmedApplication?.length > 0) {
-        for (let app of apply.confirmedApplication) {
-          if (`${app.student}` === `${student._id}`) {
-            apply.confirmedApplication.pull(app._id);
-          } else {
-          }
+      if (apply.reviewApplication?.length > 0) {
+        if (apply?.reviewApplication?.includes(`${student?._id}`)) {
+          apply.reviewApplication?.pull(student?._id);
         }
+        // for (var val of apply.reviewApplication) {
+        //   if (`${val?.student}` === `${student?._id}`) {
+        //     apply.reviewApplication.pull(val?._id);
+        //   }
+        // }
         apply.cancelApplication.push({
           student: student._id,
           payment_status: "Refund",
           refund_amount: price,
+          from: "Cancel_Tab",
         });
-        await apply.save();
+        admission.cancel_admission.push({
+          student: student._id,
+          payment_status: "Refund",
+          refund_amount: price,
+          from: "Cancel_Tab",
+        });
+        admission.cancel_admission_count += price;
+        await Promise.all([apply.save(), admission.save()]);
       }
-      if (one_hostel?.remainingFee?.length > 0) {
-        if (one_hostel.remainingFee?.includes(`${student._id}`)) {
-          one_hostel.remainingFee.pull(student._id);
+      if (admission?.remainingFee?.length > 0) {
+        if (admission.remainingFee?.includes(`${student._id}`)) {
+          admission.remainingFee.pull(student._id);
         }
-        await one_hostel.save();
+        await admission.save();
       }
     }
   } catch (e) {
@@ -2351,7 +2376,7 @@ exports.renderHostelRemainingArray = async (req, res) => {
 exports.renderAllotHostedBedQuery = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { huid, hrid, id } = req.query;
+    const { huid, hrid, id } = req.body;
     if (!aid && !req.body.dataList && !hrid && !huid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2370,102 +2395,108 @@ exports.renderAllotHostedBedQuery = async (req, res) => {
     // var batch = await Batch.findById({ _id: `${apply.applicationBatch}` });
     var one_unit = await HostelUnit.findById({ _id: huid });
     var room = await HostelRoom.findById({ _id: hrid });
-    var array = req.body.dataList;
+    var array = req?.body?.dataList;
     if (array?.length > 0) {
       for (var sid of array) {
-        const student = await Student.findById({ _id: sid });
-        const bed = new HostelBed({});
-        // const remain_list = await RemainingList.findOne({
-        //   $and: [
-        //     { _id: { $in: student?.remainingFeeList } },
-        //     { appId: apply?._id },
-        //     {
-        //       remaining_flow: "Hostel Application",
-        //     },
-        //   ],
-        // });
-        const user = await User.findById({ _id: `${student.user}` });
-        var exist_stu = await Student.find({
-          $and: [{ institute: institute?._id }, { user: user?._id }],
-        });
-        if (exist_stu?.length > 0) {
-          exist_stu[0].exist_linked_hostel.status = "Linked";
-          exist_stu[0].exist_linked_hostel.exist_student = student?._id;
-          await exist_stu[0].save();
+        if (apply?.allot_array?.includes(`${sid}`)) {
+          
         }
-        const notify = new StudentNotification({});
-        const aStatus = new Status({});
-        for (let app of apply.confirmedApplication) {
-          if (`${app.student}` === `${student._id}`) {
-            apply.confirmedApplication.pull(app._id);
+        else {
+          const student = await Student.findById({ _id: sid });
+          const bed = new HostelBed({});
+          // const remain_list = await RemainingList.findOne({
+          //   $and: [
+          //     { _id: { $in: student?.remainingFeeList } },
+          //     { appId: apply?._id },
+          //     {
+          //       remaining_flow: "Hostel Application",
+          //     },
+          //   ],
+          // });
+          const user = await User.findById({ _id: `${student.user}` });
+          var exist_stu = await Student.find({
+            $and: [{ institute: institute?._id }, { user: user?._id }],
+          });
+          if (exist_stu?.length > 0) {
+            exist_stu[0].exist_linked_hostel.status = "Linked";
+            exist_stu[0].exist_linked_hostel.exist_student = student?._id;
+            await exist_stu[0].save();
+          }
+          const notify = new StudentNotification({});
+          const aStatus = new Status({});
+          for (let app of apply.reviewApplication) {
+            if (`${app}` === `${student._id}`) {
+              apply.reviewApplication.pull(app);
+            } else {
+            }
+          }
+          bed.bed_allotted_candidate = student?._id;
+          bed.hostelRoom = room?._id;
+          bed.bed_number = room.bed_count + 1 - room.vacant_count;
+          if (room?.vacant_count > 0) {
+            room.vacant_count -= 1;
+          }
+          room.beds.push(bed?._id);
+          one_unit.hostelities_count += 1;
+          one_unit.hostelities.push(student?._id);
+          one_hostel.hostelities_count += 1;
+          student.student_bed_number = bed?._id;
+          student.student_unit = one_unit?._id;
+          student.institute = institute?.id;
+          apply.allottedApplication.push({
+            student: student._id,
+            payment_status: "offline",
+            alloted_room: room?.room_name,
+            alloted_status: "Alloted",
+            fee_remain: student.hostelRemainFeeCount,
+            paid_status: student.hostelRemainFeeCount == 0 ? "Paid" : "Not Paid",
+          });
+          // remain_list.batchId = batch?._id;
+          apply.allotCount += 1;
+          apply.allot_array.push(student?._id)
+          notify.notifyContent = `Welcome to ${room?.room_name} Enjoy your Hostel Life.`;
+          notify.notifySender = one_hostel?.hostel_manager?.user;
+          notify.notifyReceiever = user?._id;
+          notify.notifyType = "Student";
+          notify.notifyPublisher = student?._id;
+          user.activity_tab.push(notify?._id);
+          notify.notifyByHostelPhoto = one_hostel?._id;
+          notify.notifyCategory = "Hostel Status Alert";
+          notify.redirectIndex = 55;
+          notify.notifyCategory = "Bed Allottment";
+          aStatus.content = `Welcome to ${room?.room_name} Enjoy your Hostel Life.`;
+          aStatus.applicationId = apply._id;
+          user.applicationStatus.push(aStatus._id);
+          aStatus.instituteId = institute._id;
+          if (student?.studentGender === "Male") {
+            one_hostel.boy_count += 1;
+          } else if (student?.studentGender === "Female") {
+            one_hostel.girl_count += 1;
+          } else if (student?.studentGender === "Other") {
+            one_hostel.other_count += 1;
           } else {
           }
+          await Promise.all([
+            student.save(),
+            apply.save(),
+            user.save(),
+            aStatus.save(),
+            institute.save(),
+            notify.save(),
+            // remain_list.save(),
+            room.save(),
+            bed.save(),
+            one_hostel.save(),
+            one_unit.save(),
+          ]);
+          invokeMemberTabNotification(
+            "Admission Status",
+            aStatus.content,
+            "Hostel Status",
+            user._id,
+            user.deviceToken
+          );
         }
-        bed.bed_allotted_candidate = student?._id;
-        bed.hostelRoom = room?._id;
-        bed.bed_number = room.bed_count + 1 - room.vacant_count;
-        if (room?.vacant_count > 0) {
-          room.vacant_count -= 1;
-        }
-        room.beds.push(bed?._id);
-        one_unit.hostelities_count += 1;
-        one_unit.hostelities.push(student?._id);
-        one_hostel.hostelities_count += 1;
-        student.student_bed_number = bed?._id;
-        student.student_unit = one_unit?._id;
-        student.institute = institute?.id;
-        apply.allottedApplication.push({
-          student: student._id,
-          payment_status: "offline",
-          alloted_room: room?.room_name,
-          alloted_status: "Alloted",
-          fee_remain: student.hostelRemainFeeCount,
-          paid_status: student.hostelRemainFeeCount == 0 ? "Paid" : "Not Paid",
-        });
-        // remain_list.batchId = batch?._id;
-        apply.allotCount += 1;
-        notify.notifyContent = `Welcome to ${room?.room_name} Enjoy your Hostel Life.`;
-        notify.notifySender = one_hostel?.hostel_manager?.user;
-        notify.notifyReceiever = user?._id;
-        notify.notifyType = "Student";
-        notify.notifyPublisher = student?._id;
-        user.activity_tab.push(notify?._id);
-        notify.notifyByHostelPhoto = one_hostel?._id;
-        notify.notifyCategory = "Hostel Status Alert";
-        notify.redirectIndex = 55;
-        notify.notifyCategory = "Bed Allottment";
-        aStatus.content = `Welcome to ${room?.room_name} Enjoy your Hostel Life.`;
-        aStatus.applicationId = apply._id;
-        user.applicationStatus.push(aStatus._id);
-        aStatus.instituteId = institute._id;
-        if (student?.studentGender === "Male") {
-          one_hostel.boy_count += 1;
-        } else if (student?.studentGender === "Female") {
-          one_hostel.girl_count += 1;
-        } else if (student?.studentGender === "Other") {
-          one_hostel.other_count += 1;
-        } else {
-        }
-        await Promise.all([
-          student.save(),
-          apply.save(),
-          user.save(),
-          aStatus.save(),
-          institute.save(),
-          notify.save(),
-          // remain_list.save(),
-          room.save(),
-          bed.save(),
-          one_hostel.save(),
-          one_unit.save(),
-        ]);
-        invokeMemberTabNotification(
-          "Admission Status",
-          aStatus.content,
-          "Hostel Status",
-          user._id,
-          user.deviceToken
-        );
       }
       res.status(200).send({
         message: `Distribute sweets to all family members`,
@@ -9475,6 +9506,301 @@ exports.inCompleteHostelApplication = async (req, res) => {
       message: "Enjoy your work load.",
       complete_status: true,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+exports.all_student_bed_query = async (req, res) => {
+  try {
+    // const all = await HostelUnit.findById({ _id: "64c29db52031578e33d6dac7" })
+    // const all_room = await HostelRoom.find({ _id: { $in: all?.rooms } })
+    
+    // for (let ele of all_room) {
+    //   ele.room_name = `L-${ele.room_name}`
+    //   await ele.save()
+    // }
+    // const all_student = await Student.find({ institute: "6449c83598fec071fbffd3ad" })
+    
+    // let all_student_bed = all_student?.filter((val) => {
+    //   if(val?.student_bed_number) return val
+    // })
+    // var i = 0
+    // for (let ele of all_student_bed) {
+    //   const bed = await HostelBed.findById({ _id: ele?.student_bed_number })
+    //   const room = await HostelRoom.findById({ _id: `${bed?.hostelRoom}` })
+    //   room.vacant_count += 1
+    //   ele.student_bed_number = null
+    //   await Promise.all([ele.save(), room.save()])
+    //   await HostelBed.findByIdAndDelete(bed?._id)
+    //   console.log(i)
+    //   i+= 1
+    // }
+    res.status(200).send({ message: "Explore All Bed Delete", access: true, all_student_bed: all_student_bed?.length, all_student: all_student?.length})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+exports.cancelAllottedHostelApplication = async (req, res) => {
+  try {
+    const { sid, aid } = req.params;
+    const { amount, mode, remainAmount, struct, classId, staffId } = req.body;
+    if (!sid && !aid && !amount && !remainAmount && !mode)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        refund_status: false,
+      });
+    var price = parseInt(amount);
+    var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const student = await Student.findById({ _id: sid });
+    const user = await User.findById({ _id: `${student.user}` });
+    const apply = await NewApplication.findById({ _id: aid }).populate({
+      path: "applicationDepartment",
+      select: "dName",
+    });
+    const admission = await Hostel.findById({
+      _id: `${apply.hostelAdmin}`,
+    }).populate({
+      path: "hostel_manager",
+      select: "user",
+    });
+    const institute = await InstituteAdmin.findById({
+      _id: `${admission.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${institute.financeDepart[0]}`,
+    });
+    const aStatus = new Status({});
+    const notify = new StudentNotification({});
+    const new_receipt = new FeeReceipt({ ...req.body });
+    new_receipt.refund_status = "Refunded";
+    new_receipt.student = student?._id;
+    new_receipt.application = apply?._id;
+    new_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
+    new_receipt.finance = finance?._id;
+    new_receipt.fee_transaction_date = new Date();
+    if (
+      price &&
+      mode === "Offline" &&
+      price > finance.financeTotalBalance &&
+      price > admission.offlineFee &&
+      price > finance.financeSubmitBalance
+    ) {
+      res.status(200).send({
+        message:
+          "insufficient Cash Balance in Finance Department to make refund",
+      });
+    } else if (
+      price &&
+      mode === "Online" &&
+      price > finance.financeTotalBalance &&
+      price > admission.onlineFee &&
+      price > finance.financeBankBalance
+    ) {
+      res.status(200).send({
+        message:
+          "insufficient Bank Balance in Finance Department to make refund",
+      });
+    } else {
+      const order = new OrderPayment({});
+      apply.cancelCount += 1;
+      if (apply.remainingFee >= parseInt(remainAmount)) {
+        apply.remainingFee -= parseInt(remainAmount);
+      }
+      if (mode === "Offline") {
+        if (finance.financeAdmissionBalance >= price) {
+          finance.financeAdmissionBalance -= price;
+        }
+        if (finance.financeTotalBalance >= price) {
+          finance.financeTotalBalance -= price;
+        }
+        if (finance.financeSubmitBalance >= price) {
+          finance.financeSubmitBalance -= price;
+        }
+        if (admission.offlineFee >= price) {
+          admission.offlineFee -= price;
+        }
+        if (admission.collected_fee >= price) {
+          admission.collected_fee -= price;
+        }
+        if (apply.offlineFee >= price) {
+          apply.offlineFee -= price;
+        }
+        if (apply.collectedFeeCount >= price) {
+          apply.collectedFeeCount -= price;
+        }
+      } else if (mode === "Online") {
+        if (admission.onlineFee >= price) {
+          admission.onlineFee -= price;
+        }
+        if (apply.onlineFee >= price) {
+          apply.onlineFee -= price;
+        }
+        if (apply.collectedFeeCount >= price) {
+          apply.collectedFeeCount -= price;
+        }
+        if (finance.financeAdmissionBalance >= price) {
+          finance.financeAdmissionBalance -= price;
+        }
+        if (finance.financeTotalBalance >= price) {
+          finance.financeTotalBalance -= price;
+        }
+        if (finance.financeBankBalance >= price) {
+          finance.financeBankBalance -= price;
+        }
+      }
+      if (admission.remainingFeeCount >= parseInt(remainAmount)) {
+        admission.remainingFeeCount -= parseInt(remainAmount);
+      }
+      aStatus.content = `your admission has been cancelled successfully with refund of Rs. ${price}`;
+      aStatus.applicationId = apply._id;
+      user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
+      notify.notifyContent = `your admission has been cancelled successfully with refund of Rs. ${price}`;
+      notify.notifySender = admission?.hostel_manager?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByAdmissionPhoto = admission?._id;
+      notify.notifyCategory = "Status Alert";
+      notify.redirectIndex = 29;
+      student.admissionRemainFeeCount = 0;
+      student.refundAdmission.push({
+        refund_status: "Refund",
+        refund_reason: "Cancellation of Admission",
+        refund_amount: price,
+        refund_from: apply?._id,
+      });
+      const all_remain_fee_list = await RemainingList.findOne({
+        $and: [{ fee_structure: struct }, { student: student?._id }],
+      });
+      new_receipt.fee_structure = all_remain_fee_list?.fee_structure;
+      const nest_app_card = await NestedCard.findById({
+        _id: `${all_remain_fee_list?.applicable_card}`,
+      });
+      const filter_student_install = nest_app_card?.remaining_array?.filter(
+        (stu) => {
+          if (`${stu.appId}` === `${apply._id}` && stu.status === "Not Paid")
+            return stu;
+        }
+      );
+      for (var can = 0; can < filter_student_install?.length; can++) {
+        nest_app_card?.remaining_array.pull(filter_student_install[can]);
+      }
+      all_remain_fee_list.fee_receipts.push(new_receipt?._id);
+      all_remain_fee_list.refund_fee += price;
+      if (all_remain_fee_list.paid_fee >= price) {
+        all_remain_fee_list.paid_fee -= price;
+      }
+      if (nest_app_card.paid_fee >= price) {
+        nest_app_card.paid_fee -= price;
+      }
+      all_remain_fee_list.remaining_fee = 0;
+      nest_app_card.remaining_fee = 0;
+      for (var ele of student?.active_fee_heads) {
+        if (`${ele?.appId}` === `${apply?._id}`) {
+          ele.paid_fee = 0;
+          ele.remain_fee = 0;
+        }
+      }
+      nest_app_card.remaining_array.push({
+        remainAmount: price,
+        appId: apply._id,
+        status: "Paid",
+        instituteId: institute._id,
+        installmentValue: "Cancellation & Refunded",
+        mode: mode,
+        isEnable: true,
+        fee_receipt: new_receipt?._id,
+        refund_status: "Refunded",
+      });
+      student.student_application_obj.push({
+        app: apply?._id,
+        staff: staffId,
+        flow: "cancel_by",
+      });
+      all_remain_fee_list.status = "Cancel";
+      order.payment_module_type = "Expense";
+      order.payment_to_end_user_id = institute._id;
+      order.payment_by_end_user_id = user._id;
+      order.payment_module_id = apply._id;
+      order.payment_amount = price;
+      order.payment_status = "Captured";
+      order.payment_flag_to = "Debit";
+      order.payment_flag_by = "Credit";
+      order.payment_mode = mode;
+      order.payment_admission = apply._id;
+      order.payment_from = student._id;
+      order.payment_student = student?._id;
+      order.payment_student_name = student?.valid_full_name;
+      order.payment_student_gr = student?.studentGRNO;
+      fee_receipt_count_query(institute, new_receipt, order);
+      order.fee_receipt = new_receipt?._id;
+      user.payment_history.push(order._id);
+      institute.payment_history.push(order._id);
+      // await renderAllStudentToUnApprovedAutoCatalogQuery(
+      //   student?.studentClass,
+      //   [sid]
+      // );
+      await Promise.all([
+        apply.save(),
+        student.save(),
+        finance.save(),
+        admission.save(),
+        aStatus.save(),
+        user.save(),
+        order.save(),
+        institute.save(),
+        s_admin.save(),
+        all_remain_fee_list.save(),
+        new_receipt.save(),
+        notify.save(),
+        nest_app_card.save(),
+      ]);
+      res.status(200).send({
+        message: "Refund & Cancellation of Admission",
+        refund_status: true,
+      });
+      invokeMemberTabNotification(
+        "Admission Status",
+        aStatus.content,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
+      if (apply.allottedApplication?.length > 0) {
+        for (var val of apply.allottedApplication) {
+          if (`${val?.student}` === `${student?._id}`) {
+            apply.allottedApplication.pull(val?._id);
+          }
+        }
+        apply.cancelApplication.push({
+          student: student._id,
+          payment_status: "Refund",
+          refund_amount: price,
+          from: "Allotted_Tab",
+        });
+        admission.cancel_admission.push({
+          student: student._id,
+          payment_status: "Refund",
+          refund_amount: price,
+          from: "Allotted_Tab",
+        });
+        admission.cancel_admission_count += price;
+        await Promise.all([apply.save(), admission.save()]);
+      }
+      if (admission?.remainingFee?.length > 0) {
+        if (admission.remainingFee?.includes(`${student._id}`)) {
+          admission.remainingFee.pull(student._id);
+        }
+        await admission.save();
+      }
+
+    }
   } catch (e) {
     console.log(e);
   }

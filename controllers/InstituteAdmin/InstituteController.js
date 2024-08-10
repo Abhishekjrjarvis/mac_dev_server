@@ -4341,7 +4341,7 @@ exports.fetchOneStaffDepartmentInfo = async (req, res) => {
       })
       .populate({
         path: "institute",
-        select: "insName financeStatus storeStatus storeDepart",
+        select: "insName financeStatus storeStatus storeDepart financeDepart admissionDepart admissionStatus",
       })
       .populate({
         path: "userBatch",
@@ -6580,7 +6580,7 @@ exports.render_new_student_form_section_query = async (req, res) => {
       _id: `${ifs?.institute}`,
     }).select("depart admissionDepart");
     var all_app = await NewApplication.find({
-      admissionAdmin: ins?.admissionDepart?.[0],
+      $and: [{admissionAdmin: ins?.admissionDepart?.[0]}, { applicationStatus: "Ongoing"}, { applicationTypeStatus: "Normal Application"}],
     });
     for (var val of form) {
       ifs.form_section.push({
@@ -8175,7 +8175,7 @@ exports.render_enable_form_flow = async (req, res) => {
 exports.render_form_key_editable = async (req, res) => {
   try {
     const all_check = await FormChecklist.find({
-      form_checklist_key: "student_seat_type",
+      form_checklist_key: "student_defence_personnel_word",
     });
     for (let ele of all_check) {
       ele.form_checklist_name = "Defence Personnel Ward";
@@ -9348,3 +9348,93 @@ exports.retrieveApproveUnApproveStudentListQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.new_checklist_section_query = async (req, res) => {
+  try {
+    const { id } = req?.params
+    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const institute = await InstituteAdmin.findById({ _id: id })
+    // const ifs = await InstituteStudentForm.findOne({ institute: id })
+    const ads_admin = await Admission.findOne({ institute: id })
+    // const all_ifs = await DepartmentStudentForm.find({ department: { $in: institute?.depart } })
+    const all_app = await NewApplication.find({ $and: [{  _id: { $in: ads_admin?.newApplication}}, { applicationStatus: "Ongoing"}, { applicationTypeStatus: "Normal Application"}]})
+      const all_ifs = await InstituteApplicationForm.find({ application: { $in: all_app }})
+      .select("form_section")
+      .populate({
+        path: "form_section",
+        populate: {
+          path: "form_checklist",
+          populate: {
+            path: "nested_form_checklist",
+            populate: {
+              path: "nested_form_checklist_nested",
+            },
+          },
+        },
+      });
+    var i =0
+    for (let ifs of all_ifs) {
+      var nums = ifs?.form_section?.filter((ele) => {
+        if (`${ele?.section_key}` === `admissionDetails`) return ele
+      })
+      let sample = [
+        {
+          form_checklist_name: "Are You Sponsored Candidate",
+          form_checklist_key: "student_sponser",
+          form_checklist_visibility: true,
+          form_checklist_placeholder: "Are You Sponsored Candidate",
+          form_checklist_lable: "Are You Sponsored Candidate",
+          form_checklist_typo: "SELECT",
+          form_checklist_typo_option_pl: ["Yes", "No"],
+          form_checklist_enable: "true"
+        },
+        {
+          form_checklist_name: "Upload Experience Certificate",
+          form_checklist_key: "student_sponser_upload",
+          form_checklist_visibility: true,
+          form_checklist_placeholder: "Upload Experience Certificate",
+          form_checklist_lable: "Upload Experience Certificate",
+          form_checklist_typo: "FILE",
+          form_common_key: "student_sponser"
+        },
+      ]
+      var numss = []
+      for (let ele of sample) {
+        var fc = new FormChecklist({
+          form_checklist_name: ele?.form_checklist_name,
+          form_checklist_key: ele?.form_checklist_key,
+          form_checklist_visibility: ele?.form_checklist_visibility,
+          form_checklist_placeholder: ele?.form_checklist_placeholder,
+          form_checklist_lable: ele?.form_checklist_lable,
+          form_checklist_typo: ele?.form_checklist_typo,
+          form_common_key: ele?.form_common_key,
+          form_checklist_enable: ele?.form_checklist_enable,
+          width: ele?.width,
+        });
+        if (
+          ele?.form_checklist_typo_option_pl &&
+          ele?.form_checklist_typo_option_pl?.length > 0
+        ) {
+          fc.form_checklist_typo_option_pl = [
+            ...ele?.form_checklist_typo_option_pl,
+          ];
+        }
+        // fc.department_form = ifs?._id;
+        fc.application_form = ifs?._id;
+        fc.form_section = nums[0]?._id;
+        await fc.save()
+        numss.push(fc)
+      }
+      // console.log(nums[0])
+      nums[0].form_checklist.push(...numss)
+      await ifs.save()
+      console.log(i)
+      i+= 1
+    }
+    res.status(200).send({ message: "Explore One Section Insertion", access: true, nums })
+  }
+  catch (e) {
+    console.log(e)
+  }
+}

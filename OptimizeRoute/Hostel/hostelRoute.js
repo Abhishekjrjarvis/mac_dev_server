@@ -451,11 +451,10 @@ router.patch(
   catchAsync(Hostel.inCompleteHostelApplication)
 );
 
-
 router.get(
   "/:hid/finance/all/fee/structure",
   catchAsync(Hostel.hosteInFinanceAllStructureQuery)
-
+);
 router.patch(
   "/all/student/bed/query",
   catchAsync(Hostel.all_student_bed_query)

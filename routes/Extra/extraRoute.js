@@ -522,4 +522,8 @@ router.patch(
   catchAsync(Extra.certificateLeavingStudentFormSettingQuery)
 );
 
+router.patch(
+  "/custom/check/generate/hostel/:hid/all/application/form",
+  catchAsync(Extra.customGenerateCheckHostelAllApplicationFormQuery)
+);
 module.exports = router;

@@ -100,15 +100,28 @@ const { universal_random_password } = require("../../Custom/universalId");
 const QvipleId = require("../../models/Universal/QvipleId");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const {
-  form_no_query, fee_receipt_count_query,
+  form_no_query,
+  fee_receipt_count_query,
 } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 const {
   universal_random_password_student_code,
 } = require("../../Generator/RandomPass");
-const { render_new_fees_card, render_new_hostel_fees_card } = require("../../Functions/FeesCard");
+const {
+  render_new_fees_card,
+  render_new_hostel_fees_card,
+} = require("../../Functions/FeesCard");
 const NestedCard = require("../../models/Admission/NestedCard");
-const { all_installment_paid, render_installment, set_fee_head_query_redesign_split, set_fee_head_query_redesign, lookup_applicable_grant, update_fee_head_query_redesign_split, update_fee_head_query_redesign, exempt_installment } = require("../../helper/Installment");
+const {
+  all_installment_paid,
+  render_installment,
+  set_fee_head_query_redesign_split,
+  set_fee_head_query_redesign,
+  lookup_applicable_grant,
+  update_fee_head_query_redesign_split,
+  update_fee_head_query_redesign,
+  exempt_installment,
+} = require("../../helper/Installment");
 
 exports.renderActivateHostelQuery = async (req, res) => {
   try {
@@ -584,8 +597,8 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
               class_master: `${master_by}`,
             },
             {
-              unit_master: unit_by
-            }
+              unit_master: unit_by,
+            },
           ],
         })
           .limit(limit)
@@ -1759,7 +1772,9 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
           admission.remainingFeeCount -= price;
         }
         var valid_one_time_fees =
-          student?.hostel_fee_structure?.applicable_fees - price == 0 ? true : false;
+          student?.hostel_fee_structure?.applicable_fees - price == 0
+            ? true
+            : false;
         if (valid_one_time_fees) {
           admission.remainingFee.pull(student._id);
         } else {
@@ -2576,7 +2591,9 @@ exports.renderPaidRemainingFeeStudentQuery = async (req, res) => {
         admin_ins.remainingFeeCount -= price;
       }
       var valid_one_time_fees =
-        student?.hostel_fee_structure?.applicable_fees - price == 0 ? true : false;
+        student?.hostel_fee_structure?.applicable_fees - price == 0
+          ? true
+          : false;
       if (valid_one_time_fees) {
         admin_ins.remainingFee.pull(student._id);
       } else {
@@ -7028,7 +7045,9 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
         qvipleId.qviple_id = `${uqid}`;
         admins.users.push(user);
         admins.userCount += 1;
-        user.username_chat = await new_chat_username_unique(user?.userLegalName)
+        user.username_chat = await new_chat_username_unique(
+          user?.userLegalName
+        );
         await Promise.all([admins.save(), user.save(), qvipleId.save()]);
         await universal_account_creation_feed(user);
         await user_date_of_birth(user);
@@ -7263,7 +7282,9 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         qvipleId.qviple_id = `${uqid}`;
         admins.users.push(user);
         admins.userCount += 1;
-        user.username_chat = await new_chat_username_unique(user?.userLegalName)
+        user.username_chat = await new_chat_username_unique(
+          user?.userLegalName
+        );
         await Promise.all([admins.save(), user.save(), qvipleId.save()]);
         await universal_account_creation_feed(user);
         await user_date_of_birth(user);
@@ -8175,7 +8196,6 @@ exports.renderOneLinkedQuery = async (req, res) => {
   }
 };
 
-
 exports.retrieveHostelCancelApplicationModify = async (req, res) => {
   try {
     const { sid, aid } = req.params;
@@ -8281,7 +8301,6 @@ exports.retrieveHostelCancelApplicationModify = async (req, res) => {
     console.log(e);
   }
 };
-
 
 exports.renderEditStudentFeeStructureQuery = async (req, res) => {
   try {
@@ -8447,7 +8466,7 @@ exports.retrieveHostelCollectDocs = async (req, res) => {
     status.structure_edited = "Edited";
     status.studentId = student?._id;
     status.student = student?._id;
-    status.is_hostel = true
+    status.is_hostel = true;
     status.instituteId = institute._id;
     notify.notifyContent = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
     // console.log(
@@ -8694,7 +8713,6 @@ exports.renderReviewStudentQuery = async (req, res) => {
   }
 };
 
-
 exports.staff_name_only = async (req, res) => {
   try {
     const { sid } = req?.params;
@@ -8779,9 +8797,7 @@ exports.staff_name_only = async (req, res) => {
 exports.retieveHostelAdminAllMergedApplication = async (req, res) => {
   try {
     const { aid } = req.params;
-    const apply = await Hostel.findById({ _id: aid }).select(
-      "newApplication"
-    );
+    const apply = await Hostel.findById({ _id: aid }).select("newApplication");
     const ongoing = await NewApplication.find({
       $and: [
         { _id: { $in: apply.newApplication } },
@@ -8896,8 +8912,7 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
           });
           data.student.new_app.appId = apps?._id;
           data.student.new_app.appName = apps?.applicationName;
-          data.student.new_app.applicationUnit =
-            apps?.applicationUnit;
+          data.student.new_app.applicationUnit = apps?.applicationUnit;
           data.student.new_app.applicationBatch = apps?.applicationBatch;
           data.student.new_app.applicationMaster = apps?.applicationMaster;
         }
@@ -8947,8 +8962,7 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
           });
           data.student.new_app.appId = apps?._id;
           data.student.new_app.appName = apps?.applicationName;
-          data.student.new_app.applicationUnit =
-            apps?.applicationUnit;
+          data.student.new_app.applicationUnit = apps?.applicationUnit;
           data.student.new_app.applicationBatch = apps?.applicationBatch;
           data.student.new_app.applicationMaster = apps?.applicationMaster;
         }
@@ -9029,8 +9043,7 @@ exports.fetchAllFeeCollectedMergedApplication = async (req, res) => {
           });
           data.student.new_app.appId = apps?._id;
           data.student.new_app.appName = apps?.applicationName;
-          data.student.new_app.applicationUnit =
-            apps?.applicationUnit;
+          data.student.new_app.applicationUnit = apps?.applicationUnit;
           data.student.new_app.applicationBatch = apps?.applicationBatch;
           data.student.new_app.applicationMaster = apps?.applicationMaster;
         }
@@ -9081,8 +9094,7 @@ exports.fetchAllFeeCollectedMergedApplication = async (req, res) => {
           });
           data.student.new_app.appId = apps?._id;
           data.student.new_app.appName = apps?.applicationName;
-          data.student.new_app.applicationUnit =
-            apps?.applicationUnit;
+          data.student.new_app.applicationUnit = apps?.applicationUnit;
           data.student.new_app.applicationBatch = apps?.applicationBatch;
           data.student.new_app.applicationMaster = apps?.applicationMaster;
         }
@@ -9163,8 +9175,7 @@ exports.fetchAllConfirmedMergedApplication = async (req, res) => {
           });
           data.student.new_app.appId = apps?._id;
           data.student.new_app.appName = apps?.applicationName;
-          data.student.new_app.applicationUnit =
-            apps?.applicationUnit;
+          data.student.new_app.applicationUnit = apps?.applicationUnit;
           data.student.new_app.applicationBatch = apps?.applicationBatch;
           data.student.new_app.applicationMaster = apps?.applicationMaster;
         }
@@ -9214,8 +9225,7 @@ exports.fetchAllConfirmedMergedApplication = async (req, res) => {
           });
           data.student.new_app.appId = apps?._id;
           data.student.new_app.appName = apps?.applicationName;
-          data.student.new_app.applicationUnit =
-            apps?.applicationUnit;
+          data.student.new_app.applicationUnit = apps?.applicationUnit;
           data.student.new_app.applicationBatch = apps?.applicationBatch;
           data.student.new_app.applicationMaster = apps?.applicationMaster;
         }
@@ -9470,7 +9480,134 @@ exports.inCompleteHostelApplication = async (req, res) => {
   }
 };
 
-
+exports.hosteInFinanceAllStructureQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { filter_by, master_by } = req.query;
+    const master_query = await handle_undefined(filter_by);
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const one_hostel = await Hostel.findById({ _id: hid }).select(
+      "fees_structures"
+    );
+    var all_structures = [];
+    if (master_query) {
+      if (master_by) {
+        all_structures = await FeeStructure.find({
+          $and: [
+            { _id: { $in: one_hostel?.fees_structures } },
+            { batch_master: master_query },
+            { document_update: false },
+          ],
+          $or: [
+            {
+              class_master: `${master_by}`,
+            },
+          ],
+        })
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "total_admission_fees structure_name unique_structure_name applicable_fees"
+          )
+          .populate({
+            path: "category_master",
+            select: "category_name",
+          })
+          .populate({
+            path: "class_master",
+            select: "className",
+          })
+          .populate({
+            path: "unit_master",
+            select: "hostel_unit_name",
+          })
+          .populate({
+            path: "batch_master",
+            select: "batchName",
+          });
+      } else {
+        all_structures = await FeeStructure.find({
+          $and: [
+            { _id: { $in: one_hostel?.fees_structures } },
+            { batch_master: master_query },
+            { document_update: false },
+          ],
+        })
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "total_admission_fees structure_name unique_structure_name applicable_fees"
+          )
+          .populate({
+            path: "category_master",
+            select: "category_name",
+          })
+          .populate({
+            path: "class_master",
+            select: "className",
+          })
+          .populate({
+            path: "unit_master",
+            select: "hostel_unit_name",
+          })
+          .populate({
+            path: "batch_master",
+            select: "batchName",
+          });
+      }
+    } else {
+      all_structures = await FeeStructure.find({
+        $and: [
+          { _id: { $in: one_hostel?.fees_structures } },
+          { document_update: false },
+        ],
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "total_admission_fees structure_name unique_structure_name applicable_fees"
+        )
+        .populate({
+          path: "category_master",
+          select: "category_name",
+        })
+        .populate({
+          path: "class_master",
+          select: "className",
+        })
+        .populate({
+          path: "unit_master",
+          select: "hostel_unit_name",
+        })
+        .populate({
+          path: "batch_master",
+          select: "batchName",
+        });
+    }
+    if (all_structures?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Fees Structures Available 👍",
+        access: true,
+        all_structures: all_structures,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Fees Structures Available 👍",
+        access: true,
+        all_structures: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 // exports.renderHostelAllAppsQuery = async (req, res) => {
 //   try {

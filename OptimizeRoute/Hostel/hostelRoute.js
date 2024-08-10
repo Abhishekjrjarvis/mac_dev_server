@@ -451,7 +451,9 @@ router.patch(
   catchAsync(Hostel.inCompleteHostelApplication)
 );
 
-
-
+router.get(
+  "/:hid/finance/all/fee/structure",
+  catchAsync(Hostel.hosteInFinanceAllStructureQuery)
+);
 
 module.exports = router;

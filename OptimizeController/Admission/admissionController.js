@@ -9523,13 +9523,21 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (
           ref.combine_name = `${ref?.combine_name ?? ""}${ele}`;
         }
         let sp_name = ref?.combine_name?.toLowerCase();
-        var student = await Student.find({
+        var students = await Student.find({
           $and: [
             { scholar_name: `${sp_name}` },
             { studentStatus: "Approved" },
             { institute: id },
           ],
         });
+        var student = students?.filter((val) => {
+          if (val?.hostel_fee_structure || val?.hostel_renewal) {
+            
+          }
+          else {
+            return val
+          }
+        })
         if (student?.length > 1) {
           ref.Remark = "Student With Same Name is more than 1";
           num_arr.push(ref);

@@ -189,8 +189,8 @@ exports.render_application_tab_query = async (req, res) => {
           },
         });
       for (let ele of apply?.receievedApplication) {
-        if (ele.student !== null) {
-          numss.push(ele?.student);
+        if (ele.student?._id !== null) {
+          numss.push(ele?.student?._id);
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
@@ -238,7 +238,7 @@ exports.render_application_tab_query = async (req, res) => {
       if (depart?.department_status === "Academic") {
         for (let stu of apply?.receievedApplication) {
           for (let cls of unique) {
-            if (`${cls}` === `${stu?.student}`) {
+            if (`${cls}` === `${stu?.student?._id}`) {
               all.push(stu)
             }
           }
@@ -257,9 +257,17 @@ exports.render_application_tab_query = async (req, res) => {
     else {
       var apply = await NewApplication.findById({ _id: aid })
         .select("receievedApplication")
+        .populate({
+          path: "receievedApplication",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
+          },
+        });
       for (let ele of apply?.receievedApplication) {
-        if (ele.student !== null) {
-          numss.push(ele?.student);
+        if (ele.student?._id !== null) {
+          numss.push(ele?.student?._id);
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
@@ -307,7 +315,7 @@ exports.render_application_tab_query = async (req, res) => {
       if (depart?.department_status === "Academic") {
         for (let stu of apply?.receievedApplication) {
           for (let cls of unique) {
-            if (`${cls}` === `${stu?.student}`) {
+            if (`${cls}` === `${stu?.student?._id}`) {
               all.push(stu)
             }
           }
@@ -390,8 +398,8 @@ exports.render_selected_tab_query = async (req, res) => {
           },
         });
       for (let ele of apply?.selectedApplication) {
-        if (ele.student !== null) {
-          numss.push(ele?.student);
+        if (ele.student?._id !== null) {
+          numss.push(ele?.student?._id);
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
@@ -439,7 +447,7 @@ exports.render_selected_tab_query = async (req, res) => {
     if (depart?.department_status === "Academic") {
       for (let stu of apply?.selectedApplication) {
         for (let cls of unique) {
-          if (`${cls}` === `${stu?.student}`) {
+          if (`${cls}` === `${stu?.student?._id}`) {
             all.push(stu)
           }
         }
@@ -458,9 +466,26 @@ exports.render_selected_tab_query = async (req, res) => {
     else {
       var apply = await NewApplication.findById({ _id: aid })
         .select("selectedApplication")
+        .populate({
+          path: "selectedApplication",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
+              populate: {
+                path: "fee_structure hostel_fee_structure",
+                select:
+                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+                populate: {
+                  path: "category_master",
+                  select: "category_name",
+                },
+              },
+          },
+        });
       for (let ele of apply?.selectedApplication) {
-        if (ele.student !== null) {
-          numss.push(ele?.student);
+        if (ele.student?._id !== null) {
+          numss.push(ele?.student?._id);
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
@@ -508,7 +533,7 @@ exports.render_selected_tab_query = async (req, res) => {
       if (depart?.department_status === "Academic") {
         for (let stu of apply?.selectedApplication) {
           for (let cls of unique) {
-            if (`${cls}` === `${stu?.student}`) {
+            if (`${cls}` === `${stu?.student?._id}`) {
               all.push(stu)
             }
           }
@@ -591,8 +616,8 @@ exports.render_fees_tab_query = async (req, res) => {
           },
         });
       for (let ele of apply?.FeeCollectionApplication) {
-        if (ele.student !== null) {
-          numss.push(ele?.student);
+        if (ele.student?._id !== null) {
+          numss.push(ele?.student?._id);
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
@@ -640,7 +665,7 @@ exports.render_fees_tab_query = async (req, res) => {
       if (depart?.department_status === "Academic") {
         for (let stu of apply?.FeeCollectionApplication) {
           for (let cls of unique) {
-            if (`${cls}` === `${stu?.student}`) {
+            if (`${cls}` === `${stu?.student?._id}`) {
               all.push(stu)
             }
           }
@@ -659,9 +684,15 @@ exports.render_fees_tab_query = async (req, res) => {
     else {
       var apply = await NewApplication.findById({ _id: aid })
         .select("FeeCollectionApplication")
+        .populate({
+          path: "FeeCollectionApplication",
+          populate: {
+            path: "student payment_flow app_card gov_card fee_struct",
+          },
+        });
       for (let ele of apply?.FeeCollectionApplication) {
-        if (ele.student !== null) {
-          numss.push(ele?.student);
+        if (ele.student?._id !== null) {
+          numss.push(ele?.student?._id);
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
@@ -709,7 +740,7 @@ exports.render_fees_tab_query = async (req, res) => {
     if (depart?.department_status === "Academic") {
       for (let stu of apply?.FeeCollectionApplication) {
         for (let cls of unique) {
-          if (`${cls}` === `${stu?.student}`) {
+          if (`${cls}` === `${stu?.student?._id}`) {
             all.push(stu)
           }
         }
@@ -792,8 +823,8 @@ exports.render_confirm_tab_query = async (req, res) => {
           },
         });
       for (let ele of apply?.confirmedApplication) {
-        if (ele.student !== null) {
-          numss.push(ele?.student);
+        if (ele.student?._id !== null) {
+          numss.push(ele?.student?._id);
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
@@ -841,7 +872,7 @@ exports.render_confirm_tab_query = async (req, res) => {
       if (depart?.department_status === "Academic") {
         for (let stu of apply?.confirmedApplication) {
           for (let cls of unique) {
-            if (`${cls}` === `${stu?.student}`) {
+            if (`${cls}` === `${stu?.student?._id}`) {
               all.push(stu)
             }
           }
@@ -860,9 +891,43 @@ exports.render_confirm_tab_query = async (req, res) => {
     else {
       var apply = await NewApplication.findById({ _id: aid })
         .select("confirmedApplication")
+        .populate({
+          path: "confirmedApplication",
+          populate: {
+            path: "student",
+            match: {
+              $or: [
+                { studentFirstName: { $regex: `${search}`, $options: "i" } },
+                {
+                  studentMiddleName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  studentLastName: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  valid_full_name: { $regex: `${search}`, $options: "i" },
+                },
+                {
+                  form_no: { $regex: `${search}`, $options: "i" },
+                },
+              ],
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
+              populate: {
+                path: "fee_structure hostel_fee_structure fee_receipt",
+                select:
+                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
+                // populate: {
+                //   path: "category_master",
+                //   select: "category_name",
+                // },
+              },
+          },
+        });
       for (let ele of apply?.confirmedApplication) {
-        if (ele.student !== null) {
-          numss.push(ele?.student);
+        if (ele.student?._id !== null) {
+          numss.push(ele.student?._id);
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
@@ -910,7 +975,7 @@ exports.render_confirm_tab_query = async (req, res) => {
       if (depart?.department_status === "Academic") {
         for (let stu of apply?.confirmedApplication) {
           for (let cls of unique) {
-            if (`${cls}` === `${stu?.student}`) {
+            if (`${cls}` === `${stu?.student?._id}`) {
               all.push(stu)
             }
           }
@@ -1191,8 +1256,8 @@ exports.render_allotted_tab_query = async (req, res) => {
           },
         });
       for (let ele of apply?.allottedApplication) {
-        if (ele.student !== null) {
-          numss.push(ele?.student);
+        if (ele.student?._id !== null) {
+          numss.push(ele?.student?._id);
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
@@ -1240,7 +1305,7 @@ exports.render_allotted_tab_query = async (req, res) => {
       if (depart?.department_status === "Academic") {
         for (let stu of apply?.allottedApplication) {
           for (let cls of unique) {
-            if (`${cls}` === `${stu?.student}`) {
+            if (`${cls}` === `${stu?.student?._id}`) {
               all.push(stu)
             }
           }
@@ -1259,9 +1324,26 @@ exports.render_allotted_tab_query = async (req, res) => {
     else {
       var apply = await NewApplication.findById({ _id: aid })
         .select("allottedApplication")
+        .populate({
+          path: "allottedApplication",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
+              populate: {
+                path: "fee_structure hostel_fee_structure fee_receipt",
+                select:
+                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
+                // populate: {
+                //   path: "category_master",
+                //   select: "category_name",
+                // },
+              },
+          },
+        });
       for (let ele of apply?.allottedApplication) {
-        if (ele.student !== null) {
-          numss.push(ele?.student);
+        if (ele.student?._id !== null) {
+          numss.push(ele?.student?._id);
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
@@ -1309,7 +1391,7 @@ exports.render_allotted_tab_query = async (req, res) => {
       if (depart?.department_status === "Academic") {
         for (let stu of apply?.allottedApplication) {
           for (let cls of unique) {
-            if (`${cls}` === `${stu?.student}`) {
+            if (`${cls}` === `${stu?.student?._id}`) {
               all.push(stu)
             }
           }
@@ -1392,8 +1474,8 @@ exports.render_cancelled_tab_query = async (req, res) => {
           },
         });
       for (let ele of apply?.cancelApplication) {
-        if (ele.student !== null) {
-          numss.push(ele?.student);
+        if (ele.student?._id !== null) {
+          numss.push(ele?.student?._id);
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
@@ -1441,7 +1523,7 @@ exports.render_cancelled_tab_query = async (req, res) => {
       if (depart?.department_status === "Academic") {
         for (let stu of apply?.cancelApplication) {
           for (let cls of unique) {
-            if (`${cls}` === `${stu?.student}`) {
+            if (`${cls}` === `${stu?.student?._id}`) {
               all.push(stu)
             }
           }
@@ -1460,9 +1542,26 @@ exports.render_cancelled_tab_query = async (req, res) => {
     else {
       var apply = await NewApplication.findById({ _id: aid })
         .select("cancelApplication")
+        .populate({
+          path: "cancelApplication",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
+              populate: {
+                path: "fee_structure hostel_fee_structure fee_receipt",
+                select:
+                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
+                // populate: {
+                //   path: "category_master",
+                //   select: "category_name",
+                // },
+              },
+          },
+        });
       for (let ele of apply?.cancelApplication) {
-        if (ele.student !== null) {
-          numss.push(ele?.student);
+        if (ele.student?._id !== null) {
+          numss.push(ele?.student?._id);
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
@@ -1510,7 +1609,7 @@ exports.render_cancelled_tab_query = async (req, res) => {
       if (depart?.department_status === "Academic") {
         for (let stu of apply?.cancelApplication) {
           for (let cls of unique) {
-            if (`${cls}` === `${stu?.student}`) {
+            if (`${cls}` === `${stu?.student?._id}`) {
               all.push(stu)
             }
           }

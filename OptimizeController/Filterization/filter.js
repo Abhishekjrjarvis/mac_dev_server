@@ -1881,11 +1881,9 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
                   ? ref?.student?.studentMiddleName
                   : ""
               } ${ref?.student?.studentLastName}` ?? "#NA",
-            FirstName: ref?.student?.studentFirstName ?? "#NA",
-            FatherName:
-              ref?.student?.studentFatherName ??
-              ref?.student?.studentMiddleName,
-            LastName: ref?.student?.studentLastName ?? "#NA",
+              FirstName: ref?.student?.studentFirstName ?? "#NA",
+              FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
+              LastName: ref?.student?.studentLastName ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             Standard:
               `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
@@ -2222,11 +2220,9 @@ exports.renderApplicationListQuery = async (req, res) => {
                   ? ref?.student?.studentMiddleName ??
                     ref?.student?.studentFatherName
                   : ""
-              } ${ref?.student?.studentLastName}`,
+                } ${ref?.student?.studentLastName}`,
               FirstName: ref?.student?.studentFirstName ?? "#NA",
-              FatherName:
-                ref?.student?.studentFatherName ??
-                ref?.student?.studentMiddleName,
+              FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
               LastName: ref?.student?.studentLastName ?? "#NA",
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
@@ -2340,11 +2336,9 @@ exports.renderApplicationListQuery = async (req, res) => {
                 ? ref?.student?.studentMiddleName ??
                   ref?.student?.studentFatherName
                 : ""
-            } ${ref?.student?.studentLastName}`,
+              } ${ref?.student?.studentLastName}`,
             FirstName: ref?.student?.studentFirstName ?? "#NA",
-            FatherName:
-              ref?.student?.studentFatherName ??
-              ref?.student?.studentMiddleName,
+            FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
             LastName: ref?.student?.studentLastName ?? "#NA",
             DOB: ref?.student?.studentDOB ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
@@ -2455,11 +2449,9 @@ exports.renderApplicationListQuery = async (req, res) => {
                 ? ref?.student?.studentMiddleName ??
                   ref?.student?.studentFatherName
                 : ""
-            } ${ref?.student?.studentLastName}`,
+              } ${ref?.student?.studentLastName}`,
             FirstName: ref?.student?.studentFirstName ?? "#NA",
-            FatherName:
-              ref?.student?.studentFatherName ??
-              ref?.student?.studentMiddleName,
+            FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
             LastName: ref?.student?.studentLastName ?? "#NA",
             DOB: ref?.student?.studentDOB ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
@@ -2599,11 +2591,9 @@ exports.renderApplicationListQuery = async (req, res) => {
                   ? ref?.student?.studentMiddleName ??
                     ref?.student?.studentFatherName
                   : ""
-              } ${ref?.student?.studentLastName}`,
+                } ${ref?.student?.studentLastName}`,
               FirstName: ref?.student?.studentFirstName ?? "#NA",
-              FatherName:
-                ref?.student?.studentFatherName ??
-                ref?.student?.studentMiddleName,
+              FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
               LastName: ref?.student?.studentLastName ?? "#NA",
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
@@ -2798,7 +2788,7 @@ exports.renderApplicationListQuery = async (req, res) => {
               ref?.studentMiddleName
                 ? ref?.studentMiddleName ?? ref?.studentFatherName
                 : ""
-            } ${ref?.studentLastName}`,
+              } ${ref?.studentLastName}`,
             FirstName: ref?.studentFirstName ?? "#NA",
             FatherName: ref?.studentFatherName ?? ref?.studentMiddleName,
             LastName: ref?.studentLastName ?? "#NA",
@@ -2895,36 +2885,6 @@ exports.renderApplicationListQuery = async (req, res) => {
       valid_apply?.allottedApplication?.length > 0
     ) {
       var excel_list = [];
-      if (valid_apply?.applicationHostel) {
-        for (var ref of valid_apply?.allottedApplication) {
-          excel_list.push({
-            RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
-            GRNO: ref?.student?.studentGRNO ?? "#NA",
-            Name: `${ref?.student?.studentFirstName} ${
-              ref?.student?.studentMiddleName
-                ? ref?.student?.studentMiddleName
-                : ""
-            } ${ref?.student?.studentLastName}`,
-            DOB: ref?.student?.studentDOB ?? "#NA",
-            Gender: ref?.student?.studentGender ?? "#NA",
-            CPI: ref?.student?.student_hostel_cpi ?? "#NA",
-            Programme: ref?.student?.student_programme ?? "#NA",
-            Branch: ref?.student?.student_branch ?? "#NA",
-            Year: ref?.student?.student_year ?? "#NA",
-            SingleSeaterRoom: ref?.student?.student_single_seater_room ?? "#NA",
-            PhysicallyHandicapped: ref?.student?.student_ph ?? "#NA",
-            Caste: ref?.student?.studentCastCategory ?? "#NA",
-            Religion: ref?.student?.studentReligion ?? "#NA",
-            MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
-            ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
-            Address: `${ref?.student?.studentAddress}` ?? "#NA",
-            AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
-            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
-            AlternateContactNo:
-              ref?.student?.studentParentsPhoneNumber ?? "#NA",
-          });
-        }
-      } else {
         const all_group_select = await SubjectGroupSelect.find({
           $and: [
             { subject_group: { $in: valid_apply?.subject_selected_group } },
@@ -3024,11 +2984,9 @@ exports.renderApplicationListQuery = async (req, res) => {
                   ? ref?.student?.studentMiddleName ??
                     ref?.student?.studentFatherName
                   : ""
-              } ${ref?.student?.studentLastName}`,
+                } ${ref?.student?.studentLastName}`,
               FirstName: ref?.student?.studentFirstName ?? "#NA",
-              FatherName:
-                ref?.student?.studentFatherName ??
-                ref?.student?.studentMiddleName,
+              FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
               LastName: ref?.student?.studentLastName ?? "#NA",
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
@@ -3118,7 +3076,6 @@ exports.renderApplicationListQuery = async (req, res) => {
             access: false,
           });
         }
-      }
       res.status(200).send({
         message: "No Applications Found",
         access: false,
@@ -3519,7 +3476,7 @@ exports.retrieveHostelPendingFeeFilterQuery = async (req, res) => {
           GRNO: ref?.studentGRNO ?? "#NA",
           Name: `${ref?.studentFirstName} ${
             ref?.studentMiddleName ? ref?.studentMiddleName : ""
-          } ${ref?.studentLastName}`,
+            } ${ref?.studentLastName}`,
           FirstName: ref?.studentFirstName ?? "#NA",
           FatherName: ref?.studentFatherName ?? ref?.studentMiddleName,
           LastName: ref?.studentLastName ?? "#NA",
@@ -3887,9 +3844,7 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
                   : ""
               } ${ref?.student?.studentLastName}` ?? "#NA",
             FirstName: ref?.student?.studentFirstName ?? "#NA",
-            FatherName:
-              ref?.student?.studentFatherName ??
-              ref?.student?.studentMiddleName,
+            FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
             LastName: ref?.student?.studentLastName ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             Standard:
@@ -4341,9 +4296,7 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
                   : ""
               } ${ref?.student?.studentLastName}` ?? "#NA",
             FirstName: ref?.student?.studentFirstName ?? "#NA",
-            FatherName:
-              ref?.student?.studentFatherName ??
-              ref?.student?.studentMiddleName,
+            FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
             LastName: ref?.student?.studentLastName ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             Standard:
@@ -7692,8 +7645,7 @@ exports.renderInternalFeeHeadsStructureReceiptQuery = async (req, res) => {
                 : ""
             } ${ref?.student?.studentLastName}` ?? "#NA",
           FirstName: ref?.student?.studentFirstName ?? "#NA",
-          FatherName:
-            ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
+          FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
           LastName: ref?.student?.studentLastName ?? "#NA",
           Gender: ref?.student?.studentGender ?? "#NA",
           Class: `${ref?.student?.studentClass?.className}` ?? "#NA",
@@ -8383,6 +8335,10 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
           //   }
           // }
           // all_student = remove_duplicated_arr(arr)
+          // let nums = []
+          // for (let ele of all_student) {
+          //   nums.push(ele?._id)
+          // }
           res.status(200).send({
             message:
               "Explore All For Particular Batch with Standard Student Query",
@@ -9294,9 +9250,7 @@ exports.renderCancelExportQuery = async (req, res) => {
                   : ""
               } ${ref?.student?.studentLastName}` ?? "#NA",
             FirstName: ref?.student?.studentFirstName ?? "#NA",
-            FatherName:
-              ref?.student?.studentFatherName ??
-              ref?.student?.studentMiddleName,
+            FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
             LastName: ref?.student?.studentLastName ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             Standard:
@@ -9577,9 +9531,7 @@ exports.renderDayBookReceipt = async () => {
                       : ""
                   } ${ref?.student?.studentLastName}` ?? "#NA",
                 FirstName: ref?.student?.studentFirstName ?? "#NA",
-                FatherName:
-                  ref?.student?.studentFatherName ??
-                  ref?.student?.studentMiddleName,
+                FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
                 LastName: ref?.student?.studentLastName ?? "#NA",
                 Gender: ref?.student?.studentGender ?? "#NA",
                 Standard:
@@ -9877,9 +9829,7 @@ exports.renderDayBookPayment = async () => {
                       : ""
                   } ${ref?.student?.studentLastName}` ?? "#NA",
                 FirstName: ref?.student?.studentFirstName ?? "#NA",
-                FatherName:
-                  ref?.student?.studentFatherName ??
-                  ref?.student?.studentMiddleName,
+                FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
                 LastName: ref?.student?.studentLastName ?? "#NA",
                 Gender: ref?.student?.studentGender ?? "#NA",
                 Standard:
@@ -10587,7 +10537,7 @@ exports.render_daybook_query = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { type } = req?.query;
+    const { type } = req?.query
     if (!baid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -10605,16 +10555,18 @@ exports.render_daybook_query = async (req, res) => {
 
     if (type) {
       var book = bank_acc?.day_book?.filter((ele) => {
-        if (`${ele?.types}` === `${type}`) return ele;
-      });
-    } else {
+        if(`${ele?.types}` === `${type}`) return ele
+      })
+    }
+    else {
       var book = bank_acc?.day_book?.filter((ele) => {
         if (`${ele?.types}` === `Normal Other Fees`) {
-          return;
-        } else {
-          return ele;
+          return
         }
-      });
+        else {
+         return ele
+        }
+      })
     }
 
     if (type) {
@@ -10623,7 +10575,8 @@ exports.render_daybook_query = async (req, res) => {
         limit,
         book?.reverse()
       );
-    } else {
+    }
+    else {
       var all_daybook = await nested_document_limit(
         page,
         limit,
@@ -11970,11 +11923,9 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
                   ? ref?.student?.studentMiddleName ??
                     ref?.student?.studentFatherName
                   : ""
-              } ${ref?.student?.studentLastName}`,
+                } ${ref?.student?.studentLastName}`,
               FirstName: ref?.student?.studentFirstName ?? "#NA",
-              FatherName:
-                ref?.student?.studentFatherName ??
-                ref?.student?.studentMiddleName,
+              FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
               LastName: ref?.student?.studentLastName ?? "#NA",
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
@@ -12166,12 +12117,10 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
                 ? ref?.student?.studentMiddleName ??
                   ref?.student?.studentFatherName
                 : ""
-            } ${ref?.student?.studentLastName}`,
-            FirstName: ref?.student?.studentFirstName ?? "#NA",
-            FatherName:
-              ref?.student?.studentFatherName ??
-              ref?.student?.studentMiddleName,
-            LastName: ref?.student?.studentLastName ?? "#NA",
+              } ${ref?.student?.studentLastName}`,
+              FirstName: ref?.student?.studentFirstName ?? "#NA",
+              FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
+              LastName: ref?.student?.studentLastName ?? "#NA",
             DOB: ref?.student?.studentDOB ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -12283,12 +12232,10 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
                 ? ref?.student?.studentMiddleName ??
                   ref?.student?.studentFatherName
                 : ""
-            } ${ref?.student?.studentLastName}`,
-            FirstName: ref?.student?.studentFirstName ?? "#NA",
-            FatherName:
-              ref?.student?.studentFatherName ??
-              ref?.student?.studentMiddleName,
-            LastName: ref?.student?.studentLastName ?? "#NA",
+              } ${ref?.student?.studentLastName}`,
+              FirstName: ref?.student?.studentFirstName ?? "#NA",
+              FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
+              LastName: ref?.student?.studentLastName ?? "#NA",
             DOB: ref?.student?.studentDOB ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -12398,12 +12345,10 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
                 ? ref?.student?.studentMiddleName ??
                   ref?.student?.studentFatherName
                 : ""
-            } ${ref?.student?.studentLastName}`,
-            FirstName: ref?.student?.studentFirstName ?? "#NA",
-            FatherName:
-              ref?.student?.studentFatherName ??
-              ref?.student?.studentMiddleName,
-            LastName: ref?.student?.studentLastName ?? "#NA",
+              } ${ref?.student?.studentLastName}`,
+              FirstName: ref?.student?.studentFirstName ?? "#NA",
+              FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
+              LastName: ref?.student?.studentLastName ?? "#NA",
             DOB: ref?.student?.studentDOB ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -12513,12 +12458,10 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
                 ? ref?.student?.studentMiddleName ??
                   ref?.student?.studentFatherName
                 : ""
-            } ${ref?.student?.studentLastName}`,
-            FirstName: ref?.student?.studentFirstName ?? "#NA",
-            FatherName:
-              ref?.student?.studentFatherName ??
-              ref?.student?.studentMiddleName,
-            LastName: ref?.student?.studentLastName ?? "#NA",
+              } ${ref?.student?.studentLastName}`,
+              FirstName: ref?.student?.studentFirstName ?? "#NA",
+              FatherName: ref?.student?.studentFatherName ?? ref?.student?.studentMiddleName,
+              LastName: ref?.student?.studentLastName ?? "#NA",
             DOB: ref?.student?.studentDOB ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
@@ -12706,11 +12649,10 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
               ref?.studentMiddleName
                 ? ref?.studentMiddleName ?? ref?.studentFatherName
                 : ""
-            } ${ref?.studentLastName}`,
-
-            FirstName: ref?.studentFirstName ?? "#NA",
-            FatherName: ref?.studentFatherName ?? ref?.studentMiddleName,
-            LastName: ref?.studentLastName ?? "#NA",
+              } ${ref?.studentLastName}`,
+              FirstName: ref?.studentFirstName ?? "#NA",
+              FatherName: ref?.studentFatherName ?? ref?.studentMiddleName,
+              LastName: ref?.studentLastName ?? "#NA",
             DOB: ref?.studentDOB ?? "#NA",
             Gender: ref?.studentGender ?? "#NA",
             CasteCategory: ref?.studentCastCategory ?? "#NA",

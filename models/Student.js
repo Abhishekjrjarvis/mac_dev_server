@@ -1218,18 +1218,7 @@ const studentSchema = new mongoose.Schema({
       ref: "Subject",
     },
   ],
-  ldoc1: {
-    type: String,
-  },
-  ldoc2: {
-    type: String,
-  },
-  ldoc3: {
-    type: String,
-  },
-  ldoc4: {
-    type: String,
-  },
+  student_single_subject: []
 });
 const Student = mongoose.model("Student", studentSchema);
 

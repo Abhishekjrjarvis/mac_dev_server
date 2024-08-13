@@ -3185,6 +3185,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
               head_name: ref?.head_name,
               head_amount: ref?.head_amount,
               master: ref?.master,
+              is_society: ref?.is_society
             });
             struct_query.applicable_fees_heads_count += 1;
           } else if (`${ref?.head_type}` === "BY_GOVERNMENT") {
@@ -3192,6 +3193,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
               head_name: ref?.head_name,
               head_amount: ref?.head_amount,
               master: ref?.master,
+              is_society: ref?.is_society
             });
             struct_query.government_fees_heads_count += 1;
           } else {
@@ -3255,6 +3257,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
               head_name: ref?.head_name,
               head_amount: ref?.head_amount,
               master: ref?.master,
+              is_society: ref?.is_society
             });
             struct_query.applicable_fees_heads_count += 1;
           } else if (`${ref?.head_type}` === "BY_GOVERNMENT") {
@@ -3262,6 +3265,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
               head_name: ref?.head_name,
               head_amount: ref?.head_amount,
               master: ref?.master,
+              is_society: ref?.is_society
             });
             struct_query.government_fees_heads_count += 1;
           } else {
@@ -3325,6 +3329,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
               head_name: ref?.head_name,
               head_amount: ref?.head_amount,
               master: ref?.master,
+              is_society: ref?.is_society
             });
             struct_query.applicable_fees_heads_count += 1;
           } else if (`${ref?.head_type}` === "BY_GOVERNMENT") {
@@ -3332,6 +3337,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
               head_name: ref?.head_name,
               head_amount: ref?.head_amount,
               master: ref?.master,
+              is_society: ref?.is_society
             });
             struct_query.government_fees_heads_count += 1;
           } else {
@@ -6182,6 +6188,7 @@ exports.renderValidateStructureQuery = async (req, res) => {
         { category_master: `${req.body?.category_master}` },
         { class_master: `${req.body?.class_master}` },
         { batch_master: `${req.body?.batch_master}` },
+        { document_update: false}
       ],
     });
     if (exist_structure?.length > 0) {

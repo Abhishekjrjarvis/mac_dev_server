@@ -13369,7 +13369,7 @@ exports.renderApplicationAllottedListQuery = async (req, res) => {
         }
         var valid_back = await json_to_excel_admission_application_query(
           excel_list,
-          "Allotted Subject",
+          valid_apply?.applicationName,
           appId,
           flow
         );

@@ -7837,7 +7837,7 @@ Do Not Click on the link below (clicking it may prevent further emails from bein
 exports.renderExistNonOtherFeesAddStudentQuery = async (req, res) => {
   try {
     const { fid } = req?.params
-    const { student_name, ofid, classes, batch, roll_no } = req?.body
+    const { student_name, ofid, classes, batch, roll_no, mode } = req?.body
     if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var finance = await Finance.findById({ _id: fid })
@@ -7949,7 +7949,7 @@ exports.renderNewOtherFeesRemoveStudentQuery = async (req, res) => {
 exports.renderNewOneOtherFeesAddStudentQuery = async (req, res) => {
   try {
     const { fid } = req?.params
-    const { students, ofid } = req?.body
+    const { students, ofid, mode } = req?.body
     if (!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
     
     var finance = await Finance.findById({ _id: fid })

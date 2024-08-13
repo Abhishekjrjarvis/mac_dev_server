@@ -7842,7 +7842,6 @@ exports.renderExistNonOtherFeesAddStudentQuery = async (req, res) => {
     
     var finance = await Finance.findById({ _id: fid })
     var o_f = await OtherFees.findById({ _id: ofid })
-    if (is_collect === "Yes") {
       o_f.students_list.push(student_name);
       o_f.status = "Paid";
       o_f.student_count += 1;
@@ -7852,7 +7851,7 @@ exports.renderExistNonOtherFeesAddStudentQuery = async (req, res) => {
       const new_receipt = new FeeReceipt({ ...req.body });
       const order = new OrderPayment({ ...req?.body });
       new_receipt.student_name = student_name;
-      new_receipt.fee_structure = struct;
+      new_receipt.fee_structure = o_f?.fee_structure;
       new_receipt.fee_transaction_date = new Date(
         `${req.body.transaction_date}`
       );
@@ -7897,7 +7896,6 @@ exports.renderExistNonOtherFeesAddStudentQuery = async (req, res) => {
       })
       await Promise.all([institute.save(), new_receipt.save(), order.save()]);
       await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
-    }
     await o_f.save()
     res.status(200).send({ message: "Explore New Student In Other Non-Existing Fees Query", access: true})
   }
@@ -7975,7 +7973,7 @@ exports.renderNewOneOtherFeesAddStudentQuery = async (req, res) => {
           const new_receipt = new FeeReceipt({ ...req.body });
           const order = new OrderPayment({ ...req?.body });
           new_receipt.student = stu?._id;
-          new_receipt.fee_structure = struct;
+          new_receipt.fee_structure = o_f?.fee_structure;
           new_receipt.fee_transaction_date = new Date(
             `${req.body.transaction_date}`
           );

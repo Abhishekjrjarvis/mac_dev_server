@@ -5402,6 +5402,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         { card_type: "Promote" },
       ],
     })
+      .sort({ created_at: -1})
       .select(
         "applicable_fee scholar_ship_number card_type applicable_fees_pending excess_fee remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
       )
@@ -5489,6 +5490,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         { card_type: "Normal" },
       ],
     })
+    .sort({ created_at: -1})
       .select(
         "applicable_fee scholar_ship_number card_type applicable_fees_pending excess_fee remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
       )
@@ -5625,7 +5627,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       };
       const adsEncrypt = await encryptionPayload(ads_obj);
       res.status(200).send({
-        encrypt: adsEncrypt,
+        // encrypt: adsEncrypt,
         // ads_obj,
         array: valid_remain,
       });

@@ -7870,6 +7870,9 @@ exports.renderExistNonOtherFeesAddStudentQuery = async (req, res) => {
       order.payment_mode = mode;
       order.payment_other_fees = o_f._id;
       order.payment_student_name = student_name;
+      order.payment_student_detail.classes = classes ?? ""
+      order.payment_student_detail.batch = batch ?? ""
+      order.payment_student_detail.roll_no = roll_no ?? ""
       order.payment_student_gr = "";
       order.fee_receipt = new_receipt?._id;
       fee_receipt_count_query(institute, new_receipt, order);

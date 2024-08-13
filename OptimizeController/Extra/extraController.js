@@ -2150,8 +2150,247 @@ exports.renderAllClassMatesQuery = async (req, res) => {
 
 exports.renderFilteredMessageQuery = async (req, res) => {
   try {
-    const { filtered_arr, message, from, type, flow, m_title, m_doc, status } = req.body;
+    const { from, type, flow, m_title, m_doc, status, message, filtered_arr } = req.body;
     const { id } = req.query;
+    // let filtered_arr = [
+    //   "6656ce1529964b9fb5f75ae5",
+    //   "66582f889ec999ce933a05aa",
+    //   "665abaaf18ce55bfd5477436",
+    //   "665ac058464bdcfcb07243f7",
+    //   "665c8005ed5b038fa0f158a1",
+    //   "665d9b7b8ccb86845ad26198",
+    //   "665dabc9a97704b262ff7dad",
+    //   "665dd352b26286e0467f2adf",
+    //   "665df274b26286e0467f8b33",
+    //   "665eaa824e56f6f829390fca",
+    //   "665ecb324e56f6f829399e85",
+    //   "665ee9271be5a8add1621bbd",
+    //   "665ef2b24e56f6f8293a3c72",
+    //   "665f27344e56f6f8293aee26",
+    //   "665f34a24e56f6f8293b1c62",
+    //   "665f3af7fb6f986014a94c6e",
+    //   "6660166cf9007de11abb5f93",
+    //   "66602258a28b68b6a6b0befc",
+    //   "666028aea28b68b6a6b0d68a",
+    //   "66603eb6bb80a72ffb4025de",
+    //   "6660409f5e93b28e7ece6beb",
+    //   "6660526d5e93b28e7eceae8c",
+    //   "6660799111db27577deb9767",
+    //   "666093081409ddf7a9a81a08",
+    //   "666098f3d8fd9817b7599e19",
+    //   "66615710bd8e17f1d0ded9e1",
+    //   "666160581409ddf7a9aa9c8d",
+    //   "666166d31409ddf7a9aaba50",
+    //   "66617128bd8e17f1d0df4844",
+    //   "6661743c1409ddf7a9aaeecc",
+    //   "666178e3bd8e17f1d0df644e",
+    //   "6661807ed8fd9817b75c9931",
+    //   "66618ae1d8fd9817b75cd36a",
+    //   "6661a0e0c7ceb9826cbda63d",
+    //   "6661b45a1def169acf9e1624",
+    //   "6661b6af40f1f8d0d05c7c10",
+    //   "6661c7ac1def169acf9e56c5",
+    //   "6661d970c7ceb9826cbe68e2",
+    //   "6661f885d3fc4fd9ec0df86e",
+    //   "6662a1e60fa8694c41012771",
+    //   "6662c17aa80c442208869617",
+    //   "6662f6d32b6eda008620df5e",
+    //   "6663dec1d2e6080fa5768e9a",
+    //   "6663eb3115c994e9112bc445",
+    //   "666412a0d52ac4bcf89f2ed5",
+    //   "66642db3d52ac4bcf89fa0bb",
+    //   "66643184e6dd6bbe8831fcac",
+    //   "66643b1dc158f217f7fccf21",
+    //   "66646225e6dd6bbe8832b321",
+    //   "66667707c158f217f703ca85",
+    //   "6666b6c10cc627f95e9bec1d",
+    //   "6666c89abc3db0d80c0dfbcd",
+    //   "6666cc20bc3db0d80c0e0e15",
+    //   "6666f007b8e26221ed03c701",
+    //   "66670d020cc627f95e9d4d52",
+    //   "66670dfa28e88af96d97d092",
+    //   "6667dfa652df1d457f74bf8d",
+    //   "6667e4be98c7a5e7d2f5da01",
+    //   "6667eeaa98c7a5e7d2f6074e",
+    //   "6667f3e998c7a5e7d2f61ed8",
+    //   "666809295f25de64033f391d",
+    //   "666819c55f25de64033f7b34",
+    //   "6668395dda6c6b8cb8970d40",
+    //   "66686c1ae48bba3b26abe321",
+    //   "666879b2e48bba3b26ac1844",
+    //   "66696c481c39d8fc5b365c2e",
+    //   "6669737f1c39d8fc5b367baf",
+    //   "666975971c39d8fc5b368777",
+    //   "66697e2cd280c1168458eb1e",
+    //   "6669873bd280c11684591f17",
+    //   "6669be4dfe9467d95ea508ed",
+    //   "666a6d050e3e6a9642379b7d",
+    //   "666a7985fe9467d95ea76931",
+    //   "666a9ff302ff881cc541e128",
+    //   "666aaf6fd5db98ae0768227c",
+    //   "666ab442d5db98ae07683a69",
+    //   "666ab449a16abb6db062d92d",
+    //   "666ac385a16abb6db0633974",
+    //   "666ac46e2921e51fb3fa54ae",
+    //   "666ac91ea16abb6db0635363",
+    //   "666ad2a8a16abb6db0638543",
+    //   "666adcccd5db98ae0768e7a2",
+    //   "666b0530138be86d66628fd9",
+    //   "666b1bdd438f32cf20307acf",
+    //   "666b2c41438f32cf2030b4c6",
+    //   "666b3a8f438f32cf2030e542",
+    //   "666b3bf9ec9d76b6d3cb2645",
+    //   "666bd4402d36f1c277295670",
+    //   "666bdf1623dd2820dd62b970",
+    //   "666bf31fefc9a9ca58883c4e",
+    //   "666bff58efc9a9ca58887bf9",
+    //   "666c20e14272e4c6bdea13f7",
+    //   "666c899aeac388f0cf614446",
+    //   "666d27169e6c6bd4d987fced",
+    //   "666d3c02dfd5c437cd147cc2",
+    //   "666d62e15c4f7459889fbf3c",
+    //   "666da43f1312e70be5b04a69",
+    //   "666db3dc9b434b407b86231b",
+    //   "666e86b29b434b407b88b761",
+    //   "66709982a19b4cd82b3ccd84",
+    //   "667128fe16b6737bef10cc17",
+    //   "6671370faca0ae8d1780c9b6",
+    //   "667137e245e9ff510271d6b7",
+    //   "66713e4baca0ae8d1780ff14",
+    //   "66715c83a1a3cc99e82d2062",
+    //   "66724f06faa2f3812c7419b6",
+    //   "66729065b570d87a939cd303",
+    //   "6672a5a28b7a4d809f437b1d",
+    //   "6672b8d5d23058c26673bd6f",
+    //   "6673c1fa6c3f5b158e11681b",
+    //   "6673d3b1ad0c9e364e4214a5",
+    //   "6673e5916c3f5b158e121c20",
+    //   "6673ef56b7e10e457d4847f9",
+    //   "6673f52a7c5d6b9d3cd313d8",
+    //   "6673f78413645f6224f2217b",
+    //   "66741e3ebd16a01f536121ab",
+    //   "66745471da1297a6b9fb33dc",
+    //   "66745cefda1297a6b9fb51b0",
+    //   "66753973da1297a6b9fea451",
+    //   "66753a9d5c211c4bd533ff4c",
+    //   "66753bdc1c20990d18a7763f",
+    //   "66753caab3d60fc2b752d798",
+    //   "66753dd4b3d60fc2b752e182",
+    //   "6675559e5c211c4bd53464ee",
+    //   "66755797da1297a6b9ff3aa2",
+    //   "66759331b3d60fc2b7543864",
+    //   "66766d2a7ea072004fc28542",
+    //   "6676766b7ea072004fc2acd9",
+    //   "66767d097ea072004fc2c5d2",
+    //   "667684b87ea072004fc2e400",
+    //   "6676953b989882e0a0d3e017",
+    //   "6676ca26989882e0a0d517fc",
+    //   "6677d87e989882e0a0d85f84",
+    //   "6677f757989882e0a0d8bebd",
+    //   "66781e59ee0e2299fa84f6fa",
+    //   "6678d4bee17fbc67e9bb1578",
+    //   "667911287ea072004fcafa78",
+    //   "66792f6105df9220695c9bbb",
+    //   "6679385106a14571750788e3",
+    //   "667a632b555015ac8b9457f8",
+    //   "667a69d6f4345c2cc2b5d9d0",
+    //   "667a73b8555015ac8b94d618",
+    //   "667a93692b6329957434e933",
+    //   "667bc3967964c3659bf3e03f",
+    //   "667bcdc1f24213817285b950",
+    //   "667be651a5150095b400630c",
+    //   "667bf8ad20f96b70dfd674ae",
+    //   "667c4175a5150095b401a0ab",
+    //   "667c45d3bbe771f8e623b0eb",
+    //   "667d2491d39a6374758dfde4",
+    //   "667d2d0962f9a83c4fb71464",
+    //   "667d475eaf9960bc6dcc0532",
+    //   "667e7c1f1bfb2ab496849c02",
+    //   "667e8a17059be654d96d8422",
+    //   "667e90158e98c62147595059",
+    //   "667fae4fee0f23e006d866d9",
+    //   "667fbe21c17a9d33ac48e9b6",
+    //   "667fc156c17a9d33ac48f8f9",
+    //   "667fec386fd3780d125210a8",
+    //   "66800763c1775c56bcd14ca1",
+    //   "668032c804076da2fc5b8a40",
+    //   "6680f80cee0f23e006dd2ed1",
+    //   "668256afee0f23e006e1c8f4",
+    //   "6682db0aee0f23e006e3f41d",
+    //   "6683a40076fdc6699a9e79e1",
+    //   "6683cadd1727c9dcd1fc79ff",
+    //   "66843f2c4efef56be5f20ad7",
+    //   "6684d7bacf9bf8669c0bc071",
+    //   "66851d41d4ae35ef88346c49",
+    //   "66852078d4ae35ef88347d7a",
+    //   "66852273cf9bf8669c0d838e",
+    //   "66862e56d9cbacccf38942c5",
+    //   "668634d8b64eaf34e5d40ab5",
+    //   "66864ae348bcd4555dd18411",
+    //   "6686691c48bcd4555dd22a1d",
+    //   "6687799bb98831af264360b5",
+    //   "6687adbc63ba2315c810646f",
+    //   "6687b2ddd1459abc544bf8c5",
+    //   "6687ce8f48eb32b9827792d8",
+    //   "6689575cd4c7c23438df4116",
+    //   "668b8e5ad65eae5968f42ace",
+    //   "668b8f7d5edce44b8a94935e",
+    //   "668b9d97ac8f75226373713a",
+    //   "668b9f99ac8f7522637382aa",
+    //   "668ba8bd6653a6da93fe4a58",
+    //   "668bb3aeb11c7a84ed165bbf",
+    //   "668bbb35df6857f1eedd65a6",
+    //   "668bd812df6857f1eedddb7e",
+    //   "668be97b3e289ec0d82df62c",
+    //   "668c1408f4df9a2423b5b112",
+    //   "668e5f83f45ccd2d45d283e6",
+    //   "668e67a0174d39813bb49437",
+    //   "668e9cc1fb0b885654835953",
+    //   "668f85a6a85cb7aa8dc4cf2d",
+    //   "668f963fd8e2ed1572b11eea",
+    //   "6690eab2cc7120d68e9d1aeb",
+    //   "6690f7a44ce9bedd7ca37b75",
+    //   "669113def9ff4f5425010a4c",
+    //   "66923a50c5a562fb09733bbd",
+    //   "66923a56c5a562fb09733d13",
+    //   "669244b50eef71695bf1e02e",
+    //   "6692489b24e69e561f1a9716",
+    //   "669266188f03eab7184b94ec",
+    //   "6693869d8f03eab7184f2e13",
+    //   "6694c78109d5d3ffeaba8fc5",
+    //   "6694da89207e2bad53136049",
+    //   "6694defd2d76fa9e687df25d",
+    //   "669772d1d7d3856024e6e744",
+    //   "6698bb6a79b8d4b7b34f24e4",
+    //   "6698c41f39470c3f966c17ee",
+    //   "669900fc79b8d4b7b3503eec",
+    //   "669a121dc1023538f043d5cd",
+    //   "669a4068ad85bd78fd217156",
+    //   "669ba84b1e89111d656c4366",
+    //   "669e2ba314cd94b137eb9f97",
+    //   "669e2fb114cd94b137ebb574",
+    //   "669e341111745cccf3444455",
+    //   "669f4020d87721965f324c8e",
+    //   "669fa9e3659cc301c4ca1cee",
+    //   "66a0becc9bf79d410c050e9e",
+    //   "66a0eecb9bf79d410c05da52",
+    //   "66a1423d9bf79d410c070d8f",
+    //   "66a1d9eeb484ca779fe9eaa7",
+    //   "66a1f48c0446140a06cc8f79",
+    //   "66a1f7c61121f78594f4864a",
+    //   "66a2675e0446140a06ce4644",
+    //   "66a60ccb033e90f7d73b88f9",
+    //   "66a8bb7e84687b9a4aaef7a7",
+    //   "66a9dc1430b085fbb759607a",
+    //   "66ab4b554f0cbdcc826a119e",
+    //   "66ac80f8aa74f613d883be45",
+    //   "66ac9254aa74f613d8840d8e",
+    //   "66aca34baa74f613d8845c07",
+    //   "66adf6f6df696242821b9e2a",
+    //   "66b0783ee40ece488c9d217b",
+    //   "66b09728e91139a6e3637e35",
+    //   "66b0c8fb8199e15c4151ff46"
+    // ]
     if (!filtered_arr)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -2159,7 +2398,20 @@ exports.renderFilteredMessageQuery = async (req, res) => {
       });
 
     var all_student = await Student.find({ _id: { $in: filtered_arr } });
-
+    // var message = `All F.Y.B.Sc. students should note that Open Elective / Generic Elective subject is compulsory subject to be selected from FACULTY OTHER THAN SCIENCE.
+    // Our college has provided a Basket of three subjects from ARTS FACULTY & are as follows:-
+    // 1. Hindi 
+    // 2. Sanskrit 
+    // 3. Geography
+    
+    // All students should select ONLY ONE subject from the above mentioned subjects
+    // All students should fill the attached Google form carefully and submit it by 8th August 2024 before 5.00pm.
+    
+    // Google Form Link: https://forms.gle/1jur7dtXY2nfYdoH9
+    
+    // Please ask your friends to fill this form within scheduled time.
+    
+    // Principal.`
     if (flow === "INSTITUTE_ADMIN") {
       var valid_ins = await InstituteAdmin.findById({ _id: `${from}` });
       const new_message = new StudentMessage({
@@ -2201,14 +2453,18 @@ exports.renderFilteredMessageQuery = async (req, res) => {
           send_email_student_message_query(ref?.studentEmail ?? user?.userEmail, message)
         }
         else {
-          invokeSpecificRegister(
-            "Specific Notification",
-            `${m_title} - ${type},
-            Institute Admin`,
-            "Student Alert",
-            user._id,
-            user.deviceToken
-          );
+          if (user?.deviceToken) {
+            await invokeSpecificRegister(
+              "Specific Notification",
+              `${m_title} - ${type} Institute Admin`,
+              "Student Alert",
+              user._id,
+              user.deviceToken
+            );
+          }
+          else {
+            console.log("NO TOKEN")
+          }
         }
       }
     } else {
@@ -2255,14 +2511,18 @@ exports.renderFilteredMessageQuery = async (req, res) => {
           send_email_student_message_query(ref?.studentEmail ?? user?.userEmail, message)
         }
         else {
-          invokeSpecificRegister(
-            "Specific Notification",
-            `${m_title} - ${type},
+          if (user?.deviceToken) {
+            await invokeSpecificRegister(
+              "Specific Notification",
+              `${m_title} - ${type},
              ${valid_staff?.staffFirstName} ${valid_staff?.staffMiddleName ?? ""} ${valid_staff?.staffLastName}`,
-            "Student Alert",
-            user._id,
-            user.deviceToken
-          );
+              "Student Alert",
+              user._id,
+              user.deviceToken
+            );
+          }else {
+            console.log("NO TOKEN")
+          }
         }
       }
 

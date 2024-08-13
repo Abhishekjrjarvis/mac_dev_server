@@ -222,7 +222,7 @@ const normalAdmissionFeeReceipt = async (receiptId, appId) => {
   }
   if (studentInfo?.receiverSignature) {
     doc.image(
-      await dynamicImages("CUSTOM", studentInfo?.receiverSignature),
+      await dynamicImages("DEV", studentInfo?.receiverSignature),
       doc.page.width - 120,
       currentPosition - 60,
       {

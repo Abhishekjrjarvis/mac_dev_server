@@ -236,6 +236,7 @@ exports.json_to_excel_admission_application_query = async (
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 
     xlsx.utils.book_append_sheet(real_book, real_sheet, sheet_name);
+    // let apps_name = "Allotted Subject"
     var name = `${app_name}-${flow}-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 

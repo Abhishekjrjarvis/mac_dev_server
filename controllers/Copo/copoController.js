@@ -1197,7 +1197,6 @@ exports.getSubjectCoExcelQuery = async (req, res) => {
   }
 };
 
-
 // for subject internal evaluation
 exports.subjectTeacherAllInternalEvaluationQuery = async (req, res) => {
   try {
@@ -1439,7 +1438,6 @@ exports.subjectTeacherAllInternalEvaluationTestQuery = async (req, res) => {
   }
 };
 
-
 exports.subjectTeacherStudentInternalEvaluationTestQuery = async (req, res) => {
   try {
     const { ietid } = req.params;
@@ -1450,7 +1448,7 @@ exports.subjectTeacherStudentInternalEvaluationTestQuery = async (req, res) => {
     }
     const i_eva_test = await SubjectInternalEvaluationTest.findById(
       ietid
-    ).select("student_list");
+    ).select("student_list take_test");
 
     const student_list = {};
 
@@ -1465,12 +1463,14 @@ exports.subjectTeacherStudentInternalEvaluationTestQuery = async (req, res) => {
       student_list: student_list,
       i_eva_test:
         i_eva_test?.student_list?.length > 0 ? i_eva_test?.student_list : [],
+      eva_detail: {
+        take_test: i_eva_test.take_test,
+      },
     });
   } catch (e) {
     console.log(e);
   }
 };
-
 
 exports.subjectTeacherAddInternalEvaluationTestQuery = async (req, res) => {
   try {
@@ -1502,7 +1502,6 @@ exports.subjectTeacherAddInternalEvaluationTestQuery = async (req, res) => {
     console.log(e);
   }
 };
-
 
 exports.subjectTeacherUpdateInternalEvaluationTestQuery = async (req, res) => {
   try {
@@ -1642,17 +1641,6 @@ exports.subjectTeacherMarkUpdateInternalEvaluationTestQuery = async (
     console.log(e);
   }
 };
-
-
-
-
-
-
-
-
-
-
-
 
 exports.internalEvaluationStudentExcelExportQuery = async (req, res) => {
   try {
@@ -2128,12 +2116,3 @@ exports.subjectTeacherSingleTakeTestsetInternalEvaluationTestQuery = async (
     console.log(e);
   }
 };
-
-
-
-
-
-
-
-
-

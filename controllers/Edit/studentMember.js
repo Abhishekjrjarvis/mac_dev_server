@@ -1201,3 +1201,79 @@ exports.subjectStudentRemoveCatalogQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// for student subject master after allottment
+exports.studentSubjectMasterEditQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { masterList } = req.body;
+    if (!sid || masterList?.length <= 0) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const student = await Student.findById(sid);
+    if (student?._id) {
+      let s_master = student.student_optional_subject;
+      let m_master = student.major_subject;
+      // let n_master = student.nested_subject;
+
+      for (let dt of masterList) {
+        s_master = s_master?.filter((ty) => `${ty}` !== `${dt?.old_master}`);
+        s_master.push(dt?.new_master);
+        let m_flag = false;
+        m_master = m_master?.filter((ty) => {
+          if (`${ty}` === `${dt?.old_master}`) {
+            m_flag = true;
+            return null;
+          } else {
+            return ty;
+          }
+        });
+        if (m_flag) {
+          m_master.push(dt?.new_master);
+        }
+      }
+      student.student_optional_subject = s_master;
+      student.major_subject = m_master;
+      await student.save();
+    }
+    res.status(200).send({
+      message: "Students master changed",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.studentAllSubjectMasterQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const student = await Student.findById(sid).populate({
+      path: "student_optional_subject",
+      select: "subjectName department",
+    });
+    if (student?.student_optional_subject?.length > 0) {
+      res.status(200).send({
+        message: "Students All subject Master",
+        access: true,
+        master: student?.student_optional_subject,
+      });
+    } else {
+      res.status(200).send({
+        message: "Students All subject Master",
+        access: true,
+        master: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

@@ -88,7 +88,27 @@ const otherFeesSchema = new mongoose.Schema({
     remaining_students_count: {
         type: Number,
         default: 0
-    }
+    },
+    fee_receipt_student: [
+        {
+            student: {
+                type: String
+            },
+            fee_receipt: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "FeeReceipt"
+            },
+            classes: {
+                type: String
+            },
+            batch: {
+                type: String
+            },
+            roll_no: {
+                type: String
+            }
+        }
+    ]
 })
 
 module.exports = mongoose.model("OtherFees", otherFeesSchema)

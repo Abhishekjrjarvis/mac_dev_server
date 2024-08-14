@@ -1056,40 +1056,40 @@ exports.validatePaymentStatus = async () => {
             }
             else {
               console.log("O")
-              // var order = await order_history_query(
-              //   ele?.error_flow,
-              //   ele?.error_module,
-              //   ele?.error_amount,
-              //   ele?.error_paid_to,
-              //   "",
-              //   {},
-              //   {}
-              // );
-              // val.error_op = order?._id
-              // var paytm_author = false;
-              // var valid_status = ele?.error_status_id === "null" ? "" : ele?.error_status_id;
-              // var valid_card =
-              //   "";
-              // var pay_remain = false
-              // await admissionInstituteFunction(
-              //   order?._id,
-              //   val?.error_student,
-              //   val?.error_amount,
-              //   val?.error_amount_charges,
-              //   val?.error_module,
-              //   val?.error_paid_to,
-              //   val?.error_type,
-              //   paytm_author,
-              //   valid_card,
-              //   val?.payment_remain_1,
-              //   val?.error_payment_card,
-              //   pay_remain,
-              //   valid_status,
-              //   val?._id
-              //   // Boolean(ad_install)
-              // );
-              // val.error_status = "GENERATED_RESOLVED"
-              // await val.save()
+              var order = await order_history_query(
+                val?.error_flow,
+                val?.error_module,
+                val?.error_amount,
+                val?.error_paid_to,
+                "",
+                {},
+                {}
+              );
+              val.error_op = order?._id
+              var paytm_author = false;
+              var valid_status = val?.error_status_id === "null" ? "" : val?.error_status_id;
+              var valid_card =
+                "";
+              var pay_remain = false
+              await admissionInstituteFunction(
+                order?._id,
+                val?.error_student,
+                val?.error_amount,
+                val?.error_amount_charges,
+                val?.error_module,
+                val?.error_paid_to,
+                val?.error_type,
+                paytm_author,
+                valid_card,
+                val?.payment_remain_1,
+                val?.error_payment_card,
+                pay_remain,
+                valid_status,
+                val?._id
+                // Boolean(ad_install)
+              );
+              val.error_status = "GENERATED_RESOLVED"
+              await val.save()
             }
           }
           else {
@@ -1103,6 +1103,31 @@ exports.validatePaymentStatus = async () => {
   }
 };
 
+exports.validatePaymentStatusByAPI = async (req, res) => {
+  try {
+    const { error_order_id } = req?.body
+    var paytmParams = {};
+      paytmParams.body = {
+        "mid": `${process.env.PAYTM_MID}`,
+        "orderId": error_order_id,
+      };
+      PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), `${process.env.PAYTM_MERCHANT_KEY}`).then(async function (checksum) {
+        paytmParams.head = {
+          "signature": checksum
+        };
+        const d_set = await axios.post(process.env.PAYTM_STATUS_URL, paytmParams)
+        if (d_set?.data?.body?.resultInfo?.resultStatus === "TXN_SUCCESS") {
+            console.log("PASS", d_set?.data?.body)
+        }
+        else {
+            console.log("FAIL")
+        }
+      });
+    res.status(200).send({ message: "Explore Valid Payment Status Check API", access: true })
+  } catch (e) {
+    console.error('Error validating payment status:', e);
+  }
+};
 // exports.callback_payment_failed_regeneration_counter = async (req, res) => {
 //   try {
 //     const all_pay = await ErrorPayment.find({ error_status: "Generated"})

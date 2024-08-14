@@ -1215,28 +1215,98 @@ exports.studentSubjectMasterEditQuery = async (req, res) => {
 
     const student = await Student.findById(sid);
     if (student?._id) {
-      let s_master = student.student_optional_subject;
-      let m_master = student.major_subject;
-      // let n_master = student.nested_subject;
-
-      for (let dt of masterList) {
-        s_master = s_master?.filter((ty) => `${ty}` !== `${dt?.old_master}`);
-        s_master.push(dt?.new_master);
-        let m_flag = false;
-        m_master = m_master?.filter((ty) => {
-          if (`${ty}` === `${dt?.old_master}`) {
-            m_flag = true;
-            return null;
-          } else {
-            return ty;
-          }
-        });
-        if (m_flag) {
-          m_master.push(dt?.new_master);
+      let modify_optional = [];
+      if (student.student_optional_subject?.length > 0) {
+        for (let ft of student.student_optional_subject) {
+          modify_optional.push({
+            old: ft,
+            selected: false,
+            new_m: ft,
+          });
         }
       }
-      student.student_optional_subject = s_master;
-      student.major_subject = m_master;
+
+      for (let dt of masterList) {
+        if (modify_optional?.length > 0) {
+          for (let i = 0; i < modify_optional?.length; i++) {
+            let so_id = modify_optional[i];
+            if (`${so_id?.old}` === `${dt?.old_master}` && !so_id?.selected) {
+              modify_optional[i]["new_m"] = dt?.new_master;
+              modify_optional[i]["selected"] = true;
+
+              const old_sub_list = await Subject.find({
+                $and: [
+                  {
+                    class: { $eq: `${student?.studentClass}` },
+                  },
+                  {
+                    subjectMasterName: { $eq: `${dt?.old_master}` },
+                  },
+                ],
+              });
+              // console.log("OLD", old_sub_list?.length);
+              if (old_sub_list?.length > 0) {
+                for (let j = 0; j < old_sub_list?.length; j++) {
+                  let tu = old_sub_list[j];
+                  // console.log("PREVIOUS: -> ", tu?.subjectName);
+                  tu.optionalStudent.pull(sid);
+                  tu.theory_students.pull(sid);
+                  await tu.save();
+                }
+              }
+
+              const new_sub_list = await Subject.find({
+                $and: [
+                  {
+                    class: { $eq: `${student?.studentClass}` },
+                  },
+                  {
+                    subjectMasterName: { $eq: `${dt?.new_master}` },
+                  },
+                ],
+              });
+              // console.log("NEW", new_sub_list?.length);
+
+              if (new_sub_list?.length > 0) {
+                for (let j = 0; j < new_sub_list?.length; j++) {
+                  let tu = new_sub_list[j];
+                  // console.log("ASSIGN: -> ", tu?.subjectName);
+
+                  if (tu?.selected_batch_query) {
+                  } else {
+                    if (tu.optionalStudent?.includes(sid)) {
+                    } else {
+                      tu.optionalStudent.push(sid);
+                    }
+                    if (tu.theory_students?.includes(sid)) {
+                    } else {
+                      tu.theory_students.push(sid);
+                    }
+                    await tu.save();
+                  }
+                }
+              }
+              break;
+            }
+          }
+        }
+        if (student.major_subject?.length > 0) {
+          for (let i = 0; i < student.major_subject?.length; i++) {
+            let so_id = student.major_subject[i];
+            if (`${so_id}` === `${dt?.old_master}`) {
+              student.major_subject[i] = dt?.new_master;
+              break;
+            }
+          }
+        }
+      }
+      if (modify_optional?.length > 0) {
+        let arr = [];
+        for (let yt of modify_optional) {
+          arr.push(yt?.new_m);
+        }
+        student.student_optional_subject = arr;
+      }
       await student.save();
     }
     res.status(200).send({

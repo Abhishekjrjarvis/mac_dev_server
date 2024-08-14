@@ -3587,13 +3587,13 @@ exports.retrieveClassAllotQuery = async (req, res) => {
           } else {
           }
           await Promise.all([classes.save(), batch.save()]);
-          invokeMemberTabNotification(
-            "Admission Status",
-            aStatus.content,
-            "Application Status",
-            user._id,
-            user.deviceToken
-          );
+          // invokeMemberTabNotification(
+          //   "Admission Status",
+          //   aStatus.content,
+          //   "Application Status",
+          //   user._id,
+          //   user.deviceToken
+          // );
         }
       }
       res.status(200).send({

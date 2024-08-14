@@ -55,5 +55,5 @@ exports.timerFunction = () => {
   // }, 86400000);
   // setInterval(async () => {
   //   await validatePaymentStatus();
-  // }, 86400000);
+  // }, 864);
 };

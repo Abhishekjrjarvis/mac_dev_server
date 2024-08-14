@@ -1,6 +1,6 @@
 const { reset_receipt } = require("../Functions/protectReceipt");
 const { renderDayBookReceipt, renderDayBookPayment } = require("../OptimizeController/Filterization/filter");
-const { callback_payment_failed_regeneration_counter } = require("../OptimizeController/Paytm/pay_upi");
+const { callback_payment_failed_regeneration_counter, validatePaymentStatus } = require("../OptimizeController/Paytm/pay_upi");
 const {
   check_poll_status,
   election_vote_day,
@@ -54,6 +54,6 @@ exports.timerFunction = () => {
   //   await renderRealTimeDailyUpdate();
   // }, 86400000);
   // setInterval(async () => {
-  //   await callback_payment_failed_regeneration_counter();
+  //   await validatePaymentStatus();
   // }, 86400000);
 };

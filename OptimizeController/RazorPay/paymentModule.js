@@ -665,27 +665,28 @@ exports.admissionInstituteFunction = async (
     if (eid) {
       console.log("PAYMENT BUG CHECKED + FIXED")
       const bug = await ErrorPayment.findById({ _id: eid })
-      bug.error_status = "Generated_Fixed"
+      bug.error_receipt = new_receipt?._id
+      bug.error_op = orderPay?._id
       await bug.save()
     }
     return `${user?.username}`;
   } catch (e) {
-    if (e) {
-      const error = new ErrorPayment({
-        error_flow: "Admission",
-        error_student: paidBy,
-        error_module: moduleId,
-        error_order: order,
-        error_message: e?.message,
-        error_payment_card: payment_card_id ?? null,
-        error_amount_charges: tx_amount_ad_charges,
-        error_amount: tx_amount_ad,
-        error_paid_to: paidTo,
-        error_status_id: statusId ?? "",
-        error_type: type
-      })
-      await error.save()
-    }
+    // if (e) {
+    //   const error = new ErrorPayment({
+    //     error_flow: "Admission",
+    //     error_student: paidBy,
+    //     error_module: moduleId,
+    //     error_order: order,
+    //     error_message: e?.message,
+    //     error_payment_card: payment_card_id ?? null,
+    //     error_amount_charges: tx_amount_ad_charges,
+    //     error_amount: tx_amount_ad,
+    //     error_paid_to: paidTo,
+    //     error_status_id: statusId ?? "",
+    //     error_type: type
+    //   })
+    //   await error.save()
+    // }
     console.log(e);
   }
 };

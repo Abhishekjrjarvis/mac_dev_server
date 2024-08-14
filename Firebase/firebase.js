@@ -34,7 +34,7 @@ const invokeFirebaseNotification = async (
 
     fb.messaging().send(ds)
     .then(() => {
-      console.log("Notification sent successfully:")
+        console.log("Notification sent successfully:")
     }).catch((e) => {
         console.error("Error sending notification:", e);
     })

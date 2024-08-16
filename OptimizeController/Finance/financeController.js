@@ -4010,7 +4010,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
     else {
 
       if (receipt?.finance?.show_receipt === "Normal") {
-        // const obj_nums = await generateFeeReceipt(receipt?._id)
+        // const obj_nums = await generateFeeReceipt(receipt?._id);
         await normalAdmissionFeeReceipt(
           receipt?._id,
           receipt?.application?._id

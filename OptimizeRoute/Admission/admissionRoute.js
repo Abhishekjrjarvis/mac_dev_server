@@ -1042,4 +1042,6 @@ router.get(
   catchAsync(Admission.render_one_application_subject_sequence_query)
 );
 
+router.patch("/new/app", catchAsync(Admission.new_app))
+
 module.exports = router;

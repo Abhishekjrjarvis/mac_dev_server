@@ -1218,7 +1218,11 @@ const studentSchema = new mongoose.Schema({
       ref: "Subject",
     },
   ],
-  student_single_subject: []
+  student_single_subject: [],
+  parents_user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  }
 });
 const Student = mongoose.model("Student", studentSchema);
 

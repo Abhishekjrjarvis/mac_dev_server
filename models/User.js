@@ -508,6 +508,12 @@ const userSchema = new mongoose.Schema(
       }
     ],
     username_chat: { type: String, required: true, unique: true },
+    linked_student: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student"
+      }
+    ]
   },
   { timestamps: true }
 );

@@ -702,26 +702,52 @@ exports.oneTestSetDetail = async (req, res) => {
 
 exports.takeTestSet = async (req, res) => {
   try {
-    const subject = await Subject.findById(req.params.sid).populate({
-      path: "class",
-      select: "ApproveStudent",
-    });
+    const { sid } = req.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug regarding to call api",
+        access: false,
+      });
+    const subject = await Subject.findById(sid)
+      .populate({
+        path: "class",
+        select: "ApproveStudent",
+      })
+      .populate({
+        path: "selected_batch_query",
+        select: "class_student_query",
+      });
+
+    var student_list = [];
+
+    if (subject?.selected_batch_query?._id) {
+      student_list = subject?.selected_batch_query?.class_student_query;
+    } else {
+      if (subject?.optionalStudent?.length > 0) {
+        student_list = subject?.optionalStudent;
+      } else {
+        student_list = subject?.class?.ApproveStudent;
+      }
+    }
+
     const testSet = await SubjectMasterTestSet.findById(req.body?.tsid);
     const allotedSet = {
       testExamName: req.body?.testExamName,
       testTotalNumber: testSet.testTotalNumber,
       testDate: req.body?.testDate,
-      testStart: `${req.body?.testStart.substr(
-        0,
-        5
-      )}:00T${req.body?.testStart.substr(6, 2)}`,
-      testEnd: `${req.body?.testEnd.substr(0, 5)}:00T${req.body?.testEnd.substr(
-        6,
-        2
-      )}`,
+      testStart: req.body?.testStart,
+      testEnd: req.body?.testEnd,
+      // testStart: `${req.body?.testStart.substr(
+      //   0,
+      //   5
+      // )}:00T${req.body?.testStart.substr(6, 2)}`,
+      // testEnd: `${req.body?.testEnd.substr(0, 5)}:00T${req.body?.testEnd.substr(
+      //   6,
+      //   2
+      // )}`,
       testDuration: req.body?.testDuration,
-      assignTestSubject: req.params.sid,
-      assignStudent: subject?.class?.ApproveStudent,
+      assignTestSubject: sid,
+      assignStudent: student_list,
       subjectMasterTestSet: testSet._id,
     };
     const alloted = new AllotedTestSet(allotedSet);
@@ -761,45 +787,51 @@ exports.takeTestSet = async (req, res) => {
     res.status(200).send({
       message: "queston test set is assigned to student",
     });
-
-    for (stId of subject?.class?.ApproveStudent) {
-      const student = await Student.findById(stId);
-      studentTestObject.student = stId;
-      const user = await User.findById({ _id: `${student.user}` });
-      const studentTestSet = new StudentTestSet(studentTestObject);
-      student.testSet.push(studentTestSet._id);
-      const notify = new StudentNotification({});
-      notify.notifyContent = `New ${allotedSet.testExamName} Test is created for ${testSet.testSubject}`;
-      notify.notify_hi_content = `नई ${allotedSet.testExamName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`;
-      notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन ${allotedSet.testExamName} चाचणी तयार केली आहे.`;
-      notify.notifySender = subject._id;
-      notify.notifyReceiever = user._id;
-      notify.notifyType = "Student";
-      notify.notifyPublisher = student._id;
-      user.activity_tab.push(notify._id);
-      student.notification.push(notify._id);
-      notify.notifyBySubjectPhoto.subject_id = subject?._id;
-      notify.notifyBySubjectPhoto.subject_name = subject.subjectName;
-      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
-      notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle;
-      notify.notifyCategory = "MCQ";
-      notify.redirectIndex = 6;
-      invokeMemberTabNotification(
-        "Student Activity",
-        notify,
-        "New MCQ Test Set",
-        user._id,
-        user.deviceToken,
-        "Student",
-        notify
-      );
-      await Promise.all([
-        studentTestSet.save(),
-        student.save(),
-        notify.save(),
-        user.save(),
-      ]);
+    if (student_list?.length > 0) {
+      for (stId of student_list) {
+        const student = await Student.findById(stId);
+        studentTestObject.student = stId;
+        const user = await User.findById({ _id: `${student.user}` });
+        if (user._id) {
+          const studentTestSet = new StudentTestSet(studentTestObject);
+          student.testSet.push(studentTestSet._id);
+          const notify = new StudentNotification({});
+          notify.notifyContent = `New ${allotedSet.testExamName} Test is created for ${testSet.testSubject}`;
+          notify.notify_hi_content = `नई ${allotedSet.testExamName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`;
+          notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन ${allotedSet.testExamName} चाचणी तयार केली आहे.`;
+          notify.notifySender = subject._id;
+          notify.notifyReceiever = user._id;
+          notify.notifyType = "Student";
+          notify.notifyPublisher = student._id;
+          user.activity_tab.push(notify._id);
+          student.notification.push(notify._id);
+          notify.notifyBySubjectPhoto.subject_id = subject?._id;
+          notify.notifyBySubjectPhoto.subject_name = subject.subjectName;
+          notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+          notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle;
+          notify.notifyCategory = "MCQ";
+          notify.redirectIndex = 6;
+          await Promise.all([
+            studentTestSet.save(),
+            student.save(),
+            notify.save(),
+            user.save(),
+          ]);
+          if (user.deviceToken) {
+            invokeMemberTabNotification(
+              "Student Activity",
+              notify,
+              "New MCQ Test Set",
+              user._id,
+              user.deviceToken,
+              "Student",
+              notify
+            );
+          }
+        }
+      }
     }
+
     // // const oEncrypt = await encryptionPayload(subjectTestObject);
     // res.status(200).send({
     //   message: "queston test set is assigned to student",

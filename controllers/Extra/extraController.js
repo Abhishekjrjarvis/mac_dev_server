@@ -124,6 +124,8 @@ const NotExistStudentCertificate = require("../../models/Certificate/NotExistStu
 const { admissionFeeReceipt } = require("../../scripts/admissionFeeReceipt");
 const societyAdmissionFeeReceipt = require("../../scripts/societyAdmissionFeeReceipt");
 const staffLeaveRequest = require("../../scripts/staffLeaveRequest");
+const feeReceipt = require("../../models/RazorPay/feeReceipt");
+const normalAdmissionFeeReceipt = require("../../scripts/normalAdmissionFeeReceipt");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -4833,3 +4835,228 @@ exports.insertDepartmentStatusQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+
+// for setting control of student fill form or not
+
+exports.certificateLeavingStudentFormSettingQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { certificate_leaving_form_student } = req.body;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const institute = await InstituteAdmin.findById(id);
+
+    institute.certificate_leaving_form_student =
+      certificate_leaving_form_student;
+    await institute.save();
+    res.status(200).send({
+      message: "Certificate setting form updated",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// for hostel all application form
+exports.customGenerateCheckHostelAllApplicationFormQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+
+    if (!hid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let not_generate_student_list = [];
+    let a_app = [];
+    let all_app = [];
+    const hostel = await Hostel.findById(hid);
+    // all_app = await NewApplication.find({
+    //   $and: [
+    //     {
+    //      _id: { $in: hostel?.newApplication },
+    //     },
+    //     {
+    //       applicationStatus: { $eq: "Ongoing" },
+    //     },
+    //     {
+    //       applicationTypeStatus: { $eq: "Normal Application" },
+    //     },
+    //     {
+    //      application_flow: "Hostel Application"
+    //     },
+    //   ],
+    // });
+    all_app = await NewApplication.findById("66a924421e1bc45b685554c7");
+    // for (let i = 0; i < all_app?.length; i++) {
+    // for (let dfg of all_app) {
+    let new_app = all_app;
+    // let new_app = all_app[i];
+    // let new_app = dfg;
+    a_app.push(new_app?.applicationName);
+    console.log(new_app?.applicationName);
+    if (
+      false
+      // new_app?.applicationName === "F.Y. M.Sc (Analytical Chemistry - 2024-25)"
+    ) {
+    } else {
+      if (hostel?.institute) {
+        for (let st of new_app?.receievedApplication) {
+          if (st?.student) {
+            const stu = await Student.findById(st?.student);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
+                console.log("Application");
+                not_generate_student_list.push(stu?._id);
+                await generateStudentAdmissionForm(
+                  stu?._id,
+                  hostel?.institute,
+                  `${stu?.studentFirstName ?? ""} ${
+                    stu?.studentMiddleName ?? ""
+                  } ${stu?.studentLastName ?? ""}`,
+                  new_app?.applicationName
+                );
+              }
+            }
+          }
+        }
+        for (let st of new_app?.selectedApplication) {
+          if (st?.student) {
+            const stu = await Student.findById(st?.student);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
+                console.log("Document");
+
+                not_generate_student_list.push(stu?._id);
+                await generateStudentAdmissionForm(
+                  stu?._id,
+                  hostel?.institute,
+                  `${stu?.studentFirstName ?? ""} ${
+                    stu?.studentMiddleName ?? ""
+                  } ${stu?.studentLastName ?? ""}`,
+                  new_app?.applicationName
+                );
+              }
+            }
+          }
+        }
+        for (let st of new_app?.FeeCollectionApplication) {
+          if (st?.student) {
+            const stu = await Student.findById(st?.student);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
+                console.log("FEE");
+
+                not_generate_student_list.push(stu?._id);
+                await generateStudentAdmissionForm(
+                  stu?._id,
+                  hostel?.institute,
+                  `${stu?.studentFirstName ?? ""} ${
+                    stu?.studentMiddleName ?? ""
+                  } ${stu?.studentLastName ?? ""}`,
+                  new_app?.applicationName
+                );
+              }
+            }
+          }
+        }
+        for (let st of new_app?.confirmedApplication) {
+          if (st?.student) {
+            const stu = await Student.findById(st?.student);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
+                console.log("CONFIRM");
+
+                not_generate_student_list.push(stu?._id);
+                await generateStudentAdmissionForm(
+                  stu?._id,
+                  hostel?.institute,
+                  `${stu?.studentFirstName ?? ""} ${
+                    stu?.studentMiddleName ?? ""
+                  } ${stu?.studentLastName ?? ""}`,
+                  new_app?.applicationName
+                );
+              }
+            }
+          }
+        }
+        for (let st of new_app?.reviewApplication) {
+          if (st) {
+            const stu = await Student.findById(st);
+            if (stu?._id) {
+              if (stu?.application_print?.length > 0) {
+              } else {
+                console.log("REVIEW");
+
+                not_generate_student_list.push(stu?._id);
+                await generateStudentAdmissionForm(
+                  stu?._id,
+                  hostel?.institute,
+                  `${stu?.studentFirstName ?? ""} ${
+                    stu?.studentMiddleName ?? ""
+                  } ${stu?.studentLastName ?? ""}`,
+                  new_app?.applicationName
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+    // }
+
+    res.status(200).send({
+      message: "All application form is created.",
+      not_generate_student_list: not_generate_student_list,
+      a_app: a_app,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.spceAllFeeReceiptReGenrateQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const institute = await InstituteAdmin.findById(id);
+
+    if (institute?.ApproveStudent?.length > 0) {
+      for (let stu of institute?.ApproveStudent) {
+        const student = await Student.findById(stu);
+        if (student?.remainingFeeList?.length > 0) {
+          for (let remain of student?.remainingFeeList) {
+            const re_list = await RemainingList.findById(remain);
+            if (re_list?.remaining_array?.length > 0) {
+              for (let r_inner of re_list?.remaining_array) {
+                if (r_inner?.fee_receipt) {
+                  await normalAdmissionFeeReceipt(
+                    r_inner?.fee_receipt,
+                    r_inner?.appId
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+

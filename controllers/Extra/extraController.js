@@ -124,6 +124,8 @@ const NotExistStudentCertificate = require("../../models/Certificate/NotExistStu
 const { admissionFeeReceipt } = require("../../scripts/admissionFeeReceipt");
 const societyAdmissionFeeReceipt = require("../../scripts/societyAdmissionFeeReceipt");
 const staffLeaveRequest = require("../../scripts/staffLeaveRequest");
+const feeReceipt = require("../../models/RazorPay/feeReceipt");
+const normalAdmissionFeeReceipt = require("../../scripts/normalAdmissionFeeReceipt");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -5083,6 +5085,42 @@ exports.customGenerateCheckHostelAllApplicationFormQuery = async (req, res) => {
       not_generate_student_list: not_generate_student_list,
       a_app: a_app,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.spceAllFeeReceiptReGenrateQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const institute = await InstituteAdmin.findById(id);
+
+    if (institute?.ApproveStudent?.length > 0) {
+      for (let stu of institute?.ApproveStudent) {
+        const student = await Student.findById(stu);
+        if (student?.remainingFeeList?.length > 0) {
+          for (let remain of student?.remainingFeeList) {
+            const re_list = await RemainingList.findById(remain);
+            if (re_list?.remaining_array?.length > 0) {
+              for (let r_inner of re_list?.remaining_array) {
+                if (r_inner?.fee_receipt) {
+                  await normalAdmissionFeeReceipt(
+                    r_inner?.fee_receipt,
+                    r_inner?.appId
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   } catch (e) {
     console.log(e);
   }

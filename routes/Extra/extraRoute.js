@@ -526,4 +526,10 @@ router.patch(
   "/custom/check/generate/hostel/:hid/all/application/form",
   catchAsync(Extra.customGenerateCheckHostelAllApplicationFormQuery)
 );
+
+router.patch(
+  "/spce/institute/:id/regenerate/fee/receipt",
+  catchAsync(Extra.spceAllFeeReceiptReGenrateQuery)
+);
+
 module.exports = router;

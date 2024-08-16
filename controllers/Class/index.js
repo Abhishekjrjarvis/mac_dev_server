@@ -456,7 +456,7 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
           "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO student_prn_enroll_number",
         populate: {
           path: "user class_selected_batch",
-          select: "userLegalName username batchName batchStatus",
+          select: "userLegalName username username_chat batchName batchStatus",
         },
       })
       .lean()
@@ -483,7 +483,7 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
             "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO student_prn_enroll_number",
           populate: {
             path: "user class_selected_batch",
-            select: "userLegalName username batchName batchStatus",
+            select: "userLegalName username username_chat batchName batchStatus",
           },
         })
         .lean()

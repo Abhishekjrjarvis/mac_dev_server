@@ -1,3 +1,4 @@
+
 exports.all_access_role = () => {
   const access_role = {
     FULL_ACCESS: {
@@ -273,6 +274,15 @@ exports.all_access_role_finance = () => {
       permission: {
         allow: true,
         bound: ["COLLECT PENDING FEES", "EXEMPT PENDING FEES"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    MISCELLENOUS_FEE: {
+      role: "MISCELLENOUS_FEE",
+      permission: {
+        allow: true,
+        bound: ["MISCELLENOUS"],
         addons: [],
         accessStaff: "",
       },

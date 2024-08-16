@@ -130,6 +130,12 @@ router.patch(
 );
 
 router.patch(
+  "/by/universal/student/statistics/:bid/query",
+  // isLoggedIn,
+  catchAsync(Filter.renderStudentStatisticsUniversalQuery)
+);
+
+router.patch(
   "/by/student/statistics/excel/export/query",
   // isLoggedIn,
   catchAsync(Filter.renderStudentStatisticsExcelQuery)

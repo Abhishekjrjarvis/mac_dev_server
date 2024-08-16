@@ -5452,7 +5452,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
           "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO student_prn_enroll_number",
         populate: {
           path: "user class_selected_batch",
-          select: "userLegalName username batchName batchStatus",
+          select: "userLegalName username username_chat batchName batchStatus",
         },
       })
       .lean()
@@ -5565,7 +5565,7 @@ exports.retrieveDepartmentStaffArray = async (req, res) => {
           "staffFirstName staff_biometric_id staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO current_designation teaching_type",
         populate: {
           path: "user",
-          select: "username userLegalName photoId profilePhoto",
+          select: "username userLegalName photoId profilePhoto username_chat",
         },
       });
     // const dEncrypt = await encryptionPayload(department);

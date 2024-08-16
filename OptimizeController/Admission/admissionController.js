@@ -17443,3 +17443,23 @@ exports.render_one_application_subject_sequence_query = async (req, res) => {
   }
 }
 
+// exports.new_app = async (req, res) => {
+//   try {
+//     let nums = ["66bc5594f9019dacfa1f2ebd", "66bc6a08232694c6d384bdd1", "66bc6be0f9019dacfa1fdae0", "66bc87c77cb3669abc1aa46a"]
+//     const stu = await Student.find({ _id: { $in: nums } })
+//     .select("new_app")
+//     for (let ele of stu) {
+//       ele.new_app.appId = null
+//       ele.new_app.applicationDepartment = null
+//       ele.new_app.applicationBatch = null
+//       ele.new_app.applicationMaster = null
+//       ele.new_app.applicationUnit = null
+//       await ele.save()
+//     }
+//     res.status(200).send({ message: "New App", access: true})
+//   }
+//   catch (e) {
+//     console.log(e)
+//   }
+// }
+

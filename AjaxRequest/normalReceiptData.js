@@ -336,7 +336,7 @@ const admissionModifyReceiptData = (
   }
 
   let selectedApplication = args2?.student?.remainingFeeList?.find(
-    (val) => val?.appId === selectedApplicationId
+    (val) => `${val?.appId}` === `${selectedApplicationId}`
   );
 
   let studentInfo = {

@@ -390,6 +390,7 @@ const render_daybook_heads_wise = async (fid, from, to, bank, payment_type) => {
       obj["head_amount"] = 0;
       obj["cash_head_amount"] = 0;
       obj["bank_head_amount"] = 0;
+      obj["pg_head_amount"] = 0;
       obj["_id"] = ele?._id;
       nest_obj.push(obj);
       obj = {};

@@ -242,7 +242,7 @@ const bankDaybook = async (fid, from, to, bank, payment_type) => {
         {
           label: "Main Heads",
           property: "head_name",
-          width: 200,
+          width: 190,
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
@@ -259,7 +259,7 @@ const bankDaybook = async (fid, from, to, bank, payment_type) => {
           align: "right",
         },
         {
-          label: "Bank Amount",
+          label: "PG Amount",
           property: "bank_head_amount",
           width: 90,
           render: null,
@@ -385,3 +385,4 @@ const bankDaybook = async (fid, from, to, bank, payment_type) => {
   //   console.log(data);
 };
 module.exports = bankDaybook;
+

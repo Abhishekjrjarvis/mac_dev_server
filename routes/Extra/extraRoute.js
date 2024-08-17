@@ -516,4 +516,22 @@ router.patch(
   catchAsync(Extra.insertDepartmentStatusQuery)
 );
 
+
+router.patch(
+  "/certificate/autority/:id/leaving/form/setting",
+  // isLoggedIn,
+  catchAsync(Extra.certificateLeavingStudentFormSettingQuery)
+);
+
+router.patch(
+  "/custom/check/generate/hostel/:hid/all/application/form",
+  catchAsync(Extra.customGenerateCheckHostelAllApplicationFormQuery)
+);
+
+router.patch(
+  "/spce/institute/:id/regenerate/fee/receipt",
+  catchAsync(Extra.spceAllFeeReceiptReGenrateQuery)
+);
+
+
 module.exports = router;

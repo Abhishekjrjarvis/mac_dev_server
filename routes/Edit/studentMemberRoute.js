@@ -54,20 +54,25 @@ router
   .route("/user/login/query")
   .patch(catchAsync(studentMember.renderStudentUserLoginQuery));
 
-  router
+router
   .route("/list/query")
-    .get(catchAsync(studentMember.getPromoteStudentByClassQuery));
-  
-    router
+  .get(catchAsync(studentMember.getPromoteStudentByClassQuery));
+
+router
   .route("/subject/:sid/list/query")
   // isLoggedIn,
-      .get(catchAsync(studentMember.getStudentSubjectQuery));
-  
-      router
+  .get(catchAsync(studentMember.getStudentSubjectQuery));
+
+router
   .route("/subject/:sid/catalog/add/remove/query")
   // isLoggedIn,
   .patch(catchAsync(studentMember.subjectStudentAddCatalogQuery))
   .delete(catchAsync(studentMember.subjectStudentRemoveCatalogQuery));
 
-
+router
+  .route("/subject/master/:sid/allottment/profile/query")
+  .patch(catchAsync(studentMember.studentSubjectMasterEditQuery));
+router
+  .route("/:sid/all/subject/master")
+  .get(catchAsync(studentMember.studentAllSubjectMasterQuery));
 module.exports = router;

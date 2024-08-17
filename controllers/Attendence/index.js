@@ -3456,6 +3456,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
     let regularexp = "";
     var attendaceMappingDate = [];
     var attendance_zip = null;
+    var excel_key = null;
     if (is_type === "RANGE") {
       let range1 = startRange;
       let range2 = endRange;
@@ -3526,8 +3527,8 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         .populate({
           path: "class",
           select: "className",
-        })
-        .select("attendance selected_batch_query class");
+        });
+      // .select("attendance selected_batch_query class optionalStudent");
 
       let student_list = [];
       var classes = null;
@@ -3590,18 +3591,20 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         };
         students.push(obj);
       }
-      for (let stu of students) {
-        for (let att of subjects?.attendance) {
-          for (let pre of att?.presentStudent) {
-            if (String(stu._id) === String(pre.student))
-              stu.subjectWise.presentCount += 1;
+      if (students?.length > 0) {
+        for (let stu of students) {
+          for (let att of subjects?.attendance) {
+            for (let pre of att?.presentStudent) {
+              if (String(stu._id) === String(pre.student))
+                stu.subjectWise.presentCount += 1;
+            }
+            stu.subjectWise.totalCount += 1;
           }
-          stu.subjectWise.totalCount += 1;
+          stu.subjectWise.totalPercentage = (
+            (stu.subjectWise.presentCount * 100) /
+            stu.subjectWise.totalCount
+          ).toFixed(2);
         }
-        stu.subjectWise.totalPercentage = (
-          (stu.subjectWise.presentCount * 100) /
-          stu.subjectWise.totalCount
-        ).toFixed(2);
       }
 
       attendance_zip = {
@@ -3684,8 +3687,8 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         .populate({
           path: "class",
           select: "className",
-        })
-        .select("attendance selected_batch_query class");
+        });
+      // .select("attendance selected_batch_query class optionalStudent");
 
       // .lean()
       // .exec();
@@ -3736,41 +3739,45 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         attendaceMappingDate.push(att?.attendDate);
       }
       // for (let stu of classes?.ApproveStudent)
-      for (let stu of student_list) {
-        let obj = {
-          ...stu,
-          availablity: [],
-          subjectWise: {
-            presentCount: 0,
-            totalCount: 0,
-            totalPercentage: 0,
-          },
-        };
-        for (let att of subjects?.attendance) {
-          let statusObj = {
-            date: att.attendDate,
-            status: "",
+      // console.log("Student: ", student_list?.length);
+      if (student_list?.length > 0) {
+        for (let stu of student_list) {
+          let obj = {
+            ...stu,
+            availablity: [],
+            subjectWise: {
+              presentCount: 0,
+              totalCount: 0,
+              totalPercentage: 0,
+            },
           };
-          for (let pre of att?.presentStudent) {
-            if (String(stu._id) === String(pre.student)) {
-              statusObj.status = "P";
-              obj.subjectWise.presentCount += 1;
+          for (let att of subjects?.attendance) {
+            let statusObj = {
+              date: att.attendDate,
+              status: "",
+            };
+            for (let pre of att?.presentStudent) {
+              if (String(stu._id) === String(pre.student)) {
+                statusObj.status = "P";
+                obj.subjectWise.presentCount += 1;
+              }
             }
-          }
-          for (let abs of att?.absentStudent) {
-            if (String(stu._id) === String(abs.student)) {
-              statusObj.status = "A";
+            for (let abs of att?.absentStudent) {
+              if (String(stu._id) === String(abs.student)) {
+                statusObj.status = "A";
+              }
             }
+            obj.subjectWise.totalCount += 1;
+            obj.availablity.push(statusObj);
           }
-          obj.subjectWise.totalCount += 1;
-          obj.availablity.push(statusObj);
+          obj.subjectWise.totalPercentage = (
+            (obj.subjectWise.presentCount * 100) /
+            obj.subjectWise.totalCount
+          ).toFixed(2);
+          students.push(obj);
         }
-        obj.subjectWise.totalPercentage = (
-          (obj.subjectWise.presentCount * 100) /
-          obj.subjectWise.totalCount
-        ).toFixed(2);
-        students.push(obj);
       }
+
       attendance_zip = {
         students: students,
         attendaceMappingDate: attendaceMappingDate,

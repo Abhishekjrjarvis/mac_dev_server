@@ -7,6 +7,7 @@ const admissionIntakeReportData = require("../AjaxRequest/admissionIntakeReportD
 const Admission = require("../models/Admission/Admission");
 const Batch = require("../models/Batch");
 const unlinkFile = util.promisify(fs.unlink);
+const moment = require("moment");
 const admissionIntakeReport = async (admissionId, batchId) => {
   const doc = new PDFDocument({
     font: "Times-Roman",
@@ -102,7 +103,14 @@ const admissionIntakeReport = async (admissionId, batchId) => {
         align: "center",
       });
   }
-  doc.moveDown(1);
+  doc.moveDown(0.5);
+
+  doc
+    .fontSize(10)
+    .font("Times-Bold")
+    .fillColor("#121212")
+    .text(`Date: ${moment()?.format("DD/MM/yyyy")}`);
+  doc.moveDown(0.5);
 
   // if (data_batch?.insAffiliated) {
   //   doc
@@ -350,7 +358,7 @@ const admissionIntakeReport = async (admissionId, batchId) => {
       excel_file_name: `${name}-admission-intake.pdf`,
       batch: batch?.batchName,
     });
-    await unlinkFile(file.path);
+    // await unlinkFile(file.path);
     await ads_admin.save();
   });
 

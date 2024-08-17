@@ -577,6 +577,37 @@ const sort_student_by_alpha = async (arr, day, month, year) => {
   return send_filter;
 };
 
+const sort_student_by_alpha_last = async (arr, day, month, year) => {
+  var send_filter = [];
+  const students = await Student.find({
+    _id: { $in: arr },
+  })
+    .sort({ studentLastName: 1, studentFirstName: 1, studentMiddleName: 1 })
+    .select("_id");
+
+  for (let i = 0; i < students.length; i++) {
+    const stu = await Student.findById({ _id: students[i]._id })
+      .select(
+        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+      )
+      .populate({
+        path: "leave",
+        match: {
+          date: { $in: [`${day}/${month}/${year}`] },
+        },
+        select: "date",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      });
+    stu.studentROLLNO = i + 1;
+    await stu.save();
+    send_filter.push(stu);
+  }
+  return send_filter;
+};
+
 const sorted_by_gender = async (arr, day, month, year) => {
   var sorted_data = [];
   const studentFemale = await Student.find({
@@ -689,7 +720,22 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
         students: sortedA,
         access: true,
       });
-    } else if (sort_query === "Gender") {
+    }
+    if (sort_query === "Alpha_Last") {
+      const sortedA = await sort_student_by_alpha_last(
+        classes.ApproveStudent,
+        day,
+        month,
+        year
+      );
+      res.status(200).send({
+        message: "Sorted By Alphabetical Order",
+        classes,
+        students: sortedA,
+        access: true,
+      });
+    }
+    else if (sort_query === "Gender") {
       const sortedG = await sorted_by_gender(
         classes.ApproveStudent,
         day,
@@ -8374,6 +8420,32 @@ const review_sort_student_by_alpha = async (arr) => {
   return send_filter;
 };
 
+const review_sort_student_by_alpha_last = async (arr) => {
+  var send_filter = [];
+  const students = await Student.find({
+    _id: { $in: arr },
+  })
+    .sort({ studentLastName: 1, studentFirstName: 1, studentMiddleName: 1 })
+    .select("_id");
+
+  for (let i = 0; i < students.length; i++) {
+    const stu = await Student.findById({ _id: students[i]._id })
+      .select(
+        "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto studentROLLNO studentGender studentPhoneNumber studentParentsPhoneNumber studentEmail application_print fee_receipt paidFeeList"
+      )
+      .populate({
+        path: "fee_structure",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username userPhoneNumber userEmail",
+      });
+    await stu.save();
+    send_filter.push(stu?._id);
+  }
+  return send_filter;
+};
+
 const review_sorted_by_gender = async (arr) => {
   var sorted_data = [];
   const studentFemale = await Student.find({
@@ -8466,7 +8538,23 @@ exports.renderReviewApplicationFilter = async (req, res) => {
         apply: apply?.reviewApplication,
         access: true,
       });
-    } else if (sort_query === "Gender") {
+    }
+    else if (sort_query === "Alpha_Last") {
+      const sortedA = await review_sort_student_by_alpha_last(
+        apply?.reviewApplication
+      );
+      apply.reviewApplication = [];
+      await apply.save();
+      apply.reviewApplication = [...sortedA];
+      await apply.save();
+      res.status(200).send({
+        message: "Sorted By Alphabetical Surname Order",
+        students: sortedA,
+        apply: apply?.reviewApplication,
+        access: true,
+      });
+    }
+    else if (sort_query === "Gender") {
       const sortedG = await review_sorted_by_gender(apply?.reviewApplication);
       apply.reviewApplication = [];
       await apply.save();

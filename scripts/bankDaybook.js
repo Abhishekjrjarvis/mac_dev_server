@@ -99,7 +99,7 @@ const bankDaybook = async (fid, from, to, bank, payment_type) => {
     .fontSize(11)
     .font("Times-Bold")
     .fillColor("#121212")
-    .text(`Payment Type: ${payment_type}`, {
+    .text(`Payment Type: ${payment_type === "BOTH" ? "Total" : payment_type}`, {
       width: pageWidth - 40,
       align: "right",
     });

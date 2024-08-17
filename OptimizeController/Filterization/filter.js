@@ -11332,27 +11332,27 @@ exports.render_daybook_heads_wise = async (req, res) => {
           parseInt(st2?.invoice_count?.substring(14))
         );
       });
-      res.status(200).send({
-        message: "Explore Day Book Heads Query",
-        access: true,
-        all_receipts: all_receipts?.length,
-      //   t: t,
-      //   tl: t?.length,
-      //  l:l,
-      //  ll:l?.length
-        results: nest_obj,
-        range: `${all_receipts[0]?.invoice_count?.substring(14)} To ${all_receipts[all_receipts?.length - 1]?.invoice_count?.substring(14)}`
-        // account_info: bank_acc,
-        // day_range_from: from,
-        // day_range_to: to,
-        // ins_info: institute,
-      });
+      // res.status(200).send({
+      //   message: "Explore Day Book Heads Query",
+      //   access: true,
+      //   all_receipts: all_receipts?.length,
+      // //   t: t,
+      // //   tl: t?.length,
+      // //  l:l,
+      // //  ll:l?.length
+      //   results: nest_obj,
+      //   range: `${all_receipts[0]?.invoice_count?.substring(14)} To ${all_receipts[all_receipts?.length - 1]?.invoice_count?.substring(14)}`
+      //   // account_info: bank_acc,
+      //   // day_range_from: from,
+      //   // day_range_to: to,
+      //   // ins_info: institute,
+      // });
     } else {
-      res.status(200).send({
-        message: "No Day Book Heads Query",
-        access: false,
-        results: [],
-      });
+      // res.status(200).send({
+      //   message: "No Day Book Heads Query",
+      //   access: false,
+      //   results: [],
+      // });
     }
   } catch (e) {
     console.log(e);

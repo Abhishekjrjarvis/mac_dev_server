@@ -721,7 +721,7 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
         access: true,
       });
     }
-    if (sort_query === "Alpha_Last") {
+    else if (sort_query === "Alpha_Last") {
       const sortedA = await sort_student_by_alpha_last(
         classes.ApproveStudent,
         day,

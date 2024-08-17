@@ -13,7 +13,8 @@ const {
   callbackCertificate,
   callbackCertificateStatus,
   callbackOtherFees,
-  callbackOtherFeesStatus
+  callbackOtherFeesStatus,
+  validatePaymentStatusByAPI
   // callbackLibrary,
   // callbackLibraryStatus,
 } = require("../../OptimizeController/Paytm/pay_upi");
@@ -27,7 +28,7 @@ router
 
 router
   .route(
-    "/callback/admission/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price/fees/:payment_card_id/install/:payment_installment/remain/:payment_remain_fees/status/:ad_status_id"
+    "/callback/admission/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price/fees/:payment_card_id/install/:payment_installment/remain/:payment_remain_fees/status/:ad_status_id/epid/:eid"
   )
   .post(callbackAdmission);
 
@@ -69,5 +70,6 @@ router.route("/status/success/transport/query").post(callbackTransportStatus);
 
 router.route("/status/success/other/fees/query").post(callbackOtherFeesStatus);
 
+router.route("/check/status").patch(validatePaymentStatusByAPI)
 
 module.exports = router;

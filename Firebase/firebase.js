@@ -1,5 +1,5 @@
 var firebase = require("firebase-admin");
-var serviceAccount = require("./qviple-user-firebase-adminsdk-4qvna-8582f91ae3.json");
+var serviceAccount = require("../Secret/qviple-user-firebase-adminsdk-4qvna-8582f91ae3.json");
 
 const invokeFirebaseNotification = async (
   type,
@@ -11,244 +11,253 @@ const invokeFirebaseNotification = async (
   aid
 ) => {
   // if (!firebase.apps.length) {
-  //   firebase.initializeApp({
-  //     credential: firebase.credential.cert(serviceAccount),
-  //   });
+  //   var fb = firebase.initializeApp({
+  //       credential: firebase.credential.cert(serviceAccount),
+  //       databaseURL: "dB_URL"
+  //     }, "qviple-user");
   // }
   // if (type === "Followers") {
   //   const firebaseToken = `${token && token}`;
+  //   const ds = {
+  //       notification: {
+  //         title: `${title}`,
+  //         body: `${info.notifyContent}`,
+  //       },
+  //       data: {
+  //         type: `${type}`,
+  //         userId: `${id}`,
+  //         click_action: "FLUTTER_NOTIFICATION_CLICK",
+  //         sound: "default",
+  //       },
+  //       token: firebaseToken
+  // };
 
-  //   const payload = {
-  //     notification: {
-  //       title: `${title}`,
-  //       body: `${info.notifyContent}`,
-  //     },
-  //     data: {
-  //       type: `${type}`,
-  //       userId: `${id}`,
-  //       click_action: "FLUTTER_NOTIFICATION_CLICK",
-  //       sound: "default",
-  //     },
-  //   };
-  //   const options = {
-  //     priority: "high",
-  //     timeToLive: 60 * 60 * 24,
-  //   };
-
-  //   firebase.messaging().sendToDevice(firebaseToken, payload, options);
+  //   fb.messaging().send(ds)
+  //   .then(() => {
+  //       console.log("Notification sent successfully:")
+  //   }).catch((e) => {
+  //       console.error("Error sending notification:", e);
+  //   })
   // } else if (type === "Circle") {
   //   const firebaseToken = `${token && token}`;
+  //   const ds = {
+  //       notification: {
+  //         title: `${title}`,
+  //         body: `${info.notifyContent}`,
+  //       },
+  //       data: {
+  //         type: `${type}`,
+  //         userId: `${id}`,
+  //         click_action: "FLUTTER_NOTIFICATION_CLICK",
+  //         sound: "default",
+  //       },
+  //       token: firebaseToken
+  // };
 
-  //   const payload = {
-  //     notification: {
-  //       title: `${title}`,
-  //       body: `${info.notifyContent}`,
-  //     },
-  //     data: {
-  //       type: `${type}`,
-  //       userId: `${id}`,
-  //       click_action: "FLUTTER_NOTIFICATION_CLICK",
-  //       sound: "default",
-  //     },
-  //   };
-  //   const options = {
-  //     priority: "high",
-  //     timeToLive: 60 * 60 * 24,
-  //   };
-
-  //   firebase.messaging().sendToDevice(firebaseToken, payload, options);
+  //   fb.messaging().send(ds)
+  //   .then(() => {
+  //     console.log("Notification sent successfully:")
+  //   }).catch((e) => {
+  //       console.error("Error sending notification:", e);
+  //   })
   // } else if (type === "Staff Approval") {
   //   const firebaseToken = `${token && token}`;
+  //   const ds = {
+  //       notification: {
+  //         title: `${title}`,
+  //         body: `${info.notifyContent}`,
+  //       },
+  //       data: {
+  //         type: `${type}`,
+  //         userId: `${id}`,
+  //         click_action: "FLUTTER_NOTIFICATION_CLICK",
+  //         sound: "default",
+  //       },
+  //       token: firebaseToken
+  // };
 
-  //   const payload = {
-  //     notification: {
-  //       title: `${title}`,
-  //       body: `${info.notifyContent}`,
-  //     },
-  //     data: {
-  //       type: `${type}`,
-  //       userId: `${id}`,
-  //       click_action: "FLUTTER_NOTIFICATION_CLICK",
-  //       sound: "default",
-  //     },
-  //   };
-  //   const options = {
-  //     priority: "high",
-  //     timeToLive: 60 * 60 * 24,
-  //   };
-
-  //   firebase.messaging().sendToDevice(firebaseToken, payload, options);
+  //   fb.messaging().send(ds)
+  //   .then(() => {
+  //     console.log("Notification sent successfully:")
+  //   }).catch((e) => {
+  //       console.error("Error sending notification:", e);
+  //   })
   // } else if (type === "Student Approval") {
   //   const firebaseToken = `${token && token}`;
+  //   const ds = {
+  //       notification: {
+  //         title: `${title}`,
+  //         body: `${info.notifyContent}`,
+  //       },
+  //       data: {
+  //         type: `${type}`,
+  //         userId: `${id}`,
+  //         click_action: "FLUTTER_NOTIFICATION_CLICK",
+  //         sound: "default",
+  //       },
+  //       token: firebaseToken
+  // };
 
-  //   const payload = {
-  //     notification: {
-  //       title: `${title}`,
-  //       body: `${info.notifyContent}`,
-  //     },
-  //     data: {
-  //       type: `${type}`,
-  //       userId: `${id}`,
-  //       click_action: "FLUTTER_NOTIFICATION_CLICK",
-  //       sound: "default",
-  //     },
-  //   };
-  //   const options = {
-  //     priority: "high",
-  //     timeToLive: 60 * 60 * 24,
-  //   };
-
-  //   firebase.messaging().sendToDevice(firebaseToken, payload, options);
+  //   fb.messaging().send(ds)
+  //   .then(() => {
+  //     console.log("Notification sent successfully:")
+  //   }).catch((e) => {
+  //       console.error("Error sending notification:", e);
+  //   })
   // } else if (type === "Designation Allocation") {
   //   const firebaseToken = `${token && token}`;
+  //   const ds = {
+  //       notification: {
+  //         title: `${title}`,
+  //         body: `${info.notifyContent}`,
+  //       },
+  //       data: {
+  //         type: `${type}`,
+  //         userId: `${id}`,
+  //         click_action: "FLUTTER_NOTIFICATION_CLICK",
+  //         sound: "default",
+  //       },
+  //       token: firebaseToken
+  // };
 
-  //   const payload = {
-  //     notification: {
-  //       title: `${title}`,
-  //       body: `${info.notifyContent}`,
-  //     },
-  //     data: {
-  //       type: `${type}`,
-  //       userId: `${id}`,
-  //       click_action: "FLUTTER_NOTIFICATION_CLICK",
-  //       sound: "default",
-  //     },
-  //   };
-  //   const options = {
-  //     priority: "high",
-  //     timeToLive: 60 * 60 * 24,
-  //   };
-
-  //   firebase.messaging().sendToDevice(firebaseToken, payload, options);
+  //   fb.messaging().send(ds)
+  //   .then(() => {
+  //     console.log("Notification sent successfully:")
+  //   }).catch((e) => {
+  //       console.error("Error sending notification:", e);
+  //   })
   // } else if (type === "Announcement") {
   //   const firebaseToken = `${token && token}`;
+  //   const ds = {
+  //       notification: {
+  //         title: `${title}`,
+  //         body: `${info.notifyContent}`,
+  //       },
+  //       data: {
+  //         type: `${type}`,
+  //         userId: `${id}`,
+  //         click_action: "FLUTTER_NOTIFICATION_CLICK",
+  //         sound: "default",
+  //       },
+  //       token: firebaseToken
+  // };
 
-  //   const payload = {
-  //     notification: {
-  //       title: `${title}`,
-  //       body: `${info.notifyContent}`,
-  //     },
-  //     data: {
-  //       type: `${type}`,
-  //       userId: `${id}`,
-  //       click_action: "FLUTTER_NOTIFICATION_CLICK",
-  //       sound: "default",
-  //     },
-  //   };
-  //   const options = {
-  //     priority: "high",
-  //     timeToLive: 60 * 60 * 24,
-  //   };
-
-  //   firebase.messaging().sendToDevice(firebaseToken, payload, options);
+  //   fb.messaging().send(ds)
+  //   .then(() => {
+  //     console.log("Notification sent successfully:")
+  //   }).catch((e) => {
+  //       console.error("Error sending notification:", e);
+  //   })
   // } else if (type === "Student Member Activity") {
   //   const firebaseToken = `${token && token}`;
+  //   const ds = {
+  //       notification: {
+  //         title: `${title}`,
+  //         body: `${info.notifyContent}`,
+  //       },
+  //       data: {
+  //         type: `${type}`,
+  //         userId: `${id}`,
+  //         click_action: "FLUTTER_NOTIFICATION_CLICK",
+  //         sound: "default",
+  //       },
+  //       token: firebaseToken
+  // };
 
-  //   const payload = {
-  //     notification: {
-  //       title: `${title}`,
-  //       body: `${info.notifyContent}`,
-  //     },
-  //     data: {
-  //       type: `${type}`,
-  //       userId: `${id}`,
-  //       click_action: "FLUTTER_NOTIFICATION_CLICK",
-  //       sound: "default",
-  //     },
-  //   };
-  //   const options = {
-  //     priority: "high",
-  //     timeToLive: 60 * 60 * 24,
-  //   };
-
-  //   firebase.messaging().sendToDevice(firebaseToken, payload, options);
+  //   fb.messaging().send(ds)
+  //   .then(() => {
+  //     console.log("Notification sent successfully:")
+  //   }).catch((e) => {
+  //       console.error("Error sending notification:", e);
+  //   })
   // } else if (type === "Staff Member Activity") {
   //   const firebaseToken = `${token && token}`;
+  //   const ds = {
+  //       notification: {
+  //         title: `${title}`,
+  //         body: `${info.notifyContent}`,
+  //       },
+  //       data: {
+  //         type: `${type}`,
+  //         userId: `${id}`,
+  //         click_action: "FLUTTER_NOTIFICATION_CLICK",
+  //         sound: "default",
+  //       },
+  //       token: firebaseToken
+  // };
 
-  //   const payload = {
-  //     notification: {
-  //       title: `${title}`,
-  //       body: `${info.notifyContent}`,
-  //     },
-  //     data: {
-  //       type: `${type}`,
-  //       userId: `${id}`,
-  //       click_action: "FLUTTER_NOTIFICATION_CLICK",
-  //       sound: "default",
-  //     },
-  //   };
-  //   const options = {
-  //     priority: "high",
-  //     timeToLive: 60 * 60 * 24,
-  //   };
-
-  //   firebase.messaging().sendToDevice(firebaseToken, payload, options);
+  //   fb.messaging().send(ds)
+  //   .then(() => {
+  //     console.log("Notification sent successfully:")
+  //   }).catch((e) => {
+  //       console.error("Error sending notification:", e);
+  //   })
   // } else if (type === "Comment") {
   //   const firebaseToken = `${token && token}`;
+  //   const ds = {
+  //       notification: {
+  //         title: `${title}`,
+  //         body: `${info.notifyContent}`,
+  //       },
+  //       data: {
+  //         type: `${type}`,
+  //         userId: `${id}`,
+  //         click_action: "FLUTTER_NOTIFICATION_CLICK",
+  //         sound: "default",
+  //       },
+  //       token: firebaseToken
+  // };
 
-  //   const payload = {
-  //     notification: {
-  //       title: `${title}`,
-  //       body: `${info.notifyContent}`,
-  //     },
-  //     data: {
-  //       type: `${type}`,
-  //       userId: `${id}`,
-  //       postId: `${pid}`,
-  //       click_action: "FLUTTER_NOTIFICATION_CLICK",
-  //       sound: "default",
-  //     },
-  //   };
-  //   const options = {
-  //     priority: "high",
-  //     timeToLive: 60 * 60 * 24,
-  //   };
-
-  //   firebase.messaging().sendToDevice(firebaseToken, payload, options);
+  //   fb.messaging().send(ds)
+  //   .then(() => {
+  //     console.log("Notification sent successfully:")
+  //   }).catch((e) => {
+  //       console.error("Error sending notification:", e);
+  //   })
   // } else if (type === "Answer") {
   //   const firebaseToken = `${token && token}`;
+  //   const ds = {
+  //       notification: {
+  //         title: `${title}`,
+  //         body: `${info.notifyContent}`,
+  //       },
+  //       data: {
+  //         type: `${type}`,
+  //         userId: `${id}`,
+  //         click_action: "FLUTTER_NOTIFICATION_CLICK",
+  //         sound: "default",
+  //       },
+  //       token: firebaseToken
+  // };
 
-  //   const payload = {
-  //     notification: {
-  //       title: `${title}`,
-  //       body: `${info.notifyContent}`,
-  //     },
-  //     data: {
-  //       type: `${type}`,
-  //       userId: `${id}`,
-  //       postId: `${pid}`,
-  //       click_action: "FLUTTER_NOTIFICATION_CLICK",
-  //       sound: "default",
-  //     },
-  //   };
-  //   const options = {
-  //     priority: "high",
-  //     timeToLive: 60 * 60 * 24,
-  //   };
-
-  //   firebase.messaging().sendToDevice(firebaseToken, payload, options);
+  //   fb.messaging().send(ds)
+  //   .then(() => {
+  //     console.log("Notification sent successfully:")
+  //   }).catch((e) => {
+  //       console.error("Error sending notification:", e);
+  //   })
   // } else if (type === "New To Post Feed") {
   //   const firebaseToken = `${token && token}`;
+  //   const ds = {
+  //       notification: {
+  //         title: `${title}`,
+  //         body: `${info.notifyContent}`,
+  //       },
+  //       data: {
+  //         type: `${type}`,
+  //         userId: `${id}`,
+  //         click_action: "FLUTTER_NOTIFICATION_CLICK",
+  //         sound: "default",
+  //       },
+  //       token: firebaseToken
+  // };
 
-  //   const payload = {
-  //     notification: {
-  //       title: `${title}`,
-  //       body: `${info.notifyContent}`,
-  //     },
-  //     data: {
-  //       type: `${type}`,
-  //       userId: `${id}`,
-  //       postId: `${pid}`,
-  //       click_action: "FLUTTER_NOTIFICATION_CLICK",
-  //       sound: "default",
-  //     },
-  //   };
-  //   const options = {
-  //     priority: "high",
-  //     timeToLive: 60 * 60 * 24,
-  //   };
-
-  //   firebase.messaging().sendToDevice(firebaseToken, payload, options);
+  //   fb.messaging().send(ds)
+  //   .then(() => {
+  //     console.log("Notification sent successfully:")
+  //   }).catch((e) => {
+  //       console.error("Error sending notification:", e);
+  //   })
   // } else {
   // }
 };

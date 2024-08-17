@@ -110,13 +110,23 @@ exports.preformedStructure = async (req, res) => {
       new_struct.fee_structure_code = `${new_code}`;
       department.fees_structures.push(new_struct?._id);
       department.fees_structures_count += 1;
-      for (var one_head of one_struct?.fees_heads) {
-        new_struct.fees_heads.push({
+      for (var one_head of one_struct?.applicable_fees_heads) {
+        new_struct.applicable_fees_heads.push({
           head_name: one_head?.head_name,
           head_amount: one_head?.head_amount,
           master: one_head?.master,
+          is_society: one_head?.is_society
         });
-        new_struct.fees_heads_count += 1;
+        new_struct.applicable_fees_heads_count += 1;
+      }
+      for (var one_head of one_struct?.government_fees_heads) {
+        new_struct.government_fees_heads.push({
+          head_name: one_head?.head_name,
+          head_amount: one_head?.head_amount,
+          master: one_head?.master,
+          is_society: one_head?.is_society
+        });
+        new_struct.government_fees_heads_count += 1;
       }
       await new_struct.save();
     }

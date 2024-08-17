@@ -547,9 +547,9 @@ const departmentSchema = new mongoose.Schema({
   filter_application: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "NewApplication",
-    },
-  ],
+      ref: "NewApplication"
+    }
+  ]
 });
 
 const Department = mongoose.model("Department", departmentSchema);

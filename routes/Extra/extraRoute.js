@@ -516,6 +516,7 @@ router.patch(
   catchAsync(Extra.insertDepartmentStatusQuery)
 );
 
+
 router.patch(
   "/certificate/autority/:id/leaving/form/setting",
   // isLoggedIn,
@@ -531,5 +532,6 @@ router.patch(
   "/spce/institute/:id/regenerate/fee/receipt",
   catchAsync(Extra.spceAllFeeReceiptReGenrateQuery)
 );
+
 
 module.exports = router;

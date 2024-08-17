@@ -1,8 +1,7 @@
 node_modules
 .env
-./Firebase
 username.txt
 package-lock.json
 Error
-./Firebase/qviple-user-firebase-adminsdk-4qvna-aca6cd00fb.json
+Secret
 .DS_Store

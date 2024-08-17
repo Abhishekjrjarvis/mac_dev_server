@@ -125,6 +125,11 @@ const orderPaymentSchema = new mongoose.Schema({
   paytm_obj: {
     orderId: { type: String },
     checksum: { type: String }
+  },
+  payment_student_detail: {
+    classes: { type: String },
+    batch: { type: String },
+    roll_no: { type: String }
   }
   // payment_expense_by_end_user_id: {
   //   type: mongoose.Schema.Types.ObjectId,

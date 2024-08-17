@@ -644,6 +644,19 @@ router
 
   router
   .route("/remove/student/other/fee/:ofid")
-  .post(catchAsync(Finance.renderNewOtherFeesRemoveStudentQuery));
+    .post(catchAsync(Finance.renderNewOtherFeesRemoveStudentQuery));
+  
+router
+  .route("/add/non/existing/other/fees/:fid")
+  .post(catchAsync(Finance.renderExistNonOtherFeesAddStudentQuery))
+
+  router
+  .route("/add/one/student/other/fee/:fid")
+  .post(catchAsync(Finance.renderNewOneOtherFeesAddStudentQuery));
+
+
+router
+.route("/one/non/existing/other/fee/:ofid/student/list")
+.get(catchAsync(Finance.renderOneNonExistingOtherFeesStudentListQuery));
 
 module.exports = router;

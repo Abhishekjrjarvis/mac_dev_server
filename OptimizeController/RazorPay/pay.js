@@ -1069,7 +1069,7 @@ exports.fetchPaymentOtherHistoryQueryTo = async (req, res) => {
         })
           .sort("-created_at")
           .select(
-            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number payment_student_detail"
           )
           .populate({
             path: "payment_student",
@@ -1129,7 +1129,7 @@ exports.fetchPaymentOtherHistoryQueryTo = async (req, res) => {
         })
           .sort("-created_at")
           .select(
-            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number payment_student_detail"
           )
           .populate({
             path: "payment_fee",
@@ -1222,7 +1222,7 @@ exports.fetchPaymentOtherHistoryQueryTo = async (req, res) => {
         })
           .sort("-created_at")
           .select(
-            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number payment_student_detail"
           )
           .populate({
             path: "payment_student",
@@ -1281,7 +1281,7 @@ exports.fetchPaymentOtherHistoryQueryTo = async (req, res) => {
         })
           .sort("-created_at")
           .select(
-            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+            "razorpay_order_id razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number payment_student_detail"
           )
           .populate({
             path: "payment_fee",

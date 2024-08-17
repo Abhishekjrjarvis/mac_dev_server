@@ -130,6 +130,12 @@ router.patch(
 );
 
 router.patch(
+  "/by/universal/student/statistics/:bid/query",
+  // isLoggedIn,
+  catchAsync(Filter.renderStudentStatisticsUniversalQuery)
+);
+
+router.patch(
   "/by/student/statistics/excel/export/query",
   // isLoggedIn,
   catchAsync(Filter.renderStudentStatisticsExcelQuery)
@@ -274,5 +280,10 @@ router.patch(
 );
 
 router.patch("/:fid/daybook/other/fees/heads/wise", catchAsync(Filter.render_other_fees_daybook_heads_wise))
+
+router.patch(
+  "/allotted/application/export/:appId",
+  catchAsync(Filter.renderApplicationAllottedListQuery)
+);
 
 module.exports = router;

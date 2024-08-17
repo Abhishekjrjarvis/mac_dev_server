@@ -407,3 +407,4 @@ const bankDaybook = async (fid, from, to, bank, payment_type) => {
   //   console.log(data);
 };
 module.exports = bankDaybook;
+

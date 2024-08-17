@@ -13,6 +13,7 @@ const {
 const { hostelInstituteFunction } = require("../RazorPay/hostelPaymentModule");
 const { orderID } = require("../../Generator/OrderId");
 const ErrorPayment = require("../../models/Acid/ErrorPayment");
+const axios = require('axios');
 
 const order_history_query = async (
   module_type,
@@ -96,6 +97,20 @@ exports.initiate = async (req, res) => {
     var price = `${amount}`;
 
     var paytmParams = {};
+    const error_pay = new ErrorPayment({
+      error_flow: type,
+      error_student: paidBy,
+      error_module: moduleId,
+      error_order_id: order,
+      error_message: "New Order ID Payment Initiated",
+      error_payment_card: payment_card_id ?? null,
+      error_amount_charges: Math.ceil(data),
+      error_amount: price,
+      error_paid_to: paidTo,
+      error_status_id: ad_status_id ?? "",
+      error_type: type
+    })
+    await error_pay.save()
 
     paytmParams.body = {
       requestType: "Payment",
@@ -108,7 +123,7 @@ exports.initiate = async (req, res) => {
           : type === "Fees"
           ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}`
           : type === "Admission"
-          ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_fees}/status/${ad_status_id}`
+          ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_fees}/status/${ad_status_id}/epid/${error_pay?._id}`
           : type === "Certificate"
           ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/certificate/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/type/${cert_type}/content/${cert_content}/original/${is_original}`
           : type === "Other"
@@ -171,6 +186,7 @@ exports.initiate = async (req, res) => {
             callback_apk_url: process.env.PAYTM_CALLBACK_URL_APK
               ? "https://securegw.paytm.in/theia/paytmCallback?ORDER_ID="
               : "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=",
+            payment_status: error_pay?._id ?? ""
           });
         });
       });
@@ -281,6 +297,7 @@ exports.callbackAdmission = async (req, res) => {
       payment_card_id,
       payment_remain_fees,
       price,
+      eid
     } = req.params;
     var paytmParams = {};
     paytmParams.body = {
@@ -354,7 +371,8 @@ exports.callbackAdmission = async (req, res) => {
               payment_remain_1,
               payment_card_id,
               pay_remain,
-              valid_status
+              valid_status,
+              eid
               // Boolean(ad_install)
             );
             if (isApk === "APK") {
@@ -645,6 +663,7 @@ exports.callbackAdmissionStatus = async (req, res) => {
       STATUS,
       TXNID,
       apk_body,
+      eid
     } = req.body;
     var status = STATUS;
     var price_charge = TXNAMOUNT;
@@ -674,7 +693,8 @@ exports.callbackAdmissionStatus = async (req, res) => {
         payment_remain_1,
         payment_card_id,
         pay_remain,
-        valid_status
+        valid_status,
+        eid
         // Boolean(ad_install)
       );
       if (isApk === "APK") {
@@ -1003,90 +1023,194 @@ exports.callbackOtherFeesStatus = async (req, res) => {
   }
 };
 
-
-exports.callback_payment_failed_regeneration_counter = async (req, res) => {
+exports.validatePaymentStatus = async () => {
   try {
-    const all_pay = await ErrorPayment.find({ error_status: "Generated"})
-    for (let ele of all_pay) {
-      var paytmParams = {};
-      paytmParams.body = {
-        mid: `${process.env.PAYTM_MID}`,
-        orderId: `${ele?.ORDERID}`,
-      };
-      PaytmChecksum.generateSignature(
-        JSON.stringify(paytmParams.body),
-        `${process.env.PAYTM_MERCHANT_KEY}`
-      ).then(function (checksum) {
-        paytmParams.head = {
-          signature: checksum,
+    const all_payments = await ErrorPayment.find({ error_status: "GENERATED" })
+    .populate({
+      path: "error_receipt",
+      select: "receipt_file"
+    })
+    .populate({
+      path: "error_op",
+      select: "payment_amount"
+    })
+    for (let val of all_payments) {
+      if (val?.error_receipt?.receipt_file) {
+        
+      }
+      else {
+        var paytmParams = {};
+        paytmParams.body = {
+          "mid": `${process.env.PAYTM_MID}`,
+          "orderId": val?.error_order_id,
         };
-
-        var post_data = JSON.stringify(paytmParams);
-
-        var options = {
-          // hostname: "securegw-stage.paytm.in",
-          hostname: process.env.PAYTM_CALLBACK_URL_APK
-            ? "securegw.paytm.in"
-            : "securegw-stage.paytm.in",
-
-          port: 443,
-          path: "/v3/order/status",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Content-Length": post_data.length,
-          },
-        };
-
-        var response = "";
-        var post_req = https.request(options, function (post_res) {
-          post_res.on("data", function (chunk) {
-            response += chunk;
-          });
-
-          post_res.on("end", async function () {
-            // var status = req?.body?.STATUS;
-            // var price_charge = req?.body?.TXNAMOUNT;
-            // var txn_id = req?.body?.TXNID;
-              console.log("TXN_SUCCESS")
+        PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), `${process.env.PAYTM_MERCHANT_KEY}`).then(async function (checksum) {
+          paytmParams.head = {
+            "signature": checksum
+          };
+          const d_set = await axios.post(process.env.PAYTM_STATUS_URL, paytmParams)
+          if (d_set?.data?.body?.resultInfo?.resultStatus === "TXN_SUCCESS") {
+            console.log("PASS", d_set?.data?.body)
+            if (val?.error_op?.payment_amount > 0) {
+              console.log("1")
+            }
+            else {
+              console.log("O")
               var order = await order_history_query(
-                ele?.error_flow,
-                ele?.error_module,
-                ele?.error_amount,
-                ele?.error_paid_to,
+                val?.error_flow,
+                val?.error_module,
+                val?.error_amount,
+                val?.error_paid_to,
                 "",
                 {},
                 {}
               );
+              val.error_op = order?._id
               var paytm_author = false;
-              var valid_status = ele?.error_status_id === "null" ? "" : ele?.error_status_id;
+              var valid_status = val?.error_status_id === "null" ? "" : val?.error_status_id;
               var valid_card =
                 "";
               var pay_remain = false
               await admissionInstituteFunction(
                 order?._id,
-                ele?.error_student,
-                ele?.error_amount,
-                ele?.error_amount_charges,
-                ele?.error_module,
-                ele?.error_paid_to,
-                ele?.error_type,
+                val?.error_student,
+                val?.error_amount,
+                val?.error_amount_charges,
+                val?.error_module,
+                val?.error_paid_to,
+                val?.error_type,
                 paytm_author,
                 valid_card,
-                ele?.payment_remain_1,
-                ele?.error_payment_card,
+                val?.payment_remain_1,
+                val?.error_payment_card,
                 pay_remain,
                 valid_status,
-                ele?._id
+                val?._id
                 // Boolean(ad_install)
               );
-          });
+              val.error_status = "GENERATED_RESOLVED"
+              await val.save()
+            }
+          }
+          else {
+          }
         });
-        post_req.write(post_data);
-        post_req.end();
-      });
+      }
     }
-} catch (e) {
-    console.log(e);
+    // res.status(200).send({ message: "Explore Valid Payment Status Check API", access: true })
+  } catch (e) {
+    console.error('Error validating payment status:', e);
   }
 };
+
+exports.validatePaymentStatusByAPI = async (req, res) => {
+  try {
+    const { error_order_id } = req?.body
+    var paytmParams = {};
+      paytmParams.body = {
+        "mid": `${process.env.PAYTM_MID}`,
+        "orderId": error_order_id,
+      };
+      PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), `${process.env.PAYTM_MERCHANT_KEY}`).then(async function (checksum) {
+        paytmParams.head = {
+          "signature": checksum
+        };
+        const d_set = await axios.post(process.env.PAYTM_STATUS_URL, paytmParams)
+        if (d_set?.data?.body?.resultInfo?.resultStatus === "TXN_SUCCESS") {
+            console.log("PASS", d_set?.data?.body)
+        }
+        else {
+            console.log("FAIL")
+        }
+      });
+    res.status(200).send({ message: "Explore Valid Payment Status Check API", access: true })
+  } catch (e) {
+    console.error('Error validating payment status:', e);
+  }
+};
+// exports.callback_payment_failed_regeneration_counter = async (req, res) => {
+//   try {
+//     const all_pay = await ErrorPayment.find({ error_status: "Generated"})
+//     for (let ele of all_pay) {
+//       var paytmParams = {};
+//       paytmParams.body = {
+//         mid: `${process.env.PAYTM_MID}`,
+//         orderId: `${ele?.ORDERID}`,
+//       };
+//       PaytmChecksum.generateSignature(
+//         JSON.stringify(paytmParams.body),
+//         `${process.env.PAYTM_MERCHANT_KEY}`
+//       ).then(function (checksum) {
+//         paytmParams.head = {
+//           signature: checksum,
+//         };
+
+//         var post_data = JSON.stringify(paytmParams);
+
+//         var options = {
+//           // hostname: "securegw-stage.paytm.in",
+//           hostname: process.env.PAYTM_CALLBACK_URL_APK
+//             ? "securegw.paytm.in"
+//             : "securegw-stage.paytm.in",
+
+//           port: 443,
+//           path: "/v3/order/status",
+//           method: "POST",
+//           headers: {
+//             "Content-Type": "application/json",
+//             "Content-Length": post_data.length,
+//           },
+//         };
+
+//         var response = "";
+//         var post_req = https.request(options, function (post_res) {
+//           post_res.on("data", function (chunk) {
+//             response += chunk;
+//           });
+
+//           post_res.on("end", async function () {
+//             // var status = req?.body?.STATUS;
+//             // var price_charge = req?.body?.TXNAMOUNT;
+//             // var txn_id = req?.body?.TXNID;
+//               console.log("TXN_SUCCESS")
+//               var order = await order_history_query(
+//                 ele?.error_flow,
+//                 ele?.error_module,
+//                 ele?.error_amount,
+//                 ele?.error_paid_to,
+//                 "",
+//                 {},
+//                 {}
+//               );
+//               var paytm_author = false;
+//               var valid_status = ele?.error_status_id === "null" ? "" : ele?.error_status_id;
+//               var valid_card =
+//                 "";
+//               var pay_remain = false
+//               await admissionInstituteFunction(
+//                 order?._id,
+//                 ele?.error_student,
+//                 ele?.error_amount,
+//                 ele?.error_amount_charges,
+//                 ele?.error_module,
+//                 ele?.error_paid_to,
+//                 ele?.error_type,
+//                 paytm_author,
+//                 valid_card,
+//                 ele?.payment_remain_1,
+//                 ele?.error_payment_card,
+//                 pay_remain,
+//                 valid_status,
+//                 ele?._id
+//                 // Boolean(ad_install)
+//               );
+//           });
+//         });
+//         post_req.write(post_data);
+//         post_req.end();
+//       });
+//     }
+// } catch (e) {
+//     console.log(e);
+//   }
+// };

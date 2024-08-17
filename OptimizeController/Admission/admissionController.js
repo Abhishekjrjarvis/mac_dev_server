@@ -3587,13 +3587,13 @@ exports.retrieveClassAllotQuery = async (req, res) => {
           } else {
           }
           await Promise.all([classes.save(), batch.save()]);
-          invokeMemberTabNotification(
-            "Admission Status",
-            aStatus.content,
-            "Application Status",
-            user._id,
-            user.deviceToken
-          );
+          // invokeMemberTabNotification(
+          //   "Admission Status",
+          //   aStatus.content,
+          //   "Application Status",
+          //   user._id,
+          //   user.deviceToken
+          // );
         }
       }
       res.status(200).send({
@@ -5402,6 +5402,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         { card_type: "Promote" },
       ],
     })
+      .sort({ created_at: -1})
       .select(
         "applicable_fee scholar_ship_number card_type applicable_fees_pending excess_fee remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
       )
@@ -5489,6 +5490,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         { card_type: "Normal" },
       ],
     })
+    .sort({ created_at: -1})
       .select(
         "applicable_fee scholar_ship_number card_type applicable_fees_pending excess_fee remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
       )
@@ -9523,13 +9525,21 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (
           ref.combine_name = `${ref?.combine_name ?? ""}${ele}`;
         }
         let sp_name = ref?.combine_name?.toLowerCase();
-        var student = await Student.find({
+        var students = await Student.find({
           $and: [
             { scholar_name: `${sp_name}` },
             { studentStatus: "Approved" },
             { institute: id },
           ],
         });
+        var student = students?.filter((val) => {
+          if (val?.hostel_fee_structure || val?.hostel_renewal) {
+            
+          }
+          else {
+            return val
+          }
+        })
         if (student?.length > 1) {
           ref.Remark = "Student With Same Name is more than 1";
           num_arr.push(ref);
@@ -17432,4 +17442,24 @@ exports.render_one_application_subject_sequence_query = async (req, res) => {
     console.log(e)
   }
 }
+
+// exports.new_app = async (req, res) => {
+//   try {
+//     let nums = ["66bc5594f9019dacfa1f2ebd", "66bc6a08232694c6d384bdd1", "66bc6be0f9019dacfa1fdae0", "66bc87c77cb3669abc1aa46a"]
+//     const stu = await Student.find({ _id: { $in: nums } })
+//     .select("new_app")
+//     for (let ele of stu) {
+//       ele.new_app.appId = null
+//       ele.new_app.applicationDepartment = null
+//       ele.new_app.applicationBatch = null
+//       ele.new_app.applicationMaster = null
+//       ele.new_app.applicationUnit = null
+//       await ele.save()
+//     }
+//     res.status(200).send({ message: "New App", access: true})
+//   }
+//   catch (e) {
+//     console.log(e)
+//   }
+// }
 

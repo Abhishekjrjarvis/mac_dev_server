@@ -278,6 +278,15 @@ exports.all_access_role_finance = () => {
         accessStaff: "",
       },
     },
+    MISCELLENOUS_FEE: {
+      role: "MISCELLENOUS_FEE",
+      permission: {
+        allow: true,
+        bound: ["MISCELLENOUS"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
   };
   return access_role_finance;
 };

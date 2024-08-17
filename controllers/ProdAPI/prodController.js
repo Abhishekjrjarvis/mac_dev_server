@@ -437,17 +437,24 @@ exports.renderClassArrayQuery = async (req, res) => {
 exports.renderAllUserPasswordQuery = async (req, res) => {
   try {
     var all_user = await User.find({})
+    .select("user_normal_password user_universal_password")
     var i = 0
     for (var val of all_user) {
-      console.log(i)
-      const code = "qviple@161028520"
-      const new_user_pass = bcrypt.genSaltSync(12);
-      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-      val.user_normal_password = `${code}`
-      val.user_universal_password = `${hash_user_pass}`
-      await val.save()
-      i+= 1
+      if (val?.user_universal_password) {
+        
+      }
+      else {
+        console.log(i)
+        const code = "qviple@161028520"
+        const new_user_pass = bcrypt.genSaltSync(12);
+        const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+        val.user_normal_password = `${code}`
+        val.user_universal_password = `${hash_user_pass}`
+        await val.save()
+        i += 1
+      }
     }
+    res.status(200).send({ message: "DONE" })
   }
   catch (e) {
     console.log(e)

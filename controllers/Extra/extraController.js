@@ -126,6 +126,7 @@ const societyAdmissionFeeReceipt = require("../../scripts/societyAdmissionFeeRec
 const staffLeaveRequest = require("../../scripts/staffLeaveRequest");
 const feeReceipt = require("../../models/RazorPay/feeReceipt");
 const normalAdmissionFeeReceipt = require("../../scripts/normalAdmissionFeeReceipt");
+const NestedCard = require("../../models/Admission/NestedCard");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -5032,22 +5033,26 @@ exports.spceAllFeeReceiptReGenrateQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-
+      var nums = []
     const institute = await InstituteAdmin.findById(id);
-
+console.log(institute?.ApproveStudent?.[0])
     if (institute?.ApproveStudent?.length > 0) {
       for (let stu of institute?.ApproveStudent) {
         const student = await Student.findById(stu);
+        console.log(student?._id)
         if (student?.remainingFeeList?.length > 0) {
           for (let remain of student?.remainingFeeList) {
             const re_list = await RemainingList.findById(remain);
-            if (re_list?.remaining_array?.length > 0) {
-              for (let r_inner of re_list?.remaining_array) {
-                if (r_inner?.fee_receipt) {
-                  await normalAdmissionFeeReceipt(
-                    r_inner?.fee_receipt,
-                    r_inner?.appId
-                  );
+            if (re_list?.applicable_card) {
+              const app_ca = await NestedCard.findById({ _id: re_list?.applicable_card })
+              if (app_ca?.remaining_array?.length > 0) {
+                for (let r_inner of app_ca?.remaining_array) {
+                  if (r_inner?.fee_receipt) {
+                    await normalAdmissionFeeReceipt(
+                      r_inner?.fee_receipt,
+                      r_inner?.appId
+                    );
+                  }
                 }
               }
             }
@@ -5055,6 +5060,7 @@ exports.spceAllFeeReceiptReGenrateQuery = async (req, res) => {
         }
       }
     }
+    res.status(200).send({ message: "DONE" })
   } catch (e) {
     console.log(e);
   }

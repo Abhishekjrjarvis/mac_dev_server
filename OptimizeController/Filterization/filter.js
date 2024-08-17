@@ -11326,10 +11326,12 @@ exports.render_daybook_heads_wise = async (req, res) => {
       //   head_name: "Total Fees",
       //   head_amount: t
       // })
-      // let n = []
-      // for (let ele of all_receipts) {
-      //   n.push(ele?.fee_payment_amount)
-      // }
+      all_receipts.sort(function (st1, st2) {
+        return (
+          parseInt(st1?.invoice_count?.substring(14)) -
+          parseInt(st2?.invoice_count?.substring(14))
+        );
+      });
       res.status(200).send({
         message: "Explore Day Book Heads Query",
         access: true,

@@ -654,7 +654,13 @@ const render_daybook_heads_wise = async (fid, from, to, bank, payment_type) => {
         // nest_obj.push({
         //   head_name: "Total Fees",
         //   head_amount: t
-          // })
+      // })
+      all_receipts.sort(function (st1, st2) {
+        return (
+          parseInt(st1?.invoice_count?.substring(14)) -
+          parseInt(st2?.invoice_count?.substring(14))
+        );
+      });
           return {
             results: nest_obj,
             range: `${all_receipts[0]?.invoice_count?.substring(14)} To ${all_receipts[all_receipts?.length - 1]?.invoice_count?.substring(14)}`,

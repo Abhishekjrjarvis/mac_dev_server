@@ -10840,11 +10840,11 @@ exports.render_daybook_heads_wise = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    res.status(200).send({
-      message: "Explore Day Book Heads Query",
-      access: true,
-    });
-    await bankDaybook(fid, from, to, bank, payment_type);
+    // res.status(200).send({
+    //   message: "Explore Day Book Heads Query",
+    //   access: true,
+    // });
+    // await bankDaybook(fid, from, to, bank, payment_type);
     var g_year;
     var l_year;
     var g_month;
@@ -10930,11 +10930,54 @@ exports.render_daybook_heads_wise = async (req, res) => {
           .lean()
           .exec();
         var all_receipts = all_receipts_set?.filter((val) => {
-          if (`${val?.fee_payment_mode}` === "By Cash" || `${val?.fee_payment_mode}` === "Payment Gateway / Online" || `${val?.fee_payment_mode}` === "Payment Gateway - PG") {
+          if (`${val?.fee_payment_mode}` === "By Cash" || `${val?.fee_payment_mode}` === "Payment Gateway / Online" || `${val?.fee_payment_mode}` === "Payment Gateway - PG" || `${val?.fee_payment_mode}` === "Cheque"|| `${val?.fee_payment_mode}` === "Net Banking" || `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" || `${val?.fee_payment_mode}` === "UPI Transfer" || `${val?.fee_payment_mode}` === "Demand Draft") {
             return val
             }
           })
       }
+      // else if (payment_type == "BANK_MODE") {
+      //   var all_receipts_set = await FeeReceipt.find({
+      //     $and: [
+      //       { finance: fid },
+      //       // { fee_flow: "FEE_HEADS" },
+      //       {
+      //         created_at: {
+      //           $gte: g_date,
+      //           $lt: l_date,
+      //         },
+      //       },
+      //       {
+      //         receipt_generated_from: "BY_ADMISSION",
+      //       },
+      //       {
+      //         refund_status: "No Refund",
+      //       },
+      //       // { student: { $in: sorted_array } },
+      //     ],
+      //   })
+      //     .sort({ invoice_count: "1" })
+      //     .select("fee_heads application fee_payment_mode invoice_count fee_payment_amount")
+      //     .populate({
+      //       path: "application",
+      //       select: "applicationDepartment",
+      //       populate: {
+      //         path: "applicationDepartment",
+      //         select: "bank_account",
+      //         populate: {
+      //           path: "bank_account",
+      //           select:
+      //             "finance_bank_account_number finance_bank_name finance_bank_account_name",
+      //         },
+      //       },
+      //     })
+      //     .lean()
+      //     .exec();
+      //   var all_receipts = all_receipts_set?.filter((val) => {
+      //     if (`${val?.fee_payment_mode}` === "UPI Transfer" || `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" || `${val?.fee_payment_mode}` === "Net Banking") {
+      //       return val
+      //       }
+      //     })
+      // }
       else {
         var all_receipts = await FeeReceipt.find({
           $and: [
@@ -11058,6 +11101,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
       obj["head_name"] = ele?.master_name;
       obj["head_amount"] = 0;
       obj["cash_head_amount"] = 0;
+      obj["pg_head_amount"] = 0;
       obj["bank_head_amount"] = 0;
       obj["_id"] = ele?._id;
       nest_obj.push(obj);
@@ -11095,7 +11139,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
                     `${ads?._id}` === `${val?.master}` &&
                     val?.is_society == true
                   ) {
-                    ads.bank_head_amount += val?.original_paid;
+                    ads.pg_head_amount += val?.original_paid;
                     // t+= val?.original_paid
                   }
                 } else {
@@ -11103,7 +11147,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
                     `${ads?._id}` === `${val?.master}` &&
                     val?.is_society == false
                   ) {
-                    ads.bank_head_amount += val?.original_paid;
+                    ads.pg_head_amount += val?.original_paid;
                     // if (val?.master == "6654be24e36490a31bccd1db") {
                     //   t.push(`${val?.original_paid}`);
                     // }
@@ -11120,6 +11164,31 @@ exports.render_daybook_heads_wise = async (req, res) => {
                     `${ads?._id}` === `${val?.master}` &&
                     val?.is_society == true
                   ) {
+                    ads.pg_head_amount += val?.original_paid;
+                    // t+= val?.original_paid
+                  }
+                } else {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.pg_head_amount += val?.original_paid;
+                    // if (val?.master == "6654be24e36490a31bccd1db") {
+                    //   t.push(`${val?.original_paid}`);
+                    // }
+                    // if (val?.master == "6654be3de36490a31bccd257") {
+                    //   l.push(`${val?.original_paid}`);
+                    // }
+                    // t+= val?.original_paid
+                  }
+                }
+              }
+              if (ele?.fee_payment_mode == "Net Banking") {
+                if (bank_acc?.bank_account_type === "Society") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == true
+                  ) {
                     ads.bank_head_amount += val?.original_paid;
                     // t+= val?.original_paid
                   }
@@ -11129,13 +11198,78 @@ exports.render_daybook_heads_wise = async (req, res) => {
                     val?.is_society == false
                   ) {
                     ads.bank_head_amount += val?.original_paid;
-                    // if (val?.master == "6654be24e36490a31bccd1db") {
-                    //   t.push(`${val?.original_paid}`);
-                    // }
-                    // if (val?.master == "6654be3de36490a31bccd257") {
-                    //   l.push(`${val?.original_paid}`);
-                    // }
+                  }
+                }
+              }
+              if (ele?.fee_payment_mode == "UPI Transfer") {
+                if (bank_acc?.bank_account_type === "Society") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == true
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
                     // t+= val?.original_paid
+                  }
+                } else {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                  }
+                }
+              }
+              if (ele?.fee_payment_mode == "RTGS/NEFT/IMPS") {
+                if (bank_acc?.bank_account_type === "Society") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == true
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                    // t+= val?.original_paid
+                  }
+                } else {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                  }
+                }
+              }
+              if (ele?.fee_payment_mode == "Cheque") {
+                if (bank_acc?.bank_account_type === "Society") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == true
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                    // t+= val?.original_paid
+                  }
+                } else {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                  }
+                }
+              }
+              if (ele?.fee_payment_mode == "Demand Draft") {
+                if (bank_acc?.bank_account_type === "Society") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == true
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                    // t+= val?.original_paid
+                  }
+                } else {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
                   }
                 }
               }
@@ -11196,27 +11330,27 @@ exports.render_daybook_heads_wise = async (req, res) => {
       // for (let ele of all_receipts) {
       //   n.push(ele?.fee_payment_amount)
       // }
-      // res.status(200).send({
-      //   message: "Explore Day Book Heads Query",
-      //   access: true,
-      //   all_receipts: all_receipts?.length,
-      // //   t: t,
-      // //   tl: t?.length,
-      // //  l:l,
-      // //  ll:l?.length
-      //   results: nest_obj,
-      //   range: `${all_receipts[0]?.invoice_count?.substring(14)} To ${all_receipts[all_receipts?.length - 1]?.invoice_count?.substring(14)}`
-      //   // account_info: bank_acc,
-      //   // day_range_from: from,
-      //   // day_range_to: to,
-      //   // ins_info: institute,
-      // });
+      res.status(200).send({
+        message: "Explore Day Book Heads Query",
+        access: true,
+        all_receipts: all_receipts?.length,
+      //   t: t,
+      //   tl: t?.length,
+      //  l:l,
+      //  ll:l?.length
+        results: nest_obj,
+        range: `${all_receipts[0]?.invoice_count?.substring(14)} To ${all_receipts[all_receipts?.length - 1]?.invoice_count?.substring(14)}`
+        // account_info: bank_acc,
+        // day_range_from: from,
+        // day_range_to: to,
+        // ins_info: institute,
+      });
     } else {
-      // res.status(200).send({
-      //   message: "No Day Book Heads Query",
-      //   access: false,
-      //   results: [],
-      // });
+      res.status(200).send({
+        message: "No Day Book Heads Query",
+        access: false,
+        results: [],
+      });
     }
   } catch (e) {
     console.log(e);

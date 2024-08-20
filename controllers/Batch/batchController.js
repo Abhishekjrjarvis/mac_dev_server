@@ -639,7 +639,7 @@ exports.promoteStudent = async (req, res) => {
                 `${ref?.class_master}` === `${classes?.masterClassName}` &&
                 `${ref?.category_master?._id}` ===
                   `${student?.fee_structure?.category_master?._id}` &&
-                `${ref?.batch_master}` === `${batch?._id}`
+                `${ref?.batch_master}` === `${batch?._id}` && ref?.document_update == false
               )
                 return ref;
             });
@@ -653,7 +653,7 @@ exports.promoteStudent = async (req, res) => {
                   `${ref?.class_master}` === `${classes?.masterClassName}` &&
                   `${ref?.category_master?._id}` ===
                     `${student?.fee_structure?.category_master?.secondary_category}` &&
-                  `${ref?.batch_master}` === `${batch?._id}`
+                  `${ref?.batch_master}` === `${batch?._id}` && ref?.document_update == false
                 )
                   return ref;
               });
@@ -664,7 +664,7 @@ exports.promoteStudent = async (req, res) => {
                 `${ref?.class_master}` === `${classes?.masterClassName}` &&
                 `${ref?.category_master?._id}` ===
                   `${student?.fee_structure?.category_master?._id}` &&
-                `${ref?.batch_master}` === `${batch?._id}`
+                `${ref?.batch_master}` === `${batch?._id}` && ref?.document_update == false
               )
                 return ref;
             });

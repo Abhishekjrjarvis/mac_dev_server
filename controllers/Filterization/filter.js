@@ -557,23 +557,10 @@ const sort_student_by_alpha_last = async (arr, day, month, year) => {
 
   for (let i = 0; i < students.length; i++) {
     const stu = await Student.findById({ _id: students[i]._id })
-      .select(
-        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
-      )
-      .populate({
-        path: "leave",
-        match: {
-          date: { $in: [`${day}/${month}/${year}`] },
-        },
-        select: "date",
-      })
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      });
+    .select("studentROLLNO")
     stu.studentROLLNO = i + 1;
     await stu.save();
-    send_filter.push(stu);
+    send_filter.push(stu?._id);
   }
   return send_filter;
 };
@@ -698,10 +685,25 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
         month,
         year
       );
+      const all_students = await Student.find({ _id: { $in: sortedA} })
+      .select(
+        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+      )
+      .populate({
+        path: "leave",
+        match: {
+          date: { $in: [`${day}/${month}/${year}`] },
+        },
+        select: "date",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      });
       res.status(200).send({
-        message: "Sorted By Alphabetical Order",
+        message: "Sorted By Surname Alphabetical Order",
         classes,
-        students: sortedA,
+        students: all_students,
         access: true,
       });
     }
@@ -3365,7 +3367,7 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
     const { fid } = req.params;
     const { fsid, depart, timeline, timeline_content, from, to, bank } =
       req.query;
-    const { txnId, message, t_amount, p_amount } = req.body;
+    const { txnId, message, t_amount, p_amount, excel_file } = req.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -3518,6 +3520,7 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
       (repay.repayStatus = "Transferred"), (repay.txnId = txnId);
       repay.message = message;
       repay.institute = institute._id;
+      repay.excel_attach = excel_file
       admin.repayArray.push(repay._id);
       institute.getReturn.push(repay._id);
       if (bank) {
@@ -3677,7 +3680,8 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
       await fee_heads_receipt_json_to_excel_repay_query(
         head_list,
         institute?.insName,
-        repay?._id
+        repay?._id,
+        excel_file
       );
       invokeSpecificRegister(
         "Specific Notification",

@@ -360,6 +360,6 @@ router.get(
   catchAsync(User.retrieveUserModsAccessQuery)
 );
 
-
+router.patch("/one/click/follow/:sid", catchAsync(User.render_one_click_follow));
 
 module.exports = router;

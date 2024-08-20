@@ -306,7 +306,8 @@ exports.json_to_excel_hostel_query = async (
 exports.fee_heads_receipt_json_to_excel_repay_query = async (
   data_query,
   insName,
-  rid
+  rid,
+  excel_file
 ) => {
   try {
     var real_book = xlsx.utils.book_new();
@@ -323,7 +324,7 @@ exports.fee_heads_receipt_json_to_excel_repay_query = async (
     const results = await uploadExcelFile(`${name}.xlsx`);
 
     const repay = await RePay.findById({ _id: rid });
-    repay.excel_attach = results;
+    repay.excel_attach = excel_file;
     await repay.save();
   } catch (e) {
     console.log(e);

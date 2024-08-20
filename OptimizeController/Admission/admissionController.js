@@ -15841,6 +15841,7 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
             apps?.applicationDepartment;
           data.student.new_app.applicationBatch = apps?.applicationBatch;
           data.student.new_app.applicationMaster = apps?.applicationMaster;
+          data.student.new_app.collect_docs = apps?.collect_docs
         }
       }
       if (filter_select?.length > 0) {
@@ -15892,6 +15893,7 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
             apps?.applicationDepartment;
           data.student.new_app.applicationBatch = apps?.applicationBatch;
           data.student.new_app.applicationMaster = apps?.applicationMaster;
+          data.student.new_app.collect_docs = apps?.collect_docs
         }
       }
       if (all_select_query?.length > 0) {

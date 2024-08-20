@@ -557,10 +557,23 @@ const sort_student_by_alpha_last = async (arr, day, month, year) => {
 
   for (let i = 0; i < students.length; i++) {
     const stu = await Student.findById({ _id: students[i]._id })
-    .select("studentROLLNO")
+      .select(
+        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+      )
+      .populate({
+        path: "leave",
+        match: {
+          date: { $in: [`${day}/${month}/${year}`] },
+        },
+        select: "date",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      });
     stu.studentROLLNO = i + 1;
     await stu.save();
-    send_filter.push(stu?._id);
+    send_filter.push(stu);
   }
   return send_filter;
 };
@@ -685,25 +698,10 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
         month,
         year
       );
-      const all_students = await Student.find({ _id: { $in: sortedA} })
-      .select(
-        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
-      )
-      .populate({
-        path: "leave",
-        match: {
-          date: { $in: [`${day}/${month}/${year}`] },
-        },
-        select: "date",
-      })
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      });
       res.status(200).send({
-        message: "Sorted By Surname Alphabetical Order",
+        message: "Sorted By Alphabetical Order",
         classes,
-        students: all_students,
+        students: sortedA,
         access: true,
       });
     }

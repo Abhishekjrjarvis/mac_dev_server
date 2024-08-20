@@ -224,9 +224,10 @@ const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type, flow)
       bank: bank,
       flow: flow ?? ""
     });
+    let filess = results?.Key
     await unlinkFile(file.path);
     await Promise.all([ bank_acc.save(), finance.save() ])
-    return results?.Key
+    return filess
   });
 
   //   console.log(data);

@@ -1144,6 +1144,10 @@ const studentSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "HostelUnit",
     },
+    collect_docs: {
+      type: Boolean,
+      default: false
+    },
   },
   other_fees_obj: {
     status: {

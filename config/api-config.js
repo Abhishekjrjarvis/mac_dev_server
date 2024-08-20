@@ -97,7 +97,7 @@ const payrollRouteV2 = require("../OptimizeRoute/Finance/Payroll/PayrollRoute");
 const iqacV2 = require("../OptimizeRoute/LandingPage/iqacRoute");
 const academicDepartmentV2 = require("../OptimizeRoute/AcademicDepartment/academicDepartmentRoute");
 const hostelV2 = require("../OptimizeRoute/Hostel/hostelRoute");
-
+const reportV2 = require("../OptimizeRoute/Reports/reportRoute");
 
 
 // Api Middleware Func
@@ -196,6 +196,7 @@ router.use("/api/v2/payroll", payrollRouteV2);
 router.use("/api/v2/committee", iqacV2);
 router.use("/api/v2/academic/department", academicDepartmentV2);
 router.use("/api/v2/hostel", hostelV2);
+router.use("/api/v2/report", reportV2)
 
 
 router.use("/api/v2/attendance/student", studentAttendanceRouteV2);

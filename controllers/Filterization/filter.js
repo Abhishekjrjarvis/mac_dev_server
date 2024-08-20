@@ -1927,7 +1927,10 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       await fee_heads_receipt_json_to_excel_query(
         head_list,
         institute?.insName,
-        institute?._id
+        institute?._id,
+        bank,
+        from,
+        to
       );
     } else {
       res.status(200).send({
@@ -3362,7 +3365,7 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
     const { fid } = req.params;
     const { fsid, depart, timeline, timeline_content, from, to, bank } =
       req.query;
-    const { txnId, message, t_amount, p_amount } = req.body;
+    const { txnId, message, t_amount, p_amount, excel_file } = req.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -3515,6 +3518,7 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
       (repay.repayStatus = "Transferred"), (repay.txnId = txnId);
       repay.message = message;
       repay.institute = institute._id;
+      repay.excel_attach = excel_file
       admin.repayArray.push(repay._id);
       institute.getReturn.push(repay._id);
       if (bank) {
@@ -3674,7 +3678,8 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
       await fee_heads_receipt_json_to_excel_repay_query(
         head_list,
         institute?.insName,
-        repay?._id
+        repay?._id,
+        excel_file
       );
       invokeSpecificRegister(
         "Specific Notification",

@@ -578,7 +578,9 @@ const removeDuplicates = async(books) => {
 
   // Loop to push unique object into array
   for (i in uniqueObject) {
+      if (uniqueObject[i]?.value) {
       newArray.push(uniqueObject[i]);
+    }
   }
 
   // Display the unique objects

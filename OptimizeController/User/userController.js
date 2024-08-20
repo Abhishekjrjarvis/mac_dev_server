@@ -3850,6 +3850,19 @@ exports.retrieveUserModsAccessQuery = async (req, res) => {
   }
 }
 
+exports.render_one_click_follow = async (req, res) => {
+  try {
+    const { sid } = req?.params
+    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    
+    const staff = await Staff.findById({ _id: sid })
+    res.status(200).send({ message: "One Click Follow", access: true})
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 
 // exports.getAllThreeCount = async (req, res) => {
 //   try {

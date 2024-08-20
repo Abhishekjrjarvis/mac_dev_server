@@ -6,8 +6,9 @@ const { uploadDocsFile } = require("../S3Configuration");
 const util = require("util");
 const miscellaneousDaybookData = require("../AjaxRequest/miscellaneousDaybookData");
 const BankAccount = require("../models/Finance/BankAccount");
+const Finance = require("../models/Finance");
 const unlinkFile = util.promisify(fs.unlink);
-const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type) => {
+const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type, flow) => {
   const doc = new PDFDocument({
     font: "Times-Roman",
     size: "A4",
@@ -197,6 +198,7 @@ const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type) => {
   // Handle stream close event
   stream.on("finish", async () => {
     console.log("created");
+    const finance = await Finance.findById({ _id: fid })
     const bank_acc = await BankAccount.findById({ _id: bank });
     let file = {
       path: `uploads/${name}-miscellaneous-bank-daybook.pdf`,
@@ -213,8 +215,19 @@ const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type) => {
       bank: bank,
       types: "Normal Other Fees"
     });
+    finance.day_book.push({
+      excel_file: results?.Key,
+      excel_file_name: `${name}-bank-daybook.pdf`,
+      from: from,
+      to: to,
+      payment_type: payment_type,
+      bank: bank,
+      flow: flow ?? ""
+    });
+    let filess = results?.Key
     await unlinkFile(file.path);
-    await bank_acc.save();
+    await Promise.all([ bank_acc.save(), finance.save() ])
+    return filess
   });
 
   //   console.log(data);

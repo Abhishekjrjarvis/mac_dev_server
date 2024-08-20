@@ -3458,6 +3458,7 @@ exports.retrieveClassAllotQuery = async (req, res) => {
     if (array?.length > 0) {
       for (var sid of array) {
         if (apply?.allot_array?.includes(`${sid}`)) {
+          apply.reviewApplication.pull(sid);
         } else {
           const student = await Student.findById({ _id: sid });
           const user = await User.findById({ _id: `${student.user}` });
@@ -11998,6 +11999,10 @@ exports.renderReviewStudentQuery = async (req, res) => {
       for (var val of student_arr) {
         const student = await Student.findById({ _id: val?.sid });
         if (app?.reviewApplication?.includes(`${val?.sid}`)) {
+          app.confirmedApplication.pull(val?.cid);
+          if (app?.confirmCount >= 0) {
+            app.confirmCount -= 1;
+          }
         } else {
           app.reviewApplication.push(val?.sid);
           app.review_count += 1;

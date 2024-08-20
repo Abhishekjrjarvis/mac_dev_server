@@ -11846,21 +11846,21 @@ exports.render_app_intake_query = async (req, res) => {
       }
     }
     const all = await removeDuplicates(ds);
-    if (all?.length > 0) {
-      res.status(200).send({
-        message: "Explore New App Intake",
-        access: true,
-        data_set: all,
-        ads_admin: ads_admin?.institute,
-        batch: batch?.batchName
-      });
-    } else {
-      res.status(200).send({
-        message: "No New Excel Exports ",
-        access: false,
-        data_set: []
-      });
-    }
+    // if (all?.length > 0) {
+    //   res.status(200).send({
+    //     message: "Explore New App Intake",
+    //     access: true,
+    //     data_set: all,
+    //     ads_admin: ads_admin?.institute,
+    //     batch: batch?.batchName
+    //   });
+    // } else {
+    //   res.status(200).send({
+    //     message: "No New Excel Exports ",
+    //     access: false,
+    //     data_set: []
+    //   });
+    // }
   } catch (e) {
     console.log(e);
   }

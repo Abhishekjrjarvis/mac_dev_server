@@ -11768,7 +11768,9 @@ const removeDuplicates = async (books) => {
 
   // Loop to push unique object into array
   for (i in uniqueObject) {
-    newArray.push(uniqueObject[i]);
+    if (uniqueObject[i]?.value) {
+      newArray.push(uniqueObject[i]);
+    }
   }
 
   // Display the unique objects
@@ -11785,8 +11787,8 @@ exports.render_app_intake_query = async (req, res) => {
         access: false,
       });
 
-    // await admissionIntakeReport(aid, bid);
-    // res.status(200).send({ message: "Admission Intake Query", access: true });
+    await admissionIntakeReport(aid, bid);
+    res.status(200).send({ message: "Admission Intake Query", access: true });
     const ads_admin = await Admission.findById({ _id: aid }).populate({
       path: "institute",
       select:

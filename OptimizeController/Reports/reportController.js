@@ -9,13 +9,13 @@ exports.render_daybook_heads_wise = async (req, res) => {
       const { fid } = req.params;
         const { from, to, bank, payment_type, flow, hid } = req.query;
         if (flow === "ADMISSION") {
-            var key = await bankDaybook(fid, from, to, bank, payment_type);
+            var key = await bankDaybook(fid, from, to, bank, payment_type, flow);
         }
         else if (flow === "MISCELLENOUS") {
-            var key = await miscellaneousBankDaybook(fid, from, to, bank, payment_type);
+            var key = await miscellaneousBankDaybook(fid, from, to, bank, payment_type, flow);
         }
         else if (flow === "HOSTEL") {
-            var key = await hostelBankDaybook(fid, hid, from, to, bank, payment_type);
+            var key = await hostelBankDaybook(fid, hid, from, to, bank, payment_type, flow);
         }
         else {
             var key = ""

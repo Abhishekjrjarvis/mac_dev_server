@@ -8,7 +8,7 @@ const miscellaneousDaybookData = require("../AjaxRequest/miscellaneousDaybookDat
 const BankAccount = require("../models/Finance/BankAccount");
 const Finance = require("../models/Finance");
 const unlinkFile = util.promisify(fs.unlink);
-const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type) => {
+const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type, flow) => {
   const doc = new PDFDocument({
     font: "Times-Roman",
     size: "A4",
@@ -222,6 +222,7 @@ const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type) => {
       to: to,
       payment_type: payment_type,
       bank: bank,
+      flow: flow ?? ""
     });
     await unlinkFile(file.path);
     await Promise.all([ bank_acc.save(), finance.save() ])

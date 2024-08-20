@@ -777,7 +777,8 @@ const financeSchema = new mongoose.Schema(
         payment_type: { type: String },
         bank: { type: mongoose.Schema.Types.ObjectId, ref: "BankAccount"},
         created_at: { type: Date, default: Date.now },
-        types: { type: String }
+        types: { type: String },
+        flow: { type: String }
       },
       ],
   },

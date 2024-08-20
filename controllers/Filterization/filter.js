@@ -1927,7 +1927,10 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       await fee_heads_receipt_json_to_excel_query(
         head_list,
         institute?.insName,
-        institute?._id
+        institute?._id,
+        bank,
+        from,
+        to
       );
     } else {
       res.status(200).send({

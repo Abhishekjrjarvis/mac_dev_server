@@ -286,4 +286,6 @@ router.patch(
   catchAsync(Filter.renderApplicationAllottedListQuery)
 );
 
+router.patch("/:fid/hostel/daybook/heads/wise", catchAsync(Filter.render_hostel_daybook_heads_wise))
+
 module.exports = router;

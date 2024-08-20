@@ -5720,7 +5720,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       apply.fee_collect_count += 1;
     }
     apply.selectedApplication.pull(nest);
-    if (apply?.selectCount >= 0) {
+    if (apply?.selectCount > 0) {
       apply.selectCount -= 1;
     }
     // for (let app of apply.selectedApplication) {
@@ -12000,14 +12000,14 @@ exports.renderReviewStudentQuery = async (req, res) => {
         const student = await Student.findById({ _id: val?.sid });
         if (app?.reviewApplication?.includes(`${val?.sid}`)) {
           app.confirmedApplication.pull(val?.cid);
-          if (app?.confirmCount >= 0) {
+          if (app?.confirmCount > 0) {
             app.confirmCount -= 1;
           }
         } else {
           app.reviewApplication.push(val?.sid);
           app.review_count += 1;
           app.confirmedApplication.pull(val?.cid);
-          if (app?.confirmCount >= 0) {
+          if (app?.confirmCount > 0) {
             app.confirmCount -= 1;
           }
         }

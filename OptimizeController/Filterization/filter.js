@@ -76,6 +76,7 @@ const SubjectGroupSelect = require("../../models/Admission/Optional/SubjectGroup
 const SubjectMaster = require("../../models/SubjectMaster");
 const admissionIntakeReport = require("../../scripts/admissionIntakeReport");
 const miscellaneousBankDaybook = require("../../scripts/miscellaneousBankDaybook");
+const hostelBankDaybook = require("../../scripts/hostelBankDaybook");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -14235,11 +14236,11 @@ exports.render_hostel_daybook_heads_wise = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    // res.status(200).send({
-    //   message: "Explore Day Book Heads Query",
-    //   access: true,
-    // });
-    // await bankDaybook(fid, from, to, bank, payment_type);
+    res.status(200).send({
+      message: "Explore Day Book Heads Query",
+      access: true,
+    });
+    await hostelBankDaybook(fid, hid, from, to, bank, payment_type);
     var g_year;
     var l_year;
     var g_month;
@@ -14606,27 +14607,27 @@ exports.render_hostel_daybook_heads_wise = async (req, res) => {
           parseInt(st2?.invoice_count?.substring(14))
         );
       });
-      res.status(200).send({
-        message: "Explore Day Book Heads Query",
-        access: true,
-        all_receipts: all_receipts?.length,
-      //   t: t,
-      //   tl: t?.length,
-      //  l:l,
-      //  ll:l?.length
-        results: nest_obj,
-        range: `${all_receipts[0]?.invoice_count?.substring(14)} To ${all_receipts[all_receipts?.length - 1]?.invoice_count?.substring(14)}`
-        // account_info: bank_acc,
-        // day_range_from: from,
-        // day_range_to: to,
-        // ins_info: institute,
-      });
+      // res.status(200).send({
+      //   message: "Explore Day Book Heads Query",
+      //   access: true,
+      //   all_receipts: all_receipts?.length,
+      // //   t: t,
+      // //   tl: t?.length,
+      // //  l:l,
+      // //  ll:l?.length
+      //   results: nest_obj,
+      //   range: `${all_receipts[0]?.invoice_count?.substring(14)} To ${all_receipts[all_receipts?.length - 1]?.invoice_count?.substring(14)}`
+      //   // account_info: bank_acc,
+      //   // day_range_from: from,
+      //   // day_range_to: to,
+      //   // ins_info: institute,
+      // });
     } else {
-      res.status(200).send({
-        message: "No Day Book Heads Query",
-        access: false,
-        results: [],
-      });
+      // res.status(200).send({
+      //   message: "No Day Book Heads Query",
+      //   access: false,
+      //   results: [],
+      // });
     }
   } catch (e) {
     console.log(e);

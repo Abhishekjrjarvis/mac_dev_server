@@ -10859,11 +10859,11 @@ exports.render_daybook_heads_wise = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    // res.status(200).send({
-    //   message: "Explore Day Book Heads Query",
-    //   access: true,
-    // });
-    // await bankDaybook(fid, from, to, bank, payment_type);
+    res.status(200).send({
+      message: "Explore Day Book Heads Query",
+      access: true,
+    });
+    await bankDaybook(fid, from, to, bank, payment_type);
     var g_year;
     var l_year;
     var g_month;

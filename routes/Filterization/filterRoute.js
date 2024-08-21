@@ -47,6 +47,13 @@ router.get(
 );
 
 router.patch(
+  "/by/trigger/class/catalog/:cid",
+  isLoggedIn,
+  catchAsync(Filter.retrieveApproveCatalogArrayFilterTrigger)
+);
+
+
+router.patch(
   "/pending/fee/:aid",
   // isLoggedIn,
   catchAsync(Filter.retrievePendingFeeFilter)

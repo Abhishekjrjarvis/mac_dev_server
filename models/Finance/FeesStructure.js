@@ -107,6 +107,7 @@ const feeStructureSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeMaster",
       },
+      is_society: { type: Boolean, default: false },
     },
   ],
   applicable_fees_heads: [
@@ -118,7 +119,7 @@ const feeStructureSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeMaster",
       },
-      is_society: { type: Boolean, default: false }
+      is_society: { type: Boolean, default: false },
     },
   ],
   government_fees_heads: [
@@ -130,7 +131,7 @@ const feeStructureSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeMaster",
       },
-      is_society: { type: Boolean, default: false }
+      is_society: { type: Boolean, default: false },
     },
   ],
   applicable_fees_heads_count: {
@@ -164,8 +165,8 @@ const feeStructureSchema = new mongoose.Schema({
   },
   fee_structure_code: {
     type: String,
-    unique: true
-  }
+    unique: true,
+  },
 });
 
 module.exports = mongoose.model("FeeStructure", feeStructureSchema);

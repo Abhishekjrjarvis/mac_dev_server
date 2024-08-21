@@ -1,4 +1,3 @@
-
 exports.all_access_role = () => {
   const access_role = {
     FULL_ACCESS: {
@@ -95,7 +94,7 @@ exports.all_access_role = () => {
           "ALLOTTED TAB",
           "CANCELLED TAB",
           "FEE COLLECTION TAB",
-          "REVIEW TAB"
+          "REVIEW TAB",
         ],
         addons: [],
         accessStaff: "",
@@ -118,11 +117,7 @@ exports.all_access_role = () => {
       role: "COMBINED_APP_ACCESS",
       permission: {
         allow: true,
-        bound: [
-          "DOCS_COLLECT",
-          "FEES_COLLECT",
-          "CONFIRM_TAB",
-        ],
+        bound: ["DOCS_COLLECT", "FEES_COLLECT", "CONFIRM_TAB"],
         addons: [],
         accessStaff: "",
         accessApplication: "",
@@ -133,9 +128,7 @@ exports.all_access_role = () => {
       role: "ONGOING_ACCESS",
       permission: {
         allow: true,
-        bound: [
-          "ONGOING_APPLICATION",
-        ],
+        bound: ["ONGOING_APPLICATION"],
         addons: [],
         accessStaff: "",
         accessApplication: "",
@@ -146,9 +139,7 @@ exports.all_access_role = () => {
       role: "ONGOING_VIEW_ACCESS",
       permission: {
         allow: true,
-        bound: [
-          "ONGOING_APPLICATION",
-        ],
+        bound: ["ONGOING_APPLICATION"],
         addons: [],
         accessStaff: "",
         accessApplication: "",
@@ -255,7 +246,11 @@ exports.all_access_role_finance = () => {
       role: "OFFLINE_PAYMENT_VERIFICATION_ACCESS",
       permission: {
         allow: true,
-        bound: ["FEE RECEIPT REQUEST", "FEE RECEIPT APPROVE", "FEE RECEIPT REJECT"],
+        bound: [
+          "FEE RECEIPT REQUEST",
+          "FEE RECEIPT APPROVE",
+          "FEE RECEIPT REJECT",
+        ],
         addons: [],
         accessStaff: "",
       },
@@ -283,6 +278,15 @@ exports.all_access_role_finance = () => {
       permission: {
         allow: true,
         bound: ["MISCELLENOUS"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    DAYBOOK_AUTHORITY: {
+      role: "DAYBOOK_AUTHORITY",
+      permission: {
+        allow: true,
+        bound: ["NEW DAYBOOK", "DAYBOOK HISTORY"],
         addons: [],
         accessStaff: "",
       },

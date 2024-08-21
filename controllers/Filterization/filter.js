@@ -741,6 +741,90 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
   }
 };
 
+exports.retrieveApproveCatalogArrayFilterTrigger = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const { sort_query } = req.query;
+    const currentDate = new Date();
+    const currentDateLocalFormat = currentDate.toISOString().split("-");
+    const day =
+      +currentDateLocalFormat[2].split("T")[0] > 9
+        ? +currentDateLocalFormat[2].split("T")[0]
+        : `0${+currentDateLocalFormat[2].split("T")[0]}`;
+    const month =
+      +currentDateLocalFormat[1] > 9
+        ? +currentDateLocalFormat[1]
+        : `0${+currentDateLocalFormat[1]}`;
+    const year = +currentDateLocalFormat[0];
+    // const regExpression = new RegExp(`${day}\/${month}\/${year}$`);
+    const classes = await Class.findById({ _id: cid }).select(
+      "className classStatus classTitle exams ApproveStudent"
+    );
+
+    if (sort_query === "Alpha") {
+      const sortedA = await sort_student_by_alpha(
+        classes.ApproveStudent,
+        day,
+        month,
+        year
+      );
+      res.status(200).send({
+        message: "Sorted By Alphabetical Order",
+        classes,
+        students: sortedA,
+        access: true,
+      });
+    }
+    else if (sort_query === "Alpha_Last") {
+      const sortedA = await sort_student_by_alpha_last(
+        classes.ApproveStudent,
+        day,
+        month,
+        year
+      );
+      res.status(200).send({
+        message: "Sorted By Alphabetical Order",
+        classes,
+        students: sortedA,
+        access: true,
+      });
+    }
+    else if (sort_query === "Gender") {
+      const sortedG = await sorted_by_gender(
+        classes.ApproveStudent,
+        day,
+        month,
+        year
+      );
+      res.status(200).send({
+        message: "Sorted By Gender Order",
+        classes,
+        students: sortedG,
+        access: true,
+      });
+    } else if (sort_query === "Gender_Alpha") {
+      const sortedGA = await sorted_by_both_gender_and_aplha(
+        classes.ApproveStudent,
+        day,
+        month,
+        year
+      );
+      res.status(200).send({
+        message: "Sorted By Gender & Alpha Order",
+        classes,
+        students: sortedGA,
+        access: true,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "You're breaking sorting rules 😡", access: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.retrievePendingFeeFilter = async (req, res) => {
   try {
     const { aid } = req.params;

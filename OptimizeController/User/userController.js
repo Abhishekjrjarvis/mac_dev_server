@@ -36,11 +36,15 @@ const { handle_undefined } = require("../../Handler/customError");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const QvipleId = require("../../models/Universal/QvipleId");
 const NewApplication = require("../../models/Admission/NewApplication");
-const { calc_profile_percentage } = require("../../Functions/ProfilePercentage");
+const {
+  calc_profile_percentage,
+} = require("../../Functions/ProfilePercentage");
 const Status = require("../../models/Admission/status");
 const StudentMessage = require("../../models/Content/StudentMessage");
 const FinanceModerator = require("../../models/Moderator/FinanceModerator");
-const { render_institute_current_role } = require("../Moderator/roleController");
+const {
+  render_institute_current_role,
+} = require("../Moderator/roleController");
 const { generateAccessInsToken } = require("../../helper/functions");
 
 exports.retrieveProfileData = async (req, res) => {
@@ -61,8 +65,8 @@ exports.retrieveProfileData = async (req, res) => {
     if (user && user?.userPosts?.length < 1) {
       var post = [];
     }
-    const qvipleId = await QvipleId.findOne({ user: `${user?._id}`})
-    user.qviple_id = qvipleId?.qviple_id
+    const qvipleId = await QvipleId.findOne({ user: `${user?._id}` });
+    user.qviple_id = qvipleId?.qviple_id;
     // Add Another Encryption
     res.status(200).send({
       message: "Limit User Profile Data ",
@@ -1052,21 +1056,27 @@ exports.getAllUserActivity = async (req, res) => {
 
 exports.getAllUserStudentMessage = async (req, res) => {
   try {
-    const { id } = req?.params
-    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
     var page = req.query.page ? parseInt(req.query.page) : 1;
     var limit = req.query.limit ? parseInt(req.query.limit) : 10;
     var skip = (page - 1) * limit;
     var user = await User.findById({ _id: id }).select("student_message");
-    var all_message = await StudentMessage.find({ $and: [{ _id: { $in: user?.student_message } }] })
-    .sort({ created_at: -1 })
-    .limit(limit)
-    .skip(skip)
-    .populate({
-      path: "from student_list",
+    var all_message = await StudentMessage.find({
+      $and: [{ _id: { $in: user?.student_message } }],
+    })
+      .sort({ created_at: -1 })
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "from student_list",
         select:
           "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
-    });
+      });
     if (all_message?.length > 0) {
       res.status(200).send({
         message: "Explore New All Message Query",
@@ -1352,8 +1362,8 @@ exports.getDashDataQuery = async (req, res) => {
     if (user?.userPosts && user?.userPosts.length < 1) {
       var post = [];
     }
-    const qvipleId = await QvipleId.findOne({ user: `${user?._id}`})
-    user.qviple_id = qvipleId?.qviple_id
+    const qvipleId = await QvipleId.findOne({ user: `${user?._id}` });
+    user.qviple_id = qvipleId?.qviple_id;
     if (user) {
       // Add Another Encryption
       // if (req?.query?.mod_id) {
@@ -1751,7 +1761,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "instituteModeratorDepartment",
-          select: "institute access_role academic_department staff_institute_admin lms",
+          select:
+            "institute access_role academic_department staff_institute_admin lms",
           populate: {
             path: "academic_department",
             select: "departmentSelectBatch dName dTitle",
@@ -1775,8 +1786,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "lms_department",
-          select:
-            "id",
+          select: "id",
         })
         .populate({
           path: "mentorDepartment",
@@ -1839,7 +1849,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "staffClass",
-          select: "className classTitle classStatus classHeadTitle member_module_unique",
+          select:
+            "className classTitle classStatus classHeadTitle member_module_unique",
           populate: {
             path: "batch",
             select: "batchName batchStatus",
@@ -1960,7 +1971,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "instituteModeratorDepartment",
-          select: "institute access_role academic_department staff_institute_admin lms",
+          select:
+            "institute access_role academic_department staff_institute_admin lms",
           populate: {
             path: "academic_department",
             select: "departmentSelectBatch dName dTitle",
@@ -1984,8 +1996,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "lms_department",
-          select:
-            "id",
+          select: "id",
         })
         .populate({
           path: "mentorDepartment",
@@ -2001,13 +2012,13 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     const staff_obj = {
       message: "All Staff Designation Feed from DB 🙌",
       staff: staff,
-    }
+    };
     const staffEncrypt = await encryptionPayload(staff_obj);
     // const cached = await connect_redis_miss(
     //   `Staff-Designation-Member-${sid}`,
     //   staff
     // );
-    res.status(200).send({ encrypt: staffEncrypt});
+    res.status(200).send({ encrypt: staffEncrypt });
   } catch (e) {
     console.log(e);
   }
@@ -2265,14 +2276,14 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       //   `Student-Designation-Member-${sid}`,
       //   bind_student
       // );
-      await calc_profile_percentage(student)
+      await calc_profile_percentage(student);
       res.status(200).send({
         message: "All Student Designation Feed from DB 🙌",
         // student: cached.student,
         // average_points: cached.average_points,
         student: student,
         status: status,
-        average_points: (point == "0" || 0) ? 0 : parseInt(point),
+        average_points: point == "0" || 0 ? 0 : parseInt(point),
         re_admission_tab: re_admission_tab ? re_admission_tab : "" || null,
       });
     } else {
@@ -2428,15 +2439,26 @@ exports.retrieveUserDepartmentChat = async (req, res) => {
   }
 };
 
-exports.retrieveUserAllApplicationQuery = async(req, res) => {
-  try{
-    const { uid } = req?.params
-    if(!uid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.retrieveUserAllApplicationQuery = async (req, res) => {
+  try {
+    const { uid } = req?.params;
+    if (!uid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var one_user = await User.findById({ _id: uid })
-    var all_ads_apps = await NewApplication.find({ $and: [{ _id: { $in: one_user?.applyApplication } }, { application_flow: "Admission Application" }] })
+    var one_user = await User.findById({ _id: uid });
+    var all_ads_apps = await NewApplication.find({
+      $and: [
+        { _id: { $in: one_user?.applyApplication } },
+        { application_flow: "Admission Application" },
+      ],
+    })
       .sort({ createdAt: -1 })
-      .select("applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster")
+      .select(
+        "applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster"
+      )
       .populate({
         path: "applicationDepartment",
         select: "dName",
@@ -2449,17 +2471,24 @@ exports.retrieveUserAllApplicationQuery = async(req, res) => {
         path: "applicationMaster",
         select: "className",
       })
-    .populate({
-      path: "admissionAdmin",
-      select: "institute",
-      populate: {
-        path: "institute",
-        select: "insName name insProfilePhoto photoId"
-      }
+      .populate({
+        path: "admissionAdmin",
+        select: "institute",
+        populate: {
+          path: "institute",
+          select: "insName name insProfilePhoto photoId",
+        },
+      });
+    var all_hostel_apps = await NewApplication.find({
+      $and: [
+        { _id: { $in: one_user?.applyApplication } },
+        { application_flow: "Hostel Application" },
+      ],
     })
-    var all_hostel_apps = await NewApplication.find({ $and: [{ _id: { $in: one_user?.applyApplication } }, { application_flow: "Hostel Application" }] })
       .sort({ createdAt: -1 })
-      .select("applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster")
+      .select(
+        "applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster"
+      )
       .populate({
         path: "applicationBatch",
         select: "batchName",
@@ -2477,62 +2506,69 @@ exports.retrieveUserAllApplicationQuery = async(req, res) => {
         select: "institute",
         populate: {
           path: "institute",
-          select: "insName name insProfilePhoto photoId"
-        }
-      })
+          select: "insName name insProfilePhoto photoId",
+        },
+      });
 
-      var all_apps = [...all_ads_apps, ...all_hostel_apps]
-      if(all_apps?.length > 0){
-        res.status(200).send({ message: "Explore All Applied Application Query", access: true, all_apps: all_apps})
-      }
-      else{
-        res.status(200).send({ message: "No Applied Application Query", access: false, all_apps: []})
-      }
+    var all_apps = [...all_ads_apps, ...all_hostel_apps];
+    if (all_apps?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Applied Application Query",
+        access: true,
+        all_apps: all_apps,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Applied Application Query",
+        access: false,
+        all_apps: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.retrieveUserOneApplicationQuery = async(req, res) => {
+exports.retrieveUserOneApplicationQuery = async (req, res) => {
   try {
     const { uid, aid } = req.params;
-    var user = await User.findById({ _id: uid })
+    var user = await User.findById({ _id: uid });
 
-    var admission_application = []
-    var document_verification = []
-    var fees_payment = []
-    var admission_confirmation = []
-    var class_allotment = []
-    var app_status = await Status.find({ $and: [{ _id: { $in: user?.applicationStatus}}, { applicationId: aid }]})
-    .sort({ createdAt: -1})
-    .populate({
-      path: "applicationId",
+    var admission_application = [];
+    var document_verification = [];
+    var fees_payment = [];
+    var admission_confirmation = [];
+    var class_allotment = [];
+    var app_status = await Status.find({
+      $and: [{ _id: { $in: user?.applicationStatus } }, { applicationId: aid }],
+    })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "applicationId",
+        populate: {
+          path: "applicationUnit",
+          select: "hostel hostel_unit_name",
           populate: {
-            path: "applicationUnit",
-            select: "hostel hostel_unit_name",
+            path: "hostel",
+            select: "bank_account",
             populate: {
-              path: "hostel",
-              select: "bank_account",
-              populate: {
-                path: "bank_account",
-              },
+              path: "bank_account",
             },
           },
-        }
-    )
+        },
+      })
       .populate({
         path: "instituteId",
         select: "insName name photoId insProfilePhoto",
       })
       .populate({
         path: "feeStructure hostel_fee_structure",
-          select:
-            "one_installments total_admission_fees applicable_fees structure_name structure_month two_installments three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments",
-          populate: {
-            path: "category_master",
-            select: "category_name",
-          },
+        select:
+          "one_installments total_admission_fees applicable_fees structure_name structure_month two_installments three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments",
+        populate: {
+          path: "category_master",
+          select: "category_name",
+        },
       })
       .populate({
         path: "bank_account",
@@ -2547,18 +2583,17 @@ exports.retrieveUserOneApplicationQuery = async(req, res) => {
       })
       .populate({
         path: "classes",
-        select:
-          "className classTitle",
+        select: "className classTitle",
         populate: {
           path: "department",
-          select: "dName"
-        }
+          select: "dName",
+        },
       })
       .populate({
         path: "remaining_list",
         populate: {
-          path: "applicable_card"
-        }
+          path: "applicable_card",
+        },
       })
       .populate({
         path: "remaining_list",
@@ -2568,32 +2603,31 @@ exports.retrieveUserOneApplicationQuery = async(req, res) => {
             path: "category_master",
             select: "category_name",
           },
-        }
+        },
       })
       .populate({
         path: "applicationId",
-            populate: {
-              path: "applicationDepartment applicationBatch applicationMaster",
-              select: "dName batchName className",
-            },
-          }
-      );
+        populate: {
+          path: "applicationDepartment applicationBatch applicationMaster",
+          select: "dName batchName className",
+        },
+      });
     // const appEncrypt = await encryptionPayload(user.applicationStatus);
     for (var val of app_status) {
       if (val?.group_by === "Admission_Application_Applied") {
-        admission_application.push(val)
+        admission_application.push(val);
       }
       if (val?.group_by === "Admission_Document_Verification") {
-        document_verification.push(val)
+        document_verification.push(val);
       }
       if (val?.group_by === "Admission_Fees_Payment") {
-        fees_payment.push(val)
+        fees_payment.push(val);
       }
       if (val?.group_by === "Admission_Confirmation") {
-        admission_confirmation.push(val)
+        admission_confirmation.push(val);
       }
       if (val?.group_by === "Admission_Class_Allotment") {
-        class_allotment.push(val)
+        class_allotment.push(val);
       }
     }
     res.status(200).send({
@@ -2603,12 +2637,12 @@ exports.retrieveUserOneApplicationQuery = async(req, res) => {
       document_verification: document_verification,
       fees_payment: fees_payment,
       admission_confirmation: admission_confirmation,
-      class_allotment: class_allotment
+      class_allotment: class_allotment,
     });
   } catch (e) {
     console.log(e);
   }
-}
+};
 
 exports.retrieveUserApplicationStatus = async (req, res) => {
   try {
@@ -3153,14 +3187,18 @@ exports.renderMode = async (req, res) => {
   }
 };
 
-exports.retrieveUserStatsQuery = async(req, res) => {
-  try{
-    const { uid } = req?.params
-    if(!uid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.retrieveUserStatsQuery = async (req, res) => {
+  try {
+    const { uid } = req?.params;
+    if (!uid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var one_user = await User.findById({ _id: uid })
+    var one_user = await User.findById({ _id: uid });
     var custom_obj = {
-      message: "Explore All User Stats Query", 
+      message: "Explore All User Stats Query",
       access: true,
       followerCount: one_user?.followerCount,
       followingUICount: one_user?.followingUICount,
@@ -3168,189 +3206,186 @@ exports.retrieveUserStatsQuery = async(req, res) => {
       postCount: one_user?.postCount,
       questionCount: one_user?.questionCount,
       answerQuestionCount: one_user?.answerQuestionCount,
-      poll_Count: one_user?.poll_Count
-    }
-    var custom_encrypt = await encryptionPayload(custom_obj)
-    res.status(200).send({ encrypt: custom_encrypt })
+      poll_Count: one_user?.poll_Count,
+    };
+    var custom_encrypt = await encryptionPayload(custom_obj);
+    res.status(200).send({ encrypt: custom_encrypt });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.retrievePreciseStaffDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
-      var staff = await Staff.findById({ _id: sid })
-        .select(
-          "staffDesignationCount active_designation mentorDepartment teaching_type library_qr_code hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffStatus staffROLLNO"
-        )
-        .populate({
-          path: "staffDepartment",
-          select: "dName dTitle department_status",
-          populate: {
-            path: "departmentSelectBatch",
-            select: "batchName batchStatus",
-          },
-        })
-        .populate({
-          path: "staffClass",
+    var staff = await Staff.findById({ _id: sid })
+      .select(
+        "staffDesignationCount active_designation mentorDepartment teaching_type library_qr_code hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffStatus staffROLLNO"
+      )
+      .populate({
+        path: "staffDepartment",
+        select: "dName dTitle department_status",
+        populate: {
+          path: "departmentSelectBatch",
+          select: "batchName batchStatus",
+        },
+      })
+      .populate({
+        path: "staffClass",
+        select: "className classTitle classStatus classHeadTitle",
+        populate: {
+          path: "batch",
+          select: "batchName batchStatus",
+        },
+      })
+      .populate({
+        path: "staffSubject",
+        select:
+          "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional",
+        populate: {
+          path: "class",
           select: "className classTitle classStatus classHeadTitle",
           populate: {
             path: "batch",
             select: "batchName batchStatus",
           },
-        })
-        .populate({
-          path: "staffSubject",
-          select:
-            "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional",
-          populate: {
-            path: "class",
-            select: "className classTitle classStatus classHeadTitle",
-            populate: {
-              path: "batch",
-              select: "batchName batchStatus",
-            },
-          },
-        })
-        .populate({
-          path: "staffSubject",
-          select:
-            "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional",
-          populate: {
-            path: "selected_batch_query",
-            select: "batchName batchStatus",
-          },
-        })
-        .populate({
-          path: "institute",
-          select:
-            "insName photoId insProfilePhoto student_section_form_show_query",
-        })
-        .populate({
-          path: "user",
-          select:
-            "userLegalName userPhoneNumber userEmail photoId profilePhoto",
-        })
-        .populate({
-          path: "financeDepartment",
-          select:
-            "financeName financeEmail financePhoneNumber designation_status designation_password",
-          populate: {
-            path: "financeHead",
-            select: "staffFirstName staffMiddleName staffLastName",
-          },
-        })
-        .populate({
-          path: "financeDepartment",
-          select:
-            "financeName financeEmail financePhoneNumber designation_status designation_password",
-          populate: {
-            path: "institute",
-            select: "financeStatus",
-          },
-        })
-        .populate({
-          path: "admissionDepartment",
-          select:
-            "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout designation_status designation_password",
-          populate: {
-            path: "admissionAdminHead",
-            select:
-              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-          },
-        })
-        .populate({
-          path: "sportDepartment",
-          select: "sportEmail sportPhoneNumber sportAbout sportName",
-          populate: {
-            path: "sportHead",
-            select:
-              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-          },
-        })
-        .populate({
-          path: "staffSportClass",
-          select:
-            "sportClassEmail sportClassPhoneNumber sportClassAbout sportClassName",
-          populate: {
-            path: "sportClassHead",
-            select:
-              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-          },
-        })
-        .populate({
-          path: "transportDepartment",
-          select: "vehicle_count",
-          populate: {
-            path: "transport_manager",
-            select:
-              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-          },
-        })
-        .populate({
-          path: "vehicle",
-          select: "_id vehicle_number",
-        })
-        .populate({
-          path: "library",
-          select: "coverId cover institute",
-          populate: {
-            path: "libraryHead",
-            select:
-              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-          },
-        })
-        .populate({
-          path: "aluminiDepartment",
-          select: "_id",
-        })
-        .populate({
-          path: "admissionModeratorDepartment",
-          select: "admission access_role active_tab",
-        })
-        .populate({
-          path: "financeModeratorDepartment",
-          select: "finance access_role",
-        })
-        .populate({
-          path: "instituteModeratorDepartment",
-          select: "institute access_role academic_department lms",
-          populate: {
-            path: "academic_department",
-            select: "departmentSelectBatch dName dTitle",
-          },
-        })
-        .populate({
-          path: "hostelModeratorDepartment",
-          select: "hostel access_role active_tab",
-        })
-        .populate({
-          path: "staffBatch",
+        },
+      })
+      .populate({
+        path: "staffSubject",
+        select:
+          "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional",
+        populate: {
+          path: "selected_batch_query",
           select: "batchName batchStatus",
-        })
-        .populate({
-          path: "lms_department",
+        },
+      })
+      .populate({
+        path: "institute",
+        select:
+          "insName photoId insProfilePhoto student_section_form_show_query",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName userPhoneNumber userEmail photoId profilePhoto",
+      })
+      .populate({
+        path: "financeDepartment",
+        select:
+          "financeName financeEmail financePhoneNumber designation_status designation_password",
+        populate: {
+          path: "financeHead",
+          select: "staffFirstName staffMiddleName staffLastName",
+        },
+      })
+      .populate({
+        path: "financeDepartment",
+        select:
+          "financeName financeEmail financePhoneNumber designation_status designation_password",
+        populate: {
+          path: "institute",
+          select: "financeStatus",
+        },
+      })
+      .populate({
+        path: "admissionDepartment",
+        select:
+          "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout designation_status designation_password",
+        populate: {
+          path: "admissionAdminHead",
           select:
-            "id",
-        })
-        .populate({
-          path: "mentorDepartment",
-          select: "department",
-          populate: {
-            path: "department",
-            select: "dName",
-          },
-        })
-        .lean()
-        .exec();
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
+      })
+      .populate({
+        path: "sportDepartment",
+        select: "sportEmail sportPhoneNumber sportAbout sportName",
+        populate: {
+          path: "sportHead",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
+      })
+      .populate({
+        path: "staffSportClass",
+        select:
+          "sportClassEmail sportClassPhoneNumber sportClassAbout sportClassName",
+        populate: {
+          path: "sportClassHead",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
+      })
+      .populate({
+        path: "transportDepartment",
+        select: "vehicle_count",
+        populate: {
+          path: "transport_manager",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
+      })
+      .populate({
+        path: "vehicle",
+        select: "_id vehicle_number",
+      })
+      .populate({
+        path: "library",
+        select: "coverId cover institute",
+        populate: {
+          path: "libraryHead",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
+      })
+      .populate({
+        path: "aluminiDepartment",
+        select: "_id",
+      })
+      .populate({
+        path: "admissionModeratorDepartment",
+        select: "admission access_role active_tab",
+      })
+      .populate({
+        path: "financeModeratorDepartment",
+        select: "finance access_role",
+      })
+      .populate({
+        path: "instituteModeratorDepartment",
+        select: "institute access_role academic_department lms",
+        populate: {
+          path: "academic_department",
+          select: "departmentSelectBatch dName dTitle",
+        },
+      })
+      .populate({
+        path: "hostelModeratorDepartment",
+        select: "hostel access_role active_tab",
+      })
+      .populate({
+        path: "staffBatch",
+        select: "batchName batchStatus",
+      })
+      .populate({
+        path: "lms_department",
+        select: "id",
+      })
+      .populate({
+        path: "mentorDepartment",
+        select: "department",
+        populate: {
+          path: "department",
+          select: "dName",
+        },
+      })
+      .lean()
+      .exec();
     const staff_obj = {
       message: "All Staff Designation Feed from DB 🙌",
       staff: staff,
-    }
+    };
     const staffEncrypt = await encryptionPayload(staff_obj);
-    res.status(200).send({ encrypt: staffEncrypt});
+    res.status(200).send({ encrypt: staffEncrypt });
   } catch (e) {
     console.log(e);
   }
@@ -3359,116 +3394,120 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
 exports.retrievePreciseStudentDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
-      var student = await Student.findById({ _id: sid })
-        .select(
-          "studentGRNO studentROLLNO library_qr_code"
-        )
-        .populate({
-          path: "studentClass",
-          select: "className classTitle classStatus classHeadTitle",
-          populate: {
-            path: "batch",
-            select: "batchName batchStatus",
-          },
-        })
-        .populate({
-          path: "institute",
+    var student = await Student.findById({ _id: sid })
+      .select("studentGRNO studentROLLNO library_qr_code")
+      .populate({
+        path: "studentClass",
+        select: "className classTitle classStatus classHeadTitle",
+        populate: {
+          path: "batch",
+          select: "batchName batchStatus",
+        },
+      })
+      .populate({
+        path: "institute",
+        select:
+          "insName name photoId insProfilePhoto library studentFormSetting student_section_form_show_query transportDepart",
+      })
+      .populate({
+        path: "user",
+        select:
+          "userLegalName username photoId profilePhoto userPhoneNumber userEmail",
+      })
+      .populate({
+        path: "vehicle",
+        select: "_id vehicle_number",
+      })
+      .populate({
+        path: "mentor",
+        select: "mentor_head",
+        populate: {
+          path: "mentor_head",
           select:
-            "insName name photoId insProfilePhoto library studentFormSetting student_section_form_show_query transportDepart",
-        })
-        .populate({
-          path: "user",
-          select:
-            "userLegalName username photoId profilePhoto userPhoneNumber userEmail",
-        })
-        .populate({
-          path: "vehicle",
-          select: "_id vehicle_number",
-        })
-        .populate({
-          path: "mentor",
-          select: "mentor_head",
-          populate: {
-            path: "mentor_head",
-            select:
-              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
-          },
-        })
-        .populate({
-          path: "student_unit",
-          select: "hostel_unit_name hostel",
-          populate: {
-            path: "hostel",
-            select: "_id",
-          },
-        })
-        .populate({
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        },
+      })
+      .populate({
+        path: "student_unit",
+        select: "hostel_unit_name hostel",
+        populate: {
+          path: "hostel",
+          select: "_id",
+        },
+      })
+      .populate({
+        path: "student_bed_number",
+        select: "bed_number bed_status hostelRoom",
+        populate: {
+          path: "hostelRoom",
+          select: "room_name room_strength",
+        },
+      })
+      .populate({
+        path: "department",
+        select: "dName dTitle",
+      })
+      .populate({
+        path: "exist_linked_hostel.exist_student",
+        select:
+          "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto student_bed_number hostelRemainFeeCount",
+        populate: {
           path: "student_bed_number",
           select: "bed_number bed_status hostelRoom",
           populate: {
             path: "hostelRoom",
-            select: "room_name room_strength",
-          },
-        })
-        .populate({
-          path: "department",
-          select: "dName dTitle",
-        })
-        .populate({
-          path: "exist_linked_hostel.exist_student",
-          select:
-            "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto student_bed_number hostelRemainFeeCount",
-          populate: {
-            path: "student_bed_number",
-            select: "bed_number bed_status hostelRoom",
+            select: "room_name hostelUnit",
             populate: {
-              path: "hostelRoom",
-              select: "room_name hostelUnit",
-              populate: {
-                path: "hostelUnit",
-                select: "hostel_unit_name",
-              },
+              path: "hostelUnit",
+              select: "hostel_unit_name",
             },
           },
-        });
-      res.status(200).send({
-        message: "All Student Designation Feed from DB 🙌",
-        student: student,
+        },
       });
+    res.status(200).send({
+      message: "All Student Designation Feed from DB 🙌",
+      student: student,
+    });
   } catch (e) {
     console.log(e);
   }
 };
 
-exports.destroyUserAccountQuery = async(req, res) => {
+exports.destroyUserAccountQuery = async (req, res) => {
   try {
     const { uid } = req.params;
-    const { valid_pass } = req?.query
+    const { valid_pass } = req?.query;
     if (!uid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
     // var admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    var one_user = await User.findById({ _id: uid})
-    if(one_user?.userPassword){
-      var normal_pass = bcrypt.compareSync(valid_pass, one_user?.userPassword)
+    var one_user = await User.findById({ _id: uid });
+    if (one_user?.userPassword) {
+      var normal_pass = bcrypt.compareSync(valid_pass, one_user?.userPassword);
     }
-    if(one_user?.user_universal_password){
-      var universal_pass = bcrypt.compareSync(valid_pass, one_user?.user_universal_password)
+    if (one_user?.user_universal_password) {
+      var universal_pass = bcrypt.compareSync(
+        valid_pass,
+        one_user?.user_universal_password
+      );
     }
-    if(normal_pass || universal_pass){
-      if(one_user?.staff?.length > 0 || one_user?.student?.length > 0){
+    if (normal_pass || universal_pass) {
+      if (one_user?.staff?.length > 0 || one_user?.student?.length > 0) {
+        res.status(200).send({
+          message: "Deletion Operation Aborted",
+          access: false,
+          dynamic: `Hello ${one_user?.username}, Looks like you are a student or staff of some institute. Kindly visit your institute, ask them to retive your data in their local systems. Afterwards institutes can delete your account and data from servers.`,
+        });
+      } else {
+        var all_ins = await InstituteAdmin.find({
+          _id: { $in: one_user?.userInstituteFollowing },
+        });
         res
-        .status(200)
-        .send({ message: "Deletion Operation Aborted", access: false, dynamic: `Hello ${one_user?.username}, Looks like you are a student or staff of some institute. Kindly visit your institute, ask them to retive your data in their local systems. Afterwards institutes can delete your account and data from servers.` });
-      }
-      else{
-        var all_ins = await InstituteAdmin.find({ _id: { $in: one_user?.userInstituteFollowing }})
-        res
-        .status(200)
-        .send({ message: "Deletion Operation Completed", access: true });
-        for(var one_ins of all_ins){
+          .status(200)
+          .send({ message: "Deletion Operation Completed", access: true });
+        for (var one_ins of all_ins) {
           if (`${one_ins?.isUniversal}` === "Not Assigned") {
             if (one_ins?.userFollowersList?.includes(`${one_user?._id}`)) {
               one_ins.userFollowersList.pull(one_user?._id);
@@ -3491,8 +3530,8 @@ exports.destroyUserAccountQuery = async(req, res) => {
           if (one_ins?.joinedPost?.includes(`${one_user?._id}`)) {
             one_ins.joinedPost.pull(one_user?._id);
           }
-    
-          await one_ins.save()
+
+          await one_ins.save();
         }
         var universal = await InstituteAdmin.findOne({
           isUniversal: "Universal",
@@ -3505,87 +3544,112 @@ exports.destroyUserAccountQuery = async(req, res) => {
         }
         await universal.save();
         var all_post = await Post.find({ author: `${one_user?._id}` });
-            for (var ref of all_post) {
-              await Post.findByIdAndDelete(ref?._id);
-            }
-            var all_answer = await Answer.find({ author: `${one_user?._id}` });
-            for (var ref of all_answer) {
-              await Answer.findByIdAndDelete(ref?._id);
-            }
-            await User.findByIdAndDelete(one_user?._id);
+        for (var ref of all_post) {
+          await Post.findByIdAndDelete(ref?._id);
+        }
+        var all_answer = await Answer.find({ author: `${one_user?._id}` });
+        for (var ref of all_answer) {
+          await Answer.findByIdAndDelete(ref?._id);
+        }
+        await User.findByIdAndDelete(one_user?._id);
       }
-    }
-    else{
+    } else {
       res
         .status(200)
         .send({ message: "Invalid Password Combination", access: false });
     }
-    
   } catch (e) {
     console.log(e);
   }
-}
+};
 
 exports.render_specific_mods_query = async (req, res) => {
   try {
-    const { uid } = req?.params
-    if (!uid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var user = await User.findById({ _id: uid })
+    const { uid } = req?.params;
+    if (!uid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var roles = ["SOCIAL_MEDIA_ACCESS", "INSTITUTE_ADMIN"]
-    if (user?.staff?.length > 0) {        
-      var all_staff = await FinanceModerator.find({ $and: [{ access_staff: { $in: user?.staff } }, { access_role: { $in: roles }}] })
-      .select("access_role")
-      .populate({
-        path: "access_staff",
-        select: "staffFirstName staffMiddleName staffLastName"
+    var user = await User.findById({ _id: uid });
+
+    var roles = ["SOCIAL_MEDIA_ACCESS", "INSTITUTE_ADMIN"];
+    if (user?.staff?.length > 0) {
+      var all_staff = await FinanceModerator.find({
+        $and: [
+          { access_staff: { $in: user?.staff } },
+          { access_role: { $in: roles } },
+        ],
       })
-      .populate({
-        path: "institute",
-        select: "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart"
-      })
-    
-      var token_list = []
+        .select("access_role")
+        .populate({
+          path: "access_staff",
+          select: "staffFirstName staffMiddleName staffLastName",
+        })
+        .populate({
+          path: "institute",
+          select:
+            "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart",
+        });
+
+      var token_list = [];
       for (var val of all_staff) {
-            const token = generateAccessInsToken(
-              val?.institute?.name,
-              val?.institute?._id,
-              val?.institute?.insPassword
-            );
-            token_list.push({
-              token: `Bearer ${token}`,
-              _id: val?.institute?._id,
-              name: val?.institute?.name,
-              mods_id: val?._id,
-              access_by: val?.access_role,
-              financeDepart: val?.institute?.financeDepart?.[0],
-              admissionDepart: val?.institute?.admissionDepart?.[0],
-            })
+        const token = generateAccessInsToken(
+          val?.institute?.name,
+          val?.institute?._id,
+          val?.institute?.insPassword
+        );
+        token_list.push({
+          token: `Bearer ${token}`,
+          _id: val?.institute?._id,
+          name: val?.institute?.name,
+          mods_id: val?._id,
+          access_by: val?.access_role,
+          financeDepart: val?.institute?.financeDepart?.[0],
+          admissionDepart: val?.institute?.admissionDepart?.[0],
+        });
       }
-      res.status(200).send({ message: "Explore Social / Institute Admin Mods Available", access: true, token_list: token_list})
+      res.status(200).send({
+        message: "Explore Social / Institute Admin Mods Available",
+        access: true,
+        token_list: token_list,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Social / Institute Admin Mods Available",
+        access: false,
+        staff: [],
+      });
     }
-    else {
-      res.status(200).send({ message: "No Social / Institute Admin Mods Available", access: false, staff: []})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
-exports.retrieveUserDashboardAllApplicationQuery = async(req, res) => {
-  try{
-    const { uid } = req?.params
-    const { flow } = req?.body
-    if(!uid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.retrieveUserDashboardAllApplicationQuery = async (req, res) => {
+  try {
+    const { uid } = req?.params;
+    const { flow } = req?.body;
+    if (!uid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var one_user = await User.findById({ _id: uid })
-    let nums = one_user?.applyApplication?.reverse()
+    var one_user = await User.findById({ _id: uid });
+    let nums = one_user?.applyApplication?.reverse();
     if (flow === "HOSTEL") {
-      var all_apps = await NewApplication.find({ $and: [{ _id: { $in: nums?.[0] } }, { application_flow: "Hostel Application" }] })
+      var all_apps = await NewApplication.find({
+        $and: [
+          { _id: { $in: nums?.[0] } },
+          { application_flow: "Hostel Application" },
+        ],
+      })
         .sort({ createdAt: -1 })
-        .select("applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster")
+        .select(
+          "applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster"
+        )
         .populate({
           path: "applicationDepartment",
           select: "dName",
@@ -3603,14 +3667,20 @@ exports.retrieveUserDashboardAllApplicationQuery = async(req, res) => {
           select: "institute",
           populate: {
             path: "institute",
-            select: "insName name insProfilePhoto photoId"
-          }
-        })
-    }
-    else {
-      var all_apps = await NewApplication.find({ $and: [{ _id: { $in: nums?.[0] } }, { application_flow: "Admission Application" }] })
+            select: "insName name insProfilePhoto photoId",
+          },
+        });
+    } else {
+      var all_apps = await NewApplication.find({
+        $and: [
+          { _id: { $in: nums?.[0] } },
+          { application_flow: "Admission Application" },
+        ],
+      })
         .sort({ createdAt: -1 })
-        .select("applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster")
+        .select(
+          "applicationName admissionAdmin applicationStatus application_flow student applicationDepartment applicationBatch applicationMaster"
+        )
         .populate({
           path: "applicationDepartment",
           select: "dName",
@@ -3628,36 +3698,52 @@ exports.retrieveUserDashboardAllApplicationQuery = async(req, res) => {
           select: "institute",
           populate: {
             path: "institute",
-            select: "insName name insProfilePhoto photoId"
-          }
-        })
+            select: "insName name insProfilePhoto photoId",
+          },
+        });
     }
-    if(all_apps?.length > 0){
-      res.status(200).send({ message: "Explore All Applied Application Query", access: true, all_apps: all_apps, conditional: conditional})
+    if (all_apps?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Applied Application Query",
+        access: true,
+        all_apps: all_apps,
+        conditional: conditional,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Applied Application Query",
+        access: false,
+        all_apps: [],
+        conditional: "",
+      });
     }
-    else{
-      res.status(200).send({ message: "No Applied Application Query", access: false, all_apps: [], conditional: ""})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
+exports.retrieveUserDashboardOneApplicationQuery = async (req, res) => {
   try {
     const { uid } = req.params;
-    var user = await User.findById({ _id: uid })
-    let nums = user?.applyApplication?.reverse()
+    var user = await User.findById({ _id: uid });
+    let nums = user?.applyApplication?.reverse();
     if (nums?.length > 0) {
-      const latest_app = await NewApplication.findById({ _id: nums?.[0] })
-        .select("applicationDepartment applicationName reviewApplication allottedApplication")
-      var admission_application = []
-      var document_verification = []
-      var fees_payment = []
-      var admission_confirmation = []
-      var class_allotment = []
-      var app_status = await Status.find({ $and: [{ _id: { $in: user?.applicationStatus } }, { applicationId: latest_app?._id }] })
+      const latest_app = await NewApplication.findById({
+        _id: nums?.[0],
+      }).select(
+        "applicationDepartment applicationName reviewApplication allottedApplication"
+      );
+      var admission_application = [];
+      var document_verification = [];
+      var fees_payment = [];
+      var admission_confirmation = [];
+      var class_allotment = [];
+      var app_status = await Status.find({
+        $and: [
+          { _id: { $in: user?.applicationStatus } },
+          { applicationId: latest_app?._id },
+        ],
+      })
         .sort({ createdAt: -1 })
         .populate({
           path: "applicationId",
@@ -3672,8 +3758,7 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
               },
             },
           },
-        }
-        )
+        })
         .populate({
           path: "instituteId",
           select: "insName name photoId insProfilePhoto",
@@ -3700,18 +3785,17 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
         })
         .populate({
           path: "classes",
-          select:
-            "className classTitle",
+          select: "className classTitle",
           populate: {
             path: "department",
-            select: "dName"
-          }
+            select: "dName",
+          },
         })
         .populate({
           path: "remaining_list",
           populate: {
-            path: "applicable_card"
-          }
+            path: "applicable_card",
+          },
         })
         .populate({
           path: "remaining_list",
@@ -3721,7 +3805,7 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
               path: "category_master",
               select: "category_name",
             },
-          }
+          },
         })
         .populate({
           path: "applicationId",
@@ -3729,39 +3813,38 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
             path: "applicationDepartment applicationBatch applicationMaster",
             select: "dName batchName className",
           },
-        }
-        );
+        });
       // const appEncrypt = await encryptionPayload(user.applicationStatus);
       for (var val of app_status) {
         if (val?.group_by === "Admission_Application_Applied") {
-          admission_application.push(val)
+          admission_application.push(val);
         }
         if (val?.group_by === "Admission_Document_Verification") {
-          document_verification.push(val)
+          document_verification.push(val);
         }
         if (val?.group_by === "Admission_Fees_Payment") {
-          fees_payment.push(val)
+          fees_payment.push(val);
         }
         if (val?.group_by === "Admission_Confirmation") {
-          admission_confirmation.push(val)
+          admission_confirmation.push(val);
         }
         if (val?.group_by === "Admission_Class_Allotment") {
-          class_allotment.push(val)
+          class_allotment.push(val);
         }
       }
-      const student = await Student.find({ _id: { $in: user?.student } })
-        .select("department")
+      const student = await Student.find({
+        _id: { $in: user?.student },
+      }).select("department");
       var conditional = "Show";
       for (let ele of student) {
         if (latest_app?.reviewApplication?.includes(`${ele?._id}`)) {
-          conditional = "Not Show"
-          break
-        }
-        else {
+          conditional = "Not Show";
+          break;
+        } else {
           for (let val of latest_app?.allottedApplication) {
             if (`${val?.student}` == `${ele?._id}`) {
-              conditional = "Not Show"
-              break
+              conditional = "Not Show";
+              break;
             }
           }
         }
@@ -3781,11 +3864,9 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
         admission_confirmation: admission_confirmation,
         class_allotment: class_allotment,
         conditional: conditional,
-        latest_app: latest_app
+        latest_app: latest_app,
       });
-  
-    }
-    else {
+    } else {
       res.status(200).send({
         message: "No user Application Status",
         // status: app_status,
@@ -3798,34 +3879,41 @@ exports.retrieveUserDashboardOneApplicationQuery = async(req, res) => {
         latest_app: {},
       });
     }
-} catch (e) {
+  } catch (e) {
     console.log(e);
   }
-}
+};
 
 exports.retrieveUserModsAccessQuery = async (req, res) => {
   try {
-    const { uid } = req?.params
-    if (!uid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const user = await User.findById({ _id: uid })
-      .select("staff userLegalName username")
-    
+    const { uid } = req?.params;
+    if (!uid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const user = await User.findById({ _id: uid }).select(
+      "staff userLegalName username"
+    );
+
     const all_staff = await Staff.find({ _id: { $in: user?.staff } })
       .select("instituteModeratorDepartment")
       .populate({
         path: "instituteModeratorDepartment",
-        select: "institute access_role academic_department staff_institute_admin lms",
+        select:
+          "institute access_role academic_department staff_institute_admin lms",
         populate: {
           path: "academic_department institute",
-          select: "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart",
+          select:
+            "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart",
         },
-      })
-      var token_list = []
-    
+      });
+    var token_list = [];
+
     for (let ele of all_staff) {
       ele?.instituteModeratorDepartment?.filter((val) => {
-        if(`${val?.access_role}` === "SOCIAL_MEDIA_ASSISTANT_ACCESS") {
+        if (`${val?.access_role}` === "SOCIAL_MEDIA_ASSISTANT_ACCESS") {
           const token = generateAccessInsToken(
             val?.institute?.name,
             val?.institute?._id,
@@ -3839,30 +3927,79 @@ exports.retrieveUserModsAccessQuery = async (req, res) => {
             access_by: val?.access_role,
             financeDepart: val?.institute?.financeDepart?.[0],
             admissionDepart: val?.institute?.admissionDepart?.[0],
-          })
+          });
         }
-      })
+      });
     }
-    res.status(200).send({ message: "Explore Mods List", access: true, token_list: token_list, user: user})
+    res.status(200).send({
+      message: "Explore Mods List",
+      access: true,
+      token_list: token_list,
+      user: user,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_click_follow = async (req, res) => {
   try {
-    const { sid } = req?.params
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const staff = await Staff.findById({ _id: sid })
-    res.status(200).send({ message: "One Click Follow", access: true})
-  }
-  catch (e) {
-    console.log(e)
-  }
-}
+    const { sid } = req?.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
+    const staff = await Staff.findById({ _id: sid });
+    res.status(200).send({ message: "One Click Follow", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_student_id_query = async (req, res) => {
+  try {
+    const { sid } = req?.params;
+    const one_student = await Student.findById({ _id: sid })
+      .select(
+        "studentFirstName studentMiddleName studentLastName studentFatherName photoId studentProfilePhoto studentGender studentGRNO studentROLLNO studentAddress studentState student_blood_group"
+      )
+      .populate({
+        path: "institute",
+        select:
+          "insName name insAddress insPhoneNumber insEmail insState insDistrict insProfilePhoto photoId affliatedLogo insAffiliated insEditableText_one insEditableText_two",
+        populate: {
+          path: "displayPersonList",
+          select: "displayTitle",
+          populate: {
+            path: "displayUser displayStaff",
+            select:
+              "userLegalName staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
+          },
+        },
+      })
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName batchStatus",
+      });
+    res.status(200).send({
+      message: "Explore One Student ID Card Query",
+      access: true,
+      one_student: one_student,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 // exports.getAllThreeCount = async (req, res) => {
 //   try {

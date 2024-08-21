@@ -8,13 +8,28 @@ const BankAccount = require("../models/Finance/BankAccount");
 const hostelDaybookData = require("../AjaxRequest/hostelDaybookData");
 const Finance = require("../models/Finance");
 const unlinkFile = util.promisify(fs.unlink);
-const hostelBankDaybook = async (fid, hid, from, to, bank, payment_type, flow) => {
+const hostelBankDaybook = async (
+  fid,
+  hid,
+  from,
+  to,
+  bank,
+  payment_type,
+  flow
+) => {
   const doc = new PDFDocument({
     font: "Times-Roman",
     size: "A4",
     margins: { top: 20, bottom: 20, left: 20, right: 20 },
   });
-  const result = await hostelDaybookData(fid, hid, from, to, bank, payment_type);
+  const result = await hostelDaybookData(
+    fid,
+    hid,
+    from,
+    to,
+    bank,
+    payment_type
+  );
 
   const instituteData = result?.ft?.ins_info;
   const daybook = result?.ft?.results;
@@ -22,10 +37,12 @@ const hostelBankDaybook = async (fid, hid, from, to, bank, payment_type, flow) =
 
   let date = new Date();
   let stu_name = `${instituteData?.name}`;
-  // const stream = fs.createWriteStream(`./uploads/${stu_name}-bank-daybook.pdf`);
+  // const stream = fs.createWriteStream(`./uploads/${stu_name}-hostel-bank-daybook.pdf`);
 
-  let name = `${date.getTime()}-${stu_name}`;
-  const stream = fs.createWriteStream(`./uploads/${name}-bank-daybook.pdf`);
+  let name = `${stu_name}-${date.getTime()}`;
+  const stream = fs.createWriteStream(
+    `./uploads/${name}-hostel-bank-daybook.pdf`
+  );
 
   doc.pipe(stream);
   const pageWidth = doc.page.width;
@@ -124,84 +141,13 @@ const hostelBankDaybook = async (fid, hid, from, to, bank, payment_type, flow) =
     });
 
   doc.moveDown(1);
-  //   let total = {
-  //     head_name: "TOTAL",
-  //     applicable_fee: paymentReceiptInfo?.applicableFee,
-  //     paid_fee: paymentReceiptInfo?.paidFee,
-  //     remain_fee: paymentReceiptInfo?.remaingFeeManual ?? 0,
-  //   };
-
   if (payment_type === "BOTH") {
-    let data_dummy = [
-      {
-        head_name: "Workshop Fees",
-        head_amount: 15600,
-        cash_head_amount: 13400,
-        bank_head_amount: 2200,
-        _id: "6656d70f9764b93acce0cf8d",
-      },
-      {
-        head_name: "Caution Money",
-        head_amount: 112450,
-        cash_head_amount: 100050,
-        bank_head_amount: 12400,
-        _id: "6656d9339764b93acce0d64a",
-      },
-      {
-        head_name: "Administrative Services Char",
-        head_amount: 666850,
-        cash_head_amount: 615850,
-        bank_head_amount: 51000,
-        _id: "6656d9439764b93acce0d651",
-      },
-      {
-        head_name: "Campus Conservancy Fee",
-        head_amount: 1260005,
-        cash_head_amount: 1163105,
-        bank_head_amount: 96900,
-        _id: "6656d94c9764b93acce0d676",
-      },
-      {
-        head_name: "Internet Charges",
-        head_amount: 390200,
-        cash_head_amount: 359600,
-        bank_head_amount: 30600,
-        _id: "6656d9559764b93acce0d6a1",
-      },
-      {
-        head_name: "Evaluation Fee",
-        head_amount: 49000,
-        cash_head_amount: 42000,
-        bank_head_amount: 7000,
-        _id: "6656d95d9764b93acce0d6d1",
-      },
-      {
-        head_name: "Laboratory Brekage",
-        head_amount: 112400,
-        cash_head_amount: 102400,
-        bank_head_amount: 10000,
-        _id: "66580728130c5202986f3fca",
-      },
-      {
-        head_name: "Laboratory Development Fee",
-        head_amount: 160500,
-        cash_head_amount: 143500,
-        bank_head_amount: 17000,
-        _id: "6658239e9ec999ce9339d73b",
-      },
-      {
-        head_name: "Computer, Study Material Fee",
-        head_amount: 77100,
-        cash_head_amount: 72600,
-        bank_head_amount: 4500,
-        _id: "668166e0c1775c56bcd5c084",
-      },
-    ];
     let total = {
       sr_number: "",
       head_name: "Total",
       head_amount: 0,
       cash_head_amount: 0,
+      pg_head_amount: 0,
       bank_head_amount: 0,
       receipt_no: "",
     };
@@ -218,6 +164,7 @@ const hostelBankDaybook = async (fid, hid, from, to, bank, payment_type, flow) =
         head_name: dfg?.head_name,
         head_amount: dfg?.head_amount,
         cash_head_amount: dfg?.cash_head_amount,
+        pg_head_amount: dfg?.pg_head_amount,
         bank_head_amount: dfg?.bank_head_amount,
         // receipt_no: "1111 To 2574",
         receipt_no: account_other?.range ?? "",
@@ -225,6 +172,7 @@ const hostelBankDaybook = async (fid, hid, from, to, bank, payment_type, flow) =
       total.head_amount += dfg?.head_amount;
       total.cash_head_amount += dfg?.cash_head_amount;
       total.bank_head_amount += dfg?.bank_head_amount;
+      total.pg_head_amount += dfg?.pg_head_amount;
     }
 
     modify_list.push(total);
@@ -243,16 +191,16 @@ const hostelBankDaybook = async (fid, hid, from, to, bank, payment_type, flow) =
         {
           label: "Main Heads",
           property: "head_name",
-          width: 190,
+          width: 160,
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
           padding: [10, 10, 10, 10],
         },
         {
-          label: "Cash Amount",
+          label: "Cash",
           property: "cash_head_amount",
-          width: 80,
+          width: 70,
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
@@ -260,9 +208,19 @@ const hostelBankDaybook = async (fid, hid, from, to, bank, payment_type, flow) =
           align: "right",
         },
         {
-          label: "PG Amount",
+          label: "PG",
+          property: "pg_head_amount",
+          width: 70,
+          render: null,
+          headerColor: "#b4b4b4",
+          headerOpacity: 0.5,
+          padding: [10, 10, 10, 10],
+          align: "right",
+        },
+        {
+          label: "Bank",
           property: "bank_head_amount",
-          width: 90,
+          width: 70,
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
@@ -272,7 +230,7 @@ const hostelBankDaybook = async (fid, hid, from, to, bank, payment_type, flow) =
         {
           label: "Total",
           property: "head_amount",
-          width: 80,
+          width: 70,
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
@@ -364,17 +322,17 @@ const hostelBankDaybook = async (fid, hid, from, to, bank, payment_type, flow) =
   // Handle stream close event
   stream.on("finish", async () => {
     // console.log("created");
-    const finance = await Finance.findById({ _id: fid })
+    const finance = await Finance.findById({ _id: fid });
     const bank_acc = await BankAccount.findById({ _id: bank });
     let file = {
-      path: `uploads/${name}-bank-daybook.pdf`,
-      filename: `${name}-bank-daybook.pdf`,
+      path: `uploads/${name}-hostel-bank-daybook.pdf`,
+      filename: `${name}-hostel-bank-daybook.pdf`,
       mimetype: "application/pdf",
     };
     const results = await uploadDocsFile(file);
     bank_acc.day_book.push({
       excel_file: results?.Key,
-      excel_file_name: `${name}-bank-daybook.pdf`,
+      excel_file_name: `${name}-hostel-bank-daybook.pdf`,
       from: from,
       to: to,
       payment_type: payment_type,
@@ -382,18 +340,17 @@ const hostelBankDaybook = async (fid, hid, from, to, bank, payment_type, flow) =
     });
     finance.day_book.push({
       excel_file: results?.Key,
-      excel_file_name: `${name}-bank-daybook.pdf`,
+      excel_file_name: `${name}-hostel-bank-daybook.pdf`,
       from: from,
       to: to,
       payment_type: payment_type,
       bank: bank,
-      flow: flow ?? ""
+      flow: flow ?? "",
     });
-    let filess = results?.Key
+    let filess = results?.Key;
     await unlinkFile(file.path);
-    await Promise.all([ bank_acc.save(), finance.save() ])
-    return filess
+    await Promise.all([bank_acc.save(), finance.save()]);
+    return filess;
   });
 };
 module.exports = hostelBankDaybook;
-

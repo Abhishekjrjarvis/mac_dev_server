@@ -17,7 +17,6 @@ const invokeMemberTabNotification = (
   //         }, "qviple-user");
   //     }
   //   if (type === "Student Activity") {
-      
   //       const firebaseToken = `${token && token}`;
   //       const ds = {
   //           notification: {
@@ -34,7 +33,6 @@ const invokeMemberTabNotification = (
   //           },
   //           token: firebaseToken
   //     };
-    
   //       fb.messaging().send(ds)
   //       .then(() => {
   //         console.log("Notification sent successfully:")
@@ -58,7 +56,6 @@ const invokeMemberTabNotification = (
   //           },
   //           token: firebaseToken
   //     };
-    
   //       fb.messaging().send(ds)
   //       .then(() => {
   //         console.log("Notification sent successfully:")
@@ -82,7 +79,6 @@ const invokeMemberTabNotification = (
   //           },
   //           token: firebaseToken
   //     };
-    
   //       fb.messaging().send(ds)
   //       .then(() => {
   //         console.log("Notification sent successfully:")
@@ -106,7 +102,6 @@ const invokeMemberTabNotification = (
   //           },
   //           token: firebaseToken
   //     };
-    
   //       fb.messaging().send(ds)
   //       .then(() => {
   //         console.log("Notification sent successfully:")
@@ -130,7 +125,6 @@ const invokeMemberTabNotification = (
   //           },
   //           token: firebaseToken
   //     };
-    
   //       fb.messaging().send(ds)
   //       .then(() => {
   //         console.log("Notification sent successfully:")

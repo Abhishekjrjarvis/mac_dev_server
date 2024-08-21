@@ -17348,40 +17348,40 @@ exports.admission_form_print_case_query = async (req, res) => {
   }
 };
 
-exports.render_all_subject_query = async (req, res) => {
-  try {
-    const { aid } = req?.params;
-    if (!aid)
-      return res.status(200).send({
-        message: "Their is a bug need to fixed immediately",
-        access: false,
-      });
+// exports.render_all_subject_query = async (req, res) => {
+//   try {
+//     const { aid } = req?.params;
+//     if (!aid)
+//       return res.status(200).send({
+//         message: "Their is a bug need to fixed immediately",
+//         access: false,
+//       });
 
-    const ads_admin = await Admission.findById({ _id: aid });
-    const apply = await NewApplication.find({
-      $and: [
-        { _id: { $in: ads_admin?.newApplication } },
-        { applicationStatus: "Ongoing" },
-        { applicationTypeStatus: "Normal Application" },
-      ],
-    }).select(
-      "applicationName applicationStatus applicationTypeStatus subject_selected_group"
-    );
-    var nums = [];
-    for (let ele of apply) {
-      if (ele?.subject_selected_group?.length > 0) {
-        nums.push(ele);
-      }
-    }
-    res.status(200).send({
-      message: "Explore All Application Having Subject Group Query",
-      access: true,
-      apps: nums ?? [],
-    });
-  } catch (e) {
-    console.log(e);
-  }
-};
+//     const ads_admin = await Admission.findById({ _id: aid });
+//     const apply = await NewApplication.find({
+//       $and: [
+//         { _id: { $in: ads_admin?.newApplication } },
+//         { applicationStatus: "Ongoing" },
+//         { applicationTypeStatus: "Normal Application" },
+//       ],
+//     }).select(
+//       "applicationName applicationStatus applicationTypeStatus subject_selected_group"
+//     );
+//     var nums = [];
+//     for (let ele of apply) {
+//       if (ele?.subject_selected_group?.length > 0) {
+//         nums.push(ele);
+//       }
+//     }
+//     res.status(200).send({
+//       message: "Explore All Application Having Subject Group Query",
+//       access: true,
+//       apps: nums ?? [],
+//     });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 exports.render_one_application_subject_sequence_query = async (req, res) => {
   try {
     const { aid } = req?.params;
@@ -17645,10 +17645,26 @@ exports.check_global = async (req, res) => {
         { finance: "668ecf51f762c228aa0848d7" },
         { document_update: false },
       ],
-    }).select(
-      "applicable_fees_heads applicable_fees_heads_count applicable_fees"
-    );
+    }).select("applicable_fees_heads applicable_fees_heads_count fees_heads");
     let nums = [];
+    // for (let ele of all_struct) {
+    //   nums.push(ele);
+    //   ele.fees_heads = [];
+    //   // for (let cls of ele?.fees_heads) {
+    //   //   if (cls?.is_society == true) {
+    //   //     // console.log(cls?.is_society);
+    //   //     ele.applicable_fees_heads.push({
+    //   //       head_name: cls?.head_name,
+    //   //       head_amount: cls?.head_amount,
+    //   //       master: cls?.master,
+    //   //       is_society: cls?.is_society,
+    //   //     });
+    //   //     // ele.applicable_fees_heads.pull(cls?._id);
+    //   //     // nums.push(ele);
+    //   //   }
+    //   // }
+    //   await ele.save();
+    // }
     // let total = 0
     // for (let ele of all_struct) {
     //   for (let val of ele?.applicable_fees_heads) {
@@ -17692,50 +17708,50 @@ exports.check_global = async (req, res) => {
     //     select: "applicable_fees"
     //   })
 
-    const all_student = await FeeReceipt.find({
-      fee_structure: { $in: all_struct },
-    })
-      .select("fee_payment_amount fee_heads finance")
-      .populate({
-        path: "finance",
-        select: "institute",
-      });
-    // 1. Fee Receipt Heads
-    // 2. Student Active Heads
-    // 3. file
-    var i = 0;
-    for (let ele of all_student) {
-      nums.push(ele?._id);
-      await societyAdmissionFeeReceipt(ele?._id, ele?.finance?.institute);
-      // if (ele?.remaining_fee > 0) {
-      // for (let stu of ele?.fee_heads) {
-      //   if (
-      //     `${stu?.head_name}` === "University Fee" &&
-      //     stu?.remain_fee > 0 &&
-      //     stu?.applicable_fee == 1495
-      //   ) {
-      //     nums.push(ele);
-      //     // for (let cls of list_1) {
-      //     //   ele.fee_heads.push({
-      //     //     head_id: stu?.head_id,
-      //     //     head_name: cls?.head_name,
-      //     //     paid_fee: 0,
-      //     //     applicable_fee: cls?.head_amount,
-      //     //     remain_fee: cls?.head_amount,
-      //     //     fee_structure: ele?.fee_structure?._id,
-      //     //     master: cls?.master,
-      //     //     original_paid: 0,
-      //     //     appId: ele?.application,
-      //     //     is_society: false,
-      //     //   });
-      //     // }
-      //     // ele.fee_heads?.pull(stu?._id);
-      //   }
-      // }
-      // await ele.save();
-      console.log(i);
-      i += 1;
-    }
+    // const all_student = await FeeReceipt.find({
+    //   fee_structure: { $in: all_struct },
+    // })
+    //   .select("fee_payment_amount fee_heads finance")
+    //   .populate({
+    //     path: "finance",
+    //     select: "institute",
+    //   });
+    // // 1. Fee Receipt Heads
+    // // 2. Student Active Heads
+    // // 3. file
+    // var i = 0;
+    // for (let ele of all_student) {
+    //   nums.push(ele?._id);
+    //   await societyAdmissionFeeReceipt(ele?._id, ele?.finance?.institute);
+    //   // if (ele?.remaining_fee > 0) {
+    //   // for (let stu of ele?.fee_heads) {
+    //   //   if (
+    //   //     `${stu?.head_name}` === "University Fee" &&
+    //   //     stu?.remain_fee > 0 &&
+    //   //     stu?.applicable_fee == 1495
+    //   //   ) {
+    //   //     nums.push(ele);
+    //   //     // for (let cls of list_1) {
+    //   //     //   ele.fee_heads.push({
+    //   //     //     head_id: stu?.head_id,
+    //   //     //     head_name: cls?.head_name,
+    //   //     //     paid_fee: 0,
+    //   //     //     applicable_fee: cls?.head_amount,
+    //   //     //     remain_fee: cls?.head_amount,
+    //   //     //     fee_structure: ele?.fee_structure?._id,
+    //   //     //     master: cls?.master,
+    //   //     //     original_paid: 0,
+    //   //     //     appId: ele?.application,
+    //   //     //     is_society: false,
+    //   //     //   });
+    //   //     // }
+    //   //     // ele.fee_heads?.pull(stu?._id);
+    //   //   }
+    //   // }
+    //   // await ele.save();
+    //   console.log(i);
+    //   i += 1;
+    // }
 
     res.status(200).send({
       message: "All Student",

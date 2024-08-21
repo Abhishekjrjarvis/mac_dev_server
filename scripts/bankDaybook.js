@@ -411,12 +411,11 @@ const bankDaybook = async (fid, from, to, bank, payment_type, flow) => {
       bank: bank,
       flow: flow ?? "",
     });
-    let filess = results?.Key;
     await unlinkFile(file.path);
-    await Promise.all([bank_acc.save(), finance.save()]);
-    return filess;
+    await Promise.all([ bank_acc.save(), finance.save() ])
   });
 
+  return `${name}-bank-daybook.pdf`
   //   console.log(data);
 };
 module.exports = bankDaybook;

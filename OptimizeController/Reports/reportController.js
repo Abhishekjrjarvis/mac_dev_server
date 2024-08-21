@@ -10,7 +10,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
       const { from, to, bank, payment_type, flow, hid } = req.query;
       var key;
         if (flow === "ADMISSION") {
-            key = await bankDaybook(fid, from, to, bank, payment_type, flow);
+          key = await bankDaybook(fid, from, to, bank, payment_type, flow);
         }
         else if (flow === "MISCELLENOUS") {
             key = await miscellaneousBankDaybook(fid, from, to, bank, payment_type, flow);

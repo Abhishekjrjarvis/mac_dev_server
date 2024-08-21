@@ -24,7 +24,7 @@ const bankDaybook = async (fid, from, to, bank, payment_type, flow) => {
   let stu_name = `${instituteData?.name}`;
   // const stream = fs.createWriteStream(`./uploads/${stu_name}-bank-daybook.pdf`);
 
-  let name = `${date.getTime()}-${stu_name}`;
+  let name = `${stu_name}-${date.getTime()}`;
   const stream = fs.createWriteStream(`./uploads/${name}-bank-daybook.pdf`);
 
   doc.pipe(stream);
@@ -386,7 +386,7 @@ const bankDaybook = async (fid, from, to, bank, payment_type, flow) => {
   // Handle stream close event
   stream.on("finish", async () => {
     // console.log("created");
-    const finance = await Finance.findById({ _id: fid })
+    const finance = await Finance.findById({ _id: fid });
     const bank_acc = await BankAccount.findById({ _id: bank });
     let file = {
       path: `uploads/${name}-bank-daybook.pdf`,
@@ -409,7 +409,7 @@ const bankDaybook = async (fid, from, to, bank, payment_type, flow) => {
       to: to,
       payment_type: payment_type,
       bank: bank,
-      flow: flow ?? ""
+      flow: flow ?? "",
     });
     await unlinkFile(file.path);
     await Promise.all([ bank_acc.save(), finance.save() ])
@@ -419,4 +419,3 @@ const bankDaybook = async (fid, from, to, bank, payment_type, flow) => {
   //   console.log(data);
 };
 module.exports = bankDaybook;
-

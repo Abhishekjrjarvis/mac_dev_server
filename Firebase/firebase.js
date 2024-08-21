@@ -31,7 +31,6 @@ const invokeFirebaseNotification = async (
   //       },
   //       token: firebaseToken
   // };
-
   //   fb.messaging().send(ds)
   //   .then(() => {
   //       console.log("Notification sent successfully:")
@@ -53,7 +52,6 @@ const invokeFirebaseNotification = async (
   //       },
   //       token: firebaseToken
   // };
-
   //   fb.messaging().send(ds)
   //   .then(() => {
   //     console.log("Notification sent successfully:")
@@ -75,7 +73,6 @@ const invokeFirebaseNotification = async (
   //       },
   //       token: firebaseToken
   // };
-
   //   fb.messaging().send(ds)
   //   .then(() => {
   //     console.log("Notification sent successfully:")
@@ -97,7 +94,6 @@ const invokeFirebaseNotification = async (
   //       },
   //       token: firebaseToken
   // };
-
   //   fb.messaging().send(ds)
   //   .then(() => {
   //     console.log("Notification sent successfully:")
@@ -119,7 +115,6 @@ const invokeFirebaseNotification = async (
   //       },
   //       token: firebaseToken
   // };
-
   //   fb.messaging().send(ds)
   //   .then(() => {
   //     console.log("Notification sent successfully:")
@@ -141,7 +136,6 @@ const invokeFirebaseNotification = async (
   //       },
   //       token: firebaseToken
   // };
-
   //   fb.messaging().send(ds)
   //   .then(() => {
   //     console.log("Notification sent successfully:")
@@ -163,7 +157,6 @@ const invokeFirebaseNotification = async (
   //       },
   //       token: firebaseToken
   // };
-
   //   fb.messaging().send(ds)
   //   .then(() => {
   //     console.log("Notification sent successfully:")
@@ -185,7 +178,6 @@ const invokeFirebaseNotification = async (
   //       },
   //       token: firebaseToken
   // };
-
   //   fb.messaging().send(ds)
   //   .then(() => {
   //     console.log("Notification sent successfully:")
@@ -207,7 +199,6 @@ const invokeFirebaseNotification = async (
   //       },
   //       token: firebaseToken
   // };
-
   //   fb.messaging().send(ds)
   //   .then(() => {
   //     console.log("Notification sent successfully:")
@@ -229,7 +220,6 @@ const invokeFirebaseNotification = async (
   //       },
   //       token: firebaseToken
   // };
-
   //   fb.messaging().send(ds)
   //   .then(() => {
   //     console.log("Notification sent successfully:")
@@ -251,7 +241,6 @@ const invokeFirebaseNotification = async (
   //       },
   //       token: firebaseToken
   // };
-
   //   fb.messaging().send(ds)
   //   .then(() => {
   //     console.log("Notification sent successfully:")

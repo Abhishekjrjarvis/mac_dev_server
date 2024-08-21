@@ -4837,7 +4837,6 @@ exports.insertDepartmentStatusQuery = async (req, res) => {
   }
 };
 
-
 // for setting control of student fill form or not
 
 exports.certificateLeavingStudentFormSettingQuery = async (req, res) => {
@@ -5033,18 +5032,20 @@ exports.spceAllFeeReceiptReGenrateQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-      var nums = []
+    var nums = [];
     const institute = await InstituteAdmin.findById(id);
-console.log(institute?.ApproveStudent?.[0])
+    console.log(institute?.ApproveStudent?.[0]);
     if (institute?.ApproveStudent?.length > 0) {
       for (let stu of institute?.ApproveStudent) {
         const student = await Student.findById(stu);
-        console.log(student?._id)
+        console.log(student?._id);
         if (student?.remainingFeeList?.length > 0) {
           for (let remain of student?.remainingFeeList) {
             const re_list = await RemainingList.findById(remain);
             if (re_list?.applicable_card) {
-              const app_ca = await NestedCard.findById({ _id: re_list?.applicable_card })
+              const app_ca = await NestedCard.findById({
+                _id: re_list?.applicable_card,
+              });
               if (app_ca?.remaining_array?.length > 0) {
                 for (let r_inner of app_ca?.remaining_array) {
                   if (r_inner?.fee_receipt) {
@@ -5060,9 +5061,49 @@ console.log(institute?.ApproveStudent?.[0])
         }
       }
     }
-    res.status(200).send({ message: "DONE" })
+    res.status(200).send({ message: "DONE" });
   } catch (e) {
     console.log(e);
   }
 };
 
+exports.customGenerateOneStudentApplicationFormQuery = async (req, res) => {
+  try {
+    const { aid, appId, sid } = req.params;
+
+    if (!aid || !appId || !sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let all_app = null;
+    const admission = await Admission.findById(aid);
+    all_app = await NewApplication.findById(appId);
+    let new_app = all_app;
+    console.log(new_app?.applicationName);
+    if (admission?.institute) {
+      if (sid) {
+        const stu = await Student.findById(sid);
+        if (stu?._id) {
+          if (stu?.application_print?.length > 0) {
+          } else {
+            await generateStudentAdmissionForm(
+              stu?._id,
+              admission?.institute,
+              `${stu?.studentFirstName ?? ""} ${stu?.studentMiddleName ?? ""} ${
+                stu?.studentLastName ?? ""
+              }`,
+              new_app?.applicationName
+            );
+          }
+        }
+      }
+    }
+
+    res.status(200).send({
+      message: "All application form is created.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

@@ -686,7 +686,7 @@ exports.render_one_department_pso_query = async (req, res) => {
 exports.render_one_department_edit_extra_docs_query = async (req, res) => {
   try {
     const { dsid } = req?.params;
-    const { flow, title, image, description, cid } = req?.body;
+    const { flow, title, image, description, cid, attach } = req?.body;
     if (!dsid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -783,7 +783,7 @@ exports.render_one_department_edit_syllabus_projects_query = async (
 exports.render_one_department_edit_pso_query = async (req, res) => {
   try {
     const { dsid } = req?.params;
-    const { title, description, cid } = req?.body;
+    const { title, description, cid, attach } = req?.body;
     if (!dsid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",

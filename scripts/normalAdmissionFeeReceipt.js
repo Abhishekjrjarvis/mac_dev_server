@@ -22,7 +22,7 @@ const normalAdmissionFeeReceipt = async (receiptId, appId) => {
   const institute = result?.institute;
   const studentInfo = result?.studentInfo;
   const paymentReceiptInfo = result?.paymentReceiptInfo;
-
+  // console.log("RWCE", paymentReceiptInfo);
   let date = new Date();
   let time = date.getTime();
 
@@ -271,7 +271,7 @@ const normalAdmissionFeeReceipt = async (receiptId, appId) => {
   // Handle stream close event
   stream.on("finish", async () => {
     const fee_receipt = await feeReceipt.findById({ _id: receiptId });
-    console.log("PDF created successfully");
+    // console.log("PDF created successfully");
     let file = {
       path: `uploads/${paymentReceiptInfo.invoiceNumber}-${time}normal-receipt.pdf`,
       filename: `${paymentReceiptInfo.invoiceNumber}-${time}normal-receipt.pdf`,

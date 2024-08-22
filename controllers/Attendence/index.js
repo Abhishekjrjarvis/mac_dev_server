@@ -3190,13 +3190,13 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
           for (let att of classes?.attendenceDate) {
             for (let pre of att?.presentStudent) {
               if (String(stu._id) === String(pre.student))
-                stu.classWise.presentCount += 1;
+                obj.classWise.presentCount += 1;
             }
-            stu.classWise.totalCount += 1;
+            obj.classWise.totalCount += 1;
           }
-          stu.classWise.totalPercentage = (
-            (stu.classWise.presentCount * 100) /
-            stu.classWise.totalCount
+          obj.classWise.totalPercentage = (
+            (obj.classWise.presentCount * 100) /
+            obj.classWise.totalCount
           ).toFixed(2);
 
           if (which_type_list === "DEFAULTER") {
@@ -4532,13 +4532,13 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         for (let att of subjects?.attendance) {
           for (let pre of att?.presentStudent) {
             if (String(stu._id) === String(pre.student))
-              stu.subjectWise.presentCount += 1;
+              obj.subjectWise.presentCount += 1;
           }
-          stu.subjectWise.totalCount += 1;
+          obj.subjectWise.totalCount += 1;
         }
-        stu.subjectWise.totalPercentage = (
-          (stu.subjectWise.presentCount * 100) /
-          stu.subjectWise.totalCount
+        obj.subjectWise.totalPercentage = (
+          (obj.subjectWise.presentCount * 100) /
+          obj.subjectWise.totalCount
         ).toFixed(2);
 
         if (which_type_list === "DEFAULTER") {

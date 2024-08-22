@@ -2295,11 +2295,13 @@ exports.renderApplicationListQuery = async (req, res) => {
         var numss = {};
         for (var ref of valid_apply?.receievedApplication) {
           if (ref?.student?.studentFirstName != "") {
-            for (let ele of ref?.student?.student_dynamic_field) {
-              // numss.push(
-              //   [ele?.key]: ele?.value,
-              // );
-              numss[ele?.key] = ele?.value;
+            if (ref?.student?.student_dynamic_field?.length > 0) {
+              for (let ele of ref?.student?.student_dynamic_field) {
+                // numss.push(
+                //   [ele?.key]: ele?.value,
+                // );
+                numss[ele?.key] = ele?.value;
+              }
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
@@ -2397,6 +2399,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           message: "Explore New Excel On Hostel Export TAB",
           access: true,
           excel_list,
+          count: excel_list?.length,
         });
       } else {
         res.status(200).send({

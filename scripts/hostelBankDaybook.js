@@ -117,10 +117,19 @@ const hostelBankDaybook = async (
     .fontSize(11)
     .font("Times-Bold")
     .fillColor("#121212")
-    .text(`Payment Type: ${payment_type === "BOTH" ? "Total" : payment_type}`, {
-      width: pageWidth - 40,
-      align: "right",
-    });
+    .text(
+      `Payment Type: ${
+        payment_type === "BOTH"
+          ? "Total"
+          : payment_type === "CASH_BANK"
+          ? "Cash / Bank"
+          : payment_type
+      }`,
+      {
+        width: pageWidth - 40,
+        align: "right",
+      }
+    );
 
   doc.strokeColor("#121212").lineWidth(2);
   doc
@@ -262,6 +271,115 @@ const hostelBankDaybook = async (
         doc.addBackground(rectCell, "#a1a1a1", 0);
       },
     });
+  }
+  if (payment_type === "CASH_BANK") {
+    let total = {
+      sr_number: "",
+      head_name: "Total",
+      head_amount: 0,
+      cash_head_amount: 0,
+      bank_head_amount: 0,
+      receipt_no: "",
+    };
+
+    const modify_list = [];
+
+    for (let i = 0; i < daybook?.length; i++) {
+      let dfg = daybook[i];
+      // for (let i = 0; i < data_dummy?.length; i++) {
+      //   let dfg = data_dummy[i];
+
+      modify_list.push({
+        sr_number: i + 1,
+        head_name: dfg?.head_name,
+        head_amount: dfg?.head_amount,
+        cash_head_amount: dfg?.cash_head_amount,
+        bank_head_amount: dfg?.bank_head_amount,
+        // receipt_no: "1111 To 2574",
+        receipt_no: account_other?.range ?? "",
+      });
+      total.head_amount += dfg?.head_amount;
+      total.cash_head_amount += dfg?.cash_head_amount;
+      total.bank_head_amount += dfg?.bank_head_amount;
+    }
+
+    modify_list.push(total);
+    const table = {
+      headers: [
+        {
+          label: "SN",
+          property: "sr_number",
+          width: 40,
+          render: null,
+          headerColor: "#b4b4b4",
+          headerOpacity: 0.5,
+          align: "center",
+          padding: [10, 10, 10, 10],
+        },
+        {
+          label: "Main Heads",
+          property: "head_name",
+          width: 200,
+          render: null,
+          headerColor: "#b4b4b4",
+          headerOpacity: 0.5,
+          padding: [10, 10, 10, 10],
+        },
+        {
+          label: "Cash",
+          property: "cash_head_amount",
+          width: 80,
+          render: null,
+          headerColor: "#b4b4b4",
+          headerOpacity: 0.5,
+          padding: [10, 10, 10, 10],
+          align: "right",
+        },
+        {
+          label: "Bank",
+          property: "bank_head_amount",
+          width: 80,
+          render: null,
+          headerColor: "#b4b4b4",
+          headerOpacity: 0.5,
+          padding: [10, 10, 10, 10],
+          align: "right",
+        },
+        {
+          label: "Total",
+          property: "head_amount",
+          width: 80,
+          render: null,
+          headerColor: "#b4b4b4",
+          headerOpacity: 0.5,
+          padding: [10, 10, 10, 10],
+          align: "right",
+        },
+        {
+          label: "Receipt No",
+          property: "receipt_no",
+          width: 80,
+          render: null,
+          headerColor: "#b4b4b4",
+          headerOpacity: 0.5,
+          align: "center",
+        },
+      ],
+      datas: modify_list,
+    };
+
+    // Draw the table on the current page
+    doc.table(table, {
+      prepareHeader: () => doc.font("Times-Bold").fontSize(10),
+      prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+        if (row.head_name === "Total") {
+          doc.font("Times-Bold").fontSize(10);
+        } else {
+          doc.font("Times-Roman").fontSize(10);
+        }
+        doc.addBackground(rectCell, "#a1a1a1", 0);
+      },
+    });
   } else {
     let total = {
       head_name: "Total",
@@ -348,9 +466,8 @@ const hostelBankDaybook = async (
       flow: flow ?? "",
     });
     await unlinkFile(file.path);
-    await Promise.all([ bank_acc.save(), finance.save() ])
-
+    await Promise.all([bank_acc.save(), finance.save()]);
   });
-  return `${name}-bank-daybook.pdf`
+  return `${name}-bank-daybook.pdf`;
 };
 module.exports = hostelBankDaybook;

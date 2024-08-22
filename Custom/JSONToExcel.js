@@ -15,8 +15,7 @@ const StudentFeedback = require("../models/StudentFeedback/StudentFeedback");
 const Subject = require("../models/Subject");
 const BankAccount = require("../models/Finance/BankAccount");
 const SubjectInternalEvaluation = require("../models/InternalEvaluation/SubjectInternalEvaluation");
-
-
+const Class = require("../models/Class");
 
 exports.json_to_excel_query = async (
   data_query,
@@ -98,11 +97,11 @@ exports.scholar_transaction_json_to_excel_query = async (
     const results = await uploadExcelFile(`${name}.xlsx`);
 
     const ins_admin = await InstituteAdmin.findById({ _id: id });
-    console.log("Enter")
+    console.log("Enter");
     ins_admin.export_collection.push({
       excel_file: results,
       excel_file_name: name,
-      excel_val: "Scholarship"
+      excel_val: "Scholarship",
     });
     ins_admin.export_collection_count += 1;
     await ins_admin.save();
@@ -151,15 +150,17 @@ exports.fee_heads_receipt_json_to_excel_query = async (
   to
 ) => {
   try {
-    console.log("BANK", bank)
+    console.log("BANK", bank);
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 
     xlsx.utils.book_append_sheet(real_book, real_sheet, "Fee Receipt Heads");
     var name = `${insName}-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
     if (bank) {
-      const bank_acc = await BankAccount.findById({ _id: bank })
-      var name = `${bank_acc?.finance_bank_account_name}-${from}-To-${to}-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
+      const bank_acc = await BankAccount.findById({ _id: bank });
+      var name = `${
+        bank_acc?.finance_bank_account_name
+      }-${from}-To-${to}-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
     }
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
@@ -174,8 +175,8 @@ exports.fee_heads_receipt_json_to_excel_query = async (
     });
     ins_admin.export_collection_count += 1;
     await ins_admin.save();
-    console.log("GEN")
-    return results
+    console.log("GEN");
+    return results;
   } catch (e) {
     console.log(e);
   }
@@ -227,10 +228,9 @@ exports.json_to_excel_admission_application_query = async (
     const apply = await NewApplication.findById({ _id: appId });
     var sheet_name;
     if (apply?.applicationHostel) {
-      sheet_name = "Hostel Application Students"
-    }
-    else {
-      sheet_name = "Admission Application Students"
+      sheet_name = "Hostel Application Students";
+    } else {
+      sheet_name = "Admission Application Students";
     }
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
@@ -331,7 +331,7 @@ exports.fee_heads_receipt_json_to_excel_repay_query = async (
   }
 };
 
-exports.json_to_excel_normal_student_promote_query= async (
+exports.json_to_excel_normal_student_promote_query = async (
   data_query,
   id,
   className,
@@ -341,16 +341,12 @@ exports.json_to_excel_normal_student_promote_query= async (
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 
-    xlsx.utils.book_append_sheet(
-      real_book,
-      real_sheet,
-      `${flow}Students`
-    );
+    xlsx.utils.book_append_sheet(real_book, real_sheet, `${flow}Students`);
     var name = `${flow}-${className}-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
     const results = await uploadExcelFile(`${name}.xlsx`);
-    const valid_ins = await InstituteAdmin.findById({ _id: id})
+    const valid_ins = await InstituteAdmin.findById({ _id: id });
     valid_ins.student_export_collection.push({
       excel_file: results,
       excel_file_name: name,
@@ -362,23 +358,17 @@ exports.json_to_excel_normal_student_promote_query= async (
   }
 };
 
-exports.json_to_excel_statistics_promote_query= async (
-  data_query,
-) => {
+exports.json_to_excel_statistics_promote_query = async (data_query) => {
   try {
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 
-    xlsx.utils.book_append_sheet(
-      real_book,
-      real_sheet,
-      `Statistics Data`
-    );
+    xlsx.utils.book_append_sheet(real_book, real_sheet, `Statistics Data`);
     var name = `statistics-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
     const results = await uploadExcelFile(`${name}.xlsx`);
-    return results
+    return results;
     // const valid_ins = await InstituteAdmin.findById({ _id: id})
     // valid_ins.student_export_collection.push({
     //   excel_file: results,
@@ -391,11 +381,7 @@ exports.json_to_excel_statistics_promote_query= async (
   }
 };
 
-exports.setoff_json_to_excel_query = async (
-  data_query,
-  flow,
-  id
-) => {
+exports.setoff_json_to_excel_query = async (data_query, flow, id) => {
   try {
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
@@ -413,7 +399,7 @@ exports.setoff_json_to_excel_query = async (
     });
     ins_admin.export_collection_count += 1;
     await ins_admin.save();
-    return results
+    return results;
   } catch (e) {
     console.log(e);
   }
@@ -428,7 +414,11 @@ exports.internal_fee_heads_receipt_json_to_excel_query = async (
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 
-    xlsx.utils.book_append_sheet(real_book, real_sheet, "Internal Fee Receipt Heads");
+    xlsx.utils.book_append_sheet(
+      real_book,
+      real_sheet,
+      "Internal Fee Receipt Heads"
+    );
     var name = `Internal-${insName}-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
@@ -468,7 +458,7 @@ exports.mismatch_scholar_transaction_json_to_excel_query = async (
     ins_admin.export_collection.push({
       excel_file: results,
       excel_file_name: excel_sheet_name, //name,
-      excel_val: "Mismatch_Scholarship"
+      excel_val: "Mismatch_Scholarship",
     });
     ins_admin.export_collection_count += 1;
     await ins_admin.save();
@@ -511,7 +501,7 @@ exports.excess_refund_fees_json_query = async (
   data_query,
   flow,
   id,
-  s_name,
+  s_name
 ) => {
   try {
     var real_book = xlsx.utils.book_new();
@@ -527,7 +517,7 @@ exports.excess_refund_fees_json_query = async (
     ins_admin.export_collection.push({
       excel_file: results,
       excel_file_name: name,
-      excel_val: `${flow}`
+      excel_val: `${flow}`,
     });
     ins_admin.export_collection_count += 1;
     await ins_admin.save();
@@ -536,12 +526,7 @@ exports.excess_refund_fees_json_query = async (
   }
 };
 
-exports.certificate_json_query = async (
-  data_query,
-  flow,
-  id,
-  s_name,
-) => {
+exports.certificate_json_query = async (data_query, flow, id, s_name) => {
   try {
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
@@ -556,7 +541,7 @@ exports.certificate_json_query = async (
     ins_admin.export_collection.push({
       excel_file: results,
       excel_file_name: name,
-      excel_val: `Certificate`
+      excel_val: `Certificate`,
     });
     ins_admin.export_collection_count += 1;
     await ins_admin.save();
@@ -565,12 +550,9 @@ exports.certificate_json_query = async (
   }
 };
 
-exports.json_to_excel_structure_code_query = async (
-  d_name,
-  data_query,
-) => {
+exports.json_to_excel_structure_code_query = async (d_name, data_query) => {
   try {
-    var s_name = d_name?.split(" ")
+    var s_name = d_name?.split(" ");
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 
@@ -579,22 +561,21 @@ exports.json_to_excel_structure_code_query = async (
       real_sheet,
       `${s_name[0]} Structures List`
     );
-    var name = `${s_name[0]}-structure-${new Date().getHours()}-${new Date().getMinutes()}`;
+    var name = `${
+      s_name[0]
+    }-structure-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
     const results = await uploadExcelFile(`${name}.xlsx`);
-    return results
+    return results;
   } catch (e) {
     console.log(e);
   }
 };
 
-exports.json_to_excel_timetable_export_query = async (
-  d_name,
-  data_query,
-) => {
+exports.json_to_excel_timetable_export_query = async (d_name, data_query) => {
   try {
-    var s_name = d_name?.split(" ")
+    var s_name = d_name?.split(" ");
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 
@@ -603,11 +584,13 @@ exports.json_to_excel_timetable_export_query = async (
       real_sheet,
       `${s_name?.[0]} Timetable List`
     );
-    var name = `${s_name?.[0]}-timetable-${new Date().getHours()}-${new Date().getMinutes()}`;
+    var name = `${
+      s_name?.[0]
+    }-timetable-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
     const results = await uploadExcelFile(`${name}.xlsx`);
-    return results
+    return results;
   } catch (e) {
     console.log(e);
   }
@@ -615,7 +598,7 @@ exports.json_to_excel_timetable_export_query = async (
 
 exports.json_to_excel_non_applicable_fees_export_query = async (
   category,
-  data_query,
+  data_query
 ) => {
   try {
     var real_book = xlsx.utils.book_new();
@@ -630,53 +613,39 @@ exports.json_to_excel_non_applicable_fees_export_query = async (
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
     const results = await uploadExcelFile(`${name}.xlsx`);
-    return results
+    return results;
   } catch (e) {
     console.log(e);
   }
 };
 
-exports.json_to_excel_deposit_export_query = async (
-  flow,
-  data_query,
-) => {
+exports.json_to_excel_deposit_export_query = async (flow, data_query) => {
   try {
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 
-    xlsx.utils.book_append_sheet(
-      real_book,
-      real_sheet,
-      `${flow} List`
-    );
+    xlsx.utils.book_append_sheet(real_book, real_sheet, `${flow} List`);
     var name = `${flow}-List-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
     const results = await uploadExcelFile(`${name}.xlsx`);
-    return results
+    return results;
   } catch (e) {
     console.log(e);
   }
 };
 
-exports.json_to_excel_slip_export_query = async (
-  flow,
-  data_query,
-) => {
+exports.json_to_excel_slip_export_query = async (flow, data_query) => {
   try {
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 
-    xlsx.utils.book_append_sheet(
-      real_book,
-      real_sheet,
-      `${flow} List`
-    );
+    xlsx.utils.book_append_sheet(real_book, real_sheet, `${flow} List`);
     var name = `${flow}-List-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
     const results = await uploadExcelFile(`${name}.xlsx`);
-    return results
+    return results;
   } catch (e) {
     console.log(e);
   }
@@ -690,12 +659,8 @@ exports.fee_heads_receipt_json_to_excel_daybook_query = async (
   try {
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
- var date = custom_date_time_reverse(1)
-    xlsx.utils.book_append_sheet(
-      real_book,
-      real_sheet,
-      `${date} DayBook`
-    );
+    var date = custom_date_time_reverse(1);
+    xlsx.utils.book_append_sheet(real_book, real_sheet, `${date} DayBook`);
     var name = `${date}-DayBook-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
@@ -703,7 +668,7 @@ exports.fee_heads_receipt_json_to_excel_daybook_query = async (
 
     const db = await DayBook.findById({ _id: dbid });
     db.db_file = results;
-    db.db_file_type = `${status}`
+    db.db_file_type = `${status}`;
     await db.save();
   } catch (e) {
     console.log(e);
@@ -807,7 +772,7 @@ exports.subject_marks_student_json_to_excel = async (
 exports.json_to_excel_admission_subject_application_query = async (
   data_query,
   app_name,
-  appId,
+  appId
 ) => {
   try {
     var real_book = xlsx.utils.book_new();
@@ -820,15 +785,15 @@ exports.json_to_excel_admission_subject_application_query = async (
     const results = await uploadExcelFile(`${name}.xlsx`);
 
     const apply = await NewApplication.findById({ _id: appId });
-      const ads_admin = await Admission.findById({
-        _id: `${apply?.admissionAdmin}`,
-      });
-      ads_admin.export_collection.push({
-        excel_file: results,
-        excel_file_name: name,
-      });
-      ads_admin.export_collection_count += 1;
-      await ads_admin.save();
+    const ads_admin = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    });
+    ads_admin.export_collection.push({
+      excel_file: results,
+      excel_file_name: name,
+    });
+    ads_admin.export_collection_count += 1;
+    await ads_admin.save();
     return {
       back: true,
     };
@@ -909,21 +874,25 @@ exports.json_to_excel_admission_query = async (
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
 
-    xlsx.utils.book_append_sheet(real_book, real_sheet, "Admission Application Students");
+    xlsx.utils.book_append_sheet(
+      real_book,
+      real_sheet,
+      "Admission Application Students"
+    );
     var name = `${app_name}-${flow}-${new Date().getHours()}-${new Date().getMinutes()}`;
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
     const results = await uploadExcelFile(`${name}.xlsx`);
 
-      const ads_admin = await Admission.findById({
-        _id: appId,
-      });
-      ads_admin.export_collection.push({
-        excel_file: results,
-        excel_file_name: name,
-      });
-      ads_admin.export_collection_count += 1;
-      await ads_admin.save();
+    const ads_admin = await Admission.findById({
+      _id: appId,
+    });
+    ads_admin.export_collection.push({
+      excel_file: results,
+      excel_file_name: name,
+    });
+    ads_admin.export_collection_count += 1;
+    await ads_admin.save();
     return {
       back: true,
     };
@@ -932,10 +901,7 @@ exports.json_to_excel_admission_query = async (
   }
 };
 
-exports.json_to_excel_academic_export_query= async (
-  data_query,
-  c_name
-) => {
+exports.json_to_excel_academic_export_query = async (data_query, c_name) => {
   try {
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);
@@ -949,14 +915,39 @@ exports.json_to_excel_academic_export_query= async (
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
     const results = await uploadExcelFile(`${name}.xlsx`);
-    return results
+    return results;
   } catch (e) {
     console.log(e);
   }
 };
 
+exports.cls_attendance_json_to_excel = async (
+  id,
+  list,
+  sheetName,
+  excelType,
+  exportTypeName
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(list);
 
+    xlsx.utils.book_append_sheet(real_book, real_sheet, sheetName);
+    var name = `class-attendance-${exportTypeName}-${new Date().getHours()}-${new Date().getMinutes()}-${new Date().getSeconds()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 
+    const results = await uploadExcelFile(`${name}.xlsx`);
 
-
-
+    const subject = await Class.findById(id);
+    subject.export_collection.push({
+      excel_type: excelType,
+      excel_file: results,
+      excel_file_name: name,
+    });
+    subject.export_collection_count += 1;
+    await subject.save();
+    return results;
+  } catch (e) {
+    console.log(e);
+  }
+};

@@ -2011,7 +2011,7 @@ exports.renderUpdate = async (req, res) => {
   res.status(200).send({ message: "updated", access: true });
 };
 
-const filterization_app_query = async (arr, type, date) => {
+const filterization_app_query = async (arr, type, date, appId) => {
   try {
     var list = [];
     if (type === "Request") {
@@ -2044,6 +2044,16 @@ const filterization_app_query = async (arr, type, date) => {
         }
       });
       return { conf_count: conf_count, list: list };
+    } else if (type === "Fees") {
+      var fees_count = 0;
+      arr?.filter((val) => {
+        var valid_val = moment(val?.apply_on).format("YYYY-MM-DD");
+        if (`${date}` === `${valid_val}`) {
+          fees_count += 1;
+          list.push(val?.student);
+        }
+      });
+      return { fees_count: fees_count, list: list };
     } else if (type === "Allot") {
       var all_count = 0;
       arr?.filter((val) => {
@@ -2054,6 +2064,20 @@ const filterization_app_query = async (arr, type, date) => {
         }
       });
       return { all_count: all_count, list: list };
+    } else if (type === "Review") {
+      var rev_count = 0;
+      for (let val of arr) {
+        for (let ele of val?.student_application_obj) {
+          if (`${ele?.app}` === `${appId}` && ele?.flow == "confirm_by") {
+            var valid_val = moment(ele?.created_at).format("YYYY-MM-DD");
+            if (`${date}` === `${valid_val}`) {
+              rev_count += 1;
+              list.push(val);
+            }
+          }
+        }
+      }
+      return { rev_count: rev_count, list: list };
     } else if (type === "Cancel") {
       var can_count = 0;
       arr?.filter((val) => {
@@ -2081,7 +2105,10 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       });
     // var val_date = custom_date_time(0);
     // var valid_date = valid_date_query ? valid_date_query : val_date;
-    var valid_app = await NewApplication.findById({ _id: aid });
+    var valid_app = await NewApplication.findById({ _id: aid }).populate({
+      path: "reviewApplication",
+      select: "student_application_obj",
+    });
     var request_count = await filterization_app_query(
       valid_app?.receievedApplication,
       "Request",
@@ -2097,10 +2124,21 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       "Confirm",
       valid_date
     );
+    var fee_collect_count = await filterization_app_query(
+      valid_app?.FeeCollectionApplication,
+      "Fees",
+      valid_date
+    );
     var allot_count = await filterization_app_query(
       valid_app?.allottedApplication,
       "Allot",
       valid_date
+    );
+    var review_count = await filterization_app_query(
+      valid_app?.reviewApplication,
+      "Review",
+      valid_date,
+      valid_app?._id
     );
     var cancel_count = await filterization_app_query(
       valid_app?.cancelApplication,
@@ -2111,6 +2149,7 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       ...confirm_count?.list,
       ...allot_count?.list,
       ...select_count?.list,
+      ...review_count?.list,
     ];
     var all_remain = await RemainingList.find({ student: day_arr }).populate({
       path: "fee_structure",
@@ -2132,6 +2171,8 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       confirm_count: confirm_count?.conf_count,
       allot_count: allot_count?.all_count,
       cancel_count: cancel_count?.can_count,
+      review_count: review_count?.rev_count,
+      fee_collect_count: fee_collect_count?.fees_count,
       paid: paid,
       remain: remain,
       applicable_pending: applicable_pending,
@@ -14343,10 +14384,12 @@ exports.renderApplicationAllottedListQuery = async (req, res) => {
             }
           }
           for (let val of ref?.student?.student_optional_subject) {
-            if (ref.student.student_single_subject?.includes(`${val?.subjectName}`)) {
-              
-            }
-            else {
+            if (
+              ref.student.student_single_subject?.includes(
+                `${val?.subjectName}`
+              )
+            ) {
+            } else {
               ref.student.student_single_subject.push(val?.subjectName);
             }
           }

@@ -14342,6 +14342,14 @@ exports.renderApplicationAllottedListQuery = async (req, res) => {
               }
             }
           }
+          for (let val of ref?.student?.student_optional_subject) {
+            if (ref.student.student_single_subject?.includes(`${val?.subjectName}`)) {
+              
+            }
+            else {
+              ref.student.student_single_subject.push(val?.subjectName);
+            }
+          }
           const unique = [
             ...new Set(
               ref?.student?.student_single_subject.map((item) => item)

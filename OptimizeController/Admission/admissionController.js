@@ -138,6 +138,7 @@ const {
 } = require("../../Generator/RandomPass");
 const RequiredDocument = require("../../models/Admission/RequiredDocument");
 const societyAdmissionFeeReceipt = require("../../scripts/societyAdmissionFeeReceipt");
+const FeesCategory = require("../../models/Finance/FeesCategory");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -17758,6 +17759,38 @@ exports.check_global = async (req, res) => {
       access: true,
       all_student: nums,
       count: nums?.length,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.check_structure = async (req, res) => {
+  try {
+    let list = ["66bafec95e67b13f50efd829", "66bdf274930b0e77adf974ab"];
+    const all_cat = await FeesCategory.find({
+      $and: [
+        { finance: "644a09d6d1679fcd6e76e5ef" },
+        { category_name: { $regex: `VJNT`, $options: "i" } },
+        // { _id: { $in: list } },
+      ],
+    });
+    const all_struct = await FeeStructure.find({
+      $and: [
+        { finance: "644a09d6d1679fcd6e76e5ef" },
+        { document_update: true },
+        { category_master: { $in: all_cat } },
+      ],
+    }).select("applicable_fees_heads_count structure_name");
+    const all_student = await Student.find({
+      fee_structure: { $in: all_struct },
+    });
+    let nums = [...all_struct];
+    res.status(200).send({
+      message: "Explore All Structure Query",
+      access: true,
+      nums: nums,
+      count: all_student?.length,
     });
   } catch (e) {
     console.log(e);

@@ -835,7 +835,7 @@ exports.renderStudentUserLoginQuery = async (req, res) => {
         one_user.userEmail,
         one_student?.institute?.insEmail,
         name,
-        one_student?.institute?.insName,
+        one_student?.institute?.insName
       );
     }
     res.status(200).send({
@@ -877,7 +877,7 @@ exports.retrieveEmailReplaceQuery = async (arr) => {
             one_user.userEmail,
             one_student?.institute?.insEmail,
             name,
-            one_student?.institute?.insName,
+            one_student?.institute?.insName
           );
         }
       }

@@ -42,16 +42,13 @@ router.get(
 
 router.get(
   "/by/class/catalog/:cid",
-  isLoggedIn,
   catchAsync(Filter.retrieveApproveCatalogArrayFilter)
 );
 
 router.patch(
   "/by/trigger/class/catalog/:cid",
-  isLoggedIn,
   catchAsync(Filter.retrieveApproveCatalogArrayFilterTrigger)
 );
-
 
 router.patch(
   "/pending/fee/:aid",
@@ -114,7 +111,6 @@ router.get(
   catchAsync(Filter.renderHostelFeeHeadsStructureReceiptQuery)
 );
 
-
 // router.get(
 //   "/heads/hostel/query",
 //   catchAsync(Filter.renderHostelFeeHeadsStructureReceiptQueryStats)
@@ -158,9 +154,6 @@ router.patch(
   catchAsync(Filter.renderAllStudentMessageQuery)
 );
 
-router.patch(
-  "/payment/data/query",
-  catchAsync(Filter.renderPaymentDataQuery)
-);
+router.patch("/payment/data/query", catchAsync(Filter.renderPaymentDataQuery));
 
 module.exports = router;

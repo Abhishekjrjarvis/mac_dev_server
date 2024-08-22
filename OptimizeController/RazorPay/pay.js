@@ -146,9 +146,11 @@ exports.verifyRazorPayment = async (req, res) => {
       order_payment.payment_amount = refactor_amount_nocharges;
       order_payment.payment_status = "Captured";
       institute.invoice_count += 1;
-      order_payment.payment_invoice_number = `${institute?.random_institute_code}${
-        new Date().getMonth() + 1
-      }${new Date().getFullYear()}${institute.invoice_count}`;
+      order_payment.payment_invoice_number = `${
+        institute?.random_institute_code
+      }${new Date().getMonth() + 1}${new Date().getFullYear()}${
+        institute.invoice_count
+      }`;
       var valid_pay = await oneRazorPayment(`${razorpay_payment_id}`);
       order_payment.razor_query.push({
         ...valid_pay,
@@ -673,7 +675,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
             { payment_to_end_user_id: uid },
             { payment_module_type: filter },
             { payment_amount: { $gt: 0 } },
-            { payment_visible_status: "Not Hide"}
+            { payment_visible_status: "Not Hide" },
           ],
           $or: [
             {
@@ -741,13 +743,19 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           .populate({
             path: "fee_receipt",
           });
+        for (var filteredData of order) {
+          if (filteredData?.payment_amount <= 0) {
+            filteredData.payment_amount =
+              filteredData?.fee_receipt?.fee_payment_amount;
+          }
+        }
       } else {
         var order = await OrderPayment.find({
           $and: [
             { payment_to_end_user_id: uid },
             { payment_module_type: filter },
             { payment_amount: { $gt: 0 } },
-            { payment_visible_status: "Not Hide"}
+            { payment_visible_status: "Not Hide" },
           ],
         })
           .sort("-created_at")
@@ -796,6 +804,12 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
               select: "unique_structure_name",
             },
           });
+        for (var filteredData of order) {
+          if (filteredData?.payment_amount <= 0) {
+            filteredData.payment_amount =
+              filteredData?.fee_receipt?.fee_payment_amount;
+          }
+        }
       }
       // .populate({
       //   path: "payment_expense_by_end_user_id",
@@ -827,7 +841,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
             {
               payment_amount: { $gt: 0 },
             },
-            { payment_visible_status: "Not Hide"}
+            { payment_visible_status: "Not Hide" },
           ],
           $or: [
             {
@@ -888,6 +902,12 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           .populate({
             path: "fee_receipt",
           });
+        for (var filteredData of order) {
+          if (filteredData?.payment_amount <= 0) {
+            filteredData.payment_amount =
+              filteredData?.fee_receipt?.fee_payment_amount;
+          }
+        }
       } else {
         var order = await OrderPayment.find({
           $and: [
@@ -898,9 +918,9 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
               payment_module_type: { $ne: "Expense" },
             },
             {
-              payment_amount: { $gt: 0 },
+              payment_amount: { $gte: 0 },
             },
-            { payment_visible_status: "Not Hide"}
+            { payment_visible_status: "Not Hide" },
           ],
         })
           .sort("-created_at")
@@ -958,14 +978,12 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       //   path: "payment_expense_to_end_user_id",
       //   select: "userLegalName photoId profilePhoto",
       // });
-      // for (var filteredData of order) {
-      //   if (
-      //     `${filteredData?.payment_module_type}` != "Expense" &&
-      //     filteredData?.payment_amount > 0
-      //   ) {
-      //     filtered_array.push(filteredData);
-      //   }
-      // }
+      for (var filteredData of order) {
+        if (filteredData?.payment_amount <= 0) {
+          filteredData.payment_amount =
+            filteredData?.fee_receipt?.fee_payment_amount;
+        }
+      }
       if (order?.length > 0) {
         // const oEncrypt = await encryptionPayload(order);
         res.status(200).send({ message: "User Pay History", history: order });
@@ -1050,7 +1068,7 @@ exports.fetchPaymentOtherHistoryQueryTo = async (req, res) => {
             { payment_to_end_user_id: uid },
             { payment_module_type: filter },
             { payment_amount: { $gt: 0 } },
-            { payment_visible_status: "Not Hide"}
+            { payment_visible_status: "Not Hide" },
           ],
           $or: [
             {
@@ -1124,7 +1142,7 @@ exports.fetchPaymentOtherHistoryQueryTo = async (req, res) => {
             { payment_to_end_user_id: uid },
             { payment_module_type: filter },
             { payment_amount: { $gt: 0 } },
-            { payment_visible_status: "Not Hide"}
+            { payment_visible_status: "Not Hide" },
           ],
         })
           .sort("-created_at")
@@ -1185,7 +1203,7 @@ exports.fetchPaymentOtherHistoryQueryTo = async (req, res) => {
         var new_order = order?.filter((ref) => {
           if (ref?.fee_receipt?.other_fees) return ref;
         });
-        let all = await nested_document_limit(page, limit, new_order)
+        let all = await nested_document_limit(page, limit, new_order);
         res.status(200).send({ message: "User Pay History", history: all });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
@@ -1203,7 +1221,7 @@ exports.fetchPaymentOtherHistoryQueryTo = async (req, res) => {
             {
               payment_amount: { $gt: 0 },
             },
-            { payment_visible_status: "Not Hide"}
+            { payment_visible_status: "Not Hide" },
           ],
           $or: [
             {
@@ -1276,7 +1294,7 @@ exports.fetchPaymentOtherHistoryQueryTo = async (req, res) => {
             {
               payment_amount: { $gt: 0 },
             },
-            { payment_visible_status: "Not Hide"}
+            { payment_visible_status: "Not Hide" },
           ],
         })
           .sort("-created_at")
@@ -1345,7 +1363,7 @@ exports.fetchPaymentOtherHistoryQueryTo = async (req, res) => {
         var new_order = order?.filter((ref) => {
           if (ref?.fee_receipt?.other_fees) return ref;
         });
-        let all = await nested_document_limit(page, limit, new_order)
+        let all = await nested_document_limit(page, limit, new_order);
         res.status(200).send({ message: "User Pay History", history: all });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });

@@ -319,10 +319,7 @@ router.get(
 
 router.patch("/update/mode/:id", catchAsync(User.renderMode));
 
-router.get(
-  "/:uid/all/stats/query",
-  catchAsync(User.retrieveUserStatsQuery)
-);
+router.get("/:uid/all/stats/query", catchAsync(User.retrieveUserStatsQuery));
 
 router.get(
   "/precise/staffdesignationdata/:sid",
@@ -343,10 +340,7 @@ router.delete(
   catchAsync(User.destroyUserAccountQuery)
 );
 
-router.get(
-  "/specific/mods/:uid",
-  catchAsync(User.render_specific_mods_query)
-);
+router.get("/specific/mods/:uid", catchAsync(User.render_specific_mods_query));
 
 // Dashboard Application API
 
@@ -360,6 +354,14 @@ router.get(
   catchAsync(User.retrieveUserModsAccessQuery)
 );
 
-router.patch("/one/click/follow/:sid", catchAsync(User.render_one_click_follow));
+router.patch(
+  "/one/click/follow/:sid",
+  catchAsync(User.render_one_click_follow)
+);
+
+router.get(
+  "/:sid/one/student/id/card/query",
+  catchAsync(User.render_student_id_query)
+);
 
 module.exports = router;

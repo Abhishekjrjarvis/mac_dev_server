@@ -690,8 +690,7 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
         students: sortedA,
         access: true,
       });
-    }
-    else if (sort_query === "Alpha_Last") {
+    } else if (sort_query === "Alpha_Last") {
       const sortedA = await sort_student_by_alpha_last(
         classes.ApproveStudent,
         day,
@@ -704,8 +703,7 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
         students: sortedA,
         access: true,
       });
-    }
-    else if (sort_query === "Gender") {
+    } else if (sort_query === "Gender") {
       const sortedG = await sorted_by_gender(
         classes.ApproveStudent,
         day,
@@ -774,8 +772,7 @@ exports.retrieveApproveCatalogArrayFilterTrigger = async (req, res) => {
         students: sortedA,
         access: true,
       });
-    }
-    else if (sort_query === "Alpha_Last") {
+    } else if (sort_query === "Alpha_Last") {
       const sortedA = await sort_student_by_alpha_last(
         classes.ApproveStudent,
         day,
@@ -788,8 +785,7 @@ exports.retrieveApproveCatalogArrayFilterTrigger = async (req, res) => {
         students: sortedA,
         access: true,
       });
-    }
-    else if (sort_query === "Gender") {
+    } else if (sort_query === "Gender") {
       const sortedG = await sorted_by_gender(
         classes.ApproveStudent,
         day,
@@ -1901,7 +1897,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       };
       for (var ref of all_receipts) {
         if (ref?.student?.studentFirstName) {
-          console.log("ENTER")
+          console.log("ENTER");
           var remain_list = await RemainingList.findOne({
             $and: [{ student: ref?.student }, { appId: ref?.application }],
           })
@@ -1937,7 +1933,8 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             if (`${val?.appId}` === `${ref?.application?._id}`) {
               head_array.push({
                 HeadsName: "Excess Fees",
-                PaidHeadFees: remain_list?.paid_fee - remain_list?.applicable_fee,
+                PaidHeadFees:
+                  remain_list?.paid_fee - remain_list?.applicable_fee,
               });
             }
           }
@@ -1957,27 +1954,32 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               BankUTR: ref?.fee_utr_reference ?? "#NA",
               GRNO: ref?.student?.studentGRNO ?? "#NA",
               Name:
-                `${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
-                  ? ref?.student?.studentMiddleName
-                  : ""
+                `${ref?.student?.studentFirstName} ${
+                  ref?.student?.studentMiddleName
+                    ? ref?.student?.studentMiddleName
+                    : ""
                 } ${ref?.student?.studentLastName}` ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               Standard:
-                `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
-              Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
+                `${remain_list?.fee_structure?.class_master?.className}` ??
+                "#NA",
+              Batch:
+                remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
               FeeStructure:
                 remain_list?.fee_structure?.unique_structure_name ?? "#NA",
-              TotalFees: remain_list?.fee_structure?.total_admission_fees ?? "0",
-              ApplicableFees: remain_list?.fee_structure?.applicable_fees ?? "0",
+              TotalFees:
+                remain_list?.fee_structure?.total_admission_fees ?? "0",
+              ApplicableFees:
+                remain_list?.fee_structure?.applicable_fees ?? "0",
               PaidByStudent: remain_list?.paid_fee,
               PaidByGovernment: remain_list?.paid_by_government,
               TotalPaidFees: remain_list?.paid_fee,
               ApplicableOutstanding:
                 remain_list?.fee_structure?.applicable_fees -
                   remain_list?.paid_fee >
-                  0
+                0
                   ? remain_list?.fee_structure?.applicable_fees -
-                  remain_list?.paid_fee
+                    remain_list?.paid_fee
                   : 0,
               TotalOutstanding: remain_list?.remaining_fee,
               Remark: remain_list?.remark ?? "#NA",
@@ -1990,16 +1992,21 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               DepartmentBankAccountHolderName:
                 ref?.application?.applicationDepartment?.bank_account
                   ?.finance_bank_account_name ?? "#NA",
-              Narration: `Being Fees Received By ${ref?.fee_payment_mode
-                } Date ${moment(ref?.fee_transaction_date).format(
-                  "DD-MM-YYYY"
-                )} Rs. ${ref?.fee_payment_amount} out of Rs. ${ref?.student.fee_structure?.total_admission_fees
-                } Paid By ${ref?.student?.studentFirstName} ${ref?.student?.studentMiddleName
+              Narration: `Being Fees Received By ${
+                ref?.fee_payment_mode
+              } Date ${moment(ref?.fee_transaction_date).format(
+                "DD-MM-YYYY"
+              )} Rs. ${ref?.fee_payment_amount} out of Rs. ${
+                ref?.student.fee_structure?.total_admission_fees
+              } Paid By ${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName
                   : ""
-                } ${ref?.student?.studentLastName} (${ref?.student.fee_structure?.category_master?.category_name
-                }) Towards Fees For ${ref?.student?.studentClass?.className}-${ref?.student?.studentClass?.classTitle
-                } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
+              } ${ref?.student?.studentLastName} (${
+                ref?.student.fee_structure?.category_master?.category_name
+              }) Towards Fees For ${ref?.student?.studentClass?.className}-${
+                ref?.student?.studentClass?.classTitle
+              } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
               ...result,
             });
             result = [];
@@ -2037,7 +2044,7 @@ exports.renderUpdate = async (req, res) => {
   res.status(200).send({ message: "updated", access: true });
 };
 
-const filterization_app_query = async (arr, type, date) => {
+const filterization_app_query = async (arr, type, date, appId) => {
   try {
     var list = [];
     if (type === "Request") {
@@ -2070,6 +2077,16 @@ const filterization_app_query = async (arr, type, date) => {
         }
       });
       return { conf_count: conf_count, list: list };
+    } else if (type === "Fees") {
+      var fees_count = 0;
+      arr?.filter((val) => {
+        var valid_val = moment(val?.apply_on).format("YYYY-MM-DD");
+        if (`${date}` === `${valid_val}`) {
+          fees_count += 1;
+          list.push(val?.student);
+        }
+      });
+      return { fees_count: fees_count, list: list };
     } else if (type === "Allot") {
       var all_count = 0;
       arr?.filter((val) => {
@@ -2080,6 +2097,20 @@ const filterization_app_query = async (arr, type, date) => {
         }
       });
       return { all_count: all_count, list: list };
+    } else if (type === "Review") {
+      var rev_count = 0;
+      for (let val of arr) {
+        for (let ele of val?.student_application_obj) {
+          if (`${ele?.app}` === `${appId}` && ele?.flow == "confirm_by") {
+            var valid_val = moment(ele?.created_at).format("YYYY-MM-DD");
+            if (`${date}` === `${valid_val}`) {
+              rev_count += 1;
+              list.push(val);
+            }
+          }
+        }
+      }
+      return { rev_count: rev_count, list: list };
     } else if (type === "Cancel") {
       var can_count = 0;
       arr?.filter((val) => {
@@ -2107,7 +2138,10 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       });
     // var val_date = custom_date_time(0);
     // var valid_date = valid_date_query ? valid_date_query : val_date;
-    var valid_app = await NewApplication.findById({ _id: aid });
+    var valid_app = await NewApplication.findById({ _id: aid }).populate({
+      path: "reviewApplication",
+      select: "student_application_obj",
+    });
     var request_count = await filterization_app_query(
       valid_app?.receievedApplication,
       "Request",
@@ -2123,10 +2157,21 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       "Confirm",
       valid_date
     );
+    var fee_collect_count = await filterization_app_query(
+      valid_app?.FeeCollectionApplication,
+      "Fees",
+      valid_date
+    );
     var allot_count = await filterization_app_query(
       valid_app?.allottedApplication,
       "Allot",
       valid_date
+    );
+    var review_count = await filterization_app_query(
+      valid_app?.reviewApplication,
+      "Review",
+      valid_date,
+      valid_app?._id
     );
     var cancel_count = await filterization_app_query(
       valid_app?.cancelApplication,
@@ -2137,6 +2182,7 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       ...confirm_count?.list,
       ...allot_count?.list,
       ...select_count?.list,
+      ...review_count?.list,
     ];
     var all_remain = await RemainingList.find({ student: day_arr }).populate({
       path: "fee_structure",
@@ -2158,6 +2204,8 @@ exports.renderApplicationFilterByDateCollectionQuery = async (req, res) => {
       confirm_count: confirm_count?.conf_count,
       allot_count: allot_count?.all_count,
       cancel_count: cancel_count?.can_count,
+      review_count: review_count?.rev_count,
+      fee_collect_count: fee_collect_count?.fees_count,
       paid: paid,
       remain: remain,
       applicable_pending: applicable_pending,
@@ -3010,8 +3058,8 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
             select: "bed_number hostelRoom",
             populate: {
               path: "hostelRoom",
-              select: "room_name"
-            }
+              select: "room_name",
+            },
           },
         })
         .populate({
@@ -3123,8 +3171,8 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
             select: "bed_number hostelRoom",
             populate: {
               path: "hostelRoom",
-              select: "room_name"
-            }
+              select: "room_name",
+            },
           },
         })
         .populate({
@@ -3248,7 +3296,8 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
                 : 0,
             TotalOutstanding: remain_list?.remaining_fee,
             BedNumber: ref?.student?.student_bed_number?.bed_number ?? "#NA",
-            RoomNumber: ref?.student?.student_bed_number?.hostelRoom?.room_name ?? "#NA",
+            RoomNumber:
+              ref?.student?.student_bed_number?.hostelRoom?.room_name ?? "#NA",
             Remark: remain_list?.remark ?? "#NA",
             HostelBankName:
               ref?.application?.applicationHostel?.bank_account
@@ -3316,7 +3365,7 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
 //         await val.save()
 //       }
 //       else {
-        
+
 //       }
 //       console.log(i)
 //       i+= 1
@@ -3324,7 +3373,7 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
 //     res.status(200).send({ message: "Explore All Receipts Query", count: nums?.length, nums})
 //   }
 //   catch (e) {
-    
+
 //   }
 // }
 
@@ -3602,7 +3651,7 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
       (repay.repayStatus = "Transferred"), (repay.txnId = txnId);
       repay.message = message;
       repay.institute = institute._id;
-      repay.excel_attach = excel_file
+      repay.excel_attach = excel_file;
       admin.repayArray.push(repay._id);
       institute.getReturn.push(repay._id);
       if (bank) {
@@ -3788,28 +3837,28 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
 exports.renderNormalStudentQuery = async (req, res) => {
   try {
     const { cid } = req.params;
-    const { flow } = req?.query
+    const { flow } = req?.query;
     if (!cid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
 
-      if(flow === "Normal"){
-        var classes = await Class.findById({ _id: cid }).select(
-          "ApproveStudent className institute"
-        );
-      }
-      else if(flow === "Promote"){
-        var classes = await Class.findById({ _id: cid }).select(
-          "promoteStudent className institute"
-        );
-      }
-      else{
+    if (flow === "Normal") {
+      var classes = await Class.findById({ _id: cid }).select(
+        "ApproveStudent className institute"
+      );
+    } else if (flow === "Promote") {
+      var classes = await Class.findById({ _id: cid }).select(
+        "promoteStudent className institute"
+      );
+    } else {
+    }
 
-      }
-
-    if (classes?.ApproveStudent?.length > 0 || classes?.promoteStudent?.length > 0) {
+    if (
+      classes?.ApproveStudent?.length > 0 ||
+      classes?.promoteStudent?.length > 0
+    ) {
       res.status(200).send({
         message: `Explore New ${flow} Excel Exports Wait for Some Time To Process`,
         access: true,
@@ -3821,13 +3870,10 @@ exports.renderNormalStudentQuery = async (req, res) => {
       });
     }
 
-    if(flow === "Normal"){
-      var searchable = [...classes?.ApproveStudent]
-
-    }
-    else if(flow === "Promote"){
-      var searchable = [...classes?.promoteStudent]
-
+    if (flow === "Normal") {
+      var searchable = [...classes?.ApproveStudent];
+    } else if (flow === "Promote") {
+      var searchable = [...classes?.promoteStudent];
     }
     const valid_all_students = await Student.find({ _id: { $in: searchable } })
       .populate({
@@ -3844,59 +3890,74 @@ exports.renderNormalStudentQuery = async (req, res) => {
       })
       .populate({
         path: "fee_structure hostel_fee_structure",
-        select: "unique_structure_name applicable_fees total_admission_fees category_master batch_master class_master",
+        select:
+          "unique_structure_name applicable_fees total_admission_fees category_master batch_master class_master",
         populate: {
           path: "category_master batch_master class_master",
           select: "category_name batchName className",
         },
-      })
-      valid_all_students.sort(function (st1, st2) {
-        return parseInt(st1?.studentROLLNO) - parseInt(st2?.studentROLLNO);
       });
+    valid_all_students.sort(function (st1, st2) {
+      return parseInt(st1?.studentROLLNO) - parseInt(st2?.studentROLLNO);
+    });
     var excel_list = [];
     for (var ref of valid_all_students) {
-      var struct = ref?.fee_structure ? ref?.fee_structure?._id : ref?.hostel_fee_structure ? ref?.hostel_fee_structure?._id : ""
-      var valid_card = await RemainingList.find({ $and: [{ student: `${ref?._id}`}]})
-      .populate({
-        path: "fee_structure"
+      var struct = ref?.fee_structure
+        ? ref?.fee_structure?._id
+        : ref?.hostel_fee_structure
+        ? ref?.hostel_fee_structure?._id
+        : "";
+      var valid_card = await RemainingList.find({
+        $and: [{ student: `${ref?._id}` }],
       })
-      .populate({
-        path: "applicable_card government_card",
-      })
-      var pending = 0
-      var paid = 0
-      var applicable_pending = 0
+        .populate({
+          path: "fee_structure",
+        })
+        .populate({
+          path: "applicable_card government_card",
+        });
+      var pending = 0;
+      var paid = 0;
+      var applicable_pending = 0;
       var gov_pending = 0;
       for (var ele of valid_card) {
         // ref.applicable_fees_pending +=
         //   ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
         //     ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
         //     : 0;
-        pending += ele?.applicable_card?.remaining_fee + ele?.government_card?.remaining_fee;
+        pending +=
+          ele?.applicable_card?.remaining_fee +
+          ele?.government_card?.remaining_fee;
         paid += ele?.applicable_card?.paid_fee + ele?.government_card?.paid_fee;
         gov_pending += ele?.government_card?.remaining_fee;
-        applicable_pending += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
-        ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
-        : 0
+        applicable_pending +=
+          ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+            ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+            : 0;
       }
-      if(struct){
-        var currentPaid = 0
-        var currentRemain = 0
-        var currentApplicableRemaining = 0
+      if (struct) {
+        var currentPaid = 0;
+        var currentRemain = 0;
+        var currentApplicableRemaining = 0;
         var currentGovernmentPending = 0;
-        var valid_card = await RemainingList.findOne({ $and: [{ fee_structure: `${struct}`},{ student: `${ref?._id}`}]})
-        .populate({
-          path: "fee_structure"
+        var valid_card = await RemainingList.findOne({
+          $and: [{ fee_structure: `${struct}` }, { student: `${ref?._id}` }],
         })
-        .populate({
-          path: "applicable_card government_card",
-        })
+          .populate({
+            path: "fee_structure",
+          })
+          .populate({
+            path: "applicable_card government_card",
+          });
         currentPaid += valid_card?.applicable_card?.paid_fee;
-        currentRemain += valid_card?.applicable_card?.remaining_fee + valid_card?.government_card?.remaining_fee;
-        currentGovernmentPending += valid_card?.government_card?.remaining_fee
-        currentApplicableRemaining += valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee > 0
-        ? valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee
-        : 0
+        currentRemain +=
+          valid_card?.applicable_card?.remaining_fee +
+          valid_card?.government_card?.remaining_fee;
+        currentGovernmentPending += valid_card?.government_card?.remaining_fee;
+        currentApplicableRemaining +=
+          valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee > 0
+            ? valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee
+            : 0;
       }
       const buildStructureObject = async (arr) => {
         var obj = {};
@@ -3906,47 +3967,53 @@ exports.renderNormalStudentQuery = async (req, res) => {
         }
         return obj;
       };
-      var all_remain = await RemainingList.find({ $and: [{ student: ref?._id }] })
-      .populate({
-        path: "fee_structure",
-        populate: {
-          path: "batch_master"
-        }
+      var all_remain = await RemainingList.find({
+        $and: [{ student: ref?._id }],
       })
-      .populate({
-        path: "appId"
-      })
-      .populate({
-        path: "applicable_card government_card",
-      })
+        .populate({
+          path: "fee_structure",
+          populate: {
+            path: "batch_master",
+          },
+        })
+        .populate({
+          path: "appId",
+        })
+        .populate({
+          path: "applicable_card government_card",
+        });
       // all_remain = all_remain?.filter((val) => {
       //   if(`${val?.fee_structure?._id}` !== `${ref?.fee_structure?._id}`) return val
       // })
       // var obj = {}
-      var pusher = []
-      for(var query of all_remain){
+      var pusher = [];
+      for (var query of all_remain) {
         pusher.push({
           BatchName: `${query?.fee_structure?.batch_master?.batchName}-PaidFees`,
-          Fees: query?.applicable_card?.paid_fee + query?.government_card?.paid_fee
-        })
+          Fees:
+            query?.applicable_card?.paid_fee + query?.government_card?.paid_fee,
+        });
         pusher.push({
           BatchName: `${query?.fee_structure?.batch_master?.batchName}-RemainingFees`,
-          Fees: query?.applicable_card?.remaining_fee + query?.government_card?.remaining_fee
-        })
+          Fees:
+            query?.applicable_card?.remaining_fee +
+            query?.government_card?.remaining_fee,
+        });
         pusher.push({
           BatchName: `${query?.fee_structure?.batch_master?.batchName}-ApplicableRemainingFees`,
-          Fees: query?.fee_structure?.applicable_fees - query?.paid_fee > 0
-          ? query?.fee_structure?.applicable_fees - query?.paid_fee
-          : 0
-        })
+          Fees:
+            query?.fee_structure?.applicable_fees - query?.paid_fee > 0
+              ? query?.fee_structure?.applicable_fees - query?.paid_fee
+              : 0,
+        });
         pusher.push({
           BatchName: `${query?.fee_structure?.batch_master?.batchName}-GovernmentRemainingFees`,
-          Fees: query?.government_card?.remaining_fee
-        })
+          Fees: query?.government_card?.remaining_fee,
+        });
         pusher.push({
           BatchName: `${query?.fee_structure?.batch_master?.batchName}-Remark`,
-          Fees: query?.remark
-        })
+          Fees: query?.remark,
+        });
       }
       if (pusher?.length > 0) {
         var result = await buildStructureObject(pusher);
@@ -3955,9 +4022,10 @@ exports.renderNormalStudentQuery = async (req, res) => {
         // RollNo: ref?.studentROLLNO ?? "NA",
         // AbcId: ref?.student_abc_id ?? "#NA",
         GRNO: ref?.studentGRNO ?? "#NA",
-        Name: `${ref?.studentFirstName} ${
-          ref?.studentMiddleName ? ref?.studentMiddleName : ""
-        } ${ref?.studentLastName}` ?? ref?.valid_full_name,
+        Name:
+          `${ref?.studentFirstName} ${
+            ref?.studentMiddleName ? ref?.studentMiddleName : ""
+          } ${ref?.studentLastName}` ?? ref?.valid_full_name,
         // DOB: ref?.studentDOB ?? "#NA",
         // Gender: ref?.studentGender ?? "#NA",
         // Caste: ref?.studentCast ?? "#NA",
@@ -3986,8 +4054,11 @@ exports.renderNormalStudentQuery = async (req, res) => {
         // ProfileCompletion: `${ref?.profile_percentage}` ?? "0",
         // Standard: `${ref?.fee_structure}` ? `${ref?.fee_structure?.class_master?.className}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.class_master?.className}` : "#NA",
         // Batch: `${ref?.fee_structure}` ? `${ref?.fee_structure?.batch_master?.batchName}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.batch_master?.batchName}` : "#NA",
-        FeeStructure:
-        `${ref?.fee_structure}` ? `${ref?.fee_structure?.unique_structure_name}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.unique_structure_name}` : "#NA",
+        FeeStructure: `${ref?.fee_structure}`
+          ? `${ref?.fee_structure?.unique_structure_name}`
+          : `${ref?.hostel_fee_structure}`
+          ? `${ref?.hostel_fee_structure?.unique_structure_name}`
+          : "#NA",
         // ActualFees: `${ref?.fee_structure}` ? `${ref?.fee_structure?.total_admission_fees}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.total_admission_fees}` : "0",
         // ApplicableFees: `${ref?.fee_structure}` ? `${ref?.fee_structure?.applicable_fees}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.applicable_fees}` : "0",
         // CurrentYearPaidFees: currentPaid ?? "0",
@@ -3999,7 +4070,7 @@ exports.renderNormalStudentQuery = async (req, res) => {
         GovernmentOutstanding: gov_pending ?? "0",
         ...result,
       });
-      result = []
+      result = [];
     }
     // console.log(excel_list)
     await json_to_excel_normal_student_promote_query(
@@ -4013,292 +4084,355 @@ exports.renderNormalStudentQuery = async (req, res) => {
   }
 };
 
-exports.renderStudentStatisticsQuery = async(req, res) => {
-  try{
-    const { bid } = req.params
-    const batch_query = await Batch.findById({ _id: bid })
+exports.renderStudentStatisticsQuery = async (req, res) => {
+  try {
+    const { bid } = req.params;
+    const batch_query = await Batch.findById({ _id: bid });
 
-    const classes = await Class.find({ _id: { $in: batch_query?.classroom }})
-    var excel_list = []
-    for(var val of classes){
-      var all_student = await Student.find({ studentClass: val?._id })
-      .select("studentGender studentCastCategory studentCast studentReligion student student_ph studentGRNO studentROLLNO valid_full_name")
-      var general_m = 0
-      var general_f = 0
-      var obc_m = 0
-      var obc_f = 0
-      var sc_m = 0
-      var sc_f = 0
-      var st_m = 0
-      var st_f = 0
-      var hindu_m = 0
-      var hindu_f = 0
-      var muslim_m = 0
-      var muslim_f = 0
-      var sikh_m = 0
-      var sikh_f = 0
-      var christian_m = 0
-      var christian_f = 0
-      var jain_m = 0
-      var jain_f = 0
-      var parsi_m = 0
-      var parsi_f = 0
-      var budh_m = 0
-      var budh_f = 0
-      var jews_m = 0
-      var jews_f = 0
-      var ph_m = 0
-      var ph_f = 0
-      var general_m_arr = []
-      var general_f_arr = []
-      var obc_m_arr = []
-      var obc_f_arr = []
-      var sc_m_arr = []
-      var sc_f_arr = []
-      var st_m_arr = []
-      var st_f_arr = []
-      var hindu_m_arr = []
-      var hindu_f_arr = []
-      var muslim_m_arr = []
-      var muslim_f_arr = []
-      var sikh_m_arr = []
-      var sikh_f_arr = []
-      var christian_m_arr = []
-      var christian_f_arr = []
-      var jain_m_arr = []
-      var jain_f_arr = []
-      var parsi_m_arr = []
-      var parsi_f_arr = []
-      var budh_m_arr = []
-      var budh_f_arr = []
-      var jews_m_arr = []
-      var jews_f_arr = []
-      var ph_m_arr = []
-      var ph_f_arr = []
-      var dt_m = 0
-      var dt_f = 0
-      var dt_m_arr = []
-      var dt_f_arr = []
-      var sbc_m = 0
-      var sbc_f = 0
-      var sbc_m_arr = []
-      var sbc_f_arr = []
-      var ews_m = 0
-      var ews_f = 0
-      var ews_m_arr = []
-      var ews_f_arr = []
-      var maratha_m = 0
-      var maratha_f = 0
-      var maratha_m_arr = []
-      var maratha_f_arr = []
-      var jk_m = 0
-      var jk_f = 0
-      var jk_m_arr = []
-      var jk_f_arr = []
-      var goins_m = 0
-      var goins_f = 0
-      var goins_m_arr = []
-      var goins_f_arr = []
-      var nt_m = 0
-      var nt_f = 0
-      var nt_m_arr = []
-      var nt_f_arr = []
-      for(var ele of all_student){
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.studentCastCategory?.toLowerCase() === "general"){
-          general_m += 1
-          general_m_arr.push(ele)
+    const classes = await Class.find({ _id: { $in: batch_query?.classroom } });
+    var excel_list = [];
+    for (var val of classes) {
+      var all_student = await Student.find({ studentClass: val?._id }).select(
+        "studentGender studentCastCategory studentCast studentReligion student student_ph studentGRNO studentROLLNO valid_full_name"
+      );
+      var general_m = 0;
+      var general_f = 0;
+      var obc_m = 0;
+      var obc_f = 0;
+      var sc_m = 0;
+      var sc_f = 0;
+      var st_m = 0;
+      var st_f = 0;
+      var hindu_m = 0;
+      var hindu_f = 0;
+      var muslim_m = 0;
+      var muslim_f = 0;
+      var sikh_m = 0;
+      var sikh_f = 0;
+      var christian_m = 0;
+      var christian_f = 0;
+      var jain_m = 0;
+      var jain_f = 0;
+      var parsi_m = 0;
+      var parsi_f = 0;
+      var budh_m = 0;
+      var budh_f = 0;
+      var jews_m = 0;
+      var jews_f = 0;
+      var ph_m = 0;
+      var ph_f = 0;
+      var general_m_arr = [];
+      var general_f_arr = [];
+      var obc_m_arr = [];
+      var obc_f_arr = [];
+      var sc_m_arr = [];
+      var sc_f_arr = [];
+      var st_m_arr = [];
+      var st_f_arr = [];
+      var hindu_m_arr = [];
+      var hindu_f_arr = [];
+      var muslim_m_arr = [];
+      var muslim_f_arr = [];
+      var sikh_m_arr = [];
+      var sikh_f_arr = [];
+      var christian_m_arr = [];
+      var christian_f_arr = [];
+      var jain_m_arr = [];
+      var jain_f_arr = [];
+      var parsi_m_arr = [];
+      var parsi_f_arr = [];
+      var budh_m_arr = [];
+      var budh_f_arr = [];
+      var jews_m_arr = [];
+      var jews_f_arr = [];
+      var ph_m_arr = [];
+      var ph_f_arr = [];
+      var dt_m = 0;
+      var dt_f = 0;
+      var dt_m_arr = [];
+      var dt_f_arr = [];
+      var sbc_m = 0;
+      var sbc_f = 0;
+      var sbc_m_arr = [];
+      var sbc_f_arr = [];
+      var ews_m = 0;
+      var ews_f = 0;
+      var ews_m_arr = [];
+      var ews_f_arr = [];
+      var maratha_m = 0;
+      var maratha_f = 0;
+      var maratha_m_arr = [];
+      var maratha_f_arr = [];
+      var jk_m = 0;
+      var jk_f = 0;
+      var jk_m_arr = [];
+      var jk_f_arr = [];
+      var goins_m = 0;
+      var goins_f = 0;
+      var goins_m_arr = [];
+      var goins_f_arr = [];
+      var nt_m = 0;
+      var nt_f = 0;
+      var nt_m_arr = [];
+      var nt_f_arr = [];
+      for (var ele of all_student) {
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentCastCategory?.toLowerCase() === "general"
+        ) {
+          general_m += 1;
+          general_m_arr.push(ele);
+        } else {
+          general_m += 0;
         }
-        else{
-          general_m += 0
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentCastCategory?.toLowerCase() === "general"
+        ) {
+          general_f += 1;
+          general_f_arr.push(ele);
+        } else {
+          general_f += 0;
         }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.studentCastCategory?.toLowerCase() === "general"){
-          general_f += 1
-          general_f_arr.push(ele)
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentCastCategory?.toLowerCase() === "obc"
+        ) {
+          obc_m += 1;
+          obc_m_arr.push(ele);
+        } else {
+          obc_m += 0;
         }
-        else{
-          general_f += 0
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentCastCategory?.toLowerCase() === "obc"
+        ) {
+          obc_f += 1;
+          obc_f_arr.push(ele);
+        } else {
+          obc_f += 0;
         }
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.studentCastCategory?.toLowerCase() === "obc"){
-          obc_m += 1
-          obc_m_arr.push(ele)
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentCastCategory?.toLowerCase() === "sc"
+        ) {
+          sc_m += 1;
+          sc_m_arr.push(ele);
+        } else {
+          sc_m += 0;
         }
-        else{
-          obc_m += 0
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentCastCategory?.toLowerCase() === "sc"
+        ) {
+          sc_f += 1;
+          sc_f_arr.push(ele);
+        } else {
+          sc_f += 0;
         }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.studentCastCategory?.toLowerCase() === "obc"){
-          obc_f += 1
-          obc_f_arr.push(ele)
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentCastCategory?.toLowerCase() === "st"
+        ) {
+          st_m += 1;
+          st_m_arr.push(ele);
+        } else {
+          st_m += 0;
         }
-        else{
-          obc_f += 0
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentCastCategory?.toLowerCase() === "st"
+        ) {
+          st_f += 1;
+          st_f_arr.push(ele);
+        } else {
+          st_f += 0;
         }
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.studentCastCategory?.toLowerCase() === "sc"){
-          sc_m += 1
-          sc_m_arr.push(ele)
+        if (
+          (ele?.studentGender?.toLowerCase() === "male" &&
+            ele?.studentCastCategory?.toLowerCase() === "nt-a") ||
+          ele?.studentCastCategory?.toLowerCase() === "nt-b" ||
+          ele?.studentCastCategory?.toLowerCase() === "nt-c" ||
+          ele?.studentCastCategory?.toLowerCase() === "nt-d"
+        ) {
+          nt_m += 1;
+          nt_m_arr.push(ele);
+        } else {
+          nt_m += 0;
         }
-        else{
-          sc_m += 0
+        if (
+          (ele?.studentGender?.toLowerCase() === "female" &&
+            ele?.studentCastCategory?.toLowerCase() === "nt-a") ||
+          ele?.studentCastCategory?.toLowerCase() === "nt-b" ||
+          ele?.studentCastCategory?.toLowerCase() === "nt-c" ||
+          ele?.studentCastCategory?.toLowerCase() === "nt-d"
+        ) {
+          nt_f += 1;
+          nt_f_arr.push(ele);
+        } else {
+          nt_f += 0;
         }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.studentCastCategory?.toLowerCase() === "sc"){
-          sc_f += 1
-          sc_f_arr.push(ele)
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "hindu"
+        ) {
+          hindu_m += 1;
+          hindu_m_arr.push(ele);
+        } else {
+          hindu_m += 0;
         }
-        else{
-          sc_f += 0
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "hindu"
+        ) {
+          hindu_f += 1;
+          hindu_f_arr.push(ele);
+        } else {
+          hindu_f += 0;
         }
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.studentCastCategory?.toLowerCase() === "st"){
-          st_m += 1
-          st_m_arr.push(ele)
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "muslim"
+        ) {
+          muslim_m += 1;
+          muslim_m_arr.push(ele);
+        } else {
+          muslim_m += 0;
         }
-        else{
-          st_m += 0
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "muslim"
+        ) {
+          muslim_f += 1;
+          muslim_f_arr.push(ele);
+        } else {
+          muslim_f += 0;
         }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.studentCastCategory?.toLowerCase() === "st"){
-          st_f += 1
-          st_f_arr.push(ele)
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "sikh"
+        ) {
+          sikh_m += 1;
+          sikh_m_arr.push(ele);
+        } else {
+          sikh_m += 0;
         }
-        else{
-          st_f += 0
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "sikh"
+        ) {
+          sikh_f += 1;
+          sikh_f_arr.push(ele);
+        } else {
+          sikh_f += 0;
         }
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.studentCastCategory?.toLowerCase() === "nt-a" || ele?.studentCastCategory?.toLowerCase() === "nt-b" || ele?.studentCastCategory?.toLowerCase() === "nt-c" || ele?.studentCastCategory?.toLowerCase() === "nt-d"){
-          nt_m += 1
-          nt_m_arr.push(ele)
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "christian"
+        ) {
+          christian_m += 1;
+          christian_m_arr.push(ele);
+        } else {
+          christian_m += 0;
         }
-        else{
-          nt_m += 0
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "christian"
+        ) {
+          christian_f += 1;
+          christian_f_arr.push(ele);
+        } else {
+          christian_f += 0;
         }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.studentCastCategory?.toLowerCase() === "nt-a" || ele?.studentCastCategory?.toLowerCase() === "nt-b" || ele?.studentCastCategory?.toLowerCase() === "nt-c" || ele?.studentCastCategory?.toLowerCase() === "nt-d"){
-          nt_f += 1
-          nt_f_arr.push(ele)
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "jainism"
+        ) {
+          jain_m += 1;
+          jain_m_arr.push(ele);
+        } else {
+          jain_m += 0;
         }
-        else{
-          nt_f += 0
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "jainism"
+        ) {
+          jain_f += 1;
+          jain_f_arr.push(ele);
+        } else {
+          jain_f += 0;
         }
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.studentReligion?.toLowerCase() === "hindu"){
-          hindu_m += 1
-          hindu_m_arr.push(ele)
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "parsi"
+        ) {
+          parsi_m += 1;
+          parsi_m_arr.push(ele);
+        } else {
+          parsi_m += 0;
         }
-        else{
-          hindu_m += 0
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "parsi"
+        ) {
+          parsi_f += 1;
+          parsi_f_arr.push(ele);
+        } else {
+          parsi_f += 0;
         }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.studentReligion?.toLowerCase() === "hindu"){
-          hindu_f += 1
-          hindu_f_arr.push(ele)
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "buddhism"
+        ) {
+          budh_m += 1;
+          budh_m_arr.push(ele);
+        } else {
+          budh_m += 0;
         }
-        else{
-          hindu_f += 0
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "buddhism"
+        ) {
+          budh_f += 1;
+          budh_f_arr.push(ele);
+        } else {
+          budh_f += 0;
         }
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.studentReligion?.toLowerCase() === "muslim"){
-          muslim_m += 1
-          muslim_m_arr.push(ele)
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "jews"
+        ) {
+          jews_m += 1;
+          jews_m_arr.push(ele);
+        } else {
+          jews_m += 0;
         }
-        else{
-          muslim_m += 0
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "jews"
+        ) {
+          jews_f += 1;
+          jews_f_arr.push(ele);
+        } else {
+          jews_f += 0;
         }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.studentReligion?.toLowerCase() === "muslim"){
-          muslim_f += 1
-          muslim_f_arr.push(ele)
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.student_ph?.toLowerCase() === "yes"
+        ) {
+          ph_m += 1;
+          ph_m_arr.push(ele);
+        } else {
+          ph_m += 0;
         }
-        else{
-          muslim_f += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.studentReligion?.toLowerCase() === "sikh"){
-          sikh_m += 1
-          sikh_m_arr.push(ele)
-        }
-        else{
-          sikh_m += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.studentReligion?.toLowerCase() === "sikh"){
-          sikh_f += 1
-          sikh_f_arr.push(ele)
-        }
-        else{
-          sikh_f += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.studentReligion?.toLowerCase() === "christian" ){
-          christian_m += 1
-          christian_m_arr.push(ele)
-        }
-        else{
-          christian_m += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.studentReligion?.toLowerCase() === "christian"){
-          christian_f += 1
-          christian_f_arr.push(ele)
-        }
-        else{
-          christian_f += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.studentReligion?.toLowerCase() === "jainism"){
-          jain_m += 1
-          jain_m_arr.push(ele)
-        }
-        else{
-          jain_m += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.studentReligion?.toLowerCase() === "jainism"){
-          jain_f += 1
-          jain_f_arr.push(ele)
-        }
-        else{
-          jain_f += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.studentReligion?.toLowerCase() === "parsi"){
-          parsi_m += 1
-          parsi_m_arr.push(ele)
-        }
-        else{
-          parsi_m += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.studentReligion?.toLowerCase() === "parsi"){
-          parsi_f += 1
-          parsi_f_arr.push(ele)
-        }
-        else{
-          parsi_f += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.studentReligion?.toLowerCase() === "buddhism"){
-          budh_m += 1
-          budh_m_arr.push(ele)
-        }
-        else{
-          budh_m += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.studentReligion?.toLowerCase() === "buddhism"){
-          budh_f += 1
-          budh_f_arr.push(ele)
-        }
-        else{
-          budh_f += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.studentReligion?.toLowerCase() === "jews"){
-          jews_m += 1
-          jews_m_arr.push(ele)
-        }
-        else{
-          jews_m += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.studentReligion?.toLowerCase() === "jews"){
-          jews_f += 1
-          jews_f_arr.push(ele)
-        }
-        else{
-          jews_f += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "male" && ele?.student_ph?.toLowerCase() === "yes"){
-          ph_m += 1
-          ph_m_arr.push(ele)
-        }
-        else{
-          ph_m += 0
-        }
-        if(ele?.studentGender?.toLowerCase() === "female" && ele?.student_ph?.toLowerCase() === "yes"){
-          ph_f += 1
-          ph_f_arr.push(ele)
-        }
-        else{
-          ph_f += 0
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.student_ph?.toLowerCase() === "yes"
+        ) {
+          ph_f += 1;
+          ph_f_arr.push(ele);
+        } else {
+          ph_f += 0;
         }
       }
       excel_list.push({
@@ -4384,20 +4518,26 @@ exports.renderStudentStatisticsQuery = async(req, res) => {
         nt_m: nt_m,
         nt_f: nt_f,
         nt_m_arr: nt_m_arr,
-        nt_f_arr: nt_f_arr
-      })
+        nt_f_arr: nt_f_arr,
+      });
     }
-    if(excel_list?.length > 0){
-      res.status(200).send({ message: "Explore New Student Statistics Query", access: true, excel_list: excel_list})
+    if (excel_list?.length > 0) {
+      res.status(200).send({
+        message: "Explore New Student Statistics Query",
+        access: true,
+        excel_list: excel_list,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Student Statistics Query",
+        access: false,
+        excel_list: [],
+      });
     }
-    else{
-      res.status(200).send({ message: "No Student Statistics Query", access: false, excel_list: []})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.renderStudentStatisticsExcelQuery = async (req, res) => {
   try {
@@ -4420,19 +4560,20 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
       .populate({
         path: "batches",
         select: "batchName",
-      })
-      valid_all_students.sort(function (st1, st2) {
-        return parseInt(st1?.studentROLLNO) - parseInt(st2?.studentROLLNO);
       });
+    valid_all_students.sort(function (st1, st2) {
+      return parseInt(st1?.studentROLLNO) - parseInt(st2?.studentROLLNO);
+    });
     var excel_list = [];
     for (var ref of valid_all_students) {
       excel_list.push({
         RollNo: ref?.studentROLLNO ?? "NA",
         AbcId: ref?.student_abc_id ?? "#NA",
         GRNO: ref?.studentGRNO ?? "#NA",
-        Name: `${ref?.studentFirstName} ${
-          ref?.studentMiddleName ? ref?.studentMiddleName : ""
-        } ${ref?.studentLastName}` ?? ref?.valid_full_name,
+        Name:
+          `${ref?.studentFirstName} ${
+            ref?.studentMiddleName ? ref?.studentMiddleName : ""
+          } ${ref?.studentLastName}` ?? ref?.valid_full_name,
         DOB: ref?.studentDOB ?? "#NA",
         Gender: ref?.studentGender ?? "#NA",
         Caste: ref?.studentCast ?? "#NA",
@@ -4457,7 +4598,7 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
         StudentProgramme: `${ref?.student_programme}` ?? "#NA",
         StudentBranch: `${ref?.student_branch}` ?? "#NA",
         SingleSeater: `${ref?.student_single_seater_room}` ?? "#NA",
-        PhysicallyChallenged: `${ref?.student_ph}` ?? "#NA", 
+        PhysicallyChallenged: `${ref?.student_ph}` ?? "#NA",
         ProfileCompletion: `${ref?.profile_percentage}` ?? "0",
         // Standard: `${ref?.fee_structure}` ? `${ref?.fee_structure?.class_master?.className}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.class_master?.className}` : "#NA",
         // Batch: `${ref?.fee_structure}` ? `${ref?.fee_structure?.batch_master?.batchName}` : `${ref?.hostel_fee_structure}` ? `${ref?.hostel_fee_structure?.batch_master?.batchName}` : "#NA",
@@ -4465,14 +4606,12 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
       // result = []
     }
     // console.log(excel_list)
-    const data = await json_to_excel_statistics_promote_query(
-      excel_list,
-    );
+    const data = await json_to_excel_statistics_promote_query(excel_list);
 
     res.status(200).send({
       message: "Explore Statistics Query",
       access: true,
-      data: data
+      data: data,
     });
   } catch (e) {
     console.log(e);
@@ -4482,358 +4621,453 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
 exports.renderCertificateFilterQuery = async (req, res) => {
   try {
     const { id } = req.query;
-    const { flow } = req?.body
+    const { flow } = req?.body;
     if (!id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    var excel_list = []
-      var ins = await InstituteAdmin.findById({ _id: id });
+    var excel_list = [];
+    var ins = await InstituteAdmin.findById({ _id: id });
     if (flow === "Request") {
       var all_cert = await CertificateQuery.find({
         $and: [{ institute: ins?._id }, { certificate_status: "Requested" }],
-      })
-        .populate({
-        path: "student"
-        })
+      }).populate({
+        path: "student",
+      });
       if (all_cert?.length > 0) {
         res.status(200).send({
           message: "Explore Requested Certificate Query",
           access: true,
         });
-      }
-      else {
+      } else {
         res.status(200).send({
           message: "No Requested Certificate Query",
           access: false,
         });
       }
-      if(all_cert?.length > 0){
+      if (all_cert?.length > 0) {
         for (var val of all_cert) {
-            excel_list.push({
-              RollNo: val?.student?.studentROLLNO ?? "NA",
-              GRNO: val?.student?.studentGRNO ?? "#NA",
-              Name: `${val?.student?.studentFirstName} ${
-                val?.student?.studentMiddleName ? val?.student?.studentMiddleName : ""
-              } ${val?.student?.studentLastName}` ?? val?.student?.valid_full_name,
-              Gender: val?.student?.studentGender ?? "#NA",
-              Type: val?.is_original,
-              Status: val?.certificate_status ?? "#NA",
-              // PaymentMode: val?.fee_receipt?.fee_payment_mode
-            });
-          }
-          const data = await certificate_json_query(
-            excel_list,
-            "Request-Certificate",
-            id,
-            "Requested Certificate List"
-          );
+          excel_list.push({
+            RollNo: val?.student?.studentROLLNO ?? "NA",
+            GRNO: val?.student?.studentGRNO ?? "#NA",
+            Name:
+              `${val?.student?.studentFirstName} ${
+                val?.student?.studentMiddleName
+                  ? val?.student?.studentMiddleName
+                  : ""
+              } ${val?.student?.studentLastName}` ??
+              val?.student?.valid_full_name,
+            Gender: val?.student?.studentGender ?? "#NA",
+            Type: val?.is_original,
+            Status: val?.certificate_status ?? "#NA",
+            // PaymentMode: val?.fee_receipt?.fee_payment_mode
+          });
+        }
+        const data = await certificate_json_query(
+          excel_list,
+          "Request-Certificate",
+          id,
+          "Requested Certificate List"
+        );
       }
-    }
-    else if (flow === "Issued") {
+    } else if (flow === "Issued") {
       var all_cert = await CertificateQuery.find({
         $and: [{ institute: ins?._id }, { certificate_status: "Issued" }],
-      })
+      });
       if (all_cert?.length > 0) {
         res.status(200).send({
           message: "Explore Issued Certificate Query",
           access: true,
         });
-      }
-      else {
+      } else {
         res.status(200).send({
           message: "No Issued Certificate Query",
           access: false,
         });
       }
-      if(all_cert?.length > 0){
+      if (all_cert?.length > 0) {
         for (var val of all_cert) {
-            excel_list.push({
-              RollNo: val?.student?.studentROLLNO ?? "NA",
-              GRNO: val?.student?.studentGRNO ?? "#NA",
-              Name: `${val?.student?.studentFirstName} ${
-                val?.student?.studentMiddleName ? val?.student?.studentMiddleName : ""
-              } ${val?.student?.studentLastName}` ?? val?.student?.valid_full_name,
-              Gender: val?.student?.studentGender ?? "#NA",
-              Type: val?.is_original,
-              Status: val?.certificate_status ?? "#NA",
-              // PaymentMode: val?.fee_receipt?.fee_payment_mode
-            });
-          }
-          const data = await certificate_json_query(
-            excel_list,
-            "Issued-Certificate",
-            id,
-            "Issued Certificate List"
-          );
+          excel_list.push({
+            RollNo: val?.student?.studentROLLNO ?? "NA",
+            GRNO: val?.student?.studentGRNO ?? "#NA",
+            Name:
+              `${val?.student?.studentFirstName} ${
+                val?.student?.studentMiddleName
+                  ? val?.student?.studentMiddleName
+                  : ""
+              } ${val?.student?.studentLastName}` ??
+              val?.student?.valid_full_name,
+            Gender: val?.student?.studentGender ?? "#NA",
+            Type: val?.is_original,
+            Status: val?.certificate_status ?? "#NA",
+            // PaymentMode: val?.fee_receipt?.fee_payment_mode
+          });
+        }
+        const data = await certificate_json_query(
+          excel_list,
+          "Issued-Certificate",
+          id,
+          "Issued Certificate List"
+        );
       }
-    }
-    else {
+    } else {
       res.status(200).send({
         message: "No Certificate Query",
         access: false,
-      }); 
+      });
     }
   } catch (e) {
     console.log(e);
   }
 };
 
-exports.renderAllStudentMessageQuery = async(req, res) => {
-  try{
+exports.renderAllStudentMessageQuery = async (req, res) => {
+  try {
     const { id } = req.params;
-    const { all_depart, batch_status, master, depart, batch } = req?.body
+    const { all_depart, batch_status, master, depart, batch } = req?.body;
     if (!id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-      var ads_admin = await InstituteAdmin.findById({ _id: id })
-    if(all_depart === "ALL"){
-      var arr = []
-      var all_dept = await Department.find({ institute: ads_admin?._id })
-      var all_student = await Student.find({ department: { $in: all_dept }})
-      .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-      .populate({
-        path: "user",
-        select: "deviceToken userEmail",
+    var ads_admin = await InstituteAdmin.findById({ _id: id });
+    if (all_depart === "ALL") {
+      var arr = [];
+      var all_dept = await Department.find({ institute: ads_admin?._id });
+      var all_student = await Student.find({ department: { $in: all_dept } })
+        .select(
+          "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "deviceToken userEmail",
+        })
+        .populate({
+          path: "institute",
+          select: "insName",
+        });
+      var all_remain = await RemainingList.find({
+        student: { $in: all_student },
       })
-      .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated_arr(arr)
-          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student, count: all_student?.length})
-    }
-    else if(all_depart === "PARTICULAR"){
-      if(batch_status === "ALL_BATCH"){
-        var arr = []
-        var valid_dept = await Department.findById({ _id: depart })
-        const all_classes = await Class.find({ masterClassName: { $in: master }})
-        if(all_classes?.length > 0){
-          var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: { $in: valid_dept?.batches } }, { studentClass: { $in: all_classes }}]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
         .populate({
-          path: "user",
-          select: "deviceToken userEmail",
+          path: "fee_structure",
         })
         .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated_arr(arr)
-          res.status(200).send({ message: "Explore All For All Batch With Standard Student Query", access: true, all_student: all_student, count: all_student?.length})
-        }
-        var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: { $in: valid_dept?.batches } }]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
-        })
-        .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated_arr(arr)
-          res.status(200).send({ message: "Explore All Student For All Batch Query", access: true, all_student: all_student, count: all_student?.length})
-      }
-      else if(batch_status === "PARTICULAR_BATCH"){
-        var arr = []
-        const all_classes = await Class.find({ masterClassName: { $in: master }})
-        if(all_classes?.length > 0){
-          var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }, { studentClass: { $in: all_classes }}]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
-        })
-        .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated_arr(arr)
-          res.status(200).send({ message: "Explore All For Particular Batch with Standard Student Query", access: true, all_student: all_student, count: all_student?.length})
-        }
-        else{
-        var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
-        })
-        .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated_arr(arr)
-          res.status(200).send({ message: "Explore All For Particular Batch Student Query", access: true, all_student: all_student, count: all_student?.length})
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+          populate: {
+            path: "user",
+            select: "userEmail deviceToken",
+          },
+        });
+      for (var ref of all_remain) {
+        if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+          arr.push(ref?.student);
         }
       }
-      if(!batch_status){
-        var arr = []
-      var valid_dept = await Department.findById({ _id: depart })
-        const all_classes = await Class.find({ masterClassName: { $in: master }})
-        if(all_classes?.length > 0){
-          var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { studentClass: { $in: all_classes }}]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
+      all_student = remove_duplicated_arr(arr);
+      res.status(200).send({
+        message: "Explore All Student Query",
+        access: true,
+        all_student: all_student,
+        count: all_student?.length,
+      });
+    } else if (all_depart === "PARTICULAR") {
+      if (batch_status === "ALL_BATCH") {
+        var arr = [];
+        var valid_dept = await Department.findById({ _id: depart });
+        const all_classes = await Class.find({
+          masterClassName: { $in: master },
+        });
+        if (all_classes?.length > 0) {
+          var all_student = await Student.find({
+            $and: [
+              { department: valid_dept?._id },
+              { batches: { $in: valid_dept?.batches } },
+              { studentClass: { $in: all_classes } },
+            ],
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            )
+            .populate({
+              path: "user",
+              select: "deviceToken userEmail",
+            })
+            .populate({
+              path: "institute",
+              select: "insName",
+            });
+          var all_remain = await RemainingList.find({
+            student: { $in: all_student },
+          })
+            .populate({
+              path: "fee_structure",
+            })
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+              populate: {
+                path: "user",
+                select: "userEmail deviceToken",
+              },
+            });
+          for (var ref of all_remain) {
+            if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+              arr.push(ref?.student);
+            }
+          }
+          all_student = remove_duplicated_arr(arr);
+          res.status(200).send({
+            message: "Explore All For All Batch With Standard Student Query",
+            access: true,
+            all_student: all_student,
+            count: all_student?.length,
+          });
+        }
+        var all_student = await Student.find({
+          $and: [
+            { department: valid_dept?._id },
+            { batches: { $in: valid_dept?.batches } },
+          ],
         })
-        .populate({
+          .select(
+            "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+          )
+          .populate({
+            path: "user",
+            select: "deviceToken userEmail",
+          })
+          .populate({
             path: "institute",
             select: "insName",
           });
-        }
-        var all_student = await Student.find({ $and: [{ department: valid_dept?._id }]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
+        var all_remain = await RemainingList.find({
+          student: { $in: all_student },
         })
-        .populate({
+          .populate({
+            path: "fee_structure",
+          })
+          .populate({
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+            populate: {
+              path: "user",
+              select: "userEmail deviceToken",
+            },
+          });
+        for (var ref of all_remain) {
+          if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+            arr.push(ref?.student);
+          }
+        }
+        all_student = remove_duplicated_arr(arr);
+        res.status(200).send({
+          message: "Explore All Student For All Batch Query",
+          access: true,
+          all_student: all_student,
+          count: all_student?.length,
+        });
+      } else if (batch_status === "PARTICULAR_BATCH") {
+        var arr = [];
+        const all_classes = await Class.find({
+          masterClassName: { $in: master },
+        });
+        if (all_classes?.length > 0) {
+          var all_student = await Student.find({
+            $and: [
+              { department: depart },
+              { batches: batch },
+              { studentClass: { $in: all_classes } },
+            ],
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            )
+            .populate({
+              path: "user",
+              select: "deviceToken userEmail",
+            })
+            .populate({
+              path: "institute",
+              select: "insName",
+            });
+          var all_remain = await RemainingList.find({
+            student: { $in: all_student },
+          })
+            .populate({
+              path: "fee_structure",
+            })
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+              populate: {
+                path: "user",
+                select: "userEmail deviceToken",
+              },
+            });
+          for (var ref of all_remain) {
+            if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+              arr.push(ref?.student);
+            }
+          }
+          all_student = remove_duplicated_arr(arr);
+          res.status(200).send({
+            message:
+              "Explore All For Particular Batch with Standard Student Query",
+            access: true,
+            all_student: all_student,
+            count: all_student?.length,
+          });
+        } else {
+          var all_student = await Student.find({
+            $and: [{ department: depart }, { batches: batch }],
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            )
+            .populate({
+              path: "user",
+              select: "deviceToken userEmail",
+            })
+            .populate({
+              path: "institute",
+              select: "insName",
+            });
+          var all_remain = await RemainingList.find({
+            student: { $in: all_student },
+          })
+            .populate({
+              path: "fee_structure",
+            })
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+              populate: {
+                path: "user",
+                select: "userEmail deviceToken",
+              },
+            });
+          for (var ref of all_remain) {
+            if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+              arr.push(ref?.student);
+            }
+          }
+          all_student = remove_duplicated_arr(arr);
+          res.status(200).send({
+            message: "Explore All For Particular Batch Student Query",
+            access: true,
+            all_student: all_student,
+            count: all_student?.length,
+          });
+        }
+      }
+      if (!batch_status) {
+        var arr = [];
+        var valid_dept = await Department.findById({ _id: depart });
+        const all_classes = await Class.find({
+          masterClassName: { $in: master },
+        });
+        if (all_classes?.length > 0) {
+          var all_student = await Student.find({
+            $and: [
+              { department: valid_dept?._id },
+              { studentClass: { $in: all_classes } },
+            ],
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            )
+            .populate({
+              path: "user",
+              select: "deviceToken userEmail",
+            })
+            .populate({
+              path: "institute",
+              select: "insName",
+            });
+        }
+        var all_student = await Student.find({
+          $and: [{ department: valid_dept?._id }],
+        })
+          .select(
+            "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+          )
+          .populate({
+            path: "user",
+            select: "deviceToken userEmail",
+          })
+          .populate({
             path: "institute",
             select: "insName",
           });
 
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
+        var all_remain = await RemainingList.find({
+          student: { $in: all_student },
+        })
           .populate({
-            path: "fee_structure"
+            path: "fee_structure",
           })
           .populate({
             path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
             populate: {
               path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
+              select: "userEmail deviceToken",
+            },
+          });
+        for (var ref of all_remain) {
+          if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+            arr.push(ref?.student);
           }
-          all_student = remove_duplicated_arr(arr)
-          console.log("Alert")
-          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student, count: all_student?.length})
         }
+        all_student = remove_duplicated_arr(arr);
+        console.log("Alert");
+        res.status(200).send({
+          message: "Explore All Student Query",
+          access: true,
+          all_student: all_student,
+          count: all_student?.length,
+        });
+      }
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.renderPaymentDataQuery = async (req, res) => {
   try {
-    const all_o = await OrderPayment.find({})
-    const all_receipt = await FeeReceipt.find({})
-    var i = 0
+    const all_o = await OrderPayment.find({});
+    const all_receipt = await FeeReceipt.find({});
+    var i = 0;
     for (let ele of all_o) {
-      ele.payment_visible_status = "Not Hide"
-      console.log(i)
-      await ele.save()
-      i+=1
+      ele.payment_visible_status = "Not Hide";
+      console.log(i);
+      await ele.save();
+      i += 1;
     }
     for (let num of all_receipt) {
-      num.visible_status = "Not Hide"
-      console.log(i)
-      await num.save()
-      i+=1
+      num.visible_status = "Not Hide";
+      console.log(i);
+      await num.save();
+      i += 1;
     }
-    res.status(200).send({ message: "Explore All Student Query", access: true})
+    res
+      .status(200)
+      .send({ message: "Explore All Student Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderTallyPriceQuery = async (req, res) => {
   // try {

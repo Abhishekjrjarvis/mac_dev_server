@@ -1046,6 +1046,8 @@ router.patch("/new/app", catchAsync(Admission.new_app));
 
 router.patch("/check/global", catchAsync(Admission.check_global));
 
+router.patch("/check/structure", catchAsync(Admission.check_structure));
+
 router.patch(
   "/promote/current/year/institute/:id/student/category/list",
   catchAsync(Admission.promote_currrent_year_institute_query)

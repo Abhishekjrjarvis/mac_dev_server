@@ -36,6 +36,7 @@ const {
   json_to_excel_slip_export_query,
   json_to_excel_admission_subject_application_query,
   json_to_excel_admission_query,
+  json_to_excel_student_applicable_outstanding_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -15015,6 +15016,258 @@ exports.render_hostel_daybook_heads_wise = async (req, res) => {
       //   results: [],
       // });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNormalApplicableOutStandingStudentQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { flow } = req?.query;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    if (flow === "APPLICABLE_OS") {
+      var ads_admin = await Admission.findById({ _id: aid }).select(
+        "remainingFee institute"
+      );
+    } else if (flow === "TOTAL_OS") {
+      var ads_admin = await Admission.findById({ _id: aid }).select(
+        "remainingFee institute"
+      );
+    }
+    var institute = await InstituteAdmin.findById({
+      _id: ads_admin?.institute,
+    }).select("financeDepart");
+
+    if (ads_admin?.remainingFee?.length > 0) {
+      res.status(200).send({
+        message: `Explore New ${flow} Excel Exports Wait for Some Time To Process`,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        access: false,
+      });
+    }
+    const valid_all_students = await Student.find({
+      _id: { $in: ads_admin?.remainingFee },
+    }).populate({
+      path: "fee_structure hostel_fee_structure",
+      select:
+        "unique_structure_name applicable_fees total_admission_fees category_master batch_master class_master",
+      populate: {
+        path: "category_master batch_master class_master",
+        select: "category_name batchName className",
+      },
+    });
+    valid_all_students.sort(function (st1, st2) {
+      return parseInt(st1?.studentROLLNO) - parseInt(st2?.studentROLLNO);
+    });
+    var excel_list = [];
+    for (var ref of valid_all_students) {
+      var struct = ref?.fee_structure
+        ? ref?.fee_structure?._id
+        : ref?.hostel_fee_structure
+        ? ref?.hostel_fee_structure?._id
+        : "";
+      var valid_card = await RemainingList.find({
+        $and: [{ student: `${ref?._id}` }],
+      })
+        .populate({
+          path: "fee_structure",
+        })
+        .populate({
+          path: "applicable_card government_card",
+        });
+      var pending = 0;
+      var paid = 0;
+      var applicable_pending = 0;
+      var gov_pending = 0;
+      if (flow === "TOTAL_OS") {
+        for (var ele of valid_card) {
+          // ref.applicable_fees_pending +=
+          //   ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+          //     ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+          //     : 0;
+          pending +=
+            ele?.applicable_card?.remaining_fee +
+            ele?.government_card?.remaining_fee;
+          paid +=
+            ele?.applicable_card?.paid_fee + ele?.government_card?.paid_fee;
+          gov_pending += ele?.government_card?.remaining_fee;
+          applicable_pending +=
+            ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+              ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+              : 0;
+        }
+        if (struct) {
+          var currentPaid = 0;
+          var currentRemain = 0;
+          var currentApplicableRemaining = 0;
+          var currentGovernmentPending = 0;
+          var valid_card = await RemainingList.findOne({
+            $and: [{ fee_structure: `${struct}` }, { student: `${ref?._id}` }],
+          })
+            .populate({
+              path: "fee_structure",
+            })
+            .populate({
+              path: "applicable_card government_card",
+            });
+          currentPaid += valid_card?.applicable_card?.paid_fee;
+          currentRemain +=
+            valid_card?.applicable_card?.remaining_fee +
+            valid_card?.government_card?.remaining_fee;
+          currentGovernmentPending +=
+            valid_card?.government_card?.remaining_fee;
+          currentApplicableRemaining +=
+            valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee >
+            0
+              ? valid_card?.fee_structure?.applicable_fees -
+                valid_card?.paid_fee
+              : 0;
+        }
+        excel_list.push({
+          RollNo: ref?.studentROLLNO ?? "NA",
+          AbcId: ref?.student_abc_id ?? "#NA",
+          GRNO: ref?.studentGRNO ?? "#NA",
+          Name:
+            `${ref?.studentFirstName} ${
+              ref?.studentMiddleName ? ref?.studentMiddleName : ""
+            } ${ref?.studentLastName}` ?? ref?.valid_full_name,
+          FirstName: ref?.studentFirstName ?? "#NA",
+          FatherName: ref?.studentFatherName ?? ref?.studentMiddleName,
+          LastName: ref?.studentLastName ?? "#NA",
+          Standard: `${ref?.fee_structure}`
+            ? `${ref?.fee_structure?.class_master?.className}`
+            : `${ref?.hostel_fee_structure}`
+            ? `${ref?.hostel_fee_structure?.class_master?.className}`
+            : "#NA",
+          Batch: `${ref?.fee_structure}`
+            ? `${ref?.fee_structure?.batch_master?.batchName}`
+            : `${ref?.hostel_fee_structure}`
+            ? `${ref?.hostel_fee_structure?.batch_master?.batchName}`
+            : "#NA",
+          FeeStructure: `${ref?.fee_structure}`
+            ? `${ref?.fee_structure?.unique_structure_name}`
+            : `${ref?.hostel_fee_structure}`
+            ? `${ref?.hostel_fee_structure?.unique_structure_name}`
+            : "#NA",
+          ActualFees: `${ref?.fee_structure}`
+            ? `${ref?.fee_structure?.total_admission_fees}`
+            : `${ref?.hostel_fee_structure}`
+            ? `${ref?.hostel_fee_structure?.total_admission_fees}`
+            : "0",
+          ApplicableFees: `${ref?.fee_structure}`
+            ? `${ref?.fee_structure?.applicable_fees}`
+            : `${ref?.hostel_fee_structure}`
+            ? `${ref?.hostel_fee_structure?.applicable_fees}`
+            : "0",
+          CurrentYearPaidFees: currentPaid ?? "0",
+          CurrentYearRemainingFees: currentRemain ?? "0",
+          CurrentYearApplicableRemainingFees: currentApplicableRemaining ?? "0",
+          CurrentYearGovernmentRemainingFees: currentGovernmentPending ?? "0",
+          TotalPaidFees: paid ?? "0",
+          TotalRemainingFees: pending ?? "0",
+          TotalApplicablePending: applicable_pending ?? "0",
+          GovernmentOutstanding: gov_pending ?? "0",
+        });
+      } else if (flow === "APPLICABLE_OS") {
+        console.log("ENTER", "oiquoiqeui");
+        for (var ele of valid_card) {
+          // ref.applicable_fees_pending +=
+          //   ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+          //     ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+          //     : 0;
+          pending += ele?.applicable_card?.remaining_fee;
+          paid += ele?.applicable_card?.paid_fee;
+          applicable_pending +=
+            ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+              ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+              : 0;
+        }
+        if (struct) {
+          var currentPaid = 0;
+          var currentRemain = 0;
+          var currentApplicableRemaining = 0;
+          var currentGovernmentPending = 0;
+          var valid_card = await RemainingList.findOne({
+            $and: [{ fee_structure: `${struct}` }, { student: `${ref?._id}` }],
+          })
+            .populate({
+              path: "fee_structure",
+            })
+            .populate({
+              path: "applicable_card government_card",
+            });
+          currentPaid += valid_card?.applicable_card?.paid_fee;
+          currentRemain += valid_card?.applicable_card?.remaining_fee;
+          currentApplicableRemaining +=
+            valid_card?.fee_structure?.applicable_fees - valid_card?.paid_fee >
+            0
+              ? valid_card?.fee_structure?.applicable_fees -
+                valid_card?.paid_fee
+              : 0;
+        }
+        excel_list.push({
+          RollNo: ref?.studentROLLNO ?? "NA",
+          AbcId: ref?.student_abc_id ?? "#NA",
+          GRNO: ref?.studentGRNO ?? "#NA",
+          Name:
+            `${ref?.studentFirstName} ${
+              ref?.studentMiddleName ? ref?.studentMiddleName : ""
+            } ${ref?.studentLastName}` ?? ref?.valid_full_name,
+          FirstName: ref?.studentFirstName ?? "#NA",
+          FatherName: ref?.studentFatherName ?? ref?.studentMiddleName,
+          LastName: ref?.studentLastName ?? "#NA",
+          Standard: `${ref?.fee_structure}`
+            ? `${ref?.fee_structure?.class_master?.className}`
+            : `${ref?.hostel_fee_structure}`
+            ? `${ref?.hostel_fee_structure?.class_master?.className}`
+            : "#NA",
+          Batch: `${ref?.fee_structure}`
+            ? `${ref?.fee_structure?.batch_master?.batchName}`
+            : `${ref?.hostel_fee_structure}`
+            ? `${ref?.hostel_fee_structure?.batch_master?.batchName}`
+            : "#NA",
+          FeeStructure: `${ref?.fee_structure}`
+            ? `${ref?.fee_structure?.unique_structure_name}`
+            : `${ref?.hostel_fee_structure}`
+            ? `${ref?.hostel_fee_structure?.unique_structure_name}`
+            : "#NA",
+          ActualFees: `${ref?.fee_structure}`
+            ? `${ref?.fee_structure?.total_admission_fees}`
+            : `${ref?.hostel_fee_structure}`
+            ? `${ref?.hostel_fee_structure?.total_admission_fees}`
+            : "0",
+          ApplicableFees: `${ref?.fee_structure}`
+            ? `${ref?.fee_structure?.applicable_fees}`
+            : `${ref?.hostel_fee_structure}`
+            ? `${ref?.hostel_fee_structure?.applicable_fees}`
+            : "0",
+          CurrentYearPaidFees: currentPaid ?? "0",
+          CurrentYearRemainingFees: currentRemain ?? "0",
+          CurrentYearApplicableRemainingFees: currentApplicableRemaining ?? "0",
+          // CurrentYearGovernmentRemainingFees: currentGovernmentPending ?? "0",
+          TotalPaidFees: paid ?? "0",
+          TotalRemainingFees: pending ?? "0",
+          TotalApplicablePending: applicable_pending ?? "0",
+          // GovernmentOutstanding: gov_pending ?? "0",
+        });
+      }
+    }
+    console.log(excel_list?.length);
+    await json_to_excel_student_applicable_outstanding_query(
+      excel_list,
+      institute?._id,
+      flow
+    );
   } catch (e) {
     console.log(e);
   }

@@ -3963,7 +3963,7 @@ exports.render_student_id_query = async (req, res) => {
     const { sid } = req?.params;
     const one_student = await Student.findById({ _id: sid })
       .select(
-        "studentFirstName studentMiddleName studentLastName studentFatherName photoId studentProfilePhoto studentGender studentGRNO studentROLLNO studentAddress studentState student_blood_group"
+        "studentFirstName studentMiddleName studentLastName studentDOB studentFatherName photoId studentProfilePhoto studentGender studentGRNO studentROLLNO studentAddress studentState student_blood_group"
       )
       .populate({
         path: "institute",

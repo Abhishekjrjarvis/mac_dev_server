@@ -164,7 +164,7 @@ router.patch(
   catchAsync(Filter.renderFinanceScholarTransactionHistoryQuery)
 );
 
-router.patch("/:cid/all/student", catchAsync(Filter.renderClassStudentQuery))
+router.patch("/:cid/all/student", catchAsync(Filter.renderClassStudentQuery));
 
 router.patch(
   "/internal/heads/by/:fid/receipt/query",
@@ -240,52 +240,81 @@ router.patch(
   catchAsync(Filter.renderCancelExportQuery)
 );
 
-router.patch(
-  "/all/classwise/query",
-  catchAsync(Filter.renderClassWiseQuery)
-);
+router.patch("/all/classwise/query", catchAsync(Filter.renderClassWiseQuery));
 
 router.get("/:fid/receipt/to/daybook", Filter.renderAllDayBookReceipt);
 
 router.get("/:fid/payment/to/daybook", Filter.renderAllDayBookPayment);
 
+router.patch("/:pid/all/slip/query", catchAsync(Filter.renderAllSlipQuery));
+
 router.patch(
-  "/:pid/all/slip/query",
-  catchAsync(Filter.renderAllSlipQuery)
+  "/:fid/daybook/heads/wise",
+  catchAsync(Filter.render_daybook_heads_wise)
 );
 
-router.patch("/:fid/daybook/heads/wise", catchAsync(Filter.render_daybook_heads_wise))
+router.get("/:baid/all/daybook", catchAsync(Filter.render_daybook_query));
 
-router.get("/:baid/all/daybook", catchAsync(Filter.render_daybook_query))
+router.patch(
+  "/:baid/all/daybook/edit",
+  catchAsync(Filter.render_daybook_edit_query)
+);
 
-router.patch("/:baid/all/daybook/edit", catchAsync(Filter.render_daybook_edit_query))
+router.delete(
+  "/:baid/all/daybook/delete",
+  catchAsync(Filter.render_daybook_delete_query)
+);
 
-router.delete("/:baid/all/daybook/delete", catchAsync(Filter.render_daybook_delete_query))
+router.patch("/insert/master/daybook", catchAsync(Filter.fee_master_linking));
 
-router.patch("/insert/master/daybook", catchAsync(Filter.fee_master_linking))
+router.patch(
+  "/:sid/subject/:aid/application/export",
+  catchAsync(Filter.render_subject_application_export)
+);
 
-router.patch("/:sid/subject/:aid/application/export", catchAsync(Filter.render_subject_application_export))
+router.patch(
+  "/:aid/intake/record/query",
+  catchAsync(Filter.render_app_intake_query)
+);
 
-router.patch("/:aid/intake/record/query", catchAsync(Filter.render_app_intake_query))
+router.get(
+  "/:aid/all/admission/intake",
+  catchAsync(Filter.render_admission_intake_set_query)
+);
 
-router.get("/:aid/all/admission/intake", catchAsync(Filter.render_admission_intake_set_query))
+router.patch(
+  "/:aid/all/admission/intake/edit",
+  catchAsync(Filter.render_admission_intake_set_edit_query)
+);
 
-router.patch("/:aid/all/admission/intake/edit", catchAsync(Filter.render_admission_intake_set_edit_query))
-
-router.delete("/:aid/all/admission/intake/delete", catchAsync(Filter.render_admission_intake_set_delete_query))
+router.delete(
+  "/:aid/all/admission/intake/delete",
+  catchAsync(Filter.render_admission_intake_set_delete_query)
+);
 
 router.patch(
   "/combined/application/export/:appId",
   catchAsync(Filter.renderApplicationCombinedListQuery)
 );
 
-router.patch("/:fid/daybook/other/fees/heads/wise", catchAsync(Filter.render_other_fees_daybook_heads_wise))
+router.patch(
+  "/:fid/daybook/other/fees/heads/wise",
+  catchAsync(Filter.render_other_fees_daybook_heads_wise)
+);
 
 router.patch(
   "/allotted/application/export/:appId",
   catchAsync(Filter.renderApplicationAllottedListQuery)
 );
 
-router.patch("/:fid/hostel/daybook/heads/wise", catchAsync(Filter.render_hostel_daybook_heads_wise))
+router.patch(
+  "/:fid/hostel/daybook/heads/wise",
+  catchAsync(Filter.render_hostel_daybook_heads_wise)
+);
+
+router.patch(
+  "/:aid/outstanding/applicable/query",
+  catchAsync(Filter.renderNormalApplicableOutStandingStudentQuery)
+);
 
 module.exports = router;

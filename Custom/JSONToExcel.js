@@ -921,6 +921,33 @@ exports.json_to_excel_academic_export_query = async (data_query, c_name) => {
   }
 };
 
+exports.json_to_excel_student_applicable_outstanding_query = async (
+  data_query,
+  aid,
+  flow
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, `${flow}Students`);
+    var name = `${flow}-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+    const valid_ins = await InstituteAdmin.findById({ _id: aid });
+    valid_ins.export_collection.push({
+      excel_file: results,
+      excel_file_name: name,
+    });
+    valid_ins.export_collection_count += 1;
+    await valid_ins.save();
+    console.log(results);
+    } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.cls_attendance_json_to_excel = async (
   id,
   list,

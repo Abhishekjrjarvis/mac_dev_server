@@ -17778,7 +17778,7 @@ exports.check_structure = async (req, res) => {
     const all_struct = await FeeStructure.find({
       $and: [
         { finance: "644a09d6d1679fcd6e76e5ef" },
-        // { document_update: true },
+        { document_update: true },
         { category_master: { $in: all_cat } },
       ],
     }).select("applicable_fees_heads_count structure_name");

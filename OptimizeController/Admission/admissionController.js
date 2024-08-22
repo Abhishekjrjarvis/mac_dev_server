@@ -5123,7 +5123,7 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
     //   });
     const oneApply = await NewApplication.findById({ _id: aid })
       .select(
-        "applicationName applicationType applicationAbout admissionProcess gr_initials applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type app_qr_code student_form_setting app_hindi_qr_code app_marathi_qr_code pin admission_intake collect_docs"
+        "applicationName applicationType applicationAbout admissionProcess gr_initials applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type app_qr_code student_form_setting app_hindi_qr_code app_marathi_qr_code pin admission_intake collect_docs review_count fee_collect_count"
       )
       .populate({
         path: "applicationDepartment",

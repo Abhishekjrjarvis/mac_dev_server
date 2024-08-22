@@ -271,8 +271,7 @@ const hostelBankDaybook = async (
         doc.addBackground(rectCell, "#a1a1a1", 0);
       },
     });
-  }
-  if (payment_type === "CASH_BANK") {
+  } else if (payment_type === "CASH_BANK") {
     let total = {
       sr_number: "",
       head_name: "Total",

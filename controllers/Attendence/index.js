@@ -3071,11 +3071,13 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
       });
     const month = req.query.month;
     const year = req.query.year;
-    const { is_type, which_type_list } = req.query;
+    const { is_type, which_type_list, criteria: queryCriteria } = req.query;
     const { startRange, endRange } = req.body;
     let regularexp = "";
     var attendaceMappingDate = [];
     var excel_key = "";
+    let criteria = queryCriteria ? +queryCriteria : 75;
+
     if (is_type === "RANGE") {
       let range1 = startRange;
       let range2 = endRange;
@@ -3202,7 +3204,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
           if (which_type_list === "DEFAULTER") {
             let total_per = +obj?.classWise?.totalPercentage;
             total_per = Math.ceil(total_per);
-            if (total_per < 75) {
+            if (total_per < +criteria) {
               students.push(obj);
             }
           } else {
@@ -3261,7 +3263,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
-                      if (total_per < 75) {
+                      if (total_per < +criteria) {
                         students.push(sobj);
                       }
                     } else {
@@ -3309,7 +3311,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
-                      if (total_per < 75) {
+                      if (total_per < +criteria) {
                         students.push(sobj);
                       }
                     } else {
@@ -3354,7 +3356,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                   if (which_type_list === "DEFAULTER") {
                     let total_per = +sobj?.totalPercentage;
                     total_per = Math.ceil(total_per);
-                    if (total_per < 75) {
+                    if (total_per < +criteria) {
                       students.push(sobj);
                     }
                   } else {
@@ -3484,7 +3486,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
-                      if (total_per < 75) {
+                      if (total_per < +criteria) {
                         students.push(sobj);
                       }
                     } else {
@@ -3532,7 +3534,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
-                      if (total_per < 75) {
+                      if (total_per < +criteria) {
                         students.push(sobj);
                       }
                     } else {
@@ -3577,7 +3579,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                   if (which_type_list === "DEFAULTER") {
                     let total_per = +sobj?.totalPercentage;
                     total_per = Math.ceil(total_per);
-                    if (total_per < 75) {
+                    if (total_per < +criteria) {
                       students.push(sobj);
                     }
                   } else {
@@ -3711,7 +3713,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
-                      if (total_per < 75) {
+                      if (total_per < +criteria) {
                         students.push(sobj);
                       }
                     } else {
@@ -3759,7 +3761,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
-                      if (total_per < 75) {
+                      if (total_per < +criteria) {
                         students.push(sobj);
                       }
                     } else {
@@ -3804,7 +3806,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                   if (which_type_list === "DEFAULTER") {
                     let total_per = +sobj?.totalPercentage;
                     total_per = Math.ceil(total_per);
-                    if (total_per < 75) {
+                    if (total_per < +criteria) {
                       students.push(sobj);
                     }
                   } else {
@@ -3929,7 +3931,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
           if (which_type_list === "DEFAULTER") {
             let total_per = +obj?.classWise?.totalPercentage;
             total_per = Math.ceil(total_per);
-            if (total_per < 75) {
+            if (total_per < +criteria) {
               students.push(obj);
             }
           } else {
@@ -4391,12 +4393,13 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
       });
     const month = req.query.month;
     const year = req.query.year;
-    const { is_type, which_type_list } = req.query;
+    const { is_type, which_type_list, criteria: queryCriteria } = req.query;
     const { startRange, endRange } = req.body;
     let regularexp = "";
     var attendaceMappingDate = [];
     var attendance_zip = null;
     var excel_key = null;
+    let criteria = queryCriteria ? +queryCriteria : 75;
     if (is_type === "RANGE") {
       let range1 = startRange;
       let range2 = endRange;
@@ -4544,7 +4547,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         if (which_type_list === "DEFAULTER") {
           let total_per = +obj?.subjectWise?.totalPercentage;
           total_per = Math.ceil(total_per);
-          if (total_per < 75) {
+          if (total_per < +criteria) {
             students.push(obj);
           }
         } else {
@@ -4723,7 +4726,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
           if (which_type_list === "DEFAULTER") {
             let total_per = +obj?.subjectWise?.totalPercentage;
             total_per = Math.ceil(total_per);
-            if (total_per < 75) {
+            if (total_per < +criteria) {
               students.push(obj);
             }
           } else {

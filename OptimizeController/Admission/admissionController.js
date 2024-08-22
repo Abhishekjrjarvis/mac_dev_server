@@ -137,7 +137,9 @@ const {
   universal_random_password_student_code,
 } = require("../../Generator/RandomPass");
 const RequiredDocument = require("../../models/Admission/RequiredDocument");
-
+const StudentPreviousData = require("../../models/StudentPreviousData");
+const FeesCategory = require("../../models/Finance/FeesCategory");
+const moment = require("moment");
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
     const { id } = req.params;
@@ -1237,7 +1239,7 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     if (studentOptionalSubject?.length > 0) {
       student.studentOptionalSubject?.push(...studentOptionalSubject);
     }
-    user.profilePhoto = student?.studentProfilePhoto
+    user.profilePhoto = student?.studentProfilePhoto;
     admission.student.push(student?._id);
     status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
@@ -5403,7 +5405,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         { card_type: "Promote" },
       ],
     })
-      .sort({ created_at: -1})
+      .sort({ created_at: -1 })
       .select(
         "applicable_fee scholar_ship_number card_type applicable_fees_pending excess_fee remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
       )
@@ -5491,7 +5493,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         { card_type: "Normal" },
       ],
     })
-    .sort({ created_at: -1})
+      .sort({ created_at: -1 })
       .select(
         "applicable_fee scholar_ship_number card_type applicable_fees_pending excess_fee remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status already_made button_status"
       )
@@ -6078,7 +6080,7 @@ exports.renderNewDirectInquiry = async (req, res) => {
       qvipleId.qviple_id = `${uqid}`;
       admins.users.push(user);
       admins.userCount += 1;
-      user.username_chat = await new_chat_username_unique(user?.userLegalName)
+      user.username_chat = await new_chat_username_unique(user?.userLegalName);
       await Promise.all([admins.save(), user.save(), qvipleId.save()]);
       var uInstitute = await InstituteAdmin.findOne({
         isUniversal: "Universal",
@@ -9535,12 +9537,10 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (
         });
         var student = students?.filter((val) => {
           if (val?.hostel_fee_structure || val?.hostel_renewal) {
-            
+          } else {
+            return val;
           }
-          else {
-            return val
-          }
-        })
+        });
         if (student?.length > 1) {
           ref.Remark = "Student With Same Name is more than 1";
           num_arr.push(ref);
@@ -15841,7 +15841,7 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
             apps?.applicationDepartment;
           data.student.new_app.applicationBatch = apps?.applicationBatch;
           data.student.new_app.applicationMaster = apps?.applicationMaster;
-          data.student.new_app.collect_docs = apps?.collect_docs
+          data.student.new_app.collect_docs = apps?.collect_docs;
         }
       }
       if (filter_select?.length > 0) {
@@ -15893,7 +15893,7 @@ exports.fetchAllSelectMergedApplication = async (req, res) => {
             apps?.applicationDepartment;
           data.student.new_app.applicationBatch = apps?.applicationBatch;
           data.student.new_app.applicationMaster = apps?.applicationMaster;
-          data.student.new_app.collect_docs = apps?.collect_docs
+          data.student.new_app.collect_docs = apps?.collect_docs;
         }
       }
       if (all_select_query?.length > 0) {
@@ -16803,10 +16803,10 @@ exports.render_one_fee_receipt_change_student_query = async (req, res) => {
       .send({ message: "Explore Student Subject Change Query", access: true });
     for (let ele of student?.active_fee_heads) {
       if (`${ele?.appId}` === `${receipt?.application}`) {
-        student?.active_fee_heads?.pull(ele)
+        student?.active_fee_heads?.pull(ele);
       }
     }
-    await student.save()
+    await student.save();
   } catch (e) {
     console.log(e);
   }
@@ -16849,7 +16849,7 @@ exports.retrieveClassAllotQueryReverse = async (req, res) => {
           });
           // apply.reviewApplication.pull(student._id);
           apply.undo_student.push(student?._id);
-          apply.reviewApplication.push(student?._id)
+          apply.reviewApplication.push(student?._id);
           // apply.allottedApplication.push({
           //   student: student._id,
           //   payment_status: "offline",
@@ -16896,7 +16896,7 @@ exports.retrieveClassAllotQueryReverse = async (req, res) => {
               await ele.save();
             }
           }
-          student.academic_subject = []
+          student.academic_subject = [];
           await Promise.all([
             apply.save(),
             student.save(),
@@ -16940,14 +16940,14 @@ exports.retrieveClassAllotQueryReverse = async (req, res) => {
           await Promise.all([classes.save(), batch.save()]);
           for (let ele of apply?.allottedApplication) {
             if (`${ele?.student}` === `${student?._id}`) {
-              apply.allottedApplication.pull(ele?._id)
-              apply.allot_array.pull(student?._id)
+              apply.allottedApplication.pull(ele?._id);
+              apply.allot_array.pull(student?._id);
               if (apply?.allotCount > 0) {
-                apply.allotCount -= 1
+                apply.allotCount -= 1;
               }
             }
           }
-          await apply.save()
+          await apply.save();
         }
       }
       res.status(200).send({
@@ -16955,8 +16955,7 @@ exports.retrieveClassAllotQueryReverse = async (req, res) => {
         allot_status: true,
         // apply: apply?.undo_student,
       });
-    }
-    else {
+    } else {
       res.status(200).send({
         message: `Take sweets to all family members. No Student Found`,
         allot_status: false,
@@ -17359,15 +17358,20 @@ exports.render_all_subject_query = async (req, res) => {
         access: false,
       });
 
-    const ads_admin = await Admission.findById({ _id: aid })
-    const apply = await NewApplication.find({ $and: [{_id: { $in: ads_admin?.newApplication }}, { applicationStatus: "Ongoing"}, { applicationTypeStatus: "Normal Application"}] })
-      .select(
+    const ads_admin = await Admission.findById({ _id: aid });
+    const apply = await NewApplication.find({
+      $and: [
+        { _id: { $in: ads_admin?.newApplication } },
+        { applicationStatus: "Ongoing" },
+        { applicationTypeStatus: "Normal Application" },
+      ],
+    }).select(
       "applicationName applicationStatus applicationTypeStatus subject_selected_group"
     );
-    var nums = []
+    var nums = [];
     for (let ele of apply) {
-      if (ele?.subject_selected_group?.length > 0) { 
-        nums.push(ele)
+      if (ele?.subject_selected_group?.length > 0) {
+        nums.push(ele);
       }
     }
     res.status(200).send({
@@ -17391,64 +17395,63 @@ exports.render_one_application_subject_sequence_query = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid }).select(
       "subject_selected_group"
     );
-      const all_group = await SubjectGroup.findById({
-        _id: `${apply?.subject_selected_group}`,
-      });
-      const all_group_select = await SubjectGroupSelect.find({
-        subject_group: { $in: all_group },
+    const all_group = await SubjectGroup.findById({
+      _id: `${apply?.subject_selected_group}`,
+    });
+    const all_group_select = await SubjectGroupSelect.find({
+      subject_group: { $in: all_group },
+    })
+      .populate({
+        path: "compulsory_subject",
+        select: "subjectName",
       })
-        .populate({
-          path: "compulsory_subject",
+      .populate({
+        path: "optional_subject",
+        populate: {
+          path: "optional_subject_options optional_subject_options_or.options",
           select: "subjectName",
-        })
-        .populate({
-          path: "optional_subject",
-          populate: {
-            path: "optional_subject_options optional_subject_options_or.options",
-            select: "subjectName",
-          },
-        })
-        .populate({
-          path: "fixed_subject",
-          populate: {
-            path: "fixed_subject_options",
-            select: "subjectName",
-          },
-        });
-      var subject_list = [];
-      for (let ele of all_group_select) {
-        subject_list.push(...ele?.compulsory_subject);
-      }
-      for (let ele of all_group_select) {
-        for (let val of ele?.fixed_subject) {
-          subject_list.push(...val?.fixed_subject_options);
-        }
-      }
-      for (let ele of all_group_select) {
-        for (let val of ele?.optional_subject) {
-          subject_list.push(...val?.optional_subject_options);
-        }
-        for (let val of ele?.optional_subject) {
-          for (let stu of val?.optional_subject_options_or) {
-            subject_list.push(...stu?.options);
-          }
-        }
-      }
-      const unique_sub = [...new Set(subject_list.map((item) => item._id))];
-      const all_subjects = await SubjectMaster.find({
-        _id: { $in: unique_sub },
-      }).select("subjectName studentCount");
-      
-      res.status(200).send({
-        message: "Explore All Student With Subject Master Query",
-        access: true,
-        subject_student: all_subjects ?? [],
+        },
+      })
+      .populate({
+        path: "fixed_subject",
+        populate: {
+          path: "fixed_subject_options",
+          select: "subjectName",
+        },
       });
+    var subject_list = [];
+    for (let ele of all_group_select) {
+      subject_list.push(...ele?.compulsory_subject);
+    }
+    for (let ele of all_group_select) {
+      for (let val of ele?.fixed_subject) {
+        subject_list.push(...val?.fixed_subject_options);
+      }
+    }
+    for (let ele of all_group_select) {
+      for (let val of ele?.optional_subject) {
+        subject_list.push(...val?.optional_subject_options);
+      }
+      for (let val of ele?.optional_subject) {
+        for (let stu of val?.optional_subject_options_or) {
+          subject_list.push(...stu?.options);
+        }
+      }
+    }
+    const unique_sub = [...new Set(subject_list.map((item) => item._id))];
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: unique_sub },
+    }).select("subjectName studentCount");
+
+    res.status(200).send({
+      message: "Explore All Student With Subject Master Query",
+      access: true,
+      subject_student: all_subjects ?? [],
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.check_global = async (req, res) => {
   try {
@@ -17457,96 +17460,102 @@ exports.check_global = async (req, res) => {
         head_name: "Gymkhana Fee",
         head_amount: 250,
         master: "66c4d18a8b20aaefc2b44f71",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "Student Welfare Fund",
         head_amount: 100,
         master: "66c4d19c8b20aaefc2b44fd9",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "Medical Examination",
         head_amount: 40,
         master: "66c4d1ae8b20aaefc2b45037",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "Development Fee - University",
         head_amount: 250,
         master: "66c4d3438b20aaefc2b45709",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "Prorata Contribution Ashwamegh",
         head_amount: 26,
         master: "66c4d1e88b20aaefc2b45181",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "Disaster Management",
         head_amount: 20,
         master: "66c4d2008b20aaefc2b45230",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "Computerization Fees",
         head_amount: 100,
         master: "66c4d2158b20aaefc2b452b4",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "Registration Fee",
         head_amount: 75,
         master: "66c4d2248b20aaefc2b452cc",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "Student Safety Insurance",
         head_amount: 20,
         master: "66c4d23b8b20aaefc2b45342",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "Admission Fee",
         head_amount: 50,
         master: "66c4d24b8b20aaefc2b4539a",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "Library Fee",
         head_amount: 300,
         master: "66c4d2588b20aaefc2b45408",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "Student Aid Fund",
         head_amount: 50,
         master: "66c4d2668b20aaefc2b45429",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "Sport Fund - Fit India",
         head_amount: 200,
         master: "66c4d27d8b20aaefc2b45430",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "NSS",
         head_amount: 10,
         master: "66c4d2898b20aaefc2b45460",
-        is_society: false
+        is_society: false,
       },
       {
         head_name: "Corpus Fund - Ashwamegh",
         head_amount: 4,
         master: "66c4d2a28b20aaefc2b454e8",
-        is_society: false
+        is_society: false,
       },
-    ]
-    const all_struct = await FeeStructure.find({ $and: [{ finance: "668ecf51f762c228aa0848d7" }, { document_update: false }] })
-    .select("applicable_fees_heads applicable_fees_heads_count applicable_fees")
-    let nums = []
+    ];
+    const all_struct = await FeeStructure.find({
+      $and: [
+        { finance: "668ecf51f762c228aa0848d7" },
+        { document_update: false },
+      ],
+    }).select(
+      "applicable_fees_heads applicable_fees_heads_count applicable_fees"
+    );
+    let nums = [];
     // let total = 0
     // for (let ele of all_struct) {
     //   for (let val of ele?.applicable_fees_heads) {
@@ -17583,35 +17592,40 @@ exports.check_global = async (req, res) => {
     //     path: "fee_structure",
     //     select: "structure_name"
     //   })
-      // const all_student = await RemainingList.find({ fee_structure: { $in: all_struct } })
-      //   .select("paid_fee remaining_fee applicable_fee")
-      //   .populate({
-      //     path: "fee_structure",
-      //     select: "applicable_fees"
-      //   })
-    
-        const all_student = await FeeReceipt.find({ fee_structure: { $in: all_struct } })
-        .select("fee_payment_amount")
-        .populate({
-          path: "fee_structure",
-          select: "applicable_fees"
-        })
+    // const all_student = await RemainingList.find({ fee_structure: { $in: all_struct } })
+    //   .select("paid_fee remaining_fee applicable_fee")
+    //   .populate({
+    //     path: "fee_structure",
+    //     select: "applicable_fees"
+    //   })
+
+    const all_student = await FeeReceipt.find({
+      fee_structure: { $in: all_struct },
+    })
+      .select("fee_payment_amount")
+      .populate({
+        path: "fee_structure",
+        select: "applicable_fees",
+      });
     // 1. Fee Receipt Heads
     // 2. Student Active Heads
     // 3. file
     for (let ele of all_student) {
       // if (ele?.remaining_fee > 0) {
-        nums.push(ele)
+      nums.push(ele);
       // }
     }
 
     res.status(200).send({
-      message: "All Student", access: true, all_student: nums, count: nums?.length})
+      message: "All Student",
+      access: true,
+      all_student: nums,
+      count: nums?.length,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 // exports.new_app = async (req, res) => {
 //   try {
@@ -17633,3 +17647,78 @@ exports.check_global = async (req, res) => {
 //   }
 // }
 
+exports.promote_currrent_year_institute_query = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { specific_category } = req.query;
+
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const institute = await InstituteAdmin.findById(id);
+    let specific_category_student_list = [];
+    let not_specific_category_student_list = [];
+    let list = ["66bafec95e67b13f50efd829", "66bdf274930b0e77adf974ab"];
+
+    const all_cat = await FeesCategory.find({
+      $and: [
+        { finance: "644a09d6d1679fcd6e76e5ef" },
+        { category_name: { $regex: `VJNT`, $options: "i" } },
+        // { _id: { $in: list } },
+      ],
+    });
+    const all_struct = await FeeStructure.find({
+      $and: [
+        { finance: "644a09d6d1679fcd6e76e5ef" },
+        { document_update: true },
+        { category_master: { $in: all_cat } },
+      ],
+    }).select("applicable_fees_heads_count structure_name");
+
+    // let nums = [...all_struct];
+
+    if (institute?.ApproveStudent?.length > 0) {
+      for (let stu of institute?.ApproveStudent) {
+        const student = await Student.findById(stu);
+        if (student?.previousYearData?.length > 0) {
+          let last_index =
+            student?.previousYearData[student?.previousYearData?.length - 1];
+          const prev_student = await StudentPreviousData.findById(last_index);
+          let match_date = moment(prev_student?.createdAt)?.format("yyyy");
+          const current_date = moment()?.format("yyyy");
+          if (`${current_date}` === `${match_date}`) {
+            const push_student = await Student.findOne({
+              $and: [
+                {
+                  _id: { $eq: `${student?._id}` },
+                },
+                {
+                  fee_structure: { $in: all_struct },
+                },
+              ],
+            });
+            if (push_student?._id) {
+              specific_category_student_list.push(push_student?._id);
+            }
+          }
+        } else {
+          not_specific_category_student_list.push(student?._id);
+        }
+      }
+    }
+
+    res.status(200).send({
+      message: "Internal Evaluation Test taken successfully.",
+      struct_count: all_struct?.length,
+      student_count: institute?.ApproveStudent?.length,
+      not_count: not_specific_category_student_list?.length,
+      exist_count: specific_category_student_list?.length,
+      specific_category_student_list: specific_category_student_list,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

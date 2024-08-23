@@ -7952,7 +7952,7 @@ exports.renderNewOneOtherFeesAddStudentQuery = async (req, res) => {
           val.paid_amount += fee_payment_amount;
           await nums.save();
         }
-        const new_receipt = new FeeReceipt({ ...req.body });
+        var new_receipt = new FeeReceipt({ ...req.body });
         const order = new OrderPayment({ ...req?.body });
         new_receipt.student = stu?._id;
         new_receipt.fee_structure = o_f?.fee_structure;

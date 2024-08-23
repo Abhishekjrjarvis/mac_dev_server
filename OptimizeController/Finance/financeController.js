@@ -8016,6 +8016,7 @@ exports.renderNewOneOtherFeesAddStudentQuery = async (req, res) => {
     res.status(200).send({
       message: "Explore New One Student In Other Fees Query",
       access: true,
+      key: new_receipt?.receipt_file ?? "",
     });
   } catch (e) {
     console.log(e);

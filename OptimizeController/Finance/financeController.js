@@ -8025,6 +8025,58 @@ exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
   }
 };
 
+exports.renderAllExamOtherFeesQuery = async (req, res) => {
+  try {
+    const { fid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var finance = await Finance.findById({ _id: fid });
+    var all_of = await OtherFees.find({
+      $and: [
+        { _id: { $in: finance?.other_fees } },
+        { other_fees_type: "EXAM_FEES" },
+      ],
+    })
+      .sort({ created_at: -1 })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "other_fees_name other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students"
+      )
+      .populate({
+        path: "bank_account",
+        select:
+          "finance_bank_account_number finance_bank_name finance_bank_account_name",
+      })
+      .populate({
+        path: "fee_receipt",
+        select: "receipt_file",
+      })
+      .populate({
+        path: "fee_structure",
+      });
+
+    for (let ele of all_of) {
+      ele.paid_students_count = ele?.paid_students?.length;
+      ele.remaining_students_count = ele?.student_count;
+    }
+    res.status(200).send({
+      message: "Explore All Exam Other Fees Query",
+      access: true,
+      all_of: all_of,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.renderExistingOtherFeesNonExistingQuery = async (req, res) => {
 //   try {
 //     const { fid } = req?.params

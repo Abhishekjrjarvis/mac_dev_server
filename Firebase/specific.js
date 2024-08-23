@@ -1,9 +1,9 @@
 var admin = require("firebase-admin");
-var serviceAccount = require("../Secret/qviple-user-firebase-adminsdk-4qvna-8582f91ae3.json");
+// var serviceAccount = require("../Secret/qviple-user-firebase-adminsdk-4qvna-8582f91ae3.json");
 // if (!admin.apps.length) {
 let fb = admin.initializeApp(
   {
-    credential: admin.credential.cert(serviceAccount),
+    // credential: admin.credential.cert(serviceAccount),
     databaseURL: "dB_URL",
   },
   "qviple-user"

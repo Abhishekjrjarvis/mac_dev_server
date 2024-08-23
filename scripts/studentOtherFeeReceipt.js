@@ -226,20 +226,19 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         );
     }
   } else {
-    if (
-      receiptData?.other_fees?.fee_structure?.category_master?.category_name
-    ) {
+    if (receiptData?.other_fees?.other_fees_type) {
+      let ft_type =
+        receiptData?.other_fees?.other_fees_type === "EXAM_FEES"
+          ? "Exam Fees"
+          : receiptData?.other_fees?.other_fees_type;
       doc.moveUp(1);
       doc
         .fontSize(10)
         .font("Times-Roman")
         .fillColor("#2e2e2e")
-        .text(
-          `${receiptData?.other_fees?.fee_structure?.category_master?.category_name}`,
-          {
-            indent: pageWidth / 2 + 110,
-          }
-        );
+        .text(`${ft_type}`, {
+          indent: pageWidth / 2 + 110,
+        });
     }
   }
 
@@ -763,20 +762,19 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
             );
         }
       } else {
-        if (
-          receiptData?.other_fees?.fee_structure?.category_master?.category_name
-        ) {
+        if (receiptData?.other_fees?.other_fees_type) {
+          let ft_type =
+            receiptData?.other_fees?.other_fees_type === "EXAM_FEES"
+              ? "Exam Fees"
+              : receiptData?.other_fees?.other_fees_type;
           doc.moveUp(1);
           doc
             .fontSize(10)
             .font("Times-Roman")
             .fillColor("#2e2e2e")
-            .text(
-              `${receiptData?.other_fees?.fee_structure?.category_master?.category_name}`,
-              {
-                indent: pageWidth / 2 + 110,
-              }
-            );
+            .text(`${ft_type}`, {
+              indent: pageWidth / 2 + 110,
+            });
         }
       }
 

@@ -2072,8 +2072,11 @@ const filterization_app_query = async (arr, type, date, appId) => {
           if (`${ele?.app}` === `${appId}` && ele?.flow == "confirm_by") {
             var valid_val = moment(ele?.created_at).format("YYYY-MM-DD");
             if (`${date}` === `${valid_val}`) {
-              rev_count += 1;
-              list.push(val);
+              if (list?.includes(val)) {
+              } else {
+                rev_count += 1;
+                list.push(val);
+              }
             }
           }
         }

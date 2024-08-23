@@ -3461,6 +3461,10 @@ exports.retrieveClassAllotQuery = async (req, res) => {
       for (var sid of array) {
         if (apply?.allot_array?.includes(`${sid}`)) {
           apply.reviewApplication.pull(sid);
+          if (apply?.review_count > 0) {
+            apply.review_count -= 1;
+          }
+          await apply.save();
         } else {
           const student = await Student.findById({ _id: sid });
           const user = await User.findById({ _id: `${student.user}` });

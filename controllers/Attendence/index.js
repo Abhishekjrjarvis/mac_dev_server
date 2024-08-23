@@ -3073,10 +3073,14 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
     const year = req.query.year;
     const { is_type, which_type_list, criteria: queryCriteria } = req.query;
     const { startRange, endRange } = req.body;
+    console.log("0", queryCriteria);
+
     let regularexp = "";
     var attendaceMappingDate = [];
     var excel_key = "";
     let criteria = queryCriteria ? +queryCriteria : 75;
+
+    console.log("0", criteria);
 
     if (is_type === "RANGE") {
       let range1 = startRange;
@@ -3322,46 +3326,44 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
               }
             } else {
               for (let stu of students) {
-                if (`${std}` === `${stu?._id}`) {
-                  let sobj = {
-                    subjectName: `${subjects?.subjectName} ${
-                      subjects?.subject_category
-                        ? `(${subjects?.subject_category})`
-                        : ""
-                    } ${
-                      subjects?.selected_batch_query?.batchName
-                        ? `(${subjects?.selected_batch_query?.batchName})`
-                        : ""
-                    } ${
-                      subjects?.subjectOptional === "Optional"
-                        ? `(${subjects?.subjectOptional})`
-                        : ""
-                    }`,
-                    subjectId: subjects?._id,
-                    presentCount: 0,
-                    totalCount: 0,
-                    totalPercentage: 0,
-                  };
-                  for (let att of subjects?.attendance) {
-                    for (let pre of att?.presentStudent) {
-                      if (String(stu._id) === String(pre.student))
-                        sobj.presentCount += 1;
-                    }
-                    sobj.totalCount += 1;
+                let sobj = {
+                  subjectName: `${subjects?.subjectName} ${
+                    subjects?.subject_category
+                      ? `(${subjects?.subject_category})`
+                      : ""
+                  } ${
+                    subjects?.selected_batch_query?.batchName
+                      ? `(${subjects?.selected_batch_query?.batchName})`
+                      : ""
+                  } ${
+                    subjects?.subjectOptional === "Optional"
+                      ? `(${subjects?.subjectOptional})`
+                      : ""
+                  }`,
+                  subjectId: subjects?._id,
+                  presentCount: 0,
+                  totalCount: 0,
+                  totalPercentage: 0,
+                };
+                for (let att of subjects?.attendance) {
+                  for (let pre of att?.presentStudent) {
+                    if (String(stu._id) === String(pre.student))
+                      sobj.presentCount += 1;
                   }
-                  sobj.totalPercentage = (
-                    (sobj.presentCount * 100) /
-                    sobj.totalCount
-                  ).toFixed(2);
-                  if (which_type_list === "DEFAULTER") {
-                    let total_per = +sobj?.totalPercentage;
-                    total_per = Math.ceil(total_per);
-                    if (total_per < +criteria) {
-                      students.push(sobj);
-                    }
-                  } else {
-                    stu.subjects.push(sobj);
+                  sobj.totalCount += 1;
+                }
+                sobj.totalPercentage = (
+                  (sobj.presentCount * 100) /
+                  sobj.totalCount
+                ).toFixed(2);
+                if (which_type_list === "DEFAULTER") {
+                  let total_per = +sobj?.totalPercentage;
+                  total_per = Math.ceil(total_per);
+                  if (total_per < +criteria) {
+                    students.push(sobj);
                   }
+                } else {
+                  stu.subjects.push(sobj);
                 }
               }
             }
@@ -3426,6 +3428,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
         .exec();
 
       let students = [];
+      console.log("1");
       if (classes?.ApproveStudent?.length > 0) {
         for (let stu of classes?.ApproveStudent) {
           let obj = {
@@ -3435,162 +3438,171 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
           students.push(obj);
         }
       }
-      if (classes?.subject?.length > 0 && students?.length > 0) {
-        for (let sub of classes?.subject) {
-          const subjects = await Subject.findById(sub?._id)
-            .populate({
-              path: "attendance",
-            })
-            .populate({
-              path: "selected_batch_query",
-            });
+      console.log(
+        "2",
+        classes?.subject?.length,
+        students?.length,
+        students?.[0]
+      );
 
-          if (subjects?.selected_batch_query?._id) {
-            if (
-              subjects?.selected_batch_query?.class_student_query?.length > 0
-            ) {
-              for (let std of subjects?.selected_batch_query
-                ?.class_student_query) {
-                for (let stu of students) {
-                  if (`${std}` === `${stu?._id}`) {
-                    let sobj = {
-                      subjectName: `${subjects?.subjectName} ${
-                        subjects?.subject_category
-                          ? `(${subjects?.subject_category})`
-                          : ""
-                      } ${
-                        subjects?.selected_batch_query?.batchName
-                          ? `(${subjects?.selected_batch_query?.batchName})`
-                          : ""
-                      } ${
-                        subjects?.subjectOptional === "Optional"
-                          ? `(${subjects?.subjectOptional})`
-                          : ""
-                      }`,
-                      subjectId: subjects?._id,
-                      presentCount: 0,
-                      totalCount: 0,
-                      totalPercentage: 0,
-                    };
-                    for (let att of subjects?.attendance) {
-                      for (let pre of att?.presentStudent) {
-                        if (String(stu._id) === String(pre.student))
-                          sobj.presentCount += 1;
-                      }
-                      sobj.totalCount += 1;
-                    }
-                    sobj.totalPercentage = (
-                      (sobj.presentCount * 100) /
-                      sobj.totalCount
-                    ).toFixed(2);
-                    if (which_type_list === "DEFAULTER") {
-                      let total_per = +sobj?.totalPercentage;
-                      total_per = Math.ceil(total_per);
-                      if (total_per < +criteria) {
-                        students.push(sobj);
-                      }
-                    } else {
-                      stu.subjects.push(sobj);
-                    }
-                  }
-                }
-              }
-            }
-          } else {
-            if (subjects?.optionalStudent?.length > 0) {
-              for (let std of subjects?.optionalStudent) {
-                for (let stu of students) {
-                  if (`${std}` === `${stu?._id}`) {
-                    let sobj = {
-                      subjectName: `${subjects?.subjectName} ${
-                        subjects?.subject_category
-                          ? `(${subjects?.subject_category})`
-                          : ""
-                      } ${
-                        subjects?.selected_batch_query?.batchName
-                          ? `(${subjects?.selected_batch_query?.batchName})`
-                          : ""
-                      } ${
-                        subjects?.subjectOptional === "Optional"
-                          ? `(${subjects?.subjectOptional})`
-                          : ""
-                      }`,
-                      subjectId: subjects?._id,
-                      presentCount: 0,
-                      totalCount: 0,
-                      totalPercentage: 0,
-                    };
-                    for (let att of subjects?.attendance) {
-                      for (let pre of att?.presentStudent) {
-                        if (String(stu._id) === String(pre.student))
-                          sobj.presentCount += 1;
-                      }
-                      sobj.totalCount += 1;
-                    }
-                    sobj.totalPercentage = (
-                      (sobj.presentCount * 100) /
-                      sobj.totalCount
-                    ).toFixed(2);
-                    if (which_type_list === "DEFAULTER") {
-                      let total_per = +sobj?.totalPercentage;
-                      total_per = Math.ceil(total_per);
-                      if (total_per < +criteria) {
-                        students.push(sobj);
-                      }
-                    } else {
-                      stu.subjects.push(sobj);
-                    }
-                  }
-                }
-              }
-            } else {
-              for (let stu of students) {
-                if (`${std}` === `${stu?._id}`) {
-                  let sobj = {
-                    subjectName: `${subjects?.subjectName} ${
-                      subjects?.subject_category
-                        ? `(${subjects?.subject_category})`
-                        : ""
-                    } ${
-                      subjects?.selected_batch_query?.batchName
-                        ? `(${subjects?.selected_batch_query?.batchName})`
-                        : ""
-                    } ${
-                      subjects?.subjectOptional === "Optional"
-                        ? `(${subjects?.subjectOptional})`
-                        : ""
-                    }`,
-                    subjectId: subjects?._id,
-                    presentCount: 0,
-                    totalCount: 0,
-                    totalPercentage: 0,
-                  };
-                  for (let att of subjects?.attendance) {
-                    for (let pre of att?.presentStudent) {
-                      if (String(stu._id) === String(pre.student))
-                        sobj.presentCount += 1;
-                    }
-                    sobj.totalCount += 1;
-                  }
-                  sobj.totalPercentage = (
-                    (sobj.presentCount * 100) /
-                    sobj.totalCount
-                  ).toFixed(2);
-                  if (which_type_list === "DEFAULTER") {
-                    let total_per = +sobj?.totalPercentage;
-                    total_per = Math.ceil(total_per);
-                    if (total_per < +criteria) {
-                      students.push(sobj);
-                    }
-                  } else {
-                    stu.subjects.push(sobj);
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+      // if (classes?.subject?.length > 0 && students?.length > 0) {
+      //   for (let sub of classes?.subject) {
+      //     const subjects = await Subject.findById(sub?._id)
+      //       .populate({
+      //         path: "attendance",
+      //       })
+      //       .populate({
+      //         path: "selected_batch_query",
+      //       });
+      //     console.log("subjects", subjects?.selected_batch_query);
+
+      //     if (subjects?.selected_batch_query?._id) {
+      //       if (
+      //         subjects?.selected_batch_query?.class_student_query?.length > 0
+      //       ) {
+      //         for (let std of subjects?.selected_batch_query
+      //           ?.class_student_query) {
+      //           for (let stu of students) {
+      //             if (`${std}` === `${stu?._id}`) {
+      //               let sobj = {
+      //                 subjectName: `${subjects?.subjectName} ${
+      //                   subjects?.subject_category
+      //                     ? `(${subjects?.subject_category})`
+      //                     : ""
+      //                 } ${
+      //                   subjects?.selected_batch_query?.batchName
+      //                     ? `(${subjects?.selected_batch_query?.batchName})`
+      //                     : ""
+      //                 } ${
+      //                   subjects?.subjectOptional === "Optional"
+      //                     ? `(${subjects?.subjectOptional})`
+      //                     : ""
+      //                 }`,
+      //                 subjectId: subjects?._id,
+      //                 presentCount: 0,
+      //                 totalCount: 0,
+      //                 totalPercentage: 0,
+      //               };
+      //               for (let att of subjects?.attendance) {
+      //                 for (let pre of att?.presentStudent) {
+      //                   if (String(stu._id) === String(pre.student))
+      //                     sobj.presentCount += 1;
+      //                 }
+      //                 sobj.totalCount += 1;
+      //               }
+      //               sobj.totalPercentage = (
+      //                 (sobj.presentCount * 100) /
+      //                 sobj.totalCount
+      //               ).toFixed(2);
+      //               if (which_type_list === "DEFAULTER") {
+      //                 let total_per = +sobj?.totalPercentage;
+      //                 total_per = Math.ceil(total_per);
+      //                 if (total_per < +criteria) {
+      //                   students.push(sobj);
+      //                 }
+      //               } else {
+      //                 stu.subjects.push(sobj);
+      //               }
+      //             }
+      //           }
+      //         }
+      //       }
+      //     } else {
+      //       if (subjects?.optionalStudent?.length > 0) {
+      //         for (let std of subjects?.optionalStudent) {
+      //           for (let stu of students) {
+      //             if (`${std}` === `${stu?._id}`) {
+      //               let sobj = {
+      //                 subjectName: `${subjects?.subjectName} ${
+      //                   subjects?.subject_category
+      //                     ? `(${subjects?.subject_category})`
+      //                     : ""
+      //                 } ${
+      //                   subjects?.selected_batch_query?.batchName
+      //                     ? `(${subjects?.selected_batch_query?.batchName})`
+      //                     : ""
+      //                 } ${
+      //                   subjects?.subjectOptional === "Optional"
+      //                     ? `(${subjects?.subjectOptional})`
+      //                     : ""
+      //                 }`,
+      //                 subjectId: subjects?._id,
+      //                 presentCount: 0,
+      //                 totalCount: 0,
+      //                 totalPercentage: 0,
+      //               };
+      //               for (let att of subjects?.attendance) {
+      //                 for (let pre of att?.presentStudent) {
+      //                   if (String(stu._id) === String(pre.student))
+      //                     sobj.presentCount += 1;
+      //                 }
+      //                 sobj.totalCount += 1;
+      //               }
+      //               sobj.totalPercentage = (
+      //                 (sobj.presentCount * 100) /
+      //                 sobj.totalCount
+      //               ).toFixed(2);
+      //               if (which_type_list === "DEFAULTER") {
+      //                 let total_per = +sobj?.totalPercentage;
+      //                 total_per = Math.ceil(total_per);
+      //                 if (total_per < +criteria) {
+      //                   students.push(sobj);
+      //                 }
+      //               } else {
+      //                 stu.subjects.push(sobj);
+      //               }
+      //             }
+      //           }
+      //         }
+      //       } else {
+      //         for (let stu of students) {
+      //           console.log("assdfhsdb", stu?._id);
+      //           let sobj = {
+      //             subjectName: `${subjects?.subjectName} ${
+      //               subjects?.subject_category
+      //                 ? `(${subjects?.subject_category})`
+      //                 : ""
+      //             } ${
+      //               subjects?.selected_batch_query?.batchName
+      //                 ? `(${subjects?.selected_batch_query?.batchName})`
+      //                 : ""
+      //             } ${
+      //               subjects?.subjectOptional === "Optional"
+      //                 ? `(${subjects?.subjectOptional})`
+      //                 : ""
+      //             }`,
+      //             subjectId: subjects?._id,
+      //             presentCount: 0,
+      //             totalCount: 0,
+      //             totalPercentage: 0,
+      //           };
+      //           for (let att of subjects?.attendance) {
+      //             for (let pre of att?.presentStudent) {
+      //               if (String(stu._id) === String(pre.student))
+      //                 sobj.presentCount += 1;
+      //             }
+      //             sobj.totalCount += 1;
+      //           }
+      //           sobj.totalPercentage = (
+      //             (sobj.presentCount * 100) /
+      //             sobj.totalCount
+      //           ).toFixed(2);
+      //           if (which_type_list === "DEFAULTER") {
+      //             let total_per = +sobj?.totalPercentage;
+      //             total_per = Math.ceil(total_per);
+      //             if (total_per < +criteria) {
+      //               students.push(sobj);
+      //             }
+      //           } else {
+      //             stu.subjects.push(sobj);
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
+      console.log("3");
+
       const student = students?.map((stu) => {
         let dObj = {
           GRNO: "",
@@ -3623,7 +3635,10 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
         }
         return dObj;
       });
+      console.log("hi");
       if (student?.length > 0) {
+        console.log("BY");
+
         excel_key = await cls_attendance_json_to_excel(
           cid,
           student,
@@ -3632,6 +3647,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
           `of-all-subject-semester-${classes?.classTitle ?? ""}`
         );
       }
+      console.log("YES");
 
       return res.status(200).send({
         message: "All student zip attendance wtih all subject semester wise",
@@ -3772,46 +3788,44 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
               }
             } else {
               for (let stu of students) {
-                if (`${std}` === `${stu?._id}`) {
-                  let sobj = {
-                    subjectName: `${subjects?.subjectName} ${
-                      subjects?.subject_category
-                        ? `(${subjects?.subject_category})`
-                        : ""
-                    } ${
-                      subjects?.selected_batch_query?.batchName
-                        ? `(${subjects?.selected_batch_query?.batchName})`
-                        : ""
-                    } ${
-                      subjects?.subjectOptional === "Optional"
-                        ? `(${subjects?.subjectOptional})`
-                        : ""
-                    }`,
-                    subjectId: subjects?._id,
-                    presentCount: 0,
-                    totalCount: 0,
-                    totalPercentage: 0,
-                  };
-                  for (let att of subjects?.attendance) {
-                    for (let pre of att?.presentStudent) {
-                      if (String(stu._id) === String(pre.student))
-                        sobj.presentCount += 1;
-                    }
-                    sobj.totalCount += 1;
+                let sobj = {
+                  subjectName: `${subjects?.subjectName} ${
+                    subjects?.subject_category
+                      ? `(${subjects?.subject_category})`
+                      : ""
+                  } ${
+                    subjects?.selected_batch_query?.batchName
+                      ? `(${subjects?.selected_batch_query?.batchName})`
+                      : ""
+                  } ${
+                    subjects?.subjectOptional === "Optional"
+                      ? `(${subjects?.subjectOptional})`
+                      : ""
+                  }`,
+                  subjectId: subjects?._id,
+                  presentCount: 0,
+                  totalCount: 0,
+                  totalPercentage: 0,
+                };
+                for (let att of subjects?.attendance) {
+                  for (let pre of att?.presentStudent) {
+                    if (String(stu._id) === String(pre.student))
+                      sobj.presentCount += 1;
                   }
-                  sobj.totalPercentage = (
-                    (sobj.presentCount * 100) /
-                    sobj.totalCount
-                  ).toFixed(2);
-                  if (which_type_list === "DEFAULTER") {
-                    let total_per = +sobj?.totalPercentage;
-                    total_per = Math.ceil(total_per);
-                    if (total_per < +criteria) {
-                      students.push(sobj);
-                    }
-                  } else {
-                    stu.subjects.push(sobj);
+                  sobj.totalCount += 1;
+                }
+                sobj.totalPercentage = (
+                  (sobj.presentCount * 100) /
+                  sobj.totalCount
+                ).toFixed(2);
+                if (which_type_list === "DEFAULTER") {
+                  let total_per = +sobj?.totalPercentage;
+                  total_per = Math.ceil(total_per);
+                  if (total_per < +criteria) {
+                    students.push(sobj);
                   }
+                } else {
+                  stu.subjects.push(sobj);
                 }
               }
             }

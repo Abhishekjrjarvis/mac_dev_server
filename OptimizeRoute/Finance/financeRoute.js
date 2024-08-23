@@ -553,66 +553,75 @@ router
 
 router
   .route("/:fid/all/upload/excel/query")
-  .patch(catchAsync(Finance.renderFinanceUploadAllExcelQuery))
+  .patch(catchAsync(Finance.renderFinanceUploadAllExcelQuery));
 
 router
   .route("/valid/scholar/query")
-  .patch(catchAsync(Finance.renderValidScholarQuery))
+  .patch(catchAsync(Finance.renderValidScholarQuery));
 
 router
   .route("/:fid/one/internal/fees/query")
-  .get(catchAsync(Finance.renderOneInternalFeesQuery))
+  .get(catchAsync(Finance.renderOneInternalFeesQuery));
 
 router
   .route("/:fid/all/mismatch/excel/query")
-  .get(catchAsync(Finance.renderAllMismatchQuery))
+  .get(catchAsync(Finance.renderAllMismatchQuery));
 
 router
   .route("/refresh/scholarship/funds/query")
-  .patch(catchAsync(Finance.renderRefreshScholarshipFundsQuery))
+  .patch(catchAsync(Finance.renderRefreshScholarshipFundsQuery));
 
 router
   .route("/scholarship/funds/query")
-  .get(catchAsync(Finance.renderScholarshipFundsQuery))
+  .get(catchAsync(Finance.renderScholarshipFundsQuery));
 
-router.patch("/fee/structure/code/query", catchAsync(Finance.renderFeeStructureCodeQuery))
+router.patch(
+  "/fee/structure/code/query",
+  catchAsync(Finance.renderFeeStructureCodeQuery)
+);
 
-router.get("/:fid/funds/tab/segregation/query", catchAsync(Finance.renderFundsTabSegregationQuery))
+router.get(
+  "/:fid/funds/tab/segregation/query",
+  catchAsync(Finance.renderFundsTabSegregationQuery)
+);
 
-router.patch("/:fsid/mark/society/query", catchAsync(Finance.render_mark_society_head_query))
+router.patch(
+  "/:fsid/mark/society/query",
+  catchAsync(Finance.render_mark_society_head_query)
+);
 
-router.patch("/:fid/control/receipt/query", catchAsync(Finance.render_control_receipt_query))
+router.patch(
+  "/:fid/control/receipt/query",
+  catchAsync(Finance.render_control_receipt_query)
+);
 
 router
   .route("/other/fee/:fid")
   .post(catchAsync(Finance.renderNewOtherFeesQuery));
 
 router
-.route("/non/existing/other/fee/:fid")
-.post(catchAsync(Finance.renderNewOtherFeesNonExistingQuery));
+  .route("/non/existing/other/fee/:fid")
+  .post(catchAsync(Finance.renderNewOtherFeesNonExistingQuery));
 
 router
   .route("/all/other/fee/:fid")
   .get(catchAsync(Finance.renderAllOtherFeesQuery));
 
-
 router
-.route("/one/other/fee/:ofid/student/list")
-.get(catchAsync(Finance.renderOneOtherFeesStudentListQuery));
+  .route("/one/other/fee/:ofid/student/list")
+  .get(catchAsync(Finance.renderOneOtherFeesStudentListQuery));
 
 router
   .route("/one/edit/other/fee/:ofid")
   .patch(catchAsync(Finance.render_one_other_fees_edit_query));
 
-
 router
-.route("/one/student/all/fees/:sid")
+  .route("/one/student/all/fees/:sid")
   .get(catchAsync(Finance.render_one_student_all_fees));
 
 router
   .route("/fee/struct/:fid/existed")
-  .patch(catchAsync(Finance.render_mark_society_head_existed))
-
+  .patch(catchAsync(Finance.render_mark_society_head_existed));
 
 router.get(
   "/:fid/all/exist/fee/structure",
@@ -633,30 +642,30 @@ router.patch(
   catchAsync(Finance.all_email_student_query)
 );
 
-router.patch(
-  "/delete/fees",
-  catchAsync(Finance.deleteFeesQuery)
-);
+router.patch("/delete/fees", catchAsync(Finance.deleteFeesQuery));
 
 router
   .route("/add/student/other/fee/:fid")
   .post(catchAsync(Finance.renderNewOtherFeesAddStudentQuery));
 
-  router
+router
   .route("/remove/student/other/fee/:ofid")
-    .post(catchAsync(Finance.renderNewOtherFeesRemoveStudentQuery));
-  
+  .post(catchAsync(Finance.renderNewOtherFeesRemoveStudentQuery));
+
 router
   .route("/add/non/existing/other/fees/:fid")
-  .post(catchAsync(Finance.renderExistNonOtherFeesAddStudentQuery))
+  .post(catchAsync(Finance.renderExistNonOtherFeesAddStudentQuery));
 
-  router
+router
   .route("/add/one/student/other/fee/:fid")
   .post(catchAsync(Finance.renderNewOneOtherFeesAddStudentQuery));
 
+router
+  .route("/one/non/existing/other/fee/:ofid/student/list")
+  .get(catchAsync(Finance.renderOneNonExistingOtherFeesStudentListQuery));
 
 router
-.route("/one/non/existing/other/fee/:ofid/student/list")
-.get(catchAsync(Finance.renderOneNonExistingOtherFeesStudentListQuery));
+  .route("/all/other/exam/fee/:fid")
+  .get(catchAsync(Finance.renderAllExamOtherFeesQuery));
 
 module.exports = router;

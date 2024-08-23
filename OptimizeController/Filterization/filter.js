@@ -10954,7 +10954,13 @@ exports.render_daybook_heads_wise = async (req, res) => {
       l_day = `0${l_day}`;
     }
     const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
-    const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
+    const date = new Date(new Date(`${l_year}-${l_month}-${l_day}`));
+    date.setDate(date.getDate() + 1);
+    let l_dates = date.getDate();
+    if (l_dates < 10) {
+      l_dates = `0${l_dates}`;
+    }
+    const l_date = new Date(`${l_year}-${l_month}-${l_dates}T00:00:00.000Z`);
     if (payment_type) {
       if (payment_type == "BOTH") {
         var all_receipts_set = await FeeReceipt.find({
@@ -11600,12 +11606,16 @@ exports.render_daybook_heads_wise = async (req, res) => {
       //   message: "Explore Day Book Heads Query",
       //   access: true,
       //   all_receipts: all_receipts?.length,
-      // //   t: t,
-      // //   tl: t?.length,
-      // //  l:l,
-      // //  ll:l?.length
+      //   //   t: t,
+      //   //   tl: t?.length,
+      //   //  l:l,
+      //   //  ll:l?.length
       //   results: nest_obj,
-      //   range: `${all_receipts[0]?.invoice_count?.substring(14)} To ${all_receipts[all_receipts?.length - 1]?.invoice_count?.substring(14)}`
+      //   range: `${all_receipts[0]?.invoice_count?.substring(
+      //     14
+      //   )} To ${all_receipts[
+      //     all_receipts?.length - 1
+      //   ]?.invoice_count?.substring(14)}`,
       //   // account_info: bank_acc,
       //   // day_range_from: from,
       //   // day_range_to: to,
@@ -14120,7 +14130,13 @@ exports.render_other_fees_daybook_heads_wise = async (req, res) => {
       l_day = `0${l_day}`;
     }
     const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
-    const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
+    const date = new Date(new Date(`${l_year}-${l_month}-${l_day}`));
+    date.setDate(date.getDate() + 1);
+    let l_dates = date.getDate();
+    if (l_dates < 10) {
+      l_dates = `0${l_dates}`;
+    }
+    const l_date = new Date(`${l_year}-${l_month}-${l_dates}T00:00:00.000Z`);
     if (payment_type) {
       var all_receipts = await FeeReceipt.find({
         $and: [
@@ -14561,7 +14577,13 @@ exports.render_hostel_daybook_heads_wise = async (req, res) => {
       l_day = `0${l_day}`;
     }
     const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
-    const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
+    const date = new Date(new Date(`${l_year}-${l_month}-${l_day}`));
+    date.setDate(date.getDate() + 1);
+    let l_dates = date.getDate();
+    if (l_dates < 10) {
+      l_dates = `0${l_dates}`;
+    }
+    const l_date = new Date(`${l_year}-${l_month}-${l_dates}T00:00:00.000Z`);
     if (payment_type) {
       if (payment_type == "BOTH") {
         var all_receipts_set = await FeeReceipt.find({
@@ -15179,7 +15201,6 @@ exports.renderNormalApplicableOutStandingStudentQuery = async (req, res) => {
           GovernmentOutstanding: gov_pending ?? "0",
         });
       } else if (flow === "APPLICABLE_OS") {
-        console.log("ENTER", "oiquoiqeui");
         for (var ele of valid_card) {
           // ref.applicable_fees_pending +=
           //   ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0

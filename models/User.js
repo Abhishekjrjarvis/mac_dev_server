@@ -499,21 +499,21 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     qviple_id: {
-      type: String
+      type: String,
     },
     student_message: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "StudentMessage"
-      }
+        ref: "StudentMessage",
+      },
     ],
     username_chat: { type: String, required: true, unique: true },
     linked_student: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Student"
-      }
-    ]
+        ref: "Student",
+      },
+    ],
   },
   { timestamps: true }
 );

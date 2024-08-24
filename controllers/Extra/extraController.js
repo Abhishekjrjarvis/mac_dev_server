@@ -1308,8 +1308,8 @@ exports.retrieveActiveMemberRole = async (req, res) => {
         ? active_user?.staff[0]
         : active_user?.student?.length > 0
         ? active_user?.student[0]
-        : active_user?.linked_student?.length > 0
-        ? active_user?.linked_student[0]
+        : active_user?.linked_students?.length > 0
+        ? active_user?.linked_students[0]
         : "";
     if (active_user?.active_member_role) {
       active_user.active_member_role = active_member_role

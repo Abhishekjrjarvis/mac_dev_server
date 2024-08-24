@@ -1065,12 +1065,10 @@ exports.getAllUserStudentMessage = async (req, res) => {
   try {
     const { id } = req?.params;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
     var page = req.query.page ? parseInt(req.query.page) : 1;
     var limit = req.query.limit ? parseInt(req.query.limit) : 10;
     var skip = (page - 1) * limit;
@@ -1674,7 +1672,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "institute",
           select:
-            "insName photoId insProfilePhoto student_section_form_show_query financeDepart storeStatus storeDepart",
+            "insName photoId insProfilePhoto student_section_form_show_query financeDepart storeStatus storeDepart library",
         })
         .populate({
           path: "user",
@@ -1908,7 +1906,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "institute",
           select:
-            "insName photoId insProfilePhoto student_section_form_show_query financeDepart storeStatus storeDepart",
+            "insName photoId insProfilePhoto student_section_form_show_query financeDepart storeStatus storeDepart library",
         })
         .populate({
           path: "user",
@@ -3061,12 +3059,10 @@ exports.render_specific_mods_query = async (req, res) => {
   try {
     const { uid } = req?.params;
     if (!uid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var user = await User.findById({ _id: uid });
 
@@ -3106,21 +3102,17 @@ exports.render_specific_mods_query = async (req, res) => {
           admissionDepart: val?.institute?.admissionDepart?.[0],
         });
       }
-      res
-        .status(200)
-        .send({
-          message: "Explore Social / Institute Admin Mods Available",
-          access: true,
-          token_list: token_list,
-        });
+      res.status(200).send({
+        message: "Explore Social / Institute Admin Mods Available",
+        access: true,
+        token_list: token_list,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No Social / Institute Admin Mods Available",
-          access: false,
-          staff: [],
-        });
+      res.status(200).send({
+        message: "No Social / Institute Admin Mods Available",
+        access: false,
+        staff: [],
+      });
     }
   } catch (e) {
     console.log(e);

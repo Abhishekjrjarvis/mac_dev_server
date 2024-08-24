@@ -668,4 +668,8 @@ router
   .route("/all/other/exam/fee/:fid")
   .get(catchAsync(Finance.renderAllExamOtherFeesQuery));
 
+router
+  .route("/one/other/fee/:ofid/student/list/export")
+  .patch(catchAsync(Finance.renderOneOtherFeesStudentListExportQuery));
+
 module.exports = router;

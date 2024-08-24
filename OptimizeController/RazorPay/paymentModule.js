@@ -147,6 +147,8 @@ exports.feeInstituteFunction = async (
     new_receipt.order_history = orderPay?._id;
     orderPay.fee_receipt = new_receipt?._id;
     orderPay.payment_student = student?._id;
+    orderPay.payment_student_name = student?.valid_full_name;
+    orderPay.payment_student_gr = student?.studentGRNO;
     new_internal.fee_receipt = new_receipt?._id;
     new_receipt.internal_fees = new_internal?._id;
     if (fData) {
@@ -629,6 +631,8 @@ exports.admissionInstituteFunction = async (
     new_receipt.order_history = orderPay?._id;
     orderPay.fee_receipt = new_receipt?._id;
     orderPay.payment_student = student?._id;
+    orderPay.payment_student_name = student?.valid_full_name;
+    orderPay.payment_student_gr = student?.studentGRNO;
     if (
       remaining_fee_lists?.re_admission_class != null &&
       remaining_fee_lists?.re_admission_flow
@@ -798,6 +802,8 @@ exports.participateEventFunction = async (
     orderPay.payment_participate = event._id;
     orderPay.payment_by_end_user_id = user._id;
     orderPay.payment_student = student?._id;
+    orderPay.payment_student_name = student?.valid_full_name;
+    orderPay.payment_student_gr = student?.studentGRNO;
     await Promise.all([
       student.save(),
       user.save(),
@@ -1627,6 +1633,8 @@ exports.libraryInstituteFunction = async (
     new_receipt.order_history = orderPay?._id;
     orderPay.fee_receipt = new_receipt?._id;
     orderPay.payment_student = student?._id;
+    orderPay.payment_student_name = student?.valid_full_name;
+    orderPay.payment_student_gr = student?.studentGRNO;
     new_internal.fee_receipt = new_receipt?._id;
     new_receipt.internal_fees = new_internal?._id;
     new_internal.internal_fee_status = "Paid";
@@ -1780,7 +1788,8 @@ exports.certificateInstituteFunction = async (
     orderPay.fee_receipt = new_receipt?._id;
     orderPay.payment_student = student?._id;
     new_receipt.certificate = new_cert?._id;
-
+    orderPay.payment_student_name = student?.valid_full_name;
+    orderPay.payment_student_gr = student?.studentGRNO;
     var new_cert = new CertificateQuery({});
     new_cert.certificate_type = cert_type;
     new_cert.query_content = cert_content;
@@ -1908,6 +1917,8 @@ exports.otherFeesFunction = async (
     orderPay.fee_receipt = new_receipt?._id;
     orderPay.payment_student = student?._id;
     orderPay.payment_module_type = "Other Fees";
+    orderPay.payment_student_name = student?.valid_full_name;
+    orderPay.payment_student_gr = student?.studentGRNO;
     new_receipt.other_fees = new_internal?._id;
     student.other_fees_paid_price += parseInt(tx_amount);
     if (student.other_fees_remain_price >= parseInt(tx_amount)) {

@@ -15,6 +15,7 @@ const { nested_document_limit } = require("../../helper/databaseFunction");
 const Activity = require("../../models/LandingModel/RND/Activity");
 const Staff = require("../../models/Staff");
 const Batch = require("../../models/Batch");
+const SubjectMaster = require("../../models/SubjectMaster");
 
 exports.getDepartmentInfo = async (req, res) => {
   try {
@@ -1110,20 +1111,59 @@ exports.render_all_universal_batch_query = async (req, res) => {
         access: false,
       });
 
-    const depart = await Department.findById({ _id: did });
-    const all_batch = await Batch.find({
-      $and: [{ department: depart?._id }, { merged_batch: "Merged" }],
-    })
-      .select("_id u_batch")
-      .populate({
-        path: "u_batch",
-        select: "batchName batchStatus",
+    const depart = await Department.findById({ _id: did }).select(
+      "department_status merged_subject_master"
+    );
+    if (depart?.department_status === "Normal") {
+      const all_batch = await Batch.find({
+        $and: [{ department: depart?._id }, { merged_batch: "Merged" }],
+      })
+        .select("_id u_batch")
+        .populate({
+          path: "u_batch",
+          select: "batchName batchStatus",
+        });
+      res.status(200).send({
+        message: "Explore All Site Batches Query",
+        access: true,
+        all_batch: all_batch,
       });
-    res.status(200).send({
-      message: "Explore All Site Batches Query",
-      access: true,
-      all_batch: all_batch,
-    });
+    } else if (depart?.department_status === "Academic") {
+      const all_subjects = await SubjectMaster.find({
+        _id: { $in: depart?.merged_subject_master },
+      }).select("subjectName department link_subject_master");
+
+      var nums = [];
+      for (let ele of all_subjects) {
+        const all_batch = await Batch.find({
+          $and: [{ department: ele?.department }, { merged_batch: "Merged" }],
+        });
+        for (let val of all_batch) {
+          if (nums?.includes(`${val?._id}`)) {
+          } else {
+            nums.push(val?._id);
+          }
+        }
+      }
+
+      if (nums?.length > 0) {
+        const all_batch = await Batch.find({ _id: { $in: nums } })
+          .select("batchName batchStatus")
+          .populate({
+            path: "u_batch",
+            select: "batchName batchStatus",
+          });
+        res.status(200).send({
+          message: "Explore All Batches Query",
+          access: true,
+          all_batch: all_batch,
+        });
+      } else {
+        res
+          .status(200)
+          .send({ message: "No Batches Query", access: true, all_batch: [] });
+      }
+    }
   } catch (e) {
     console.log(e);
   }

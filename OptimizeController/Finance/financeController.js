@@ -80,6 +80,9 @@ const {
 } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 const normalAdmissionFeeReceipt = require("../../scripts/normalAdmissionFeeReceipt");
 const studentOtherFeeReceipt = require("../../scripts/studentOtherFeeReceipt");
+const {
+  json_to_excel_other_fees_subject_application_query,
+} = require("../../Custom/JSONToExcel");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -7208,7 +7211,9 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
       });
 
     var one_of = await OtherFees.findById({ _id: ofid });
-    var all_student = await Student.find({ _id: { $in: one_of?.students } })
+    let list = [...one_of?.paid_students, ...one_of?.remaining_students];
+    // one_of?.students
+    var all_student = await Student.find({ _id: { $in: list } })
       .limit(limit)
       .skip(skip)
       .select(
@@ -8110,6 +8115,113 @@ exports.renderAllExamOtherFeesQuery = async (req, res) => {
   }
 };
 
+exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
+  try {
+    const { ofid } = req?.params;
+    if (!ofid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_of = await OtherFees.findById({ _id: ofid }).populate({
+      path: "finance",
+      select: "institute",
+    });
+    let list = [...one_of?.paid_students, ...one_of?.remaining_students];
+    // one_of?.students
+    var all_student = await Student.find({ _id: { $in: list } })
+      .select(
+        "studentFirstName studentMiddleName studentFatherName studentLastName photoId studentEmail studentGender studentPhoneNumber studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj other_fees_paid_price"
+      )
+      .populate({
+        path: "other_fees",
+        populate: {
+          path: "fee_receipt fees",
+          select: "receipt_file fee_payment_amount payable_amount",
+        },
+      });
+    for (let ele of all_student) {
+      for (let val of ele?.other_fees) {
+        if (`${val?.fees?._id}` === `${one_of?._id}` && val?.fee_receipt) {
+          ele.other_fees_obj.status = "Paid";
+          ele.other_fees_obj.receipt_file = val?.fee_receipt?.receipt_file;
+          ele.other_fees_obj.price = val?.fee_receipt?.fee_payment_amount;
+        } else if (`${val?.fees?._id}` === `${one_of?._id}`) {
+          ele.other_fees_obj.status = val?.status;
+          ele.other_fees_obj.price = val?.fees?.payable_amount;
+        }
+      }
+    }
+
+    let excel_list = [];
+    for (let cls of all_student) {
+      excel_list.push({
+        GRNO: cls?.studentGRNO ?? "NA",
+        Name: `${cls?.studentFirstName} ${cls?.studentFatherName} ${cls?.studentLastName}`,
+        FirstName: cls?.studentFirstName ?? "NA",
+        FatherName: cls?.studentFatherName ?? "NA",
+        LastName: cls?.studentLastName ?? "NA",
+        Gender: cls?.studentGender,
+        Email: cls?.studentEmail,
+        PhoneNumber: cls?.studentPhoneNumber,
+        FeesName: one_of?.other_fees_name ?? "NA",
+        FeesAmount: cls?.other_fees_obj?.price ?? 0,
+        Status: cls?.other_fees_obj.status ?? "NA",
+      });
+    }
+    var valid_back = await json_to_excel_other_fees_subject_application_query(
+      excel_list,
+      one_of?.other_fees_name,
+      one_of?.finance?.institute
+    );
+    if (valid_back?.back) {
+      res.status(200).send({
+        message: "Explore New Excel On Subject Export TAB",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
+  try {
+    const { ofid } = req?.params;
+    if (!ofid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_of = await OtherFees.findById({ _id: ofid }).populate({
+      path: "fee_receipt_student",
+      populate: {
+        path: "fee_receipt",
+        select: "receipt_file fee_payment_amount payable_amount",
+      },
+    });
+    var all_student = await nested_document_limit(
+      page,
+      limit,
+      one_of?.fee_receipt_student
+    );
+    res.status(200).send({
+      message:
+        "Explore One Non Existing Other Fees Remaining Student List Query",
+      access: true,
+      all_student: all_student,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 // exports.renderExistingOtherFeesNonExistingQuery = async (req, res) => {
 //   try {
 //     const { fid } = req?.params

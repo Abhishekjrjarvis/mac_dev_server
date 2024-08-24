@@ -11382,12 +11382,17 @@ exports.renderOrder = async (req, res) => {
   try {
     var all_order = await OrderPayment.find({}).populate({
       path: "payment_student",
+      select: "valid_full_name studentGRNO",
     });
+    console.log(all_order?.length);
+    var i = 0;
     for (var ref of all_order) {
       if (ref?.payment_student) {
         ref.payment_student_name = ref?.payment_student?.valid_full_name;
         ref.payment_student_gr = ref?.payment_student?.studentGRNO ?? "";
         await ref.save();
+        console.log(i);
+        i += 1;
       }
     }
 

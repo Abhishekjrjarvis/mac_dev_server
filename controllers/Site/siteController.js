@@ -1112,58 +1112,17 @@ exports.render_all_universal_batch_query = async (req, res) => {
       });
 
     const depart = await Department.findById({ _id: did }).select(
-      "department_status merged_subject_master"
+      "department_status institute"
     );
-    if (depart?.department_status === "Normal") {
-      const all_batch = await Batch.find({
-        $and: [{ department: depart?._id }, { merged_batch: "Merged" }],
-      })
-        .select("_id u_batch")
-        .populate({
-          path: "u_batch",
-          select: "batchName batchStatus",
-        });
-      res.status(200).send({
-        message: "Explore All Site Batches Query",
-        access: true,
-        all_batch: all_batch,
-      });
-    } else if (depart?.department_status === "Academic") {
-      const all_subjects = await SubjectMaster.find({
-        _id: { $in: depart?.merged_subject_master },
-      }).select("subjectName department link_subject_master");
-
-      var nums = [];
-      for (let ele of all_subjects) {
-        const all_batch = await Batch.find({
-          $and: [{ department: ele?.department }, { merged_batch: "Merged" }],
-        });
-        for (let val of all_batch) {
-          if (nums?.includes(`${val?._id}`)) {
-          } else {
-            nums.push(val?._id);
-          }
-        }
-      }
-
-      if (nums?.length > 0) {
-        const all_batch = await Batch.find({ _id: { $in: nums } })
-          .select("batchName batchStatus")
-          .populate({
-            path: "u_batch",
-            select: "batchName batchStatus",
-          });
-        res.status(200).send({
-          message: "Explore All Batches Query",
-          access: true,
-          all_batch: all_batch,
-        });
-      } else {
-        res
-          .status(200)
-          .send({ message: "No Batches Query", access: true, all_batch: [] });
-      }
-    }
+    const institute = await InstituteAdmin.findById({ _id: depart?.institute });
+    const all_batch = await Batch.find({
+      _id: { $in: institute?.universal_batches },
+    }).select("_id batchName batchStatus");
+    res.status(200).send({
+      message: "Explore All Site Batches Query",
+      access: true,
+      all_batch: all_batch,
+    });
   } catch (e) {
     console.log(e);
   }

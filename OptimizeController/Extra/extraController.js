@@ -61,6 +61,7 @@ const {
   generate_excel_to_json_student_ongoing_query,
   generate_excel_to_json_spce,
   generate_excel_to_json_grno,
+  generate_excel_to_json_roll_no_query,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -90,7 +91,10 @@ const {
   renderNewOfflineBookAutoQuery,
 } = require("../Library/libraryController");
 const Library = require("../../models/Library/Library");
-const { retrieveEmailReplaceQuery } = require("../Edit/studentMember");
+const {
+  retrieveEmailReplaceQuery,
+  retrieveROLLGRNOReplaceQuery,
+} = require("../Edit/studentMember");
 const fs = require("fs");
 const util = require("util");
 const {
@@ -1840,9 +1844,11 @@ exports.renderExcelToJSONEmailReplaceQuery = async (req, res) => {
     const val = await simple_object(excel_file);
 
     res.status(200).send({ message: "Email Replace " });
-    const is_converted = await generate_excel_to_json_login_query(val);
+    // const is_converted = await generate_excel_to_json_login_query(val);
+    const is_converted = await generate_excel_to_json_roll_no_query(val);
     if (is_converted?.value) {
-      await retrieveEmailReplaceQuery(is_converted?.email_array);
+      // await retrieveEmailReplaceQuery(is_converted?.email_array);
+      await retrieveROLLGRNOReplaceQuery(is_converted?.email_array);
     } else {
       console.log("false");
     }
@@ -4007,12 +4013,10 @@ exports.renderShuffledStudentQuery = async (req, res) => {
         }
         classes.shuffle_on = true;
         await classes.save();
-        res
-          .status(200)
-          .send({
-            message: "Explore Class Wise Shuffling Query",
-            access: true,
-          });
+        res.status(200).send({
+          message: "Explore Class Wise Shuffling Query",
+          access: true,
+        });
       }
     } else if (flow === "BATCH_WISE") {
       if (shuffle_arr?.length > 0) {
@@ -4023,12 +4027,10 @@ exports.renderShuffledStudentQuery = async (req, res) => {
           batch.class_student_query.push(val);
         }
         await batch.save();
-        res
-          .status(200)
-          .send({
-            message: "Explore Batch Wise Shuffling Query",
-            access: true,
-          });
+        res.status(200).send({
+          message: "Explore Batch Wise Shuffling Query",
+          access: true,
+        });
       }
     } else {
       res.status(200).send({ message: "Invalid Flow Query", access: false });
@@ -4089,24 +4091,20 @@ exports.renderAllUniqueIdQuery = async (req, res) => {
   try {
     const { id } = req?.params;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const one_ins = await InstituteAdmin.findById({ _id: id }).select(
       "ApproveStudent"
     );
 
-    res
-      .status(200)
-      .send({
-        message: "Explore All Student Unique id",
-        access: true,
-        one_ins: one_ins?.ApproveStudent,
-      });
+    res.status(200).send({
+      message: "Explore All Student Unique id",
+      access: true,
+      one_ins: one_ins?.ApproveStudent,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -4157,23 +4155,19 @@ exports.renderAllInstituteFundChargesQuery = async (req, res) => {
   try {
     const { id } = req?.params;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediatley",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
     const ins = await InstituteAdmin.findById({ _id: id }).select(
       "certificate_fund_collection certificate_fund_charges"
     );
-    res
-      .status(200)
-      .send({
-        message: "Explore All Institute Fund Charges + Collection",
-        access: true,
-        certificate: ins,
-      });
+    res.status(200).send({
+      message: "Explore All Institute Fund Charges + Collection",
+      access: true,
+      certificate: ins,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -4200,12 +4194,10 @@ exports.renderShuffledStaffQuery = async (req, res) => {
         await staff.save();
       }
       await institute.save();
-      res
-        .status(200)
-        .send({
-          message: "Explore Institute Wise Shuffling Query",
-          access: true,
-        });
+      res.status(200).send({
+        message: "Explore Institute Wise Shuffling Query",
+        access: true,
+      });
     }
   } catch (e) {
     console.log(e);

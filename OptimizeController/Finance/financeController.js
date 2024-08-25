@@ -7716,7 +7716,7 @@ exports.deleteFeesQuery = async (req, res) => {
 exports.renderNewOtherFeesAddStudentQuery = async (req, res) => {
   try {
     const { fid } = req?.params;
-    const { ofid } = req?.body;
+    const { students, ofid } = req?.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -7725,13 +7725,13 @@ exports.renderNewOtherFeesAddStudentQuery = async (req, res) => {
 
     var finance = await Finance.findById({ _id: fid });
     var o_f = await OtherFees.findById({ _id: ofid });
-    let students = [];
-    for (let ele of req?.body?.students) {
-      if (`${o_f?.students.includes(`${ele}`)}`) {
-      } else {
-        students.push(ele);
-      }
-    }
+    // let students = [];
+    // for (let ele of req?.body?.students) {
+    //   if (`${o_f?.students.includes(`${ele}`)}`) {
+    //   } else {
+    //     students.push(ele);
+    //   }
+    // }
     if (students?.length > 0) {
       for (let ele of students) {
         const stu = await Student.findById({ _id: `${ele}` });

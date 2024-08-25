@@ -452,18 +452,21 @@ exports.generate_excel_to_json_direct_hostelities = async (file, hid, fid) => {
   }
 };
 
-exports.generate_excel_to_json_scholarship_query = async (excel_arr, excel_count) => {
+exports.generate_excel_to_json_scholarship_query = async (
+  excel_arr,
+  excel_count
+) => {
   try {
     var new_data_query = [];
-    var obj = {}
+    var obj = {};
     for (var ref of excel_arr) {
-      for (var val = 0; val < excel_count; val++){
+      for (var val = 0; val < excel_count; val++) {
         if (ref[`key${val}`]) {
-          obj[ref[`key${val}`].db_key] = ref[`key${val}`]?.value
+          obj[ref[`key${val}`].db_key] = ref[`key${val}`]?.value;
         }
       }
       new_data_query.push({
-        ...obj
+        ...obj,
       });
     }
     // const w_query = xlsx.read(file.Body);
@@ -528,25 +531,24 @@ exports.generate_excel_to_json_library_offline_book_query = async (file) => {
       val.description = val?.Description;
       val.price = val?.Price;
       val.shellNumber = val?.ShelvesNumber;
-      val.subject = val?.Subject,
-      val.bill_date = val?.BillDate,
-      val.bill_number = val?.BillNumber,
-      val.purchase_order_date = val?.PurchaseOrderDate,
-      val.purchase_order_number = val?.PurchaseOrderNumber,
-      val.supplier = val?.Supplier,
-      val.publisher_place = val?.PublisherPlace,
-      val.publication_year = val?.PublicationYear,
-      val.edition = val?.Edition,
-      val.class_number = val?.ClassNumber,
-      val.accession_number = val?.AccessionNumber,
-      val.date = val?.Date,
-      val.publisher = val?.Publisher,
-      val.totalPage = val?.Pages
-      val.book_type = val?.BookType ?? "",
-      val.depart = val.Department
+      (val.subject = val?.Subject),
+        (val.bill_date = val?.BillDate),
+        (val.bill_number = val?.BillNumber),
+        (val.purchase_order_date = val?.PurchaseOrderDate),
+        (val.purchase_order_number = val?.PurchaseOrderNumber),
+        (val.supplier = val?.Supplier),
+        (val.publisher_place = val?.PublisherPlace),
+        (val.publication_year = val?.PublicationYear),
+        (val.edition = val?.Edition),
+        (val.class_number = val?.ClassNumber),
+        (val.accession_number = val?.AccessionNumber),
+        (val.date = val?.Date),
+        (val.publisher = val?.Publisher),
+        (val.totalPage = val?.Pages);
+      (val.book_type = val?.BookType ?? ""), (val.depart = val.Department);
       new_data_query.push(val);
     }
-    console.log(new_data_query)
+    console.log(new_data_query);
     return { book_array: new_data_query, value: true };
   } catch (e) {
     console.log("Library Offline Book Excel Query Not Resolved", e);
@@ -578,6 +580,24 @@ exports.generate_excel_to_json_login_query = async (file) => {
     // );
   } catch (e) {
     console.log("Login Excel Query Not Resolved", e);
+  }
+};
+
+exports.generate_excel_to_json_roll_no_query = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body, {
+      dateNF: "yyyy-mm-dd",
+    });
+    const w_sheet = w_query.Sheets["ROLL"];
+
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var ref of data_query) {
+      new_data_query.push(ref);
+    }
+    return { email_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("ROLL No Excel Query Not Resolved", e);
   }
 };
 
@@ -662,18 +682,21 @@ exports.generate_excel_to_json_un_approved = async (file, aid, fid, did) => {
 //   }
 // };
 
-exports.generate_excel_to_json_subject_chapter_query = async (excel_arr, excel_count) => {
+exports.generate_excel_to_json_subject_chapter_query = async (
+  excel_arr,
+  excel_count
+) => {
   try {
     var new_data_query = [];
-    var obj = {}
+    var obj = {};
     for (var ref of excel_arr) {
-      for (var val = 0; val < excel_count; val++){
+      for (var val = 0; val < excel_count; val++) {
         if (ref[`key${val}`]) {
-          obj[ref[`key${val}`].db_key] = ref[`key${val}`]?.value
+          obj[ref[`key${val}`].db_key] = ref[`key${val}`]?.value;
         }
       }
       new_data_query.push({
-        ...obj
+        ...obj,
       });
     }
     return { chapter_array: new_data_query, value: true };
@@ -713,7 +736,7 @@ exports.generate_excel_to_json_fee_query = async (file, aid, fid) => {
           $and: [
             { admissionAdmin: aid },
             { applicationDepartment: new_fee_struct?.department },
-            { applicationBatch: new_fee_struct?.batch_master}
+            { applicationBatch: new_fee_struct?.batch_master },
           ],
         });
         // console.log(new_appId?.applicationDepartment, new_appId?.applicationBatch, new_appId?.applicationMaster)
@@ -733,13 +756,13 @@ exports.generate_excel_to_json_fee_query = async (file, aid, fid) => {
       // console.log(batch_set?.length)
       batch_set = batch_set.filter((value) => JSON.stringify(value) !== "{}");
 
-        new_data_query.push({
-          ...ref,
-          batch_set,
-        });
+      new_data_query.push({
+        ...ref,
+        batch_set,
+      });
     }
     // console.log(new_data_query)
-    return { student_array: new_data_query, value: true }; 
+    return { student_array: new_data_query, value: true };
     // fs.writeFileSync(
     //   "../studentJSON.json",
     //   JSON.stringify(new_data_query, null, 2)
@@ -791,7 +814,7 @@ exports.generate_excel_to_json_subject_master_query = async (file) => {
     for (var val of data_query) {
       val.subjectName = val?.SubjectName;
       val.subjectType = val?.SubjectType ?? "Mandatory";
-      val.course_code = val?.CourseCode
+      val.course_code = val?.CourseCode;
       new_data_query.push(val);
     }
     return { subject_master_array: new_data_query, value: true };
@@ -834,35 +857,35 @@ exports.generate_excel_to_json_subject_query = async (file, did, cid) => {
     var new_data_query = [];
     for (var val of data_query) {
       if (val?.MasterName) {
-        console.log("MASTER BEGIN", val?.MasterName)
-      var new_master = await SubjectMaster.findOne({
-        $and: [
-          { department: did },
-          {
-            subjectName: { $regex: `${val?.MasterName}`, $options: "i" },
-          },
-        ],
-      });
-        console.log("MASTER END", new_master)
-      if (val?.Batch) {
-        var new_batch = await Batch.findOne({
+        console.log("MASTER BEGIN", val?.MasterName);
+        var new_master = await SubjectMaster.findOne({
           $and: [
-            { class_batch_select: cid },
+            { department: did },
             {
-              batchName: { $regex: `${val.Batch}`, $options: "i" },
+              subjectName: { $regex: `${val?.MasterName}`, $options: "i" },
             },
           ],
         });
+        console.log("MASTER END", new_master);
+        if (val?.Batch) {
+          var new_batch = await Batch.findOne({
+            $and: [
+              { class_batch_select: cid },
+              {
+                batchName: { $regex: `${val.Batch}`, $options: "i" },
+              },
+            ],
+          });
+        }
+        val.subjectTitle = val?.SubjectTitle ?? "Subject Teacher";
+        val.subject_category = val?.SubjectCategory;
+        if (val?.SubjectType === "Full Class") {
+        } else {
+          val.selected_batch = new_batch?._id;
+        }
+        val.msid = new_master?._id;
+        new_data_query.push(val);
       }
-      val.subjectTitle = val?.SubjectTitle ?? "Subject Teacher";
-      val.subject_category = val?.SubjectCategory;
-      if (val?.SubjectType === "Full Class") {
-      } else {
-        val.selected_batch = new_batch?._id;
-      }
-      val.msid = new_master?._id;
-      new_data_query.push(val);
-    }
     }
     // console.log(new_data_query)
     return { subject_array: new_data_query, value: true };
@@ -946,8 +969,10 @@ exports.generate_excel_to_json_staff_leave_query = async (file) => {
   }
 };
 
-
-exports.generate_excel_to_json_fee_structure_exist_query = async (file, fid) => {
+exports.generate_excel_to_json_fee_structure_exist_query = async (
+  file,
+  fid
+) => {
   try {
     const w_query = xlsx.read(file.Body);
     const w_sheet = w_query.Sheets["FeeStructure"];
@@ -956,7 +981,7 @@ exports.generate_excel_to_json_fee_structure_exist_query = async (file, fid) => 
     var new_query = [];
     for (var struct of data_query) {
       var heads = [];
-      struct.fee_structure_code = struct?.Code
+      struct.fee_structure_code = struct?.Code;
       var head_count = struct?.FeeHeadCount
         ? parseInt(struct?.FeeHeadCount)
         : 0;
@@ -1010,36 +1035,45 @@ exports.generate_excel_to_json_accession_query = async (file) => {
       ref.accession_number = ref?.New;
       new_data_query.push(ref);
     }
-    console.log(new_data_query)
+    console.log(new_data_query);
     // return { email_array: new_data_query, value: true };
   } catch (e) {
     console.log("Accession Number Excel Query Not Resolved", e);
   }
-}
+};
 
-exports.generate_excel_to_json_class_time_table_query = async (excel_arr, excel_count) => {
+exports.generate_excel_to_json_class_time_table_query = async (
+  excel_arr,
+  excel_count
+) => {
   try {
     var new_data_query = [];
-    var week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    var week = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
     var obj = {
-      day_arr: []
-    }
+      day_arr: [],
+    };
     for (var ref of excel_arr) {
-      for (var val = 0; val < excel_count; val++){
+      for (var val = 0; val < excel_count; val++) {
         if (ref[`key${val}`]) {
-          obj[ref[`key${val}`].db_key] = ref[`key${val}`]?.value
+          obj[ref[`key${val}`].db_key] = ref[`key${val}`]?.value;
           if (week?.includes(ref[`key${val}`]?.excel_key)) {
             if (obj.day_arr.includes(ref[`key${val}`]?.excel_key)) {
-              
-            }
-            else {
-              obj.day_arr.push(ref[`key${val}`]?.excel_key) 
+            } else {
+              obj.day_arr.push(ref[`key${val}`]?.excel_key);
             }
           }
         }
       }
       new_data_query.push({
-        ...obj
+        ...obj,
       });
     }
     // console.log(new_data_query)
@@ -1065,10 +1099,10 @@ exports.generate_excel_to_json_student_fees_mapping = async (file, fid) => {
         ],
       });
       ref.studentGRNO = GRNO;
-      ref.fee_category = valid_cate?._id
-        new_data_query.push({
-          ...ref,
-        });
+      ref.fee_category = valid_cate?._id;
+      new_data_query.push({
+        ...ref,
+      });
     }
     return { student_array: new_data_query, value: true };
   } catch (e) {
@@ -1118,7 +1152,7 @@ exports.generate_excel_to_json_staff_department = async (file, id) => {
       if (new_depart?._id) {
         new_data_query.push({
           ...ref,
-        }); 
+        });
       }
     }
     return { student_array: new_data_query, value: true };
@@ -1139,20 +1173,22 @@ exports.generate_excel_to_json_student_ongoing_query = async (file, aid) => {
       var new_appId = await NewApplication.findOne({
         $and: [
           { admissionAdmin: aid },
-          { applicationName: {
-            $regex: `${ref?.appName}`,
-            $options: "i",
-          }, }
+          {
+            applicationName: {
+              $regex: `${ref?.appName}`,
+              $options: "i",
+            },
+          },
         ],
       });
       if (new_appId?._id) {
-        ref.appId = new_appId?._id
+        ref.appId = new_appId?._id;
         new_data_query.push({
           ...ref,
         });
       }
     }
-    return { student_array: new_data_query, value: true }; 
+    return { student_array: new_data_query, value: true };
   } catch (e) {
     console.log("Excel Query App Not Resolved", e);
   }
@@ -1167,15 +1203,15 @@ exports.generate_excel_to_json_spce = async (file) => {
     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
     var new_data_query = [];
     for (var ref of data_query) {
-      ref.studentFirstName = ref?.FName
-      ref.studentFatherName = ref?.FTName
-      ref.studentLastName = ref?.LName
-      ref.studentGRNO = ref?.GRNO
+      ref.studentFirstName = ref?.FName;
+      ref.studentFatherName = ref?.FTName;
+      ref.studentLastName = ref?.LName;
+      ref.studentGRNO = ref?.GRNO;
       new_data_query.push({
         ...ref,
       });
     }
-    return { student_array: new_data_query, value: true }; 
+    return { student_array: new_data_query, value: true };
   } catch (e) {
     console.log("Excel SPCE Query App Not Resolved", e);
   }
@@ -1192,6 +1228,4 @@ exports.generate_excel_to_json_grno = async (file) => {
   }
 };
 
-
 // console.log(generate_excel_to_json_class_time_table_query(data_set, 5))
-

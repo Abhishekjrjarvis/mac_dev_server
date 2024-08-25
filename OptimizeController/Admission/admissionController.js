@@ -9616,10 +9616,10 @@ exports.renderAutoStudentNameQuery = async (req, res) => {
     );
     var i = 0;
     for (let ele of all_student) {
-      let names = `${ele?.studentFirstName?.toLowerCase()}${
-        ele?.studentMiddleName?.toLowerCase() ??
-        ele?.studentFatherName?.toLowerCase()
-      }${ele?.studentLastName?.toLowerCase()}`;
+      let names = `${ele?.studentFirstName?.trim()?.toLowerCase()}${
+        ele?.studentMiddleName?.trim()?.toLowerCase() ??
+        ele?.studentFatherName?.trim()?.toLowerCase()
+      }${ele?.studentLastName?.trim()?.toLowerCase()}`;
       ele.scholar_name = names?.trim();
       await ele.save();
       console.log(i);

@@ -900,7 +900,7 @@ exports.retrieveROLLGRNOReplaceQuery = async (arr) => {
         console.log(combine);
         var one_student = await Student.findOne({
           $and: [
-            { scholar_name: { $regex: `${combine}`, $options: "i" } },
+            { scholar_name: `${combine}` },
             { "student_form_flow.did": "6656bcf29764b93acce07526" },
           ],
         }).select("studentGRNO studentROLLNO valid_full_name scholar_name");
@@ -908,7 +908,7 @@ exports.retrieveROLLGRNOReplaceQuery = async (arr) => {
           one_student.studentGRNO = `24BA${ref?.Roll}`;
           one_student.studentROLLNO = `${ref?.Roll}`;
           await one_student.save();
-          console.log(i);
+          console.log(i, one_student);
           i += 1;
         } else {
           console.log("Issue", i);

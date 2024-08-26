@@ -1118,10 +1118,21 @@ exports.render_all_universal_batch_query = async (req, res) => {
     const all_batch = await Batch.find({
       _id: { $in: institute?.universal_batches },
     }).select("_id batchName batchStatus");
+    let nums = [];
+    for (let ele of all_batch) {
+      nums.push({
+        _id: ele?._id,
+        u_batch: {
+          _id: ele?._id,
+          batchName: ele?.batchName,
+          batchStatus: ele?.batchStatus,
+        },
+      });
+    }
     res.status(200).send({
       message: "Explore All Site Batches Query",
       access: true,
-      all_batch: all_batch,
+      all_batch: nums,
     });
   } catch (e) {
     console.log(e);

@@ -41,6 +41,8 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
   let dy = doc.y - 12;
 
   // active_fee_heads
+  // paid_fee
+  // let paid_fee = [];
   let paid_fee = receiptData?.student?.active_fee_heads?.filter((fd) => {
     if (fd?.paid_fee > 0 && fd?.original_paid > 0) {
       return fd;
@@ -50,6 +52,8 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
   });
 
   // active_society_fee_heads
+  // society_paid_fee
+  // paid_fee = society_paid_fee;
   let society_paid_fee = receiptData?.student?.active_society_fee_heads?.filter(
     (fd) => {
       if (fd?.paid_fee > 0 && fd?.original_paid > 0) {
@@ -59,7 +63,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       }
     }
   );
-
+  // console.log(society_paid_fee?.length, paid_fee?.length);
   if (paid_fee?.length > 0 && society_paid_fee?.length === 0) {
     if (instituteData?.insProfilePhoto) {
       doc.image(
@@ -826,7 +830,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       if (data?.original_paid) paidAmount += data?.original_paid;
 
       ft += 1;
-      data = society_paid_fee?.[ft];
+      data = paid_fee?.[ft];
       doc.moveUp(1);
       doc
         .fontSize(10)
@@ -850,7 +854,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       if (data?.original_paid) paidAmount += data?.original_paid;
 
       ft += 1;
-      data = society_paid_fee?.[ft];
+      data = paid_fee?.[ft];
       i += 2;
       doc.moveUp(1);
       doc
@@ -1285,7 +1289,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
 
       if (data?.original_paid) paidAmount += data?.original_paid;
       ft += 1;
-      data = paid_fee?.[ft];
+      data = society_paid_fee?.[ft];
       doc.moveUp(1);
       doc
         .fontSize(10)
@@ -1310,7 +1314,7 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       if (data?.original_paid) paidAmount += data?.original_paid;
 
       ft += 1;
-      data = paid_fee?.[ft];
+      data = society_paid_fee?.[ft];
       i += 2;
       doc.moveUp(1);
       doc

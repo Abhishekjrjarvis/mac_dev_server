@@ -393,10 +393,10 @@ exports.callbackAdmission = async (req, res) => {
                 check: true,
               });
             } else {
-              res.redirect(`${process.env.FRONT_REDIRECT_URL}/${dynamic}`);
+              res.redirect(`${process.env.FRONT_REDIRECT_URL}/${dynamic?.url}`);
             }
           } else {
-            res.redirect(`${process.env.FRONT_REDIRECT_URL}/${dynamic}`);
+            res.redirect(`${process.env.FRONT_REDIRECT_URL}/${dynamic?.url}`);
           }
         });
       });

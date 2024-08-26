@@ -115,7 +115,9 @@ exports.formEditByClassTeacher = async (req, res) => {
       one_student[`${studentObj}`] = req.body?.student[studentObj];
     }
     one_student.student_dynamic_field = [...req.body?.student_dynamic_field];
-    // one_student.application_print = [];
+    if (regeneration_bool === "Yes" || regeneration_status === "Yes") {
+      one_student.application_print = [];
+    }
     one_student.studentMiddleName = one_student?.studentFatherName
       ? one_student?.studentFatherName
       : one_student?.studentMiddleName;

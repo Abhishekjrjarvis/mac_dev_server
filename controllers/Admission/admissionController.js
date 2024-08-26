@@ -93,7 +93,10 @@ const { set_off_amount } = require("../../Functions/SetOff");
 const {
   set_fee_head_query_redesign_hostel,
 } = require("../../Functions/hostelInstallment");
-const { setoff_json_to_excel_query, mismatch_scholar_transaction_json_to_excel_query } = require("../../Custom/JSONToExcel");
+const {
+  setoff_json_to_excel_query,
+  mismatch_scholar_transaction_json_to_excel_query,
+} = require("../../Custom/JSONToExcel");
 const { universal_random_password } = require("../../Custom/universalId");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
@@ -107,8 +110,8 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
       });
     var institute = await InstituteAdmin.findById({ _id: id });
     var admission = new Admission({});
-    const codess = universal_random_password()
-    admission.member_module_unique = `${codess}`
+    const codess = universal_random_password();
+    admission.member_module_unique = `${codess}`;
     if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });
@@ -647,58 +650,58 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     // } else {
     const student = new Student({ ...req.body });
     if (req.body?.studentFatherName) {
-      student.studentMiddleName = req.body?.studentFatherName
+      student.studentMiddleName = req.body?.studentFatherName;
     }
-      student.valid_full_name = `${student?.studentFirstName} ${
-        student?.studentMiddleName ?? ""
-      } ${student?.studentLastName}`;
-      student.student_join_mode = "ADMISSION_PROCESS";
-      const codess = universal_random_password()
-      student.member_module_unique = `${codess}`
-      const apply = await NewApplication.findById({ _id: aid });
-      const admission = await Admission.findById({
-        _id: `${apply.admissionAdmin}`,
-      })
-        .select("institute admissionAdminHead")
-        .populate({
-          path: "admissionAdminHead",
-          select: "user",
+    student.valid_full_name = `${student?.studentFirstName} ${
+      student?.studentMiddleName ?? ""
+    } ${student?.studentLastName}`;
+    student.student_join_mode = "ADMISSION_PROCESS";
+    const codess = universal_random_password();
+    student.member_module_unique = `${codess}`;
+    const apply = await NewApplication.findById({ _id: aid });
+    const admission = await Admission.findById({
+      _id: `${apply.admissionAdmin}`,
+    })
+      .select("institute admissionAdminHead")
+      .populate({
+        path: "admissionAdminHead",
+        select: "user",
+      });
+    const institute = await InstituteAdmin.findById({
+      _id: `${admission.institute}`,
+    });
+    const status = new Status({});
+    const notify = new StudentNotification({});
+    var filtered_account = await BankAccount.findOne({
+      departments: { $in: apply?.applicationDepartment },
+    });
+    const studentOptionalSubject = req.body?.optionalSubject
+      ? req.body?.optionalSubject
+      : [];
+    for (var file of req.body?.fileArray) {
+      if (file.name === "file") {
+        student.photoId = "0";
+        student.studentProfilePhoto = file.key;
+      } else if (file.name === "addharFrontCard")
+        student.studentAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        student.studentAadharBackCard = file.key;
+      else if (file.name === "bankPassbook")
+        student.studentBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        student.studentCasteCertificatePhoto = file.key;
+      else {
+        student.studentDocuments.push({
+          documentName: file.name,
+          documentKey: file.key,
+          documentType: file.type,
         });
-      const institute = await InstituteAdmin.findById({
-        _id: `${admission.institute}`,
-      });
-      const status = new Status({});
-      const notify = new StudentNotification({});
-      var filtered_account = await BankAccount.findOne({
-        departments: { $in: apply?.applicationDepartment },
-      });
-      const studentOptionalSubject = req.body?.optionalSubject
-        ? req.body?.optionalSubject
-        : [];
-      for (var file of req.body?.fileArray) {
-        if (file.name === "file") {
-          student.photoId = "0";
-          student.studentProfilePhoto = file.key;
-        } else if (file.name === "addharFrontCard")
-          student.studentAadharFrontCard = file.key;
-        else if (file.name === "addharBackCard")
-          student.studentAadharBackCard = file.key;
-        else if (file.name === "bankPassbook")
-          student.studentBankPassbook = file.key;
-        else if (file.name === "casteCertificate")
-          student.studentCasteCertificatePhoto = file.key;
-        else {
-          student.studentDocuments.push({
-            documentName: file.name,
-            documentKey: file.key,
-            documentType: file.type,
-          });
-        }
       }
-      if (studentOptionalSubject?.length > 0) {
-        student.studentOptionalSubject?.push(...studentOptionalSubject);
-      }
-      status.content = `Your application for ${apply?.applicationName} have been filled successfully.
+    }
+    if (studentOptionalSubject?.length > 0) {
+      student.studentOptionalSubject?.push(...studentOptionalSubject);
+    }
+    status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
 1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)
@@ -717,24 +720,24 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 7. For cancellation and refund, contact the admission department.
 
 Note: Stay tuned for further updates.`;
-      student.student_form_flow.flow = "APPLICATION"
-      student.student_form_flow.did = apply?._id
-      status.applicationId = apply._id;
-      status.document_visible = true;
-      status.instituteId = institute._id;
-      status.finance = institute?.financeDepart?.[0];
-      status.student = student?._id;
-      user.student.push(student._id);
-      status.bank_account = filtered_account?._id;
-      user.applyApplication.push(apply._id);
-      student.user = user._id;
-      user.applicationStatus.push(status._id);
-      apply.receievedApplication.push({
-        student: student._id,
-        fee_remain: 0,
-      });
-      apply.receievedCount += 1;
-      notify.notifyContent = `Your application for ${apply?.applicationName} have been filled successfully.
+    student.student_form_flow.flow = "APPLICATION";
+    student.student_form_flow.did = apply?._id;
+    status.applicationId = apply._id;
+    status.document_visible = true;
+    status.instituteId = institute._id;
+    status.finance = institute?.financeDepart?.[0];
+    status.student = student?._id;
+    user.student.push(student._id);
+    status.bank_account = filtered_account?._id;
+    user.applyApplication.push(apply._id);
+    student.user = user._id;
+    user.applicationStatus.push(status._id);
+    apply.receievedApplication.push({
+      student: student._id,
+      fee_remain: 0,
+    });
+    apply.receievedCount += 1;
+    notify.notifyContent = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
 1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)
@@ -753,41 +756,41 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 7. For cancellation and refund, contact the admission department.
 
 Note: Stay tuned for further updates.`;
-      notify.notifySender = admission?.admissionAdminHead?.user;
-      notify.notifyReceiever = user?._id;
-      notify.notifyType = "Student";
-      notify.notifyPublisher = student?._id;
-      user.activity_tab.push(notify?._id);
-      notify.notifyByAdmissionPhoto = admission?._id;
-      notify.notifyCategory = "Status Alert";
-      notify.redirectIndex = 29;
-      if (institute.userFollowersList.includes(uid)) {
-      } else {
-        user.userInstituteFollowing.push(institute._id);
-        user.followingUICount += 1;
-        institute.userFollowersList.push(uid);
-        institute.followersCount += 1;
-      }
-      await Promise.all([
-        student.save(),
-        user.save(),
-        status.save(),
-        apply.save(),
-        institute.save(),
-        notify.save(),
-      ]);
-      res.status(201).send({
-        message: "Taste a bite of sweets till your application is selected",
-        student: student._id,
-        status: true,
-      });
-      invokeMemberTabNotification(
-        "Admission Status",
-        status.content,
-        "Application Status",
-        user._id,
-        user.deviceToken
-      );
+    notify.notifySender = admission?.admissionAdminHead?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByAdmissionPhoto = admission?._id;
+    notify.notifyCategory = "Status Alert";
+    notify.redirectIndex = 29;
+    if (institute.userFollowersList.includes(uid)) {
+    } else {
+      user.userInstituteFollowing.push(institute._id);
+      user.followingUICount += 1;
+      institute.userFollowersList.push(uid);
+      institute.followersCount += 1;
+    }
+    await Promise.all([
+      student.save(),
+      user.save(),
+      status.save(),
+      apply.save(),
+      institute.save(),
+      notify.save(),
+    ]);
+    res.status(201).send({
+      message: "Taste a bite of sweets till your application is selected",
+      student: student._id,
+      status: true,
+    });
+    invokeMemberTabNotification(
+      "Admission Status",
+      status.content,
+      "Application Status",
+      user._id,
+      user.deviceToken
+    );
     // }
   } catch (e) {
     console.log(e);
@@ -4530,7 +4533,7 @@ exports.renderAllInquiryQuery = async (req, res) => {
         $and: [
           { _id: { $in: admission_admin?.inquiryList } },
           { inquiry_status: status },
-          { inquiry_application: appId }
+          { inquiry_application: appId },
         ],
         $or: [{ inquiry_student_name: { $regex: search, $options: "i" } }],
       })
@@ -4546,7 +4549,7 @@ exports.renderAllInquiryQuery = async (req, res) => {
         $and: [
           { _id: { $in: admission_admin?.inquiryList } },
           { inquiry_status: status },
-          { inquiry_application: appId }
+          { inquiry_application: appId },
         ],
       })
         .limit(limit)
@@ -4685,11 +4688,11 @@ exports.renderNewDirectInquiry = async (req, res) => {
         remindLater: custom_date_time(21),
         next_date: custom_date_time(0),
       });
-      const code = "qviple@161028520"
+      const code = "qviple@161028520";
       const new_user_pass = bcrypt.genSaltSync(12);
       const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-      user.user_normal_password = `${code}`
-      user.user_universal_password = `${hash_user_pass}`
+      user.user_normal_password = `${code}`;
+      user.user_universal_password = `${hash_user_pass}`;
       admins.users.push(user);
       admins.userCount += 1;
       await Promise.all([admins.save(), user.save()]);
@@ -5686,266 +5689,359 @@ const remove_duplicated = (arr) => {
   jsonObject = arr.map(JSON.stringify);
   uniqueSet = new Set(jsonObject);
   uniqueArray = Array.from(uniqueSet).map(JSON.parse);
-  return uniqueArray
-}
+  return uniqueArray;
+};
 
-exports.renderAllOutstandingQuery = async(req, res) => {
-  try{
+exports.renderAllOutstandingQuery = async (req, res) => {
+  try {
     const { aid } = req.params;
-    const { all_depart, batch_status, master, depart, batch } = req?.body
+    const { all_depart, batch_status, master, depart, batch } = req?.body;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-      var ads_admin = await Admission.findById({ _id: aid }).select(
-        "alarm_count institute"
-      );
-    if(all_depart === "ALL"){
-      var arr = []
-      var all_dept = await Department.find({ institute: ads_admin?.institute })
-      var all_student = await Student.find({ department: { $in: all_dept }})
-      .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-      .populate({
-        path: "user",
-        select: "deviceToken userEmail",
+    var ads_admin = await Admission.findById({ _id: aid }).select(
+      "alarm_count institute"
+    );
+    if (all_depart === "ALL") {
+      var arr = [];
+      var all_dept = await Department.find({ institute: ads_admin?.institute });
+      var all_student = await Student.find({ department: { $in: all_dept } })
+        .select(
+          "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "deviceToken userEmail",
+        })
+        .populate({
+          path: "institute",
+          select: "insName",
+        });
+      var all_remain = await RemainingList.find({
+        student: { $in: all_student },
       })
-      .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student, count: all_student?.length})
-    }
-    else if(all_depart === "PARTICULAR"){
-      if(batch_status === "ALL_BATCH"){
-        var arr = []
-        var valid_dept = await Department.findById({ _id: depart })
-        const all_classes = await Class.find({ masterClassName: { $in: master }})
-        if(all_classes?.length > 0){
-          var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: { $in: valid_dept?.batches } }, { studentClass: { $in: all_classes }}]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
         .populate({
-          path: "user",
-          select: "deviceToken userEmail",
+          path: "fee_structure",
         })
         .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All For All Batch With Standard Student Query", access: true, all_student: all_student, count: all_student?.length})
-        }
-        var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { batches: { $in: valid_dept?.batches } }]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
-        })
-        .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All Student For All Batch Query", access: true, all_student: all_student, count: all_student?.length})
-      }
-      else if(batch_status === "PARTICULAR_BATCH"){
-        var arr = []
-        const all_classes = await Class.find({ masterClassName: { $in: master }})
-        if(all_classes?.length > 0){
-          var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }, { studentClass: { $in: all_classes }}]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
-        })
-        .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All For Particular Batch with Standard Student Query", access: true, all_student: all_student, count: all_student?.length})
-        }
-        else{
-        var all_student = await Student.find({ $and: [{ department: depart }, { batches: batch }]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
-        })
-        .populate({
-            path: "institute",
-            select: "insName",
-          });
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
-          .populate({
-            path: "fee_structure"
-          })
-          .populate({
-            path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
-            populate: {
-              path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
-          }
-          all_student = remove_duplicated(arr)
-          res.status(200).send({ message: "Explore All For Particular Batch Student Query", access: true, all_student: all_student, count: all_student?.length})
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+          populate: {
+            path: "user",
+            select: "userEmail deviceToken",
+          },
+        });
+      for (var ref of all_remain) {
+        if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+          arr.push(ref?.student);
         }
       }
-      if(!batch_status){
-        var arr = []
-      var valid_dept = await Department.findById({ _id: depart })
-        const all_classes = await Class.find({ masterClassName: { $in: master }})
-        if(all_classes?.length > 0){
-          var all_student = await Student.find({ $and: [{ department: valid_dept?._id }, { studentClass: { $in: all_classes }}]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
+      all_student = remove_duplicated(arr);
+      res.status(200).send({
+        message: "Explore All Student Query",
+        access: true,
+        all_student: all_student,
+        count: all_student?.length,
+      });
+    } else if (all_depart === "PARTICULAR") {
+      if (batch_status === "ALL_BATCH") {
+        var arr = [];
+        var valid_dept = await Department.findById({ _id: depart });
+        const all_classes = await Class.find({
+          masterClassName: { $in: master },
+        });
+        if (all_classes?.length > 0) {
+          var all_student = await Student.find({
+            $and: [
+              { department: valid_dept?._id },
+              { batches: { $in: valid_dept?.batches } },
+              { studentClass: { $in: all_classes } },
+            ],
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            )
+            .populate({
+              path: "user",
+              select: "deviceToken userEmail",
+            })
+            .populate({
+              path: "institute",
+              select: "insName",
+            });
+          var all_remain = await RemainingList.find({
+            student: { $in: all_student },
+          })
+            .populate({
+              path: "fee_structure",
+            })
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+              populate: {
+                path: "user",
+                select: "userEmail deviceToken",
+              },
+            });
+          for (var ref of all_remain) {
+            if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+              arr.push(ref?.student);
+            }
+          }
+          all_student = remove_duplicated(arr);
+          res.status(200).send({
+            message: "Explore All For All Batch With Standard Student Query",
+            access: true,
+            all_student: all_student,
+            count: all_student?.length,
+          });
+        }
+        var all_student = await Student.find({
+          $and: [
+            { department: valid_dept?._id },
+            { batches: { $in: valid_dept?.batches } },
+          ],
         })
-        .populate({
+          .select(
+            "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+          )
+          .populate({
+            path: "user",
+            select: "deviceToken userEmail",
+          })
+          .populate({
             path: "institute",
             select: "insName",
           });
-        }
-        var all_student = await Student.find({ $and: [{ department: valid_dept?._id }]})
-        .select("studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO")
-        .populate({
-          path: "user",
-          select: "deviceToken userEmail",
+        var all_remain = await RemainingList.find({
+          student: { $in: all_student },
         })
-        .populate({
+          .populate({
+            path: "fee_structure",
+          })
+          .populate({
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+            populate: {
+              path: "user",
+              select: "userEmail deviceToken",
+            },
+          });
+        for (var ref of all_remain) {
+          if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+            arr.push(ref?.student);
+          }
+        }
+        all_student = remove_duplicated(arr);
+        res.status(200).send({
+          message: "Explore All Student For All Batch Query",
+          access: true,
+          all_student: all_student,
+          count: all_student?.length,
+        });
+      } else if (batch_status === "PARTICULAR_BATCH") {
+        var arr = [];
+        const all_classes = await Class.find({
+          masterClassName: { $in: master },
+        });
+        if (all_classes?.length > 0) {
+          var all_student = await Student.find({
+            $and: [
+              { department: depart },
+              { batches: batch },
+              { studentClass: { $in: all_classes } },
+            ],
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            )
+            .populate({
+              path: "user",
+              select: "deviceToken userEmail",
+            })
+            .populate({
+              path: "institute",
+              select: "insName",
+            });
+          var all_remain = await RemainingList.find({
+            student: { $in: all_student },
+          })
+            .populate({
+              path: "fee_structure",
+            })
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+              populate: {
+                path: "user",
+                select: "userEmail deviceToken",
+              },
+            });
+          for (var ref of all_remain) {
+            if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+              arr.push(ref?.student);
+            }
+          }
+          all_student = remove_duplicated(arr);
+          res.status(200).send({
+            message:
+              "Explore All For Particular Batch with Standard Student Query",
+            access: true,
+            all_student: all_student,
+            count: all_student?.length,
+          });
+        } else {
+          var all_student = await Student.find({
+            $and: [{ department: depart }, { batches: batch }],
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            )
+            .populate({
+              path: "user",
+              select: "deviceToken userEmail",
+            })
+            .populate({
+              path: "institute",
+              select: "insName",
+            });
+          var all_remain = await RemainingList.find({
+            student: { $in: all_student },
+          })
+            .populate({
+              path: "fee_structure",
+            })
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+              populate: {
+                path: "user",
+                select: "userEmail deviceToken",
+              },
+            });
+          for (var ref of all_remain) {
+            if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+              arr.push(ref?.student);
+            }
+          }
+          all_student = remove_duplicated(arr);
+          res.status(200).send({
+            message: "Explore All For Particular Batch Student Query",
+            access: true,
+            all_student: all_student,
+            count: all_student?.length,
+          });
+        }
+      }
+      if (!batch_status) {
+        var arr = [];
+        var valid_dept = await Department.findById({ _id: depart });
+        const all_classes = await Class.find({
+          masterClassName: { $in: master },
+        });
+        if (all_classes?.length > 0) {
+          var all_student = await Student.find({
+            $and: [
+              { department: valid_dept?._id },
+              { studentClass: { $in: all_classes } },
+            ],
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            )
+            .populate({
+              path: "user",
+              select: "deviceToken userEmail",
+            })
+            .populate({
+              path: "institute",
+              select: "insName",
+            });
+        }
+        var all_student = await Student.find({
+          $and: [{ department: valid_dept?._id }],
+        })
+          .select(
+            "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+          )
+          .populate({
+            path: "user",
+            select: "deviceToken userEmail",
+          })
+          .populate({
             path: "institute",
             select: "insName",
           });
 
-          var all_remain = await RemainingList.find({ student: { $in: all_student } })
+        var all_remain = await RemainingList.find({
+          student: { $in: all_student },
+        })
           .populate({
-            path: "fee_structure"
+            path: "fee_structure",
           })
           .populate({
             path: "student",
-            select: "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+            select:
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
             populate: {
               path: "user",
-              select: "userEmail deviceToken"
-            }
-          })
-          for(var ref of all_remain){
-            if(ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0){
-              arr.push(ref?.student)
-            }
+              select: "userEmail deviceToken",
+            },
+          });
+        for (var ref of all_remain) {
+          if (ref?.fee_structure?.applicable_fees - ref?.paid_fee > 0) {
+            arr.push(ref?.student);
           }
-          all_student = remove_duplicated(arr)
-          console.log("Alert")
-          res.status(200).send({ message: "Explore All Student Query", access: true, all_student: all_student, count: all_student?.length})
         }
+        all_student = remove_duplicated(arr);
+        console.log("Alert");
+        res.status(200).send({
+          message: "Explore All Student Query",
+          access: true,
+          all_student: all_student,
+          count: all_student?.length,
+        });
+      }
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.renderTriggerAlarmQuery = async (req, res) => {
   try {
     const { aid } = req.params;
     const { alarm_mode, content } = req.query;
-    const { all_arr } = req?.body
+    const { all_arr } = req?.body;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-      const ads_admin = await Admission.findById({ _id: aid }).select(
-        "alarm_count institute"
-      );
-      var all_student = await Student.find({ _id: { $in: all_arr }})
-      .select("studentFirstName studentMiddleName studentLastName valid_full_name")
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "alarm_count institute"
+    );
+    var all_student = await Student.find({ _id: { $in: all_arr } })
+      .select(
+        "studentFirstName studentMiddleName studentLastName valid_full_name"
+      )
       .populate({
         path: "user",
         select: "deviceToken userEmail",
       })
       .populate({
-            path: "institute",
-            select: "insName",
-          });
+        path: "institute",
+        select: "insName",
+      });
 
     // if (alarm_count > 3) {
     //   res.status(200).send({
@@ -6402,7 +6498,7 @@ exports.renderRefundArrayQuery = async (req, res) => {
       });
 
     if (search) {
-      console.log("Enter")
+      console.log("Enter");
       var filter_refund = [];
       var ads_admin = await Admission.findById({ _id: aid })
         .select("refundCount")
@@ -6412,12 +6508,12 @@ exports.renderRefundArrayQuery = async (req, res) => {
             path: "student",
             match: {
               $or: [
-                { studentFirstName: { $regex: search, $options: "i" }},
-              {studentMiddleName: { $regex: search, $options: "i" }},
-              {studentLastName: { $regex: search, $options: "i" }},
-              {valid_full_name: { $regex: search, $options: "i" }},
-              {studentGRNO: { $regex: search, $options: "i" }},
-              ]
+                { studentFirstName: { $regex: search, $options: "i" } },
+                { studentMiddleName: { $regex: search, $options: "i" } },
+                { studentLastName: { $regex: search, $options: "i" } },
+                { valid_full_name: { $regex: search, $options: "i" } },
+                { studentGRNO: { $regex: search, $options: "i" } },
+              ],
             },
             select:
               "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto studentGRNO",
@@ -6441,9 +6537,9 @@ exports.renderRefundArrayQuery = async (req, res) => {
           },
         });
 
-        var all_refund_list = ads_admin?.refundFeeList?.filter((ref) => {
-          if (ref?.refund > 0) return ref;
-        });
+      var all_refund_list = ads_admin?.refundFeeList?.filter((ref) => {
+        if (ref?.refund > 0) return ref;
+      });
       all_refund_list = await nested_document_limit(
         page,
         limit,
@@ -6467,7 +6563,7 @@ exports.renderRefundArrayQuery = async (req, res) => {
         access: false,
         all_refund_list: [],
         refundCount: 0,
-        list: ads_admin?.refundFeeList
+        list: ads_admin?.refundFeeList,
       });
     }
   } catch (e) {
@@ -6509,21 +6605,19 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
-    if(flow === "BY_FINANCE"){
-
-    }
-    else{
+    if (flow === "BY_FINANCE") {
+    } else {
       var scholar = await ScholarShip.findById({ _id: scid });
-    var corpus = await FundCorpus.findById({
-      _id: `${scholar?.fund_corpus}`,
-    });
+      var corpus = await FundCorpus.findById({
+        _id: `${scholar?.fund_corpus}`,
+      });
     }
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
     new_receipt.receipt_generated_from = "BY_ADMISSION";
-    new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP"
+    new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP";
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findOne({
@@ -6533,15 +6627,14 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     if (req?.body?.fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
-      if(flow === "BY_FINANCE"){
+      if (flow === "BY_FINANCE") {
         finance.scholarship_candidates.push(new_receipt?._id);
         finance.scholarship_candidates_count += 1;
-      }
-      else{
+      } else {
         scholar.scholarship_candidates.push(new_receipt?._id);
         scholar.scholarship_candidates_count += 1;
       }
-      
+
       finance.government_receipt_count += 1;
       if (price >= remaining_fee_lists?.remaining_fee) {
         extra_price += price - remaining_fee_lists?.remaining_fee;
@@ -6670,9 +6763,8 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       }
     } else {
     }
-    if(flow === "BY_FINANCE"){
-    }
-    else{
+    if (flow === "BY_FINANCE") {
+    } else {
       if (corpus.unused_corpus >= price) {
         corpus.unused_corpus -= price;
       }
@@ -6707,7 +6799,7 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
         new_receipt
       );
     }
-    if(flow === "BY_FINANCE"){
+    if (flow === "BY_FINANCE") {
       await Promise.all([
         admin_ins.save(),
         student.save(),
@@ -6721,22 +6813,21 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
         // scholar.save(),
         // corpus.save(),
       ]);
+    } else {
+      await Promise.all([
+        admin_ins.save(),
+        student.save(),
+        apply.save(),
+        finance.save(),
+        institute.save(),
+        order.save(),
+        s_admin.save(),
+        remaining_fee_lists.save(),
+        new_receipt.save(),
+        scholar.save(),
+        corpus.save(),
+      ]);
     }
-    else{
-    await Promise.all([
-      admin_ins.save(),
-      student.save(),
-      apply.save(),
-      finance.save(),
-      institute.save(),
-      order.save(),
-      s_admin.save(),
-      remaining_fee_lists.save(),
-      new_receipt.save(),
-      scholar.save(),
-      corpus.save(),
-    ]);
-  }
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",
       paid: true,
@@ -7405,12 +7496,11 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
         access: false,
       });
 
-    if(flow === "BY_FINANCE"){
+    if (flow === "BY_FINANCE") {
       var scholar = await Finance.findById({ _id: sid }).select(
         "scholarship_candidates scholarship_candidates_count"
       );
-    }
-    else{
+    } else {
       var scholar = await ScholarShip.findById({ _id: sid }).select(
         "scholarship_candidates scholarship_candidates_count"
       );
@@ -8302,7 +8392,7 @@ const auto_scholar_query = async (
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findById({ _id: rcid });
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
-    remaining_fee_lists.remark = `${remark_query}`
+    remaining_fee_lists.remark = `${remark_query}`;
     if (fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
@@ -8616,9 +8706,14 @@ const type_calc = async (r_args) => {
   }
 };
 
-exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, scid, id) => {
+exports.renderAdmissionNewScholarNumberAutoQuery = async (
+  aid,
+  arr,
+  scid,
+  id
+) => {
   try {
-    var num_arr = []
+    var num_arr = [];
     if (arr?.length > 0) {
       for (var ref of arr) {
         var valid_remain = await RemainingList.findOne({
@@ -8650,12 +8745,15 @@ exports.renderAdmissionNewScholarNumberAutoQuery = async (aid, arr, scid, id) =>
             ref?.Date,
             ref?.Remark
           );
-        }
-        else{
-          num_arr.push(ref)
+        } else {
+          num_arr.push(ref);
         }
       }
-      await mismatch_scholar_transaction_json_to_excel_query(num_arr, "Mismatch", id)
+      await mismatch_scholar_transaction_json_to_excel_query(
+        num_arr,
+        "Mismatch",
+        id
+      );
     } else {
     }
   } catch (e) {
@@ -8708,7 +8806,7 @@ exports.renderApplicationAutoQRCodeQuery = async (req, res) => {
     if (flow === "APPLICATION") {
       var new_app = await NewApplication.findById({ _id: aid });
       new_app.app_qr_code = qr_code;
-      new_app.code_url = code_url
+      new_app.code_url = code_url;
       if (hn_qr_code) {
         new_app.app_hindi_qr_code = hn_qr_code;
       }
@@ -8716,11 +8814,10 @@ exports.renderApplicationAutoQRCodeQuery = async (req, res) => {
         new_app.app_marathi_qr_code = mt_qr_code;
       }
       await new_app.save();
-    }
-    else if (flow === "ADMISSION") {
+    } else if (flow === "ADMISSION") {
       var new_ads = await Admission.findById({ _id: aid });
       new_ads.app_qr_code = qr_code;
-      new_ads.code_url = code_url
+      new_ads.code_url = code_url;
       if (hn_qr_code) {
         new_ads.app_hindi_qr_code = hn_qr_code;
       }
@@ -8728,11 +8825,10 @@ exports.renderApplicationAutoQRCodeQuery = async (req, res) => {
         new_ads.app_marathi_qr_code = mt_qr_code;
       }
       await new_ads.save();
-    }
-    else if (flow === "HOSTEL") {
+    } else if (flow === "HOSTEL") {
       var new_ads = await Hostel.findById({ _id: aid });
       new_ads.app_qr_code = qr_code;
-      new_ads.code_url = code_url
+      new_ads.code_url = code_url;
       if (hn_qr_code) {
         new_ads.app_hindi_qr_code = hn_qr_code;
       }
@@ -9231,21 +9327,19 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
-    if(flow === "BY_FINANCE"){
-
-    }
-    else{
+    if (flow === "BY_FINANCE") {
+    } else {
       var scholar = await ScholarShip.findById({ _id: scid });
-    var corpus = await FundCorpus.findById({
-      _id: `${scholar?.fund_corpus}`,
-    });
+      var corpus = await FundCorpus.findById({
+        _id: `${scholar?.fund_corpus}`,
+      });
     }
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
     new_receipt.receipt_generated_from = "BY_ADMISSION";
-    new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP"
+    new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP";
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     const notify = new StudentNotification({});
     const valid_remain_list = await RemainingList.findById({
@@ -9255,11 +9349,10 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     if (req?.body?.fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
-      if(flow === "BY_FINANCE"){
+      if (flow === "BY_FINANCE") {
         finance.scholarship_candidates.push(new_receipt?._id);
-      finance.scholarship_candidates_count += 1;
-      }
-      else{
+        finance.scholarship_candidates_count += 1;
+      } else {
         scholar.scholarship_candidates.push(new_receipt?._id);
         scholar.scholarship_candidates_count += 1;
       }
@@ -9448,17 +9541,16 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
       new_receipt.order_history = order?._id;
       order.fee_receipt = new_receipt?._id;
     }
-    if(flow === "BY_FINANCE"){
-    }
-    else{
+    if (flow === "BY_FINANCE") {
+    } else {
       if (corpus.unused_corpus >= price) {
-      corpus.unused_corpus -= price;
-    }
+        corpus.unused_corpus -= price;
+      }
     }
     if (finance?.financeTotalBalance >= price + extra_price) {
       finance.financeTotalBalance -= price + extra_price;
     }
-    if(flow === "BY_FINANCE"){
+    if (flow === "BY_FINANCE") {
       await Promise.all([
         admin_ins.save(),
         student.save(),
@@ -9472,8 +9564,7 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
         // scholar.save(),
         // corpus.save(),
       ]);
-    }
-    else{
+    } else {
       await Promise.all([
         admin_ins.save(),
         student.save(),
@@ -10231,18 +10322,18 @@ exports.renderFeeHeadsQuery = async (req, res) => {
         },
       ],
     })
-    // .populate({
-    //   path: "student",
-    //   populate: {
-    //     path: "fee_structure",
-    //   },
-    // })
-    .populate({
-      path: "student",
-      populate: {
-        path: "hostel_fee_structure",
-      },
-    });
+      // .populate({
+      //   path: "student",
+      //   populate: {
+      //     path: "fee_structure",
+      //   },
+      // })
+      .populate({
+        path: "student",
+        populate: {
+          path: "hostel_fee_structure",
+        },
+      });
     // var receipt = await FeeReceipt.findById({
     //   _id: "6528c827c0da2e507764cf2c",
     // })
@@ -10385,16 +10476,14 @@ exports.retrieveAdmissionReceievedValidApplicationQuery = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         status: false,
       });
-      let valid_email = uid?.includes("@")
-      if (uid?.length == 10) {
-        var user = await User.findOne({ userPhoneNumber: uid }); 
-      }
-      else if(valid_email) {
-        var user = await User.findOne({ userEmail: uid }); 
-      }
-      else {
-        var user = await User.findOne({ _id: uid }); 
-      }
+    let valid_email = uid?.includes("@");
+    if (uid?.length == 10) {
+      var user = await User.findOne({ userPhoneNumber: uid });
+    } else if (valid_email) {
+      var user = await User.findOne({ userEmail: uid });
+    } else {
+      var user = await User.findOne({ _id: uid });
+    }
     if (user?.applyApplication?.includes(`${aid}`)) {
       res.status(200).send({
         message: "You have already applied for this application",
@@ -10877,70 +10966,73 @@ exports.render_old_data_receipt_query = async (req, res) => {
   }
 };
 
-exports.renderArrangeClassQuery = async(req, res) => {
-  try{
-    const { cid } = req?.params
-    if(!cid) return res.status(200).send({  message: "Their is a bug need to fixed immediately", access: false})
+exports.renderArrangeClassQuery = async (req, res) => {
+  try {
+    const { cid } = req?.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const classes = await Class.findById({ _id: cid })
-    .populate({
-      path: "ApproveStudent"
-    })
+    const classes = await Class.findById({ _id: cid }).populate({
+      path: "ApproveStudent",
+    });
 
     // const all_student = await Student.find({ _id: { $in: classes?.ApproveStudent}})
 
-    var total = 0
-    for(var ele of classes?.ApproveStudent){
-      if(ele?.studentGender?.toLowerCase() === "male"){
-        classes.boyCount += 1
+    var total = 0;
+    for (var ele of classes?.ApproveStudent) {
+      if (ele?.studentGender?.toLowerCase() === "male") {
+        classes.boyCount += 1;
+      } else if (ele?.studentGender?.toLowerCase() === "female") {
+        classes.girlCount += 1;
       }
-      else if(ele?.studentGender?.toLowerCase() === "female"){
-        classes.girlCount += 1
-      }
-      total += 1
-      ele.studentROLLNO = `${total}`
+      total += 1;
+      ele.studentROLLNO = `${total}`;
       // ele.studentGRNO = `PH0${total}`
-      await ele.save()
+      await ele.save();
     }
-    classes.strength = total
-    classes.studentCount = total
-    await classes.save()
-    res.status(200).send({ message: "Explore Query", access: true})
+    classes.strength = total;
+    classes.studentCount = total;
+    await classes.save();
+    res.status(200).send({ message: "Explore Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
+exports.renderArrangeClassDepartQuery = async (req, res) => {
+  try {
+    const { did } = req?.params;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-exports.renderArrangeClassDepartQuery = async(req, res) => {
-  try{
-    const { did } = req?.params
-    if(!did) return res.status(200).send({  message: "Their is a bug need to fixed immediately", access: false})
+    const depart = await Department.findById({ _id: did });
 
-    const depart = await Department.findById({ _id: did})
-
-    const all_classes = await Class.find({ department: depart?._id})
+    const all_classes = await Class.find({ department: depart?._id });
 
     // const all_student = await Student.find({ _id: { $in: classes?.ApproveStudent}})
 
-    var total = 0
-    for(var ele of all_classes){
-      console.log(ele?.studentCount)
-      total += ele?.studentCount
+    var total = 0;
+    for (var ele of all_classes) {
+      console.log(ele?.studentCount);
+      total += ele?.studentCount;
     }
-    depart.studentCount = total
-    await depart.save()
-    res.status(200).send({ message: "Explore Query", access: true})
+    depart.studentCount = total;
+    await depart.save();
+    res.status(200).send({ message: "Explore Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.renderHostelHistoryQuery = async(req, res) => {
-  try{
-    const { id } = req?.query
+exports.renderHostelHistoryQuery = async (req, res) => {
+  try {
+    const { id } = req?.query;
     const g_date = new Date(`2023-10-01T00:00:00.000Z`);
     const l_date = new Date(`2023-11-01T00:00:00.000Z`);
     var receipt = await OrderPayment.find({
@@ -10955,47 +11047,55 @@ exports.renderHostelHistoryQuery = async(req, res) => {
           payment_to_end_user_id: id,
         },
         {
-          "payment_module_type": "Hostel"
-        }
+          payment_module_type: "Hostel",
+        },
       ],
     }).populate({
       path: "fee_receipt",
     });
 
-    for(var val of receipt){
-      val.fee_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER"
-      await val.fee_receipt.save()
+    for (var val of receipt) {
+      val.fee_receipt.receipt_generated_from = "BY_HOSTEL_MANAGER";
+      await val.fee_receipt.save();
     }
 
-    res.status(200).send({ message: "Explore All Hostel History", access: true, count: receipt?.length, receipt})
+    res.status(200).send({
+      message: "Explore All Hostel History",
+      access: true,
+      count: receipt?.length,
+      receipt,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.renderSetOffQuery = async(req, res) => {
-  try{
-    const { id } = req?.query
-    var receipts = await FeeReceipt.find({ set_off_status: "Set Off" })
-    .populate({
+exports.renderSetOffQuery = async (req, res) => {
+  try {
+    const { id } = req?.query;
+    var receipts = await FeeReceipt.find({
+      set_off_status: "Set Off",
+    }).populate({
       path: "student",
-    })
-    var excel_list = []
-    for(var val of receipts){
+    });
+    var excel_list = [];
+    for (var val of receipts) {
       excel_list.push({
         GRNO: val?.student?.studentGRNO,
         ROLLNO: val?.student?.studentROLLNO,
         Name: val?.student?.valid_full_name,
         SetOffMode: val?.fee_payment_mode,
         SetOffAmount: val?.fee_payment_amount,
-      })
+      });
     }
 
-    const data_p = await setoff_json_to_excel_query(excel_list, "SetOff", id)
-    res.status(200).send({ message: "Explore All New Student Set off List", access: true, data_p})
+    const data_p = await setoff_json_to_excel_query(excel_list, "SetOff", id);
+    res.status(200).send({
+      message: "Explore All New Student Set off List",
+      access: true,
+      data_p,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};

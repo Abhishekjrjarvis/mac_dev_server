@@ -887,6 +887,42 @@ exports.retrieveEmailReplaceQuery = async (arr) => {
   }
 };
 
+exports.retrieveROLLGRNOReplaceQuery = async (arr) => {
+  try {
+    if (arr?.length > 0) {
+      var i = 0;
+      for (var ref of arr) {
+        let names = ref?.Name?.split(" ");
+        var combine;
+        for (let ele of names) {
+          combine = `${combine ?? ""}${ele?.toLowerCase()}`;
+        }
+        console.log(combine);
+        var one_student = await Student.findOne({
+          $and: [
+            { scholar_name: { $regex: `${combine}`, $options: "i" } },
+            { "student_form_flow.did": "6656bcf29764b93acce07526" },
+          ],
+        }).select("studentGRNO studentROLLNO valid_full_name scholar_name");
+        if (one_student?._id) {
+          one_student.studentGRNO = `24BA${ref?.Roll}`;
+          one_student.studentROLLNO = `${ref?.Roll}`;
+          await one_student.save();
+          console.log(i);
+          i += 1;
+        } else {
+          console.log("Issue", i);
+          i += 1;
+        }
+        combine = "";
+      }
+      console.log("DONE");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.getPromoteStudentByClassQuery = async (req, res) => {
   try {
     const { arr } = req?.body;

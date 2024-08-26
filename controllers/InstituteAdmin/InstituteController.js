@@ -1536,7 +1536,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
         .populate({
           path: "ApproveStaff",
           select:
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staff_technicality staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
           populate: {
             path: "user",
             select: "userLegalName userEmail userPhoneNumber",
@@ -1545,7 +1545,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
         .populate({
           path: "ApproveStaff",
           select:
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staff_technicality staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
           populate: {
             path: "staff_department",
             select: "dName",
@@ -1574,7 +1574,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
           .populate({
             path: "ApproveStaff",
             select:
-              "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+              "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staff_technicality staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
             populate: {
               path: "user",
               select: "userLegalName userEmail userPhoneNumber",
@@ -1583,7 +1583,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
           .populate({
             path: "ApproveStaff",
             select:
-              "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+              "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staff_technicality staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
             populate: {
               path: "staff_department",
               select: "dName",
@@ -1623,7 +1623,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
           .populate({
             path: "ApproveStaff",
             select:
-              "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+              "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staff_technicality staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
             populate: {
               path: "user",
               select: "userLegalName userEmail userPhoneNumber",
@@ -1632,7 +1632,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
           .populate({
             path: "ApproveStaff",
             select:
-              "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
+              "staffFirstName staffMiddleName staff_biometric_id recentDesignation current_designation teaching_type staff_technicality staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender",
             populate: {
               path: "staff_department",
               select: "dName",
@@ -9365,10 +9365,12 @@ exports.new_checklist_section_query = async (req, res) => {
   try {
     const { id } = req?.params;
     if (!id)
-      return res.status(200).send({
-        message: "Their is a bug need to fixed immediately",
-        access: false,
-      });
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
 
     const institute = await InstituteAdmin.findById({ _id: id });
     // const ifs = await InstituteStudentForm.findOne({ institute: id })

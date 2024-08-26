@@ -223,7 +223,13 @@ const render_daybook_heads_wise = async (
       l_day = `0${l_day}`;
     }
     const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
-    const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
+    const date = new Date(new Date(`${l_year}-${l_month}-${l_day}`));
+    date.setDate(date.getDate() + 1);
+    let l_dates = date.getDate();
+    if (l_dates < 10) {
+      l_dates = `0${l_dates}`;
+    }
+    const l_date = new Date(`${l_year}-${l_month}-${l_dates}T00:00:00.000Z`);
     if (payment_type) {
       if (payment_type == "BOTH") {
         var all_receipts_set = await FeeReceipt.find({

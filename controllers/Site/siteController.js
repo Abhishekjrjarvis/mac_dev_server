@@ -15,6 +15,7 @@ const { nested_document_limit } = require("../../helper/databaseFunction");
 const Activity = require("../../models/LandingModel/RND/Activity");
 const Staff = require("../../models/Staff");
 const Batch = require("../../models/Batch");
+const SubjectMaster = require("../../models/SubjectMaster");
 
 exports.getDepartmentInfo = async (req, res) => {
   try {
@@ -1110,15 +1111,13 @@ exports.render_all_universal_batch_query = async (req, res) => {
         access: false,
       });
 
-    const depart = await Department.findById({ _id: did });
+    const depart = await Department.findById({ _id: did }).select(
+      "department_status institute"
+    );
+    const institute = await InstituteAdmin.findById({ _id: depart?.institute });
     const all_batch = await Batch.find({
-      $and: [{ department: depart?._id }, { merged_batch: "Merged" }],
-    })
-      .select("_id u_batch")
-      .populate({
-        path: "u_batch",
-        select: "batchName batchStatus",
-      });
+      _id: { $in: institute?.universal_batches },
+    }).select("_id batchName batchStatus");
     res.status(200).send({
       message: "Explore All Site Batches Query",
       access: true,

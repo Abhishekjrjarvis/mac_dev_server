@@ -3463,6 +3463,10 @@ exports.retrieveClassAllotQuery = async (req, res) => {
       for (var sid of array) {
         if (apply?.allot_array?.includes(`${sid}`)) {
           apply.reviewApplication.pull(sid);
+          if (apply?.review_count > 0) {
+            apply.review_count -= 1;
+          }
+          await apply.save();
         } else {
           const student = await Student.findById({ _id: sid });
           const user = await User.findById({ _id: `${student.user}` });
@@ -9612,10 +9616,10 @@ exports.renderAutoStudentNameQuery = async (req, res) => {
     );
     var i = 0;
     for (let ele of all_student) {
-      let names = `${ele?.studentFirstName?.toLowerCase()}${
-        ele?.studentMiddleName?.toLowerCase() ??
-        ele?.studentFatherName?.toLowerCase()
-      }${ele?.studentLastName?.toLowerCase()}`;
+      let names = `${ele?.studentFirstName?.trim()?.toLowerCase()}${
+        ele?.studentMiddleName?.trim()?.toLowerCase() ??
+        ele?.studentFatherName?.trim()?.toLowerCase()
+      }${ele?.studentLastName?.trim()?.toLowerCase()}`;
       ele.scholar_name = names?.trim();
       await ele.save();
       console.log(i);
@@ -11380,12 +11384,17 @@ exports.renderOrder = async (req, res) => {
   try {
     var all_order = await OrderPayment.find({}).populate({
       path: "payment_student",
+      select: "valid_full_name studentGRNO",
     });
+    console.log(all_order?.length);
+    var i = 0;
     for (var ref of all_order) {
       if (ref?.payment_student) {
         ref.payment_student_name = ref?.payment_student?.valid_full_name;
         ref.payment_student_gr = ref?.payment_student?.studentGRNO ?? "";
         await ref.save();
+        console.log(i);
+        i += 1;
       }
     }
 
@@ -17768,25 +17777,161 @@ exports.check_global = async (req, res) => {
 
 exports.check_structure = async (req, res) => {
   try {
-    let list = ["66bafec95e67b13f50efd829", "66bdf274930b0e77adf974ab"];
-    const all_cat = await FeesCategory.find({
-      $and: [
-        { finance: "644a09d6d1679fcd6e76e5ef" },
-        { category_name: { $regex: `VJNT`, $options: "i" } },
-        // { _id: { $in: list } },
-      ],
-    });
-    const all_struct = await FeeStructure.find({
-      $and: [
-        { finance: "644a09d6d1679fcd6e76e5ef" },
-        { document_update: true },
-        { category_master: { $in: all_cat } },
-      ],
-    }).select("applicable_fees_heads_count structure_name");
+    let list_1 = [
+      "64807c44bff5c201991d78f3",
+      "64807c55bff5c201991d7a47",
+      "64807c7cbff5c201991d7d25",
+      "64807ce0bff5c201991d8493",
+      "64807d2bbff5c201991d8a56",
+      "64807d8cbff5c201991d9188",
+      "64807d9dbff5c201991d92dc",
+      "64807e35bff5c201991d9ec3",
+      "64807e96bff5c201991da5fd",
+      "64807f15bff5c201991dafd0",
+      "64808004bff5c201991dc1c1",
+      "6480816ebff5c201991dc9c4",
+      "648081f3bff5c201991dd3d4",
+      "64808203bff5c201991dd528",
+      "64808271bff5c201991ddd70",
+      "64808281bff5c201991ddec4",
+      "648082f8bff5c201991de776",
+      "64808945bff5c201991e3429",
+      "648089a7bff5c201991e3b96",
+      "64808acebff5c201991e51a7",
+      "64808bc5bff5c201991e6449",
+      "64808c13bff5c201991e6a35",
+      "64808c24bff5c201991e6b91",
+      "64808c4bbff5c201991e6e69",
+      "64808ca2bff5c201991e7553",
+      "64814177bff5c2019923f2e8",
+      "64814195bff5c2019923f6de",
+      "64814207bff5c20199240580",
+      "6481422fbff5c20199240ae8",
+      "64814242bff5c20199240d0f",
+      "6481427dbff5c2019924148b",
+      "648142a1bff5c2019924192d",
+      "648142c5bff5c20199241dfd",
+      "648142d3bff5c20199241fc5",
+      "648142f5bff5c20199242468",
+      "64814311bff5c201992427d6",
+      "64814332bff5c20199242c72",
+      "64814331bff5c20199242c69",
+      "648143a9bff5c20199243b2d",
+      "648143d9bff5c201992441a1",
+      "64814485bff5c201992456f7",
+      "6481450ebff5c201992467f2",
+      "64814524bff5c20199246a75",
+      "6481453ebff5c20199246da7",
+      "6481457dbff5c20199247615",
+      "64814679bff5c20199249620",
+      "648146aabff5c20199249c2b",
+      "648146e5bff5c2019924a418",
+      "64814770bff5c2019924b643",
+      "6481477cbff5c2019924b7ea",
+      "648147a5bff5c2019924bd07",
+      "648147edbff5c2019924c6dd",
+      "6481481ebff5c2019924cd4a",
+      "64814830bff5c2019924d01e",
+      "64814859bff5c2019924d521",
+      "6481485fbff5c2019924d670",
+      "6481486bbff5c2019924d807",
+      "6481487ebff5c2019924daca",
+      "648148bdbff5c2019924e376",
+      "648148e2bff5c2019924e8be",
+      "64814909bff5c2019924ef71",
+      "6481491bbff5c2019924f1fc",
+      "64814924bff5c2019924f381",
+      "648149c3bff5c20199250bb7",
+      "648149ecbff5c20199251192",
+      "648149ecbff5c2019925118e",
+      "64814ac1bff5c201992523fc",
+      "64814b51bff5c20199252d5d",
+      "64814b6cbff5c20199252f1d",
+      "64814b99bff5c20199253244",
+      "64814c0bbff5c201992539b7",
+      "64814d2fbff5c20199254c85",
+      "648150edbff5c20199258da0",
+      "64815110bff5c2019925905a",
+      "64815163bff5c20199259657",
+      "64815189bff5c2019925993d",
+      "6481519fbff5c20199259ac7",
+      "64dc901923a6329705359132",
+      "64da0371a4054284428ab927",
+      "64d9edbea4054284428a583e",
+      "64d9ec19a4054284428a4e30",
+      "64d9cb3049eb55594590abbd",
+      "64d9be2984b34e17e24ad6b2",
+      "64d8797532c4819d5ee57e32",
+      "64cdf28f94b0fccea22d8701",
+      "64ccbddd92ba0e709c5a19ba",
+      "64e71ef1d069ff4febdb9470",
+      "64e87c2f09b29a204bf919eb",
+      "64e5fed9180b61ce19cca3dc",
+      "64ddf536354806dd672d9469",
+      "64dc7cc7f3f5bc3d3c55d810",
+      "64d9e6bba4054284428a3387",
+      "64d9de7aa4054284428a0f21",
+      "64d8803fcba67a16364ab0b6",
+      "64e8768509b29a204bf903b0",
+      "64d9f0a9a4054284428a6621",
+      "64d9dba4a4054284428a033d",
+      "64d9d23d0234d3a85b39d94a",
+      "64d9d19cb34f658f185392dc",
+      "64d8909e32c4819d5ee5e2aa",
+      "64d86c2932c4819d5ee54498",
+      "64cf37fe4bc2f1d9efe4bffb",
+      "64cdea2ef4e6e65d0637a8c7",
+      "64f6f44996bb08f87e0f4d12",
+      "64f556616f2f36b00a9a009b",
+      "64ec63298c657eddf5b57977",
+      "64e9c4d6a1c66ce3d5f1999d",
+      "64e9b283a1c66ce3d5f153bd",
+      "64f571b077395365ecb0b071",
+      "64eafb2336a5878630d709b0",
+      "64f57ef077395365ecb0f6ab",
+      "64eaf05e36a5878630d6e94a",
+      "64ead717ae7d93e078f38640",
+    ];
+    // let list = ["66bafec95e67b13f50efd829", "66bdf274930b0e77adf974ab"];
+    // const all_cat = await FeesCategory.find({
+    //   $and: [
+    //     { finance: "644a09d6d1679fcd6e76e5ef" },
+    //     { category_name: { $regex: `VJNT`, $options: "i" } },
+    //     // { _id: { $in: list } },
+    //   ],
+    // });
+    // const all_struct = await FeeStructure.find({
+    //   $and: [
+    //     { finance: "644a09d6d1679fcd6e76e5ef" },
+    //     { document_update: true },
+    //     { category_master: { $in: all_cat } },
+    //   ],
+    // }).select("applicable_fees_heads_count structure_name");
     const all_student = await Student.find({
-      fee_structure: { $in: all_struct },
-    });
-    let nums = [...all_struct];
+      _id: { $in: list_1 },
+    })
+      .select("studentGRNO active_fee_heads")
+      .populate({
+        path: "fee_structure",
+        select: "document_update applicable_fees_heads",
+      });
+    let nums = [];
+    let numss = [];
+    for (let ele of all_student) {
+      for (let val of ele?.active_fee_heads) {
+        if (`${val?.fee_structure}` == `${ele?.fee_structure?._id}`) {
+          numss.push(val);
+        }
+      }
+      nums.push({
+        gr: ele?.studentGRNO,
+        fee_count: ele?.fee_structure?.applicable_fees_heads?.length,
+        student_count: numss?.length,
+        fees: ele?.fee_structure?._id,
+      });
+      numss = [];
+    }
+    // let nums = [...all_student];
     res.status(200).send({
       message: "Explore All Structure Query",
       access: true,

@@ -921,6 +921,33 @@ exports.json_to_excel_academic_export_query = async (data_query, c_name) => {
   }
 };
 
+exports.json_to_excel_student_applicable_outstanding_query = async (
+  data_query,
+  aid,
+  flow
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, `${flow}Students`);
+    var name = `${flow}-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+    const valid_ins = await InstituteAdmin.findById({ _id: aid });
+    valid_ins.export_collection.push({
+      excel_file: results,
+      excel_file_name: name,
+    });
+    valid_ins.export_collection_count += 1;
+    await valid_ins.save();
+    console.log(results);
+    } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.cls_attendance_json_to_excel = async (
   id,
   list,
@@ -947,6 +974,38 @@ exports.cls_attendance_json_to_excel = async (
     subject.export_collection_count += 1;
     await subject.save();
     return results;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.json_to_excel_other_fees_subject_application_query = async (
+  data_query,
+  app_name,
+  id
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(data_query);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, "SubjectStudentList");
+    var name = `Miscellenous--${app_name}-${new Date().getHours()}-${new Date().getMinutes()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const ads_admin = await InstituteAdmin.findById({
+      _id: id,
+    });
+    ads_admin.export_collection.push({
+      excel_file: results,
+      excel_file_name: name,
+    });
+    ads_admin.export_collection_count += 1;
+    await ads_admin.save();
+    return {
+      back: true,
+    };
   } catch (e) {
     console.log(e);
   }

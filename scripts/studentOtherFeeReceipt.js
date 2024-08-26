@@ -873,7 +873,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
       if (data?.paid_fee) paidAmount += data?.paid_fee;
 
       ft += 1;
-      data = society_paid_fee?.[ft];
+      data = paid_fee?.[ft];
       doc.moveUp(1);
       doc
         .fontSize(10)
@@ -897,7 +897,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
       if (data?.paid_fee) paidAmount += data?.paid_fee;
 
       ft += 1;
-      data = society_paid_fee?.[ft];
+      data = paid_fee?.[ft];
       i += 2;
       doc.moveUp(1);
       doc
@@ -1358,7 +1358,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
 
       if (data?.paid_fee) paidAmount += data?.paid_fee;
       ft += 1;
-      data = paid_fee?.[ft];
+      data = society_paid_fee?.[ft];
       doc.moveUp(1);
       doc
         .fontSize(10)
@@ -1383,7 +1383,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
       if (data?.paid_fee) paidAmount += data?.paid_fee;
 
       ft += 1;
-      data = paid_fee?.[ft];
+      data = society_paid_fee?.[ft];
       i += 2;
       doc.moveUp(1);
       doc

@@ -13,7 +13,7 @@ const {
 const { hostelInstituteFunction } = require("../RazorPay/hostelPaymentModule");
 const { orderID } = require("../../Generator/OrderId");
 const ErrorPayment = require("../../models/Acid/ErrorPayment");
-const axios = require('axios');
+const axios = require("axios");
 
 const order_history_query = async (
   module_type,
@@ -39,15 +39,17 @@ const order_history_query = async (
     institute.invoice_count += 1;
     order_payment.razorpay_payment_id = `${txn_id}`;
     if (obj_nums) {
-      order_payment.paytm_obj.orderId = obj_nums?.oid ?? "",
-        order_payment.paytm_obj.checksum = obj_nums?.checksum ?? ""
+      (order_payment.paytm_obj.orderId = obj_nums?.oid ?? ""),
+        (order_payment.paytm_obj.checksum = obj_nums?.checksum ?? "");
     }
     if (body) {
       order_payment.paytm_query.push(body);
     }
-    order_payment.payment_invoice_number = `${institute?.random_institute_code}-${
-      new Date().getMonth() + 1
-    }-${new Date().getFullYear()}-${institute?.invoice_count}`;
+    order_payment.payment_invoice_number = `${
+      institute?.random_institute_code
+    }-${new Date().getMonth() + 1}-${new Date().getFullYear()}-${
+      institute?.invoice_count
+    }`;
     await Promise.all([order_payment.save(), institute.save()]);
     return order_payment;
   } catch (e) {
@@ -74,19 +76,28 @@ exports.initiate = async (req, res) => {
       charge,
       cert_type,
       cert_content,
-      is_original
+      is_original,
+      dynamic_url,
     } = req.body;
-    console.log(req?.body)
-    let platform_charge = (parseInt(amount) * charge?.num_platform_percent) / 100;
-    var valid_platform_charge = platform_charge >= 100 ? charge?.num_platform_max : platform_charge;
-    let total_price = parseInt(amount) + parseInt(valid_platform_charge)
-    let gatewayCharges = (parseInt(total_price) * charge?.num_trans_pecent) / 100;
-    var valid_charge = gatewayCharges >= 100 ? charge?.num_trans_max : gatewayCharges;
+    console.log(req?.body);
+    let platform_charge =
+      (parseInt(amount) * charge?.num_platform_percent) / 100;
+    var valid_platform_charge =
+      platform_charge >= 100 ? charge?.num_platform_max : platform_charge;
+    let total_price = parseInt(amount) + parseInt(valid_platform_charge);
+    let gatewayCharges =
+      (parseInt(total_price) * charge?.num_trans_pecent) / 100;
+    var valid_charge =
+      gatewayCharges >= 100 ? charge?.num_trans_max : gatewayCharges;
     let gst = (+valid_charge * 18) / 100;
     if (type === "Admission") {
-      var data = +amount + +valid_platform_charge + +valid_charge + +charge?.num_app_max + gst; 
-    }
-    else {
+      var data =
+        +amount +
+        +valid_platform_charge +
+        +valid_charge +
+        +charge?.num_app_max +
+        gst;
+    } else {
       var data = +amount + +valid_platform_charge + +valid_charge + gst;
     }
     // let gatewayCharges = (parseInt(amount) * 2.1) / 100;
@@ -108,9 +119,9 @@ exports.initiate = async (req, res) => {
       error_amount: price,
       error_paid_to: paidTo,
       error_status_id: ad_status_id ?? "",
-      error_type: type
-    })
-    await error_pay.save()
+      error_type: type,
+    });
+    await error_pay.save();
 
     paytmParams.body = {
       requestType: "Payment",
@@ -123,7 +134,7 @@ exports.initiate = async (req, res) => {
           : type === "Fees"
           ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}`
           : type === "Admission"
-          ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_fees}/status/${ad_status_id}/epid/${error_pay?._id}`
+          ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_fees}/status/${ad_status_id}/epid/${error_pay?._id}/url/${dynamic_url}`
           : type === "Certificate"
           ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/certificate/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/type/${cert_type}/content/${cert_content}/original/${is_original}`
           : type === "Other"
@@ -186,7 +197,7 @@ exports.initiate = async (req, res) => {
             callback_apk_url: process.env.PAYTM_CALLBACK_URL_APK
               ? "https://securegw.paytm.in/theia/paytmCallback?ORDER_ID="
               : "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=",
-            payment_status: error_pay?._id ?? ""
+            payment_status: error_pay?._id ?? "",
           });
         });
       });
@@ -297,7 +308,8 @@ exports.callbackAdmission = async (req, res) => {
       payment_card_id,
       payment_remain_fees,
       price,
-      eid
+      eid,
+      dynamic,
     } = req.params;
     var paytmParams = {};
     paytmParams.body = {
@@ -341,8 +353,8 @@ exports.callbackAdmission = async (req, res) => {
           var txn_id = req?.body?.TXNID;
           var obj = {
             oid: req.body?.ORDERID,
-            checksum: paytmParams?.head?.checksum
-          }
+            checksum: paytmParams?.head?.checksum,
+          };
           if (status === "TXN_SUCCESS") {
             var order = await order_history_query(
               "Admission",
@@ -357,7 +369,7 @@ exports.callbackAdmission = async (req, res) => {
             var valid_status = ad_status_id === "null" ? "" : ad_status_id;
             var valid_card =
               payment_card_type === "null" ? "" : payment_card_type;
-            var pay_remain = payment_remain_fees === "false" ? false : true
+            var pay_remain = payment_remain_fees === "false" ? false : true;
             await admissionInstituteFunction(
               order?._id,
               paidBy,
@@ -381,10 +393,10 @@ exports.callbackAdmission = async (req, res) => {
                 check: true,
               });
             } else {
-              res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+              res.redirect(`${process.env.FRONT_REDIRECT_URL}/${dynamic}`);
             }
           } else {
-            res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+            res.redirect(`${process.env.FRONT_REDIRECT_URL}/${dynamic}`);
           }
         });
       });
@@ -455,8 +467,8 @@ exports.callbackHostel = async (req, res) => {
           var txn_id = req?.body?.TXNID;
           var obj = {
             oid: req.body?.ORDERID,
-            checksum: paytmParams?.head?.checksum
-          }
+            checksum: paytmParams?.head?.checksum,
+          };
           if (status === "TXN_SUCCESS") {
             var order = await order_history_query(
               "Hostel",
@@ -471,7 +483,7 @@ exports.callbackHostel = async (req, res) => {
             var valid_status = ad_status_id === "null" ? "" : ad_status_id;
             var valid_card =
               payment_card_type === "null" ? "" : payment_card_type;
-            var pay_remain = payment_remain_fees === "false" ? false : true
+            var pay_remain = payment_remain_fees === "false" ? false : true;
             await hostelInstituteFunction(
               order?._id,
               paidBy,
@@ -511,7 +523,17 @@ exports.callbackHostel = async (req, res) => {
 
 exports.callbackCertificate = async (req, res) => {
   try {
-    const { moduleId, paidBy, name, paidTo, isApk, price, cert_type, cert_content, is_original } = req.params;
+    const {
+      moduleId,
+      paidBy,
+      name,
+      paidTo,
+      isApk,
+      price,
+      cert_type,
+      cert_content,
+      is_original,
+    } = req.params;
     var paytmParams = {};
     paytmParams.body = {
       mid: `${process.env.PAYTM_MID}`,
@@ -663,7 +685,7 @@ exports.callbackAdmissionStatus = async (req, res) => {
       STATUS,
       TXNID,
       apk_body,
-      eid
+      eid,
     } = req.body;
     var status = STATUS;
     var price_charge = TXNAMOUNT;
@@ -679,7 +701,7 @@ exports.callbackAdmissionStatus = async (req, res) => {
       var paytm_author = false;
       var valid_status = ad_status_id === "null" ? "" : ad_status_id;
       var valid_card = payment_card_type === "null" ? "" : payment_card_type;
-      var pay_remain = payment_remain_fees === "false" ? false : true
+      var pay_remain = payment_remain_fees === "false" ? false : true;
       await admissionInstituteFunction(
         order?._id,
         paidBy,
@@ -747,7 +769,7 @@ exports.callbackHostelStatus = async (req, res) => {
       var paytm_author = false;
       var valid_status = ad_status_id === "null" ? "" : ad_status_id;
       var valid_card = payment_card_type === "null" ? "" : payment_card_type;
-      var pay_remain = payment_remain_fees === "false" ? false : true
+      var pay_remain = payment_remain_fees === "false" ? false : true;
       await hostelInstituteFunction(
         order?._id,
         paidBy,
@@ -839,7 +861,6 @@ exports.callbackTransportStatus = async (req, res) => {
   }
 };
 
-
 exports.callbackCertificateStatus = async (req, res) => {
   try {
     const {
@@ -855,7 +876,7 @@ exports.callbackCertificateStatus = async (req, res) => {
       apk_body,
       cert_type,
       cert_content,
-      is_original
+      is_original,
     } = req.body;
     var status = STATUS;
     var price_charge = TXNAMOUNT;
@@ -955,7 +976,7 @@ exports.callbackOtherFees = async (req, res) => {
               price,
               price_charge,
               moduleId,
-              paytm_author,
+              paytm_author
             );
             if (isApk === "APK") {
               res.status(200).send({
@@ -981,7 +1002,12 @@ exports.callbackOtherFees = async (req, res) => {
 exports.callbackOtherFeesStatus = async (req, res) => {
   try {
     const {
-      moduleId, paidBy, name, paidTo, isApk, price,
+      moduleId,
+      paidBy,
+      name,
+      paidTo,
+      isApk,
+      price,
       TXNAMOUNT,
       STATUS,
       TXNID,
@@ -1005,7 +1031,7 @@ exports.callbackOtherFeesStatus = async (req, res) => {
         price,
         price_charge,
         moduleId,
-        paytm_author,
+        paytm_author
       );
       if (isApk === "APK") {
         res.status(200).send({
@@ -1026,36 +1052,39 @@ exports.callbackOtherFeesStatus = async (req, res) => {
 exports.validatePaymentStatus = async () => {
   try {
     const all_payments = await ErrorPayment.find({ error_status: "GENERATED" })
-    .populate({
-      path: "error_receipt",
-      select: "receipt_file"
-    })
-    .populate({
-      path: "error_op",
-      select: "payment_amount"
-    })
+      .populate({
+        path: "error_receipt",
+        select: "receipt_file",
+      })
+      .populate({
+        path: "error_op",
+        select: "payment_amount",
+      });
     for (let val of all_payments) {
       if (val?.error_receipt?.receipt_file) {
-        
-      }
-      else {
+      } else {
         var paytmParams = {};
         paytmParams.body = {
-          "mid": `${process.env.PAYTM_MID}`,
-          "orderId": val?.error_order_id,
+          mid: `${process.env.PAYTM_MID}`,
+          orderId: val?.error_order_id,
         };
-        PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), `${process.env.PAYTM_MERCHANT_KEY}`).then(async function (checksum) {
+        PaytmChecksum.generateSignature(
+          JSON.stringify(paytmParams.body),
+          `${process.env.PAYTM_MERCHANT_KEY}`
+        ).then(async function (checksum) {
           paytmParams.head = {
-            "signature": checksum
+            signature: checksum,
           };
-          const d_set = await axios.post(process.env.PAYTM_STATUS_URL, paytmParams)
+          const d_set = await axios.post(
+            process.env.PAYTM_STATUS_URL,
+            paytmParams
+          );
           if (d_set?.data?.body?.resultInfo?.resultStatus === "TXN_SUCCESS") {
-            console.log("PASS", d_set?.data?.body)
+            console.log("PASS", d_set?.data?.body);
             if (val?.error_op?.payment_amount > 0) {
-              console.log("1")
-            }
-            else {
-              console.log("O")
+              console.log("1");
+            } else {
+              console.log("O");
               var order = await order_history_query(
                 val?.error_flow,
                 val?.error_module,
@@ -1065,12 +1094,12 @@ exports.validatePaymentStatus = async () => {
                 {},
                 {}
               );
-              val.error_op = order?._id
+              val.error_op = order?._id;
               var paytm_author = false;
-              var valid_status = val?.error_status_id === "null" ? "" : val?.error_status_id;
-              var valid_card =
-                "";
-              var pay_remain = false
+              var valid_status =
+                val?.error_status_id === "null" ? "" : val?.error_status_id;
+              var valid_card = "";
+              var pay_remain = false;
               await admissionInstituteFunction(
                 order?._id,
                 val?.error_student,
@@ -1088,44 +1117,48 @@ exports.validatePaymentStatus = async () => {
                 val?._id
                 // Boolean(ad_install)
               );
-              val.error_status = "GENERATED_RESOLVED"
-              await val.save()
+              val.error_status = "GENERATED_RESOLVED";
+              await val.save();
             }
-          }
-          else {
+          } else {
           }
         });
       }
     }
     // res.status(200).send({ message: "Explore Valid Payment Status Check API", access: true })
   } catch (e) {
-    console.error('Error validating payment status:', e);
+    console.error("Error validating payment status:", e);
   }
 };
 
 exports.validatePaymentStatusByAPI = async (req, res) => {
   try {
-    const { error_order_id } = req?.body
+    const { error_order_id } = req?.body;
     var paytmParams = {};
-      paytmParams.body = {
-        "mid": `${process.env.PAYTM_MID}`,
-        "orderId": error_order_id,
+    paytmParams.body = {
+      mid: `${process.env.PAYTM_MID}`,
+      orderId: error_order_id,
+    };
+    PaytmChecksum.generateSignature(
+      JSON.stringify(paytmParams.body),
+      `${process.env.PAYTM_MERCHANT_KEY}`
+    ).then(async function (checksum) {
+      paytmParams.head = {
+        signature: checksum,
       };
-      PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), `${process.env.PAYTM_MERCHANT_KEY}`).then(async function (checksum) {
-        paytmParams.head = {
-          "signature": checksum
-        };
-        const d_set = await axios.post(process.env.PAYTM_STATUS_URL, paytmParams)
-        if (d_set?.data?.body?.resultInfo?.resultStatus === "TXN_SUCCESS") {
-            console.log("PASS", d_set?.data?.body)
-        }
-        else {
-            console.log("FAIL")
-        }
-      });
-    res.status(200).send({ message: "Explore Valid Payment Status Check API", access: true })
+      const d_set = await axios.post(process.env.PAYTM_STATUS_URL, paytmParams);
+      if (d_set?.data?.body?.resultInfo?.resultStatus === "TXN_SUCCESS") {
+        console.log("PASS", d_set?.data?.body);
+      } else {
+        console.log("FAIL");
+      }
+    });
+    res.status(200).send({
+      message: "Explore Valid Payment Status Check API",
+      access: true,
+    });
   } catch (e) {
-    console.error('Error validating payment status:', e);
+    console.error("Error validating payment status:", e);
   }
 };
 // exports.callback_payment_failed_regeneration_counter = async (req, res) => {

@@ -1416,82 +1416,284 @@ exports.studentSubjectMasterPushDataQuery = async (req, res) => {
 
 exports.studentSubjectMasterPullDataQuery = async (req, res) => {
   try {
+    // const student_list = [
+    //   {
+    //     stu: "6663104ad2e6080fa573fff3",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "666084b511db27577debbc2a",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "665da12fa97704b262ff54dd",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "665df2f6b26286e0467f8e52",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "6663dd83d2e6080fa57688ab",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "66609dd2bd8e17f1d0dc8c3e",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "66604a5cb3a159d261975073",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "6661fdc71eff0cef9d409d29",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "665dbf948ccb86845ad2f3bd",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "665da9ff467341ec95e5e7e7",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "66598e444e300b805b0166bb",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "66616677d8fd9817b75c33f1",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "666298750fa8694c410102d6",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "666145791409ddf7a9aa32b0",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "665dda4da97704b262002652",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "6660285503ff919dc4b2947f",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "666003fdf9007de11abb03f3",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "66618465d8fd9817b75cad1c",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    //   {
+    //     stu: "6661500e3e1e94f701a0e2d7",
+    //     old_master: "6640d5810728cf14e8bfb0dd",
+    //   },
+    // ];
+    // const student_list = [
+    //   {
+    //     stu: "667ee0d70cec85d7a0726353",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "6663104ad2e6080fa573fff3",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "6663104ad2e6080fa573fff3",
+    //     old_master: "66585c8afea53c3960572c85",
+    //   },
+    //   {
+    //     stu: "6663104ad2e6080fa573fff3",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "666084b511db27577debbc2a",
+    //     old_master: "66585c8afea53c3960572c85",
+    //   },
+    //   {
+    //     stu: "666084b511db27577debbc2a",
+    //     old_master: "66585c9afea53c3960572c93",
+    //   },
+    //   {
+    //     stu: "666084b511db27577debbc2a",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "665da12fa97704b262ff54dd",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "665da12fa97704b262ff54dd",
+    //     old_master: "66585c8afea53c3960572c85",
+    //   },
+    //   {
+    //     stu: "665da12fa97704b262ff54dd",
+    //     old_master: "66585c9afea53c3960572c93",
+    //   },
+    //   {
+    //     stu: "665da9ff467341ec95e5e7e7",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "665da9ff467341ec95e5e7e7",
+    //     old_master: "66585c8afea53c3960572c85",
+    //   },
+    //   {
+    //     stu: "66616677d8fd9817b75c33f1",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "66616677d8fd9817b75c33f1",
+    //     old_master: "66585c9afea53c3960572c93",
+    //   },
+    //   {
+    //     stu: "66616677d8fd9817b75c33f1",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "666145791409ddf7a9aa32b0",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "666145791409ddf7a9aa32b0",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "666145791409ddf7a9aa32b0",
+    //     old_master: "66585c9afea53c3960572c93",
+    //   },
+    //   {
+    //     stu: "665dda4da97704b262002652",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "665dda4da97704b262002652",
+    //     old_master: "66585c8afea53c3960572c85",
+    //   },
+    //   {
+    //     stu: "665dda4da97704b262002652",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "666003fdf9007de11abb03f3",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "666003fdf9007de11abb03f3",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "666003fdf9007de11abb03f3",
+    //     old_master: "66585c8afea53c3960572c85",
+    //   },
+    //   {
+    //     stu: "66618465d8fd9817b75cad1c",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "66618465d8fd9817b75cad1c",
+    //     old_master: "66585c9afea53c3960572c93",
+    //   },
+    //   {
+    //     stu: "66618465d8fd9817b75cad1c",
+    //     old_master: "66585c8afea53c3960572c85",
+    //   },
+    //   {
+    //     stu: "6661500e3e1e94f701a0e2d7",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "6661500e3e1e94f701a0e2d7",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "6661500e3e1e94f701a0e2d7",
+    //     old_master: "66585c8afea53c3960572c85",
+    //   },
+    //   {
+    //     stu: "66604a5cb3a159d261975073",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "66604a5cb3a159d261975073",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "66604a5cb3a159d261975073",
+    //     old_master: "66585c8afea53c3960572c85",
+    //   },
+    //   {
+    //     stu: "66609dd2bd8e17f1d0dc8c3e",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "66609dd2bd8e17f1d0dc8c3e",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "66609dd2bd8e17f1d0dc8c3e",
+    //     old_master: "66585c8afea53c3960572c85",
+    //   },
+    // ];
+    // const student_list = [
+    //   {
+    //     stu: "665df2f6b26286e0467f8e52",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "665df2f6b26286e0467f8e52",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "665df2f6b26286e0467f8e52",
+    //     old_master: "66585c9afea53c3960572c93",
+    //   },
+    //   {
+    //     stu: "6663dd83d2e6080fa57688ab",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "6663dd83d2e6080fa57688ab",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "6663dd83d2e6080fa57688ab",
+    //     old_master: "66585c9afea53c3960572c93",
+    //   },
+    //   {
+    //     stu: "6661fdc71eff0cef9d409d29",
+    //     old_master: "66585c9afea53c3960572c93",
+    //   },
+    //   {
+    //     stu: "6661fdc71eff0cef9d409d29",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "6661fdc71eff0cef9d409d29",
+    //     old_master: "66585c8afea53c3960572c85",
+    //   },
+    //   {
+    //     stu: "666298750fa8694c410102d6",
+    //     old_master: "6640d5700728cf14e8bfb0c9",
+    //   },
+    //   {
+    //     stu: "666298750fa8694c410102d6",
+    //     old_master: "6640d58b0728cf14e8bfb10a",
+    //   },
+    //   {
+    //     stu: "666298750fa8694c410102d6",
+    //     old_master: "66585c9afea53c3960572c93",
+    //   },
+    // ];
     const student_list = [
       {
-        stu: "6663104ad2e6080fa573fff3",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "666084b511db27577debbc2a",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "665da12fa97704b262ff54dd",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "665df2f6b26286e0467f8e52",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "6663dd83d2e6080fa57688ab",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "66609dd2bd8e17f1d0dc8c3e",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "66604a5cb3a159d261975073",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "6661fdc71eff0cef9d409d29",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "665dbf948ccb86845ad2f3bd",
+        stu: "66697554e2c7009023bb81c1",
         old_master: "6640d58b0728cf14e8bfb10a",
-      },
-      {
-        stu: "665da9ff467341ec95e5e7e7",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "66598e444e300b805b0166bb",
-        old_master: "6640d58b0728cf14e8bfb10a",
-      },
-      {
-        stu: "66616677d8fd9817b75c33f1",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "666298750fa8694c410102d6",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "666145791409ddf7a9aa32b0",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "665dda4da97704b262002652",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "6660285503ff919dc4b2947f",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "666003fdf9007de11abb03f3",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "66618465d8fd9817b75cad1c",
-        old_master: "6640d5810728cf14e8bfb0dd",
-      },
-      {
-        stu: "6661500e3e1e94f701a0e2d7",
-        old_master: "6640d5810728cf14e8bfb0dd",
       },
     ];
     if (student_list?.length > 0) {

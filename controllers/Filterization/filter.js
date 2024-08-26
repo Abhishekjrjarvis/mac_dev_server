@@ -516,6 +516,68 @@ exports.retrieveByActiveStaff = async (req, res) => {
   }
 };
 
+const sort_student_by_alpha_query = async (arr, day, month, year) => {
+  var send_filter = [];
+  const students = await Student.find({
+    _id: { $in: arr },
+  })
+    .sort({ studentFName: 1, studentMName: 1, studentLName: 1 })
+    .select("_id");
+
+  for (let i = 0; i < students.length; i++) {
+    const stu = await Student.findById({ _id: students[i]._id })
+      .select(
+        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+      )
+      .populate({
+        path: "leave",
+        match: {
+          date: { $in: [`${day}/${month}/${year}`] },
+        },
+        select: "date",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      });
+    stu.studentROLLNO = i + 1;
+    await stu.save();
+    send_filter.push(stu);
+  }
+  return send_filter;
+};
+
+const sort_student_by_alpha_last_query = async (arr, day, month, year) => {
+  var send_filter = [];
+  const students = await Student.find({
+    _id: { $in: arr },
+  })
+    .sort({ studentLName: 1, studentFName: 1, studentMName: 1 })
+    .select("_id");
+
+  for (let i = 0; i < students.length; i++) {
+    const stu = await Student.findById({ _id: students[i]._id })
+      .select(
+        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+      )
+      .populate({
+        path: "leave",
+        match: {
+          date: { $in: [`${day}/${month}/${year}`] },
+        },
+        select: "date",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      });
+    stu.studentROLLNO = i + 1;
+    await stu.save();
+    send_filter.push(stu);
+  }
+  return send_filter;
+};
+
 const sort_student_by_alpha = async (arr, day, month, year) => {
   var send_filter = [];
   const students = await Student.find({
@@ -676,7 +738,17 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
     const classes = await Class.findById({ _id: cid }).select(
       "className classStatus classTitle exams ApproveStudent"
     );
-
+    for (let ele of classes?.ApproveStudent) {
+      const stu = await Student.findById({ _id: `${ele}` }).select(
+        "studentFName studentMName studentLName studentFirstName studentMiddleName studentLastName studentFatherName"
+      );
+      stu.studentFName = stu?.studentFirstName?.trim()?.toLowerCase();
+      stu.studentMName =
+        stu?.studentMiddleName?.trim()?.toLowerCase() ??
+        studentFatherName?.trim()?.toLowerCase();
+      stu.studentLName = stu?.studentLastName?.trim()?.toLowerCase();
+      await stu.save();
+    }
     if (sort_query === "Alpha") {
       const sortedA = await sort_student_by_alpha(
         classes.ApproveStudent,

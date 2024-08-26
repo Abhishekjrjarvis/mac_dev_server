@@ -830,9 +830,19 @@ exports.retrieveApproveCatalogArrayFilterTrigger = async (req, res) => {
     const classes = await Class.findById({ _id: cid }).select(
       "className classStatus classTitle exams ApproveStudent"
     );
-
+    for (let ele of classes?.ApproveStudent) {
+      const stu = await Student.findById({ _id: `${ele}` }).select(
+        "studentFName studentMName studentLName studentFirstName studentMiddleName studentLastName studentFatherName"
+      );
+      stu.studentFName = stu?.studentFirstName?.trim()?.toLowerCase();
+      stu.studentMName =
+        stu?.studentMiddleName?.trim()?.toLowerCase() ??
+        studentFatherName?.trim()?.toLowerCase();
+      stu.studentLName = stu?.studentLastName?.trim()?.toLowerCase();
+      await stu.save();
+    }
     if (sort_query === "Alpha") {
-      const sortedA = await sort_student_by_alpha(
+      const sortedA = await sort_student_by_alpha_query(
         classes.ApproveStudent,
         day,
         month,
@@ -845,7 +855,7 @@ exports.retrieveApproveCatalogArrayFilterTrigger = async (req, res) => {
         access: true,
       });
     } else if (sort_query === "Alpha_Last") {
-      const sortedA = await sort_student_by_alpha_last(
+      const sortedA = await sort_student_by_alpha_last_query(
         classes.ApproveStudent,
         day,
         month,

@@ -28,7 +28,7 @@ router
 
 router
   .route(
-    "/callback/admission/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price/fees/:payment_card_id/install/:payment_installment/remain/:payment_remain_fees/status/:ad_status_id/epid/:eid/url/:dynamic"
+    "/callback/admission/:moduleId/paidBy/:paidBy/redirect/:name/paidTo/:paidTo/device/:isApk/price/:price/fees/:payment_card_id/install/:payment_installment/remain/:payment_remain_fees/status/:ad_status_id/epid/:eid"
   )
   .post(callbackAdmission);
 

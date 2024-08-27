@@ -77,7 +77,6 @@ exports.initiate = async (req, res) => {
       cert_type,
       cert_content,
       is_original,
-      dynamic_url,
     } = req.body;
     console.log(req?.body);
     let platform_charge =
@@ -134,7 +133,7 @@ exports.initiate = async (req, res) => {
           : type === "Fees"
           ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/internal/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}`
           : type === "Admission"
-          ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_fees}/status/${ad_status_id}/epid/${error_pay?._id}/url/${dynamic_url}`
+          ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/admission/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/fees/${payment_card_id}/install/${payment_installment}/remain/${payment_remain_fees}/status/${ad_status_id}/epid/${error_pay?._id}`
           : type === "Certificate"
           ? `${process.env.CALLBACK_URLS}/v2/paytm/callback/certificate/${moduleId}/paidby/${paidBy}/redirect/${name}/paidTo/${paidTo}/device/${isApk}/price/${price}/type/${cert_type}/content/${cert_content}/original/${is_original}`
           : type === "Other"
@@ -309,7 +308,6 @@ exports.callbackAdmission = async (req, res) => {
       payment_remain_fees,
       price,
       eid,
-      dynamic,
     } = req.params;
     var paytmParams = {};
     paytmParams.body = {
@@ -393,10 +391,10 @@ exports.callbackAdmission = async (req, res) => {
                 check: true,
               });
             } else {
-              res.redirect(`${process.env.FRONT_REDIRECT_URL}/${dynamic?.url}`);
+              res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
             }
           } else {
-            res.redirect(`${process.env.FRONT_REDIRECT_URL}/${dynamic?.url}`);
+            res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
           }
         });
       });
@@ -1153,10 +1151,12 @@ exports.validatePaymentStatusByAPI = async (req, res) => {
         console.log("FAIL");
       }
     });
-    res.status(200).send({
-      message: "Explore Valid Payment Status Check API",
-      access: true,
-    });
+    res
+      .status(200)
+      .send({
+        message: "Explore Valid Payment Status Check API",
+        access: true,
+      });
   } catch (e) {
     console.error("Error validating payment status:", e);
   }

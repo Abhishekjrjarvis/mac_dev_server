@@ -3447,7 +3447,7 @@ exports.own_staff_history_query = async (req, res) => {
     let history = [];
 
     if (!["", undefined, ""]?.includes(req.query?.search)) {
-      history = await IssueBook.find({
+      history = await CollectBook.find({
         $and: [
           {
             _id: { $in: staff.deposite },
@@ -3469,7 +3469,7 @@ exports.own_staff_history_query = async (req, res) => {
         .lean()
         .exec();
     } else {
-      history = await IssueBook.find({
+      history = await CollectBook.find({
         $and: [
           {
             _id: { $in: staff.deposite },

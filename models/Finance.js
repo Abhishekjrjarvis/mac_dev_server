@@ -506,159 +506,159 @@ const financeSchema = new mongoose.Schema(
     fees: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Fees"
-      }
+        ref: "Fees",
+      },
     ],
     fees_count: {
       type: Number,
-      default: 0
+      default: 0,
     },
     tab_manage: {
       all_students: {
         type: Boolean,
-        default: true
+        default: true,
       },
       bank_details: {
         type: Boolean,
-        default: true
+        default: true,
       },
       pending_fees: {
         type: Boolean,
-        default: true
+        default: true,
       },
       incomes: {
         type: Boolean,
-        default: true
+        default: true,
       },
       expenses: {
         type: Boolean,
-        default: true
+        default: true,
       },
       submit_request: {
         type: Boolean,
-        default: true
+        default: true,
       },
       scholarships: {
         type: Boolean,
-        default: true
+        default: true,
       },
       exemption: {
         type: Boolean,
-        default: true
+        default: true,
       },
       deposits: {
         type: Boolean,
-        default: true
+        default: true,
       },
       transaction_history: {
         type: Boolean,
-        default: true
+        default: true,
       },
       data_export: {
         type: Boolean,
-        default: true
+        default: true,
       },
       finance_mods: {
         type: Boolean,
-        default: true
+        default: true,
       },
       fee_statistics: {
         type: Boolean,
-        default: true
+        default: true,
       },
       fees_structure: {
         type: Boolean,
-        default: true
+        default: true,
       },
       admission_excess_fees: {
         type: Boolean,
-        default: true
+        default: true,
       },
       admission_pending_fees: {
         type: Boolean,
-        default: true
+        default: true,
       },
       admission_offline_verification: {
         type: Boolean,
-        default: true
-      }
+        default: true,
+      },
     },
     fees_statistics_filter: {
       batch_level: [],
       batch_all: {
-        type: String
+        type: String,
       },
       department_level: [],
       department_all: {
-        type: String
+        type: String,
       },
       bank_level: [],
       master_level: [],
-      loading: { type: Boolean, default: true}
+      loading: { type: Boolean, default: true },
     },
     member_module_unique: {
       type: String,
-      unique: true
+      unique: true,
     },
     incomes: {
       type: Number,
-      default: 0
+      default: 0,
     },
     expenses: {
       type: Number,
-      default: 0
+      default: 0,
     },
     total_deposits: {
       type: Number,
-      default: 0
+      default: 0,
     },
     excess_fees: {
       type: Number,
-      default: 0
+      default: 0,
     },
     total_fees: {
       type: Number,
-      default: 0
+      default: 0,
     },
     total_collect: {
       type: Number,
-      default: 0
+      default: 0,
     },
     total_pending: {
       type: Number,
-      default: 0
+      default: 0,
     },
     collect_by_student: {
       type: Number,
-      default: 0
+      default: 0,
     },
     pending_by_student: {
       type: Number,
-      default: 0
+      default: 0,
     },
     collect_by_government: {
       type: Number,
-      default: 0
+      default: 0,
     },
     pending_from_government: {
       type: Number,
-      default: 0
+      default: 0,
     },
     fees_to_be_collected_student: {
       type: Number,
-      default: 0
+      default: 0,
     },
     fees_to_be_collected_government: {
       type: Number,
-      default: 0
+      default: 0,
     },
     internal_fees: {
       type: Number,
-      default: 0
+      default: 0,
     },
     internal_os_fees: {
       type: Number,
-      default: 0
+      default: 0,
     },
     mismatch_excel: [
       {
@@ -669,7 +669,7 @@ const financeSchema = new mongoose.Schema(
     ],
     mismatch_excel_count: {
       type: Number,
-      default: 0
+      default: 0,
     },
     total_fees_arr: [],
     total_collect_arr: [],
@@ -680,39 +680,37 @@ const financeSchema = new mongoose.Schema(
     pending_from_government_arr: [],
     fees_to_be_collected_student_arr: [],
     fees_to_be_collected_government_arr: [],
-    admission_stats: {
-
-    },
+    admission_stats: {},
     admission_fees_statistics_filter: {
       batch_level: [],
       batch_all: {
-        type: String
+        type: String,
       },
       department_level: [],
       department_all: {
-        type: String
+        type: String,
       },
       bank_level: [],
       master_level: [],
-      loading: { type: Boolean, default: true}
+      loading: { type: Boolean, default: true },
     },
     loading_fees: {
       type: Date,
-      default: Date.now
+      default: Date.now,
     },
     loading_admission_fees: {
       type: Date,
-      default: Date.now
+      default: Date.now,
     },
     scholarship_candidates: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "FeeReceipt"
-      }
+        ref: "FeeReceipt",
+      },
     ],
     scholarship_candidates_count: {
       type: Number,
-      default: 0
+      default: 0,
     },
     offlineFeeCollection: [
       {
@@ -735,28 +733,28 @@ const financeSchema = new mongoose.Schema(
     day_book: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "DayBook"
-      }
+        ref: "DayBook",
+      },
     ],
     day_book_count: {
       type: Number,
-      default: 0
+      default: 0,
     },
     delete_logs: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "DeleteLogs"
-      }
+        ref: "DeleteLogs",
+      },
     ],
     show_receipt: {
       type: String,
-      default: "Normal"
+      default: "Normal",
     },
     other_fees: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "OtherFees"
-      }
+        ref: "OtherFees",
+      },
     ],
     other_fee_master_array: [
       {
@@ -775,12 +773,16 @@ const financeSchema = new mongoose.Schema(
         from: { type: String },
         to: { type: String },
         payment_type: { type: String },
-        bank: { type: mongoose.Schema.Types.ObjectId, ref: "BankAccount"},
+        bank: { type: mongoose.Schema.Types.ObjectId, ref: "BankAccount" },
         created_at: { type: Date, default: Date.now },
         types: { type: String },
-        flow: { type: String }
+        flow: { type: String },
       },
-      ],
+    ],
+    show_invoice_pattern: {
+      type: String,
+      default: "Institute_Wise",
+    },
   },
   { timestamps: true }
 );

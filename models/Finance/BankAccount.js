@@ -73,7 +73,7 @@ const bankAccountSchema = new mongoose.Schema({
     default: 0,
   },
   bank_account_type: {
-    type: String
+    type: String,
   },
   day_book: [
     {
@@ -82,11 +82,15 @@ const bankAccountSchema = new mongoose.Schema({
       from: { type: String },
       to: { type: String },
       payment_type: { type: String },
-      bank: { type: mongoose.Schema.Types.ObjectId, ref: "BankAccount"},
+      bank: { type: mongoose.Schema.Types.ObjectId, ref: "BankAccount" },
       created_at: { type: Date, default: Date.now },
-      types: { type: String }
+      types: { type: String },
     },
-    ],
+  ],
+  invoice_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("BankAccount", bankAccountSchema);

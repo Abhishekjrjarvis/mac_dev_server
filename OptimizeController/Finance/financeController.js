@@ -283,7 +283,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
     //   });
     const finance = await Finance.findById({ _id: fid })
       .select(
-        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count tab_manage financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type bank_account_count fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status show_receipt"
+        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count tab_manage financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type bank_account_count fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status show_receipt show_invoice_pattern"
       )
       .populate({
         path: "institute",
@@ -8225,6 +8225,22 @@ exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
       access: true,
       all_student: all_student,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_control_invoice_pattern = async (req, res) => {
+  try {
+    const { fid } = req?.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await Finance.findByIdAndUpdate(fid, req?.body);
+    res.status(200).send({ message: "Explore Invoice Control Pattern" });
   } catch (e) {
     console.log(e);
   }

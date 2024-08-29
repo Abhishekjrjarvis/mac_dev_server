@@ -8146,7 +8146,7 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
         populate: {
           path: "fee_receipt fees",
           select:
-            "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads",
+            "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads fee_utr_reference",
         },
       });
     for (let ele of all_student) {
@@ -8168,6 +8168,9 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
             val?.fee_receipt?.fee_heads?.[0]?.head_name;
           ele.other_fees_obj.head_amount =
             val?.fee_receipt?.fee_heads?.[0]?.head_amount;
+          ele.other_fees_obj.fid = val?.fee_receipt?._id;
+          ele.other_fees_obj.fee_utr_reference =
+            val?.fee_receipt?.fee_utr_reference;
         } else if (`${val?.fees?._id}` === `${one_of?._id}`) {
           ele.other_fees_obj.status = val?.status;
           ele.other_fees_obj.price = val?.fees?.payable_amount;
@@ -8179,6 +8182,9 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
     for (let cls of all_student) {
       var numss = {};
       if (cls?.studentFirstName != "") {
+        const op = await OrderPayment.findOne({
+          fee_receipt: cls?.other_fees_obj?.fid,
+        });
         excel_list.push({
           ReceiptNo: cls?.other_fees_obj.invoice_count ?? "NA",
           FeeTransactionDate: cls?.other_fees_obj?.FeeTXNDate ?? "NA",
@@ -8191,6 +8197,10 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
           RegistrationID: cls?.student_prn_enroll_number ?? cls?.studentGRNO,
           Mode: cls?.other_fees_obj.fee_payment_mode ?? "NA",
           TxnDate: cls?.other_fees_obj?.TxnDate ?? "NA",
+          BankUTR:
+            op?.paytm_query?.length > 0
+              ? op?.paytm_query?.[0]?.BANKTXNID
+              : cls?.other_fees_obj?.fee_utr_reference ?? "#NA",
           FeesName: one_of?.other_fees_name ?? "NA",
           Status: cls?.other_fees_obj.status ?? "NA",
           HeadName: cls?.other_fees_obj?.head_name ?? "NA",

@@ -8138,9 +8138,9 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
     let list = [...one_of?.paid_students, ...one_of?.remaining_students];
     // one_of?.students
     var all_student = await Student.find({ _id: { $in: list } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName photoId studentEmail studentGender studentPhoneNumber studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj other_fees_paid_price"
-      )
+      // .select(
+      //   "studentFirstName studentMiddleName studentFatherName studentLastName photoId studentEmail studentGender studentPhoneNumber studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj other_fees_paid_price"
+      // )
       .populate({
         path: "other_fees",
         populate: {
@@ -8163,19 +8163,106 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
 
     let excel_list = [];
     for (let cls of all_student) {
-      excel_list.push({
-        GRNO: cls?.studentGRNO ?? "NA",
-        Name: `${cls?.studentFirstName} ${cls?.studentFatherName} ${cls?.studentLastName}`,
-        FirstName: cls?.studentFirstName ?? "NA",
-        FatherName: cls?.studentFatherName ?? "NA",
-        LastName: cls?.studentLastName ?? "NA",
-        Gender: cls?.studentGender,
-        Email: cls?.studentEmail,
-        PhoneNumber: cls?.studentPhoneNumber,
-        FeesName: one_of?.other_fees_name ?? "NA",
-        FeesAmount: cls?.other_fees_obj?.price ?? 0,
-        Status: cls?.other_fees_obj.status ?? "NA",
-      });
+      // excel_list.push({
+      //   GRNO: cls?.studentGRNO ?? "NA",
+      //   Name: `${cls?.studentFirstName} ${cls?.studentFatherName} ${cls?.studentLastName}`,
+      //   FirstName: cls?.studentFirstName ?? "NA",
+      //   FatherName: cls?.studentFatherName ?? "NA",
+      //   LastName: cls?.studentLastName ?? "NA",
+      //   Gender: cls?.studentGender,
+      //   Email: cls?.studentEmail,
+      //   PhoneNumber: cls?.studentPhoneNumber,
+      // });
+      var numss = {};
+      if (cls?.studentFirstName != "") {
+        if (cls?.student_dynamic_field?.length > 0) {
+          for (let ele of cls?.student_dynamic_field) {
+            // numss.push(
+            //   [ele?.key]: ele?.value,
+            // );
+            numss[ele?.key] = ele?.value;
+          }
+        }
+        excel_list.push({
+          RegistrationID: cls?.student_prn_enroll_number ?? "#NA",
+          Name: `${cls?.studentFirstName} ${
+            cls?.studentMiddleName
+              ? cls?.studentMiddleName ?? cls?.studentFatherName
+              : ""
+          } ${cls?.studentLastName}`,
+          FirstName: cls?.studentFirstName ?? "#NA",
+          FatherName: cls?.studentFatherName ?? cls?.studentMiddleName,
+          LastName: cls?.studentLastName ?? "#NA",
+          FeesName: one_of?.other_fees_name ?? "NA",
+          FeesAmount: cls?.other_fees_obj?.price ?? 0,
+          Status: cls?.other_fees_obj.status ?? "NA",
+          DOB: cls?.studentDOB ?? "#NA",
+          Gender: cls?.studentGender ?? "#NA",
+          CasteCategory: cls?.studentCastCategory ?? "#NA",
+          Religion: cls?.studentReligion ?? "#NA",
+          MotherName: `${cls?.studentMotherName}` ?? "#NA",
+          Address: `${cls?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
+          ContactNo: cls?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo: cls?.studentParentsPhoneNumber ?? "#NA",
+          NameAsMarksheet: cls?.studentNameAsMarksheet,
+          NameAsCertificate: cls?.studentNameAsCertificate,
+          BirthPlace: cls?.studentBirthPlace,
+          Religion: cls?.studentReligion,
+          Caste: cls?.studentCast,
+          Nationality: cls?.studentNationality,
+          RationCard: cls?.studentFatherRationCardColor,
+          BloodGroup: cls?.student_blood_group,
+          AadharNumber: cls?.studentAadharNumber,
+          PhoneNumber: cls?.studentPhoneNumber,
+          Email: cls?.studentEmail,
+          ParentsPhoneNumber: cls?.studentParentsPhoneNumber,
+          CurrentAddress: cls?.studentCurrentAddress,
+          CurrentPinCode: cls?.studentCurrentPincode,
+          CurrentState: cls?.studentCurrentState,
+          CurrentDistrict: cls?.studentCurrentDistrict,
+          Address: cls?.studentAddress,
+          PinCode: cls?.studentPincode,
+          State: cls?.studentState,
+          District: cls?.studentDistrict,
+          ParentsName: cls?.studentParentsName,
+          ParentsEmail: cls?.studentParentsEmail,
+          ParentsOccupation: cls?.studentParentsOccupation,
+          ParentsOfficeAddress: cls?.studentParentsAddress,
+          ParentsAnnualIncome: cls?.studentParentsAnnualIncom,
+          SeatType: cls?.student_seat_type,
+          PhysicallyHandicapped: cls?.student_ph_type,
+          DefencePersonnel: cls?.student_defence_personnel_word,
+          MaritalStatus: cls?.student_marital_status,
+          PreviousBoard: cls?.student_board_university,
+          PreviousSchool: cls?.studentPreviousSchool,
+          UniversityCourse: cls?.student_university_courses,
+          PassingYear: cls?.student_year,
+          PreviousClass: cls?.student_previous_class,
+          PreviousMarks: cls?.student_previous_marks,
+          PreviousPercentage: cls?.student_previous_percentage,
+          SeatNo: cls?.student_previous_section,
+          StandardMOP: cls?.month_of_passing,
+          StandardYOP: cls?.year_of_passing,
+          StandardPercentage: cls?.percentage,
+          StandardNameOfInstitute: cls?.name_of_institute,
+          HSCMOP: cls?.hsc_month,
+          HSCYOP: cls?.hsc_year,
+          HSCPercentage: cls?.hsc_percentage,
+          HSCNameOfInstitute: cls?.hsc_name_of_institute,
+          HSCBoard: cls?.hsc_board,
+          HSCCandidateType: cls?.hsc_candidate_type,
+          HSCVocationalType: cls?.hsc_vocational_type,
+          HSCPhysicsMarks: cls?.hsc_physics_marks,
+          HSCChemistryMarks: cls?.hsc_chemistry_marks,
+          HSCMathematicsMarks: cls?.hsc_mathematics_marks,
+          HSCPCMTotal: cls?.hsc_pcm_total,
+          HSCGrandTotal: cls?.hsc_grand_total,
+          FormNo: cls?.form_no,
+          QviplePayId: cls?.qviple_student_pay_id,
+          ...numss,
+        });
+      }
     }
     var valid_back = await json_to_excel_other_fees_subject_application_query(
       excel_list,

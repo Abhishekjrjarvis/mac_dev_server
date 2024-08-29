@@ -3462,7 +3462,7 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
 exports.renderFeeHeadsStructureReceiptRePayPriceQuery = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { fsid, depart, timeline, timeline_content, from, to, bank } =
+    const { fsid, depart, timeline, timeline_content, flow, from, to, bank } =
       req.query;
     if (!fid)
       return res.status(200).send({
@@ -3511,7 +3511,7 @@ exports.renderFeeHeadsStructureReceiptRePayPriceQuery = async (req, res) => {
             },
           },
           {
-            receipt_generated_from: "BY_ADMISSION",
+            receipt_generated_from: flow,
           },
           {
             refund_status: "No Refund",
@@ -3534,15 +3534,15 @@ exports.renderFeeHeadsStructureReceiptRePayPriceQuery = async (req, res) => {
         })
         .lean()
         .exec();
-      if (bank) {
-        all_receipts = all_receipts?.filter((val) => {
-          if (
-            `${val?.application?.applicationDepartment?.bank_account?._id}` ===
-            `${bank}`
-          )
-            return val;
-        });
-      }
+      // if (bank) {
+      //   all_receipts = all_receipts?.filter((val) => {
+      //     if (
+      //       `${val?.application?.applicationDepartment?.bank_account?._id}` ===
+      //       `${bank}`
+      //     )
+      //       return val;
+      //   });
+      // }
     }
     var valid_pay = ["Fee Receipt Not Generated", "Payment Gateway / Online"];
     all_receipts = all_receipts?.filter((val) => {

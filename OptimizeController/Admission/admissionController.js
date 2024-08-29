@@ -11230,84 +11230,23 @@ exports.renderFeeHeadsQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    var array = [];
-    var ins = await InstituteAdmin.findById({ _id: id });
-    var finance = await Finance.findById({ _id: `${ins?.financeDepart?.[0]}` });
-    const g_date = new Date(`2023-11-01T00:00:00.000Z`);
-    const l_date = new Date(`2023-11-10T00:00:00.000Z`);
-    var receipt = await FeeReceipt.find({
-      $and: [
-        {
-          created_at: {
-            $gte: g_date,
-            $lte: l_date,
-          },
-        },
-        {
-          set_off_status: "Not Set off",
-        },
-        {
-          receipt_generated_from: "BY_ADMISSION",
-        },
-        {
-          finance: finance?._id,
-        },
-      ],
+    var receipt = await FeeReceipt.findById({
+      _id: id,
     }).populate({
       path: "student",
       populate: {
         path: "fee_structure",
       },
     });
-    // .populate({
-    //   path: "student",
-    //   populate: {
-    //     path: "hostel_fee_structure",
-    //   },
-    // });
-    // var receipt = await FeeReceipt.findById({
-    //   _id: "6528c827c0da2e507764cf2c",
-    // })
-    for (var ref of receipt) {
-      // if (ref?.fee_heads?.length > 0) {
-      //   ref.fee_heads = [];
-      //   await ref.save();
-      // } else {
-      await set_fee_head_query_redesign(
-        ref?.student,
-        ref?.fee_payment_amount,
-        ref?.application,
-        ref
-      );
-      // await set_fee_head_query_redesign_hostel(
-      //   ref?.student,
-      //   ref?.fee_payment_amount,
-      //   ref?.application,
-      //   ref
-      // );
-      // }
-    }
-    // receipt.fee_heads = [];
-    // await receipt.save();
-    // await set_fee_head_query_redesign(
-    //   receipt?.student,
-    //   receipt?.fee_payment_amount,
-    //   receipt?.application,
-    //   receipt
-    // );
-
-    // // else {
-    //   await set_fee_head_query_redesign(
-    //     student,
-    //     ref?.fee_payment_amount,
-    //     ref?.application,
-    //     ref
-    //   );
-
+    await set_fee_head_query_redesign(
+      receipt?.student,
+      receipt?.fee_payment_amount,
+      receipt?.application,
+      receipt
+    );
     res.status(200).send({
       message: "Explore All Student Fee Heads Query",
       access: true,
-      count: receipt?.length,
       receipt,
     });
   } catch (e) {

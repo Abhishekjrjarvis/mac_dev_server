@@ -1151,12 +1151,10 @@ exports.validatePaymentStatusByAPI = async (req, res) => {
         console.log("FAIL");
       }
     });
-    res
-      .status(200)
-      .send({
-        message: "Explore Valid Payment Status Check API",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Explore Valid Payment Status Check API",
+      access: true,
+    });
   } catch (e) {
     console.error("Error validating payment status:", e);
   }

@@ -8204,7 +8204,7 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
           FeesName: one_of?.other_fees_name ?? "NA",
           Status: cls?.other_fees_obj.status ?? "NA",
           HeadName: cls?.other_fees_obj?.head_name ?? "NA",
-          HeadAmount: cls?.other_fees_obj?.head_amount ?? 0,
+          // HeadAmount: cls?.other_fees_obj?.head_amount ?? 0,
         });
       }
     }

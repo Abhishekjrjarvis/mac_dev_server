@@ -158,9 +158,7 @@ exports.fee_heads_receipt_json_to_excel_query = async (
     xlsx.utils.book_append_sheet(real_book, real_sheet, "Fee Receipt Heads");
     var name = `${insName}-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
     if (bank) {
-      const bank_acc = await BankAccount.findById({ _id: bank }).select(
-        "bank_account_type"
-      );
+      const bank_acc = await BankAccount.findById({ _id: bank });
       if (bank_acc?.bank_account_type === "Society") {
         var name = `Society-${from}-To-${to}-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
       } else {

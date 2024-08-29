@@ -8287,6 +8287,9 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
 exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
   try {
     const { ofid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     if (!ofid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",

@@ -156,4 +156,9 @@ router.patch(
 
 router.patch("/payment/data/query", catchAsync(Filter.renderPaymentDataQuery));
 
+router.patch(
+  "/bank/heads/by/:fid/receipt/query/repay",
+  catchAsync(Filter.renderFeeHeadsStructureReceiptRePayQueryBank)
+);
+
 module.exports = router;

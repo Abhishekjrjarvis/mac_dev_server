@@ -317,4 +317,9 @@ router.patch(
   catchAsync(Filter.renderNormalApplicableOutStandingStudentQuery)
 );
 
+router.patch(
+  "/:fid/all/settlement/amount",
+  catchAsync(Filter.render_admin_daybook_heads_wise)
+);
+
 module.exports = router;

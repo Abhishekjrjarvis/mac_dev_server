@@ -603,6 +603,12 @@ exports.subjectEdit = async (req, res) => {
     if (req.body?.subject_category) {
       subject.subject_category = req.body?.subject_category;
     }
+    if (batch_arr?.length > 0) {
+      for (var ref of batch_arr) {
+        // staff.staffBatch.push(ref);
+        subject.selected_batch_query = ref;
+      }
+    }
     if (subject?.subjectTeacherName) {
       const staff = await Staff.findById({ _id: subject?.subjectTeacherName });
       if (delete_arr?.length > 0) {
@@ -890,6 +896,61 @@ exports.subjectDeleteAll = async (req, res) => {
     res
       .status(200)
       .send({ message: "Subject deleted successfully👍", deleted: "Yes" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.one_department_particular_divison_subject_remove_query = async (
+  req,
+  res
+) => {
+  try {
+    const division = [
+      // "6693aa77fc5124119c0d47ab",
+      // "66c2cad5a9f8ece536675b9d",
+      // "66c2caf1a9f8ece536675c01",
+      // "66c2cb0ba9f8ece536675c35",
+      // "66c2cb1da9f8ece536675c9a",
+      // "66c2cb30a9f8ece536675d12",
+      // "66c2cb4ca9f8ece536675d5a",
+      // "66c2cb8da9f8ece536675e6d",
+    ];
+
+    for (let i = 0; i < division?.length; i++) {
+      let odf = division[i];
+      const cls = await Class.findById(odf);
+      if (cls?.subject?.length > 0) {
+        for (let j = 0; j < cls?.subject?.length; j++) {
+          let sdf = cls?.subject[j];
+          const subject = await Subject.findById(sdf);
+          if (subject?._id) {
+            if (subject?.subjectMasterName) {
+              const subjectMaster = await SubjectMaster.findById(
+                subject.subjectMasterName
+              );
+              subjectMaster?.subjects.pull(subject._id);
+              subjectMaster.subjectCount -= 1;
+              await subjectMaster.save();
+            }
+            if (subject?.subjectTeacherName) {
+              const subjectTeacherName = await Staff.findById(
+                subject?.subjectTeacherName
+              );
+              subjectTeacherName.staffSubject.pull(subject._id);
+              subjectTeacherName.staffDesignationCount -= 1;
+              await subjectTeacherName.save();
+            }
+            cls?.subject.pull(subject._id);
+            cls.subjectCount -= 1;
+            await Subject.findByIdAndDelete(sdf);
+          }
+        }
+        await cls.save();
+      }
+    }
+
+    res.status(200).send({ message: "All Division subject deleted" });
   } catch (e) {
     console.log(e);
   }

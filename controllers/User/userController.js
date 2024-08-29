@@ -3180,3 +3180,35 @@ exports.render_specific_mods_query = async (req, res) => {
 //     console.log(e);
 //   }
 // };
+
+exports.user_chatname_lowercase_query = async (req, res) => {
+  try {
+    const all_user = await User.find({
+      // username_chat: "DEMO_4205312",
+    }).select("userLegalName username_chat");
+
+    // for (let ele of all_user) {
+
+    // for (let i = 13264; i < all_user?.length; i++) {
+    //   let ele = all_user[i];
+    //   if (ele?._id) {
+    //     let splitted = ele?.userLegalName?.split(" ");
+    //     let lt_lg = splitted?.[0]?.length;
+    //     let st = ele?.username_chat?.substring(0, lt_lg);
+    //     st = st?.toLocaleLowerCase();
+    //     let ft = `${st}${ele?.username_chat?.substring(lt_lg)}`;
+    //     ele.username_chat = ft;
+    //     await ele.save();
+    //     console.log(i);
+    //   }
+    // }
+
+    res.status(200).send({
+      message: "To change all lowercase for userchat name",
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e.message,
+    });
+  }
+};

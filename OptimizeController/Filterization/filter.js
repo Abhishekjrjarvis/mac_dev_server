@@ -15369,10 +15369,10 @@ exports.renderNormalApplicableOutStandingStudentQuery = async (req, res) => {
   }
 };
 
-exports.render_daybook_heads_wise = async (req, res) => {
+exports.render_admin_daybook_heads_wise = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { from, to, bank, payment_type } = req.query;
+    const { from, to, bank, payment_type, hid, flow } = req.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -15432,7 +15432,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
       }
       const l_date = new Date(`${l_year}-${l_month}-${l_dates}T00:00:00.000Z`);
       if (payment_type) {
-        if (payment_type == "BOTH") {
+        if (payment_type == "Total") {
           var all_receipts_set = await FeeReceipt.find({
             $and: [
               { finance: fid },
@@ -15485,7 +15485,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
               return val;
             }
           });
-        } else if (payment_type == "CASH_BANK") {
+        } else if (payment_type == "Cash / Bank") {
           var all_receipts_set = await FeeReceipt.find({
             $and: [
               { finance: fid },
@@ -15674,7 +15674,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
       var l = [];
       if (all_receipts?.length > 0) {
         for (let ele of all_receipts) {
-          if (payment_type == "BOTH") {
+          if (payment_type == "Total") {
             for (let val of ele?.fee_heads) {
               for (let ads of nest_obj) {
                 if (ele?.fee_payment_mode == "By Cash") {
@@ -15853,7 +15853,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
                 }
               }
             }
-          } else if (payment_type == "CASH_BANK") {
+          } else if (payment_type == "Cash / Bank") {
             for (let val of ele?.fee_heads) {
               for (let ads of nest_obj) {
                 if (ele?.fee_payment_mode == "By Cash") {
@@ -16126,7 +16126,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
       }
       const l_date = new Date(`${l_year}-${l_month}-${l_dates}T00:00:00.000Z`);
       if (payment_type) {
-        if (payment_type == "BOTH") {
+        if (payment_type == "Total") {
           var all_receipts_set = await FeeReceipt.find({
             $and: [
               { finance: fid },
@@ -16179,7 +16179,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
               return val;
             }
           });
-        } else if (payment_type == "CASH_BANK") {
+        } else if (payment_type == "Cash / Bank") {
           var all_receipts_set = await FeeReceipt.find({
             $and: [
               { finance: fid },
@@ -16349,7 +16349,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
       var l = [];
       if (all_receipts?.length > 0) {
         for (let ele of all_receipts) {
-          if (payment_type == "BOTH") {
+          if (payment_type == "Total") {
             for (let val of ele?.fee_heads) {
               for (let ads of nest_obj) {
                 if (ele?.fee_payment_mode == "By Cash") {
@@ -16438,7 +16438,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
                 }
               }
             }
-          } else if (payment_type == "CASH_BANK") {
+          } else if (payment_type == "Cash / Bank") {
             for (let val of ele?.fee_heads) {
               for (let ads of nest_obj) {
                 if (ele?.fee_payment_mode == "By Cash") {

@@ -364,4 +364,6 @@ router.get(
   catchAsync(User.render_student_id_query)
 );
 
+router.get("/:id/chat/access/query", catchAsync(User.getChatDashDataQuery));
+
 module.exports = router;

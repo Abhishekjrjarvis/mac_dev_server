@@ -1921,7 +1921,7 @@ exports.fetchAllReviewApplication = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Reviewing and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          review: apply?.reviewApplication,
+          review: apply?.reviewApplication?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -2018,7 +2018,7 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Reviewing and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          review: apply?.reviewApplication,
+          review: apply?.reviewApplication?.reverse(),
         });
       } else {
         res.status(200).send({
@@ -2048,7 +2048,7 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Reviewing OPT and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          review: apply?.reviewApplication,
+          review: apply?.reviewApplication?.reverse(),
         });
       } else {
         res.status(200).send({

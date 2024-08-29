@@ -8269,6 +8269,44 @@ exports.render_control_invoice_pattern = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.render_all_account_query = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: fid });
+    const finance = await Finance.findById({
+      _id: ins?.financeDepart?.[0],
+    }).select("bank_account");
+    var all_accounts = await BankAccount.find({
+      $and: [{ _id: { $in: finance?.bank_account } }],
+    }).select(
+      "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address due_repay total_repay collect_online bank_account_type hostel finance"
+    );
+
+    if (all_accounts?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Bank Account's Available 👍",
+        access: true,
+        all_accounts: all_accounts,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Bank Account's Available 👍",
+        access: true,
+        all_accounts: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.renderExistingOtherFeesNonExistingQuery = async (req, res) => {
 //   try {
 //     const { fid } = req?.params

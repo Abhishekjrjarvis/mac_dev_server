@@ -1949,7 +1949,7 @@ exports.fetchAllReviewApplication = async (req, res) => {
       var all_student = await nested_document_limit(
         page,
         limit,
-        apply?.reviewApplication
+        apply?.reviewApplication?.reverse()
       );
       if (all_student?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);

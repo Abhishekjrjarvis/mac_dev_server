@@ -1235,48 +1235,6 @@ exports.mcq_create_question_excel_to_json_query = async (
   excel_count
 ) => {
   try {
-    // let excel_arr = [
-    //   {
-    //     key0: {
-    //       value: "1",
-    //       fomat_key: "Sr. No",
-    //       excel_key: "Sr. No",
-    //       db_key: "questionSNO",
-    //     },
-    //     key1: {
-    //       value:
-    //         "The renal pyramids are separated from each other by extensions of the renal cortex called ________.",
-    //       fomat_key: "Question",
-    //       excel_key: "Question",
-    //       db_key: "questionDescription",
-    //     },
-    //     key2: {
-    //       value: "renal medulla",
-    //       fomat_key: "A",
-    //       excel_key: "A",
-    //       db_key: "option",
-    //     },
-    //     key3: {
-    //       value: "minor calyces",
-    //       fomat_key: "B",
-    //       excel_key: "B",
-    //       db_key: "option",
-    //     },
-    //     key4: {
-    //       value: "renal columns",
-    //       fomat_key: "Marks",
-    //       excel_key: "D",
-    //       db_key: "questionNumber",
-    //     },
-    //     key5: {
-    //       value: "A",
-    //       fomat_key: "Answer",
-    //       excel_key: "Answer",
-    //       db_key: "correctAnswer",
-    //     },
-    //   },
-    // ];
-
     let data_query = [];
     let s_op = ["option"];
     let obj_copm = ["option", "correctAnswer"];
@@ -1322,7 +1280,7 @@ exports.mcq_create_question_excel_to_json_query = async (
         });
       }
     }
-    return { data_query };
+    return data_query;
   } catch (e) {
     console.log("Subject Master MCq Question Excel Query Not Resolved", e);
   }

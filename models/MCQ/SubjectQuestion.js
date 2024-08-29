@@ -7,7 +7,6 @@ const subjectQuestionSchema = new mongoose.Schema({
   },
   questionNumber: {
     type: Number,
-    required: true,
   },
   questionDescription: {
     type: String,

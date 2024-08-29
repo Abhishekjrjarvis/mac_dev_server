@@ -2143,8 +2143,8 @@ exports.renderOneAssignmentDestroyQuery = async (req, res) => {
 exports.create_mcq_question_excel_query = async (req, res) => {
   try {
     const { smid, cmid } = req.params;
-    const { excel_arr, excel_count } = req.body;
-    if (!smid || !cmid || !excel_file) {
+    const { excel_arr, excel_count, flow } = req.body;
+    if (!smid || !cmid || !excel_arr?.length) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
       });
@@ -2187,44 +2187,90 @@ exports.create_mcq_question_excel_query = async (req, res) => {
       excel_import_log.import_institute_id = clsMaster.institute?._id;
       await Promise.all([master_question.save(), excel_import_log.save()]);
     }
-    res.status(200).send({
-      message: "MCQ Excel Update To Backend Wait for Operation Completed",
-      access: true,
-    });
+    if (flow === "NORMAL") {
+      res.status(200).send({
+        message: "MCQ Excel Update To Backend Wait for Operation Completed",
+        access: true,
+      });
+      const question_master = await SubjectMasterQuestion.findOne({
+        subjectMaster: smid,
+        classMaster: cmid,
+      });
 
-    const question_master = await SubjectMasterQuestion.findOne({
-      subjectMaster: smid,
-      classMaster: cmid,
-    });
+      if (question_master?._id && excel_arr?.length > 0 && excel_count > 0) {
+        const question_list = await mcq_create_question_excel_to_json_query(
+          excel_arr,
+          excel_count
+        );
 
-    if (question_master?._id && excel_arr?.length > 0 && excel_count > 0) {
-      const question_list = await mcq_create_question_excel_to_json_query(
-        excel_arr,
-        excel_count
-      );
-      if (question_list?.length > 0) {
-        for (let que of question_list) {
-          const subjectQuestion = new SubjectQuestion({
-            questionSNO: que?.questionSNO,
-            questionDescription: que?.questionDescription,
-            options: que?.options,
-            correctAnswer: que?.correctAnswer,
-            answerDescription: que?.answerDescription,
-            isUniversal: question_master.isUniversal,
-            relatedSubject: question_master._id,
-          });
-          if (que?.questionNumber) {
-            if (typeof +que?.questionNumber === "Number") {
+        if (question_list?.length > 0) {
+          for (let que of question_list) {
+            const subjectQuestion = new SubjectQuestion({
+              questionSNO: que?.questionSNO,
+              questionDescription: que?.questionDescription,
+              options: que?.options,
+              correctAnswer: que?.correctAnswer,
+              answerDescription: que?.answerDescription,
+              isUniversal: question_master.isUniversal,
+              relatedSubject: question_master._id,
+            });
+            if (que?.questionNumber) {
               subjectQuestion.questionNumber = +que?.questionNumber;
             }
+            await subjectQuestion.save();
+            question_master.questions.push(subjectQuestion._id);
+            question_master.questionCount += 1;
           }
-
-          await subjectQuestion.save();
-          question_master.questions.push(subjectQuestion._id);
-          question_master.questionCount += 1;
+          await question_master.save();
         }
-        await question_master.save();
       }
+    } else if (flow === "TEST_SET") {
+      let testset_question = [];
+      const question_master = await SubjectMasterQuestion.findOne({
+        subjectMaster: smid,
+        classMaster: cmid,
+      });
+
+      if (question_master?._id && excel_arr?.length > 0 && excel_count > 0) {
+        const question_list = await mcq_create_question_excel_to_json_query(
+          excel_arr,
+          excel_count
+        );
+
+        if (question_list?.length > 0) {
+          for (let que of question_list) {
+            const subjectQuestion = new SubjectQuestion({
+              questionSNO: que?.questionSNO,
+              questionDescription: que?.questionDescription,
+              options: que?.options,
+              correctAnswer: que?.correctAnswer,
+              answerDescription: que?.answerDescription,
+              isUniversal: question_master.isUniversal,
+              relatedSubject: question_master._id,
+            });
+            if (que?.questionNumber) {
+              subjectQuestion.questionNumber = +que?.questionNumber;
+            }
+            await subjectQuestion.save();
+            question_master.questions.push(subjectQuestion._id);
+            question_master.questionCount += 1;
+            testset_question.push({
+              questionSNO: subjectQuestion.questionSNO,
+              questionNumber: subjectQuestion.questionNumber,
+              questionDescription: subjectQuestion.questionDescription,
+              questionImage: subjectQuestion.questionImage,
+              _id: subjectQuestion._id,
+            });
+          }
+          await question_master.save();
+        }
+      }
+      res.status(200).send({
+        message: "MCQ Excel Update To Backend Wait for Operation Completed",
+        testset_question: testset_question,
+        access: true,
+      });
+    } else {
     }
   } catch (e) {
     console.log(e);

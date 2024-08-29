@@ -1229,3 +1229,101 @@ exports.generate_excel_to_json_grno = async (file) => {
 };
 
 // console.log(generate_excel_to_json_class_time_table_query(data_set, 5))
+
+exports.mcq_create_question_excel_to_json_query = async (
+  excel_arr,
+  excel_count
+) => {
+  try {
+    // let excel_arr = [
+    //   {
+    //     key0: {
+    //       value: "1",
+    //       fomat_key: "Sr. No",
+    //       excel_key: "Sr. No",
+    //       db_key: "questionSNO",
+    //     },
+    //     key1: {
+    //       value:
+    //         "The renal pyramids are separated from each other by extensions of the renal cortex called ________.",
+    //       fomat_key: "Question",
+    //       excel_key: "Question",
+    //       db_key: "questionDescription",
+    //     },
+    //     key2: {
+    //       value: "renal medulla",
+    //       fomat_key: "A",
+    //       excel_key: "A",
+    //       db_key: "option",
+    //     },
+    //     key3: {
+    //       value: "minor calyces",
+    //       fomat_key: "B",
+    //       excel_key: "B",
+    //       db_key: "option",
+    //     },
+    //     key4: {
+    //       value: "renal columns",
+    //       fomat_key: "Marks",
+    //       excel_key: "D",
+    //       db_key: "questionNumber",
+    //     },
+    //     key5: {
+    //       value: "A",
+    //       fomat_key: "Answer",
+    //       excel_key: "Answer",
+    //       db_key: "correctAnswer",
+    //     },
+    //   },
+    // ];
+
+    let data_query = [];
+    let s_op = ["option"];
+    let obj_copm = ["option", "correctAnswer"];
+    if (excel_arr?.length > 0) {
+      for (let ref of excel_arr) {
+        let obj = {
+          options: [],
+          correctAnswer: [],
+        };
+        for (let val = 0; val < excel_count; val++) {
+          let ref_obj = ref[`key${val}`];
+          if (ref_obj) {
+            if (s_op?.includes(ref_obj.db_key)) {
+              obj.options.push({
+                option: ref_obj?.value,
+                optionNumber: ref_obj?.fomat_key,
+              });
+            }
+          }
+        }
+
+        for (let val = 0; val < excel_count; val++) {
+          let ref_obj = ref[`key${val}`];
+          if (ref_obj) {
+            if (obj_copm?.includes(ref_obj.db_key)) {
+              if (ref_obj.db_key === "correctAnswer") {
+                for (let ot of obj.options) {
+                  if (`${ref_obj?.value}` === `${ot?.optionNumber}`) {
+                    obj.correctAnswer.push({
+                      option: ot?.option,
+                      optionNumber: ref_obj?.value,
+                    });
+                  }
+                }
+              }
+            } else {
+              obj[ref_obj.db_key] = ref_obj?.value;
+            }
+          }
+        }
+        data_query.push({
+          ...obj,
+        });
+      }
+    }
+    return { data_query };
+  } catch (e) {
+    console.log("Subject Master MCq Question Excel Query Not Resolved", e);
+  }
+};

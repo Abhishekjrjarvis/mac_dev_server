@@ -151,4 +151,7 @@ router.delete(
   catchAsync(mcqController.renderOneAssignmentDestroyQuery)
 );
 
+router
+  .route("/:smid/excel/import/question/:cmid")
+  .patch(catchAsync(mcqController.create_mcq_question_excel_query));
 module.exports = router;

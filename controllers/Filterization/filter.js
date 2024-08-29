@@ -2040,12 +2040,17 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               }
             }
           }
-          if (remain_list?.paid_fee - remain_list?.applicable_fee > 0) {
+          if (
+            remain_list?.applicable_card?.paid_fee -
+              remain_list?.applicable_card?.applicable_fee >
+            0
+          ) {
             if (`${val?.appId}` === `${ref?.application?._id}`) {
               head_array.push({
                 HeadsName: "Excess Fees",
                 PaidHeadFees:
-                  remain_list?.paid_fee - remain_list?.applicable_fee,
+                  remain_list?.applicable_card?.paid_fee -
+                  remain_list?.applicable_card?.applicable_fee,
               });
             }
           }
@@ -5403,13 +5408,19 @@ exports.renderFeeHeadsStructureReceiptRePayQueryBank = async (req, res) => {
         .lean()
         .exec();
       if (bank) {
-        all_receipts = all_receipts?.filter((val) => {
-          if (
-            `${val?.application?.applicationDepartment?.bank_account?._id}` ===
-            `${bank}`
-          )
-            return val;
-        });
+        const bank_acc = await BankAccount.findById({ _id: bank }).select(
+          "bank_account_type"
+        );
+        if (bank_acc?.bank_account_type === "Society") {
+        } else {
+          all_receipts = all_receipts?.filter((val) => {
+            if (
+              `${val?.application?.applicationDepartment?.bank_account?._id}` ===
+              `${bank}`
+            )
+              return val;
+          });
+        }
       }
     }
     if (all_receipts?.length > 0) {
@@ -5453,21 +5464,24 @@ exports.renderFeeHeadsStructureReceiptRePayQueryBank = async (req, res) => {
       institute.getReturn.push(repay._id);
       if (bank) {
         var account = await BankAccount.findById({ _id: `${bank}` });
-        for (var ref of account?.departments) {
-          var department = await Department.findById({
-            _id: `${ref}`,
-          });
-          if (department?.due_repay >= price) {
-            department.due_repay -= price;
+        if (account?.bank_account_type === "Society") {
+        } else {
+          for (var ref of account?.departments) {
+            var department = await Department.findById({
+              _id: `${ref}`,
+            });
+            if (department?.due_repay >= price) {
+              department.due_repay -= price;
+            }
+            if (department?.total_repay >= price) {
+              department.total_repay -= price;
+            }
+            price =
+              account.due_repay >= price
+                ? account.due_repay - price
+                : price - account.due_repay;
+            await department.save();
           }
-          if (department?.total_repay >= price) {
-            department.total_repay -= price;
-          }
-          price =
-            account.due_repay >= price
-              ? account.due_repay - price
-              : price - account.due_repay;
-          await department.save();
         }
         repay.bank_account.push(account?._id);
         repay.bank_account_count += 1;

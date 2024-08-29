@@ -5680,141 +5680,161 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       _id: `${admission.institute}`,
     });
     var student = await Student.findById({ _id: sid });
-    const structure = await FeeStructure.findById({
-      _id: `${student?.fee_structure}`,
-    });
-    var user = await User.findById({ _id: `${student?.user}` });
-    var status = new Status({});
-    var notify = new StudentNotification({});
-    let obj = {
-      status_id: status?._id,
-      revert_request_status: revert_status,
-    };
-    student.student_application_obj.push({
-      app: apply?._id,
-      staff: staffId,
-      flow: "docs_by",
-    });
-    var c_num = await render_new_fees_card(
-      student?._id,
-      apply?._id,
-      structure?._id,
-      "By_Admission_Admin_After_Docs_Collect",
-      "",
-      "",
-      obj
-    );
-    if (structure?.applicable_fees <= 0) {
-      apply.confirmedApplication.push({
-        student: student._id,
-        payment_status: "Zero Applicable Fees",
-        install_type: "No Installment Required For Payment",
-        fee_remain: structure?.applicable_fees,
-        status_id: status?._id,
-        revert_request_status: revert_status,
-      });
-      apply.confirmCount += 1;
-    } else {
-      apply.FeeCollectionApplication.push({
-        student: student?._id,
-        fee_remain: structure?.applicable_fees,
-        payment_flow: c_num?.card,
-        app_card: c_num?.app_card,
-        gov_card: c_num?.gov_card,
-        status_id: status?._id,
-        revert_request_status: revert_status,
-        fee_struct: c_num?.fee_struct,
-      });
-      apply.fee_collect_count += 1;
-    }
-    apply.selectedApplication.pull(nest);
-    if (apply?.selectCount > 0) {
-      apply.selectCount -= 1;
-    }
-    // for (let app of apply.selectedApplication) {
-    //   if (`${app.student}` === `${student._id}`) {
-    //     app.docs_collect = "Collected";
-    //     app.status_id = status?._id;
-    //     app.edited_struct = false;
-    //   } else {
-    //   }
-    // }
-    status.content = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
-    status.applicationId = apply._id;
-    user.applicationStatus.push(status._id);
-    status.group_by = "Admission_Fees_Payment";
-    status.remaining_list = c_num?.card;
-    status.payment_status = "Not Paid";
-    status.finance = institute?.financeDepart?.[0];
-    status.feeStructure = structure?._id;
-    status.for_selection = "Yes";
-    status.structure_edited = "Edited";
-    status.studentId = student?._id;
-    status.student = student?._id;
-    status.instituteId = institute._id;
-    notify.notifyContent = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
-    // console.log(
-    //   admission?.admissionAdminHead?.user
-    // );
-    notify.notifySender = `${admission?.admissionAdminHead?.user}`;
-    notify.notifyReceiever = `${user?._id}`;
-    notify.notifyType = "Student";
-    notify.notifyPublisher = student?._id;
-    user.activity_tab.push(notify?._id);
-    notify.notifyByAdmissionPhoto = admission?._id;
-    notify.notifyCategory = "Status Alert";
-    notify.redirectIndex = 29;
-    if (collect_docs?.length > 0) {
-      for (let ele of collect_docs) {
-        student.collect_docs.push({
-          docs: ele?.docs,
-          not_filled: ele?.not_filled,
-        });
+    if (student?.remainingFeeList?.length > 0) {
+      for (let ele of apply?.selectedApplication) {
+        if (`${ele?.student}` === `${student?._id}`) {
+          apply.selectedApplication.pull(ele?._id);
+          if (apply?.selectCount > 0) {
+            apply.selectCount -= 1;
+          }
+        }
       }
-    }
-    await Promise.all([
-      apply.save(),
-      user.save(),
-      status.save(),
-      notify.save(),
-      student.save(),
-    ]);
-    res.status(200).send({
-      message: "Look like a party mood",
-      docs_status: true,
-    });
-    invokeMemberTabNotification(
-      "Admission Status",
-      status.content,
-      "Application Status",
-      user._id,
-      user.deviceToken
-    );
-    const studentName = `${student?.studentFirstName} ${
-      student?.studentMiddleName ? student?.studentMiddleName : ""
-    } ${student?.studentLastName}`;
-    await whats_app_sms_payload(
-      user?.userPhoneNumber,
-      studentName,
-      institute?.insName,
-      null,
-      "ASCAS",
-      institute?.insType,
-      student.admissionPaidFeeCount,
-      student.admissionRemainFeeCount,
-      institute?.sms_lang
-    );
-    if (user?.userEmail) {
-      await email_sms_payload_query(
-        user?.userEmail,
+      for (let val of admission?.selectedApplication) {
+        if (`${val?.student}` === `${student?._id}`) {
+          admission.selectedApplication.pull(val?._id);
+        }
+      }
+      await Promise.all([apply.save(), admission.save()]);
+      res
+        .status(200)
+        .send({ message: "Fees Card Already Exists", access: true });
+    } else {
+      const structure = await FeeStructure.findById({
+        _id: `${student?.fee_structure}`,
+      });
+      var user = await User.findById({ _id: `${student?.user}` });
+      var status = new Status({});
+      var notify = new StudentNotification({});
+      let obj = {
+        status_id: status?._id,
+        revert_request_status: revert_status,
+      };
+      student.student_application_obj.push({
+        app: apply?._id,
+        staff: staffId,
+        flow: "docs_by",
+      });
+      var c_num = await render_new_fees_card(
+        student?._id,
+        apply?._id,
+        structure?._id,
+        "By_Admission_Admin_After_Docs_Collect",
+        "",
+        "",
+        obj
+      );
+      if (structure?.applicable_fees <= 0) {
+        apply.confirmedApplication.push({
+          student: student._id,
+          payment_status: "Zero Applicable Fees",
+          install_type: "No Installment Required For Payment",
+          fee_remain: structure?.applicable_fees,
+          status_id: status?._id,
+          revert_request_status: revert_status,
+        });
+        apply.confirmCount += 1;
+      } else {
+        apply.FeeCollectionApplication.push({
+          student: student?._id,
+          fee_remain: structure?.applicable_fees,
+          payment_flow: c_num?.card,
+          app_card: c_num?.app_card,
+          gov_card: c_num?.gov_card,
+          status_id: status?._id,
+          revert_request_status: revert_status,
+          fee_struct: c_num?.fee_struct,
+        });
+        apply.fee_collect_count += 1;
+      }
+      apply.selectedApplication.pull(nest);
+      if (apply?.selectCount > 0) {
+        apply.selectCount -= 1;
+      }
+      // for (let app of apply.selectedApplication) {
+      //   if (`${app.student}` === `${student._id}`) {
+      //     app.docs_collect = "Collected";
+      //     app.status_id = status?._id;
+      //     app.edited_struct = false;
+      //   } else {
+      //   }
+      // }
+      status.content = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
+      status.applicationId = apply._id;
+      user.applicationStatus.push(status._id);
+      status.group_by = "Admission_Fees_Payment";
+      status.remaining_list = c_num?.card;
+      status.payment_status = "Not Paid";
+      status.finance = institute?.financeDepart?.[0];
+      status.feeStructure = structure?._id;
+      status.for_selection = "Yes";
+      status.structure_edited = "Edited";
+      status.studentId = student?._id;
+      status.student = student?._id;
+      status.instituteId = institute._id;
+      notify.notifyContent = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
+      // console.log(
+      //   admission?.admissionAdminHead?.user
+      // );
+      notify.notifySender = `${admission?.admissionAdminHead?.user}`;
+      notify.notifyReceiever = `${user?._id}`;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByAdmissionPhoto = admission?._id;
+      notify.notifyCategory = "Status Alert";
+      notify.redirectIndex = 29;
+      if (collect_docs?.length > 0) {
+        for (let ele of collect_docs) {
+          student.collect_docs.push({
+            docs: ele?.docs,
+            not_filled: ele?.not_filled,
+          });
+        }
+      }
+      await Promise.all([
+        apply.save(),
+        user.save(),
+        status.save(),
+        notify.save(),
+        student.save(),
+      ]);
+      res.status(200).send({
+        message: "Look like a party mood",
+        docs_status: true,
+      });
+      invokeMemberTabNotification(
+        "Admission Status",
+        status.content,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
+      const studentName = `${student?.studentFirstName} ${
+        student?.studentMiddleName ? student?.studentMiddleName : ""
+      } ${student?.studentLastName}`;
+      await whats_app_sms_payload(
+        user?.userPhoneNumber,
         studentName,
-        institute,
+        institute?.insName,
+        null,
         "ASCAS",
         institute?.insType,
         student.admissionPaidFeeCount,
         student.admissionRemainFeeCount,
         institute?.sms_lang
       );
+      if (user?.userEmail) {
+        await email_sms_payload_query(
+          user?.userEmail,
+          studentName,
+          institute,
+          "ASCAS",
+          institute?.insType,
+          student.admissionPaidFeeCount,
+          student.admissionRemainFeeCount,
+          institute?.sms_lang
+        );
+      }
     }
   } catch (e) {
     console.log(e);

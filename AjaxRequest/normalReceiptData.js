@@ -433,7 +433,8 @@ const admissionModifyReceiptData = (
       } (${args2?.order_history?.razor_query?.[0]?.method ?? "N/A"})` ?? "N/A",
     referenceNumber:
       args2?.fee_utr_reference ??
-      args2?.order_history?.razorpay_payment_id ??
+      args2?.order_history?.paytm_query?.[0]?.TXNID ??
+      // args2?.order_history?.razorpay_payment_id ??
       "N/A",
     transactionDate: changeDateFormat(args2?.fee_transaction_date) ?? "N/A",
     transactionAmount: args2?.fee_payment_amount ?? "N/A",
@@ -446,7 +447,8 @@ const admissionModifyReceiptData = (
     bankHolderName: args2?.fee_bank_holder ?? "N/A",
     transactionId:
       args2?.fee_utr_reference ??
-      args2?.order_history?.razorpay_payment_id ??
+      args2?.order_history?.paytm_query?.[0]?.TXNID ??
+      // args2?.order_history?.razorpay_payment_id ??
       "N/A",
   };
 

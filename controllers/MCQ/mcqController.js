@@ -29,6 +29,10 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const User = require("../../models/User");
 const { file_to_aws } = require("../../Utilities/uploadFileAws");
+const ExcelImportLog = require("../../models/InstituteLog/ExcelImportLog");
+const {
+  mcq_create_question_excel_to_json_query,
+} = require("../../Custom/excelToJSON");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // ================================== GET  UNIVERSAL INSTITUTE ALL MCQ FOR ALL USER====================
@@ -2130,6 +2134,97 @@ exports.renderOneAssignmentDestroyQuery = async (req, res) => {
         message: "Explore Assignment Deletion Operation Completed",
         access: true,
       });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.create_mcq_question_excel_query = async (req, res) => {
+  try {
+    const { smid, cmid } = req.params;
+    const { excel_arr, excel_count } = req.body;
+    if (!smid || !cmid || !excel_file) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const questions = await SubjectMasterQuestion.findOne({
+      subjectMaster: smid,
+      classMaster: cmid,
+    });
+    const excel_import_log = new ExcelImportLog({
+      import_type: "MCQ_QUESTION_CREATE",
+      import_id: `${smid} : ${cmid}`,
+      status: "DATA_ACHIEVED",
+      import_data: [
+        {
+          iteration_key_ount: excel_count,
+          list: excel_arr,
+        },
+      ],
+    });
+    await excel_import_log.save();
+    if (questions?._id) {
+      questions.import_collection.push(excel_import_log?._id);
+      questions.import_collection_count += 1;
+      excel_import_log.import_institute_id = questions.institute;
+      await Promise.all([questions.save(), excel_import_log.save()]);
+    } else {
+      const clsMaster = await ClassMaster.findById(cmid).populate({
+        path: "institute",
+      });
+      const universal =
+        clsMaster.institute.isUniversal === "Not Assigned" ? false : true;
+      const master_question = new SubjectMasterQuestion({
+        subjectMaster: smid,
+        classMaster: cmid,
+        institute: clsMaster.institute?._id,
+        isUniversal: universal,
+      });
+      master_question.import_collection.push(excel_import_log?._id);
+      master_question.import_collection_count += 1;
+      excel_import_log.import_institute_id = clsMaster.institute?._id;
+      await Promise.all([master_question.save(), excel_import_log.save()]);
+    }
+    res.status(200).send({
+      message: "MCQ Excel Update To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const question_master = await SubjectMasterQuestion.findOne({
+      subjectMaster: smid,
+      classMaster: cmid,
+    });
+
+    if (question_master?._id && excel_arr?.length > 0 && excel_count > 0) {
+      const question_list = await mcq_create_question_excel_to_json_query(
+        excel_arr,
+        excel_count
+      );
+      if (question_list?.length > 0) {
+        for (let que of question_list) {
+          const subjectQuestion = new SubjectQuestion({
+            questionSNO: que?.questionSNO,
+            questionDescription: que?.questionDescription,
+            options: que?.options,
+            correctAnswer: que?.correctAnswer,
+            answerDescription: que?.answerDescription,
+            isUniversal: question_master.isUniversal,
+            relatedSubject: question_master._id,
+          });
+          if (que?.questionNumber) {
+            if (typeof +que?.questionNumber === "Number") {
+              subjectQuestion.questionNumber = +que?.questionNumber;
+            }
+          }
+
+          await subjectQuestion.save();
+          question_master.questions.push(subjectQuestion._id);
+          question_master.questionCount += 1;
+        }
+        await question_master.save();
+      }
     }
   } catch (e) {
     console.log(e);

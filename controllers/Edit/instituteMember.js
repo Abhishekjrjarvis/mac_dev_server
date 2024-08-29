@@ -217,7 +217,6 @@ exports.departmentDelete = async (req, res) => {
   }
 };
 
-
 exports.batchEdit = async (req, res) => {
   try {
     if (!req.params.bid) throw "Please send batch id to perform task";
@@ -250,7 +249,7 @@ exports.batchDelete = async (req, res) => {
     if (String(department.userBatch) === String(batch._id))
       department.userBatch = null;
     for (let cls of batch?.classroom) {
-      var classes = await Class.findById({ _id: `${cls}`});
+      var classes = await Class.findById({ _id: `${cls}` });
       // for (let display of classes?.displayPersonList) {
       //   const displayPerson = await DisplayPerson.findById(display).populate({
       //     path: "displayUser",
@@ -259,7 +258,7 @@ exports.batchDelete = async (req, res) => {
       //   await displayPerson.displayUser.save();
       //   await DisplayPerson.findByIdAndDelete(display);
       // }
-      if(classes?.subject?.length > 0){
+      if (classes?.subject?.length > 0) {
         for (let sub of classes?.subject) {
           const subject = await Subject.findById(sub);
           const subjectMaster = await SubjectMaster.findById(
@@ -267,46 +266,49 @@ exports.batchDelete = async (req, res) => {
           );
           subjectMaster?.subjects.pull(subject._id);
           subjectMaster.subjectCount -= 1;
-          if(subject.subjectTeacherName){
+          if (subject.subjectTeacherName) {
             const subjectTeacherName = await Staff.findById(
               subject.subjectTeacherName
             );
             subjectTeacherName?.staffSubject.pull(subject._id);
             subjectTeacherName.staffDesignationCount -= 1;
-            await subjectTeacherName.save()
+            await subjectTeacherName.save();
           }
-          await subjectMaster.save()
+          await subjectMaster.save();
           await Subject.findByIdAndDelete(sub);
         }
       }
 
-      if(classes?.masterClassName){
-      const classMaster = await ClassMaster.findById({ _id: `${classes?.masterClassName}`});
-      classMaster?.classDivision?.pull(classes._id);
-      classMaster.classCount -= 1;
-      await classMaster.save()
+      if (classes?.masterClassName) {
+        const classMaster = await ClassMaster.findById({
+          _id: `${classes?.masterClassName}`,
+        });
+        classMaster?.classDivision?.pull(classes._id);
+        classMaster.classCount -= 1;
+        await classMaster.save();
       }
-      if(classes?.classTeacher){
+      if (classes?.classTeacher) {
         const classTeacher = await Staff.findById(classes?.classTeacher);
         classTeacher?.staffClass?.pull(classes._id);
         classTeacher.staffDesignationCount -= 1;
-        await classTeacher.save()
+        await classTeacher.save();
       }
-      if(classes?.institute){
-        var ins = await InstituteAdmin.findById({ _id: `${classes?.institute}`});
-      ins?.classRooms?.pull(classes?._id);
-      await ins.save()
+      if (classes?.institute) {
+        var ins = await InstituteAdmin.findById({
+          _id: `${classes?.institute}`,
+        });
+        ins?.classRooms?.pull(classes?._id);
+        await ins.save();
       }
-      if(classes?.department){
+      if (classes?.department) {
         const department = await Department.findById(classes?.department);
-      department?.class?.pull(classes?._id);
-      
-      if(department?.classCount > 0){
-      department.classCount -= 1;
+        department?.class?.pull(classes?._id);
+
+        if (department?.classCount > 0) {
+          department.classCount -= 1;
+        }
+        await department.save();
       }
-      await 
-        department.save()
-    }
 
       await Class.findByIdAndDelete(cls);
     }
@@ -317,7 +319,7 @@ exports.batchDelete = async (req, res) => {
       deleted: "Yes",
     });
   } catch (e) {
-    console.log(e)
+    console.log(e);
     res.status(200).send({
       message: e,
       deleted: "No",
@@ -601,6 +603,12 @@ exports.subjectEdit = async (req, res) => {
     if (req.body?.subject_category) {
       subject.subject_category = req.body?.subject_category;
     }
+    if (batch_arr?.length > 0) {
+      for (var ref of batch_arr) {
+        // staff.staffBatch.push(ref);
+        subject.selected_batch_query = ref;
+      }
+    }
     if (subject?.subjectTeacherName) {
       const staff = await Staff.findById({ _id: subject?.subjectTeacherName });
       if (delete_arr?.length > 0) {
@@ -728,33 +736,35 @@ exports.subjectDelete = async (req, res) => {
       select: "ApproveStudent",
     });
     // const valid_subject_teacher = handle_undefined(subject?.subjectTeacherName)
-    if (subject?.class?.ApproveStudent?.length)
-      throw "You can't delete subject because students existence";
-    const subjectMaster = await SubjectMaster.findById(
-      subject.subjectMasterName
-    );
-    subjectMaster?.subjects.pull(subject._id);
-    subjectMaster.subjectCount -= 1;
+
+    // if (subject?.class?.ApproveStudent?.length)
+    //   throw "You can't delete subject because students existence";
+    if (subject.subjectMasterName) {
+      const subjectMaster = await SubjectMaster.findById(
+        subject.subjectMasterName
+      );
+      subjectMaster?.subjects.pull(subject._id);
+      subjectMaster.subjectCount -= 1;
+      await subjectMaster.save();
+    }
     const classes = await Class.findById(subject.class);
     classes?.subject.pull(subject._id);
     classes.subjectCount -= 1;
-    if(subject?.subjectTeacherName){
-      const subjectTeacherName = await Staff.findById(subject?.subjectTeacherName);
+    if (subject?.subjectTeacherName) {
+      const subjectTeacherName = await Staff.findById(
+        subject?.subjectTeacherName
+      );
       subjectTeacherName.staffSubject.pull(subject._id);
       subjectTeacherName.staffDesignationCount -= 1;
-      await subjectTeacherName.save()
+      await subjectTeacherName.save();
     }
-
-    await Promise.all([
-      subjectMaster.save(),
-      classes.save(),
-    ]);
+    await classes.save();
     await Subject.findByIdAndDelete(req.params.sid);
     res
       .status(200)
       .send({ message: "Subject deleted successfully👍", deleted: "Yes" });
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 };
 
@@ -863,31 +873,85 @@ exports.renderTransportbatchDelete = async (req, res) => {
 exports.subjectDeleteAll = async (req, res) => {
   try {
     if (!req.params.cid) throw "Please send subject id to perform task";
-    const classes = await Class.findById({ _id: req?.params?.cid })
-    const subject = await Subject.find({ _id: { $in: classes?.subject }}).populate({
+    const classes = await Class.findById({ _id: req?.params?.cid });
+    const subject = await Subject.find({
+      _id: { $in: classes?.subject },
+    }).populate({
       path: "class",
       select: "ApproveStudent",
     });
-    for(var ref of subject){
-    const subjectMaster = await SubjectMaster.findById(
-      ref?.subjectMasterName
-    );
-    subjectMaster?.subjects.pull(ref?._id);
-    subjectMaster.subjectCount -= 1;
-    const classes = await Class.findById(ref?.class);
-    classes?.subject.pull(ref?._id);
-    classes.subjectCount -= 1;
+    for (var ref of subject) {
+      const subjectMaster = await SubjectMaster.findById(
+        ref?.subjectMasterName
+      );
+      subjectMaster?.subjects.pull(ref?._id);
+      subjectMaster.subjectCount -= 1;
+      const classes = await Class.findById(ref?.class);
+      classes?.subject.pull(ref?._id);
+      classes.subjectCount -= 1;
 
-    await Promise.all([
-      subjectMaster.save(),
-      classes.save(),
-    ]);
-    await Subject.findByIdAndDelete(ref?._id);
+      await Promise.all([subjectMaster.save(), classes.save()]);
+      await Subject.findByIdAndDelete(ref?._id);
     }
     res
       .status(200)
       .send({ message: "Subject deleted successfully👍", deleted: "Yes" });
   } catch (e) {
-    console.log(e)
+    console.log(e);
+  }
+};
+
+exports.one_department_particular_divison_subject_remove_query = async (
+  req,
+  res
+) => {
+  try {
+    const division = [
+      // "6693aa77fc5124119c0d47ab",
+      // "66c2cad5a9f8ece536675b9d",
+      // "66c2caf1a9f8ece536675c01",
+      // "66c2cb0ba9f8ece536675c35",
+      // "66c2cb1da9f8ece536675c9a",
+      // "66c2cb30a9f8ece536675d12",
+      // "66c2cb4ca9f8ece536675d5a",
+      // "66c2cb8da9f8ece536675e6d",
+    ];
+
+    for (let i = 0; i < division?.length; i++) {
+      let odf = division[i];
+      const cls = await Class.findById(odf);
+      if (cls?.subject?.length > 0) {
+        for (let j = 0; j < cls?.subject?.length; j++) {
+          let sdf = cls?.subject[j];
+          const subject = await Subject.findById(sdf);
+          if (subject?._id) {
+            if (subject?.subjectMasterName) {
+              const subjectMaster = await SubjectMaster.findById(
+                subject.subjectMasterName
+              );
+              subjectMaster?.subjects.pull(subject._id);
+              subjectMaster.subjectCount -= 1;
+              await subjectMaster.save();
+            }
+            if (subject?.subjectTeacherName) {
+              const subjectTeacherName = await Staff.findById(
+                subject?.subjectTeacherName
+              );
+              subjectTeacherName.staffSubject.pull(subject._id);
+              subjectTeacherName.staffDesignationCount -= 1;
+              await subjectTeacherName.save();
+            }
+            cls?.subject.pull(subject._id);
+            cls.subjectCount -= 1;
+            await Subject.findByIdAndDelete(sdf);
+          }
+        }
+        await cls.save();
+      }
+    }
+
+    res.status(200).send({ message: "All Division subject deleted" });
+  } catch (e) {
+    console.log(e);
   }
 };

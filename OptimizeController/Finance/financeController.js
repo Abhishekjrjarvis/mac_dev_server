@@ -8202,7 +8202,6 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
           Religion: cls?.studentReligion ?? "#NA",
           MotherName: `${cls?.studentMotherName}` ?? "#NA",
           Address: `${cls?.studentAddress}` ?? "#NA",
-          AppliedOn: `${moment(ref?.apply_on).format("LL")}`,
           ContactNo: cls?.studentPhoneNumber ?? "#NA",
           AlternateContactNo: cls?.studentParentsPhoneNumber ?? "#NA",
           NameAsMarksheet: cls?.studentNameAsMarksheet,

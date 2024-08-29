@@ -8145,7 +8145,8 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
         path: "other_fees",
         populate: {
           path: "fee_receipt fees",
-          select: "receipt_file fee_payment_amount payable_amount",
+          select:
+            "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount",
         },
       });
     for (let ele of all_student) {
@@ -8154,6 +8155,15 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
           ele.other_fees_obj.status = "Paid";
           ele.other_fees_obj.receipt_file = val?.fee_receipt?.receipt_file;
           ele.other_fees_obj.price = val?.fee_receipt?.fee_payment_amount;
+          ele.other_fees_obj.fee_payment_mode =
+            val?.fee_receipt?.fee_payment_mode;
+          ele.other_fees_obj.invoice_count = val?.fee_receipt?.invoice_count;
+          ele.other_fees_obj.FeeTXNDate = moment(
+            val?.fee_receipt?.fee_transaction_date
+          )?.format("LL");
+          ele.other_fees_obj.TxnDate = moment(
+            val?.fee_receipt?.created_at
+          ).format("LL");
         } else if (`${val?.fees?._id}` === `${one_of?._id}`) {
           ele.other_fees_obj.status = val?.status;
           ele.other_fees_obj.price = val?.fees?.payable_amount;
@@ -8196,6 +8206,10 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
           FeesName: one_of?.other_fees_name ?? "NA",
           FeesAmount: cls?.other_fees_obj?.price ?? 0,
           Status: cls?.other_fees_obj.status ?? "NA",
+          Mode: cls?.other_fees_obj.fee_payment_mode ?? "NA",
+          ReceiptNo: cls?.other_fees_obj.invoice_count ?? "NA",
+          FeeTransactionDate: cls?.other_fees_obj?.FeeTXNDate ?? "NA",
+          TxnDate: cls?.other_fees_obj?.TxnDate ?? "NA",
           DOB: cls?.studentDOB ?? "#NA",
           Gender: cls?.studentGender ?? "#NA",
           CasteCategory: cls?.studentCastCategory ?? "#NA",

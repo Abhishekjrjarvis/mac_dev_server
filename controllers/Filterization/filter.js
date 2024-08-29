@@ -2021,7 +2021,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
                 ) {
                   const head = await FeeMaster.findById({ _id: val?.master });
                   head_array.push({
-                    HeadsName: head?.head_name,
+                    HeadsName: head?.master_name,
                     PaidHeadFees: val?.original_paid,
                   });
                 }

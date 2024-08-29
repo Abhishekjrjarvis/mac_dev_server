@@ -2143,7 +2143,8 @@ exports.renderOneAssignmentDestroyQuery = async (req, res) => {
 exports.create_mcq_question_excel_query = async (req, res) => {
   try {
     const { smid, cmid } = req.params;
-    const { excel_arr, excel_count, flow } = req.body;
+    const { flow } = req.query;
+    const { excel_arr, excel_count } = req.body;
     if (!smid || !cmid || !excel_arr?.length) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",

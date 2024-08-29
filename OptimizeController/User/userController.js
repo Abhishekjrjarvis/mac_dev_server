@@ -4001,6 +4001,41 @@ exports.render_student_id_query = async (req, res) => {
   }
 };
 
+exports.getChatDashDataQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findOne({ username_chat: id })
+      .select(
+        "userLegalName username qviple_id userBlock followerCount qviple_id followingUICount circleCount last_login profile_modification recoveryMail userPhoneNumber follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify username_chat"
+      )
+      .populate({
+        path: "daily_quote_query.quote",
+      })
+      .populate({
+        path: "staff student",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto studentFirstName studentMiddleName studentLastName studentFatherName studentProfilePhoto photoId",
+      });
+    if (user?.userPosts && user?.userPosts.length < 1) {
+      var post = [];
+    }
+    const qvipleId = await QvipleId.findOne({ user: `${user?._id}` });
+    user.qviple_id = qvipleId?.qviple_id;
+    if (user) {
+      res.status(200).send({
+        message: "Success",
+        user,
+        post,
+        profile_modification: user?.profile_modification,
+      });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.getAllThreeCount = async (req, res) => {
 //   try {
 //     const id = req.params.id;

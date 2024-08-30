@@ -55,7 +55,7 @@ router
 
 router
   .route("/subject/:sid/take/testset")
-  .post(isLoggedIn, catchAsync(mcqController.takeTestSet));
+  .post(isLoggedIn, catchAsync(mcqController.takeTestSetModifyQuery));
 
 router
   .route("/subject/:sid/taken/alltestset")

@@ -704,25 +704,197 @@ exports.oneTestSetDetail = async (req, res) => {
   }
 };
 
-exports.takeTestSet = async (req, res) => {
+// exports.takeTestSet = async (req, res) => {
+//   try {
+//     const { sid } = req.params;
+//     if (!sid)
+//       return res.status(200).send({
+//         message: "Their is a bug regarding to call api",
+//         access: false,
+//       });
+//     const subject = await Subject.findById(sid)
+//       .populate({
+//         path: "class",
+//         select: "ApproveStudent",
+//       })
+//       .populate({
+//         path: "selected_batch_query",
+//         select: "class_student_query",
+//       });
+
+//     var student_list = [];
+
+//     if (subject?.selected_batch_query?._id) {
+//       student_list = subject?.selected_batch_query?.class_student_query;
+//     } else {
+//       if (subject?.optionalStudent?.length > 0) {
+//         student_list = subject?.optionalStudent;
+//       } else {
+//         student_list = subject?.class?.ApproveStudent;
+//       }
+//     }
+
+//     const testSet = await SubjectMasterTestSet.findById(req.body?.tsid);
+//     const allotedSet = {
+//       testExamName: req.body?.testExamName,
+//       testTotalNumber: testSet.testTotalNumber,
+//       testDate: req.body?.testDate,
+//       testStart: req.body?.testStart,
+//       testEnd: req.body?.testEnd,
+//       // testStart: `${req.body?.testStart.substr(
+//       //   0,
+//       //   5
+//       // )}:00T${req.body?.testStart.substr(6, 2)}`,
+//       // testEnd: `${req.body?.testEnd.substr(0, 5)}:00T${req.body?.testEnd.substr(
+//       //   6,
+//       //   2
+//       // )}`,
+//       testDuration: req.body?.testDuration,
+//       assignTestSubject: sid,
+//       assignStudent: student_list,
+//       subjectMasterTestSet: testSet._id,
+//     };
+//     const alloted = new AllotedTestSet(allotedSet);
+//     testSet.allotedTestSet.push(alloted._id);
+//     testSet.assignSubject.push(subject._id);
+//     subject.takeTestSet.push(testSet._id);
+//     subject.allotedTestSet.push(alloted._id);
+//     await Promise.all([alloted.save(), subject.save(), testSet.save()]);
+
+//     const studentTestObject = {
+//       subjectMaster: testSet?.subjectMaster,
+//       classMaster: testSet?.classMaster,
+//       subjectMasterTestSet: testSet._id,
+//       allotedTestSet: alloted._id,
+//       testName: testSet?.testName,
+//       testExamName: allotedSet?.testExamName,
+//       testSubject: testSet?.testSubject,
+//       testDate: allotedSet?.testDate,
+//       testStart: allotedSet?.testStart,
+//       testEnd: allotedSet?.testEnd,
+//       testDuration: allotedSet?.testDuration,
+//       testTotalQuestion: testSet?.testTotalQuestion,
+//       testTotalNumber: testSet?.testTotalNumber,
+//       questions: [],
+//       student: "",
+//     };
+
+//     for (let quest of testSet?.questions) {
+//       // another way of selecting item in array .option options.optionNumber options.image
+//       const getQuestion = await SubjectQuestion.findById(quest).select(
+//         "questionSNO questionNumber questionDescription questionImage options correctAnswer answerDescription answerImage isUniversal -_id"
+//       );
+//       studentTestObject.questions.push(getQuestion);
+//     }
+
+//     // const oEncrypt = await encryptionPayload(subjectTestObject);
+//     res.status(200).send({
+//       message: "queston test set is assigned to student",
+//     });
+//     if (student_list?.length > 0) {
+//       for (stId of student_list) {
+//         const student = await Student.findById(stId);
+//         studentTestObject.student = stId;
+//         const user = await User.findById({ _id: `${student.user}` });
+//         if (user._id) {
+//           const studentTestSet = new StudentTestSet(studentTestObject);
+//           student.testSet.push(studentTestSet._id);
+//           const notify = new StudentNotification({});
+//           notify.notifyContent = `New ${allotedSet.testExamName} Test is created for ${testSet.testSubject}`;
+//           notify.notify_hi_content = `नई ${allotedSet.testExamName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`;
+//           notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन ${allotedSet.testExamName} चाचणी तयार केली आहे.`;
+//           notify.notifySender = subject._id;
+//           notify.notifyReceiever = user._id;
+//           notify.notifyType = "Student";
+//           notify.notifyPublisher = student._id;
+//           user.activity_tab.push(notify._id);
+//           student.notification.push(notify._id);
+//           notify.notifyBySubjectPhoto.subject_id = subject?._id;
+//           notify.notifyBySubjectPhoto.subject_name = subject.subjectName;
+//           notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+//           notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle;
+//           notify.notifyCategory = "MCQ";
+//           notify.redirectIndex = 6;
+//           await Promise.all([
+//             studentTestSet.save(),
+//             student.save(),
+//             notify.save(),
+//             user.save(),
+//           ]);
+//           if (user.deviceToken) {
+//             invokeMemberTabNotification(
+//               "Student Activity",
+//               notify,
+//               "New MCQ Test Set",
+//               user._id,
+//               user.deviceToken,
+//               "Student",
+//               notify
+//             );
+//           }
+//         }
+//       }
+//     }
+
+//     // // const oEncrypt = await encryptionPayload(subjectTestObject);
+//     // res.status(200).send({
+//     //   message: "queston test set is assigned to student",
+//     // });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+exports.takeTestSetModifyQuery = async (req, res) => {
   try {
     const { sid } = req.params;
-    if (!sid)
+    const {
+      testExamName,
+      testDate,
+      testStart,
+      testEnd,
+      testDuration,
+      is_shuffle_question,
+      tsid,
+    } = req.body;
+
+    if (!sid || !tsid) {
       return res.status(200).send({
-        message: "Their is a bug regarding to call api",
-        access: false,
+        message: "Url Segement parameter required is not fulfill.",
       });
+    }
+
+    const testset = await SubjectMasterTestSet.findById(tsid);
+
+    const allotted_testset = new AllotedTestSet({
+      testExamName: testExamName,
+      testTotalNumber: testset.testTotalNumber,
+      testDate: testDate,
+      testStart: testStart,
+      testEnd: testEnd,
+      testDuration: testDuration,
+      assignTestSubject: sid,
+      subjectMasterTestSet: testset._id,
+    });
+    testset.allotedTestSet.push(alloted._id);
+    testset.assignSubject.push(sid);
+
+    await Promise.all([allotted_testset.save(), testset.save()]);
+    res.status(200).send({
+      message: "Subject Teacher Test taken successfully.",
+    });
+
+    let student_list = [];
+
     const subject = await Subject.findById(sid)
-      .populate({
-        path: "class",
-        select: "ApproveStudent",
-      })
       .populate({
         path: "selected_batch_query",
         select: "class_student_query",
+      })
+      .populate({
+        path: "class",
+        select: "ApproveStudent",
       });
-
-    var student_list = [];
 
     if (subject?.selected_batch_query?._id) {
       student_list = subject?.selected_batch_query?.class_student_query;
@@ -733,76 +905,56 @@ exports.takeTestSet = async (req, res) => {
         student_list = subject?.class?.ApproveStudent;
       }
     }
-
-    const testSet = await SubjectMasterTestSet.findById(req.body?.tsid);
-    const allotedSet = {
-      testExamName: req.body?.testExamName,
-      testTotalNumber: testSet.testTotalNumber,
-      testDate: req.body?.testDate,
-      testStart: req.body?.testStart,
-      testEnd: req.body?.testEnd,
-      // testStart: `${req.body?.testStart.substr(
-      //   0,
-      //   5
-      // )}:00T${req.body?.testStart.substr(6, 2)}`,
-      // testEnd: `${req.body?.testEnd.substr(0, 5)}:00T${req.body?.testEnd.substr(
-      //   6,
-      //   2
-      // )}`,
-      testDuration: req.body?.testDuration,
-      assignTestSubject: sid,
-      assignStudent: student_list,
-      subjectMasterTestSet: testSet._id,
-    };
-    const alloted = new AllotedTestSet(allotedSet);
-    testSet.allotedTestSet.push(alloted._id);
-    testSet.assignSubject.push(subject._id);
-    subject.takeTestSet.push(testSet._id);
-    subject.allotedTestSet.push(alloted._id);
-    await Promise.all([alloted.save(), subject.save(), testSet.save()]);
+    subject.takeTestSet.push(testset._id);
+    subject.allotedTestSet.push(allotted_testset._id);
+    allotted_testset.assignStudent = student_list;
+    await Promise.all([allotted_testset.save(), subject.save()]);
 
     const studentTestObject = {
-      subjectMaster: testSet?.subjectMaster,
-      classMaster: testSet?.classMaster,
-      subjectMasterTestSet: testSet._id,
-      allotedTestSet: alloted._id,
-      testName: testSet?.testName,
-      testExamName: allotedSet?.testExamName,
-      testSubject: testSet?.testSubject,
-      testDate: allotedSet?.testDate,
-      testStart: allotedSet?.testStart,
-      testEnd: allotedSet?.testEnd,
-      testDuration: allotedSet?.testDuration,
-      testTotalQuestion: testSet?.testTotalQuestion,
-      testTotalNumber: testSet?.testTotalNumber,
+      subjectMaster: testset?.subjectMaster,
+      classMaster: testset?.classMaster,
+      subjectMasterTestSet: testset?._id,
+      allotedTestSet: allotted_testset?._id,
+      testName: testset?.testName,
+      testExamName: allotted_testset?.testExamName,
+      testSubject: testset?.testSubject,
+      testDate: allotted_testset?.testDate,
+      testStart: allotted_testset?.testStart,
+      testEnd: allotted_testset?.testEnd,
+      testDuration: allotted_testset?.testDuration,
+      testTotalQuestion: testset?.testTotalQuestion,
+      testTotalNumber: testset?.testTotalNumber,
       questions: [],
       student: "",
     };
 
-    for (let quest of testSet?.questions) {
-      // another way of selecting item in array .option options.optionNumber options.image
-      const getQuestion = await SubjectQuestion.findById(quest).select(
-        "questionSNO questionNumber questionDescription questionImage options correctAnswer answerDescription answerImage isUniversal -_id"
-      );
-      studentTestObject.questions.push(getQuestion);
+    let paper_set = {};
+    if (is_shuffle_question) {
+    } else {
+      for (let quest of testset?.questions) {
+        // another way of selecting item in array .option options.optionNumber options.image
+        const getQuestion = await SubjectQuestion.findById(quest).select(
+          "questionSNO questionNumber questionDescription questionImage options correctAnswer answerDescription answerImage isUniversal -_id"
+        );
+        studentTestObject.questions.push(getQuestion);
+      }
     }
-
-    // const oEncrypt = await encryptionPayload(subjectTestObject);
-    res.status(200).send({
-      message: "queston test set is assigned to student",
-    });
     if (student_list?.length > 0) {
-      for (stId of student_list) {
-        const student = await Student.findById(stId);
-        studentTestObject.student = stId;
-        const user = await User.findById({ _id: `${student.user}` });
-        if (user._id) {
+      for (let i = 0; i < student_list?.length; i++) {
+        let studentId = student_list[i];
+        const student = await Student.findById(studentId);
+        studentTestObject.student = studentId;
+        if (student.user) {
+          const user = await User.findById({ _id: `${student.user}` });
           const studentTestSet = new StudentTestSet(studentTestObject);
           student.testSet.push(studentTestSet._id);
-          const notify = new StudentNotification({});
-          notify.notifyContent = `New ${allotedSet.testExamName} Test is created for ${testSet.testSubject}`;
-          notify.notify_hi_content = `नई ${allotedSet.testExamName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`;
-          notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन ${allotedSet.testExamName} चाचणी तयार केली आहे.`;
+          const notify = new StudentNotification({
+            student_testset: studentTestSet?._id,
+            testset: testset?._id,
+          });
+          notify.notifyContent = `New Internal Evaluation ${allotted_testset?.testName} Test is created for ${testset.testSubject}`;
+          notify.notify_hi_content = `नई $${allotted_testset?.testName} परीक्षा ${testset.testSubject} के लिए बनाया गया है`;
+          notify.notify_mr_content = `नई ${testset.testSubject} साठी नवीन $${allotted_testset?.testName} चाचणी तयार केली आहे.`;
           notify.notifySender = subject._id;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
@@ -835,7 +987,6 @@ exports.takeTestSet = async (req, res) => {
         }
       }
     }
-
     // // const oEncrypt = await encryptionPayload(subjectTestObject);
     // res.status(200).send({
     //   message: "queston test set is assigned to student",
@@ -844,7 +995,6 @@ exports.takeTestSet = async (req, res) => {
     console.log(e);
   }
 };
-
 exports.subjectAllotedTestSet = async (req, res) => {
   try {
     const subject = await Subject.findById(req.params.sid);
@@ -2205,9 +2355,11 @@ exports.create_mcq_question_excel_query = async (req, res) => {
         );
 
         if (question_list?.length > 0) {
+          let count = 0;
           for (let que of question_list) {
+            count += 1;
             const subjectQuestion = new SubjectQuestion({
-              questionSNO: que?.questionSNO,
+              questionSNO: question_master.questionCount + count,
               questionDescription: que?.questionDescription,
               options: que?.options,
               correctAnswer: que?.correctAnswer,
@@ -2239,9 +2391,12 @@ exports.create_mcq_question_excel_query = async (req, res) => {
         );
 
         if (question_list?.length > 0) {
+          let count = 0;
+
           for (let que of question_list) {
+            count += 1;
             const subjectQuestion = new SubjectQuestion({
-              questionSNO: que?.questionSNO,
+              questionSNO: question_master.questionCount + count,
               questionDescription: que?.questionDescription,
               options: que?.options,
               correctAnswer: que?.correctAnswer,

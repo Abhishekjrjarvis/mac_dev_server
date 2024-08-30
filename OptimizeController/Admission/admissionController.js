@@ -1919,7 +1919,7 @@ exports.fetchAllReviewApplication = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Reviewing and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          review: apply?.reviewApplication?.reverse(),
+          review: apply?.reviewApplication,
         });
       } else {
         res.status(200).send({
@@ -1947,7 +1947,7 @@ exports.fetchAllReviewApplication = async (req, res) => {
       var all_student = await nested_document_limit(
         page,
         limit,
-        apply?.reviewApplication?.reverse()
+        apply?.reviewApplication
       );
       if (all_student?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);
@@ -2016,7 +2016,7 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Reviewing and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          review: apply?.reviewApplication?.reverse(),
+          review: apply?.reviewApplication,
         });
       } else {
         res.status(200).send({
@@ -2046,7 +2046,7 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Reviewing OPT and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          review: apply?.reviewApplication?.reverse(),
+          review: apply?.reviewApplication,
         });
       } else {
         res.status(200).send({

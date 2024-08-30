@@ -8713,7 +8713,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
 
     if (sort_query === "Alpha") {
       const sortedA = await review_sort_student_by_alpha(
-        apply?.reviewApplication?.reverse()
+        apply?.reviewApplication
       );
       apply.reviewApplication = [];
       await apply.save();
@@ -8727,7 +8727,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       });
     } else if (sort_query === "Alpha_Last") {
       const sortedA = await review_sort_student_by_alpha_last(
-        apply?.reviewApplication?.reverse()
+        apply?.reviewApplication
       );
       apply.reviewApplication = [];
       await apply.save();

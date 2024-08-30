@@ -8882,7 +8882,8 @@ exports.renderCertificateFilterQuery = async (req, res) => {
 exports.renderAllStudentMessageQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { all_depart, batch_status, master, depart, batch } = req?.body;
+    const { all_depart, batch_status, master, depart, batch, category } =
+      req?.body;
     if (!id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -8895,7 +8896,7 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
       var all_dept = await Department.find({ institute: ads_admin?._id });
       var all_student = await Student.find({ department: { $in: all_dept } })
         .select(
-          "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+          "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO studentCastCategory"
         )
         .populate({
           path: "user",
@@ -8923,6 +8924,11 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
       //   }
       // }
       // all_student = remove_duplicated_arr(arr)
+      if (category) {
+        all_student = all_student?.filter((cls) => {
+          if (`${cls?.studentCastCategory}` === `${category}`) return cls;
+        });
+      }
       res.status(200).send({
         message: "Explore All Department Student Query",
         access: true,
@@ -8945,7 +8951,7 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
             ],
           })
             .select(
-              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO studentCastCategory"
             )
             .populate({
               path: "user",
@@ -8964,7 +8970,7 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
             .populate({
               path: "student",
               select:
-                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO studentCastCategory",
               populate: {
                 path: "user",
                 select: "userEmail deviceToken",
@@ -8976,6 +8982,11 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
           //   }
           // }
           // all_student = remove_duplicated_arr(arr)
+          if (category) {
+            all_student = all_student?.filter((cls) => {
+              if (`${cls?.studentCastCategory}` === `${category}`) return cls;
+            });
+          }
           res.status(200).send({
             message: "Explore All For All Batch With Standard Student Query",
             access: true,
@@ -8990,7 +9001,7 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
           ],
         })
           .select(
-            "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO studentCastCategory"
           )
           .populate({
             path: "user",
@@ -9009,7 +9020,7 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
           .populate({
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO studentCastCategory",
             populate: {
               path: "user",
               select: "userEmail deviceToken",
@@ -9021,6 +9032,11 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
         //   }
         // }
         // all_student = remove_duplicated_arr(arr)
+        if (category) {
+          all_student = all_student?.filter((cls) => {
+            if (`${cls?.studentCastCategory}` === `${category}`) return cls;
+          });
+        }
         res.status(200).send({
           message: "Explore All Student For All Batch Query",
           access: true,
@@ -9041,7 +9057,7 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
             ],
           })
             .select(
-              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO studentCastCategory"
             )
             .populate({
               path: "user",
@@ -9060,7 +9076,7 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
             .populate({
               path: "student",
               select:
-                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO studentCastCategory",
               populate: {
                 path: "user",
                 select: "userEmail deviceToken",
@@ -9076,6 +9092,11 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
           // for (let ele of all_student) {
           //   nums.push(ele?._id)
           // }
+          if (category) {
+            all_student = all_student?.filter((cls) => {
+              if (`${cls?.studentCastCategory}` === `${category}`) return cls;
+            });
+          }
           res.status(200).send({
             message:
               "Explore All For Particular Batch with Standard Student Query",
@@ -9088,7 +9109,7 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
             $and: [{ department: depart }, { batches: batch }],
           })
             .select(
-              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO studentCastCategory"
             )
             .populate({
               path: "user",
@@ -9107,7 +9128,7 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
             .populate({
               path: "student",
               select:
-                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+                "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO studentCastCategory",
               populate: {
                 path: "user",
                 select: "userEmail deviceToken",
@@ -9119,6 +9140,11 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
           //   }
           // }
           // all_student = remove_duplicated_arr(arr)
+          if (category) {
+            all_student = all_student?.filter((cls) => {
+              if (`${cls?.studentCastCategory}` === `${category}`) return cls;
+            });
+          }
           res.status(200).send({
             message: "Explore All For Particular Batch Student Query",
             access: true,
@@ -9141,7 +9167,7 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
             ],
           })
             .select(
-              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO studentCastCategory"
             )
             .populate({
               path: "user",
@@ -9156,7 +9182,7 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
           $and: [{ department: valid_dept?._id }],
         })
           .select(
-            "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO"
+            "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO studentCastCategory"
           )
           .populate({
             path: "user",
@@ -9176,7 +9202,7 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
           .populate({
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO",
+              "studentFirstName studentMiddleName studentLastName valid_full_name studentProfilePhoto photoId studentGRNO studentCastCategory",
             populate: {
               path: "user",
               select: "userEmail deviceToken",
@@ -9189,6 +9215,11 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
         // }
         // all_student = remove_duplicated_arr(arr)
         console.log("Alert");
+        if (category) {
+          all_student = all_student?.filter((cls) => {
+            if (`${cls?.studentCastCategory}` === `${category}`) return cls;
+          });
+        }
         res.status(200).send({
           message: "Explore All Student Query",
           access: true,

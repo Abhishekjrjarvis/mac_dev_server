@@ -154,4 +154,11 @@ router.delete(
 router
   .route("/:smid/excel/import/question/:cmid")
   .patch(catchAsync(mcqController.create_mcq_question_excel_query));
+
+// for mcq new type of routes and validation
+
+router
+  .route("/start/by/student/testset/:stid/exam/query")
+  .patch(catchAsync(mcqController.sudentExamStartTestValidationQuery));
+
 module.exports = router;

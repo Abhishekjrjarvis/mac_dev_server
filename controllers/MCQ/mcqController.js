@@ -33,6 +33,7 @@ const ExcelImportLog = require("../../models/InstituteLog/ExcelImportLog");
 const {
   mcq_create_question_excel_to_json_query,
 } = require("../../Custom/excelToJSON");
+const moment = require("moment");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // ================================== GET  UNIVERSAL INSTITUTE ALL MCQ FOR ALL USER====================
@@ -876,7 +877,7 @@ exports.takeTestSetModifyQuery = async (req, res) => {
       assignTestSubject: sid,
       subjectMasterTestSet: testset._id,
     });
-    testset.allotedTestSet.push(alloted._id);
+    testset.allotedTestSet.push(allotted_testset._id);
     testset.assignSubject.push(sid);
 
     await Promise.all([allotted_testset.save(), testset.save()]);
@@ -952,9 +953,9 @@ exports.takeTestSetModifyQuery = async (req, res) => {
             student_testset: studentTestSet?._id,
             testset: testset?._id,
           });
-          notify.notifyContent = `New Internal Evaluation ${allotted_testset?.testName} Test is created for ${testset.testSubject}`;
-          notify.notify_hi_content = `नई $${allotted_testset?.testName} परीक्षा ${testset.testSubject} के लिए बनाया गया है`;
-          notify.notify_mr_content = `नई ${testset.testSubject} साठी नवीन $${allotted_testset?.testName} चाचणी तयार केली आहे.`;
+          notify.notifyContent = `New ${allotted_testset?.testExamName} Test is created for ${testset.testSubject}`;
+          notify.notify_hi_content = `नई $${allotted_testset?.testExamName} परीक्षा ${testset.testSubject} के लिए बनाया गया है`;
+          notify.notify_mr_content = `नई ${testset.testSubject} साठी नवीन $${allotted_testset?.testExamName} चाचणी तयार केली आहे.`;
           notify.notifySender = subject._id;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
@@ -973,17 +974,17 @@ exports.takeTestSetModifyQuery = async (req, res) => {
             notify.save(),
             user.save(),
           ]);
-          if (user.deviceToken) {
-            invokeMemberTabNotification(
-              "Student Activity",
-              notify,
-              "New MCQ Test Set",
-              user._id,
-              user.deviceToken,
-              "Student",
-              notify
-            );
-          }
+          // if (user.deviceToken) {
+          //   invokeMemberTabNotification(
+          //     "Student Activity",
+          //     notify,
+          //     "New MCQ Test Set",
+          //     user._id,
+          //     user.deviceToken,
+          //     "Student",
+          //     notify
+          //   );
+          // }
         }
       }
     }
@@ -991,6 +992,7 @@ exports.takeTestSetModifyQuery = async (req, res) => {
     // res.status(200).send({
     //   message: "queston test set is assigned to student",
     // });
+    console.log("student_list -: >", student_list);
   } catch (e) {
     console.log(e);
   }
@@ -1073,7 +1075,7 @@ exports.studentAllTestSet = async (req, res) => {
     const student = await Student.findById(req.params.sid).populate({
       path: "testSet",
       select:
-        "testExamName testSubject testDate testStart testEnd testSetComplete",
+        "testExamName testSubject testDate testStart testEnd testSetComplete testTotalNumber testDuration",
       skip: startItem,
       limit: itemPerPage,
       options: { sort: { createdAt: -1 } },
@@ -2428,6 +2430,61 @@ exports.create_mcq_question_excel_query = async (req, res) => {
       });
     } else {
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// for mcq new type of function and validation
+
+const get_time_convert_start = (args) => {
+  if (
+    args?.includes("Am") ||
+    args?.includes("am") ||
+    args?.includes("AM") ||
+    args?.includes("aM")
+  ) {
+    if (+args?.substring(0, 2) === 12) {
+      return +`${"0" + args?.substring(3, 5)}`;
+    } else {
+      return +`${args?.substring(0, 2) + args?.substring(3, 5)}`;
+    }
+  } else {
+    if (+args?.substring(0, 2) === 12) {
+      return +`${args?.substring(0, 2) + args?.substring(3, 5)}`;
+    } else {
+      return +`${`${+args?.substring(0, 2) + 12}` + args?.substring(3, 5)}`;
+    }
+  }
+};
+
+exports.sudentExamStartTestValidationQuery = async (req, res) => {
+  try {
+    const { stid } = req.params;
+    const { date, time } = req.body;
+    if (!stid || !date) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const stu_test = await StudentTestSet.findById(stid).select("-questions");
+    let dft = new Date(stu_test?.testDate);
+    dft = dft?.toISOString();
+    let is_format = moment(dft)?.format("yyyy-MM-DD");
+    let flag = false;
+    if (moment(is_format).isSame(date)) {
+      let time_hit = get_time_convert_start(time);
+      let time_start = get_time_convert_start(stu_test?.testStart);
+      let time_end = get_time_convert_start(stu_test?.testEnd);
+      if (time_hit >= time_start && time_hit <= time_end) {
+        flag = true;
+      }
+    }
+    res.status(200).send({
+      message: "Start Mcq exam test validation",
+      test_access: flag,
+      stu_test,
+    });
   } catch (e) {
     console.log(e);
   }

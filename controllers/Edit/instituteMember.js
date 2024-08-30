@@ -200,12 +200,17 @@ exports.departmentDelete = async (req, res) => {
       }
     }
     institute?.depart?.pull(department._id);
+    if (institute?.departmentCount > 0) {
+      institute.departmentCount -= 1;
+    }
+
     if (department.dHead) {
       const dHead = await Staff.findById(department.dHead);
       dHead?.staffDepartment?.pull(department._id);
       dHead.staffDesignationCount -= 1;
       await dHead.save();
     }
+
     await institute.save();
     await Department.findByIdAndDelete(req.params.did);
     res.status(200).send({

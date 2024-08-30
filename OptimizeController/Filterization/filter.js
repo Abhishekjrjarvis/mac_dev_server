@@ -8581,6 +8581,58 @@ const review_sort_student_by_alpha_last = async (arr) => {
   return send_filter;
 };
 
+const review_sort_student_by_alpha_query = async (arr) => {
+  var send_filter = [];
+  const students = await Student.find({
+    _id: { $in: arr },
+  })
+    .sort({ studentFName: 1, studentMName: 1, studentLName: 1 })
+    .select("_id");
+
+  for (let i = 0; i < students.length; i++) {
+    const stu = await Student.findById({ _id: students[i]._id })
+      .select(
+        "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto studentROLLNO studentGender studentPhoneNumber studentParentsPhoneNumber studentEmail application_print fee_receipt paidFeeList"
+      )
+      .populate({
+        path: "fee_structure",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username userPhoneNumber userEmail",
+      });
+    await stu.save();
+    send_filter.push(stu?._id);
+  }
+  return send_filter;
+};
+
+const review_sort_student_by_alpha_last_query = async (arr) => {
+  var send_filter = [];
+  const students = await Student.find({
+    _id: { $in: arr },
+  })
+    .sort({ studentLName: 1, studentFName: 1, studentMName: 1 })
+    .select("_id");
+
+  for (let i = 0; i < students.length; i++) {
+    const stu = await Student.findById({ _id: students[i]._id })
+      .select(
+        "studentFirstName studentMiddleName studentLastName valid_full_name photoId studentProfilePhoto studentROLLNO studentGender studentPhoneNumber studentParentsPhoneNumber studentEmail application_print fee_receipt paidFeeList"
+      )
+      .populate({
+        path: "fee_structure",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username userPhoneNumber userEmail",
+      });
+    await stu.save();
+    send_filter.push(stu?._id);
+  }
+  return send_filter;
+};
+
 const review_sorted_by_gender = async (arr) => {
   var sorted_data = [];
   const studentFemale = await Student.find({
@@ -8661,7 +8713,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
 
     if (sort_query === "Alpha") {
       const sortedA = await review_sort_student_by_alpha(
-        apply?.reviewApplication
+        apply?.reviewApplication?.reverse()
       );
       apply.reviewApplication = [];
       await apply.save();
@@ -8675,7 +8727,7 @@ exports.renderReviewApplicationFilter = async (req, res) => {
       });
     } else if (sort_query === "Alpha_Last") {
       const sortedA = await review_sort_student_by_alpha_last(
-        apply?.reviewApplication
+        apply?.reviewApplication?.reverse()
       );
       apply.reviewApplication = [];
       await apply.save();

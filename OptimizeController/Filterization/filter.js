@@ -8924,9 +8924,11 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
       //   }
       // }
       // all_student = remove_duplicated_arr(arr)
-      all_student = all_student?.filter((cls) => {
-        if (`${cls?.studentCastCategory}` === `${category}`) return cls;
-      });
+      if (category) {
+        all_student = all_student?.filter((cls) => {
+          if (`${cls?.studentCastCategory}` === `${category}`) return cls;
+        });
+      }
       res.status(200).send({
         message: "Explore All Department Student Query",
         access: true,
@@ -8980,9 +8982,11 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
           //   }
           // }
           // all_student = remove_duplicated_arr(arr)
-          all_student = all_student?.filter((cls) => {
-            if (`${cls?.studentCastCategory}` === `${category}`) return cls;
-          });
+          if (category) {
+            all_student = all_student?.filter((cls) => {
+              if (`${cls?.studentCastCategory}` === `${category}`) return cls;
+            });
+          }
           res.status(200).send({
             message: "Explore All For All Batch With Standard Student Query",
             access: true,
@@ -9028,9 +9032,11 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
         //   }
         // }
         // all_student = remove_duplicated_arr(arr)
-        all_student = all_student?.filter((cls) => {
-          if (`${cls?.studentCastCategory}` === `${category}`) return cls;
-        });
+        if (category) {
+          all_student = all_student?.filter((cls) => {
+            if (`${cls?.studentCastCategory}` === `${category}`) return cls;
+          });
+        }
         res.status(200).send({
           message: "Explore All Student For All Batch Query",
           access: true,
@@ -9086,9 +9092,11 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
           // for (let ele of all_student) {
           //   nums.push(ele?._id)
           // }
-          all_student = all_student?.filter((cls) => {
-            if (`${cls?.studentCastCategory}` === `${category}`) return cls;
-          });
+          if (category) {
+            all_student = all_student?.filter((cls) => {
+              if (`${cls?.studentCastCategory}` === `${category}`) return cls;
+            });
+          }
           res.status(200).send({
             message:
               "Explore All For Particular Batch with Standard Student Query",
@@ -9132,9 +9140,11 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
           //   }
           // }
           // all_student = remove_duplicated_arr(arr)
-          all_student = all_student?.filter((cls) => {
-            if (`${cls?.studentCastCategory}` === `${category}`) return cls;
-          });
+          if (category) {
+            all_student = all_student?.filter((cls) => {
+              if (`${cls?.studentCastCategory}` === `${category}`) return cls;
+            });
+          }
           res.status(200).send({
             message: "Explore All For Particular Batch Student Query",
             access: true,
@@ -9205,9 +9215,11 @@ exports.renderAllStudentMessageQuery = async (req, res) => {
         // }
         // all_student = remove_duplicated_arr(arr)
         console.log("Alert");
-        all_student = all_student?.filter((cls) => {
-          if (`${cls?.studentCastCategory}` === `${category}`) return cls;
-        });
+        if (category) {
+          all_student = all_student?.filter((cls) => {
+            if (`${cls?.studentCastCategory}` === `${category}`) return cls;
+          });
+        }
         res.status(200).send({
           message: "Explore All Student Query",
           access: true,

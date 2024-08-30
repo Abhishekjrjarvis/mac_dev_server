@@ -672,4 +672,12 @@ router
   .route("/one/other/fee/:ofid/student/list/export")
   .patch(catchAsync(Finance.renderOneOtherFeesStudentListExportQuery));
 
+router
+  .route("/control/:fid/invoice/pattern")
+  .patch(catchAsync(Finance.render_control_invoice_pattern));
+
+router
+  .route("/:fid/all/account/query")
+  .get(catchAsync(Finance.render_all_account_query));
+
 module.exports = router;

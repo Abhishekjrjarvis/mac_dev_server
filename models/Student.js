@@ -717,10 +717,10 @@ const studentSchema = new mongoose.Schema({
     type: String,
   },
   student_sponser_upload: {
-    type: String
+    type: String,
   },
   student_sponser: {
-    type: String
+    type: String,
   },
   query_lock_status: {
     type: String,
@@ -1146,7 +1146,7 @@ const studentSchema = new mongoose.Schema({
     },
     collect_docs: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
   other_fees_obj: {
@@ -1225,8 +1225,11 @@ const studentSchema = new mongoose.Schema({
   student_single_subject: [],
   parents_user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
-  }
+    ref: "User",
+  },
+  studentFName: { type: String },
+  studentMName: { type: String },
+  studentLName: { type: String },
 });
 const Student = mongoose.model("Student", studentSchema);
 

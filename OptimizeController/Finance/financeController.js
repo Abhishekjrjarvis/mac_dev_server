@@ -283,7 +283,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
     //   });
     const finance = await Finance.findById({ _id: fid })
       .select(
-        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count tab_manage financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type bank_account_count fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status show_receipt"
+        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count tab_manage financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type bank_account_count fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status show_receipt show_invoice_pattern"
       )
       .populate({
         path: "institute",
@@ -8138,14 +8138,15 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
     let list = [...one_of?.paid_students, ...one_of?.remaining_students];
     // one_of?.students
     var all_student = await Student.find({ _id: { $in: list } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName photoId studentEmail studentGender studentPhoneNumber studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj other_fees_paid_price"
-      )
+      // .select(
+      //   "studentFirstName studentMiddleName studentFatherName studentLastName photoId studentEmail studentGender studentPhoneNumber studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj other_fees_paid_price"
+      // )
       .populate({
         path: "other_fees",
         populate: {
           path: "fee_receipt fees",
-          select: "receipt_file fee_payment_amount payable_amount",
+          select:
+            "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads fee_utr_reference",
         },
       });
     for (let ele of all_student) {
@@ -8154,6 +8155,22 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
           ele.other_fees_obj.status = "Paid";
           ele.other_fees_obj.receipt_file = val?.fee_receipt?.receipt_file;
           ele.other_fees_obj.price = val?.fee_receipt?.fee_payment_amount;
+          ele.other_fees_obj.fee_payment_mode =
+            val?.fee_receipt?.fee_payment_mode;
+          ele.other_fees_obj.invoice_count = val?.fee_receipt?.invoice_count;
+          ele.other_fees_obj.FeeTXNDate = moment(
+            val?.fee_receipt?.fee_transaction_date
+          )?.format("LL");
+          ele.other_fees_obj.TxnDate = moment(
+            val?.fee_receipt?.created_at
+          ).format("LL");
+          ele.other_fees_obj.head_name =
+            val?.fee_receipt?.fee_heads?.[0]?.head_name;
+          ele.other_fees_obj.head_amount =
+            val?.fee_receipt?.fee_heads?.[0]?.head_amount;
+          ele.other_fees_obj.fid = val?.fee_receipt?._id;
+          ele.other_fees_obj.fee_utr_reference =
+            val?.fee_receipt?.fee_utr_reference;
         } else if (`${val?.fees?._id}` === `${one_of?._id}`) {
           ele.other_fees_obj.status = val?.status;
           ele.other_fees_obj.price = val?.fees?.payable_amount;
@@ -8163,19 +8180,33 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
 
     let excel_list = [];
     for (let cls of all_student) {
-      excel_list.push({
-        GRNO: cls?.studentGRNO ?? "NA",
-        Name: `${cls?.studentFirstName} ${cls?.studentFatherName} ${cls?.studentLastName}`,
-        FirstName: cls?.studentFirstName ?? "NA",
-        FatherName: cls?.studentFatherName ?? "NA",
-        LastName: cls?.studentLastName ?? "NA",
-        Gender: cls?.studentGender,
-        Email: cls?.studentEmail,
-        PhoneNumber: cls?.studentPhoneNumber,
-        FeesName: one_of?.other_fees_name ?? "NA",
-        FeesAmount: cls?.other_fees_obj?.price ?? 0,
-        Status: cls?.other_fees_obj.status ?? "NA",
-      });
+      var numss = {};
+      if (cls?.studentFirstName != "") {
+        const op = await OrderPayment.findOne({
+          fee_receipt: cls?.other_fees_obj?.fid,
+        });
+        excel_list.push({
+          ReceiptNo: cls?.other_fees_obj.invoice_count ?? "NA",
+          FeeTransactionDate: cls?.other_fees_obj?.FeeTXNDate ?? "NA",
+          FeesAmount: cls?.other_fees_obj?.price ?? 0,
+          Name: `${cls?.studentFirstName} ${
+            cls?.studentMiddleName
+              ? cls?.studentMiddleName ?? cls?.studentFatherName
+              : ""
+          } ${cls?.studentLastName}`,
+          RegistrationID: cls?.student_prn_enroll_number ?? cls?.studentGRNO,
+          Mode: cls?.other_fees_obj.fee_payment_mode ?? "NA",
+          TxnDate: cls?.other_fees_obj?.TxnDate ?? "NA",
+          BankUTR:
+            op?.paytm_query?.length > 0
+              ? op?.paytm_query?.[0]?.BANKTXNID
+              : cls?.other_fees_obj?.fee_utr_reference ?? "#NA",
+          FeesName: one_of?.other_fees_name ?? "NA",
+          Status: cls?.other_fees_obj.status ?? "NA",
+          HeadName: cls?.other_fees_obj?.head_name ?? "NA",
+          // HeadAmount: cls?.other_fees_obj?.head_amount ?? 0,
+        });
+      }
     }
     var valid_back = await json_to_excel_other_fees_subject_application_query(
       excel_list,
@@ -8201,6 +8232,9 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
 exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
   try {
     const { ofid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     if (!ofid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -8229,6 +8263,60 @@ exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.render_control_invoice_pattern = async (req, res) => {
+  try {
+    const { fid } = req?.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await Finance.findByIdAndUpdate(fid, req?.body);
+    res.status(200).send({ message: "Explore Invoice Control Pattern" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_all_account_query = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: fid });
+    const finance = await Finance.findById({
+      _id: ins?.financeDepart?.[0],
+    }).select("bank_account");
+    var all_accounts = await BankAccount.find({
+      $and: [{ _id: { $in: finance?.bank_account } }],
+    }).select(
+      "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address due_repay total_repay collect_online bank_account_type hostel finance"
+    );
+
+    if (all_accounts?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Bank Account's Available 👍",
+        access: true,
+        all_accounts: all_accounts,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Bank Account's Available 👍",
+        access: true,
+        all_accounts: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.renderExistingOtherFeesNonExistingQuery = async (req, res) => {
 //   try {
 //     const { fid } = req?.params

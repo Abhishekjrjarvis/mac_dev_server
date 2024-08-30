@@ -548,6 +548,68 @@ exports.retrieveByActiveStaff = async (req, res) => {
   }
 };
 
+const sort_student_by_alpha_query = async (arr, day, month, year) => {
+  var send_filter = [];
+  const students = await Student.find({
+    _id: { $in: arr },
+  })
+    .sort({ studentFName: 1, studentMName: 1, studentLName: 1 })
+    .select("_id");
+
+  for (let i = 0; i < students.length; i++) {
+    const stu = await Student.findById({ _id: students[i]._id })
+      .select(
+        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+      )
+      .populate({
+        path: "leave",
+        match: {
+          date: { $in: [`${day}/${month}/${year}`] },
+        },
+        select: "date",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      });
+    stu.studentROLLNO = i + 1;
+    await stu.save();
+    send_filter.push(stu);
+  }
+  return send_filter;
+};
+
+const sort_student_by_alpha_last_query = async (arr, day, month, year) => {
+  var send_filter = [];
+  const students = await Student.find({
+    _id: { $in: arr },
+  })
+    .sort({ studentLName: 1, studentFName: 1, studentMName: 1 })
+    .select("_id");
+
+  for (let i = 0; i < students.length; i++) {
+    const stu = await Student.findById({ _id: students[i]._id })
+      .select(
+        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+      )
+      .populate({
+        path: "leave",
+        match: {
+          date: { $in: [`${day}/${month}/${year}`] },
+        },
+        select: "date",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      });
+    stu.studentROLLNO = i + 1;
+    await stu.save();
+    send_filter.push(stu);
+  }
+  return send_filter;
+};
+
 const sort_student_by_alpha = async (arr, day, month, year) => {
   var send_filter = [];
   const students = await Student.find({
@@ -708,9 +770,19 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
     const classes = await Class.findById({ _id: cid }).select(
       "className classStatus classTitle exams ApproveStudent"
     );
-
+    for (let ele of classes?.ApproveStudent) {
+      const stu = await Student.findById({ _id: `${ele}` }).select(
+        "studentFName studentMName studentLName studentFirstName studentMiddleName studentLastName studentFatherName"
+      );
+      stu.studentFName = stu?.studentFirstName?.trim()?.toLowerCase();
+      stu.studentMName =
+        stu?.studentMiddleName?.trim()?.toLowerCase() ??
+        studentFatherName?.trim()?.toLowerCase();
+      stu.studentLName = stu?.studentLastName?.trim()?.toLowerCase();
+      await stu.save();
+    }
     if (sort_query === "Alpha") {
-      const sortedA = await sort_student_by_alpha(
+      const sortedA = await sort_student_by_alpha_query(
         classes.ApproveStudent,
         day,
         month,
@@ -723,7 +795,7 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
         access: true,
       });
     } else if (sort_query === "Alpha_Last") {
-      const sortedA = await sort_student_by_alpha_last(
+      const sortedA = await sort_student_by_alpha_last_query(
         classes.ApproveStudent,
         day,
         month,
@@ -15292,6 +15364,1202 @@ exports.renderNormalApplicableOutStandingStudentQuery = async (req, res) => {
       institute?._id,
       flow
     );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_admin_daybook_heads_wise = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const { from, to, bank, payment_type, hid, flow } = req.body;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    var g_year;
+    var l_year;
+    var g_month;
+    var l_month;
+
+    if (flow === "NORMAL") {
+      var sorted_array = [];
+      const bank_acc = await BankAccount.findById({ _id: bank });
+      const finance = await Finance.findById({ _id: fid }).select("institute");
+      if (bank_acc?.bank_account_type === "Society") {
+        var all_struct = await FeeStructure.find({
+          $and: [{ finance: finance?._id }, { document_update: false }],
+        });
+      } else {
+        var all_struct = await FeeStructure.find({
+          $and: [
+            { department: { $in: bank_acc?.departments } },
+            { document_update: false },
+          ],
+        });
+      }
+      const institute = await InstituteAdmin.findById({
+        _id: `${finance?.institute}`,
+      }).select(
+        "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode insAbout insAffiliated"
+      );
+
+      var g_year = new Date(`${from}`).getFullYear();
+      var g_day = new Date(`${from}`).getDate();
+      var l_year = new Date(`${to}`).getFullYear();
+      var l_day = new Date(`${to}`).getDate();
+      var g_month = new Date(`${from}`).getMonth() + 1;
+      if (g_month < 10) {
+        g_month = `0${g_month}`;
+      }
+      if (g_day < 10) {
+        g_day = `0${g_day}`;
+      }
+      var l_month = new Date(`${to}`).getMonth() + 1;
+      if (l_month < 10) {
+        l_month = `0${l_month}`;
+      }
+      if (l_day < 10) {
+        l_day = `0${l_day}`;
+      }
+      const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+      const date = new Date(new Date(`${l_year}-${l_month}-${l_day}`));
+      date.setDate(date.getDate() + 1);
+      let l_dates = date.getDate();
+      if (l_dates < 10) {
+        l_dates = `0${l_dates}`;
+      }
+      const l_date = new Date(`${l_year}-${l_month}-${l_dates}T00:00:00.000Z`);
+      if (payment_type) {
+        if (payment_type == "Total") {
+          var all_receipts_set = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                created_at: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_ADMISSION",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+            )
+            .populate({
+              path: "application",
+              select: "applicationDepartment",
+              populate: {
+                path: "applicationDepartment",
+                select: "bank_account",
+                populate: {
+                  path: "bank_account",
+                  select:
+                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                },
+              },
+            })
+            .lean()
+            .exec();
+          var all_receipts = all_receipts_set?.filter((val) => {
+            if (
+              `${val?.fee_payment_mode}` === "By Cash" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+              `${val?.fee_payment_mode}` === "Cheque" ||
+              `${val?.fee_payment_mode}` === "Net Banking" ||
+              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "UPI Transfer" ||
+              `${val?.fee_payment_mode}` === "Demand Draft"
+            ) {
+              return val;
+            }
+          });
+        } else if (payment_type == "Cash / Bank") {
+          var all_receipts_set = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                created_at: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_ADMISSION",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+            )
+            .populate({
+              path: "application",
+              select: "applicationDepartment",
+              populate: {
+                path: "applicationDepartment",
+                select: "bank_account",
+                populate: {
+                  path: "bank_account",
+                  select:
+                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                },
+              },
+            })
+            .lean()
+            .exec();
+          var all_receipts = all_receipts_set?.filter((val) => {
+            if (
+              `${val?.fee_payment_mode}` === "By Cash" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+              `${val?.fee_payment_mode}` === "Cheque" ||
+              `${val?.fee_payment_mode}` === "Net Banking" ||
+              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "UPI Transfer" ||
+              `${val?.fee_payment_mode}` === "Demand Draft"
+            ) {
+              return val;
+            }
+          });
+        } else {
+          var all_receipts = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                created_at: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_ADMISSION",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                fee_payment_mode: payment_type,
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+            )
+            .populate({
+              path: "application",
+              select: "applicationDepartment",
+              populate: {
+                path: "applicationDepartment",
+                select: "bank_account",
+                populate: {
+                  path: "bank_account",
+                  select:
+                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                },
+              },
+            })
+            .lean()
+            .exec();
+        }
+      } else {
+        var all_receipts = await FeeReceipt.find({
+          $and: [
+            { finance: fid },
+            // { fee_flow: "FEE_HEADS" },
+            {
+              created_at: {
+                $gte: g_date,
+                $lt: l_date,
+              },
+            },
+            {
+              receipt_generated_from: "BY_ADMISSION",
+            },
+            {
+              refund_status: "No Refund",
+            },
+            // { student: { $in: sorted_array } },
+          ],
+        })
+          .sort({ invoice_count: "1" })
+          .select("fee_heads application fee_payment_mode")
+          .populate({
+            path: "application",
+            select: "applicationDepartment",
+            populate: {
+              path: "applicationDepartment",
+              select: "bank_account",
+              populate: {
+                path: "bank_account",
+                select:
+                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
+              },
+            },
+          })
+          .lean()
+          .exec();
+      }
+      // console.log(all_receipts)
+      if (bank_acc?.bank_account_type === "Society") {
+      } else {
+        all_receipts = all_receipts?.filter((val) => {
+          if (
+            `${val?.application?.applicationDepartment?.bank_account?._id}` ===
+            `${bank}`
+          )
+            return val;
+        });
+      }
+      let heads_queue = [];
+      if (bank_acc?.bank_account_type === "Society") {
+        for (let ele of all_struct) {
+          for (let val of ele?.applicable_fees_heads) {
+            if (val?.is_society == true) {
+              if (heads_queue?.includes(`${val?.master}`)) {
+              } else {
+                heads_queue.push(val?.master);
+              }
+            }
+          }
+        }
+      } else {
+        for (let ele of all_struct) {
+          for (let val of ele?.applicable_fees_heads) {
+            if (val?.is_society == false) {
+              if (heads_queue?.includes(`${val?.master}`)) {
+              } else {
+                heads_queue.push(val?.master);
+              }
+            }
+          }
+        }
+      }
+      const all_master = await FeeMaster.find({
+        _id: { $in: heads_queue },
+      }).select("master_name");
+      var obj = {};
+      var nest_obj = [];
+      for (let ele of all_master) {
+        obj["head_name"] = ele?.master_name;
+        obj["head_amount"] = 0;
+        obj["cash_head_amount"] = 0;
+        obj["pg_head_amount"] = 0;
+        obj["bank_head_amount"] = 0;
+        obj["_id"] = ele?._id;
+        nest_obj.push(obj);
+        obj = {};
+      }
+      // var t = 0
+      var t = [];
+      var l = [];
+      if (all_receipts?.length > 0) {
+        for (let ele of all_receipts) {
+          if (payment_type == "Total") {
+            for (let val of ele?.fee_heads) {
+              for (let ads of nest_obj) {
+                if (ele?.fee_payment_mode == "By Cash") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.cash_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.cash_head_amount += val?.original_paid;
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "Payment Gateway / Online") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.pg_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.pg_head_amount += val?.original_paid;
+                      // if (val?.master == "6654be24e36490a31bccd1db") {
+                      //   t.push(`${val?.original_paid}`);
+                      // }
+                      // if (val?.master == "6654be3de36490a31bccd257") {
+                      //   l.push(`${val?.original_paid}`);
+                      // }
+                      // t+= val?.original_paid
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "Payment Gateway - PG") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.pg_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.pg_head_amount += val?.original_paid;
+                      // if (val?.master == "6654be24e36490a31bccd1db") {
+                      //   t.push(`${val?.original_paid}`);
+                      // }
+                      // if (val?.master == "6654be3de36490a31bccd257") {
+                      //   l.push(`${val?.original_paid}`);
+                      // }
+                      // t+= val?.original_paid
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "Net Banking") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "UPI Transfer") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "RTGS/NEFT/IMPS") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "Cheque") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "Demand Draft") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                    }
+                  }
+                }
+                if (bank_acc?.bank_account_type === "Society") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == true
+                  ) {
+                    ads.head_amount += val?.original_paid;
+                    // t+= val?.original_paid
+                  }
+                } else {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.head_amount += val?.original_paid;
+                  }
+                }
+              }
+            }
+          } else if (payment_type == "Cash / Bank") {
+            for (let val of ele?.fee_heads) {
+              for (let ads of nest_obj) {
+                if (ele?.fee_payment_mode == "By Cash") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.cash_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.cash_head_amount += val?.original_paid;
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "Payment Gateway / Online") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // if (val?.master == "6654be24e36490a31bccd1db") {
+                      //   t.push(`${val?.original_paid}`);
+                      // }
+                      // if (val?.master == "6654be3de36490a31bccd257") {
+                      //   l.push(`${val?.original_paid}`);
+                      // }
+                      // t+= val?.original_paid
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "Payment Gateway - PG") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // if (val?.master == "6654be24e36490a31bccd1db") {
+                      //   t.push(`${val?.original_paid}`);
+                      // }
+                      // if (val?.master == "6654be3de36490a31bccd257") {
+                      //   l.push(`${val?.original_paid}`);
+                      // }
+                      // t+= val?.original_paid
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "Net Banking") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "UPI Transfer") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "RTGS/NEFT/IMPS") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "Cheque") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                    }
+                  }
+                }
+                if (ele?.fee_payment_mode == "Demand Draft") {
+                  if (bank_acc?.bank_account_type === "Society") {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == true
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                      // t+= val?.original_paid
+                    }
+                  } else {
+                    if (
+                      `${ads?._id}` === `${val?.master}` &&
+                      val?.is_society == false
+                    ) {
+                      ads.bank_head_amount += val?.original_paid;
+                    }
+                  }
+                }
+                if (bank_acc?.bank_account_type === "Society") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == true
+                  ) {
+                    ads.head_amount += val?.original_paid;
+                    // t+= val?.original_paid
+                  }
+                } else {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.head_amount += val?.original_paid;
+                  }
+                }
+              }
+            }
+          } else {
+            for (let val of ele?.fee_heads) {
+              for (let ads of nest_obj) {
+                if (bank_acc?.bank_account_type === "Society") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == true
+                  ) {
+                    ads.head_amount += val?.original_paid;
+                    // t+= val?.original_paid
+                  }
+                } else {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.head_amount += val?.original_paid;
+                    // if (val?.master == "6654be24e36490a31bccd1db") {
+                    //   t.push(`${val?.original_paid}`);
+                    // }
+                    // if (val?.master == "6654be3de36490a31bccd257") {
+                    //   l.push(`${val?.original_paid}`);
+                    // }
+                    // t+= val?.original_paid
+                  }
+                }
+              }
+            }
+          }
+        }
+        // nest_obj.push({
+        //   head_name: "Total Fees",
+        //   head_amount: t
+        // })
+        all_receipts.sort(function (st1, st2) {
+          return (
+            parseInt(st1?.invoice_count?.substring(14)) -
+            parseInt(st2?.invoice_count?.substring(14))
+          );
+        });
+        res.status(200).send({
+          message: "Explore Day Book Heads Query",
+          access: true,
+          all_receipts: all_receipts?.length,
+          results: nest_obj,
+        });
+      } else {
+        res.status(200).send({
+          message: "No Day Book Heads Query",
+          access: false,
+          results: [],
+        });
+      }
+    } else if (flow === "HOSTEL") {
+      var sorted_array = [];
+      const bank_acc = await BankAccount.findById({ _id: bank });
+      const finance = await Finance.findById({ _id: fid }).select("institute");
+      const hostel = await Hostel.findById({ _id: hid }).select("institute");
+      var all_struct = await FeeStructure.find({
+        $and: [{ hostel: hostel?._id }, { document_update: false }],
+      });
+      const institute = await InstituteAdmin.findById({
+        _id: `${finance?.institute}`,
+      }).select(
+        "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode insAbout insAffiliated"
+      );
+
+      var g_year = new Date(`${from}`).getFullYear();
+      var g_day = new Date(`${from}`).getDate();
+      var l_year = new Date(`${to}`).getFullYear();
+      var l_day = new Date(`${to}`).getDate();
+      var g_month = new Date(`${from}`).getMonth() + 1;
+      if (g_month < 10) {
+        g_month = `0${g_month}`;
+      }
+      if (g_day < 10) {
+        g_day = `0${g_day}`;
+      }
+      var l_month = new Date(`${to}`).getMonth() + 1;
+      if (l_month < 10) {
+        l_month = `0${l_month}`;
+      }
+      if (l_day < 10) {
+        l_day = `0${l_day}`;
+      }
+      const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+      const date = new Date(new Date(`${l_year}-${l_month}-${l_day}`));
+      date.setDate(date.getDate() + 1);
+      let l_dates = date.getDate();
+      if (l_dates < 10) {
+        l_dates = `0${l_dates}`;
+      }
+      const l_date = new Date(`${l_year}-${l_month}-${l_dates}T00:00:00.000Z`);
+      if (payment_type) {
+        if (payment_type == "Total") {
+          var all_receipts_set = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                created_at: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_HOSTEL_MANAGER",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+            )
+            .populate({
+              path: "application",
+              select: "hostelAdmin",
+              populate: {
+                path: "hostelAdmin",
+                select: "bank_account",
+                populate: {
+                  path: "bank_account",
+                  select:
+                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                },
+              },
+            })
+            .lean()
+            .exec();
+          var all_receipts = all_receipts_set?.filter((val) => {
+            if (
+              `${val?.fee_payment_mode}` === "By Cash" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+              `${val?.fee_payment_mode}` === "Cheque" ||
+              `${val?.fee_payment_mode}` === "Net Banking" ||
+              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "UPI Transfer" ||
+              `${val?.fee_payment_mode}` === "Demand Draft"
+            ) {
+              return val;
+            }
+          });
+        } else if (payment_type == "Cash / Bank") {
+          var all_receipts_set = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                created_at: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_HOSTEL_MANAGER",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+            )
+            .populate({
+              path: "application",
+              select: "hostelAdmin",
+              populate: {
+                path: "hostelAdmin",
+                select: "bank_account",
+                populate: {
+                  path: "bank_account",
+                  select:
+                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                },
+              },
+            })
+            .lean()
+            .exec();
+          var all_receipts = all_receipts_set?.filter((val) => {
+            if (
+              `${val?.fee_payment_mode}` === "By Cash" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+              `${val?.fee_payment_mode}` === "Cheque" ||
+              `${val?.fee_payment_mode}` === "Net Banking" ||
+              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "UPI Transfer" ||
+              `${val?.fee_payment_mode}` === "Demand Draft"
+            ) {
+              return val;
+            }
+          });
+        } else {
+          var all_receipts = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                created_at: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_HOSTEL_MANAGER",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                fee_payment_mode: payment_type,
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+            )
+            .populate({
+              path: "application",
+              select: "hostelAdmin",
+              populate: {
+                path: "hostelAdmin",
+                select: "bank_account",
+                populate: {
+                  path: "bank_account",
+                  select:
+                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                },
+              },
+            })
+            .lean()
+            .exec();
+        }
+      } else {
+        var all_receipts = await FeeReceipt.find({
+          $and: [
+            { finance: fid },
+            // { fee_flow: "FEE_HEADS" },
+            {
+              created_at: {
+                $gte: g_date,
+                $lt: l_date,
+              },
+            },
+            {
+              receipt_generated_from: "BY_HOSTEL_MANAGER",
+            },
+            {
+              refund_status: "No Refund",
+            },
+            // { student: { $in: sorted_array } },
+          ],
+        })
+          .sort({ invoice_count: "1" })
+          .select("fee_heads application fee_payment_mode")
+          .populate({
+            path: "application",
+            select: "hostelAdmin",
+            populate: {
+              path: "hostelAdmin",
+              select: "bank_account",
+              populate: {
+                path: "bank_account",
+                select:
+                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
+              },
+            },
+          })
+          .lean()
+          .exec();
+      }
+      // console.log(all_receipts)
+      all_receipts = all_receipts?.filter((val) => {
+        if (`${val?.application?.hostelAdmin?.bank_account?._id}` === `${bank}`)
+          return val;
+      });
+      let heads_queue = [];
+      for (let ele of all_struct) {
+        for (let val of ele?.applicable_fees_heads) {
+          if (val?.is_society == false) {
+            if (heads_queue?.includes(`${val?.master}`)) {
+            } else {
+              heads_queue.push(val?.master);
+            }
+          }
+        }
+      }
+      const all_master = await FeeMaster.find({
+        _id: { $in: heads_queue },
+      }).select("master_name");
+      var obj = {};
+      var nest_obj = [];
+      for (let ele of all_master) {
+        obj["head_name"] = ele?.master_name;
+        obj["head_amount"] = 0;
+        obj["cash_head_amount"] = 0;
+        obj["pg_head_amount"] = 0;
+        obj["bank_head_amount"] = 0;
+        obj["_id"] = ele?._id;
+        nest_obj.push(obj);
+        obj = {};
+      }
+      // var t = 0
+      var t = [];
+      var l = [];
+      if (all_receipts?.length > 0) {
+        for (let ele of all_receipts) {
+          if (payment_type == "Total") {
+            for (let val of ele?.fee_heads) {
+              for (let ads of nest_obj) {
+                if (ele?.fee_payment_mode == "By Cash") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.cash_head_amount += val?.original_paid;
+                  }
+                }
+                if (ele?.fee_payment_mode == "Payment Gateway / Online") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.pg_head_amount += val?.original_paid;
+                    // if (val?.master == "6654be24e36490a31bccd1db") {
+                    //   t.push(`${val?.original_paid}`);
+                    // }
+                    // if (val?.master == "6654be3de36490a31bccd257") {
+                    //   l.push(`${val?.original_paid}`);
+                    // }
+                    // t+= val?.original_paid
+                  }
+                }
+                if (ele?.fee_payment_mode == "Payment Gateway - PG") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.pg_head_amount += val?.original_paid;
+                    // if (val?.master == "6654be24e36490a31bccd1db") {
+                    //   t.push(`${val?.original_paid}`);
+                    // }
+                    // if (val?.master == "6654be3de36490a31bccd257") {
+                    //   l.push(`${val?.original_paid}`);
+                    // }
+                    // t+= val?.original_paid
+                  }
+                }
+                if (ele?.fee_payment_mode == "Net Banking") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                  }
+                }
+                if (ele?.fee_payment_mode == "UPI Transfer") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                  }
+                }
+                if (ele?.fee_payment_mode == "RTGS/NEFT/IMPS") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                  }
+                }
+                if (ele?.fee_payment_mode == "Cheque") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                  }
+                }
+                if (ele?.fee_payment_mode == "Demand Draft") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                  }
+                }
+                if (
+                  `${ads?._id}` === `${val?.master}` &&
+                  val?.is_society == false
+                ) {
+                  ads.head_amount += val?.original_paid;
+                }
+              }
+            }
+          } else if (payment_type == "Cash / Bank") {
+            for (let val of ele?.fee_heads) {
+              for (let ads of nest_obj) {
+                if (ele?.fee_payment_mode == "By Cash") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.cash_head_amount += val?.original_paid;
+                  }
+                }
+                if (ele?.fee_payment_mode == "Payment Gateway / Online") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                    // if (val?.master == "6654be24e36490a31bccd1db") {
+                    //   t.push(`${val?.original_paid}`);
+                    // }
+                    // if (val?.master == "6654be3de36490a31bccd257") {
+                    //   l.push(`${val?.original_paid}`);
+                    // }
+                    // t+= val?.original_paid
+                  }
+                }
+                if (ele?.fee_payment_mode == "Payment Gateway - PG") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                    // if (val?.master == "6654be24e36490a31bccd1db") {
+                    //   t.push(`${val?.original_paid}`);
+                    // }
+                    // if (val?.master == "6654be3de36490a31bccd257") {
+                    //   l.push(`${val?.original_paid}`);
+                    // }
+                    // t+= val?.original_paid
+                  }
+                }
+                if (ele?.fee_payment_mode == "Net Banking") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                  }
+                }
+                if (ele?.fee_payment_mode == "UPI Transfer") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                  }
+                }
+                if (ele?.fee_payment_mode == "RTGS/NEFT/IMPS") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                  }
+                }
+                if (ele?.fee_payment_mode == "Cheque") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                  }
+                }
+                if (ele?.fee_payment_mode == "Demand Draft") {
+                  if (
+                    `${ads?._id}` === `${val?.master}` &&
+                    val?.is_society == false
+                  ) {
+                    ads.bank_head_amount += val?.original_paid;
+                  }
+                }
+                if (
+                  `${ads?._id}` === `${val?.master}` &&
+                  val?.is_society == false
+                ) {
+                  ads.head_amount += val?.original_paid;
+                }
+              }
+            }
+          } else {
+            for (let val of ele?.fee_heads) {
+              for (let ads of nest_obj) {
+                if (
+                  `${ads?._id}` === `${val?.master}` &&
+                  val?.is_society == false
+                ) {
+                  ads.head_amount += val?.original_paid;
+                }
+              }
+            }
+          }
+        }
+        all_receipts.sort(function (st1, st2) {
+          return (
+            parseInt(st1?.invoice_count?.substring(14)) -
+            parseInt(st2?.invoice_count?.substring(14))
+          );
+        });
+        res.status(200).send({
+          message: "Explore Day Book Heads Query",
+          access: true,
+          all_receipts: all_receipts?.length,
+          results: nest_obj,
+        });
+      } else {
+        res.status(200).send({
+          message: "No Day Book Heads Query",
+          access: false,
+          results: [],
+        });
+      }
+    }
   } catch (e) {
     console.log(e);
   }

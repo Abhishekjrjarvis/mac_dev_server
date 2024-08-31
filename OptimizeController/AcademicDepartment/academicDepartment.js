@@ -1001,7 +1001,7 @@ exports.render_new_student_add_query_batch = async (req, res) => {
     if (students?.length > 0) {
       for (let stu of students) {
         const student = await Student.findById(stu);
-        student.academic_subject.push(sid);
+        student.academic_subject.push(bid);
         await student.save();
       }
     }
@@ -1037,7 +1037,7 @@ exports.render_new_student_remove_query_batch = async (req, res) => {
     if (students?.length > 0) {
       for (let stu of students) {
         const student = await Student.findById(stu);
-        student.academic_subject.pull(sid);
+        student.academic_subject.pull(bid);
         await student.save();
       }
     }

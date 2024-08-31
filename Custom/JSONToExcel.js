@@ -241,9 +241,15 @@ exports.json_to_excel_admission_application_query = async (
     const apply = await NewApplication.findById({ _id: appId });
     var sheet_name;
     if (apply?.applicationHostel) {
-      sheet_name = "Hostel Application Students";
+      sheet_name =
+        flow == "Document-List"
+          ? "Required Document List"
+          : "Hostel Application Students";
     } else {
-      sheet_name = "Admission Application Students";
+      sheet_name =
+        flow == "Document-List"
+          ? "Required Document List"
+          : "Admission Application Students";
     }
     var real_book = xlsx.utils.book_new();
     var real_sheet = xlsx.utils.json_to_sheet(data_query);

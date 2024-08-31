@@ -107,6 +107,7 @@ const { universal_random_password } = require("../../Custom/universalId");
 const QvipleId = require("../../models/Universal/QvipleId");
 const {
   mismatch_scholar_transaction_json_to_excel_query,
+  json_to_excel_admission_application_query,
 } = require("../../Custom/JSONToExcel");
 const NestedCard = require("../../models/Admission/NestedCard");
 const {
@@ -17897,6 +17898,75 @@ exports.check_structure = async (req, res) => {
       nums: nums,
       count: all_student?.length,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.all_documents_export_query = async (req, res) => {
+  try {
+    const { aid } = req?.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const apply = await NewApplication.findById({ _id: aid }).select("_id");
+    const all_student = await Student.find({
+      "student_form_flow.did": `${apply?._id}`,
+    }).populate({
+      path: "collect_docs.docs",
+    });
+    var excel_list = [];
+    var numss = {};
+    for (let ele of all_student) {
+      if (ele?.collect_docs?.length > 0) {
+        for (let val of ele?.collect_docs) {
+          numss[val?.docs?.document_name] = val?.not_filled ?? "No";
+        }
+        excel_list.push({
+          RegistrationID: ele?.studentGRNO ?? "#NA",
+          Name: `${ele?.studentFirstName} ${
+            ele?.studentMiddleName
+              ? ele?.studentMiddleName ?? ele?.studentFatherName
+              : ""
+          } ${ele?.studentLastName}`,
+          FirstName: ele?.studentFirstName ?? "#NA",
+          MiddleName: ele?.studentMiddleName
+            ? ele?.studentMiddleName ?? ele?.studentFatherName
+            : "#NA",
+          LastName: ele?.studentLastName ?? "#NA",
+          DOB: ele?.studentDOB ?? "#NA",
+          FormNo: ele?.form_no ?? "#NA",
+          Gender: ele?.studentGender ?? "#NA",
+          CasteCategory: ele?.studentCastCategory ?? "#NA",
+          ContactNo: ele?.studentPhoneNumber ?? "#NA",
+          Email: ele?.studentEmail ?? "#NA",
+          ...numss,
+        });
+        numss = {};
+      }
+    }
+    var valid_back = await json_to_excel_admission_application_query(
+      excel_list,
+      "Required",
+      aid,
+      "Document-List"
+    );
+    if (valid_back?.back) {
+      res.status(200).send({
+        message: "Explore New Collect Docs Excel On Hostel Export TAB",
+        access: true,
+        excel_list: excel_list?.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Collect Docs Excel Exports ",
+        access: false,
+        excel_list: excel_list,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

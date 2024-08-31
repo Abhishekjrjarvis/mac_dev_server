@@ -75,7 +75,7 @@ router
 
 router
   .route("/student/testset/paper/:tsid")
-  .get(isLoggedIn, catchAsync(mcqController.studentTestSet))
+  .get(catchAsync(mcqController.studentTestSet))
   .patch(isLoggedIn, catchAsync(mcqController.studentTestSetQuestionSave));
 
 router

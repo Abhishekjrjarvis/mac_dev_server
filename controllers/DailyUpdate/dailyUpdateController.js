@@ -58,9 +58,12 @@ exports.getAlldailyUpdate = async (req, res) => {
 exports.createDailyUpdate = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send subject id to perform task";
-    const { rec_status, extra_lecture } = req.body;
-    var valid_arr = req.body?.arr ? JSON.parse(req.body?.arr) : "";
-    var valid_extra_lecture = extra_lecture ? JSON.parse(extra_lecture) : "";
+    const { rec_status, extra_lecture, files_arr } = req.body;
+    let valid_arr = req.body?.arr;
+    let valid_extra_lecture = extra_lecture;
+    // var valid_arr = req.body?.arr ? JSON.parse(req.body?.arr) : "";
+    // var valid_extra_lecture = extra_lecture ? JSON.parse(extra_lecture) : "";
+
     const subject = await Subject.findById(req.params.sid)
       .populate({
         path: "subjectTeacherName",
@@ -80,13 +83,33 @@ exports.createDailyUpdate = async (req, res) => {
       date: req.body?.date,
       yt_link: req?.body?.yt_link,
     });
-    await dailyUpdate.save();
+    subject.dailyUpdate?.push(dailyUpdate._id);
+    await Promise.all([dailyUpdate.save(), subject.save()]);
     res.status(201).send({
       message: "Daily updates created successfully 👍",
       dailyUpdate,
       access: true,
     });
-    // var all_topic = await ChapterTopic.find({ _id: { $in: valid_arr } });
+    if (files_arr?.length > 0) {
+      for (let file of files_arr) {
+        dailyUpdate?.upadateImage.push({
+          documentType: file?.documentType,
+          documentName: file?.documentName,
+          documentSize: file?.documentSize,
+          documentKey: file?.documentKey,
+        });
+        if (subject.subjectTeacherName?.user?._id) {
+          // await dailyChatFirebaseQuery(
+          //   `${subject?.id}`,
+          //   `${file?.documentKey}`,
+          //   "dailyUpdate",
+          //   `${subject.subjectTeacherName?.user._id}`,
+          //   `${dailyUpdate.updateDescription}`
+          // );
+        }
+      }
+    }
+
     if (valid_arr?.length > 0) {
       for (var val of valid_arr) {
         dailyUpdate.daily_topic.push({
@@ -128,75 +151,105 @@ exports.createDailyUpdate = async (req, res) => {
         }
       }
     }
-    if (req?.files) {
-      for (let file of req?.files) {
-        const obj = {
-          documentType: "",
-          documentName: "",
-          documentSize: "",
-          documentKey: "",
-          documentEncoding: "",
-        };
-        obj.documentType = file.mimetype;
-        obj.documentName = file.originalname;
-        obj.documentEncoding = file.encoding;
-        obj.documentSize = file.size;
-        var results = await uploadDocFile(file);
-        obj.documentKey = results.Key;
-        dailyUpdate?.upadateImage.push(obj);
-        await dailyChatFirebaseQuery(
-          `${subject?.id}`,
-          `${results.Key}`,
-          "dailyUpdate",
-          `${subject.subjectTeacherName?.user._id}`,
-          `${dailyUpdate.updateDescription}`
-        );
-        await unlinkFile(file.path);
+
+    await Promise.all([dailyUpdate.save(), subject.save()]);
+
+    let student_list = [];
+
+    const sub_stu = await Subject.findById(req.params.sid)
+      .populate({
+        path: "selected_batch_query",
+        select: "class_student_query",
+      })
+      .populate({
+        path: "class",
+        populate: {
+          path: "batch",
+          select: "batchName",
+        },
+        select: "ApproveStudent classTitle batch",
+      });
+    if (sub_stu?.selected_batch_query?._id) {
+      student_list = sub_stu?.selected_batch_query?.class_student_query;
+    } else {
+      if (sub_stu?.optionalStudent?.length > 0) {
+        student_list = sub_stu?.optionalStudent;
+      } else {
+        student_list = sub_stu?.class?.ApproveStudent;
       }
     }
-    subject.dailyUpdate?.push(dailyUpdate._id);
-    for (let stu of subject?.class?.ApproveStudent) {
-      var notify = new StudentNotification({});
-      const student = await Student.findById({ _id: `${stu}` });
-      const student_user = await User.findById({ _id: `${student?.user}` });
-      notify.notifyContent = `Check out the recent daily updates of ${subject?.subjectName}`;
-      notify.notifySender = subject._id;
-      notify.notifyReceiever = student_user._id;
-      notify.dailyUpdateId = dailyUpdate._id;
-      notify.notifyType = "Student";
-      notify.notifyPublisher = student._id;
-      student_user.activity_tab.push(notify._id);
-      notify.notifyBySubjectPhoto.subject_id = subject?._id;
-      notify.notifyBySubjectPhoto.subject_name = subject.subjectName;
-      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
-      notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle;
-      notify.notifyCategory = "Daily Update";
-      notify.redirectIndex = 14;
-      //
-      invokeMemberTabNotification(
-        "Student Activity",
-        notify,
-        "Daily Update",
-        student_user._id,
-        student_user.deviceToken,
-        "Student",
-        notify
-      );
-      await Promise.all([student.save(), student_user.save(), notify.save()]);
+    let current_subject_name = "";
+    if (subject?.selected_batch_query?.batchName) {
+      let dt = "";
+      if (subject?.subject_category === "Practical") {
+        dt = "P:";
+      } else {
+        dt = "T:";
+      }
+      dt = `${dt}${subject?.selected_batch_query?.batchName ?? ""} `;
+      current_subject_name += dt;
     }
-    await Promise.all([dailyUpdate.save(), subject.save()]);
+    current_subject_name += subject?.subjectName ?? "";
+    if (subject?.class?.classTitle) {
+      current_subject_name += ` ${subject?.class?.classTitle ?? ""} - ${
+        subject?.class?.batch?.batchName ?? ""
+      }`;
+    }
+
+    if (student_list?.length > 0) {
+      for (let st of student_list) {
+        const students = await Student.findById(st);
+        students.dailyUpdate?.push(dailyUpdate._id);
+        await students.save();
+      }
+      for (let stu of student_list) {
+        var notify = new StudentNotification({});
+        const student = await Student.findById({ _id: `${stu}` });
+        if (student?.user) {
+          const student_user = await User.findById({ _id: `${student?.user}` });
+          notify.notifyContent = `Check out the recent daily updates of ${current_subject_name}`;
+          notify.notifySender = subject._id;
+          notify.notifyReceiever = student_user._id;
+          notify.dailyUpdateId = dailyUpdate._id;
+          notify.notifyType = "Student";
+          notify.notifyPublisher = student._id;
+          student_user.activity_tab.push(notify._id);
+          notify.notifyBySubjectPhoto.subject_id = subject?._id;
+          notify.notifyBySubjectPhoto.subject_name = current_subject_name;
+          notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+          notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle;
+          notify.notifyCategory = "Daily Update";
+          notify.redirectIndex = 14;
+          await Promise.all([
+            student.save(),
+            student_user.save(),
+            notify.save(),
+          ]);
+
+          //
+          if (student_user.deviceToken) {
+            invokeMemberTabNotification(
+              "Student Activity",
+              notify,
+              "Daily Update",
+              student_user._id,
+              student_user.deviceToken,
+              "Student",
+              notify
+            );
+          }
+        }
+      }
+    }
+
+    // var all_topic = await ChapterTopic.find({ _id: { $in: valid_arr } });
+
     // const dEncrypt = await encryptionPayload(dailyUpdate);
     // res.status(201).send({
     //   message: "Daily updates created successfully 👍",
     //   dailyUpdate,
     //   access: true,
     // });
-
-    subject?.class?.ApproveStudent?.forEach(async (sutId) => {
-      const students = await Student.findById(sutId);
-      students.dailyUpdate?.push(dailyUpdate._id);
-      await students.save();
-    });
   } catch (e) {
     console.log(e);
   }
@@ -209,17 +262,14 @@ exports.editDailyUpdate = async (req, res) => {
     if (req.body?.updateDescription) {
       dailyUpdate.updateDescription = req.body?.updateDescription;
     }
-    if (req.body?.deleteImage?.length) {
-      for (let dimage of req.body?.deleteImage) {
-        await deleteFile(dimage);
-        dailyUpdate?.upadateImage?.pull(dimage);
-      }
-    }
-    if (req?.files) {
-      for (let file of req.files) {
-        const results = await uploadPostImageFile(file);
-        answer.answerImage.push(results.Key);
-        await unlinkFile(file.path);
+    if (files_arr?.length > 0) {
+      for (let file of files_arr) {
+        dailyUpdate?.upadateImage.push({
+          documentType: file?.mimetype,
+          documentName: file?.originalname,
+          documentSize: file?.size,
+          documentKey: file?.documentKey,
+        });
       }
     }
 

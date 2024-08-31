@@ -1013,7 +1013,7 @@ exports.takeTestSetModifyQuery = async (req, res) => {
     // res.status(200).send({
     //   message: "queston test set is assigned to student",
     // });
-    console.log("student_list -: >", student_list);
+    // console.log("student_list -: >", student_list);
   } catch (e) {
     console.log(e);
   }

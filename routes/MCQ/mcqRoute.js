@@ -161,4 +161,8 @@ router
   .route("/start/by/student/testset/:stid/exam/query")
   .patch(catchAsync(mcqController.sudentExamStartTestValidationQuery));
 
+router
+  .route("/check/by/student/testset/:stid/result/query")
+  .patch(catchAsync(mcqController.sudentExamResultTestValidationQuery));
+
 module.exports = router;

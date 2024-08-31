@@ -894,7 +894,11 @@ exports.takeTestSetModifyQuery = async (req, res) => {
       })
       .populate({
         path: "class",
-        select: "ApproveStudent",
+        populate: {
+          path: "batch",
+          select: "batchName",
+        },
+        select: "ApproveStudent classTitle batch",
       });
 
     if (subject?.selected_batch_query?._id) {
@@ -910,7 +914,23 @@ exports.takeTestSetModifyQuery = async (req, res) => {
     subject.allotedTestSet.push(allotted_testset._id);
     allotted_testset.assignStudent = student_list;
     await Promise.all([allotted_testset.save(), subject.save()]);
-
+    let current_subject_name = "";
+    if (subject?.selected_batch_query?.batchName) {
+      let dt = "";
+      if (subject?.subject_category === "Practical") {
+        dt = "P:";
+      } else {
+        dt = "T:";
+      }
+      dt = `${dt}${subject?.selected_batch_query?.batchName ?? ""} `;
+      current_subject_name += dt;
+    }
+    current_subject_name += subject?.subjectName ?? "";
+    if (subject?.class?.classTitle) {
+      current_subject_name += ` ${subject?.class?.classTitle ?? ""} - ${
+        subject?.class?.batch?.batchName ?? ""
+      }`;
+    }
     const studentTestObject = {
       subjectMaster: testset?.subjectMaster,
       classMaster: testset?.classMaster,
@@ -918,13 +938,14 @@ exports.takeTestSetModifyQuery = async (req, res) => {
       allotedTestSet: allotted_testset?._id,
       testName: testset?.testName,
       testExamName: allotted_testset?.testExamName,
-      testSubject: testset?.testSubject,
+      testSubject: current_subject_name,
       testDate: allotted_testset?.testDate,
       testStart: allotted_testset?.testStart,
       testEnd: allotted_testset?.testEnd,
       testDuration: allotted_testset?.testDuration,
       testTotalQuestion: testset?.testTotalQuestion,
       testTotalNumber: testset?.testTotalNumber,
+      subject: subject?._id,
       questions: [],
       student: "",
     };
@@ -953,9 +974,9 @@ exports.takeTestSetModifyQuery = async (req, res) => {
             student_testset: studentTestSet?._id,
             testset: testset?._id,
           });
-          notify.notifyContent = `New ${allotted_testset?.testExamName} Test is created for ${testset.testSubject}`;
-          notify.notify_hi_content = `नई $${allotted_testset?.testExamName} परीक्षा ${testset.testSubject} के लिए बनाया गया है`;
-          notify.notify_mr_content = `नई ${testset.testSubject} साठी नवीन $${allotted_testset?.testExamName} चाचणी तयार केली आहे.`;
+          notify.notifyContent = `New ${allotted_testset?.testExamName} Test is created for ${studentTestObject.testSubject}`;
+          notify.notify_hi_content = `नई $${allotted_testset?.testExamName} परीक्षा ${studentTestObject.testSubject} के लिए बनाया गया है`;
+          notify.notify_mr_content = `नई ${studentTestObject.testSubject} साठी नवीन $${allotted_testset?.testExamName} चाचणी तयार केली आहे.`;
           notify.notifySender = subject._id;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
@@ -974,17 +995,17 @@ exports.takeTestSetModifyQuery = async (req, res) => {
             notify.save(),
             user.save(),
           ]);
-          // if (user.deviceToken) {
-          //   invokeMemberTabNotification(
-          //     "Student Activity",
-          //     notify,
-          //     "New MCQ Test Set",
-          //     user._id,
-          //     user.deviceToken,
-          //     "Student",
-          //     notify
-          //   );
-          // }
+          if (user.deviceToken) {
+            invokeMemberTabNotification(
+              "Student Activity",
+              notify,
+              "New MCQ Test Set",
+              user._id,
+              user.deviceToken,
+              "Student",
+              notify
+            );
+          }
         }
       }
     }
@@ -1141,39 +1162,41 @@ exports.studentTestSet = async (req, res) => {
   try {
     const studentTestSet = await StudentTestSet.findById(req.params.tsid)
       .select(
-        "testExamName testDate testStart testEnd testDuration testSetLeftTime testTotalQuestion testTotalNumber questions.questionNumber questions.questionDescription questions.questionImage.documentKey questions.questionImage.documentName questions.options questions.questionSNO questions.givenAnswer questions._id"
+        "testExamName testDate testSubject testStart testEnd testDuration testSetLeftTime testTotalQuestion testTotalNumber questions.questionNumber questions.questionDescription questions.questionImage.documentKey questions.questionImage.documentName questions.options questions.questionSNO questions.givenAnswer questions._id"
       )
       .populate({
         path: "student",
         select:
           "studentFirstName studentMiddleName studentLastName studentProfilePhoto studentROLLNO",
       });
-    var currentDate = new Date();
-    currentDate.setHours(currentDate.getHours() + 5);
-    currentDate.setMinutes(currentDate.getMinutes() + 30);
-    const examTime = `${studentTestSet?.testDate}T${studentTestSet?.testStart}`;
-    const entryTime = dateTimeComparison(JSON.stringify(currentDate), examTime);
-    const exitTime = timeComparison(
-      JSON.stringify(currentDate),
-      studentTestSet?.testEnd
-    );
-    if (entryTime && !exitTime) {
-      // if (true) {
-      studentTestSet.testSetAccess = true;
+    res
+      .status(200)
+      .send({ message: "All questions of test set", studentTestSet });
+    studentTestSet.testSetAccess = true;
+    await studentTestSet.save();
 
-      await studentTestSet.save();
-      // const testEncrypt = await encryptionPayload(studentTestSet);
-      res
-        .status(200)
-        .send({ message: "All questions of test set", studentTestSet });
-    } else {
-      // const testEncrypt = await encryptionPayload(currentDate);
-      res.status(200).send({
-        message:
-          "Not show test paper because you not attend before start and after end",
-        currentDate: currentDate,
-      });
-    }
+    // var currentDate = new Date();
+    // currentDate.setHours(currentDate.getHours() + 5);
+    // currentDate.setMinutes(currentDate.getMinutes() + 30);
+    // const examTime = `${studentTestSet?.testDate}T${studentTestSet?.testStart}`;
+    // const entryTime = dateTimeComparison(JSON.stringify(currentDate), examTime);
+    // const exitTime = timeComparison(
+    //   JSON.stringify(currentDate),
+    //   studentTestSet?.testEnd
+    // );
+    // if (entryTime && !exitTime) {
+    // if (true) {
+
+    // const testEncrypt = await encryptionPayload(studentTestSet);
+
+    // } else {
+    //   // const testEncrypt = await encryptionPayload(currentDate);
+    //   res.status(200).send({
+    //     message:
+    //       "Not show test paper because you not attend before start and after end",
+    //     currentDate: currentDate,
+    //   });
+    // }
   } catch (e) {
     console.log(e);
   }
@@ -1182,7 +1205,6 @@ exports.studentTestSet = async (req, res) => {
 exports.studentTestSetQuestionSave = async (req, res) => {
   try {
     const testSet = await StudentTestSet.findById(req.params.tsid);
-    // console.log(testSet);
     for (test of testSet?.questions) {
       if (test?.questionSNO === req.body?.questionSNO) {
         if (test.givenAnswer?.length) {
@@ -1265,7 +1287,6 @@ exports.studentTestSetQuestionSave = async (req, res) => {
     }
     testSet.testSetLeftTime = req.body?.testSetLeftTime;
     await testSet.save();
-    // console.log(testSet.testObtainMarks);
     res.status(200).send({ message: "question answer is save" });
   } catch (e) {
     console.log(e);
@@ -1274,29 +1295,40 @@ exports.studentTestSetQuestionSave = async (req, res) => {
 
 exports.studentTestSetComplete = async (req, res) => {
   try {
-    // const currentDate = new Date();
-    const studentTestSet = await StudentTestSet.findById(
-      req.params.tsid
-    ).select("testSetComplete");
+    const { tsid } = req.params;
+    if (!tsid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const studentTestSet = await StudentTestSet.findById(tsid);
+    studentTestSet.testSetComplete = req.body.testSetComplete;
+    studentTestSet.testSetLeftTime = 0;
+    await studentTestSet.save();
+    res.status(200).send({
+      message: "Student test set complete",
+      status: studentTestSet.testSetComplete,
+    });
+
+    // if (!studentTestSet.testSetComplete) {
+    //   studentTestSet.testSetComplete = req.body.testSetComplete;
+    //   studentTestSet.testSetLeftTime = 0;
+    //   await studentTestSet.save();
+    //   res.status(200).send({
+    //     message: "Student test set complete",
+    //     status: studentTestSet.testSetComplete,
+    //   });
+    // } else {
+    //   // const statusEncrypt = await encryptionPayload(studentTestSet.testSetComplete);
+    //   res.status(200).send({
+    //     message: "Student test set is not complete",
+    //     status: studentTestSet.testSetComplete,
+    //   });
+    // }
+
     // const examTime = `${studentTestSet?.testDate}T${studentTestSet?.testStart}`;
     // const entryTime = dateTimeComparison(currentDate, examTime);
     // const outTime = timeComparison(currentDate, studentTestSet?.testEnd);
-    if (!studentTestSet.testSetComplete) {
-      studentTestSet.testSetComplete = req.body.testSetComplete;
-      studentTestSet.testSetLeftTime = 0;
-      await studentTestSet.save();
-      // const statusEncrypt = await encryptionPayload(studentTestSet.testSetComplete);
-      res.status(200).send({
-        message: "Student test set complete",
-        status: studentTestSet.testSetComplete,
-      });
-    } else {
-      // const statusEncrypt = await encryptionPayload(studentTestSet.testSetComplete);
-      res.status(200).send({
-        message: "Student test set is not complete",
-        status: studentTestSet.testSetComplete,
-      });
-    }
   } catch (e) {
     console.log(e);
   }
@@ -1304,34 +1336,15 @@ exports.studentTestSetComplete = async (req, res) => {
 
 exports.studentTestSetResult = async (req, res) => {
   try {
-    var currentDate = new Date();
-    currentDate.setHours(currentDate.getHours() + 5);
-    currentDate.setMinutes(currentDate.getMinutes() + 30);
-    // remove unwanted things
     const studentTestSet = await StudentTestSet.findById(
       req.params.tsid
     ).select(
       "testExamName testSubject testDate testStart testEnd testDuration testTotalNumber testObtainMarks testSetComplete questions"
     );
-    let formatHour;
-    if (studentTestSet?.testEnd.substr(9, 10) === "Pm")
-      formatHour = `${
-        +studentTestSet?.testEnd?.substr(0, 2) + 12
-      }${studentTestSet?.testEnd.substr(2, 9)}`;
-    else formatHour = studentTestSet?.testEnd;
-
-    const examTime = `${studentTestSet?.testDate}T${formatHour}`;
-    const entryTime = dateTimeComparison(JSON.stringify(currentDate), examTime);
-    if (entryTime) {
-      // const eEncrypt = await encryptionPayload(studentTestSet);
-      res
-        .status(200)
-        .send({ message: "Student test set results", studentTestSet });
-    } else {
-      res.status(200).send({
-        message: "Not show test results before ending the exams",
-      });
-    }
+    // const eEncrypt = await encryptionPayload(studentTestSet);
+    res
+      .status(200)
+      .send({ message: "Student test set results", studentTestSet });
   } catch (e) {
     console.log(e);
   }
@@ -2484,6 +2497,39 @@ exports.sudentExamStartTestValidationQuery = async (req, res) => {
       message: "Start Mcq exam test validation",
       test_access: flag,
       stu_test,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.sudentExamResultTestValidationQuery = async (req, res) => {
+  try {
+    const { stid } = req.params;
+    const { date, time } = req.body;
+    if (!stid || !date) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const stu_test = await StudentTestSet.findById(stid).select("-questions");
+    let dft = new Date(stu_test?.testDate);
+    dft = dft?.toISOString();
+    let is_format = moment(dft)?.format("yyyy-MM-DD");
+    let flag = false;
+    if (moment(is_format).isSame(date)) {
+      let time_hit = get_time_convert_start(time);
+      let time_end = get_time_convert_start(stu_test?.testEnd);
+      if (time_hit > time_end) {
+        flag = true;
+      }
+    } else if (moment(is_format).isBefore(date)) {
+      flag = true;
+    } else {
+      flag = false;
+    }
+    res.status(200).send({
+      message: "Mcq exam result test validation",
+      test_access: flag,
     });
   } catch (e) {
     console.log(e);

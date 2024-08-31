@@ -1229,3 +1229,59 @@ exports.generate_excel_to_json_grno = async (file) => {
 };
 
 // console.log(generate_excel_to_json_class_time_table_query(data_set, 5))
+
+exports.mcq_create_question_excel_to_json_query = async (
+  excel_arr,
+  excel_count
+) => {
+  try {
+    let data_query = [];
+    let s_op = ["option"];
+    let obj_copm = ["option", "correctAnswer"];
+    if (excel_arr?.length > 0) {
+      for (let ref of excel_arr) {
+        let obj = {
+          options: [],
+          correctAnswer: [],
+        };
+        for (let val = 0; val < excel_count; val++) {
+          let ref_obj = ref[`key${val}`];
+          if (ref_obj) {
+            if (s_op?.includes(ref_obj.db_key)) {
+              obj.options.push({
+                option: ref_obj?.value,
+                optionNumber: ref_obj?.fomat_key,
+              });
+            }
+          }
+        }
+
+        for (let val = 0; val < excel_count; val++) {
+          let ref_obj = ref[`key${val}`];
+          if (ref_obj) {
+            if (obj_copm?.includes(ref_obj.db_key)) {
+              if (ref_obj.db_key === "correctAnswer") {
+                for (let ot of obj.options) {
+                  if (`${ref_obj?.value}` === `${ot?.optionNumber}`) {
+                    obj.correctAnswer.push({
+                      option: ot?.option,
+                      optionNumber: ref_obj?.value,
+                    });
+                  }
+                }
+              }
+            } else {
+              obj[ref_obj.db_key] = ref_obj?.value;
+            }
+          }
+        }
+        data_query.push({
+          ...obj,
+        });
+      }
+    }
+    return data_query;
+  } catch (e) {
+    console.log("Subject Master MCq Question Excel Query Not Resolved", e);
+  }
+};

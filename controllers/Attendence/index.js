@@ -24,8 +24,12 @@ const ClassAttendanceTimeSlot = require("../../models/Timetable/ClassAttendanceT
 const SubjectLectureDay = require("../../models/Timetable/SubjectLectureDay");
 const {
   subject_attendance_json_to_excel,
+  cls_attendance_json_to_excel,
 } = require("../../Custom/JSONToExcel");
 const SubjectTimetable = require("../../models/Timetable/SubjectTimetable");
+const {
+  generate_custom_date_list,
+} = require("../../Utilities/Attendance/attendance_function");
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
   const institute = await Student.findById(req.params.sid);
@@ -2592,7 +2596,475 @@ exports.getAllSubjectOfStudent = async (req, res) => {
   }
 };
 
-exports.getAllClassExportAttendance = async (req, res) => {
+// exports.getAllClassExportAttendance = async (req, res) => {
+//   try {
+//     const { cid } = req.params;
+//     if (!cid)
+//       return res.status(200).send({
+//         message: "Their is a bug regarding to call api",
+//         access: false,
+//       });
+//     const month = req.query.month;
+//     const year = req.query.year;
+//     const { is_type } = req.query;
+//     const { startRange, endRange } = req.body;
+//     let regularexp = "";
+//     var attendaceMappingDate = [];
+//     if (is_type === "RANGE") {
+//       let range1 = startRange;
+//       let range2 = endRange;
+
+//       var classes = await Class.findById(cid)
+//         .populate({
+//           path: "ApproveStudent",
+//           select:
+//             "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO",
+//           populate: {
+//             path: "leave",
+//             match: {
+//               // date: {
+//               //   $and: [
+//               //     {
+//               //       $gte: range1,
+//               //     },
+//               //     {
+//               //       $lte: range2,
+//               //     },
+//               //   ],
+//               // },
+//               status: { $eq: "Accepted" },
+//             },
+//             select: "date",
+//           },
+//         })
+//         .populate({
+//           path: "attendenceDate",
+//           // match: {
+//           //   attendDate: {
+//           //     $and: [
+//           //       {
+//           //         $gte: range1,
+//           //       },
+//           //       {
+//           //         $lte: range2,
+//           //       },
+//           //     ],
+//           //   },
+//           // },
+//           select: "attendDate presentStudent.student absentStudent.student",
+//         })
+//         .lean()
+//         .exec();
+
+//       let students = [];
+//       let range_attendance = [];
+//       for (let att of classes?.attendenceDate) {
+//         if (att.attendDate >= range1 && att.attendDate <= range2) {
+//           range_attendance.push(att);
+//         }
+//       }
+//       for (let stu of classes?.ApproveStudent) {
+//         let obj = {
+//           ...stu,
+//           availablity: [],
+//         };
+//         for (let att of range_attendance) {
+//           let statusObj = {
+//             date: att.attendDate,
+//             status: "",
+//           };
+//           for (let pre of att?.presentStudent) {
+//             if (String(stu._id) === String(pre.student)) statusObj.status = "P";
+//           }
+//           for (let abs of att?.absentStudent) {
+//             if (String(stu._id) === String(abs.student)) statusObj.status = "A";
+//           }
+//           obj.availablity.push(statusObj);
+//         }
+//         students.push(obj);
+//       }
+//       // console.log(classes);
+//       return res.status(200).send({
+//         message: "All student zip attendance with ranged based",
+//         attendance_zip: students,
+//         access: false,
+//       });
+//     } else if (is_type === "ALL") {
+//       var classes = await Class.findById(cid)
+//         .populate({
+//           path: "ApproveStudent",
+//           select:
+//             "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
+//         })
+//         .populate({
+//           path: "attendenceDate",
+//           select: "attendDate presentStudent.student absentStudent.student",
+//         })
+//         .populate({
+//           path: "subject",
+//           populate: {
+//             path: "selected_batch_query",
+//           },
+//         })
+//         .lean()
+//         .exec();
+//       let mapSubject = [];
+//       for (let sub of classes?.subject) {
+//         mapSubject.push({
+//           subjectName: `${sub?.subjectName} ${
+//             sub?.subject_category ? `(${sub?.subject_category})` : ""
+//           } ${
+//             sub?.selected_batch_query?.batchName
+//               ? `(${sub?.selected_batch_query?.batchName})`
+//               : ""
+//           } ${
+//             sub?.subjectOptional === "Optional"
+//               ? `(${sub?.subjectOptional})`
+//               : ""
+//           }`,
+//           subjectId: sub?._id,
+//         });
+//       }
+//       let students = [];
+//       for (let stu of classes?.ApproveStudent) {
+//         let obj = {
+//           ...stu,
+//           classWise: {
+//             presentCount: 0,
+//             totalCount: 0,
+//             totalPercentage: 0,
+//           },
+//           className: `${classes?.className} - ${classes?.classTitle}`,
+//           subjects: [],
+//         };
+//         students.push(obj);
+//       }
+
+//       for (let stu of students) {
+//         for (let att of classes?.attendenceDate) {
+//           for (let pre of att?.presentStudent) {
+//             if (String(stu._id) === String(pre.student))
+//               stu.classWise.presentCount += 1;
+//           }
+//           stu.classWise.totalCount += 1;
+//         }
+//         stu.classWise.totalPercentage = (
+//           (stu.classWise.presentCount * 100) /
+//           stu.classWise.totalCount
+//         ).toFixed(2);
+//       }
+
+//       for (let sub of classes?.subject) {
+//         const subjects = await Subject.findById(sub?._id).populate({
+//           path: "attendance",
+//         });
+
+//         for (let stu of students) {
+//           let sobj = {
+//             subjectName: `${sub?.subjectName} ${
+//               sub?.subject_category ? `(${sub?.subject_category})` : ""
+//             } ${
+//               sub?.selected_batch_query?.batchName
+//                 ? `(${sub?.selected_batch_query?.batchName})`
+//                 : ""
+//             } ${
+//               sub?.subjectOptional === "Optional"
+//                 ? `(${sub?.subjectOptional})`
+//                 : ""
+//             }`,
+//             subjectId: subjects?._id,
+//             presentCount: 0,
+//             totalCount: 0,
+//             totalPercentage: 0,
+//           };
+//           for (let att of subjects?.attendance) {
+//             for (let pre of att?.presentStudent) {
+//               if (String(stu._id) === String(pre.student))
+//                 sobj.presentCount += 1;
+//             }
+//             sobj.totalCount += 1;
+//           }
+//           sobj.totalPercentage = (
+//             (sobj.presentCount * 100) /
+//             sobj.totalCount
+//           ).toFixed(2);
+
+//           stu.subjects.push(sobj);
+//         }
+//       }
+
+//       return res.status(200).send({
+//         message: "All student zip attendance wtih all wise",
+//         attendance_zip: {
+//           mapSubject,
+//           students,
+//           className: `${classes?.className} - ${classes?.classTitle}`,
+//           attendaceMappingDate,
+//         },
+//         access: false,
+//       });
+//     } else if (is_type === "ALL_SUBJECT_SEMESTER") {
+//       var classes = await Class.findById(cid)
+//         .populate({
+//           path: "ApproveStudent",
+//           select:
+//             "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
+//         })
+//         .populate({
+//           path: "subject",
+//           populate: {
+//             path: "selected_batch_query",
+//           },
+//         })
+//         .lean()
+//         .exec();
+//       let mapSubject = [];
+//       for (let sub of classes?.subject) {
+//         mapSubject.push({
+//           subjectName: `${sub?.subjectName} ${
+//             sub?.subject_category ? `(${sub?.subject_category})` : ""
+//           } ${
+//             sub?.selected_batch_query?.batchName
+//               ? `(${sub?.selected_batch_query?.batchName})`
+//               : ""
+//           } ${
+//             sub?.subjectOptional === "Optional"
+//               ? `(${sub?.subjectOptional})`
+//               : ""
+//           }`,
+//           subjectId: sub?._id,
+//         });
+//       }
+
+//       let students = [];
+//       for (let stu of classes?.ApproveStudent) {
+//         let obj = {
+//           ...stu,
+//           subjects: [],
+//         };
+//         students.push(obj);
+//       }
+
+//       for (let sub of classes?.subject) {
+//         const subjects = await Subject.findById(sub?._id).populate({
+//           path: "attendance",
+//         });
+
+//         for (let stu of students) {
+//           let sobj = {
+//             subjectName: `${sub?.subjectName} ${
+//               sub?.subject_category ? `(${sub?.subject_category})` : ""
+//             } ${
+//               sub?.selected_batch_query?.batchName
+//                 ? `(${sub?.selected_batch_query?.batchName})`
+//                 : ""
+//             } ${
+//               sub?.subjectOptional === "Optional"
+//                 ? `(${sub?.subjectOptional})`
+//                 : ""
+//             }`,
+//             subjectId: subjects?._id,
+//             presentCount: 0,
+//             totalCount: 0,
+//             totalPercentage: 0,
+//           };
+//           for (let att of subjects?.attendance) {
+//             for (let pre of att?.presentStudent) {
+//               if (String(stu._id) === String(pre.student))
+//                 sobj.presentCount += 1;
+//             }
+//             sobj.totalCount += 1;
+//           }
+//           sobj.totalPercentage = (
+//             (sobj.presentCount * 100) /
+//             sobj.totalCount
+//           ).toFixed(2);
+
+//           stu.subjects.push(sobj);
+//         }
+//       }
+
+//       return res.status(200).send({
+//         message: "All student zip attendance wtih all subject semester wise",
+//         attendance_zip: {
+//           mapSubject,
+//           students,
+//           className: `${classes?.className} - ${classes?.classTitle}`,
+//         },
+//         access: true,
+//       });
+//     } else if (is_type === "ALL_SUBJECT_MONTHLY") {
+//       regularexp = new RegExp(`\/${month}\/${year}$`);
+//       var classes = await Class.findById(cid)
+//         .populate({
+//           path: "ApproveStudent",
+//           select:
+//             "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
+//         })
+//         .populate({
+//           path: "subject",
+//           populate: {
+//             path: "selected_batch_query",
+//           },
+//         })
+//         .lean()
+//         .exec();
+//       let mapSubject = [];
+//       for (let sub of classes?.subject) {
+//         mapSubject.push({
+//           subjectName: `${sub?.subjectName} ${
+//             sub?.subject_category ? `(${sub?.subject_category})` : ""
+//           } ${
+//             sub?.selected_batch_query?.batchName
+//               ? `(${sub?.selected_batch_query?.batchName})`
+//               : ""
+//           } ${
+//             sub?.subjectOptional === "Optional"
+//               ? `(${sub?.subjectOptional})`
+//               : ""
+//           }`,
+//           subjectId: sub?._id,
+//         });
+//       }
+
+//       let students = [];
+//       for (let stu of classes?.ApproveStudent) {
+//         let obj = {
+//           ...stu,
+//           subjects: [],
+//         };
+//         students.push(obj);
+//       }
+
+//       for (let sub of classes?.subject) {
+//         const subjects = await Subject.findById(sub?._id).populate({
+//           path: "attendance",
+//           match: {
+//             attendDate: { $regex: regularexp },
+//           },
+//         });
+
+//         for (let stu of students) {
+//           let sobj = {
+//             subjectName: `${sub?.subjectName} ${
+//               sub?.subject_category ? `(${sub?.subject_category})` : ""
+//             } ${
+//               sub?.selected_batch_query?.batchName
+//                 ? `(${sub?.selected_batch_query?.batchName})`
+//                 : ""
+//             } ${
+//               sub?.subjectOptional === "Optional"
+//                 ? `(${sub?.subjectOptional})`
+//                 : ""
+//             }`,
+//             subjectId: subjects?._id,
+//             presentCount: 0,
+//             totalCount: 0,
+//             totalPercentage: 0,
+//           };
+//           for (let att of subjects?.attendance) {
+//             for (let pre of att?.presentStudent) {
+//               if (String(stu._id) === String(pre.student))
+//                 sobj.presentCount += 1;
+//             }
+//             sobj.totalCount += 1;
+//           }
+//           sobj.totalPercentage = (
+//             (sobj.presentCount * 100) /
+//             sobj.totalCount
+//           ).toFixed(2);
+
+//           stu.subjects.push(sobj);
+//         }
+//       }
+
+//       return res.status(200).send({
+//         message: "All student zip attendance wtih all subject monthly wise",
+//         attendance_zip: {
+//           mapSubject,
+//           students,
+//           className: `${classes?.className} - ${classes?.classTitle}`,
+//         },
+//         access: true,
+//       });
+//     } else {
+//       regularexp = new RegExp(`\/${month}\/${year}$`);
+//       var classes = await Class.findById(cid)
+//         .populate({
+//           path: "ApproveStudent",
+//           select:
+//             "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number",
+//           populate: {
+//             path: "leave",
+//             match: {
+//               date: { $regex: regularexp },
+//               status: { $eq: "Accepted" },
+//             },
+//             select: "date",
+//           },
+//         })
+//         .populate({
+//           path: "attendenceDate",
+//           match: {
+//             attendDate: { $regex: regularexp },
+//           },
+//           select: "attendDate presentStudent.student absentStudent.student",
+//         })
+//         .lean()
+//         .exec();
+//       let students = [];
+
+//       for (let att of classes?.attendenceDate) {
+//         attendaceMappingDate.push(att?.attendDate);
+//       }
+//       for (let stu of classes?.ApproveStudent) {
+//         let obj = {
+//           ...stu,
+//           availablity: [],
+//           classWise: {
+//             presentCount: 0,
+//             totalCount: 0,
+//             totalPercentage: 0,
+//           },
+//         };
+//         for (let att of classes?.attendenceDate) {
+//           let statusObj = {
+//             date: att.attendDate,
+//             status: "",
+//           };
+//           for (let pre of att?.presentStudent) {
+//             if (String(stu._id) === String(pre.student)) {
+//               statusObj.status = "P";
+//               obj.classWise.presentCount += 1;
+//             }
+//           }
+//           for (let abs of att?.absentStudent) {
+//             if (String(stu._id) === String(abs.student)) statusObj.status = "A";
+//           }
+//           obj.classWise.totalCount += 1;
+//           obj.availablity.push(statusObj);
+//         }
+//         obj.classWise.totalPercentage = (
+//           (obj.classWise.presentCount * 100) /
+//           obj.classWise.totalCount
+//         ).toFixed(2);
+//         students.push(obj);
+//       }
+//       return res.status(200).send({
+//         message: "All student zip attendance",
+//         attendance_zip: {
+//           students: students,
+//           attendaceMappingDate: attendaceMappingDate,
+//         },
+//         access: false,
+//       });
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+exports.getAllClassExportAttendanceModify = async (req, res) => {
   try {
     const { cid } = req.params;
     if (!cid)
@@ -2602,91 +3074,136 @@ exports.getAllClassExportAttendance = async (req, res) => {
       });
     const month = req.query.month;
     const year = req.query.year;
-    const { is_type } = req.query;
-    const { startRange, endRange } = req.body;
+    const { is_type, which_type_list, criteria: queryCriteria } = req.query;
+    const { from, to } = req.body;
     let regularexp = "";
     var attendaceMappingDate = [];
-    if (is_type === "RANGE") {
-      let range1 = startRange;
-      let range2 = endRange;
+    var excel_key = "";
+    let criteria = queryCriteria ? +queryCriteria : 75;
+
+    if (is_type === "CUSTOM") {
+      let custom_date_list = [];
+
+      custom_date_list = await generate_custom_date_list(from, to);
 
       var classes = await Class.findById(cid)
         .populate({
           path: "ApproveStudent",
           select:
             "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO",
-          populate: {
-            path: "leave",
-            match: {
-              // date: {
-              //   $and: [
-              //     {
-              //       $gte: range1,
-              //     },
-              //     {
-              //       $lte: range2,
-              //     },
-              //   ],
-              // },
-              status: { $eq: "Accepted" },
-            },
-            select: "date",
-          },
         })
         .populate({
           path: "attendenceDate",
-          // match: {
-          //   attendDate: {
-          //     $and: [
-          //       {
-          //         $gte: range1,
-          //       },
-          //       {
-          //         $lte: range2,
-          //       },
-          //     ],
-          //   },
-          // },
+          match: {
+            attendDate: { $in: custom_date_list },
+          },
           select: "attendDate presentStudent.student absentStudent.student",
         })
         .lean()
         .exec();
 
       let students = [];
-      let range_attendance = [];
+
       for (let att of classes?.attendenceDate) {
-        if (att.attendDate >= range1 && att.attendDate <= range2) {
-          range_attendance.push(att);
-        }
+        attendaceMappingDate.push(att?.attendDate);
       }
-      for (let stu of classes?.ApproveStudent) {
-        let obj = {
-          ...stu,
-          availablity: [],
-        };
-        for (let att of range_attendance) {
-          let statusObj = {
-            date: att.attendDate,
-            status: "",
+
+      if (classes?.ApproveStudent?.length > 0) {
+        for (let stu of classes?.ApproveStudent) {
+          let obj = {
+            ...stu,
+            availablity: [],
+            classWise: {
+              presentCount: 0,
+              totalCount: 0,
+              totalPercentage: 0,
+            },
           };
-          for (let pre of att?.presentStudent) {
-            if (String(stu._id) === String(pre.student)) statusObj.status = "P";
+          for (let att of classes?.attendenceDate) {
+            let statusObj = {
+              date: att.attendDate,
+              status: "",
+            };
+            for (let pre of att?.presentStudent) {
+              if (String(stu._id) === String(pre.student)) {
+                statusObj.status = "P";
+                obj.classWise.presentCount += 1;
+              }
+            }
+            for (let abs of att?.absentStudent) {
+              if (String(stu._id) === String(abs.student))
+                statusObj.status = "A";
+            }
+            obj.classWise.totalCount += 1;
+            obj.availablity.push(statusObj);
           }
-          for (let abs of att?.absentStudent) {
-            if (String(stu._id) === String(abs.student)) statusObj.status = "A";
+          obj.classWise.totalPercentage = (
+            (obj.classWise.presentCount * 100) /
+            obj.classWise.totalCount
+          ).toFixed(2);
+          if (which_type_list === "DEFAULTER") {
+            let total_per = +obj?.classWise?.totalPercentage;
+            total_per = Math.ceil(total_per);
+            if (total_per < +criteria) {
+              students.push(obj);
+            }
+          } else {
+            students.push(obj);
           }
-          obj.availablity.push(statusObj);
         }
-        students.push(obj);
       }
-      // console.log(classes);
+
+      let attendance_zip = {
+        students: students,
+        attendaceMappingDate: attendaceMappingDate,
+      };
+
+      const student = attendance_zip?.students?.map((stu) => {
+        let dObj = {};
+        for (let i = 0; i < custom_date_list?.length; i++) {
+          let db = custom_date_list[i];
+          if (attendance_zip?.attendaceMappingDate?.includes(db)) {
+            dObj[db] = "";
+          }
+        }
+        for (let avail of stu?.availablity) {
+          dObj[`${avail?.date}`] = avail?.status;
+        }
+
+        let obj = {
+          GRNO: stu?.studentGRNO ?? "N/A",
+          "Enrollment / PRN": stu?.student_prn_enroll_number
+            ? stu?.student_prn_enroll_number
+            : "N/A",
+          RollNo: stu?.studentROLLNO,
+          Name:
+            stu?.studentFirstName +
+            " " +
+            stu?.studentMiddleName +
+            " " +
+            stu?.studentLastName,
+          Gender: stu?.studentGender,
+          ...dObj,
+          "Total Count": `${stu?.classWise?.presentCount} out of ${stu?.classWise?.totalCount}`,
+          "Overall Percentage": stu?.classWise?.totalPercentage,
+        };
+        return obj;
+      });
+      if (student?.length > 0) {
+        excel_key = await cls_attendance_json_to_excel(
+          cid,
+          student,
+          "Student Attendance",
+          "CLS_CUSTOM_DATE_ATTENDANCE",
+          `custom-date-of-${classes?.classTitle ?? ""}`
+        );
+      }
       return res.status(200).send({
-        message: "All student zip attendance with ranged based",
-        attendance_zip: students,
-        access: false,
+        message: "All Custom Date of student zip attendance",
+        excel_key: excel_key,
       });
     } else if (is_type === "ALL") {
-      var classes = await Class.findById(cid)
+      const classes = await Class.findById(cid)
         .populate({
           path: "ApproveStudent",
           select:
@@ -2704,288 +3221,923 @@ exports.getAllClassExportAttendance = async (req, res) => {
         })
         .lean()
         .exec();
-      let mapSubject = [];
-      for (let sub of classes?.subject) {
-        mapSubject.push({
-          subjectName: `${sub?.subjectName} ${
-            sub?.subject_category ? `(${sub?.subject_category})` : ""
-          } ${
-            sub?.selected_batch_query?.batchName
-              ? `(${sub?.selected_batch_query?.batchName})`
-              : ""
-          } ${
-            sub?.subjectOptional === "Optional"
-              ? `(${sub?.subjectOptional})`
-              : ""
-          }`,
-          subjectId: sub?._id,
-        });
-      }
+
       let students = [];
-      for (let stu of classes?.ApproveStudent) {
-        let obj = {
-          ...stu,
-          classWise: {
-            presentCount: 0,
-            totalCount: 0,
-            totalPercentage: 0,
-          },
-          className: `${classes?.className} - ${classes?.classTitle}`,
-          subjects: [],
-        };
-        students.push(obj);
-      }
-
-      for (let stu of students) {
-        for (let att of classes?.attendenceDate) {
-          for (let pre of att?.presentStudent) {
-            if (String(stu._id) === String(pre.student))
-              stu.classWise.presentCount += 1;
-          }
-          stu.classWise.totalCount += 1;
-        }
-        stu.classWise.totalPercentage = (
-          (stu.classWise.presentCount * 100) /
-          stu.classWise.totalCount
-        ).toFixed(2);
-      }
-
-      for (let sub of classes?.subject) {
-        const subjects = await Subject.findById(sub?._id).populate({
-          path: "attendance",
-        });
-
-        for (let stu of students) {
-          let sobj = {
-            subjectName: `${sub?.subjectName} ${
-              sub?.subject_category ? `(${sub?.subject_category})` : ""
-            } ${
-              sub?.selected_batch_query?.batchName
-                ? `(${sub?.selected_batch_query?.batchName})`
-                : ""
-            } ${
-              sub?.subjectOptional === "Optional"
-                ? `(${sub?.subjectOptional})`
-                : ""
-            }`,
-            subjectId: subjects?._id,
-            presentCount: 0,
-            totalCount: 0,
-            totalPercentage: 0,
+      if (classes?.ApproveStudent?.length > 0) {
+        for (let stu of classes?.ApproveStudent) {
+          let obj = {
+            ...stu,
+            classWise: {
+              presentCount: 0,
+              totalCount: 0,
+              totalPercentage: 0,
+            },
+            subjects: [],
           };
-          for (let att of subjects?.attendance) {
+          for (let att of classes?.attendenceDate) {
             for (let pre of att?.presentStudent) {
               if (String(stu._id) === String(pre.student))
-                sobj.presentCount += 1;
+                obj.classWise.presentCount += 1;
             }
-            sobj.totalCount += 1;
+            obj.classWise.totalCount += 1;
           }
-          sobj.totalPercentage = (
-            (sobj.presentCount * 100) /
-            sobj.totalCount
+          obj.classWise.totalPercentage = (
+            (obj.classWise.presentCount * 100) /
+            obj.classWise.totalCount
           ).toFixed(2);
 
-          stu.subjects.push(sobj);
+          if (which_type_list === "DEFAULTER") {
+            let total_per = +obj?.classWise?.totalPercentage;
+            total_per = Math.ceil(total_per);
+            if (total_per < +criteria) {
+              students.push(obj);
+            }
+          } else {
+            students.push(obj);
+          }
         }
+      }
+      if (classes?.subject?.length > 0 && students?.length > 0) {
+        for (let sub of classes?.subject) {
+          const subjects = await Subject.findById(sub?._id)
+            .populate({
+              path: "attendance",
+            })
+            .populate({
+              path: "selected_batch_query",
+            });
+
+          if (subjects?.selected_batch_query?._id) {
+            if (
+              subjects?.selected_batch_query?.class_student_query?.length > 0
+            ) {
+              for (let std of subjects?.selected_batch_query
+                ?.class_student_query) {
+                for (let stu of students) {
+                  if (`${std}` === `${stu?._id}`) {
+                    let sobj = {
+                      subjectName: `${subjects?.subjectName} ${
+                        subjects?.subject_category
+                          ? `(${subjects?.subject_category})`
+                          : ""
+                      } ${
+                        subjects?.selected_batch_query?.batchName
+                          ? `(${subjects?.selected_batch_query?.batchName})`
+                          : ""
+                      } ${
+                        subjects?.subjectOptional === "Optional"
+                          ? `(${subjects?.subjectOptional})`
+                          : ""
+                      }`,
+                      subjectId: subjects?._id,
+                      presentCount: 0,
+                      totalCount: 0,
+                      totalPercentage: 0,
+                    };
+                    for (let att of subjects?.attendance) {
+                      for (let pre of att?.presentStudent) {
+                        if (String(stu._id) === String(pre.student))
+                          sobj.presentCount += 1;
+                      }
+                      sobj.totalCount += 1;
+                    }
+                    sobj.totalPercentage = (
+                      (sobj.presentCount * 100) /
+                      sobj.totalCount
+                    ).toFixed(2);
+                    if (which_type_list === "DEFAULTER") {
+                      let total_per = +sobj?.totalPercentage;
+                      total_per = Math.ceil(total_per);
+                      if (total_per < +criteria) {
+                        students.push(sobj);
+                      }
+                    } else {
+                      stu.subjects.push(sobj);
+                    }
+                  }
+                }
+              }
+            }
+          } else {
+            if (subjects?.optionalStudent?.length > 0) {
+              for (let std of subjects?.optionalStudent) {
+                for (let stu of students) {
+                  if (`${std}` === `${stu?._id}`) {
+                    let sobj = {
+                      subjectName: `${subjects?.subjectName} ${
+                        subjects?.subject_category
+                          ? `(${subjects?.subject_category})`
+                          : ""
+                      } ${
+                        subjects?.selected_batch_query?.batchName
+                          ? `(${subjects?.selected_batch_query?.batchName})`
+                          : ""
+                      } ${
+                        subjects?.subjectOptional === "Optional"
+                          ? `(${subjects?.subjectOptional})`
+                          : ""
+                      }`,
+                      subjectId: subjects?._id,
+                      presentCount: 0,
+                      totalCount: 0,
+                      totalPercentage: 0,
+                    };
+                    for (let att of subjects?.attendance) {
+                      for (let pre of att?.presentStudent) {
+                        if (String(stu._id) === String(pre.student))
+                          sobj.presentCount += 1;
+                      }
+                      sobj.totalCount += 1;
+                    }
+                    sobj.totalPercentage = (
+                      (sobj.presentCount * 100) /
+                      sobj.totalCount
+                    ).toFixed(2);
+                    if (which_type_list === "DEFAULTER") {
+                      let total_per = +sobj?.totalPercentage;
+                      total_per = Math.ceil(total_per);
+                      if (total_per < +criteria) {
+                        students.push(sobj);
+                      }
+                    } else {
+                      stu.subjects.push(sobj);
+                    }
+                  }
+                }
+              }
+            } else {
+              for (let stu of students) {
+                let sobj = {
+                  subjectName: `${subjects?.subjectName} ${
+                    subjects?.subject_category
+                      ? `(${subjects?.subject_category})`
+                      : ""
+                  } ${
+                    subjects?.selected_batch_query?.batchName
+                      ? `(${subjects?.selected_batch_query?.batchName})`
+                      : ""
+                  } ${
+                    subjects?.subjectOptional === "Optional"
+                      ? `(${subjects?.subjectOptional})`
+                      : ""
+                  }`,
+                  subjectId: subjects?._id,
+                  presentCount: 0,
+                  totalCount: 0,
+                  totalPercentage: 0,
+                };
+                for (let att of subjects?.attendance) {
+                  for (let pre of att?.presentStudent) {
+                    if (String(stu._id) === String(pre.student))
+                      sobj.presentCount += 1;
+                  }
+                  sobj.totalCount += 1;
+                }
+                sobj.totalPercentage = (
+                  (sobj.presentCount * 100) /
+                  sobj.totalCount
+                ).toFixed(2);
+                if (which_type_list === "DEFAULTER") {
+                  let total_per = +sobj?.totalPercentage;
+                  total_per = Math.ceil(total_per);
+                  if (total_per < +criteria) {
+                    students.push(sobj);
+                  }
+                } else {
+                  stu.subjects.push(sobj);
+                }
+              }
+            }
+          }
+        }
+      }
+      const student = students?.map((stu) => {
+        let dObj = {
+          GRNO: "",
+          "Enrollment / PRN": "",
+          RollNo: "",
+          Name: "",
+          Gender: "",
+        };
+        dObj.GRNO = stu?.studentGRNO ?? "N/A";
+        dObj["Enrollment / PRN"] = stu?.student_prn_enroll_number
+          ? stu?.student_prn_enroll_number
+          : "N/A";
+        dObj.RollNo = stu?.studentROLLNO;
+        dObj.Name = `${
+          stu?.studentFirstName +
+          " " +
+          stu?.studentMiddleName +
+          " " +
+          stu?.studentLastName
+        }`;
+        dObj.Gender = stu?.studentGender;
+        dObj[
+          classes?.classTitle
+        ] = `${stu?.classWise.presentCount} out of ${stu?.classWise.totalCount}`;
+        dObj[`${classes?.classTitle} Overall Percentage`] =
+          stu?.classWise.totalPercentage;
+
+        if (stu?.subjects?.length > 0) {
+          for (let sdf of stu?.subjects) {
+            dObj[
+              sdf?.subjectName
+            ] = `${sdf.presentCount} out of ${sdf.totalCount}`;
+            dObj[`${sdf?.subjectName} Overall Percentage`] =
+              sdf.totalPercentage;
+          }
+        }
+        return dObj;
+      });
+      if (student?.length > 0) {
+        excel_key = await cls_attendance_json_to_excel(
+          cid,
+          student,
+          "Student Attendance",
+          "ALL_SEMETSER_ATTENDANCE",
+          `of-all-semester-${classes?.classTitle ?? ""}`
+        );
       }
 
       return res.status(200).send({
         message: "All student zip attendance wtih all wise",
-        attendance_zip: {
-          mapSubject,
-          students,
-          className: `${classes?.className} - ${classes?.classTitle}`,
-          attendaceMappingDate,
-        },
+        excel_key: excel_key,
         access: false,
       });
     } else if (is_type === "ALL_SUBJECT_SEMESTER") {
-      var classes = await Class.findById(cid)
+      const classes = await Class.findById(cid)
         .populate({
           path: "ApproveStudent",
           select:
             "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
         })
-        .populate({
-          path: "subject",
-          populate: {
-            path: "selected_batch_query",
-          },
-        })
         .lean()
         .exec();
-      let mapSubject = [];
-      for (let sub of classes?.subject) {
-        mapSubject.push({
-          subjectName: `${sub?.subjectName} ${
-            sub?.subject_category ? `(${sub?.subject_category})` : ""
-          } ${
-            sub?.selected_batch_query?.batchName
-              ? `(${sub?.selected_batch_query?.batchName})`
-              : ""
-          } ${
-            sub?.subjectOptional === "Optional"
-              ? `(${sub?.subjectOptional})`
-              : ""
-          }`,
-          subjectId: sub?._id,
-        });
-      }
 
       let students = [];
-      for (let stu of classes?.ApproveStudent) {
-        let obj = {
-          ...stu,
-          subjects: [],
-        };
-        students.push(obj);
-      }
-
-      for (let sub of classes?.subject) {
-        const subjects = await Subject.findById(sub?._id).populate({
-          path: "attendance",
-        });
-
-        for (let stu of students) {
-          let sobj = {
-            subjectName: `${sub?.subjectName} ${
-              sub?.subject_category ? `(${sub?.subject_category})` : ""
-            } ${
-              sub?.selected_batch_query?.batchName
-                ? `(${sub?.selected_batch_query?.batchName})`
-                : ""
-            } ${
-              sub?.subjectOptional === "Optional"
-                ? `(${sub?.subjectOptional})`
-                : ""
-            }`,
-            subjectId: subjects?._id,
-            presentCount: 0,
-            totalCount: 0,
-            totalPercentage: 0,
+      if (classes?.ApproveStudent?.length > 0) {
+        for (let stu of classes?.ApproveStudent) {
+          let obj = {
+            ...stu,
+            subjects: [],
           };
-          for (let att of subjects?.attendance) {
-            for (let pre of att?.presentStudent) {
-              if (String(stu._id) === String(pre.student))
-                sobj.presentCount += 1;
-            }
-            sobj.totalCount += 1;
-          }
-          sobj.totalPercentage = (
-            (sobj.presentCount * 100) /
-            sobj.totalCount
-          ).toFixed(2);
-
-          stu.subjects.push(sobj);
+          students.push(obj);
         }
+      }
+      if (classes?.subject?.length > 0 && students?.length > 0) {
+        for (let sub of classes?.subject) {
+          const subjects = await Subject.findById(sub?._id)
+            .populate({
+              path: "attendance",
+            })
+            .populate({
+              path: "selected_batch_query",
+            });
+          if (subjects?.selected_batch_query?._id) {
+            if (
+              subjects?.selected_batch_query?.class_student_query?.length > 0
+            ) {
+              for (let std of subjects?.selected_batch_query
+                ?.class_student_query) {
+                for (let stu of students) {
+                  if (`${std}` === `${stu?._id}`) {
+                    let sobj = {
+                      subjectName: `${subjects?.subjectName} ${
+                        subjects?.subject_category
+                          ? `(${subjects?.subject_category})`
+                          : ""
+                      } ${
+                        subjects?.selected_batch_query?.batchName
+                          ? `(${subjects?.selected_batch_query?.batchName})`
+                          : ""
+                      } ${
+                        subjects?.subjectOptional === "Optional"
+                          ? `(${subjects?.subjectOptional})`
+                          : ""
+                      }`,
+                      subjectId: subjects?._id,
+                      presentCount: 0,
+                      totalCount: 0,
+                      totalPercentage: 0,
+                    };
+                    for (let att of subjects?.attendance) {
+                      for (let pre of att?.presentStudent) {
+                        if (String(stu._id) === String(pre.student))
+                          sobj.presentCount += 1;
+                      }
+                      sobj.totalCount += 1;
+                    }
+                    sobj.totalPercentage = (
+                      (sobj.presentCount * 100) /
+                      sobj.totalCount
+                    ).toFixed(2);
+                    if (which_type_list === "DEFAULTER") {
+                      let total_per = +sobj?.totalPercentage;
+                      total_per = Math.ceil(total_per);
+                      if (total_per < +criteria) {
+                        students.push(sobj);
+                      }
+                    } else {
+                      stu.subjects.push(sobj);
+                    }
+                  }
+                }
+              }
+            }
+          } else {
+            if (subjects?.optionalStudent?.length > 0) {
+              for (let std of subjects?.optionalStudent) {
+                for (let stu of students) {
+                  if (`${std}` === `${stu?._id}`) {
+                    let sobj = {
+                      subjectName: `${subjects?.subjectName} ${
+                        subjects?.subject_category
+                          ? `(${subjects?.subject_category})`
+                          : ""
+                      } ${
+                        subjects?.selected_batch_query?.batchName
+                          ? `(${subjects?.selected_batch_query?.batchName})`
+                          : ""
+                      } ${
+                        subjects?.subjectOptional === "Optional"
+                          ? `(${subjects?.subjectOptional})`
+                          : ""
+                      }`,
+                      subjectId: subjects?._id,
+                      presentCount: 0,
+                      totalCount: 0,
+                      totalPercentage: 0,
+                    };
+                    for (let att of subjects?.attendance) {
+                      for (let pre of att?.presentStudent) {
+                        if (String(stu._id) === String(pre.student))
+                          sobj.presentCount += 1;
+                      }
+                      sobj.totalCount += 1;
+                    }
+                    sobj.totalPercentage = (
+                      (sobj.presentCount * 100) /
+                      sobj.totalCount
+                    ).toFixed(2);
+                    if (which_type_list === "DEFAULTER") {
+                      let total_per = +sobj?.totalPercentage;
+                      total_per = Math.ceil(total_per);
+                      if (total_per < +criteria) {
+                        students.push(sobj);
+                      }
+                    } else {
+                      stu.subjects.push(sobj);
+                    }
+                  }
+                }
+              }
+            } else {
+              for (let stu of students) {
+                let sobj = {
+                  subjectName: `${subjects?.subjectName} ${
+                    subjects?.subject_category
+                      ? `(${subjects?.subject_category})`
+                      : ""
+                  } ${
+                    subjects?.selected_batch_query?.batchName
+                      ? `(${subjects?.selected_batch_query?.batchName})`
+                      : ""
+                  } ${
+                    subjects?.subjectOptional === "Optional"
+                      ? `(${subjects?.subjectOptional})`
+                      : ""
+                  }`,
+                  subjectId: subjects?._id,
+                  presentCount: 0,
+                  totalCount: 0,
+                  totalPercentage: 0,
+                };
+                for (let att of subjects?.attendance) {
+                  for (let pre of att?.presentStudent) {
+                    if (String(stu._id) === String(pre.student))
+                      sobj.presentCount += 1;
+                  }
+                  sobj.totalCount += 1;
+                }
+                sobj.totalPercentage = (
+                  (sobj.presentCount * 100) /
+                  sobj.totalCount
+                ).toFixed(2);
+                if (which_type_list === "DEFAULTER") {
+                  let total_per = +sobj?.totalPercentage;
+                  total_per = Math.ceil(total_per);
+                  if (total_per < +criteria) {
+                    students.push(sobj);
+                  }
+                } else {
+                  stu.subjects.push(sobj);
+                }
+              }
+            }
+          }
+        }
+      }
+      const student = students?.map((stu) => {
+        let dObj = {
+          GRNO: "",
+          "Enrollment / PRN": "",
+          RollNo: "",
+          Name: "",
+          Gender: "",
+        };
+        dObj.GRNO = stu?.studentGRNO ?? "N/A";
+        dObj["Enrollment / PRN"] = stu?.student_prn_enroll_number
+          ? stu?.student_prn_enroll_number
+          : "N/A";
+        dObj.RollNo = stu?.studentROLLNO;
+        dObj.Name = `${
+          stu?.studentFirstName +
+          " " +
+          stu?.studentMiddleName +
+          " " +
+          stu?.studentLastName
+        }`;
+        dObj.Gender = stu?.studentGender;
+        if (stu?.subjects?.length > 0) {
+          for (let sdf of stu?.subjects) {
+            dObj[
+              sdf?.subjectName
+            ] = `${sdf.presentCount} out of ${sdf.totalCount}`;
+            dObj[`${sdf?.subjectName} Overall Percentage`] =
+              sdf.totalPercentage;
+          }
+        }
+        return dObj;
+      });
+      if (student?.length > 0) {
+        excel_key = await cls_attendance_json_to_excel(
+          cid,
+          student,
+          "Student Attendance",
+          "ALL_SUBJECT_SEMETSER_ATTENDANCE",
+          `of-all-subject-semester-${classes?.classTitle ?? ""}`
+        );
       }
 
       return res.status(200).send({
         message: "All student zip attendance wtih all subject semester wise",
-        attendance_zip: {
-          mapSubject,
-          students,
-          className: `${classes?.className} - ${classes?.classTitle}`,
-        },
-        access: true,
+        excel_key: excel_key,
       });
     } else if (is_type === "ALL_SUBJECT_MONTHLY") {
       regularexp = new RegExp(`\/${month}\/${year}$`);
-      var classes = await Class.findById(cid)
+      const classes = await Class.findById(cid)
         .populate({
           path: "ApproveStudent",
           select:
             "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
         })
-        .populate({
-          path: "subject",
-          populate: {
-            path: "selected_batch_query",
-          },
-        })
         .lean()
         .exec();
-      let mapSubject = [];
-      for (let sub of classes?.subject) {
-        mapSubject.push({
-          subjectName: `${sub?.subjectName} ${
-            sub?.subject_category ? `(${sub?.subject_category})` : ""
-          } ${
-            sub?.selected_batch_query?.batchName
-              ? `(${sub?.selected_batch_query?.batchName})`
-              : ""
-          } ${
-            sub?.subjectOptional === "Optional"
-              ? `(${sub?.subjectOptional})`
-              : ""
-          }`,
-          subjectId: sub?._id,
-        });
-      }
 
       let students = [];
-      for (let stu of classes?.ApproveStudent) {
-        let obj = {
-          ...stu,
-          subjects: [],
-        };
-        students.push(obj);
+      if (classes?.ApproveStudent?.length > 0) {
+        for (let stu of classes?.ApproveStudent) {
+          let obj = {
+            ...stu,
+            subjects: [],
+          };
+          students.push(obj);
+        }
       }
 
-      for (let sub of classes?.subject) {
-        const subjects = await Subject.findById(sub?._id).populate({
-          path: "attendance",
-          match: {
-            attendDate: { $regex: regularexp },
-          },
-        });
+      if (classes?.subject?.length > 0 && students?.length > 0) {
+        for (let sub of classes?.subject) {
+          const subjects = await Subject.findById(sub?._id)
+            .populate({
+              path: "attendance",
+              match: {
+                attendDate: { $regex: regularexp },
+              },
+            })
+            .populate({
+              path: "selected_batch_query",
+            });
 
-        for (let stu of students) {
-          let sobj = {
-            subjectName: `${sub?.subjectName} ${
-              sub?.subject_category ? `(${sub?.subject_category})` : ""
-            } ${
-              sub?.selected_batch_query?.batchName
-                ? `(${sub?.selected_batch_query?.batchName})`
-                : ""
-            } ${
-              sub?.subjectOptional === "Optional"
-                ? `(${sub?.subjectOptional})`
-                : ""
-            }`,
-            subjectId: subjects?._id,
-            presentCount: 0,
-            totalCount: 0,
-            totalPercentage: 0,
-          };
-          for (let att of subjects?.attendance) {
-            for (let pre of att?.presentStudent) {
-              if (String(stu._id) === String(pre.student))
-                sobj.presentCount += 1;
+          if (subjects?.selected_batch_query?._id) {
+            if (
+              subjects?.selected_batch_query?.class_student_query?.length > 0
+            ) {
+              for (let std of subjects?.selected_batch_query
+                ?.class_student_query) {
+                for (let stu of students) {
+                  if (`${std}` === `${stu?._id}`) {
+                    let sobj = {
+                      subjectName: `${subjects?.subjectName} ${
+                        subjects?.subject_category
+                          ? `(${subjects?.subject_category})`
+                          : ""
+                      } ${
+                        subjects?.selected_batch_query?.batchName
+                          ? `(${subjects?.selected_batch_query?.batchName})`
+                          : ""
+                      } ${
+                        subjects?.subjectOptional === "Optional"
+                          ? `(${subjects?.subjectOptional})`
+                          : ""
+                      }`,
+                      subjectId: subjects?._id,
+                      presentCount: 0,
+                      totalCount: 0,
+                      totalPercentage: 0,
+                    };
+                    for (let att of subjects?.attendance) {
+                      for (let pre of att?.presentStudent) {
+                        if (String(stu._id) === String(pre.student))
+                          sobj.presentCount += 1;
+                      }
+                      sobj.totalCount += 1;
+                    }
+                    sobj.totalPercentage = (
+                      (sobj.presentCount * 100) /
+                      sobj.totalCount
+                    ).toFixed(2);
+                    if (which_type_list === "DEFAULTER") {
+                      let total_per = +sobj?.totalPercentage;
+                      total_per = Math.ceil(total_per);
+                      if (total_per < +criteria) {
+                        students.push(sobj);
+                      }
+                    } else {
+                      stu.subjects.push(sobj);
+                    }
+                  }
+                }
+              }
             }
-            sobj.totalCount += 1;
+          } else {
+            if (subjects?.optionalStudent?.length > 0) {
+              for (let std of subjects?.optionalStudent) {
+                for (let stu of students) {
+                  if (`${std}` === `${stu?._id}`) {
+                    let sobj = {
+                      subjectName: `${subjects?.subjectName} ${
+                        subjects?.subject_category
+                          ? `(${subjects?.subject_category})`
+                          : ""
+                      } ${
+                        subjects?.selected_batch_query?.batchName
+                          ? `(${subjects?.selected_batch_query?.batchName})`
+                          : ""
+                      } ${
+                        subjects?.subjectOptional === "Optional"
+                          ? `(${subjects?.subjectOptional})`
+                          : ""
+                      }`,
+                      subjectId: subjects?._id,
+                      presentCount: 0,
+                      totalCount: 0,
+                      totalPercentage: 0,
+                    };
+                    for (let att of subjects?.attendance) {
+                      for (let pre of att?.presentStudent) {
+                        if (String(stu._id) === String(pre.student))
+                          sobj.presentCount += 1;
+                      }
+                      sobj.totalCount += 1;
+                    }
+                    sobj.totalPercentage = (
+                      (sobj.presentCount * 100) /
+                      sobj.totalCount
+                    ).toFixed(2);
+                    if (which_type_list === "DEFAULTER") {
+                      let total_per = +sobj?.totalPercentage;
+                      total_per = Math.ceil(total_per);
+                      if (total_per < +criteria) {
+                        students.push(sobj);
+                      }
+                    } else {
+                      stu.subjects.push(sobj);
+                    }
+                  }
+                }
+              }
+            } else {
+              for (let stu of students) {
+                let sobj = {
+                  subjectName: `${subjects?.subjectName} ${
+                    subjects?.subject_category
+                      ? `(${subjects?.subject_category})`
+                      : ""
+                  } ${
+                    subjects?.selected_batch_query?.batchName
+                      ? `(${subjects?.selected_batch_query?.batchName})`
+                      : ""
+                  } ${
+                    subjects?.subjectOptional === "Optional"
+                      ? `(${subjects?.subjectOptional})`
+                      : ""
+                  }`,
+                  subjectId: subjects?._id,
+                  presentCount: 0,
+                  totalCount: 0,
+                  totalPercentage: 0,
+                };
+                for (let att of subjects?.attendance) {
+                  for (let pre of att?.presentStudent) {
+                    if (String(stu._id) === String(pre.student))
+                      sobj.presentCount += 1;
+                  }
+                  sobj.totalCount += 1;
+                }
+                sobj.totalPercentage = (
+                  (sobj.presentCount * 100) /
+                  sobj.totalCount
+                ).toFixed(2);
+                if (which_type_list === "DEFAULTER") {
+                  let total_per = +sobj?.totalPercentage;
+                  total_per = Math.ceil(total_per);
+                  if (total_per < +criteria) {
+                    students.push(sobj);
+                  }
+                } else {
+                  stu.subjects.push(sobj);
+                }
+              }
+            }
           }
-          sobj.totalPercentage = (
-            (sobj.presentCount * 100) /
-            sobj.totalCount
-          ).toFixed(2);
-
-          stu.subjects.push(sobj);
         }
+      }
+      const student = students?.map((stu) => {
+        let dObj = {
+          GRNO: "",
+          "Enrollment / PRN": "",
+          RollNo: "",
+          Name: "",
+          Gender: "",
+        };
+        dObj.GRNO = stu?.studentGRNO ?? "N/A";
+        dObj["Enrollment / PRN"] = stu?.student_prn_enroll_number
+          ? stu?.student_prn_enroll_number
+          : "N/A";
+        dObj.RollNo = stu?.studentROLLNO;
+        dObj.Name = `${
+          stu?.studentFirstName +
+          " " +
+          stu?.studentMiddleName +
+          " " +
+          stu?.studentLastName
+        }`;
+        dObj.Gender = stu?.studentGender;
+        if (stu?.subjects?.length > 0) {
+          for (let sdf of stu?.subjects) {
+            dObj[
+              sdf?.subjectName
+            ] = `${sdf.presentCount} out of ${sdf.totalCount}`;
+            dObj[`${sdf?.subjectName} Overall Percentage`] =
+              sdf.totalPercentage;
+          }
+        }
+        return dObj;
+      });
+      if (student?.length > 0) {
+        excel_key = await cls_attendance_json_to_excel(
+          cid,
+          student,
+          "Student Attendance",
+          "ALL_SUBJECT_MONTHLY_ATTENDANCE",
+          `of-all-subject-montly-${classes?.classTitle ?? ""}`
+        );
       }
 
       return res.status(200).send({
         message: "All student zip attendance wtih all subject monthly wise",
-        attendance_zip: {
-          mapSubject,
-          students,
-          className: `${classes?.className} - ${classes?.classTitle}`,
-        },
-        access: true,
+        excel_key: excel_key,
+      });
+    } else if (is_type === "ALL_SUBJECT_CUSTOM") {
+      let custom_date_list = [];
+
+      custom_date_list = await generate_custom_date_list(from, to);
+
+      const classes = await Class.findById(cid)
+        .populate({
+          path: "ApproveStudent",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
+        })
+        .lean()
+        .exec();
+
+      let students = [];
+      if (classes?.ApproveStudent?.length > 0) {
+        for (let stu of classes?.ApproveStudent) {
+          let obj = {
+            ...stu,
+            subjects: [],
+          };
+          students.push(obj);
+        }
+      }
+
+      if (classes?.subject?.length > 0 && students?.length > 0) {
+        for (let sub of classes?.subject) {
+          const subjects = await Subject.findById(sub?._id)
+            .populate({
+              path: "attendance",
+              match: {
+                attendDate: { $in: custom_date_list },
+              },
+            })
+            .populate({
+              path: "selected_batch_query",
+            });
+
+          if (subjects?.selected_batch_query?._id) {
+            if (
+              subjects?.selected_batch_query?.class_student_query?.length > 0
+            ) {
+              for (let std of subjects?.selected_batch_query
+                ?.class_student_query) {
+                for (let stu of students) {
+                  if (`${std}` === `${stu?._id}`) {
+                    let sobj = {
+                      subjectName: `${subjects?.subjectName} ${
+                        subjects?.subject_category
+                          ? `(${subjects?.subject_category})`
+                          : ""
+                      } ${
+                        subjects?.selected_batch_query?.batchName
+                          ? `(${subjects?.selected_batch_query?.batchName})`
+                          : ""
+                      } ${
+                        subjects?.subjectOptional === "Optional"
+                          ? `(${subjects?.subjectOptional})`
+                          : ""
+                      }`,
+                      subjectId: subjects?._id,
+                      presentCount: 0,
+                      totalCount: 0,
+                      totalPercentage: 0,
+                    };
+                    for (let att of subjects?.attendance) {
+                      for (let pre of att?.presentStudent) {
+                        if (String(stu._id) === String(pre.student))
+                          sobj.presentCount += 1;
+                      }
+                      sobj.totalCount += 1;
+                    }
+                    sobj.totalPercentage = (
+                      (sobj.presentCount * 100) /
+                      sobj.totalCount
+                    ).toFixed(2);
+                    if (which_type_list === "DEFAULTER") {
+                      let total_per = +sobj?.totalPercentage;
+                      total_per = Math.ceil(total_per);
+                      if (total_per < +criteria) {
+                        students.push(sobj);
+                      }
+                    } else {
+                      stu.subjects.push(sobj);
+                    }
+                  }
+                }
+              }
+            }
+          } else {
+            if (subjects?.optionalStudent?.length > 0) {
+              for (let std of subjects?.optionalStudent) {
+                for (let stu of students) {
+                  if (`${std}` === `${stu?._id}`) {
+                    let sobj = {
+                      subjectName: `${subjects?.subjectName} ${
+                        subjects?.subject_category
+                          ? `(${subjects?.subject_category})`
+                          : ""
+                      } ${
+                        subjects?.selected_batch_query?.batchName
+                          ? `(${subjects?.selected_batch_query?.batchName})`
+                          : ""
+                      } ${
+                        subjects?.subjectOptional === "Optional"
+                          ? `(${subjects?.subjectOptional})`
+                          : ""
+                      }`,
+                      subjectId: subjects?._id,
+                      presentCount: 0,
+                      totalCount: 0,
+                      totalPercentage: 0,
+                    };
+                    for (let att of subjects?.attendance) {
+                      for (let pre of att?.presentStudent) {
+                        if (String(stu._id) === String(pre.student))
+                          sobj.presentCount += 1;
+                      }
+                      sobj.totalCount += 1;
+                    }
+                    sobj.totalPercentage = (
+                      (sobj.presentCount * 100) /
+                      sobj.totalCount
+                    ).toFixed(2);
+                    if (which_type_list === "DEFAULTER") {
+                      let total_per = +sobj?.totalPercentage;
+                      total_per = Math.ceil(total_per);
+                      if (total_per < +criteria) {
+                        students.push(sobj);
+                      }
+                    } else {
+                      stu.subjects.push(sobj);
+                    }
+                  }
+                }
+              }
+            } else {
+              for (let stu of students) {
+                let sobj = {
+                  subjectName: `${subjects?.subjectName} ${
+                    subjects?.subject_category
+                      ? `(${subjects?.subject_category})`
+                      : ""
+                  } ${
+                    subjects?.selected_batch_query?.batchName
+                      ? `(${subjects?.selected_batch_query?.batchName})`
+                      : ""
+                  } ${
+                    subjects?.subjectOptional === "Optional"
+                      ? `(${subjects?.subjectOptional})`
+                      : ""
+                  }`,
+                  subjectId: subjects?._id,
+                  presentCount: 0,
+                  totalCount: 0,
+                  totalPercentage: 0,
+                };
+                for (let att of subjects?.attendance) {
+                  for (let pre of att?.presentStudent) {
+                    if (String(stu._id) === String(pre.student))
+                      sobj.presentCount += 1;
+                  }
+                  sobj.totalCount += 1;
+                }
+                sobj.totalPercentage = (
+                  (sobj.presentCount * 100) /
+                  sobj.totalCount
+                ).toFixed(2);
+                if (which_type_list === "DEFAULTER") {
+                  let total_per = +sobj?.totalPercentage;
+                  total_per = Math.ceil(total_per);
+                  if (total_per < +criteria) {
+                    students.push(sobj);
+                  }
+                } else {
+                  stu.subjects.push(sobj);
+                }
+              }
+            }
+          }
+        }
+      }
+      const student = students?.map((stu) => {
+        let dObj = {
+          GRNO: "",
+          "Enrollment / PRN": "",
+          RollNo: "",
+          Name: "",
+          Gender: "",
+        };
+        dObj.GRNO = stu?.studentGRNO ?? "N/A";
+        dObj["Enrollment / PRN"] = stu?.student_prn_enroll_number
+          ? stu?.student_prn_enroll_number
+          : "N/A";
+        dObj.RollNo = stu?.studentROLLNO;
+        dObj.Name = `${
+          stu?.studentFirstName +
+          " " +
+          stu?.studentMiddleName +
+          " " +
+          stu?.studentLastName
+        }`;
+        dObj.Gender = stu?.studentGender;
+        if (stu?.subjects?.length > 0) {
+          for (let sdf of stu?.subjects) {
+            dObj[
+              sdf?.subjectName
+            ] = `${sdf.presentCount} out of ${sdf.totalCount}`;
+            dObj[`${sdf?.subjectName} Overall Percentage`] =
+              sdf.totalPercentage;
+          }
+        }
+        return dObj;
+      });
+      if (student?.length > 0) {
+        excel_key = await cls_attendance_json_to_excel(
+          cid,
+          student,
+          "Student Attendance",
+          "ALL_SUBJECT_CUSTOM_DATE_ATTENDANCE",
+          `of-all-subject-custom-date-${classes?.classTitle ?? ""}`
+        );
+      }
+      return res.status(200).send({
+        message: "All student zip attendance wtih all subject monthly wise",
+        excel_key: excel_key,
       });
     } else {
       regularexp = new RegExp(`\/${month}\/${year}$`);
-      var classes = await Class.findById(cid)
+      const classes = await Class.findById(cid)
         .populate({
           path: "ApproveStudent",
           select:
@@ -3008,58 +4160,119 @@ exports.getAllClassExportAttendance = async (req, res) => {
         })
         .lean()
         .exec();
+
       let students = [];
 
       for (let att of classes?.attendenceDate) {
         attendaceMappingDate.push(att?.attendDate);
       }
-      for (let stu of classes?.ApproveStudent) {
-        let obj = {
-          ...stu,
-          availablity: [],
-          classWise: {
-            presentCount: 0,
-            totalCount: 0,
-            totalPercentage: 0,
-          },
-        };
-        for (let att of classes?.attendenceDate) {
-          let statusObj = {
-            date: att.attendDate,
-            status: "",
+      if (classes?.ApproveStudent?.length > 0) {
+        for (let stu of classes?.ApproveStudent) {
+          let obj = {
+            ...stu,
+            availablity: [],
+            classWise: {
+              presentCount: 0,
+              totalCount: 0,
+              totalPercentage: 0,
+            },
           };
-          for (let pre of att?.presentStudent) {
-            if (String(stu._id) === String(pre.student)) {
-              statusObj.status = "P";
-              obj.classWise.presentCount += 1;
+          for (let att of classes?.attendenceDate) {
+            let statusObj = {
+              date: att.attendDate,
+              status: "",
+            };
+            for (let pre of att?.presentStudent) {
+              if (String(stu._id) === String(pre.student)) {
+                statusObj.status = "P";
+                obj.classWise.presentCount += 1;
+              }
             }
+            for (let abs of att?.absentStudent) {
+              if (String(stu._id) === String(abs.student))
+                statusObj.status = "A";
+            }
+            obj.classWise.totalCount += 1;
+            obj.availablity.push(statusObj);
           }
-          for (let abs of att?.absentStudent) {
-            if (String(stu._id) === String(abs.student)) statusObj.status = "A";
+          obj.classWise.totalPercentage = (
+            (obj.classWise.presentCount * 100) /
+            obj.classWise.totalCount
+          ).toFixed(2);
+          if (which_type_list === "DEFAULTER") {
+            let total_per = +obj?.classWise?.totalPercentage;
+            total_per = Math.ceil(total_per);
+            if (total_per < +criteria) {
+              students.push(obj);
+            }
+          } else {
+            students.push(obj);
           }
-          obj.classWise.totalCount += 1;
-          obj.availablity.push(statusObj);
         }
-        obj.classWise.totalPercentage = (
-          (obj.classWise.presentCount * 100) /
-          obj.classWise.totalCount
-        ).toFixed(2);
-        students.push(obj);
+      }
+
+      let attendance_zip = {
+        students: students,
+        attendaceMappingDate: attendaceMappingDate,
+      };
+      let newDate = new Date(`${year}-${month}-01`);
+      newDate = newDate?.toISOString();
+      let daysInMonth = moment(`${year}-${month}`, "YYYY-MM").daysInMonth();
+
+      const student = attendance_zip?.students?.map((stu) => {
+        let dObj = {};
+        for (let i = 1; i <= daysInMonth; i++) {
+          if (i < 10) {
+            let db = `0${i}/${month}/${year}`;
+            if (attendance_zip?.attendaceMappingDate?.includes(db))
+              dObj[db] = "";
+          } else {
+            let dbt = `${i}/${month}/${year}`;
+            if (attendance_zip?.attendaceMappingDate?.includes(dbt))
+              dObj[dbt] = "";
+          }
+        }
+        for (let avail of stu?.availablity) {
+          dObj[`${avail?.date}`] = avail?.status;
+        }
+
+        let obj = {
+          GRNO: stu?.studentGRNO ?? "N/A",
+          "Enrollment / PRN": stu?.student_prn_enroll_number
+            ? stu?.student_prn_enroll_number
+            : "N/A",
+          RollNo: stu?.studentROLLNO,
+          Name:
+            stu?.studentFirstName +
+            " " +
+            stu?.studentMiddleName +
+            " " +
+            stu?.studentLastName,
+          Gender: stu?.studentGender,
+          ...dObj,
+          "Total Count": `${stu?.classWise?.presentCount} out of ${stu?.classWise?.totalCount}`,
+          "Overall Percentage": stu?.classWise?.totalPercentage,
+        };
+        return obj;
+      });
+      if (student?.length > 0) {
+        excel_key = await cls_attendance_json_to_excel(
+          cid,
+          student,
+          "Student Attendance",
+          "CLS_MONTHLY_ATTENDANCE",
+          `montly-of-${classes?.classTitle ?? ""}`
+        );
       }
       return res.status(200).send({
         message: "All student zip attendance",
-        attendance_zip: {
-          students: students,
-          attendaceMappingDate: attendaceMappingDate,
-        },
-        access: false,
+        excel_key: excel_key,
       });
     }
   } catch (e) {
     console.log(e);
   }
 };
-
 exports.getAllExamAttedance = async (req, res) => {
   try {
     const { eid, seid } = req.params;
@@ -3451,70 +4664,229 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
       });
     const month = req.query.month;
     const year = req.query.year;
-    const { is_type } = req.query;
-    const { startRange, endRange } = req.body;
+    const { is_type, which_type_list, criteria: queryCriteria } = req.query;
+    const { from, to } = req.body;
     let regularexp = "";
     var attendaceMappingDate = [];
     var attendance_zip = null;
     var excel_key = null;
-    if (is_type === "RANGE") {
-      let range1 = startRange;
-      let range2 = endRange;
-      var subjects = await Subject.findById(sid).populate({
-        path: "attendance",
-        // select: "attendDate presentStudent.student absentStudent.student",
-      });
-      // .lean()
-      // .exec();
+    let criteria = queryCriteria ? +queryCriteria : 75;
+    if (is_type === "CUSTOM") {
+      let custom_date_list = [];
 
-      var classes = await Class.findById(subjects?.class)
+      custom_date_list = await generate_custom_date_list(from, to);
+      // let f_month = from?.substr(3, 2);
+      // let f_year = from?.substr(6, 4);
+      // let f_day = from?.substr(0, 2);
+      // let t_month = to?.substr(3, 2);
+      // let t_year = to?.substr(6, 4);
+      // let t_day = to?.substr(0, 2);
+      // f_month = +f_month;
+      // t_month = +t_month;
+      // f_day = +f_day;
+      // t_day = +t_day;
+      // let iterate_query = 0;
+      // f_year = +f_year;
+      // t_year = +t_year;
+      // let year_diff = t_year - f_year;
+      // year_diff = year_diff >= 0 ? year_diff : year_diff * -1;
+      // if (!year_diff) {
+      //   iterate_query = t_month - f_month;
+      // } else {
+      //   let t_mod = t_month + 12 * year_diff;
+      //   iterate_query = t_mod - f_month;
+      // }
+
+      // for (let j = 0; j <= iterate_query; j++) {
+      //   if (f_month > 12) {
+      //     f_month = 1;
+      //     f_year += 1;
+      //   }
+      //   let m_current = f_month > 9 ? `${f_month}` : `0${f_month}`;
+      //   let y_current = `${f_year}`;
+      //   let daysInMonth = moment(
+      //     `${y_current}-${m_current}`,
+      //     "YYYY-MM"
+      //   ).daysInMonth();
+
+      //   let start_point = j === 0 ? f_day : 1;
+      //   for (let i = start_point; i <= daysInMonth; i++) {
+      //     if (j == iterate_query && i > t_day) {
+      //       break;
+      //     } else {
+      //       if (i < 10) {
+      //         let db = `0${i}/${m_current}/${y_current}`;
+      //         custom_date_list.push(db);
+      //       } else {
+      //         let dbt = `${i}/${m_current}/${y_current}`;
+      //         custom_date_list.push(dbt);
+      //       }
+      //     }
+      //   }
+      //   f_month += 1;
+      // }
+
+      var subjects = await Subject.findById(sid)
         .populate({
-          path: "ApproveStudent",
-          select:
-            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number",
-          populate: {
-            path: "leave",
-            match: {
-              status: { $eq: "Accepted" },
+          path: "attendance",
+          match: {
+            attendDate: {
+              $in: custom_date_list,
             },
-            select: "date",
           },
         })
-        .lean()
-        .exec();
+        .populate({
+          path: "selected_batch_query",
+          select: "class_student_query",
+        })
+        .populate({
+          path: "class",
+          select: "className",
+        });
+
+      let student_list = [];
+      var classes = null;
+      if (subjects?.selected_batch_query?._id) {
+        student_list = await Student.find({
+          _id: { $in: subjects?.selected_batch_query?.class_student_query },
+        })
+          .select(
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number"
+          )
+          .lean()
+          .exec();
+      } else {
+        if (subjects?.optionalStudent?.length > 0) {
+          student_list = await Student.find({
+            _id: { $in: subjects?.optionalStudent },
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number"
+            )
+            .lean()
+            .exec();
+        } else {
+          classes = await Class.findById(subjects?.class)
+            .populate({
+              path: "ApproveStudent",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number",
+              // populate: {
+              //   path: "leave",
+              //   match: {
+              //     date: { $regex: regularexp },
+              //     status: { $eq: "Accepted" },
+              //   },
+              //   select: "date",
+              // },
+            })
+            .lean()
+            .exec();
+          student_list = classes?.ApproveStudent;
+        }
+      }
 
       let students = [];
-      let range_attendance = [];
       for (let att of subjects?.attendance) {
-        if (att.attendDate >= range1 && att.attendDate <= range2) {
-          range_attendance.push(att);
-        }
+        attendaceMappingDate.push(att?.attendDate);
       }
-      for (let stu of classes?.ApproveStudent) {
-        let obj = {
-          ...stu,
-          availablity: [],
-        };
-        for (let att of range_attendance) {
-          let statusObj = {
-            date: att.attendDate,
-            status: "",
+      if (student_list?.length > 0) {
+        for (let stu of student_list) {
+          let obj = {
+            ...stu,
+            availablity: [],
+            subjectWise: {
+              presentCount: 0,
+              totalCount: 0,
+              totalPercentage: 0,
+            },
           };
-          for (let pre of att?.presentStudent) {
-            if (String(stu._id) === String(pre.student)) statusObj.status = "P";
+          for (let att of subjects?.attendance) {
+            let statusObj = {
+              date: att.attendDate,
+              status: "",
+            };
+            for (let pre of att?.presentStudent) {
+              if (String(stu._id) === String(pre.student)) {
+                statusObj.status = "P";
+                obj.subjectWise.presentCount += 1;
+              }
+            }
+            for (let abs of att?.absentStudent) {
+              if (String(stu._id) === String(abs.student)) {
+                statusObj.status = "A";
+              }
+            }
+            obj.subjectWise.totalCount += 1;
+            obj.availablity.push(statusObj);
           }
-          for (let abs of att?.absentStudent) {
-            if (String(stu._id) === String(abs.student)) statusObj.status = "A";
+          obj.subjectWise.totalPercentage = (
+            (obj.subjectWise.presentCount * 100) /
+            obj.subjectWise.totalCount
+          ).toFixed(2);
+
+          if (which_type_list === "DEFAULTER") {
+            let total_per = +obj?.subjectWise?.totalPercentage;
+            total_per = Math.ceil(total_per);
+            if (total_per < +criteria) {
+              students.push(obj);
+            }
+          } else {
+            students.push(obj);
           }
-          obj.availablity.push(statusObj);
         }
-        students.push(obj);
       }
-      // console.log(classes);
-      return res.status(200).send({
-        message: "All student zip attendance with subject ranged based",
-        attendance_zip: students,
-        access: false,
+
+      attendance_zip = {
+        students: students,
+        attendaceMappingDate: attendaceMappingDate,
+      };
+
+      const student = attendance_zip?.students?.map((stu) => {
+        let dObj = {};
+        for (let i = 0; i < custom_date_list?.length; i++) {
+          let db = custom_date_list[i];
+          if (attendance_zip?.attendaceMappingDate?.includes(db)) {
+            dObj[db] = "";
+          }
+        }
+        for (let avail of stu?.availablity) {
+          dObj[`${avail?.date}`] = avail?.status;
+        }
+
+        let obj = {
+          GRNO: stu?.studentGRNO ?? "N/A",
+          "Enrollment / PRN": stu?.student_prn_enroll_number
+            ? stu?.student_prn_enroll_number
+            : "N/A",
+          RollNo: stu?.studentROLLNO,
+          Name:
+            stu?.studentFirstName +
+            " " +
+            stu?.studentMiddleName +
+            " " +
+            stu?.studentLastName,
+          Gender: stu?.studentGender,
+          ...dObj,
+          "Total Count": `${stu?.subjectWise?.presentCount} out of ${stu?.subjectWise?.totalCount}`,
+          "Overall Percentage": stu?.subjectWise?.totalPercentage,
+        };
+        return obj;
+      });
+
+      if (student?.length > 0) {
+        excel_key = await subject_attendance_json_to_excel(
+          sid,
+          student,
+          "Student Attendance",
+          "SUBJECT_CUSTOM_DATE_ATTENDANCE",
+          `custom-date-of-${subjects?.class?.className ?? ""}`
+        );
+      }
+      res.status(200).send({
+        message:
+          "All custom date wise of  student zip attendance with subject wise",
+        excel_key: excel_key,
       });
     } else if (is_type === "ALL") {
       var subjects = await Subject.findById(sid)
@@ -3589,21 +4961,26 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
             totalPercentage: 0,
           },
         };
-        students.push(obj);
-      }
-      if (students?.length > 0) {
-        for (let stu of students) {
-          for (let att of subjects?.attendance) {
-            for (let pre of att?.presentStudent) {
-              if (String(stu._id) === String(pre.student))
-                stu.subjectWise.presentCount += 1;
-            }
-            stu.subjectWise.totalCount += 1;
+        for (let att of subjects?.attendance) {
+          for (let pre of att?.presentStudent) {
+            if (String(stu._id) === String(pre.student))
+              obj.subjectWise.presentCount += 1;
           }
-          stu.subjectWise.totalPercentage = (
-            (stu.subjectWise.presentCount * 100) /
-            stu.subjectWise.totalCount
-          ).toFixed(2);
+          obj.subjectWise.totalCount += 1;
+        }
+        obj.subjectWise.totalPercentage = (
+          (obj.subjectWise.presentCount * 100) /
+          obj.subjectWise.totalCount
+        ).toFixed(2);
+
+        if (which_type_list === "DEFAULTER") {
+          let total_per = +obj?.subjectWise?.totalPercentage;
+          total_per = Math.ceil(total_per);
+          if (total_per < +criteria) {
+            students.push(obj);
+          }
+        } else {
+          students.push(obj);
         }
       }
 
@@ -3774,7 +5151,16 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
             (obj.subjectWise.presentCount * 100) /
             obj.subjectWise.totalCount
           ).toFixed(2);
-          students.push(obj);
+
+          if (which_type_list === "DEFAULTER") {
+            let total_per = +obj?.subjectWise?.totalPercentage;
+            total_per = Math.ceil(total_per);
+            if (total_per < +criteria) {
+              students.push(obj);
+            }
+          } else {
+            students.push(obj);
+          }
         }
       }
 
@@ -3782,9 +5168,6 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
         students: students,
         attendaceMappingDate: attendaceMappingDate,
       };
-
-      let newDate = new Date(`${year}-${month}-01`);
-      newDate = newDate?.toISOString();
       let daysInMonth = moment(`${year}-${month}`, "YYYY-MM").daysInMonth();
       const student = attendance_zip?.students?.map((stu) => {
         let dObj = {};

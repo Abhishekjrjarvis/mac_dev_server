@@ -6,6 +6,7 @@ const studentTestSetShcema = new mongoose.Schema({
     ref: "Student",
     required: true,
   },
+
   subjectMaster: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "SubjectMaster",
@@ -33,7 +34,6 @@ const studentTestSetShcema = new mongoose.Schema({
   },
   testSubject: {
     type: String,
-    required: true,
   },
   testDate: {
     type: String,
@@ -156,6 +156,10 @@ const studentTestSetShcema = new mongoose.Schema({
   internal_evaluation_test: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "SubjectInternalEvaluationTest",
+  },
+  subject: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subject",
   },
 });
 

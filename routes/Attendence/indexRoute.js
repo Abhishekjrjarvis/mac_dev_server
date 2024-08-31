@@ -112,7 +112,7 @@ router
 
 router.route("/all/class/:cid/zip").post(
   // isLoggedIn,
-  catchAsync(Avail.getAllClassExportAttendance)
+  catchAsync(Avail.getAllClassExportAttendanceModify)
 );
 
 router.route("/hall/exam/:eid/seating/:seid/student/list").get(

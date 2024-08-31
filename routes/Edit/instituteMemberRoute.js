@@ -43,8 +43,14 @@ router
   .route("/transport/batch/:bid")
   .delete(catchAsync(instituteMember.renderTransportbatchDelete));
 
-  router
-  .route("/:cid")
-  .delete(catchAsync(instituteMember.subjectDeleteAll));
+router.route("/:cid").delete(catchAsync(instituteMember.subjectDeleteAll));
+
+router
+  .route("/particular/divisions/subject/remove")
+  .post(
+    catchAsync(
+      instituteMember.one_department_particular_divison_subject_remove_query
+    )
+  );
 
 module.exports = router;

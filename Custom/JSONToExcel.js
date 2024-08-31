@@ -16,6 +16,7 @@ const Subject = require("../models/Subject");
 const BankAccount = require("../models/Finance/BankAccount");
 const SubjectInternalEvaluation = require("../models/InternalEvaluation/SubjectInternalEvaluation");
 const HostelUnit = require("../models/Hostel/hostelUnit");
+const Class = require("../models/Class");
 
 exports.json_to_excel_query = async (
   data_query,
@@ -961,6 +962,37 @@ exports.json_to_excel_student_applicable_outstanding_query = async (
     valid_ins.export_collection_count += 1;
     await valid_ins.save();
     console.log(results);
+    } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.cls_attendance_json_to_excel = async (
+  id,
+  list,
+  sheetName,
+  excelType,
+  exportTypeName
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(list);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, sheetName);
+    var name = `class-attendance-${exportTypeName}-${new Date().getHours()}-${new Date().getMinutes()}-${new Date().getSeconds()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const subject = await Class.findById(id);
+    subject.export_collection.push({
+      excel_type: excelType,
+      excel_file: results,
+      excel_file_name: name,
+    });
+    subject.export_collection_count += 1;
+    await subject.save();
+    return results;
   } catch (e) {
     console.log(e);
   }

@@ -55,7 +55,7 @@ router
 
 router
   .route("/subject/:sid/take/testset")
-  .post(isLoggedIn, catchAsync(mcqController.takeTestSet));
+  .post(isLoggedIn, catchAsync(mcqController.takeTestSetModifyQuery));
 
 router
   .route("/subject/:sid/taken/alltestset")
@@ -150,5 +150,19 @@ router.delete(
   "/one/:aid/assignment/destroy/query",
   catchAsync(mcqController.renderOneAssignmentDestroyQuery)
 );
+
+router
+  .route("/:smid/excel/import/question/:cmid")
+  .patch(catchAsync(mcqController.create_mcq_question_excel_query));
+
+// for mcq new type of routes and validation
+
+router
+  .route("/start/by/student/testset/:stid/exam/query")
+  .patch(catchAsync(mcqController.sudentExamStartTestValidationQuery));
+
+router
+  .route("/check/by/student/testset/:stid/result/query")
+  .patch(catchAsync(mcqController.sudentExamResultTestValidationQuery));
 
 module.exports = router;

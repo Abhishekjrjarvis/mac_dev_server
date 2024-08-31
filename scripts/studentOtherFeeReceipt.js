@@ -395,6 +395,11 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
           align: "right",
           indent: 10,
         });
+      // .text(1200, {
+      //   width: w1 - 15,
+      //   align: "right",
+      //   indent: 10,
+      // });
 
       if (data?.paid_fee) paidAmount += data?.paid_fee;
       ft += 1;
@@ -478,6 +483,10 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         width: pageWidth - 50,
         align: "right",
       });
+    // .text(1200, {
+    //   width: pageWidth - 50,
+    //   align: "right",
+    // });
     doc
       .fontSize(12)
       .font("Times-Roman")
@@ -870,6 +879,11 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
           align: "right",
           indent: 10,
         });
+      // .text(1200, {
+      //   width: w1 - 15,
+      //   align: "right",
+      //   indent: 10,
+      // });
       if (data?.paid_fee) paidAmount += data?.paid_fee;
 
       ft += 1;
@@ -952,6 +966,11 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         width: pageWidth - 50,
         align: "right",
       });
+    // .text(1200, {
+    //   width: pageWidth - 50,
+    //   align: "right",
+    // });
+
     doc
       .moveTo(20, doc.y)
       .lineTo(pageWidth - 20, doc.y)

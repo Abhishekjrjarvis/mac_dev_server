@@ -5123,34 +5123,43 @@ exports.customAmountStudentOtherFeeReceiptQuery = async (req, res) => {
       path: "finance",
       select: "institute",
     });
+    let list = [...other_fee?.paid_students];
+
+    let all_student = await Student.find({ _id: { $in: list } })
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj other_fees_paid_price"
+      )
+      .populate({
+        path: "other_fees",
+        populate: {
+          path: "fee_receipt fees",
+          select: "receipt_file fee_payment_amount payable_amount",
+        },
+      });
+
+    let all_fee_receipt = [];
+    for (let ele of all_student) {
+      for (let val of ele?.other_fees) {
+        if (`${val?.fees?._id}` === `${other_fee?._id}` && val?.fee_receipt) {
+          all_fee_receipt.push(val?.fee_receipt?._id);
+        }
+      }
+    }
+    let i = 0;
     if (other_fee?.finance?.institute) {
-      if (other_fee?.paid_students?.length > 0) {
-        for (let stu of other_fee?.paid_students) {
-          const student = await Student.findById(stu);
+      if (all_fee_receipt?.length > 0) {
+        for (let frid of all_fee_receipt) {
+          await studentOtherFeeReceipt(frid, other_fee?.finance?.institute);
+          i += 1;
+          console.log(i);
         }
       }
     }
-    if (admission?.institute) {
-      if (sid) {
-        const stu = await Student.findById(sid);
-        if (stu?._id) {
-          if (stu?.application_print?.length > 0) {
-          } else {
-            await generateStudentAdmissionForm(
-              stu?._id,
-              admission?.institute,
-              `${stu?.studentFirstName ?? ""} ${stu?.studentMiddleName ?? ""} ${
-                stu?.studentLastName ?? ""
-              }`,
-              new_app?.applicationName
-            );
-          }
-        }
-      }
-    }
-    await studentOtherFeeReceipt(new_receipt._id, institute._id);
+
     res.status(200).send({
-      message: "All application form is created.",
+      message: "Miscellaneous Fee receipt amount changes.",
+      count: all_fee_receipt?.length,
+      all_fee_receipt: all_fee_receipt,
     });
   } catch (e) {
     console.log(e);

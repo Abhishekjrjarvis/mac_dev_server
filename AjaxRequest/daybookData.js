@@ -185,6 +185,7 @@ const render_daybook_heads_wise = async (fid, from, to, bank, payment_type) => {
 
     var sorted_array = [];
     const bank_acc = await BankAccount.findById({ _id: bank });
+
     const finance = await Finance.findById({ _id: fid }).select("institute");
     if (bank_acc?.bank_account_type === "Society") {
       var all_struct = await FeesStructure.find({
@@ -203,7 +204,6 @@ const render_daybook_heads_wise = async (fid, from, to, bank, payment_type) => {
     }).select(
       "insName name photoId insProfilePhoto insAddress insState insDistrict insPincode insAbout insAffiliated"
     );
-
     var g_year = new Date(`${from}`).getFullYear();
     var g_day = new Date(`${from}`).getDate();
     var l_year = new Date(`${to}`).getFullYear();
@@ -229,7 +229,7 @@ const render_daybook_heads_wise = async (fid, from, to, bank, payment_type) => {
     if (l_dates < 10) {
       l_dates = `0${l_dates}`;
     }
-    const l_date = new Date(`${l_year}-${l_month}-${l_dates}T00:00:00.000Z`);
+    const l_date = new Date(`${l_year}-09-01T00:00:00.000Z`);
     if (payment_type) {
       if (payment_type == "BOTH") {
         var all_receipts_set = await FeeReceipt.find({
@@ -469,6 +469,7 @@ const render_daybook_heads_wise = async (fid, from, to, bank, payment_type) => {
       obj = {};
     }
     // var t = 0
+
     if (all_receipts?.length > 0) {
       for (let ele of all_receipts) {
         if (payment_type == "BOTH") {
@@ -884,10 +885,10 @@ const render_daybook_heads_wise = async (fid, from, to, bank, payment_type) => {
     } else {
       return {
         results: [],
-        account_info: {},
-        day_range_from: null,
-        day_range_to: null,
-        ins_info: {},
+        account_info: bank_acc,
+        day_range_from: from,
+        day_range_to: to,
+        ins_info: institute,
         range: "",
       };
     }

@@ -127,6 +127,8 @@ const staffLeaveRequest = require("../../scripts/staffLeaveRequest");
 const feeReceipt = require("../../models/RazorPay/feeReceipt");
 const normalAdmissionFeeReceipt = require("../../scripts/normalAdmissionFeeReceipt");
 const NestedCard = require("../../models/Admission/NestedCard");
+const studentOtherFeeReceipt = require("../../scripts/studentOtherFeeReceipt");
+const OtherFees = require("../../models/Finance/Other/OtherFees");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -5102,6 +5104,51 @@ exports.customGenerateOneStudentApplicationFormQuery = async (req, res) => {
       }
     }
 
+    res.status(200).send({
+      message: "All application form is created.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.customAmountStudentOtherFeeReceiptQuery = async (req, res) => {
+  try {
+    const { ofid } = req.params;
+    if (!ofid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const other_fee = await OtherFees.findById(ofid).populate({
+      path: "finance",
+      select: "institute",
+    });
+    if (other_fee?.finance?.institute) {
+      if (other_fee?.paid_students?.length > 0) {
+        for (let stu of other_fee?.paid_students) {
+          const student = await Student.findById(stu);
+        }
+      }
+    }
+    if (admission?.institute) {
+      if (sid) {
+        const stu = await Student.findById(sid);
+        if (stu?._id) {
+          if (stu?.application_print?.length > 0) {
+          } else {
+            await generateStudentAdmissionForm(
+              stu?._id,
+              admission?.institute,
+              `${stu?.studentFirstName ?? ""} ${stu?.studentMiddleName ?? ""} ${
+                stu?.studentLastName ?? ""
+              }`,
+              new_app?.applicationName
+            );
+          }
+        }
+      }
+    }
+    await studentOtherFeeReceipt(new_receipt._id, institute._id);
     res.status(200).send({
       message: "All application form is created.",
     });

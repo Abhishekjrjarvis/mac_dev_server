@@ -1048,4 +1048,9 @@ router.patch("/check/global", catchAsync(Admission.check_global));
 
 router.patch("/check/structure", catchAsync(Admission.check_structure));
 
+router.patch(
+  "/:aid/all/documents/export",
+  catchAsync(Admission.all_documents_export_query)
+);
+
 module.exports = router;

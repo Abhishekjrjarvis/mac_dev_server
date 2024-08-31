@@ -15,7 +15,6 @@ const bankDaybook = async (fid, from, to, bank, payment_type, flow) => {
     margins: { top: 20, bottom: 20, left: 20, right: 20 },
   });
   const result = await daybookData(fid, from, to, bank, payment_type);
-
   const instituteData = result?.ft?.ins_info;
   const daybook = result?.ft?.results;
   const account_other = result?.ft;

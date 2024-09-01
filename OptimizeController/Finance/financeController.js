@@ -8229,6 +8229,82 @@ exports.renderOneOtherFeesStudentListExportQuery = async (req, res) => {
   }
 };
 
+exports.renderOneNonExistingOtherFeesStudentListExportQuery = async (
+  req,
+  res
+) => {
+  try {
+    const { ofid } = req?.params;
+    if (!ofid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_of = await OtherFees.findById({ _id: ofid })
+      .populate({
+        path: "finance",
+        select: "institute",
+      })
+      .populate({
+        path: "fee_receipt_student",
+        populate: {
+          path: "fee_receipt",
+          select:
+            "receipt_file fee_payment_amount payable_amount invoice_count fee_payment_mode fee_transaction_date fee_utr_reference fee_heads created_at",
+        },
+      });
+    let excel_list = [];
+    for (let cls of one_of?.fee_receipt_student) {
+      if (cls?.student != "") {
+        const op = await OrderPayment.findOne({
+          fee_receipt: cls?.fee_receipt?._id,
+        });
+        excel_list.push({
+          ReceiptNo: cls?.fee_receipt?.invoice_count ?? "NA",
+          FeeTransactionDate:
+            moment(cls?.fee_receipt?.fee_transaction_date)?.format("LL") ??
+            "NA",
+          FeesAmount: cls?.fee_receipt?.fee_payment_amount ?? 0,
+          Name: cls?.student ?? "NA",
+          Mode: cls?.fee_receipt.fee_payment_mode ?? "NA",
+          TxnDate: moment(cls?.fee_receipt?.created_at)?.format("LL") ?? "NA",
+          BankUTR:
+            op?.paytm_query?.length > 0
+              ? op?.paytm_query?.[0]?.BANKTXNID
+              : cls?.fee_receipt?.fee_utr_reference ?? "#NA",
+          FeesName: one_of?.other_fees_name ?? "NA",
+          Status: cls?.fee_receipt?.fee_payment_mode
+            ? "Paid"
+            : "Not Paid" ?? "NA",
+          HeadName: cls?.fee_receipt?.fee_heads?.[0]?.head_name ?? "NA",
+          Classes: cls?.classes,
+          Batch: cls?.batch,
+          RollNo: cls?.roll_no,
+        });
+      }
+    }
+    var valid_back = await json_to_excel_other_fees_subject_application_query(
+      excel_list,
+      one_of?.other_fees_name,
+      one_of?.finance?.institute
+    );
+    if (valid_back?.back) {
+      res.status(200).send({
+        message: "Explore New Non-Existing Excel On Subject Export TAB",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Non-Existing Excel Exports ",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
   try {
     const { ofid } = req?.params;

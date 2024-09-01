@@ -680,4 +680,10 @@ router
   .route("/:fid/all/account/query")
   .get(catchAsync(Finance.render_all_account_query));
 
+router
+  .route("/one/non/existing/other/fee/:ofid/student/list/export")
+  .patch(
+    catchAsync(Finance.renderOneNonExistingOtherFeesStudentListExportQuery)
+  );
+
 module.exports = router;

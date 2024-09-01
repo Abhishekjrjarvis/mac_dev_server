@@ -4019,17 +4019,21 @@ exports.getChatDashDataQuery = async (req, res) => {
     if (user?.userPosts && user?.userPosts.length < 1) {
       var post = [];
     }
-    const qvipleId = await QvipleId.findOne({ user: `${user?._id}` });
-    user.qviple_id = qvipleId?.qviple_id;
+    if (user?._id) {
+      const qvipleId = await QvipleId.findOne({ user: `${user?._id}` });
+      user.qviple_id = qvipleId?.qviple_id;
+    }
     if (user) {
       res.status(200).send({
-        message: "Success",
+        message: "Explore Chat",
         user,
         post,
         profile_modification: user?.profile_modification,
       });
     } else {
-      res.status(404).send({ message: "Failure" });
+      res
+        .status(404)
+        .send({ message: "User Not Found with this name", access: false });
     }
   } catch (e) {
     console.log(e);

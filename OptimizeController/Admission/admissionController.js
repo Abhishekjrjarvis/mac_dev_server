@@ -97,7 +97,7 @@ const {
 const FeeStructure = require("../../models/Finance/FeesStructure");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const RemainingList = require("../../models/Admission/RemainingList");
-const { dueDateAlarm } = require("../../Service/alarm");
+const { dueDateAlarm, document_alarm } = require("../../Service/alarm");
 const { handle_undefined } = require("../../Handler/customError");
 const { set_off_amount } = require("../../Functions/SetOff");
 const {
@@ -107,6 +107,7 @@ const { universal_random_password } = require("../../Custom/universalId");
 const QvipleId = require("../../models/Universal/QvipleId");
 const {
   mismatch_scholar_transaction_json_to_excel_query,
+  json_to_excel_admission_application_query,
 } = require("../../Custom/JSONToExcel");
 const NestedCard = require("../../models/Admission/NestedCard");
 const {
@@ -1921,7 +1922,7 @@ exports.fetchAllReviewApplication = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Reviewing and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          review: apply?.reviewApplication?.reverse(),
+          review: apply?.reviewApplication,
         });
       } else {
         res.status(200).send({
@@ -1949,7 +1950,7 @@ exports.fetchAllReviewApplication = async (req, res) => {
       var all_student = await nested_document_limit(
         page,
         limit,
-        apply?.reviewApplication?.reverse()
+        apply?.reviewApplication
       );
       if (all_student?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);
@@ -2018,7 +2019,7 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Reviewing and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          review: apply?.reviewApplication?.reverse(),
+          review: apply?.reviewApplication,
         });
       } else {
         res.status(200).send({
@@ -2048,7 +2049,7 @@ exports.fetchAllReviewApplicationPayload = async (req, res) => {
         res.status(200).send({
           message:
             "Lots of Reviewing OPT and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          review: apply?.reviewApplication?.reverse(),
+          review: apply?.reviewApplication,
         });
       } else {
         res.status(200).send({
@@ -17897,6 +17898,171 @@ exports.check_structure = async (req, res) => {
       nums: nums,
       count: all_student?.length,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.all_documents_export_query = async (req, res) => {
+  try {
+    const { aid } = req?.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const apply = await NewApplication.findById({ _id: aid }).select("_id");
+    const all_student = await Student.find({
+      "student_form_flow.did": `${apply?._id}`,
+    }).populate({
+      path: "collect_docs.docs",
+    });
+    var excel_list = [];
+    var numss = {};
+    for (let ele of all_student) {
+      if (ele?.collect_docs?.length > 0) {
+        for (let val of ele?.collect_docs) {
+          numss[val?.docs?.document_name] = val?.not_filled ?? "No";
+        }
+        excel_list.push({
+          RegistrationID: ele?.studentGRNO ?? "#NA",
+          Name: `${ele?.studentFirstName} ${
+            ele?.studentMiddleName
+              ? ele?.studentMiddleName ?? ele?.studentFatherName
+              : ""
+          } ${ele?.studentLastName}`,
+          FirstName: ele?.studentFirstName ?? "#NA",
+          MiddleName: ele?.studentMiddleName
+            ? ele?.studentMiddleName ?? ele?.studentFatherName
+            : "#NA",
+          LastName: ele?.studentLastName ?? "#NA",
+          DOB: ele?.studentDOB ?? "#NA",
+          FormNo: ele?.form_no ?? "#NA",
+          Gender: ele?.studentGender ?? "#NA",
+          CasteCategory: ele?.studentCastCategory ?? "#NA",
+          ContactNo: ele?.studentPhoneNumber ?? "#NA",
+          Email: ele?.studentEmail ?? "#NA",
+          ...numss,
+        });
+        numss = {};
+      }
+    }
+    var valid_back = await json_to_excel_admission_application_query(
+      excel_list,
+      "Required",
+      aid,
+      "Document-List"
+    );
+    if (valid_back?.back) {
+      res.status(200).send({
+        message: "Explore New Collect Docs Excel On Hostel Export TAB",
+        access: true,
+        excel_list: excel_list?.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Collect Docs Excel Exports ",
+        access: false,
+        excel_list: excel_list,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderTriggerAlarmDocumentQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { alarm_mode } = req.query;
+    const { all_arr, title, doc, content } = req?.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "alarm_count institute"
+    );
+    var all_student = await Student.find({ _id: { $in: all_arr } })
+      .select(
+        "studentFirstName studentMiddleName studentLastName valid_full_name collect_docs studentEmail"
+      )
+      .populate({
+        path: "user",
+        select: "deviceToken userEmail",
+      })
+      .populate({
+        path: "institute",
+        select: "insName",
+      })
+      .populate({
+        path: "collect_docs.docs",
+      });
+    if (alarm_mode === "APP_NOTIFICATION") {
+      await document_alarm(aid, alarm_mode, content, all_student, title, doc);
+    } else if (alarm_mode === "EMAIL_NOTIFICATION") {
+      await document_alarm(aid, alarm_mode, content, all_student, title, doc);
+    } else if (alarm_mode === "SMS_NOTIFICATION") {
+    } else {
+    }
+    res.status(200).send({
+      message: `Document Alarm is triggered successfully`,
+      access: true,
+      alarm_mode,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.all_documents_export_students_query = async (req, res) => {
+  try {
+    const { aid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const apply = await NewApplication.findById({ _id: aid }).select(
+      "confirmedApplication allottedApplication reviewApplication"
+    );
+    let nums = [];
+    for (let ele of apply?.confirmedApplication) {
+      nums.push(ele?.student);
+    }
+    for (let ele of apply?.allottedApplication) {
+      nums.push(ele?.student);
+    }
+    for (let ele of apply?.reviewApplication) {
+      nums.push(ele);
+    }
+
+    var all_student = await Student.find({ _id: { $in: nums } }).select(
+      "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO collect_docs"
+    );
+    all_student = all_student?.filter((val) => {
+      if (val?.collect_docs?.length > 0) return val;
+    });
+    if (all_student?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Student List",
+        access: true,
+        all_student: all_student,
+      });
+    } else {
+      res.status(200).send({
+        message: "No All Student List",
+        access: true,
+        all_student: [],
+      });
+    }
   } catch (e) {
     console.log(e);
   }

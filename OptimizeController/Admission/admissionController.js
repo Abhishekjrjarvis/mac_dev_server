@@ -18044,7 +18044,7 @@ exports.all_documents_export_students_query = async (req, res) => {
     }
 
     const all_student = await Student.find({ _id: { $in: nums } }).select(
-      "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO"
+      "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO collect_docs"
     );
     all_student = all_student?.filter((val) => {
       if (val?.collect_docs?.length > 0) return val;

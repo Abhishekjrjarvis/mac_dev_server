@@ -305,7 +305,7 @@ exports.document_alarm = async (
               _id: `${ele?.user?._id}`,
             });
             var notify = new StudentNotification({});
-            notify.notifyContent = `${ele?.studentFirstName} ${
+            notify.notifyContent = `Hello ${ele?.studentFirstName} ${
               ele?.studentMiddleName ?? ele?.studentFatherName
             } ${ele?.studentLastName},
 Your below documents are still pending for submission in ${valid_ins?.insName}.
@@ -338,7 +338,7 @@ Note: ${content ?? ""}`;
             } ${ele?.studentLastName}`;
             const subject = "Pending Document Reminder";
 
-            const message = `${ele?.studentFirstName} ${
+            const message = `Hello ${ele?.studentFirstName} ${
               ele?.studentMiddleName ?? ele?.studentFatherName
             } ${ele?.studentLastName},
 Your below documents are still pending for submission in ${valid_ins?.insName}.
@@ -347,7 +347,10 @@ Documents Pending:-
 ${cls}
 
 
-Note: ${content ?? ""}`;
+Note: ${content ?? ""}
+
+Do not click on the below link:
+`;
             var user = await User.findById({
               _id: `${ele?.user?._id}`,
             });

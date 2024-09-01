@@ -363,7 +363,7 @@ Note: ${content ?? ""}`;
             notify.notifyCategory = "Document Outstanding Reminder Alert";
             notify.redirectIndex = 39;
             await Promise.all([user.save(), notify.save()]);
-            const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${ele?.user?.userEmail}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+            const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${ele?.studentEmail}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
             const encodeURL = encodeURI(url);
             axios
               .post(encodeURL)

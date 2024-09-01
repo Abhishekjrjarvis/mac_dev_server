@@ -18043,13 +18043,12 @@ exports.all_documents_export_students_query = async (req, res) => {
       nums.push(ele);
     }
 
-    const all_student = await Student.find({ _id: { $in: nums } })
-      .limit(limit)
-      .skip(skip)
-      .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO"
-      );
-
+    const all_student = await Student.find({ _id: { $in: nums } }).select(
+      "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO"
+    );
+    all_student = all_student?.filter((val) => {
+      if (val?.collect_docs?.length > 0) return val;
+    });
     if (all_student?.length > 0) {
       res.status(200).send({
         message: "Explore All Student List",

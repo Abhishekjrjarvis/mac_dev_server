@@ -307,9 +307,11 @@ router.get(
 
 router.patch("/update/mode/:id", catchAsync(User.renderMode));
 
-router.get(
-  "/specific/mods/:uid",
-  catchAsync(User.render_specific_mods_query)
+router.get("/specific/mods/:uid", catchAsync(User.render_specific_mods_query));
+
+router.patch(
+  "/custom/userchat/lowercase",
+  catchAsync(User.user_chatname_lowercase_query)
 );
 
 module.exports = router;

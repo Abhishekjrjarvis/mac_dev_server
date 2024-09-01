@@ -162,9 +162,14 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
     if (sid) {
       var valid_subject = await Subject.findById({ _id: sid });
       for (var val of chapter_array) {
-        var new_chapter_exist = await Chapter.findOne({ $and: [{ subject: valid_subject?._id }, { chapter_name: { $regex: `${val?.chapter_name}`} }] })
+        var new_chapter_exist = await Chapter.findOne({
+          $and: [
+            { subject: valid_subject?._id },
+            { chapter_name: { $regex: `${val?.chapter_name}` } },
+          ],
+        });
         if (new_chapter_exist?._id) {
-          console.log("EXIST")
+          console.log("EXIST");
           var new_topic = new ChapterTopic({
             topic_name: val?.topic_name,
             topic_last_date: val?.planning_date,
@@ -172,17 +177,15 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
             course_outcome: val?.course_outcome,
             learning_outcome: val?.learning_outcome,
           });
-          new_topic.timing.hours = val?.hours
-          new_topic.timing.minutes = val?.minutes
+          new_topic.timing.hours = val?.hours;
+          new_topic.timing.minutes = val?.minutes;
           new_chapter_exist.topic.push(new_topic?._id);
           new_chapter_exist.topic_count += 1;
           new_topic.subject = valid_subject?._id;
           new_topic.chapter = new_chapter_exist?._id;
-          new_chapter.subject = valid_subject?._id
-          await Promise.all([ new_topic.save(), new_chapter_exist.save()])
-        }
-        else {
-          console.log("NEW ADDED")
+          await Promise.all([new_topic.save(), new_chapter_exist.save()]);
+        } else {
+          console.log("NEW ADDED");
           var new_chapter = new Chapter({
             chapter_name: val?.chapter_name,
           });
@@ -193,8 +196,8 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
             course_outcome: val?.course_outcome,
             learning_outcome: val?.learning_outcome,
           });
-          new_topic.timing.hours = val?.hours
-          new_topic.timing.minutes = val?.minutes
+          new_topic.timing.hours = val?.hours;
+          new_topic.timing.minutes = val?.minutes;
           new_chapter.topic.push(new_topic?._id);
           new_chapter.topic_count += 1;
           new_topic.subject = valid_subject?._id;
@@ -202,7 +205,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
           await new_topic.save();
           valid_subject.chapter.push(new_chapter?._id);
           valid_subject.chapter_count += 1;
-          new_chapter.subject = valid_subject?._id
+          new_chapter.subject = valid_subject?._id;
           await new_chapter.save();
         }
       }
@@ -261,7 +264,7 @@ exports.renderAddNewLectureQuery = async (req, res) => {
               topic: valid_topic?._id,
               status: rec_status,
               current_status: valid_topic.topic_completion_status,
-              extra_lecture: [...extra_lecture]
+              extra_lecture: [...extra_lecture],
             });
             await Promise.all([valid_topic.save(), subject.save()]);
             if (`${rec_status}` === "Lecture") {
@@ -386,123 +389,161 @@ exports.renderOneTopicDestroyQuery = async (req, res) => {
   }
 };
 
-exports.renderNewChapterQuery = async(req, res) => {
-  try{
-    const { sid } = req.params
-    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
-
-    const one_subject = await Subject.findById({ _id: sid })
-    const valid_chapter = new Chapter({...req?.body})
-
-    one_subject.chapter.push(valid_chapter?._id)
-    one_subject.chapter_count += 1
-
-    valid_chapter.subject = one_subject?._id
-
-    await Promise.all([ valid_chapter.save(), one_subject.save()])
-
-    res.status(200).send({ message: "Explore New Chapter Query", access: true})
-  }
-  catch(e){
-    console.log(e)
-  }
-}
-
-exports.renderNewChapterTopicQuery = async(req, res) => {
-  try{
-    const { cid } = req.params
-    if(!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
-
-    const chapter = await Chapter.findById({ _id: cid })
-    const one_subject = await Subject.findById({ _id: `${chapter?.subject}` })
-    const valid_topic = new ChapterTopic({ ...req.body})
-
-    chapter.topic.push(valid_topic?._id)
-    chapter.topic_count += 1
-
-    valid_topic.chapter = chapter?._id
-    valid_topic.subject = one_subject?._id
-
-    await Promise.all([ chapter.save(), valid_topic.save()])
-    res.status(200).send({ message: "Explore New Chapter Topic Query", access: true})
-
-  }
-  catch(e){
-    console.log(e)
-  }
-}
-
-exports.renderFilteredLectureQuery = async(req, res) => {
-  try{
-    const { sid } = req?.query
-    const { date, flow } = req?.body
-    const subject = await Subject.findById({ _id: sid })
-    if(flow === "Extra_Lecture"){
-      const attendance_all = await AttendenceDate.find({
-        $and: [{ subject: subject?._id }, 
-        { attendDate: { $eq: `${date}` }, }, 
-        { attendence_type: `${flow}`}]
+exports.renderNewChapterQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
       });
-      if(attendance_all?.length > 0){
-        res.status(200).send({ message: "Explore All Available Attendence Query", access: true, attendance_all: attendance_all, count: attendance_all?.length})
-      }
-      else{
-        res.status(200).send({ message: "No Available Attendence Query", access: false, attendance_all: [], count: 0})
-      }
-    }
-    else{
-      const attendance_all = await AttendenceDate.find({
-        $and: [{ subject: subject?._id }, 
-        { attendDate: { $eq: `${date}` }, }, 
-        { attendence_type: `Normal_Lecture`}]
+
+    const one_subject = await Subject.findById({ _id: sid });
+    const valid_chapter = new Chapter({ ...req?.body });
+
+    one_subject.chapter.push(valid_chapter?._id);
+    one_subject.chapter_count += 1;
+
+    valid_chapter.subject = one_subject?._id;
+
+    await Promise.all([valid_chapter.save(), one_subject.save()]);
+
+    res
+      .status(200)
+      .send({ message: "Explore New Chapter Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewChapterTopicQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
       });
-      if(attendance_all?.length > 0){
-        res.status(200).send({ message: "Explore All Available Normal Attendence Query", access: true, attendance_all: attendance_all, count: attendance_all?.length})
-      }
-      else{
-        res.status(200).send({ message: "No Available Normal Attendence Query", access: false, attendance_all: [], count: 0})
-      }
-    }
-  }
-  catch(e){
-    console.log(e)
-  }
-}
 
-exports.renderOneChapterDestroyQuery = async(req, res) => {
-  try{
-    const { cid } = req?.params
-    if(!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
-    var valid_delete = false
-    var one_chapter = await Chapter.findById({ _id: cid })
-    var subject = await Subject.findById({ _id: `${one_chapter?.subject}`})
+    const chapter = await Chapter.findById({ _id: cid });
+    const one_subject = await Subject.findById({ _id: `${chapter?.subject}` });
+    const valid_topic = new ChapterTopic({ ...req.body });
 
-    for(var val of one_chapter?.topic){
-      if(`${val?.topic_completion_date}` && `${val?.topic_completion_status}` === "Pending"){
-        valid_delete = true
+    chapter.topic.push(valid_topic?._id);
+    chapter.topic_count += 1;
+
+    valid_topic.chapter = chapter?._id;
+    valid_topic.subject = one_subject?._id;
+
+    await Promise.all([chapter.save(), valid_topic.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New Chapter Topic Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFilteredLectureQuery = async (req, res) => {
+  try {
+    const { sid } = req?.query;
+    const { date, flow } = req?.body;
+    const subject = await Subject.findById({ _id: sid });
+    if (flow === "Extra_Lecture") {
+      const attendance_all = await AttendenceDate.find({
+        $and: [
+          { subject: subject?._id },
+          { attendDate: { $eq: `${date}` } },
+          { attendence_type: `${flow}` },
+        ],
+      });
+      if (attendance_all?.length > 0) {
+        res.status(200).send({
+          message: "Explore All Available Attendence Query",
+          access: true,
+          attendance_all: attendance_all,
+          count: attendance_all?.length,
+        });
+      } else {
+        res.status(200).send({
+          message: "No Available Attendence Query",
+          access: false,
+          attendance_all: [],
+          count: 0,
+        });
       }
-      else{
-        valid_delete = false
+    } else {
+      const attendance_all = await AttendenceDate.find({
+        $and: [
+          { subject: subject?._id },
+          { attendDate: { $eq: `${date}` } },
+          { attendence_type: `Normal_Lecture` },
+        ],
+      });
+      if (attendance_all?.length > 0) {
+        res.status(200).send({
+          message: "Explore All Available Normal Attendence Query",
+          access: true,
+          attendance_all: attendance_all,
+          count: attendance_all?.length,
+        });
+      } else {
+        res.status(200).send({
+          message: "No Available Normal Attendence Query",
+          access: false,
+          attendance_all: [],
+          count: 0,
+        });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneChapterDestroyQuery = async (req, res) => {
+  try {
+    const { cid } = req?.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var valid_delete = false;
+    var one_chapter = await Chapter.findById({ _id: cid });
+    var subject = await Subject.findById({ _id: `${one_chapter?.subject}` });
+
+    for (var val of one_chapter?.topic) {
+      if (
+        `${val?.topic_completion_date}` &&
+        `${val?.topic_completion_status}` === "Pending"
+      ) {
+        valid_delete = true;
+      } else {
+        valid_delete = false;
       }
     }
 
-    if(valid_delete){
-      res.status(200).send({ message: "Chapter Deletion Operation Aborted", access: false})
-    }
-    else{
-      subject.chapter.pull(one_chapter?._id)
-      if(subject?.chapter_count > 0){
-        subject.chapter_count -= 1
+    if (valid_delete) {
+      res
+        .status(200)
+        .send({ message: "Chapter Deletion Operation Aborted", access: false });
+    } else {
+      subject.chapter.pull(one_chapter?._id);
+      if (subject?.chapter_count > 0) {
+        subject.chapter_count -= 1;
       }
-      await subject.save()
-      await Chapter.findByIdAndDelete(cid)
-      res.status(200).send({ message: "Explore All Chapter Deletion Operation Completed", access: true})
+      await subject.save();
+      await Chapter.findByIdAndDelete(cid);
+      res.status(200).send({
+        message: "Explore All Chapter Deletion Operation Completed",
+        access: true,
+      });
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.insertAcademicSubjectQuery = async (req, res) => {
   try {

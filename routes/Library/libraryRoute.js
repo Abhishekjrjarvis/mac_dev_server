@@ -191,12 +191,19 @@ router
   .route("/student/qr/list/:lid")
   .patch(catchAsync(libraryController.getAllStudentQrCodeQuery));
 
-  router
+router
   .route("/export/:lid/entry/logs/query")
-    .patch(catchAsync(libraryController.getAllEntryLogsExport));
-  
-    router
-    .route("/export/:lid/review/book/query")
-    .patch(catchAsync(libraryController.getAllBookReviewExport));
-module.exports = router;
+  .patch(catchAsync(libraryController.getAllEntryLogsExport));
 
+router
+  .route("/export/:lid/review/book/query")
+  .patch(catchAsync(libraryController.getAllBookReviewExport));
+
+router
+  .route("/own/staff/:sid/issued")
+  .get(catchAsync(libraryController.own_staff_borrow_query));
+router
+  .route("/own/staff/:sid/history")
+  .get(catchAsync(libraryController.own_staff_history_query));
+
+module.exports = router;

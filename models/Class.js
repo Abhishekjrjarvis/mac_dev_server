@@ -285,11 +285,11 @@ const classSchema = new mongoose.Schema({
   },
   shuffle_on: {
     type: Boolean,
-    default: false
+    default: false,
   },
   member_module_unique: {
     type: String,
-    unique: true
+    unique: true,
   },
   attendance_time_slot: [
     {
@@ -300,28 +300,28 @@ const classSchema = new mongoose.Schema({
   request: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "RequestGoods"
-    }
+      ref: "RequestGoods",
+    },
   ],
   issue: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "IssueGoods"
-    }
+      ref: "IssueGoods",
+    },
   ],
   return: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ReturnGoods"
-    }
+      ref: "ReturnGoods",
+    },
   ],
   consume: [],
   stock_take: [],
   register: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "StoreLogs"
-    }
+      ref: "StoreLogs",
+    },
   ],
   maintanence: [],
   updated_timetable_count: {
@@ -339,6 +339,20 @@ const classSchema = new mongoose.Schema({
   cls_stream_type: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "StreamType",
+  },
+  export_collection: [
+    {
+      excel_type: {
+        type: String,
+      },
+      excel_file: { type: String },
+      excel_file_name: { type: String },
+      created_at: { type: Date, default: Date.now },
+    },
+  ],
+  export_collection_count: {
+    type: Number,
+    default: 0,
   },
 });
 

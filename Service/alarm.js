@@ -309,7 +309,7 @@ Your below documents are still pending for submission in ${
 Kindly visit institute with below documents in person.
 Documents Pending:-
 ${Object.entries(numss).forEach(([key, value], index) => {
-  console.log(`${index + 1}. ${key}: ${value}`);
+  `${index + 1}. ${key}: ${value}`;
 })}
 Note: ${content ?? ""}`;
             new_message.message = `${ele?.studentFirstName} ${
@@ -321,7 +321,7 @@ Your below documents are still pending for submission in ${
 Kindly visit institute with below documents in person.
 Documents Pending:-
 ${Object.entries(numss).forEach(([key, value], index) => {
-  console.log(`${index + 1}. ${key}: ${value}`);
+  `${index + 1}. ${key}: ${value}`;
 })}
 Note: ${content ?? ""}`;
             notify.notifySender = `${ads_admin?.admissionAdminHead?.user}`;
@@ -356,7 +356,7 @@ Your below documents are still pending for submission in ${
 Kindly visit institute with below documents in person.
 Documents Pending:-
 ${Object.entries(numss).forEach(([key, value], index) => {
-  console.log(`${index + 1}. ${key}: ${value}`);
+  `${index + 1}. ${key}: ${value}`;
 })}
 Note: ${content ?? ""}`;
             var user = await User.findById({

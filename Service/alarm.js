@@ -269,7 +269,6 @@ exports.document_alarm = async (
           _id: ads_admin?.institute,
         });
         var new_message = new StudentMessage({
-          message: `${content}`,
           student_list: [...student_arr],
           student_list_count: student_arr?.length,
           message_type: `${type}`,
@@ -302,6 +301,18 @@ exports.document_alarm = async (
             });
             var notify = new StudentNotification({});
             notify.notifyContent = `${ele?.studentFirstName} ${
+              ele?.studentMiddleName ?? ele?.studentFatherName
+            } ${ele?.studentLastName},
+Your below documents are still pending for submission in ${
+              ele?.institute?.insName
+            }.
+Kindly visit institute with below documents in person.
+Documents Pending:-
+${Object.entries(numss).forEach(([key, value], index) => {
+  console.log(`${index + 1}. ${key}: ${value}`);
+})}
+Note: ${content ?? ""}`;
+            new_message.message = `${ele?.studentFirstName} ${
               ele?.studentMiddleName ?? ele?.studentFatherName
             } ${ele?.studentLastName},
 Your below documents are still pending for submission in ${

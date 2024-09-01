@@ -229,7 +229,7 @@ const render_daybook_heads_wise = async (fid, from, to, bank, payment_type) => {
     if (l_dates < 10) {
       l_dates = `0${l_dates}`;
     }
-    const l_date = new Date(`${l_year}-09-01T00:00:00.000Z`);
+    const l_date = new Date(`${l_year}-09-02T00:00:00.000Z`);
     if (payment_type) {
       if (payment_type == "BOTH") {
         var all_receipts_set = await FeeReceipt.find({

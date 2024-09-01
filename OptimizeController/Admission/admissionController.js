@@ -17988,7 +17988,7 @@ exports.renderTriggerAlarmDocumentQuery = async (req, res) => {
     );
     var all_student = await Student.find({ _id: { $in: all_arr } })
       .select(
-        "studentFirstName studentMiddleName studentLastName valid_full_name collect_docs"
+        "studentFirstName studentMiddleName studentLastName valid_full_name collect_docs studentEmail"
       )
       .populate({
         path: "user",

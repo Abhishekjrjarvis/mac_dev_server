@@ -9365,17 +9365,17 @@ exports.new_checklist_section_query = async (req, res) => {
   try {
     const { id } = req?.params;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const institute = await InstituteAdmin.findById({ _id: id });
     // const ifs = await InstituteStudentForm.findOne({ institute: id })
     const ads_admin = await Admission.findOne({ institute: id });
-    // const all_ifs = await DepartmentStudentForm.find({ department: { $in: institute?.depart } })
+    // const all_ifs = await DepartmentStudentForm.find({
+    //   department: { $in: institute?.depart },
+    // })
     const all_app = await NewApplication.find({
       $and: [
         { _id: { $in: ads_admin?.newApplication } },
@@ -9402,27 +9402,36 @@ exports.new_checklist_section_query = async (req, res) => {
     var i = 0;
     for (let ifs of all_ifs) {
       var nums = ifs?.form_section?.filter((ele) => {
-        if (`${ele?.section_key}` === `admissionDetails`) return ele;
+        if (`${ele?.section_key}` === `basic_details`) return ele;
       });
       let sample = [
+        // {
+        //   form_checklist_name: "Are You Sponsored Candidate",
+        //   form_checklist_key: "student_sponser",
+        //   form_checklist_visibility: true,
+        //   form_checklist_placeholder: "Are You Sponsored Candidate",
+        //   form_checklist_lable: "Are You Sponsored Candidate",
+        //   form_checklist_typo: "SELECT",
+        //   form_checklist_typo_option_pl: ["Yes", "No"],
+        //   form_checklist_enable: "true",
+        // },
+        // {
+        //   form_checklist_name: "Upload Proforma P & Q",
+        //   form_checklist_key: "student_sponser_upload",
+        //   form_checklist_visibility: true,
+        //   form_checklist_placeholder: "Upload Proforma P & Q",
+        //   form_checklist_lable: "Upload Proforma P & Q",
+        //   form_checklist_typo: "FILE",
+        //   form_common_key: "student_sponser",
+        // },
         {
-          form_checklist_name: "Are You Sponsored Candidate",
-          form_checklist_key: "student_sponser",
+          form_checklist_name: "PRN / Enrollment No.",
+          form_checklist_key: "student_prn_enroll_number",
           form_checklist_visibility: true,
-          form_checklist_placeholder: "Are You Sponsored Candidate",
-          form_checklist_lable: "Are You Sponsored Candidate",
-          form_checklist_typo: "SELECT",
-          form_checklist_typo_option_pl: ["Yes", "No"],
-          form_checklist_enable: "true",
-        },
-        {
-          form_checklist_name: "Upload Proforma P & Q",
-          form_checklist_key: "student_sponser_upload",
-          form_checklist_visibility: true,
-          form_checklist_placeholder: "Upload Proforma P & Q",
-          form_checklist_lable: "Upload Proforma P & Q",
-          form_checklist_typo: "FILE",
-          form_common_key: "student_sponser",
+          form_checklist_placeholder: "Enter PRN / Enrollment No.",
+          form_checklist_lable: "PRN / Enrollment No.",
+          form_checklist_typo: "TEXT",
+          form_checklist_required: false,
         },
       ];
       var numss = [];
@@ -9434,8 +9443,9 @@ exports.new_checklist_section_query = async (req, res) => {
           form_checklist_placeholder: ele?.form_checklist_placeholder,
           form_checklist_lable: ele?.form_checklist_lable,
           form_checklist_typo: ele?.form_checklist_typo,
-          form_common_key: ele?.form_common_key,
-          form_checklist_enable: ele?.form_checklist_enable,
+          form_checklist_required: ele?.form_checklist_required,
+          // form_common_key: ele?.form_common_key,
+          // form_checklist_enable: ele?.form_checklist_enable,
           width: ele?.width,
         });
         if (

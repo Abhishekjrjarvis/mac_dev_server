@@ -287,7 +287,7 @@ exports.document_alarm = async (
         for (let val of ele?.collect_docs) {
           numss[val?.docs?.document_name] = val?.not_filled ?? "No";
         }
-        let cls;
+        let cls = [];
         Object.entries(numss).forEach(([key, value], index) => {
           cls.push(`${index + 1}. ${key}: ${value}`);
         });

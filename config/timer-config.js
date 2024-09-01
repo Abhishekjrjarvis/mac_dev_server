@@ -1,6 +1,12 @@
 const { reset_receipt } = require("../Functions/protectReceipt");
-const { renderDayBookReceipt, renderDayBookPayment } = require("../OptimizeController/Filterization/filter");
-const { callback_payment_failed_regeneration_counter, validatePaymentStatus } = require("../OptimizeController/Paytm/pay_upi");
+const {
+  renderDayBookReceipt,
+  renderDayBookPayment,
+} = require("../OptimizeController/Filterization/filter");
+const {
+  callback_payment_failed_regeneration_counter,
+  validatePaymentStatus,
+} = require("../OptimizeController/Paytm/pay_upi");
 const {
   check_poll_status,
   election_vote_day,
@@ -11,6 +17,7 @@ const {
   renewal_request_alarm,
   quote_disappear,
   outstanding_reminder_disable_query,
+  outstanding_document_reminder_disable_query,
 } = require("../Service/alarm");
 // const {
 //   renderFindReceiptQuery,
@@ -40,6 +47,9 @@ exports.timerFunction = () => {
   }, 86400);
   setInterval(async () => {
     await outstanding_reminder_disable_query();
+  }, 86400000);
+  setInterval(async () => {
+    await outstanding_document_reminder_disable_query();
   }, 86400000);
   // setInterval(async () => {
   //   await renderDayBookReceipt();

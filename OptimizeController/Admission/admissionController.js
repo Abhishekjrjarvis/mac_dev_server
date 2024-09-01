@@ -97,7 +97,7 @@ const {
 const FeeStructure = require("../../models/Finance/FeesStructure");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const RemainingList = require("../../models/Admission/RemainingList");
-const { dueDateAlarm } = require("../../Service/alarm");
+const { dueDateAlarm, document_alarm } = require("../../Service/alarm");
 const { handle_undefined } = require("../../Handler/customError");
 const { set_off_amount } = require("../../Functions/SetOff");
 const {
@@ -17965,6 +17965,103 @@ exports.all_documents_export_query = async (req, res) => {
         message: "No New Collect Docs Excel Exports ",
         access: false,
         excel_list: excel_list,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderTriggerAlarmDocumentQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { alarm_mode } = req.query;
+    const { all_arr, title, doc, content } = req?.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "alarm_count institute"
+    );
+    var all_student = await Student.find({ _id: { $in: all_arr } })
+      .select(
+        "studentFirstName studentMiddleName studentLastName valid_full_name"
+      )
+      .populate({
+        path: "user",
+        select: "deviceToken userEmail",
+      })
+      .populate({
+        path: "institute",
+        select: "insName",
+      })
+      .populate({
+        path: "collect_docs.docs",
+      });
+    if (alarm_mode === "APP_NOTIFICATION") {
+      await document_alarm(aid, alarm_mode, content, all_student, title, doc);
+    } else if (alarm_mode === "EMAIL_NOTIFICATION") {
+      await document_alarm(aid, alarm_mode, content, all_student, title, doc);
+    } else if (alarm_mode === "SMS_NOTIFICATION") {
+    } else {
+    }
+    res.status(200).send({
+      message: `Document Alarm is triggered successfully`,
+      access: true,
+      alarm_mode,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.all_documents_export_students_query = async (req, res) => {
+  try {
+    const { aid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const apply = await NewApplication.findById({ _id: aid }).select(
+      "confirmedApplication allottedApplication reviewApplication"
+    );
+    let nums = [];
+    for (let ele of apply?.confirmedApplication) {
+      nums.push(ele?.student);
+    }
+    for (let ele of apply?.allottedApplication) {
+      nums.push(ele?.student);
+    }
+    for (let ele of apply?.reviewApplication) {
+      nums.push(ele);
+    }
+
+    const all_student = await Student.find({ _id: { $in: nums } })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO"
+      );
+
+    if (all_student?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Student List",
+        access: true,
+        all_student: all_student,
+      });
+    } else {
+      res.status(200).send({
+        message: "No All Student List",
+        access: true,
+        all_student: [],
       });
     }
   } catch (e) {

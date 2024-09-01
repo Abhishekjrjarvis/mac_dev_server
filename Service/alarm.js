@@ -269,6 +269,7 @@ exports.document_alarm = async (
           _id: ads_admin?.institute,
         });
         var new_message = new StudentMessage({
+          message: `${content ?? ""}`,
           student_list: [...student_arr],
           student_list_count: student_arr?.length,
           message_type: `${type}`,
@@ -291,6 +292,7 @@ exports.document_alarm = async (
         Object.entries(numss).forEach(([key, value], index) => {
           cls.push(`${index + 1}. ${key}: ${value}`);
         });
+        console.log(cls);
         // for (let set of remind.remaining_array) {
         if (ele?.collect_docs?.length > 0) {
           s_admin.alarm_student.push({
@@ -305,14 +307,6 @@ exports.document_alarm = async (
             });
             var notify = new StudentNotification({});
             notify.notifyContent = `${ele?.studentFirstName} ${
-              ele?.studentMiddleName ?? ele?.studentFatherName
-            } ${ele?.studentLastName},
-Your below documents are still pending for submission in ${valid_ins?.insName}.
-Kindly visit institute with below documents in person.
-Documents Pending:-
-${{ ...cls }}
-Note: ${content ?? ""}`;
-            new_message.message = `${ele?.studentFirstName} ${
               ele?.studentMiddleName ?? ele?.studentFatherName
             } ${ele?.studentLastName},
 Your below documents are still pending for submission in ${valid_ins?.insName}.

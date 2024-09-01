@@ -75,4 +75,11 @@ router
 router
   .route("/:sid/all/subject/master")
   .get(catchAsync(studentMember.studentAllSubjectMasterQuery));
+
+router
+  .route("/manually/push/in/subject")
+  .patch(catchAsync(studentMember.studentSubjectMasterPushDataQuery));
+router
+  .route("/manually/pull/from/subject")
+  .patch(catchAsync(studentMember.studentSubjectMasterPullDataQuery));
 module.exports = router;

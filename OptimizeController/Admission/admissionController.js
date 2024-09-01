@@ -138,6 +138,8 @@ const {
   universal_random_password_student_code,
 } = require("../../Generator/RandomPass");
 const RequiredDocument = require("../../models/Admission/RequiredDocument");
+const StudentPreviousData = require("../../models/StudentPreviousData");
+const moment = require("moment");
 const societyAdmissionFeeReceipt = require("../../scripts/societyAdmissionFeeReceipt");
 const FeesCategory = require("../../models/Finance/FeesCategory");
 
@@ -17326,7 +17328,6 @@ exports.admission_form_print_case_query = async (req, res) => {
 //         message: "Their is a bug need to fixed immediately",
 //         access: false,
 //       });
-
 //     const ads_admin = await Admission.findById({ _id: aid });
 //     const apply = await NewApplication.find({
 //       $and: [
@@ -17352,6 +17353,7 @@ exports.admission_form_print_case_query = async (req, res) => {
 //     console.log(e);
 //   }
 // };
+
 exports.render_one_application_subject_sequence_query = async (req, res) => {
   try {
     const { aid } = req?.params;
@@ -17677,7 +17679,6 @@ exports.check_global = async (req, res) => {
     //     path: "fee_structure",
     //     select: "applicable_fees"
     //   })
-
     // const all_student = await FeeReceipt.find({
     //   fee_structure: { $in: all_struct },
     // })
@@ -18087,3 +18088,79 @@ exports.all_documents_export_students_query = async (req, res) => {
 //     console.log(e)
 //   }
 // }
+
+exports.promote_currrent_year_institute_query = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { specific_category } = req.query;
+
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const institute = await InstituteAdmin.findById(id);
+    let specific_category_student_list = [];
+    let not_specific_category_student_list = [];
+    let list = ["66bafec95e67b13f50efd829", "66bdf274930b0e77adf974ab"];
+
+    const all_cat = await FeesCategory.find({
+      $and: [
+        { finance: "644a09d6d1679fcd6e76e5ef" },
+        { category_name: { $regex: `VJNT`, $options: "i" } },
+        // { _id: { $in: list } },
+      ],
+    });
+    const all_struct = await FeeStructure.find({
+      $and: [
+        { finance: "644a09d6d1679fcd6e76e5ef" },
+        { document_update: true },
+        { category_master: { $in: all_cat } },
+      ],
+    }).select("applicable_fees_heads_count structure_name");
+
+    // let nums = [...all_struct];
+
+    if (institute?.ApproveStudent?.length > 0) {
+      for (let stu of institute?.ApproveStudent) {
+        const student = await Student.findById(stu);
+        if (student?.previousYearData?.length > 0) {
+          let last_index =
+            student?.previousYearData[student?.previousYearData?.length - 1];
+          const prev_student = await StudentPreviousData.findById(last_index);
+          let match_date = moment(prev_student?.createdAt)?.format("yyyy");
+          const current_date = moment()?.format("yyyy");
+          if (`${current_date}` === `${match_date}`) {
+            const push_student = await Student.findOne({
+              $and: [
+                {
+                  _id: { $eq: `${student?._id}` },
+                },
+                {
+                  fee_structure: { $in: all_struct },
+                },
+              ],
+            });
+            if (push_student?._id) {
+              specific_category_student_list.push(push_student?._id);
+            }
+          }
+        } else {
+          not_specific_category_student_list.push(student?._id);
+        }
+      }
+    }
+
+    res.status(200).send({
+      message: "Internal Evaluation Test taken successfully.",
+      struct_count: all_struct?.length,
+      student_count: institute?.ApproveStudent?.length,
+      not_count: not_specific_category_student_list?.length,
+      exist_count: specific_category_student_list?.length,
+      specific_category_student_list: specific_category_student_list,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

@@ -1051,7 +1051,7 @@ router.patch("/check/structure", catchAsync(Admission.check_structure));
 router.patch(
   "/promote/current/year/institute/:id/student/category/list",
   catchAsync(Admission.promote_currrent_year_institute_query)
-);
+); 
 
 router.patch(
   "/:aid/all/documents/export",

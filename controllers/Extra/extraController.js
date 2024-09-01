@@ -127,6 +127,8 @@ const staffLeaveRequest = require("../../scripts/staffLeaveRequest");
 const feeReceipt = require("../../models/RazorPay/feeReceipt");
 const normalAdmissionFeeReceipt = require("../../scripts/normalAdmissionFeeReceipt");
 const NestedCard = require("../../models/Admission/NestedCard");
+const studentOtherFeeReceipt = require("../../scripts/studentOtherFeeReceipt");
+const OtherFees = require("../../models/Finance/Other/OtherFees");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -5104,6 +5106,60 @@ exports.customGenerateOneStudentApplicationFormQuery = async (req, res) => {
 
     res.status(200).send({
       message: "All application form is created.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.customAmountStudentOtherFeeReceiptQuery = async (req, res) => {
+  try {
+    const { ofid } = req.params;
+    if (!ofid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const other_fee = await OtherFees.findById(ofid).populate({
+      path: "finance",
+      select: "institute",
+    });
+    let list = [...other_fee?.paid_students];
+
+    let all_student = await Student.find({ _id: { $in: list } })
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj other_fees_paid_price"
+      )
+      .populate({
+        path: "other_fees",
+        populate: {
+          path: "fee_receipt fees",
+          select: "receipt_file fee_payment_amount payable_amount",
+        },
+      });
+
+    let all_fee_receipt = [];
+    for (let ele of all_student) {
+      for (let val of ele?.other_fees) {
+        if (`${val?.fees?._id}` === `${other_fee?._id}` && val?.fee_receipt) {
+          all_fee_receipt.push(val?.fee_receipt?._id);
+        }
+      }
+    }
+    let i = 0;
+    if (other_fee?.finance?.institute) {
+      if (all_fee_receipt?.length > 0) {
+        for (let frid of all_fee_receipt) {
+          await studentOtherFeeReceipt(frid, other_fee?.finance?.institute);
+          i += 1;
+          console.log(i);
+        }
+      }
+    }
+
+    res.status(200).send({
+      message: "Miscellaneous Fee receipt amount changes.",
+      count: all_fee_receipt?.length,
+      all_fee_receipt: all_fee_receipt,
     });
   } catch (e) {
     console.log(e);

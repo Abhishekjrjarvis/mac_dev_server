@@ -1714,6 +1714,16 @@ exports.one_department_site_other_card_query = async (req, res) => {
           dt.attach = attach;
         }
       }
+    } else if (flow === "LABORATORY") {
+      for (let dt of d_site?.laboratory) {
+        if (`${dt?._id}` === `${cid}`) {
+          dt.sub_head_title = sub_head_title;
+          dt.sub_heading_image = sub_heading_image;
+          dt.sub_head_body = sub_head_body;
+          dt.attach = attach;
+        }
+      }
+    } else {
     }
     await d_site.save();
     return res.status(200).send({
@@ -1737,11 +1747,44 @@ exports.one_department_site_other_card_delete_query = async (req, res) => {
     var d_site = await DepartmentSite.findById(dsid);
     if (flow === "ABOUT") {
       d_site.about = d_site?.about?.filter((dt) => `${dt?._id}` !== `${cid}`);
+    } else if (flow === "LABORATORY") {
+      d_site.laboratory = d_site?.laboratory?.filter(
+        (dt) => `${dt?._id}` !== `${cid}`
+      );
+    } else {
     }
     await d_site.save();
     return res.status(200).send({
       message: "About Deleted successfully",
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.one_department_site_laboratory_add_query = async (req, res) => {
+  try {
+    const { dsid } = req?.params;
+    const { sub_head_title, sub_heading_image, sub_head_body, attach } =
+      req?.body;
+    if (!dsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var d_site = await DepartmentSite.findById({ _id: dsid });
+
+    d_site.laboratory.push({
+      sub_head_title: sub_head_title,
+      sub_heading_image: sub_heading_image,
+      sub_head_body: sub_head_body,
+      attach: attach,
+    });
+    await d_site.save();
+    res
+      .status(200)
+      .send({ message: "Department laboratory added", access: true });
   } catch (e) {
     console.log(e);
   }

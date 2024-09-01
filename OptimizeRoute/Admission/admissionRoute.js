@@ -1068,4 +1068,14 @@ router.post(
   catchAsync(Admission.renderTriggerAlarmDocumentQuery)
 );
 
+router.get(
+  "/:aid/one/documents/list",
+  catchAsync(Admission.one_documents_students_query)
+);
+
+router.patch(
+  "/:did/one/student/pending/documents/:sid",
+  catchAsync(Admission.one_student_documents_pending_query)
+);
+
 module.exports = router;

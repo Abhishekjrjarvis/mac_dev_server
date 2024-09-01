@@ -18067,6 +18067,129 @@ exports.all_documents_export_students_query = async (req, res) => {
   }
 };
 
+exports.one_documents_students_query = async (req, res) => {
+  try {
+    const { aid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { did, search } = req?.query;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid });
+    const all_apps = await NewApplication.find({
+      $and: [
+        { _id: { $in: ads_admin?.newApplication } },
+        { applicationStatus: "Ongoing" },
+        { applicationTypeStatus: "Normal Application" },
+      ],
+    }).select("confirmedApplication allottedApplication reviewApplication");
+    let nums = [];
+    for (let apply of all_apps) {
+      for (let ele of apply?.confirmedApplication) {
+        nums.push(ele?.student);
+      }
+      for (let ele of apply?.allottedApplication) {
+        nums.push(ele?.student);
+      }
+      for (let ele of apply?.reviewApplication) {
+        nums.push(ele);
+      }
+    }
+    if (search) {
+      var all_student = await Student.find({
+        $and: [{ _id: { $in: nums } }],
+        $or: [
+          {
+            studentFirstName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentGRNO: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            form_no: { $regex: `${search}`, $options: "i" },
+          },
+        ],
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO collect_docs form_no"
+        )
+        .populate({
+          path: "collect_docs.docs",
+        });
+    } else {
+      var all_student = await Student.find({ _id: { $in: nums } })
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO collect_docs"
+        )
+        .populate({
+          path: "collect_docs.docs",
+        });
+    }
+    let all = [];
+    for (let cls of all_student) {
+      if (cls?.collect_docs?.length > 0) {
+        for (let val of cls?.collect_docs) {
+          if (`${val?.docs?._id}` === `${did}`) {
+            all.push(cls);
+          }
+        }
+      }
+    }
+    let all_stu = await nested_document_limit(page, limit, all);
+    if (all_stu?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Student List",
+        access: true,
+        all_stu: all_stu,
+      });
+    } else {
+      res.status(200).send({
+        message: "No All Student List",
+        access: true,
+        all_stu: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.one_student_documents_pending_query = async (req, res) => {
+  try {
+    const { did, sid } = req?.params;
+    const { status } = req?.body;
+    if (!did && !sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const student = await Student.findById({ _id: sid }).select("collect_docs");
+    const docs = await RequiredDocument.findById({ _id: did });
+
+    for (let cls of student?.collect_docs) {
+      if (`${cls?.docs}` === `${docs?._id}`) {
+        cls.not_filled = `${status}`;
+      }
+    }
+    await student.save();
+    res.status(200).send({ message: "Explore One Student Docs", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.new_app = async (req, res) => {
 //   try {
 //     let nums = ["66bc5594f9019dacfa1f2ebd", "66bc6a08232694c6d384bdd1", "66bc6be0f9019dacfa1fdae0", "66bc87c77cb3669abc1aa46a"]

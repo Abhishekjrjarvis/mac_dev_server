@@ -312,6 +312,8 @@ Your below documents are still pending for submission in ${valid_ins?.insName}.
 Kindly visit institute with below documents in person.
 Documents Pending:-
 ${cls}
+
+
 Note: ${content ?? ""}`;
             notify.notifySender = `${ads_admin?.admissionAdminHead?.user}`;
             notify.notifyReceiever = `${user?._id}`;
@@ -343,6 +345,8 @@ Your below documents are still pending for submission in ${valid_ins?.insName}.
 Kindly visit institute with below documents in person.
 Documents Pending:-
 ${cls}
+
+
 Note: ${content ?? ""}`;
             var user = await User.findById({
               _id: `${ele?.user?._id}`,

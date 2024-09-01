@@ -263,7 +263,7 @@ exports.document_alarm = async (
     var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     if (ads_admin?.document_alarm_enable_status === "Enable") {
       var valid_date = custom_date_time(3);
-      ads_admin.document_alarm_enable = new Date(`${valid_date}`);
+      // ads_admin.document_alarm_enable = new Date(`${valid_date}`);
       if (student_arr?.length > 0) {
         var valid_ins = await InstituteAdmin.findById({
           _id: ads_admin?.institute,
@@ -292,7 +292,6 @@ exports.document_alarm = async (
         Object.entries(numss).forEach(([key, value], index) => {
           cls.push(`${index + 1}. ${key}: ${value}`);
         });
-        console.log(cls);
         // for (let set of remind.remaining_array) {
         if (ele?.collect_docs?.length > 0) {
           s_admin.alarm_student.push({
@@ -312,7 +311,7 @@ exports.document_alarm = async (
 Your below documents are still pending for submission in ${valid_ins?.insName}.
 Kindly visit institute with below documents in person.
 Documents Pending:-
-${{ ...cls }}
+${cls}
 Note: ${content ?? ""}`;
             notify.notifySender = `${ads_admin?.admissionAdminHead?.user}`;
             notify.notifyReceiever = `${user?._id}`;
@@ -343,7 +342,7 @@ Note: ${content ?? ""}`;
 Your below documents are still pending for submission in ${valid_ins?.insName}.
 Kindly visit institute with below documents in person.
 Documents Pending:-
-${{ ...cls }}
+${cls}
 Note: ${content ?? ""}`;
             var user = await User.findById({
               _id: `${ele?.user?._id}`,
@@ -376,7 +375,7 @@ Note: ${content ?? ""}`;
         numss = {};
         cls = [];
       }
-      ads_admin.document_alarm_enable_status = "Disable";
+      // ads_admin.document_alarm_enable_status = "Disable";
       await ads_admin.save();
     } else {
     }

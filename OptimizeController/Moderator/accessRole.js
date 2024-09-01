@@ -146,6 +146,17 @@ exports.all_access_role = () => {
         appArray: [],
       },
     },
+    REQUIRED_DOCUMENTS: {
+      role: "REQUIRED_DOCUMENTS",
+      permission: {
+        allow: true,
+        bound: ["DOCUMENTS"],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
   };
   return access_role;
 };

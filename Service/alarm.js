@@ -287,6 +287,10 @@ exports.document_alarm = async (
         for (let val of ele?.collect_docs) {
           numss[val?.docs?.document_name] = val?.not_filled ?? "No";
         }
+        let cls;
+        Object.entries(numss).forEach(([key, value], index) => {
+          cls.push(`${index + 1}. ${key}: ${value}`);
+        });
         // for (let set of remind.remaining_array) {
         if (ele?.collect_docs?.length > 0) {
           s_admin.alarm_student.push({
@@ -303,26 +307,18 @@ exports.document_alarm = async (
             notify.notifyContent = `${ele?.studentFirstName} ${
               ele?.studentMiddleName ?? ele?.studentFatherName
             } ${ele?.studentLastName},
-Your below documents are still pending for submission in ${
-              ele?.institute?.insName
-            }.
+Your below documents are still pending for submission in ${valid_ins?.insName}.
 Kindly visit institute with below documents in person.
 Documents Pending:-
-${Object.entries(numss).forEach(([key, value], index) => {
-  `${index + 1}. ${key}: ${value}`;
-})}
+${{ ...cls }}
 Note: ${content ?? ""}`;
             new_message.message = `${ele?.studentFirstName} ${
               ele?.studentMiddleName ?? ele?.studentFatherName
             } ${ele?.studentLastName},
-Your below documents are still pending for submission in ${
-              ele?.institute?.insName
-            }.
+Your below documents are still pending for submission in ${valid_ins?.insName}.
 Kindly visit institute with below documents in person.
 Documents Pending:-
-${Object.entries(numss).forEach(([key, value], index) => {
-  `${index + 1}. ${key}: ${value}`;
-})}
+${{ ...cls }}
 Note: ${content ?? ""}`;
             notify.notifySender = `${ads_admin?.admissionAdminHead?.user}`;
             notify.notifyReceiever = `${user?._id}`;
@@ -350,14 +346,10 @@ Note: ${content ?? ""}`;
             const message = `${ele?.studentFirstName} ${
               ele?.studentMiddleName ?? ele?.studentFatherName
             } ${ele?.studentLastName},
-Your below documents are still pending for submission in ${
-              ele?.institute?.insName
-            }.
+Your below documents are still pending for submission in ${valid_ins?.insName}.
 Kindly visit institute with below documents in person.
 Documents Pending:-
-${Object.entries(numss).forEach(([key, value], index) => {
-  `${index + 1}. ${key}: ${value}`;
-})}
+${{ ...cls }}
 Note: ${content ?? ""}`;
             var user = await User.findById({
               _id: `${ele?.user?._id}`,
@@ -388,6 +380,7 @@ Note: ${content ?? ""}`;
           }
         }
         numss = {};
+        cls = [];
       }
       ads_admin.document_alarm_enable_status = "Disable";
       await ads_admin.save();

@@ -286,7 +286,7 @@ exports.document_alarm = async (
       var numss = {};
       for (var ele of student_arr) {
         for (let val of ele?.collect_docs) {
-          numss[val?.docs?.document_name] = val?.not_filled ?? "No";
+          numss[val?.docs?.document_name] = val?.not_filled;
         }
         let cls = [];
         Object.entries(numss).forEach(([key, value], index) => {

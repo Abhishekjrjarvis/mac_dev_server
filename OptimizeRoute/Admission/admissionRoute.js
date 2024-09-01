@@ -1058,4 +1058,14 @@ router.patch(
   catchAsync(Admission.all_documents_export_query)
 );
 
+router.get(
+  "/:aid/all/students/query",
+  catchAsync(Admission.all_documents_export_students_query)
+);
+
+router.post(
+  "/:aid/document/trigger/alarm",
+  catchAsync(Admission.renderTriggerAlarmDocumentQuery)
+);
+
 module.exports = router;

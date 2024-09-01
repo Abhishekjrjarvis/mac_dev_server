@@ -22,8 +22,10 @@ exports.dueDateAlarm = async (aid, type, content, student_arr, title, doc) => {
     if (ads_admin?.alarm_enable_status === "Enable") {
       var valid_date = custom_date_time(3);
       ads_admin.alarm_enable = new Date(`${valid_date}`);
-      if(student_arr?.length > 0){
-        var valid_ins = await InstituteAdmin.findById({ _id: ads_admin?.institute });
+      if (student_arr?.length > 0) {
+        var valid_ins = await InstituteAdmin.findById({
+          _id: ads_admin?.institute,
+        });
         var new_message = new StudentMessage({
           message: `${content}`,
           student_list: [...student_arr],
@@ -33,28 +35,29 @@ exports.dueDateAlarm = async (aid, type, content, student_arr, title, doc) => {
           message_title: title,
           message_document: doc,
           institute: valid_ins?._id,
-          message_mode: "STUDENT_REMINDER"
-        })
+          message_mode: "STUDENT_REMINDER",
+        });
         valid_ins.student_reminder.push(new_message?._id);
-        valid_ins.student_reminder_count += 1
-        await Promise.all([ new_message.save(), valid_ins.save()]);
+        valid_ins.student_reminder_count += 1;
+        await Promise.all([new_message.save(), valid_ins.save()]);
       }
       for (var ele of student_arr) {
         var all_remains = await RemainingList.find({
           student: ele?._id,
-        })
-          .populate({
-            path: "fee_structure applicable_card",
-          })
-          var valid_price = 0
-          for(var remind of all_remains){
-            if (remind?.status === "Not Paid") {
-              valid_price +=
-              remind?.applicable_card?.paid_fee >= remind?.fee_structure?.applicable_fees
+        }).populate({
+          path: "fee_structure applicable_card",
+        });
+        var valid_price = 0;
+        for (var remind of all_remains) {
+          if (remind?.status === "Not Paid") {
+            valid_price +=
+              remind?.applicable_card?.paid_fee >=
+              remind?.fee_structure?.applicable_fees
                 ? 0
-                : remind?.fee_structure?.applicable_fees - remind?.applicable_card?.paid_fee;
-            }
+                : remind?.fee_structure?.applicable_fees -
+                  remind?.applicable_card?.paid_fee;
           }
+        }
         // for (let set of remind.remaining_array) {
         if (valid_price > 0) {
           s_admin.alarm_student.push({
@@ -74,7 +77,7 @@ exports.dueDateAlarm = async (aid, type, content, student_arr, title, doc) => {
             notify.notifyType = "Student";
             notify.notifyPublisher = ele?._id;
             user.activity_tab.push(notify?._id);
-            user.student_message.push(new_message?._id)
+            user.student_message.push(new_message?._id);
             notify.notifyByAdmissionPhoto = aid;
             notify.notifyCategory = "Outstanding Reminder Alert";
             notify.redirectIndex = 39;
@@ -88,9 +91,7 @@ exports.dueDateAlarm = async (aid, type, content, student_arr, title, doc) => {
             );
           } else if (type === "EMAIL_NOTIFICATION") {
             var name = `${ele?.studentFirstName}${
-              ele?.studentMiddleName
-                ? ` ${ele?.studentMiddleName}`
-                : ""
+              ele?.studentMiddleName ? ` ${ele?.studentMiddleName}` : ""
             } ${ele?.studentLastName}`;
             const subject = "Outstanding Dues Reminder";
 
@@ -118,7 +119,7 @@ ${ele?.institute?.iName}
             notify.notifyType = "Student";
             notify.notifyPublisher = ele?._id;
             user.activity_tab.push(notify?._id);
-            user.student_message.push(new_message?._id)
+            user.student_message.push(new_message?._id);
             notify.notifyByAdmissionPhoto = aid;
             notify.notifyCategory = "Outstanding Reminder Alert";
             notify.redirectIndex = 39;
@@ -239,6 +240,163 @@ exports.outstanding_reminder_disable_query = async (req, res) => {
     for (var val of ads_admin) {
       if (`${date}` === moment(val?.alarm_enable).format("YYYY-MM-DD")) {
         val.alarm_enable_status = "Enable";
+        await val.save();
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.document_alarm = async (
+  aid,
+  type,
+  content,
+  student_arr,
+  title,
+  doc
+) => {
+  try {
+    var ads_admin = await Admission.findById({ _id: aid }).populate({
+      path: "admissionAdminHead",
+    });
+    var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    if (ads_admin?.document_alarm_enable_status === "Enable") {
+      var valid_date = custom_date_time(3);
+      ads_admin.document_alarm_enable = new Date(`${valid_date}`);
+      if (student_arr?.length > 0) {
+        var valid_ins = await InstituteAdmin.findById({
+          _id: ads_admin?.institute,
+        });
+        var new_message = new StudentMessage({
+          message: `${content}`,
+          student_list: [...student_arr],
+          student_list_count: student_arr?.length,
+          message_type: `${type}`,
+          from_name: "Institute Admin",
+          message_title: title,
+          message_document: doc,
+          institute: valid_ins?._id,
+          message_mode: "DOCUMENT_STUDENT_REMINDER",
+        });
+        valid_ins.student_reminder.push(new_message?._id);
+        valid_ins.student_reminder_count += 1;
+        await Promise.all([new_message.save(), valid_ins.save()]);
+      }
+      var numss = {};
+      for (var ele of student_arr) {
+        for (let val of ele?.collect_docs) {
+          numss[val?.docs?.document_name] = val?.not_filled ?? "No";
+        }
+        // for (let set of remind.remaining_array) {
+        if (ele?.collect_docs?.length > 0) {
+          s_admin.alarm_student.push({
+            student: ele?._id,
+            alarm_mode: `${type}`,
+            content: content ? content : null,
+          });
+          s_admin.alarm_student_count += 1;
+          if (type === "APP_NOTIFICATION") {
+            var user = await User.findById({
+              _id: `${ele?.user?._id}`,
+            });
+            var notify = new StudentNotification({});
+            notify.notifyContent = `${ele?.studentFirstName} ${
+              ele?.studentMiddleName ?? ele?.studentFatherName
+            } ${ele?.studentLastName},
+Your below documents are still pending for submission in ${
+              ele?.institute?.insName
+            }.
+Kindly visit institute with below documents in person.
+Documents Pending:-
+${Object.entries(numss).forEach(([key, value], index) => {
+  console.log(`${index + 1}. ${key}: ${value}`);
+})}
+Note: ${content ?? ""}`;
+            notify.notifySender = `${ads_admin?.admissionAdminHead?.user}`;
+            notify.notifyReceiever = `${user?._id}`;
+            notify.notifyType = "Student";
+            notify.notifyPublisher = ele?._id;
+            user.activity_tab.push(notify?._id);
+            user.student_message.push(new_message?._id);
+            notify.notifyByAdmissionPhoto = aid;
+            notify.notifyCategory = "Document Outstanding Reminder Alert";
+            notify.redirectIndex = 39;
+            await Promise.all([user.save(), notify.save()]);
+            invokeSpecificRegister(
+              "Specific Notification",
+              `Admission Document Reminder`,
+              "Document Reminder",
+              ele?.user._id,
+              ele?.user.deviceToken
+            );
+          } else if (type === "EMAIL_NOTIFICATION") {
+            var name = `${ele?.studentFirstName}${
+              ele?.studentMiddleName ? ` ${ele?.studentMiddleName}` : ""
+            } ${ele?.studentLastName}`;
+            const subject = "Pending Document Reminder";
+
+            const message = `${ele?.studentFirstName} ${
+              ele?.studentMiddleName ?? ele?.studentFatherName
+            } ${ele?.studentLastName},
+Your below documents are still pending for submission in ${
+              ele?.institute?.insName
+            }.
+Kindly visit institute with below documents in person.
+Documents Pending:-
+${Object.entries(numss).forEach(([key, value], index) => {
+  console.log(`${index + 1}. ${key}: ${value}`);
+})}
+Note: ${content ?? ""}`;
+            var user = await User.findById({
+              _id: `${ele?.user?._id}`,
+            });
+            var notify = new StudentNotification({});
+            notify.notifyContent = `${message}`;
+            notify.notifySender = `${ads_admin?.admissionAdminHead?.user}`;
+            notify.notifyReceiever = `${user?._id}`;
+            notify.notifyType = "Student";
+            notify.notifyPublisher = ele?._id;
+            user.activity_tab.push(notify?._id);
+            user.student_message.push(new_message?._id);
+            notify.notifyByAdmissionPhoto = aid;
+            notify.notifyCategory = "Document Outstanding Reminder Alert";
+            notify.redirectIndex = 39;
+            await Promise.all([user.save(), notify.save()]);
+            const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${ele?.user?.userEmail}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+            const encodeURL = encodeURI(url);
+            axios
+              .post(encodeURL)
+              .then((res) => {
+                console.log("Sended Successfully");
+              })
+              .catch((e) => {
+                console.log("Alarm Bug", e.message);
+              });
+          } else if (type === "SMS_NOTIFICATION") {
+          }
+        }
+        numss = {};
+      }
+      ads_admin.document_alarm_enable_status = "Disable";
+      await ads_admin.save();
+    } else {
+    }
+    await s_admin.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.outstanding_document_reminder_disable_query = async (req, res) => {
+  try {
+    var ads_admin = await Admission.find({});
+    var date = custom_date_time(0);
+    for (var val of ads_admin) {
+      if (
+        `${date}` === moment(val?.document_alarm_enable).format("YYYY-MM-DD")
+      ) {
+        val.document_alarm_enable_status = "Enable";
         await val.save();
       }
     }

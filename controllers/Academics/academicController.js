@@ -165,7 +165,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
         var new_chapter_exist = await Chapter.findOne({
           $and: [
             { subject: valid_subject?._id },
-            { chapter_name: { $regex: `${val?.chapter_name}` } },
+            { chapter_name: `${val?.chapter_name}` },
           ],
         });
         if (new_chapter_exist?._id) {

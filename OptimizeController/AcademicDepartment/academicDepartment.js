@@ -48,15 +48,22 @@ const {
 const { handle_undefined } = require("../../Handler/customError");
 const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
 const { applicable_pending_calc } = require("../../Functions/SetOff");
-const { send_phone_login_query, generateAccessToken } = require("../../helper/functions");
+const {
+  send_phone_login_query,
+  generateAccessToken,
+} = require("../../helper/functions");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const Chapter = require("../../models/Academics/Chapter");
 const Attainment = require("../../models/Marks/Attainment");
-const { calc_profile_percentage } = require("../../Functions/ProfilePercentage");
+const {
+  calc_profile_percentage,
+} = require("../../Functions/ProfilePercentage");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
 const invokeSpecificRegister = require("../../Firebase/specific");
-const { send_global_announcement_notification_query } = require("../../Feed/socialFeed");
+const {
+  send_global_announcement_notification_query,
+} = require("../../Feed/socialFeed");
 const FormChecklist = require("../../models/Form/FormChecklist");
 const { form_params } = require("../../Constant/form");
 const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
@@ -66,9 +73,10 @@ const InstituteStaffForm = require("../../models/Form/InstituteStaffForm");
 const { staff_form_params } = require("../../Constant/staff_form");
 const InstituteApplicationForm = require("../../models/Form/InstituteApplicationForm");
 const DepartmentSite = require("../../models/SiteModels/DepartmentSite");
-const { json_to_excel_academic_export_query } = require("../../Custom/JSONToExcel");
-const moment = require("moment")
-
+const {
+  json_to_excel_academic_export_query,
+} = require("../../Custom/JSONToExcel");
+const moment = require("moment");
 
 exports.retrieveAcademicDepartmentAdminHead = async (req, res) => {
   try {
@@ -226,387 +234,485 @@ exports.retrieveAcademicDepartmentAdminHead = async (req, res) => {
   }
 };
 
-
 exports.retrieveDepartmentList = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const page = req.query.page ? parseInt(req.query.page) : 1;
+  try {
+    const { id } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-      if (!id)
-        return res.status(200).send({
-          message: "Their is a bug need to fixed immediatley",
-          access: false,
-        });
-        const institute = await InstituteAdmin.findById({ _id: id })
-          
-        const all_depart = await Department.find({ $and: [{ _id: { $in: institute?.depart } }, { department_status: "Academic" }] })
-            .limit(limit)
-        .skip(skip)    
-        .select("dName photo photoId dTitle classMasterCount classCount departmentSelectBatch")
-        .populate({
-          path: "dHead",
-          select:
-                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
-                populate: {
-                    path: "user",
-                    select: "userBio userAbout",
-                  },
-        })
-          .populate({
-            path: "active_academic_batch",
-            select: "batchName batchStatus"
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const institute = await InstituteAdmin.findById({ _id: id });
+
+    const all_depart = await Department.find({
+      $and: [
+        { _id: { $in: institute?.depart } },
+        { department_status: "Academic" },
+      ],
+    })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "dName photo photoId dTitle classMasterCount classCount departmentSelectBatch"
+      )
+      .populate({
+        path: "dHead",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
+        populate: {
+          path: "user",
+          select: "userBio userAbout",
+        },
       })
-      if (all_depart) {
-        res.status(200).send({ message: "Success", all_depart });
-      } else {
-        res.status(404).send({ message: "Failure" });
-      }
-    } catch (e) {
-      console.log(e);
+      .populate({
+        path: "active_academic_batch",
+        select: "batchName batchStatus",
+      });
+    if (all_depart) {
+      res.status(200).send({ message: "Success", all_depart });
+    } else {
+      res.status(404).send({ message: "Failure" });
     }
-  };
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_all_subject_master_query = async (req, res) => {
-    try {
-        const { did } = req?.params
-        const page = req.query.page ? parseInt(req.query.page) : 1;
+  try {
+    const { did } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-        if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-        const depart = await Department.findById({ _id: did })
-        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-            .limit(limit)
-            .skip(skip)
-            .select("subjectName department link_subject_master")
-            .populate({
-                path: "department",
-                select: "dName"
-            })
-            res.status(200).send({ message: "Explore All Subject Master Query", access: true, all_subjects: all_subjects})
-    }
-    catch (e) {
-        console.log(e)
-    }
-}
-  
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .limit(limit)
+      .skip(skip)
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "department",
+        select: "dName",
+      });
+    res.status(200).send({
+      message: "Explore All Subject Master Query",
+      access: true,
+      all_subjects: all_subjects,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.render_map_master_query = async (req, res) => {
-    try {
-        const { subId, mapId, did } = req?.body
-        if (!mapId) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-        
-        const depart = await Department.findById({ _id: did })
-        // const subjects = await SubjectMaster.findById({ _id: subId })
-        const subjects_extra = await SubjectMaster.findById({ _id: mapId })
+  try {
+    const { subId, mapId, did } = req?.body;
+    if (!mapId)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-        // subjects.link_subject_master = subjects_extra?._id
-        subjects_extra.link_department = depart?._id
-        depart.merged_subject_master.push(subjects_extra?._id)
+    const depart = await Department.findById({ _id: did });
+    // const subjects = await SubjectMaster.findById({ _id: subId })
+    const subjects_extra = await SubjectMaster.findById({ _id: mapId });
 
-        await Promise.all([ subjects_extra.save(), depart.save()])
-        res.status(200).send({ message: "Explore One Subject Master Map Query", access: true})
+    // subjects.link_subject_master = subjects_extra?._id
+    subjects_extra.link_department = depart?._id;
+    depart.merged_subject_master.push(subjects_extra?._id);
 
-    }
-    catch (e) {
-        console.log(e)
-    }
-}
+    await Promise.all([subjects_extra.save(), depart.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore One Subject Master Map Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_all_universal_batch_query = async (req, res) => {
-    try {
-        const { did } = req?.params
-        const page = req.query.page ? parseInt(req.query.page) : 1;
-        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-        const skip = (page - 1) * limit;
-        if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-        const depart = await Department.findById({ _id: did })
-        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-            .select("subjectName department link_subject_master")
-        
-        var nums = []
-        for (let ele of all_subjects) {
-            const all_batch = await Batch.find({ $and: [{ department: ele?.department }, { merged_batch: "Merged" }] })
-            for (let val of all_batch) {
-                if (nums?.includes(`${val?._id}`)) {
-                    
-                }
-                else {
-                    nums.push(val?._id)       
-                }
-            }
-        }
+  try {
+    const { did } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    }).select("subjectName department link_subject_master");
 
-        if (nums?.length > 0) {
-            const all_batch = await Batch.find({ _id: { $in: nums } })
-                .select("batchName batchStatus")
-                .populate({
-                    path: "u_batch",
-                    select: "batchName batchStatus"
-                })
-            res.status(200).send({ message: "Explore All Batches Query", access: true, all_batch: all_batch})
+    var nums = [];
+    for (let ele of all_subjects) {
+      const all_batch = await Batch.find({
+        $and: [{ department: ele?.department }, { merged_batch: "Merged" }],
+      });
+      for (let val of all_batch) {
+        if (nums?.includes(`${val?._id}`)) {
+        } else {
+          nums.push(val?._id);
         }
-        else {
-            res.status(200).send({ message: "No Batches Query", access: true, all_batch: []})            
-        }
+      }
     }
-    catch (e) {
-        console.log(e)
+
+    if (nums?.length > 0) {
+      const all_batch = await Batch.find({ _id: { $in: nums } })
+        .select("batchName batchStatus")
+        .populate({
+          path: "u_batch",
+          select: "batchName batchStatus",
+        });
+      res.status(200).send({
+        message: "Explore All Batches Query",
+        access: true,
+        all_batch: all_batch,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Batches Query", access: true, all_batch: [] });
     }
-}
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_all_classes_query = async (req, res) => {
-    try {
-        const { did } = req?.params
-        const page = req.query.page ? parseInt(req.query.page) : 1;
-        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-        const skip = (page - 1) * limit;
-        if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-        const depart = await Department.findById({ _id: did })
-        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-            .select("subjectName department link_subject_master")
-            .populate({
-                path: "subjects",
-                select: "class",
-                populate: {
-                    path: "class",
-                    select: "masterClassName"
-                }
-        })
-        
-        var nums = []
-        for (let ele of all_subjects) {
-            for (let val of ele?.subjects) {
-                if (nums?.includes(`${val?.class?.masterClassName}`)) {
-                    
-                }
-                else {
-                    nums.push(val?.class?.masterClassName)
-                }
-            }
-        }
+  try {
+    const { did } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "class",
+        populate: {
+          path: "class",
+          select: "masterClassName",
+        },
+      });
 
-        if (nums?.length > 0) {
-            const all_classes = await ClassMaster.find({ _id: { $in: nums } })
-                .select("className")
-                .populate({
-                    path: "department",
-                    select: "dName"
-                })
-            res.status(200).send({ message: "Explore All Class Master Query", access: true, all_classes: all_classes})
+    var nums = [];
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        if (nums?.includes(`${val?.class?.masterClassName}`)) {
+        } else {
+          nums.push(val?.class?.masterClassName);
         }
-        else {
-            res.status(200).send({ message: "No Class Master Query", access: true, all_classes: []})            
-        }
+      }
     }
-    catch (e) {
-        console.log(e)
+
+    if (nums?.length > 0) {
+      const all_classes = await ClassMaster.find({ _id: { $in: nums } })
+        .select("className")
+        .populate({
+          path: "department",
+          select: "dName",
+        });
+      res.status(200).send({
+        message: "Explore All Class Master Query",
+        access: true,
+        all_classes: all_classes,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Class Master Query",
+        access: true,
+        all_classes: [],
+      });
     }
-}
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_all_students_query = async (req, res) => {
-    try {
-        const { cid } = req?.params
-        const page = req.query.page ? parseInt(req.query.page) : 1;
-        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-        const skip = (page - 1) * limit;
-        const { did } = req?.query
-      if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-      
-      const depart = await Department.findById({ _id: did })
-        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-            .select("subjectName department link_subject_master")
-            .populate({
-                path: "subjects",
-                select: "class",
-        })
-        
-      var numss = []
-      var nums = []
-      const m_class = await ClassMaster.findById({ _id: cid })
-        for (let ele of all_subjects) {
-          for (let val of ele?.subjects) {
-            for (let cls of m_class?.classDivision) {
-                if (`${val?.class}` === `${cls}`) {
-                  nums.push(val?._id)
-                }
-            }
-                // if (numss?.includes(`${val?.class}`)) {
-                    
-                // }
-                // else {
-                //     numss.push(val?.class)
-                // }
-            }
+  try {
+    const { cid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { did } = req?.query;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "class",
+      });
+
+    var numss = [];
+    var nums = [];
+    const m_class = await ClassMaster.findById({ _id: cid });
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        for (let cls of m_class?.classDivision) {
+          if (`${val?.class}` === `${cls}`) {
+            nums.push(val?._id);
+          }
         }
-      const all_subject = await Subject.find({ _id: { $in: nums } })
-      .select("optionalStudent")
-      let ds = []
-      for (let ele of all_subject) {
-        ds.push(...ele?.optionalStudent)
+        // if (numss?.includes(`${val?.class}`)) {
+
+        // }
+        // else {
+        //     numss.push(val?.class)
+        // }
       }
-      const unique = [...new Set(ds.map(item => item))];
-        if (nums?.length > 0) {
-            const all_students = await Student.find({ $and: [{ _id: { $in: unique } }] })
-                .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department")
-                .populate({
-                    path: "studentClass",
-                    select: "className"
-                })
-            
-            const all_stu = await nested_document_limit(page, limit, all_students)
-          res.status(200).send({ message: "Explore All Students Query", access: true, all_students: all_stu, count: all_students?.length })
-          m_class.all_academic_student_count = all_students?.length
-          await m_class.save()
-        }
-        else {
-            res.status(200).send({ message: "No Students Query", access: true, all_students: [], count: 0})            
-        }
     }
-    catch (e) {
-        console.log(e)
+    const all_subject = await Subject.find({ _id: { $in: nums } })
+      .select("optionalStudent")
+      .populate({
+        path: "class",
+        select: "ApproveStudent",
+      });
+    let ds = [];
+    for (let ele of all_subject) {
+      if (ele?.optionalStudent?.length > 0) {
+        ds.push(...ele?.optionalStudent);
+      } else {
+        ds.push(...ele?.class?.ApproveStudent);
+      }
     }
-}
+    // console.log(ds);
+    const unique = [...new Set(ds.map((item) => item))];
+    if (nums?.length > 0) {
+      const all_students = await Student.find({
+        $and: [{ _id: { $in: unique } }],
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className",
+        });
+
+      const all_stu = await nested_document_limit(page, limit, all_students);
+      res.status(200).send({
+        message: "Explore All Students Query",
+        access: true,
+        all_students: all_stu,
+        count: all_students?.length,
+      });
+      m_class.all_academic_student_count = all_students?.length;
+      await m_class.save();
+    } else {
+      res.status(200).send({
+        message: "No Students Query",
+        access: true,
+        all_students: [],
+        count: 0,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_all_students_tab_query = async (req, res) => {
-    try {
-        const { did } = req?.params
-        const page = req.query.page ? parseInt(req.query.page) : 1;
-        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-        const skip = (page - 1) * limit;
-        if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-        const depart = await Department.findById({ _id: did })
-        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-            .select("subjectName department link_subject_master")
-            .populate({
-                path: "subjects",
-                select: "class",
-        })
-        
-        var nums = []
-        for (let ele of all_subjects) {
-            for (let val of ele?.subjects) {
-                if (nums?.includes(`${val?.class}`)) {
-                    
-                }
-                else {
-                    nums.push(val?.class)
-                }
-            }
-        }
+  try {
+    const { did } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "class",
+      });
 
-        if (nums?.length > 0) {
-            const all_students = await Student.find({ studentClass: { $in: nums } })
-                // .limit(limit)
-                // .skip(skip)
-                .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO")
-                .populate({
-                    path: "studentClass",
-                    select: "className"
-                })
-          var all_stu = await nested_document_limit(page, limit, all_students)
-            res.status(200).send({ message: "Explore All Students Tab Query", access: true, all_students: all_stu, count: all_students?.length})
+    var nums = [];
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        if (nums?.includes(`${val?.class}`)) {
+        } else {
+          nums.push(val?.class);
         }
-        else {
-            res.status(200).send({ message: "No Students Tab Query", access: true, all_students: [], count: 0})            
-        }
+      }
     }
-    catch (e) {
-        console.log(e)
+
+    if (nums?.length > 0) {
+      const all_students = await Student.find({ studentClass: { $in: nums } })
+        // .limit(limit)
+        // .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className",
+        });
+      var all_stu = await nested_document_limit(page, limit, all_students);
+      res.status(200).send({
+        message: "Explore All Students Tab Query",
+        access: true,
+        all_students: all_stu,
+        count: all_students?.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Students Tab Query",
+        access: true,
+        all_students: [],
+        count: 0,
+      });
     }
-}
+  } catch (e) {
+    console.log(e);
+  }
+};
 exports.render_all_staff_query = async (req, res) => {
-    try {
-        const { did } = req?.params
-        const page = req.query.page ? parseInt(req.query.page) : 1;
-        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-        const skip = (page - 1) * limit;
-        if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-        const depart = await Department.findById({ _id: did })
-        const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-            .select("subjectName department link_subject_master")
-            .populate({
-                path: "subjects",
-                select: "subjectTeacherName",
-        })
-        
-        var nums = []
-        for (let ele of all_subjects) {
-            for (let val of ele?.subjects) {
-                if (nums?.includes(`${val?.subjectTeacherName}`)) {
-                    
-                }
-                else {
-                    nums.push(val?.subjectTeacherName)
-                }
-            }
-        }
+  try {
+    const { did } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "subjectTeacherName",
+      });
 
-        if (nums?.length > 0) {
-            const all_staff = await Staff.find({ _id: { $in: nums } })
-                .limit(limit)
-                .skip(skip)
-                .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffROLLNO current_designation teaching_type")
-            res.status(200).send({ message: "Explore All Staff Tab Query", access: true, all_staff: all_staff})
+    var nums = [];
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        if (nums?.includes(`${val?.subjectTeacherName}`)) {
+        } else {
+          nums.push(val?.subjectTeacherName);
         }
-        else {
-            res.status(200).send({ message: "No Staff Tab Query", access: true, all_staff: []})            
-        }
+      }
     }
-    catch (e) {
-        console.log(e)
+
+    if (nums?.length > 0) {
+      const all_staff = await Staff.find({ _id: { $in: nums } })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffROLLNO current_designation teaching_type"
+        );
+      res.status(200).send({
+        message: "Explore All Staff Tab Query",
+        access: true,
+        all_staff: all_staff,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Staff Tab Query", access: true, all_staff: [] });
     }
-}
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_new_theory_classes = async (req, res) => {
   try {
-    const { cid } = req?.params
-    const { staff, did } = req?.body
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const depart = await Department.findById({ _id: did })
-    .select("active_academic_batch")
-    const classes = await ClassMaster.findById({ _id: cid })
-    const new_subject = new Subject({ ...req?.body })
-    new_subject.subjectTitle = "Subject Teacher"
-    const codess = universal_random_password()
-    new_subject.member_module_unique = `${codess}`
+    const { cid } = req?.params;
+    const { staff, did } = req?.body;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did }).select(
+      "active_academic_batch"
+    );
+    const classes = await ClassMaster.findById({ _id: cid });
+    const new_subject = new Subject({ ...req?.body });
+    new_subject.subjectTitle = "Subject Teacher";
+    const codess = universal_random_password();
+    new_subject.member_module_unique = `${codess}`;
     if (staff) {
-      const staffs = await Staff.findById({ _id: staff})
-      new_subject.subjectTeacherName = staffs
-      staffs.staffSubject.push(new_subject?._id)
-      await staffs.save()
+      const staffs = await Staff.findById({ _id: staff });
+      new_subject.subjectTeacherName = staffs;
+      staffs.staffSubject.push(new_subject?._id);
+      await staffs.save();
     }
     classes.theory_classes.push({
       subject: new_subject?._id,
       did: did,
-      batch: depart?.active_academic_batch
-    })
-    classes.theory_classes_count += 1
-    await Promise.all([new_subject.save(), classes.save()])
-    res.status(200).send({ message: "New Subject Add Query", access: true })            
+      batch: depart?.active_academic_batch,
+    });
+    classes.theory_classes_count += 1;
+    await Promise.all([new_subject.save(), classes.save()]);
+    res.status(200).send({ message: "New Subject Add Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_theory_classes = async (req, res) => {
   try {
-    const { cid } = req?.params
+    const { cid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { did } = req?.query
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { did } = req?.query;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     const classes = await ClassMaster.findById({ _id: cid })
       .populate({
         path: "theory_classes.subject",
         select: "subjectName theory_students optionalStudent",
         populate: {
           path: "subjectTeacherName",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-        }
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        },
       })
       .populate({
         path: "theory_classes.subject",
@@ -616,19 +722,23 @@ exports.render_all_theory_classes = async (req, res) => {
           select: "subjectName",
           populate: {
             path: "department",
-            select: "dName"
-          }
-        }
-      })
-    var list = []
+            select: "dName",
+          },
+        },
+      });
+    var list = [];
     for (let ele of classes?.theory_classes) {
-      const depart = await Department.findById({ _id: did })
-      .select("active_academic_batch")
-      if (`${ele?.did}` === `${depart?._id}` && `${ele?.batch}` === `${depart?.active_academic_batch}`) {
-        list.push(ele)
+      const depart = await Department.findById({ _id: did }).select(
+        "active_academic_batch"
+      );
+      if (
+        `${ele?.did}` === `${depart?._id}` &&
+        `${ele?.batch}` === `${depart?.active_academic_batch}`
+      ) {
+        list.push(ele);
       }
     }
-    const all_subject = await nested_document_limit(page, limit, list)
+    const all_subject = await nested_document_limit(page, limit, list);
     // const all_subject = await Subject.find({ _id: { $in: classes?.theory_classes } })
     //   .limit(limit)
     //   .skip(skip)
@@ -637,149 +747,180 @@ exports.render_all_theory_classes = async (req, res) => {
     //     path: "subjectTeacherName",
     //     select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
     //   })
-      res.status(200).send({ message: "All Subject Query", access: true, all_subject: all_subject })            
+    res.status(200).send({
+      message: "All Subject Query",
+      access: true,
+      all_subject: all_subject,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_theory_classes_subject = async (req, res) => {
   try {
-    const { sid } = req?.params
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { sid } = req?.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     const subject = await Subject.findById({ _id: sid })
-    .select("subjectName theory_students optionalStudent")
-    .populate({
-      path: "subjectTeacherName",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-    })
-    .populate({
-      path: "theory_students optionalStudent",
-      select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO"
-    })
-      res.status(200).send({ message: "One Subject Query", access: true, subject: subject })            
+      .select("subjectName theory_students optionalStudent")
+      .populate({
+        path: "subjectTeacherName",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      })
+      .populate({
+        path: "theory_students optionalStudent",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO",
+      });
+    res
+      .status(200)
+      .send({ message: "One Subject Query", access: true, subject: subject });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_new_student_add_query = async (req, res) => {
   try {
-    const { sid } = req?.params
-    const { students } = req?.body
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var subject = await Subject.findById({ _id: sid })
+    const { sid } = req?.params;
+    const { students } = req?.body;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var subject = await Subject.findById({ _id: sid });
     if (students?.length > 0) {
       for (let ele of students) {
-        subject.theory_students.push(ele) 
-        subject.optionalStudent.push(ele)
+        subject.theory_students.push(ele);
+        subject.optionalStudent.push(ele);
       }
     }
-    await subject.save()
-    res.status(200).send({ message: "New Student Add Query", access: true })            
+    await subject.save();
+    res.status(200).send({ message: "New Student Add Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_new_student_remove_query = async (req, res) => {
   try {
-    const { sid } = req?.params
-    const { students } = req?.body
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var subject = await Subject.findById({ _id: sid })
+    const { sid } = req?.params;
+    const { students } = req?.body;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var subject = await Subject.findById({ _id: sid });
     if (students?.length > 0) {
       for (let ele of students) {
-        subject.theory_students.pull(ele) 
-        subject.optionalStudent.pull(ele)
+        subject.theory_students.pull(ele);
+        subject.optionalStudent.pull(ele);
       }
     }
-    await subject.save()
-    res.status(200).send({ message: "New Student Remove Query", access: true })            
+    await subject.save();
+    res.status(200).send({ message: "New Student Remove Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_new_theory_practical = async (req, res) => {
   try {
-    const { cid } = req?.params
-    const { staff, did } = req?.body
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const depart = await Department.findById({ _id: did })
-    .select("active_academic_batch")
-    const classes = await ClassMaster.findById({ _id: cid })
-    const new_subject = new Subject({ ...req?.body })
-    new_subject.subjectTitle = "Subject Teacher"
-    const codess = universal_random_password()
-    new_subject.member_module_unique = `${codess}`
+    const { cid } = req?.params;
+    const { staff, did } = req?.body;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did }).select(
+      "active_academic_batch"
+    );
+    const classes = await ClassMaster.findById({ _id: cid });
+    const new_subject = new Subject({ ...req?.body });
+    new_subject.subjectTitle = "Subject Teacher";
+    const codess = universal_random_password();
+    new_subject.member_module_unique = `${codess}`;
     if (staff) {
-      const staffs = await Staff.findById({ _id: staff})
-      new_subject.subjectTeacherName = staffs
-      staffs.staffSubject.push(new_subject?._id)
-      await staffs.save()
+      const staffs = await Staff.findById({ _id: staff });
+      new_subject.subjectTeacherName = staffs;
+      staffs.staffSubject.push(new_subject?._id);
+      await staffs.save();
     }
     classes.practical_batch.push({
       subject: new_subject?._id,
       did: did,
-      batch: depart?.active_academic_batch
-    })
-    classes.practical_batch_count += 1
-    await Promise.all([new_subject.save(), classes.save()])
-    res.status(200).send({ message: "New Practical Subject Add Query", access: true })            
+      batch: depart?.active_academic_batch,
+    });
+    classes.practical_batch_count += 1;
+    await Promise.all([new_subject.save(), classes.save()]);
+    res
+      .status(200)
+      .send({ message: "New Practical Subject Add Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_theory_practical = async (req, res) => {
   try {
-    const { cid } = req?.params
+    const { cid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { did } = req?.query
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { did } = req?.query;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     const classes = await ClassMaster.findById({ _id: cid })
-    .populate({
-      path: "practical_batch.subject",
-      select: "subjectName theory_students optionalStudent",
-      populate: {
-        path: "subjectTeacherName",
-        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-      }
-    })
-    .populate({
-      path: "practical_batch.subject",
-      select: "subjectName theory_students optionalStudent",
-      populate: {
-        path: "subjectMasterName",
-        select: "subjectName",
+      .populate({
+        path: "practical_batch.subject",
+        select: "subjectName theory_students optionalStudent",
         populate: {
-          path: "department",
-          select: "dName"
-        }
-      }
-    })
-    var list = []
+          path: "subjectTeacherName",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        },
+      })
+      .populate({
+        path: "practical_batch.subject",
+        select: "subjectName theory_students optionalStudent",
+        populate: {
+          path: "subjectMasterName",
+          select: "subjectName",
+          populate: {
+            path: "department",
+            select: "dName",
+          },
+        },
+      });
+    var list = [];
     for (let ele of classes?.practical_batch) {
-      const depart = await Department.findById({ _id: did })
-      .select("active_academic_batch")
-      if (`${ele?.did}` === `${depart?._id}` && `${ele?.batch}` === `${depart?.active_academic_batch}`) {
-        list.push(ele)
+      const depart = await Department.findById({ _id: did }).select(
+        "active_academic_batch"
+      );
+      if (
+        `${ele?.did}` === `${depart?._id}` &&
+        `${ele?.batch}` === `${depart?.active_academic_batch}`
+      ) {
+        list.push(ele);
       }
     }
-    const all_batch = await nested_document_limit(page, limit, list)
+    const all_batch = await nested_document_limit(page, limit, list);
     // const all_batch = await Batch.find({ _id: { $in: classes?.practical_batch } })
     //   .limit(limit)
     //   .skip(skip)
@@ -788,852 +929,949 @@ exports.render_all_theory_practical = async (req, res) => {
     //     path: "batch_head",
     //     select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
     //   })
-      res.status(200).send({ message: "All Batches Query", access: true, all_batch: all_batch })            
+    res.status(200).send({
+      message: "All Batches Query",
+      access: true,
+      all_batch: all_batch,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_one_theory_practical_batch = async (req, res) => {
   try {
-    const { bid } = req?.params
-    if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { bid } = req?.params;
+    if (!bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     const batch = await Subject.findById({ _id: bid })
-    .select("subjectName theory_students optionalStudent")
-    .populate({
-      path: "subjectTeacherName",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-    })
-    .populate({
-      path: "theory_students optionalStudent",
-      select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO"
-    })
-      res.status(200).send({ message: "One Batch Query", access: true, batch: batch })            
+      .select("subjectName theory_students optionalStudent")
+      .populate({
+        path: "subjectTeacherName",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      })
+      .populate({
+        path: "theory_students optionalStudent",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO",
+      });
+    res
+      .status(200)
+      .send({ message: "One Batch Query", access: true, batch: batch });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_new_student_add_query_batch = async (req, res) => {
   try {
-    const { bid } = req?.params
-    const { students } = req?.body
-    if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var one_batch = await Subject.findById({ _id: bid })
+    const { bid } = req?.params;
+    const { students } = req?.body;
+    if (!bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_batch = await Subject.findById({ _id: bid });
     var all_student = await Student.find({ _id: { $in: students } });
 
     for (var ref of all_student) {
       one_batch.theory_students.push(ref?._id);
-      one_batch.optionalStudent.push(ref?._id)
+      one_batch.optionalStudent.push(ref?._id);
       // one_batch.theory_students_count += 1;
       // ref.class_selected_batch.push(one_batch?._id);
       // await ref.save();
     }
-    await one_batch.save()
-    res.status(200).send({ message: "New Student In Batch Add Query", access: true })            
+    await one_batch.save();
+    res
+      .status(200)
+      .send({ message: "New Student In Batch Add Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_new_student_remove_query_batch = async (req, res) => {
   try {
-    const { bid } = req?.params
-    const { students } = req?.body
-    if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var one_batch = await Subject.findById({ _id: bid })
+    const { bid } = req?.params;
+    const { students } = req?.body;
+    if (!bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_batch = await Subject.findById({ _id: bid });
     var all_student = await Student.find({ _id: { $in: students } });
 
     for (var ref of all_student) {
       one_batch.theory_students.pull(ref?._id);
-      one_batch.optionalStudent.pull(ref?._id)
+      one_batch.optionalStudent.pull(ref?._id);
       // one_batch.class_student_query_count += 1;
       // ref.class_selected_batch.pull(one_batch?._id);
       // await ref.save();
     }
-    await one_batch.save()
-    res.status(200).send({ message: "New Student Remove In Batch Query", access: true })            
+    await one_batch.save();
+    res
+      .status(200)
+      .send({ message: "New Student Remove In Batch Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_active_academic_batch_query = async (req, res) => {
   try {
-      const { bid, did } = req?.params
-      if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-      const depart = await Department.findById({ _id: did })
-      const batch = await Batch.findById({ _id: bid })
-      depart.active_academic_batch = batch?._id
-    await depart.save()
-      res.status(200).send({ message: "Active Batches Query", access: true})            
+    const { bid, did } = req?.params;
+    if (!bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const batch = await Batch.findById({ _id: bid });
+    depart.active_academic_batch = batch?._id;
+    await depart.save();
+    res.status(200).send({ message: "Active Batches Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-      console.log(e)
-  }
-}
+};
 
 exports.render_one_class_details_query = async (req, res) => {
   try {
-    const { cid, did } = req?.params
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    
-    const classes = await ClassMaster.findById({ _id: cid })
-    var list = []
+    const { cid, did } = req?.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const classes = await ClassMaster.findById({ _id: cid });
+    var list = [];
     for (let ele of classes?.theory_classes) {
       if (`${ele?.did}` === `${did}`) {
-        list.push(ele)
+        list.push(ele);
       }
     }
-    var list_2 = []
+    var list_2 = [];
     for (let ele of classes?.practical_batch) {
       if (`${ele?.did}` === `${did}`) {
-        list.push(ele)
+        list.push(ele);
       }
     }
     let stats = {
       theory_classes: list?.length ?? 0,
       practical_batch: list_2?.length ?? 0,
-      all_student: classes?.all_academic_student_count ?? 0
-    }
-    res.status(200).send({ message: "Explore One Class Master Details", access: true, stats})
+      all_student: classes?.all_academic_student_count ?? 0,
+    };
+    res.status(200).send({
+      message: "Explore One Class Master Details",
+      access: true,
+      stats,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_master_list_query = async (req, res) => {
   try {
-    const { did } = req?.params
+    const { did } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-      if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-      
-      const depart = await Department.findById({ _id: did })
-      const subjects_extra = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master } })
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const subjects_extra = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
       .limit(limit)
       .skip(skip)
-        .select("subjectName subjectStatus")
-        .populate({
-          path: "department",
-          select: "dName"
-        })
-      res.status(200).send({ message: "Explore All Subject Master Map Query", access: true, subjects_extra: subjects_extra?.length > 0 ? subjects_extra : []})
-
+      .select("subjectName subjectStatus")
+      .populate({
+        path: "department",
+        select: "dName",
+      });
+    res.status(200).send({
+      message: "Explore All Subject Master Map Query",
+      access: true,
+      subjects_extra: subjects_extra?.length > 0 ? subjects_extra : [],
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-      console.log(e)
-  }
-}
+};
 
 exports.render_all_dse_students_query = async (req, res) => {
   try {
-      const { cid } = req?.params
-      const page = req.query.page ? parseInt(req.query.page) : 1;
-      const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-      const skip = (page - 1) * limit;
-      const { did } = req?.query
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const depart = await Department.findById({ _id: did })
-      const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-          .select("subjectName department link_subject_master")
-          .populate({
-              path: "subjects",
-              select: "class",
-      })
-      
-    var numss = []
-    var nums = []
-      for (let ele of all_subjects) {
-          for (let val of ele?.subjects) {
-              if (numss?.includes(`${val?.class}`)) {
-                  
-              }
-              else {
-                  numss.push(val?.class)
-              }
-          }
+    const { cid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { did } = req?.query;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "class",
+      });
+
+    var numss = [];
+    var nums = [];
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        if (numss?.includes(`${val?.class}`)) {
+        } else {
+          numss.push(val?.class);
+        }
       }
+    }
     // console.log(numss)
-      const m_class = await ClassMaster.findById({ _id: cid })
-      
+    const m_class = await ClassMaster.findById({ _id: cid });
+
     for (let ele of m_class?.classDivision) {
       for (let val of numss) {
         if (`${val}` === `${ele}`) {
-          nums.push(val)
+          nums.push(val);
         }
       }
     }
     // console.log(nums)
-      if (nums?.length > 0) {
-          const all_students = await Student.find({ $and: [{ studentClass: { $in: nums } }] })
-              // .limit(limit)
-              // .skip(skip)
-              .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject")
-              .populate({
-                  path: "studentClass",
-                  select: "className"
-              })
-        var numss = []
-        for (let ele of all_subjects) {
-          for (let val of all_students) {
-            if (val?.major_subject?.includes(`${ele?._id}`)) {
-              numss.push(val)
-            }
+    if (nums?.length > 0) {
+      const all_students = await Student.find({
+        $and: [{ studentClass: { $in: nums } }],
+      })
+        // .limit(limit)
+        // .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className",
+        });
+      var numss = [];
+      for (let ele of all_subjects) {
+        for (let val of all_students) {
+          if (val?.major_subject?.includes(`${ele?._id}`)) {
+            numss.push(val);
           }
         }
-        const unique = [...new Set(numss.map(item => item._id))];
-        // let all_m = all_students?.filter((val) => {
-        //   if(val?.major_subject?.length > 0) return val
-        //   })
-        const all_stu = await Student.find({ _id: { $in: unique} })
-              .limit(limit)
-              .skip(skip)
-              .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject")
-              .populate({
-                  path: "studentClass",
-                  select: "className"
-              })
-        res.status(200).send({ message: "Explore All DSE Students Query", access: true, all_students: all_stu, count: unique?.length })
       }
-      else {
-          res.status(200).send({ message: "No DSE Students Query", access: true, all_students: [], count: 0})            
-      }
+      const unique = [...new Set(numss.map((item) => item._id))];
+      // let all_m = all_students?.filter((val) => {
+      //   if(val?.major_subject?.length > 0) return val
+      //   })
+      const all_stu = await Student.find({ _id: { $in: unique } })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className",
+        });
+      res.status(200).send({
+        message: "Explore All DSE Students Query",
+        access: true,
+        all_students: all_stu,
+        count: unique?.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "No DSE Students Query",
+        access: true,
+        all_students: [],
+        count: 0,
+      });
+    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-      console.log(e)
-  }
-}
+};
 exports.render_edit_theory_classes = async (req, res) => {
   try {
-    const { sid } = req?.params
-    const { o_staff, n_staff } = req?.body
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    await Subject.findByIdAndUpdate(sid, req?.body)
+    const { sid } = req?.params;
+    const { o_staff, n_staff } = req?.body;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await Subject.findByIdAndUpdate(sid, req?.body);
     if (n_staff) {
-      const new_subject = await Subject.findById({ _id: sid })
-      const staffs = await Staff.findById({ _id: o_staff })
-      const new_staff = await Staff.findById({ _id: n_staff })
-      staffs.staffSubject.pull(new_subject?._id)
-      new_subject.subjectTeacherName = new_staff?._id
-      new_staff.staffSubject.push(new_subject?._id)
-      await Promise.all([staffs.save(), new_staff.save()])
-      await new_subject.save()
+      const new_subject = await Subject.findById({ _id: sid });
+      const staffs = await Staff.findById({ _id: o_staff });
+      const new_staff = await Staff.findById({ _id: n_staff });
+      staffs.staffSubject.pull(new_subject?._id);
+      new_subject.subjectTeacherName = new_staff?._id;
+      new_staff.staffSubject.push(new_subject?._id);
+      await Promise.all([staffs.save(), new_staff.save()]);
+      await new_subject.save();
     }
-    res.status(200).send({ message: "Edit Subject Add Query", access: true })            
+    res.status(200).send({ message: "Edit Subject Add Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_delete_theory_classes = async (req, res) => {
   try {
-    const { sid } = req?.params
-    const { cid, flow } = req?.body
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const classes = await ClassMaster.findById({ _id: cid })
-    const new_subject = await Subject.findById({ _id: sid })
+    const { sid } = req?.params;
+    const { cid, flow } = req?.body;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const classes = await ClassMaster.findById({ _id: cid });
+    const new_subject = await Subject.findById({ _id: sid });
     if (new_subject?.subjectTeacherName) {
-      const staffs = await Staff.findById({ _id: new_subject?.subjectTeacherName })
-      new_subject.subjectTeacherName = null
-      staffs.staffSubject.pull(new_subject?._id)
-      await staffs.save()
+      const staffs = await Staff.findById({
+        _id: new_subject?.subjectTeacherName,
+      });
+      new_subject.subjectTeacherName = null;
+      staffs.staffSubject.pull(new_subject?._id);
+      await staffs.save();
     }
     if (flow === "THEORY_CLASSES") {
       for (let ele of classes?.theory_classes) {
         if (`${ele?.subject}` === `${new_subject._id}`) {
-          classes?.theory_classes?.pull(ele?._id)
+          classes?.theory_classes?.pull(ele?._id);
         }
       }
-    }
-    else if(flow === "PRACTICAL_BATCH") {
+    } else if (flow === "PRACTICAL_BATCH") {
       for (let ele of classes?.practical_batch) {
         if (`${ele?.subject}` === `${new_subject._id}`) {
-          classes?.practical_batch?.pull(ele?._id)
+          classes?.practical_batch?.pull(ele?._id);
         }
       }
     }
-    await classes.save()
-    await Subject.findByIdAndDelete(new_subject?._id)
-    res.status(200).send({ message: "Delete Subject Add Query", access: true })            
+    await classes.save();
+    await Subject.findByIdAndDelete(new_subject?._id);
+    res.status(200).send({ message: "Delete Subject Add Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.subject_query = async (req, res) => {
   try {
-      const all_subject = await Subject.find({})
-        .select("theory_students optionalStudent")
-    var  i =0
+    const all_subject = await Subject.find({}).select(
+      "theory_students optionalStudent"
+    );
+    var i = 0;
     for (let ele of all_subject) {
       if (ele?.theory_students?.length > 0) {
         for (let val of ele?.theory_students) {
           if (ele?.optionalStudent?.includes(`${val}`)) {
-            
-          }
-          else {
-            ele.optionalStudent.push(val)
+          } else {
+            ele.optionalStudent.push(val);
           }
         }
       }
-      await ele.save()
-      console.log(i)
-      i+= 1
-      }
-      res.status(200).send({ message: "Explore All Subjects", access: true })
-
+      await ele.save();
+      console.log(i);
+      i += 1;
+    }
+    res.status(200).send({ message: "Explore All Subjects", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-      console.log(e)
-  }
-}
+};
 
 exports.render_all_students_query_export = async (req, res) => {
   try {
-      const { cid } = req?.params
-      const { did } = req?.query
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const depart = await Department.findById({ _id: did })
-      const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-          .select("subjectName department link_subject_master")
-          .populate({
-              path: "subjects",
-              select: "class",
-      })
-      
-    var numss = []
-    var nums = []
-    const m_class = await ClassMaster.findById({ _id: cid })
+    const { cid } = req?.params;
+    const { did } = req?.query;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "class",
+      });
+
+    var numss = [];
+    var nums = [];
+    const m_class = await ClassMaster.findById({ _id: cid });
     for (let ele of all_subjects) {
       for (let val of ele?.subjects) {
         for (let cls of m_class?.classDivision) {
-            if (`${val?.class}` === `${cls}`) {
-              nums.push(val?._id)
-            }
-        }
-        }
-    }
-  const all_subject = await Subject.find({ _id: { $in: nums } })
-  .select("optionalStudent")
-  let ds = []
-  for (let ele of all_subject) {
-    ds.push(...ele?.optionalStudent)
-  }
-  const unique = [...new Set(ds.map(item => item))];
-      if (nums?.length > 0) {
-          const all_students = await Student.find({ $and: [{ _id: { $in: unique } }] })
-              // .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department")
-              .populate({
-                  path: "studentClass",
-                  select: "className"
-              })
-        var excel_list = []
-        var numss = {};
-        for (let ref of all_students) {
-          for (let ele of ref?.student_dynamic_field) {
-            // numss.push(
-            //   [ele?.key]: ele?.value,
-            // );
-            numss[ele?.key] = ele?.value;
+          if (`${val?.class}` === `${cls}`) {
+            nums.push(val?._id);
           }
-          excel_list.push({
-            RegistrationID: ref?.studentGRNO ?? "#NA",
-            Name: `${ref?.studentFirstName} ${ref?.studentMiddleName
-              ? ref?.studentMiddleName ??
-              ref?.studentFatherName
-              : ""
-              } ${ref?.studentLastName}`,
-            DOB: ref?.studentDOB ?? "#NA",
-            Gender: ref?.studentGender ?? "#NA",
-            CasteCategory: ref?.studentCastCategory ?? "#NA",
-            Religion: ref?.studentReligion ?? "#NA",
-            MotherName: `${ref?.studentMotherName}` ?? "#NA",
-            Address: `${ref?.studentAddress}` ?? "#NA",
-            AppliedOn: `${moment(ref?.createdAt).format("LL")}`,
-            ContactNo: ref?.studentPhoneNumber ?? "#NA",
-            AlternateContactNo:
-              ref?.studentParentsPhoneNumber ?? "#NA",
-            NameAsMarksheet: ref?.studentNameAsMarksheet,
-            NameAsCertificate: ref?.studentNameAsCertificate,
-            BirthPlace: ref?.studentBirthPlace,
-            Religion: ref?.studentReligion,
-            Caste: ref?.studentCast,
-            Nationality: ref?.studentNationality,
-            RationCard: ref?.studentFatherRationCardColor,
-            BloodGroup: ref?.student_blood_group,
-            AadharNumber: ref?.studentAadharNumber,
-            PhoneNumber: ref?.studentPhoneNumber,
-            Email: ref?.studentEmail,
-            ParentsPhoneNumber: ref?.studentParentsPhoneNumber,
-            CurrentAddress: ref?.studentCurrentAddress,
-            CurrentPinCode: ref?.studentCurrentPincode,
-            CurrentState: ref?.studentCurrentState,
-            CurrentDistrict: ref?.studentCurrentDistrict,
-            Address: ref?.studentAddress,
-            PinCode: ref?.studentPincode,
-            State: ref?.studentState,
-            District: ref?.studentDistrict,
-            ParentsName: ref?.studentParentsName,
-            ParentsEmail: ref?.studentParentsEmail,
-            ParentsOccupation: ref?.studentParentsOccupation,
-            ParentsOfficeAddress: ref?.studentParentsAddress,
-            ParentsAnnualIncome: ref?.studentParentsAnnualIncom,
-            SeatType: ref?.student_seat_type,
-            PhysicallyHandicapped: ref?.student_ph_type,
-            DefencePersonnel: ref?.student_defence_personnel_word,
-            MaritalStatus: ref?.student_marital_status,
-            PreviousBoard: ref?.student_board_university,
-            PreviousSchool: ref?.studentPreviousSchool,
-            UniversityCourse: ref?.student_university_courses,
-            PassingYear: ref?.student_year,
-            PreviousClass: ref?.student_previous_class,
-            PreviousMarks: ref?.student_previous_marks,
-            PreviousPercentage: ref?.student_previous_percentage,
-            SeatNo: ref?.student_previous_section,
-            StandardMOP: ref?.month_of_passing,
-            StandardYOP: ref?.year_of_passing,
-            StandardPercentage: ref?.percentage,
-            StandardNameOfInstitute: ref?.name_of_institute,
-            HSCMOP: ref?.hsc_month,
-            HSCYOP: ref?.hsc_year,
-            HSCPercentage: ref?.hsc_percentage,
-            HSCNameOfInstitute: ref?.hsc_name_of_institute,
-            HSCBoard: ref?.hsc_board,
-            HSCCandidateType: ref?.hsc_candidate_type,
-            HSCVocationalType: ref?.hsc_vocational_type,
-            HSCPhysicsMarks: ref?.hsc_physics_marks,
-            HSCChemistryMarks: ref?.hsc_chemistry_marks,
-            HSCMathematicsMarks: ref?.hsc_mathematics_marks,
-            HSCPCMTotal: ref?.hsc_pcm_total,
-            HSCGrandTotal: ref?.hsc_grand_total,
-            FormNo: ref?.form_no,
-            QviplePayId: ref?.qviple_student_pay_id,
-            ...numss
-          });
         }
-        var valid_back = await json_to_excel_academic_export_query(
-          excel_list,
-          m_class?.className,
-        );
-        res.status(200).send({ message: "Explore All Students Export Query", access: true, set: valid_back})
       }
-      else {
-          res.status(200).send({ message: "No Students Query", access: true, set: ""})            
+    }
+    const all_subject = await Subject.find({ _id: { $in: nums } }).select(
+      "optionalStudent"
+    );
+    let ds = [];
+    for (let ele of all_subject) {
+      ds.push(...ele?.optionalStudent);
+    }
+    const unique = [...new Set(ds.map((item) => item))];
+    if (nums?.length > 0) {
+      const all_students = await Student.find({
+        $and: [{ _id: { $in: unique } }],
+      })
+        // .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department")
+        .populate({
+          path: "studentClass",
+          select: "className",
+        });
+      var excel_list = [];
+      var numss = {};
+      for (let ref of all_students) {
+        for (let ele of ref?.student_dynamic_field) {
+          // numss.push(
+          //   [ele?.key]: ele?.value,
+          // );
+          numss[ele?.key] = ele?.value;
+        }
+        excel_list.push({
+          RegistrationID: ref?.studentGRNO ?? "#NA",
+          Name: `${ref?.studentFirstName} ${
+            ref?.studentMiddleName
+              ? ref?.studentMiddleName ?? ref?.studentFatherName
+              : ""
+          } ${ref?.studentLastName}`,
+          DOB: ref?.studentDOB ?? "#NA",
+          Gender: ref?.studentGender ?? "#NA",
+          CasteCategory: ref?.studentCastCategory ?? "#NA",
+          Religion: ref?.studentReligion ?? "#NA",
+          MotherName: `${ref?.studentMotherName}` ?? "#NA",
+          Address: `${ref?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.createdAt).format("LL")}`,
+          ContactNo: ref?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo: ref?.studentParentsPhoneNumber ?? "#NA",
+          NameAsMarksheet: ref?.studentNameAsMarksheet,
+          NameAsCertificate: ref?.studentNameAsCertificate,
+          BirthPlace: ref?.studentBirthPlace,
+          Religion: ref?.studentReligion,
+          Caste: ref?.studentCast,
+          Nationality: ref?.studentNationality,
+          RationCard: ref?.studentFatherRationCardColor,
+          BloodGroup: ref?.student_blood_group,
+          AadharNumber: ref?.studentAadharNumber,
+          PhoneNumber: ref?.studentPhoneNumber,
+          Email: ref?.studentEmail,
+          ParentsPhoneNumber: ref?.studentParentsPhoneNumber,
+          CurrentAddress: ref?.studentCurrentAddress,
+          CurrentPinCode: ref?.studentCurrentPincode,
+          CurrentState: ref?.studentCurrentState,
+          CurrentDistrict: ref?.studentCurrentDistrict,
+          Address: ref?.studentAddress,
+          PinCode: ref?.studentPincode,
+          State: ref?.studentState,
+          District: ref?.studentDistrict,
+          ParentsName: ref?.studentParentsName,
+          ParentsEmail: ref?.studentParentsEmail,
+          ParentsOccupation: ref?.studentParentsOccupation,
+          ParentsOfficeAddress: ref?.studentParentsAddress,
+          ParentsAnnualIncome: ref?.studentParentsAnnualIncom,
+          SeatType: ref?.student_seat_type,
+          PhysicallyHandicapped: ref?.student_ph_type,
+          DefencePersonnel: ref?.student_defence_personnel_word,
+          MaritalStatus: ref?.student_marital_status,
+          PreviousBoard: ref?.student_board_university,
+          PreviousSchool: ref?.studentPreviousSchool,
+          UniversityCourse: ref?.student_university_courses,
+          PassingYear: ref?.student_year,
+          PreviousClass: ref?.student_previous_class,
+          PreviousMarks: ref?.student_previous_marks,
+          PreviousPercentage: ref?.student_previous_percentage,
+          SeatNo: ref?.student_previous_section,
+          StandardMOP: ref?.month_of_passing,
+          StandardYOP: ref?.year_of_passing,
+          StandardPercentage: ref?.percentage,
+          StandardNameOfInstitute: ref?.name_of_institute,
+          HSCMOP: ref?.hsc_month,
+          HSCYOP: ref?.hsc_year,
+          HSCPercentage: ref?.hsc_percentage,
+          HSCNameOfInstitute: ref?.hsc_name_of_institute,
+          HSCBoard: ref?.hsc_board,
+          HSCCandidateType: ref?.hsc_candidate_type,
+          HSCVocationalType: ref?.hsc_vocational_type,
+          HSCPhysicsMarks: ref?.hsc_physics_marks,
+          HSCChemistryMarks: ref?.hsc_chemistry_marks,
+          HSCMathematicsMarks: ref?.hsc_mathematics_marks,
+          HSCPCMTotal: ref?.hsc_pcm_total,
+          HSCGrandTotal: ref?.hsc_grand_total,
+          FormNo: ref?.form_no,
+          QviplePayId: ref?.qviple_student_pay_id,
+          ...numss,
+        });
       }
+      var valid_back = await json_to_excel_academic_export_query(
+        excel_list,
+        m_class?.className
+      );
+      res.status(200).send({
+        message: "Explore All Students Export Query",
+        access: true,
+        set: valid_back,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Students Query", access: true, set: "" });
+    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-      console.log(e)
-  }
-}
+};
 
 exports.render_all_students_tab_query_export = async (req, res) => {
   try {
-      const { did } = req?.params
-      if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-      const depart = await Department.findById({ _id: did })
-      const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-          .select("subjectName department link_subject_master")
-          .populate({
-              path: "subjects",
-              select: "class",
-      })
-      
-      var nums = []
-      for (let ele of all_subjects) {
-          for (let val of ele?.subjects) {
-              if (nums?.includes(`${val?.class}`)) {
-                  
-              }
-              else {
-                  nums.push(val?.class)
-              }
-          }
-      }
+    const { did } = req?.params;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "class",
+      });
 
-      if (nums?.length > 0) {
-          const all_students = await Student.find({ studentClass: { $in: nums } })
-              // .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO")
-              .populate({
-                  path: "studentClass",
-                  select: "className"
-              })
-              var excel_list = []
-              var numss = {};
-              for (let ref of all_students) {
-                for (let ele of ref?.student_dynamic_field) {
-                  // numss.push(
-                  //   [ele?.key]: ele?.value,
-                  // );
-                  numss[ele?.key] = ele?.value;
-                }
-                excel_list.push({
-                  RegistrationID: ref?.studentGRNO ?? "#NA",
-                  Name: `${ref?.studentFirstName} ${ref?.studentMiddleName
-                    ? ref?.studentMiddleName ??
-                    ref?.studentFatherName
-                    : ""
-                    } ${ref?.studentLastName}`,
-                  DOB: ref?.studentDOB ?? "#NA",
-                  Gender: ref?.studentGender ?? "#NA",
-                  CasteCategory: ref?.studentCastCategory ?? "#NA",
-                  Religion: ref?.studentReligion ?? "#NA",
-                  MotherName: `${ref?.studentMotherName}` ?? "#NA",
-                  Address: `${ref?.studentAddress}` ?? "#NA",
-                  AppliedOn: `${moment(ref?.createdAt).format("LL")}`,
-                  ContactNo: ref?.studentPhoneNumber ?? "#NA",
-                  AlternateContactNo:
-                    ref?.studentParentsPhoneNumber ?? "#NA",
-                  NameAsMarksheet: ref?.studentNameAsMarksheet,
-                  NameAsCertificate: ref?.studentNameAsCertificate,
-                  BirthPlace: ref?.studentBirthPlace,
-                  Religion: ref?.studentReligion,
-                  Caste: ref?.studentCast,
-                  Nationality: ref?.studentNationality,
-                  RationCard: ref?.studentFatherRationCardColor,
-                  BloodGroup: ref?.student_blood_group,
-                  AadharNumber: ref?.studentAadharNumber,
-                  PhoneNumber: ref?.studentPhoneNumber,
-                  Email: ref?.studentEmail,
-                  ParentsPhoneNumber: ref?.studentParentsPhoneNumber,
-                  CurrentAddress: ref?.studentCurrentAddress,
-                  CurrentPinCode: ref?.studentCurrentPincode,
-                  CurrentState: ref?.studentCurrentState,
-                  CurrentDistrict: ref?.studentCurrentDistrict,
-                  Address: ref?.studentAddress,
-                  PinCode: ref?.studentPincode,
-                  State: ref?.studentState,
-                  District: ref?.studentDistrict,
-                  ParentsName: ref?.studentParentsName,
-                  ParentsEmail: ref?.studentParentsEmail,
-                  ParentsOccupation: ref?.studentParentsOccupation,
-                  ParentsOfficeAddress: ref?.studentParentsAddress,
-                  ParentsAnnualIncome: ref?.studentParentsAnnualIncom,
-                  SeatType: ref?.student_seat_type,
-                  PhysicallyHandicapped: ref?.student_ph_type,
-                  DefencePersonnel: ref?.student_defence_personnel_word,
-                  MaritalStatus: ref?.student_marital_status,
-                  PreviousBoard: ref?.student_board_university,
-                  PreviousSchool: ref?.studentPreviousSchool,
-                  UniversityCourse: ref?.student_university_courses,
-                  PassingYear: ref?.student_year,
-                  PreviousClass: ref?.student_previous_class,
-                  PreviousMarks: ref?.student_previous_marks,
-                  PreviousPercentage: ref?.student_previous_percentage,
-                  SeatNo: ref?.student_previous_section,
-                  StandardMOP: ref?.month_of_passing,
-                  StandardYOP: ref?.year_of_passing,
-                  StandardPercentage: ref?.percentage,
-                  StandardNameOfInstitute: ref?.name_of_institute,
-                  HSCMOP: ref?.hsc_month,
-                  HSCYOP: ref?.hsc_year,
-                  HSCPercentage: ref?.hsc_percentage,
-                  HSCNameOfInstitute: ref?.hsc_name_of_institute,
-                  HSCBoard: ref?.hsc_board,
-                  HSCCandidateType: ref?.hsc_candidate_type,
-                  HSCVocationalType: ref?.hsc_vocational_type,
-                  HSCPhysicsMarks: ref?.hsc_physics_marks,
-                  HSCChemistryMarks: ref?.hsc_chemistry_marks,
-                  HSCMathematicsMarks: ref?.hsc_mathematics_marks,
-                  HSCPCMTotal: ref?.hsc_pcm_total,
-                  HSCGrandTotal: ref?.hsc_grand_total,
-                  FormNo: ref?.form_no,
-                  QviplePayId: ref?.qviple_student_pay_id,
-                  ...numss
-                });
-              }
-              var valid_back = await json_to_excel_academic_export_query(
-                excel_list,
-                depart?.dName,
-              );
-          res.status(200).send({ message: "Explore All Students Tab Query", access: true, set: valid_back})
+    var nums = [];
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        if (nums?.includes(`${val?.class}`)) {
+        } else {
+          nums.push(val?.class);
+        }
       }
-      else {
-          res.status(200).send({ message: "No Students Tab Query", access: true, set: ""})            
+    }
+
+    if (nums?.length > 0) {
+      const all_students = await Student.find({ studentClass: { $in: nums } })
+        // .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO")
+        .populate({
+          path: "studentClass",
+          select: "className",
+        });
+      var excel_list = [];
+      var numss = {};
+      for (let ref of all_students) {
+        for (let ele of ref?.student_dynamic_field) {
+          // numss.push(
+          //   [ele?.key]: ele?.value,
+          // );
+          numss[ele?.key] = ele?.value;
+        }
+        excel_list.push({
+          RegistrationID: ref?.studentGRNO ?? "#NA",
+          Name: `${ref?.studentFirstName} ${
+            ref?.studentMiddleName
+              ? ref?.studentMiddleName ?? ref?.studentFatherName
+              : ""
+          } ${ref?.studentLastName}`,
+          DOB: ref?.studentDOB ?? "#NA",
+          Gender: ref?.studentGender ?? "#NA",
+          CasteCategory: ref?.studentCastCategory ?? "#NA",
+          Religion: ref?.studentReligion ?? "#NA",
+          MotherName: `${ref?.studentMotherName}` ?? "#NA",
+          Address: `${ref?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.createdAt).format("LL")}`,
+          ContactNo: ref?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo: ref?.studentParentsPhoneNumber ?? "#NA",
+          NameAsMarksheet: ref?.studentNameAsMarksheet,
+          NameAsCertificate: ref?.studentNameAsCertificate,
+          BirthPlace: ref?.studentBirthPlace,
+          Religion: ref?.studentReligion,
+          Caste: ref?.studentCast,
+          Nationality: ref?.studentNationality,
+          RationCard: ref?.studentFatherRationCardColor,
+          BloodGroup: ref?.student_blood_group,
+          AadharNumber: ref?.studentAadharNumber,
+          PhoneNumber: ref?.studentPhoneNumber,
+          Email: ref?.studentEmail,
+          ParentsPhoneNumber: ref?.studentParentsPhoneNumber,
+          CurrentAddress: ref?.studentCurrentAddress,
+          CurrentPinCode: ref?.studentCurrentPincode,
+          CurrentState: ref?.studentCurrentState,
+          CurrentDistrict: ref?.studentCurrentDistrict,
+          Address: ref?.studentAddress,
+          PinCode: ref?.studentPincode,
+          State: ref?.studentState,
+          District: ref?.studentDistrict,
+          ParentsName: ref?.studentParentsName,
+          ParentsEmail: ref?.studentParentsEmail,
+          ParentsOccupation: ref?.studentParentsOccupation,
+          ParentsOfficeAddress: ref?.studentParentsAddress,
+          ParentsAnnualIncome: ref?.studentParentsAnnualIncom,
+          SeatType: ref?.student_seat_type,
+          PhysicallyHandicapped: ref?.student_ph_type,
+          DefencePersonnel: ref?.student_defence_personnel_word,
+          MaritalStatus: ref?.student_marital_status,
+          PreviousBoard: ref?.student_board_university,
+          PreviousSchool: ref?.studentPreviousSchool,
+          UniversityCourse: ref?.student_university_courses,
+          PassingYear: ref?.student_year,
+          PreviousClass: ref?.student_previous_class,
+          PreviousMarks: ref?.student_previous_marks,
+          PreviousPercentage: ref?.student_previous_percentage,
+          SeatNo: ref?.student_previous_section,
+          StandardMOP: ref?.month_of_passing,
+          StandardYOP: ref?.year_of_passing,
+          StandardPercentage: ref?.percentage,
+          StandardNameOfInstitute: ref?.name_of_institute,
+          HSCMOP: ref?.hsc_month,
+          HSCYOP: ref?.hsc_year,
+          HSCPercentage: ref?.hsc_percentage,
+          HSCNameOfInstitute: ref?.hsc_name_of_institute,
+          HSCBoard: ref?.hsc_board,
+          HSCCandidateType: ref?.hsc_candidate_type,
+          HSCVocationalType: ref?.hsc_vocational_type,
+          HSCPhysicsMarks: ref?.hsc_physics_marks,
+          HSCChemistryMarks: ref?.hsc_chemistry_marks,
+          HSCMathematicsMarks: ref?.hsc_mathematics_marks,
+          HSCPCMTotal: ref?.hsc_pcm_total,
+          HSCGrandTotal: ref?.hsc_grand_total,
+          FormNo: ref?.form_no,
+          QviplePayId: ref?.qviple_student_pay_id,
+          ...numss,
+        });
       }
+      var valid_back = await json_to_excel_academic_export_query(
+        excel_list,
+        depart?.dName
+      );
+      res.status(200).send({
+        message: "Explore All Students Tab Query",
+        access: true,
+        set: valid_back,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Students Tab Query", access: true, set: "" });
+    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-      console.log(e)
-  }
-}
+};
 
 exports.render_all_dse_students_query_export = async (req, res) => {
   try {
-      const { cid } = req?.params
-      const { did } = req?.query
-    if (!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const depart = await Department.findById({ _id: did })
-      const all_subjects = await SubjectMaster.find({ _id: { $in: depart?.merged_subject_master} })
-          .select("subjectName department link_subject_master")
-          .populate({
-              path: "subjects",
-              select: "class",
-      })
-      
-    var numss = []
-    var nums = []
-      for (let ele of all_subjects) {
-          for (let val of ele?.subjects) {
-              if (numss?.includes(`${val?.class}`)) {
-                  
-              }
-              else {
-                  numss.push(val?.class)
-              }
-          }
+    const { cid } = req?.params;
+    const { did } = req?.query;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "class",
+      });
+
+    var numss = [];
+    var nums = [];
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        if (numss?.includes(`${val?.class}`)) {
+        } else {
+          numss.push(val?.class);
+        }
       }
+    }
     // console.log(numss)
-      const m_class = await ClassMaster.findById({ _id: cid })
-      
+    const m_class = await ClassMaster.findById({ _id: cid });
+
     for (let ele of m_class?.classDivision) {
       for (let val of numss) {
         if (`${val}` === `${ele}`) {
-          nums.push(val)
+          nums.push(val);
         }
       }
     }
     // console.log(nums)
-      if (nums?.length > 0) {
-          const all_students = await Student.find({ $and: [{ studentClass: { $in: nums } }] })
-              .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject")
-              .populate({
-                  path: "studentClass",
-                  select: "className"
-              })
-        var numss = []
-        for (let ele of all_subjects) {
-          for (let val of all_students) {
-            if (val?.major_subject?.includes(`${ele?._id}`)) {
-              numss.push(val)
-            }
+    if (nums?.length > 0) {
+      const all_students = await Student.find({
+        $and: [{ studentClass: { $in: nums } }],
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className",
+        });
+      var numss = [];
+      for (let ele of all_subjects) {
+        for (let val of all_students) {
+          if (val?.major_subject?.includes(`${ele?._id}`)) {
+            numss.push(val);
           }
         }
-        const unique = [...new Set(numss.map(item => item._id))];
-        const all_stu = await Student.find({ _id: { $in: unique} })
-              // .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject")
-              .populate({
-                  path: "studentClass",
-                  select: "className"
-              })
-              var excel_list = []
-              var numss = {};
-              for (let ref of all_stu) {
-                for (let ele of ref?.student_dynamic_field) {
-                  // numss.push(
-                  //   [ele?.key]: ele?.value,
-                  // );
-                  numss[ele?.key] = ele?.value;
-                }
-                excel_list.push({
-                  RegistrationID: ref?.studentGRNO ?? "#NA",
-                  Name: `${ref?.studentFirstName} ${ref?.studentMiddleName
-                    ? ref?.studentMiddleName ??
-                    ref?.studentFatherName
-                    : ""
-                    } ${ref?.studentLastName}`,
-                  DOB: ref?.studentDOB ?? "#NA",
-                  Gender: ref?.studentGender ?? "#NA",
-                  CasteCategory: ref?.studentCastCategory ?? "#NA",
-                  Religion: ref?.studentReligion ?? "#NA",
-                  MotherName: `${ref?.studentMotherName}` ?? "#NA",
-                  Address: `${ref?.studentAddress}` ?? "#NA",
-                  AppliedOn: `${moment(ref?.createdAt).format("LL")}`,
-                  ContactNo: ref?.studentPhoneNumber ?? "#NA",
-                  AlternateContactNo:
-                    ref?.studentParentsPhoneNumber ?? "#NA",
-                  NameAsMarksheet: ref?.studentNameAsMarksheet,
-                  NameAsCertificate: ref?.studentNameAsCertificate,
-                  BirthPlace: ref?.studentBirthPlace,
-                  Religion: ref?.studentReligion,
-                  Caste: ref?.studentCast,
-                  Nationality: ref?.studentNationality,
-                  RationCard: ref?.studentFatherRationCardColor,
-                  BloodGroup: ref?.student_blood_group,
-                  AadharNumber: ref?.studentAadharNumber,
-                  PhoneNumber: ref?.studentPhoneNumber,
-                  Email: ref?.studentEmail,
-                  ParentsPhoneNumber: ref?.studentParentsPhoneNumber,
-                  CurrentAddress: ref?.studentCurrentAddress,
-                  CurrentPinCode: ref?.studentCurrentPincode,
-                  CurrentState: ref?.studentCurrentState,
-                  CurrentDistrict: ref?.studentCurrentDistrict,
-                  Address: ref?.studentAddress,
-                  PinCode: ref?.studentPincode,
-                  State: ref?.studentState,
-                  District: ref?.studentDistrict,
-                  ParentsName: ref?.studentParentsName,
-                  ParentsEmail: ref?.studentParentsEmail,
-                  ParentsOccupation: ref?.studentParentsOccupation,
-                  ParentsOfficeAddress: ref?.studentParentsAddress,
-                  ParentsAnnualIncome: ref?.studentParentsAnnualIncom,
-                  SeatType: ref?.student_seat_type,
-                  PhysicallyHandicapped: ref?.student_ph_type,
-                  DefencePersonnel: ref?.student_defence_personnel_word,
-                  MaritalStatus: ref?.student_marital_status,
-                  PreviousBoard: ref?.student_board_university,
-                  PreviousSchool: ref?.studentPreviousSchool,
-                  UniversityCourse: ref?.student_university_courses,
-                  PassingYear: ref?.student_year,
-                  PreviousClass: ref?.student_previous_class,
-                  PreviousMarks: ref?.student_previous_marks,
-                  PreviousPercentage: ref?.student_previous_percentage,
-                  SeatNo: ref?.student_previous_section,
-                  StandardMOP: ref?.month_of_passing,
-                  StandardYOP: ref?.year_of_passing,
-                  StandardPercentage: ref?.percentage,
-                  StandardNameOfInstitute: ref?.name_of_institute,
-                  HSCMOP: ref?.hsc_month,
-                  HSCYOP: ref?.hsc_year,
-                  HSCPercentage: ref?.hsc_percentage,
-                  HSCNameOfInstitute: ref?.hsc_name_of_institute,
-                  HSCBoard: ref?.hsc_board,
-                  HSCCandidateType: ref?.hsc_candidate_type,
-                  HSCVocationalType: ref?.hsc_vocational_type,
-                  HSCPhysicsMarks: ref?.hsc_physics_marks,
-                  HSCChemistryMarks: ref?.hsc_chemistry_marks,
-                  HSCMathematicsMarks: ref?.hsc_mathematics_marks,
-                  HSCPCMTotal: ref?.hsc_pcm_total,
-                  HSCGrandTotal: ref?.hsc_grand_total,
-                  FormNo: ref?.form_no,
-                  QviplePayId: ref?.qviple_student_pay_id,
-                  ...numss
-                });
-              }
-              var valid_back = await json_to_excel_academic_export_query(
-                excel_list,
-                m_class?.className,
-              );
-        res.status(200).send({ message: "Explore All DSE Students Query", access: true, set: valid_back})
       }
-      else {
-          res.status(200).send({ message: "No DSE Students Query", access: true, set: ""})            
+      const unique = [...new Set(numss.map((item) => item._id))];
+      const all_stu = await Student.find({ _id: { $in: unique } })
+        // .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject")
+        .populate({
+          path: "studentClass",
+          select: "className",
+        });
+      var excel_list = [];
+      var numss = {};
+      for (let ref of all_stu) {
+        for (let ele of ref?.student_dynamic_field) {
+          // numss.push(
+          //   [ele?.key]: ele?.value,
+          // );
+          numss[ele?.key] = ele?.value;
+        }
+        excel_list.push({
+          RegistrationID: ref?.studentGRNO ?? "#NA",
+          Name: `${ref?.studentFirstName} ${
+            ref?.studentMiddleName
+              ? ref?.studentMiddleName ?? ref?.studentFatherName
+              : ""
+          } ${ref?.studentLastName}`,
+          DOB: ref?.studentDOB ?? "#NA",
+          Gender: ref?.studentGender ?? "#NA",
+          CasteCategory: ref?.studentCastCategory ?? "#NA",
+          Religion: ref?.studentReligion ?? "#NA",
+          MotherName: `${ref?.studentMotherName}` ?? "#NA",
+          Address: `${ref?.studentAddress}` ?? "#NA",
+          AppliedOn: `${moment(ref?.createdAt).format("LL")}`,
+          ContactNo: ref?.studentPhoneNumber ?? "#NA",
+          AlternateContactNo: ref?.studentParentsPhoneNumber ?? "#NA",
+          NameAsMarksheet: ref?.studentNameAsMarksheet,
+          NameAsCertificate: ref?.studentNameAsCertificate,
+          BirthPlace: ref?.studentBirthPlace,
+          Religion: ref?.studentReligion,
+          Caste: ref?.studentCast,
+          Nationality: ref?.studentNationality,
+          RationCard: ref?.studentFatherRationCardColor,
+          BloodGroup: ref?.student_blood_group,
+          AadharNumber: ref?.studentAadharNumber,
+          PhoneNumber: ref?.studentPhoneNumber,
+          Email: ref?.studentEmail,
+          ParentsPhoneNumber: ref?.studentParentsPhoneNumber,
+          CurrentAddress: ref?.studentCurrentAddress,
+          CurrentPinCode: ref?.studentCurrentPincode,
+          CurrentState: ref?.studentCurrentState,
+          CurrentDistrict: ref?.studentCurrentDistrict,
+          Address: ref?.studentAddress,
+          PinCode: ref?.studentPincode,
+          State: ref?.studentState,
+          District: ref?.studentDistrict,
+          ParentsName: ref?.studentParentsName,
+          ParentsEmail: ref?.studentParentsEmail,
+          ParentsOccupation: ref?.studentParentsOccupation,
+          ParentsOfficeAddress: ref?.studentParentsAddress,
+          ParentsAnnualIncome: ref?.studentParentsAnnualIncom,
+          SeatType: ref?.student_seat_type,
+          PhysicallyHandicapped: ref?.student_ph_type,
+          DefencePersonnel: ref?.student_defence_personnel_word,
+          MaritalStatus: ref?.student_marital_status,
+          PreviousBoard: ref?.student_board_university,
+          PreviousSchool: ref?.studentPreviousSchool,
+          UniversityCourse: ref?.student_university_courses,
+          PassingYear: ref?.student_year,
+          PreviousClass: ref?.student_previous_class,
+          PreviousMarks: ref?.student_previous_marks,
+          PreviousPercentage: ref?.student_previous_percentage,
+          SeatNo: ref?.student_previous_section,
+          StandardMOP: ref?.month_of_passing,
+          StandardYOP: ref?.year_of_passing,
+          StandardPercentage: ref?.percentage,
+          StandardNameOfInstitute: ref?.name_of_institute,
+          HSCMOP: ref?.hsc_month,
+          HSCYOP: ref?.hsc_year,
+          HSCPercentage: ref?.hsc_percentage,
+          HSCNameOfInstitute: ref?.hsc_name_of_institute,
+          HSCBoard: ref?.hsc_board,
+          HSCCandidateType: ref?.hsc_candidate_type,
+          HSCVocationalType: ref?.hsc_vocational_type,
+          HSCPhysicsMarks: ref?.hsc_physics_marks,
+          HSCChemistryMarks: ref?.hsc_chemistry_marks,
+          HSCMathematicsMarks: ref?.hsc_mathematics_marks,
+          HSCPCMTotal: ref?.hsc_pcm_total,
+          HSCGrandTotal: ref?.hsc_grand_total,
+          FormNo: ref?.form_no,
+          QviplePayId: ref?.qviple_student_pay_id,
+          ...numss,
+        });
       }
+      var valid_back = await json_to_excel_academic_export_query(
+        excel_list,
+        m_class?.className
+      );
+      res.status(200).send({
+        message: "Explore All DSE Students Query",
+        access: true,
+        set: valid_back,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No DSE Students Query", access: true, set: "" });
+    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-      console.log(e)
-  }
-}
+};
 
 exports.render_all_subject_students_query_export = async (req, res) => {
   try {
-    const { sid } = req?.params
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var subject = await Subject.findById({ _id: sid })
-    var all_students = await Student.find({ _id: { $in: subject?.optionalStudent } })
-    // .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject")
-    .populate({
-      path: "studentClass",
-      select: "className"
-  })
-  var excel_list = []
-  var numss = {};
-  for (let ref of all_students) {
-    for (let ele of ref?.student_dynamic_field) {
-      // numss.push(
-      //   [ele?.key]: ele?.value,
-      // );
-      numss[ele?.key] = ele?.value;
-    }
-    excel_list.push({
-      RegistrationID: ref?.studentGRNO ?? "#NA",
-      Name: `${ref?.studentFirstName} ${ref?.studentMiddleName
-        ? ref?.studentMiddleName ??
-        ref?.studentFatherName
-        : ""
+    const { sid } = req?.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var subject = await Subject.findById({ _id: sid });
+    var all_students = await Student.find({
+      _id: { $in: subject?.optionalStudent },
+    })
+      // .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject")
+      .populate({
+        path: "studentClass",
+        select: "className",
+      });
+    var excel_list = [];
+    var numss = {};
+    for (let ref of all_students) {
+      for (let ele of ref?.student_dynamic_field) {
+        // numss.push(
+        //   [ele?.key]: ele?.value,
+        // );
+        numss[ele?.key] = ele?.value;
+      }
+      excel_list.push({
+        RegistrationID: ref?.studentGRNO ?? "#NA",
+        Name: `${ref?.studentFirstName} ${
+          ref?.studentMiddleName
+            ? ref?.studentMiddleName ?? ref?.studentFatherName
+            : ""
         } ${ref?.studentLastName}`,
-      DOB: ref?.studentDOB ?? "#NA",
-      Gender: ref?.studentGender ?? "#NA",
-      CasteCategory: ref?.studentCastCategory ?? "#NA",
-      Religion: ref?.studentReligion ?? "#NA",
-      MotherName: `${ref?.studentMotherName}` ?? "#NA",
-      Address: `${ref?.studentAddress}` ?? "#NA",
-      AppliedOn: `${moment(ref?.createdAt).format("LL")}`,
-      ContactNo: ref?.studentPhoneNumber ?? "#NA",
-      AlternateContactNo:
-        ref?.studentParentsPhoneNumber ?? "#NA",
-      NameAsMarksheet: ref?.studentNameAsMarksheet,
-      NameAsCertificate: ref?.studentNameAsCertificate,
-      BirthPlace: ref?.studentBirthPlace,
-      Religion: ref?.studentReligion,
-      Caste: ref?.studentCast,
-      Nationality: ref?.studentNationality,
-      RationCard: ref?.studentFatherRationCardColor,
-      BloodGroup: ref?.student_blood_group,
-      AadharNumber: ref?.studentAadharNumber,
-      PhoneNumber: ref?.studentPhoneNumber,
-      Email: ref?.studentEmail,
-      ParentsPhoneNumber: ref?.studentParentsPhoneNumber,
-      CurrentAddress: ref?.studentCurrentAddress,
-      CurrentPinCode: ref?.studentCurrentPincode,
-      CurrentState: ref?.studentCurrentState,
-      CurrentDistrict: ref?.studentCurrentDistrict,
-      Address: ref?.studentAddress,
-      PinCode: ref?.studentPincode,
-      State: ref?.studentState,
-      District: ref?.studentDistrict,
-      ParentsName: ref?.studentParentsName,
-      ParentsEmail: ref?.studentParentsEmail,
-      ParentsOccupation: ref?.studentParentsOccupation,
-      ParentsOfficeAddress: ref?.studentParentsAddress,
-      ParentsAnnualIncome: ref?.studentParentsAnnualIncom,
-      SeatType: ref?.student_seat_type,
-      PhysicallyHandicapped: ref?.student_ph_type,
-      DefencePersonnel: ref?.student_defence_personnel_word,
-      MaritalStatus: ref?.student_marital_status,
-      PreviousBoard: ref?.student_board_university,
-      PreviousSchool: ref?.studentPreviousSchool,
-      UniversityCourse: ref?.student_university_courses,
-      PassingYear: ref?.student_year,
-      PreviousClass: ref?.student_previous_class,
-      PreviousMarks: ref?.student_previous_marks,
-      PreviousPercentage: ref?.student_previous_percentage,
-      SeatNo: ref?.student_previous_section,
-      StandardMOP: ref?.month_of_passing,
-      StandardYOP: ref?.year_of_passing,
-      StandardPercentage: ref?.percentage,
-      StandardNameOfInstitute: ref?.name_of_institute,
-      HSCMOP: ref?.hsc_month,
-      HSCYOP: ref?.hsc_year,
-      HSCPercentage: ref?.hsc_percentage,
-      HSCNameOfInstitute: ref?.hsc_name_of_institute,
-      HSCBoard: ref?.hsc_board,
-      HSCCandidateType: ref?.hsc_candidate_type,
-      HSCVocationalType: ref?.hsc_vocational_type,
-      HSCPhysicsMarks: ref?.hsc_physics_marks,
-      HSCChemistryMarks: ref?.hsc_chemistry_marks,
-      HSCMathematicsMarks: ref?.hsc_mathematics_marks,
-      HSCPCMTotal: ref?.hsc_pcm_total,
-      HSCGrandTotal: ref?.hsc_grand_total,
-      FormNo: ref?.form_no,
-      QviplePayId: ref?.qviple_student_pay_id,
-      ...numss
+        DOB: ref?.studentDOB ?? "#NA",
+        Gender: ref?.studentGender ?? "#NA",
+        CasteCategory: ref?.studentCastCategory ?? "#NA",
+        Religion: ref?.studentReligion ?? "#NA",
+        MotherName: `${ref?.studentMotherName}` ?? "#NA",
+        Address: `${ref?.studentAddress}` ?? "#NA",
+        AppliedOn: `${moment(ref?.createdAt).format("LL")}`,
+        ContactNo: ref?.studentPhoneNumber ?? "#NA",
+        AlternateContactNo: ref?.studentParentsPhoneNumber ?? "#NA",
+        NameAsMarksheet: ref?.studentNameAsMarksheet,
+        NameAsCertificate: ref?.studentNameAsCertificate,
+        BirthPlace: ref?.studentBirthPlace,
+        Religion: ref?.studentReligion,
+        Caste: ref?.studentCast,
+        Nationality: ref?.studentNationality,
+        RationCard: ref?.studentFatherRationCardColor,
+        BloodGroup: ref?.student_blood_group,
+        AadharNumber: ref?.studentAadharNumber,
+        PhoneNumber: ref?.studentPhoneNumber,
+        Email: ref?.studentEmail,
+        ParentsPhoneNumber: ref?.studentParentsPhoneNumber,
+        CurrentAddress: ref?.studentCurrentAddress,
+        CurrentPinCode: ref?.studentCurrentPincode,
+        CurrentState: ref?.studentCurrentState,
+        CurrentDistrict: ref?.studentCurrentDistrict,
+        Address: ref?.studentAddress,
+        PinCode: ref?.studentPincode,
+        State: ref?.studentState,
+        District: ref?.studentDistrict,
+        ParentsName: ref?.studentParentsName,
+        ParentsEmail: ref?.studentParentsEmail,
+        ParentsOccupation: ref?.studentParentsOccupation,
+        ParentsOfficeAddress: ref?.studentParentsAddress,
+        ParentsAnnualIncome: ref?.studentParentsAnnualIncom,
+        SeatType: ref?.student_seat_type,
+        PhysicallyHandicapped: ref?.student_ph_type,
+        DefencePersonnel: ref?.student_defence_personnel_word,
+        MaritalStatus: ref?.student_marital_status,
+        PreviousBoard: ref?.student_board_university,
+        PreviousSchool: ref?.studentPreviousSchool,
+        UniversityCourse: ref?.student_university_courses,
+        PassingYear: ref?.student_year,
+        PreviousClass: ref?.student_previous_class,
+        PreviousMarks: ref?.student_previous_marks,
+        PreviousPercentage: ref?.student_previous_percentage,
+        SeatNo: ref?.student_previous_section,
+        StandardMOP: ref?.month_of_passing,
+        StandardYOP: ref?.year_of_passing,
+        StandardPercentage: ref?.percentage,
+        StandardNameOfInstitute: ref?.name_of_institute,
+        HSCMOP: ref?.hsc_month,
+        HSCYOP: ref?.hsc_year,
+        HSCPercentage: ref?.hsc_percentage,
+        HSCNameOfInstitute: ref?.hsc_name_of_institute,
+        HSCBoard: ref?.hsc_board,
+        HSCCandidateType: ref?.hsc_candidate_type,
+        HSCVocationalType: ref?.hsc_vocational_type,
+        HSCPhysicsMarks: ref?.hsc_physics_marks,
+        HSCChemistryMarks: ref?.hsc_chemistry_marks,
+        HSCMathematicsMarks: ref?.hsc_mathematics_marks,
+        HSCPCMTotal: ref?.hsc_pcm_total,
+        HSCGrandTotal: ref?.hsc_grand_total,
+        FormNo: ref?.form_no,
+        QviplePayId: ref?.qviple_student_pay_id,
+        ...numss,
+      });
+    }
+    var valid_back = await json_to_excel_academic_export_query(
+      excel_list,
+      subject?.subjectName
+    );
+    res.status(200).send({
+      message: "New Student Export Query",
+      access: true,
+      set: valid_back ?? "",
     });
+  } catch (e) {
+    console.log(e);
   }
-  var valid_back = await json_to_excel_academic_export_query(
-    excel_list,
-    subject?.subjectName,
-  );
-    res.status(200).send({ message: "New Student Export Query", access: true, set: valid_back ?? "" })            
-  }
-  catch (e) {
-    console.log(e)
-  }
-}
+};

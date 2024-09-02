@@ -17851,51 +17851,35 @@ exports.check_structure = async (req, res) => {
       "64eaf05e36a5878630d6e94a",
       "64ead717ae7d93e078f38640",
     ];
-    // let list = ["66bafec95e67b13f50efd829", "66bdf274930b0e77adf974ab"];
-    // const all_cat = await FeesCategory.find({
-    //   $and: [
-    //     { finance: "644a09d6d1679fcd6e76e5ef" },
-    //     { category_name: { $regex: `VJNT`, $options: "i" } },
-    //     // { _id: { $in: list } },
-    //   ],
-    // });
-    // const all_struct = await FeeStructure.find({
-    //   $and: [
-    //     { finance: "644a09d6d1679fcd6e76e5ef" },
-    //     { document_update: true },
-    //     { category_master: { $in: all_cat } },
-    //   ],
-    // }).select("applicable_fees_heads_count structure_name");
     const all_student = await Student.find({
       _id: { $in: list_1 },
     })
-      .select("studentGRNO active_fee_heads")
+      .select("studentGRNO old_fee_structure fee_structure studentFirstName studentMiddleName studentLastName")
       .populate({
         path: "fee_structure",
-        select: "document_update applicable_fees_heads",
+        select:
+          "document_update applicable_fees_heads category_master batch_master class_master department unique_structure_name",
       });
+    var i = 0;
     let nums = [];
-    let numss = [];
     for (let ele of all_student) {
-      for (let val of ele?.active_fee_heads) {
-        if (`${val?.fee_structure}` == `${ele?.fee_structure?._id}`) {
-          numss.push(val);
-        }
+      // ele.old_fee_structure = ele?.fee_structure;
+      // await ele.save();
+      if (ele?.fee_structure?.document_update == true) {
+        nums.push({
+          student: `${ele?.studentFirstName} ${ele?.studentMiddleName ?? ""} ${ele?.studentLastName}`,
+          struct: ele?.fee_structure?._id,
+          name: ele?.fee_structure?.unique_structure_name,
+        });
       }
-      nums.push({
-        gr: ele?.studentGRNO,
-        fee_count: ele?.fee_structure?.applicable_fees_heads?.length,
-        student_count: numss?.length,
-        fees: ele?.fee_structure?._id,
-      });
-      numss = [];
+      console.log(i);
+      i += 1;
     }
-    // let nums = [...all_student];
     res.status(200).send({
       message: "Explore All Structure Query",
       access: true,
-      nums: nums,
-      count: all_student?.length,
+      nums,
+      count: nums?.length,
     });
   } catch (e) {
     console.log(e);

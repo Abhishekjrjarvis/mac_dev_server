@@ -4248,6 +4248,13 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
       if (l_day < 10) {
         l_day = `0${l_day}`;
       }
+      var g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+      const date = new Date(new Date(`${l_year}-${l_month}-${l_day}`));
+      date.setDate(date.getDate() + 1);
+      let l_dates = date.getDate();
+      if (l_dates < 10) {
+        l_dates = `0${l_dates}`;
+      }
       var l_months = l_month;
       let list1 = ["01", "03", "05", "07", "08", "10", "12"];
       let list2 = ["04", "06", "09", "11"];
@@ -4267,7 +4274,6 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
           l_months = `0${l_months}`;
         }
       }
-      var g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
       var l_date = new Date(`${l_year}-${l_months}-${l_dates}T00:00:00.000Z`);
       var all_receipts = await FeeReceipt.find({
         $and: [

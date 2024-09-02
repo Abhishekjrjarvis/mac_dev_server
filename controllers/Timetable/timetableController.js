@@ -1757,6 +1757,15 @@ exports.subjectTeacherOneDayTimetableQuery = async (req, res) => {
         select:
           "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional subjectMasterName",
       })
+      .populate({
+        path: "subject",
+        populate: {
+          path: "selected_batch_query",
+          select: "batchName",
+        },
+        select:
+          "subjectName subjectTitle subjectStatus selected_batch_query subject_category subjectOptional subjectMasterName",
+      })
       .lean();
 
     var t_sub = { schedule: [] };

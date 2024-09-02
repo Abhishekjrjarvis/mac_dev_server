@@ -29,6 +29,11 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const User = require("../../models/User");
 const { file_to_aws } = require("../../Utilities/uploadFileAws");
+const ExcelImportLog = require("../../models/InstituteLog/ExcelImportLog");
+const {
+  mcq_create_question_excel_to_json_query,
+} = require("../../Custom/excelToJSON");
+const moment = require("moment");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // ================================== GET  UNIVERSAL INSTITUTE ALL MCQ FOR ALL USER====================
@@ -700,25 +705,201 @@ exports.oneTestSetDetail = async (req, res) => {
   }
 };
 
-exports.takeTestSet = async (req, res) => {
+// exports.takeTestSet = async (req, res) => {
+//   try {
+//     const { sid } = req.params;
+//     if (!sid)
+//       return res.status(200).send({
+//         message: "Their is a bug regarding to call api",
+//         access: false,
+//       });
+//     const subject = await Subject.findById(sid)
+//       .populate({
+//         path: "class",
+//         select: "ApproveStudent",
+//       })
+//       .populate({
+//         path: "selected_batch_query",
+//         select: "class_student_query",
+//       });
+
+//     var student_list = [];
+
+//     if (subject?.selected_batch_query?._id) {
+//       student_list = subject?.selected_batch_query?.class_student_query;
+//     } else {
+//       if (subject?.optionalStudent?.length > 0) {
+//         student_list = subject?.optionalStudent;
+//       } else {
+//         student_list = subject?.class?.ApproveStudent;
+//       }
+//     }
+
+//     const testSet = await SubjectMasterTestSet.findById(req.body?.tsid);
+//     const allotedSet = {
+//       testExamName: req.body?.testExamName,
+//       testTotalNumber: testSet.testTotalNumber,
+//       testDate: req.body?.testDate,
+//       testStart: req.body?.testStart,
+//       testEnd: req.body?.testEnd,
+//       // testStart: `${req.body?.testStart.substr(
+//       //   0,
+//       //   5
+//       // )}:00T${req.body?.testStart.substr(6, 2)}`,
+//       // testEnd: `${req.body?.testEnd.substr(0, 5)}:00T${req.body?.testEnd.substr(
+//       //   6,
+//       //   2
+//       // )}`,
+//       testDuration: req.body?.testDuration,
+//       assignTestSubject: sid,
+//       assignStudent: student_list,
+//       subjectMasterTestSet: testSet._id,
+//     };
+//     const alloted = new AllotedTestSet(allotedSet);
+//     testSet.allotedTestSet.push(alloted._id);
+//     testSet.assignSubject.push(subject._id);
+//     subject.takeTestSet.push(testSet._id);
+//     subject.allotedTestSet.push(alloted._id);
+//     await Promise.all([alloted.save(), subject.save(), testSet.save()]);
+
+//     const studentTestObject = {
+//       subjectMaster: testSet?.subjectMaster,
+//       classMaster: testSet?.classMaster,
+//       subjectMasterTestSet: testSet._id,
+//       allotedTestSet: alloted._id,
+//       testName: testSet?.testName,
+//       testExamName: allotedSet?.testExamName,
+//       testSubject: testSet?.testSubject,
+//       testDate: allotedSet?.testDate,
+//       testStart: allotedSet?.testStart,
+//       testEnd: allotedSet?.testEnd,
+//       testDuration: allotedSet?.testDuration,
+//       testTotalQuestion: testSet?.testTotalQuestion,
+//       testTotalNumber: testSet?.testTotalNumber,
+//       questions: [],
+//       student: "",
+//     };
+
+//     for (let quest of testSet?.questions) {
+//       // another way of selecting item in array .option options.optionNumber options.image
+//       const getQuestion = await SubjectQuestion.findById(quest).select(
+//         "questionSNO questionNumber questionDescription questionImage options correctAnswer answerDescription answerImage isUniversal -_id"
+//       );
+//       studentTestObject.questions.push(getQuestion);
+//     }
+
+//     // const oEncrypt = await encryptionPayload(subjectTestObject);
+//     res.status(200).send({
+//       message: "queston test set is assigned to student",
+//     });
+//     if (student_list?.length > 0) {
+//       for (stId of student_list) {
+//         const student = await Student.findById(stId);
+//         studentTestObject.student = stId;
+//         const user = await User.findById({ _id: `${student.user}` });
+//         if (user._id) {
+//           const studentTestSet = new StudentTestSet(studentTestObject);
+//           student.testSet.push(studentTestSet._id);
+//           const notify = new StudentNotification({});
+//           notify.notifyContent = `New ${allotedSet.testExamName} Test is created for ${testSet.testSubject}`;
+//           notify.notify_hi_content = `नई ${allotedSet.testExamName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`;
+//           notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन ${allotedSet.testExamName} चाचणी तयार केली आहे.`;
+//           notify.notifySender = subject._id;
+//           notify.notifyReceiever = user._id;
+//           notify.notifyType = "Student";
+//           notify.notifyPublisher = student._id;
+//           user.activity_tab.push(notify._id);
+//           student.notification.push(notify._id);
+//           notify.notifyBySubjectPhoto.subject_id = subject?._id;
+//           notify.notifyBySubjectPhoto.subject_name = subject.subjectName;
+//           notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+//           notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle;
+//           notify.notifyCategory = "MCQ";
+//           notify.redirectIndex = 6;
+//           await Promise.all([
+//             studentTestSet.save(),
+//             student.save(),
+//             notify.save(),
+//             user.save(),
+//           ]);
+//           if (user.deviceToken) {
+//             invokeMemberTabNotification(
+//               "Student Activity",
+//               notify,
+//               "New MCQ Test Set",
+//               user._id,
+//               user.deviceToken,
+//               "Student",
+//               notify
+//             );
+//           }
+//         }
+//       }
+//     }
+
+//     // // const oEncrypt = await encryptionPayload(subjectTestObject);
+//     // res.status(200).send({
+//     //   message: "queston test set is assigned to student",
+//     // });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+exports.takeTestSetModifyQuery = async (req, res) => {
   try {
     const { sid } = req.params;
-    if (!sid)
+    const {
+      testExamName,
+      testDate,
+      testStart,
+      testEnd,
+      testDuration,
+      is_shuffle_question,
+      tsid,
+    } = req.body;
+
+    if (!sid || !tsid) {
       return res.status(200).send({
-        message: "Their is a bug regarding to call api",
-        access: false,
+        message: "Url Segement parameter required is not fulfill.",
       });
+    }
+
+    const testset = await SubjectMasterTestSet.findById(tsid);
+
+    const allotted_testset = new AllotedTestSet({
+      testExamName: testExamName,
+      testTotalNumber: testset.testTotalNumber,
+      testDate: testDate,
+      testStart: testStart,
+      testEnd: testEnd,
+      testDuration: testDuration,
+      assignTestSubject: sid,
+      subjectMasterTestSet: testset._id,
+    });
+    testset.allotedTestSet.push(allotted_testset._id);
+    testset.assignSubject.push(sid);
+
+    await Promise.all([allotted_testset.save(), testset.save()]);
+    res.status(200).send({
+      message: "Subject Teacher Test taken successfully.",
+    });
+
+    let student_list = [];
+
     const subject = await Subject.findById(sid)
-      .populate({
-        path: "class",
-        select: "ApproveStudent",
-      })
       .populate({
         path: "selected_batch_query",
         select: "class_student_query",
+      })
+      .populate({
+        path: "class",
+        populate: {
+          path: "batch",
+          select: "batchName",
+        },
+        select: "ApproveStudent classTitle batch",
       });
-
-    var student_list = [];
 
     if (subject?.selected_batch_query?._id) {
       student_list = subject?.selected_batch_query?.class_student_query;
@@ -729,76 +910,73 @@ exports.takeTestSet = async (req, res) => {
         student_list = subject?.class?.ApproveStudent;
       }
     }
-
-    const testSet = await SubjectMasterTestSet.findById(req.body?.tsid);
-    const allotedSet = {
-      testExamName: req.body?.testExamName,
-      testTotalNumber: testSet.testTotalNumber,
-      testDate: req.body?.testDate,
-      testStart: req.body?.testStart,
-      testEnd: req.body?.testEnd,
-      // testStart: `${req.body?.testStart.substr(
-      //   0,
-      //   5
-      // )}:00T${req.body?.testStart.substr(6, 2)}`,
-      // testEnd: `${req.body?.testEnd.substr(0, 5)}:00T${req.body?.testEnd.substr(
-      //   6,
-      //   2
-      // )}`,
-      testDuration: req.body?.testDuration,
-      assignTestSubject: sid,
-      assignStudent: student_list,
-      subjectMasterTestSet: testSet._id,
-    };
-    const alloted = new AllotedTestSet(allotedSet);
-    testSet.allotedTestSet.push(alloted._id);
-    testSet.assignSubject.push(subject._id);
-    subject.takeTestSet.push(testSet._id);
-    subject.allotedTestSet.push(alloted._id);
-    await Promise.all([alloted.save(), subject.save(), testSet.save()]);
-
+    subject.takeTestSet.push(testset._id);
+    subject.allotedTestSet.push(allotted_testset._id);
+    allotted_testset.assignStudent = student_list;
+    await Promise.all([allotted_testset.save(), subject.save()]);
+    let current_subject_name = "";
+    if (subject?.selected_batch_query?.batchName) {
+      let dt = "";
+      if (subject?.subject_category === "Practical") {
+        dt = "P:";
+      } else {
+        dt = "T:";
+      }
+      dt = `${dt}${subject?.selected_batch_query?.batchName ?? ""} `;
+      current_subject_name += dt;
+    }
+    current_subject_name += subject?.subjectName ?? "";
+    if (subject?.class?.classTitle) {
+      current_subject_name += ` ${subject?.class?.classTitle ?? ""} - ${
+        subject?.class?.batch?.batchName ?? ""
+      }`;
+    }
     const studentTestObject = {
-      subjectMaster: testSet?.subjectMaster,
-      classMaster: testSet?.classMaster,
-      subjectMasterTestSet: testSet._id,
-      allotedTestSet: alloted._id,
-      testName: testSet?.testName,
-      testExamName: allotedSet?.testExamName,
-      testSubject: testSet?.testSubject,
-      testDate: allotedSet?.testDate,
-      testStart: allotedSet?.testStart,
-      testEnd: allotedSet?.testEnd,
-      testDuration: allotedSet?.testDuration,
-      testTotalQuestion: testSet?.testTotalQuestion,
-      testTotalNumber: testSet?.testTotalNumber,
+      subjectMaster: testset?.subjectMaster,
+      classMaster: testset?.classMaster,
+      subjectMasterTestSet: testset?._id,
+      allotedTestSet: allotted_testset?._id,
+      testName: testset?.testName,
+      testExamName: allotted_testset?.testExamName,
+      testSubject: current_subject_name,
+      testDate: allotted_testset?.testDate,
+      testStart: allotted_testset?.testStart,
+      testEnd: allotted_testset?.testEnd,
+      testDuration: allotted_testset?.testDuration,
+      testTotalQuestion: testset?.testTotalQuestion,
+      testTotalNumber: testset?.testTotalNumber,
+      subject: subject?._id,
       questions: [],
       student: "",
     };
 
-    for (let quest of testSet?.questions) {
-      // another way of selecting item in array .option options.optionNumber options.image
-      const getQuestion = await SubjectQuestion.findById(quest).select(
-        "questionSNO questionNumber questionDescription questionImage options correctAnswer answerDescription answerImage isUniversal -_id"
-      );
-      studentTestObject.questions.push(getQuestion);
+    let paper_set = {};
+    if (is_shuffle_question) {
+    } else {
+      for (let quest of testset?.questions) {
+        // another way of selecting item in array .option options.optionNumber options.image
+        const getQuestion = await SubjectQuestion.findById(quest).select(
+          "questionSNO questionNumber questionDescription questionImage options correctAnswer answerDescription answerImage isUniversal -_id"
+        );
+        studentTestObject.questions.push(getQuestion);
+      }
     }
-
-    // const oEncrypt = await encryptionPayload(subjectTestObject);
-    res.status(200).send({
-      message: "queston test set is assigned to student",
-    });
     if (student_list?.length > 0) {
-      for (stId of student_list) {
-        const student = await Student.findById(stId);
-        studentTestObject.student = stId;
-        const user = await User.findById({ _id: `${student.user}` });
-        if (user._id) {
+      for (let i = 0; i < student_list?.length; i++) {
+        let studentId = student_list[i];
+        const student = await Student.findById(studentId);
+        studentTestObject.student = studentId;
+        if (student.user) {
+          const user = await User.findById({ _id: `${student.user}` });
           const studentTestSet = new StudentTestSet(studentTestObject);
           student.testSet.push(studentTestSet._id);
-          const notify = new StudentNotification({});
-          notify.notifyContent = `New ${allotedSet.testExamName} Test is created for ${testSet.testSubject}`;
-          notify.notify_hi_content = `नई ${allotedSet.testExamName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`;
-          notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन ${allotedSet.testExamName} चाचणी तयार केली आहे.`;
+          const notify = new StudentNotification({
+            student_testset: studentTestSet?._id,
+            testset: testset?._id,
+          });
+          notify.notifyContent = `New ${allotted_testset?.testExamName} Test is created for ${studentTestObject.testSubject}`;
+          notify.notify_hi_content = `नई $${allotted_testset?.testExamName} परीक्षा ${studentTestObject.testSubject} के लिए बनाया गया है`;
+          notify.notify_mr_content = `नई ${studentTestObject.testSubject} साठी नवीन $${allotted_testset?.testExamName} चाचणी तयार केली आहे.`;
           notify.notifySender = subject._id;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
@@ -831,16 +1009,15 @@ exports.takeTestSet = async (req, res) => {
         }
       }
     }
-
     // // const oEncrypt = await encryptionPayload(subjectTestObject);
     // res.status(200).send({
     //   message: "queston test set is assigned to student",
     // });
+    // console.log("student_list -: >", student_list);
   } catch (e) {
     console.log(e);
   }
 };
-
 exports.subjectAllotedTestSet = async (req, res) => {
   try {
     const subject = await Subject.findById(req.params.sid);
@@ -919,7 +1096,7 @@ exports.studentAllTestSet = async (req, res) => {
     const student = await Student.findById(req.params.sid).populate({
       path: "testSet",
       select:
-        "testExamName testSubject testDate testStart testEnd testSetComplete",
+        "testExamName testSubject testDate testStart testEnd testSetComplete testTotalNumber testDuration",
       skip: startItem,
       limit: itemPerPage,
       options: { sort: { createdAt: -1 } },
@@ -985,39 +1162,41 @@ exports.studentTestSet = async (req, res) => {
   try {
     const studentTestSet = await StudentTestSet.findById(req.params.tsid)
       .select(
-        "testExamName testDate testStart testEnd testDuration testSetLeftTime testTotalQuestion testTotalNumber questions.questionNumber questions.questionDescription questions.questionImage.documentKey questions.questionImage.documentName questions.options questions.questionSNO questions.givenAnswer questions._id"
+        "testExamName testDate testSubject testStart testEnd testDuration testSetLeftTime testTotalQuestion testTotalNumber questions.questionNumber questions.questionDescription questions.questionImage.documentKey questions.questionImage.documentName questions.options questions.questionSNO questions.givenAnswer questions._id"
       )
       .populate({
         path: "student",
         select:
           "studentFirstName studentMiddleName studentLastName studentProfilePhoto studentROLLNO",
       });
-    var currentDate = new Date();
-    currentDate.setHours(currentDate.getHours() + 5);
-    currentDate.setMinutes(currentDate.getMinutes() + 30);
-    const examTime = `${studentTestSet?.testDate}T${studentTestSet?.testStart}`;
-    const entryTime = dateTimeComparison(JSON.stringify(currentDate), examTime);
-    const exitTime = timeComparison(
-      JSON.stringify(currentDate),
-      studentTestSet?.testEnd
-    );
-    if (entryTime && !exitTime) {
-      // if (true) {
-      studentTestSet.testSetAccess = true;
+    res
+      .status(200)
+      .send({ message: "All questions of test set", studentTestSet });
+    studentTestSet.testSetAccess = true;
+    await studentTestSet.save();
 
-      await studentTestSet.save();
-      // const testEncrypt = await encryptionPayload(studentTestSet);
-      res
-        .status(200)
-        .send({ message: "All questions of test set", studentTestSet });
-    } else {
-      // const testEncrypt = await encryptionPayload(currentDate);
-      res.status(200).send({
-        message:
-          "Not show test paper because you not attend before start and after end",
-        currentDate: currentDate,
-      });
-    }
+    // var currentDate = new Date();
+    // currentDate.setHours(currentDate.getHours() + 5);
+    // currentDate.setMinutes(currentDate.getMinutes() + 30);
+    // const examTime = `${studentTestSet?.testDate}T${studentTestSet?.testStart}`;
+    // const entryTime = dateTimeComparison(JSON.stringify(currentDate), examTime);
+    // const exitTime = timeComparison(
+    //   JSON.stringify(currentDate),
+    //   studentTestSet?.testEnd
+    // );
+    // if (entryTime && !exitTime) {
+    // if (true) {
+
+    // const testEncrypt = await encryptionPayload(studentTestSet);
+
+    // } else {
+    //   // const testEncrypt = await encryptionPayload(currentDate);
+    //   res.status(200).send({
+    //     message:
+    //       "Not show test paper because you not attend before start and after end",
+    //     currentDate: currentDate,
+    //   });
+    // }
   } catch (e) {
     console.log(e);
   }
@@ -1026,7 +1205,6 @@ exports.studentTestSet = async (req, res) => {
 exports.studentTestSetQuestionSave = async (req, res) => {
   try {
     const testSet = await StudentTestSet.findById(req.params.tsid);
-    // console.log(testSet);
     for (test of testSet?.questions) {
       if (test?.questionSNO === req.body?.questionSNO) {
         if (test.givenAnswer?.length) {
@@ -1109,7 +1287,6 @@ exports.studentTestSetQuestionSave = async (req, res) => {
     }
     testSet.testSetLeftTime = req.body?.testSetLeftTime;
     await testSet.save();
-    // console.log(testSet.testObtainMarks);
     res.status(200).send({ message: "question answer is save" });
   } catch (e) {
     console.log(e);
@@ -1118,29 +1295,40 @@ exports.studentTestSetQuestionSave = async (req, res) => {
 
 exports.studentTestSetComplete = async (req, res) => {
   try {
-    // const currentDate = new Date();
-    const studentTestSet = await StudentTestSet.findById(
-      req.params.tsid
-    ).select("testSetComplete");
+    const { tsid } = req.params;
+    if (!tsid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const studentTestSet = await StudentTestSet.findById(tsid);
+    studentTestSet.testSetComplete = req.body.testSetComplete;
+    studentTestSet.testSetLeftTime = 0;
+    await studentTestSet.save();
+    res.status(200).send({
+      message: "Student test set complete",
+      status: studentTestSet.testSetComplete,
+    });
+
+    // if (!studentTestSet.testSetComplete) {
+    //   studentTestSet.testSetComplete = req.body.testSetComplete;
+    //   studentTestSet.testSetLeftTime = 0;
+    //   await studentTestSet.save();
+    //   res.status(200).send({
+    //     message: "Student test set complete",
+    //     status: studentTestSet.testSetComplete,
+    //   });
+    // } else {
+    //   // const statusEncrypt = await encryptionPayload(studentTestSet.testSetComplete);
+    //   res.status(200).send({
+    //     message: "Student test set is not complete",
+    //     status: studentTestSet.testSetComplete,
+    //   });
+    // }
+
     // const examTime = `${studentTestSet?.testDate}T${studentTestSet?.testStart}`;
     // const entryTime = dateTimeComparison(currentDate, examTime);
     // const outTime = timeComparison(currentDate, studentTestSet?.testEnd);
-    if (!studentTestSet.testSetComplete) {
-      studentTestSet.testSetComplete = req.body.testSetComplete;
-      studentTestSet.testSetLeftTime = 0;
-      await studentTestSet.save();
-      // const statusEncrypt = await encryptionPayload(studentTestSet.testSetComplete);
-      res.status(200).send({
-        message: "Student test set complete",
-        status: studentTestSet.testSetComplete,
-      });
-    } else {
-      // const statusEncrypt = await encryptionPayload(studentTestSet.testSetComplete);
-      res.status(200).send({
-        message: "Student test set is not complete",
-        status: studentTestSet.testSetComplete,
-      });
-    }
   } catch (e) {
     console.log(e);
   }
@@ -1148,34 +1336,15 @@ exports.studentTestSetComplete = async (req, res) => {
 
 exports.studentTestSetResult = async (req, res) => {
   try {
-    var currentDate = new Date();
-    currentDate.setHours(currentDate.getHours() + 5);
-    currentDate.setMinutes(currentDate.getMinutes() + 30);
-    // remove unwanted things
     const studentTestSet = await StudentTestSet.findById(
       req.params.tsid
     ).select(
       "testExamName testSubject testDate testStart testEnd testDuration testTotalNumber testObtainMarks testSetComplete questions"
     );
-    let formatHour;
-    if (studentTestSet?.testEnd.substr(9, 10) === "Pm")
-      formatHour = `${
-        +studentTestSet?.testEnd?.substr(0, 2) + 12
-      }${studentTestSet?.testEnd.substr(2, 9)}`;
-    else formatHour = studentTestSet?.testEnd;
-
-    const examTime = `${studentTestSet?.testDate}T${formatHour}`;
-    const entryTime = dateTimeComparison(JSON.stringify(currentDate), examTime);
-    if (entryTime) {
-      // const eEncrypt = await encryptionPayload(studentTestSet);
-      res
-        .status(200)
-        .send({ message: "Student test set results", studentTestSet });
-    } else {
-      res.status(200).send({
-        message: "Not show test results before ending the exams",
-      });
-    }
+    // const eEncrypt = await encryptionPayload(studentTestSet);
+    res
+      .status(200)
+      .send({ message: "Student test set results", studentTestSet });
   } catch (e) {
     console.log(e);
   }
@@ -2131,6 +2300,237 @@ exports.renderOneAssignmentDestroyQuery = async (req, res) => {
         access: true,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.create_mcq_question_excel_query = async (req, res) => {
+  try {
+    const { smid, cmid } = req.params;
+    const { flow } = req.query;
+    const { excel_arr, excel_count } = req.body;
+    if (!smid || !cmid || !excel_arr?.length) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const questions = await SubjectMasterQuestion.findOne({
+      subjectMaster: smid,
+      classMaster: cmid,
+    });
+    const excel_import_log = new ExcelImportLog({
+      import_type: "MCQ_QUESTION_CREATE",
+      import_id: `${smid} : ${cmid}`,
+      status: "DATA_ACHIEVED",
+      import_data: [
+        {
+          iteration_key_ount: excel_count,
+          list: excel_arr,
+        },
+      ],
+    });
+    await excel_import_log.save();
+    if (questions?._id) {
+      questions.import_collection.push(excel_import_log?._id);
+      questions.import_collection_count += 1;
+      excel_import_log.import_institute_id = questions.institute;
+      await Promise.all([questions.save(), excel_import_log.save()]);
+    } else {
+      const clsMaster = await ClassMaster.findById(cmid).populate({
+        path: "institute",
+      });
+      const universal =
+        clsMaster.institute.isUniversal === "Not Assigned" ? false : true;
+      const master_question = new SubjectMasterQuestion({
+        subjectMaster: smid,
+        classMaster: cmid,
+        institute: clsMaster.institute?._id,
+        isUniversal: universal,
+      });
+      master_question.import_collection.push(excel_import_log?._id);
+      master_question.import_collection_count += 1;
+      excel_import_log.import_institute_id = clsMaster.institute?._id;
+      await Promise.all([master_question.save(), excel_import_log.save()]);
+    }
+    if (flow === "NORMAL") {
+      res.status(200).send({
+        message: "MCQ Excel Update To Backend Wait for Operation Completed",
+        access: true,
+      });
+      const question_master = await SubjectMasterQuestion.findOne({
+        subjectMaster: smid,
+        classMaster: cmid,
+      });
+
+      if (question_master?._id && excel_arr?.length > 0 && excel_count > 0) {
+        const question_list = await mcq_create_question_excel_to_json_query(
+          excel_arr,
+          excel_count
+        );
+
+        if (question_list?.length > 0) {
+          let count = 0;
+          for (let que of question_list) {
+            count += 1;
+            const subjectQuestion = new SubjectQuestion({
+              questionSNO: question_master.questionCount + count,
+              questionDescription: que?.questionDescription,
+              options: que?.options,
+              correctAnswer: que?.correctAnswer,
+              answerDescription: que?.answerDescription,
+              isUniversal: question_master.isUniversal,
+              relatedSubject: question_master._id,
+            });
+            if (que?.questionNumber) {
+              subjectQuestion.questionNumber = +que?.questionNumber;
+            }
+            await subjectQuestion.save();
+            question_master.questions.push(subjectQuestion._id);
+            question_master.questionCount += 1;
+          }
+          await question_master.save();
+        }
+      }
+    } else if (flow === "TEST_SET") {
+      let testset_question = [];
+      const question_master = await SubjectMasterQuestion.findOne({
+        subjectMaster: smid,
+        classMaster: cmid,
+      });
+
+      if (question_master?._id && excel_arr?.length > 0 && excel_count > 0) {
+        const question_list = await mcq_create_question_excel_to_json_query(
+          excel_arr,
+          excel_count
+        );
+
+        if (question_list?.length > 0) {
+          let count = 0;
+
+          for (let que of question_list) {
+            count += 1;
+            const subjectQuestion = new SubjectQuestion({
+              questionSNO: question_master.questionCount + count,
+              questionDescription: que?.questionDescription,
+              options: que?.options,
+              correctAnswer: que?.correctAnswer,
+              answerDescription: que?.answerDescription,
+              isUniversal: question_master.isUniversal,
+              relatedSubject: question_master._id,
+            });
+            if (que?.questionNumber) {
+              subjectQuestion.questionNumber = +que?.questionNumber;
+            }
+            await subjectQuestion.save();
+            question_master.questions.push(subjectQuestion._id);
+            question_master.questionCount += 1;
+            testset_question.push({
+              questionSNO: subjectQuestion.questionSNO,
+              questionNumber: subjectQuestion.questionNumber,
+              questionDescription: subjectQuestion.questionDescription,
+              questionImage: subjectQuestion.questionImage,
+              _id: subjectQuestion._id,
+            });
+          }
+          await question_master.save();
+        }
+      }
+      res.status(200).send({
+        message: "MCQ Excel Update To Backend Wait for Operation Completed",
+        testset_question: testset_question,
+        access: true,
+      });
+    } else {
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// for mcq new type of function and validation
+
+const get_time_convert_start = (args) => {
+  if (
+    args?.includes("Am") ||
+    args?.includes("am") ||
+    args?.includes("AM") ||
+    args?.includes("aM")
+  ) {
+    if (+args?.substring(0, 2) === 12) {
+      return +`${"0" + args?.substring(3, 5)}`;
+    } else {
+      return +`${args?.substring(0, 2) + args?.substring(3, 5)}`;
+    }
+  } else {
+    if (+args?.substring(0, 2) === 12) {
+      return +`${args?.substring(0, 2) + args?.substring(3, 5)}`;
+    } else {
+      return +`${`${+args?.substring(0, 2) + 12}` + args?.substring(3, 5)}`;
+    }
+  }
+};
+
+exports.sudentExamStartTestValidationQuery = async (req, res) => {
+  try {
+    const { stid } = req.params;
+    const { date, time } = req.body;
+    if (!stid || !date) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const stu_test = await StudentTestSet.findById(stid).select("-questions");
+    let dft = new Date(stu_test?.testDate);
+    dft = dft?.toISOString();
+    let is_format = moment(dft)?.format("yyyy-MM-DD");
+    let flag = false;
+    if (moment(is_format).isSame(date)) {
+      let time_hit = get_time_convert_start(time);
+      let time_start = get_time_convert_start(stu_test?.testStart);
+      let time_end = get_time_convert_start(stu_test?.testEnd);
+      if (time_hit >= time_start && time_hit <= time_end) {
+        flag = true;
+      }
+    }
+    res.status(200).send({
+      message: "Start Mcq exam test validation",
+      test_access: flag,
+      stu_test,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.sudentExamResultTestValidationQuery = async (req, res) => {
+  try {
+    const { stid } = req.params;
+    const { date, time } = req.body;
+    if (!stid || !date) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const stu_test = await StudentTestSet.findById(stid).select("-questions");
+    let dft = new Date(stu_test?.testDate);
+    dft = dft?.toISOString();
+    let is_format = moment(dft)?.format("yyyy-MM-DD");
+    let flag = false;
+    if (moment(is_format).isSame(date)) {
+      let time_hit = get_time_convert_start(time);
+      let time_end = get_time_convert_start(stu_test?.testEnd);
+      if (time_hit > time_end) {
+        flag = true;
+      }
+    } else if (moment(is_format).isBefore(date)) {
+      flag = true;
+    } else {
+      flag = false;
+    }
+    res.status(200).send({
+      message: "Mcq exam result test validation",
+      test_access: flag,
+    });
   } catch (e) {
     console.log(e);
   }

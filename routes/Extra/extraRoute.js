@@ -537,4 +537,9 @@ router.patch(
   catchAsync(Extra.customGenerateOneStudentApplicationFormQuery)
 );
 
+router.patch(
+  "/custom/amount/student/other/:ofid/fee/receipt",
+  catchAsync(Extra.customAmountStudentOtherFeeReceiptQuery)
+);
+
 module.exports = router;

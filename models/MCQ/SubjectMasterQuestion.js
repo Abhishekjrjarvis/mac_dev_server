@@ -39,6 +39,16 @@ const subjectMasterQuestionShcema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  import_collection: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ExcelImportLog",
+    },
+  ],
+  import_collection_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model(

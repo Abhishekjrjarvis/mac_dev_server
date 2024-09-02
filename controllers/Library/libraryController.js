@@ -1970,7 +1970,6 @@ exports.generateAllMemberQrCodeQuery = async (req, res) => {
   }
 };
 
-
 exports.generateAllBookQrCodeQuery = async (req, res) => {
   try {
     const { lid } = req.params;
@@ -2184,7 +2183,6 @@ exports.getInOutStudentQuery = async (req, res) => {
     });
   }
 };
-
 
 exports.getInOutStudentHistoryQuery = async (req, res) => {
   try {
@@ -3287,7 +3285,6 @@ exports.getAllEntryLogsExport = async (req, res) => {
   }
 };
 
-
 exports.getAllBookReviewExport = async (req, res) => {
   try {
     const { lid } = req.params;
@@ -3352,5 +3349,151 @@ exports.getAllBookReviewExport = async (req, res) => {
   }
 };
 
+// for staff side show that library things
 
+exports.own_staff_borrow_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
 
+    const staff = await Staff.findById(sid);
+
+    let borrow = [];
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      borrow = await IssueBook.find({
+        $and: [
+          {
+            _id: { $in: staff.borrow },
+          },
+          {
+            $or: [
+              {
+                "book.bookName": { $regex: req.query.search, $options: "i" },
+              },
+              {
+                "book.author": { $regex: req.query.search, $options: "i" },
+              },
+              {
+                "book.language": { $regex: req.query.search, $options: "i" },
+              },
+              {
+                "book.accession_number": {
+                  $regex: req.query.search,
+                  $options: "i",
+                },
+              },
+            ],
+          },
+        ],
+      })
+        .populate({
+          path: "book",
+          select: "bookName author language photo photoId accession_number",
+        })
+        .select("book createdAt for_days day_overdue_charge")
+        .lean()
+        .exec();
+    } else {
+      borrow = await IssueBook.find({
+        $and: [
+          {
+            _id: { $in: staff.borrow },
+          },
+        ],
+      })
+        .populate({
+          path: "book",
+          select: "bookName author language photo photoId accession_number",
+        })
+        .select("book createdAt for_days day_overdue_charge")
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .lean()
+        .exec();
+    }
+
+    res.status(200).send({
+      message: "List of all issued book for one member in Library",
+      borrow: borrow,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e.message,
+    });
+  }
+};
+
+exports.own_staff_history_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    const staff = await Staff.findById(sid);
+    let history = [];
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      history = await CollectBook.find({
+        $and: [
+          {
+            _id: { $in: staff.deposite },
+          },
+          {
+            $or: [
+              {
+                "book.bookName": { $regex: req.query.search, $options: "i" },
+              },
+            ],
+          },
+        ],
+      })
+        .populate({
+          path: "book",
+          select: "bookName photoId photo createdAt",
+        })
+        .select("book issuedDate createdAt")
+        .lean()
+        .exec();
+    } else {
+      history = await CollectBook.find({
+        $and: [
+          {
+            _id: { $in: staff.deposite },
+          },
+        ],
+      })
+        .populate({
+          path: "book",
+          select: "bookName photoId photo createdAt",
+        })
+        .select("book issuedDate createdAt")
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .lean()
+        .exec();
+    }
+
+    res.status(200).send({
+      message: "List of all history book for one member in Library",
+      history: history,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e.message,
+    });
+  }
+};

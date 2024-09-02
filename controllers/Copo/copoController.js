@@ -1753,7 +1753,11 @@ exports.subjectTeacherTakeTestsetInternalEvaluationTestQuery = async (
         })
         .populate({
           path: "class",
-          select: "ApproveStudent",
+          populate: {
+            path: "batch",
+            select: "batchName",
+          },
+          select: "ApproveStudent classTitle batch",
         });
       let students = [];
       if (subject?.selected_batch_query?._id) {
@@ -1765,19 +1769,40 @@ exports.subjectTeacherTakeTestsetInternalEvaluationTestQuery = async (
           students = subject?.class?.ApproveStudent;
         }
       }
+
       const testSet = await SubjectMasterTestSet.findById(i_eva_test.testset);
+
+      let current_subject_name = "";
+      if (subject?.selected_batch_query?.batchName) {
+        let dt = "";
+        if (subject?.subject_category === "Practical") {
+          dt = "P:";
+        } else {
+          dt = "T:";
+        }
+        dt = `${dt}${subject?.selected_batch_query?.batchName ?? ""} `;
+        current_subject_name += dt;
+      }
+      current_subject_name += subject?.subjectName ?? "";
+      if (subject?.class?.classTitle) {
+        current_subject_name += ` ${subject?.class?.classTitle ?? ""} - ${
+          subject?.class?.batch?.batchName ?? ""
+        }`;
+      }
+
       const studentTestObject = {
         subjectMaster: testSet?.subjectMaster,
         classMaster: testSet?.classMaster,
         subjectMasterTestSet: testSet._id,
         testName: testSet?.testName,
-        testSubject: testSet?.testSubject,
+        testSubject: current_subject_name,
         testDate: dt_date,
         testStart: mcq_test_from,
         testEnd: mcq_test_to,
         testDuration: mcq_test_duration,
         testTotalQuestion: testSet?.testTotalQuestion,
         testTotalNumber: testSet?.testTotalNumber,
+        subject: subject?._id,
         questions: [],
         student: "",
       };
@@ -1802,9 +1827,9 @@ exports.subjectTeacherTakeTestsetInternalEvaluationTestQuery = async (
           student_testset: studentTestSet?._id,
           testset: testSet?._id,
         });
-        notify.notifyContent = `New Internal Evaluation ${testSet?.testName} Test is created for ${testSet.testSubject}`;
-        notify.notify_hi_content = `नई $${testSet?.testName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`;
-        notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन $${testSet?.testName} चाचणी तयार केली आहे.`;
+        notify.notifyContent = `New Internal Evaluation ${testSet?.testName} Test is created for ${current_subject_name.testSubject}`;
+        notify.notify_hi_content = `नई $${testSet?.testName} परीक्षा ${current_subject_name.testSubject} के लिए बनाया गया है`;
+        notify.notify_mr_content = `नई ${current_subject_name.testSubject} साठी नवीन $${testSet?.testName} चाचणी तयार केली आहे.`;
         notify.notifySender = subject._id;
         notify.notifyReceiever = user._id;
         notify.notifyType = "Student";

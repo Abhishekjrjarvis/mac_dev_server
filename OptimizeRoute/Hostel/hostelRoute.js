@@ -460,5 +460,8 @@ router.post(
   "/:sid/allotted/student/:aid/pay/refund",
   catchAsync(Hostel.cancelAllottedHostelApplication)
 );
-
+router.get(
+  "/:hid/finance/all/fee/structure",
+  catchAsync(Hostel.hosteInFinanceAllStructureQuery)
+);
 module.exports = router;

@@ -805,6 +805,13 @@ exports.render_new_student_add_query = async (req, res) => {
     }
     await subject.save();
     res.status(200).send({ message: "New Student Add Query", access: true });
+    if (students?.length > 0) {
+      for (let stu of students) {
+        const student = await Student.findById(stu);
+        student.academic_subject.push(sid);
+        await student.save();
+      }
+    }
   } catch (e) {
     console.log(e);
   }
@@ -829,6 +836,13 @@ exports.render_new_student_remove_query = async (req, res) => {
     }
     await subject.save();
     res.status(200).send({ message: "New Student Remove Query", access: true });
+    if (students?.length > 0) {
+      for (let stu of students) {
+        const student = await Student.findById(stu);
+        student.academic_subject.pull(sid);
+        await student.save();
+      }
+    }
   } catch (e) {
     console.log(e);
   }
@@ -992,6 +1006,13 @@ exports.render_new_student_add_query_batch = async (req, res) => {
     res
       .status(200)
       .send({ message: "New Student In Batch Add Query", access: true });
+    if (students?.length > 0) {
+      for (let stu of students) {
+        const student = await Student.findById(stu);
+        student.academic_subject.push(bid);
+        await student.save();
+      }
+    }
   } catch (e) {
     console.log(e);
   }
@@ -1021,6 +1042,13 @@ exports.render_new_student_remove_query_batch = async (req, res) => {
     res
       .status(200)
       .send({ message: "New Student Remove In Batch Query", access: true });
+    if (students?.length > 0) {
+      for (let stu of students) {
+        const student = await Student.findById(stu);
+        student.academic_subject.pull(bid);
+        await student.save();
+      }
+    }
   } catch (e) {
     console.log(e);
   }
@@ -1870,6 +1898,67 @@ exports.render_all_subject_students_query_export = async (req, res) => {
       message: "New Student Export Query",
       access: true,
       set: valid_back ?? "",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.insert_academic_subject_to_student_query = async (req, res) => {
+  try {
+    const { sid } = req?.params;
+
+    const cls_master = await ClassMaster.find({
+      $or: [
+        {
+          theory_classes_count: { $gt: 0 },
+        },
+        {
+          practical_batch_count: { $gt: 0 },
+        },
+      ],
+    });
+    let i = 0;
+    if (cls_master?.length > 0) {
+      for (let ct of cls_master) {
+        console.log("-> i", i);
+        if (ct?.theory_classes?.length > 0) {
+          for (let dt of ct?.theory_classes) {
+            if (dt?.subject) {
+              let sub = await Subject.findById(dt?.subject);
+              if (sub?.optionalStudent?.length > 0) {
+                for (let stu of sub?.optionalStudent) {
+                  const student = await Student.findById(stu);
+                  // student.academic_subject = [];
+                  student.academic_subject.push(sub?._id);
+                  await student.save();
+                }
+              }
+            }
+          }
+        }
+        if (ct?.practical_batch?.length > 0) {
+          for (let dt of ct?.practical_batch) {
+            if (dt?.subject) {
+              let sub = await Subject.findById(dt?.subject);
+              if (sub?.optionalStudent?.length > 0) {
+                for (let stu of sub?.optionalStudent) {
+                  const student = await Student.findById(stu);
+                  // student.academic_subject = [];
+                  student.academic_subject.push(sub?._id);
+                  await student.save();
+                }
+              }
+            }
+          }
+        }
+        ++i;
+      }
+    }
+    res.status(200).send({
+      message: "Inseterd student",
+      gtgh: cls_master?.length,
+      access: true,
     });
   } catch (e) {
     console.log(e);

@@ -951,9 +951,14 @@ exports.renderDepartAllClassQuery = async (req, res) => {
         access: false,
       });
 
-    const one_depart = await Department.findById({ _id: did }).select("class");
+    const one_depart = await Department.findById({ _id: did }).select(
+      "class departmentSelectBatch"
+    );
 
-    var all_classes = await Class.find({ _id: { $in: one_depart?.class } })
+    var all_classes = await Class.find({
+      _id: { $in: one_depart?.class },
+      batch: { $eq: `${one_depart?.departmentSelectBatch}` },
+    })
       .limit(limit)
       .skip(skip)
       .select("className classTitle boyCount girlCount studentCount")
@@ -1211,7 +1216,7 @@ exports.renderAllMentorAddQuery = async (req, res) => {
         access: false,
       });
 
-    const depart = await Department.findById({ _id: did })
+    const depart = await Department.findById({ _id: did });
     //   .populate({
     //     path: "mentor",
     //     select: "mentor_head"
@@ -1253,27 +1258,33 @@ exports.renderAllMentorAddQuery = async (req, res) => {
         mentor_query.save(),
       ]);
     }
-    await depart.save()
+    await depart.save();
     res.status(200).send({ message: "Explore new designation", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderEditOneMeetingQuery = async (req, res) => {
   try {
-    const { meid } = req?.params
-    if (!meid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    await Meeting.findByIdAndUpdate(meid, req?.body)
+    const { meid } = req?.params;
+    if (!meid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
 
-    res.status(200).send({ message: "Explore One Meeting Edit Query", access: true})
+    await Meeting.findByIdAndUpdate(meid, req?.body);
+
+    res
+      .status(200)
+      .send({ message: "Explore One Meeting Edit Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderScheduleMeetingQuery = async (req, res) => {
   try {
@@ -1286,7 +1297,7 @@ exports.renderScheduleMeetingQuery = async (req, res) => {
     var valid_mentor = await Mentor.findById({ _id: mid });
     var new_meet = new Meeting({ ...req.body });
     new_meet.mentor = valid_mentor?._id;
-    new_meet.creation_status = "SCHEDULE"
+    new_meet.creation_status = "SCHEDULE";
     new_meet.department = valid_mentor?.department;
     valid_mentor.meetings.push(new_meet?._id);
     valid_mentor.meetings_count += 1;
@@ -1334,7 +1345,6 @@ exports.renderScheduleMeetingQuery = async (req, res) => {
     console.log(e);
   }
 };
-
 
 // for mentor export
 
@@ -1769,8 +1779,6 @@ exports.getOneMentorAttendanceMenteeExport = async (req, res) => {
     console.log(e);
   }
 };
-
-
 
 // Rating By Student IS Pending & Display Rating Query
 

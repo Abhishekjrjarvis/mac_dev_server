@@ -6316,10 +6316,7 @@ exports.renderEditClassMasterQuery = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore Class Master Edit", access: true });
-    var master = await ClassMaster.findById({ _id: cmid }).select(
-      "classDivision"
-    );
-
+    var master = await ClassMaster.findById({ _id: cmid });
     var all_classes = await Class.find({ _id: { $in: master?.classDivision } });
 
     for (var ref of all_classes) {
@@ -6345,7 +6342,7 @@ exports.renderEditSubjectMasterQuery = async (req, res) => {
       .status(200)
       .send({ message: "Explore Subject Master Edit", access: true });
 
-    var master = await SubjectMaster.findById({ _id: smid }).select("subjects");
+    var master = await SubjectMaster.findById({ _id: smid });
 
     var all_subjects = await Subject.find({ _id: { $in: master?.subjects } });
 

@@ -5373,6 +5373,7 @@ exports.renderFeeHeadsStructureReceiptRePayQueryBank = async (req, res) => {
       let list2 = ["04", "06", "09", "11"];
       let list3 = ["02"];
       let g_days = l_months?.toString();
+      let l_days = l_months?.toString();
       if (g_day == 30 && list2?.includes(String(g_days))) {
         date.setMonth(date.getMonth() + 1);
         var l_months = date.getMonth();
@@ -5380,11 +5381,21 @@ exports.renderFeeHeadsStructureReceiptRePayQueryBank = async (req, res) => {
           l_months = `0${l_months}`;
         }
       }
-      if (g_day >= 31 && list1?.includes(String(g_days))) {
-        date.setMonth(date.getMonth() + 1);
-        var l_months = date.getMonth();
-        if (l_months < 10) {
-          l_months = `0${l_months}`;
+      if (g_day == 31) {
+        if (g_day >= 31 && list1?.includes(String(g_days))) {
+          date.setMonth(date.getMonth() + 1);
+          var l_months = date.getMonth();
+          if (l_months < 10) {
+            l_months = `0${l_months}`;
+          }
+        }
+      } else {
+        if (l_day == 31 && list1?.includes(String(l_days))) {
+          date.setMonth(date.getMonth() + 1);
+          var l_months = date.getMonth();
+          if (l_months < 10) {
+            l_months = `0${l_months}`;
+          }
         }
       }
       var l_date = new Date(`${l_year}-${l_months}-${l_dates}T00:00:00.000Z`);

@@ -3680,8 +3680,27 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
       if (l_day < 10) {
         l_day = `0${l_day}`;
       }
+      var l_months = l_month;
+      let list1 = ["01", "03", "05", "07", "08", "10", "12"];
+      let list2 = ["04", "06", "09", "11"];
+      let list3 = ["02"];
+      let g_days = l_months?.toString();
+      if (g_day == 30 && list2?.includes(String(g_days))) {
+        date.setMonth(date.getMonth() + 1);
+        var l_months = date.getMonth();
+        if (l_months < 10) {
+          l_months = `0${l_months}`;
+        }
+      }
+      if (g_day >= 31 && list1?.includes(String(g_days))) {
+        date.setMonth(date.getMonth() + 1);
+        var l_months = date.getMonth();
+        if (l_months < 10) {
+          l_months = `0${l_months}`;
+        }
+      }
       var g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
-      var l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
+      var l_date = new Date(`${l_year}-${l_months}-${l_dates}T00:00:00.000Z`);
       var all_receipts = await FeeReceipt.find({
         $and: [
           { finance: fid },

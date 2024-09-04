@@ -17855,7 +17855,9 @@ exports.check_structure = async (req, res) => {
     const all_student = await Student.find({
       _id: { $in: list_1 },
     })
-      .select("studentGRNO old_fee_structure fee_structure studentFirstName studentMiddleName studentLastName")
+      .select(
+        "studentGRNO old_fee_structure fee_structure studentFirstName studentMiddleName studentLastName"
+      )
       .populate({
         path: "fee_structure",
         select:
@@ -17868,7 +17870,10 @@ exports.check_structure = async (req, res) => {
       // await ele.save();
       if (ele?.fee_structure?.document_update == true) {
         nums.push({
-          student: `${ele?.studentFirstName} ${ele?.studentMiddleName ?? ""} ${ele?.studentLastName}`,
+          student: `${ele?.studentFirstName} ${ele?.studentMiddleName ?? ""} ${
+            ele?.studentLastName
+          }`,
+          _id: ele?._id,
           struct: ele?.fee_structure?._id,
           name: ele?.fee_structure?.unique_structure_name,
         });
@@ -18081,8 +18086,10 @@ exports.one_documents_students_query = async (req, res) => {
       for (let ele of apply?.allottedApplication) {
         nums.push(ele?.student);
       }
-      for (let ele of apply?.reviewApplication) {
-        nums.push(ele);
+      if (apply?.reviewApplication?.length > 0) {
+        for (let ele of apply?.reviewApplication) {
+          nums.push(ele);
+        }
       }
     }
     if (search) {

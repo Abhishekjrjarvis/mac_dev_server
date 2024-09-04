@@ -724,6 +724,13 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
   try {
     const { cid } = req.params;
     const { sort_query } = req.query;
+    if (sort_query) {
+      classes.FNameStudent = [];
+      classes.LNameStudent = [];
+      classes.GenderStudent = [];
+      classes.GenderStudentAlpha = [];
+      await classes.save();
+    }
     const currentDate = new Date();
     const currentDateLocalFormat = currentDate.toISOString().split("-");
     const day =
@@ -737,7 +744,7 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
     const year = +currentDateLocalFormat[0];
     // const regExpression = new RegExp(`${day}\/${month}\/${year}$`);
     const classes = await Class.findById({ _id: cid }).select(
-      "className classStatus classTitle exams ApproveStudent"
+      "className classStatus classTitle exams ApproveStudent FNameStudent LNameStudent GenderStudent GenderStudentAlpha"
     );
     for (let ele of classes?.ApproveStudent) {
       const stu = await Student.findById({ _id: `${ele}` }).select(
@@ -757,9 +764,19 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
         month,
         year
       );
+      classes.FNameStudent = [...sortedA];
+      classes.sort_queue = sort_query;
+      await classes.save();
       res.status(200).send({
         message: "Sorted By Alphabetical Order",
-        classes,
+        classes: {
+          _id: classes?._id,
+          className: classes?.className,
+          classTitle: classes?.classTitle,
+          exams: classes?.exams,
+          classStatus: classes?.classStatus,
+          ApproveStudent: sortedA,
+        },
         students: sortedA,
         access: true,
       });
@@ -770,9 +787,19 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
         month,
         year
       );
+      classes.LNameStudent = [...sortedA];
+      classes.sort_queue = sort_query;
+      await classes.save();
       res.status(200).send({
         message: "Sorted By Alphabetical Order",
-        classes,
+        classes: {
+          _id: classes?._id,
+          className: classes?.className,
+          classTitle: classes?.classTitle,
+          exams: classes?.exams,
+          classStatus: classes?.classStatus,
+          ApproveStudent: sortedA,
+        },
         students: sortedA,
         access: true,
       });
@@ -783,9 +810,19 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
         month,
         year
       );
+      classes.GenderStudent = [...sortedG];
+      classes.sort_queue = sort_query;
+      await classes.save();
       res.status(200).send({
         message: "Sorted By Gender Order",
-        classes,
+        classes: {
+          _id: classes?._id,
+          className: classes?.className,
+          classTitle: classes?.classTitle,
+          exams: classes?.exams,
+          classStatus: classes?.classStatus,
+          ApproveStudent: sortedG,
+        },
         students: sortedG,
         access: true,
       });
@@ -796,9 +833,19 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
         month,
         year
       );
+      classes.GenderStudentAlpha = [...sortedGA];
+      classes.sort_queue = sort_query;
+      await classes.save();
       res.status(200).send({
         message: "Sorted By Gender & Alpha Order",
-        classes,
+        classes: {
+          _id: classes?._id,
+          className: classes?.className,
+          classTitle: classes?.classTitle,
+          exams: classes?.exams,
+          classStatus: classes?.classStatus,
+          ApproveStudent: sortedGA,
+        },
         students: sortedGA,
         access: true,
       });

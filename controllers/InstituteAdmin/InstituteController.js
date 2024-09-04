@@ -5436,10 +5436,10 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
     const year = +currentDateLocalFormat[0];
     const classes = await Class.findById({ _id: cid })
       .select(
-        "className classStatus classTitle exams boyCount girlCount studentCount shuffle_on"
+        "className classStatus classTitle exams boyCount girlCount studentCount shuffle_on sort_queue"
       )
       .populate({
-        path: "ApproveStudent",
+        path: "ApproveStudent FNameStudent LNameStudent GenderStudent GenderStudentAlpha",
         select: "leave student_prn_enroll_number",
         populate: {
           path: "leave",
@@ -5450,7 +5450,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
         },
       })
       .populate({
-        path: "ApproveStudent",
+        path: "ApproveStudent FNameStudent LNameStudent GenderStudent GenderStudentAlpha",
         select:
           "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO student_prn_enroll_number",
         populate: {
@@ -5464,9 +5464,27 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
     // console.log(classes)
     if (classes?.shuffle_on) {
     } else {
-      classes?.ApproveStudent?.sort(function (st1, st2) {
-        return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
-      });
+      if (classes?.sort_queue === "Alpha") {
+        classes?.FNameStudent?.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+      } else if (classes?.sort_queue === "Alpha_Last") {
+        classes?.LNameStudent?.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+      } else if (classes?.sort_queue === "Gender") {
+        classes?.GenderStudent?.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+      } else if (classes?.sort_queue === "Gender_Alpha") {
+        classes?.GenderStudentAlpha?.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+      } else {
+        classes?.ApproveStudent?.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+      }
     }
     // const cEncrypt = await encryptionPayload(classes);
     res.status(200).send({ message: "Approve catalog", classes: classes });

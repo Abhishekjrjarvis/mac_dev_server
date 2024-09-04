@@ -905,6 +905,7 @@ exports.retrieveApproveCatalogArrayFilterTrigger = async (req, res) => {
       );
       classes.FNameStudent = [...sortedA];
       classes.sort_queue = sort_query;
+      classes.ApproveStudent = [...sortedA];
       await classes.save();
       res.status(200).send({
         message: "Sorted By Alphabetical Order",
@@ -928,6 +929,7 @@ exports.retrieveApproveCatalogArrayFilterTrigger = async (req, res) => {
       );
       classes.LNameStudent = [...sortedA];
       classes.sort_queue = sort_query;
+      classes.ApproveStudent = [...sortedA];
       await classes.save();
       res.status(200).send({
         message: "Sorted By Reverse Alphabetical Order",
@@ -951,6 +953,7 @@ exports.retrieveApproveCatalogArrayFilterTrigger = async (req, res) => {
       );
       classes.GenderStudent = [...sortedG];
       classes.sort_queue = sort_query;
+      classes.ApproveStudent = [...sortedG];
       await classes.save();
       res.status(200).send({
         message: "Sorted By Gender Order",
@@ -974,6 +977,7 @@ exports.retrieveApproveCatalogArrayFilterTrigger = async (req, res) => {
       );
       classes.GenderStudentAlpha = [...sortedGA];
       classes.sort_queue = sort_query;
+      classes.ApproveStudent = [...sortedGA];
       await classes.save();
       res.status(200).send({
         message: "Sorted By Gender & Alpha Order",

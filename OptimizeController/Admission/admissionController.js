@@ -18133,7 +18133,10 @@ exports.one_documents_students_query = async (req, res) => {
       if (cls?.collect_docs?.length > 0) {
         for (let val of cls?.collect_docs) {
           if (`${val?.docs?._id}` === `${did}`) {
-            all.push(cls);
+            all.push({
+              student: cls,
+              collect: val,
+            });
           }
         }
       }

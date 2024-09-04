@@ -9506,3 +9506,24 @@ exports.new_checklist_section_query = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.add_catalog_student_query = async (req, res) => {
+  try {
+    const classes = await Class.findById({ _id: "6693684ffc5124119c0aad70" });
+    const all_student = await Student.find({ studentClass: classes?._id });
+    var i = 0;
+    for (let ele of all_student) {
+      classes.ApproveStudent.push(ele?._id);
+      console.log(i);
+      i += 1;
+    }
+    await classes.save();
+    res.status(200).send({
+      message: "Explore All Student Query",
+      access: true,
+      all_student: all_student?.length,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

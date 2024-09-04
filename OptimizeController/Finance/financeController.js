@@ -2516,7 +2516,7 @@ exports.renderFinanceBankAddQuery = async (req, res) => {
   try {
     const { fid } = req.params;
     const { flow, flow_id } = req.query;
-    const { depart_arr } = req.body;
+    const { depart_arr, heads_list } = req.body;
     if (!fid && !flow && !flow_id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -2550,6 +2550,11 @@ exports.renderFinanceBankAddQuery = async (req, res) => {
       await libs.save();
     } else if (flow === "Society") {
       new_account.bank_account_type = "Society";
+    } else {
+      new_account.bank_account_type = flow;
+      for (let ele of heads_list) {
+        new_account.heads_list.push(ele);
+      }
     }
     new_account.finance = finance?._id;
     finance.bank_account.push(new_account?._id);

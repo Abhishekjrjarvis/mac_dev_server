@@ -59,7 +59,7 @@ const feeMasterSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Student",
     },
-  ]
+  ],
 });
 
 module.exports = mongoose.model("FeeMaster", feeMasterSchema);

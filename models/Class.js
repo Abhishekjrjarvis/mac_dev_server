@@ -379,6 +379,12 @@ const classSchema = new mongoose.Schema({
     },
   ],
   sort_queue: { type: String },
+  ApproveStudent_queue: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
 });
 
 const Class = mongoose.model("Class", classSchema);

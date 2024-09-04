@@ -354,6 +354,31 @@ const classSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  GenderStudent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  FNameStudent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  LNameStudent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  GenderStudentAlpha: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  sort_queue: { type: String },
 });
 
 const Class = mongoose.model("Class", classSchema);

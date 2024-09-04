@@ -5468,18 +5468,22 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
         classes?.FNameStudent?.sort(function (st1, st2) {
           return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
         });
+        classes.ApproveStudent = [...classes?.FNameStudent];
       } else if (classes?.sort_queue === "Alpha_Last") {
         classes?.LNameStudent?.sort(function (st1, st2) {
           return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
         });
+        classes.ApproveStudent = [...classes?.LNameStudent];
       } else if (classes?.sort_queue === "Gender") {
         classes?.GenderStudent?.sort(function (st1, st2) {
           return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
         });
+        classes.ApproveStudent = [...classes?.GenderStudent];
       } else if (classes?.sort_queue === "Gender_Alpha") {
         classes?.GenderStudentAlpha?.sort(function (st1, st2) {
           return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
         });
+        classes.ApproveStudent = [...classes?.GenderStudentAlpha];
       } else {
         classes?.ApproveStudent?.sort(function (st1, st2) {
           return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);

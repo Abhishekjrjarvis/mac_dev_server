@@ -43,8 +43,8 @@ exports.renderNewEventManagerQuery = async (req, res) => {
     const { sid } = req.body;
     var institute = await InstituteAdmin.findById({ _id: id });
     var event_manager = new EventManager({});
-    const codess = universal_random_password()
-    event_manager.member_module_unique = `${codess}`
+    const codess = universal_random_password();
+    event_manager.member_module_unique = `${codess}`;
     if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff.user}` });
@@ -174,6 +174,7 @@ exports.renderOneEventManagerAllEvents = async (req, res) => {
       );
     } else {
       var all_events = await Events.find({ _id: { $in: manager?.events } })
+        .sort({ created_at: -1 })
         .limit(limit)
         .skip(skip)
         .select(
@@ -228,6 +229,7 @@ exports.renderOneEventManagerAllSeminars = async (req, res) => {
       );
     } else {
       var all_seminars = await Seminar.find({ _id: { $in: manager?.seminars } })
+        .sort({ created_at: -1 })
         .limit(limit)
         .skip(skip)
         .select(

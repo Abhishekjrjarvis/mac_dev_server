@@ -5464,22 +5464,22 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
     // console.log(classes)
     if (classes?.shuffle_on) {
     } else {
-      if (classes?.sort_queue === "Alpha") {
+      if (`${classes?.sort_queue}` === "Alpha") {
         classes?.FNameStudent?.sort(function (st1, st2) {
           return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
         });
         classes.ApproveStudent = [...classes?.FNameStudent];
-      } else if (classes?.sort_queue === "Alpha_Last") {
+      } else if (`${classes?.sort_queue}` === "Alpha_Last") {
         classes?.LNameStudent?.sort(function (st1, st2) {
           return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
         });
         classes.ApproveStudent = [...classes?.LNameStudent];
-      } else if (classes?.sort_queue === "Gender") {
+      } else if (`${classes?.sort_queue}` === "Gender") {
         classes?.GenderStudent?.sort(function (st1, st2) {
           return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
         });
         classes.ApproveStudent = [...classes?.GenderStudent];
-      } else if (classes?.sort_queue === "Gender_Alpha") {
+      } else if (`${classes?.sort_queue}` === "Gender_Alpha") {
         classes?.GenderStudentAlpha?.sort(function (st1, st2) {
           return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
         });
@@ -5489,6 +5489,15 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
           return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
         });
       }
+    }
+    if (`${classes?.sort_queue}` === "Alpha") {
+      classes.ApproveStudent = [...classes?.FNameStudent];
+    } else if (`${classes?.sort_queue}` === "Alpha_Last") {
+      classes.ApproveStudent = [...classes?.LNameStudent];
+    } else if (`${classes?.sort_queue}` === "Gender") {
+      classes.ApproveStudent = [...classes?.GenderStudent];
+    } else if (`${classes?.sort_queue}` === "Gender_Alpha") {
+      classes.ApproveStudent = [...classes?.GenderStudentAlpha];
     }
     // const cEncrypt = await encryptionPayload(classes);
     res.status(200).send({ message: "Approve catalog", classes: classes });

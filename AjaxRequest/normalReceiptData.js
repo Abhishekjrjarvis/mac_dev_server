@@ -7,6 +7,7 @@ const BankAccount = require("../models/Finance/BankAccount");
 const RemainingList = require("../models/Admission/RemainingList");
 const QvipleId = require("../models/Universal/QvipleId");
 const changeDateFormat = require("../helper/changeDateFormat");
+const orderPayment = require("../models/RazorPay/orderPayment");
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 });
@@ -226,7 +227,13 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       remain_fee: 0,
       applicable_fee: 0,
       fee_structure: all_remain?.fee_structure?._id,
-      original_paid: 0,
+      original_paid:
+        all_remain?.applicable_card?.paid_fee -
+          all_remain?.applicable_card?.applicable_fee >
+        0
+          ? all_remain?.applicable_card?.paid_fee -
+            all_remain?.applicable_card?.applicable_fee
+          : 0,
       appId: all_remain?.appId,
     };
     if (
@@ -240,7 +247,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
         remain_fee: 0,
         applicable_fee: receipt?.student?.apps_fees_obj?.gta ?? 0,
         fee_structure: all_remain?.fee_structure?._id,
-        original_paid: 0,
+        original_paid: receipt?.student?.apps_fees_obj?.gta ?? 0,
         appId: all_remain?.appId,
       };
     }
@@ -250,6 +257,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
     if (gta_obj?.paid_fee > 0) {
       receipt.fee_heads.push(gta_obj);
     }
+    // console.log(receipt.fee_heads);
     if (receipt?.finance?.show_receipt === "Normal") {
       receipt.student.active_fee_heads = [...receipt?.fee_heads];
     } else if (receipt?.finance?.show_receipt === "Society") {
@@ -263,6 +271,10 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       });
       receipt.student.active_fee_heads = [...receipt?.fee_heads];
     }
+    let op = await orderPayment
+      .findOne({ fee_receipt: receipt?._id })
+      .select("paytm_query razor_query");
+    receipt.order_history = op;
 
     const obj = {
       message: "Come up with Tea and Snacks",
@@ -399,11 +411,14 @@ const admissionModifyReceiptData = (
       afterDataSncyFeeHead.push(fee);
     } else {
       if (
-        fee?.head_name === "Excess Applicable Fees" ||
-        fee?.head_name === "Excess Fees"
+        fee?.head_name === "Excess Applicable Fees"
+        // fee?.head_name === "Excess Fees"
       ) {
       } else {
-        afterDataSncyPaidFees += fee?.paid_fee;
+        if (fee?.head_name === "Excess Fees") {
+        } else {
+          afterDataSncyPaidFees += fee?.paid_fee;
+        }
         afterDataSncyFeeHead.push(fee);
       }
     }
@@ -433,7 +448,7 @@ const admissionModifyReceiptData = (
       } (${args2?.order_history?.razor_query?.[0]?.method ?? "N/A"})` ?? "N/A",
     referenceNumber:
       args2?.fee_utr_reference ??
-      args2?.order_history?.paytm_query?.[0]?.TXNID ??
+      args2?.order_history?.paytm_query?.[0]?.BANKTXNID ??
       // args2?.order_history?.razorpay_payment_id ??
       "N/A",
     transactionDate: changeDateFormat(args2?.fee_transaction_date) ?? "N/A",
@@ -447,7 +462,7 @@ const admissionModifyReceiptData = (
     bankHolderName: args2?.fee_bank_holder ?? "N/A",
     transactionId:
       args2?.fee_utr_reference ??
-      args2?.order_history?.paytm_query?.[0]?.TXNID ??
+      args2?.order_history?.paytm_query?.[0]?.BANKTXNID ??
       // args2?.order_history?.razorpay_payment_id ??
       "N/A",
   };

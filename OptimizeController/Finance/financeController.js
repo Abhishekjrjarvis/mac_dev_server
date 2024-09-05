@@ -7204,7 +7204,7 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "other_fees_name fee_receipt_student other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students"
+        "other_fees_name fee_receipt_student other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students fees_heads"
       )
       .populate({
         path: "bank_account",
@@ -8176,7 +8176,7 @@ exports.renderAllExamOtherFeesQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "other_fees_name other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students"
+        "other_fees_name other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students fees_heads"
       )
       .populate({
         path: "bank_account",

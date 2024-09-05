@@ -725,29 +725,24 @@ const sorted_by_roll_wise = async (arr, day, month, year) => {
   const students = await Student.find({
     _id: { $in: arr },
   })
-    .sort({ studentROLLNO: 1 })
-    .select("_id");
-
-  for (let i = 0; i < students.length; i++) {
-    const stu = await Student.findById({ _id: students[i]._id })
-      .select(
-        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
-      )
-      .populate({
-        path: "leave",
-        match: {
-          date: { $in: [`${day}/${month}/${year}`] },
-        },
-        select: "date",
-      })
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      });
-    // stu.studentROLLNO = i + 1;
-    // await stu.save();
-    send_filter.push(stu);
-  }
+    .select(
+      "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+    )
+    .populate({
+      path: "leave",
+      match: {
+        date: { $in: [`${day}/${month}/${year}`] },
+      },
+      select: "date",
+    })
+    .populate({
+      path: "user",
+      select: "userLegalName username",
+    });
+  students?.sort(function (st1, st2) {
+    return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+  });
+  send_filter = [...students];
   return send_filter;
 };
 // Add Another Encryption

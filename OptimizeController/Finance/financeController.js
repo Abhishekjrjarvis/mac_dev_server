@@ -2552,9 +2552,9 @@ exports.renderFinanceBankAddQuery = async (req, res) => {
       new_account.bank_account_type = "Society";
     } else {
       new_account.bank_account_type = flow;
-      for (let ele of heads_list) {
-        new_account.heads_list.push(ele);
-      }
+      // for (let ele of heads_list) {
+      //   new_account.heads_list.push(ele);
+      // }
     }
     new_account.finance = finance?._id;
     finance.bank_account.push(new_account?._id);

@@ -7204,7 +7204,7 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "other_fees_name other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students"
+        "other_fees_name fee_receipt_student other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students"
       )
       .populate({
         path: "bank_account",
@@ -7220,7 +7220,8 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
       });
 
     for (let ele of all_of) {
-      ele.paid_students_count = ele?.paid_students?.length;
+      ele.paid_students_count =
+        ele?.paid_students?.length + ele?.fee_receipt_student?.length;
       ele.remaining_students_count = ele?.student_count;
     }
     res.status(200).send({
@@ -8392,20 +8393,35 @@ exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
     const { ofid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
+    const { search } = req?.query;
     if (!ofid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
 
-    var one_of = await OtherFees.findById({ _id: ofid }).populate({
-      path: "fee_receipt_student",
-      populate: {
-        path: "fee_receipt",
-        select: "receipt_file fee_payment_amount payable_amount",
-      },
-    });
+    if (search) {
+      var one_of = await OtherFees.findById({ _id: ofid }).populate({
+        path: "fee_receipt_student",
+        match: {
+          $or: {
+            student: { $regex: `${search}`, $options: "i" },
+          },
+        },
+        populate: {
+          path: "fee_receipt",
+          select: "receipt_file fee_payment_amount payable_amount",
+        },
+      });
+    } else {
+      var one_of = await OtherFees.findById({ _id: ofid }).populate({
+        path: "fee_receipt_student",
+        populate: {
+          path: "fee_receipt",
+          select: "receipt_file fee_payment_amount payable_amount",
+        },
+      });
+    }
     var all_student = await nested_document_limit(
       page,
       limit,

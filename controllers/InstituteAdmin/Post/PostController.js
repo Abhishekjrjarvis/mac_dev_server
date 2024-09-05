@@ -140,7 +140,7 @@ exports.postWithText = async (req, res) => {
         }
       }
     }
-    await send_global_notification_query(institute, post)
+    await send_global_notification_query(institute, post);
   } catch (e) {
     console.log(e);
   }
@@ -264,7 +264,7 @@ exports.postWithImage = async (req, res) => {
         }
       }
     }
-    await send_global_notification_query(institute, post)
+    await send_global_notification_query(institute, post);
   } catch (e) {
     console.log(e);
   }
@@ -392,7 +392,7 @@ exports.postWithImageAPK = async (req, res) => {
         }
       }
     }
-    await send_global_notification_query(institute, post)
+    await send_global_notification_query(institute, post);
   } catch (e) {
     console.log(e);
   }
@@ -518,7 +518,7 @@ exports.postWithVideo = async (req, res) => {
         }
       }
     }
-    await send_global_notification_query(institute, post)
+    await send_global_notification_query(institute, post);
   } catch (e) {
     console.log(e);
   }
@@ -1553,10 +1553,7 @@ exports.commentReplyDelete = async (req, res) => {
   }
 };
 
-exports.postWithDeletedFromAnnouncement = async (
-  id,
-  pid
-) => {
+exports.postWithDeletedFromAnnouncement = async (id, pid) => {
   try {
     const institute = await InstituteAdmin.findById({ _id: id }).select(
       "postCount pollCount isUniversal"
@@ -1687,7 +1684,13 @@ exports.postWithDeletedFromAnnouncement = async (
 exports.render_featured_post_query = async (req, res) => {
   try {
     const { pid } = req.params;
-    if(!pid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    if (!pid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
     const institute_session =
       req.tokenData && req.tokenData.insId ? req.tokenData.insId : "";
     const post = await Post.findById({ _id: pid });
@@ -1697,15 +1700,18 @@ exports.render_featured_post_query = async (req, res) => {
       });
       if (institute?.featured_post.includes(post?._id)) {
         institute?.featured_post?.pull(post._id);
-        await institute.save()
-        res.status(200).send({ message: "Removed from Featured Gallery" , access: true});
+        await institute.save();
+        res
+          .status(200)
+          .send({ message: "Removed from Featured Gallery", access: true });
       } else {
         institute?.featured_post?.push(post._id);
-        await institute.save()
-        res.status(200).send({ message: "Added To Featured Gallery" , access: true});
+        await institute.save();
+        res
+          .status(200)
+          .send({ message: "Added To Featured Gallery", access: true });
       }
-    }
-     else {
+    } else {
       res.status(401).send({ message: "Unauthorized access" });
     }
   } catch (e) {

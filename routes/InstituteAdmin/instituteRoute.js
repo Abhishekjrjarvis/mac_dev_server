@@ -834,4 +834,9 @@ router.patch(
   catchAsync(Institute.add_catalog_student_query)
 );
 
+router.patch(
+  "/add/student/:cid/roll/coll/wise/query",
+  catchAsync(Institute.add_student_roll_coll_wise_query)
+);
+
 module.exports = router;

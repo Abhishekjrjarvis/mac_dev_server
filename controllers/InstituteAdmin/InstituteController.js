@@ -5439,7 +5439,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
         "className classStatus classTitle exams boyCount girlCount studentCount shuffle_on sort_queue"
       )
       .populate({
-        path: "ApproveStudent FNameStudent LNameStudent GenderStudent GenderStudentAlpha",
+        path: "ApproveStudent FNameStudent LNameStudent GenderStudent GenderStudentAlpha roll_wise",
         select: "leave student_prn_enroll_number",
         populate: {
           path: "leave",
@@ -5450,7 +5450,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
         },
       })
       .populate({
-        path: "ApproveStudent FNameStudent LNameStudent GenderStudent GenderStudentAlpha",
+        path: "ApproveStudent FNameStudent LNameStudent GenderStudent GenderStudentAlpha roll_wise",
         select:
           "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO student_prn_enroll_number",
         populate: {
@@ -5484,6 +5484,11 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
           return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
         });
         classes.ApproveStudent = [...classes?.GenderStudentAlpha];
+      } else if (`${classes?.sort_queue}` === "ROLL_WISE") {
+        classes?.roll_wise?.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+        classes.ApproveStudent = [...classes?.roll_wise];
       } else {
         classes?.ApproveStudent?.sort(function (st1, st2) {
           return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
@@ -5498,6 +5503,8 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       classes.ApproveStudent = [...classes?.GenderStudent];
     } else if (`${classes?.sort_queue}` === "Gender_Alpha") {
       classes.ApproveStudent = [...classes?.GenderStudentAlpha];
+    } else if (`${classes?.sort_queue}` === "ROLL_WISE") {
+      classes.ApproveStudent = [...classes?.roll_wise];
     }
     // const cEncrypt = await encryptionPayload(classes);
     res.status(200).send({ message: "Approve catalog", classes: classes });
@@ -9523,6 +9530,30 @@ exports.add_catalog_student_query = async (req, res) => {
       access: true,
       all_student: all_student?.length,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.add_student_roll_coll_wise_query = async (req, res) => {
+  try {
+    const { cid } = req?.params;
+    const { student_list } = req?.body;
+    if (!cid && !student_list)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const classes = await Class.findById({ _id: cid });
+    for (let ele of student_list) {
+      const cls = await Student.findById({ _id: `${ele?.student}` });
+      cls.studentROLLNO = `${ele?.roll}`;
+      await cls.save();
+    }
+    res
+      .status(200)
+      .send({ message: "Explore Add Student Roll Coll Wise", access: true });
   } catch (e) {
     console.log(e);
   }

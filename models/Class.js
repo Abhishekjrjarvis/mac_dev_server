@@ -385,6 +385,12 @@ const classSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  roll_wise: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
 });
 
 const Class = mongoose.model("Class", classSchema);

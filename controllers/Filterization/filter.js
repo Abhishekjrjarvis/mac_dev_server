@@ -719,6 +719,37 @@ const sorted_by_both_gender_and_aplha = async (arr, day, month, year) => {
   }
   return sorted_ga;
 };
+
+const sorted_by_roll_wise = async (arr, day, month, year) => {
+  var send_filter = [];
+  const students = await Student.find({
+    _id: { $in: arr },
+  })
+    .sort({ studentROLLNO: 1 })
+    .select("_id");
+
+  for (let i = 0; i < students.length; i++) {
+    const stu = await Student.findById({ _id: students[i]._id })
+      .select(
+        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+      )
+      .populate({
+        path: "leave",
+        match: {
+          date: { $in: [`${day}/${month}/${year}`] },
+        },
+        select: "date",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      });
+    // stu.studentROLLNO = i + 1;
+    // await stu.save();
+    send_filter.push(stu);
+  }
+  return send_filter;
+};
 // Add Another Encryption
 exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
   try {
@@ -737,13 +768,14 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
     const year = +currentDateLocalFormat[0];
     // const regExpression = new RegExp(`${day}\/${month}\/${year}$`);
     const classes = await Class.findById({ _id: cid }).select(
-      "className classStatus classTitle exams ApproveStudent FNameStudent LNameStudent GenderStudent GenderStudentAlpha"
+      "className classStatus classTitle exams ApproveStudent FNameStudent LNameStudent GenderStudent GenderStudentAlpha roll_wise"
     );
     if (sort_query) {
       classes.FNameStudent = [];
       classes.LNameStudent = [];
       classes.GenderStudent = [];
       classes.GenderStudentAlpha = [];
+      classes.roll_wise = [];
       await classes.save();
     }
     for (let ele of classes?.ApproveStudent) {
@@ -766,6 +798,7 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
       );
       classes.FNameStudent = [...sortedA];
       classes.sort_queue = sort_query;
+      classes.ApproveStudent = [...sortedA];
       await classes.save();
       res.status(200).send({
         message: "Sorted By Alphabetical Order",
@@ -789,6 +822,7 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
       );
       classes.LNameStudent = [...sortedA];
       classes.sort_queue = sort_query;
+      classes.ApproveStudent = [...sortedA];
       await classes.save();
       res.status(200).send({
         message: "Sorted By Alphabetical Order",
@@ -812,6 +846,7 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
       );
       classes.GenderStudent = [...sortedG];
       classes.sort_queue = sort_query;
+      classes.ApproveStudent = [...sortedG];
       await classes.save();
       res.status(200).send({
         message: "Sorted By Gender Order",
@@ -835,6 +870,7 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
       );
       classes.GenderStudentAlpha = [...sortedGA];
       classes.sort_queue = sort_query;
+      classes.ApproveStudent = [...sortedGA];
       await classes.save();
       res.status(200).send({
         message: "Sorted By Gender & Alpha Order",
@@ -847,6 +883,30 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
           ApproveStudent: sortedGA,
         },
         students: sortedGA,
+        access: true,
+      });
+    } else if (sort_query === "ROLL_WISE") {
+      const sortedW = await sorted_by_roll_wise(
+        classes.ApproveStudent,
+        day,
+        month,
+        year
+      );
+      classes.roll_wise = [...sortedW];
+      classes.sort_queue = sort_query;
+      classes.ApproveStudent = [...sortedW];
+      await classes.save();
+      res.status(200).send({
+        message: "Sorted By Roll Wise",
+        classes: {
+          _id: classes?._id,
+          className: classes?.className,
+          classTitle: classes?.classTitle,
+          exams: classes?.exams,
+          classStatus: classes?.classStatus,
+          ApproveStudent: sortedW,
+        },
+        students: sortedW,
         access: true,
       });
     } else {
@@ -876,13 +936,14 @@ exports.retrieveApproveCatalogArrayFilterTrigger = async (req, res) => {
     const year = +currentDateLocalFormat[0];
     // const regExpression = new RegExp(`${day}\/${month}\/${year}$`);
     const classes = await Class.findById({ _id: cid }).select(
-      "className classStatus classTitle exams ApproveStudent FNameStudent LNameStudent GenderStudent GenderStudentAlpha"
+      "className classStatus classTitle exams ApproveStudent FNameStudent LNameStudent GenderStudent GenderStudentAlpha roll_wise"
     );
     if (sort_query) {
       classes.FNameStudent = [];
       classes.LNameStudent = [];
       classes.GenderStudent = [];
       classes.GenderStudentAlpha = [];
+      classes.roll_wise = [];
       await classes.save();
     }
     for (let ele of classes?.ApproveStudent) {
@@ -990,6 +1051,30 @@ exports.retrieveApproveCatalogArrayFilterTrigger = async (req, res) => {
           ApproveStudent: sortedGA,
         },
         students: sortedGA,
+        access: true,
+      });
+    } else if (sort_query === "ROLL_WISE") {
+      const sortedW = await sorted_by_roll_wise(
+        classes.ApproveStudent,
+        day,
+        month,
+        year
+      );
+      classes.roll_wise = [...sortedW];
+      classes.sort_queue = sort_query;
+      classes.ApproveStudent = [...sortedW];
+      await classes.save();
+      res.status(200).send({
+        message: "Sorted By Roll Wise",
+        classes: {
+          _id: classes?._id,
+          className: classes?.className,
+          classTitle: classes?.classTitle,
+          exams: classes?.exams,
+          classStatus: classes?.classStatus,
+          ApproveStudent: sortedW,
+        },
+        students: sortedW,
         access: true,
       });
     } else {

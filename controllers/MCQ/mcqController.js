@@ -2370,11 +2370,9 @@ exports.create_mcq_question_excel_query = async (req, res) => {
         );
 
         if (question_list?.length > 0) {
-          let count = 0;
           for (let que of question_list) {
-            count += 1;
             const subjectQuestion = new SubjectQuestion({
-              questionSNO: question_master.questionCount + count,
+              questionSNO: question_master.questionCount + 1,
               questionDescription: que?.questionDescription,
               options: que?.options,
               correctAnswer: que?.correctAnswer,
@@ -2406,12 +2404,9 @@ exports.create_mcq_question_excel_query = async (req, res) => {
         );
 
         if (question_list?.length > 0) {
-          let count = 0;
-
           for (let que of question_list) {
-            count += 1;
             const subjectQuestion = new SubjectQuestion({
-              questionSNO: question_master.questionCount + count,
+              questionSNO: question_master.questionCount + 1,
               questionDescription: que?.questionDescription,
               options: que?.options,
               correctAnswer: que?.correctAnswer,

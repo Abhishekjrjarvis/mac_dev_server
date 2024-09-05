@@ -1248,10 +1248,12 @@ exports.mcq_create_question_excel_to_json_query = async (
           let ref_obj = ref[`key${val}`];
           if (ref_obj) {
             if (s_op?.includes(ref_obj.db_key)) {
-              obj.options.push({
-                option: ref_obj?.value,
-                optionNumber: ref_obj?.fomat_key,
-              });
+              if (ref_obj?.value) {
+                obj.options.push({
+                  option: ref_obj?.value,
+                  optionNumber: ref_obj?.fomat_key,
+                });
+              }
             }
           }
         }

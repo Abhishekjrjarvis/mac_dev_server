@@ -5,6 +5,7 @@ const https = require("https");
 const feeReceipt = require("../models/RazorPay/feeReceipt");
 const BankAccount = require("../models/Finance/BankAccount");
 const RemainingList = require("../models/Admission/RemainingList");
+const orderPayment = require("../models/RazorPay/orderPayment");
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 });
@@ -243,7 +244,13 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       remain_fee: 0,
       applicable_fee: 0,
       fee_structure: all_remain?.fee_structure?._id,
-      original_paid: 0,
+      original_paid:
+        all_remain?.applicable_card?.paid_fee -
+          all_remain?.applicable_card?.applicable_fee >
+        0
+          ? all_remain?.applicable_card?.paid_fee -
+            all_remain?.applicable_card?.applicable_fee
+          : 0,
       appId: all_remain?.appId,
     };
     var gta_obj = {
@@ -258,7 +265,13 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       remain_fee: 0,
       applicable_fee: 0,
       fee_structure: all_remain?.fee_structure?._id,
-      original_paid: 0,
+      original_paid:
+        all_remain?.applicable_card?.paid_fee -
+          all_remain?.applicable_card?.applicable_fee >
+        0
+          ? all_remain?.applicable_card?.paid_fee -
+            all_remain?.applicable_card?.applicable_fee
+          : 0,
       appId: all_remain?.appId,
     };
     if (excess_obj?.paid_fee > 0) {
@@ -278,6 +291,10 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       });
       receipt.student.active_fee_heads = [...receipt?.fee_heads];
     }
+    let op = await orderPayment
+      .findOne({ fee_receipt: receipt?._id })
+      .select("paytm_query razor_query");
+    receipt.order_history = op;
 
     const obj = {
       message: "Come up with Tea and Snacks",
@@ -314,4 +331,3 @@ const otherFeesData = async (receiptId, instituteId) => {
   return { ft, dt };
 };
 module.exports = otherFeesData;
-

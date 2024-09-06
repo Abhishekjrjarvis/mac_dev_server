@@ -780,7 +780,7 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
       stu.studentFName = stu?.studentFirstName?.trim()?.toLowerCase();
       stu.studentMName =
         stu?.studentMiddleName?.trim()?.toLowerCase() ??
-        studentFatherName?.trim()?.toLowerCase();
+        stu?.studentFatherName?.trim()?.toLowerCase();
       stu.studentLName = stu?.studentLastName?.trim()?.toLowerCase();
       await stu.save();
     }
@@ -948,7 +948,7 @@ exports.retrieveApproveCatalogArrayFilterTrigger = async (req, res) => {
       stu.studentFName = stu?.studentFirstName?.trim()?.toLowerCase();
       stu.studentMName =
         stu?.studentMiddleName?.trim()?.toLowerCase() ??
-        studentFatherName?.trim()?.toLowerCase();
+        stu?.studentFatherName?.trim()?.toLowerCase();
       stu.studentLName = stu?.studentLastName?.trim()?.toLowerCase();
       await stu.save();
     }

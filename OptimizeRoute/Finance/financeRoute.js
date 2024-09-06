@@ -686,4 +686,8 @@ router
     catchAsync(Finance.renderOneNonExistingOtherFeesStudentListExportQuery)
   );
 
+router
+  .route("/fees/insertion/query")
+  .patch(catchAsync(Finance.render_fees_insertion_query));
+
 module.exports = router;

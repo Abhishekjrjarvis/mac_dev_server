@@ -8491,6 +8491,53 @@ exports.render_all_account_query = async (req, res) => {
   }
 };
 
+exports.render_fees_insertion_query = async (req, res) => {
+  try {
+    const all_receipt = await FeeReceipt.find({
+      other_fees: "668bb017b11c7a84ed164c15",
+    });
+    const o_f = await OtherFees.findById({ _id: "66c85bd3d3d293b26b1cd61a" });
+
+    // let total = 0;
+    // for (let ele of all_receipt) {
+    //   if (ele?.student) {
+    //     const stu = await Student.findById({ _id: `${ele?.student}` });
+    //     for (let val of stu?.other_fees) {
+    //       if (`${val?.fees}` === `668bb017b11c7a84ed164c15`) {
+    //         val.fees = o_f?._id;
+    //       }
+    //     }
+    //     o_f.paid_students.push(ele?.student);
+    //     o_f.student_count += 1;
+    //     await stu.save();
+    //   } else {
+    //     o_f.students_list.push(ele?.student_name);
+    //     o_f.student_count += 1;
+    //     o_f.fee_receipt_student.push({
+    //       student: ele?.student_name,
+    //       fee_receipt: ele?._id,
+    //     });
+    //   }
+    //   ele.other_fees = o_f?._id;
+    //   total += ele?.fee_payment_amount;
+    //   await ele.save();
+    // }
+    // for (let cls of o_f?.fees_heads) {
+    //   cls.paid_amount += total;
+    // }
+    o_f.students = o_f?.paid_students;
+    await o_f.save();
+    res.status(200).send({
+      message: "Explore All Fees Query",
+      all_receipt: all_receipt?.length,
+      // cls: all_receipt,
+      // total,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.renderExistingOtherFeesNonExistingQuery = async (req, res) => {
 //   try {
 //     const { fid } = req?.params

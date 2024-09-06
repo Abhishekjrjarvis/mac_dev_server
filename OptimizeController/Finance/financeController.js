@@ -7248,7 +7248,10 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
       });
 
     var one_of = await OtherFees.findById({ _id: ofid });
-    let list = [...one_of?.paid_students, ...one_of?.remaining_students];
+    let list = [
+      ...one_of?.paid_students?.reverse(),
+      ...one_of?.remaining_students,
+    ];
     // one_of?.students
     if (search) {
       var all_student = await Student.find({
@@ -8140,7 +8143,7 @@ exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
     var all_student = await nested_document_limit(
       page,
       limit,
-      one_of?.fee_receipt_student
+      one_of?.fee_receipt_student?.reverse()
     );
     res.status(200).send({
       message:
@@ -8176,7 +8179,7 @@ exports.renderAllExamOtherFeesQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "other_fees_name other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students fees_heads"
+        "other_fees_name fee_receipt_student other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students fees_heads"
       )
       .populate({
         path: "bank_account",
@@ -8192,7 +8195,8 @@ exports.renderAllExamOtherFeesQuery = async (req, res) => {
       });
 
     for (let ele of all_of) {
-      ele.paid_students_count = ele?.paid_students?.length;
+      ele.paid_students_count =
+        ele?.paid_students?.length + ele?.fee_receipt_student?.length;
       ele.remaining_students_count = ele?.student_count;
     }
     res.status(200).send({
@@ -8425,7 +8429,7 @@ exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
     var all_student = await nested_document_limit(
       page,
       limit,
-      one_of?.fee_receipt_student
+      one_of?.fee_receipt_student?.reverse()
     );
     res.status(200).send({
       message:

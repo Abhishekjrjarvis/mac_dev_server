@@ -8121,16 +8121,16 @@ exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
     if (search) {
       var one_of = await OtherFees.findById({ _id: ofid }).populate({
         path: "fee_receipt_student",
-        match: {
-          $or: {
-            student: { $regex: `${search}`, $options: "i" },
-          },
-        },
         populate: {
           path: "fee_receipt",
           select: "receipt_file fee_payment_amount payable_amount",
         },
       });
+      one_of.fee_receipt_student = one_of?.fee_receipt_student?.filter(
+        (val) => {
+          if (val?.student?.includes(`${search}`)) return val;
+        }
+      );
     } else {
       var one_of = await OtherFees.findById({ _id: ofid }).populate({
         path: "fee_receipt_student",
@@ -8392,55 +8392,58 @@ exports.renderOneNonExistingOtherFeesStudentListExportQuery = async (
   }
 };
 
-exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
-  try {
-    const { ofid } = req?.params;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const { search } = req?.query;
-    if (!ofid)
-      return res.status(200).send({
-        message: "Their is a bug need to fixed immediately",
-        access: false,
-      });
+// exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
+//   try {
+//     const { ofid } = req?.params;
+//     const page = req.query.page ? parseInt(req.query.page) : 1;
+//     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+//     const { search } = req?.query;
+//     if (!ofid)
+//       return res.status(200).send({
+//         message: "Their is a bug need to fixed immediately",
+//         access: false,
+//       });
 
-    if (search) {
-      var one_of = await OtherFees.findById({ _id: ofid }).populate({
-        path: "fee_receipt_student",
-        match: {
-          $or: {
-            student: { $regex: `${search}`, $options: "i" },
-          },
-        },
-        populate: {
-          path: "fee_receipt",
-          select: "receipt_file fee_payment_amount payable_amount",
-        },
-      });
-    } else {
-      var one_of = await OtherFees.findById({ _id: ofid }).populate({
-        path: "fee_receipt_student",
-        populate: {
-          path: "fee_receipt",
-          select: "receipt_file fee_payment_amount payable_amount",
-        },
-      });
-    }
-    var all_student = await nested_document_limit(
-      page,
-      limit,
-      one_of?.fee_receipt_student?.reverse()
-    );
-    res.status(200).send({
-      message:
-        "Explore One Non Existing Other Fees Remaining Student List Query",
-      access: true,
-      all_student: all_student,
-    });
-  } catch (e) {
-    console.log(e);
-  }
-};
+//     if (search) {
+//       var one_of = await OtherFees.findById({ _id: ofid }).populate({
+//         path: "fee_receipt_student",
+//         match: {
+//           $or: {
+//             "fee_receipt_student.student": {
+//               $regex: `${search}`,
+//               $options: "i",
+//             },
+//           },
+//         },
+//         populate: {
+//           path: "fee_receipt",
+//           select: "receipt_file fee_payment_amount payable_amount",
+//         },
+//       });
+//     } else {
+//       var one_of = await OtherFees.findById({ _id: ofid }).populate({
+//         path: "fee_receipt_student",
+//         populate: {
+//           path: "fee_receipt",
+//           select: "receipt_file fee_payment_amount payable_amount",
+//         },
+//       });
+//     }
+//     var all_student = await nested_document_limit(
+//       page,
+//       limit,
+//       one_of?.fee_receipt_student?.reverse()
+//     );
+//     res.status(200).send({
+//       message:
+//         "Explore One Non Existing Other Fees Remaining Student List Query",
+//       access: true,
+//       all_student: all_student,
+//     });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 
 exports.render_control_invoice_pattern = async (req, res) => {
   try {

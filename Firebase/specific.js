@@ -1,28 +1,14 @@
 var admin = require("firebase-admin");
 var serviceAccount = require("../Secret/qviple-user-firebase-adminsdk-4qvna-8582f91ae3.json");
-// if (!admin.apps.length) {
-let fb = admin.initializeApp(
-  {
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "dB_URL",
-  },
-  "qviple-user"
-);
-// }
+
 const invokeSpecificRegister = async (type, info, title, id, token) => {
-  // const yourFirebaseAdminConfig= {};
-
-  //   if (admin.apps.length === 0) {
-  //     admin.initializeApp({ yourFirebaseAdminConfig });
-  //   }
-
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
   if (type === "Specific Notification") {
     const firebaseToken = token;
 
-    // const messaging = admin.messaging();
-
     const ds = {
-      // message: {
       notification: {
         title: `${title}`,
         body: `${info}`,
@@ -34,24 +20,15 @@ const invokeSpecificRegister = async (type, info, title, id, token) => {
         sound: "default",
       },
       token: firebaseToken, // Replace with the device token you want to send to
-      // },
-      // token: firebaseToken // Replace with the device token you want to send to
     };
-
-    // const options = {
-    //   priority: "high",
-    //   timeToLive: 60 * 60 * 24,
-    // };
-
-    // try {
-    fb.messaging()
+    admin
+      .messaging()
       .send(ds)
       .then(() => {
         console.log("Notification sent successfully:");
       })
       .catch((e) => {
-        // catch (error) {
-        console.error("Error sending notification:", e);
+        console.error("Error sending notification:");
       });
   } else {
   }
@@ -64,5 +41,5 @@ module.exports = invokeSpecificRegister;
 //   "TESTING NODTICIATION TRIGGERED BY DD ABHISHEK SINGH",
 //   "New Institute Welcome",
 //   "630f6d19a8d864c2234fe4cc",
-//   // user.deviceToken
-// )
+//   "caSlrA6_T3ig4v92wnvIgK:APA91bGO_1kG6N4EDFKGQUkkike_0e0LoohNXMwL9bzaTwCwV9OSGmGtMQzgz2Z-2w2T8baEFGqEuvAVu5Z0UI8ewHjp3MSlyobA_pP1IDxAgN6JDWKOsO0y_lhBx8m9W_XiAN4WAdZW"
+// );

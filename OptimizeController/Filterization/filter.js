@@ -16813,10 +16813,7 @@ exports.renderAllStudentApplicableOutStandingStudentQuery = async (
           ele?.government_card?.remaining_fee;
         paid += ele?.applicable_card?.paid_fee + ele?.government_card?.paid_fee;
         gov_pending += ele?.government_card?.remaining_fee;
-        applicable_pending +=
-          ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
-            ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
-            : 0;
+        applicable_pending += ele?.applicable_card?.applicable_fee;
       }
       if (struct) {
         var currentPaid = 0;
@@ -16866,6 +16863,8 @@ exports.renderAllStudentApplicableOutStandingStudentQuery = async (
           path: "applicable_card government_card",
         });
       var pusher = [];
+      let total_actual = 0;
+      let total_applicable = 0;
       for (var query of all_remain) {
         pusher.push({
           BatchName: `${query?.fee_structure?.batch_master?.batchName}-PaidFees`,
@@ -16893,6 +16892,8 @@ exports.renderAllStudentApplicableOutStandingStudentQuery = async (
           BatchName: `${query?.fee_structure?.batch_master?.batchName}-Remark`,
           Fees: query?.remark,
         });
+        total_applicable += query?.fee_structure?.applicable_fees;
+        total_actual += query?.fee_structure?.total_admission_fees;
       }
       if (pusher?.length > 0) {
         var result = await buildStructureObject(pusher);
@@ -16923,16 +16924,18 @@ exports.renderAllStudentApplicableOutStandingStudentQuery = async (
           : `${ref?.hostel_fee_structure}`
           ? `${ref?.hostel_fee_structure?.unique_structure_name}`
           : "#NA",
-        ActualFees: `${ref?.fee_structure}`
-          ? `${ref?.fee_structure?.total_admission_fees}`
-          : `${ref?.hostel_fee_structure}`
-          ? `${ref?.hostel_fee_structure?.total_admission_fees}`
-          : "0",
-        ApplicableFees: `${ref?.fee_structure}`
-          ? `${ref?.fee_structure?.applicable_fees}`
-          : `${ref?.hostel_fee_structure}`
-          ? `${ref?.hostel_fee_structure?.applicable_fees}`
-          : "0",
+        ActualFees: total_actual,
+        // `${ref?.fee_structure}`
+        // ? `${ref?.fee_structure?.total_admission_fees}`
+        // : `${ref?.hostel_fee_structure}`
+        // ? `${ref?.hostel_fee_structure?.total_admission_fees}`
+        // : "0",
+        ApplicableFees: total_applicable,
+        // `${ref?.fee_structure}`
+        // ? `${ref?.fee_structure?.applicable_fees}`
+        // : `${ref?.hostel_fee_structure}`
+        // ? `${ref?.hostel_fee_structure?.applicable_fees}`
+        // : "0",
         // CurrentYearPaidFees: currentPaid ?? "0",
         // CurrentYearRemainingFees: currentRemain ?? "0",
         // CurrentYearApplicableRemainingFees: currentApplicableRemaining ?? "0",
@@ -16948,7 +16951,7 @@ exports.renderAllStudentApplicableOutStandingStudentQuery = async (
     await json_to_excel_student_applicable_outstanding_query(
       excel_list,
       institute?._id,
-      "Admission All Student Tab"
+      "Admission Fees"
     );
   } catch (e) {
     console.log(e);

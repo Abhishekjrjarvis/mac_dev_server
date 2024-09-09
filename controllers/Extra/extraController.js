@@ -266,7 +266,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto certificate_issued_count insAffiliated",
+          "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto certificate_issued_count insAffiliated is_dublicate_bonafide",
       });
     student.studentReason = reason;
     student.student_bona_message = student_bona_message;

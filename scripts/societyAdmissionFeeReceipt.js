@@ -130,7 +130,6 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .font("Times-Bold")
       .fillColor("#121212")
       .text(`${receiptData?.application?.applicationName ?? ""}`, {
-        width: pageWidth - 100,
         align: "center",
       });
 
@@ -1031,7 +1030,6 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .font("Times-Bold")
       .fillColor("#121212")
       .text(`${receiptData?.application?.applicationName ?? ""}`, {
-        width: pageWidth - 100,
         align: "center",
       });
 
@@ -1948,7 +1946,6 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .font("Times-Bold")
       .fillColor("#121212")
       .text(`${receiptData?.application?.applicationName ?? ""}`, {
-        width: pageWidth - 100,
         align: "center",
       });
 

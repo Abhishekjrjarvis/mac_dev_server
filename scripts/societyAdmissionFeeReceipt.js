@@ -64,7 +64,11 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     }
   );
   // console.log(society_paid_fee?.length, paid_fee?.length);
-  if (paid_fee?.length > 0 && society_paid_fee?.length === 0) {
+  if (
+    receiptData?.finance?.is_dublicate_receipt === "Yes" &&
+    paid_fee?.length > 0 &&
+    society_paid_fee?.length === 0
+  ) {
     if (instituteData?.insProfilePhoto) {
       doc.image(
         await dynamicImages("CUSTOM", instituteData?.insProfilePhoto),
@@ -963,7 +967,11 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       width: pageWidth - 50,
       align: "right",
     });
-  } else if (paid_fee?.length === 0 && society_paid_fee?.length > 0) {
+  } else if (
+    receiptData?.finance?.is_dublicate_receipt === "Yes" &&
+    paid_fee?.length === 0 &&
+    society_paid_fee?.length > 0
+  ) {
     if (instituteData?.insProfilePhoto) {
       doc.image(
         await dynamicImages("CUSTOM", instituteData?.insProfilePhoto),

@@ -130,7 +130,6 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .font("Times-Bold")
       .fillColor("#121212")
       .text(`${receiptData?.application?.applicationName ?? ""}`, {
-        width: pageWidth - 100,
         align: "center",
       });
 
@@ -280,11 +279,11 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     });
     if (
       receiptData?.fee_utr_reference ||
-      receiptData?.order_history?.razorpay_payment_id
+      receiptData?.order_history?.paytm_query?.[0]?.BANKTXNID
     ) {
       let txn = receiptData?.fee_utr_reference
         ? receiptData?.fee_utr_reference
-        : receiptData?.order_history?.razorpay_payment_id;
+        : receiptData?.order_history?.paytm_query?.[0]?.BANKTXNID;
       doc.moveUp(1);
       doc.fontSize(10).font("Times-Roman").fillColor("#2e2e2e").text(txn, {
         indent: 80,
@@ -722,11 +721,11 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     });
     if (
       receiptData?.fee_utr_reference ||
-      receiptData?.order_history?.razorpay_payment_id
+      receiptData?.order_history?.paytm_query?.[0]?.BANKTXNID
     ) {
       let txn = receiptData?.fee_utr_reference
         ? receiptData?.fee_utr_reference
-        : receiptData?.order_history?.razorpay_payment_id;
+        : receiptData?.order_history?.paytm_query?.[0]?.BANKTXNID;
       doc.moveUp(1);
       doc.fontSize(10).font("Times-Roman").fillColor("#2e2e2e").text(txn, {
         indent: 80,
@@ -1031,7 +1030,6 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .font("Times-Bold")
       .fillColor("#121212")
       .text(`${receiptData?.application?.applicationName ?? ""}`, {
-        width: pageWidth - 100,
         align: "center",
       });
 
@@ -1181,11 +1179,11 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     });
     if (
       receiptData?.fee_utr_reference ||
-      receiptData?.order_history?.razorpay_payment_id
+      receiptData?.order_history?.paytm_query?.[0]?.BANKTXNID
     ) {
       let txn = receiptData?.fee_utr_reference
         ? receiptData?.fee_utr_reference
-        : receiptData?.order_history?.razorpay_payment_id;
+        : receiptData?.order_history?.paytm_query?.[0]?.BANKTXNID;
       doc.moveUp(1);
       doc.fontSize(10).font("Times-Roman").fillColor("#2e2e2e").text(txn, {
         indent: 80,
@@ -1623,11 +1621,11 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     });
     if (
       receiptData?.fee_utr_reference ||
-      receiptData?.order_history?.razorpay_payment_id
+      receiptData?.order_history?.paytm_query?.[0]?.BANKTXNID
     ) {
       let txn = receiptData?.fee_utr_reference
         ? receiptData?.fee_utr_reference
-        : receiptData?.order_history?.razorpay_payment_id;
+        : receiptData?.order_history?.paytm_query?.[0]?.BANKTXNID;
       doc.moveUp(1);
       doc.fontSize(10).font("Times-Roman").fillColor("#2e2e2e").text(txn, {
         indent: 80,
@@ -1948,7 +1946,6 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
       .font("Times-Bold")
       .fillColor("#121212")
       .text(`${receiptData?.application?.applicationName ?? ""}`, {
-        width: pageWidth - 100,
         align: "center",
       });
 
@@ -2110,11 +2107,11 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
     });
     if (
       receiptData?.fee_utr_reference ||
-      receiptData?.order_history?.razorpay_payment_id
+      receiptData?.order_history?.paytm_query?.[0]?.BANKTXNID
     ) {
       let txn = receiptData?.fee_utr_reference
         ? receiptData?.fee_utr_reference
-        : receiptData?.order_history?.razorpay_payment_id;
+        : receiptData?.order_history?.paytm_query?.[0]?.BANKTXNID;
       doc.moveUp(1);
       doc.fontSize(10).font("Times-Roman").fillColor("#2e2e2e").text(txn, {
         indent: 80,
@@ -2596,11 +2593,11 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
         });
       if (
         receiptData?.fee_utr_reference ||
-        receiptData?.order_history?.razorpay_payment_id
+        receiptData?.order_history?.paytm_query?.[0]?.BANKTXNID
       ) {
         let txn = receiptData?.fee_utr_reference
           ? receiptData?.fee_utr_reference
-          : receiptData?.order_history?.razorpay_payment_id;
+          : receiptData?.order_history?.paytm_query?.[0]?.BANKTXNID;
         doc.moveUp(1);
         doc.fontSize(10).font("Times-Roman").fillColor("#2e2e2e").text(txn, {
           indent: 80,

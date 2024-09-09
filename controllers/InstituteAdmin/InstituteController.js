@@ -6180,7 +6180,7 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
     var count = 0;
     var one_subject = await Subject.findById({ _id: sid })
       .select(
-        "subjectName subjectStatus subject_category subjectTitle tutorial_analytic subjectMasterName lecture_analytic practical_analytic chapter_count topic_count_bifurgate createdAt class_master"
+        "subjectName subjectStatus subject_category subjectTitle tutorial_analytic subjectMasterName lecture_analytic practical_analytic chapter_count topic_count_bifurgate createdAt class_master allotted_lecture total_hours hours_per_weak course_objective course_outcome web_reference book_reference"
       )
       .populate({
         path: "chapter",
@@ -9365,12 +9365,10 @@ exports.new_checklist_section_query = async (req, res) => {
   try {
     const { id } = req?.params;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const institute = await InstituteAdmin.findById({ _id: id });
     // const ifs = await InstituteStudentForm.findOne({ institute: id })

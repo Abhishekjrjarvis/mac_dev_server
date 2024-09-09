@@ -5165,3 +5165,24 @@ exports.customAmountStudentOtherFeeReceiptQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.certificate_bonafide_dublicate_query = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { is_dublicate_bonafide } = req.body;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const institute = await InstituteAdmin.findById(id);
+    institute.is_dublicate_bonafide = is_dublicate_bonafide;
+    await institute.save();
+    res.status(200).send({
+      message: "Data updated successfully.",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

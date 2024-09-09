@@ -1749,7 +1749,7 @@ exports.subjectTeacherTakeTestsetInternalEvaluationTestQuery = async (
       const subject = await Subject.findById(i_eva_test?.subject)
         .populate({
           path: "selected_batch_query",
-          select: "class_student_query",
+          select: "class_student_query batchName",
         })
         .populate({
           path: "class",

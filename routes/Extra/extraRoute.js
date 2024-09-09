@@ -542,4 +542,9 @@ router.patch(
   catchAsync(Extra.customAmountStudentOtherFeeReceiptQuery)
 );
 
+router.patch(
+  "/dublicate/bonafide/certificate/:id/query",
+  catchAsync(Extra.certificate_bonafide_dublicate_query)
+);
+
 module.exports = router;

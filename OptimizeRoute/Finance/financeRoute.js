@@ -686,4 +686,9 @@ router
     catchAsync(Finance.renderOneNonExistingOtherFeesStudentListExportQuery)
   );
 
+router.patch(
+  "/dublicate/receipt/:fid/query",
+  catchAsync(Finance.finance_receipt_dublicate_query)
+);
+
 module.exports = router;

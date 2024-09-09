@@ -340,6 +340,30 @@ const subjectSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "ClassMaster",
   },
+  allotted_lecture: {
+    type: Number,
+    default: 0,
+  },
+  total_hours: {
+    type: Number,
+    default: 0,
+  },
+  hours_per_weak: {
+    type: Number,
+    default: 0,
+  },
+  course_objective: {
+    type: String,
+  },
+  course_outcome: {
+    type: String,
+  },
+  web_reference: {
+    type: String,
+  },
+  book_reference: {
+    type: String,
+  },
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

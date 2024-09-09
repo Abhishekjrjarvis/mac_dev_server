@@ -165,4 +165,7 @@ router
   .route("/check/by/student/testset/:stid/result/query")
   .patch(catchAsync(mcqController.sudentExamResultTestValidationQuery));
 
+router
+  .route("/export/one/assignment/:aid/zip")
+  .post(catchAsync(mcqController.one_assignment_export_query));
 module.exports = router;

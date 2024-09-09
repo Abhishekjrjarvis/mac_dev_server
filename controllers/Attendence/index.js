@@ -30,7 +30,7 @@ const SubjectTimetable = require("../../models/Timetable/SubjectTimetable");
 const {
   generate_custom_date_list,
 } = require("../../Utilities/Attendance/attendance_function");
-const subjectAttendanceReport = require("../../scripts/Subject/subjectAttendanceReport");
+const subjectAttendanceReport = require("../../scripts/subject/subjectAttendanceReport");
 const subjectSemesterAttendanceReport = require("../../scripts/subject/subjectSemesterAttendanceReport");
 const clsAttendanceReport = require("../../scripts/cls/clsAttendanceReport");
 const clsSemesterAttendanceReport = require("../../scripts/cls/clsSemesterAttendanceReport");

@@ -5436,10 +5436,10 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
     const year = +currentDateLocalFormat[0];
     const classes = await Class.findById({ _id: cid })
       .select(
-        "className classStatus classTitle exams boyCount girlCount studentCount shuffle_on"
+        "className classStatus classTitle exams boyCount girlCount studentCount shuffle_on sort_queue"
       )
       .populate({
-        path: "ApproveStudent",
+        path: "ApproveStudent FNameStudent LNameStudent GenderStudent GenderStudentAlpha roll_wise",
         select: "leave student_prn_enroll_number",
         populate: {
           path: "leave",
@@ -5450,7 +5450,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
         },
       })
       .populate({
-        path: "ApproveStudent",
+        path: "ApproveStudent FNameStudent LNameStudent GenderStudent GenderStudentAlpha roll_wise",
         select:
           "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO student_prn_enroll_number",
         populate: {
@@ -5464,9 +5464,47 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
     // console.log(classes)
     if (classes?.shuffle_on) {
     } else {
-      classes?.ApproveStudent?.sort(function (st1, st2) {
-        return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
-      });
+      if (`${classes?.sort_queue}` === "Alpha") {
+        classes?.FNameStudent?.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+        classes.ApproveStudent = [...classes?.FNameStudent];
+      } else if (`${classes?.sort_queue}` === "Alpha_Last") {
+        classes?.LNameStudent?.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+        classes.ApproveStudent = [...classes?.LNameStudent];
+      } else if (`${classes?.sort_queue}` === "Gender") {
+        classes?.GenderStudent?.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+        classes.ApproveStudent = [...classes?.GenderStudent];
+      } else if (`${classes?.sort_queue}` === "Gender_Alpha") {
+        classes?.GenderStudentAlpha?.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+        classes.ApproveStudent = [...classes?.GenderStudentAlpha];
+      } else if (`${classes?.sort_queue}` === "ROLL_WISE") {
+        classes?.roll_wise?.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+        classes.ApproveStudent = [...classes?.roll_wise];
+      } else {
+        classes?.ApproveStudent?.sort(function (st1, st2) {
+          return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+        });
+      }
+    }
+    if (`${classes?.sort_queue}` === "Alpha") {
+      classes.ApproveStudent = [...classes?.FNameStudent];
+    } else if (`${classes?.sort_queue}` === "Alpha_Last") {
+      classes.ApproveStudent = [...classes?.LNameStudent];
+    } else if (`${classes?.sort_queue}` === "Gender") {
+      classes.ApproveStudent = [...classes?.GenderStudent];
+    } else if (`${classes?.sort_queue}` === "Gender_Alpha") {
+      classes.ApproveStudent = [...classes?.GenderStudentAlpha];
+    } else if (`${classes?.sort_queue}` === "ROLL_WISE") {
+      classes.ApproveStudent = [...classes?.roll_wise];
     }
     // const cEncrypt = await encryptionPayload(classes);
     res.status(200).send({ message: "Approve catalog", classes: classes });
@@ -9373,7 +9411,9 @@ exports.new_checklist_section_query = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     // const ifs = await InstituteStudentForm.findOne({ institute: id })
     const ads_admin = await Admission.findOne({ institute: id });
-    // const all_ifs = await DepartmentStudentForm.find({ department: { $in: institute?.depart } })
+    // const all_ifs = await DepartmentStudentForm.find({
+    //   department: { $in: institute?.depart },
+    // })
     const all_app = await NewApplication.find({
       $and: [
         { _id: { $in: ads_admin?.newApplication } },
@@ -9400,27 +9440,36 @@ exports.new_checklist_section_query = async (req, res) => {
     var i = 0;
     for (let ifs of all_ifs) {
       var nums = ifs?.form_section?.filter((ele) => {
-        if (`${ele?.section_key}` === `admissionDetails`) return ele;
+        if (`${ele?.section_key}` === `basic_details`) return ele;
       });
       let sample = [
+        // {
+        //   form_checklist_name: "Are You Sponsored Candidate",
+        //   form_checklist_key: "student_sponser",
+        //   form_checklist_visibility: true,
+        //   form_checklist_placeholder: "Are You Sponsored Candidate",
+        //   form_checklist_lable: "Are You Sponsored Candidate",
+        //   form_checklist_typo: "SELECT",
+        //   form_checklist_typo_option_pl: ["Yes", "No"],
+        //   form_checklist_enable: "true",
+        // },
+        // {
+        //   form_checklist_name: "Upload Proforma P & Q",
+        //   form_checklist_key: "student_sponser_upload",
+        //   form_checklist_visibility: true,
+        //   form_checklist_placeholder: "Upload Proforma P & Q",
+        //   form_checklist_lable: "Upload Proforma P & Q",
+        //   form_checklist_typo: "FILE",
+        //   form_common_key: "student_sponser",
+        // },
         {
-          form_checklist_name: "Are You Sponsored Candidate",
-          form_checklist_key: "student_sponser",
+          form_checklist_name: "PRN / Enrollment No.",
+          form_checklist_key: "student_prn_enroll_number",
           form_checklist_visibility: true,
-          form_checklist_placeholder: "Are You Sponsored Candidate",
-          form_checklist_lable: "Are You Sponsored Candidate",
-          form_checklist_typo: "SELECT",
-          form_checklist_typo_option_pl: ["Yes", "No"],
-          form_checklist_enable: "true",
-        },
-        {
-          form_checklist_name: "Upload Proforma P & Q",
-          form_checklist_key: "student_sponser_upload",
-          form_checklist_visibility: true,
-          form_checklist_placeholder: "Upload Proforma P & Q",
-          form_checklist_lable: "Upload Proforma P & Q",
-          form_checklist_typo: "FILE",
-          form_common_key: "student_sponser",
+          form_checklist_placeholder: "Enter PRN / Enrollment No.",
+          form_checklist_lable: "PRN / Enrollment No.",
+          form_checklist_typo: "TEXT",
+          form_checklist_required: false,
         },
       ];
       var numss = [];
@@ -9432,8 +9481,9 @@ exports.new_checklist_section_query = async (req, res) => {
           form_checklist_placeholder: ele?.form_checklist_placeholder,
           form_checklist_lable: ele?.form_checklist_lable,
           form_checklist_typo: ele?.form_checklist_typo,
-          form_common_key: ele?.form_common_key,
-          form_checklist_enable: ele?.form_checklist_enable,
+          form_checklist_required: ele?.form_checklist_required,
+          // form_common_key: ele?.form_common_key,
+          // form_checklist_enable: ele?.form_checklist_enable,
           width: ele?.width,
         });
         if (
@@ -9459,6 +9509,51 @@ exports.new_checklist_section_query = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore One Section Insertion", access: true, nums });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.add_catalog_student_query = async (req, res) => {
+  try {
+    const classes = await Class.findById({ _id: "6693684ffc5124119c0aad70" });
+    const all_student = await Student.find({ studentClass: classes?._id });
+    var i = 0;
+    for (let ele of all_student) {
+      classes.ApproveStudent.push(ele?._id);
+      console.log(i);
+      i += 1;
+    }
+    await classes.save();
+    res.status(200).send({
+      message: "Explore All Student Query",
+      access: true,
+      all_student: all_student?.length,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.add_student_roll_coll_wise_query = async (req, res) => {
+  try {
+    const { cid } = req?.params;
+    const { student_list } = req?.body;
+    if (!cid && !student_list)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const classes = await Class.findById({ _id: cid });
+    for (let ele of student_list) {
+      const cls = await Student.findById({ _id: `${ele?.student}` });
+      cls.studentROLLNO = `${ele?.roll}`;
+      await cls.save();
+    }
+    res
+      .status(200)
+      .send({ message: "Explore Add Student Roll Coll Wise", access: true });
   } catch (e) {
     console.log(e);
   }

@@ -643,11 +643,20 @@ router.patch(
   catchAsync(Institute.renderEditSubjectMasterQuery)
 );
 
-router.get("/:id/all/approve-staff/shuffle/query", catchAsync(Institute.renderApproveStaffShuffleQuery));
+router.get(
+  "/:id/all/approve-staff/shuffle/query",
+  catchAsync(Institute.renderApproveStaffShuffleQuery)
+);
 
-router.patch("/staff/shuffle/query", catchAsync(Institute.renderApproveStaffShuffleQueryStats));
+router.patch(
+  "/staff/shuffle/query",
+  catchAsync(Institute.renderApproveStaffShuffleQueryStats)
+);
 
-router.patch("/:sid/one-remove/query", catchAsync(Institute.renderRemoveStaffQuery));
+router.patch(
+  "/:sid/one-remove/query",
+  catchAsync(Institute.renderRemoveStaffQuery)
+);
 
 router.patch("/master/query", catchAsync(Institute.renderExistMasterQuery));
 
@@ -704,12 +713,17 @@ router.patch(
   catchAsync(Institute.render_auto_staff_form_section_checklist_query)
 );
 
-router.post("/:id/pinned/department/query", catchAsync(Institute.renderDepartmentPinnedQuery))
+router.post(
+  "/:id/pinned/department/query",
+  catchAsync(Institute.renderDepartmentPinnedQuery)
+);
 
-router.post("/:id/un/pinned/department/query", catchAsync(Institute.renderDepartmentUnPinnedQuery))
+router.post(
+  "/:id/un/pinned/department/query",
+  catchAsync(Institute.renderDepartmentUnPinnedQuery)
+);
 
-router.patch("/enable/all/dataset", catchAsync(Institute.all_dataset))
-
+router.patch("/enable/all/dataset", catchAsync(Institute.all_dataset));
 
 router.post(
   "/new/form/:fcid/section/staff/query",
@@ -746,9 +760,15 @@ router.get(
   catchAsync(Institute.render_one_staff_form_section_enable_query)
 );
 
-router.get("/:sid/dynamic/form/query", catchAsync(Institute.render_dynamic_form_query))
+router.get(
+  "/:sid/dynamic/form/query",
+  catchAsync(Institute.render_dynamic_form_query)
+);
 
-router.get("/dynamic/form/details/query", catchAsync(Institute.render_dynamic_form_details_query))
+router.get(
+  "/dynamic/form/details/query",
+  catchAsync(Institute.render_dynamic_form_details_query)
+);
 
 // Enable LC + FC
 router.patch(
@@ -762,7 +782,6 @@ router.patch(
   catchAsync(Institute.render_form_key_editable)
 );
 
-
 // Enable LC + FC
 router.get(
   "/all/classes/:id/query",
@@ -772,13 +791,17 @@ router.get(
 // Add In Super Admin
 router.patch(
   "/:fcid/enable/auto/form/query/academic",
-  catchAsync(Institute.render_auto_student_form_section_checklist_query_academic)
+  catchAsync(
+    Institute.render_auto_student_form_section_checklist_query_academic
+  )
 );
 
 // Single Application
 router.patch(
   "/enable/auto/form/query/single/application",
-  catchAsync(Institute.render_auto_student_form_section_checklist_query_single_application)
+  catchAsync(
+    Institute.render_auto_student_form_section_checklist_query_single_application
+  )
 );
 
 // Single Social
@@ -794,10 +817,7 @@ router.patch(
 );
 
 // Single Social
-router.patch(
-  "/enable/middle",
-  catchAsync(Institute.render_middle_name_data)
-);
+router.patch("/enable/middle", catchAsync(Institute.render_middle_name_data));
 
 router.get(
   "/:id/unapprove-student/list/combined/query",
@@ -807,6 +827,16 @@ router.get(
 router.patch(
   "/insert/:id/new/section",
   catchAsync(Institute.new_checklist_section_query)
+);
+
+router.patch(
+  "/add/catalog/student/query",
+  catchAsync(Institute.add_catalog_student_query)
+);
+
+router.patch(
+  "/add/student/:cid/roll/coll/wise/query",
+  catchAsync(Institute.add_student_roll_coll_wise_query)
 );
 
 module.exports = router;

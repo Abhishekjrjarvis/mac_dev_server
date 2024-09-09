@@ -2516,7 +2516,7 @@ exports.renderFinanceBankAddQuery = async (req, res) => {
   try {
     const { fid } = req.params;
     const { flow, flow_id } = req.query;
-    const { depart_arr } = req.body;
+    const { depart_arr, heads_list } = req.body;
     if (!fid && !flow && !flow_id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -2550,6 +2550,11 @@ exports.renderFinanceBankAddQuery = async (req, res) => {
       await libs.save();
     } else if (flow === "Society") {
       new_account.bank_account_type = "Society";
+    } else {
+      new_account.bank_account_type = flow;
+      // for (let ele of heads_list) {
+      //   new_account.heads_list.push(ele);
+      // }
     }
     new_account.finance = finance?._id;
     finance.bank_account.push(new_account?._id);
@@ -2725,21 +2730,52 @@ exports.renderFinanceOneBankAccountDestroyQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    const account = await BankAccount.findById({ _id: acid });
-    const finance = await Finance.findById({ _id: `${account?.finance}` });
-    finance.bank_account.pull(account?._id);
-    if (finance?.bank_account_count > 0) {
-      finance.bank_account_count -= 1;
-    }
-    if (account?.finance_bank_upi_qrcode) {
-      await deleteFile(account?.finance_bank_upi_qrcode);
-    }
-    await finance.save();
-    await BankAccount.findByIdAndDelete(acid);
     res.status(200).send({
       message: "Finance / Bank Query Deletion Operation Completed 😁",
       access: true,
     });
+    const account = await BankAccount.findById({ _id: acid });
+    const finance = await Finance.findById({ _id: `${account?.finance}` });
+    let flag = false;
+    const all_receipt = await FeeReceipt.find({
+      finance: finance?._id,
+    })
+      .select("application")
+      .populate({
+        path: "application",
+        select: "applicationDepartment",
+        populate: {
+          path: "applicationDepartment",
+          select: "bank_account",
+        },
+      });
+    if (account?.total_repay > 0) {
+      flag = true;
+    } else {
+      for (let ele of all_receipt) {
+        if (
+          `${ele?.application?.applicationDepartment?.bank_account}` ===
+          `${account?._id}`
+        ) {
+          flag = true;
+        }
+      }
+    }
+
+    if (flag == true) {
+      console.log("Abort Bank Account Deletion", flag);
+    } else {
+      console.log("Bank Account Deletion", flag);
+      finance.bank_account.pull(account?._id);
+      if (finance?.bank_account_count > 0) {
+        finance.bank_account_count -= 1;
+      }
+      if (account?.finance_bank_upi_qrcode) {
+        await deleteFile(account?.finance_bank_upi_qrcode);
+      }
+      await finance.save();
+      await BankAccount.findByIdAndDelete(acid);
+    }
   } catch (e) {
     console.log(e);
   }
@@ -7169,7 +7205,7 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "other_fees_name other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students"
+        "other_fees_name fee_receipt_student other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students fees_heads"
       )
       .populate({
         path: "bank_account",
@@ -7185,7 +7221,8 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
       });
 
     for (let ele of all_of) {
-      ele.paid_students_count = ele?.paid_students?.length;
+      ele.paid_students_count =
+        ele?.paid_students?.length + ele?.fee_receipt_student?.length;
       ele.remaining_students_count = ele?.student_count;
     }
     res.status(200).send({
@@ -7204,7 +7241,7 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { type } = req?.query;
+    const { type, search } = req?.query;
     if (!ofid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -7212,21 +7249,54 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
       });
 
     var one_of = await OtherFees.findById({ _id: ofid });
-    let list = [...one_of?.paid_students, ...one_of?.remaining_students];
+    let list = [
+      ...one_of?.paid_students?.reverse(),
+      ...one_of?.remaining_students,
+    ];
     // one_of?.students
-    var all_student = await Student.find({ _id: { $in: list } })
-      .limit(limit)
-      .skip(skip)
-      .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj other_fees_paid_price"
-      )
-      .populate({
-        path: "other_fees",
-        populate: {
-          path: "fee_receipt fees",
-          select: "receipt_file fee_payment_amount payable_amount",
-        },
-      });
+    if (search) {
+      var all_student = await Student.find({
+        $and: [{ _id: { $in: list } }],
+        $or: [
+          {
+            studentFirstName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentGRNO: { $regex: `${search}`, $options: "i" },
+          },
+        ],
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj other_fees_paid_price"
+        )
+        .populate({
+          path: "other_fees",
+          populate: {
+            path: "fee_receipt fees",
+            select: "receipt_file fee_payment_amount payable_amount",
+          },
+        });
+    } else {
+      var all_student = await Student.find({ _id: { $in: list } })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj other_fees_paid_price"
+        )
+        .populate({
+          path: "other_fees",
+          populate: {
+            path: "fee_receipt fees",
+            select: "receipt_file fee_payment_amount payable_amount",
+          },
+        });
+    }
     for (let ele of all_student) {
       for (let val of ele?.other_fees) {
         if (`${val?.fees?._id}` === `${one_of?._id}` && val?.fee_receipt) {
@@ -8042,23 +8112,39 @@ exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
     const { ofid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { search } = req?.query;
     if (!ofid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
 
-    var one_of = await OtherFees.findById({ _id: ofid }).populate({
-      path: "fee_receipt_student",
-      populate: {
-        path: "fee_receipt",
-        select: "receipt_file fee_payment_amount payable_amount",
-      },
-    });
+    if (search) {
+      var one_of = await OtherFees.findById({ _id: ofid }).populate({
+        path: "fee_receipt_student",
+        populate: {
+          path: "fee_receipt",
+          select: "receipt_file fee_payment_amount payable_amount",
+        },
+      });
+      one_of.fee_receipt_student = one_of?.fee_receipt_student?.filter(
+        (val) => {
+          if (val?.student?.includes(`${search}`)) return val;
+        }
+      );
+    } else {
+      var one_of = await OtherFees.findById({ _id: ofid }).populate({
+        path: "fee_receipt_student",
+        populate: {
+          path: "fee_receipt",
+          select: "receipt_file fee_payment_amount payable_amount",
+        },
+      });
+    }
     var all_student = await nested_document_limit(
       page,
       limit,
-      one_of?.fee_receipt_student
+      one_of?.fee_receipt_student?.reverse()
     );
     res.status(200).send({
       message:
@@ -8094,7 +8180,7 @@ exports.renderAllExamOtherFeesQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "other_fees_name other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students"
+        "other_fees_name fee_receipt_student other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students fees_heads"
       )
       .populate({
         path: "bank_account",
@@ -8110,7 +8196,8 @@ exports.renderAllExamOtherFeesQuery = async (req, res) => {
       });
 
     for (let ele of all_of) {
-      ele.paid_students_count = ele?.paid_students?.length;
+      ele.paid_students_count =
+        ele?.paid_students?.length + ele?.fee_receipt_student?.length;
       ele.remaining_students_count = ele?.student_count;
     }
     res.status(200).send({
@@ -8306,40 +8393,58 @@ exports.renderOneNonExistingOtherFeesStudentListExportQuery = async (
   }
 };
 
-exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
-  try {
-    const { ofid } = req?.params;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
-    if (!ofid)
-      return res.status(200).send({
-        message: "Their is a bug need to fixed immediately",
-        access: false,
-      });
+// exports.renderOneNonExistingOtherFeesStudentListQuery = async (req, res) => {
+//   try {
+//     const { ofid } = req?.params;
+//     const page = req.query.page ? parseInt(req.query.page) : 1;
+//     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+//     const { search } = req?.query;
+//     if (!ofid)
+//       return res.status(200).send({
+//         message: "Their is a bug need to fixed immediately",
+//         access: false,
+//       });
 
-    var one_of = await OtherFees.findById({ _id: ofid }).populate({
-      path: "fee_receipt_student",
-      populate: {
-        path: "fee_receipt",
-        select: "receipt_file fee_payment_amount payable_amount",
-      },
-    });
-    var all_student = await nested_document_limit(
-      page,
-      limit,
-      one_of?.fee_receipt_student
-    );
-    res.status(200).send({
-      message:
-        "Explore One Non Existing Other Fees Remaining Student List Query",
-      access: true,
-      all_student: all_student,
-    });
-  } catch (e) {
-    console.log(e);
-  }
-};
+//     if (search) {
+//       var one_of = await OtherFees.findById({ _id: ofid }).populate({
+//         path: "fee_receipt_student",
+//         match: {
+//           $or: {
+//             "fee_receipt_student.student": {
+//               $regex: `${search}`,
+//               $options: "i",
+//             },
+//           },
+//         },
+//         populate: {
+//           path: "fee_receipt",
+//           select: "receipt_file fee_payment_amount payable_amount",
+//         },
+//       });
+//     } else {
+//       var one_of = await OtherFees.findById({ _id: ofid }).populate({
+//         path: "fee_receipt_student",
+//         populate: {
+//           path: "fee_receipt",
+//           select: "receipt_file fee_payment_amount payable_amount",
+//         },
+//       });
+//     }
+//     var all_student = await nested_document_limit(
+//       page,
+//       limit,
+//       one_of?.fee_receipt_student?.reverse()
+//     );
+//     res.status(200).send({
+//       message:
+//         "Explore One Non Existing Other Fees Remaining Student List Query",
+//       access: true,
+//       all_student: all_student,
+//     });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 
 exports.render_control_invoice_pattern = async (req, res) => {
   try {
@@ -8389,6 +8494,53 @@ exports.render_all_account_query = async (req, res) => {
         all_accounts: [],
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_fees_insertion_query = async (req, res) => {
+  try {
+    const all_receipt = await FeeReceipt.find({
+      other_fees: "668bb017b11c7a84ed164c15",
+    });
+    const o_f = await OtherFees.findById({ _id: "66c85bd3d3d293b26b1cd61a" });
+
+    // let total = 0;
+    // for (let ele of all_receipt) {
+    //   if (ele?.student) {
+    //     const stu = await Student.findById({ _id: `${ele?.student}` });
+    //     for (let val of stu?.other_fees) {
+    //       if (`${val?.fees}` === `668bb017b11c7a84ed164c15`) {
+    //         val.fees = o_f?._id;
+    //       }
+    //     }
+    //     o_f.paid_students.push(ele?.student);
+    //     o_f.student_count += 1;
+    //     await stu.save();
+    //   } else {
+    //     o_f.students_list.push(ele?.student_name);
+    //     o_f.student_count += 1;
+    //     o_f.fee_receipt_student.push({
+    //       student: ele?.student_name,
+    //       fee_receipt: ele?._id,
+    //     });
+    //   }
+    //   ele.other_fees = o_f?._id;
+    //   total += ele?.fee_payment_amount;
+    //   await ele.save();
+    // }
+    // for (let cls of o_f?.fees_heads) {
+    //   cls.paid_amount += total;
+    // }
+    o_f.students = o_f?.paid_students;
+    await o_f.save();
+    res.status(200).send({
+      message: "Explore All Fees Query",
+      all_receipt: all_receipt?.length,
+      // cls: all_receipt,
+      // total,
+    });
   } catch (e) {
     console.log(e);
   }

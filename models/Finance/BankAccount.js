@@ -91,6 +91,12 @@ const bankAccountSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  heads_list: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeMaster",
+    },
+  ],
 });
 
 module.exports = mongoose.model("BankAccount", bankAccountSchema);

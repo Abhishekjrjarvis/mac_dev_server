@@ -17852,51 +17852,40 @@ exports.check_structure = async (req, res) => {
       "64eaf05e36a5878630d6e94a",
       "64ead717ae7d93e078f38640",
     ];
-    // let list = ["66bafec95e67b13f50efd829", "66bdf274930b0e77adf974ab"];
-    // const all_cat = await FeesCategory.find({
-    //   $and: [
-    //     { finance: "644a09d6d1679fcd6e76e5ef" },
-    //     { category_name: { $regex: `VJNT`, $options: "i" } },
-    //     // { _id: { $in: list } },
-    //   ],
-    // });
-    // const all_struct = await FeeStructure.find({
-    //   $and: [
-    //     { finance: "644a09d6d1679fcd6e76e5ef" },
-    //     { document_update: true },
-    //     { category_master: { $in: all_cat } },
-    //   ],
-    // }).select("applicable_fees_heads_count structure_name");
     const all_student = await Student.find({
       _id: { $in: list_1 },
     })
-      .select("studentGRNO active_fee_heads")
+      .select(
+        "studentGRNO old_fee_structure fee_structure studentFirstName studentMiddleName studentLastName"
+      )
       .populate({
         path: "fee_structure",
-        select: "document_update applicable_fees_heads",
+        select:
+          "document_update applicable_fees_heads category_master batch_master class_master department unique_structure_name",
       });
+    var i = 0;
     let nums = [];
-    let numss = [];
     for (let ele of all_student) {
-      for (let val of ele?.active_fee_heads) {
-        if (`${val?.fee_structure}` == `${ele?.fee_structure?._id}`) {
-          numss.push(val);
-        }
+      // ele.old_fee_structure = ele?.fee_structure;
+      // await ele.save();
+      if (ele?.fee_structure?.document_update == true) {
+        nums.push({
+          student: `${ele?.studentFirstName} ${ele?.studentMiddleName ?? ""} ${
+            ele?.studentLastName
+          }`,
+          _id: ele?._id,
+          struct: ele?.fee_structure?._id,
+          name: ele?.fee_structure?.unique_structure_name,
+        });
       }
-      nums.push({
-        gr: ele?.studentGRNO,
-        fee_count: ele?.fee_structure?.applicable_fees_heads?.length,
-        student_count: numss?.length,
-        fees: ele?.fee_structure?._id,
-      });
-      numss = [];
+      console.log(i);
+      i += 1;
     }
-    // let nums = [...all_student];
     res.status(200).send({
       message: "Explore All Structure Query",
       access: true,
-      nums: nums,
-      count: all_student?.length,
+      nums,
+      count: nums?.length,
     });
   } catch (e) {
     console.log(e);
@@ -18063,6 +18052,134 @@ exports.all_documents_export_students_query = async (req, res) => {
         all_student: [],
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.one_documents_students_query = async (req, res) => {
+  try {
+    const { aid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { did, search } = req?.query;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid });
+    const all_apps = await NewApplication.find({
+      $and: [
+        { _id: { $in: ads_admin?.newApplication } },
+        { applicationStatus: "Ongoing" },
+        { applicationTypeStatus: "Normal Application" },
+      ],
+    }).select("confirmedApplication allottedApplication reviewApplication");
+    let nums = [];
+    for (let apply of all_apps) {
+      for (let ele of apply?.confirmedApplication) {
+        nums.push(ele?.student);
+      }
+      for (let ele of apply?.allottedApplication) {
+        nums.push(ele?.student);
+      }
+      if (apply?.reviewApplication?.length > 0) {
+        for (let ele of apply?.reviewApplication) {
+          nums.push(ele);
+        }
+      }
+    }
+    if (search) {
+      var all_student = await Student.find({
+        $and: [{ _id: { $in: nums } }],
+        $or: [
+          {
+            studentFirstName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            studentGRNO: { $regex: `${search}`, $options: "i" },
+          },
+          {
+            form_no: { $regex: `${search}`, $options: "i" },
+          },
+        ],
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO collect_docs form_no"
+        )
+        .populate({
+          path: "collect_docs.docs",
+        });
+    } else {
+      var all_student = await Student.find({ _id: { $in: nums } })
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO collect_docs"
+        )
+        .populate({
+          path: "collect_docs.docs",
+        });
+    }
+    let all = [];
+    for (let cls of all_student) {
+      if (cls?.collect_docs?.length > 0) {
+        for (let val of cls?.collect_docs) {
+          if (`${val?.docs?._id}` === `${did}`) {
+            all.push({
+              student: cls,
+              collect: val,
+            });
+          }
+        }
+      }
+    }
+    let all_stu = await nested_document_limit(page, limit, all);
+    if (all_stu?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Student List",
+        access: true,
+        all_stu: all_stu,
+      });
+    } else {
+      res.status(200).send({
+        message: "No All Student List",
+        access: true,
+        all_stu: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.one_student_documents_pending_query = async (req, res) => {
+  try {
+    const { did, sid } = req?.params;
+    const { status } = req?.body;
+    if (!did && !sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const student = await Student.findById({ _id: sid }).select("collect_docs");
+    const docs = await RequiredDocument.findById({ _id: did });
+
+    for (let cls of student?.collect_docs) {
+      if (`${cls?.docs}` === `${docs?._id}`) {
+        cls.not_filled = `${status}`;
+      }
+    }
+    await student.save();
+    res.status(200).send({ message: "Explore One Student Docs", access: true });
   } catch (e) {
     console.log(e);
   }

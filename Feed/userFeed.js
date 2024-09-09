@@ -6,86 +6,78 @@ const Notification = require("../models/notification");
 const invokeSpecificRegister = require("../Firebase/specific");
 const { promise_all_query } = require("../Global/HandleMongoDB");
 
-exports.execute_user_social_feed_query = async (
-  user,
-  post,
-  taggedPeople
-) => {
+exports.execute_user_social_feed_query = async (user, post, taggedPeople) => {
   try {
     if (user?.userFollowers.length >= 1) {
-        if (post.postStatus === "Anyone") {
-            for(var val of user?.userFollowers){
-                post.post_arr.push(val)
-            }
-        } else {
+      if (post.postStatus === "Anyone") {
+        for (var val of user?.userFollowers) {
+          post.post_arr.push(val);
         }
+      } else {
       }
-      if (user?.userCircle.length >= 1) {
-        for(var val of user.userCircle){
-            post.post_arr.push(val)
-        }
+    }
+    if (user?.userCircle.length >= 1) {
+      for (var val of user.userCircle) {
+        post.post_arr.push(val);
       }
-      if (Array.isArray(taggedPeople)) {
-        if (post?.tagPeople?.length) {
-          for (let instit of taggedPeople) {
-            if (instit.tagType === "User") {
-              const userTag = await User.findById(instit.tagId)
-                // .populate({ path: "userFollowers" })
-                // .populate({ path: "userCircle" });
-              userTag.tag_post?.push(post._id);
-              post.post_arr.push(userTag?._id)
-              if (post.postStatus === "Anyone") {
-                for(var val of userTag?.userFollowers){
-                    post.post_arr.push(val)
-                }
-                for(var val of userTag?.userCircle){
-                    post.post_arr.push(val)
-                }
+    }
+    if (Array.isArray(taggedPeople)) {
+      if (post?.tagPeople?.length) {
+        for (let instit of taggedPeople) {
+          if (instit.tagType === "User") {
+            const userTag = await User.findById(instit.tagId);
+            // .populate({ path: "userFollowers" })
+            // .populate({ path: "userCircle" });
+            userTag.tag_post?.push(post._id);
+            post.post_arr.push(userTag?._id);
+            if (post.postStatus === "Anyone") {
+              for (var val of userTag?.userFollowers) {
+                post.post_arr.push(val);
               }
-              await userTag.save();
-            } else {
-              const institTag = await InstituteAdmin.findById(instit.tagId);
-              post.post_arr.push(institTag?._id)
-              institTag.tag_post?.push(post._id);
-              await institTag.save();
+              for (var val of userTag?.userCircle) {
+                post.post_arr.push(val);
+              }
             }
+            await userTag.save();
+          } else {
+            const institTag = await InstituteAdmin.findById(instit.tagId);
+            post.post_arr.push(institTag?._id);
+            institTag.tag_post?.push(post._id);
+            await institTag.save();
           }
         }
       }
-      await post.save()
+    }
+    await post.save();
   } catch (e) {
     console.log(e);
   }
 };
 
-exports.execute_user_social_feed_question_query = async (
-  user,
-  post,
-  hash
-) => {
+exports.execute_user_social_feed_question_query = async (user, post, hash) => {
   try {
     if (user?.userFollowers.length >= 1) {
-        for(var val of user?.userFollowers){
-            post.post_arr.push(val)
+      for (var val of user?.userFollowers) {
+        post.post_arr.push(val);
+      }
+    }
+    if (user?.userCircle.length >= 1) {
+      for (var val of user?.userCircle) {
+        post.post_arr.push(val);
+      }
+    }
+    if (hash && hash?.length > 0) {
+      for (var ele of hash) {
+        const hash = await HashTag.findById({ _id: `${ele}` }).select(
+          "hashtag_follower"
+        );
+        const users = await User.find({ _id: { $in: hash?.hashtag_follower } });
+        for (var val of users) {
+          post.post_arr.push(val);
         }
       }
-      if (user?.userCircle.length >= 1) {
-        for(var val of user?.userCircle){
-            post.post_arr.push(val)
-        }
-      }
-      if (hash && hash?.length > 0) {
-        for(var ele of hash){
-            const hash = await HashTag.findById({ _id: `${ele}` }).select(
-                "hashtag_follower"
-              );
-              const users = await User.find({ _id: { $in: hash?.hashtag_follower } });
-              for(var val of users){
-                post.post_arr.push(val)
-            }
-        }
-      }
-    await post.save()
+    }
+    await post.save();
   } catch (e) {
     console.log(e);
   }
@@ -110,9 +102,8 @@ exports.send_user_global_notification_query = async (user, post, type) => {
           ref?._id,
           ref?.deviceToken
         );
-      } 
-    }
-    else if (post?.postType === "Poll") {
+      }
+    } else if (post?.postType === "Poll") {
       for (var ref of user?.userFollowers) {
         var notify = new Notification({});
         notify.notifyContent = `New quiz from ${user?.username}, give your valuable vote`;
@@ -132,8 +123,7 @@ exports.send_user_global_notification_query = async (user, post, type) => {
         // var func_arr = [notify, ref]
         // await promise_all_query(func_arr)
       }
-    }
-    else if (post?.postType === "Post") {
+    } else if (post?.postType === "Post") {
       for (var ref of user?.userFollowers) {
         var notify = new Notification({});
         notify.notifyContent = `${user?.username} has new info to share, know what it is`;
@@ -151,12 +141,9 @@ exports.send_user_global_notification_query = async (user, post, type) => {
           ref?.deviceToken
         );
       }
+    } else {
     }
-    else {
-      
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};

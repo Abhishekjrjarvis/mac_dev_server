@@ -674,7 +674,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           $and: [
             { payment_to_end_user_id: uid },
             { payment_module_type: filter },
-            { payment_amount: { $gt: 0 } },
+            { payment_amount: { $gte: 0 } },
             { payment_visible_status: "Not Hide" },
           ],
           $or: [
@@ -754,7 +754,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           $and: [
             { payment_to_end_user_id: uid },
             { payment_module_type: filter },
-            { payment_amount: { $gt: 0 } },
+            { payment_amount: { $gte: 0 } },
             { payment_visible_status: "Not Hide" },
           ],
         })
@@ -839,7 +839,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
               payment_module_type: { $ne: "Expense" },
             },
             {
-              payment_amount: { $gt: 0 },
+              payment_amount: { $gte: 0 },
             },
             { payment_visible_status: "Not Hide" },
           ],
@@ -860,7 +860,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
         })
           .sort("-created_at")
           .select(
-            "razorpay_order_id paytm_query razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+            "razorpay_order_id paytm_query payment_student_gr payment_student_name razorpay_payment_id payment_module_type razor_query payment_module_id payment_by_end_user_id_name payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
           )
           .populate({
             path: "payment_student",
@@ -903,6 +903,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
             path: "fee_receipt",
           });
         for (var filteredData of order) {
+          // console.log(filteredData?.payment_invoice_number);
           if (filteredData?.payment_amount <= 0) {
             filteredData.payment_amount =
               filteredData?.fee_receipt?.fee_payment_amount;
@@ -979,6 +980,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       //   select: "userLegalName photoId profilePhoto",
       // });
       for (var filteredData of order) {
+        // console.log(filteredData?.payment_invoice_number);
         if (filteredData?.payment_amount <= 0) {
           filteredData.payment_amount =
             filteredData?.fee_receipt?.fee_payment_amount;

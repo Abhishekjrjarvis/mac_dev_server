@@ -322,4 +322,9 @@ router.patch(
   catchAsync(Filter.render_admin_daybook_heads_wise)
 );
 
+router.patch(
+  "/:aid/all/student/list/export",
+  catchAsync(Filter.renderAllStudentApplicableOutStandingStudentQuery)
+);
+
 module.exports = router;

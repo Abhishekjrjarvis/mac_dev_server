@@ -961,7 +961,7 @@ exports.json_to_excel_student_applicable_outstanding_query = async (
     });
     valid_ins.export_collection_count += 1;
     await valid_ins.save();
-    // console.log(results);
+    console.log(results);
   } catch (e) {
     console.log(e);
   }

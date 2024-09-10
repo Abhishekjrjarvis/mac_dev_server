@@ -16947,6 +16947,7 @@ exports.renderAllStudentApplicableOutStandingStudentQuery = async (
         ...result,
       });
       result = [];
+      console.log("GEN")
     }
     await json_to_excel_student_applicable_outstanding_query(
       excel_list,

@@ -490,22 +490,37 @@ exports.render_all_students_query = async (req, res) => {
         // }
       }
     }
-    const all_subject = await Subject.find({ _id: { $in: nums } })
+    let all_subject = await Subject.find({ _id: { $in: nums } })
       .select("optionalStudent")
       .populate({
         path: "class",
         select: "ApproveStudent",
       });
     let ds = [];
-    for (let ele of all_subject) {
-      if (ele?.optionalStudent?.length > 0) {
-        ds.push(...ele?.optionalStudent);
-      } else {
+    let dss = [];
+    let dsss = [];
+    // console.log(all_subject);
+    all_subject = all_subject?.filter((val) => {
+      if (val?.optionalStudent?.length) return val;
+    });
+    if (all_subject?.length > 0) {
+      for (let ele of all_subject) {
+        if (ele?.optionalStudent?.length > 0) {
+          ds.push(...ele?.optionalStudent);
+          // dss.push(...ele?.optionalStudent);
+        }
+      }
+    } else {
+      for (let ele of all_subject) {
         ds.push(...ele?.class?.ApproveStudent);
       }
     }
-    // console.log(ds);
+    // console.log("ds", ds?.length);
+    // console.log("dss", dss?.length);
+    // console.log("dsss", dsss?.length);
+
     const unique = [...new Set(ds.map((item) => item))];
+    // console.log(unique?.length);
     if (nums?.length > 0) {
       const all_students = await Student.find({
         $and: [{ _id: { $in: unique } }],

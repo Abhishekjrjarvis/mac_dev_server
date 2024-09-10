@@ -7404,7 +7404,7 @@ exports.render_mark_society_head_existed = async (req, res) => {
       }
       // console.log(apps?.length)
       // apps = []
-      await stu.save();
+      // await stu.save();
     }
     res.status(200).send({
       message: `wise society heads updated`,

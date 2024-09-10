@@ -430,10 +430,7 @@ router.delete(
   catchAsync(Extra.renderDeleteOneExcel)
 );
 
-router.patch(
-  "/shuffled/query",
-  catchAsync(Extra.renderShuffledStudentQuery)
-);
+router.patch("/shuffled/query", catchAsync(Extra.renderShuffledStudentQuery));
 
 router.get(
   "/all/filtered/alarm/:id/query",
@@ -450,27 +447,32 @@ router
   .get(catchAsync(Extra.instituteidCardRequiredField))
   .patch(catchAsync(Extra.instituteidCardRequiredFieldUpdate));
 
-
 router.get(
-    "/institute/:id/all/fund/charges",
-    catchAsync(Extra.renderAllInstituteFundChargesQuery)
+  "/institute/:id/all/fund/charges",
+  catchAsync(Extra.renderAllInstituteFundChargesQuery)
 );
-  
+
 router.patch(
   "/staff/shuffled/query",
   catchAsync(Extra.renderShuffledStaffQuery)
 );
 
-router.patch("/excel/to/json/:lmid/biometric/staff/query", catchAsync(Extra.renderExcelToJSONLMSBiometricQuery))
+router.patch(
+  "/excel/to/json/:lmid/biometric/staff/query",
+  catchAsync(Extra.renderExcelToJSONLMSBiometricQuery)
+);
 
-router.patch("/excel/to/json/:lmid/staff/leave/query", catchAsync(Extra.renderExcelToJSONLMSStaffLeaveQuery))
+router.patch(
+  "/excel/to/json/:lmid/staff/leave/query",
+  catchAsync(Extra.renderExcelToJSONLMSStaffLeaveQuery)
+);
 
 router.patch(
   "/excel/to/json/:fid/government/query",
   catchAsync(Extra.renderExcelToJSONGovernmentQuery)
 );
 
-router.patch("/auto/mess", catchAsync(Extra.auto_messages))
+router.patch("/auto/mess", catchAsync(Extra.auto_messages));
 
 router.patch(
   "/excel/to/json/:fid/add/student/fees/mapping",
@@ -496,6 +498,11 @@ router.patch(
   "/excel/to/json/grno/:id",
   // isLoggedIn,
   catchAsync(Extra.renderExcelToJSONGRNOQuery)
+);
+
+router.get(
+  "/all/filtered/document/alarm/:sid/query",
+  catchAsync(Extra.renderAllFilteredDocumentMessageQuery)
 );
 
 module.exports = router;

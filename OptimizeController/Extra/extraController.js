@@ -4579,3 +4579,52 @@ exports.renderExcelToJSONGRNOQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderAllFilteredDocumentMessageQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    // const { flow } = req.query;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    // if (flow === "INSTITUTE_ADMIN") {
+    var valid_ins = await InstituteAdmin.findById({ _id: sid }).select(
+      "student_reminder"
+    );
+    var all_message = await StudentMessage.find({
+      $and: [
+        { _id: { $in: valid_ins?.student_reminder } },
+        { message_mode: "DOCUMENT_STUDENT_REMINDER" },
+      ],
+    })
+      .sort({ created_at: -1 })
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "from student_list",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
+      });
+    // }
+    if (all_message?.length > 0) {
+      res.status(200).send({
+        message: "Explore New All Message Query",
+        access: true,
+        all_message: all_message,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New All Message Query",
+        access: false,
+        all_message: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

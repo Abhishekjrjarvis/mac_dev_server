@@ -364,6 +364,10 @@ const subjectSchema = new mongoose.Schema({
   book_reference: {
     type: String,
   },
+  continuous_evaluation: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SubjectContinuousEvaluation",
+  },
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

@@ -577,10 +577,10 @@ router.patch(
   catchAsync(Admission.renderOneReceiptReApplyDeChequeQuery)
 );
 
-// router.patch(
-//   "/:aid/transfer/apps/query",
-//   catchAsync(Admission.renderTransferAppsQuery)
-// );
+router.patch(
+  "/:aid/transfer/apps/query",
+  catchAsync(Admission.renderTransferAppsQuery)
+);
 
 router.patch(
   "/:rid/card/removal/query",
@@ -1051,7 +1051,7 @@ router.patch("/check/structure", catchAsync(Admission.check_structure));
 router.patch(
   "/promote/current/year/institute/:id/student/category/list",
   catchAsync(Admission.promote_currrent_year_institute_query)
-); 
+);
 
 router.patch(
   "/:aid/all/documents/export",

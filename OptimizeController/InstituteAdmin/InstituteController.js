@@ -56,8 +56,12 @@ const Chapter = require("../../models/Academics/Chapter");
 const Attainment = require("../../models/Marks/Attainment");
 const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
-const { send_global_announcement_notification_query } = require("../../Feed/socialFeed");
-const { universal_random_password_student_code } = require("../../Generator/RandomPass");
+const {
+  send_global_announcement_notification_query,
+} = require("../../Feed/socialFeed");
+const {
+  universal_random_password_student_code,
+} = require("../../Generator/RandomPass");
 const DepartmentSite = require("../../models/SiteModels/DepartmentSite");
 
 exports.getDashOneQuery = async (req, res) => {
@@ -74,8 +78,8 @@ exports.getDashOneQuery = async (req, res) => {
         mod_id
       );
     }
-    const qvipleId = await QvipleId.findOne({ institute: `${institute?._id}`})
-      institute.qviple_id = qvipleId?.qviple_id
+    const qvipleId = await QvipleId.findOne({ institute: `${institute?._id}` });
+    institute.qviple_id = qvipleId?.qviple_id;
     res.status(200).send({
       message: "limit Ins Data",
       institute: institute,
@@ -109,8 +113,8 @@ exports.getProfileOneQuery = async (req, res) => {
       })
       .lean()
       .exec();
-      const qvipleId = await QvipleId.findOne({ institute: `${institute?._id}`})
-      institute.qviple_id = qvipleId?.qviple_id
+    const qvipleId = await QvipleId.findOne({ institute: `${institute?._id}` });
+    institute.qviple_id = qvipleId?.qviple_id;
     const encrypt = await encryptionPayload(institute);
     res.status(200).send({
       message: "Limit Post Ins",
@@ -1186,7 +1190,7 @@ exports.printedBySuperAdmin = async (req, res) => {
 exports.fillStaffForm = async (req, res) => {
   try {
     const { uid, id } = req.params;
-    const { experience } = req?.body
+    const { experience } = req?.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const user = await User.findById({ _id: uid });
     const staff = new Staff({ ...req.body });
@@ -1209,13 +1213,13 @@ exports.fillStaffForm = async (req, res) => {
         });
       }
     }
-    if(experience?.length > 0){
-      for(var val of experience){
-        staff.experience.push(val)
+    if (experience?.length > 0) {
+      for (var val of experience) {
+        staff.experience.push(val);
       }
     }
-    const code = universal_random_password()
-    staff.member_module_unique = `${code}`
+    const code = universal_random_password();
+    staff.member_module_unique = `${code}`;
     const notify = new Notification({});
     const aStatus = new Status({});
     institute.staff.push(staff._id);
@@ -1270,8 +1274,8 @@ exports.fillStudentForm = async (req, res) => {
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
     student.student_join_mode = "ADMISSION_PROCESS";
-    const codess = universal_random_password()
-    student.member_module_unique = `${codess}`
+    const codess = universal_random_password();
+    student.member_module_unique = `${codess}`;
     const classes = await Class.findOne({ classCode: req.body.studentCode });
     const classStaff = await Staff.findById({ _id: `${classes.classTeacher}` });
     const classUser = await User.findById({ _id: `${classStaff.user}` });
@@ -1336,8 +1340,8 @@ exports.fillStudentForm = async (req, res) => {
     aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.`;
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
-    let nums = universal_random_password_student_code()
-      student.qviple_student_pay_id = nums
+    let nums = universal_random_password_student_code();
+    student.qviple_student_pay_id = nums;
     //
     invokeMemberTabNotification(
       "Staff Activity",
@@ -1490,20 +1494,28 @@ exports.retrieveApproveStudentList = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req?.query
-    if(search) {
-      var student_ins = await InstituteAdmin.findById({ _id: id }).select(
-        "ApproveStudent insName gr_initials pending_fee_custom_filter"
-      );
+    const { search } = req?.query;
+    var student_ins = await InstituteAdmin.findById({ _id: id }).select(
+      "ApproveStudent insName gr_initials pending_fee_custom_filter admissionDepart"
+    );
+    // const all_app = await NewApplication.find({
+    //   $and: [
+    //     { admissionAdmin: student_ins?.admissionDepart?.[0] },
+    //     { applicationStatus: "Ongoing" },
+    //     { applicationTypeStatus: "Normal Application" },
+    //   ],
+    // });
+    if (search) {
       var studentIns = await Student.find({
         $and: [{ _id: { $in: student_ins?.ApproveStudent } }],
-        $or: [{ studentFirstName: { $regex: `${search}`, $options: "i"}},
-        { studentMiddleName: { $regex: `${search}`, $options: "i"}},
-        { studentLastName: { $regex: `${search}`, $options: "i"}},
-        { valid_full_name: { $regex: `${search}`, $options: "i"}},
+        $or: [
+          { studentFirstName: { $regex: `${search}`, $options: "i" } },
+          { studentMiddleName: { $regex: `${search}`, $options: "i" } },
+          { studentLastName: { $regex: `${search}`, $options: "i" } },
+          { valid_full_name: { $regex: `${search}`, $options: "i" } },
           { studentGRNO: { $regex: `${search}`, $options: "i" } },
-          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
-        ]
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i" } },
+        ],
       })
         .sort({ createdAt: -1 })
         .select(
@@ -1524,53 +1536,53 @@ exports.retrieveApproveStudentList = async (req, res) => {
             path: "fee_structure applicable_card government_card",
           },
         });
-      }
-      else{
-        var student_ins = await InstituteAdmin.findById({ _id: id }).select(
-          "ApproveStudent insName gr_initials pending_fee_custom_filter"
-        );
-        var studentIns = await Student.find({
-          _id: { $in: student_ins?.ApproveStudent },
+    } else {
+      var studentIns = await Student.find({
+        _id: { $in: student_ins?.ApproveStudent },
+      })
+        .limit(limit)
+        .skip(skip)
+        .sort({ createdAt: -1 })
+        .select(
+          "studentFirstName studentMiddleName studentLastName valid_full_name qviple_student_pay_id applicable_fees_pending government_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
         })
-          .limit(limit)
-          .skip(skip)
-          .sort({ createdAt: -1 })
-          .select(
-            "studentFirstName studentMiddleName studentLastName valid_full_name qviple_student_pay_id applicable_fees_pending government_fees_pending studentGender studentCastCategory batches photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
-          )
-          .populate({
-            path: "user",
-            select: "userLegalName userEmail userPhoneNumber",
-          })
-          .populate({
-            path: "studentClass",
-            select: "className classTitle classStatus",
-          })
-          .populate({
-            path: "remainingFeeList",
-            select: "paid_fee fee_structure applicable_card",
-            populate: {
-              path: "fee_structure applicable_card government_card",
-            },
-          });
-      }
-      if (studentIns) {
-        // const sEncrypt = await encryptionPayload(studentIns);
-        var valid_list = await applicable_pending_calc(studentIns);
-        valid_list.sort(function (st1, st2) {
-          return (
-            parseInt(
-              st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)
-            ) -
-            parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
-          );
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure applicable_card",
+          populate: {
+            path: "fee_structure applicable_card government_card",
+          },
         });
-        res
-          .status(200)
-          .send({ message: "Without Limit", studentIns: valid_list, search: search ? true : false });
-      } else {
-        res.status(404).send({ message: "Failure", studentIns: [], search: search ? true : false });
-      }
+    }
+    if (studentIns) {
+      // const sEncrypt = await encryptionPayload(studentIns);
+      var valid_list = await applicable_pending_calc(studentIns);
+      valid_list.sort(function (st1, st2) {
+        return (
+          parseInt(st1?.studentGRNO?.slice(student_ins?.gr_initials?.length)) -
+          parseInt(st2?.studentGRNO?.slice(student_ins?.gr_initials?.length))
+        );
+      });
+      res.status(200).send({
+        message: "Without Limit",
+        studentIns: valid_list,
+        search: search ? true : false,
+      });
+    } else {
+      res.status(404).send({
+        message: "Failure",
+        studentIns: [],
+        search: search ? true : false,
+      });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -1617,7 +1629,7 @@ exports.retrieveApproveStudentListFilterQuery = async (req, res) => {
           {
             studentGRNO: { $regex: search, $options: "i" },
           },
-          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i" } },
         ],
       })
         .sort({ createdAt: -1 })
@@ -1856,7 +1868,7 @@ exports.retrieveFinanceApproveStudentListFilterQuery = async (req, res) => {
           {
             studentGRNO: { $regex: search, $options: "i" },
           },
-          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i" } },
         ],
       })
         .sort({ createdAt: -1 })
@@ -2105,7 +2117,7 @@ exports.retrieveAdmissionApproveStudentListFilterQuery = async (req, res) => {
           {
             studentGRNO: { $regex: search, $options: "i" },
           },
-          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i" } },
         ],
       })
         .sort({ createdAt: -1 })
@@ -2356,7 +2368,7 @@ exports.retrieveApproveStudentSectionListFilterQuery = async (req, res) => {
           {
             studentGRNO: { $regex: search, $options: "i" },
           },
-          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i" } },
         ],
       })
         .sort({ createdAt: -1 })
@@ -2605,7 +2617,7 @@ exports.retrieveCertificateApproveStudentListFilterQuery = async (req, res) => {
           {
             studentGRNO: { $regex: search, $options: "i" },
           },
-          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i" } },
         ],
       })
         .sort({ createdAt: -1 })
@@ -2856,7 +2868,7 @@ exports.retrieveIDCardApproveStudentListFilterQuery = async (req, res) => {
           {
             studentGRNO: { $regex: search, $options: "i" },
           },
-          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i" } },
         ],
       })
         .sort({ createdAt: -1 })
@@ -3101,7 +3113,7 @@ exports.retrieveUnApproveStudentListQuery = async (req, res) => {
           {
             studentGRNO: { $regex: `${search}`, $options: "i" },
           },
-          { qviple_student_pay_id: { $regex: `${search}`, $options: "i"}},
+          { qviple_student_pay_id: { $regex: `${search}`, $options: "i" } },
         ],
       })
         .sort({ createdAt: -1 })
@@ -3463,7 +3475,7 @@ exports.retrieveDepartmentList = async (req, res) => {
 exports.getOneDepartment = async (req, res) => {
   try {
     const { did } = req.params;
-    const options = { sort: { createdAt: -1 }}
+    const options = { sort: { createdAt: -1 } };
     if (did === "undefined") {
     } else {
       const department = await Department.findById({ _id: did })
@@ -3482,7 +3494,7 @@ exports.getOneDepartment = async (req, res) => {
         .populate({
           path: "batches",
           select: "batchName batchStatus createdAt batch_type designation_send",
-          options
+          options,
         })
         .populate({
           path: "departmentSelectBatch",
@@ -3643,7 +3655,7 @@ exports.retrieveNewClass = async (req, res) => {
     var depart = await Department.findById({ _id: did }).populate({
       path: "dHead",
     });
-    const code = universal_random_password()
+    const code = universal_random_password();
     if (institute.classCodeList.includes(`${result}`)) {
     } else {
       const date = await todayDate();
@@ -3658,8 +3670,8 @@ exports.retrieveNewClass = async (req, res) => {
           aggregatePassingPercentage: aggregatePassingPercentage,
         },
         optionalSubjectCount: optionalSubjectCount,
-        member_module_unique: `${code}`
-      }); 
+        member_module_unique: `${code}`,
+      });
       if (sid) {
         var staff = await Staff.findById({ _id: sid }).populate({
           path: "user",
@@ -3788,10 +3800,10 @@ exports.retrieveNewSubject = async (req, res) => {
       practical_analytic: practical_analytic,
       tutorial_analytic: tutorial_analytic,
       subject_category: subject_category,
-      batch: classes?.batch
+      batch: classes?.batch,
     });
-    const codess = universal_random_password()
-    subject.member_module_unique = `${codess}`
+    const codess = universal_random_password();
+    subject.member_module_unique = `${codess}`;
     if (sid) {
       var staff = await Staff.findById({ _id: sid }).populate({
         path: "user",
@@ -4259,8 +4271,8 @@ exports.retrieveNewSubjectMaster = async (req, res) => {
       await attainment.save();
     }
     await subjectMaster.save();
-  } catch (e){
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -5560,62 +5572,64 @@ exports.retrieveInstituteReportBlock = async (req, res) => {
 exports.renderStats = async (req, res) => {
   try {
     const { id } = req.params;
-    const { flow } = req?.query
+    const { flow } = req?.query;
     if (!id)
       return res.status(200).send({
         message: "There is a bug need to fixed immediately 😡",
         access: false,
       });
-      var m_u = 3
-      const stats = await InstituteAdmin.findById({ _id: id }).select(
-        "departmentCount staffCount studentCount insProfileCoverPhoto insProfilePhoto un_approved_student_count financeStatus admissionStatus transportStatus hostelStatus sportClassStatus sportStatus eventManagerStatus careerStatus tenderStatus aluminiStatus libraryActivate"
-      );
-    var all_classes = await Class.find({ institute: stats?._id })
-    var all_valid_depart = await Department.find({ $and: [{ institute: stats?._id }, { department_status: flow }]})
-      if(stats?.financeStatus === "Enable"){
-        m_u += 1
-      }
-      if(stats?.admissionStatus === "Enable"){
-        m_u += 1
-      }
-      if(stats?.transportStatus === "Enable"){
-        m_u += 1
-      }
-      if(stats?.hostelStatus === "Enable"){
-        m_u += 1
-      }
-      if(stats?.sportClassStatus === "Enable"){
-        m_u += 1
-      }
-      if(stats?.sportStatus === "Enable"){
-        m_u += 1
-      }
-      if(stats?.eventManagerStatus === "Enable"){
-        m_u += 1
-      }
-      if(stats?.careerStatus === "Enable"){
-        m_u += 1
-      }
-      if(stats?.tenderStatus === "Enable"){
-        m_u += 1
-      }
-      if(stats?.aluminiStatus === "Enable"){
-        m_u += 1
-      }
-      if(stats?.libraryActivate === "Enable"){
-        m_u += 1
-      }
-      var custom_stats = {
-        departmentCount: all_valid_depart?.length ?? 0,
-        staffCount: stats?.staffCount,
-        studentCount: stats?.studentCount,
-        insProfileCoverPhoto: stats?.insProfileCoverPhoto,
-        insProfilePhoto: stats?.insProfilePhoto,
-        un_approved_student_count: stats?.un_approved_student_count,
-        classCount: all_classes?.length ?? 0,
-        module_use: `${m_u}/14`,
-        _id: stats?._id
-      }
+    var m_u = 3;
+    const stats = await InstituteAdmin.findById({ _id: id }).select(
+      "departmentCount staffCount studentCount insProfileCoverPhoto insProfilePhoto un_approved_student_count financeStatus admissionStatus transportStatus hostelStatus sportClassStatus sportStatus eventManagerStatus careerStatus tenderStatus aluminiStatus libraryActivate"
+    );
+    var all_classes = await Class.find({ institute: stats?._id });
+    var all_valid_depart = await Department.find({
+      $and: [{ institute: stats?._id }, { department_status: flow }],
+    });
+    if (stats?.financeStatus === "Enable") {
+      m_u += 1;
+    }
+    if (stats?.admissionStatus === "Enable") {
+      m_u += 1;
+    }
+    if (stats?.transportStatus === "Enable") {
+      m_u += 1;
+    }
+    if (stats?.hostelStatus === "Enable") {
+      m_u += 1;
+    }
+    if (stats?.sportClassStatus === "Enable") {
+      m_u += 1;
+    }
+    if (stats?.sportStatus === "Enable") {
+      m_u += 1;
+    }
+    if (stats?.eventManagerStatus === "Enable") {
+      m_u += 1;
+    }
+    if (stats?.careerStatus === "Enable") {
+      m_u += 1;
+    }
+    if (stats?.tenderStatus === "Enable") {
+      m_u += 1;
+    }
+    if (stats?.aluminiStatus === "Enable") {
+      m_u += 1;
+    }
+    if (stats?.libraryActivate === "Enable") {
+      m_u += 1;
+    }
+    var custom_stats = {
+      departmentCount: all_valid_depart?.length ?? 0,
+      staffCount: stats?.staffCount,
+      studentCount: stats?.studentCount,
+      insProfileCoverPhoto: stats?.insProfileCoverPhoto,
+      insProfilePhoto: stats?.insProfilePhoto,
+      un_approved_student_count: stats?.un_approved_student_count,
+      classCount: all_classes?.length ?? 0,
+      module_use: `${m_u}/14`,
+      _id: stats?._id,
+    };
     // const statsEncrypt = await encryptionPayload(stats);
     res.status(200).send({
       message: "Check some stats 😀",
@@ -5973,99 +5987,114 @@ exports.renderEditSubjectMasterQuery = async (req, res) => {
 
 exports.renderApproveStaffShuffleQuery = async (req, res) => {
   try {
-    const { id } = req?.params
-    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     var one_ins = await InstituteAdmin.findById({ _id: id })
       .select("ApproveStaff")
       .populate({
         path: "ApproveStaff",
-        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender teaching_type current_designation staffROLLNO staffDesignationCount"
-    })
-    
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender teaching_type current_designation staffROLLNO staffDesignationCount",
+      });
+
     if (one_ins?.ApproveStaff?.length > 0) {
-      res.status(200).send({ message: "Explore All Staff Query", access: true, all_staff: one_ins?.ApproveStaff})
+      res.status(200).send({
+        message: "Explore All Staff Query",
+        access: true,
+        all_staff: one_ins?.ApproveStaff,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Staff Query", access: true, all_staff: [] });
     }
-    else {
-      res.status(200).send({ message: "No Staff Query", access: true, all_staff: []})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderRemoveStaffQuery = async (req, res) => {
   try {
-    const { sid } = req?.params
-    if (!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var staff = await Staff.findById({ _id: sid })
-    var user = await User.findById({ _id: `${staff?.user}` })
+    const { sid } = req?.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var staff = await Staff.findById({ _id: sid });
+    var user = await User.findById({ _id: `${staff?.user}` });
     var admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     if (staff?.institute) {
-      var one_ins = await InstituteAdmin.findById({ _id: `${staff?.institute}` }) 
+      var one_ins = await InstituteAdmin.findById({
+        _id: `${staff?.institute}`,
+      });
       staff.staffStatus = "Not Approved";
       one_ins.ApproveStaff.pull(staff._id);
       if (one_ins.staffCount > 0) {
-        one_ins.staffCount -= 1
+        one_ins.staffCount -= 1;
       }
       admins.staffArray.pull(staff._id);
       if (admins.staffCount > 0) {
-        admins.staffCount -= 1
+        admins.staffCount -= 1;
       }
       one_ins.UnApprovedStaff.push(sid);
       one_ins.joinedUserList.pull(user._id);
       staff.staffROLLNO = "";
       if (staff.staffGender === "Male") {
         if (one_ins.staff_category.boyCount > 0) {
-          one_ins.staff_category.boyCount -= 1
+          one_ins.staff_category.boyCount -= 1;
         }
       } else if (staff.staffGender === "Female") {
         if (one_ins.staff_category.girlCount > 0) {
-          one_ins.staff_category.girlCount -= 1
+          one_ins.staff_category.girlCount -= 1;
         }
       } else if (staff.staffGender === "Other") {
         if (one_ins.staff_category.otherCount > 0) {
-          one_ins.staff_category.otherCount -= 1
+          one_ins.staff_category.otherCount -= 1;
         }
       } else {
       }
       if (staff.staffCastCategory === "General") {
         if (one_ins.staff_category.generalCount > 0) {
-          one_ins.staff_category.generalCount -= 1
+          one_ins.staff_category.generalCount -= 1;
         }
       } else if (staff.staffCastCategory === "OBC") {
         if (one_ins.staff_category.obcCount > 0) {
-          one_ins.staff_category.obcCount -= 1
+          one_ins.staff_category.obcCount -= 1;
         }
       } else if (staff.staffCastCategory === "SC") {
         if (one_ins.staff_category.scCount > 0) {
-          one_ins.staff_category.scCount -= 1
+          one_ins.staff_category.scCount -= 1;
         }
       } else if (staff.staffCastCategory === "ST") {
         if (one_ins.staff_category.stCount > 0) {
-          one_ins.staff_category.stCount -= 1
+          one_ins.staff_category.stCount -= 1;
         }
       } else if (staff.staffCastCategory === "NT-A") {
         if (one_ins.staff_category.ntaCount > 0) {
-          one_ins.staff_category.ntaCount -= 1
+          one_ins.staff_category.ntaCount -= 1;
         }
       } else if (staff.staffCastCategory === "NT-B") {
         if (one_ins.staff_category.ntbCount > 0) {
-          one_ins.staff_category.ntbCount -= 1
+          one_ins.staff_category.ntbCount -= 1;
         }
       } else if (staff.staffCastCategory === "NT-C") {
         if (one_ins.staff_category.ntcCount > 0) {
-          one_ins.staff_category.ntcCount -= 1
+          one_ins.staff_category.ntcCount -= 1;
         }
       } else if (staff.staffCastCategory === "NT-D") {
         if (one_ins.staff_category.ntdCount > 0) {
-          one_ins.staff_category.ntdCount -= 1
+          one_ins.staff_category.ntdCount -= 1;
         }
       } else if (staff.staffCastCategory === "VJ") {
         if (one_ins.staff_category.vjCount > 0) {
-          one_ins.staff_category.vjCount -= 1
+          one_ins.staff_category.vjCount -= 1;
         }
       } else {
       }
@@ -6073,107 +6102,135 @@ exports.renderRemoveStaffQuery = async (req, res) => {
     }
     res.status(200).send({
       message: `Remove From The Institute ${staff.staffFirstName} ${staff.staffLastName}`,
-      access: true
+      access: true,
     });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_new_universal_batch_Query = async (req, res) => {
   try {
-    const { id } = req?.params
-    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const ins = await InstituteAdmin.findById({ _id: id })
-    const new_batch = new Batch({ ...req?.body })
-    new_batch.institute = ins?._id
-    ins.universal_batches.push(new_batch?._id)
-    ins.universal_batches_count += 1
-    await Promise.all([ins.save(), new_batch.save()])
-    res.status(200).send({ message: "Explore New Universal Batch Query", access: true })
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: id });
+    const new_batch = new Batch({ ...req?.body });
+    new_batch.institute = ins?._id;
+    ins.universal_batches.push(new_batch?._id);
+    ins.universal_batches_count += 1;
+    await Promise.all([ins.save(), new_batch.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New Universal Batch Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_select_universal_batch_Query = async (req, res) => {
   try {
-    const { id } = req?.params
-    const { batchId } = req?.body
-    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const ins = await InstituteAdmin.findById({ _id: id })
-    const new_batch = await Batch.findById({ _id: batchId })
-    ins.universal_selected_batch = new_batch?._id
-    new_batch.activeBatch = "Active"
-    await Promise.all([ins.save(), new_batch.save()])
-    res.status(200).send({ message: "Explore Select Universal Batch Query", access: true })
+    const { id } = req?.params;
+    const { batchId } = req?.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: id });
+    const new_batch = await Batch.findById({ _id: batchId });
+    ins.universal_selected_batch = new_batch?._id;
+    new_batch.activeBatch = "Active";
+    await Promise.all([ins.save(), new_batch.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore Select Universal Batch Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_universal_batch_Query = async (req, res) => {
   try {
-    const { id } = req?.params
+    const { id } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const ins = await InstituteAdmin.findById({ _id: id })
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: id });
     const all_batch = await Batch.find({ _id: { $in: ins?.universal_batches } })
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(skip)
-    .select("batchName batchStatus createdAt activeBatch")
-    
-    res.status(200).send({ message: "Explore All Universal Batch Query", access: true, all_batch: all_batch })
+      .select("batchName batchStatus createdAt activeBatch");
+
+    res.status(200).send({
+      message: "Explore All Universal Batch Query",
+      access: true,
+      all_batch: all_batch,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_link_universal_batch_Query = async (req, res) => {
   try {
-    const { bid } = req?.params
-    const { link_batch } = req?.body
-    if (!bid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const u_batch = await Batch.findById({ _id: bid })
-    const l_batch = await Batch.findById({ _id: link_batch })
-    u_batch.merged_batches.push(l_batch)
-    l_batch.merged_batch = "Merged"
-    l_batch.u_batch = u_batch?._id
-    await Promise.all([u_batch.save(), l_batch.save()])
-    res.status(200).send({ message: "Explore Link Universal Batch Query", access: true })
+    const { bid } = req?.params;
+    const { link_batch } = req?.body;
+    if (!bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const u_batch = await Batch.findById({ _id: bid });
+    const l_batch = await Batch.findById({ _id: link_batch });
+    u_batch.merged_batches.push(l_batch);
+    l_batch.merged_batch = "Merged";
+    l_batch.u_batch = u_batch?._id;
+    await Promise.all([u_batch.save(), l_batch.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore Link Universal Batch Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_all_merged_department_Query = async (req, res) => {
   try {
-    const { id } = req?.params
+    const { id } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     const all_depart = await Department.find({ $and: [{ institute: id }] })
       .select("dName dTitle department_status")
       .limit(limit)
-      .skip(skip)
-    
-    res.status(200).send({ message: "Explore All Merged Department Query", access: true, all_depart: all_depart })
+      .skip(skip);
+
+    res.status(200).send({
+      message: "Explore All Merged Department Query",
+      access: true,
+      all_depart: all_depart,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};

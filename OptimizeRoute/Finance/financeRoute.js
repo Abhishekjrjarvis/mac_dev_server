@@ -690,4 +690,8 @@ router
   .route("/fees/insertion/query")
   .patch(catchAsync(Finance.render_fees_insertion_query));
 
+router
+  .route("/one/combined/other/fee/:ofid/student/list/export")
+  .patch(catchAsync(Finance.renderOneCombinedOtherFeesStudentListExportQuery));
+
 module.exports = router;

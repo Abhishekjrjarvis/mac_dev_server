@@ -16700,6 +16700,9 @@ exports.render_one_fee_receipt_change_student_query = async (req, res) => {
       });
 
     const receipt = await FeeReceipt.findById({ _id: fid });
+    const app = await NewApplication.findById({
+      _id: `${receipt?.application}`,
+    });
     const student = await Student.findById({ _id: `${receipt?.student}` });
     const order = await OrderPayment.findOne({ fee_receipt: receipt?._id });
     const remaining = await RemainingList.findOne({
@@ -16779,7 +16782,7 @@ exports.render_one_fee_receipt_change_student_query = async (req, res) => {
       .status(200)
       .send({ message: "Explore Student Subject Change Query", access: true });
     for (let ele of student?.active_fee_heads) {
-      if (`${ele?.appId}` === `${receipt?.application}`) {
+      if (`${ele?.appId}` === `${app?._id}`) {
         student?.active_fee_heads?.pull(ele);
       }
     }

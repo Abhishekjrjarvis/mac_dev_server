@@ -2064,11 +2064,11 @@ exports.render_all_students_dynamic_query = async (req, res) => {
           select: "className",
         });
 
-      const all_stu = await nested_document_limit(page, limit, all_students);
+      // const all_stu = await nested_document_limit(page, limit, all_students);
       res.status(200).send({
         message: "Explore All Students Query",
         access: true,
-        all_students: all_stu,
+        all_students: all_students,
         count: all_students?.length,
       });
       m_class.all_academic_student_count = all_students?.length;

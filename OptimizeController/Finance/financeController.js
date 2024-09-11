@@ -8546,6 +8546,155 @@ exports.render_fees_insertion_query = async (req, res) => {
   }
 };
 
+exports.renderOneCombinedOtherFeesStudentListExportQuery = async (req, res) => {
+  try {
+    const { ofid } = req?.params;
+    if (!ofid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_of = await OtherFees.findById({ _id: ofid })
+      .populate({
+        path: "finance",
+        select: "institute",
+      })
+      .populate({
+        path: "fee_receipt_student",
+        populate: {
+          path: "fee_receipt",
+          select:
+            "receipt_file fee_payment_amount payable_amount invoice_count fee_payment_mode fee_transaction_date fee_utr_reference fee_heads created_at",
+        },
+      });
+    let list = [...one_of?.paid_students, ...one_of?.remaining_students];
+    // one_of?.students
+    var all_student = await Student.find({ _id: { $in: list } })
+      // .select(
+      //   "studentFirstName studentMiddleName studentFatherName studentLastName photoId studentEmail studentGender studentPhoneNumber studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj other_fees_paid_price"
+      // )
+      .populate({
+        path: "other_fees",
+        populate: {
+          path: "fee_receipt fees",
+          select:
+            "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads fee_utr_reference",
+        },
+      });
+    for (let ele of all_student) {
+      for (let val of ele?.other_fees) {
+        if (`${val?.fees?._id}` === `${one_of?._id}` && val?.fee_receipt) {
+          ele.other_fees_obj.status = "Paid";
+          ele.other_fees_obj.receipt_file = val?.fee_receipt?.receipt_file;
+          ele.other_fees_obj.price = val?.fee_receipt?.fee_payment_amount;
+          ele.other_fees_obj.fee_payment_mode =
+            val?.fee_receipt?.fee_payment_mode;
+          ele.other_fees_obj.invoice_count = val?.fee_receipt?.invoice_count;
+          ele.other_fees_obj.FeeTXNDate = moment(
+            val?.fee_receipt?.fee_transaction_date
+          )?.format("LL");
+          ele.other_fees_obj.TxnDate = moment(
+            val?.fee_receipt?.created_at
+          ).format("LL");
+          ele.other_fees_obj.head_name =
+            val?.fee_receipt?.fee_heads?.[0]?.head_name;
+          ele.other_fees_obj.head_amount =
+            val?.fee_receipt?.fee_heads?.[0]?.head_amount;
+          ele.other_fees_obj.fid = val?.fee_receipt?._id;
+          ele.other_fees_obj.fee_utr_reference =
+            val?.fee_receipt?.fee_utr_reference;
+        } else if (`${val?.fees?._id}` === `${one_of?._id}`) {
+          ele.other_fees_obj.status = val?.status;
+          ele.other_fees_obj.price = val?.fees?.payable_amount;
+        }
+      }
+    }
+
+    let excel_list = [];
+    for (let cls of all_student) {
+      var numss = {};
+      if (cls?.studentFirstName != "") {
+        const op = await OrderPayment.findOne({
+          fee_receipt: cls?.other_fees_obj?.fid,
+        });
+        excel_list.push({
+          ReceiptNo: cls?.other_fees_obj.invoice_count ?? "NA",
+          FeeTransactionDate: cls?.other_fees_obj?.FeeTXNDate ?? "NA",
+          FeesAmount: cls?.other_fees_obj?.price ?? 0,
+          Name: `${cls?.studentFirstName} ${
+            cls?.studentMiddleName
+              ? cls?.studentMiddleName ?? cls?.studentFatherName
+              : ""
+          } ${cls?.studentLastName}`,
+          RegistrationID: cls?.student_prn_enroll_number ?? cls?.studentGRNO,
+          Mode: cls?.other_fees_obj.fee_payment_mode ?? "NA",
+          TxnDate: cls?.other_fees_obj?.TxnDate ?? "NA",
+          BankUTR:
+            op?.paytm_query?.length > 0
+              ? op?.paytm_query?.[0]?.BANKTXNID
+              : cls?.other_fees_obj?.fee_utr_reference ?? "#NA",
+          FeesName: one_of?.other_fees_name ?? "NA",
+          Status: cls?.other_fees_obj.status ?? "NA",
+          HeadName: cls?.other_fees_obj?.head_name ?? "NA",
+          // HeadAmount: cls?.other_fees_obj?.head_amount ?? 0,
+          Classes: "#NA",
+          Batch: "#NA",
+          RollNo: "#NA",
+        });
+      }
+    }
+    for (let cls of one_of?.fee_receipt_student) {
+      if (cls?.student != "") {
+        const op = await OrderPayment.findOne({
+          fee_receipt: cls?.fee_receipt?._id,
+        });
+        excel_list.push({
+          ReceiptNo: cls?.fee_receipt?.invoice_count ?? "NA",
+          FeeTransactionDate:
+            moment(cls?.fee_receipt?.fee_transaction_date)?.format("LL") ??
+            "NA",
+          FeesAmount: cls?.fee_receipt?.fee_payment_amount ?? 0,
+          Name: cls?.student ?? "NA",
+          RegistrationID: "#NA",
+          Mode: cls?.fee_receipt.fee_payment_mode ?? "NA",
+          TxnDate: moment(cls?.fee_receipt?.created_at)?.format("LL") ?? "NA",
+          BankUTR:
+            op?.paytm_query?.length > 0
+              ? op?.paytm_query?.[0]?.BANKTXNID
+              : cls?.fee_receipt?.fee_utr_reference ?? "#NA",
+          FeesName: one_of?.other_fees_name ?? "NA",
+          Status: cls?.fee_receipt?.fee_payment_mode
+            ? "Paid"
+            : "Not Paid" ?? "NA",
+          HeadName: cls?.fee_receipt?.fee_heads?.[0]?.head_name ?? "NA",
+          Classes: cls?.classes,
+          Batch: cls?.batch,
+          RollNo: cls?.roll_no,
+        });
+      }
+    }
+    var valid_back = await json_to_excel_other_fees_subject_application_query(
+      excel_list,
+      `${one_of?.other_fees_name}-Combined`,
+      one_of?.finance?.institute
+    );
+    if (valid_back?.back) {
+      res.status(200).send({
+        message: "Explore New Excel On Subject Export TAB",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.renderExistingOtherFeesNonExistingQuery = async (req, res) => {
 //   try {
 //     const { fid } = req?.params

@@ -11114,16 +11114,19 @@ exports.renderTransferAppsQuery = async (req, res) => {
       if (valid_old_app?.review_count > 0) {
         valid_old_app.review_count -= 1;
       }
+      valid_old_app.transferApplication.push({
+        student: ref,
+      });
     }
     await valid_old_app.save();
     res.status(200).send({
-      message: `Explore ${student_array?.length} transferred to New Application`,
+      message: `Explore ${app_array?.length} transferred to New Application`,
       access: true,
     });
 
-    for (var ele of student_array) {
+    for (var cls of app_array) {
       var valid_student = await Student.findById({
-        _id: `${ele?.studentId}`,
+        _id: `${cls}`,
       }).populate({
         path: "fee_structure",
       });
@@ -11147,28 +11150,25 @@ exports.renderTransferAppsQuery = async (req, res) => {
       }
       valid_new_app.review_count += 1;
       valid_new_app.transferCount += 1;
-      valid_new_app.transferApplication.push({
-        student: valid_student?._id,
-      });
       var all_remain = await RemainingList.find({
         $and: [
           { _id: { $in: valid_student?.remainingFeeList } },
           { appId: valid_old_app?._id },
         ],
-      })
+      });
       if (ref?.applicable_card) {
-        let nest_app = await NestedCard.findById({ _id: ref?.applicable_card })
+        let nest_app = await NestedCard.findById({ _id: ref?.applicable_card });
         for (let ele of nest_app?.remaining_array) {
-          ele.appId = valid_new_app?._id
+          ele.appId = valid_new_app?._id;
         }
-        await nest_app.save()
+        await nest_app.save();
       }
       if (ref?.government_card) {
-        let nest_gov = await NestedCard.findById({ _id: ref?.government_card })
+        let nest_gov = await NestedCard.findById({ _id: ref?.government_card });
         for (let ele of nest_gov?.remaining_array) {
-          ele.appId = valid_new_app?._id
+          ele.appId = valid_new_app?._id;
         }
-        await nest_gov.save()
+        await nest_gov.save();
       }
       for (var ref of all_remain) {
         ref.appId = valid_new_app?._id;

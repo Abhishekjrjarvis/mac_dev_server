@@ -11095,130 +11095,136 @@ exports.renderOneReceiptReApplyDeChequeQuery = async (req, res) => {
   }
 };
 
-// exports.renderTransferAppsQuery = async (req, res) => {
-//   try {
-//     const { aid } = req.params;
-//     const { app_array, oaid, student_array } = req.body;
-//     if (!aid && !app_array && !oaid)
-//       return res.status(200).send({
-//         message: "Their is a bug need to fixed immediately",
-//         access: false,
-//       });
+exports.renderTransferAppsQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { app_array, oaid, student_array } = req.body;
+    if (!aid && !app_array && !oaid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-//     var valid_new_app = await NewApplication.findById({ _id: aid });
-//     var valid_old_app = await NewApplication.findById({ _id: oaid });
-//     // var valid_struct = await FeeStructure.find({ $and: [{batch_master: `${valid_new_app?.applicationBatch}`}, { class_master: `${valid_new_app?.applicationMaster}`}, { department: `${valid_new_app?.applicationDepartment}`}] })
+    var valid_new_app = await NewApplication.findById({ _id: aid });
+    var valid_old_app = await NewApplication.findById({ _id: oaid });
+    // var valid_struct = await FeeStructure.find({ $and: [{batch_master: `${valid_new_app?.applicationBatch}`}, { class_master: `${valid_new_app?.applicationMaster}`}, { department: `${valid_new_app?.applicationDepartment}`}] })
 
-//     for (var ref of app_array) {
-//       valid_old_app.confirmedApplication.pull(ref);
-//       if (valid_old_app?.confirmCount > 0) {
-//         valid_old_app.confirmCount -= 1;
-//       }
-//     }
-//     await valid_old_app.save();
-//     res.status(200).send({
-//       message: `Explore ${student_array?.length} transferred to New Application`,
-//       access: true,
-//     });
+    for (var ref of app_array) {
+      valid_old_app.reviewApplication.pull(ref);
+      if (valid_old_app?.review_count > 0) {
+        valid_old_app.review_count -= 1;
+      }
+    }
+    await valid_old_app.save();
+    res.status(200).send({
+      message: `Explore ${student_array?.length} transferred to New Application`,
+      access: true,
+    });
 
-//     for (var ele of student_array) {
-//       var valid_student = await Student.findById({ _id: `${ele?.studentId}` })
-//       .populate({
-//         path: "fee_structure"
-//       })
-//       var valid_user = await User.findById({ _id: `${valid_student?.user}` });
-//       var valid_struct = await FeeStructure.find({
-//         $and: [
-//           { batch_master: `${valid_new_app?.applicationBatch}` },
-//           { class_master: `${valid_new_app?.applicationMaster}` },
-//           { department: `${valid_new_app?.applicationDepartment}` },
-//           { category_master: `${valid_student?.fee_structure?.category_master?._id}`}
-//         ],
-//       });
+    for (var ele of student_array) {
+      var valid_student = await Student.findById({
+        _id: `${ele?.studentId}`,
+      }).populate({
+        path: "fee_structure",
+      });
+      var valid_user = await User.findById({ _id: `${valid_student?.user}` });
+      var valid_struct = await FeeStructure.find({
+        $and: [
+          { batch_master: `${valid_new_app?.applicationBatch}` },
+          { class_master: `${valid_new_app?.applicationMaster}` },
+          { department: `${valid_new_app?.applicationDepartment}` },
+          {
+            category_master: `${valid_student?.fee_structure?.category_master?._id}`,
+          },
+        ],
+      });
 
-//       valid_new_app.confirmedApplication.push({
-//         student: valid_student?._id,
-//         payment_status: ele?.mode,
-//         install_type: ele?.type,
-//         fee_remain: ele?.price,
-//         transfer_status: "Transferred",
-//         transfer_from_app: valid_old_app?._id,
-//       });
-//       if(valid_struct?.length > 1){
-//         valid_student.fee_structure = valid_struct[0]?._id
-//       }
-//       else{
-//         valid_student.fee_structure = valid_struct[0]?._id
-//       }
-//       valid_new_app.confirmCount += 1;
-//       valid_new_app.transferCount += 1;
-//       valid_new_app.transferApplication.push({
-//         student: valid_student?._id,
-//       });
-//       var all_remain = await RemainingList.find({
-//         $and: [
-//           { _id: { $in: valid_student?.remainingFeeList } },
-//           { appId: valid_old_app?._id },
-//         ],
-//       });
-//       for (var ref of all_remain) {
-//         ref.appId = valid_new_app?._id;
-//         ref.fee_structure = valid_struct[0]?._id
-//         ref.applicable_fee = valid_struct[0]?.total_admission_fees
-//         for (var val of ref?.remaining_array) {
-//           val.appId = valid_new_app?._id;
-//         }
-//         await ref.save();
-//       }
+      valid_new_app.reviewApplication.push(valid_student?._id);
+      if (valid_struct?.length > 1) {
+        valid_student.fee_structure = valid_struct[0]?._id;
+      } else {
+        valid_student.fee_structure = valid_struct[0]?._id;
+      }
+      valid_new_app.review_count += 1;
+      valid_new_app.transferCount += 1;
+      valid_new_app.transferApplication.push({
+        student: valid_student?._id,
+      });
+      var all_remain = await RemainingList.find({
+        $and: [
+          { _id: { $in: valid_student?.remainingFeeList } },
+          { appId: valid_old_app?._id },
+        ],
+      })
+      if (ref?.applicable_card) {
+        let nest_app = await NestedCard.findById({ _id: ref?.applicable_card })
+        for (let ele of nest_app?.remaining_array) {
+          ele.appId = valid_new_app?._id
+        }
+        await nest_app.save()
+      }
+      if (ref?.government_card) {
+        let nest_gov = await NestedCard.findById({ _id: ref?.government_card })
+        for (let ele of nest_gov?.remaining_array) {
+          ele.appId = valid_new_app?._id
+        }
+        await nest_gov.save()
+      }
+      for (var ref of all_remain) {
+        ref.appId = valid_new_app?._id;
+        ref.fee_structure = valid_struct[0]?._id;
+        ref.applicable_fee = valid_struct[0]?.total_admission_fees;
+        await ref.save();
+      }
 
-//       var all_receipt = await FeeReceipt.find({
-//         $and: [{ application: valid_old_app?._id }],
-//       });
-//       for (var val of all_receipt) {
-//         val.application = valid_new_app?._id;
-//         await val.save();
-//       }
+      var all_receipt = await FeeReceipt.find({
+        $and: [{ application: valid_old_app?._id }],
+      });
+      for (var val of all_receipt) {
+        val.application = valid_new_app?._id;
+        await val.save();
+      }
 
-//       var all_status = await Status.find({
-//         $and: [{ applicationId: valid_old_app?._id }],
-//       });
-//       for (var ele of all_status) {
-//         ele.applicationId = valid_new_app?._id;
-//         ele.feeStructure = valid_struct[0]?._id
-//         ele.admissionFee = valid_struct[0]?.total_admission_fees
-//         await ele.save();
-//       }
+      var all_status = await Status.find({
+        $and: [{ applicationId: valid_old_app?._id }],
+      });
+      for (var ele of all_status) {
+        ele.applicationId = valid_new_app?._id;
+        ele.feeStructure = valid_struct[0]?._id;
+        ele.admissionFee = valid_struct[0]?.total_admission_fees;
+        await ele.save();
+      }
 
-//       if (valid_user?.applyApplication?.includes(`${valid_old_app?._id}`)) {
-//         valid_user?.applyApplication.pull(valid_old_app?._id);
-//       }
-//       valid_user?.applyApplication.push(valid_new_app?._id);
+      if (valid_user?.applyApplication?.includes(`${valid_old_app?._id}`)) {
+        valid_user?.applyApplication.pull(valid_old_app?._id);
+      }
+      valid_user?.applyApplication.push(valid_new_app?._id);
 
-//       var all_orders = await OrderPayment.find({
-//         $and: [{ payment_admission: valid_old_app?._id }],
-//       });
-//       for (var all of all_orders) {
-//         all.payment_admission = valid_new_app?._id;
-//         await all.save();
-//       }
+      var all_orders = await OrderPayment.find({
+        $and: [{ payment_admission: valid_old_app?._id }],
+      });
+      for (var all of all_orders) {
+        all.payment_admission = valid_new_app?._id;
+        await all.save();
+      }
 
-//       for (var ref of valid_student?.paidFeeList) {
-//         if (`${ref?.appId}` === `${valid_old_app?._id}`) {
-//           ref.appId = valid_new_app?._id;
-//         }
-//       }
+      for (var ref of valid_student?.paidFeeList) {
+        if (`${ref?.appId}` === `${valid_old_app?._id}`) {
+          ref.appId = valid_new_app?._id;
+        }
+      }
 
-//       await Promise.all([
-//         valid_student.save(),
-//         valid_user.save(),
-//         valid_old_app.save(),
-//         valid_new_app.save(),
-//       ]);
-//     }
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
+      await Promise.all([
+        valid_student.save(),
+        valid_user.save(),
+        valid_old_app.save(),
+        valid_new_app.save(),
+      ]);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.renderRemainCardRemovalQuery = async (req, res) => {
   try {

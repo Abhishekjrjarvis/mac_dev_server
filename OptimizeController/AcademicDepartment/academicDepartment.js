@@ -1979,3 +1979,109 @@ exports.insert_academic_subject_to_student_query = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.render_all_students_dynamic_query = async (req, res) => {
+  try {
+    const { cid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { did } = req?.query;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
+    const all_subjects = await SubjectMaster.find({
+      _id: { $in: depart?.merged_subject_master },
+    })
+      .select("subjectName department link_subject_master")
+      .populate({
+        path: "subjects",
+        select: "class",
+      });
+
+    var numss = [];
+    var nums = [];
+    const m_class = await ClassMaster.findById({ _id: cid });
+    for (let ele of all_subjects) {
+      for (let val of ele?.subjects) {
+        for (let cls of m_class?.classDivision) {
+          if (`${val?.class}` === `${cls}`) {
+            nums.push(val?._id);
+          }
+        }
+        // if (numss?.includes(`${val?.class}`)) {
+
+        // }
+        // else {
+        //     numss.push(val?.class)
+        // }
+      }
+    }
+    let all_subject = await Subject.find({ _id: { $in: nums } })
+      .select("optionalStudent")
+      .populate({
+        path: "class",
+        select: "ApproveStudent",
+      });
+    let ds = [];
+    let dss = [];
+    let dsss = [];
+    // console.log(all_subject);
+    all_subject = all_subject?.filter((val) => {
+      if (val?.optionalStudent?.length) return val;
+    });
+    if (all_subject?.length > 0) {
+      for (let ele of all_subject) {
+        if (ele?.optionalStudent?.length > 0) {
+          ds.push(...ele?.optionalStudent);
+          // dss.push(...ele?.optionalStudent);
+        }
+      }
+    } else {
+      for (let ele of all_subject) {
+        ds.push(...ele?.class?.ApproveStudent);
+      }
+    }
+    // console.log("ds", ds?.length);
+    // console.log("dss", dss?.length);
+    // console.log("dsss", dsss?.length);
+
+    const unique = [...new Set(ds.map((item) => item))];
+    // console.log(unique?.length);
+    if (nums?.length > 0) {
+      const all_students = await Student.find({
+        $and: [{ _id: { $in: unique } }],
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className",
+        });
+
+      const all_stu = await nested_document_limit(page, limit, all_students);
+      res.status(200).send({
+        message: "Explore All Students Query",
+        access: true,
+        all_students: all_stu,
+        count: all_students?.length,
+      });
+      m_class.all_academic_student_count = all_students?.length;
+      await m_class.save();
+    } else {
+      res.status(200).send({
+        message: "No Students Query",
+        access: true,
+        all_students: [],
+        count: 0,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

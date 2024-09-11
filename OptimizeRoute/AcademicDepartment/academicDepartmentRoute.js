@@ -162,4 +162,9 @@ router.patch(
   catchAsync(AcademicDepartment.render_all_subject_students_query_export)
 );
 
+router.patch(
+  "/:cid/all/students/dynamic/query",
+  catchAsync(AcademicDepartment.render_all_students_dynamic_query)
+);
+
 module.exports = router;

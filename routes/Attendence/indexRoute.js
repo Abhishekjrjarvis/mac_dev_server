@@ -181,4 +181,9 @@ router
   .route("/staff/mark/:id/list/excel")
   .patch(catchAsync(Avail.getInstituteStaffMarkExcelQuery));
 
+router.route("/cls/:cid/theory/practical/zip").post(
+  // isLoggedIn,
+  catchAsync(Avail.cls_attendance_theory_practical_wise_export_quer)
+);
+
 module.exports = router;

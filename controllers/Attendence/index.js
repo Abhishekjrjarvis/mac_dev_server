@@ -30,6 +30,11 @@ const SubjectTimetable = require("../../models/Timetable/SubjectTimetable");
 const {
   generate_custom_date_list,
 } = require("../../Utilities/Attendance/attendance_function");
+const subjectAttendanceReport = require("../../scripts/subject/subjectAttendanceReport");
+const subjectSemesterAttendanceReport = require("../../scripts/subject/subjectSemesterAttendanceReport");
+const clsAttendanceReport = require("../../scripts/cls/clsAttendanceReport");
+const clsSemesterAttendanceReport = require("../../scripts/cls/clsSemesterAttendanceReport");
+const clsAttendanceTheoryPracticalReport = require("../../scripts/cls/clsAttendanceTheoryPracticalReport");
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
   const institute = await Student.findById(req.params.sid);
@@ -3074,7 +3079,12 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
       });
     const month = req.query.month;
     const year = req.query.year;
-    const { is_type, which_type_list, criteria: queryCriteria } = req.query;
+    const {
+      is_type,
+      which_type_list,
+      criteria: queryCriteria,
+      is_pdf,
+    } = req.query;
     const { from, to } = req.body;
     let regularexp = "";
     var attendaceMappingDate = [];
@@ -3184,19 +3194,33 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
             stu?.studentLastName,
           Gender: stu?.studentGender,
           ...dObj,
-          "Total Count": `${stu?.classWise?.presentCount} out of ${stu?.classWise?.totalCount}`,
+          "Total Count":
+            is_pdf === "YES"
+              ? `${stu?.classWise?.presentCount} / ${stu?.classWise?.totalCount}`
+              : `${stu?.classWise?.presentCount} out of ${stu?.classWise?.totalCount}`,
           "Overall Percentage": stu?.classWise?.totalPercentage,
         };
         return obj;
       });
       if (student?.length > 0) {
-        excel_key = await cls_attendance_json_to_excel(
-          cid,
-          student,
-          "Student Attendance",
-          "CLS_CUSTOM_DATE_ATTENDANCE",
-          `custom-date-of-${classes?.classTitle ?? ""}`
-        );
+        if (is_pdf === "YES") {
+          excel_key = await clsAttendanceReport(
+            student,
+            cid,
+            from,
+            to,
+            "CLS_CUSTOM_DATE_ATTENDANCE",
+            "Custom"
+          );
+        } else {
+          excel_key = await cls_attendance_json_to_excel(
+            cid,
+            student,
+            "Student Attendance",
+            "CLS_CUSTOM_DATE_ATTENDANCE",
+            `custom-date-of-${classes?.classTitle ?? ""}`
+          );
+        }
       }
       return res.status(200).send({
         message: "All Custom Date of student zip attendance",
@@ -3275,20 +3299,16 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                 ?.class_student_query) {
                 for (let stu of students) {
                   if (`${std}` === `${stu?._id}`) {
+                    let sbt_name = "";
+                    if (subjects?.subject_category === "Practical") {
+                      sbt_name = "P:";
+                    } else {
+                      sbt_name = "T:";
+                    }
+                    sbt_name += `${subjects?.selected_batch_query?.batchName} `;
+                    sbt_name += subjects?.subjectName;
                     let sobj = {
-                      subjectName: `${subjects?.subjectName} ${
-                        subjects?.subject_category
-                          ? `(${subjects?.subject_category})`
-                          : ""
-                      } ${
-                        subjects?.selected_batch_query?.batchName
-                          ? `(${subjects?.selected_batch_query?.batchName})`
-                          : ""
-                      } ${
-                        subjects?.subjectOptional === "Optional"
-                          ? `(${subjects?.subjectOptional})`
-                          : ""
-                      }`,
+                      subjectName: sbt_name,
                       subjectId: subjects?._id,
                       presentCount: 0,
                       totalCount: 0,
@@ -3324,19 +3344,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                 for (let stu of students) {
                   if (`${std}` === `${stu?._id}`) {
                     let sobj = {
-                      subjectName: `${subjects?.subjectName} ${
-                        subjects?.subject_category
-                          ? `(${subjects?.subject_category})`
-                          : ""
-                      } ${
-                        subjects?.selected_batch_query?.batchName
-                          ? `(${subjects?.selected_batch_query?.batchName})`
-                          : ""
-                      } ${
-                        subjects?.subjectOptional === "Optional"
-                          ? `(${subjects?.subjectOptional})`
-                          : ""
-                      }`,
+                      subjectName: subjects?.subjectName,
                       subjectId: subjects?._id,
                       presentCount: 0,
                       totalCount: 0,
@@ -3368,19 +3376,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
             } else {
               for (let stu of students) {
                 let sobj = {
-                  subjectName: `${subjects?.subjectName} ${
-                    subjects?.subject_category
-                      ? `(${subjects?.subject_category})`
-                      : ""
-                  } ${
-                    subjects?.selected_batch_query?.batchName
-                      ? `(${subjects?.selected_batch_query?.batchName})`
-                      : ""
-                  } ${
-                    subjects?.subjectOptional === "Optional"
-                      ? `(${subjects?.subjectOptional})`
-                      : ""
-                  }`,
+                  subjectName: subjects?.subjectName,
                   subjectId: subjects?._id,
                   presentCount: 0,
                   totalCount: 0,
@@ -3432,31 +3428,56 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
           stu?.studentLastName
         }`;
         dObj.Gender = stu?.studentGender;
-        dObj[
-          classes?.classTitle
-        ] = `${stu?.classWise.presentCount} out of ${stu?.classWise.totalCount}`;
-        dObj[`${classes?.classTitle} Overall Percentage`] =
-          stu?.classWise.totalPercentage;
+        if (is_pdf === "YES") {
+          dObj[
+            classes?.classTitle
+          ] = `${stu?.classWise?.presentCount} / ${stu?.classWise?.totalCount}`;
+          dObj[`${classes?.classTitle} OP`] = stu?.classWise.totalPercentage;
+        } else {
+          dObj[
+            classes?.classTitle
+          ] = `${stu?.classWise.presentCount} out of ${stu?.classWise.totalCount}`;
+          dObj[`${classes?.classTitle} Overall Percentage`] =
+            stu?.classWise.totalPercentage;
+        }
 
         if (stu?.subjects?.length > 0) {
           for (let sdf of stu?.subjects) {
-            dObj[
-              sdf?.subjectName
-            ] = `${sdf.presentCount} out of ${sdf.totalCount}`;
-            dObj[`${sdf?.subjectName} Overall Percentage`] =
-              sdf.totalPercentage;
+            if (is_pdf === "YES") {
+              dObj[
+                sdf?.subjectName
+              ] = `${sdf?.presentCount} / ${sdf?.totalCount}`;
+
+              dObj[`${sdf?.subjectName} OP`] = sdf.totalPercentage;
+            } else {
+              dObj[
+                sdf?.subjectName
+              ] = `${sdf.presentCount} out of ${sdf.totalCount}`;
+              dObj[`${sdf?.subjectName} Overall Percentage`] =
+                sdf.totalPercentage;
+            }
           }
         }
         return dObj;
       });
       if (student?.length > 0) {
-        excel_key = await cls_attendance_json_to_excel(
-          cid,
-          student,
-          "Student Attendance",
-          "ALL_SEMETSER_ATTENDANCE",
-          `of-all-semester-${classes?.classTitle ?? ""}`
-        );
+        if (is_pdf === "YES") {
+          excel_key = await clsSemesterAttendanceReport(
+            student,
+            cid,
+            from,
+            to,
+            "ALL_SEMETSER_ATTENDANCE"
+          );
+        } else {
+          excel_key = await cls_attendance_json_to_excel(
+            cid,
+            student,
+            "Student Attendance",
+            "ALL_SEMETSER_ATTENDANCE",
+            `of-all-semester-${classes?.classTitle ?? ""}`
+          );
+        }
       }
 
       return res.status(200).send({
@@ -3501,20 +3522,16 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                 ?.class_student_query) {
                 for (let stu of students) {
                   if (`${std}` === `${stu?._id}`) {
+                    let sbt_name = "";
+                    if (subjects?.subject_category === "Practical") {
+                      sbt_name = "P:";
+                    } else {
+                      sbt_name = "T:";
+                    }
+                    sbt_name += `${subjects?.selected_batch_query?.batchName} `;
+                    sbt_name += subjects?.subjectName;
                     let sobj = {
-                      subjectName: `${subjects?.subjectName} ${
-                        subjects?.subject_category
-                          ? `(${subjects?.subject_category})`
-                          : ""
-                      } ${
-                        subjects?.selected_batch_query?.batchName
-                          ? `(${subjects?.selected_batch_query?.batchName})`
-                          : ""
-                      } ${
-                        subjects?.subjectOptional === "Optional"
-                          ? `(${subjects?.subjectOptional})`
-                          : ""
-                      }`,
+                      subjectName: sbt_name,
                       subjectId: subjects?._id,
                       presentCount: 0,
                       totalCount: 0,
@@ -3550,19 +3567,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                 for (let stu of students) {
                   if (`${std}` === `${stu?._id}`) {
                     let sobj = {
-                      subjectName: `${subjects?.subjectName} ${
-                        subjects?.subject_category
-                          ? `(${subjects?.subject_category})`
-                          : ""
-                      } ${
-                        subjects?.selected_batch_query?.batchName
-                          ? `(${subjects?.selected_batch_query?.batchName})`
-                          : ""
-                      } ${
-                        subjects?.subjectOptional === "Optional"
-                          ? `(${subjects?.subjectOptional})`
-                          : ""
-                      }`,
+                      subjectName: subjects?.subjectName,
                       subjectId: subjects?._id,
                       presentCount: 0,
                       totalCount: 0,
@@ -3594,19 +3599,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
             } else {
               for (let stu of students) {
                 let sobj = {
-                  subjectName: `${subjects?.subjectName} ${
-                    subjects?.subject_category
-                      ? `(${subjects?.subject_category})`
-                      : ""
-                  } ${
-                    subjects?.selected_batch_query?.batchName
-                      ? `(${subjects?.selected_batch_query?.batchName})`
-                      : ""
-                  } ${
-                    subjects?.subjectOptional === "Optional"
-                      ? `(${subjects?.subjectOptional})`
-                      : ""
-                  }`,
+                  subjectName: subjects?.subjectName,
                   subjectId: subjects?._id,
                   presentCount: 0,
                   totalCount: 0,
@@ -3660,23 +3653,41 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
         dObj.Gender = stu?.studentGender;
         if (stu?.subjects?.length > 0) {
           for (let sdf of stu?.subjects) {
-            dObj[
-              sdf?.subjectName
-            ] = `${sdf.presentCount} out of ${sdf.totalCount}`;
-            dObj[`${sdf?.subjectName} Overall Percentage`] =
-              sdf.totalPercentage;
+            if (is_pdf === "YES") {
+              dObj[
+                sdf?.subjectName
+              ] = `${sdf?.presentCount} / ${sdf?.totalCount}`;
+              dObj[`${sdf?.subjectName} OP`] = sdf.totalPercentage;
+            } else {
+              dObj[
+                sdf?.subjectName
+              ] = `${sdf.presentCount} out of ${sdf.totalCount}`;
+              dObj[`${sdf?.subjectName} Overall Percentage`] =
+                sdf.totalPercentage;
+            }
           }
         }
         return dObj;
       });
       if (student?.length > 0) {
-        excel_key = await cls_attendance_json_to_excel(
-          cid,
-          student,
-          "Student Attendance",
-          "ALL_SUBJECT_SEMETSER_ATTENDANCE",
-          `of-all-subject-semester-${classes?.classTitle ?? ""}`
-        );
+        if (is_pdf === "YES") {
+          excel_key = await clsSemesterAttendanceReport(
+            student,
+            cid,
+            from,
+            to,
+            "ALL_SUBJECT_SEMETSER_ATTENDANCE",
+            "All-Subject-Semester"
+          );
+        } else {
+          excel_key = await cls_attendance_json_to_excel(
+            cid,
+            student,
+            "Student Attendance",
+            "ALL_SUBJECT_SEMETSER_ATTENDANCE",
+            `of-all-subject-semester-${classes?.classTitle ?? ""}`
+          );
+        }
       }
 
       return res.status(200).send({
@@ -3726,20 +3737,16 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                 ?.class_student_query) {
                 for (let stu of students) {
                   if (`${std}` === `${stu?._id}`) {
+                    let sbt_name = "";
+                    if (subjects?.subject_category === "Practical") {
+                      sbt_name = "P:";
+                    } else {
+                      sbt_name = "T:";
+                    }
+                    sbt_name += `${subjects?.selected_batch_query?.batchName} `;
+                    sbt_name += subjects?.subjectName;
                     let sobj = {
-                      subjectName: `${subjects?.subjectName} ${
-                        subjects?.subject_category
-                          ? `(${subjects?.subject_category})`
-                          : ""
-                      } ${
-                        subjects?.selected_batch_query?.batchName
-                          ? `(${subjects?.selected_batch_query?.batchName})`
-                          : ""
-                      } ${
-                        subjects?.subjectOptional === "Optional"
-                          ? `(${subjects?.subjectOptional})`
-                          : ""
-                      }`,
+                      subjectName: sbt_name,
                       subjectId: subjects?._id,
                       presentCount: 0,
                       totalCount: 0,
@@ -3775,19 +3782,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                 for (let stu of students) {
                   if (`${std}` === `${stu?._id}`) {
                     let sobj = {
-                      subjectName: `${subjects?.subjectName} ${
-                        subjects?.subject_category
-                          ? `(${subjects?.subject_category})`
-                          : ""
-                      } ${
-                        subjects?.selected_batch_query?.batchName
-                          ? `(${subjects?.selected_batch_query?.batchName})`
-                          : ""
-                      } ${
-                        subjects?.subjectOptional === "Optional"
-                          ? `(${subjects?.subjectOptional})`
-                          : ""
-                      }`,
+                      subjectName: subjects?.subjectName,
                       subjectId: subjects?._id,
                       presentCount: 0,
                       totalCount: 0,
@@ -3819,19 +3814,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
             } else {
               for (let stu of students) {
                 let sobj = {
-                  subjectName: `${subjects?.subjectName} ${
-                    subjects?.subject_category
-                      ? `(${subjects?.subject_category})`
-                      : ""
-                  } ${
-                    subjects?.selected_batch_query?.batchName
-                      ? `(${subjects?.selected_batch_query?.batchName})`
-                      : ""
-                  } ${
-                    subjects?.subjectOptional === "Optional"
-                      ? `(${subjects?.subjectOptional})`
-                      : ""
-                  }`,
+                  subjectName: subjects?.subjectName,
                   subjectId: subjects?._id,
                   presentCount: 0,
                   totalCount: 0,
@@ -3885,23 +3868,45 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
         dObj.Gender = stu?.studentGender;
         if (stu?.subjects?.length > 0) {
           for (let sdf of stu?.subjects) {
-            dObj[
-              sdf?.subjectName
-            ] = `${sdf.presentCount} out of ${sdf.totalCount}`;
-            dObj[`${sdf?.subjectName} Overall Percentage`] =
-              sdf.totalPercentage;
+            if (is_pdf === "YES") {
+              dObj[
+                sdf?.subjectName
+              ] = `${sdf?.presentCount} / ${sdf?.totalCount}`;
+              dObj[`${sdf?.subjectName} OP`] = sdf.totalPercentage;
+            } else {
+              dObj[
+                sdf?.subjectName
+              ] = `${sdf.presentCount} out of ${sdf.totalCount}`;
+              dObj[`${sdf?.subjectName} Overall Percentage`] =
+                sdf.totalPercentage;
+            }
           }
         }
         return dObj;
       });
       if (student?.length > 0) {
-        excel_key = await cls_attendance_json_to_excel(
-          cid,
-          student,
-          "Student Attendance",
-          "ALL_SUBJECT_MONTHLY_ATTENDANCE",
-          `of-all-subject-montly-${classes?.classTitle ?? ""}`
-        );
+        if (is_pdf === "YES") {
+          let from_date = moment(`${year}-${month}-01`).format("DD/MM/yyyy");
+          let to_date = `${moment(
+            `${year}-${month}-01`
+          )?.daysInMonth()}/${month}/${year}`;
+          excel_key = await clsSemesterAttendanceReport(
+            student,
+            cid,
+            from_date,
+            to_date,
+            "ALL_SUBJECT_MONTHLY_ATTENDANCE",
+            "All-Subject-Montly"
+          );
+        } else {
+          excel_key = await cls_attendance_json_to_excel(
+            cid,
+            student,
+            "Student Attendance",
+            "ALL_SUBJECT_MONTHLY_ATTENDANCE",
+            `of-all-subject-montly-${classes?.classTitle ?? ""}`
+          );
+        }
       }
 
       return res.status(200).send({
@@ -3954,20 +3959,16 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                 ?.class_student_query) {
                 for (let stu of students) {
                   if (`${std}` === `${stu?._id}`) {
+                    let sbt_name = "";
+                    if (subjects?.subject_category === "Practical") {
+                      sbt_name = "P:";
+                    } else {
+                      sbt_name = "T:";
+                    }
+                    sbt_name += `${subjects?.selected_batch_query?.batchName} `;
+                    sbt_name += subjects?.subjectName;
                     let sobj = {
-                      subjectName: `${subjects?.subjectName} ${
-                        subjects?.subject_category
-                          ? `(${subjects?.subject_category})`
-                          : ""
-                      } ${
-                        subjects?.selected_batch_query?.batchName
-                          ? `(${subjects?.selected_batch_query?.batchName})`
-                          : ""
-                      } ${
-                        subjects?.subjectOptional === "Optional"
-                          ? `(${subjects?.subjectOptional})`
-                          : ""
-                      }`,
+                      subjectName: sbt_name,
                       subjectId: subjects?._id,
                       presentCount: 0,
                       totalCount: 0,
@@ -4003,19 +4004,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                 for (let stu of students) {
                   if (`${std}` === `${stu?._id}`) {
                     let sobj = {
-                      subjectName: `${subjects?.subjectName} ${
-                        subjects?.subject_category
-                          ? `(${subjects?.subject_category})`
-                          : ""
-                      } ${
-                        subjects?.selected_batch_query?.batchName
-                          ? `(${subjects?.selected_batch_query?.batchName})`
-                          : ""
-                      } ${
-                        subjects?.subjectOptional === "Optional"
-                          ? `(${subjects?.subjectOptional})`
-                          : ""
-                      }`,
+                      subjectName: subjects?.subjectName,
                       subjectId: subjects?._id,
                       presentCount: 0,
                       totalCount: 0,
@@ -4047,19 +4036,7 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
             } else {
               for (let stu of students) {
                 let sobj = {
-                  subjectName: `${subjects?.subjectName} ${
-                    subjects?.subject_category
-                      ? `(${subjects?.subject_category})`
-                      : ""
-                  } ${
-                    subjects?.selected_batch_query?.batchName
-                      ? `(${subjects?.selected_batch_query?.batchName})`
-                      : ""
-                  } ${
-                    subjects?.subjectOptional === "Optional"
-                      ? `(${subjects?.subjectOptional})`
-                      : ""
-                  }`,
+                  subjectName: subjects?.subjectName,
                   subjectId: subjects?._id,
                   presentCount: 0,
                   totalCount: 0,
@@ -4113,23 +4090,41 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
         dObj.Gender = stu?.studentGender;
         if (stu?.subjects?.length > 0) {
           for (let sdf of stu?.subjects) {
-            dObj[
-              sdf?.subjectName
-            ] = `${sdf.presentCount} out of ${sdf.totalCount}`;
-            dObj[`${sdf?.subjectName} Overall Percentage`] =
-              sdf.totalPercentage;
+            if (is_pdf === "YES") {
+              dObj[
+                sdf?.subjectName
+              ] = `${sdf?.presentCount} / ${sdf?.totalCount}`;
+              dObj[`${sdf?.subjectName} OP`] = sdf.totalPercentage;
+            } else {
+              dObj[
+                sdf?.subjectName
+              ] = `${sdf.presentCount} out of ${sdf.totalCount}`;
+              dObj[`${sdf?.subjectName} Overall Percentage`] =
+                sdf.totalPercentage;
+            }
           }
         }
         return dObj;
       });
       if (student?.length > 0) {
-        excel_key = await cls_attendance_json_to_excel(
-          cid,
-          student,
-          "Student Attendance",
-          "ALL_SUBJECT_CUSTOM_DATE_ATTENDANCE",
-          `of-all-subject-custom-date-${classes?.classTitle ?? ""}`
-        );
+        if (is_pdf === "YES") {
+          excel_key = await clsSemesterAttendanceReport(
+            student,
+            cid,
+            from,
+            to,
+            "ALL_SUBJECT_CUSTOM_DATE_ATTENDANCE",
+            "All-Subject-Custom"
+          );
+        } else {
+          excel_key = await cls_attendance_json_to_excel(
+            cid,
+            student,
+            "Student Attendance",
+            "ALL_SUBJECT_CUSTOM_DATE_ATTENDANCE",
+            `of-all-subject-custom-date-${classes?.classTitle ?? ""}`
+          );
+        }
       }
       return res.status(200).send({
         message: "All student zip attendance wtih all subject monthly wise",
@@ -4250,19 +4245,36 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
             stu?.studentLastName,
           Gender: stu?.studentGender,
           ...dObj,
-          "Total Count": `${stu?.classWise?.presentCount} out of ${stu?.classWise?.totalCount}`,
+          "Total Count":
+            is_pdf === "YES"
+              ? `${stu?.classWise?.presentCount} / ${stu?.classWise?.totalCount}`
+              : `${stu?.classWise?.presentCount} out of ${stu?.classWise?.totalCount}`,
           "Overall Percentage": stu?.classWise?.totalPercentage,
         };
         return obj;
       });
       if (student?.length > 0) {
-        excel_key = await cls_attendance_json_to_excel(
-          cid,
-          student,
-          "Student Attendance",
-          "CLS_MONTHLY_ATTENDANCE",
-          `montly-of-${classes?.classTitle ?? ""}`
-        );
+        if (is_pdf === "YES") {
+          let from_date = moment(`${year}-${month}-01`).format("DD/MM/yyyy");
+          let to_date = `${moment(
+            `${year}-${month}-01`
+          )?.daysInMonth()}/${month}/${year}`;
+          excel_key = await clsAttendanceReport(
+            student,
+            cid,
+            from_date,
+            to_date,
+            "CLS_MONTHLY_ATTENDANCE"
+          );
+        } else {
+          excel_key = await cls_attendance_json_to_excel(
+            cid,
+            student,
+            "Student Attendance",
+            "CLS_MONTHLY_ATTENDANCE",
+            `montly-of-${classes?.classTitle ?? ""}`
+          );
+        }
       }
       return res.status(200).send({
         message: "All student zip attendance",
@@ -4664,7 +4676,12 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
       });
     const month = req.query.month;
     const year = req.query.year;
-    const { is_type, which_type_list, criteria: queryCriteria } = req.query;
+    const {
+      is_type,
+      which_type_list,
+      criteria: queryCriteria,
+      is_pdf,
+    } = req.query;
     const { from, to } = req.body;
     let regularexp = "";
     var attendaceMappingDate = [];
@@ -4673,59 +4690,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
     let criteria = queryCriteria ? +queryCriteria : 75;
     if (is_type === "CUSTOM") {
       let custom_date_list = [];
-
       custom_date_list = await generate_custom_date_list(from, to);
-      // let f_month = from?.substr(3, 2);
-      // let f_year = from?.substr(6, 4);
-      // let f_day = from?.substr(0, 2);
-      // let t_month = to?.substr(3, 2);
-      // let t_year = to?.substr(6, 4);
-      // let t_day = to?.substr(0, 2);
-      // f_month = +f_month;
-      // t_month = +t_month;
-      // f_day = +f_day;
-      // t_day = +t_day;
-      // let iterate_query = 0;
-      // f_year = +f_year;
-      // t_year = +t_year;
-      // let year_diff = t_year - f_year;
-      // year_diff = year_diff >= 0 ? year_diff : year_diff * -1;
-      // if (!year_diff) {
-      //   iterate_query = t_month - f_month;
-      // } else {
-      //   let t_mod = t_month + 12 * year_diff;
-      //   iterate_query = t_mod - f_month;
-      // }
-
-      // for (let j = 0; j <= iterate_query; j++) {
-      //   if (f_month > 12) {
-      //     f_month = 1;
-      //     f_year += 1;
-      //   }
-      //   let m_current = f_month > 9 ? `${f_month}` : `0${f_month}`;
-      //   let y_current = `${f_year}`;
-      //   let daysInMonth = moment(
-      //     `${y_current}-${m_current}`,
-      //     "YYYY-MM"
-      //   ).daysInMonth();
-
-      //   let start_point = j === 0 ? f_day : 1;
-      //   for (let i = start_point; i <= daysInMonth; i++) {
-      //     if (j == iterate_query && i > t_day) {
-      //       break;
-      //     } else {
-      //       if (i < 10) {
-      //         let db = `0${i}/${m_current}/${y_current}`;
-      //         custom_date_list.push(db);
-      //       } else {
-      //         let dbt = `${i}/${m_current}/${y_current}`;
-      //         custom_date_list.push(dbt);
-      //       }
-      //     }
-      //   }
-      //   f_month += 1;
-      // }
-
       var subjects = await Subject.findById(sid)
         .populate({
           path: "attendance",
@@ -4805,6 +4770,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
             let statusObj = {
               date: att.attendDate,
               status: "",
+              which_lecture: att?.which_lecture,
             };
             for (let pre of att?.presentStudent) {
               if (String(stu._id) === String(pre.student)) {
@@ -4851,7 +4817,11 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
           }
         }
         for (let avail of stu?.availablity) {
-          dObj[`${avail?.date}`] = avail?.status;
+          if (avail?.which_lecture === "1") {
+            dObj[`${avail?.date}`] = avail?.status;
+          } else {
+            dObj[`${avail?.date} - ${avail?.which_lecture}`] = avail?.status;
+          }
         }
 
         let obj = {
@@ -4868,20 +4838,34 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
             stu?.studentLastName,
           Gender: stu?.studentGender,
           ...dObj,
-          "Total Count": `${stu?.subjectWise?.presentCount} out of ${stu?.subjectWise?.totalCount}`,
+          "Total Count":
+            is_pdf === "YES"
+              ? `${stu?.subjectWise?.presentCount} / ${stu?.subjectWise?.totalCount}`
+              : `${stu?.subjectWise?.presentCount} out of ${stu?.subjectWise?.totalCount}`,
           "Overall Percentage": stu?.subjectWise?.totalPercentage,
         };
         return obj;
       });
 
       if (student?.length > 0) {
-        excel_key = await subject_attendance_json_to_excel(
-          sid,
-          student,
-          "Student Attendance",
-          "SUBJECT_CUSTOM_DATE_ATTENDANCE",
-          `custom-date-of-${subjects?.class?.className ?? ""}`
-        );
+        if (is_pdf === "YES") {
+          excel_key = await subjectAttendanceReport(
+            student,
+            sid,
+            from,
+            to,
+            "SUBJECT_CUSTOM_DATE_ATTENDANCE",
+            "Custom"
+          );
+        } else {
+          excel_key = await subject_attendance_json_to_excel(
+            sid,
+            student,
+            "Student Attendance",
+            "SUBJECT_CUSTOM_DATE_ATTENDANCE",
+            `custom-date-of-${subjects?.class?.className ?? ""}`
+          );
+        }
       }
       res.status(200).send({
         message:
@@ -5014,38 +4998,45 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
           stu?.studentLastName
         }`;
         dObj.Gender = stu?.studentGender;
-        dObj[
-          attendance_zip.mapSubject?.subjectName
-        ] = `${stu.subjectWise.presentCount} out of ${stu.subjectWise.totalCount}`;
-        dObj[`${attendance_zip.mapSubject?.subjectName} Overall Percentage`] =
-          stu.subjectWise.totalPercentage;
+        if (is_pdf === "YES") {
+          dObj[
+            attendance_zip.mapSubject?.subjectName
+          ] = `${stu?.subjectWise?.presentCount} / ${stu?.subjectWise?.totalCount}`;
+          dObj[`${attendance_zip.mapSubject?.subjectName} Overall Percentage`] =
+            stu.subjectWise.totalPercentage;
+        } else {
+          dObj[
+            attendance_zip.mapSubject?.subjectName
+          ] = `${stu.subjectWise.presentCount} out of ${stu.subjectWise.totalCount}`;
+          dObj[`${attendance_zip.mapSubject?.subjectName} Overall Percentage`] =
+            stu.subjectWise.totalPercentage;
+        }
 
         return dObj;
       });
 
       if (student?.length > 0) {
-        excel_key = await subject_attendance_json_to_excel(
-          sid,
-          student,
-          "Student Attendance",
-          "SUBJECT_SEMESTER_ATTENDANCE",
-          `semester-of-${subjects?.class?.className ?? ""}`
-        );
+        if (is_pdf === "YES") {
+          excel_key = await subjectSemesterAttendanceReport(
+            student,
+            sid,
+            from,
+            to
+          );
+        } else {
+          excel_key = await subject_attendance_json_to_excel(
+            sid,
+            student,
+            "Student Attendance",
+            "SUBJECT_SEMESTER_ATTENDANCE",
+            `semester-of-${subjects?.class?.className ?? ""}`
+          );
+        }
       }
       res.status(200).send({
         message: "All student zip attendance wtih all subject wise",
         excel_key: excel_key,
       });
-      // console.log("excel_key", );
-      // return res.status(200).send({
-      //   message: "All student zip attendance wtih all subject wise",
-      //   attendance_zip: {
-      //     mapSubject,
-      //     students,
-      //     attendaceMappingDate,
-      //   },
-      //   access: false,
-      // });
     } else {
       regularexp = new RegExp(`\/${month}\/${year}$`);
 
@@ -5055,7 +5046,6 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
           match: {
             attendDate: { $regex: regularexp },
           },
-          // select: "attendDate presentStudent.student absentStudent.student",
         })
         .populate({
           path: "selected_batch_query",
@@ -5065,10 +5055,6 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
           path: "class",
           select: "className",
         });
-      // .select("attendance selected_batch_query class optionalStudent");
-
-      // .lean()
-      // .exec();
       let student_list = [];
       var classes = null;
       if (subjects?.selected_batch_query?._id) {
@@ -5115,8 +5101,6 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
       for (let att of subjects?.attendance) {
         attendaceMappingDate.push(att?.attendDate);
       }
-      // for (let stu of classes?.ApproveStudent)
-      // console.log("Student: ", student_list?.length);
       if (student_list?.length > 0) {
         for (let stu of student_list) {
           let obj = {
@@ -5132,6 +5116,7 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
             let statusObj = {
               date: att.attendDate,
               status: "",
+              which_lecture: att?.which_lecture,
             };
             for (let pre of att?.presentStudent) {
               if (String(stu._id) === String(pre.student)) {
@@ -5183,7 +5168,11 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
           }
         }
         for (let avail of stu?.availablity) {
-          dObj[`${avail?.date}`] = avail?.status;
+          if (avail?.which_lecture === "1") {
+            dObj[`${avail?.date}`] = avail?.status;
+          } else {
+            dObj[`${avail?.date} - ${avail?.which_lecture}`] = avail?.status;
+          }
         }
 
         let obj = {
@@ -5200,36 +5189,43 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
             stu?.studentLastName,
           Gender: stu?.studentGender,
           ...dObj,
-          "Total Count": `${stu?.subjectWise?.presentCount} out of ${stu?.subjectWise?.totalCount}`,
+          "Total Count":
+            is_pdf === "YES"
+              ? `${stu?.subjectWise?.presentCount} / ${stu?.subjectWise?.totalCount}`
+              : `${stu?.subjectWise?.presentCount} out of ${stu?.subjectWise?.totalCount}`,
           "Overall Percentage": stu?.subjectWise?.totalPercentage,
         };
         return obj;
       });
 
       if (student?.length > 0) {
-        excel_key = await subject_attendance_json_to_excel(
-          sid,
-          student,
-          "Student Attendance",
-          "SUBJECT_MONTHLY_ATTENDANCE",
-          `montly-of-${subjects?.class?.className ?? ""}`
-        );
+        if (is_pdf === "YES") {
+          let from_date = moment(`${year}-${month}-01`).format("DD/MM/yyyy");
+          let to_date = `${moment(
+            `${year}-${month}-01`
+          )?.daysInMonth()}/${month}/${year}`;
+          excel_key = await subjectAttendanceReport(
+            student,
+            sid,
+            from_date,
+            to_date,
+            "SUBJECT_MONTHLY_ATTENDANCE"
+          );
+        } else {
+          excel_key = await subject_attendance_json_to_excel(
+            sid,
+            student,
+            "Student Attendance",
+            "SUBJECT_MONTHLY_ATTENDANCE",
+            `montly-of-${subjects?.class?.className ?? ""}`
+          );
+        }
       }
       res.status(200).send({
         message: "All month student zip attendance with subject wise",
         excel_key: excel_key,
-        // student_list,
-        // attendance_zip,
-        // subjects,
+        // student: student,
       });
-      // return res.status(200).send({
-      //   message: "All month student zip attendance with subject wise",
-      //   attendance_zip: {
-      //     students: students,
-      //     attendaceMappingDate: attendaceMappingDate,
-      //   },
-      //   access: false,
-      // });
     }
   } catch (e) {
     console.log(e);
@@ -6006,6 +6002,734 @@ exports.getInstituteStaffMarkExcelQuery = async (req, res) => {
       message: "Marked staff attendance",
       all_staff: all_staff,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.cls_attendance_theory_practical_wise_export_quer = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug regarding to call api",
+        access: false,
+      });
+    const {
+      is_type,
+      which_type_list,
+      criteria: queryCriteria,
+      is_pdf,
+    } = req.query;
+    const { from, to } = req.body;
+    var excel_key = "";
+    let criteria = queryCriteria ? +queryCriteria : 75;
+    // subject?.subject_category === "Practical"
+    if (is_type === "CUSTOM") {
+      let custom_date_list = [];
+      custom_date_list = await generate_custom_date_list(from, to);
+      const classes = await Class.findById(cid)
+        .populate({
+          path: "ApproveStudent",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
+        })
+        .populate({
+          path: "subject",
+          populate: {
+            path: "selected_batch_query",
+            select: "class_student_query batchName",
+          },
+        })
+        .populate({
+          path: "subject",
+          populate: {
+            path: "subjectTeacherName",
+            select: "staffFirstName staffMiddleName staffLastName",
+          },
+        })
+        .lean()
+        .exec();
+
+      let theory_subject = [];
+      let pt_subject = [];
+
+      if (classes?.subject?.length > 0) {
+        for (let i = 0; i < classes?.subject?.length; i++) {
+          let sub = classes?.subject[i];
+          let sbt_name = "";
+          sbt_name += `${sub?.selected_batch_query?.batchName} `;
+          sbt_name += sub?.subjectName;
+          let fc_initial = "";
+          if (sub?.subjectTeacherName) {
+            fc_initial += sub?.subjectTeacherName?.staffFirstName?.substr(0, 1);
+            fc_initial += sub?.subjectTeacherName?.staffMiddleName?.substr(
+              0,
+              1
+            );
+            fc_initial += sub?.subjectTeacherName?.staffLastName?.substr(0, 1);
+            fc_initial = fc_initial?.toLocaleUpperCase();
+          }
+          if (
+            (sub?.subject_category === "Theory" ||
+              sub?.subject_category === "Full Class") &&
+            !sub?.selected_batch_query?._id
+          ) {
+            theory_subject.push({
+              sr_number: theory_subject?.length + 1,
+              subjectName: sbt_name,
+              faculty_inintals: fc_initial,
+              session_held: 0,
+              avg_attendance: 0,
+              remark_of_ac_hod: "",
+              remark_verify_authority: "",
+              _id: sub?._id,
+              // optional_student: sub?.optionalStudent,
+              // batch_student: sub?.selected_batch_query?.class_student_query,
+            });
+          } else {
+            pt_subject.push({
+              sr_number: pt_subject?.length + 1,
+              subjectName: sbt_name,
+              faculty_inintals: fc_initial,
+              session_held: 0,
+              avg_attendance: 0,
+              remark_of_ac_hod: "",
+              remark_verify_authority: "",
+              _id: sub?._id,
+              // optional_student: sub?.optionalStudent,
+              // batch_student: sub?.selected_batch_query?.class_student_query,
+            });
+          }
+        }
+      }
+
+      let students = [];
+      if (classes?.ApproveStudent?.length > 0) {
+        for (let stu of classes?.ApproveStudent) {
+          let obj = {
+            ...stu,
+            theory: [],
+            theory_avg: 0,
+            practical_tutorial: [],
+            practical_tutorial_avg: 0,
+          };
+          students.push(obj);
+        }
+      }
+      if (theory_subject?.length > 0) {
+        for (let sbd of theory_subject) {
+          const one_subject = await Subject.findById(sbd?._id)
+            .populate({
+              path: "attendance",
+              match: {
+                attendDate: {
+                  $in: custom_date_list,
+                },
+              },
+              select: "presentTotal absentTotal presentStudent",
+            })
+            .populate({
+              path: "selected_batch_query",
+            });
+
+          let daily_avg = [];
+
+          if (one_subject?.attendance?.length > 0) {
+            for (let att of one_subject?.attendance) {
+              // let d_avg =
+              //   (att?.presentTotal / (att?.presentTotal + att?.absentTotal)) *
+              //   100;
+              let d_avg =
+                att?.presentTotal / (att?.presentTotal + att?.absentTotal);
+              d_avg = d_avg?.toFixed(2);
+              d_avg = +d_avg;
+
+              daily_avg.push(d_avg);
+            }
+          }
+          if (daily_avg?.length > 0) {
+            let daliy_sum = daily_avg?.reduce((accu, val) => (accu += val), 0);
+            let o_avg = (daliy_sum / daily_avg?.length) * 100;
+            o_avg = o_avg?.toPrecision(2);
+            sbd.avg_attendance = +o_avg;
+            sbd.session_held = daily_avg?.length;
+          }
+
+          let ot_student = [];
+          let dt_flag = false;
+          if (one_subject?.selected_batch_query?._id) {
+            ot_student = one_subject?.selected_batch_query?.class_student_query;
+            dt_flag = true;
+          } else {
+            if (one_subject?.optionalStudent?.length > 0) {
+              ot_student = one_subject?.optionalStudent;
+              dt_flag = true;
+            }
+          }
+          if (students?.length > 0 && one_subject?.attendance?.length > 0) {
+            for (let stu of students) {
+              if (dt_flag) {
+                if (ot_student?.length > 0) {
+                  for (let std of ot_student) {
+                    if (`${stu?._id}` === `${std}`) {
+                      let obj = {
+                        present: 0,
+                        total: one_subject?.attendance?.length,
+                        dt_avg: 0,
+                      };
+                      for (let att of one_subject?.attendance) {
+                        if (att?.presentStudent?.length > 0) {
+                          for (let daty of att?.presentStudent) {
+                            if (`${daty?.student}` === `${stu?._id}`) {
+                              obj.present += 1;
+                              break;
+                            }
+                          }
+                        }
+                      }
+                      let d_avg = (obj?.present / obj.total) * 100;
+                      d_avg = d_avg?.toFixed(2);
+                      obj.dt_avg = +d_avg;
+                      stu.theory.push(obj.dt_avg);
+                    }
+                  }
+                }
+              } else {
+                let obj = {
+                  present: 0,
+                  total: one_subject?.attendance?.length,
+                  dt_avg: 0,
+                };
+                for (let att of one_subject?.attendance) {
+                  if (att?.presentStudent?.length > 0) {
+                    for (let daty of att?.presentStudent) {
+                      if (`${daty?.student}` === `${stu?._id}`) {
+                        obj.present += 1;
+                        break;
+                      }
+                    }
+                  }
+                }
+                let d_avg = (obj?.present / obj.total) * 100;
+                d_avg = d_avg?.toFixed(2);
+                obj.dt_avg = +d_avg;
+                stu.theory.push(obj.dt_avg);
+              }
+            }
+          }
+        }
+      }
+      if (pt_subject?.length > 0) {
+        for (let sbd of pt_subject) {
+          const one_subject = await Subject.findById(sbd?._id)
+            .populate({
+              path: "attendance",
+              match: {
+                attendDate: {
+                  $in: custom_date_list,
+                },
+              },
+              select: "presentTotal absentTotal presentStudent",
+            })
+            .populate({
+              path: "selected_batch_query",
+            });
+
+          let daily_avg = [];
+
+          if (one_subject?.attendance?.length > 0) {
+            for (let att of one_subject?.attendance) {
+              // let d_avg =
+              //   (att?.presentTotal / (att?.presentTotal + att?.absentTotal)) *
+              //   100;
+              let d_avg =
+                att?.presentTotal / (att?.presentTotal + att?.absentTotal);
+              d_avg = d_avg?.toFixed(2);
+              d_avg = +d_avg;
+
+              daily_avg.push(d_avg);
+            }
+          }
+          if (daily_avg?.length > 0) {
+            let daliy_sum = daily_avg?.reduce((accu, val) => (accu += val), 0);
+            let o_avg = (daliy_sum / daily_avg?.length) * 100;
+            o_avg = o_avg?.toFixed(2);
+            sbd.avg_attendance = +o_avg;
+            sbd.session_held = daily_avg?.length;
+          }
+
+          let ot_student = [];
+          let dt_flag = false;
+          if (one_subject?.selected_batch_query?._id) {
+            ot_student = one_subject?.selected_batch_query?.class_student_query;
+            dt_flag = true;
+          } else {
+            if (one_subject?.optionalStudent?.length > 0) {
+              ot_student = one_subject?.optionalStudent;
+              dt_flag = true;
+            }
+          }
+          if (students?.length > 0 && one_subject?.attendance?.length > 0) {
+            for (let stu of students) {
+              if (dt_flag) {
+                if (ot_student?.length > 0) {
+                  for (let std of ot_student) {
+                    if (`${stu?._id}` === `${std}`) {
+                      let obj = {
+                        present: 0,
+                        total: one_subject?.attendance?.length,
+                        dt_avg: 0,
+                      };
+                      for (let att of one_subject?.attendance) {
+                        if (att?.presentStudent?.length > 0) {
+                          for (let daty of att?.presentStudent) {
+                            if (`${daty?.student}` === `${stu?._id}`) {
+                              obj.present += 1;
+                              break;
+                            }
+                          }
+                        }
+                      }
+                      let d_avg = (obj?.present / obj.total) * 100;
+                      d_avg = d_avg?.toFixed(2);
+                      obj.dt_avg = +d_avg;
+                      stu.practical_tutorial.push(obj.dt_avg);
+                    }
+                  }
+                }
+              } else {
+                let obj = {
+                  present: 0,
+                  total: one_subject?.attendance?.length,
+                  dt_avg: 0,
+                };
+                for (let att of one_subject?.attendance) {
+                  if (att?.presentStudent?.length > 0) {
+                    for (let daty of att?.presentStudent) {
+                      if (`${daty?.student}` === `${stu?._id}`) {
+                        obj.present += 1;
+                        break;
+                      }
+                    }
+                  }
+                }
+                let d_avg = (obj?.present / obj.total) * 100;
+                d_avg = d_avg?.toFixed(2);
+                obj.dt_avg = +d_avg;
+                stu.practical_tutorial.push(obj.dt_avg);
+              }
+            }
+          }
+        }
+      }
+
+      let poor_attendance = [];
+      if (students?.length > 0) {
+        for (let std of students) {
+          if (std?.theory?.length > 0) {
+            let daliy_sum = std?.theory?.reduce(
+              (accu, val) => (accu += val),
+              0
+            );
+            let o_avg = Math.ceil(daliy_sum / std?.theory?.length);
+            o_avg = o_avg?.toFixed(2);
+            std.theory_avg = +o_avg;
+          }
+          if (std?.practical_tutorial?.length > 0) {
+            let daliy_sum = std?.practical_tutorial?.reduce(
+              (accu, val) => (accu += val),
+              0
+            );
+            let o_avg = Math.ceil(daliy_sum / std?.practical_tutorial?.length);
+            o_avg = o_avg?.toFixed(2);
+            std.practical_tutorial_avg = +o_avg;
+          }
+
+          if (
+            std.theory_avg < criteria ||
+            std.practical_tutorial_avg < criteria
+          ) {
+            poor_attendance.push({
+              name: `${std.studentFirstName ?? ""} ${
+                std.studentMiddleName ?? ""
+              } ${std.studentLastName ?? ""}`,
+              studentROLLNO: std.studentROLLNO,
+              sr_number: poor_attendance?.length + 1,
+              theory_avg: std?.theory_avg,
+              practical_tutorial_avg: std?.practical_tutorial_avg,
+              remark_cc: "",
+              remark_ac_hod: "",
+              remark_hod: "",
+            });
+          }
+        }
+      }
+
+      excel_key = await clsAttendanceTheoryPracticalReport(
+        theory_subject,
+        pt_subject,
+        poor_attendance,
+        cid,
+        from,
+        to,
+        "ALL_THEORY_PRACTICAL_CUSTOM_DATE_ATTENDANCE",
+        "Custom",
+        criteria
+      );
+
+      return res.status(200).send({
+        message: "All Custom Date of student zip attendance",
+        excel_key: excel_key,
+        access: true,
+      });
+    } else if (is_type === "ALL") {
+      const classes = await Class.findById(cid)
+        .populate({
+          path: "ApproveStudent",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
+        })
+        .populate({
+          path: "subject",
+          populate: {
+            path: "selected_batch_query",
+            select: "class_student_query batchName",
+          },
+        })
+        .populate({
+          path: "subject",
+          populate: {
+            path: "subjectTeacherName",
+            select: "staffFirstName staffMiddleName staffLastName",
+          },
+        })
+        .lean()
+        .exec();
+
+      let theory_subject = [];
+      let pt_subject = [];
+
+      if (classes?.subject?.length > 0) {
+        for (let i = 0; i < classes?.subject?.length; i++) {
+          let sub = classes?.subject[i];
+          let sbt_name = "";
+          sbt_name += `${sub?.selected_batch_query?.batchName} `;
+          sbt_name += sub?.subjectName;
+          let fc_initial = "";
+          if (sub?.subjectTeacherName) {
+            fc_initial += sub?.subjectTeacherName?.staffFirstName?.substr(0, 1);
+            fc_initial += sub?.subjectTeacherName?.staffMiddleName?.substr(
+              0,
+              1
+            );
+            fc_initial += sub?.subjectTeacherName?.staffLastName?.substr(0, 1);
+            fc_initial = fc_initial?.toLocaleUpperCase();
+          }
+          if (
+            (sub?.subject_category === "Theory" ||
+              sub?.subject_category === "Full Class") &&
+            !sub?.selected_batch_query?._id
+          ) {
+            theory_subject.push({
+              sr_number: theory_subject?.length + 1,
+              subjectName: sbt_name,
+              faculty_inintals: fc_initial,
+              session_held: 0,
+              avg_attendance: 0,
+              remark_of_ac_hod: "",
+              remark_verify_authority: "",
+              _id: sub?._id,
+              // optional_student: sub?.optionalStudent,
+              // batch_student: sub?.selected_batch_query?.class_student_query,
+            });
+          } else {
+            pt_subject.push({
+              sr_number: pt_subject?.length + 1,
+              subjectName: sbt_name,
+              faculty_inintals: fc_initial,
+              session_held: 0,
+              avg_attendance: 0,
+              remark_of_ac_hod: "",
+              remark_verify_authority: "",
+              _id: sub?._id,
+              // optional_student: sub?.optionalStudent,
+              // batch_student: sub?.selected_batch_query?.class_student_query,
+            });
+          }
+        }
+      }
+
+      let students = [];
+      if (classes?.ApproveStudent?.length > 0) {
+        for (let stu of classes?.ApproveStudent) {
+          let obj = {
+            ...stu,
+            theory: [],
+            theory_avg: 0,
+            practical_tutorial: [],
+            practical_tutorial_avg: 0,
+          };
+          students.push(obj);
+        }
+      }
+
+      if (theory_subject?.length > 0) {
+        for (let sbd of theory_subject) {
+          const one_subject = await Subject.findById(sbd?._id)
+            .populate({
+              path: "attendance",
+              select: "presentTotal absentTotal presentStudent",
+            })
+            .populate({
+              path: "selected_batch_query",
+            });
+
+          let daily_avg = [];
+
+          if (one_subject?.attendance?.length > 0) {
+            for (let att of one_subject?.attendance) {
+              // let d_avg =
+              //   (att?.presentTotal / (att?.presentTotal + att?.absentTotal)) *
+              //   100;
+              let d_avg =
+                att?.presentTotal / (att?.presentTotal + att?.absentTotal);
+              d_avg = d_avg?.toFixed(2);
+              d_avg = +d_avg;
+
+              daily_avg.push(d_avg);
+            }
+          }
+          if (daily_avg?.length > 0) {
+            let daliy_sum = daily_avg?.reduce((accu, val) => (accu += val), 0);
+            let o_avg = (daliy_sum / daily_avg?.length) * 100;
+            o_avg = o_avg?.toPrecision(2);
+            sbd.avg_attendance = +o_avg;
+            sbd.session_held = daily_avg?.length;
+          }
+
+          let ot_student = [];
+          let dt_flag = false;
+          if (one_subject?.selected_batch_query?._id) {
+            ot_student = one_subject?.selected_batch_query?.class_student_query;
+            dt_flag = true;
+          } else {
+            if (one_subject?.optionalStudent?.length > 0) {
+              ot_student = one_subject?.optionalStudent;
+              dt_flag = true;
+            }
+          }
+          if (students?.length > 0 && one_subject?.attendance?.length > 0) {
+            for (let stu of students) {
+              if (dt_flag) {
+                if (ot_student?.length > 0) {
+                  for (let std of ot_student) {
+                    if (`${stu?._id}` === `${std}`) {
+                      let obj = {
+                        present: 0,
+                        total: one_subject?.attendance?.length,
+                        dt_avg: 0,
+                      };
+                      for (let att of one_subject?.attendance) {
+                        if (att?.presentStudent?.length > 0) {
+                          for (let daty of att?.presentStudent) {
+                            if (`${daty?.student}` === `${stu?._id}`) {
+                              obj.present += 1;
+                              break;
+                            }
+                          }
+                        }
+                      }
+                      let d_avg = (obj?.present / obj.total) * 100;
+                      d_avg = d_avg?.toFixed(2);
+                      obj.dt_avg = +d_avg;
+                      stu.theory.push(obj.dt_avg);
+                    }
+                  }
+                }
+              } else {
+                let obj = {
+                  present: 0,
+                  total: one_subject?.attendance?.length,
+                  dt_avg: 0,
+                };
+                for (let att of one_subject?.attendance) {
+                  if (att?.presentStudent?.length > 0) {
+                    for (let daty of att?.presentStudent) {
+                      if (`${daty?.student}` === `${stu?._id}`) {
+                        obj.present += 1;
+                        break;
+                      }
+                    }
+                  }
+                }
+                let d_avg = (obj?.present / obj.total) * 100;
+                d_avg = d_avg?.toFixed(2);
+                obj.dt_avg = +d_avg;
+                stu.theory.push(obj.dt_avg);
+              }
+            }
+          }
+        }
+      }
+      if (pt_subject?.length > 0) {
+        for (let sbd of pt_subject) {
+          const one_subject = await Subject.findById(sbd?._id)
+            .populate({
+              path: "attendance",
+              select: "presentTotal absentTotal presentStudent",
+            })
+            .populate({
+              path: "selected_batch_query",
+            });
+
+          let daily_avg = [];
+
+          if (one_subject?.attendance?.length > 0) {
+            for (let att of one_subject?.attendance) {
+              // let d_avg =
+              //   (att?.presentTotal / (att?.presentTotal + att?.absentTotal)) *
+              //   100;
+              let d_avg =
+                att?.presentTotal / (att?.presentTotal + att?.absentTotal);
+              d_avg = d_avg?.toFixed(2);
+              d_avg = +d_avg;
+
+              daily_avg.push(d_avg);
+            }
+          }
+          if (daily_avg?.length > 0) {
+            let daliy_sum = daily_avg?.reduce((accu, val) => (accu += val), 0);
+            let o_avg = (daliy_sum / daily_avg?.length) * 100;
+            o_avg = o_avg?.toFixed(2);
+            sbd.avg_attendance = +o_avg;
+            sbd.session_held = daily_avg?.length;
+          }
+
+          let ot_student = [];
+          let dt_flag = false;
+          if (one_subject?.selected_batch_query?._id) {
+            ot_student = one_subject?.selected_batch_query?.class_student_query;
+            dt_flag = true;
+          } else {
+            if (one_subject?.optionalStudent?.length > 0) {
+              ot_student = one_subject?.optionalStudent;
+              dt_flag = true;
+            }
+          }
+          if (students?.length > 0 && one_subject?.attendance?.length > 0) {
+            for (let stu of students) {
+              if (dt_flag) {
+                if (ot_student?.length > 0) {
+                  for (let std of ot_student) {
+                    if (`${stu?._id}` === `${std}`) {
+                      let obj = {
+                        present: 0,
+                        total: one_subject?.attendance?.length,
+                        dt_avg: 0,
+                      };
+                      for (let att of one_subject?.attendance) {
+                        if (att?.presentStudent?.length > 0) {
+                          for (let daty of att?.presentStudent) {
+                            if (`${daty?.student}` === `${stu?._id}`) {
+                              obj.present += 1;
+                              break;
+                            }
+                          }
+                        }
+                      }
+                      let d_avg = (obj?.present / obj.total) * 100;
+                      d_avg = d_avg?.toFixed(2);
+                      obj.dt_avg = +d_avg;
+                      stu.practical_tutorial.push(obj.dt_avg);
+                    }
+                  }
+                }
+              } else {
+                let obj = {
+                  present: 0,
+                  total: one_subject?.attendance?.length,
+                  dt_avg: 0,
+                };
+                for (let att of one_subject?.attendance) {
+                  if (att?.presentStudent?.length > 0) {
+                    for (let daty of att?.presentStudent) {
+                      if (`${daty?.student}` === `${stu?._id}`) {
+                        obj.present += 1;
+                        break;
+                      }
+                    }
+                  }
+                }
+                let d_avg = (obj?.present / obj.total) * 100;
+                d_avg = d_avg?.toFixed(2);
+                obj.dt_avg = +d_avg;
+                stu.practical_tutorial.push(obj.dt_avg);
+              }
+            }
+          }
+        }
+      }
+
+      let poor_attendance = [];
+      if (students?.length > 0) {
+        for (let std of students) {
+          if (std?.theory?.length > 0) {
+            let daliy_sum = std?.theory?.reduce(
+              (accu, val) => (accu += val),
+              0
+            );
+            let o_avg = Math.ceil(daliy_sum / std?.theory?.length);
+            o_avg = o_avg?.toFixed(2);
+            std.theory_avg = +o_avg;
+          }
+          if (std?.practical_tutorial?.length > 0) {
+            let daliy_sum = std?.practical_tutorial?.reduce(
+              (accu, val) => (accu += val),
+              0
+            );
+            let o_avg = Math.ceil(daliy_sum / std?.practical_tutorial?.length);
+            o_avg = o_avg?.toFixed(2);
+            std.practical_tutorial_avg = +o_avg;
+          }
+
+          if (
+            std.theory_avg < criteria ||
+            std.practical_tutorial_avg < criteria
+          ) {
+            poor_attendance.push({
+              name: `${std.studentFirstName ?? ""} ${
+                std.studentMiddleName ?? ""
+              } ${std.studentLastName ?? ""}`,
+              studentROLLNO: std.studentROLLNO,
+              sr_number: poor_attendance?.length + 1,
+              theory_avg: std?.theory_avg,
+              practical_tutorial_avg: std?.practical_tutorial_avg,
+              remark_cc: "",
+              remark_ac_hod: "",
+              remark_hod: "",
+            });
+          }
+        }
+      }
+      excel_key = await clsAttendanceTheoryPracticalReport(
+        theory_subject,
+        pt_subject,
+        poor_attendance,
+        cid,
+        from,
+        to,
+        "ALL_THEORY_PRACTICAL_ATTENDANCE",
+        "All",
+        criteria
+      );
+      return res.status(200).send({
+        message: "All student zip attendance wtih all wise",
+        excel_key: excel_key,
+        access: true,
+      });
+    } else {
+    }
   } catch (e) {
     console.log(e);
   }

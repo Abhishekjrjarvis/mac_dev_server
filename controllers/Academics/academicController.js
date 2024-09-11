@@ -4,7 +4,9 @@ const ChapterTopic = require("../../models/Academics/ChapterTopic");
 const SubjectUpdate = require("../../models/SubjectUpdate");
 const { custom_date_time } = require("../../helper/dayTimer");
 const AttendenceDate = require("../../models/AttendenceDate");
-
+const subjectTeachingPlanReport = require("../../scripts/subject/subjectTeachingPlanReport");
+const SubjectMaster = require("../../models/SubjectMaster");
+const moment = require("moment");
 exports.renderOneSubjectAllChapterQuery = async (req, res) => {
   try {
     const { sid } = req.params;
@@ -165,7 +167,7 @@ exports.renderNewOneChapterTopicQuery = async (sid, chapter_array) => {
         var new_chapter_exist = await Chapter.findOne({
           $and: [
             { subject: valid_subject?._id },
-            { chapter_name: { $regex: `${val?.chapter_name}` } },
+            { chapter_name: `${val?.chapter_name}` },
           ],
         });
         if (new_chapter_exist?._id) {
@@ -578,3 +580,148 @@ exports.insertAcademicSubjectQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+//teaching plan action
+
+exports.one_subject_teaching_plan_setting_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug regarding to call api",
+        access: false,
+      });
+    await Subject.findByIdAndUpdate(sid, req.body);
+    res.status(200).send({ message: "Other Setting updated successfully" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.teaching_plan_export_report_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+
+    if (!sid)
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+        access: false,
+      });
+    const { is_pdf } = req.query;
+    let excel_key = null;
+    const subject = await Subject.findById(sid);
+
+    let co_po_map = [];
+    if (subject.subjectMasterName) {
+      const sub_master = await SubjectMaster.findById(subject.subjectMasterName)
+        .populate({
+          path: "department",
+          populate: {
+            path: "po_attainment",
+          },
+          select: "po_attainment",
+        })
+        .populate({
+          path: "co_attainment",
+        })
+        .select("co_attainment po_attainment");
+
+      if (sub_master?._id) {
+        if (
+          sub_master?.co_attainment?.length > 0 &&
+          sub_master?.department?.po_attainment?.length > 0
+        ) {
+          for (let i = 0; i < sub_master?.co_attainment?.length; i++) {
+            let obj = {};
+            if (i === 0) {
+              for (
+                let j = 0;
+                j < sub_master?.department?.po_attainment?.length;
+                j++
+              ) {
+                if (j === 0) {
+                  obj[`po_name`] = "";
+                  obj[`po_name${j}`] =
+                    sub_master?.department?.po_attainment[j]?.attainment_name;
+                } else {
+                  obj[`po_name${j}`] =
+                    sub_master?.department?.po_attainment[j]?.attainment_name;
+                }
+              }
+            } else {
+              for (
+                let j = 0;
+                j < sub_master?.department?.po_attainment?.length;
+                j++
+              ) {
+                if (j === 0) {
+                  obj[`po_name`] =
+                    sub_master?.co_attainment[i - 1]?.attainment_name;
+                } else {
+                  obj[`po_name${j}`] = "";
+                }
+              }
+            }
+            co_po_map.push(obj);
+          }
+        }
+      }
+    }
+
+    let teaching_list = [];
+    if (subject?.chapter?.length > 0) {
+      let count = 1;
+      for (let chId of subject?.chapter) {
+        const chapter = await Chapter.findById(chId);
+        if (chapter?._id) {
+          let cobj = {
+            name: chapter?.chapter_name,
+            topics: [],
+          };
+          if (chapter?.topic?.length > 0) {
+            const topic = await ChapterTopic.find({
+              _id: { $in: chapter.topic },
+            });
+            if (topic?.length > 0) {
+              for (let top of topic) {
+                cobj.topics.push({
+                  lecture_no: count > 9 ? count : `0${count}`,
+                  name: top?.topic_name,
+                  schedule_date: moment(top?.topic_last_date)?.format(
+                    "DD/MM/yyyy"
+                  ),
+                  // schedule_date: moment(top?.topic_last_date)?.format(
+                  //   "DD/MM/yyyy"
+                  // ),
+                  execution_date: moment(top?.execution_date)?.format(
+                    "DD/MM/yyyy"
+                  ),
+                  co: top?.course_outcome,
+                });
+                ++count;
+              }
+            }
+          }
+          teaching_list.push(cobj);
+        }
+      }
+    }
+
+    if (subject?._id) {
+      excel_key = await subjectTeachingPlanReport(
+        teaching_list,
+        co_po_map,
+        sid,
+        "Teaching-Plan"
+      );
+    }
+    return res.status(200).send({
+      message: "Subject Teaching Plan report",
+      excel_key: excel_key,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+// 6687a60ad46d6046083f7ab9

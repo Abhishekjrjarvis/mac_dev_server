@@ -694,4 +694,9 @@ router
   .route("/one/combined/other/fee/:ofid/student/list/export")
   .patch(catchAsync(Finance.renderOneCombinedOtherFeesStudentListExportQuery));
 
+router.patch(
+  "/dublicate/receipt/:fid/query",
+  catchAsync(Finance.finance_receipt_dublicate_query)
+);
+
 module.exports = router;

@@ -4498,11 +4498,11 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      message: "Bug detected: Something went wrong 😡",
-      error,
-      paid: false,
-    });
+    // res.status(500).send({
+    //   message: "Bug detected: Something went wrong 😡",
+    //   error,
+    //   paid: false,
+    // });
   }
 };
 

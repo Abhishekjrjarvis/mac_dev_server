@@ -1719,6 +1719,9 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
           {
             refund_status: "No Refund",
           },
+          {
+            visible_status: "Not Hide",
+          },
           // { student: { $in: sorted_array } },
         ],
       })
@@ -1823,6 +1826,9 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
           },
           {
             refund_status: "No Refund",
+          },
+          {
+            visible_status: "Not Hide",
           },
           // { student: { $in: sorted_array } },
         ],
@@ -3787,6 +3793,9 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
           {
             refund_status: "No Refund",
           },
+          {
+            visible_status: "Not Hide",
+          },
         ],
       })
         .sort({ invoice_count: "1" })
@@ -3886,6 +3895,9 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
           },
           {
             refund_status: "No Refund",
+          },
+          {
+            visible_status: "Not Hide",
           },
         ],
       })
@@ -4144,6 +4156,9 @@ exports.renderFeeHeadsStructureReceiptRePayPriceQuery = async (req, res) => {
           {
             refund_status: "No Refund",
           },
+          {
+            visible_status: "Not Hide",
+          },
         ],
       })
         .sort({ invoice_count: "1" })
@@ -4289,6 +4304,9 @@ exports.renderFeeHeadsStructureReceiptRePayQuery = async (req, res) => {
           },
           {
             refund_status: "No Refund",
+          },
+          {
+            visible_status: "Not Hide",
           },
         ],
       })
@@ -8190,6 +8208,9 @@ exports.renderInternalFeeHeadsStructureReceiptQuery = async (req, res) => {
           {
             receipt_generated_from: "BY_FINANCE_MANAGER",
           },
+          {
+            visible_status: "Not Hide",
+          },
         ],
       })
         .sort({ invoice_count: "1" })
@@ -8252,6 +8273,9 @@ exports.renderInternalFeeHeadsStructureReceiptQuery = async (req, res) => {
           },
           {
             receipt_generated_from: "BY_FINANCE_MANAGER",
+          },
+          {
+            visible_status: "Not Hide",
           },
         ],
       })
@@ -9772,6 +9796,9 @@ exports.renderCancelExportQuery = async (req, res) => {
           {
             refund_status: "Refunded",
           },
+          {
+            visible_status: "Not Hide",
+          },
           // { student: { $in: sorted_array } },
         ],
       })
@@ -9877,6 +9904,9 @@ exports.renderCancelExportQuery = async (req, res) => {
           },
           {
             refund_status: "Refunded",
+          },
+          {
+            visible_status: "Not Hide",
           },
           // { student: { $in: sorted_array } },
         ],
@@ -10171,6 +10201,9 @@ exports.renderDayBookReceipt = async () => {
             },
             {
               refund_status: "No Refund",
+            },
+            {
+              visible_status: "Not Hide",
             },
           ],
         })
@@ -10472,6 +10505,9 @@ exports.renderDayBookPayment = async () => {
             },
             {
               refund_status: "Refunded",
+            },
+            {
+              visible_status: "Not Hide",
             },
           ],
         })
@@ -11193,6 +11229,9 @@ exports.render_daybook_heads_wise = async (req, res) => {
             {
               refund_status: "No Refund",
             },
+            {
+              visible_status: "Not Hide",
+            },
             // { student: { $in: sorted_array } },
           ],
         })
@@ -11245,6 +11284,9 @@ exports.render_daybook_heads_wise = async (req, res) => {
             },
             {
               refund_status: "No Refund",
+            },
+            {
+              visible_status: "Not Hide",
             },
             // { student: { $in: sorted_array } },
           ],
@@ -11302,6 +11344,9 @@ exports.render_daybook_heads_wise = async (req, res) => {
             {
               fee_payment_mode: payment_type,
             },
+            {
+              visible_status: "Not Hide",
+            },
             // { student: { $in: sorted_array } },
           ],
         })
@@ -11341,6 +11386,9 @@ exports.render_daybook_heads_wise = async (req, res) => {
           },
           {
             refund_status: "No Refund",
+          },
+          {
+            visible_status: "Not Hide",
           },
           // { student: { $in: sorted_array } },
         ],
@@ -14371,6 +14419,9 @@ exports.render_other_fees_daybook_heads_wise = async (req, res) => {
           {
             fee_payment_mode: payment_type,
           },
+          {
+            visible_status: "Not Hide",
+          },
           // { student: { $in: sorted_array } },
         ],
       })
@@ -14403,6 +14454,9 @@ exports.render_other_fees_daybook_heads_wise = async (req, res) => {
           },
           {
             refund_status: "No Refund",
+          },
+          {
+            visible_status: "Not Hide",
           },
           // { student: { $in: sorted_array } },
         ],
@@ -14816,6 +14870,9 @@ exports.render_hostel_daybook_heads_wise = async (req, res) => {
             {
               refund_status: "No Refund",
             },
+            {
+              visible_status: "Not Hide",
+            },
             // { student: { $in: sorted_array } },
           ],
         })
@@ -14868,6 +14925,9 @@ exports.render_hostel_daybook_heads_wise = async (req, res) => {
             },
             {
               refund_status: "No Refund",
+            },
+            {
+              visible_status: "Not Hide",
             },
             // { student: { $in: sorted_array } },
           ],
@@ -14925,6 +14985,9 @@ exports.render_hostel_daybook_heads_wise = async (req, res) => {
             {
               fee_payment_mode: payment_type,
             },
+            {
+              visible_status: "Not Hide",
+            },
             // { student: { $in: sorted_array } },
           ],
         })
@@ -14964,6 +15027,9 @@ exports.render_hostel_daybook_heads_wise = async (req, res) => {
           },
           {
             refund_status: "No Refund",
+          },
+          {
+            visible_status: "Not Hide",
           },
           // { student: { $in: sorted_array } },
         ],
@@ -15607,6 +15673,9 @@ exports.render_admin_daybook_heads_wise = async (req, res) => {
               {
                 refund_status: "No Refund",
               },
+              {
+                visible_status: "Not Hide",
+              },
               // { student: { $in: sorted_array } },
             ],
           })
@@ -15659,6 +15728,9 @@ exports.render_admin_daybook_heads_wise = async (req, res) => {
               },
               {
                 refund_status: "No Refund",
+              },
+              {
+                visible_status: "Not Hide",
               },
               // { student: { $in: sorted_array } },
             ],
@@ -15716,6 +15788,9 @@ exports.render_admin_daybook_heads_wise = async (req, res) => {
               {
                 fee_payment_mode: payment_type,
               },
+              {
+                visible_status: "Not Hide",
+              },
               // { student: { $in: sorted_array } },
             ],
           })
@@ -15755,6 +15830,9 @@ exports.render_admin_daybook_heads_wise = async (req, res) => {
             },
             {
               refund_status: "No Refund",
+            },
+            {
+              visible_status: "Not Hide",
             },
             // { student: { $in: sorted_array } },
           ],
@@ -16320,6 +16398,9 @@ exports.render_admin_daybook_heads_wise = async (req, res) => {
               {
                 refund_status: "No Refund",
               },
+              {
+                visible_status: "Not Hide",
+              },
               // { student: { $in: sorted_array } },
             ],
           })
@@ -16372,6 +16453,9 @@ exports.render_admin_daybook_heads_wise = async (req, res) => {
               },
               {
                 refund_status: "No Refund",
+              },
+              {
+                visible_status: "Not Hide",
               },
               // { student: { $in: sorted_array } },
             ],
@@ -16429,6 +16513,9 @@ exports.render_admin_daybook_heads_wise = async (req, res) => {
               {
                 fee_payment_mode: payment_type,
               },
+              {
+                visible_status: "Not Hide",
+              },
               // { student: { $in: sorted_array } },
             ],
           })
@@ -16468,6 +16555,9 @@ exports.render_admin_daybook_heads_wise = async (req, res) => {
             },
             {
               refund_status: "No Refund",
+            },
+            {
+              visible_status: "Not Hide",
             },
             // { student: { $in: sorted_array } },
           ],
@@ -16947,7 +17037,7 @@ exports.renderAllStudentApplicableOutStandingStudentQuery = async (
         ...result,
       });
       result = [];
-      console.log("GEN")
+      console.log("GEN");
     }
     await json_to_excel_student_applicable_outstanding_query(
       excel_list,

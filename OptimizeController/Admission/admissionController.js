@@ -4464,7 +4464,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         apply.applicationName
       } ${price}`,
       notifySender: adminIns?.admissionAdminHead?.user,
-      notifyReceiver: user._id,
+      notifyReceiever: user._id,
       notifyType: "Student",
       notifyPublisher: student._id,
       notifyByAdmissionPhoto: adminIns._id,
@@ -4497,12 +4497,12 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       await apply.save();
     }
   } catch (error) {
-    console.log(error)
-    res.status(500).send({
-      message: "Bug detected: Something went wrong 😡",
-      error,
-      paid: false,
-    });
+    console.log(error);
+    // res.status(500).send({
+    //   message: "Bug detected: Something went wrong 😡",
+    //   error,
+    //   paid: false,
+    // });
   }
 };
 

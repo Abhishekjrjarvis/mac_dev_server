@@ -2391,6 +2391,7 @@ exports.subject_one_expriment_detail_query = async (req, res) => {
           for (let dt of subject?.attendance?.[0]?.presentStudent) {
             if (`${dt?.student}` === `${student?._id}`) {
               att_marks = 3;
+              break;
             }
           }
         }
@@ -2546,10 +2547,14 @@ exports.continuous_evaluation_all_experiment_marks_query = async (req, res) => {
         .lean()
         .exec();
       let ot = stu_obj[ob];
-      let per = Math.ceil((ot?.mark / ot?.outof) * 100);
-      per = +per;
-      per = Math.ceil((per * ct_ev?.experiment_outof) / 100);
-      per = +per;
+      let per = 0;
+      if (ot?.mark > 0) {
+        per = Math.ceil((ot?.mark / ot?.outof) * 100);
+        per = +per;
+        per = Math.ceil((per * ct_ev?.experiment_outof) / 100);
+        per = +per;
+      }
+
       students.push({
         ...student,
         secured_marks: per,
@@ -2667,15 +2672,18 @@ exports.continuous_evaluation_attendance_marks_query = async (req, res) => {
           }
           obj.subjectWise.totalCount += 1;
         }
-        obj.subjectWise.totalPercentage = Math.ceil(
-          (obj.subjectWise.presentCount * 100) / obj.subjectWise.totalCount
-        );
+        if (obj.subjectWise.totalCount > 0) {
+          obj.subjectWise.totalPercentage = Math.ceil(
+            (obj.subjectWise.presentCount * 100) / obj.subjectWise.totalCount
+          );
 
-        obj.subjectWise.totalPercentage = +obj.subjectWise.totalPercentage;
-        obj.attendance_mark = Math.ceil(
-          (obj.subjectWise.totalPercentage * ct_ev.attendance_outof) / 100
-        );
-        obj.attendance_mark = +obj.attendance_mark;
+          obj.subjectWise.totalPercentage = +obj.subjectWise.totalPercentage;
+          obj.attendance_mark = Math.ceil(
+            (obj.subjectWise.totalPercentage * ct_ev.attendance_outof) / 100
+          );
+          obj.attendance_mark = +obj.attendance_mark;
+        }
+
         students.push(obj);
       }
     }
@@ -2762,16 +2770,18 @@ exports.continuous_evaluation_assignment_marks_query = async (req, res) => {
               obj.assignment_total_mark += ass?.assignment_total_mark;
             }
           }
+          if (obj.assignment_total_mark > 0 && obj.assignment_mark > 0) {
+            obj.assignment_mark = Math.ceil(
+              (obj.assignment_mark * 100) / obj.assignment_total_mark
+            );
+            obj.assignment_mark = +obj.assignment_mark;
 
-          obj.assignment_mark = Math.ceil(
-            (obj.assignment_mark * 100) / obj.assignment_total_mark
-          );
-          obj.assignment_mark = +obj.assignment_mark;
+            obj.assignment_mark = Math.ceil(
+              (obj.assignment_mark * ct_ev.assignment_outof) / 100
+            );
+            obj.assignment_mark = +obj.assignment_mark;
+          }
 
-          obj.assignment_mark = Math.ceil(
-            (obj.assignment_mark * ct_ev.assignment_outof) / 100
-          );
-          obj.assignment_mark = +obj.assignment_mark;
           students.push(obj);
         }
       }
@@ -2964,6 +2974,67 @@ exports.continuous_evaluation_total_marks_query = async (req, res) => {
       access: true,
       students: students,
     });
+
+    if (students?.length > 0) {
+      ct_ev.student_overall_data = ct_ev?.student_data;
+      for (let stu of students) {
+        for (let std of ct_ev?.student_overall_data) {
+          if (`${stu?._id}` === `${std?.student}`) {
+            std.total = stu?.total_mark;
+            break;
+          }
+        }
+      }
+      await ct_ev.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_continuous_evaluation_all_university_marks_query = async (
+  req,
+  res
+) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const ct_ex = await SubjectContinuousEvaluation.findById(ceid);
+
+    let students = [];
+
+    if (ct_ex?.student_list?.length > 0) {
+      for (let stu of ct_ex?.student_list) {
+        const student = await Student.findById(stu)
+          .select(
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO studentProfilePhoto"
+          )
+          .lean()
+          .exec();
+
+        let marks = 0;
+        if (ct_ex?.student_marks_university?.length > 0) {
+          for (let dt of ct_ex?.student_marks_university) {
+            if (`${dt?.student}` === `${student?._id}`) {
+              marks = dt?.marks;
+              break;
+            }
+          }
+        }
+        students.push({
+          ...student,
+          marks: marks,
+        });
+      }
+    }
+    res.status(200).send({
+      message: "Continuous Evaluation university marks updated successfully.",
+      students: students,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -2976,7 +3047,7 @@ exports.subject_continuous_evaluation_university_marks_query = async (
   try {
     const { ceid } = req.params;
     const { marks_list } = req.body;
-    if (!exid) {
+    if (!ceid) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
       });
@@ -2990,6 +3061,66 @@ exports.subject_continuous_evaluation_university_marks_query = async (
       message: "Continuous Evaluation university marks updated successfully.",
       access: true,
     });
+
+    if (marks_list?.length > 0) {
+      for (let stu of marks_list) {
+        for (let std of ct_ex?.student_overall_data) {
+          if (`${stu?.student}` === `${std?.student}`) {
+            std.by_university = stu?.marks;
+            break;
+          }
+        }
+      }
+      await ct_ex.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_continuous_evaluation_all_university_seats_query = async (
+  req,
+  res
+) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const ct_ex = await SubjectContinuousEvaluation.findById(ceid);
+
+    let students = [];
+
+    if (ct_ex?.student_list?.length > 0) {
+      for (let stu of ct_ex?.student_list) {
+        const student = await Student.findById(stu)
+          .select(
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO studentProfilePhoto"
+          )
+          .lean()
+          .exec();
+
+        let seat_no = "";
+        if (ct_ex?.student_university_seat?.length > 0) {
+          for (let dt of ct_ex?.student_university_seat) {
+            if (`${dt?.student}` === `${student?._id}`) {
+              seat_no = dt?.seat_no;
+              break;
+            }
+          }
+        }
+        students.push({
+          ...student,
+          seat_no: seat_no,
+        });
+      }
+    }
+    res.status(200).send({
+      message: "Continuous Evaluation university marks updated successfully.",
+      students: students,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -3002,7 +3133,7 @@ exports.subject_continuous_evaluation_university_seats_query = async (
   try {
     const { ceid } = req.params;
     const { seat_list } = req.body;
-    if (!exid) {
+    if (!ceid) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
       });
@@ -3052,22 +3183,9 @@ exports.continuous_evaluation_final_marks_query = async (req, res) => {
 
         for (let odt of ct_ev?.student_overall_data) {
           if (`${stu?._id}` === `${odt?.student}`) {
-            if (ct_ev?.experiment_toggle) {
-              obj.final_mark += odt?.all_exp;
-              obj.column += 1;
-            }
-            if (ct_ev?.attendance_toggle) {
-              obj.final_mark += odt?.attendance;
-              obj.column += 1;
-            }
-            if (ct_ev?.cls_test_toggle) {
-              obj.final_mark += odt?.cls_test;
-              obj.column += 1;
-            }
-            if (ct_ev?.assignment_toggle) {
-              obj.final_mark += odt?.assingment;
-              obj.column += 1;
-            }
+            obj.final_mark += odt?.total;
+            obj.column += 1;
+
             let ut_marks = odt?.by_university;
             ut_marks = Math.ceil((ut_marks * 100) / ct_ev.university_outof);
             ut_marks = +ut_marks;

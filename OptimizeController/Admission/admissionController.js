@@ -15057,7 +15057,8 @@ exports.render_one_student_form_section_query = async (req, res) => {
       if (
         `${nums?.section_key}` === "undertakings" ||
         `${nums?.section_key}` === "antiragging_affidavit" ||
-        `${nums?.section_key}` === "antiragging_affidavit_parents"
+        `${nums?.section_key}` === "antiragging_affidavit_parents" ||
+        `${nums?.section_status}` === "UNDERTAKING"
       ) {
         nums.form_checklist = [];
       }
@@ -18360,6 +18361,78 @@ exports.promote_currrent_year_institute_query = async (req, res) => {
       not_count: not_specific_category_student_list?.length,
       exist_count: specific_category_student_list?.length,
       specific_category_student_list: specific_category_student_list,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_new_student_dynamic_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params;
+    const { form } = req?.body;
+    if (!fcid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var iaf = await InstituteApplicationForm.findById({ _id: fcid });
+    for (var val of form) {
+      let fc = new FormChecklist({
+        form_checklist_key: `${val?.section_key}_${new Date()?.getTime()}`,
+        form_checklist_name: `${val?.section_name}`,
+        form_checklist_visibility: true,
+        form_checklist_placeholder: `Enter ${val?.section_name}`,
+        form_checklist_lable: "",
+        form_checklist_typo: "CHECKBOX",
+        form_checklist_sample: "I Agree",
+        form_checklist_typo_option_pl: ["I Agree"],
+      });
+      await fc.save();
+      iaf.form_section.push({
+        section_name: val?.section_name,
+        section_visibilty: val?.section_visibilty,
+        section_key: val?.section_key,
+        section_type: val?.section_type,
+        section_status: "UNDERTAKING",
+        form_checklist: [...fc],
+      });
+    }
+    await iaf.save();
+    res.status(200).send({
+      message: "Explore One Dynamic Application Form Section Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_edit_student_dynamic_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params;
+    const { fsid, section_name, section_key, section_visibilty, section_type } =
+      req?.body;
+    if (!fcid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var iaf = await InstituteApplicationForm.findById({ _id: fcid });
+    for (var val of iaf?.form_section) {
+      if (`${val?._id}` === `${fsid}`) {
+        val.section_name = section_name ? section_name : val?.section_name;
+        val.section_key = section_key ? section_key : val?.section_key;
+        val.section_visibilty = section_visibilty;
+        val.section_type = section_type;
+      }
+    }
+    await iaf.save();
+    res.status(200).send({
+      message: "Edit One Application Form Section + Nested Checklist Query",
+      access: true,
     });
   } catch (e) {
     console.log(e);

@@ -4293,12 +4293,24 @@ exports.paidRemainingFeeStudent = async (req, res) => {
             nsid
           );
         } else {
-          await update_fee_head_query_redesign(
-            student,
-            newReceipt.fee_payment_amount,
-            apply._id,
-            newReceipt
-          );
+          if (
+            type === "Installment Remain" &&
+            nestCard?.remaining_fee == nestCard?.applicable_fee
+          ) {
+            await set_fee_head_query_redesign(
+              student,
+              newReceipt.fee_payment_amount,
+              apply._id,
+              newReceipt
+            );
+          } else {
+            await update_fee_head_query_redesign(
+              student,
+              newReceipt.fee_payment_amount,
+              apply._id,
+              newReceipt
+            );
+          }
         }
       }
 

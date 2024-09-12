@@ -169,7 +169,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         .text(
           `${
             receiptData?.student?.studentClass?.classTitle
-              ? receiptData?.student?.studentClass?.classTitle
+              ? receiptData?.student?.studentClass?.classTitle?.substring(0, 30)
               : ""
           }`,
           {
@@ -658,8 +658,11 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         .text(
           `${
             receiptData?.student?.studentClass?.classTitle
-              ? receiptData?.student?.studentClass?.classTitle
-              : receiptData?.application?.applicationMaster?.className
+              ? receiptData?.student?.studentClass?.classTitle?.substring(0, 30)
+              : receiptData?.application?.applicationMaster?.className?.substring(
+                  0,
+                  30
+                )
           }`,
           {
             indent: pageWidth / 2 + 110,
@@ -1152,7 +1155,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         .text(
           `${
             receiptData?.student?.studentClass?.classTitle
-              ? receiptData?.student?.studentClass?.classTitle
+              ? receiptData?.student?.studentClass?.classTitle?.substring(0, 30)
               : ""
           }`,
           {
@@ -1635,8 +1638,11 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         .text(
           `${
             receiptData?.student?.studentClass?.classTitle
-              ? receiptData?.student?.studentClass?.classTitle
-              : receiptData?.application?.applicationMaster?.className
+              ? receiptData?.student?.studentClass?.classTitle?.substring(0, 30)
+              : receiptData?.application?.applicationMaster?.className?.substring(
+                  0,
+                  30
+                )
           }`,
           {
             indent: pageWidth / 2 + 110,
@@ -2124,7 +2130,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         .text(
           `${
             receiptData?.student?.studentClass?.classTitle
-              ? receiptData?.student?.studentClass?.classTitle
+              ? receiptData?.student?.studentClass?.classTitle?.substring(0, 30)
               : ""
           }`,
           {
@@ -2636,8 +2642,14 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
           .text(
             `${
               receiptData?.student?.studentClass?.classTitle
-                ? receiptData?.student?.studentClass?.classTitle
-                : receiptData?.application?.applicationMaster?.className
+                ? receiptData?.student?.studentClass?.classTitle?.substring(
+                    0,
+                    30
+                  )
+                : receiptData?.application?.applicationMaster?.className?.substring(
+                    0,
+                    30
+                  )
             }`,
             {
               indent: pageWidth / 2 + 110,

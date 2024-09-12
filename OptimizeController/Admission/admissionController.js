@@ -9716,7 +9716,11 @@ exports.renderDropFeesStudentQuery = async (req, res) => {
         access: true,
       });
 
-    var valid_remain_card = await RemainingList.findById({ _id: rid });
+    var valid_remain_card = await RemainingList.findById({ _id: rid }).populate(
+      {
+        path: "applicable_card government_card",
+      }
+    );
     var valid_app = await NewApplication.findById({
       _id: `${valid_remain_card?.appId}`,
     });
@@ -9725,7 +9729,9 @@ exports.renderDropFeesStudentQuery = async (req, res) => {
     });
     var valid_student = await Student.findById({ _id: sid });
     var drop_status =
-      valid_remain_card?.applicable_fee === valid_remain_card?.remaining_fee
+      valid_remain_card?.applicable_fee ===
+      valid_remain_card?.applicable_card?.remaining_fee +
+        valid_remain_card?.government_card?.remaining_fee
         ? true
         : false;
     if (drop_status) {

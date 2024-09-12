@@ -4238,7 +4238,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     order.fee_receipt = newReceipt?._id;
-
+    fee_receipt_count_query(institute, newReceipt, order);
     // Fee adjustments
     const nestCard = await NestedCard.findById(card_id);
     if (remainingFeeLists?.applicable_card?._id == card_id) {

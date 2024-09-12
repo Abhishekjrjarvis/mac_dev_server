@@ -4171,196 +4171,174 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       pay_remain,
       nsid,
       staffId,
+      transaction_date,
+      fee_payment_mode,
     } = req.body;
     const { receipt_status } = req.query;
-    if (!sid && !aid && !appId && !amount && !mode && !type)
-      return res.status(200).send({
-        message: "Their is a bug need to fix immediately 😡",
+
+    // Input validation
+    if (!sid || !aid || !appId || !amount || !mode || !type) {
+      return res.status(400).send({
+        message: "Bug detected: Invalid input parameters 😡",
         paid: false,
       });
-    var price = parseInt(amount);
-    var extra_price = 0;
-    const s_admin = await Admin.findById({
-      _id: `${process.env.S_ADMIN_ID}`,
-    }).select("invoice_count");
-    var admin_ins = await Admission.findById({ _id: aid }).populate({
-      path: "admissionAdminHead",
-      select: "user",
-    });
-    var student = await Student.findById({ _id: sid }).populate({
-      path: "fee_structure",
-    });
-    var institute = await InstituteAdmin.findById({
-      _id: `${admin_ins.institute}`,
-    });
-    var finance = await Finance.findById({
-      _id: `${institute?.financeDepart[0]}`,
-    });
-    var user = await User.findById({ _id: `${student.user}` }).select(
+    }
+
+    const price = parseInt(amount);
+    const sAdmin = await Admin.findById(process.env.S_ADMIN_ID).select(
+      "invoice_count"
+    );
+    const adminIns = await Admission.findById(aid).populate(
+      "admissionAdminHead",
+      "user"
+    );
+    const student = await Student.findById(sid).populate("fee_structure");
+    const institute = await InstituteAdmin.findById(adminIns.institute);
+    const finance = await Finance.findById(institute?.financeDepart[0]);
+    const user = await User.findById(student.user).select(
       "deviceToken payment_history activity_tab"
     );
-    var apply = await NewApplication.findById({ _id: appId });
-    const new_receipt = new FeeReceipt({ ...req.body });
-    new_receipt.student = student?._id;
-    new_receipt.application = apply?._id;
-    new_receipt.finance = finance?._id;
-    new_receipt.receipt_generated_from = "BY_ADMISSION";
-    new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
-    new_receipt.receipt_status = receipt_status
-      ? receipt_status
-      : "Already Generated";
-    const notify = new StudentNotification({});
-    var all_status = await Status.find({
-      $and: [
-        { applicationId: apply?._id },
-        { student: student?._id },
-        { payment_status: "Not Paid" },
-      ],
+    const apply = await NewApplication.findById(appId);
+    const remainingFeeLists = await RemainingList.findById(rid).populate(
+      "applicable_card government_card"
+    );
+
+    // Create and initialize receipt
+    const newReceipt = new FeeReceipt({
+      ...req.body,
+      student: student?._id,
+      application: apply?._id,
+      finance: finance?._id,
+      receipt_generated_from: "BY_ADMISSION",
+      fee_transaction_date: new Date(transaction_date),
+      receipt_status: receipt_status || "Already Generated",
+      fee_structure: remainingFeeLists?.fee_structure,
     });
-    var remaining_fee_lists = await RemainingList.findById({ _id: rid })
-      .populate({
-        path: "applicable_card",
-      })
-      .populate({
-        path: "government_card",
-      });
-    new_receipt.fee_structure = remaining_fee_lists?.fee_structure;
-    remaining_fee_lists.fee_receipts.push(new_receipt?._id);
-    var order = new OrderPayment({});
-    order.payment_module_type = "Admission Fees";
-    order.payment_to_end_user_id = institute._id;
-    order.payment_by_end_user_id = user._id;
-    order.payment_module_id = apply._id;
-    order.payment_amount = extra_price;
-    order.payment_status = "Captured";
-    order.payment_flag_to = "Credit";
-    order.payment_flag_by = "Debit";
-    order.payment_mode = mode;
-    order.payment_admission = apply._id;
-    order.payment_from = student._id;
-    order.payment_student = student?._id;
-    order.payment_student_name = student?.valid_full_name;
-    order.payment_student_gr = student?.studentGRNO;
-    fee_receipt_count_query(institute, new_receipt, order);
+
+    remainingFeeLists.fee_receipts.push(newReceipt._id);
+
+    // Order creation
+    const order = new OrderPayment({
+      payment_module_type: "Admission Fees",
+      payment_to_end_user_id: institute._id,
+      payment_by_end_user_id: user._id,
+      payment_module_id: apply._id,
+      payment_amount: price,
+      payment_status: "Captured",
+      payment_flag_to: "Credit",
+      payment_flag_by: "Debit",
+      payment_mode: mode,
+      payment_admission: apply._id,
+      payment_from: student._id,
+      payment_student: student?._id,
+      payment_student_name: student?.valid_full_name,
+      payment_student_gr: student?.studentGRNO,
+    });
+
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
-    order.fee_receipt = new_receipt?._id;
-    if (`${remaining_fee_lists?.applicable_card?._id}` === `${card_id}`) {
-      var nest_card = await NestedCard.findById({ _id: `${card_id}` });
-      remaining_fee_lists.active_payment_type = `${type}`;
-      nest_card.active_payment_type = `${type}`;
-      remaining_fee_lists.paid_fee += price;
-      nest_card.paid_fee += price;
+    order.fee_receipt = newReceipt?._id;
 
-      if (remaining_fee_lists?.remaining_fee >= price) {
-        remaining_fee_lists.remaining_fee -= price;
-      } else {
-        remaining_fee_lists.remaining_fee = 0;
-      }
-      if (nest_card?.remaining_fee >= price) {
-        nest_card.remaining_fee -= price;
-      } else {
-        nest_card.remaining_fee = 0;
-      }
-      if (student.admissionRemainFeeCount >= price) {
-        student.admissionRemainFeeCount -= price;
-      }
-      if (apply.remainingFee >= price) {
-        apply.remainingFee -= price;
-      }
-      if (admin_ins.remainingFeeCount >= price) {
-        admin_ins.remainingFeeCount -= price;
-      }
-      var valid_one_time_fees =
-        student?.fee_structure?.applicable_fees - price == 0 ? true : false;
-      if (valid_one_time_fees) {
-        admin_ins.remainingFee.pull(student._id);
-      } else {
-        // nest_card.remaining_array.push({
-        //   remainAmount: student?.fee_structure?.applicable_fees - price,
-        //   appId: apply._id,
-        //   status: "Not Paid",
-        //   instituteId: institute._id,
-        //   installmentValue: "One Time Fees Remain",
-        //   isEnable: true,
-        // });
-      }
-      var extra_price = 0;
-      await nest_card.save();
+    // Fee adjustments
+    const nestCard = await NestedCard.findById(card_id);
+    if (remainingFeeLists?.applicable_card?._id === card_id) {
+      remainingFeeLists.active_payment_type = type;
+      nestCard.active_payment_type = type;
+      remainingFeeLists.paid_fee += price;
+      nestCard.paid_fee += price;
+
+      remainingFeeLists.remaining_fee = Math.max(
+        0,
+        remainingFeeLists.remaining_fee - price
+      );
+      nestCard.remaining_fee = Math.max(0, nestCard.remaining_fee - price);
+      student.admissionRemainFeeCount = Math.max(
+        0,
+        student.admissionRemainFeeCount - price
+      );
+      apply.remainingFee = Math.max(0, apply.remainingFee - price);
+      adminIns.remainingFeeCount = Math.max(
+        0,
+        adminIns.remainingFeeCount - price
+      );
+
       if (type === "First Installment") {
-        if (
-          remaining_fee_lists?.is_splited &&
-          remaining_fee_lists?.is_splited === "Yes"
-        ) {
-          console.log("Enter Split");
+        // Split fee head logic
+        if (remainingFeeLists?.is_splited === "Yes") {
           await set_fee_head_query_redesign_split(
             student,
-            new_receipt?.fee_payment_amount,
-            apply?._id,
-            new_receipt,
-            nest_card,
+            newReceipt.fee_payment_amount,
+            apply._id,
+            newReceipt,
+            nestCard,
             nsid
           );
-          console.log("Exit Split");
         } else {
           await set_fee_head_query_redesign(
             student,
-            new_receipt?.fee_payment_amount,
-            apply?._id,
-            new_receipt
+            newReceipt.fee_payment_amount,
+            apply._id,
+            newReceipt
           );
         }
       } else {
-        if (
-          remaining_fee_lists?.is_splited &&
-          remaining_fee_lists?.is_splited === "Yes"
-        ) {
-          console.log("Update Split");
+        // Update fee head logic
+        if (remainingFeeLists?.is_splited === "Yes") {
           await update_fee_head_query_redesign_split(
             student,
-            new_receipt?.fee_payment_amount,
-            apply?._id,
-            new_receipt,
-            nest_card,
+            newReceipt.fee_payment_amount,
+            apply._id,
+            newReceipt,
+            nestCard,
             nsid
           );
-          console.log("Update Split");
         } else {
-          await update_fee_head_query_redesign(
-            student,
-            new_receipt?.fee_payment_amount,
-            apply?._id,
-            new_receipt
-          );
+          if (
+            type === "Installment Remain" &&
+            nestCard?.remaining_fee == nestCard?.applicable_fee
+          ) {
+            await set_fee_head_query_redesign(
+              student,
+              newReceipt.fee_payment_amount,
+              apply._id,
+              newReceipt
+            );
+          } else {
+            await update_fee_head_query_redesign(
+              student,
+              newReceipt.fee_payment_amount,
+              apply._id,
+              newReceipt
+            );
+          }
         }
-        // await update_fee_head_query(student, price, apply, new_receipt);
       }
-      if (req?.body?.fee_payment_mode === "Exempted/Unrecovered") {
+
+      if (fee_payment_mode === "Exempted/Unrecovered") {
         await exempt_installment(
-          req?.body?.fee_payment_mode,
-          remaining_fee_lists,
+          fee_payment_mode,
+          remainingFeeLists,
           student,
-          admin_ins,
+          adminIns,
           apply,
           finance,
           price,
-          new_receipt,
-          nest_card
+          newReceipt,
+          nestCard
         );
       } else {
-        console.log("Enter");
         if (pay_remain) {
           await all_installment_paid(
-            remaining_fee_lists,
-            student?.fee_structure,
+            remainingFeeLists,
+            student.fee_structure,
             mode,
             price,
-            admin_ins,
+            adminIns,
             student,
-            new_receipt,
+            newReceipt,
             apply,
             institute,
-            nest_card,
+            nestCard,
             type
           );
         } else {
@@ -4369,195 +4347,161 @@ exports.paidRemainingFeeStudent = async (req, res) => {
             student,
             mode,
             price,
-            admin_ins,
-            student?.fee_structure,
-            remaining_fee_lists,
-            new_receipt,
+            adminIns,
+            student.fee_structure,
+            remainingFeeLists,
+            newReceipt,
             apply,
             institute,
-            nest_card
+            nestCard
           );
         }
-        console.log("Exit");
-        if (
-          `${new_receipt?.fee_payment_mode}` === "Demand Draft" ||
-          `${new_receipt?.fee_payment_mode}` === "Cheque"
-        ) {
-          if (admin_ins?.request_array?.includes(`${new_receipt?._id}`)) {
-          } else {
-            admin_ins.request_array.push(new_receipt?._id);
-            admin_ins.fee_receipt_request.push({
-              receipt: new_receipt?._id,
-              demand_cheque_status: "Requested",
-              nested_card: nest_card?._id,
-              nest_remain: raid,
-            });
-            admin_ins.fee_receipt_request_count += 1;
-          }
-        }
       }
-      if (type === "First Installment") {
-        console.log("Enter");
-        for (var val of apply?.FeeCollectionApplication) {
-          if (`${val?.student}` === `${student?._id}`) {
-            apply.confirmedApplication.push({
-              student: student._id,
-              payment_status: mode,
-              install_type: "First Installment Paid",
-              fee_remain: nest_card.remaining_fee ?? 0,
-            });
-            apply.confirmCount += 1;
-            apply.FeeCollectionApplication.pull(val?._id);
-            if (apply?.fee_collect_count > 0) {
-              apply.fee_collect_count -= 1;
-            }
-          }
-        }
-        for (var val of admin_ins?.FeeCollectionApplication) {
-          if (`${val?.student}` === `${student?._id}`) {
-            admin_ins.confirmedApplication_query.push({
-              student: student._id,
-              payment_status: mode,
-              install_type: "First Installment Paid",
-              fee_remain: nest_card.remaining_fee ?? 0,
-              application: apply?._id,
-            });
-            admin_ins.FeeCollectionApplication.pull(val?._id);
-          }
-        }
+
+      if (mode === "Demand Draft" || mode === "Cheque") {
+        adminIns.fee_receipt_request.push({
+          receipt: newReceipt._id,
+          demand_cheque_status: "Requested",
+          nested_card: nestCard._id,
+          nest_remain: raid,
+        });
       }
     }
+
+    // Fee distribution and balance updates
     if (staffId) {
       student.student_application_obj.push({
-        app: apply?._id,
+        app: apply._id,
         staff: staffId,
         flow: "fee_collect_by",
       });
     }
+
     student.admissionPaidFeeCount += price;
+    const feeUpdate = price; // No extra_price defined initially
+
     if (mode === "Online") {
-      admin_ins.onlineFee += price + extra_price;
-      apply.onlineFee += price + extra_price;
-      apply.collectedFeeCount += price + extra_price;
-      finance.financeTotalBalance += price + extra_price;
-      finance.financeAdmissionBalance += price + extra_price;
-      finance.financeBankBalance += price + extra_price;
+      adminIns.onlineFee += feeUpdate;
+      apply.onlineFee += feeUpdate;
+      apply.collectedFeeCount += feeUpdate;
+      finance.financeTotalBalance += feeUpdate;
+      finance.financeAdmissionBalance += feeUpdate;
+      finance.financeBankBalance += feeUpdate;
     } else if (mode === "Offline") {
-      admin_ins.offlineFee += price + extra_price;
-      apply.offlineFee += price + extra_price;
-      apply.collectedFeeCount += price + extra_price;
-      admin_ins.collected_fee += price + extra_price;
-      finance.financeTotalBalance += price + extra_price;
-      finance.financeAdmissionBalance += price + extra_price;
-      finance.financeSubmitBalance += price + extra_price;
-    } else {
+      adminIns.offlineFee += feeUpdate;
+      apply.offlineFee += feeUpdate;
+      apply.collectedFeeCount += feeUpdate;
+      adminIns.collected_fee += feeUpdate;
+      finance.financeTotalBalance += feeUpdate;
+      finance.financeAdmissionBalance += feeUpdate;
+      finance.financeSubmitBalance += feeUpdate;
     }
-    // await set_fee_head_query(student, price, apply);
+
     await lookup_applicable_grant(
-      req?.body?.fee_payment_mode,
+      fee_payment_mode,
       price,
-      remaining_fee_lists,
-      new_receipt
+      remainingFeeLists,
+      newReceipt
     );
-    for (var stu of student.paidFeeList) {
-      if (`${stu.appId}` === `${apply._id}`) {
-        stu.paidAmount += price;
-      }
-    }
-    for (var val of all_status) {
+
+    // Update status of unpaid applications to "Paid"
+    const allStatus = await Status.find({
+      $and: [
+        { applicationId: apply._id },
+        { student: student._id },
+        { payment_status: "Not Paid" },
+      ],
+    });
+
+    for (let val of allStatus) {
       val.payment_status = "Paid";
-      val.fee_receipt = new_receipt?._id;
+      val.fee_receipt = newReceipt._id;
       await val.save();
     }
+
     await Promise.all([
-      admin_ins.save(),
+      adminIns.save(),
       student.save(),
       apply.save(),
       finance.save(),
       institute.save(),
       order.save(),
-      s_admin.save(),
-      remaining_fee_lists.save(),
-      new_receipt.save(),
+      sAdmin.save(),
+      remainingFeeLists.save(),
+      newReceipt.save(),
     ]);
+
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",
       paid: true,
     });
-    var is_refund =
-      remaining_fee_lists?.paid_fee - remaining_fee_lists?.applicable_fee;
-    if (is_refund > 0) {
-      const filter_student_refund = admin_ins?.refundFeeList?.filter((stu) => {
-        if (`${stu.student}` === `${student?._id}`) return stu;
-      });
-      if (filter_student_refund?.length > 0) {
-        for (var data of filter_student_refund) {
-          data.refund += is_refund;
-          admin_ins.refundCount += is_refund;
-        }
+
+    // Handle refund logic if overpayment
+    const isRefund =
+      remainingFeeLists.paid_fee - remainingFeeLists.applicable_fee;
+    if (isRefund > 0) {
+      const refundEntry = adminIns.refundFeeList.find(
+        (stu) => `${stu.student}` === `${student._id}`
+      );
+      if (refundEntry) {
+        refundEntry.refund += isRefund;
+        adminIns.refundCount += isRefund;
       } else {
-        admin_ins.refundFeeList.push({
-          student: student?._id,
-          refund: is_refund,
+        adminIns.refundFeeList.push({
+          student: student._id,
+          refund: isRefund,
         });
-        admin_ins.refundCount += is_refund;
+        adminIns.refundCount += isRefund;
       }
+      await adminIns.save();
     }
-    await admin_ins.save();
-    notify.notifyContent = `${student.studentFirstName} ${
-      student.studentMiddleName ? `${student.studentMiddleName} ` : ""
-    } ${student.studentLastName} your transaction is successfull for ${
-      apply?.applicationName
-    } ${price}`;
-    notify.notifySender = admin_ins?.admissionAdminHead?.user;
-    notify.notifyReceiever = user._id;
-    notify.notifyType = "Student";
-    notify.notifyPublisher = student._id;
+
+    // Notification
+    const notify = new StudentNotification({
+      notifyContent: `${student.studentFirstName} ${
+        student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+      } ${student.studentLastName} your transaction is successful for ${
+        apply.applicationName
+      } ${price}`,
+      notifySender: adminIns?.admissionAdminHead?.user,
+      notifyReceiver: user._id,
+      notifyType: "Student",
+      notifyPublisher: student._id,
+      notifyByAdmissionPhoto: adminIns._id,
+      notifyCategory: "Remain Fees",
+      redirectIndex: 18,
+    });
     user.activity_tab.push(notify._id);
-    notify.notifyByAdmissionPhoto = admin_ins._id;
-    notify.notifyCategory = "Remain Fees";
-    notify.redirectIndex = 18;
-    invokeMemberTabNotification(
-      "Admission Status",
-      `Payment Installment paid Successfully `,
-      "Application Status",
-      user._id,
-      user.deviceToken
-    );
+
     await Promise.all([user.save(), notify.save()]);
-    if (apply?.allottedApplication?.length > 0) {
-      apply?.allottedApplication.forEach((ele) => {
+
+    if (apply.allottedApplication.length > 0) {
+      apply.allottedApplication.forEach((ele) => {
         if (`${ele.student}` === `${student._id}`) {
-          // ele.fee_remain = ele.fee_remain >= price ? ele.fee_remain - price : 0;
           ele.paid_status = "Paid";
           ele.second_pay_mode = mode;
         }
       });
       await apply.save();
     }
-    if (apply?.confirmedApplication?.length > 0) {
-      apply?.confirmedApplication.forEach((ele) => {
+
+    if (apply.confirmedApplication.length > 0) {
+      apply.confirmedApplication.forEach((ele) => {
         if (`${ele.student}` === `${student._id}`) {
           ele.fee_remain =
-            req?.body?.fee_payment_mode === "Exempted/Unrecovered"
+            fee_payment_mode === "Exempted/Unrecovered"
               ? 0
-              : ele.fee_remain >= price
-              ? ele.fee_remain - price
-              : 0;
-          ele.paid_status = "Paid";
-          ele.second_pay_mode = mode;
+              : Math.max(0, apply.remainingFee - price);
         }
       });
       await apply.save();
     }
-    for (let ele of nest_card?.remaining_array) {
-      if (ele?.remainAmount <= 0) {
-        nest_card?.remaining_array?.pull(ele?._id);
-      }
-    }
-    await nest_card.save();
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    res.status(500).send({
+      message: "Bug detected: Something went wrong 😡",
+      error,
+      paid: false,
+    });
   }
 };
 
@@ -14678,124 +14622,88 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
   try {
     const { nid, rid } = req?.params;
     const { fid } = req?.body;
-    if (!nid && !rid)
+    if (!nid && !rid) {
       return res.status(200).send({
-        message: "Their is a bug need to fixed immediately",
+        message: "There is a bug that needs to be fixed immediately",
         access: false,
       });
+    }
 
-    var nest = await NestedCard.findById({ _id: nid });
-    var new_fees = await RemainingList.findById({
+    const nest = await NestedCard.findById({ _id: nid });
+    const newFees = await RemainingList.findById({
       _id: `${nest?.parent_card}`,
     });
     const finance = await Finance.findById({ _id: fid });
-    for (var ele of nest?.remaining_array) {
-      if (`${ele?._id}` === `${rid}`) {
-        if (nest?.paid_fee >= nest?.applicable_fee) {
-          const logs = new DeleteLogs({});
-          if (ele?.fee_receipt) {
-            var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt });
-            fees.visible_status = "Hide";
-            await fees.save();
-          }
-          if (fees?.order_history) {
-            const order = await OrderPayment.findById({
-              _id: fees?.order_history,
-            });
-            order.payment_visible_status = "Hide";
-            await order.save();
-          }
-          logs.fee_receipt = ele?.fee_receipt;
-          logs.nested_card = nest?._id;
-          ele.status = "Not Paid";
-          ele.installmentValue =
-            ele.installmentValue === "All Installment Paid" ||
-            ele.installmentValue === "All Installment Paid"
-              ? "Installment Remain"
-              : ele.installmentValue;
-          ele.mode = "";
-          ele.fee_receipt = null;
-          if (nest?.paid_fee >= ele?.remainAmount) {
-            nest.paid_fee -= ele?.remainAmount;
-          }
-          nest.remaining_fee += ele?.remainAmount;
-          if (new_fees?.paid_fee >= ele?.remainAmount) {
-            new_fees.paid_fee -= ele?.remainAmount;
-          }
-          new_fees.remaining_fee += ele?.remainAmount;
-          finance.delete_logs.push(logs?._id);
-          nest?.remaining_array.pull(ele?._id);
-          await logs.save();
-          if (nest?.remaining_fee > 0) {
-            nest.remaining_array.push({
-              installmentValue: "Installment Remain",
-              status: "Not Paid",
-              isEnable: true,
-              appId: new_fees?.appId,
-              instituteId: new_fees?.institute,
-              remainAmount: nest?.remaining_fee,
-            });
-          }
-        } else {
-          const logs = new DeleteLogs({});
-          if (ele?.fee_receipt) {
-            var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt });
-            fees.visible_status = "Hide";
-            await fees.save();
-          }
-          if (fees?.order_history) {
-            const order = await OrderPayment.findById({
-              _id: fees?.order_history,
-            });
-            order.payment_visible_status = "Hide";
-            await order.save();
-          }
-          logs.fee_receipt = ele?.fee_receipt;
-          logs.nested_card = nest?._id;
-          ele.status = "Not Paid";
-          ele.installmentValue =
-            ele.installmentValue === "All Installment Paid" ||
-            ele.installmentValue === "All Installment Paid"
-              ? "Installment Remain"
-              : ele.installmentValue;
-          ele.mode = "";
-          ele.fee_receipt = null;
-          if (nest?.paid_fee >= ele?.remainAmount) {
-            nest.paid_fee -= ele?.remainAmount;
-          }
-          nest.remaining_fee += ele?.remainAmount;
-          if (new_fees?.paid_fee >= ele?.remainAmount) {
-            new_fees.paid_fee -= ele?.remainAmount;
-          }
-          new_fees.remaining_fee += ele?.remainAmount;
-          finance.delete_logs.push(logs?._id);
-          nest?.remaining_array.pull(ele?._id);
-          await logs.save();
+
+    if (!nest || !newFees || !finance) {
+      return res.status(404).send({ message: "Data not found", access: false });
+    }
+
+    const updateLogsAndReceipts = async (ele, nest, newFees, finance) => {
+      const logs = new DeleteLogs({});
+      if (ele?.fee_receipt) {
+        const fees = await FeeReceipt.findById({ _id: ele?.fee_receipt });
+        const order = await OrderPayment.findOne({ fee_receipt: fees?._id });
+        if (fees && order) {
+          order.payment_visible_status = "Hide";
+          fees.visible_status = "Hide";
+          await Promise.all([order.save(), fees.save()]);
         }
+        logs.fee_receipt = ele?.fee_receipt;
+      }
+
+      logs.nested_card = nest?._id;
+      ele.status = "Not Paid";
+      ele.installmentValue =
+        ele.installmentValue === "All Installment Paid"
+          ? "Installment Remain"
+          : ele.installmentValue;
+      ele.mode = "";
+      ele.fee_receipt = null;
+
+      const remainAmount = ele?.remainAmount || 0;
+      nest.paid_fee = Math.max(0, nest.paid_fee - remainAmount);
+      nest.remaining_fee += remainAmount;
+
+      newFees.paid_fee = Math.max(0, newFees.paid_fee - remainAmount);
+      newFees.remaining_fee += remainAmount;
+
+      finance.delete_logs.push(logs?._id);
+      nest?.remaining_array.pull(ele?._id);
+      await logs.save();
+    };
+
+    for (const ele of nest?.remaining_array || []) {
+      if (`${ele?._id}` === `${rid}`) {
+        await updateLogsAndReceipts(ele, nest, newFees, finance);
+
         if (nest?.remaining_fee > 0) {
-          console.log("Enter");
+          const newInstallment = {
+            installmentValue: "Installment Remain",
+            status: "Not Paid",
+            isEnable: true,
+            appId: newFees?.appId,
+            instituteId: newFees?.institute,
+            remainAmount: nest?.remaining_fee,
+          };
+
           if (ele?.status === "Not Paid") {
             ele.remainAmount += nest?.remaining_fee;
           } else {
-            console.log("Enter Else");
-            nest.remaining_array.push({
-              installmentValue: "Installment Remain",
-              status: "Not Paid",
-              isEnable: true,
-              appId: new_fees?.appId,
-              instituteId: new_fees?.institute,
-              remainAmount: nest?.remaining_fee,
-            });
+            nest.remaining_array.push(newInstallment);
           }
         }
       }
     }
-    await Promise.all([nest.save(), new_fees.save(), finance.save()]);
+
+    await Promise.all([nest.save(), newFees.save(), finance.save()]);
+
     res
       .status(200)
-      .send({ message: "I Think you press the wrong button", access: true });
+      .send({ message: "I think you pressed the wrong button", access: true });
   } catch (e) {
-    console.log(e);
+    console.error(e);
+    res.status(500).send({ message: "Internal Server Error", error: e });
   }
 };
 

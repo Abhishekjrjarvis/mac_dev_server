@@ -103,6 +103,9 @@ const render_other_fees_daybook_heads_wise = async (
           {
             fee_payment_mode: payment_type,
           },
+          {
+            visible_status: "Not Hide",
+          },
           // { student: { $in: sorted_array } },
         ],
       })
@@ -135,6 +138,9 @@ const render_other_fees_daybook_heads_wise = async (
           },
           {
             refund_status: "No Refund",
+          },
+          {
+            visible_status: "Not Hide",
           },
           // { student: { $in: sorted_array } },
         ],

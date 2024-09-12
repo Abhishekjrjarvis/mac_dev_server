@@ -1080,4 +1080,14 @@ router.patch(
 
 router.patch("/duplicate/fees/:id", catchAsync(Admission.duplicate_fees_query));
 
+router.post(
+  "/new/dynamic/form/:fcid/section/student/query",
+  catchAsync(Admission.render_new_student_dynamic_form_section_query)
+);
+
+router.patch(
+  "/edit/dynamic/form/:fcid/section/query",
+  catchAsync(Admission.render_edit_student_dynamic_form_section_query)
+);
+
 module.exports = router;

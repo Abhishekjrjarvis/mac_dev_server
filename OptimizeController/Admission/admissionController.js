@@ -4497,6 +4497,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       await apply.save();
     }
   } catch (error) {
+    console.log(error)
     res.status(500).send({
       message: "Bug detected: Something went wrong 😡",
       error,

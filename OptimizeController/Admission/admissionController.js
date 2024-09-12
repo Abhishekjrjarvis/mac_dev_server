@@ -4241,7 +4241,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
 
     // Fee adjustments
     const nestCard = await NestedCard.findById(card_id);
-    if (remainingFeeLists?.applicable_card?._id === card_id) {
+    if (remainingFeeLists?.applicable_card?._id == card_id) {
       console.log("ENT")
       remainingFeeLists.active_payment_type = type;
       nestCard.active_payment_type = type;

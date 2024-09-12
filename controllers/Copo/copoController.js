@@ -2525,7 +2525,7 @@ exports.continuous_evaluation_all_experiment_marks_query = async (req, res) => {
           for (let stu of exp?.student_list) {
             if (stu_obj[stu?.student]) {
               stu_obj[stu?.student]["mark"] += stu?.total_marks;
-              stu_obj[stu?.student]["outof"] += stu?.outof;
+              stu_obj[stu?.student]["outof"] += exp?.outof;
             } else {
               stu_obj[stu?.student] = {
                 mark: stu?.total_marks,
@@ -2538,7 +2538,6 @@ exports.continuous_evaluation_all_experiment_marks_query = async (req, res) => {
     }
 
     let students = [];
-
     for (let ob in stu_obj) {
       const student = await Student.findById(ob)
         .select(
@@ -2936,6 +2935,7 @@ exports.continuous_evaluation_total_marks_query = async (req, res) => {
         let obj = {
           ...stu,
           total_mark: 0,
+          total_mark_outof: 0,
           column: 0,
         };
 
@@ -2943,28 +2943,50 @@ exports.continuous_evaluation_total_marks_query = async (req, res) => {
           if (`${stu?._id}` === `${odt?.student}`) {
             if (ct_ev?.experiment_toggle) {
               obj.total_mark += odt?.all_exp;
+              obj.total_mark_outof += ct_ev?.experiment_outof;
               obj.column += 1;
             }
             if (ct_ev?.attendance_toggle) {
               obj.total_mark += odt?.attendance;
+              obj.total_mark_outof += ct_ev?.attendance_outof;
+
               obj.column += 1;
             }
             if (ct_ev?.cls_test_toggle) {
               obj.total_mark += odt?.cls_test;
+              obj.total_mark_outof += ct_ev?.cls_test_outof;
+
               obj.column += 1;
             }
             if (ct_ev?.assignment_toggle) {
               obj.total_mark += odt?.assingment;
+              obj.total_mark_outof += ct_ev?.assignment_outof;
+
               obj.column += 1;
             }
             break;
           }
         }
-        obj.total_mark = Math.ceil(obj.total_mark / obj.column);
-        obj.total_mark = +obj.total_mark;
+        // obj.total_mark = Math.ceil(obj.total_mark / obj.column);
+        // obj.total_mark = +obj.total_mark;
+        // console.log("total_mark =>", obj.total_mark, obj.total_mark_outof);
 
+        obj.total_mark = Math.ceil(
+          (obj.total_mark / obj.total_mark_outof) * 100
+        );
+        // console.log("total_mark => after manu in per", obj.total_mark);
         obj.total_mark = Math.ceil((obj.total_mark * ct_ev.total_outof) / 100);
+
+        // obj.total_mark = Math.ceil((obj.total_mark / ct_ev.total_outof) * 100);
+        // console.log("total_mark => after manu in per", obj.total_mark);
+        // obj.total_mark = Math.ceil((obj.total_mark * ct_ev.total_outof) / 100);
+
         obj.total_mark = +obj.total_mark;
+        // console.log(
+        //   "total_mark => after manu",
+        //   obj.total_mark,
+        //   ct_ev.total_outof
+        // );
         students.push(obj);
       }
     }

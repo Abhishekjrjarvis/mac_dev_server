@@ -5596,7 +5596,11 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
           ? ref?.government_card?.paid_fee -
             ref?.government_card?.applicable_fee
           : 0;
-      if (ref?.applicable_fee === ref?.remaining_fee) {
+      if (
+        ref?.applicable_fee ===
+        ref?.applicable_card?.remaining_fee +
+          ref?.government_card?.remaining_fee
+      ) {
         ref.drop_status = "Enable";
       } else {
       }
@@ -18189,6 +18193,72 @@ exports.one_student_documents_pending_query = async (req, res) => {
     }
     await student.save();
     res.status(200).send({ message: "Explore One Student Docs", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.duplicate_fees_query = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: id }).select(
+      "admissionDepart ApproveStudent"
+    );
+
+    const all_app = await NewApplication.find({
+      $and: [
+        { admissionAdmin: { $in: ins?.admissionDepart?.[0] } },
+        { applicationStatus: "Ongoing" },
+        { applicationTypeStatus: "Normal Application" },
+      ],
+    });
+    let nums = [];
+    for (let ele of all_app) {
+      if (ele?.confirmedApplication?.length > 0) {
+        for (let cls of ele?.confirmedApplication) {
+          nums.push(cls?.student);
+        }
+      }
+      if (ele?.reviewApplication?.length > 0) {
+        for (let cls of ele?.reviewApplication) {
+          nums.push(cls);
+        }
+      }
+    }
+    nums.push(...ins?.ApproveStudent);
+    const all_student = await Student.find({ _id: { $in: nums } }).select(
+      "studentFirstName studentMiddleName studentLastName studentProfilePhoto studentGRNO fee_structure"
+    );
+
+    let cls = [];
+    for (let ele of all_student) {
+      if (ele?.fee_structure) {
+        const all = await RemainingList.find({
+          $and: [
+            { fee_structure: `${ele?.fee_structure}` },
+            { student: ele?._id },
+          ],
+        });
+        console.log(all?.length);
+        if (all?.length > 1) {
+          cls.push(ele);
+        } else {
+          // console.log(ele?.studentMiddleName);
+        }
+      }
+    }
+    res.status(200).send({
+      message: "Explore All Duplicate Fees",
+      access: true,
+      cls,
+      count: cls?.length,
+    });
   } catch (e) {
     console.log(e);
   }

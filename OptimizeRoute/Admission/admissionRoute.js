@@ -1078,4 +1078,6 @@ router.patch(
   catchAsync(Admission.one_student_documents_pending_query)
 );
 
+router.patch("/duplicate/fees/:id", catchAsync(Admission.duplicate_fees_query));
+
 module.exports = router;

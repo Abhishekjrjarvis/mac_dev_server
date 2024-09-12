@@ -86,8 +86,8 @@ const assignmentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  assignment_total_mark: { type: Number },
-  assignment_obtain_mark: { type: Number },
+  assignment_total_mark: { type: Number, default: 0 },
+  assignment_obtain_mark: { type: Number, default: 0 },
 });
 
 module.exports = mongoose.model("StudentAssignment", assignmentSchema);

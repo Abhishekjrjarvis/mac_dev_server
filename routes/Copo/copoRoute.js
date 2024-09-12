@@ -165,9 +165,51 @@ router
 router
   .route("/continuous/evaluation/attendance/:ceid/mark/query")
   .get(catchAsync(copoController.continuous_evaluation_attendance_marks_query));
-
 router
   .route("/continuous/evaluation/assignment/:ceid/mark/query")
   .get(catchAsync(copoController.continuous_evaluation_assignment_marks_query));
+
+router
+  .route("/continuous/evaluation/clstest/:ceid/mark/query")
+  .get(catchAsync(copoController.continuous_evaluation_cls_test_marks_query));
+router
+  .route("/continuous/evaluation/total/:ceid/mark/query")
+  .get(catchAsync(copoController.continuous_evaluation_total_marks_query));
+
+router
+  .route("/continuous/evaluation/university/:ceid/mark/query")
+  .get(
+    catchAsync(
+      copoController.subject_continuous_evaluation_all_university_marks_query
+    )
+  );
+
+router
+  .route("/continuous/evaluation/marks/by/university/:ceid/query")
+  .patch(
+    catchAsync(
+      copoController.subject_continuous_evaluation_university_marks_query
+    )
+  );
+
+router
+  .route("/continuous/evaluation/seat/:ceid/list/query")
+  .get(
+    catchAsync(
+      copoController.subject_continuous_evaluation_all_university_seats_query
+    )
+  );
+
+router
+  .route("/continuous/evaluation/seat/update/:ceid/query")
+  .patch(
+    catchAsync(
+      copoController.subject_continuous_evaluation_university_seats_query
+    )
+  );
+
+router
+  .route("/continuous/evaluation/final/:ceid/mark/query")
+  .get(catchAsync(copoController.continuous_evaluation_final_marks_query));
 
 module.exports = router;

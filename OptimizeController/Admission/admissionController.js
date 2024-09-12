@@ -4242,7 +4242,17 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     // Fee adjustments
     const nestCard = await NestedCard.findById(card_id);
     if (remainingFeeLists?.applicable_card?._id == card_id) {
-      console.log("ENT")
+      if (
+        type === "Installment Remain" &&
+        nestCard?.remaining_fee == nestCard?.applicable_fee
+      ) {
+        await set_fee_head_query_redesign(
+          student,
+          newReceipt.fee_payment_amount,
+          apply._id,
+          newReceipt
+        );
+      }
       remainingFeeLists.active_payment_type = type;
       nestCard.active_payment_type = type;
       remainingFeeLists.paid_fee += price;
@@ -4294,24 +4304,12 @@ exports.paidRemainingFeeStudent = async (req, res) => {
             nsid
           );
         } else {
-          if (
-            type === "Installment Remain" &&
-            nestCard?.remaining_fee == nestCard?.applicable_fee
-          ) {
-            await set_fee_head_query_redesign(
-              student,
-              newReceipt.fee_payment_amount,
-              apply._id,
-              newReceipt
-            );
-          } else {
-            await update_fee_head_query_redesign(
-              student,
-              newReceipt.fee_payment_amount,
-              apply._id,
-              newReceipt
-            );
-          }
+          await update_fee_head_query_redesign(
+            student,
+            newReceipt.fee_payment_amount,
+            apply._id,
+            newReceipt
+          );
         }
       }
 
@@ -14624,88 +14622,118 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
   try {
     const { nid, rid } = req?.params;
     const { fid } = req?.body;
-    if (!nid && !rid) {
+    if (!nid && !rid)
       return res.status(200).send({
-        message: "There is a bug that needs to be fixed immediately",
+        message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    }
 
-    const nest = await NestedCard.findById({ _id: nid });
-    const newFees = await RemainingList.findById({
+    var nest = await NestedCard.findById({ _id: nid });
+    var new_fees = await RemainingList.findById({
       _id: `${nest?.parent_card}`,
     });
     const finance = await Finance.findById({ _id: fid });
-
-    if (!nest || !newFees || !finance) {
-      return res.status(404).send({ message: "Data not found", access: false });
-    }
-
-    const updateLogsAndReceipts = async (ele, nest, newFees, finance) => {
-      const logs = new DeleteLogs({});
-      if (ele?.fee_receipt) {
-        const fees = await FeeReceipt.findById({ _id: ele?.fee_receipt });
-        const order = await OrderPayment.findOne({ fee_receipt: fees?._id });
-        if (fees && order) {
-          order.payment_visible_status = "Hide";
-          fees.visible_status = "Hide";
-          await Promise.all([order.save(), fees.save()]);
-        }
-        logs.fee_receipt = ele?.fee_receipt;
-      }
-
-      logs.nested_card = nest?._id;
-      ele.status = "Not Paid";
-      ele.installmentValue =
-        ele.installmentValue === "All Installment Paid"
-          ? "Installment Remain"
-          : ele.installmentValue;
-      ele.mode = "";
-      ele.fee_receipt = null;
-
-      const remainAmount = ele?.remainAmount || 0;
-      nest.paid_fee = Math.max(0, nest.paid_fee - remainAmount);
-      nest.remaining_fee += remainAmount;
-
-      newFees.paid_fee = Math.max(0, newFees.paid_fee - remainAmount);
-      newFees.remaining_fee += remainAmount;
-
-      finance.delete_logs.push(logs?._id);
-      nest?.remaining_array.pull(ele?._id);
-      await logs.save();
-    };
-
-    for (const ele of nest?.remaining_array || []) {
+    for (var ele of nest?.remaining_array) {
       if (`${ele?._id}` === `${rid}`) {
-        await updateLogsAndReceipts(ele, nest, newFees, finance);
-
+        if (nest?.paid_fee >= nest?.applicable_fee) {
+          const logs = new DeleteLogs({});
+          if (ele?.fee_receipt) {
+            var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt });
+            const order = await OrderPayment.findOne({
+              fee_receipt: fees?._id,
+            });
+            order.payment_visible_status = "Hide";
+            fees.visible_status = "Hide";
+            await Promise.all([order.save(), fees.save()]);
+          }
+          logs.fee_receipt = ele?.fee_receipt;
+          logs.nested_card = nest?._id;
+          ele.status = "Not Paid";
+          ele.installmentValue =
+            ele.installmentValue === "All Installment Paid" ||
+            ele.installmentValue === "All Installment Paid"
+              ? "Installment Remain"
+              : ele.installmentValue;
+          ele.mode = "";
+          ele.fee_receipt = null;
+          if (nest?.paid_fee >= ele?.remainAmount) {
+            nest.paid_fee -= ele?.remainAmount;
+          }
+          nest.remaining_fee += ele?.remainAmount;
+          if (new_fees?.paid_fee >= ele?.remainAmount) {
+            new_fees.paid_fee -= ele?.remainAmount;
+          }
+          new_fees.remaining_fee += ele?.remainAmount;
+          finance.delete_logs.push(logs?._id);
+          nest?.remaining_array.pull(ele?._id);
+          await logs.save();
+          if (nest?.remaining_fee > 0) {
+            nest.remaining_array.push({
+              installmentValue: "Installment Remain",
+              status: "Not Paid",
+              isEnable: true,
+              appId: new_fees?.appId,
+              instituteId: new_fees?.institute,
+              remainAmount: nest?.remaining_fee,
+            });
+          }
+        } else {
+          const logs = new DeleteLogs({});
+          if (ele?.fee_receipt) {
+            var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt });
+            const order = await OrderPayment.findOne({
+              fee_receipt: fees?._id,
+            });
+            order.payment_visible_status = "Hide";
+            fees.visible_status = "Hide";
+            await Promise.all([order.save(), fees.save()]);
+          }
+          logs.fee_receipt = ele?.fee_receipt;
+          logs.nested_card = nest?._id;
+          ele.status = "Not Paid";
+          ele.installmentValue =
+            ele.installmentValue === "All Installment Paid" ||
+            ele.installmentValue === "All Installment Paid"
+              ? "Installment Remain"
+              : ele.installmentValue;
+          ele.mode = "";
+          ele.fee_receipt = null;
+          if (nest?.paid_fee >= ele?.remainAmount) {
+            nest.paid_fee -= ele?.remainAmount;
+          }
+          nest.remaining_fee += ele?.remainAmount;
+          if (new_fees?.paid_fee >= ele?.remainAmount) {
+            new_fees.paid_fee -= ele?.remainAmount;
+          }
+          new_fees.remaining_fee += ele?.remainAmount;
+          finance.delete_logs.push(logs?._id);
+          nest?.remaining_array.pull(ele?._id);
+          await logs.save();
+        }
         if (nest?.remaining_fee > 0) {
-          const newInstallment = {
-            installmentValue: "Installment Remain",
-            status: "Not Paid",
-            isEnable: true,
-            appId: newFees?.appId,
-            instituteId: newFees?.institute,
-            remainAmount: nest?.remaining_fee,
-          };
-
+          console.log("Enter");
           if (ele?.status === "Not Paid") {
             ele.remainAmount += nest?.remaining_fee;
           } else {
-            nest.remaining_array.push(newInstallment);
+            console.log("Enter Else");
+            nest.remaining_array.push({
+              installmentValue: "Installment Remain",
+              status: "Not Paid",
+              isEnable: true,
+              appId: new_fees?.appId,
+              instituteId: new_fees?.institute,
+              remainAmount: nest?.remaining_fee,
+            });
           }
         }
       }
     }
-
-    await Promise.all([nest.save(), newFees.save(), finance.save()]);
-
+    await Promise.all([nest.save(), new_fees.save(), finance.save()]);
     res
       .status(200)
-      .send({ message: "I think you pressed the wrong button", access: true });
+      .send({ message: "I Think you press the wrong button", access: true });
   } catch (e) {
-    console.error(e);
-    res.status(500).send({ message: "Internal Server Error", error: e });
+    console.log(e);
   }
 };
 

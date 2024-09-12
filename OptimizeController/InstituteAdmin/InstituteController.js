@@ -1498,16 +1498,26 @@ exports.retrieveApproveStudentList = async (req, res) => {
     var student_ins = await InstituteAdmin.findById({ _id: id }).select(
       "ApproveStudent insName gr_initials pending_fee_custom_filter admissionDepart"
     );
-    // const all_app = await NewApplication.find({
-    //   $and: [
-    //     { admissionAdmin: student_ins?.admissionDepart?.[0] },
-    //     { applicationStatus: "Ongoing" },
-    //     { applicationTypeStatus: "Normal Application" },
-    //   ],
-    // });
+    const all_app = await NewApplication.find({
+      $and: [
+        { admissionAdmin: student_ins?.admissionDepart?.[0] },
+        { applicationStatus: "Ongoing" },
+        { applicationTypeStatus: "Normal Application" },
+      ],
+    }).select("confirmedApplication reviewApplication");
+    let nums = [];
+    for (let ele of all_app) {
+      for (let cls of ele?.confirmedApplication) {
+        nums.push(cls?.student);
+      }
+      for (let cls of ele?.reviewApplication) {
+        nums.push(cls);
+      }
+    }
+    nums.push(...student_ins?.ApproveStudent);
     if (search) {
       var studentIns = await Student.find({
-        $and: [{ _id: { $in: student_ins?.ApproveStudent } }],
+        $and: [{ _id: { $in: nums } }],
         $or: [
           { studentFirstName: { $regex: `${search}`, $options: "i" } },
           { studentMiddleName: { $regex: `${search}`, $options: "i" } },
@@ -1538,7 +1548,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
         });
     } else {
       var studentIns = await Student.find({
-        _id: { $in: student_ins?.ApproveStudent },
+        _id: { $in: nums },
       })
         .limit(limit)
         .skip(skip)

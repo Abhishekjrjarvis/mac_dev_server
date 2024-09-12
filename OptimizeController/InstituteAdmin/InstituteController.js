@@ -1507,11 +1507,15 @@ exports.retrieveApproveStudentList = async (req, res) => {
     }).select("confirmedApplication reviewApplication");
     let nums = [];
     for (let ele of all_app) {
-      for (let cls of ele?.confirmedApplication) {
-        nums.push(cls?.student);
+      if (ele?.confirmedApplication?.length > 0) {
+        for (let cls of ele?.confirmedApplication) {
+          nums.push(cls?.student);
+        }
       }
-      for (let cls of ele?.reviewApplication) {
-        nums.push(cls);
+      if (ele?.reviewApplication?.length > 0) {
+        for (let cls of ele?.reviewApplication) {
+          nums.push(cls);
+        }
       }
     }
     nums.push(...student_ins?.ApproveStudent);

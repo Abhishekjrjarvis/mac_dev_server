@@ -1230,6 +1230,12 @@ const studentSchema = new mongoose.Schema({
   studentFName: { type: String },
   studentMName: { type: String },
   studentLName: { type: String },
+  other_fee_receipt: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeReceipt",
+    },
+  ],
 });
 const Student = mongoose.model("Student", studentSchema);
 

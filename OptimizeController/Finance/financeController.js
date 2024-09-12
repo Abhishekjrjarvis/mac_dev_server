@@ -6847,6 +6847,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
             fee_receipt: new_receipt?._id,
             status: "Paid",
           });
+          stu.other_fee_receipt.push(new_receipt?._id);
           for (let ele of o_f?.fees_heads) {
             new_receipt.fee_heads.push({
               head_id: ele?._id,
@@ -7166,6 +7167,7 @@ exports.renderNewOtherFeesNonExistingQuery = async (req, res) => {
         });
       }
       o_f.fee_receipt = new_receipt?._id;
+      o_f.multiple_fee_receipt.push(new_receipt?._id);
       // user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
       await Promise.all([institute.save(), new_receipt.save(), order.save()]);
@@ -8067,6 +8069,7 @@ exports.renderNewOneOtherFeesAddStudentQuery = async (req, res) => {
           fee_receipt: new_receipt?._id,
           status: "Paid",
         });
+        stu.other_fee_receipt.push(new_receipt?._id);
         for (let ele of o_f?.fees_heads) {
           new_receipt.fee_heads.push({
             head_id: ele?._id,

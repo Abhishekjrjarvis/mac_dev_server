@@ -18390,7 +18390,7 @@ exports.render_new_student_dynamic_form_section_query = async (req, res) => {
         section_key: val?.section_key,
         section_type: val?.section_type,
         section_status: "UNDERTAKING",
-        form_checklist: [...fc],
+        form_checklist: [fc],
       });
     }
     await iaf.save();

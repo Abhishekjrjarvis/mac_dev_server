@@ -266,7 +266,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto certificate_issued_count insAffiliated",
+          "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto certificate_issued_count insAffiliated is_dublicate_bonafide",
       });
     student.studentReason = reason;
     student.student_bona_message = student_bona_message;
@@ -5160,6 +5160,27 @@ exports.customAmountStudentOtherFeeReceiptQuery = async (req, res) => {
       message: "Miscellaneous Fee receipt amount changes.",
       count: all_fee_receipt?.length,
       all_fee_receipt: all_fee_receipt,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.certificate_bonafide_dublicate_query = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { is_dublicate_bonafide } = req.body;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const institute = await InstituteAdmin.findById(id);
+    institute.is_dublicate_bonafide = is_dublicate_bonafide;
+    await institute.save();
+    res.status(200).send({
+      message: "Data updated successfully.",
+      access: true,
     });
   } catch (e) {
     console.log(e);

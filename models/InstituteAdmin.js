@@ -1379,6 +1379,10 @@ const instituteAdminSchema = new mongoose.Schema({
   admission_form_print_case: {
     type: String,
   },
+
+  is_dublicate_bonafide: {
+    type: String,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

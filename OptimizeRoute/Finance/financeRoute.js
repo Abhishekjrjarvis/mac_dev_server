@@ -697,6 +697,10 @@ router
 router.delete(
   "/one/fee/:fid/delete/other/:ofid",
   catchAsync(Finance.delete_other_fees_receipt_query)
+
+router.patch(
+  "/dublicate/receipt/:fid/query",
+  catchAsync(Finance.finance_receipt_dublicate_query)
 );
 
 module.exports = router;

@@ -14745,7 +14745,6 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
           new_fees.remaining_fee += ele?.remainAmount;
           finance.delete_logs.push(logs?._id);
           nest?.remaining_array.pull(ele?._id);
-          await logs.save();
           if (nest?.remaining_fee > 0) {
             nest.remaining_array.push({
               installmentValue: "Installment Remain",
@@ -14756,6 +14755,7 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
               remainAmount: nest?.remaining_fee,
             });
           }
+          await Promise.all([logs.save(), nest.save()]);
         } else {
           const logs = new DeleteLogs({});
           if (ele?.fee_receipt) {
@@ -14798,14 +14798,14 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
           new_fees.remaining_fee += ele?.remainAmount;
           finance.delete_logs.push(logs?._id);
           nest?.remaining_array.pull(ele?._id);
-          await logs.save();
+          await Promise.all([logs.save(), nest.save()]);
         }
         if (nest?.remaining_fee > 0) {
           console.log("Enter");
           if (ele?.status === "Not Paid") {
             console.log("ENT");
             console.log(nest?.remaining_fee + nest?.paid_fee);
-            ele.remainAmount += nest?.remaining_fee + nest?.paid_fee;
+            ele.remainAmount += nest?.remaining_fee;
             console.log(ele?.remainAmount);
           } else {
             console.log("Enter Else");

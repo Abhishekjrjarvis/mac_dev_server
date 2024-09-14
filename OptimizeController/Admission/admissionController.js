@@ -14719,7 +14719,7 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
               const stu = await Student.findById({ _id: `${fees?.student}` });
               for (let ele of stu?.active_fee_heads) {
                 if (`${ele?.appId}` === `${fees?.application}`) {
-                  stu?.active_fee_heads?.pull(ele);
+                  stu.active_fee_heads = []
                 }
               }
               await stu.save();
@@ -14772,7 +14772,7 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
               const stu = await Student.findById({ _id: `${fees?.student}` });
               for (let ele of stu?.active_fee_heads) {
                 if (`${ele?.appId}` === `${fees?.application}`) {
-                  stu?.active_fee_heads?.pull(ele);
+                  stu.active_fee_heads = [];
                 }
               }
               await stu.save();

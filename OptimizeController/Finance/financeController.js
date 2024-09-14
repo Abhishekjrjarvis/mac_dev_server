@@ -8698,6 +8698,75 @@ exports.renderOneCombinedOtherFeesStudentListExportQuery = async (req, res) => {
   }
 };
 
+exports.delete_other_fees_receipt_query = async (req, res) => {
+  try {
+    const { ofid, fid } = req?.params;
+    if (!ofid && !fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const o_f = await OtherFees.findById({ _id: ofid });
+    const fee = await FeeReceipt.findById({ _id: fid });
+
+    if (fee?.student) {
+      const stu = await Student.findById({ _id: `${fee?.student}` });
+      const o_p = await OrderPayment.findOne({ fee_receipt: fee?._id });
+      o_f?.paid_students?.pull(stu?._id);
+      o_f.status = "Not Paid";
+      if (stu?.other_fees_paid_price >= fee?.fee_payment_amount) {
+        stu.other_fees_paid_price -= fee?.fee_payment_amount;
+      }
+      for (let ele of stu.other_fees) {
+        if (`${ele?.fee_receipt}` == `${fee?._id}`) {
+          ele.fee_receipt = null;
+          ele.status = "Not Paid";
+        }
+      }
+      stu.other_fee_receipt.pull(fee?._id);
+      for (let val of o_f?.fees_heads) {
+        const nums = await FeeMaster.findById({ _id: `${val?.master}` });
+        nums.paid_student.pull(stu?._id);
+        if (nums.paid_student_count > 0) {
+          nums.paid_student_count -= 1;
+        }
+        if (val.paid_amount > fee?.fee_payment_amount) {
+          val.paid_amount -= fee?.fee_payment_amount;
+        }
+        await nums.save();
+      }
+      await Promise.all([o_f.save(), stu.save()]);
+      await FeeReceipt.findByIdAndDelete(fee?._id);
+      await OrderPayment.findByIdAndDelete(o_p?._id);
+    } else {
+      const o_p = await OrderPayment.findOne({ fee_receipt: fee?._id });
+      o_f.status = "Not Paid";
+      for (let val of o_f?.fees_heads) {
+        if (val.paid_amount > fee?.fee_payment_amount) {
+          val.paid_amount -= fee?.fee_payment_amount;
+        }
+      }
+      o_f.fee_receipt = null;
+      o_f.multiple_fee_receipt.pull(fee?._id);
+      for (let ele of o_f.fee_receipt_student) {
+        if (`${ele?.fee_receipt}` === `${fee?._id}`) {
+          o_f.fee_receipt_student.pull(ele?._id);
+          o_f.students_list.pull(ele?.student_name);
+        }
+      }
+      await o_f.save();
+      await FeeReceipt.findByIdAndDelete(fee?._id);
+      await OrderPayment.findByIdAndDelete(o_p?._id);
+    }
+    res
+      .status(200)
+      .send({ message: "Explore One Other Fees Deleted Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.renderExistingOtherFeesNonExistingQuery = async (req, res) => {
 //   try {
 //     const { fid } = req?.params

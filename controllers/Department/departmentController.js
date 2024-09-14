@@ -2146,6 +2146,30 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
                       `${app_name?.applicationName}`
                     );
                     var name2 = name5?.replace("@DATE", app_date);
+                  } else if (val?.section_status === "UNDERTAKING") {
+                    var name1 = val?.section_value?.replace(
+                      "@STUDENT_NAME",
+                      `${student?.studentFirstName} ${
+                        student?.studentMiddleName ?? ""
+                      } ${student?.studentLastName}`
+                    );
+                    var name3 = name1?.replace(
+                      "@INSTITUTE_NAME",
+                      `${all_check?.application?.admissionAdmin?.institute?.insName}`
+                    );
+                    var name4 = name3?.replace(
+                      "@PARENTS_NAME",
+                      `${student?.studentParentsName}`
+                    );
+                    var name5 = name4?.replace(
+                      "@APPLICATION_NAME",
+                      `${app_name?.applicationName}`
+                    );
+                    var name6 = name5?.replace(
+                      "@STUDENT_CAST",
+                      `${student?.studentCast}`
+                    );
+                    var name2 = name6?.replace("@DATE", app_date);
                   }
                   head_array.push({
                     form_checklist_name: ele?.form_checklist_name,
@@ -2163,9 +2187,12 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
                         ? false
                         : ele?.form_checklist_required,
                     value:
-                      ele?.form_checklist_key === "student_undertakings" ||
-                      ele?.form_checklist_key === "student_anti_ragging" ||
-                      ele?.form_checklist_key === "student_anti_ragging_parents"
+                      val?.section_status === "UNDERTAKING"
+                        ? name2
+                        : ele?.form_checklist_key === "student_undertakings" ||
+                          ele?.form_checklist_key === "student_anti_ragging" ||
+                          ele?.form_checklist_key ===
+                            "student_anti_ragging_parents"
                         ? name2 ?? ""
                         : student[`${ele?.form_checklist_key}`] ??
                           nest_obj[`${ele?.form_checklist_key}`],
@@ -2180,6 +2207,7 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
               ...obj,
               key: val?.section_name,
               static_key: val?.section_key,
+              status: val?.section_status ?? "",
             });
             obj = {};
             head_array = [];

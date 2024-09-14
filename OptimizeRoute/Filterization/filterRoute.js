@@ -327,4 +327,9 @@ router.patch(
   catchAsync(Filter.renderAllStudentApplicableOutStandingStudentQuery)
 );
 
+router.patch(
+  "/:fid/all/combined/daybook",
+  catchAsync(Filter.render_combined_daybook_heads_wise)
+);
+
 module.exports = router;

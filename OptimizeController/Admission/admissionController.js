@@ -14701,6 +14701,7 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
             order.payment_visible_status = "Hide";
             fees.visible_status = "Hide";
             await Promise.all([order.save(), fees.save()]);
+            await FeeReceipt.findByIdAndDelete(fees?._id);
           }
           logs.fee_receipt = ele?.fee_receipt;
           logs.nested_card = nest?._id;
@@ -14743,6 +14744,7 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
             order.payment_visible_status = "Hide";
             fees.visible_status = "Hide";
             await Promise.all([order.save(), fees.save()]);
+            await FeeReceipt.findByIdAndDelete(fees?._id);
           }
           logs.fee_receipt = ele?.fee_receipt;
           logs.nested_card = nest?._id;

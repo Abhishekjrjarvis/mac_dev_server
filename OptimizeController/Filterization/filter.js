@@ -17374,6 +17374,7 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
     // var t = 0
     var t = [];
     var l = [];
+    console.log("ND", all_receipts?.length);
     if (all_receipts?.length > 0) {
       for (let ele of all_receipts) {
         if (payment_type == "Total") {
@@ -17780,9 +17781,32 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
         access: true,
         all_receipts: all_receipts?.length,
         results: nest_obj,
+        range: `${all_receipts[0]?.invoice_count?.substring(
+          14
+        )} To ${all_receipts[
+          all_receipts?.length - 1
+        ]?.invoice_count?.substring(14)}`,
+        account_info: bank_acc,
+        day_range_from: from,
+        day_range_to: to,
+        ins_info: institute,
+      };
+    } else {
+      return {
+        message: "No Other Fees Day Book Heads Query",
+        access: true,
+        all_receipts: 0,
+        results: [],
+        account_info: bank_acc,
+        day_range_from: from,
+        day_range_to: to,
+        ins_info: institute,
+        range: "",
       };
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
@@ -18084,6 +18108,7 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
     // var t = 0
     var t = [];
     var l = [];
+    console.log("HH", all_receipts?.length);
     if (all_receipts?.length > 0) {
       for (let ele of all_receipts) {
         if (payment_type == "Total") {
@@ -18288,6 +18313,27 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
         access: true,
         all_receipts: all_receipts?.length,
         results: nest_obj,
+        range: `${all_receipts[0]?.invoice_count?.substring(
+          14
+        )} To ${all_receipts[
+          all_receipts?.length - 1
+        ]?.invoice_count?.substring(14)}`,
+        account_info: bank_acc,
+        day_range_from: from,
+        day_range_to: to,
+        ins_info: institute,
+      };
+    } else {
+      return {
+        message: "No Other Fees Day Book Heads Query",
+        access: true,
+        all_receipts: 0,
+        results: [],
+        account_info: {},
+        day_range_from: null,
+        day_range_to: null,
+        ins_info: {},
+        range: "",
       };
     }
   } catch (e) {
@@ -18442,6 +18488,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
       nest_obj.push(obj);
       obj = {};
     }
+    console.log("MM", all_receipts?.length);
     if (all_receipts?.length > 0) {
       for (let ele of all_receipts) {
         if (ele?.fee_heads?.length > 0) {
@@ -18493,6 +18540,27 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         access: true,
         all_receipts: all_receipts?.length,
         results: nest_obj,
+        account_info: bank_acc,
+        day_range_from: from,
+        day_range_to: to,
+        ins_info: institute,
+        range: `${all_receipts[0]?.invoice_count?.substring(
+          14
+        )} To ${all_receipts[
+          all_receipts?.length - 1
+        ]?.invoice_count?.substring(14)}`,
+      };
+    } else {
+      return {
+        message: "No Other Fees Day Book Heads Query",
+        access: true,
+        all_receipts: 0,
+        results: [],
+        account_info: {},
+        day_range_from: null,
+        day_range_to: null,
+        ins_info: {},
+        range: "",
       };
     }
   } catch (e) {
@@ -18518,7 +18586,6 @@ exports.render_combined_daybook_heads_wise = async (req, res) => {
         hostel = ele?.hostel;
       }
     }
-    console.log(from, to);
     let data_1 = await normal_daybook(from, to, bank, payment_type, fid);
     let data_2 = await hostel_daybook(
       from,
@@ -18529,10 +18596,26 @@ exports.render_combined_daybook_heads_wise = async (req, res) => {
       fid
     );
     let data_3 = await miscellanous_daybook(from, to, bank, payment_type, fid);
-    let combine = [...data_1?.results, ...data_2?.results, ...data_3?.results];
+    let combine = [data_1, data_2, data_3];
+    let combines = [];
+    for (let cls of combine) {
+      combines.push({
+        all_receipts: cls?.all_receipts,
+        results: cls?.results,
+        range: cls?.range,
+        account_info: cls?.account_info,
+      });
+    }
     res
       .status(200)
-      .send({ message: "Combined Daybook", access: true, combine });
+      .send({
+        message: "Combined Daybook",
+        access: true,
+        combines,
+        day_range_from: from,
+        day_range_to: to,
+        ins_info: data_1?.ins_info,
+      });
   } catch (e) {
     console.log(e);
   }

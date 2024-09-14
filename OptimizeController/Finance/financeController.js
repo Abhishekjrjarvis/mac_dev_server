@@ -8714,6 +8714,7 @@ exports.delete_other_fees_receipt_query = async (req, res) => {
       const stu = await Student.findById({ _id: `${fee?.student}` });
       const o_p = await OrderPayment.findOne({ fee_receipt: fee?._id });
       o_f?.paid_students?.pull(stu?._id);
+      o_f.remaining_students.push(stu?._id);
       o_f.status = "Not Paid";
       if (stu?.other_fees_paid_price >= fee?.fee_payment_amount) {
         stu.other_fees_paid_price -= fee?.fee_payment_amount;

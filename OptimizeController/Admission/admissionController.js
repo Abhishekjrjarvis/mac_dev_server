@@ -4326,12 +4326,24 @@ exports.paidRemainingFeeStudent = async (req, res) => {
           );
           console.log("Update Split");
         } else {
-          await update_fee_head_query_redesign(
-            student,
-            new_receipt?.fee_payment_amount,
-            apply?._id,
-            new_receipt
-          );
+          if (
+            type === "Installment Remain" &&
+            nest_card.remaining_fee + price == nest_card?.applicable_fee
+          ) {
+            await set_fee_head_query_redesign(
+              student,
+              new_receipt?.fee_payment_amount,
+              apply?._id,
+              new_receipt
+            );
+          } else {
+            await update_fee_head_query_redesign(
+              student,
+              new_receipt?.fee_payment_amount,
+              apply?._id,
+              new_receipt
+            );
+          }
         }
         // await update_fee_head_query(student, price, apply, new_receipt);
       }
@@ -14700,8 +14712,18 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
             });
             order.payment_visible_status = "Hide";
             fees.visible_status = "Hide";
+            finance.fees.push(fees?.receipt_file);
             await Promise.all([order.save(), fees.save()]);
             await FeeReceipt.findByIdAndDelete(fees?._id);
+            if (fees?.student) {
+              const stu = await Student.findById({ _id: `${fees?.student}` });
+              for (let ele of stu?.active_fee_heads) {
+                if (`${ele?.appId}` === `${fees?.application}`) {
+                  stu?.active_fee_heads?.pull(ele);
+                }
+              }
+              await stu.save();
+            }
           }
           logs.fee_receipt = ele?.fee_receipt;
           logs.nested_card = nest?._id;
@@ -14743,8 +14765,18 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
             });
             order.payment_visible_status = "Hide";
             fees.visible_status = "Hide";
+            finance.fees.push(fees?.receipt_file);
             await Promise.all([order.save(), fees.save()]);
             await FeeReceipt.findByIdAndDelete(fees?._id);
+            if (fees?.student) {
+              const stu = await Student.findById({ _id: `${fees?.student}` });
+              for (let ele of stu?.active_fee_heads) {
+                if (`${ele?.appId}` === `${fees?.application}`) {
+                  stu?.active_fee_heads?.pull(ele);
+                }
+              }
+              await stu.save();
+            }
           }
           logs.fee_receipt = ele?.fee_receipt;
           logs.nested_card = nest?._id;

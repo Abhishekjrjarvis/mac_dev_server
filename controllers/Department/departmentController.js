@@ -2208,6 +2208,7 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
               key: val?.section_name,
               static_key: val?.section_key,
               status: val?.section_status ?? "",
+              type: val?.section_type ?? "",
             });
             obj = {};
             head_array = [];

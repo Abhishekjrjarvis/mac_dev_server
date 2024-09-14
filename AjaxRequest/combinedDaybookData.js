@@ -1725,7 +1725,26 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
     if (l_dates < 10) {
       l_dates = `0${l_dates}`;
     }
-    const l_date = new Date(`${l_year}-${l_month}-${l_dates}T00:00:00.000Z`);
+    var l_months = l_month;
+    let list1 = ["01", "03", "05", "07", "08", "10", "12"];
+    let list2 = ["04", "06", "09", "11"];
+    let list3 = ["02"];
+    let g_days = l_months?.toString();
+    if (g_day == 30 && list2?.includes(String(g_days))) {
+      date.setMonth(date.getMonth() + 1);
+      var l_months = date.getMonth();
+      if (l_months < 10) {
+        l_months = `0${l_months}`;
+      }
+    }
+    if (g_day >= 31 && list1?.includes(String(g_days))) {
+      date.setMonth(date.getMonth() + 1);
+      var l_months = date.getMonth();
+      if (l_months < 10) {
+        l_months = `0${l_months}`;
+      }
+    }
+    const l_date = new Date(`${l_year}-${l_months}-${l_dates}T00:00:00.000Z`);
     if (payment_type) {
       if (payment_type === "Total") {
         var all_receipts_set = await FeeReceipt.find({
@@ -1751,7 +1770,9 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           ],
         })
           .sort({ invoice_count: "1" })
-          .select("fee_heads other_fees")
+          .select(
+            "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
+          )
           .populate({
             path: "other_fees",
             select: "bank_account fees_heads",
@@ -1764,6 +1785,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           .lean()
           .exec();
 
+        // console.log(all_receipts_set?.[0]);
         all_receipts = all_receipts_set?.filter((val) => {
           if (
             `${val?.fee_payment_mode}` === "By Cash" ||
@@ -1778,6 +1800,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
             return val;
           }
         });
+        // console.log(all_receipts?.length);
       } else if (payment_type === "Cash / Bank") {
         var all_receipts_set = await FeeReceipt.find({
           $and: [
@@ -1802,7 +1825,9 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           ],
         })
           .sort({ invoice_count: "1" })
-          .select("fee_heads other_fees")
+          .select(
+            "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
+          )
           .populate({
             path: "other_fees",
             select: "bank_account fees_heads",
@@ -1856,7 +1881,9 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           ],
         })
           .sort({ invoice_count: "1" })
-          .select("fee_heads other_fees")
+          .select(
+            "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
+          )
           .populate({
             path: "other_fees",
             select: "bank_account fees_heads",
@@ -1893,7 +1920,9 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         ],
       })
         .sort({ invoice_count: "1" })
-        .select("fee_heads other_fees")
+        .select(
+          "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
+        )
         .populate({
           path: "other_fees",
           select: "bank_account fees_heads",
@@ -1906,7 +1935,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         .lean()
         .exec();
     }
-    // console.log(all_receipts)
+    // console.log(all_receipts?.length);
     all_receipts = all_receipts?.filter((val) => {
       if (val?.other_fees?._id) return val;
     });
@@ -2401,7 +2430,7 @@ const render_combined_daybook_heads_wise = async (
     let data_2 = await hostel_daybook(
       from,
       to,
-      hbank,
+      bank,
       payment_type,
       hostel,
       fid

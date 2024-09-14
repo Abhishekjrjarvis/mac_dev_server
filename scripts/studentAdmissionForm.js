@@ -389,7 +389,7 @@ const generateStudentAdmissionForm = async (
                   .text(`${itr?.fields?.[0]?.value ?? ""}`);
               }
               doc.moveDown(2);
-              if (itr?.status === "STUDENT") {
+              if (itr?.type === "STUDENT") {
                 if (oneProfile?.student_signature) {
                   let sig = await dynamicImages(
                     "CUSTOM",
@@ -412,7 +412,7 @@ const generateStudentAdmissionForm = async (
                 doc.font("Times-Bold").text("Clerk", 55);
                 doc.moveUp(1);
                 doc.font("Times-Bold").text("Principal", 470, doc.y);
-              } else if (itr?.status === "PARENTS") {
+              } else if (itr?.type === "PARENTS") {
                 if (oneProfile?.student_parents_signature) {
                   let p_sig = await dynamicImages(
                     "CUSTOM",

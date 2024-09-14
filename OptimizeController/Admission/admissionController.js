@@ -14719,7 +14719,7 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
               const stu = await Student.findById({ _id: `${fees?.student}` });
               for (let ele of stu?.active_fee_heads) {
                 if (`${ele?.appId}` === `${fees?.application}`) {
-                  stu.active_fee_heads = []
+                  stu.active_fee_heads = [];
                 }
               }
               await stu.save();
@@ -14801,20 +14801,20 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
           await logs.save();
         }
         if (nest?.remaining_fee > 0) {
-          console.log("Enter");
-          if (ele?.status === "Not Paid") {
-            ele.remainAmount += nest?.remaining_fee;
-          } else {
-            console.log("Enter Else");
-            nest.remaining_array.push({
-              installmentValue: "Installment Remain",
-              status: "Not Paid",
-              isEnable: true,
-              appId: new_fees?.appId,
-              instituteId: new_fees?.institute,
-              remainAmount: nest?.remaining_fee,
-            });
-          }
+          // console.log("Enter");
+          // if (ele?.status === "Not Paid") {
+          //   ele.remainAmount += nest?.remaining_fee;
+          // } else {
+          console.log("Enter Else");
+          nest.remaining_array.push({
+            installmentValue: "Installment Remain",
+            status: "Not Paid",
+            isEnable: true,
+            appId: new_fees?.appId,
+            instituteId: new_fees?.institute,
+            remainAmount: nest?.remaining_fee,
+          });
+          // }
         }
       }
     }

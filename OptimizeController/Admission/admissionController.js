@@ -14757,6 +14757,7 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
           }
           await Promise.all([logs.save(), nest.save()]);
         } else {
+          console.log("EXIT");
           const logs = new DeleteLogs({});
           if (ele?.fee_receipt) {
             var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt });
@@ -14798,15 +14799,19 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
           new_fees.remaining_fee += ele?.remainAmount;
           finance.delete_logs.push(logs?._id);
           nest?.remaining_array.pull(ele?._id);
+          ele.remainAmount = nest?.remaining_fee;
+          // console.log(ele?.remainAmount);
           await Promise.all([logs.save(), nest.save()]);
         }
         if (nest?.remaining_fee > 0) {
           console.log("Enter");
+          for (let val of nest?.remaining_array) {
+            if (val?.status === "Not Paid") {
+              val.remainAmount = nest?.remaining_fee;
+            }
+          }
           if (ele?.status === "Not Paid") {
-            console.log("ENT");
-            console.log(nest?.remaining_fee + nest?.paid_fee);
             ele.remainAmount += nest?.remaining_fee;
-            console.log(ele?.remainAmount);
           } else {
             console.log("Enter Else");
             nest.remaining_array.push({
@@ -14818,6 +14823,7 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
               remainAmount: nest?.remaining_fee,
             });
           }
+          // console.log(nest);
         }
       }
     }

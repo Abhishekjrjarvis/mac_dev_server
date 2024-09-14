@@ -2169,7 +2169,43 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
                       "@STUDENT_CAST",
                       `${student?.studentCast}`
                     );
-                    var name2 = name6?.replace("@DATE", app_date);
+                    var name7 = name6?.replace(
+                      "@STUDENT_RELIGION",
+                      `${student?.studentCast}`
+                    );
+                    var name8 = name7?.replace(
+                      "@STUDENT_CAST_CATEGORY",
+                      `${student?.studentCast}`
+                    );
+                    var name9 = name8?.replace(
+                      "@STUDENT_GENDER",
+                      `${student?.studentCast}`
+                    );
+                    var name10 = name9?.replace(
+                      "@STUDENT_NATIONALITY",
+                      `${student?.studentCast}`
+                    );
+                    var name11 = name10?.replace(
+                      "@STUDENT_MOTHER_NAME",
+                      `${student?.studentCast}`
+                    );
+                    var name12 = name11?.replace(
+                      "@STUDENT_DOB",
+                      `${student?.studentCast}`
+                    );
+                    var name13 = name12?.replace(
+                      "@STUDENT_EMAIL",
+                      `${student?.studentCast}`
+                    );
+                    var name14 = name13?.replace(
+                      "@STUDENT_PHONE",
+                      `${student?.studentCast}`
+                    );
+                    var name15 = name14?.replace(
+                      "@STUDENT_PARENTS_PHONE",
+                      `${student?.studentCast}`
+                    );
+                    var name2 = name15?.replace("@DATE", app_date);
                   }
                   head_array.push({
                     form_checklist_name: ele?.form_checklist_name,

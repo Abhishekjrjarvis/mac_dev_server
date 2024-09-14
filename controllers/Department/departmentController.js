@@ -2167,43 +2167,43 @@ exports.render_dynamic_form_subject_list_query = async (req, res) => {
                     );
                     var name6 = name5?.replace(
                       "@STUDENT_CAST",
-                      `${student?.studentCast}`
+                      `${student?.studentCast ?? ""}`
                     );
                     var name7 = name6?.replace(
                       "@STUDENT_RELIGION",
-                      `${student?.studentCast}`
+                      `${student?.studentReligion ?? ""}`
                     );
                     var name8 = name7?.replace(
                       "@STUDENT_CAST_CATEGORY",
-                      `${student?.studentCast}`
+                      `${student?.studentCastCategory ?? ""}`
                     );
                     var name9 = name8?.replace(
                       "@STUDENT_GENDER",
-                      `${student?.studentCast}`
+                      `${student?.studentGender ?? ""}`
                     );
                     var name10 = name9?.replace(
                       "@STUDENT_NATIONALITY",
-                      `${student?.studentCast}`
+                      `${student?.studentNationality ?? ""}`
                     );
                     var name11 = name10?.replace(
                       "@STUDENT_MOTHER_NAME",
-                      `${student?.studentCast}`
+                      `${student?.studentMotherName ?? ""}`
                     );
                     var name12 = name11?.replace(
                       "@STUDENT_DOB",
-                      `${student?.studentCast}`
+                      `${student?.studentDOB ?? ""}`
                     );
                     var name13 = name12?.replace(
                       "@STUDENT_EMAIL",
-                      `${student?.studentCast}`
+                      `${student?.studentEmail ?? ""}`
                     );
                     var name14 = name13?.replace(
                       "@STUDENT_PHONE",
-                      `${student?.studentCast}`
+                      `${student?.studentPhoneNumber ?? ""}`
                     );
                     var name15 = name14?.replace(
                       "@STUDENT_PARENTS_PHONE",
-                      `${student?.studentCast}`
+                      `${student?.studentParentsPhoneNumber ?? ""}`
                     );
                     var name2 = name15?.replace("@DATE", app_date);
                   }

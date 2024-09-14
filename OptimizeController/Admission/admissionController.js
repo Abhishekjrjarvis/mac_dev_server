@@ -14745,7 +14745,7 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
           new_fees.remaining_fee += ele?.remainAmount;
           finance.delete_logs.push(logs?._id);
           nest?.remaining_array.pull(ele?._id);
-          await Promise.all([logs.save(), nest.save()]);
+          await logs.save();
           if (nest?.remaining_fee > 0) {
             nest.remaining_array.push({
               installmentValue: "Installment Remain",
@@ -14798,23 +14798,23 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
           new_fees.remaining_fee += ele?.remainAmount;
           finance.delete_logs.push(logs?._id);
           nest?.remaining_array.pull(ele?._id);
-          await Promise.all([logs.save(), nest.save()]);
+          await logs.save();
         }
         if (nest?.remaining_fee > 0) {
-          // console.log("Enter");
-          // if (ele?.status === "Not Paid") {
-          //   ele.remainAmount += nest?.remaining_fee;
-          // } else {
-          console.log("Enter Else");
-          nest.remaining_array.push({
-            installmentValue: "Installment Remain",
-            status: "Not Paid",
-            isEnable: true,
-            appId: new_fees?.appId,
-            instituteId: new_fees?.institute,
-            remainAmount: nest?.remaining_fee,
-          });
-          // }
+          console.log("Enter");
+          if (ele?.status === "Not Paid") {
+            ele.remainAmount += nest?.remaining_fee + nest?.paid_fee;
+          } else {
+            console.log("Enter Else");
+            nest.remaining_array.push({
+              installmentValue: "Installment Remain",
+              status: "Not Paid",
+              isEnable: true,
+              appId: new_fees?.appId,
+              instituteId: new_fees?.institute,
+              remainAmount: nest?.remaining_fee,
+            });
+          }
         }
       }
     }

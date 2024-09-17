@@ -585,9 +585,9 @@ const send_email_authentication_custom = function (recipientEmail, otp) {
   }
 };
 
-console.log(
-  send_email_authentication_custom("tusharbhambere8@gmail.com", "0989899")
-);
+// console.log(
+//   send_email_authentication_custom("tusharbhambere8@gmail.com", "0989899")
+// );
 
 // console.log(
 //   send_email_authentication_promotional("pankajphad.stuff@gmail.com")

@@ -505,4 +505,8 @@ router.get(
   catchAsync(Extra.renderAllFilteredDocumentMessageQuery)
 );
 
+router.patch("/send/notification/:id", catchAsync(Extra.send_notification));
+
+router.patch("/roll/alignment/:id", catchAsync(Extra.roll_alignment));
+
 module.exports = router;

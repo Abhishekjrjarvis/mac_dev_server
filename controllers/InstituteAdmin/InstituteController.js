@@ -565,6 +565,7 @@ exports.getUpdateAnnouncementApk = async (req, res) => {
     // const aEncrypt = await encryptionPayload(announcements);
     res.status(200).send({ message: "Successfully Created", announcements });
     await announcement_feed_query(institute?._id, announcements);
+    console.log("ANNOUNCEMENT TRIGGERED");
     for (var num of institute.userFollowersList) {
       const user = await User.findById({ _id: `${num}` });
       if (user) {

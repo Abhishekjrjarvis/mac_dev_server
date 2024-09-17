@@ -15,42 +15,42 @@ exports.execute_ins_social_feed_query = async (
     if (institute.isUniversal === "Not Assigned") {
       // console.log("posted by no universal")
       if (post?.postStatus === "Anyone") {
-        for(var val of institute?.followers){
-          post.post_arr.push(val)
+        for (var val of institute?.followers) {
+          post.post_arr.push(val);
         }
-        for(var val of institute?.userFollowersList){
-          post.post_arr.push(val)
+        for (var val of institute?.userFollowersList) {
+          post.post_arr.push(val);
         }
-      }
-      else{
-        for(var val of institute?.joinedUserList){
-          post.post_arr.push(val)
+      } else {
+        for (var val of institute?.joinedUserList) {
+          post.post_arr.push(val);
         }
       }
     } else if (institute.isUniversal === "Universal") {
       // console.log("posted by universal")
-      const all = await InstituteAdmin.find({ $and: [{ status: "Approved" }, { isUniversal: "Not Assigned" }] });
+      const all = await InstituteAdmin.find({
+        $and: [{ status: "Approved" }, { isUniversal: "Not Assigned" }],
+      });
       const user = await User.find({ userStatus: "Approved" });
       if (post.postStatus === "Anyone") {
-        for(var val of all){
-            for(var ele of val?.followers){
-              console.log("FO")
-              post.post_arr.push(ele)
-            }
-            for(var ele of val?.userFollowersList){
-              console.log("UFO")
-              post.post_arr.push(ele)
-            }
+        for (var val of all) {
+          for (var ele of val?.followers) {
+            console.log("FO");
+            post.post_arr.push(ele);
+          }
+          for (var ele of val?.userFollowersList) {
+            console.log("UFO");
+            post.post_arr.push(ele);
+          }
         }
-        for(var val of user){
-          console.log("USER")
-          post.post_arr.push(val?._id)
+        for (var val of user) {
+          console.log("USER");
+          post.post_arr.push(val?._id);
         }
-      }
-      else{
-        for(var val of all){
-          for(var ele of val?.joinedUserList){
-            post.post_arr.push(ele)
+      } else {
+        for (var val of all) {
+          for (var ele of val?.joinedUserList) {
+            post.post_arr.push(ele);
           }
         }
       }
@@ -59,9 +59,9 @@ exports.execute_ins_social_feed_query = async (
     if (Array.isArray(taggedPeople)) {
       if (post?.tagPeople?.length) {
         for (let instit of taggedPeople) {
-          const institTag = await InstituteAdmin.findById(instit.tagId)
-            // .populate({ path: "followers" })
-            // .populate({ path: "userFollowersList" });
+          const institTag = await InstituteAdmin.findById(instit.tagId);
+          // .populate({ path: "followers" })
+          // .populate({ path: "userFollowersList" });
           if (institTag?.posts.includes(post._id)) {
           } else {
             institTag.posts?.push(post._id);
@@ -69,17 +69,17 @@ exports.execute_ins_social_feed_query = async (
           institTag.tag_post?.push(post._id);
           if (post.postStatus === "Anyone") {
             for (var ele of institTag?.followers) {
-              post.post_arr.push(ele)
+              post.post_arr.push(ele);
             }
             for (var ele of institTag?.userFollowersList) {
-              post.post_arr.push(ele)
+              post.post_arr.push(ele);
             }
           }
           await institTag.save();
         }
       }
     }
-    await post.save()
+    await post.save();
     // const ins = await InstituteAdmin.findById({ _id: institute?._id})
     // .populate({
     //   path: "userFollowersList"
@@ -116,41 +116,41 @@ exports.execute_ins_social_feed_question_query = async (
   try {
     if (institute.isUniversal === "Not Assigned") {
       if (post?.postStatus === "Anyone") {
-        for(var val of institute?.followers){
-          post.post_arr.push(val)
+        for (var val of institute?.followers) {
+          post.post_arr.push(val);
         }
-        for(var val of institute?.userFollowersList){
-          post.post_arr.push(val)
+        for (var val of institute?.userFollowersList) {
+          post.post_arr.push(val);
         }
-      }
-      else{
-        for(var val of institute?.joinedUserList){
-          post.post_arr.push(val)
+      } else {
+        for (var val of institute?.joinedUserList) {
+          post.post_arr.push(val);
         }
       }
     } else if (institute.isUniversal === "Universal") {
-      const all = await InstituteAdmin.find({ $and: [{ status: "Approved" }, { isUniversal: "Not Assigned" }] });
+      const all = await InstituteAdmin.find({
+        $and: [{ status: "Approved" }, { isUniversal: "Not Assigned" }],
+      });
       const user = await User.find({ userStatus: "Approved" });
       if (post.postStatus === "Anyone") {
-        for(var val of all){
-            for(var ele of val?.followers){
-              console.log("FO")
-              post.post_arr.push(ele)
-            }
-            for(var ele of val?.userFollowersList){
-              console.log("UFO")
-              post.post_arr.push(ele)
-            }
+        for (var val of all) {
+          for (var ele of val?.followers) {
+            console.log("FO");
+            post.post_arr.push(ele);
+          }
+          for (var ele of val?.userFollowersList) {
+            console.log("UFO");
+            post.post_arr.push(ele);
+          }
         }
-        for(var val of user){
-          console.log("USER")
-          post.post_arr.push(val?._id)
+        for (var val of user) {
+          console.log("USER");
+          post.post_arr.push(val?._id);
         }
-      }
-      else{
-        for(var val of all){
-          for(var ele of val?.joinedUserList){
-            post.post_arr.push(ele)
+      } else {
+        for (var val of all) {
+          for (var ele of val?.joinedUserList) {
+            post.post_arr.push(ele);
           }
         }
       }
@@ -169,7 +169,7 @@ exports.execute_ins_social_feed_question_query = async (
         );
       }
     }
-    await post.save()
+    await post.save();
     // const ins = await InstituteAdmin.findById({ _id: institute?._id})
     // .populate({
     //   path: "userFollowersList"
@@ -217,9 +217,8 @@ exports.send_global_notification_query = async (institute, post, type) => {
           ref?.deviceToken
         );
         await Promise.all([notify.save(), ref.save()]);
-      } 
-    }
-    else if (post?.postType === "Poll") {
+      }
+    } else if (post?.postType === "Poll") {
       for (var ref of institute?.userFollowersList) {
         var notify = new Notification({});
         notify.notifyContent = `New quiz from ${institute?.name}, give your valuable vote`;
@@ -237,8 +236,7 @@ exports.send_global_notification_query = async (institute, post, type) => {
         );
         await Promise.all([notify.save(), ref.save()]);
       }
-    }
-    else if (post?.postType === "Post") {
+    } else if (post?.postType === "Post") {
       for (var ref of institute?.userFollowersList) {
         var notify = new Notification({});
         notify.notifyContent = `${institute?.name} has new info to share, know what it is`;
@@ -256,22 +254,24 @@ exports.send_global_notification_query = async (institute, post, type) => {
         );
         await Promise.all([notify.save(), ref.save()]);
       }
+    } else {
     }
-    else {
-      
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
-exports.send_global_announcement_notification_query = async (new_q, announcements) => {
+exports.send_global_announcement_notification_query = async (
+  new_q,
+  announcements
+) => {
   try {
     var institute = await InstituteAdmin.findById({ _id: new_q?._id })
-    .populate({ path: "userFollowersList" })
-    .populate({ path: "joinedUserList" });
-    for (var ref of institute?.userFollowersList) {
+      .populate({ path: "userFollowersList", select: "uNotify deviceToken" })
+      .populate({ path: "joinedUserList", select: "uNotify deviceToken" });
+
+    let nums = [...institute?.userFollowersList, ...institute?.joinedUserList];
+    for (var ref of nums) {
       var notify = new Notification({});
       notify.notifyContent = `Announcement: ${announcements?.insAnnTitle}`;
       notify.notifySender = institute?._id;
@@ -279,17 +279,20 @@ exports.send_global_announcement_notification_query = async (new_q, announcement
       notify.notifyCategory = "Announcement Feed";
       ref.uNotify.push(notify._id);
       notify.notifyByInsPhoto = institute._id;
-      invokeSpecificRegister(
-        "Specific Notification",
-        notify?.notifyContent,
-        institute?.insName,
-        ref?._id,
-        ref?.deviceToken
-      );
+      if (ref?.deviceToken) {
+        invokeSpecificRegister(
+          "Specific Notification",
+          notify?.notifyContent,
+          institute?.insName,
+          ref?._id,
+          ref?.deviceToken
+        );
+      } else {
+        console.log("no token");
+      }
       await Promise.all([notify.save(), ref.save()]);
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};

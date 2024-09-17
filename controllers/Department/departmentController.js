@@ -1050,6 +1050,66 @@ exports.render_dynamic_form_query = async (req, res) => {
                       `${app_name?.applicationName}`
                     );
                     var name2 = name5?.replace("@DATE", app_date);
+                  } else if (val?.section_status === "UNDERTAKING") {
+                    var name1 = val?.section_value?.replace(
+                      "@STUDENT_NAME",
+                      `${student?.studentFirstName} ${
+                        student?.studentMiddleName ?? ""
+                      } ${student?.studentLastName}`
+                    );
+                    var name3 = name1?.replace(
+                      "@INSTITUTE_NAME",
+                      `${all_check?.application?.admissionAdmin?.institute?.insName}`
+                    );
+                    var name4 = name3?.replace(
+                      "@PARENTS_NAME",
+                      `${student?.studentParentsName}`
+                    );
+                    var name5 = name4?.replace(
+                      "@APPLICATION_NAME",
+                      `${app_name?.applicationName}`
+                    );
+                    var name6 = name5?.replace(
+                      "@STUDENT_CAST",
+                      `${student?.studentCast ?? ""}`
+                    );
+                    var name7 = name6?.replace(
+                      "@STUDENT_RELIGION",
+                      `${student?.studentReligion ?? ""}`
+                    );
+                    var name8 = name7?.replace(
+                      "@STUDENT_CAST_CATEGORY",
+                      `${student?.studentCastCategory ?? ""}`
+                    );
+                    var name9 = name8?.replace(
+                      "@STUDENT_GENDER",
+                      `${student?.studentGender ?? ""}`
+                    );
+                    var name10 = name9?.replace(
+                      "@STUDENT_NATIONALITY",
+                      `${student?.studentNationality ?? ""}`
+                    );
+                    var name11 = name10?.replace(
+                      "@STUDENT_MOTHER_NAME",
+                      `${student?.studentMotherName ?? ""}`
+                    );
+                    var name12 = name11?.replace(
+                      "@STUDENT_DOB",
+                      `${student?.studentDOB ?? ""}`
+                    );
+                    var name13 = name12?.replace(
+                      "@STUDENT_EMAIL",
+                      `${student?.studentEmail ?? ""}`
+                    );
+                    var name14 = name13?.replace(
+                      "@STUDENT_PHONE",
+                      `${student?.studentPhoneNumber ?? ""}`
+                    );
+                    var name15 = name14?.replace(
+                      "@STUDENT_PARENTS_PHONE",
+                      `${student?.studentParentsPhoneNumber ?? ""}`
+                    );
+                    var name2 = name15?.replace("@DATE", app_date);
                   }
                   head_array.push({
                     form_checklist_name: ele?.form_checklist_name,
@@ -1067,9 +1127,12 @@ exports.render_dynamic_form_query = async (req, res) => {
                         ? false
                         : ele?.form_checklist_required,
                     value:
-                      ele?.form_checklist_key === "student_undertakings" ||
-                      ele?.form_checklist_key === "student_anti_ragging" ||
-                      ele?.form_checklist_key === "student_anti_ragging_parents"
+                      val?.section_status === "UNDERTAKING"
+                        ? name2
+                        : ele?.form_checklist_key === "student_undertakings" ||
+                          ele?.form_checklist_key === "student_anti_ragging" ||
+                          ele?.form_checklist_key ===
+                            "student_anti_ragging_parents"
                         ? name2 ?? ""
                         : student[`${ele?.form_checklist_key}`] ??
                           nest_obj[`${ele?.form_checklist_key}`],
@@ -1084,6 +1147,8 @@ exports.render_dynamic_form_query = async (req, res) => {
               ...obj,
               key: val?.section_name,
               static_key: val?.section_key,
+              status: val?.section_status ?? "",
+              type: val?.section_type ?? "",
             });
             obj = {};
             head_array = [];
@@ -1848,6 +1913,66 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                       `${app_name?.applicationName}`
                     );
                     var name2 = name5?.replace("@DATE", app_date);
+                  } else if (val?.section_status === "UNDERTAKING") {
+                    var name1 = val?.section_value?.replace(
+                      "@STUDENT_NAME",
+                      `${student?.studentFirstName} ${
+                        student?.studentMiddleName ?? ""
+                      } ${student?.studentLastName}`
+                    );
+                    var name3 = name1?.replace(
+                      "@INSTITUTE_NAME",
+                      `${all_check?.application?.admissionAdmin?.institute?.insName}`
+                    );
+                    var name4 = name3?.replace(
+                      "@PARENTS_NAME",
+                      `${student?.studentParentsName}`
+                    );
+                    var name5 = name4?.replace(
+                      "@APPLICATION_NAME",
+                      `${app_name?.applicationName}`
+                    );
+                    var name6 = name5?.replace(
+                      "@STUDENT_CAST",
+                      `${student?.studentCast ?? ""}`
+                    );
+                    var name7 = name6?.replace(
+                      "@STUDENT_RELIGION",
+                      `${student?.studentReligion ?? ""}`
+                    );
+                    var name8 = name7?.replace(
+                      "@STUDENT_CAST_CATEGORY",
+                      `${student?.studentCastCategory ?? ""}`
+                    );
+                    var name9 = name8?.replace(
+                      "@STUDENT_GENDER",
+                      `${student?.studentGender ?? ""}`
+                    );
+                    var name10 = name9?.replace(
+                      "@STUDENT_NATIONALITY",
+                      `${student?.studentNationality ?? ""}`
+                    );
+                    var name11 = name10?.replace(
+                      "@STUDENT_MOTHER_NAME",
+                      `${student?.studentMotherName ?? ""}`
+                    );
+                    var name12 = name11?.replace(
+                      "@STUDENT_DOB",
+                      `${student?.studentDOB ?? ""}`
+                    );
+                    var name13 = name12?.replace(
+                      "@STUDENT_EMAIL",
+                      `${student?.studentEmail ?? ""}`
+                    );
+                    var name14 = name13?.replace(
+                      "@STUDENT_PHONE",
+                      `${student?.studentPhoneNumber ?? ""}`
+                    );
+                    var name15 = name14?.replace(
+                      "@STUDENT_PARENTS_PHONE",
+                      `${student?.studentParentsPhoneNumber ?? ""}`
+                    );
+                    var name2 = name15?.replace("@DATE", app_date);
                   }
                   head_array.push({
                     form_checklist_name: ele?.form_checklist_name,
@@ -1866,9 +1991,12 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                         ? false
                         : ele?.form_checklist_required,
                     value:
-                      ele?.form_checklist_key === "student_undertakings" ||
-                      ele?.form_checklist_key === "student_anti_ragging" ||
-                      ele?.form_checklist_key === "student_anti_ragging_parents"
+                      val?.section_status === "UNDERTAKING"
+                        ? name2
+                        : ele?.form_checklist_key === "student_undertakings" ||
+                          ele?.form_checklist_key === "student_anti_ragging" ||
+                          ele?.form_checklist_key ===
+                            "student_anti_ragging_parents"
                         ? name2 ?? ""
                         : student[`${ele?.form_checklist_key}`] ??
                           nest_obj[`${ele?.form_checklist_key}`],
@@ -1883,6 +2011,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
               ...obj,
               key: val?.section_name,
               static_key: val?.section_key,
+              status: val?.section_status ?? "",
+              type: val?.section_type ?? "",
             });
             obj = {};
             head_array = [];

@@ -280,7 +280,7 @@ exports.send_global_announcement_notification_query = async (
       ref.uNotify.push(notify._id);
       notify.notifyByInsPhoto = institute._id;
       if (ref?.deviceToken) {
-        invokeSpecificRegister(
+        await invokeSpecificRegister(
           "Specific Notification",
           notify?.notifyContent,
           institute?.insName,

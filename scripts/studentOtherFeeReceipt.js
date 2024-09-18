@@ -57,7 +57,11 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
     }
   }
 
-  if (paid_fee?.length > 0 && society_paid_fee?.length === 0) {
+  if (
+    receiptData?.finance?.is_dublicate_receipt === "Yes" &&
+    paid_fee?.length > 0 &&
+    society_paid_fee?.length === 0
+  ) {
     if (instituteData?.insProfilePhoto) {
       doc.image(
         await dynamicImages("CUSTOM", instituteData?.insProfilePhoto),
@@ -167,7 +171,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         .text(
           `${
             receiptData?.student?.studentClass?.classTitle
-              ? receiptData?.student?.studentClass?.classTitle
+              ? receiptData?.student?.studentClass?.classTitle?.substring(0, 30)
               : ""
           }`,
           {
@@ -656,8 +660,11 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         .text(
           `${
             receiptData?.student?.studentClass?.classTitle
-              ? receiptData?.student?.studentClass?.classTitle
-              : receiptData?.application?.applicationMaster?.className
+              ? receiptData?.student?.studentClass?.classTitle?.substring(0, 30)
+              : receiptData?.application?.applicationMaster?.className?.substring(
+                  0,
+                  30
+                )
           }`,
           {
             indent: pageWidth / 2 + 110,
@@ -1036,7 +1043,11 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
       width: pageWidth - 50,
       align: "right",
     });
-  } else if (paid_fee?.length === 0 && society_paid_fee?.length > 0) {
+  } else if (
+    receiptData?.finance?.is_dublicate_receipt === "Yes" &&
+    paid_fee?.length === 0 &&
+    society_paid_fee?.length > 0
+  ) {
     if (instituteData?.insProfilePhoto) {
       doc.image(
         await dynamicImages("CUSTOM", instituteData?.insProfilePhoto),
@@ -1146,7 +1157,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         .text(
           `${
             receiptData?.student?.studentClass?.classTitle
-              ? receiptData?.student?.studentClass?.classTitle
+              ? receiptData?.student?.studentClass?.classTitle?.substring(0, 30)
               : ""
           }`,
           {
@@ -1629,8 +1640,11 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         .text(
           `${
             receiptData?.student?.studentClass?.classTitle
-              ? receiptData?.student?.studentClass?.classTitle
-              : receiptData?.application?.applicationMaster?.className
+              ? receiptData?.student?.studentClass?.classTitle?.substring(0, 30)
+              : receiptData?.application?.applicationMaster?.className?.substring(
+                  0,
+                  30
+                )
           }`,
           {
             indent: pageWidth / 2 + 110,
@@ -2118,7 +2132,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
         .text(
           `${
             receiptData?.student?.studentClass?.classTitle
-              ? receiptData?.student?.studentClass?.classTitle
+              ? receiptData?.student?.studentClass?.classTitle?.substring(0, 30)
               : ""
           }`,
           {
@@ -2630,8 +2644,14 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
           .text(
             `${
               receiptData?.student?.studentClass?.classTitle
-                ? receiptData?.student?.studentClass?.classTitle
-                : receiptData?.application?.applicationMaster?.className
+                ? receiptData?.student?.studentClass?.classTitle?.substring(
+                    0,
+                    30
+                  )
+                : receiptData?.application?.applicationMaster?.className?.substring(
+                    0,
+                    30
+                  )
             }`,
             {
               indent: pageWidth / 2 + 110,

@@ -54,6 +54,10 @@ router
   .patch(isLoggedIn, catchAsync(mcqController.editSaveTestSet));
 
 router
+  .route("/one/testset/:tsid/detail/query")
+  .get(isLoggedIn, catchAsync(mcqController.one_test_detail_query));
+
+router
   .route("/subject/:sid/take/testset")
   .post(isLoggedIn, catchAsync(mcqController.takeTestSetModifyQuery));
 
@@ -165,4 +169,7 @@ router
   .route("/check/by/student/testset/:stid/result/query")
   .patch(catchAsync(mcqController.sudentExamResultTestValidationQuery));
 
+router
+  .route("/export/one/assignment/:aid/zip")
+  .post(catchAsync(mcqController.one_assignment_export_query));
 module.exports = router;

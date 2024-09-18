@@ -59,8 +59,7 @@ const copoRoute = require("../routes/Copo/copoRoute");
 const lmsRoute = require("../routes/LMS/LMSRoute");
 const subjectRoute = require("../routes/Subject/subjectRoute");
 
-
-// V2 
+// V2
 
 const authNewV2 = require("../OptimizeRoute/Authentication/authRoute");
 const financeNewV2 = require("../OptimizeRoute/Finance/financeRoute");
@@ -98,7 +97,7 @@ const iqacV2 = require("../OptimizeRoute/LandingPage/iqacRoute");
 const academicDepartmentV2 = require("../OptimizeRoute/AcademicDepartment/academicDepartmentRoute");
 const hostelV2 = require("../OptimizeRoute/Hostel/hostelRoute");
 const reportV2 = require("../OptimizeRoute/Reports/reportRoute");
-
+const guideRouteV2 = require("../OptimizeRoute/Guide/guideRoute");
 
 // Api Middleware Func
 
@@ -161,7 +160,6 @@ router.use("/api/v2/lms", lmsRoute);
 
 router.use("/api/v1/prod/access", prod);
 
-
 router.use("/api/v2/auth", authNewV2);
 router.use("/api/v2/finance", financeNewV2);
 router.use("/api/v2/admission", admissionNewV2);
@@ -196,10 +194,10 @@ router.use("/api/v2/payroll", payrollRouteV2);
 router.use("/api/v2/committee", iqacV2);
 router.use("/api/v2/academic/department", academicDepartmentV2);
 router.use("/api/v2/hostel", hostelV2);
-router.use("/api/v2/report", reportV2)
-
+router.use("/api/v2/report", reportV2);
 
 router.use("/api/v2/attendance/student", studentAttendanceRouteV2);
 router.use("/api/v2/institute/automate", instituteAutomateRouteV2);
+router.use("/api/v2/guide", guideRouteV2);
 
 module.exports = router;

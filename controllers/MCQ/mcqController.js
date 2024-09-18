@@ -34,6 +34,7 @@ const {
   mcq_create_question_excel_to_json_query,
 } = require("../../Custom/excelToJSON");
 const moment = require("moment");
+const subjectAssignmentReport = require("../../scripts/subject/subjectAssignmentReport");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // ================================== GET  UNIVERSAL INSTITUTE ALL MCQ FOR ALL USER====================
@@ -2370,11 +2371,9 @@ exports.create_mcq_question_excel_query = async (req, res) => {
         );
 
         if (question_list?.length > 0) {
-          let count = 0;
           for (let que of question_list) {
-            count += 1;
             const subjectQuestion = new SubjectQuestion({
-              questionSNO: question_master.questionCount + count,
+              questionSNO: question_master.questionCount + 1,
               questionDescription: que?.questionDescription,
               options: que?.options,
               correctAnswer: que?.correctAnswer,
@@ -2406,12 +2405,9 @@ exports.create_mcq_question_excel_query = async (req, res) => {
         );
 
         if (question_list?.length > 0) {
-          let count = 0;
-
           for (let que of question_list) {
-            count += 1;
             const subjectQuestion = new SubjectQuestion({
-              questionSNO: question_master.questionCount + count,
+              questionSNO: question_master.questionCount + 1,
               questionDescription: que?.questionDescription,
               options: que?.options,
               correctAnswer: que?.correctAnswer,
@@ -2530,6 +2526,57 @@ exports.sudentExamResultTestValidationQuery = async (req, res) => {
     res.status(200).send({
       message: "Mcq exam result test validation",
       test_access: flag,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// for export assignment
+
+exports.one_assignment_export_query = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+        access: false,
+      });
+    let excel_key = null;
+    const assign = await Assignment.findById(aid).select(
+      "assignmentName subject dueDate descritpion totalCount submittedCount createdAt"
+    );
+    if (assign?._id) {
+      excel_key = await subjectAssignmentReport(
+        assign,
+        assign?.subject,
+        "Assignment"
+      );
+    }
+    return res.status(200).send({
+      message: "All student zip attendance wtih all wise",
+      excel_key: excel_key,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.one_test_detail_query = async (req, res) => {
+  try {
+    const { tsid } = req.params;
+    if (!tsid)
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+        access: false,
+      });
+    const subjectMasterTestSet = await SubjectMasterTestSet.findById(
+      tsid
+    ).select("isUniversal testName testTotalQuestion testTotalNumber");
+    res.status(200).send({
+      message: "All test set questions",
+      subjectMasterTestSet: subjectMasterTestSet,
     });
   } catch (e) {
     console.log(e);

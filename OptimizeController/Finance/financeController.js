@@ -283,7 +283,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
     //   });
     const finance = await Finance.findById({ _id: fid })
       .select(
-        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count tab_manage financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type bank_account_count fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status show_receipt show_invoice_pattern"
+        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count tab_manage financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type bank_account_count fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status show_receipt show_invoice_pattern is_dublicate_receipt"
       )
       .populate({
         path: "institute",
@@ -4043,6 +4043,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       qviple_id: qviple_id,
     };
     if (all_remain?.remaining_flow === "Hostel Application") {
+      await normalAdmissionFeeReceipt(receipt?._id, receipt?.application?._id);
     } else {
       if (receipt?.finance?.show_receipt === "Normal") {
         // const obj_nums = await generateFeeReceipt(receipt?._id);
@@ -7579,6 +7580,7 @@ exports.renderOneOtherFeeReceipt = async (req, res) => {
     } else if (receipt?.finance?.show_receipt === "Society") {
       // await societyAdmissionFeeReceipt(receipt?._id,receipt?.finance?.institute)
     }
+    await studentOtherFeeReceipt(frid, receipt?.finance?.institute);
     const all_encrypt = await encryptionPayload(obj);
     res.status(200).send({ encrypt: all_encrypt });
   } catch (e) {
@@ -9124,3 +9126,25 @@ exports.delete_other_fees_receipt_query = async (req, res) => {
 //     console.log(e);
 //   }
 // };
+
+exports.finance_receipt_dublicate_query = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const { is_dublicate_receipt } = req.body;
+
+    if (!fid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const finance = await Finance.findById(fid);
+    finance.is_dublicate_receipt = is_dublicate_receipt;
+    await finance.save();
+    res.status(200).send({
+      message: "Finance setting save successfully",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

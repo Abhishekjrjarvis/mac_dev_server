@@ -47,6 +47,7 @@ const {
   send_email_authentication,
   generateAccessDesignationToken,
   new_chat_username_unique,
+  send_email_authentication_custom,
 } = require("../../helper/functions");
 
 const { user_date_of_birth } = require("../../helper/dayTimer");
@@ -81,8 +82,12 @@ const QvipleId = require("../../models/Universal/QvipleId");
 const { universal_random_password } = require("../../Custom/universalId");
 const generateStudentAdmissionForm = require("../../scripts/studentAdmissionForm");
 const { generate_qr } = require("../../Utilities/qrGeneration/qr_generation");
-const { universal_random_password_student_code } = require("../../Generator/RandomPass");
-const { form_no_query } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
+const {
+  universal_random_password_student_code,
+} = require("../../Generator/RandomPass");
+const {
+  form_no_query,
+} = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -96,23 +101,22 @@ const generateQR = async (encodeData, Id) => {
 };
 const all_ins_qr = async (id) => {
   try {
-    const institute = await InstituteAdmin.findById({ _id: id})
-      let institute_qr = {
-        instituteId: institute?._id,
-        url: `https://qviple.com/q/${institute?.name}/profile`,
-        flow: "FOR_APPLICATION_FORM"
-      };
-      let imageKey = await generate_qr({
-        fileName: "initial-institute-qr",
-        object_contain: institute_qr,
-      });
-      institute.profileQRCode = imageKey
-      await institute.save();
+    const institute = await InstituteAdmin.findById({ _id: id });
+    let institute_qr = {
+      instituteId: institute?._id,
+      url: `https://qviple.com/q/${institute?.name}/profile`,
+      flow: "FOR_APPLICATION_FORM",
+    };
+    let imageKey = await generate_qr({
+      fileName: "initial-institute-qr",
+      object_contain: institute_qr,
+    });
+    institute.profileQRCode = imageKey;
+    await institute.save();
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 const show_specific_activity = async (query) => {
   try {
@@ -200,7 +204,7 @@ exports.getRegisterIns = async (req, res) => {
           });
           await institute.save();
         }
-        await all_ins_qr(institute?._id)
+        await all_ins_qr(institute?._id);
       }
     }
   } catch (e) {
@@ -431,7 +435,7 @@ exports.getOtpAtUser = async (req, res) => {
     } else if (valid_email) {
       if (status === "Not Verified") {
         await OTPCode.deleteMany({ otp_email: userPhoneNumber });
-        const code = await send_email_authentication(userPhoneNumber);
+        const code = await send_email_authentication_custom(userPhoneNumber);
         const otpCode = new OTPCode({
           otp_email: userPhoneNumber,
           otp_code: `${code}`,
@@ -665,11 +669,11 @@ exports.profileByUser = async (req, res) => {
           remindLater: rDate,
           next_date: c_date,
         });
-        const code = "qviple@161028520"
+        const code = "qviple@161028520";
         const new_user_pass = bcrypt.genSaltSync(12);
         const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-        user.user_normal_password = `${code}`
-        user.user_universal_password = `${hash_user_pass}`
+        user.user_normal_password = `${code}`;
+        user.user_universal_password = `${hash_user_pass}`;
         if (req.file) {
           var width = 200;
           var height = 200;
@@ -681,7 +685,9 @@ exports.profileByUser = async (req, res) => {
         }
         admins.users.push(user);
         admins.userCount += 1;
-        user.username_chat = await new_chat_username_unique(user?.userLegalName)
+        user.username_chat = await new_chat_username_unique(
+          user?.userLegalName
+        );
         await Promise.all([admins.save(), user.save()]);
         if (req.file) {
           await unlinkFile(req.file.path);
@@ -781,14 +787,14 @@ exports.profileByGoogle = async (req, res) => {
       createdAt: c_date,
       remindLater: rDate,
     });
-    const code = "qviple@161028520"
-      const new_user_pass = bcrypt.genSaltSync(12);
-      const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-      user.user_normal_password = `${code}`
-      user.user_universal_password = `${hash_user_pass}`
+    const code = "qviple@161028520";
+    const new_user_pass = bcrypt.genSaltSync(12);
+    const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+    user.user_normal_password = `${code}`;
+    user.user_universal_password = `${hash_user_pass}`;
     admins.users.push(user);
     admins.userCount += 1;
-    user.username_chat = await new_chat_username_unique(user?.userLegalName)
+    user.username_chat = await new_chat_username_unique(user?.userLegalName);
     await Promise.all([admins.save(), user.save()]);
     const token = generateAccessToken(user?.username, user?._id);
     res.status(200).send({
@@ -864,7 +870,7 @@ exports.forgotPasswordSendOtp = async (req, res) => {
         });
       } else if (user?.userEmail) {
         await OTPCode.deleteMany({ otp_email: user?.userEmail });
-        const code = await send_email_authentication(user?.userEmail);
+        const code = await send_email_authentication_custom(user?.userEmail);
         const otpCode = new OTPCode({
           otp_email: user?.userEmail,
           otp_code: `${code}`,
@@ -1499,14 +1505,14 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
         remindLater: rDate,
         next_date: c_date,
       });
-      const code = "qviple@161028520"
+      const code = "qviple@161028520";
       const new_user_pass = bcrypt.genSaltSync(12);
       const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-      user.user_normal_password = `${code}`
-      user.user_universal_password = `${hash_user_pass}`
+      user.user_normal_password = `${code}`;
+      user.user_universal_password = `${hash_user_pass}`;
       admins.users.push(user);
       admins.userCount += 1;
-      user.username_chat = await new_chat_username_unique(user?.userLegalName)
+      user.username_chat = await new_chat_username_unique(user?.userLegalName);
       await Promise.all([admins.save(), user.save()]);
       var uInstitute = await InstituteAdmin.findOne({
         isUniversal: "Universal",
@@ -1561,12 +1567,12 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
         _id: `${classes?.institute}`,
       });
       const student = new Student({ ...req.body });
-      const codess = universal_random_password()
-      let nums = universal_random_password_student_code()
-      student.qviple_student_pay_id = nums
-      student.member_module_unique = `${codess}`
+      const codess = universal_random_password();
+      let nums = universal_random_password_student_code();
+      student.qviple_student_pay_id = nums;
+      student.member_module_unique = `${codess}`;
       if (req.body?.studentFatherName) {
-        student.studentMiddleName = req.body?.studentFatherName
+        student.studentMiddleName = req.body?.studentFatherName;
       }
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
@@ -1608,10 +1614,10 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
         student.photoId = "0";
         student.studentProfilePhoto = sample_pic;
       }
-      user.profilePhoto = student?.studentProfilePhoto
-      student.student_form_flow.flow = "INSTITUTE"
-      student.student_form_flow.did = institute?._id
-      form_no_query(institute, student)
+      user.profilePhoto = student?.studentProfilePhoto;
+      student.student_form_flow.flow = "INSTITUTE";
+      student.student_form_flow.did = institute?._id;
+      form_no_query(institute, student);
       const notify = new StudentNotification({});
       const aStatus = new Status({});
       institute.student.push(student._id);
@@ -1684,8 +1690,14 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       await generateStudentAdmissionForm(
         student?._id,
         institute?._id,
-        `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
-        `${classes?.classTitle}`,
+        `${student?.studentFirstName} ${
+          student?.studentMiddleName
+            ? student?.studentMiddleName
+            : student?.studentFatherName
+            ? student?.studentFatherName
+            : ""
+        } ${student?.studentLastName}`,
+        `${classes?.classTitle}`
       );
     } else {
       res.status(200).send({
@@ -1701,7 +1713,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
 exports.retrieveDirectJoinStaffQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { sample_pic, fileArray, experience, } = req.body;
+    const { sample_pic, fileArray, experience } = req.body;
     var valid_phone = `${id}`;
     var valid_email = valid_phone?.includes("@");
     if (
@@ -1740,14 +1752,14 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
         remindLater: rDate,
         next_date: c_date,
       });
-      const codes = "qviple@161028520"
+      const codes = "qviple@161028520";
       const new_user_pass = bcrypt.genSaltSync(12);
       const hash_user_pass = bcrypt.hashSync(codes, new_user_pass);
-      user.user_normal_password = `${codes}`
-      user.user_universal_password = `${hash_user_pass}`
+      user.user_normal_password = `${codes}`;
+      user.user_universal_password = `${hash_user_pass}`;
       admins.users.push(user);
       admins.userCount += 1;
-      user.username_chat = await new_chat_username_unique(user?.userLegalName)
+      user.username_chat = await new_chat_username_unique(user?.userLegalName);
       await Promise.all([admins.save(), user.save()]);
       var uInstitute = await InstituteAdmin.findOne({
         isUniversal: "Universal",
@@ -1827,13 +1839,13 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
         staff.photoId = "0";
         staff.staffProfilePhoto = sample_pic;
       }
-      if(experience?.length > 0){
-        for(var val of experience){
-          staff.experience.push(val)
+      if (experience?.length > 0) {
+        for (var val of experience) {
+          staff.experience.push(val);
         }
       }
-      const code = universal_random_password()
-      staff.member_module_unique = `${code}`
+      const code = universal_random_password();
+      staff.member_module_unique = `${code}`;
       const notify = new Notification({});
       const aStatus = new Status({});
       institute.staff.push(staff._id);
@@ -1936,14 +1948,14 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         remindLater: rDate,
         next_date: c_date,
       });
-      const code = "qviple@161028520"
+      const code = "qviple@161028520";
       const new_user_pass = bcrypt.genSaltSync(12);
       const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-      user.user_normal_password = `${code}`
-      user.user_universal_password = `${hash_user_pass}`
+      user.user_normal_password = `${code}`;
+      user.user_universal_password = `${hash_user_pass}`;
       admins.users.push(user);
       admins.userCount += 1;
-      user.username_chat = await new_chat_username_unique(user?.userLegalName)
+      user.username_chat = await new_chat_username_unique(user?.userLegalName);
       await Promise.all([admins.save(), user.save()]);
       var uInstitute = await InstituteAdmin.findOne({
         isUniversal: "Universal",
@@ -1994,12 +2006,12 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         });
       }
       const student = new Student({ ...req.body });
-      const codess = universal_random_password()
-      let nums = universal_random_password_student_code()
-      student.qviple_student_pay_id = nums
-      student.member_module_unique = `${codess}`
+      const codess = universal_random_password();
+      let nums = universal_random_password_student_code();
+      student.qviple_student_pay_id = nums;
+      student.member_module_unique = `${codess}`;
       if (req.body?.studentFatherName) {
-        student.studentMiddleName = req.body?.studentFatherName
+        student.studentMiddleName = req.body?.studentFatherName;
       }
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
@@ -2048,10 +2060,10 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         student.photoId = "0";
         student.studentProfilePhoto = sample_pic;
       }
-      user.profilePhoto = student?.studentProfilePhoto
-      student.student_form_flow.flow = "APPLICATION"
-      student.student_form_flow.did = apply?._id
-      form_no_query(institute, student)
+      user.profilePhoto = student?.studentProfilePhoto;
+      student.student_form_flow.flow = "APPLICATION";
+      student.student_form_flow.did = apply?._id;
+      form_no_query(institute, student);
       status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -2071,8 +2083,8 @@ Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe,
 7. For cancellation and refund, contact the admission department.
 
 Note: Stay tuned for further updates.`;
-      status.group_by = "Admission_Application_Applied"
-      form_no_query(institute, student)
+      status.group_by = "Admission_Application_Applied";
+      form_no_query(institute, student);
       status.applicationId = apply._id;
       status.student = student?._id;
       status.document_visible = true;
@@ -2123,12 +2135,22 @@ Note: Stay tuned for further updates.`;
         login: true,
         student: student?._id,
       });
-    let name = `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ?? ""} ${student?.studentLastName}`
+      let name = `${student?.studentFirstName} ${
+        student?.studentMiddleName
+          ? student?.studentMiddleName
+          : student?.studentFatherName ?? ""
+      } ${student?.studentLastName}`;
       await generateStudentAdmissionForm(
         student?._id,
         institute?._id,
-        `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
-        `${apply?.applicationName}`,
+        `${student?.studentFirstName} ${
+          student?.studentMiddleName
+            ? student?.studentMiddleName
+            : student?.studentFatherName
+            ? student?.studentFatherName
+            : ""
+        } ${student?.studentLastName}`,
+        `${apply?.applicationName}`
       );
     } else {
       res.status(200).send({
@@ -2183,14 +2205,14 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
         remindLater: rDate,
         next_date: c_date,
       });
-      const code = "qviple@161028520"
+      const code = "qviple@161028520";
       const new_user_pass = bcrypt.genSaltSync(12);
       const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-      user.user_normal_password = `${code}`
-      user.user_universal_password = `${hash_user_pass}`
+      user.user_normal_password = `${code}`;
+      user.user_universal_password = `${hash_user_pass}`;
       admins.users.push(user);
       admins.userCount += 1;
-      user.username_chat = await new_chat_username_unique(user?.userLegalName)
+      user.username_chat = await new_chat_username_unique(user?.userLegalName);
       await Promise.all([admins.save(), user.save()]);
       var uInstitute = await InstituteAdmin.findOne({
         isUniversal: "Universal",
@@ -2241,12 +2263,12 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
         });
       }
       const student = new Student({ ...req.body });
-      const codess = universal_random_password()
-      let nums = universal_random_password_student_code()
-      student.qviple_student_pay_id = nums
-      student.member_module_unique = `${codess}`
+      const codess = universal_random_password();
+      let nums = universal_random_password_student_code();
+      student.qviple_student_pay_id = nums;
+      student.member_module_unique = `${codess}`;
       if (req.body?.studentFatherName) {
-        student.studentMiddleName = req.body?.studentFatherName
+        student.studentMiddleName = req.body?.studentFatherName;
       }
       student.valid_full_name = `${student?.studentFirstName} ${
         student?.studentMiddleName ?? ""
@@ -2295,10 +2317,10 @@ exports.retrieveDirectJoinHostelQuery = async (req, res) => {
         student.photoId = "0";
         student.studentProfilePhoto = sample_pic;
       }
-      user.profilePhoto = student?.studentProfilePhoto
-      student.student_form_flow.flow = "INSTITUTE"
-      student.student_form_flow.did = institute?._id
-      form_no_query(institute, student)
+      user.profilePhoto = student?.studentProfilePhoto;
+      student.student_form_flow.flow = "INSTITUTE";
+      student.student_form_flow.did = institute?._id;
+      form_no_query(institute, student);
       status.content = `Your application for ${apply?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -2427,14 +2449,16 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
           remindLater: rDate,
           next_date: c_date,
         });
-        const code = "qviple@161028520"
+        const code = "qviple@161028520";
         const new_user_pass = bcrypt.genSaltSync(12);
         const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-        user.user_normal_password = `${code}`
-        user.user_universal_password = `${hash_user_pass}`
+        user.user_normal_password = `${code}`;
+        user.user_universal_password = `${hash_user_pass}`;
         admins.users.push(user);
         admins.userCount += 1;
-        user.username_chat = await new_chat_username_unique(user?.userLegalName)
+        user.username_chat = await new_chat_username_unique(
+          user?.userLegalName
+        );
         await Promise.all([admins.save(), user.save()]);
         var uInstitute = await InstituteAdmin.findOne({
           isUniversal: "Universal",
@@ -2498,12 +2522,12 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       _id: `${institute?.financeDepart[0]}`,
     });
     const student = new Student({ ...req.body });
-    const codess = universal_random_password()
-    let nums = universal_random_password_student_code()
-      student.qviple_student_pay_id = nums
-    student.member_module_unique = `${codess}`
+    const codess = universal_random_password();
+    let nums = universal_random_password_student_code();
+    student.qviple_student_pay_id = nums;
+    student.member_module_unique = `${codess}`;
     if (req.body?.studentFatherName) {
-      student.studentMiddleName = req.body?.studentFatherName
+      student.studentMiddleName = req.body?.studentFatherName;
     }
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
@@ -2542,7 +2566,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       student.photoId = "0";
       student.studentProfilePhoto = sample_pic;
     }
-    user.profilePhoto = student?.studentProfilePhoto
+    user.profilePhoto = student?.studentProfilePhoto;
     for (let subjChoose of student?.studentOptionalSubject) {
       const subject = await Subject.findById(subjChoose);
       subject.optionalStudent.push(student?._id);
@@ -2562,9 +2586,9 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       institute.userFollowersList.push(user?._id);
       institute.followersCount += 1;
     }
-    student.student_form_flow.flow = "DEPARTMENT"
-    student.student_form_flow.did = depart?._id
-    form_no_query(institute, student)
+    student.student_form_flow.flow = "DEPARTMENT";
+    student.student_form_flow.did = depart?._id;
+    form_no_query(institute, student);
     student.institute = institute._id;
     student.user = user._id;
     student.studentStatus = "Approved";
@@ -2704,8 +2728,14 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     await generateStudentAdmissionForm(
       student?._id,
       institute?._id,
-      `${student?.studentFirstName} ${student?.studentMiddleName ? student?.studentMiddleName : student?.studentFatherName ? student?.studentFatherName : ""} ${student?.studentLastName}`,
-      `${classes?.classTitle}`,
+      `${student?.studentFirstName} ${
+        student?.studentMiddleName
+          ? student?.studentMiddleName
+          : student?.studentFatherName
+          ? student?.studentFatherName
+          : ""
+      } ${student?.studentLastName}`,
+      `${classes?.classTitle}`
     );
     // const studentName = `${student.studentFirstName} ${
     //   student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
@@ -2753,7 +2783,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
 exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
   try {
     const { id, insId } = req.params;
-    const { experience } = req?.body
+    const { experience } = req?.body;
     const { existingUser } = req.query;
     var valid_phone = `${id}`;
     var valid_email = valid_phone?.includes("@");
@@ -2798,14 +2828,16 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
           remindLater: rDate,
           next_date: c_date,
         });
-        const code = "qviple@161028520"
+        const code = "qviple@161028520";
         const new_user_pass = bcrypt.genSaltSync(12);
         const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-        user.user_normal_password = `${code}`
-        user.user_universal_password = `${hash_user_pass}`
+        user.user_normal_password = `${code}`;
+        user.user_universal_password = `${hash_user_pass}`;
         admins.users.push(user);
         admins.userCount += 1;
-        user.username_chat = await new_chat_username_unique(user?.userLegalName)
+        user.username_chat = await new_chat_username_unique(
+          user?.userLegalName
+        );
         await Promise.all([admins.save(), user.save()]);
         var uInstitute = await InstituteAdmin.findOne({
           isUniversal: "Universal",
@@ -2888,13 +2920,13 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
       staff.photoId = "0";
       staff.staffProfilePhoto = sample_pic;
     }
-    if(experience?.length > 0){
-      for(var val of experience){
-        staff.experience.push(val)
+    if (experience?.length > 0) {
+      for (var val of experience) {
+        staff.experience.push(val);
       }
     }
-    const code = universal_random_password()
-    staff.member_module_unique = `${code}`
+    const code = universal_random_password();
+    staff.member_module_unique = `${code}`;
     const notify = new Notification({});
     const aStatus = new Status({});
     user.staff.push(staff._id);
@@ -3094,14 +3126,16 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
           remindLater: rDate,
           next_date: c_date,
         });
-        const code = "qviple@161028520"
+        const code = "qviple@161028520";
         const new_user_pass = bcrypt.genSaltSync(12);
         const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-        user.user_normal_password = `${code}`
-        user.user_universal_password = `${hash_user_pass}`
+        user.user_normal_password = `${code}`;
+        user.user_universal_password = `${hash_user_pass}`;
         admins.users.push(user);
         admins.userCount += 1;
-        user.username_chat = await new_chat_username_unique(user?.userLegalName)
+        user.username_chat = await new_chat_username_unique(
+          user?.userLegalName
+        );
         await Promise.all([admins.save(), user.save()]);
         await universal_account_creation_feed(user);
         await user_date_of_birth(user);
@@ -3111,12 +3145,12 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       var user = await User.findById({ _id: `${existing}` });
     }
     const student = new Student({ ...req.body });
-    const codess = universal_random_password()
-    let nums = universal_random_password_student_code()
-      student.qviple_student_pay_id = nums
-    student.member_module_unique = `${codess}`
+    const codess = universal_random_password();
+    let nums = universal_random_password_student_code();
+    student.qviple_student_pay_id = nums;
+    student.member_module_unique = `${codess}`;
     if (req.body?.studentFatherName) {
-      student.studentMiddleName = req.body?.studentFatherName
+      student.studentMiddleName = req.body?.studentFatherName;
     }
     student.valid_full_name = `${student?.studentFirstName} ${
       student?.studentMiddleName ?? ""
@@ -3154,10 +3188,10 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       student.photoId = "0";
       student.studentProfilePhoto = sample_pic;
     }
-    user.profilePhoto = student?.studentProfilePhoto
-    student.student_form_flow.flow = "APPLICATION"
-    student.student_form_flow.did = apply?._id
-    form_no_query(institute, student)
+    user.profilePhoto = student?.studentProfilePhoto;
+    student.student_form_flow.flow = "APPLICATION";
+    student.student_form_flow.did = apply?._id;
+    form_no_query(institute, student);
     user.student.push(student._id);
     user.applyApplication.push(apply._id);
     student.user = user._id;
@@ -3332,14 +3366,16 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           remindLater: rDate,
           next_date: c_date,
         });
-        const code = "qviple@161028520"
+        const code = "qviple@161028520";
         const new_user_pass = bcrypt.genSaltSync(12);
         const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-        user.user_normal_password = `${code}`
-        user.user_universal_password = `${hash_user_pass}`
+        user.user_normal_password = `${code}`;
+        user.user_universal_password = `${hash_user_pass}`;
         admins.users.push(user);
         admins.userCount += 1;
-        user.username_chat = await new_chat_username_unique(user?.userLegalName)
+        user.username_chat = await new_chat_username_unique(
+          user?.userLegalName
+        );
         await Promise.all([admins.save(), user.save()]);
         var uInstitute = await InstituteAdmin.findOne({
           isUniversal: "Universal",
@@ -3407,10 +3443,10 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           _id: `${institute?.financeDepart[0]}`,
         });
         const student = new Student({ ...query });
-        const codess = universal_random_password()
-        let nums = universal_random_password_student_code()
-      student.qviple_student_pay_id = nums
-        student.member_module_unique = `${codess}`
+        const codess = universal_random_password();
+        let nums = universal_random_password_student_code();
+        student.qviple_student_pay_id = nums;
+        student.member_module_unique = `${codess}`;
         student.valid_full_name = `${student?.studentFirstName} ${
           student?.studentMiddleName ?? ""
         } ${student?.studentLastName}`;
@@ -3440,9 +3476,9 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
             });
           }
         }
-        student.student_form_flow.flow = "DEPARTMENT"
-        student.student_form_flow.did = depart?._id
-        form_no_query(institute, student)
+        student.student_form_flow.flow = "DEPARTMENT";
+        student.student_form_flow.did = depart?._id;
+        form_no_query(institute, student);
         if (studentOptionalSubject?.length > 0) {
           student.studentOptionalSubject.push(...studentOptionalSubject);
         }
@@ -3454,7 +3490,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           student.studentProfilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
         } else {
         }
-        user.profilePhoto = student?.studentProfilePhoto
+        user.profilePhoto = student?.studentProfilePhoto;
         for (let subjChoose of student?.studentOptionalSubject) {
           const subject = await Subject.findById(subjChoose);
           subject.optionalStudent.push(student?._id);
@@ -3873,14 +3909,16 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
           remindLater: rDate,
           next_date: c_date,
         });
-        const codes = "qviple@161028520"
+        const codes = "qviple@161028520";
         const new_user_pass = bcrypt.genSaltSync(12);
         const hash_user_pass = bcrypt.hashSync(codes, new_user_pass);
-        user.user_normal_password = `${codes}`
-        user.user_universal_password = `${hash_user_pass}`
+        user.user_normal_password = `${codes}`;
+        user.user_universal_password = `${hash_user_pass}`;
         admins.users.push(user);
         admins.userCount += 1;
-        user.username_chat = await new_chat_username_unique(user?.userLegalName)
+        user.username_chat = await new_chat_username_unique(
+          user?.userLegalName
+        );
         await Promise.all([admins.save(), user.save()]);
         var uInstitute = await InstituteAdmin.findOne({
           isUniversal: "Universal",
@@ -3951,7 +3989,7 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
           staffPanNumber: ref?.staffPanNumber,
           current_designation: ref?.current_designation,
           staff_emp_code: ref?.code,
-          teaching_type: ref?.teaching_type
+          teaching_type: ref?.teaching_type,
         });
         staff.photoId = "0";
         if (staff?.staffGender?.toLowerCase() === "male") {
@@ -3985,8 +4023,8 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
           staff.photoId = "0";
           staff.staffProfilePhoto = ref?.sample_pic;
         }
-        const code = universal_random_password()
-        staff.member_module_unique = `${code}`
+        const code = universal_random_password();
+        staff.member_module_unique = `${code}`;
         const notify = new Notification({});
         const aStatus = new Status({});
         user.staff.push(staff._id);
@@ -4396,14 +4434,16 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
           remindLater: rDate,
           next_date: c_date,
         });
-        const code = "qviple@161028520"
+        const code = "qviple@161028520";
         const new_user_pass = bcrypt.genSaltSync(12);
         const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-        user.user_normal_password = `${code}`
-        user.user_universal_password = `${hash_user_pass}`
+        user.user_normal_password = `${code}`;
+        user.user_universal_password = `${hash_user_pass}`;
         admins.users.push(user);
         admins.userCount += 1;
-        user.username_chat = await new_chat_username_unique(user?.userLegalName)
+        user.username_chat = await new_chat_username_unique(
+          user?.userLegalName
+        );
         await Promise.all([admins.save(), user.save()]);
         var uInstitute = await InstituteAdmin.findOne({
           isUniversal: "Universal",
@@ -4475,10 +4515,10 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
           student_prn_enroll_number: ref.student_prn_enroll_number,
           student_join_mode: "ADMISSION_PROCESS",
         });
-        const codess = universal_random_password()
-        let nums = universal_random_password_student_code()
-        student.qviple_student_pay_id = nums
-        student.member_module_unique = `${codess}`
+        const codess = universal_random_password();
+        let nums = universal_random_password_student_code();
+        student.qviple_student_pay_id = nums;
+        student.member_module_unique = `${codess}`;
         student.valid_full_name = `${student?.studentFirstName} ${
           student?.studentMiddleName ?? ""
         } ${student?.studentLastName}`;
@@ -4490,16 +4530,16 @@ exports.retrieveUnApprovedDirectJoinQuery = async (id, student_array) => {
           user.profilePhoto = `Static_Content_Avatar/person_default_avatar.png`;
         } else {
         }
-        user.profilePhoto = student?.studentProfilePhoto
+        user.profilePhoto = student?.studentProfilePhoto;
         const aStatus = new Status({});
         institute.UnApprovedStudent.push(student._id);
         institute.un_approved_student_count += 1;
         user.student.push(student._id);
         user.is_mentor = true;
         institute.joinedPost.push(user._id);
-        student.student_form_flow.flow = "INSTITUTE"
-        student.student_form_flow.did = institute?._id
-        form_no_query(institute, student)
+        student.student_form_flow.flow = "INSTITUTE";
+        student.student_form_flow.did = institute?._id;
+        form_no_query(institute, student);
         if (institute.userFollowersList.includes(user?._id)) {
         } else {
           user.userInstituteFollowing.push(institute?._id);
@@ -4786,11 +4826,10 @@ exports.renderOneInstituteAllUnApprovedStudentQuery = async (req, res) => {
 //   }
 // };
 
-
-exports.renderQvipleIdQuery = async(req, res) => {
-  try{
+exports.renderQvipleIdQuery = async (req, res) => {
+  try {
     // const all_user = await User.find({})
-    const all_ins = await InstituteAdmin.find({})
+    const all_ins = await InstituteAdmin.find({});
     // for(var val of all_user){
     //   const uqid = universal_random_password()
     //   var qvipleId = new QvipleId({})
@@ -4798,16 +4837,15 @@ exports.renderQvipleIdQuery = async(req, res) => {
     //   qvipleId.qviple_id = `${uqid}`
     //   await qvipleId.save()
     // }
-    for(var val of all_ins){
-      const uqid = universal_random_password()
-      var qvipleId = new QvipleId({})
-      qvipleId.institute = val?._id
-      qvipleId.qviple_id = `${uqid}`
-      await qvipleId.save()
+    for (var val of all_ins) {
+      const uqid = universal_random_password();
+      var qvipleId = new QvipleId({});
+      qvipleId.institute = val?._id;
+      qvipleId.qviple_id = `${uqid}`;
+      await qvipleId.save();
     }
-    res.status(200).send({ message: "All New Qviple ID Query", access: true})
+    res.status(200).send({ message: "All New Qviple ID Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};

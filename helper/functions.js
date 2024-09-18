@@ -502,8 +502,13 @@ exports.send_email_student_message_query = (email, message) => {
     });
 };
 
-const send_email_authentication_custom = function (recipientEmail, otp) {
+exports.send_email_authentication_custom = async function (recipientEmail) {
   // Create the bodyhtml part of the email
+  let rand1 = Math.floor(Math.random() * 9) + 1;
+  let rand2 = Math.floor(Math.random() * 9) + 1;
+  let rand3 = Math.floor(Math.random() * 9) + 1;
+  let rand4 = Math.floor(Math.random() * 9) + 1;
+  const OTP = `${rand1}${rand2}${rand3}${rand4}`;
   const bodyhtml = `
   <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -545,7 +550,7 @@ const send_email_authentication_custom = function (recipientEmail, otp) {
                                                           </p>
                                                           <p style="margin:0px; padding:0px;"><br></p>
                                                           <p class="style3" style="margin:0px; padding:0px; color:rgb(68, 68, 68); font-size:16px; line-height:normal; font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
-                                                              <strong>486575</strong>
+                                                              <strong>${OTP}</strong>
                                                           </p>
                                                       </td>
                                                   </tr>
@@ -705,10 +710,6 @@ const send_email_authentication_custom = function (recipientEmail, otp) {
     throw error;
   }
 };
-
-console.log(
-  send_email_authentication_custom("yelpcamp44@gmail.com", "0989899")
-);
 
 // console.log(
 //   send_email_authentication_promotional("pankajphad.stuff@gmail.com")

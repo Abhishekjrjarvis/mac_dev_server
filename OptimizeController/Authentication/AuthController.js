@@ -47,6 +47,7 @@ const {
   send_email_authentication,
   generateAccessDesignationToken,
   new_chat_username_unique,
+  send_email_authentication_custom,
 } = require("../../helper/functions");
 
 const { user_date_of_birth } = require("../../helper/dayTimer");
@@ -468,7 +469,9 @@ exports.getOtpAtUser = async (req, res) => {
         if (valid_user?.userPhoneNumber) {
           var code = await generateOTP(valid_user?.userPhoneNumber);
         } else if (valid_user?.userEmail) {
-          var code = await send_email_authentication(valid_user?.userEmail);
+          var code = await send_email_authentication_custom(
+            valid_user?.userEmail
+          );
         }
         const otpCode = new OTPCode({
           otp_qid: userPhoneNumber,
@@ -524,7 +527,7 @@ exports.getOtpAtUser = async (req, res) => {
       } else if (valid_email) {
         if (status === "Not Verified") {
           await OTPCode.deleteMany({ otp_email: userPhoneNumber });
-          const code = await send_email_authentication(userPhoneNumber);
+          const code = await send_email_authentication_custom(userPhoneNumber);
           const otpCode = new OTPCode({
             otp_email: userPhoneNumber,
             otp_code: `${code}`,
@@ -1018,7 +1021,7 @@ exports.forgotPasswordSendOtp = async (req, res) => {
         res.status(200).send({ encrypt: fEncrypt });
       } else if (user?.userEmail) {
         await OTPCode.deleteMany({ otp_email: user?.userEmail });
-        const code = await send_email_authentication(user?.userEmail);
+        const code = await send_email_authentication_custom(user?.userEmail);
         const otpCode = new OTPCode({
           otp_email: user?.userEmail,
           otp_code: `${code}`,

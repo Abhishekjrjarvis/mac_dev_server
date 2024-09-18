@@ -7580,7 +7580,7 @@ exports.renderOneOtherFeeReceipt = async (req, res) => {
       // await societyAdmissionFeeReceipt(receipt?._id,receipt?.finance?.institute)
     }
     const all_encrypt = await encryptionPayload(obj);
-    res.status(200).send({ encrypt: obj });
+    res.status(200).send({ encrypt: all_encrypt });
   } catch (e) {
     console.log(e);
   }

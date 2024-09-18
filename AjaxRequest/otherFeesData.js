@@ -64,7 +64,7 @@ const renderOneOtherFeeReceipt = async (frid) => {
       })
       .populate({
         path: "finance",
-        select: "financeHead show_receipt institute",
+        select: "financeHead show_receipt institute is_dublicate_receipt",
         populate: {
           path: "financeHead",
           select: "staffFirstName staffMiddleName staffLastName",

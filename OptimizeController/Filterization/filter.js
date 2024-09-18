@@ -19207,6 +19207,7 @@ exports.renderApplicationDSEAllottedListQuery = async (req, res) => {
               _id: stu?._id,
             });
           }
+          console.log(ref?.student?.student_dynamic_subject);
           // for (let ele of ref?.student?.student_dynamic_subject) {
           //   for (let val of ref?.student?.student_optional_subject) {
           //     if (`${ele?._id}` === `${val?._id}`) {
@@ -19230,7 +19231,7 @@ exports.renderApplicationDSEAllottedListQuery = async (req, res) => {
           //     }
           //   }
           // }
-          for (let val of ref?.student?.student_optional_subject) {
+          for (let val of ref?.student?.major_subject) {
             if (
               ref.student.student_single_subject?.includes(
                 `${val?.subjectName}`

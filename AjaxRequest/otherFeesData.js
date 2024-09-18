@@ -10,9 +10,8 @@ const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 });
 const obj = {
-  DEV: "http://localhost:8080/api",
-  // DEV: "http://44.197.120.176/api/api",
-  PROD: "http://qviple.com/api",
+  DEV: "http://44.197.120.176/api/api",
+  PROD: "https://qviple.com/api",
   OTHER: false,
 };
 

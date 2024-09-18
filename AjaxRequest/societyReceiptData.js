@@ -12,7 +12,7 @@ const httpsAgent = new https.Agent({
 });
 const obj = {
   DEV: "http://44.197.120.176/api/api",
-  PROD: "http://qviple.com/api",
+  PROD: "https://qviple.com/api",
   OTHER: false,
 };
 

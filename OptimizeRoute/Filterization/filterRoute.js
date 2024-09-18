@@ -332,4 +332,9 @@ router.patch(
   catchAsync(Filter.render_combined_daybook_heads_wise)
 );
 
+router.patch(
+  "/allotted/dse/application/export/:appId",
+  catchAsync(Filter.renderApplicationDSEAllottedListQuery)
+);
+
 module.exports = router;

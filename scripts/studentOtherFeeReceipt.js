@@ -45,12 +45,14 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
 
   let paid_fee = [];
   let society_paid_fee = [];
-  for (let fd of receiptData?.fee_heads) {
-    if (fd?.paid_fee > 0) {
-      if (fd?.is_society) {
-        society_paid_fee.push(fd);
-      } else {
-        paid_fee.push(fd);
+  if (receiptData?.fee_heads?.length > 0) {
+    for (let fd of receiptData?.fee_heads) {
+      if (fd?.paid_fee > 0) {
+        if (fd?.is_society) {
+          society_paid_fee.push(fd);
+        } else {
+          paid_fee.push(fd);
+        }
       }
     }
   }

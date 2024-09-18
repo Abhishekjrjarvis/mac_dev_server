@@ -54,6 +54,10 @@ router
   .patch(isLoggedIn, catchAsync(mcqController.editSaveTestSet));
 
 router
+  .route("/one/testset/:tsid/detail/query")
+  .get(isLoggedIn, catchAsync(mcqController.one_test_detail_query));
+
+router
   .route("/subject/:sid/take/testset")
   .post(isLoggedIn, catchAsync(mcqController.takeTestSetModifyQuery));
 

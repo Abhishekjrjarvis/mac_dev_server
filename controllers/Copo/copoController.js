@@ -2475,7 +2475,7 @@ exports.subject_continuous_evaluation_detail_query = async (req, res) => {
         select: "subjectName subject_category",
       })
       .select(
-        "class experiment_outof attendance_outof cls_test_outof assignment_outof total_outof final_outof university_outof attendance_subject experiment_toggle attendance_toggle cls_test_toggle assignment_toggle cls_test_subject assignment_subject"
+        "class experiment_outof attendance_outof cls_test_outof assignment_outof total_outof final_outof university_outof attendance_subject experiment_toggle attendance_toggle cls_test_toggle assignment_toggle cls_test_subject assignment_subject attendance_grade_count attendance_grade_marks"
       );
     res.status(200).send({
       message: "Continuous evaluation setting saved successfully.",
@@ -2495,6 +2495,7 @@ exports.subject_continuous_evaluation_setting_query = async (req, res) => {
       });
     }
     await SubjectContinuousEvaluation.findByIdAndUpdate(ceid, req.body);
+
     res.status(200).send({
       message: "Continuous evaluation setting saved successfully.",
     });
@@ -2677,10 +2678,22 @@ exports.continuous_evaluation_attendance_marks_query = async (req, res) => {
           );
 
           obj.subjectWise.totalPercentage = +obj.subjectWise.totalPercentage;
-          obj.attendance_mark = Math.ceil(
-            (obj.subjectWise.totalPercentage * ct_ev.attendance_outof) / 100
-          );
-          obj.attendance_mark = +obj.attendance_mark;
+
+          if (ct_ev?.attendance_grade_marks?.length > 0) {
+            for (let dbt of ct_ev?.attendance_grade_marks) {
+              if (
+                obj.subjectWise.totalPercentage >= dbt?.start_range &&
+                obj.subjectWise.totalPercentage <= dbt?.end_range
+              ) {
+                obj.attendance_mark = +dbt.grade_marks;
+              }
+            }
+          } else {
+            obj.attendance_mark = Math.ceil(
+              (obj.subjectWise.totalPercentage * ct_ev.attendance_outof) / 100
+            );
+            obj.attendance_mark = +obj.attendance_mark;
+          }
         }
 
         students.push(obj);

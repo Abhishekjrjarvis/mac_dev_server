@@ -1230,6 +1230,16 @@ const studentSchema = new mongoose.Schema({
   studentFName: { type: String },
   studentMName: { type: String },
   studentLName: { type: String },
+  guide: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Guide",
+    },
+  ],
+  guide_count: {
+    type: Number,
+    default: 0,
+  },
 });
 const Student = mongoose.model("Student", studentSchema);
 

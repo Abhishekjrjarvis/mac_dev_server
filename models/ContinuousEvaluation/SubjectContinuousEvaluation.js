@@ -197,6 +197,26 @@ const subjectContinuousEvaluationSchema = new mongoose.Schema({
       },
     },
   ],
+  attendance_grade_count: {
+    type: Number,
+    default: 0,
+  },
+  attendance_grade_marks: [
+    {
+      start_range: {
+        type: Number,
+        default: 0,
+      },
+      end_range: {
+        type: Number,
+        default: 0,
+      },
+      grade_marks: {
+        type: Number,
+        default: 0,
+      },
+    },
+  ],
 });
 
 module.exports = mongoose.model(

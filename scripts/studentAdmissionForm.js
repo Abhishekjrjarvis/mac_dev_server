@@ -278,7 +278,8 @@ const generateStudentAdmissionForm = async (
               "antiragging_affidavit",
               "undertakings",
               "antiragging_affidavit_parents",
-            ]?.includes(itr?.static_key)
+            ]?.includes(itr?.static_key) ||
+            ["UNDERTAKING"]?.includes(itr?.status)
           ) {
             if (itr?.static_key === "undertakings") {
               doc.addPage();
@@ -373,6 +374,62 @@ const generateStudentAdmissionForm = async (
                 }
               }
               doc.font("Times-Bold").text("Signature of Parent", 440, doc.y);
+            }
+
+            if (itr?.status === "UNDERTAKING") {
+              doc.addPage();
+              doc.fontSize(12);
+              doc.font("Times-Bold");
+              doc.fillColor("#121212").text(`${itr?.key}: -`, 25);
+              doc.moveDown(0.3);
+              doc.fontSize(11);
+              if (itr?.fields?.[0]?.value) {
+                doc
+                  .font("Times-Roman")
+                  .text(`${itr?.fields?.[0]?.value ?? ""}`);
+              }
+              doc.moveDown(2);
+              if (itr?.type === "STUDENT") {
+                if (oneProfile?.student_signature) {
+                  let sig = await dynamicImages(
+                    "CUSTOM",
+                    oneProfile?.student_signature
+                  );
+                  if (sig) {
+                    doc.image(sig, pageWidth - 185, doc.y, {
+                      width: 160,
+                      height: 60,
+                      align: "right",
+                    });
+                    doc.moveDown(1);
+                  }
+                }
+                doc
+                  .font("Times-Bold")
+                  .text("Signature of Candidate", 440, doc.y);
+
+                doc.moveDown(6);
+                doc.font("Times-Bold").text("Clerk", 55);
+                doc.moveUp(1);
+                doc.font("Times-Bold").text("Principal", 470, doc.y);
+              } else if (itr?.type === "PARENTS") {
+                if (oneProfile?.student_parents_signature) {
+                  let p_sig = await dynamicImages(
+                    "CUSTOM",
+                    oneProfile?.student_parents_signature
+                  );
+                  if (p_sig) {
+                    doc.image(p_sig, pageWidth - 185, doc.y, {
+                      width: 160,
+                      height: 60,
+                      align: "right",
+                    });
+                    doc.moveDown(1);
+                  }
+                }
+                doc.font("Times-Bold").text("Signature of Parent", 440, doc.y);
+              } else {
+              }
             }
           } else {
             doc.fontSize(12);

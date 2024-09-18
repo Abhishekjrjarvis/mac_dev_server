@@ -1,5 +1,7 @@
 const Subject = require("../../models/Subject");
 const InstituteAdmin = require("../../models/InstituteAdmin");
+const Student = require("../../models/Student");
+const { subject_json_to_excel } = require("../../Custom/JSONToExcel");
 
 exports.getSubjectTabManageQuery = async (req, res) => {
   try {
@@ -67,3 +69,81 @@ exports.updateSubjectTabManageQuery = async (req, res) => {
   }
 };
 
+exports.subject_catalog_export_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let excel_key = "";
+    const subjects = await Subject.findById(sid)
+      .populate({
+        path: "selected_batch_query",
+        select: "class_student_query",
+      })
+      .populate({
+        path: "class",
+        select: "classTitle ApproveStudent",
+      });
+    let student_list = [];
+    if (subjects?.selected_batch_query?._id) {
+      student_list = subjects?.selected_batch_query?.class_student_query;
+    } else {
+      if (subjects?.optionalStudent?.length > 0) {
+        student_list = subjects?.optionalStudent;
+      } else {
+        const cdt = await Class.findById(subjects?.class);
+        student_list = cdt?.ApproveStudent;
+      }
+    }
+
+    let students = [];
+
+    if (student_list?.length > 0) {
+      for (let st of student_list) {
+        const student = await Student.findById(st)
+          .select(
+            "studentFirstName studentLastName studentMiddleName studentGRNO studentROLLNO student_prn_enroll_number studentGender"
+          )
+          .lean()
+          .exec();
+        let dObj = {
+          GRNO: student?.studentGRNO ?? "N/A",
+          "Enrollment / PRN": student?.student_prn_enroll_number
+            ? student?.student_prn_enroll_number
+            : "N/A",
+          RollNo: student?.studentROLLNO,
+          Name: `${
+            student?.studentFirstName +
+            " " +
+            student?.studentMiddleName +
+            " " +
+            student?.studentLastName
+          }`,
+          Gender: student?.studentGender,
+        };
+        students.push(dObj);
+      }
+    }
+
+    if (students?.length > 0) {
+      excel_key = await subject_json_to_excel(
+        sid,
+        students,
+        "Catalog Students",
+        "CATALOG_STUDENT",
+        `catalog-of-student-${subjects?.subjectName ?? ""}-${
+          subjects?.class?.classTitle ?? ""
+        }`
+      );
+    }
+    return res.status(200).send({
+      message: "All student zip with catalog.",
+      excel_key: excel_key,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

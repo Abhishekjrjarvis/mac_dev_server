@@ -142,6 +142,7 @@ const {
   render_staff_add_department,
 } = require("../../controllers/InstituteAdmin/InstituteController");
 const { send_email_student_message_query } = require("../../helper/functions");
+const NewApplication = require("../../models/Admission/NewApplication");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -4575,6 +4576,150 @@ exports.renderExcelToJSONGRNOQuery = async (req, res) => {
     } else {
       console.log("false");
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllFilteredDocumentMessageQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    // const { flow } = req.query;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    // if (flow === "INSTITUTE_ADMIN") {
+    var valid_ins = await InstituteAdmin.findById({ _id: sid }).select(
+      "student_reminder"
+    );
+    var all_message = await StudentMessage.find({
+      $and: [
+        { _id: { $in: valid_ins?.student_reminder } },
+        { message_mode: "DOCUMENT_STUDENT_REMINDER" },
+      ],
+    })
+      .sort({ created_at: -1 })
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "from student_list",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId valid_full_name staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId studentGRNO",
+      });
+    // }
+    if (all_message?.length > 0) {
+      res.status(200).send({
+        message: "Explore New All Message Query",
+        access: true,
+        all_message: all_message,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New All Message Query",
+        access: false,
+        all_message: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.send_notification = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: id }).select(
+      "admissionDepart"
+    );
+
+    const all_app = await NewApplication.find({
+      $and: [
+        { admissionAdmin: ins?.admissionDepart?.[0] },
+        { applicationStatus: "Ongoing" },
+        { applicationTypeStatus: "Normal Application" },
+      ],
+    }).select("confirmedApplication reviewApplication");
+    let nums = [];
+    for (let ele of all_app) {
+      if (ele?.confirmedApplication?.length > 0) {
+        for (let cls of ele?.confirmedApplication) {
+          nums.push(cls?.student);
+        }
+      }
+      if (ele?.reviewApplication?.length > 0) {
+        for (let cls of ele?.reviewApplication) {
+          nums.push(cls);
+        }
+      }
+    }
+
+    const all_student = await Student.find({ _id: { $in: nums } }).select(
+      "studentFirstName studentMiddleName studentLastName studentProfilePhoto user"
+    );
+
+    res.status(200).send({
+      message: "Explore All Student",
+      all_student: all_student?.length,
+    });
+    let cls = [];
+    for (var ref of all_student) {
+      var user = await User.findById({
+        _id: `${ref?.user}`,
+      });
+      var notify = new StudentNotification({});
+      notify.notifyContent = `Those who admitted in spot round kindly come tomorrow for submission of original document. 
+And those who cancelled admission kindly come tomorrow for collect their original document as well as complete refund of fees procedure.
+As 17th & 18th September there will be holiday, so college will remain closed.`;
+      notify.notifySender = `${ins?._id}`;
+      notify.notifyReceiever = `${user?._id}`;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = ref?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByInsPhoto = ins?._id;
+      notify.notifyCategory = "CUSTOM_MESSAGE";
+      notify.redirectIndex = 59;
+      await Promise.all([user.save(), notify.save()]);
+      if (user?.deviceToken) {
+        await invokeSpecificRegister(
+          "Specific Notification",
+          `For Spot Round Admitted Students`,
+          "Student Message",
+          user._id,
+          user.deviceToken
+        );
+        console.log("TOKEN");
+      } else {
+        console.log("NO TOKEN");
+        cls.push(ref);
+      }
+    }
+    console.log(cls);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.roll_alignment = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    if (!id)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
   } catch (e) {
     console.log(e);
   }

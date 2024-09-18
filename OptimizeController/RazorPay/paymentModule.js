@@ -1945,6 +1945,7 @@ exports.otherFeesFunction = async (
         ele.status = "Paid";
       }
     }
+    student.other_fee_receipt.push(new_receipt?._id);
     // if (new_internal?.fee_structure) {
     for (let ele of new_internal?.fees_heads) {
       new_receipt.fee_heads.push({

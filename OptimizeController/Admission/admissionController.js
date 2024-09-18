@@ -4326,12 +4326,24 @@ exports.paidRemainingFeeStudent = async (req, res) => {
           );
           console.log("Update Split");
         } else {
-          await update_fee_head_query_redesign(
-            student,
-            new_receipt?.fee_payment_amount,
-            apply?._id,
-            new_receipt
-          );
+          if (
+            type === "Installment Remain" &&
+            nest_card.remaining_fee + price == nest_card?.applicable_fee
+          ) {
+            await set_fee_head_query_redesign(
+              student,
+              new_receipt?.fee_payment_amount,
+              apply?._id,
+              new_receipt
+            );
+          } else {
+            await update_fee_head_query_redesign(
+              student,
+              new_receipt?.fee_payment_amount,
+              apply?._id,
+              new_receipt
+            );
+          }
         }
         // await update_fee_head_query(student, price, apply, new_receipt);
       }
@@ -5596,7 +5608,11 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
           ? ref?.government_card?.paid_fee -
             ref?.government_card?.applicable_fee
           : 0;
-      if (ref?.applicable_fee === ref?.remaining_fee) {
+      if (
+        ref?.applicable_fee ===
+        ref?.applicable_card?.remaining_fee +
+          ref?.government_card?.remaining_fee
+      ) {
         ref.drop_status = "Enable";
       } else {
       }
@@ -9712,7 +9728,11 @@ exports.renderDropFeesStudentQuery = async (req, res) => {
         access: true,
       });
 
-    var valid_remain_card = await RemainingList.findById({ _id: rid });
+    var valid_remain_card = await RemainingList.findById({ _id: rid }).populate(
+      {
+        path: "applicable_card government_card",
+      }
+    );
     var valid_app = await NewApplication.findById({
       _id: `${valid_remain_card?.appId}`,
     });
@@ -9721,7 +9741,9 @@ exports.renderDropFeesStudentQuery = async (req, res) => {
     });
     var valid_student = await Student.findById({ _id: sid });
     var drop_status =
-      valid_remain_card?.applicable_fee === valid_remain_card?.remaining_fee
+      valid_remain_card?.applicable_fee ===
+      valid_remain_card?.applicable_card?.remaining_fee +
+        valid_remain_card?.government_card?.remaining_fee
         ? true
         : false;
     if (drop_status) {
@@ -11095,130 +11117,136 @@ exports.renderOneReceiptReApplyDeChequeQuery = async (req, res) => {
   }
 };
 
-// exports.renderTransferAppsQuery = async (req, res) => {
-//   try {
-//     const { aid } = req.params;
-//     const { app_array, oaid, student_array } = req.body;
-//     if (!aid && !app_array && !oaid)
-//       return res.status(200).send({
-//         message: "Their is a bug need to fixed immediately",
-//         access: false,
-//       });
+exports.renderTransferAppsQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { app_array, oaid, student_array } = req.body;
+    if (!aid && !app_array && !oaid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-//     var valid_new_app = await NewApplication.findById({ _id: aid });
-//     var valid_old_app = await NewApplication.findById({ _id: oaid });
-//     // var valid_struct = await FeeStructure.find({ $and: [{batch_master: `${valid_new_app?.applicationBatch}`}, { class_master: `${valid_new_app?.applicationMaster}`}, { department: `${valid_new_app?.applicationDepartment}`}] })
+    var valid_new_app = await NewApplication.findById({ _id: aid });
+    var valid_old_app = await NewApplication.findById({ _id: oaid });
+    // var valid_struct = await FeeStructure.find({ $and: [{batch_master: `${valid_new_app?.applicationBatch}`}, { class_master: `${valid_new_app?.applicationMaster}`}, { department: `${valid_new_app?.applicationDepartment}`}] })
 
-//     for (var ref of app_array) {
-//       valid_old_app.confirmedApplication.pull(ref);
-//       if (valid_old_app?.confirmCount > 0) {
-//         valid_old_app.confirmCount -= 1;
-//       }
-//     }
-//     await valid_old_app.save();
-//     res.status(200).send({
-//       message: `Explore ${student_array?.length} transferred to New Application`,
-//       access: true,
-//     });
+    for (var ref of app_array) {
+      valid_old_app.reviewApplication.pull(ref);
+      if (valid_old_app?.review_count > 0) {
+        valid_old_app.review_count -= 1;
+      }
+      valid_old_app.transferApplication.push({
+        student: ref,
+      });
+    }
+    await valid_old_app.save();
+    res.status(200).send({
+      message: `Explore ${app_array?.length} transferred to New Application`,
+      access: true,
+    });
 
-//     for (var ele of student_array) {
-//       var valid_student = await Student.findById({ _id: `${ele?.studentId}` })
-//       .populate({
-//         path: "fee_structure"
-//       })
-//       var valid_user = await User.findById({ _id: `${valid_student?.user}` });
-//       var valid_struct = await FeeStructure.find({
-//         $and: [
-//           { batch_master: `${valid_new_app?.applicationBatch}` },
-//           { class_master: `${valid_new_app?.applicationMaster}` },
-//           { department: `${valid_new_app?.applicationDepartment}` },
-//           { category_master: `${valid_student?.fee_structure?.category_master?._id}`}
-//         ],
-//       });
+    for (var cls of app_array) {
+      var valid_student = await Student.findById({
+        _id: `${cls}`,
+      }).populate({
+        path: "fee_structure",
+      });
+      var valid_user = await User.findById({ _id: `${valid_student?.user}` });
+      var valid_struct = await FeeStructure.find({
+        $and: [
+          { batch_master: `${valid_new_app?.applicationBatch}` },
+          { class_master: `${valid_new_app?.applicationMaster}` },
+          { department: `${valid_new_app?.applicationDepartment}` },
+          {
+            category_master: `${valid_student?.fee_structure?.category_master?._id}`,
+          },
+        ],
+      });
 
-//       valid_new_app.confirmedApplication.push({
-//         student: valid_student?._id,
-//         payment_status: ele?.mode,
-//         install_type: ele?.type,
-//         fee_remain: ele?.price,
-//         transfer_status: "Transferred",
-//         transfer_from_app: valid_old_app?._id,
-//       });
-//       if(valid_struct?.length > 1){
-//         valid_student.fee_structure = valid_struct[0]?._id
-//       }
-//       else{
-//         valid_student.fee_structure = valid_struct[0]?._id
-//       }
-//       valid_new_app.confirmCount += 1;
-//       valid_new_app.transferCount += 1;
-//       valid_new_app.transferApplication.push({
-//         student: valid_student?._id,
-//       });
-//       var all_remain = await RemainingList.find({
-//         $and: [
-//           { _id: { $in: valid_student?.remainingFeeList } },
-//           { appId: valid_old_app?._id },
-//         ],
-//       });
-//       for (var ref of all_remain) {
-//         ref.appId = valid_new_app?._id;
-//         ref.fee_structure = valid_struct[0]?._id
-//         ref.applicable_fee = valid_struct[0]?.total_admission_fees
-//         for (var val of ref?.remaining_array) {
-//           val.appId = valid_new_app?._id;
-//         }
-//         await ref.save();
-//       }
+      valid_new_app.reviewApplication.push(valid_student?._id);
+      if (valid_struct?.length > 1) {
+        valid_student.fee_structure = valid_struct[0]?._id;
+      } else {
+        valid_student.fee_structure = valid_struct[0]?._id;
+      }
+      valid_new_app.review_count += 1;
+      valid_new_app.transferCount += 1;
+      var all_remain = await RemainingList.find({
+        $and: [
+          { _id: { $in: valid_student?.remainingFeeList } },
+          { appId: valid_old_app?._id },
+        ],
+      });
+      if (ref?.applicable_card) {
+        let nest_app = await NestedCard.findById({ _id: ref?.applicable_card });
+        for (let ele of nest_app?.remaining_array) {
+          ele.appId = valid_new_app?._id;
+        }
+        await nest_app.save();
+      }
+      if (ref?.government_card) {
+        let nest_gov = await NestedCard.findById({ _id: ref?.government_card });
+        for (let ele of nest_gov?.remaining_array) {
+          ele.appId = valid_new_app?._id;
+        }
+        await nest_gov.save();
+      }
+      for (var ref of all_remain) {
+        ref.appId = valid_new_app?._id;
+        ref.fee_structure = valid_struct[0]?._id;
+        ref.applicable_fee = valid_struct[0]?.total_admission_fees;
+        await ref.save();
+      }
 
-//       var all_receipt = await FeeReceipt.find({
-//         $and: [{ application: valid_old_app?._id }],
-//       });
-//       for (var val of all_receipt) {
-//         val.application = valid_new_app?._id;
-//         await val.save();
-//       }
+      var all_receipt = await FeeReceipt.find({
+        $and: [{ application: valid_old_app?._id }],
+      });
+      for (var val of all_receipt) {
+        val.application = valid_new_app?._id;
+        await val.save();
+      }
 
-//       var all_status = await Status.find({
-//         $and: [{ applicationId: valid_old_app?._id }],
-//       });
-//       for (var ele of all_status) {
-//         ele.applicationId = valid_new_app?._id;
-//         ele.feeStructure = valid_struct[0]?._id
-//         ele.admissionFee = valid_struct[0]?.total_admission_fees
-//         await ele.save();
-//       }
+      var all_status = await Status.find({
+        $and: [{ applicationId: valid_old_app?._id }],
+      });
+      for (var ele of all_status) {
+        ele.applicationId = valid_new_app?._id;
+        ele.feeStructure = valid_struct[0]?._id;
+        ele.admissionFee = valid_struct[0]?.total_admission_fees;
+        await ele.save();
+      }
 
-//       if (valid_user?.applyApplication?.includes(`${valid_old_app?._id}`)) {
-//         valid_user?.applyApplication.pull(valid_old_app?._id);
-//       }
-//       valid_user?.applyApplication.push(valid_new_app?._id);
+      if (valid_user?.applyApplication?.includes(`${valid_old_app?._id}`)) {
+        valid_user?.applyApplication.pull(valid_old_app?._id);
+      }
+      valid_user?.applyApplication.push(valid_new_app?._id);
 
-//       var all_orders = await OrderPayment.find({
-//         $and: [{ payment_admission: valid_old_app?._id }],
-//       });
-//       for (var all of all_orders) {
-//         all.payment_admission = valid_new_app?._id;
-//         await all.save();
-//       }
+      var all_orders = await OrderPayment.find({
+        $and: [{ payment_admission: valid_old_app?._id }],
+      });
+      for (var all of all_orders) {
+        all.payment_admission = valid_new_app?._id;
+        await all.save();
+      }
 
-//       for (var ref of valid_student?.paidFeeList) {
-//         if (`${ref?.appId}` === `${valid_old_app?._id}`) {
-//           ref.appId = valid_new_app?._id;
-//         }
-//       }
+      for (var ref of valid_student?.paidFeeList) {
+        if (`${ref?.appId}` === `${valid_old_app?._id}`) {
+          ref.appId = valid_new_app?._id;
+        }
+      }
 
-//       await Promise.all([
-//         valid_student.save(),
-//         valid_user.save(),
-//         valid_old_app.save(),
-//         valid_new_app.save(),
-//       ]);
-//     }
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
+      await Promise.all([
+        valid_student.save(),
+        valid_user.save(),
+        valid_old_app.save(),
+        valid_new_app.save(),
+      ]);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.renderRemainCardRemovalQuery = async (req, res) => {
   try {
@@ -14679,15 +14707,23 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
           const logs = new DeleteLogs({});
           if (ele?.fee_receipt) {
             var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt });
-            fees.visible_status = "Hide";
-            await fees.save();
-          }
-          if (fees?.order_history) {
-            const order = await OrderPayment.findById({
-              _id: fees?.order_history,
+            const order = await OrderPayment.findOne({
+              fee_receipt: fees?._id,
             });
             order.payment_visible_status = "Hide";
-            await order.save();
+            fees.visible_status = "Hide";
+            finance.fees.push(fees?.receipt_file);
+            await Promise.all([order.save(), fees.save()]);
+            await FeeReceipt.findByIdAndDelete(fees?._id);
+            if (fees?.student) {
+              const stu = await Student.findById({ _id: `${fees?.student}` });
+              for (let ele of stu?.active_fee_heads) {
+                if (`${ele?.appId}` === `${fees?.application}`) {
+                  stu.active_fee_heads = [];
+                }
+              }
+              await stu.save();
+            }
           }
           logs.fee_receipt = ele?.fee_receipt;
           logs.nested_card = nest?._id;
@@ -14709,7 +14745,6 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
           new_fees.remaining_fee += ele?.remainAmount;
           finance.delete_logs.push(logs?._id);
           nest?.remaining_array.pull(ele?._id);
-          await logs.save();
           if (nest?.remaining_fee > 0) {
             nest.remaining_array.push({
               installmentValue: "Installment Remain",
@@ -14720,19 +14755,29 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
               remainAmount: nest?.remaining_fee,
             });
           }
+          await Promise.all([logs.save(), nest.save()]);
         } else {
+          console.log("EXIT");
           const logs = new DeleteLogs({});
           if (ele?.fee_receipt) {
             var fees = await FeeReceipt.findById({ _id: ele?.fee_receipt });
-            fees.visible_status = "Hide";
-            await fees.save();
-          }
-          if (fees?.order_history) {
-            const order = await OrderPayment.findById({
-              _id: fees?.order_history,
+            const order = await OrderPayment.findOne({
+              fee_receipt: fees?._id,
             });
             order.payment_visible_status = "Hide";
-            await order.save();
+            fees.visible_status = "Hide";
+            finance.fees.push(fees?.receipt_file);
+            await Promise.all([order.save(), fees.save()]);
+            await FeeReceipt.findByIdAndDelete(fees?._id);
+            if (fees?.student) {
+              const stu = await Student.findById({ _id: `${fees?.student}` });
+              for (let ele of stu?.active_fee_heads) {
+                if (`${ele?.appId}` === `${fees?.application}`) {
+                  stu.active_fee_heads = [];
+                }
+              }
+              await stu.save();
+            }
           }
           logs.fee_receipt = ele?.fee_receipt;
           logs.nested_card = nest?._id;
@@ -14754,10 +14799,17 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
           new_fees.remaining_fee += ele?.remainAmount;
           finance.delete_logs.push(logs?._id);
           nest?.remaining_array.pull(ele?._id);
-          await logs.save();
+          ele.remainAmount = nest?.remaining_fee;
+          // console.log(ele?.remainAmount);
+          await Promise.all([logs.save(), nest.save()]);
         }
         if (nest?.remaining_fee > 0) {
           console.log("Enter");
+          for (let val of nest?.remaining_array) {
+            if (val?.status === "Not Paid") {
+              val.remainAmount = nest?.remaining_fee;
+            }
+          }
           if (ele?.status === "Not Paid") {
             ele.remainAmount += nest?.remaining_fee;
           } else {
@@ -14771,6 +14823,7 @@ exports.renderDeleteInstallmentCardQuery = async (req, res) => {
               remainAmount: nest?.remaining_fee,
             });
           }
+          // console.log(nest);
         }
       }
     }
@@ -15041,7 +15094,8 @@ exports.render_one_student_form_section_query = async (req, res) => {
       if (
         `${nums?.section_key}` === "undertakings" ||
         `${nums?.section_key}` === "antiragging_affidavit" ||
-        `${nums?.section_key}` === "antiragging_affidavit_parents"
+        `${nums?.section_key}` === "antiragging_affidavit_parents" ||
+        `${nums?.section_status}` === "UNDERTAKING"
       ) {
         nums.form_checklist = [];
       }
@@ -16694,6 +16748,9 @@ exports.render_one_fee_receipt_change_student_query = async (req, res) => {
       });
 
     const receipt = await FeeReceipt.findById({ _id: fid });
+    const app = await NewApplication.findById({
+      _id: `${receipt?.application}`,
+    });
     const student = await Student.findById({ _id: `${receipt?.student}` });
     const order = await OrderPayment.findOne({ fee_receipt: receipt?._id });
     const remaining = await RemainingList.findOne({
@@ -16773,7 +16830,7 @@ exports.render_one_fee_receipt_change_student_query = async (req, res) => {
       .status(200)
       .send({ message: "Explore Student Subject Change Query", access: true });
     for (let ele of student?.active_fee_heads) {
-      if (`${ele?.appId}` === `${receipt?.application}`) {
+      if (`${ele?.appId}` === `${app?._id}`) {
         student?.active_fee_heads?.pull(ele);
       }
     }
@@ -18185,6 +18242,72 @@ exports.one_student_documents_pending_query = async (req, res) => {
   }
 };
 
+exports.duplicate_fees_query = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: id }).select(
+      "admissionDepart ApproveStudent"
+    );
+
+    const all_app = await NewApplication.find({
+      $and: [
+        { admissionAdmin: { $in: ins?.admissionDepart?.[0] } },
+        { applicationStatus: "Ongoing" },
+        { applicationTypeStatus: "Normal Application" },
+      ],
+    });
+    let nums = [];
+    for (let ele of all_app) {
+      if (ele?.confirmedApplication?.length > 0) {
+        for (let cls of ele?.confirmedApplication) {
+          nums.push(cls?.student);
+        }
+      }
+      if (ele?.reviewApplication?.length > 0) {
+        for (let cls of ele?.reviewApplication) {
+          nums.push(cls);
+        }
+      }
+    }
+    nums.push(...ins?.ApproveStudent);
+    const all_student = await Student.find({ _id: { $in: nums } }).select(
+      "studentFirstName studentMiddleName studentLastName studentProfilePhoto studentGRNO fee_structure"
+    );
+
+    let cls = [];
+    for (let ele of all_student) {
+      if (ele?.fee_structure) {
+        const all = await RemainingList.find({
+          $and: [
+            { fee_structure: `${ele?.fee_structure}` },
+            { student: ele?._id },
+          ],
+        });
+        console.log(all?.length);
+        if (all?.length > 1) {
+          cls.push(ele);
+        } else {
+          // console.log(ele?.studentMiddleName);
+        }
+      }
+    }
+    res.status(200).send({
+      message: "Explore All Duplicate Fees",
+      access: true,
+      cls,
+      count: cls?.length,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.new_app = async (req, res) => {
 //   try {
 //     let nums = ["66bc5594f9019dacfa1f2ebd", "66bc6a08232694c6d384bdd1", "66bc6be0f9019dacfa1fdae0", "66bc87c77cb3669abc1aa46a"]
@@ -18275,6 +18398,78 @@ exports.promote_currrent_year_institute_query = async (req, res) => {
       not_count: not_specific_category_student_list?.length,
       exist_count: specific_category_student_list?.length,
       specific_category_student_list: specific_category_student_list,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_new_student_dynamic_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params;
+    const { form } = req?.body;
+    if (!fcid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var iaf = await InstituteApplicationForm.findById({ _id: fcid });
+    for (var val of form) {
+      let fc = new FormChecklist({
+        form_checklist_key: `${val?.section_key}_${new Date()?.getTime()}`,
+        form_checklist_name: `${val?.section_name}`,
+        form_checklist_visibility: true,
+        form_checklist_placeholder: `Enter ${val?.section_name}`,
+        form_checklist_lable: "",
+        form_checklist_typo: "CHECKBOX",
+        form_checklist_sample: "I Agree",
+        form_checklist_typo_option_pl: ["I Agree"],
+      });
+      await fc.save();
+      iaf.form_section.push({
+        section_name: val?.section_name,
+        section_visibilty: val?.section_visibilty,
+        section_key: val?.section_key,
+        section_type: val?.section_type,
+        section_status: "UNDERTAKING",
+        form_checklist: [fc],
+      });
+    }
+    await iaf.save();
+    res.status(200).send({
+      message: "Explore One Dynamic Application Form Section Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_edit_student_dynamic_form_section_query = async (req, res) => {
+  try {
+    const { fcid } = req?.params;
+    const { fsid, section_name, section_key, section_visibilty, section_type } =
+      req?.body;
+    if (!fcid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var iaf = await InstituteApplicationForm.findById({ _id: fcid });
+    for (var val of iaf?.form_section) {
+      if (`${val?._id}` === `${fsid}`) {
+        val.section_name = section_name ? section_name : val?.section_name;
+        val.section_key = section_key ? section_key : val?.section_key;
+        val.section_visibilty = section_visibilty;
+        val.section_type = section_type;
+      }
+    }
+    await iaf.save();
+    res.status(200).send({
+      message: "Edit One Application Form Section + Nested Checklist Query",
+      access: true,
     });
   } catch (e) {
     console.log(e);

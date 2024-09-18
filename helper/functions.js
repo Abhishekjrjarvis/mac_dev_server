@@ -6,6 +6,7 @@ const Student = require("../models/Student");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const bcrypt = require("bcryptjs");
+var querystring = require("querystring");
 
 const random_password = () => {
   const upperCase = ["A", "B", "C", "D", "E", "F", "G", "H", "Z"];
@@ -140,7 +141,12 @@ exports.send_email_authentication = async (email) => {
   return OTP;
 };
 
-exports.send_email_authentication_login_query = (email, i_email, name, i_name) => {
+exports.send_email_authentication_login_query = (
+  email,
+  i_email,
+  name,
+  i_name
+) => {
   const subject = "Qviple ERP Login Details";
   const message = `Hello ${name},
 Qviple is ERP software of ${i_name}.
@@ -450,8 +456,8 @@ exports.remove_duplicated_arr = (arr) => {
   jsonObject = arr.map(JSON.stringify);
   uniqueSet = new Set(jsonObject);
   uniqueArray = Array.from(uniqueSet).map(JSON.parse);
-  return uniqueArray
-}
+  return uniqueArray;
+};
 
 exports.generate_random_code_structure = () => {
   let rand1 = Math.floor(Math.random() * 9);
@@ -475,12 +481,12 @@ exports.new_chat_username_unique = async (LName) => {
   const u_6 = Math.floor(Math.random() * 9);
   const u_7 = Math.floor(Math.random() * 9);
   const u_8 = Math.floor(Math.random() * 9);
-  const u_9 = Math.floor(Math.random() * 9)
+  const u_9 = Math.floor(Math.random() * 9);
   const new_query = `${u_1}${u_2}${u_3}${u_4}${u_5}${u_6}${u_7}${u_8}${u_9}`;
-  let splitted = LName?.split(" ")
-  let combined_list = `${splitted[0]?.toUpperCase()}_${new_query}`
-  return combined_list
-}
+  let splitted = LName?.split(" ");
+  let combined_list = `${splitted[0]?.toUpperCase()}_${new_query}`;
+  return combined_list;
+};
 
 exports.send_email_student_message_query = (email, message) => {
   const subject = "Qviple Student Message";
@@ -495,6 +501,93 @@ exports.send_email_student_message_query = (email, message) => {
       console.log("SMS API Bug", e.message);
     });
 };
+
+const send_email_authentication_custom = function (recipientEmail, otp) {
+  // Create the bodyhtml part of the email
+  const bodyhtml = `
+      <html xmlns="http://www.w3.org/1999/xhtml">
+      <head>
+          <meta charset="UTF-8">
+          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" 
+          integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" 
+          crossorigin="anonymous">
+          <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
+      </head>
+      <body style="padding:0; margin:0; background:#e4e6ec">
+          <table style="height:100%; width:100%; background-color:rgb(228,230,236);" align="center">
+              <tbody>
+                  <tr>
+                      <td valign="top" id="dbody" data-version="2.31" style="width:100%; height:100%; margin-top:50px; margin-bottom:50px; padding:0;">
+                          <table align="center" border="0" cellpadding="0" cellspacing="0" style="max-width:588px; width:100%; margin:0 auto;">
+                              <tbody>
+                                  <tr>
+                                      <td valign="top" style="background-color:rgb(255,255,255); text-align:center;">
+                                          <img src="https://api.smtprelay.co/userfile/ab0e9f76-f4d1-4afb-b6af-f543b59ed4e0/Group_41_(3).png" alt="Image" style="max-width:401px; width:100%;" width="401">
+                                      </td>
+                                  </tr>
+                                  <tr>
+                                      <td valign="top" style="background-color:rgb(255,255,255); padding:20px; color:rgb(95,95,95); font-size:12px; font-family:Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif;">
+                                          <p style="color:#000000;">To Verify your email address, please use the following One Time Password (OTP):</p>
+                                          <p><strong style="color:#000000; font-size:16px;">${otp}</strong></p>
+                                          <p style="color:#000000;">Do not share this OTP with anyone. Qviple never calls to ask for OTP. 
+                                          Qviple takes your account security very seriously. 
+                                          If you receive a suspicious email, report it to Qviple for investigation.</p>
+                                          <p style="color:#000000;">Thank you!<br/>Team Qviple</p>
+                                          <p style="color:#000000;">Kindly do not share your OTP, as it is confidential.</p>
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
+      </body>
+      </html>
+  `;
+
+  // Prepare the form data
+  const formData = {
+    to: recipientEmail,
+    from: "connect@qviple.com",
+    subject: "OTP Verification",
+    encodingType: "0",
+    from_name: "Qviple",
+    bodyhtml: bodyhtml,
+  };
+
+  try {
+    // Make the POST request
+    const apiUrl = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}`;
+
+    const encodeURL = encodeURI(
+      apiUrl,
+      querystring.stringify(formData.bodyhtml)
+    );
+    axios
+      .post(apiUrl, querystring.stringify(formData), {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      })
+      .then((response) => {
+        console.log("Email sent successfully:", response.data);
+        // return response.data;
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error.message);
+      });
+
+    // Log response or return as needed
+  } catch (error) {
+    console.error("Error sending email:", error.message);
+    throw error;
+  }
+};
+
+// console.log(
+//   send_email_authentication_custom("tusharbhambere8@gmail.com", "0989899")
+// );
 
 // console.log(
 //   send_email_authentication_promotional("pankajphad.stuff@gmail.com")

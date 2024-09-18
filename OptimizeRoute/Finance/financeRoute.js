@@ -690,8 +690,17 @@ router
   .route("/fees/insertion/query")
   .patch(catchAsync(Finance.render_fees_insertion_query));
 
+router
+  .route("/one/combined/other/fee/:ofid/student/list/export")
+  .patch(catchAsync(Finance.renderOneCombinedOtherFeesStudentListExportQuery));
+
+router.delete(
+  "/one/fee/:fid/delete/other/:ofid",
+  catchAsync(Finance.delete_other_fees_receipt_query));
+
 router.patch(
   "/dublicate/receipt/:fid/query",
   catchAsync(Finance.finance_receipt_dublicate_query)
 );
+
 module.exports = router;

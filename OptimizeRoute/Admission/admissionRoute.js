@@ -577,10 +577,10 @@ router.patch(
   catchAsync(Admission.renderOneReceiptReApplyDeChequeQuery)
 );
 
-// router.patch(
-//   "/:aid/transfer/apps/query",
-//   catchAsync(Admission.renderTransferAppsQuery)
-// );
+router.patch(
+  "/:aid/transfer/apps/query",
+  catchAsync(Admission.renderTransferAppsQuery)
+);
 
 router.patch(
   "/:rid/card/removal/query",
@@ -1051,7 +1051,7 @@ router.patch("/check/structure", catchAsync(Admission.check_structure));
 router.patch(
   "/promote/current/year/institute/:id/student/category/list",
   catchAsync(Admission.promote_currrent_year_institute_query)
-); 
+);
 
 router.patch(
   "/:aid/all/documents/export",
@@ -1076,6 +1076,18 @@ router.get(
 router.patch(
   "/:did/one/student/pending/documents/:sid",
   catchAsync(Admission.one_student_documents_pending_query)
+);
+
+router.patch("/duplicate/fees/:id", catchAsync(Admission.duplicate_fees_query));
+
+router.post(
+  "/new/dynamic/form/:fcid/section/student/query",
+  catchAsync(Admission.render_new_student_dynamic_form_section_query)
+);
+
+router.patch(
+  "/edit/dynamic/form/:fcid/section/query",
+  catchAsync(Admission.render_edit_student_dynamic_form_section_query)
 );
 
 module.exports = router;

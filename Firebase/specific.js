@@ -2,10 +2,12 @@ var admin = require("firebase-admin");
 var serviceAccount = require("../Secret/qviple-user-firebase-adminsdk-4qvna-8582f91ae3.json");
 
 const invokeSpecificRegister = async (type, info, title, id, token) => {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
   if (type === "Specific Notification") {
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+    }
     const firebaseToken = token;
 
     const ds = {

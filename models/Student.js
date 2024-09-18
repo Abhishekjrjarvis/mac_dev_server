@@ -1240,6 +1240,16 @@ const studentSchema = new mongoose.Schema({
       ref: "FeeReceipt",
     },
   ],
+   guide: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Guide",
+    },
+  ],
+  guide_count: {
+    type: Number,
+    default: 0,
+  },
 });
 const Student = mongoose.model("Student", studentSchema);
 

@@ -402,125 +402,125 @@ const staffSchema = new mongoose.Schema({
     {
       college_name: { type: String },
       college_year: { type: String },
-      course_field: { type: String }
-    }
+      course_field: { type: String },
+    },
   ],
   student_message: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "StudentMessage"
+      ref: "StudentMessage",
     },
   ],
   student_message_count: {
     type: Number,
-    default: 0
+    default: 0,
   },
   casual_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   medical_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   sick_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   off_duty_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   c_off_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   lwp_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   leave_taken: {
     type: Number,
-    default: 0
+    default: 0,
   },
   commuted_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   maternity_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   paternity_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   study_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   half_pay_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   quarantine_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   sabbatical_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   special_disability_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   winter_vacation_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   summer_vacation_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   child_adoption_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   bereavement_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   earned_leave: {
     type: Number,
-    default: 0
+    default: 0,
   },
   recommend_authority: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "FinanceModerator"
+    ref: "FinanceModerator",
   },
   review_authority: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "FinanceModerator"
+    ref: "FinanceModerator",
   },
   sanction_authority: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "FinanceModerator"
+    ref: "FinanceModerator",
   },
   current_designation: {
-    type: String
+    type: String,
   },
   member_module_unique: {
     type: String,
-    unique: true
+    unique: true,
   },
   teaching_type: {
-    type: String
+    type: String,
   },
   borrow: [{ type: mongoose.Schema.Types.ObjectId, ref: "IssueBook" }],
   deposite: [{ type: mongoose.Schema.Types.ObjectId, ref: "CollectBook" }],
   staff_pf_number: {
-    type: String
+    type: String,
   },
   library_qr_code: String,
   library_in_out: [
@@ -538,11 +538,11 @@ const staffSchema = new mongoose.Schema({
   lms_department: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "LMS"
-    }
+      ref: "LMS",
+    },
   ],
   staff_emp_code: {
-    type: String
+    type: String,
   },
   student_feedback: [
     {
@@ -567,66 +567,66 @@ const staffSchema = new mongoose.Schema({
   stores_department: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "InventoryStore"
-    }
+      ref: "InventoryStore",
+    },
   ],
   goods_register: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "GoodManager"
-    }
+      ref: "GoodManager",
+    },
   ],
   request: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "RequestGoods"
-    }
+      ref: "RequestGoods",
+    },
   ],
   issue: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "IssueGoods"
-    }
+      ref: "IssueGoods",
+    },
   ],
   return: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ReturnGoods"
-    }
+      ref: "ReturnGoods",
+    },
   ],
   consume: [],
   stock_take: [],
   register: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "StoreLogs"
-    }
+      ref: "StoreLogs",
+    },
   ],
   maintanence: [],
   payrollDepartment: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "PayrollModule"
-    }
+      ref: "PayrollModule",
+    },
   ],
   salary_structure: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "SalaryStructure"
+    ref: "SalaryStructure",
   },
   staff_grant_status: {
-    type: String
+    type: String,
   },
   staff_position: {
-    type: String
+    type: String,
   },
   staff_technicality: {
-    type: String
+    type: String,
   },
   pay_slip: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "PaySlip"
-    }
+      ref: "PaySlip",
+    },
   ],
   salary_days: [
     {
@@ -637,25 +637,25 @@ const staffSchema = new mongoose.Schema({
       absent: { type: Number, default: 0 },
       holiday: { type: Number, default: 0 },
       month: { type: String },
-      year: { type: String }
-    }
+      year: { type: String },
+    },
   ],
   staff_holiday: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "StaffHoliday"
-    }
+      ref: "StaffHoliday",
+    },
   ],
   head_data: {
     key: {
       type: String,
     },
     value: {
-      type: String
-    }
+      type: String,
+    },
   },
   choose_tax_regime: {
-    type: String
+    type: String,
   },
   tds_calculation: {
     income_from_sal: {
@@ -684,13 +684,13 @@ const staffSchema = new mongoose.Schema({
       rate: { type: String },
       month: { type: Number, default: 0 },
       annual: { type: Number, default: 0 },
-    }
+    },
   },
   financial_data: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "TDSFinance"
-    }
+      ref: "TDSFinance",
+    },
   ],
   monthly_heads_data: [
     {
@@ -698,10 +698,10 @@ const staffSchema = new mongoose.Schema({
       heads_key: { type: String },
       year: { type: String },
       price: { type: Number, default: 0 },
-      section: { type: String }
-    }
+      section: { type: String },
+    },
   ],
-  form_16:{
+  form_16: {
     annual: { type: String },
     key_a: { type: String },
   },
@@ -709,19 +709,19 @@ const staffSchema = new mongoose.Schema({
     key: { type: String },
     value: { type: Number, default: 0 },
     slip: { type: String },
-    slip_key: { type: String, default: "PaymentSlip (1).pdf"}
+    slip_key: { type: String, default: "PaymentSlip (1).pdf" },
   },
   iqacDepartment: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "IQAC"
-    }
+      ref: "IQAC",
+    },
   ],
   custom_authority: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "CustomAuthority"
-    }
+      ref: "CustomAuthority",
+    },
   ],
   staff_joining_letter: { type: String },
   staffAlternatePhoneNumber: { type: String },
@@ -739,8 +739,8 @@ const staffSchema = new mongoose.Schema({
   staff_dynamic_field: [
     {
       key: { type: String },
-      value: { type: String }
-    }
+      value: { type: String },
+    },
   ],
   staff_department: { type: mongoose.Schema.Types.ObjectId, ref: "Department" },
   staff_blood_group: { type: String },
@@ -748,8 +748,8 @@ const staffSchema = new mongoose.Schema({
   activity: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Activity"
-    }
+      ref: "Activity",
+    },
   ],
   projects: [
     {
@@ -762,12 +762,22 @@ const staffSchema = new mongoose.Schema({
       guide_name: { type: String },
       link: { type: String },
       attach: { type: String },
-      abstract: { type: String }
-    }
+      abstract: { type: String },
+    },
   ],
   qviple_staff_pay_id: {
-    type: String
-  }
+    type: String,
+  },
+  guide: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Guide",
+    },
+  ],
+  guide_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

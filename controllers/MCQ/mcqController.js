@@ -2562,3 +2562,23 @@ exports.one_assignment_export_query = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.one_test_detail_query = async (req, res) => {
+  try {
+    const { tsid } = req.params;
+    if (!tsid)
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+        access: false,
+      });
+    const subjectMasterTestSet = await SubjectMasterTestSet.findById(
+      tsid
+    ).select("isUniversal testName testTotalQuestion testTotalNumber");
+    res.status(200).send({
+      message: "All test set questions",
+      subjectMasterTestSet: subjectMasterTestSet,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

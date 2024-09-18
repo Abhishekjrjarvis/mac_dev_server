@@ -3478,7 +3478,8 @@ exports.getFullStudentInfo = async (req, res) => {
         })
         .populate({
           path: "institute",
-          select: "insName admissionDepart financeDepart",
+          select:
+            "insName admissionDepart financeDepart authority certificate_bonafide_count",
         })
         .populate({
           path: "studentClass",
@@ -3573,7 +3574,8 @@ exports.getFullStudentInfo = async (req, res) => {
         })
         .populate({
           path: "institute",
-          select: "insName admissionDepart financeDepart",
+          select:
+            "insName admissionDepart financeDepart authority certificate_bonafide_count",
         })
         .populate({
           path: "studentClass",
@@ -6219,12 +6221,13 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
     var count = 0;
     var one_subject = await Subject.findById({ _id: sid })
       .select(
-        "subjectName subjectStatus subject_category subjectTitle tutorial_analytic subjectMasterName lecture_analytic practical_analytic chapter_count topic_count_bifurgate createdAt class_master allotted_lecture total_hours hours_per_weak course_objective course_outcome web_reference book_reference"
+        // "subjectName subjectStatus subject_category subjectTitle tutorial_analytic subjectMasterName lecture_analytic practical_analytic chapter_count topic_count_bifurgate createdAt class_master allotted_lecture total_hours hours_per_weak course_objective course_outcome web_reference book_reference"
+        "subjectName subjectStatus subject_category subjectTitle subjectMasterName createdAt attendance class_master allotted_lecture total_hours hours_per_weak course_objective course_outcome web_reference book_reference"
       )
-      .populate({
-        path: "chapter",
-        select: "topic_count",
-      })
+      // .populate({
+      //   path: "chapter",
+      //   select: "topic_count",
+      // })
       .populate({
         path: "class",
         select: "studentCount className classTitle institute",
@@ -6238,56 +6241,68 @@ exports.retrieveOneSubjectQuery = async (req, res) => {
         select: "course_code",
       });
 
-    if (one_subject?.chapter) {
-      for (var ref of one_subject?.chapter) {
-        count += ref?.topic_count;
-      }
+    let cover_lecture = 0;
+    let completed_lecture =
+      one_subject.attendance?.length > 0 ? one_subject.attendance?.length : 0;
+    if (one_subject.allotted_lecture > 0) {
+      cover_lecture = Math.ceil(
+        (completed_lecture / one_subject.allotted_lecture) * 100
+      );
     }
-    var academic_count =
-      one_subject?.topic_count_bifurgate?.early +
-      one_subject?.topic_count_bifurgate?.timely +
-      one_subject?.topic_count_bifurgate?.delayed;
 
-    var lecture = `${(
-      (one_subject?.lecture_analytic?.lecture_complete * 100) /
-      one_subject?.lecture_analytic?.lecture_count
-    ).toFixed(2)}`;
+    // if (one_subject?.chapter) {
+    //   for (var ref of one_subject?.chapter) {
+    //     count += ref?.topic_count;
+    //   }
+    // }
+    // var academic_count =
+    //   one_subject?.topic_count_bifurgate?.early +
+    //   one_subject?.topic_count_bifurgate?.timely +
+    //   one_subject?.topic_count_bifurgate?.delayed;
 
-    var practical = `${(
-      (one_subject?.practical_analytic?.practical_complete * 100) /
-      one_subject?.practical_analytic?.practical_count
-    ).toFixed(2)}`;
-    var tutorial = `${(
-      (one_subject?.tutorial_analytic?.tutorial_complete * 100) /
-      one_subject?.tutorial_analytic?.tutorial_count
-    ).toFixed(2)}`;
-    var academic = `${((academic_count * 100) / count).toFixed(2)}`;
-    var early = `${(
-      (one_subject?.topic_count_bifurgate?.early * 100) /
-      count
-    ).toFixed(2)}`;
-    var timely = `${(
-      (one_subject?.topic_count_bifurgate?.timely * 100) /
-      count
-    ).toFixed(2)}`;
-    var delayed = `${(
-      (one_subject?.topic_count_bifurgate?.delayed * 100) /
-      count
-    ).toFixed(2)}`;
+    // var lecture = `${(
+    //   (one_subject?.lecture_analytic?.lecture_complete * 100) /
+    //   one_subject?.lecture_analytic?.lecture_count
+    // ).toFixed(2)}`;
+
+    // var practical = `${(
+    //   (one_subject?.practical_analytic?.practical_complete * 100) /
+    //   one_subject?.practical_analytic?.practical_count
+    // ).toFixed(2)}`;
+    // var tutorial = `${(
+    //   (one_subject?.tutorial_analytic?.tutorial_complete * 100) /
+    //   one_subject?.tutorial_analytic?.tutorial_count
+    // ).toFixed(2)}`;
+    // var academic = `${((academic_count * 100) / count).toFixed(2)}`;
+    // var early = `${(
+    //   (one_subject?.topic_count_bifurgate?.early * 100) /
+    //   count
+    // ).toFixed(2)}`;
+    // var timely = `${(
+    //   (one_subject?.topic_count_bifurgate?.timely * 100) /
+    //   count
+    // ).toFixed(2)}`;
+    // var delayed = `${(
+    //   (one_subject?.topic_count_bifurgate?.delayed * 100) /
+    //   count
+    // ).toFixed(2)}`;
+
     res.status(200).send({
       message: "Explore One Subject Profile Query",
       access: true,
       one_subject: one_subject,
-      total_topic: count,
-      lecture_percentage: lecture === "NaN" ? "0" : lecture,
-      practical_percentage: practical === "NaN" ? "0" : practical,
-      tutorial_percentage: tutorial === "NaN" ? "0" : tutorial,
-      academic_performance: {
-        academic_percentage: academic === "NaN" ? "0" : academic,
-        early_percentage: early === "NaN" ? "0" : early,
-        timely_percenatge: timely === "NaN" ? "0" : timely,
-        delayed_percentage: delayed === "NaN" ? "0" : delayed,
-      },
+      completed_lecture: completed_lecture,
+      completed_lecture_percentage: cover_lecture,
+
+      // lecture_percentage: lecture === "NaN" ? "0" : lecture,
+      // practical_percentage: practical === "NaN" ? "0" : practical,
+      // tutorial_percentage: tutorial === "NaN" ? "0" : tutorial,
+      // academic_performance: {
+      //   academic_percentage: academic === "NaN" ? "0" : academic,
+      //   early_percentage: early === "NaN" ? "0" : early,
+      //   timely_percenatge: timely === "NaN" ? "0" : timely,
+      //   delayed_percentage: delayed === "NaN" ? "0" : delayed,
+      // },
     });
   } catch (e) {
     console.log(e);

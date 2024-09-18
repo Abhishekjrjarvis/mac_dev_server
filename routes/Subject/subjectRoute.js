@@ -7,4 +7,9 @@ router
   .route("/tab/manage/:sid/query")
   .get(catchAsync(subjectController.getSubjectTabManageQuery))
   .patch(catchAsync(subjectController.updateSubjectTabManageQuery));
+
+router
+  .route("/:sid/catalog/student/export/query")
+  .patch(catchAsync(subjectController.subject_catalog_export_query));
+
 module.exports = router;

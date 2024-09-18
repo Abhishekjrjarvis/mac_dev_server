@@ -49,14 +49,18 @@ const meetingSchema = new mongoose.Schema({
   },
   creation_status: {
     type: String,
-    default: "NORMAL"
+    default: "NORMAL",
   },
   meeting_time: {
-    type: String
+    type: String,
   },
   meeting_date: {
-    type: String
-  }
+    type: String,
+  },
+  guide: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Guide",
+  },
 });
 
 module.exports = mongoose.model("Meeting", meetingSchema);

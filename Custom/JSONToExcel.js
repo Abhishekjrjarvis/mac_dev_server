@@ -17,6 +17,7 @@ const BankAccount = require("../models/Finance/BankAccount");
 const SubjectInternalEvaluation = require("../models/InternalEvaluation/SubjectInternalEvaluation");
 const HostelUnit = require("../models/Hostel/hostelUnit");
 const Class = require("../models/Class");
+const Guide = require("../models/Guide/Guide");
 
 exports.json_to_excel_query = async (
   data_query,
@@ -1025,6 +1026,98 @@ exports.json_to_excel_other_fees_subject_application_query = async (
     return {
       back: true,
     };
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.guide_json_to_excel = async (
+  id,
+  list,
+  sheetName,
+  excelType,
+  exportTypeName
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(list);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, sheetName);
+    var name = `guide-${exportTypeName}-${new Date().getHours()}-${new Date().getMinutes()}-${new Date().getSeconds()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const mentor = await Guide.findById(id);
+    mentor.export_collection.push({
+      excel_type: excelType,
+      excel_file: results,
+      excel_file_name: name,
+    });
+    mentor.export_collection_count += 1;
+    await mentor.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.cls_json_to_excel = async (
+  id,
+  list,
+  sheetName,
+  excelType,
+  exportTypeName
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(list);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, sheetName);
+    var name = `class-${exportTypeName}-${new Date().getHours()}-${new Date().getMinutes()}-${new Date().getSeconds()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const subject = await Class.findById(id);
+    subject.export_collection.push({
+      excel_type: excelType,
+      excel_file: results,
+      excel_file_name: name,
+    });
+    subject.export_collection_count += 1;
+    await subject.save();
+    return results;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_json_to_excel = async (
+  id,
+  list,
+  sheetName,
+  excelType,
+  exportTypeName
+) => {
+  try {
+    var real_book = xlsx.utils.book_new();
+    var real_sheet = xlsx.utils.json_to_sheet(list);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, sheetName);
+    var name = `subject-${exportTypeName}-${new Date().getHours()}-${new Date().getMinutes()}-${new Date().getSeconds()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const subject = await Subject.findById(id);
+    subject.export_collection.push({
+      excel_type: excelType,
+      excel_file: results,
+      excel_file_name: name,
+    });
+    subject.export_collection_count += 1;
+    await subject.save();
+    return results;
   } catch (e) {
     console.log(e);
   }

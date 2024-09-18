@@ -784,6 +784,9 @@ const financeSchema = new mongoose.Schema(
       type: String,
       default: "Institute_Wise",
     },
+    is_dublicate_receipt: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

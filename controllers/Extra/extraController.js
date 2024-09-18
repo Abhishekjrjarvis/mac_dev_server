@@ -129,6 +129,7 @@ const normalAdmissionFeeReceipt = require("../../scripts/normalAdmissionFeeRecei
 const NestedCard = require("../../models/Admission/NestedCard");
 const studentOtherFeeReceipt = require("../../scripts/studentOtherFeeReceipt");
 const OtherFees = require("../../models/Finance/Other/OtherFees");
+const combinedBankDaybook = require("../../scripts/combinedBankDaybook");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -266,7 +267,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto certificate_issued_count insAffiliated",
+          "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto certificate_issued_count insAffiliated is_dublicate_bonafide certificate_bonafide_count",
       });
     student.studentReason = reason;
     student.student_bona_message = student_bona_message;
@@ -3612,6 +3613,7 @@ exports.renderMarkCertificateQueryStatus = async (req, res) => {
   try {
     const { cid } = req?.params;
     var { status, attach } = req?.query;
+    var { is_bonafide, certificate_bonafide_count } = req?.body;
     if (!cid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -3622,6 +3624,11 @@ exports.renderMarkCertificateQueryStatus = async (req, res) => {
     var ins = await InstituteAdmin.findById({
       _id: `${valid_cert?.institute}`,
     });
+    if (is_bonafide) {
+      ins.certificate_bonafide_count = certificate_bonafide_count;
+      await ins.save();
+    }
+
     if (`${status}` === "Issued") {
       valid_cert.certificate_status = `${status}`;
       valid_cert.certificate_issued_date = new Date();
@@ -4059,6 +4066,8 @@ exports.issueCertificateInstituteLogsQuery = async (req, res) => {
       is_dublicate,
       student_name,
       staffId,
+      is_bonafide,
+      certificate_bonafide_count,
     } = req.body;
     if (!gr || !id) {
       return res.status(200).send({
@@ -4072,6 +4081,10 @@ exports.issueCertificateInstituteLogsQuery = async (req, res) => {
     if (!validGR)
       return res.status(200).send({ message: "I Think you lost in space" });
 
+    if (is_bonafide) {
+      institute.certificate_bonafide_count = certificate_bonafide_count;
+      await institute.save();
+    }
     const student = await Student.findOne({
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     });
@@ -4803,7 +4816,8 @@ exports.customGenerateCheckAllPayReceiptQuery = async (req, res) => {
 // for generated duumy pdf
 exports.generateDummyPdfQuery = async (req, res) => {
   try {
-    await staffLeaveRequest();
+    // await staffLeaveRequest();
+    await combinedBankDaybook();
     res.status(200).send({
       message: "Dummy pdf generate",
     });
@@ -5160,6 +5174,27 @@ exports.customAmountStudentOtherFeeReceiptQuery = async (req, res) => {
       message: "Miscellaneous Fee receipt amount changes.",
       count: all_fee_receipt?.length,
       all_fee_receipt: all_fee_receipt,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.certificate_bonafide_dublicate_query = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { is_dublicate_bonafide } = req.body;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const institute = await InstituteAdmin.findById(id);
+    institute.is_dublicate_bonafide = is_dublicate_bonafide;
+    await institute.save();
+    res.status(200).send({
+      message: "Data updated successfully.",
+      access: true,
     });
   } catch (e) {
     console.log(e);

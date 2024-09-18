@@ -6,6 +6,7 @@ const Student = require("../../models/Student");
 const { handle_undefined } = require("../../Handler/customError");
 const Batch = require("../../models/Batch");
 const { nested_document_limit } = require("../../helper/databaseFunction");
+const { cls_json_to_excel } = require("../../Custom/JSONToExcel");
 // const Checklist = require("../../models/Checklist");
 
 exports.getOneInstitute = async (req, res) => {
@@ -483,7 +484,8 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
             "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO student_prn_enroll_number",
           populate: {
             path: "user class_selected_batch",
-            select: "userLegalName username username_chat batchName batchStatus",
+            select:
+              "userLegalName username username_chat batchName batchStatus",
           },
         })
         .lean()
@@ -686,6 +688,69 @@ exports.getShuffleQuery = async (req, res) => {
     }
 
     res.status(200).send({ message: "Sorted" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.cls_catalog_export_query = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let excel_key = "";
+    const cls = await Class.findById(cid)
+      .populate({
+        path: "ApproveStudent",
+        select:
+          "studentFirstName studentLastName studentMiddleName studentGRNO studentROLLNO student_prn_enroll_number studentGender",
+      })
+      .lean()
+      .exec();
+    let students = [];
+
+    if (cls?.ApproveStudent?.length > 0) {
+      students = cls?.ApproveStudent?.map((stu) => {
+        let dObj = {
+          GRNO: "",
+          "Enrollment / PRN": "",
+          RollNo: "",
+          Name: "",
+          Gender: "",
+        };
+        dObj.GRNO = stu?.studentGRNO ?? "N/A";
+        dObj["Enrollment / PRN"] = stu?.student_prn_enroll_number
+          ? stu?.student_prn_enroll_number
+          : "N/A";
+        dObj.RollNo = stu?.studentROLLNO;
+        dObj.Name = `${
+          stu?.studentFirstName +
+          " " +
+          stu?.studentMiddleName +
+          " " +
+          stu?.studentLastName
+        }`;
+        dObj.Gender = stu?.studentGender;
+        return dObj;
+      });
+    }
+
+    if (students?.length > 0) {
+      excel_key = await cls_json_to_excel(
+        cid,
+        students,
+        "Catalog Students",
+        "CATALOG_STUDENT",
+        `catalog-of-student-${cls?.classTitle ?? ""}`
+      );
+    }
+    return res.status(200).send({
+      message: "All student zip with catalog.",
+      excel_key: excel_key,
+    });
   } catch (e) {
     console.log(e);
   }

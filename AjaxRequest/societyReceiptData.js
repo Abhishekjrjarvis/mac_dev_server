@@ -58,7 +58,7 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       })
       .populate({
         path: "finance",
-        select: "financeHead show_receipt",
+        select: "financeHead show_receipt is_dublicate_receipt",
         populate: {
           path: "financeHead",
           select: "staffFirstName staffMiddleName staffLastName",
@@ -242,13 +242,13 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       remain_fee: 0,
       applicable_fee: 0,
       fee_structure: all_remain?.fee_structure?._id,
-      original_paid:
-        all_remain?.applicable_card?.paid_fee -
-          all_remain?.applicable_card?.applicable_fee >
-        0
-          ? all_remain?.applicable_card?.paid_fee -
-            all_remain?.applicable_card?.applicable_fee
-          : 0,
+      original_paid: 0,
+      // all_remain?.applicable_card?.paid_fee -
+      //   all_remain?.applicable_card?.applicable_fee >
+      // 0
+      //   ? all_remain?.applicable_card?.paid_fee -
+      //     all_remain?.applicable_card?.applicable_fee
+      //   : 0,
       appId: all_remain?.appId,
     };
     var gta_obj = {
@@ -263,13 +263,13 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       remain_fee: 0,
       applicable_fee: 0,
       fee_structure: all_remain?.fee_structure?._id,
-      original_paid:
-        all_remain?.applicable_card?.paid_fee -
-          all_remain?.applicable_card?.applicable_fee >
-        0
-          ? all_remain?.applicable_card?.paid_fee -
-            all_remain?.applicable_card?.applicable_fee
-          : 0,
+      original_paid: 0,
+      // all_remain?.applicable_card?.paid_fee -
+      //   all_remain?.applicable_card?.applicable_fee >
+      // 0
+      //   ? all_remain?.applicable_card?.paid_fee -
+      //     all_remain?.applicable_card?.applicable_fee
+      //   : 0,
       appId: all_remain?.appId,
     };
     if (excess_obj?.paid_fee > 0) {

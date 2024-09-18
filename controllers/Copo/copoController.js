@@ -25,6 +25,10 @@ const User = require("../../models/User");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const moment = require("moment");
+const SubjectContinuousEvaluation = require("../../models/ContinuousEvaluation/SubjectContinuousEvaluation");
+const SubjectContinuousEvaluationExperiment = require("../../models/ContinuousEvaluation/SubjectContinuousEvaluationExperiment");
+const StudentAssignment = require("../../models/MCQ/StudentAssignment");
+const SubjectMarks = require("../../models/Marks/SubjectMarks");
 
 exports.getAllAttainmentQuery = async (req, res) => {
   try {
@@ -1749,7 +1753,7 @@ exports.subjectTeacherTakeTestsetInternalEvaluationTestQuery = async (
       const subject = await Subject.findById(i_eva_test?.subject)
         .populate({
           path: "selected_batch_query",
-          select: "class_student_query",
+          select: "class_student_query batchName",
         })
         .populate({
           path: "class",
@@ -2137,6 +2141,1109 @@ exports.subjectTeacherSingleTakeTestsetInternalEvaluationTestQuery = async (
         );
       }
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// for continuous evaluation things
+
+exports.subject_all_expriment_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    let experiments = [];
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      experiments = await SubjectContinuousEvaluationExperiment.find({
+        $and: [
+          {
+            subject: { $eq: `${sid}` },
+          },
+          {
+            $or: [
+              {
+                name: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                experiment_type: { $regex: req.query.search, $options: "i" },
+              },
+            ],
+          },
+        ],
+      }).select("name experiment_type date createdAt");
+    } else {
+      experiments = await SubjectContinuousEvaluationExperiment.find({
+        $and: [
+          {
+            subject: { $eq: `${sid}` },
+          },
+        ],
+      })
+        .select("name experiment_type date createdAt")
+        .sort("-1")
+        .skip(dropItem)
+        .limit(itemPerPage);
+    }
+
+    res.status(200).send({
+      message: "Continuous Evaluation All Experiment list.",
+      experiments: experiments,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.subject_add_expriment_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { name, experiment_type, date } = req.body;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const subject = await Subject.findById(sid).populate({
+      path: "class",
+      select: "department",
+    });
+    let ex_qv_id = "";
+    if (subject?.continuous_evaluation) {
+      const ct_ev = await SubjectContinuousEvaluation.findById(
+        subject?.continuous_evaluation
+      );
+
+      const ex_ev = new SubjectContinuousEvaluationExperiment({
+        subject: sid,
+        name,
+        experiment_type,
+        date,
+        continuous_evaluation: ct_ev?._id,
+      });
+      ct_ev.evaluation_experiment.push(ex_ev?._id);
+      ex_qv_id = ex_ev?._id;
+      await Promise.all([ex_ev.save(), ct_ev.save()]);
+    } else {
+      const ct_ev = new SubjectContinuousEvaluation({
+        subject: sid,
+        institute: subject?.institute,
+        department: subject?.class?.department,
+        class: subject?.class?._id,
+      });
+      subject.continuous_evaluation = ct_ev?._id;
+      const ex_ev = new SubjectContinuousEvaluationExperiment({
+        subject: sid,
+        name,
+        experiment_type,
+        date,
+        continuous_evaluation: ct_ev?._id,
+      });
+      ct_ev.evaluation_experiment.push(ex_ev?._id);
+      ex_qv_id = ex_ev?._id;
+
+      await Promise.all([ex_ev.save(), ct_ev.save(), subject.save()]);
+    }
+
+    res.status(200).send({
+      message: "Continuous Experiment Evaluation Created successfully.",
+      access: true,
+    });
+
+    if (ex_qv_id) {
+      const sub = await Subject.findById(sid)
+        .populate({
+          path: "selected_batch_query",
+          select: "class_student_query batchName",
+        })
+        .populate({
+          path: "class",
+          select: "ApproveStudent classTitle",
+        });
+
+      let students = [];
+      if (sub?.selected_batch_query?._id) {
+        students = sub?.selected_batch_query?.class_student_query;
+      } else {
+        if (sub?.optionalStudent?.length > 0) {
+          students = sub?.optionalStudent;
+        } else {
+          students = sub?.class?.ApproveStudent;
+        }
+      }
+
+      const expriment_ev = await SubjectContinuousEvaluationExperiment.findById(
+        ex_qv_id
+      );
+
+      const ct_ev = await SubjectContinuousEvaluation.findById(
+        expriment_ev.continuous_evaluation
+      );
+
+      if (expriment_ev?._id && students?.length > 0) {
+        for (let dt of students) {
+          expriment_ev.student_list.push({
+            student: dt,
+          });
+          if (ct_ev.student_list?.includes(dt)) {
+          } else {
+            ct_ev.student_list.push(dt);
+          }
+        }
+      }
+
+      await Promise.all([ct_ev.save(), expriment_ev.save()]);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_update_expriment_query = async (req, res) => {
+  try {
+    const { exid } = req.params;
+    if (!exid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    await SubjectContinuousEvaluationExperiment.findByIdAndUpdate(
+      exid,
+      req.body
+    );
+
+    res.status(200).send({
+      message: "Continuous Experiment Evaluation updated successfully.",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_remove_expriment_query = async (req, res) => {
+  try {
+    const { exid } = req.params;
+    if (!exid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const expriment_ev = await SubjectContinuousEvaluationExperiment.findById(
+      exid
+    );
+    if (expriment_ev?.continuous_evaluation) {
+      const ct_ev = await SubjectContinuousEvaluation.findById(
+        expriment_ev?.continuous_evaluation
+      );
+      ct_ev.evaluation_experiment.pull(exid);
+      await ct_ev.save();
+    }
+    await SubjectContinuousEvaluationExperiment.findByIdAndDelete(exid);
+    res.status(200).send({
+      message: "Continuous Experiment Evaluation deleted successfully.",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_one_expriment_detail_query = async (req, res) => {
+  try {
+    const { exid } = req.params;
+    if (!exid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const exev = await SubjectContinuousEvaluationExperiment.findById(exid);
+
+    const subject = await Subject.findById(exev?.subject).populate({
+      path: "attendance",
+      match: {
+        attendDate: { $eq: `${moment(exev?.date)?.format("DD/MM/yyyy")}` },
+      },
+    });
+    let students = [];
+
+    if (exev?.student_list?.length > 0) {
+      for (let st of exev?.student_list) {
+        const student = await Student.findById(st?.student)
+          .select(
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGRNO studentProfilePhoto"
+          )
+          .lean()
+          .exec();
+
+        let att_marks = 0;
+
+        if (subject?.attendance?.[0]?._id) {
+          for (let dt of subject?.attendance?.[0]?.presentStudent) {
+            if (`${dt?.student}` === `${student?._id}`) {
+              att_marks = 3;
+              break;
+            }
+          }
+        }
+        students.push({
+          ...student,
+          attendance_marks: att_marks,
+          practical_marks: st?.practical_marks,
+          journal_marks: st?.journal_marks,
+          total_marks: att_marks + st?.practical_marks + st?.journal_marks,
+        });
+      }
+    }
+
+    res.status(200).send({
+      message: "One Experiment detail list.",
+      students: students,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_update_expriment_marks_query = async (req, res) => {
+  try {
+    const { exid } = req.params;
+    const { marks_list } = req.body;
+    if (!exid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const expriment_ev = await SubjectContinuousEvaluationExperiment.findById(
+      exid
+    );
+    if (expriment_ev?._id && marks_list?.length > 0) {
+      expriment_ev.student_list = marks_list;
+    }
+    await expriment_ev.save();
+    res.status(200).send({
+      message: "Continuous Experiment marks updated successfully.",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_continuous_evaluation_detail_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const ctev = await SubjectContinuousEvaluation.findOne({
+      subject: sid,
+    })
+      .populate({
+        path: "attendance_subject",
+        populate: {
+          path: "selected_batch_query",
+          select: "batchName",
+        },
+        select: "subjectName subject_category",
+      })
+      .populate({
+        path: "assignment_subject",
+        populate: {
+          path: "selected_batch_query",
+          select: "batchName",
+        },
+        select: "subjectName subject_category",
+      })
+      .populate({
+        path: "cls_test_subject",
+        populate: {
+          path: "selected_batch_query",
+          select: "batchName",
+        },
+        select: "subjectName subject_category",
+      })
+      .select(
+        "class experiment_outof attendance_outof cls_test_outof assignment_outof total_outof final_outof university_outof attendance_subject experiment_toggle attendance_toggle cls_test_toggle assignment_toggle cls_test_subject assignment_subject attendance_grade_count attendance_grade_marks"
+      );
+    res.status(200).send({
+      message: "Continuous evaluation setting saved successfully.",
+      ctev: ctev,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_continuous_evaluation_setting_query = async (req, res) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    await SubjectContinuousEvaluation.findByIdAndUpdate(ceid, req.body);
+
+    res.status(200).send({
+      message: "Continuous evaluation setting saved successfully.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.continuous_evaluation_all_experiment_marks_query = async (req, res) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const ct_ev = await SubjectContinuousEvaluation.findById(ceid);
+    let stu_obj = {};
+
+    const all_exp = await SubjectContinuousEvaluationExperiment.find({
+      continuous_evaluation: ct_ev,
+    });
+
+    if (all_exp?.length > 0) {
+      for (let exp of all_exp) {
+        if (exp?.student_list?.length > 0) {
+          for (let stu of exp?.student_list) {
+            if (stu_obj[stu?.student]) {
+              stu_obj[stu?.student]["mark"] += stu?.total_marks;
+              stu_obj[stu?.student]["outof"] += exp?.outof;
+            } else {
+              stu_obj[stu?.student] = {
+                mark: stu?.total_marks,
+                outof: exp?.outof,
+              };
+            }
+          }
+        }
+      }
+    }
+
+    let students = [];
+    for (let ob in stu_obj) {
+      const student = await Student.findById(ob)
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId studentGRNO studentROLLNO"
+        )
+        .lean()
+        .exec();
+      let ot = stu_obj[ob];
+      let per = 0;
+      if (ot?.mark > 0) {
+        per = Math.ceil((ot?.mark / ot?.outof) * 100);
+        per = +per;
+        per = Math.ceil((per * ct_ev?.experiment_outof) / 100);
+        per = +per;
+      }
+
+      students.push({
+        ...student,
+        secured_marks: per,
+      });
+    }
+
+    res.status(200).send({
+      message: "Continuous Experiment marks updated successfully.",
+      access: true,
+      students: students,
+    });
+
+    if (students?.length > 0) {
+      for (let stu of students) {
+        let flag = true;
+        for (let std of ct_ev?.student_data) {
+          if (`${stu?._id}` === `${std?.student}`) {
+            flag = false;
+            std.all_exp = stu?.secured_marks;
+            break;
+          }
+        }
+        if (flag) {
+          ct_ev?.student_data.push({
+            student: stu?._id,
+            all_exp: stu?.secured_marks,
+          });
+        }
+      }
+      await ct_ev.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.cls_theory_subject_list_query = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const cls = await Class.findById(cid);
+
+    const subjects = await Subject.find({
+      $and: [
+        {
+          _id: { $in: cls.subject },
+        },
+        {
+          subject_category: { $in: ["Full Class", "Theory"] },
+        },
+      ],
+    })
+      .populate({
+        path: "selected_batch_query",
+        select: "batchName",
+      })
+      .select("subjectName subject_category");
+
+    res.status(200).send({
+      message: "Continuous evaluation class subject list.",
+      subject: subjects?.length > 0 ? subjects : [],
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.continuous_evaluation_attendance_marks_query = async (req, res) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const ct_ev = await SubjectContinuousEvaluation.findById(ceid);
+    let students = [];
+    if (ct_ev?.attendance_subject) {
+      const subjects = await Subject.findById(
+        ct_ev?.attendance_subject
+      ).populate({
+        path: "attendance",
+      });
+      let student_list = [];
+
+      student_list = await Student.find({
+        _id: { $in: ct_ev.student_list },
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO "
+        )
+        .lean()
+        .exec();
+
+      for (let stu of student_list) {
+        let obj = {
+          ...stu,
+          subjectWise: {
+            presentCount: 0,
+            totalCount: 0,
+            totalPercentage: 0,
+          },
+          attendance_mark: 0,
+        };
+        for (let att of subjects?.attendance) {
+          for (let pre of att?.presentStudent) {
+            if (String(stu._id) === String(pre.student))
+              obj.subjectWise.presentCount += 1;
+          }
+          obj.subjectWise.totalCount += 1;
+        }
+        if (obj.subjectWise.totalCount > 0) {
+          obj.subjectWise.totalPercentage = Math.ceil(
+            (obj.subjectWise.presentCount * 100) / obj.subjectWise.totalCount
+          );
+
+          obj.subjectWise.totalPercentage = +obj.subjectWise.totalPercentage;
+
+          if (ct_ev?.attendance_grade_marks?.length > 0) {
+            for (let dbt of ct_ev?.attendance_grade_marks) {
+              if (
+                obj.subjectWise.totalPercentage >= dbt?.start_range &&
+                obj.subjectWise.totalPercentage <= dbt?.end_range
+              ) {
+                obj.attendance_mark = +dbt.grade_marks;
+              }
+            }
+          } else {
+            obj.attendance_mark = Math.ceil(
+              (obj.subjectWise.totalPercentage * ct_ev.attendance_outof) / 100
+            );
+            obj.attendance_mark = +obj.attendance_mark;
+          }
+        }
+
+        students.push(obj);
+      }
+    }
+
+    res.status(200).send({
+      message: "Continuous Experiment marks updated successfully.",
+      access: true,
+      students: students,
+    });
+
+    if (students?.length > 0) {
+      for (let stu of students) {
+        let flag = true;
+        for (let std of ct_ev?.student_data) {
+          if (`${stu?._id}` === `${std?.student}`) {
+            flag = false;
+            std.attendance = stu?.attendance_mark;
+            break;
+          }
+        }
+        if (flag) {
+          ct_ev?.student_data.push({
+            student: stu?._id,
+            attendance: stu?.attendance_mark,
+          });
+        }
+      }
+      await ct_ev.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.continuous_evaluation_assignment_marks_query = async (req, res) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const ct_ev = await SubjectContinuousEvaluation.findById(ceid);
+    let students = [];
+    if (ct_ev?.assignment_subject) {
+      const subjects = await Subject.findById(ct_ev?.assignment_subject);
+
+      if (subjects?.assignments?.length > 0) {
+        let student_list = [];
+        student_list = await Student.find({
+          _id: { $in: ct_ev.student_list },
+        })
+          .select(
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO "
+          )
+          .lean()
+          .exec();
+        for (let stu of student_list) {
+          let obj = {
+            ...stu,
+            assignment_mark: 0,
+            assignment_total_mark: 0,
+          };
+
+          const stu_assignment = await StudentAssignment.find({
+            $and: [
+              {
+                assignment: {
+                  $in: subjects?.assignments,
+                },
+              },
+              {
+                student: {
+                  $eq: `${stu?._id}`,
+                },
+              },
+            ],
+          });
+
+          if (stu_assignment?.length > 0) {
+            for (let ass of stu_assignment) {
+              obj.assignment_mark += ass?.assignment_obtain_mark;
+              obj.assignment_total_mark += ass?.assignment_total_mark;
+            }
+          }
+          if (obj.assignment_total_mark > 0 && obj.assignment_mark > 0) {
+            obj.assignment_mark = Math.ceil(
+              (obj.assignment_mark * 100) / obj.assignment_total_mark
+            );
+            obj.assignment_mark = +obj.assignment_mark;
+
+            obj.assignment_mark = Math.ceil(
+              (obj.assignment_mark * ct_ev.assignment_outof) / 100
+            );
+            obj.assignment_mark = +obj.assignment_mark;
+          }
+
+          students.push(obj);
+        }
+      }
+    }
+
+    res.status(200).send({
+      message: "Continuous Experiment marks updated successfully.",
+      access: true,
+      students: students,
+    });
+
+    if (students?.length > 0) {
+      for (let stu of students) {
+        let flag = true;
+        for (let std of ct_ev?.student_data) {
+          if (`${stu?._id}` === `${std?.student}`) {
+            flag = false;
+            std.assingment = stu?.assignment_mark;
+            break;
+          }
+        }
+        if (flag) {
+          ct_ev?.student_data.push({
+            student: stu?._id,
+            assingment: stu?.assignment_mark,
+          });
+        }
+      }
+      await ct_ev.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.continuous_evaluation_cls_test_marks_query = async (req, res) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const ct_ev = await SubjectContinuousEvaluation.findById(ceid);
+    let students = [];
+    if (ct_ev?.cls_test_subject && ct_ev?.cls_test_exam?.length > 0) {
+      let student_list = [];
+      let exams = [];
+      for (let dt of ct_ev?.cls_test_exam) {
+        exams.push(`${dt}`);
+      }
+      student_list = await Student.find({
+        _id: { $in: ct_ev.student_list },
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO "
+        )
+        .lean()
+        .exec();
+      for (let stu of student_list) {
+        let obj = {
+          ...stu,
+          cls_mark: 0,
+          cls_total_mark: 0,
+        };
+        const stu_marks = await SubjectMarks.findOne({
+          $and: [
+            {
+              student: {
+                $eq: `${stu?._id}`,
+              },
+            },
+            {
+              subject: {
+                $eq: `${ct_ev?.cls_test_subject}`,
+              },
+            },
+          ],
+        });
+
+        if (stu_marks?._id && stu_marks?.marks?.length > 0) {
+          for (let mt of stu_marks?.marks) {
+            if (exams?.includes(`${mt?.examId}`)) {
+              obj.cls_mark += mt?.obtainMarks;
+              obj.cls_total_mark += mt?.totalMarks;
+            }
+          }
+          obj.cls_mark = Math.ceil((obj.cls_mark * 100) / obj.cls_total_mark);
+          obj.cls_mark = +obj.cls_mark;
+
+          obj.cls_mark = Math.ceil((obj.cls_mark * ct_ev.cls_test_outof) / 100);
+          obj.cls_mark = +obj.cls_mark;
+        }
+        students.push(obj);
+      }
+    }
+
+    res.status(200).send({
+      message: "Continuous Experiment marks updated successfully.",
+      access: true,
+      students: students,
+    });
+
+    if (students?.length > 0) {
+      for (let stu of students) {
+        let flag = true;
+        for (let std of ct_ev?.student_data) {
+          if (`${stu?._id}` === `${std?.student}`) {
+            flag = false;
+            std.cls_test = stu?.cls_mark;
+            break;
+          }
+        }
+        if (flag) {
+          ct_ev?.student_data.push({
+            student: stu?._id,
+            cls_test: stu?.cls_mark,
+          });
+        }
+      }
+      await ct_ev.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.continuous_evaluation_total_marks_query = async (req, res) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const ct_ev = await SubjectContinuousEvaluation.findById(ceid);
+    let students = [];
+    if (ct_ev?.student_data?.length > 0) {
+      let student_list = [];
+      student_list = await Student.find({
+        _id: { $in: ct_ev.student_list },
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO "
+        )
+        .lean()
+        .exec();
+
+      for (let stu of student_list) {
+        let obj = {
+          ...stu,
+          total_mark: 0,
+          total_mark_outof: 0,
+          column: 0,
+        };
+
+        for (let odt of ct_ev?.student_data) {
+          if (`${stu?._id}` === `${odt?.student}`) {
+            if (ct_ev?.experiment_toggle) {
+              obj.total_mark += odt?.all_exp;
+              obj.total_mark_outof += ct_ev?.experiment_outof;
+              obj.column += 1;
+            }
+            if (ct_ev?.attendance_toggle) {
+              obj.total_mark += odt?.attendance;
+              obj.total_mark_outof += ct_ev?.attendance_outof;
+
+              obj.column += 1;
+            }
+            if (ct_ev?.cls_test_toggle) {
+              obj.total_mark += odt?.cls_test;
+              obj.total_mark_outof += ct_ev?.cls_test_outof;
+
+              obj.column += 1;
+            }
+            if (ct_ev?.assignment_toggle) {
+              obj.total_mark += odt?.assingment;
+              obj.total_mark_outof += ct_ev?.assignment_outof;
+
+              obj.column += 1;
+            }
+            break;
+          }
+        }
+        // obj.total_mark = Math.ceil(obj.total_mark / obj.column);
+        // obj.total_mark = +obj.total_mark;
+        // console.log("total_mark =>", obj.total_mark, obj.total_mark_outof);
+
+        obj.total_mark = Math.ceil(
+          (obj.total_mark / obj.total_mark_outof) * 100
+        );
+        // console.log("total_mark => after manu in per", obj.total_mark);
+        obj.total_mark = Math.ceil((obj.total_mark * ct_ev.total_outof) / 100);
+
+        // obj.total_mark = Math.ceil((obj.total_mark / ct_ev.total_outof) * 100);
+        // console.log("total_mark => after manu in per", obj.total_mark);
+        // obj.total_mark = Math.ceil((obj.total_mark * ct_ev.total_outof) / 100);
+
+        obj.total_mark = +obj.total_mark;
+        // console.log(
+        //   "total_mark => after manu",
+        //   obj.total_mark,
+        //   ct_ev.total_outof
+        // );
+        students.push(obj);
+      }
+    }
+
+    res.status(200).send({
+      message: "Continuous Experiment marks updated successfully.",
+      access: true,
+      students: students,
+    });
+
+    if (students?.length > 0) {
+      ct_ev.student_overall_data = ct_ev?.student_data;
+      for (let stu of students) {
+        for (let std of ct_ev?.student_overall_data) {
+          if (`${stu?._id}` === `${std?.student}`) {
+            std.total = stu?.total_mark;
+            break;
+          }
+        }
+      }
+      await ct_ev.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_continuous_evaluation_all_university_marks_query = async (
+  req,
+  res
+) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const ct_ex = await SubjectContinuousEvaluation.findById(ceid);
+
+    let students = [];
+
+    if (ct_ex?.student_list?.length > 0) {
+      for (let stu of ct_ex?.student_list) {
+        const student = await Student.findById(stu)
+          .select(
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO studentProfilePhoto"
+          )
+          .lean()
+          .exec();
+
+        let marks = 0;
+        if (ct_ex?.student_marks_university?.length > 0) {
+          for (let dt of ct_ex?.student_marks_university) {
+            if (`${dt?.student}` === `${student?._id}`) {
+              marks = dt?.marks;
+              break;
+            }
+          }
+        }
+        students.push({
+          ...student,
+          marks: marks,
+        });
+      }
+    }
+    res.status(200).send({
+      message: "Continuous Evaluation university marks updated successfully.",
+      students: students,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_continuous_evaluation_university_marks_query = async (
+  req,
+  res
+) => {
+  try {
+    const { ceid } = req.params;
+    const { marks_list } = req.body;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const ct_ex = await SubjectContinuousEvaluation.findById(ceid);
+    if (ct_ex?._id && marks_list?.length > 0) {
+      ct_ex.student_marks_university = marks_list;
+    }
+    await ct_ex.save();
+    res.status(200).send({
+      message: "Continuous Evaluation university marks updated successfully.",
+      access: true,
+    });
+
+    if (marks_list?.length > 0) {
+      for (let stu of marks_list) {
+        for (let std of ct_ex?.student_overall_data) {
+          if (`${stu?.student}` === `${std?.student}`) {
+            std.by_university = stu?.marks;
+            break;
+          }
+        }
+      }
+      await ct_ex.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_continuous_evaluation_all_university_seats_query = async (
+  req,
+  res
+) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const ct_ex = await SubjectContinuousEvaluation.findById(ceid);
+
+    let students = [];
+
+    if (ct_ex?.student_list?.length > 0) {
+      for (let stu of ct_ex?.student_list) {
+        const student = await Student.findById(stu)
+          .select(
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO studentProfilePhoto"
+          )
+          .lean()
+          .exec();
+
+        let seat_no = "";
+        if (ct_ex?.student_university_seat?.length > 0) {
+          for (let dt of ct_ex?.student_university_seat) {
+            if (`${dt?.student}` === `${student?._id}`) {
+              seat_no = dt?.seat_no;
+              break;
+            }
+          }
+        }
+        students.push({
+          ...student,
+          seat_no: seat_no,
+        });
+      }
+    }
+    res.status(200).send({
+      message: "Continuous Evaluation university marks updated successfully.",
+      students: students,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subject_continuous_evaluation_university_seats_query = async (
+  req,
+  res
+) => {
+  try {
+    const { ceid } = req.params;
+    const { seat_list } = req.body;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const ct_ex = await SubjectContinuousEvaluation.findById(ceid);
+    if (ct_ex?._id && seat_list?.length > 0) {
+      ct_ex.student_university_seat = seat_list;
+    }
+    await ct_ex.save();
+    res.status(200).send({
+      message: "Continuous Evaluation university seats updated successfully.",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.continuous_evaluation_final_marks_query = async (req, res) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const ct_ev = await SubjectContinuousEvaluation.findById(ceid);
+    let students = [];
+    if (ct_ev?.student_overall_data?.length > 0) {
+      let student_list = [];
+      student_list = await Student.find({
+        _id: { $in: ct_ev.student_list },
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO "
+        )
+        .lean()
+        .exec();
+
+      for (let stu of student_list) {
+        let obj = {
+          ...stu,
+          final_mark: 0,
+          column: 0,
+        };
+
+        for (let odt of ct_ev?.student_overall_data) {
+          if (`${stu?._id}` === `${odt?.student}`) {
+            obj.final_mark += odt?.total;
+            obj.column += 1;
+
+            let ut_marks = odt?.by_university;
+            ut_marks = Math.ceil((ut_marks * 100) / ct_ev.university_outof);
+            ut_marks = +ut_marks;
+
+            obj.final_mark += ut_marks;
+            obj.column += 1;
+            break;
+          }
+        }
+        obj.final_mark = Math.ceil(obj.final_mark / obj.column);
+        obj.final_mark = +obj.final_mark;
+
+        obj.final_mark = Math.ceil((obj.final_mark * ct_ev.final_outof) / 100);
+        obj.final_mark = +obj.final_mark;
+        students.push(obj);
+      }
+    }
+
+    res.status(200).send({
+      message: "Continuous Experiment marks updated successfully.",
+      access: true,
+      students: students,
+    });
   } catch (e) {
     console.log(e);
   }

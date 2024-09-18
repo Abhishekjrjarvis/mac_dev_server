@@ -227,13 +227,13 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
       remain_fee: 0,
       applicable_fee: 0,
       fee_structure: all_remain?.fee_structure?._id,
-      original_paid:
-        all_remain?.applicable_card?.paid_fee -
-          all_remain?.applicable_card?.applicable_fee >
-        0
-          ? all_remain?.applicable_card?.paid_fee -
-            all_remain?.applicable_card?.applicable_fee
-          : 0,
+      original_paid: 0,
+      // all_remain?.applicable_card?.paid_fee -
+      //   all_remain?.applicable_card?.applicable_fee >
+      // 0
+      //   ? all_remain?.applicable_card?.paid_fee -
+      //     all_remain?.applicable_card?.applicable_fee
+      //   : 0,
       appId: all_remain?.appId,
     };
     if (
@@ -247,7 +247,8 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
         remain_fee: 0,
         applicable_fee: receipt?.student?.apps_fees_obj?.gta ?? 0,
         fee_structure: all_remain?.fee_structure?._id,
-        original_paid: receipt?.student?.apps_fees_obj?.gta ?? 0,
+        original_paid: 0,
+        // receipt?.student?.apps_fees_obj?.gta ?? 0,
         appId: all_remain?.appId,
       };
     }
@@ -411,14 +412,14 @@ const admissionModifyReceiptData = (
       afterDataSncyFeeHead.push(fee);
     } else {
       if (
-        fee?.head_name === "Excess Applicable Fees"
-        // fee?.head_name === "Excess Fees"
+        fee?.head_name === "Excess Applicable Fees" ||
+        fee?.head_name === "Excess Fees"
       ) {
       } else {
-        if (fee?.head_name === "Excess Fees") {
-        } else {
-          afterDataSncyPaidFees += fee?.paid_fee;
-        }
+        // if (fee?.head_name === "Excess Fees") {
+        // } else {
+        afterDataSncyPaidFees += fee?.paid_fee;
+        // }
         afterDataSncyFeeHead.push(fee);
       }
     }

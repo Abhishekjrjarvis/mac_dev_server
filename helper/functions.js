@@ -505,45 +505,170 @@ exports.send_email_student_message_query = (email, message) => {
 const send_email_authentication_custom = function (recipientEmail, otp) {
   // Create the bodyhtml part of the email
   const bodyhtml = `
-      <html xmlns="http://www.w3.org/1999/xhtml">
-      <head>
-          <meta charset="UTF-8">
-          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" 
-          integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" 
-          crossorigin="anonymous">
-          <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
-      </head>
-      <body style="padding:0; margin:0; background:#e4e6ec">
-          <table style="height:100%; width:100%; background-color:rgb(228,230,236);" align="center">
-              <tbody>
-                  <tr>
-                      <td valign="top" id="dbody" data-version="2.31" style="width:100%; height:100%; margin-top:50px; margin-bottom:50px; padding:0;">
-                          <table align="center" border="0" cellpadding="0" cellspacing="0" style="max-width:588px; width:100%; margin:0 auto;">
-                              <tbody>
-                                  <tr>
-                                      <td valign="top" style="background-color:rgb(255,255,255); text-align:center;">
-                                          <img src="https://api.smtprelay.co/userfile/ab0e9f76-f4d1-4afb-b6af-f543b59ed4e0/Group_41_(3).png" alt="Image" style="max-width:401px; width:100%;" width="401">
-                                      </td>
-                                  </tr>
-                                  <tr>
-                                      <td valign="top" style="background-color:rgb(255,255,255); padding:20px; color:rgb(95,95,95); font-size:12px; font-family:Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif;">
-                                          <p style="color:#000000;">To Verify your email address, please use the following One Time Password (OTP):</p>
-                                          <p><strong style="color:#000000; font-size:16px;">${otp}</strong></p>
-                                          <p style="color:#000000;">Do not share this OTP with anyone. Qviple never calls to ask for OTP. 
-                                          Qviple takes your account security very seriously. 
-                                          If you receive a suspicious email, report it to Qviple for investigation.</p>
-                                          <p style="color:#000000;">Thank you!<br/>Team Qviple</p>
-                                          <p style="color:#000000;">Kindly do not share your OTP, as it is confidential.</p>
-                                      </td>
-                                  </tr>
-                              </tbody>
-                          </table>
-                      </td>
-                  </tr>
-              </tbody>
-          </table>
-      </body>
-      </html>
+  <html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+      <meta charset="UTF-8">
+      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+      <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
+  </head>
+  <body style="padding:0; margin:0; background:#e4e6ec;">
+      <table style="height:100%; width:100%; background-color:rgb(228, 230, 236);" align="center">
+          <tbody>
+              <tr>
+                  <td valign="top" id="dbody" data-version="2.31" style="width:100%; height:100%; margin-top:50px; margin-bottom:50px; padding-top:0px; padding-bottom:0px; background-color:rgb(228, 230, 236);">
+                      <table class="layer_1" align="center" border="0" cellpadding="0" cellspacing="0" style="max-width:588px; box-sizing:border-box; width:100%; margin:0px auto;">
+                          <tbody>
+                              <tr>
+                                  <td class="drow" valign="top" align="center" style="background-color:rgb(255, 255, 255); box-sizing:border-box; font-size:0px; text-align:center;">
+                                      <div class="layer_2" style="max-width:588px; display:inline-block; vertical-align:top; width:100%;">
+                                          <table border="0" cellspacing="0" cellpadding="0" class="edcontent" style="border-collapse:collapse;width:100%">
+                                              <tbody>
+                                                  <tr>
+                                                      <td valign="top" class="edimg" style="padding:0px; box-sizing:border-box; text-align:center;">
+                                                          <img src="https://api.smtprelay.co/userfile/ab0e9f76-f4d1-4afb-b6af-f543b59ed4e0/Group_41_(3).png" alt="Image" style="border-width:0px; border-style:none; max-width:401px; width:100%;" width="401">
+                                                      </td>
+                                                  </tr>
+                                              </tbody>
+                                          </table>
+                                      </div>
+                                  </td>
+                              </tr>
+                              <tr>
+                                  <td class="drow" valign="top" align="center" style="background-color:rgb(255, 255, 255); box-sizing:border-box; font-size:0px; text-align:center;">
+                                      <div class="layer_2" style="max-width:588px; display:inline-block; vertical-align:top; width:100%;">
+                                          <table border="0" cellspacing="0" class="edcontent" style="border-collapse:collapse;width:100%">
+                                              <tbody>
+                                                  <tr>
+                                                      <td valign="top" class="edtext" style="padding:20px; text-align:left; color:rgb(95, 95, 95); font-size:12px; font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; word-break:break-word; direction:ltr; box-sizing:border-box;">
+                                                          <p style="margin:0px; padding:0px;">
+                                                              <span style="color:#000000;">To Verify your email address, please use the following One Time Password (OTP):</span>
+                                                          </p>
+                                                          <p style="margin:0px; padding:0px;"><br></p>
+                                                          <p class="style3" style="margin:0px; padding:0px; color:rgb(68, 68, 68); font-size:16px; line-height:normal; font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                                                              <strong>486575</strong>
+                                                          </p>
+                                                      </td>
+                                                  </tr>
+                                              </tbody>
+                                          </table>
+                                      </div>
+                                  </td>
+                              </tr>
+                              <tr>
+                                  <td class="drow" valign="top" align="center" style="background-color:rgb(255, 255, 255); box-sizing:border-box; font-size:0px; text-align:center;">
+                                      <div class="layer_2" style="max-width:588px; display:inline-block; vertical-align:top; width:100%;">
+                                          <table border="0" cellspacing="0" class="edcontent" style="border-collapse:collapse;width:100%">
+                                              <tbody>
+                                                  <tr>
+                                                      <td valign="top" class="edtext" style="padding:20px; text-align:left; color:rgb(95, 95, 95); font-size:12px; font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; word-break:break-word; direction:ltr; box-sizing:border-box;">
+                                                          <p style="margin:0px; padding:0px;">
+                                                              <span style="color:#000000;">Do not share this OTP with anyone. Qviple never calls to ask for OTP. Qviple takes your account security very seriously. Qviple Customer Service will never ask you to disclose or verify your Qviple password, OTP, credit card, or banking account number. If you receive a suspicious email with a link to update your account information, do not click on the link—instead, report the email to Qviple for investigation.</span>
+                                                          </p>
+                                                          <p style="margin:0px; padding:0px;"><br></p>
+                                                          <p style="margin:0px; padding:0px;">
+                                                              <span style="color:#000000;">Thank you!</span>
+                                                          </p>
+                                                          <p style="margin:0px; padding:0px;"><font color="#000000">Team Qviple</font></p>
+                                                          <p style="margin:0px; padding:0px;"><br></font></p>
+                                                          <p style="margin:0px; padding:0px;"><font color="#000000">Kindly do not share your OTP, as it is confidential.</font></p>
+                                                      </td>
+                                                  </tr>
+                                              </tbody>
+                                          </table>
+                                      </div>
+                                  </td>
+                              </tr>
+                              <tr>
+                                  <td class="drow" valign="top" align="center" style="background-color:rgb(255, 255, 255); box-sizing:border-box; font-size:0px; text-align:center;">
+                                      <div class="layer_2" style="max-width:588px; display:inline-block; vertical-align:top; width:100%;">
+                                          <table border="0" cellspacing="0" class="edcontent" style="border-collapse:collapse;width:100%">
+                                              <tbody>
+                                                  <tr>
+                                                      <td valign="top" class="edsocialfollow" style="padding:20px;">
+                                                          <table align="center" style="margin:0 auto" class="edsocialfollowcontainer" cellpadding="0" border="0" cellspacing="0">
+                                                              <tbody>
+                                                                  <tr>
+                                                                      <td>
+                                                                          <table align="left" border="0" cellpadding="0" cellspacing="0" data-service="facebook">
+                                                                              <tbody>
+                                                                                  <tr>
+                                                                                      <td align="center" valign="middle" style="padding:10px;">
+                                                                                          <a href="https://www.facebook.com/Qviple" target="_blank" style="color:;font-size:12px;font-family:">
+                                                                                              <img src="https://api.etrck.com/userfile/a18de9fc-4724-42f2-b203-4992ceddc1de/ro_sol_li_32_facebook.png" style="display:block; width:100%; max-width:32px; border:none;" alt="Facebook" width="32">
+                                                                                          </a>
+                                                                                      </td>
+                                                                                  </tr>
+                                                                              </tbody>
+                                                                          </table>
+                                                                          <table align="left" border="0" cellpadding="0" cellspacing="0" data-service="twitter">
+                                                                              <tbody>
+                                                                                  <tr>
+                                                                                      <td align="center" valign="middle" style="padding:10px;">
+                                                                                          <a href="https://twitter.com/Qviple1" target="_blank" style="color:;font-size:12px;font-family:">
+                                                                                              <img src="https://api.etrck.com/userfile/a18de9fc-4724-42f2-b203-4992ceddc1de/ro_sol_li_32_twitter.png" style="display:block; width:100%; max-width:32px; border:none;" alt="Twitter" width="32">
+                                                                                          </a>
+                                                                                      </td>
+                                                                                  </tr>
+                                                                              </tbody>
+                                                                          </table>
+                                                                          <table align="left" border="0" cellpadding="0" cellspacing="0" data-service="instagram">
+                                                                              <tbody>
+                                                                                  <tr>
+                                                                                      <td align="center" valign="middle" style="padding:10px;">
+                                                                                          <a href="https://www.instagram.com/qviple/" target="_blank" style="color:;font-size:12px;font-family:">
+                                                                                              <img src="https://api.etrck.com/userfile/a18de9fc-4724-42f2-b203-4992ceddc1de/ro_sol_li_32_instagram.png" style="display:block; width:100%; max-width:32px; border:none;" alt="Instagram" width="32">
+                                                                                          </a>
+                                                                                      </td>
+                                                                                  </tr>
+                                                                              </tbody>
+                                                                          </table>
+                                                                          <table align="left" border="0" cellpadding="0" cellspacing="0" data-service="linkedin">
+                                                                              <tbody>
+                                                                                  <tr>
+                                                                                      <td align="center" valign="middle" style="padding:10px;">
+                                                                                          <a href="https://www.linkedin.com/company/qviple" target="_blank" style="color:;font-size:12px;font-family:">
+                                                                                              <img src="https://api.etrck.com/userfile/a18de9fc-4724-42f2-b203-4992ceddc1de/ro_sol_li_32_linkedin.png" style="display:block; width:100%; max-width:32px; border:none;" alt="LinkedIn" width="32">
+                                                                                          </a>
+                                                                                      </td>
+                                                                                  </tr>
+                                                                              </tbody>
+                                                                          </table>
+                                                                      </td>
+                                                                  </tr>
+                                                              </tbody>
+                                                          </table>
+                                                      </td>
+                                                  </tr>
+                                              </tbody>
+                                          </table>
+                                      </div>
+                                  </td>
+                              </tr>
+                              <tr>
+                                  <td class="drow" valign="top" align="center" style="background-color:rgb(228, 230, 236); box-sizing:border-box; font-size:0px; text-align:center;">
+                                      <div class="layer_2" style="max-width:588px; display:inline-block; vertical-align:top; width:100%;">
+                                          <table border="0" cellspacing="0" cellpadding="0" class="edcontent" style="border-collapse:collapse;width:100%">
+                                              <tbody>
+                                                  <tr>
+                                                      <td valign="top" class="edtext" style="padding:10px; text-align:center; color:rgb(158, 158, 158); font-size:12px; font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; word-break:break-word; direction:ltr; box-sizing:border-box;">
+                                                          <p style="margin:0px; padding:0px;">
+                                                              <span style="color:#000000;">Copyright © 2023, Qviple, All rights reserved.</span>
+                                                          </p>
+                                                      </td>
+                                                  </tr>
+                                              </tbody>
+                                          </table>
+                                      </div>
+                                  </td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </td>
+              </tr>
+          </tbody>
+      </table>
+  </body>
+  </html>
   `;
 
   // Prepare the form data
@@ -560,10 +685,6 @@ const send_email_authentication_custom = function (recipientEmail, otp) {
     // Make the POST request
     const apiUrl = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}`;
 
-    const encodeURL = encodeURI(
-      apiUrl,
-      querystring.stringify(formData.bodyhtml)
-    );
     axios
       .post(apiUrl, querystring.stringify(formData), {
         headers: {
@@ -585,9 +706,9 @@ const send_email_authentication_custom = function (recipientEmail, otp) {
   }
 };
 
-// console.log(
-//   send_email_authentication_custom("tusharbhambere8@gmail.com", "0989899")
-// );
+console.log(
+  send_email_authentication_custom("yelpcamp44@gmail.com", "0989899")
+);
 
 // console.log(
 //   send_email_authentication_promotional("pankajphad.stuff@gmail.com")

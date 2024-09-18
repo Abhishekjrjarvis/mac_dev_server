@@ -16843,6 +16843,7 @@ exports.render_one_fee_receipt_change_student_query = async (req, res) => {
 exports.retrieveClassAllotQueryReverse = async (req, res) => {
   try {
     const { aid } = req.params;
+    const { student_list } = req?.body;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -16861,9 +16862,10 @@ exports.retrieveClassAllotQueryReverse = async (req, res) => {
     });
     var batch = await Batch.findById({ _id: `${apply.applicationBatch}` });
     var nums = [];
-    for (let ele of apply?.allottedApplication) {
-      nums.push(ele?.student);
-    }
+    // for (let ele of apply?.allottedApplication) {
+    //   nums.push(ele?.student);
+    // }
+    nums = [...student_list];
     if (nums?.length > 0) {
       for (var sid of nums) {
         const student = await Student.findById({ _id: sid });

@@ -19124,3 +19124,231 @@ exports.render_combined_daybook_heads_wise = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderApplicationDSEAllottedListQuery = async (req, res) => {
+  try {
+    const { appId } = req.params;
+    const { flow } = req.query;
+    if (!appId)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var valid_apply = await NewApplication.findById({ _id: appId })
+      .select(
+        "receievedApplication applicationUnit applicationName confirmedApplication allottedApplication applicationHostel admissionAdmin subject_selected_group"
+      )
+      .populate({
+        path: "allottedApplication",
+        populate: {
+          path: "student",
+          populate: {
+            path: "student_optional_subject major_subject nested_subject student_single_subject",
+            select: "subjectName",
+          },
+        },
+      });
+
+    if (valid_apply?.allottedApplication?.length > 0) {
+      var excel_list = [];
+      const all_group_select = await SubjectGroupSelect.find({
+        $and: [{ subject_group: { $in: valid_apply?.subject_selected_group } }],
+      })
+        .populate({
+          path: "compulsory_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "optional_subject",
+          populate: {
+            path: "optional_subject_options optional_subject_options_or.options",
+            select: "subjectName",
+          },
+        })
+        .populate({
+          path: "fixed_subject",
+          populate: {
+            path: "fixed_subject_options",
+            select: "subjectName",
+          },
+        });
+      var subject_list = [];
+      for (let ele of all_group_select) {
+        subject_list.push(...ele?.compulsory_subject);
+      }
+      for (let ele of all_group_select) {
+        for (let val of ele?.fixed_subject) {
+          subject_list.push(...val?.fixed_subject_options);
+        }
+      }
+      for (let ele of all_group_select) {
+        for (let val of ele?.optional_subject) {
+          subject_list.push(...val?.optional_subject_options);
+        }
+        for (let val of ele?.optional_subject) {
+          for (let stu of val?.optional_subject_options_or) {
+            subject_list.push(...stu?.options);
+          }
+        }
+      }
+      var numss = {};
+      var numsss = {};
+      for (var ref of valid_apply?.allottedApplication) {
+        if (ref?.student?.studentFirstName != "") {
+          for (let ele of ref?.student?.student_dynamic_field) {
+            numss[ele?.key] = ele?.value;
+          }
+          var nums_queue = {};
+          for (let stu of subject_list) {
+            ref.student.student_dynamic_subject.push({
+              subjectName: stu?.subjectName,
+              status: "No",
+              _id: stu?._id,
+            });
+          }
+          // for (let ele of ref?.student?.student_dynamic_subject) {
+          //   for (let val of ref?.student?.student_optional_subject) {
+          //     if (`${ele?._id}` === `${val?._id}`) {
+          //       ref.student.student_single_subject.push(val?.subjectName);
+          //     }
+          //   }
+          // }
+          for (let val of ref?.student?.student_dynamic_subject) {
+            for (let ele of ref?.student?.major_subject) {
+              if (`${val?._id}` === `${ele?._id}`) {
+                ref.student.student_single_subject.push(val?.subjectName);
+              }
+            }
+          }
+          // if (ref?.nested_subject?.length > 0) {
+          //   for (let val of ref?.student?.student_dynamic_subject) {
+          //     for (let ele of ref?.student?.nested_subject) {
+          //       if (`${val?._id}` === `${ele?._id}`) {
+          //         ref.student.student_single_subject.push(val?.subjectName);
+          //       }
+          //     }
+          //   }
+          // }
+          for (let val of ref?.student?.student_optional_subject) {
+            if (
+              ref.student.student_single_subject?.includes(
+                `${val?.subjectName}`
+              )
+            ) {
+            } else {
+              ref.student.student_single_subject.push(val?.subjectName);
+            }
+          }
+          const unique = [
+            ...new Set(
+              ref?.student?.student_single_subject.map((item) => item)
+            ),
+          ];
+          excel_list.push({
+            RegistrationID: ref?.student?.studentGRNO ?? "#NA",
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName ??
+                  ref?.student?.studentFatherName
+                : ""
+            } ${ref?.student?.studentLastName}`,
+            FirstName: ref?.student?.studentFirstName ?? "#NA",
+            FatherName:
+              ref?.student?.studentFatherName ??
+              ref?.student?.studentMiddleName,
+            LastName: ref?.student?.studentLastName ?? "#NA",
+            DOB: ref?.student?.studentDOB ?? "#NA",
+            Gender: ref?.student?.studentGender ?? "#NA",
+            CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
+            Religion: ref?.student?.studentReligion ?? "#NA",
+            MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+            ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+            Address: `${ref?.student?.studentAddress}` ?? "#NA",
+            AppliedOn: `${moment(ref?.student?.createdAt).format("LL")}`,
+            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+            AlternateContactNo:
+              ref?.student?.studentParentsPhoneNumber ?? "#NA",
+            NameAsMarksheet: ref?.student?.studentNameAsMarksheet,
+            NameAsCertificate: ref?.student?.studentNameAsCertificate,
+            BirthPlace: ref?.student?.studentBirthPlace,
+            Religion: ref?.student?.studentReligion,
+            Caste: ref?.student?.studentCast,
+            Nationality: ref?.student?.studentNationality,
+            RationCard: ref?.student?.studentFatherRationCardColor,
+            BloodGroup: ref?.student?.student_blood_group,
+            AadharNumber: ref?.student?.studentAadharNumber,
+            PhoneNumber: ref?.student?.studentPhoneNumber,
+            Email: ref?.student?.studentEmail,
+            ParentsPhoneNumber: ref?.student?.studentParentsPhoneNumber,
+            CurrentAddress: ref?.student?.studentCurrentAddress,
+            CurrentPinCode: ref?.student?.studentCurrentPincode,
+            CurrentState: ref?.student?.studentCurrentState,
+            CurrentDistrict: ref?.student?.studentCurrentDistrict,
+            Address: ref?.student?.studentAddress,
+            PinCode: ref?.student?.studentPincode,
+            State: ref?.student?.studentState,
+            District: ref?.student?.studentDistrict,
+            ParentsName: ref?.student?.studentParentsName,
+            ParentsEmail: ref?.student?.studentParentsEmail,
+            ParentsOccupation: ref?.student?.studentParentsOccupation,
+            ParentsOfficeAddress: ref?.student?.studentParentsAddress,
+            ParentsAnnualIncome: ref?.student?.studentParentsAnnualIncom,
+            SeatType: ref?.student?.student_seat_type,
+            PhysicallyHandicapped: ref?.student?.student_ph_type,
+            DefencePersonnel: ref?.student?.student_defence_personnel_word,
+            MaritalStatus: ref?.student?.student_marital_status,
+            PreviousBoard: ref?.student?.student_board_university,
+            PreviousSchool: ref?.student?.studentPreviousSchool,
+            UniversityCourse: ref?.student?.student_university_courses,
+            PassingYear: ref?.student?.student_year,
+            PreviousClass: ref?.student?.student_previous_class,
+            PreviousMarks: ref?.student?.student_previous_marks,
+            PreviousPercentage: ref?.student?.student_previous_percentage,
+            SeatNo: ref?.student?.student_previous_section,
+            StandardMOP: ref?.student?.month_of_passing,
+            StandardYOP: ref?.student?.year_of_passing,
+            StandardPercentage: ref?.student?.percentage,
+            StandardNameOfInstitute: ref?.student?.name_of_institute,
+            HSCMOP: ref?.student?.hsc_month,
+            HSCYOP: ref?.student?.hsc_year,
+            HSCPercentage: ref?.student?.hsc_percentage,
+            HSCNameOfInstitute: ref?.student?.hsc_name_of_institute,
+            HSCBoard: ref?.student?.hsc_board,
+            HSCCandidateType: ref?.student?.hsc_candidate_type,
+            HSCVocationalType: ref?.student?.hsc_vocational_type,
+            HSCPhysicsMarks: ref?.student?.hsc_physics_marks,
+            HSCChemistryMarks: ref?.student?.hsc_chemistry_marks,
+            HSCMathematicsMarks: ref?.student?.hsc_mathematics_marks,
+            HSCPCMTotal: ref?.student?.hsc_pcm_total,
+            HSCGrandTotal: ref?.student?.hsc_grand_total,
+            FormNo: ref?.student?.form_no,
+            QviplePayId: ref?.student?.qviple_student_pay_id,
+            ...numss,
+            ...unique,
+          });
+        }
+      }
+      var valid_back = await json_to_excel_admission_application_query(
+        excel_list,
+        valid_apply?.applicationName,
+        appId,
+        flow
+      );
+      if (valid_back?.back) {
+        res.status(200).send({
+          message: "Explore New Excel On Hostel Export TAB",
+          access: true,
+          excel_list,
+        });
+      }
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

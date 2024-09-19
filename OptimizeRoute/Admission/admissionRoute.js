@@ -1090,4 +1090,6 @@ router.patch(
   catchAsync(Admission.render_edit_student_dynamic_form_section_query)
 );
 
+router.patch("/update/all/fees/:id", catchAsync(Admission.fee_receipt_update));
+
 module.exports = router;

@@ -170,12 +170,16 @@ exports.fee_heads_receipt_json_to_excel_query = async (
       }
     }
     if (flow === "Hostel") {
-      const unit = await HostelUnit.findById({ _id: uid }).select(
-        "hostel_unit_name"
-      );
-      var name = `${
-        unit?.hostel_unit_name
-      }-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
+      if (uid) {
+        const unit = await HostelUnit.findById({ _id: uid }).select(
+          "hostel_unit_name"
+        );
+        var name = `${
+          unit?.hostel_unit_name
+        }-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
+      } else {
+        var name = `Hostel-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
+      }
     }
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 

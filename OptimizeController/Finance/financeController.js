@@ -2525,6 +2525,7 @@ exports.renderFinanceBankAddQuery = async (req, res) => {
 
     const finance = await Finance.findById({ _id: fid });
     const new_account = new BankAccount({ ...req.body });
+    new_account.bank_account_code = finance?.bank_account?.length;
     if (flow === "Department" && depart_arr?.length > 0) {
       for (var ref of depart_arr) {
         const department = await Department.findById({ _id: `${ref}` });
@@ -6841,7 +6842,13 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
           order.payment_student_name = stu?.valid_full_name;
           order.payment_student_gr = stu?.studentGRNO;
           order.fee_receipt = new_receipt?._id;
-          fee_receipt_count_query(institute, new_receipt, order);
+          await fee_receipt_count_query(
+            institute,
+            new_receipt,
+            order,
+            finance?.show_invoice_pattern,
+            o_f?.bank_account
+          );
           stu.other_fees.push({
             fees: o_f?._id,
             fee_receipt: new_receipt?._id,
@@ -7144,7 +7151,13 @@ exports.renderNewOtherFeesNonExistingQuery = async (req, res) => {
       order.payment_student_name = student_name;
       order.payment_student_gr = "";
       order.fee_receipt = new_receipt?._id;
-      fee_receipt_count_query(institute, new_receipt, order);
+      await fee_receipt_count_query(
+        institute,
+        new_receipt,
+        order,
+        finance?.show_invoice_pattern,
+        o_f?.bank_account
+      );
       // stu.other_fees.push({
       //   fees: o_f?._id,
       //   fee_receipt: new_receipt?._id,
@@ -7708,7 +7721,13 @@ exports.renderOtherFeesCollectQuery = async (req, res) => {
     order.payment_student_name = stu?.valid_full_name;
     order.payment_student_gr = stu?.studentGRNO;
     order.fee_receipt = new_receipt?._id;
-    fee_receipt_count_query(institute, new_receipt, order);
+    await fee_receipt_count_query(
+      institute,
+      new_receipt,
+      order,
+      finance?.show_invoice_pattern,
+      o_f?.bank_account
+    );
     for (let ele of stu?.other_fees) {
       if (`${ele?.fees}` === `${o_f?._id}`) {
         ele.fee_receipt = new_receipt?._id;
@@ -7925,7 +7944,13 @@ exports.renderExistNonOtherFeesAddStudentQuery = async (req, res) => {
     order.payment_student_detail.roll_no = roll_no ?? "";
     order.payment_student_gr = "";
     order.fee_receipt = new_receipt?._id;
-    fee_receipt_count_query(institute, new_receipt, order);
+    await fee_receipt_count_query(
+      institute,
+      new_receipt,
+      order,
+      finance?.show_invoice_pattern,
+      o_f?.bank_account
+    );
     for (let ele of o_f?.fees_heads) {
       new_receipt.fee_heads.push({
         head_id: ele?._id,
@@ -8065,7 +8090,13 @@ exports.renderNewOneOtherFeesAddStudentQuery = async (req, res) => {
         order.payment_student_name = stu?.valid_full_name;
         order.payment_student_gr = stu?.studentGRNO;
         order.fee_receipt = new_receipt?._id;
-        fee_receipt_count_query(institute, new_receipt, order);
+        await fee_receipt_count_query(
+          institute,
+          new_receipt,
+          order,
+          finance?.show_invoice_pattern,
+          o_f?.bank_account
+        );
         stu.other_fees.push({
           fees: o_f?._id,
           fee_receipt: new_receipt?._id,
@@ -8566,6 +8597,10 @@ exports.renderOneCombinedOtherFeesStudentListExportQuery = async (req, res) => {
         select: "institute",
       })
       .populate({
+        path: "bank_account",
+        select: "finance_bank_account_name",
+      })
+      .populate({
         path: "fee_receipt_student",
         populate: {
           path: "fee_receipt",
@@ -8681,7 +8716,7 @@ exports.renderOneCombinedOtherFeesStudentListExportQuery = async (req, res) => {
     }
     var valid_back = await json_to_excel_other_fees_subject_application_query(
       excel_list,
-      `${one_of?.other_fees_name}-Combined`,
+      `${one_of?.finance_bank_account_name}-Combined`,
       one_of?.finance?.institute
     );
     if (valid_back?.back) {
@@ -8815,7 +8850,7 @@ exports.delete_other_fees_receipt_query = async (req, res) => {
 //           order.payment_student_name = student_name;
 //           order.payment_student_gr = "";
 //           order.fee_receipt = new_receipt?._id;
-//           fee_receipt_count_query(institute, new_receipt, order)
+//           await fee_receipt_count_query(institute, new_receipt, order)
 //           // stu.other_fees.push({
 //           //   fees: o_f?._id,
 //           //   fee_receipt: new_receipt?._id,

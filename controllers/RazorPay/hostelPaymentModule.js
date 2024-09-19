@@ -170,7 +170,10 @@ exports.hostelInstituteFunction = async (
         student.remainingFeeList_count += 1;
         new_remainFee.student = student?._id;
         new_remainFee.fee_receipts.push(new_receipt?._id);
-        if (student?.hostel_fee_structure?.total_installments === "1" && new_remainFee.remaining_fee > 0) {
+        if (
+          student?.hostel_fee_structure?.total_installments === "1" &&
+          new_remainFee.remaining_fee > 0
+        ) {
           new_remainFee.remaining_array.push({
             remainAmount: new_remainFee.remaining_fee,
             appId: apply._id,
@@ -179,8 +182,7 @@ exports.hostelInstituteFunction = async (
             installmentValue: "Installment Remain",
             isEnable: true,
           });
-        }
-        else {
+        } else {
           await add_all_installment(
             apply,
             ins._id,
@@ -525,8 +527,8 @@ exports.directHostelInstituteFunction = async (
       student?.studentMiddleName ?? ""
     } ${student?.studentLastName}`;
     student.student_join_mode = "HOSTEL_PROCESS";
-    const codess = universal_random_password()
-    student.member_module_unique = `${codess}`
+    const codess = universal_random_password();
+    student.member_module_unique = `${codess}`;
     const studentOptionalSubject = body?.optionalSubject
       ? body?.optionalSubject
       : [];

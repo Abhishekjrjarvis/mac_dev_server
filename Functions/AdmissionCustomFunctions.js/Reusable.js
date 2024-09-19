@@ -1,10 +1,65 @@
-exports.fee_receipt_count_query = (ins, receipt, order) => {
+const NewApplication = require("../../models/Admission/NewApplication");
+const BankAccount = require("../../models/Finance/BankAccount");
+
+exports.fee_receipt_count_query = async (ins, receipt, order, pattern, did) => {
   try {
-    ins.invoice_count += 1;
-    receipt.invoice_count = `${ins?.random_institute_code}-${
-      new Date().getMonth() + 1
-    }-${new Date().getFullYear()}-${ins?.invoice_count}`;
-    order.payment_invoice_number = receipt?.invoice_count;
+    if (`${pattern}` === "Institute_Wise") {
+      ins.invoice_count += 1;
+      receipt.invoice_count = `${ins?.random_institute_code}-${
+        new Date().getMonth() + 1
+      }-${new Date().getFullYear()}-${ins?.invoice_count}`;
+      order.payment_invoice_number = receipt?.invoice_count;
+    } else {
+      if (receipt?.application) {
+        const app = await NewApplication.findById({
+          _id: `${receipt?.application}`,
+        }).select("applicationDepartment applicationHostel");
+        if (app?.applicationDepartment) {
+          let nums = [app?.applicationDepartment];
+          const bank = await BankAccount.findOne({
+            departments: { $in: nums },
+          }).select("invoice_count bank_account_code");
+          bank.invoice_count += 1;
+          receipt.invoice_count = `${ins?.random_institute_code}-${
+            new Date().getMonth() + 1
+          }-${new Date().getFullYear()}-${
+            bank?.bank_account_code > 9
+              ? bank?.bank_account_code
+              : `0${bank?.bank_account_code}`
+          }-${bank?.invoice_count}`;
+          order.payment_invoice_number = receipt?.invoice_count;
+          await bank.save();
+        } else if (app?.applicationHostel) {
+          const bank = await BankAccount.findOne({
+            hostel: app?.applicationHostel,
+          }).select("invoice_count bank_account_code");
+          bank.invoice_count += 1;
+          receipt.invoice_count = `${ins?.random_institute_code}-${
+            new Date().getMonth() + 1
+          }-${new Date().getFullYear()}-${
+            bank?.bank_account_code > 9
+              ? bank?.bank_account_code
+              : `0${bank?.bank_account_code}`
+          }-${bank?.invoice_count}`;
+          order.payment_invoice_number = receipt?.invoice_count;
+          await bank.save();
+        }
+      } else if (receipt?.other_fees) {
+        const bank = await BankAccount.findById({ _id: did }).select(
+          "invoice_count bank_account_code"
+        );
+        bank.invoice_count += 1;
+        receipt.invoice_count = `${ins?.random_institute_code}-${
+          new Date().getMonth() + 1
+        }-${new Date().getFullYear()}-${
+          bank?.bank_account_code > 9
+            ? bank?.bank_account_code
+            : `0${bank?.bank_account_code}`
+        }-${bank?.invoice_count}`;
+        order.payment_invoice_number = receipt?.invoice_count;
+        await bank.save();
+      }
+    }
   } catch (e) {
     console.log(e);
   }

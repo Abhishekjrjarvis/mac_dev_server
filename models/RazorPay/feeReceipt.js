@@ -199,6 +199,9 @@ const feeReceiptSchema = new mongoose.Schema({
     type: String,
     // unique: true,
   },
+  society_invoice_count: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

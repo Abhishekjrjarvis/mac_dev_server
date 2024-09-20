@@ -18620,3 +18620,30 @@ exports.fee_receipt_update = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.auto_society_receipt_generate_query = async (req, res) => {
+  try {
+    const { fid } = req?.params;
+
+    const finance = await Finance.findById({ _id: fid }).select("institute");
+    const all = await FeeReceipt.find({
+      $and: [
+        { finance: finance?._id },
+        { receipt_generated_from: "BY_ADMISSION" },
+      ],
+    }).select("_id");
+    if (all?.length > 0) {
+      let i = 0;
+      for (let rt of all) {
+        await societyAdmissionFeeReceipt(rt?._id, finance?.institute);
+        ++i;
+        console.log(i);
+      }
+    }
+    res.status(200).send({
+      message: "Miscellaneous Fee receipt amount changes.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

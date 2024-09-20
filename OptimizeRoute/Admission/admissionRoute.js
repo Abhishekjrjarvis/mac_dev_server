@@ -1092,4 +1092,9 @@ router.patch(
 
 router.patch("/update/all/fees/:id", catchAsync(Admission.fee_receipt_update));
 
+router.patch(
+  "/:fid/all/society/data",
+  catchAsync(Admission.auto_society_receipt_generate_query)
+);
+
 module.exports = router;

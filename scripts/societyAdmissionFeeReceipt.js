@@ -1149,14 +1149,16 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
         width: 70,
         align: "right",
       });
-    if (receiptData?.invoice_count) {
+    if (receiptData?.society_invoice_count) {
       doc.moveUp(1);
       doc
         .fontSize(10)
         .font("Times-Roman")
         .fillColor("#2e2e2e")
         .text(
-          `${receiptData?.invoice_count} (${receiptData?.fee_payment_mode}${
+          `${receiptData?.society_invoice_count} (${
+            receiptData?.fee_payment_mode
+          }${
             receiptData?.order_history?.razor_query?.[0]?.method
               ? `- ${receiptData?.order_history?.razor_query?.[0]?.method}`
               : ""
@@ -1597,14 +1599,16 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
         width: 70,
         align: "right",
       });
-    if (receiptData?.invoice_count) {
+    if (receiptData?.society_invoice_count) {
       doc.moveUp(1);
       doc
         .fontSize(10)
         .font("Times-Roman")
         .fillColor("#2e2e2e")
         .text(
-          `${receiptData?.invoice_count} (${receiptData?.fee_payment_mode}${
+          `${receiptData?.society_invoice_count} (${
+            receiptData?.fee_payment_mode
+          }${
             receiptData?.order_history?.razor_query?.[0]?.method
               ? `- ${receiptData?.order_history?.razor_query?.[0]?.method}`
               : ""
@@ -2574,14 +2578,16 @@ const societyAdmissionFeeReceipt = async (receiptId, instituteId) => {
           width: 70,
           align: "right",
         });
-      if (receiptData?.invoice_count) {
+      if (receiptData?.society_invoice_count) {
         doc.moveUp(1);
         doc
           .fontSize(10)
           .font("Times-Roman")
           .fillColor("#2e2e2e")
           .text(
-            `${receiptData?.invoice_count} (${receiptData?.fee_payment_mode}${
+            `${receiptData?.society_invoice_count} (${
+              receiptData?.fee_payment_mode
+            }${
               receiptData?.order_history?.razor_query?.[0]?.method
                 ? `- ${receiptData?.order_history?.razor_query?.[0]?.method}`
                 : ""

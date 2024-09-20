@@ -291,6 +291,32 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
         }
       });
       receipt.student.active_fee_heads = [...receipt?.fee_heads];
+      const new_receipt = await feeReceipt.findById({ _id: `${receipt?._id}` });
+      const bank_acc = await BankAccount.findOne({
+        $and: [
+          { finance: `${receipt?.finance?._id}` },
+          { bank_account_type: "Society" },
+        ],
+      })
+        .select("bank_account_code invoice_count")
+        .populate({
+          path: "finance",
+          select: "institute",
+          populate: {
+            path: "institute",
+            select: "random_institute_code",
+          },
+        });
+      bank_acc.invoice_count += 1;
+      new_receipt.society_invoice_count = `${
+        bank_acc?.finance?.institute?.random_institute_code
+      }-${new Date().getMonth() + 1}-${new Date().getFullYear()}-${
+        bank_acc?.bank_account_code > 9
+          ? bank_acc?.bank_account_code
+          : `0${bank_acc?.bank_account_code}`
+      }-${bank_acc?.invoice_count}`;
+      await Promise.all([bank_acc.save(), new_receipt.save()]);
+      receipt.society_invoice_count = new_receipt?.society_invoice_count ?? "";
     }
     const qviple_id = await QvipleId.findOne({ user: receipt?.student?.user });
 

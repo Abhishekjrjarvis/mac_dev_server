@@ -1085,6 +1085,10 @@ exports.fetchExportStudentAllQuery = async (req, res) => {
         select: "className classTitle",
       })
       .populate({
+        path: "user",
+        select: "userEmail userPhoneNumber username userLegalName",
+      })
+      .populate({
         path: "batches",
         select: "batchName",
       })
@@ -1166,6 +1170,10 @@ exports.fetchExportStudentRemainFeeQuery = async (req, res) => {
       .populate({
         path: "studentClass",
         select: "className classTitle",
+      })
+      .populate({
+        path: "user",
+        select: "userEmail userPhoneNumber username userLegalName",
       });
 
     for (var ref of student_query) {
@@ -1212,6 +1220,10 @@ exports.fetchExportAdmissionStudentRemainFeeQuery = async (req, res) => {
       .populate({
         path: "studentClass",
         select: "className classTitle",
+      })
+      .populate({
+        path: "user",
+        select: "userEmail userPhoneNumber username userLegalName",
       });
 
     for (var ref = 0; ref < student_query?.length; ref++) {

@@ -497,6 +497,8 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
             `${val?.fee_payment_mode}` === "Cheque" ||
             `${val?.fee_payment_mode}` === "Net Banking" ||
             `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+            `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+            `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
             `${val?.fee_payment_mode}` === "UPI Transfer" ||
             `${val?.fee_payment_mode}` === "Demand Draft"
           ) {
@@ -553,6 +555,8 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
             `${val?.fee_payment_mode}` === "Cheque" ||
             `${val?.fee_payment_mode}` === "Net Banking" ||
             `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+            `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+            `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
             `${val?.fee_payment_mode}` === "UPI Transfer" ||
             `${val?.fee_payment_mode}` === "Demand Draft"
           ) {
@@ -1252,6 +1256,8 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
               `${val?.fee_payment_mode}` === "Cheque" ||
               `${val?.fee_payment_mode}` === "Net Banking" ||
               `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+              `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
               `${val?.fee_payment_mode}` === "UPI Transfer" ||
               `${val?.fee_payment_mode}` === "Demand Draft"
             ) {
@@ -1308,6 +1314,8 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
               `${val?.fee_payment_mode}` === "Cheque" ||
               `${val?.fee_payment_mode}` === "Net Banking" ||
               `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+              `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
               `${val?.fee_payment_mode}` === "UPI Transfer" ||
               `${val?.fee_payment_mode}` === "Demand Draft"
             ) {
@@ -1798,6 +1806,8 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
             `${val?.fee_payment_mode}` === "Cheque" ||
             `${val?.fee_payment_mode}` === "Net Banking" ||
             `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+            `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+            `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
             `${val?.fee_payment_mode}` === "UPI Transfer" ||
             `${val?.fee_payment_mode}` === "Demand Draft"
           ) {
@@ -1805,7 +1815,6 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           }
         });
         // console.log(all_receipts?.length);
-
       } else if (payment_type === "Cash / Bank") {
         var all_receipts_set = await FeeReceipt.find({
           $and: [
@@ -1854,6 +1863,8 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
             `${val?.fee_payment_mode}` === "Cheque" ||
             `${val?.fee_payment_mode}` === "Net Banking" ||
             `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+            `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+            `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
             `${val?.fee_payment_mode}` === "UPI Transfer" ||
             `${val?.fee_payment_mode}` === "Demand Draft"
           ) {

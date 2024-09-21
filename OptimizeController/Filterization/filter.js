@@ -18429,7 +18429,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           ],
         })
           .sort({ invoice_count: "1" })
-          .select("fee_heads other_fees")
+          .select("fee_heads other_fees fee_payment_mode")
           .populate({
             path: "other_fees",
             select: "bank_account fees_heads",
@@ -18442,6 +18442,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           .lean()
           .exec();
 
+        console.log(all_receipts_set?.length);
         all_receipts = all_receipts_set?.filter((val) => {
           if (
             `${val?.fee_payment_mode}` === "By Cash" ||
@@ -18450,6 +18451,8 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
             `${val?.fee_payment_mode}` === "Cheque" ||
             `${val?.fee_payment_mode}` === "Net Banking" ||
             `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+            `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+            `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
             `${val?.fee_payment_mode}` === "UPI Transfer" ||
             `${val?.fee_payment_mode}` === "Demand Draft"
           ) {
@@ -18480,7 +18483,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           ],
         })
           .sort({ invoice_count: "1" })
-          .select("fee_heads other_fees")
+          .select("fee_heads other_fees fee_payment_mode")
           .populate({
             path: "other_fees",
             select: "bank_account fees_heads",
@@ -18534,7 +18537,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           ],
         })
           .sort({ invoice_count: "1" })
-          .select("fee_heads other_fees")
+          .select("fee_heads other_fees fee_payment_mode")
           .populate({
             path: "other_fees",
             select: "bank_account fees_heads",
@@ -18571,7 +18574,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         ],
       })
         .sort({ invoice_count: "1" })
-        .select("fee_heads other_fees")
+        .select("fee_heads other_fees fee_payment_mode")
         .populate({
           path: "other_fees",
           select: "bank_account fees_heads",
@@ -18584,7 +18587,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         .lean()
         .exec();
     }
-    // console.log(all_receipts)
+    console.log(all_receipts?.length);
     all_receipts = all_receipts?.filter((val) => {
       if (val?.other_fees?._id) return val;
     });
@@ -18594,6 +18597,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         if (`${val?.other_fees?.bank_account?._id}` === `${bank}`) return val;
       });
     }
+    console.log(all_receipts?.length);
     let heads_queue = [];
     for (let i of all_receipts) {
       for (let j of i?.other_fees?.fees_heads) {
@@ -18727,6 +18731,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
                 }
               }
               if (ele?.fee_payment_mode == "RTGS/NEFT/IMPS") {
+                console.log(ele?.fee_payment_mode);
                 if (bank_acc?.bank_account_type === "Society") {
                   if (
                     `${ads?._id}` === `${val?.master}` &&
@@ -19099,6 +19104,7 @@ exports.render_combined_daybook_heads_wise = async (req, res) => {
     //   hostel,
     //   fid
     // );
+    // console.log(from, to, bank, payment_type, fid);
     // let data_3 = await miscellanous_daybook(from, to, bank, payment_type, fid);
     // let combine = [data_1, data_2, data_3];
     // let combines = [];

@@ -1170,12 +1170,16 @@ exports.render_dynamic_form_query = async (req, res) => {
 exports.render_dynamic_form_query_photo = async (req, res) => {
   try {
     const { sid } = req?.params;
+    const { id } = req?.query;
     if (!sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
 
+    var custom_ins = await InstituteAdmin.findById({
+      _id: id,
+    }).select("edit_form_allow");
     var student = await Student.findById({ _id: sid });
     student.studentFatherName =
       student?.studentMiddleName ?? student?.studentFatherName;
@@ -1191,7 +1195,7 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
       const all_check = await InstituteStudentForm.findOne({
         institute: student?.student_form_flow?.did,
       })
-        .select("form_section")
+        .select("form_section institute")
         .populate({
           path: "form_section",
           populate: {
@@ -1249,6 +1253,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                           value:
                             student[`${ad?.form_checklist_key}`] ??
                             nest_obj[`${ad?.form_checklist_key}`],
+                          edit_allow:
+                            custom_ins?.edit_form_allow == true ? true : false,
                         });
                       }
                     }
@@ -1278,6 +1284,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                       value:
                         student[`${ads?.form_checklist_key}`] ??
                         nest_obj[`${ads?.form_checklist_key}`],
+                      edit_allow:
+                        custom_ins?.edit_form_allow == true ? true : false,
                     });
                     customs = [];
                     if (student[`${ads?.form_checklist_key}`] === "No") {
@@ -1305,6 +1313,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   value:
                     student[`${ele?.form_checklist_key}`] ??
                     nest_objs[`${ele?.form_checklist_key}`],
+                  edit_allow:
+                    custom_ins?.edit_form_allow == true ? true : false,
                 });
                 custom = [];
               }
@@ -1408,6 +1418,9 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                         ? name2 ?? ""
                         : student[`${ele?.form_checklist_key}`] ??
                           nest_obj[`${ele?.form_checklist_key}`],
+                    edit_allow:
+                      custom_ins?.edit_form_allow == true ? true : false,
+
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   });
                   name2 = "";
@@ -1504,6 +1517,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                           value:
                             student[`${ad?.form_checklist_key}`] ??
                             nest_obj[`${ad?.form_checklist_key}`],
+                          edit_allow:
+                            custom_ins?.edit_form_allow == true ? true : false,
                         });
                       }
                     }
@@ -1533,6 +1548,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                       value:
                         student[`${ads?.form_checklist_key}`] ??
                         nest_obj[`${ads?.form_checklist_key}`],
+                      edit_allow:
+                        custom_ins?.edit_form_allow == true ? true : false,
                     });
                     customs = [];
                     if (student[`${ads?.form_checklist_key}`] === "No") {
@@ -1560,6 +1577,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   value:
                     student[`${ele?.form_checklist_key}`] ??
                     nest_objs[`${ele?.form_checklist_key}`],
+                  edit_allow:
+                    custom_ins?.edit_form_allow == true ? true : false,
                 });
                 custom = [];
               }
@@ -1663,6 +1682,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                         ? name2 ?? ""
                         : student[`${ele?.form_checklist_key}`] ??
                           nest_obj[`${ele?.form_checklist_key}`],
+                    edit_allow:
+                      custom_ins?.edit_form_allow == true ? true : false,
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   });
                   name2 = "";
@@ -1766,6 +1787,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                           value:
                             student[`${ad?.form_checklist_key}`] ??
                             nest_obj[`${ad?.form_checklist_key}`],
+                          edit_allow:
+                            custom_ins?.edit_form_allow == true ? true : false,
                         });
                       }
                     }
@@ -1795,6 +1818,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                       value:
                         student[`${ads?.form_checklist_key}`] ??
                         nest_obj[`${ads?.form_checklist_key}`],
+                      edit_allow:
+                        custom_ins?.edit_form_allow == true ? true : false,
                     });
                     customs = [];
                     if (student[`${ads?.form_checklist_key}`] === "No") {
@@ -1822,6 +1847,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   value:
                     student[`${ele?.form_checklist_key}`] ??
                     nest_objs[`${ele?.form_checklist_key}`],
+                  edit_allow:
+                    custom_ins?.edit_form_allow == true ? true : false,
                 });
                 custom = [];
               }
@@ -2000,6 +2027,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                         ? name2 ?? ""
                         : student[`${ele?.form_checklist_key}`] ??
                           nest_obj[`${ele?.form_checklist_key}`],
+                    edit_allow:
+                      custom_ins?.edit_form_allow == true ? true : false,
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   });
                   name2 = "";
@@ -3331,6 +3360,35 @@ exports.render_add_dynamic_textarea_field_query = async (req, res) => {
       await app_form.save();
       res.status(200).send({ message: "Application Form Query", access: true });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.toggle_edit_allow_query = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    const { flow, toggle, sid } = req?.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: id }).select(
+      "edit_form_allow"
+    );
+    // if (flow === "Institute_Wise") {
+    ins.edit_form_allow = toggle;
+    await ins.save();
+    res
+      .status(200)
+      .send({ message: "Explore One Institute Edit Form Allow", access: true });
+    // }
+    // else if (flow === "Student_Wise") {
+    //   const student = await Student.findById({ _id: sid })
+    //   .select("edit_form_allow")
+    // }
   } catch (e) {
     console.log(e);
   }

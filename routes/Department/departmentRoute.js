@@ -85,4 +85,9 @@ router.patch(
   catchAsync(Depart.render_add_dynamic_textarea_field_query)
 );
 
+router.patch(
+  "/toggle/edit/allow/:id",
+  catchAsync(Depart.toggle_edit_allow_query)
+);
+
 module.exports = router;

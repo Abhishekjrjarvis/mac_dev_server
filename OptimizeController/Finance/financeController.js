@@ -7759,11 +7759,11 @@ exports.renderOtherFeesCollectQuery = async (req, res) => {
       new_receipt.save(),
       order.save(),
     ]);
-    await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
     await Promise.all([finance.save(), o_f.save()]);
     res
       .status(200)
       .send({ message: "Explore New Other Fees Collect Query", access: true });
+    await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
   } catch (e) {
     console.log(e);
   }
@@ -8128,7 +8128,6 @@ exports.renderNewOneOtherFeesAddStudentQuery = async (req, res) => {
           new_receipt.save(),
           order.save(),
         ]);
-        await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
       }
     }
     await o_f.save();
@@ -8138,6 +8137,7 @@ exports.renderNewOneOtherFeesAddStudentQuery = async (req, res) => {
       key: new_receipt?.receipt_file ?? "",
       id: new_receipt?._id,
     });
+    await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
   } catch (e) {
     console.log(e);
   }
@@ -8621,6 +8621,11 @@ exports.renderOneCombinedOtherFeesStudentListExportQuery = async (req, res) => {
           select:
             "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads fee_utr_reference",
         },
+      })
+      .populate({
+        path: "other_fee_receipt",
+        select:
+          "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads fee_utr_reference",
       });
     for (let ele of all_student) {
       for (let val of ele?.other_fees) {
@@ -8716,7 +8721,7 @@ exports.renderOneCombinedOtherFeesStudentListExportQuery = async (req, res) => {
     }
     var valid_back = await json_to_excel_other_fees_subject_application_query(
       excel_list,
-      `${one_of?.finance_bank_account_name}-Combined`,
+      `${one_of?.bank_account?.finance_bank_account_name}-Combined`,
       one_of?.finance?.institute
     );
     if (valid_back?.back) {
@@ -8800,6 +8805,102 @@ exports.delete_other_fees_receipt_query = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore One Other Fees Deleted Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneDuplicateCombinedOtherFeesStudentListExportQuery = async (
+  req,
+  res
+) => {
+  try {
+    const { ofid } = req?.params;
+    if (!ofid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_of = await OtherFees.findById({ _id: ofid })
+      .populate({
+        path: "finance",
+        select: "institute",
+      })
+      .populate({
+        path: "bank_account",
+        select: "finance_bank_account_name",
+      });
+    let list = [...one_of?.paid_students, ...one_of?.remaining_students];
+    // one_of?.students
+    var all_fees = await FeeReceipt.find({
+      $and: [{ student: { $in: list } }, { other_fees: one_of?._id }],
+    })
+      .select(
+        "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads fee_utr_reference active"
+      )
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentFatherName student_prn_enroll_number other_fees studentGRNO",
+      });
+    let excel_list = [];
+
+    for (let cls of all_fees) {
+      if (cls?.student?.studentFirstName != "") {
+        for (let ele of cls?.student?.other_fees) {
+          if (`${ele?.fee_receipt}` === `${cls?._id}`) {
+            cls.active = "Active";
+          } else {
+            cls.active = "Duplicate";
+          }
+        }
+        const op = await OrderPayment.findOne({
+          fee_receipt: cls?._id,
+        });
+        excel_list.push({
+          // Type: cls?.active ?? "NA",
+          ReceiptNo: cls?.invoice_count ?? "NA",
+          FeeTransactionDate:
+            moment(cls?.fee_transaction_date)?.format("LL") ?? "NA",
+          FeesAmount: cls?.fee_payment_amount ?? 0,
+          Name: `${cls?.student?.studentFirstName} ${
+            cls?.student?.studentMiddleName
+              ? cls?.student?.studentMiddleName ??
+                cls?.student?.studentFatherName
+              : ""
+          } ${cls?.student?.studentLastName}`,
+          RegistrationID:
+            cls?.student?.student_prn_enroll_number ??
+            cls?.student?.studentGRNO,
+          Mode: cls?.fee_payment_mode ?? "NA",
+          TxnDate: moment(cls?.created_at)?.format("LL") ?? "NA",
+          BankUTR:
+            op?.paytm_query?.length > 0
+              ? op?.paytm_query?.[0]?.BANKTXNID
+              : cls?.fee_utr_reference ?? "#NA",
+          FeesName: one_of?.other_fees_name ?? "NA",
+          Status: "Paid" ?? "NA",
+          HeadName: one_of?.fees_heads?.[0]?.head_name ?? "NA",
+        });
+      }
+    }
+    var valid_back = await json_to_excel_other_fees_subject_application_query(
+      excel_list,
+      `${one_of?.bank_account?.finance_bank_account_name}-Duplicate-Combined`,
+      one_of?.finance?.institute
+    );
+    if (valid_back?.back) {
+      res.status(200).send({
+        message: "Explore New Excel On Subject Export TAB",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        access: false,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

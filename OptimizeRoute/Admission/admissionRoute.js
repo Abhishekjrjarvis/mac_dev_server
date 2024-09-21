@@ -1090,6 +1090,7 @@ router.patch(
   catchAsync(Admission.render_edit_student_dynamic_form_section_query)
 );
 
+// New Bank Wise Invoice Count
 router.patch("/update/all/fees/:id", catchAsync(Admission.fee_receipt_update));
 
 router.patch(
@@ -1097,4 +1098,10 @@ router.patch(
   catchAsync(Admission.auto_society_receipt_generate_query)
 );
 
+// All Fee Receipt Payment Mode Changed
+
+router.patch(
+  "/:fid/all/receipts/mode/change",
+  catchAsync(Admission.payment_mode_change_query)
+);
 module.exports = router;

@@ -1387,6 +1387,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  edit_form_allow: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

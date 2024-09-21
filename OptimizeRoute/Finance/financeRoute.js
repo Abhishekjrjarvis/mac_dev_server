@@ -696,11 +696,20 @@ router
 
 router.delete(
   "/one/fee/:fid/delete/other/:ofid",
-  catchAsync(Finance.delete_other_fees_receipt_query));
+  catchAsync(Finance.delete_other_fees_receipt_query)
+);
 
 router.patch(
   "/dublicate/receipt/:fid/query",
   catchAsync(Finance.finance_receipt_dublicate_query)
 );
+
+router
+  .route("/one/duplicate/combined/other/fee/:ofid/student/list/export")
+  .patch(
+    catchAsync(
+      Finance.renderOneDuplicateCombinedOtherFeesStudentListExportQuery
+    )
+  );
 
 module.exports = router;

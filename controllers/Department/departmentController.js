@@ -1177,9 +1177,11 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
         access: false,
       });
 
-    var custom_ins = await InstituteAdmin.findById({
-      _id: id,
-    }).select("edit_form_allow");
+    if (id) {
+      var custom_ins = await InstituteAdmin.findById({
+        _id: id,
+      }).select("edit_form_allow");
+    }
     var student = await Student.findById({ _id: sid });
     student.studentFatherName =
       student?.studentMiddleName ?? student?.studentFatherName;

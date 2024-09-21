@@ -6,13 +6,15 @@ const feeReceipt = require("../models/RazorPay/feeReceipt");
 const BankAccount = require("../models/Finance/BankAccount");
 const RemainingList = require("../models/Admission/RemainingList");
 const orderPayment = require("../models/RazorPay/orderPayment");
+const QvipleId = require("../models/Universal/QvipleId");
+const InstituteAdmin = require("../models/InstituteAdmin");
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 });
 const obj = {
-  DEV: "http://localhost:8080/api",
-  // DEV: "http://44.197.120.176/api/api",
-  PROD: "http://qviple.com/api",
+  // DEV: "http://localhost:8080/api",
+  DEV: "http://44.197.120.176/api/api",
+  PROD: "https://qviple.com/api",
   OTHER: false,
 };
 
@@ -312,13 +314,22 @@ const renderOneFeeReceiptUploadQuery = async (frid) => {
 
 const getInstituteProfile = async (instituteId) => {
   try {
-    const response = await axios.get(
-      `${
-        obj[process.env.CONNECT_DB]
-      }/v1/ins/${instituteId}/profile?user_mod_id=`,
-      { httpsAgent }
-    );
-    return response?.data?.institute;
+    // const response = await axios.get(
+    //   `${
+    //     obj[process.env.CONNECT_DB]
+    //   }/v1/ins/${instituteId}/profile?user_mod_id=`,
+    //   { httpsAgent }
+    // );
+    const institute = await InstituteAdmin.findById(instituteId)
+      .select(
+        "insName status photoId insProfilePhoto qviple_id hostelDepart leave_config insEditableText_one insEditableText_two profile_modification merchant_options name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo random_institute_code last_login gr_initials online_amount_edit_access sub_domain_link_up_status application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by block_institute blockedBy authority authority_signature autority_stamp_profile is_dublicate_bonafide"
+      )
+      .lean()
+      .exec();
+    const qvipleId = await QvipleId.findOne({ institute: `${institute?._id}` });
+    institute.qviple_id = qvipleId?.qviple_id;
+
+    return institute;
   } catch (e) {
     console.log(e);
     return {};

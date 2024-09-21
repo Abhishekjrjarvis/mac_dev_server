@@ -108,4 +108,9 @@ router
       studentFeedbackController.feedbackResendNotificationOneSubjectByInstituteQuery
     )
   );
+
+router.route("/notsend/:ifid/by/institute/:id/all/subject/query").post(
+  // isLoggedIn,
+  catchAsync(studentFeedbackController.feedback_not_send_subject_teacher_query)
+);
 module.exports = router;

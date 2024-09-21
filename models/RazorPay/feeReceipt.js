@@ -106,7 +106,7 @@ const feeReceiptSchema = new mongoose.Schema({
       },
       is_society: {
         type: Boolean,
-        default: false
+        default: false,
       },
     },
   ],
@@ -136,7 +136,7 @@ const feeReceiptSchema = new mongoose.Schema({
   },
   certificate: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "CertificateQuery"
+    ref: "CertificateQuery",
   },
   set_off_status: {
     type: String,
@@ -168,33 +168,43 @@ const feeReceiptSchema = new mongoose.Schema({
     type: String,
   },
   txn_id: {
-    type: String
+    type: String,
   },
   fee_update: {
     type: Boolean,
-    default: false
+    default: false,
   },
   visible_status: {
     type: String,
-    default: "Not Hide"
+    default: "Not Hide",
   },
   is_deleted: {
     type: Boolean,
-    default: false
+    default: false,
   },
   receipt_file: {
-    type: String
+    type: String,
   },
   other_fees: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "OtherFees",
   },
   fee_diff_mode: {
-    type: String
+    type: String,
   },
   student_name: {
-    type: String
-  }
+    type: String,
+  },
+  delete_invoice_count: {
+    type: String,
+    // unique: true,
+  },
+  society_invoice_count: {
+    type: String,
+  },
+  active: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

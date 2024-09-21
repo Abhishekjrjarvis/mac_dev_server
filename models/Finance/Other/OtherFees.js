@@ -109,6 +109,12 @@ const otherFeesSchema = new mongoose.Schema({
       },
     },
   ],
+  multiple_fee_receipt: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeReceipt",
+    },
+  ],
 });
 
 module.exports = mongoose.model("OtherFees", otherFeesSchema);

@@ -779,6 +779,7 @@ const financeSchema = new mongoose.Schema(
         flow: { type: String },
       },
     ],
+    fees: [{ type: String }],
     show_invoice_pattern: {
       type: String,
       default: "Institute_Wise",

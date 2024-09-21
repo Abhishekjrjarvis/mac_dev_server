@@ -1736,7 +1736,13 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
       order.payment_student_name = student?.valid_full_name;
       order.payment_student_gr = student?.studentGRNO;
       order.fee_receipt = new_receipt?._id;
-      fee_receipt_count_query(institute, new_receipt, order);
+      await fee_receipt_count_query(
+        institute,
+        new_receipt,
+        order,
+        finance?.show_invoice_pattern,
+        apply?.applicationHostel
+      );
       // institute.invoice_count += 1;
       // new_receipt.invoice_count = `${
       //   new Date().getMonth() + 1
@@ -2191,7 +2197,13 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
       order.payment_student = student?._id;
       order.payment_student_name = student?.valid_full_name;
       order.payment_student_gr = student?.studentGRNO;
-      fee_receipt_count_query(institute, new_receipt, order);
+      await fee_receipt_count_query(
+        institute,
+        new_receipt,
+        order,
+        finance?.show_invoice_pattern,
+        apply?.applicationHostel
+      );
       order.fee_receipt = new_receipt?._id;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
@@ -2598,7 +2610,13 @@ exports.renderPaidRemainingFeeStudentQuery = async (req, res) => {
     order.payment_student = student?._id;
     order.payment_student_name = student?.valid_full_name;
     order.payment_student_gr = student?.studentGRNO;
-    fee_receipt_count_query(institute, new_receipt, order);
+    await fee_receipt_count_query(
+      institute,
+      new_receipt,
+      order,
+      finance?.show_invoice_pattern,
+      apply?.applicationHostel
+    );
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     order.fee_receipt = new_receipt?._id;
@@ -9543,14 +9561,12 @@ exports.all_student_bed_query = async (req, res) => {
     //   console.log(i)
     //   i+= 1
     // }
-    res
-      .status(200)
-      .send({
-        message: "Explore All Bed Delete",
-        access: true,
-        all_student_bed: all_student_bed?.length,
-        all_student: all_student?.length,
-      });
+    res.status(200).send({
+      message: "Explore All Bed Delete",
+      access: true,
+      all_student_bed: all_student_bed?.length,
+      all_student: all_student?.length,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -9750,7 +9766,13 @@ exports.cancelAllottedHostelApplication = async (req, res) => {
       order.payment_student = student?._id;
       order.payment_student_name = student?.valid_full_name;
       order.payment_student_gr = student?.studentGRNO;
-      fee_receipt_count_query(institute, new_receipt, order);
+      await fee_receipt_count_query(
+        institute,
+        new_receipt,
+        order,
+        finance?.show_invoice_pattern,
+        apply?.applicationHostel
+      );
       order.fee_receipt = new_receipt?._id;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);

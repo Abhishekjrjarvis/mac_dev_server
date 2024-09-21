@@ -1161,6 +1161,10 @@ const studentSchema = new mongoose.Schema({
       type: Number,
       default: 0,
     },
+    fee_receipt: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeReceipt",
+    },
   },
   student_dynamic_subject: [
     {
@@ -1230,7 +1234,13 @@ const studentSchema = new mongoose.Schema({
   studentFName: { type: String },
   studentMName: { type: String },
   studentLName: { type: String },
-  guide: [
+  other_fee_receipt: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeReceipt",
+    },
+  ],
+   guide: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Guide",

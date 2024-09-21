@@ -327,4 +327,14 @@ router.patch(
   catchAsync(Filter.renderAllStudentApplicableOutStandingStudentQuery)
 );
 
+router.patch(
+  "/:fid/all/combined/daybook",
+  catchAsync(Filter.render_combined_daybook_heads_wise)
+);
+
+router.patch(
+  "/allotted/dse/application/export/:appId",
+  catchAsync(Filter.renderApplicationDSEAllottedListQuery)
+);
+
 module.exports = router;

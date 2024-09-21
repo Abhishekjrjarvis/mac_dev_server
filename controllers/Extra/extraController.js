@@ -4564,136 +4564,156 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
         message: "Url Segement parameter required is not fulfill.",
       });
     }
+    // console.log("Hit");
     let not_generate_student_list = [];
     let a_app = [];
     let all_app = [];
     const admission = await Admission.findById(aid);
-    // all_app = await NewApplication.find({
-    //   $and: [
-    //     {
-    //       admissionAdmin: { $eq: `${aid}` },
-    //     },
-    //     {
-    //       applicationStatus: { $eq: "Ongoing" },
-    //     },
-    //     {
-    //       applicationTypeStatus: { $eq: "Normal Application" },
-    //     },
-    //   ],
-    // });
-    all_app = await NewApplication.findById("666a78c330ee0b50462c00ef");
+    all_app = await NewApplication.find({
+      $and: [
+        {
+          admissionAdmin: { $eq: `${aid}` },
+        },
+        {
+          applicationStatus: { $eq: "Ongoing" },
+        },
+        {
+          applicationTypeStatus: { $eq: "Normal Application" },
+        },
+      ],
+    });
+    // all_app = await NewApplication.findById("666a78c330ee0b50462c00ef");
 
-    // for (let i = 0; i < all_app?.length; i++) {
-    // for (let dfg of all_app) {
-    let new_app = all_app;
-    // let new_app = all_app[i];
-    // let new_app = dfg;
-    a_app.push(new_app?.applicationName);
-    console.log(new_app?.applicationName);
-    if (
-      false
-      // new_app?.applicationName === "F.Y. M.Sc (Analytical Chemistry - 2024-25)"
-    ) {
-    } else {
-      if (admission?.institute) {
-        for (let st of new_app?.receievedApplication) {
-          if (st?.student) {
-            const stu = await Student.findById(st?.student);
-            if (stu?._id) {
-              if (stu?.application_print?.length > 0) {
-              } else {
-                not_generate_student_list.push(stu?._id);
-                await generateStudentAdmissionForm(
-                  stu?._id,
-                  admission?.institute,
-                  `${stu?.studentFirstName ?? ""} ${
-                    stu?.studentMiddleName ?? ""
-                  } ${stu?.studentLastName ?? ""}`,
-                  new_app?.applicationName
-                );
+    for (let i = 0; i < all_app?.length; i++) {
+      // for (let dfg of all_app) {
+      // let new_app = all_app;
+      let new_app = all_app[i];
+      // let new_app = dfg;
+      a_app.push(new_app?.applicationName);
+      console.log(new_app?.applicationName);
+      if (
+        false
+        // new_app?.applicationName === "F.Y. M.Sc (Analytical Chemistry - 2024-25)"
+      ) {
+      } else {
+        if (admission?.institute) {
+          for (let st of new_app?.receievedApplication) {
+            if (st?.student) {
+              const stu = await Student.findById(st?.student);
+              if (stu?._id) {
+                if (stu?.application_print?.length > 0) {
+                } else {
+                  not_generate_student_list.push(stu?._id);
+                  await generateStudentAdmissionForm(
+                    stu?._id,
+                    admission?.institute,
+                    `${stu?.studentFirstName ?? ""} ${
+                      stu?.studentMiddleName ?? ""
+                    } ${stu?.studentLastName ?? ""}`,
+                    new_app?.applicationName
+                  );
+                }
               }
             }
           }
-        }
-        for (let st of new_app?.selectedApplication) {
-          if (st?.student) {
-            const stu = await Student.findById(st?.student);
-            if (stu?._id) {
-              if (stu?.application_print?.length > 0) {
-              } else {
-                not_generate_student_list.push(stu?._id);
-                await generateStudentAdmissionForm(
-                  stu?._id,
-                  admission?.institute,
-                  `${stu?.studentFirstName ?? ""} ${
-                    stu?.studentMiddleName ?? ""
-                  } ${stu?.studentLastName ?? ""}`,
-                  new_app?.applicationName
-                );
+          for (let st of new_app?.selectedApplication) {
+            if (st?.student) {
+              const stu = await Student.findById(st?.student);
+              if (stu?._id) {
+                if (stu?.application_print?.length > 0) {
+                } else {
+                  not_generate_student_list.push(stu?._id);
+                  await generateStudentAdmissionForm(
+                    stu?._id,
+                    admission?.institute,
+                    `${stu?.studentFirstName ?? ""} ${
+                      stu?.studentMiddleName ?? ""
+                    } ${stu?.studentLastName ?? ""}`,
+                    new_app?.applicationName
+                  );
+                }
               }
             }
           }
-        }
-        for (let st of new_app?.FeeCollectionApplication) {
-          if (st?.student) {
-            const stu = await Student.findById(st?.student);
-            if (stu?._id) {
-              if (stu?.application_print?.length > 0) {
-              } else {
-                not_generate_student_list.push(stu?._id);
-                await generateStudentAdmissionForm(
-                  stu?._id,
-                  admission?.institute,
-                  `${stu?.studentFirstName ?? ""} ${
-                    stu?.studentMiddleName ?? ""
-                  } ${stu?.studentLastName ?? ""}`,
-                  new_app?.applicationName
-                );
+          for (let st of new_app?.FeeCollectionApplication) {
+            if (st?.student) {
+              const stu = await Student.findById(st?.student);
+              if (stu?._id) {
+                if (stu?.application_print?.length > 0) {
+                } else {
+                  not_generate_student_list.push(stu?._id);
+                  await generateStudentAdmissionForm(
+                    stu?._id,
+                    admission?.institute,
+                    `${stu?.studentFirstName ?? ""} ${
+                      stu?.studentMiddleName ?? ""
+                    } ${stu?.studentLastName ?? ""}`,
+                    new_app?.applicationName
+                  );
+                }
               }
             }
           }
-        }
-        for (let st of new_app?.confirmedApplication) {
-          if (st?.student) {
-            const stu = await Student.findById(st?.student);
-            if (stu?._id) {
-              if (stu?.application_print?.length > 0) {
-              } else {
-                not_generate_student_list.push(stu?._id);
-                await generateStudentAdmissionForm(
-                  stu?._id,
-                  admission?.institute,
-                  `${stu?.studentFirstName ?? ""} ${
-                    stu?.studentMiddleName ?? ""
-                  } ${stu?.studentLastName ?? ""}`,
-                  new_app?.applicationName
-                );
+          for (let st of new_app?.confirmedApplication) {
+            if (st?.student) {
+              const stu = await Student.findById(st?.student);
+              if (stu?._id) {
+                if (stu?.application_print?.length > 0) {
+                } else {
+                  not_generate_student_list.push(stu?._id);
+                  await generateStudentAdmissionForm(
+                    stu?._id,
+                    admission?.institute,
+                    `${stu?.studentFirstName ?? ""} ${
+                      stu?.studentMiddleName ?? ""
+                    } ${stu?.studentLastName ?? ""}`,
+                    new_app?.applicationName
+                  );
+                }
               }
             }
           }
-        }
-        for (let st of new_app?.reviewApplication) {
-          if (st) {
-            const stu = await Student.findById(st);
-            if (stu?._id) {
-              if (stu?.application_print?.length > 0) {
-              } else {
-                not_generate_student_list.push(stu?._id);
-                await generateStudentAdmissionForm(
-                  stu?._id,
-                  admission?.institute,
-                  `${stu?.studentFirstName ?? ""} ${
-                    stu?.studentMiddleName ?? ""
-                  } ${stu?.studentLastName ?? ""}`,
-                  new_app?.applicationName
-                );
+          for (let st of new_app?.reviewApplication) {
+            if (st) {
+              const stu = await Student.findById(st);
+              if (stu?._id) {
+                if (stu?.application_print?.length > 0) {
+                } else {
+                  not_generate_student_list.push(stu?._id);
+                  await generateStudentAdmissionForm(
+                    stu?._id,
+                    admission?.institute,
+                    `${stu?.studentFirstName ?? ""} ${
+                      stu?.studentMiddleName ?? ""
+                    } ${stu?.studentLastName ?? ""}`,
+                    new_app?.applicationName
+                  );
+                }
+              }
+            }
+          }
+          for (let st of new_app?.allottedApplication) {
+            if (st) {
+              const stu = await Student.findById(st?.student);
+              if (stu?._id) {
+                if (stu?.application_print?.length > 0) {
+                } else {
+                  not_generate_student_list.push(stu?._id);
+                  await generateStudentAdmissionForm(
+                    stu?._id,
+                    admission?.institute,
+                    `${stu?.studentFirstName ?? ""} ${
+                      stu?.studentMiddleName ?? ""
+                    } ${stu?.studentLastName ?? ""}`,
+                    new_app?.applicationName
+                  );
+                }
               }
             }
           }
         }
       }
     }
-    // }
 
     res.status(200).send({
       message: "All application form is created.",
@@ -5207,6 +5227,30 @@ exports.certificate_bonafide_dublicate_query = async (req, res) => {
     res.status(200).send({
       message: "Data updated successfully.",
       access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const auto_society_receipt_generate_query = async (list) => {
+  try {
+    if (list?.length === 0) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    if (list?.length > 0) {
+      let i = 0;
+      for (let rt of list) {
+        await societyAdmissionFeeReceipt(rt?.frid, rt?.instituteId);
+        ++i;
+        console.log(i);
+      }
+    }
+    res.status(200).send({
+      message: "Miscellaneous Fee receipt amount changes.",
     });
   } catch (e) {
     console.log(e);

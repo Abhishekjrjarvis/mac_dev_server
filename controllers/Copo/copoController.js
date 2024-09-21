@@ -3248,3 +3248,33 @@ exports.continuous_evaluation_final_marks_query = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.get_subject_co_list_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const subject = await Subject.findById(sid);
+    let attainment = [];
+    if (subject?.subjectMasterName) {
+      attainment = await Attainment.find({
+        subject_master: { $eq: `${subject?.subjectMasterName}` },
+        attainment_type: { $eq: `CO` },
+      }).select("attainment_name attainment_type attainment_code");
+    }
+
+    res.status(200).send({
+      message: "All list of copo in subjects",
+      attainment: attainment,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};

@@ -1255,8 +1255,16 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                           value:
                             student[`${ad?.form_checklist_key}`] ??
                             nest_obj[`${ad?.form_checklist_key}`],
-                          edit_allow:
-                            custom_ins?.edit_form_allow == true ? true : false,
+                          edit_allow: id
+                            ? custom_ins?.edit_form_allow == true
+                              ? true
+                              : !(
+                                  student[`${ad?.form_checklist_key}`] ||
+                                  nest_obj[`${ad?.form_checklist_key}`]
+                                )
+                              ? true
+                              : false
+                            : true,
                         });
                       }
                     }
@@ -1286,8 +1294,16 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                       value:
                         student[`${ads?.form_checklist_key}`] ??
                         nest_obj[`${ads?.form_checklist_key}`],
-                      edit_allow:
-                        custom_ins?.edit_form_allow == true ? true : false,
+                      edit_allow: id
+                        ? custom_ins?.edit_form_allow == true
+                          ? true
+                          : !(
+                              student[`${ad?.form_checklist_key}`] ||
+                              nest_obj[`${ad?.form_checklist_key}`]
+                            )
+                          ? true
+                          : false
+                        : true,
                     });
                     customs = [];
                     if (student[`${ads?.form_checklist_key}`] === "No") {
@@ -1315,8 +1331,16 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   value:
                     student[`${ele?.form_checklist_key}`] ??
                     nest_objs[`${ele?.form_checklist_key}`],
-                  edit_allow:
-                    custom_ins?.edit_form_allow == true ? true : false,
+                  edit_allow: id
+                    ? custom_ins?.edit_form_allow == true
+                      ? true
+                      : !(
+                          student[`${ad?.form_checklist_key}`] ||
+                          nest_obj[`${ad?.form_checklist_key}`]
+                        )
+                      ? true
+                      : false
+                    : true,
                 });
                 custom = [];
               }
@@ -1420,8 +1444,20 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                         ? name2 ?? ""
                         : student[`${ele?.form_checklist_key}`] ??
                           nest_obj[`${ele?.form_checklist_key}`],
-                    edit_allow:
-                      custom_ins?.edit_form_allow == true ? true : false,
+                    edit_allow: id
+                      ? custom_ins?.edit_form_allow == true
+                        ? true
+                        : !(ele?.form_checklist_key ===
+                            "student_undertakings" ||
+                          ele?.form_checklist_key === "student_anti_ragging" ||
+                          ele?.form_checklist_key ===
+                            "student_anti_ragging_parents"
+                            ? name2 ?? ""
+                            : student[`${ele?.form_checklist_key}`] ||
+                              nest_obj[`${ele?.form_checklist_key}`])
+                        ? true
+                        : false
+                      : true,
 
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   });
@@ -1519,8 +1555,16 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                           value:
                             student[`${ad?.form_checklist_key}`] ??
                             nest_obj[`${ad?.form_checklist_key}`],
-                          edit_allow:
-                            custom_ins?.edit_form_allow == true ? true : false,
+                          edit_allow: id
+                            ? custom_ins?.edit_form_allow == true
+                              ? true
+                              : !(
+                                  student[`${ad?.form_checklist_key}`] ||
+                                  nest_obj[`${ad?.form_checklist_key}`]
+                                )
+                              ? true
+                              : false
+                            : true,
                         });
                       }
                     }
@@ -1550,8 +1594,16 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                       value:
                         student[`${ads?.form_checklist_key}`] ??
                         nest_obj[`${ads?.form_checklist_key}`],
-                      edit_allow:
-                        custom_ins?.edit_form_allow == true ? true : false,
+                      edit_allow: id
+                        ? custom_ins?.edit_form_allow == true
+                          ? true
+                          : !(
+                              student[`${ad?.form_checklist_key}`] ||
+                              nest_obj[`${ad?.form_checklist_key}`]
+                            )
+                          ? true
+                          : false
+                        : true,
                     });
                     customs = [];
                     if (student[`${ads?.form_checklist_key}`] === "No") {
@@ -1579,8 +1631,16 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   value:
                     student[`${ele?.form_checklist_key}`] ??
                     nest_objs[`${ele?.form_checklist_key}`],
-                  edit_allow:
-                    custom_ins?.edit_form_allow == true ? true : false,
+                  edit_allow: id
+                    ? custom_ins?.edit_form_allow == true
+                      ? true
+                      : !(
+                          student[`${ad?.form_checklist_key}`] ||
+                          nest_obj[`${ad?.form_checklist_key}`]
+                        )
+                      ? true
+                      : false
+                    : true,
                 });
                 custom = [];
               }
@@ -1684,8 +1744,21 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                         ? name2 ?? ""
                         : student[`${ele?.form_checklist_key}`] ??
                           nest_obj[`${ele?.form_checklist_key}`],
-                    edit_allow:
-                      custom_ins?.edit_form_allow == true ? true : false,
+                    edit_allow: id
+                      ? custom_ins?.edit_form_allow == true
+                        ? true
+                        : !(ele?.form_checklist_key ===
+                            "student_undertakings" ||
+                          ele?.form_checklist_key === "student_anti_ragging" ||
+                          ele?.form_checklist_key ===
+                            "student_anti_ragging_parents"
+                            ? name2 ?? ""
+                            : student[`${ele?.form_checklist_key}`] ||
+                              nest_obj[`${ele?.form_checklist_key}`])
+                        ? true
+                        : false
+                      : true,
+
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   });
                   name2 = "";
@@ -1789,8 +1862,16 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                           value:
                             student[`${ad?.form_checklist_key}`] ??
                             nest_obj[`${ad?.form_checklist_key}`],
-                          edit_allow:
-                            custom_ins?.edit_form_allow == true ? true : false,
+                          edit_allow: id
+                            ? custom_ins?.edit_form_allow == true
+                              ? true
+                              : !(
+                                  student[`${ad?.form_checklist_key}`] ||
+                                  nest_obj[`${ad?.form_checklist_key}`]
+                                )
+                              ? true
+                              : false
+                            : true,
                         });
                       }
                     }
@@ -1820,8 +1901,16 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                       value:
                         student[`${ads?.form_checklist_key}`] ??
                         nest_obj[`${ads?.form_checklist_key}`],
-                      edit_allow:
-                        custom_ins?.edit_form_allow == true ? true : false,
+                      edit_allow: id
+                        ? custom_ins?.edit_form_allow == true
+                          ? true
+                          : !(
+                              student[`${ad?.form_checklist_key}`] ||
+                              nest_obj[`${ad?.form_checklist_key}`]
+                            )
+                          ? true
+                          : false
+                        : true,
                     });
                     customs = [];
                     if (student[`${ads?.form_checklist_key}`] === "No") {
@@ -1849,8 +1938,16 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                   value:
                     student[`${ele?.form_checklist_key}`] ??
                     nest_objs[`${ele?.form_checklist_key}`],
-                  edit_allow:
-                    custom_ins?.edit_form_allow == true ? true : false,
+                  edit_allow: id
+                    ? custom_ins?.edit_form_allow == true
+                      ? true
+                      : !(
+                          student[`${ad?.form_checklist_key}`] ||
+                          nest_obj[`${ad?.form_checklist_key}`]
+                        )
+                      ? true
+                      : false
+                    : true,
                 });
                 custom = [];
               }
@@ -2029,8 +2126,24 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                         ? name2 ?? ""
                         : student[`${ele?.form_checklist_key}`] ??
                           nest_obj[`${ele?.form_checklist_key}`],
-                    edit_allow:
-                      custom_ins?.edit_form_allow == true ? true : false,
+                    edit_allow: id
+                      ? custom_ins?.edit_form_allow == true
+                        ? true
+                        : !(val?.section_status === "UNDERTAKING"
+                            ? name2
+                            : ele?.form_checklist_key ===
+                                "student_undertakings" ||
+                              ele?.form_checklist_key ===
+                                "student_anti_ragging" ||
+                              ele?.form_checklist_key ===
+                                "student_anti_ragging_parents"
+                            ? name2 ?? ""
+                            : student[`${ele?.form_checklist_key}`] ||
+                              nest_obj[`${ele?.form_checklist_key}`])
+                        ? true
+                        : false
+                      : true,
+
                     // value: name2 ? name2 : student[`${ele?.form_checklist_key}`] ?? nest_obj[`${ele?.form_checklist_key}`]
                   });
                   name2 = "";

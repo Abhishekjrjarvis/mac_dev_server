@@ -2082,12 +2082,12 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentFatherName studentGRNO studentGender remainingFeeList",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
         })
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentFatherName studentGRNO studentGender remainingFeeList",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
           populate: {
             path: "studentClass",
             select: "className classTitle",
@@ -2096,7 +2096,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentFatherName studentGRNO studentGender remainingFeeList",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
           populate: {
             path: "batches",
             select: "batchName",
@@ -2172,13 +2172,13 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               select:
                 "applicable_fees total_admission_fees class_master batch_master unique_structure_name category_master",
               populate: {
-                path: "class_master batch_master category_master",
-                select: "className batchName category_name",
+                path: "class_master batch_master category_master department",
+                select: "className batchName category_name dName",
               },
             })
             .populate({
               path: "appId",
-              select: "applicationDepartment applicationBatch",
+              select: "applicationDepartment applicationBatch applicationName",
               populate: {
                 path: "applicationDepartment applicationBatch",
                 select: "dName batchName",
@@ -2262,11 +2262,16 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
                 ref?.student?.studentFatherName,
               LastName: ref?.student?.studentLastName ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
+              ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
               Standard:
                 `${remain_list?.fee_structure?.class_master?.className}` ??
                 "#NA",
+              Department:
+                `${remain_list?.fee_structure?.department?.dName}` ?? "#NA",
               Batch:
                 remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
+              ApplicationName:
+                `${remain_list?.appId?.applicationName}` ?? "#NA",
               FeeStructure:
                 remain_list?.fee_structure?.unique_structure_name ?? "#NA",
               TotalFees:

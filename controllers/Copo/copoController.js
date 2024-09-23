@@ -2605,7 +2605,7 @@ exports.cls_theory_subject_list_query = async (req, res) => {
     const subjects = await Subject.find({
       $and: [
         {
-          _id: { $in: cls.subject },
+          _id: { $in: cls?.subject },
         },
         {
           subject_category: { $in: ["Full Class", "Theory"] },

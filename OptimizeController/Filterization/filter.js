@@ -1838,7 +1838,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentGRNO studentGender remainingFeeList",
           populate: {
             path: "fee_structure",
             select:
@@ -1852,7 +1852,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentGRNO studentGender remainingFeeList",
           populate: {
             path: "studentClass",
             select: "className classTitle",
@@ -1861,7 +1861,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentGRNO studentGender remainingFeeList",
           populate: {
             path: "batches",
             select: "batchName",
@@ -1920,20 +1920,23 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       };
       for (var ref of all_receipts) {
         var remain_list = await RemainingList.findOne({
-          $and: [{ student: ref?.student }, { appId: ref?.application }],
+          $and: [
+            { student: ref?.student?._id },
+            { appId: ref?.application?._id },
+          ],
         })
           .populate({
             path: "fee_structure",
             select:
               "applicable_fees total_admission_fees class_master batch_master unique_structure_name",
             populate: {
-              path: "class_master batch_master",
-              select: "className batchName",
+              path: "class_master batch_master department",
+              select: "className batchName dName",
             },
           })
           .populate({
             path: "appId",
-            select: "applicationDepartment applicationBatch",
+            select: "applicationDepartment applicationBatch applicationName",
             populate: {
               path: "applicationDepartment applicationBatch",
               select: "dName batchName",
@@ -2012,9 +2015,13 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               ref?.student?.studentMiddleName,
             LastName: ref?.student?.studentLastName ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
+            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
             Standard:
               `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
+            Department:
+              `${remain_list?.fee_structure?.department?.dName}` ?? "#NA",
             Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
+            ApplicationName: `${remain_list?.appId?.applicationName}` ?? "#NA",
             FeeStructure:
               remain_list?.fee_structure?.unique_structure_name ?? "#NA",
             TotalFees: remain_list?.fee_structure?.total_admission_fees ?? "0",
@@ -3612,8 +3619,8 @@ exports.retrieveHostelPendingFeeFilterQuery = async (req, res) => {
           select:
             "structure_name unique_structure_name category_master total_admission_fees one_installments applicable_fees class_master batch_master",
           populate: {
-            path: "category_master batch_master class_master",
-            select: "category_name batchName className",
+            path: "category_master batch_master class_master department",
+            select: "category_name batchName className dName",
           },
         },
       });
@@ -3678,6 +3685,7 @@ exports.retrieveHostelPendingFeeFilterQuery = async (req, res) => {
           Standard: `${val?.fee_structure?.class_master?.className}`,
           FeeStructure:
             `${val?.fee_structure?.category_master?.category_name}` ?? "#NA",
+          Department: `${val?.fee_structure?.department?.dName}` ?? "#NA",
           Address: `${ref?.studentAddress}` ?? "#NA",
           // ...result,
         });
@@ -3906,7 +3914,7 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList student_unit",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentGRNO studentGender remainingFeeList student_unit",
           populate: {
             path: "hostel_fee_structure",
             select:
@@ -3920,7 +3928,7 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList student_unit",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentGRNO studentGender remainingFeeList student_unit",
           populate: {
             path: "student_unit",
             select: "hostel_unit_name",
@@ -3929,7 +3937,7 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList student_unit",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentGRNO studentGender remainingFeeList student_unit",
           populate: {
             path: "batches",
             select: "batchName",
@@ -3979,13 +3987,13 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
             select:
               "applicable_fees total_admission_fees class_master batch_master unique_structure_name",
             populate: {
-              path: "class_master batch_master",
-              select: "className batchName",
+              path: "class_master batch_master department",
+              select: "className batchName dName",
             },
           })
           .populate({
             path: "appId",
-            select: "applicationBatch applicationHostel",
+            select: "applicationBatch applicationHostel applicationName",
             populate: {
               path: "applicationBatch applicationHostel",
               select: "batchName",
@@ -4036,6 +4044,8 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
             Standard:
               `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
             Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
+            Department: remain_list?.fee_structure?.department?.dName ?? "#NA",
+            ApplicationName: remain_list?.appId?.applicationName ?? "#NA",
             FeeStructure:
               remain_list?.fee_structure?.unique_structure_name ?? "#NA",
             TotalFees: remain_list?.fee_structure?.total_admission_fees ?? "0",
@@ -4652,8 +4662,8 @@ exports.renderNormalStudentQuery = async (req, res) => {
         select:
           "unique_structure_name applicable_fees total_admission_fees category_master batch_master class_master",
         populate: {
-          path: "category_master batch_master class_master",
-          select: "category_name batchName className",
+          path: "category_master batch_master class_master department",
+          select: "category_name batchName className dName",
         },
       });
     valid_all_students.sort(function (st1, st2) {
@@ -4674,6 +4684,10 @@ exports.renderNormalStudentQuery = async (req, res) => {
         })
         .populate({
           path: "applicable_card government_card",
+        })
+        .populate({
+          path: "appId",
+          select: "applicationName",
         });
       var pending = 0;
       var paid = 0;
@@ -4707,6 +4721,10 @@ exports.renderNormalStudentQuery = async (req, res) => {
           })
           .populate({
             path: "applicable_card government_card",
+          })
+          .populate({
+            path: "appId",
+            select: "applicationName",
           });
         currentPaid += valid_card?.applicable_card?.paid_fee;
         currentRemain +=
@@ -4755,6 +4773,8 @@ exports.renderNormalStudentQuery = async (req, res) => {
         SingleSeater: `${ref?.student_single_seater_room}` ?? "#NA",
         PhysicallyChallenged: `${ref?.student_ph}` ?? "#NA",
         ProfileCompletion: `${ref?.profile_percentage}` ?? "0",
+        Department: ref?.fee_structure?.department?.dName ?? "#NA",
+        // ApplicationName: ref?.fee_structure?.department?.dName ?? "#NA",
         Standard: `${ref?.fee_structure}`
           ? `${ref?.fee_structure?.class_master?.className}`
           : `${ref?.hostel_fee_structure}`

@@ -3220,7 +3220,7 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
     const { sid } = req.params;
     var staff = await Staff.findById({ _id: sid })
       .select(
-        "staffFirstName staffDesignationCount vehicle_category library_qr_code recentDesignation active_designation staffMiddleName mentorDepartment hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave current_designation staff_pf_number"
+        "staffFirstName staffDesignationCount vehicle_category library_qr_code recentDesignation active_designation staffMiddleName mentorDepartment hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave current_designation staff_pf_number instituteModeratorDepartment"
       )
       .populate({
         path: "staffDepartment",
@@ -3350,16 +3350,16 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
         path: "financeModeratorDepartment",
         select: "finance access_role",
       })
-      .populate({
-        path: "instituteModeratorDepartment",
-        select:
-          "institute access_role academic_department staff_institute_admin lms",
-        populate: {
-          path: "academic_department institute",
-          select:
-            "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart",
-        },
-      })
+      // .populate({
+      //   path: "",
+      //   select:
+      //     "institute access_role academic_department staff_institute_admin lms",
+      //   populate: {
+      //     path: "academic_department institute",
+      //     select:
+      //       "departmentSelectBatch dName dTitle insName name insPassword financeDepart admissionDepart",
+      //   },
+      // })
       .populate({
         path: "hostelModeratorDepartment",
         select: "hostel access_role active_tab",

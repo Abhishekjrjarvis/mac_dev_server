@@ -2821,8 +2821,11 @@ exports.renderStudentNameCaseQuery = async (req, res) => {
 
     var format;
     if (`${valid_ins?.name_case_format_query}` === "CAPS_FORMAT") {
+      // let i = 0;
       for (var ref of valid_ins?.ApproveStudent) {
         format = await all_upper_case_query(ref);
+        // console.log(i);
+        // i += 1;
       }
     } else if (`${valid_ins?.name_case_format_query}` === "SMALL_FORMAT") {
       for (var ref of valid_ins?.ApproveStudent) {

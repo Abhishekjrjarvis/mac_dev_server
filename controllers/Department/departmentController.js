@@ -1298,8 +1298,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                         ? custom_ins?.edit_form_allow == true
                           ? true
                           : !(
-                              student[`${ad?.form_checklist_key}`] ||
-                              nest_obj[`${ad?.form_checklist_key}`]
+                              student[`${ads?.form_checklist_key}`] ||
+                              nest_obj[`${ads?.form_checklist_key}`]
                             )
                           ? true
                           : false
@@ -1335,8 +1335,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                     ? custom_ins?.edit_form_allow == true
                       ? true
                       : !(
-                          student[`${ad?.form_checklist_key}`] ||
-                          nest_obj[`${ad?.form_checklist_key}`]
+                          student[`${ele?.form_checklist_key}`] ||
+                          nest_obj[`${ele?.form_checklist_key}`]
                         )
                       ? true
                       : false
@@ -1598,8 +1598,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                         ? custom_ins?.edit_form_allow == true
                           ? true
                           : !(
-                              student[`${ad?.form_checklist_key}`] ||
-                              nest_obj[`${ad?.form_checklist_key}`]
+                              student[`${ads?.form_checklist_key}`] ||
+                              nest_obj[`${ads?.form_checklist_key}`]
                             )
                           ? true
                           : false
@@ -1635,8 +1635,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                     ? custom_ins?.edit_form_allow == true
                       ? true
                       : !(
-                          student[`${ad?.form_checklist_key}`] ||
-                          nest_obj[`${ad?.form_checklist_key}`]
+                          student[`${ele?.form_checklist_key}`] ||
+                          nest_obj[`${ele?.form_checklist_key}`]
                         )
                       ? true
                       : false
@@ -1905,8 +1905,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                         ? custom_ins?.edit_form_allow == true
                           ? true
                           : !(
-                              student[`${ad?.form_checklist_key}`] ||
-                              nest_obj[`${ad?.form_checklist_key}`]
+                              student[`${ads?.form_checklist_key}`] ||
+                              nest_obj[`${ads?.form_checklist_key}`]
                             )
                           ? true
                           : false
@@ -1942,8 +1942,8 @@ exports.render_dynamic_form_query_photo = async (req, res) => {
                     ? custom_ins?.edit_form_allow == true
                       ? true
                       : !(
-                          student[`${ad?.form_checklist_key}`] ||
-                          nest_obj[`${ad?.form_checklist_key}`]
+                          student[`${ele?.form_checklist_key}`] ||
+                          nest_obj[`${ele?.form_checklist_key}`]
                         )
                       ? true
                       : false

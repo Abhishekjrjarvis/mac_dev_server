@@ -3413,6 +3413,12 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
       })
       .lean()
       .exec();
+
+    for (let ele of staff?.instituteModeratorDepartment) {
+      if (ele?.academic_department) {
+        ele.academicDepartment = ele?.academic_department;
+      }
+    }
     const staff_obj = {
       message: "All Staff Designation Feed from DB 🙌",
       staff: staff,

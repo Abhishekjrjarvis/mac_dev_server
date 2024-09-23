@@ -66,6 +66,7 @@ app.use(
       "https://navjeevanpharmacycollege.com",
       "https://bhavanschowpatty.qviple.com",
       "https://ges-coengg.qviple.com",
+      "https://temp-website-gilt.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

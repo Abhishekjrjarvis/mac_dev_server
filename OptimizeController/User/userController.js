@@ -3220,11 +3220,11 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
     const { sid } = req.params;
     var staff = await Staff.findById({ _id: sid })
       .select(
-        "staffDesignationCount active_designation mentorDepartment teaching_type library_qr_code hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffStatus staffROLLNO"
+        "staffFirstName staffDesignationCount vehicle_category library_qr_code teaching_type recentDesignation active_designation staffMiddleName mentorDepartment hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave staff_pf_number"
       )
       .populate({
         path: "staffDepartment",
-        select: "dName dTitle department_status",
+        select: "dName dTitle",
         populate: {
           path: "departmentSelectBatch",
           select: "batchName batchStatus",
@@ -3263,7 +3263,7 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "insName photoId insProfilePhoto student_section_form_show_query",
+          "insName photoId insProfilePhoto student_section_form_show_query storeStatus storeDepart",
       })
       .populate({
         path: "user",
@@ -3352,7 +3352,8 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
       })
       .populate({
         path: "instituteModeratorDepartment",
-        select: "institute access_role academic_department lms",
+        select:
+          "institute access_role academic_department staff_institute_admin lms",
         populate: {
           path: "academic_department",
           select: "departmentSelectBatch dName dTitle",
@@ -3365,6 +3366,14 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
       .populate({
         path: "staffBatch",
         select: "batchName batchStatus",
+      })
+      .populate({
+        path: "libraryModeratorDepartment",
+        select: "library access_role",
+        populate: {
+          path: "department",
+          select: "dName",
+        },
       })
       .populate({
         path: "lms_department",

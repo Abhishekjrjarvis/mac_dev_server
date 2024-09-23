@@ -83,6 +83,7 @@ const {
   universal_random_password_student_code,
 } = require("../../Generator/RandomPass");
 const DepartmentSite = require("../../models/SiteModels/DepartmentSite");
+const { classes_shuffle_func } = require("../../Designation/functions");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -5313,6 +5314,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
+    await classes_shuffle_func(classes, student);
     await invokeFirebaseNotification(
       "Student Approval",
       notify,
@@ -6118,6 +6120,7 @@ exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
       aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
+      await classes_shuffle_func(classes, student);
       await invokeFirebaseNotification(
         "Student Approval",
         notify,

@@ -19359,3 +19359,127 @@ exports.renderApplicationDSEAllottedListQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    // const { flow } = req?.query;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var ads_admin = await Admission.findById({ _id: aid }).select(
+      "newApplication institute"
+    );
+    const all_apps = await NewApplication.find({
+      $and: [
+        { _id: { $in: ads_admin?.newApplication } },
+        { applicationStatus: "Ongoing" },
+        { applicationTypeStatus: "Normal Application" },
+      ],
+    }).select("confirmedApplication allottedApplication reviewApplication");
+    let nums = [];
+    for (let apply of all_apps) {
+      for (let ele of apply?.confirmedApplication) {
+        nums.push(ele?.student);
+      }
+      for (let ele of apply?.allottedApplication) {
+        nums.push(ele?.student);
+      }
+      if (apply?.reviewApplication?.length > 0) {
+        for (let ele of apply?.reviewApplication) {
+          nums.push(ele);
+        }
+      }
+    }
+    var institute = await InstituteAdmin.findById({
+      _id: ads_admin?.institute,
+    }).select("financeDepart");
+
+    if (nums?.length > 0) {
+      res.status(200).send({
+        message: `Explore New Excel Exports Wait for Some Time To Process`,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        access: false,
+      });
+    }
+    const valid_all_students = await Student.find({
+      _id: { $in: nums },
+    }).populate({
+      path: "fee_structure",
+      select:
+        "unique_structure_name applicable_fees total_admission_fees category_master batch_master class_master",
+      populate: {
+        path: "category_master batch_master class_master department",
+        select: "category_name batchName className dName",
+      },
+    });
+    valid_all_students.sort(function (st1, st2) {
+      return parseInt(st1?.studentROLLNO) - parseInt(st2?.studentROLLNO);
+    });
+    var excel_list = [];
+    for (var ref of valid_all_students) {
+      const remain = await RemainingList.findOne({
+        $and: [
+          { fee_structure: ref?.fee_structure?._id },
+          { student: ref?._id },
+        ],
+      }).populate({
+        path: "applicable_card government_card",
+      });
+      excel_list.push({
+        RollNo: ref?.studentROLLNO ?? "NA",
+        AbcId: ref?.student_abc_id ?? "#NA",
+        GRNO: ref?.studentGRNO ?? "#NA",
+        Name:
+          `${ref?.studentLastName} ${ref?.studentFirstName} ${
+            ref?.studentMiddleName ?? ref?.studentFatherName
+          }` ?? ref?.valid_full_name,
+        FirstName: ref?.studentFirstName ?? "#NA",
+        FatherName: ref?.studentFatherName ?? ref?.studentMiddleName,
+        LastName: ref?.studentLastName ?? "#NA",
+        Standard: `${ref?.fee_structure}`
+          ? `${ref?.fee_structure?.class_master?.className}`
+          : "#NA",
+        Batch: `${ref?.fee_structure}`
+          ? `${ref?.fee_structure?.batch_master?.batchName}`
+          : "#NA",
+        FeeStructure: `${ref?.fee_structure}`
+          ? `${ref?.fee_structure?.unique_structure_name}`
+          : "#NA",
+        Department: `${ref?.fee_structure}`
+          ? `${ref?.fee_structure?.department?.dName}`
+          : "#NA",
+        TotalFees:
+          remain?.applicable_card?.applicable_fee +
+            remain?.government_card?.applicable_fee ?? 0,
+        ApplicableFees: remain?.applicable_card?.applicable_fee ?? 0,
+        GovernmentFees: remain?.government_card?.applicable_fee ?? 0,
+        TotalPaidFees:
+          remain?.applicable_card?.paid_fee +
+            remain?.government_card?.paid_fee ?? 0,
+        ApplicablePaidFees: remain?.applicable_card?.paid_fee ?? 0,
+        GovernmentPaidFees: remain?.government_card?.paid_fee ?? 0,
+        TotalOutstandingFees:
+          remain?.applicable_card?.remaining_fee +
+            remain?.government_card?.remaining_fee ?? 0,
+        ApplicableOutstandingFees: remain?.applicable_card?.remaining_fee ?? 0,
+        GovernmentOutstandingFees: remain?.government_card?.remaining_fee ?? 0,
+      });
+    }
+    console.log(excel_list?.length);
+    await json_to_excel_student_applicable_outstanding_query(
+      excel_list,
+      institute?._id,
+      "Admission Fee Reg."
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};

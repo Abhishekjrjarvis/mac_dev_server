@@ -452,6 +452,15 @@ exports.all_access_role_ins = () => {
         accessStaff: "",
       },
     },
+    PRINCIPLE_VIEW: {
+      role: "PRINCIPLE_VIEW",
+      permission: {
+        allow: true,
+        bound: ["PRINCIPLE VIEW FULL READ ACCESS"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
   };
   return access_role_ins;
 };

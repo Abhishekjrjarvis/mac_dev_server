@@ -509,4 +509,6 @@ router.patch("/send/notification/:id", catchAsync(Extra.send_notification));
 
 router.patch("/roll/alignment/:id", catchAsync(Extra.roll_alignment));
 
+router.patch("/online/amount", catchAsync(Extra.online_amount_change_query));
+
 module.exports = router;

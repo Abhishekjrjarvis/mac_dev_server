@@ -544,3 +544,26 @@ exports.all_new_designation_query = async (d_array, sid, id) => {
     console.log(e);
   }
 };
+
+exports.classes_shuffle_func = async (classes, student) => {
+  try {
+    if (classes?.sort_queue == "Alpha") {
+      classes.FNameStudent.push(student?._id);
+      student.studentROLLNO = classes?.FNameStudent?.length;
+    } else if (classes?.sort_queue == "Alpha_Last") {
+      classes.LNameStudent.push(student?._id);
+      student.studentROLLNO = classes?.LNameStudent?.length;
+    } else if (classes?.sort_queue == "Gender") {
+      classes.GenderStudent.push(student?._id);
+      student.studentROLLNO = classes?.GenderStudent?.length;
+    } else if (classes?.sort_queue == "Gender_Alpha") {
+      classes.GenderStudentAlpha.push(student?._id);
+      student.studentROLLNO = classes?.GenderStudentAlpha?.length;
+    } else if (classes?.sort_queue == "ROLL_WISE") {
+      classes.roll_wise.push(student?._id);
+      student.studentROLLNO = classes?.roll_wise?.length;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

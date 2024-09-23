@@ -67,6 +67,7 @@ app.use(
       "https://bhavanschowpatty.qviple.com",
       "https://ges-coengg.qviple.com",
       "https://temp-website-gilt.vercel.app",
+      "https://pvg-site.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

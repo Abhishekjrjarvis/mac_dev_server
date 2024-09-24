@@ -2112,9 +2112,9 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
                 },
               },
             },
-          })
-          .lean()
-          .exec();
+          });
+        // .lean()
+        // .exec();
         if (student?.studentClass) {
           var classes = await Class.findById({
             _id: `${student?.studentClass?._id}`,
@@ -2294,7 +2294,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
         //   insProfilePhoto: ins?.insProfilePhoto,
         //   _id: "",
         // };
-        student.institute._id = "";
+        // student.institute._id = "";
       }
       res.status(200).send({
         message: "All Student Designation Feed from DB 🙌",

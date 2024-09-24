@@ -116,3 +116,6 @@ const studentFeedbackSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("StudentFeedback", studentFeedbackSchema);
+// studentFeedbackSchema.virtual("feedback_notify_count1").get(function () {
+//   return this.feedback_notify?.length - 20;
+// });

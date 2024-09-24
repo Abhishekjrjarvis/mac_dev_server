@@ -42,6 +42,9 @@ exports.getStudentFeedbackQuery = async (req, res) => {
           },
         ],
       })
+        .select(
+          "-questions -feedback_notify -feedback_staff -cls_student -export_collection"
+        )
         .sort({
           created_at: -1,
         })
@@ -56,6 +59,10 @@ exports.getStudentFeedbackQuery = async (req, res) => {
       const feedback = await StudentFeedback.find({
         institute: id,
       })
+        .select(
+          "-questions -feedback_notify -feedback_staff -cls_student -export_collection"
+        )
+
         .sort({
           created_at: -1,
         })
@@ -435,7 +442,8 @@ exports.feedbackTakenByInstituteQuery = async (req, res) => {
           staff_feedbaack.classes?.push(obj);
           await staff_feedbaack.save();
         }
-        let all_student = st?.is_batch ? st?.student : data["student"];
+        // let all_student = st?.is_batch ? st?.student : data["student"];
+        let all_student = data["student"];
         if (all_student?.length > 0) {
           for (let stu of all_student) {
             if (stu) {
@@ -1885,84 +1893,83 @@ exports.feedbackResendNotificationOneSubjectByInstituteQuery = async (
         message: "Url Segement parameter required is not fulfill.",
       });
     }
-    console.log("sdknbfs");
     const feedback = await StudentFeedback.findById(ifid);
     const institute = await InstituteAdmin.findById(feedback?.institute);
     var cls_student = {
       "66ab3f6155671c796a91ebd6": {
         staff: [
           {
-            staffId: "66aa184d8c030d05fe076f4b",
-            master: "66ac9cd8aa74f613d8843bbf",
+            staffId: "64a79fcba59e4e19fe7ce32e",
+            master: "66ac9cbdaa74f613d8843aed",
             is_batch: false,
           },
         ],
         student: [
-          "650c10c45234100be2d5a379",
-          "650c117c5234100be2d5dede",
-          "650c119a5234100be2d5e6d7",
-          "650c11ca5234100be2d5f257",
-          "650c12635234100be2d61955",
-          "650c128c5234100be2d6234c",
-          "650c11925234100be2d5e4d7",
           "650c15515234100be2d6c6da",
-          "650c157f5234100be2d6d23f",
-          "650c15ca5234100be2d6e5f1",
-          "650c16485234100be2d70572",
-          "650c164f5234100be2d7076c",
-          "650c16655234100be2d70d39",
-          "650c168e5234100be2d716e0",
-          "650c16a55234100be2d71cdb",
-          "650c16e35234100be2d72e06",
-          "650c16f35234100be2d73208",
-          "650c17105234100be2d739e7",
-          "650c17175234100be2d73bd0",
-          "650c19875234100be2d828d0",
-          "650c1a075234100be2d862c7",
-          "650c1a105234100be2d866b7",
-          "650c1a185234100be2d86aa0",
-          "650c1a4e5234100be2d881d2",
-          "650c1a9b5234100be2d8ada5",
-          "650c1abf5234100be2d8c1f8",
-          "650c1af15234100be2d8d7cf",
-          "650c1aae5234100be2d8b93b",
-          "650c1ae05234100be2d8d113",
-          "650c19665234100be2d819b4",
-          "650d49b6e66baac3ccbc921d",
-          "650d49dde66baac3ccbc9bc6",
-          "650d4a1de66baac3ccbcab35",
-          "650d4a3de66baac3ccbcb31f",
-          "650d4ae9e66baac3ccbcddd4",
+          "650d51cfc775ac6750e52499",
           "650c229b5234100be2dcac63",
           "650c22a45234100be2dcb038",
+          "650c10c45234100be2d5a379",
+          "650d49b6e66baac3ccbc921d",
+          "650d51edc775ac6750e52acb",
+          "650d49dde66baac3ccbc9bc6",
+          "650c19665234100be2d819b4",
+          "650c157f5234100be2d6d23f",
+          "650c19875234100be2d828d0",
           "650c22d75234100be2dcc75d",
           "650c22e65234100be2dcce28",
+          "650d523bc775ac6750e53cd1",
           "650c22ee5234100be2dcd11b",
-          "650c23295234100be2dcebd3",
-          "650c236f5234100be2dd0a70",
-          "650c23a85234100be2dd2572",
-          "650c228b5234100be2dca507",
-          "650c24165234100be2dd57ca",
-          "650c24055234100be2dd50c9",
-          "650c241e5234100be2dd5baf",
-          "650c24595234100be2dd765d",
-          "650c242f5234100be2dd6367",
           "650c26911aad4209c7fa4e05",
           "650c26a21aad4209c7fa51bb",
-          "650c271f1aad4209c7fa6f0f",
-          "650c272f1aad4209c7fa7311",
-          "650c27481aad4209c7fa78e0",
-          "650c27a31aad4209c7fa8e60",
-          "650c27ea1aad4209c7fa9ffe",
-          "650d51cfc775ac6750e52499",
-          "650d51edc775ac6750e52acb",
-          "650d523bc775ac6750e53cd1",
+          "650c1a075234100be2d862c7",
+          "650c15ca5234100be2d6e5f1",
+          "650c1a105234100be2d866b7",
+          "650d4a1de66baac3ccbcab35",
+          "650c1a185234100be2d86aa0",
+          "650d4a3de66baac3ccbcb31f",
           "650d526bc775ac6750e548db",
+          "650c1a4e5234100be2d881d2",
+          "650c23295234100be2dcebd3",
           "650d529ac775ac6750e554e1",
           "650d52a3c775ac6750e556bc",
           "650d52abc775ac6750e558ac",
+          "650c236f5234100be2dd0a70",
+          "650c271f1aad4209c7fa6f0f",
+          "650c272f1aad4209c7fa7311",
+          "650c117c5234100be2d5dede",
+          "650c23a85234100be2dd2572",
+          "650c228b5234100be2dca507",
+          "650c119a5234100be2d5e6d7",
+          "650c27481aad4209c7fa78e0",
+          "650c1a9b5234100be2d8ada5",
+          "650c16485234100be2d70572",
+          "650c164f5234100be2d7076c",
+          "650c16655234100be2d70d39",
+          "650c1abf5234100be2d8c1f8",
+          "650c11ca5234100be2d5f257",
+          "650d4ae9e66baac3ccbcddd4",
+          "650c168e5234100be2d716e0",
+          "650c24055234100be2dd50c9",
+          "650c24165234100be2dd57ca",
+          "650c241e5234100be2dd5baf",
+          "650c16a55234100be2d71cdb",
+          "650c24595234100be2dd765d",
+          "650c16e35234100be2d72e06",
+          "650c27a31aad4209c7fa8e60",
+          "650c1af15234100be2d8d7cf",
+          "650c16f35234100be2d73208",
           "650d536cc775ac6750e5888c",
+          "650c12635234100be2d61955",
+          "650c17105234100be2d739e7",
           "650d539cc775ac6750e594bc",
+          "650c27ea1aad4209c7fa9ffe",
+          "650c17175234100be2d73bd0",
+          "650c128c5234100be2d6234c",
+          "650c242f5234100be2dd6367",
+          "650c11925234100be2d5e4d7",
+          "650c1aae5234100be2d8b93b",
+          "66c98969d3d293b26b21191b",
           "66b06c28e40ece488c9ce9e4",
           "66b08c0ee40ece488c9dd1de",
           "66b08c5b4b68a8140a7efa36",
@@ -1987,9 +1994,9 @@ exports.feedbackResendNotificationOneSubjectByInstituteQuery = async (
           ],
         });
         if (staff_feedbaack) {
-          staff_feedbaack.subject_master?.push(master?._id);
-          staff_feedbaack.classes?.push(obj);
-          await staff_feedbaack.save();
+          // staff_feedbaack.subject_master?.push(master?._id);
+          // staff_feedbaack.classes?.push(obj);
+          // await staff_feedbaack.save();
         } else {
           staff_feedbaack = new StaffStudentFeedback({
             institute: id,
@@ -2003,9 +2010,11 @@ exports.feedbackResendNotificationOneSubjectByInstituteQuery = async (
           await staff_feedbaack.save();
         }
         let all_student = st?.is_batch ? st?.student : data["student"];
+        let i = 0;
         if (all_student?.length > 0) {
           for (let stu of all_student) {
-            console.log("hi");
+            ++i;
+            console.log(i);
             if (stu) {
               const student = await Student.findById(stu);
               if (student?.user) {
@@ -2033,17 +2042,17 @@ exports.feedbackResendNotificationOneSubjectByInstituteQuery = async (
                   notify.feedbackClassId = obj;
                   feedback.feedback_notify?.push(notify?._id);
                   feedback.feedback_notify_count += 1;
-                  // if (user?.deviceToken) {
-                  //   invokeMemberTabNotification(
-                  //     "Student Activity",
-                  //     notify,
-                  //     "Staff Feedback",
-                  //     user._id,
-                  //     user.deviceToken,
-                  //     "Student",
-                  //     notify
-                  //   );
-                  // }
+                  if (user?.deviceToken) {
+                    invokeMemberTabNotification(
+                      "Student Activity",
+                      notify,
+                      "Staff Feedback",
+                      user._id,
+                      user.deviceToken,
+                      "Student",
+                      notify
+                    );
+                  }
                   await Promise.all([notify.save(), user.save()]);
                 }
               }
@@ -2061,6 +2070,278 @@ exports.feedbackResendNotificationOneSubjectByInstituteQuery = async (
     res.status(200).send({
       message: "One subject Student feedback notify successfully.",
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// check which subject teacher subject student not send
+exports.feedback_not_send_subject_teacher_query = async (req, res) => {
+  try {
+    const { id, ifid } = req.params;
+    if (!id || !ifid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const institute = await InstituteAdmin.findById(id);
+    const feedback = await StudentFeedback.findById(ifid);
+
+    const department = await Department.find({
+      institute: id,
+    })
+      .populate({
+        path: "departmentSelectBatch",
+      })
+      .select("departmentSelectBatch");
+
+    const all_batches = [];
+
+    for (let dt of department) {
+      if (dt?.departmentSelectBatch?.batchStatus === "UnLocked") {
+        all_batches.push(dt?.departmentSelectBatch?._id);
+      }
+    }
+    // res.status(200).send({
+    //   message: "student feedback taken by Institute Admin",
+    //   feedback,
+    // });
+    const cls = await Class.find({
+      batch: { $in: all_batches },
+    })
+      .populate({
+        path: "subject",
+        populate: {
+          path: "selected_batch_query",
+          select: "class_student_query",
+        },
+        select:
+          "subjectName subjectTeacherName subjectMasterName selected_batch_query",
+      })
+      .select("subject ApproveStudent");
+
+    var cls_student = {};
+    for (let ct of cls) {
+      // if (`${ct?._id}` === "66ab3f6155671c796a91ebd6") {
+      cls_student[ct?._id] = {
+        staff: [],
+        student: [],
+      };
+      let arr = [];
+      for (let st of ct?.subject) {
+        let flag = true;
+        for (let it of arr) {
+          if (
+            `${it?.staffId}` === `${st?.subjectTeacherName}` &&
+            `${it?.master}` === `${st?.subjectMasterName}`
+          ) {
+            if (it?.is_batch && !it.tag) {
+              let ft = ct?.ApproveStudent;
+              // for (let yt of ct?.ApproveStudent) {
+              //   ft.push(`${yt}`);
+              // }
+
+              if (it?.student?.length > 0) {
+                for (let yt of it?.student) {
+                  ft = ft?.filter((val) => `${val}` !== `${yt}`);
+                }
+              }
+              if (st?.selected_batch_query?.class_student_query?.length > 0) {
+                for (let yt of st?.selected_batch_query?.class_student_query) {
+                  ft.push(`${yt}`);
+                }
+              }
+              it.tag = true;
+            } else {
+              flag = false;
+              break;
+            }
+            // if (it?.is_batch) {
+            // if (st?.selected_batch_query?.class_student_query?.length > 0) {
+            //   for (let yt of st?.selected_batch_query?.class_student_query) {
+            //     if (it?.student?.includes(`${yt}`)) {
+            //     } else {
+            //       it?.student?.push(`${yt}`);
+            //     }
+            //   }
+            // }
+
+            // } else {
+            //   flag = false;
+            //   break;
+            // }
+          }
+        }
+        if (flag) {
+          if (st?.subjectTeacherName) {
+            // let ft = [];
+            // if (st?.selected_batch_query?.class_student_query?.length > 0) {
+            //   for (let yt of st?.selected_batch_query?.class_student_query) {
+            //     ft.push(`${yt}`);
+            //   }
+            // } else {
+            //   for (let yt of ct?.ApproveStudent) {
+            //     ft.push(`${yt}`);
+            //   }
+            // }
+            arr.push({
+              staffId: st?.subjectTeacherName,
+              master: st?.subjectMasterName,
+              subjectName: st?.subjectName,
+              // is_batch: true,
+              is_batch: st?.selected_batch_query ? true : false,
+              student:
+                st?.selected_batch_query?.class_student_query?.length > 0
+                  ? st?.selected_batch_query?.class_student_query
+                  : [],
+              tag: false,
+              // student: ft,
+            });
+          }
+        }
+      }
+      // cls_student[ct?._id]["student"] = [];
+      cls_student[ct?._id]["student"] = ct?.ApproveStudent;
+      cls_student[ct?._id]["staff"] = arr;
+      // }
+    }
+
+    res.status(200).send({
+      message: "student feedback taken by Institute Admin",
+      // cls: cls,
+      cls_student: cls_student,
+    });
+    let i = 0;
+    let j = 0;
+    for (let obj in cls_student) {
+      let data = cls_student[obj];
+      feedback.cls_student.push({
+        class: obj,
+        sent: false,
+        staff: data["staff"],
+        student: data["student"],
+      });
+      // await feedback.save();
+
+      for (let st of data["staff"] ?? []) {
+        if (
+          st?.staffId === "64a79fcba59e4e19fe7ce32e" &&
+          st?.master === "66ac9cbdaa74f613d8843aed"
+        ) {
+        } else {
+          const staff = await Staff.findById(st?.staffId);
+          const master = await SubjectMaster.findById(st?.master);
+          var staff_feedbaack = await StaffStudentFeedback.findOne({
+            $and: [
+              {
+                staff: { $eq: `${staff?._id}` },
+              },
+              {
+                feedbackId: { $eq: `${feedback?._id}` },
+              },
+            ],
+          });
+          if (staff_feedbaack) {
+            if (staff_feedbaack.subject_master?.includes(master?._id)) {
+            } else {
+              staff_feedbaack.subject_master?.push(master?._id);
+            }
+            if (staff_feedbaack.classes?.includes(obj)) {
+            } else {
+              staff_feedbaack.classes?.push(obj);
+            }
+            await staff_feedbaack.save();
+          } else {
+            staff_feedbaack = new StaffStudentFeedback({
+              institute: id,
+              feedbackId: feedback?._id,
+              staff: staff?._id,
+              subject_master: [master?._id],
+            });
+            staff.student_feedback?.push(staff_feedbaack?._id);
+            feedback.feedback_staff?.push(staff_feedbaack?._id);
+            staff_feedbaack.classes?.push(obj);
+            await staff_feedbaack.save();
+          }
+          // let all_student = st?.is_batch ? st?.student : data["student"];
+          let all_student = data["student"];
+          if (all_student?.length > 0) {
+            for (let stu of all_student) {
+              if (stu) {
+                ++i;
+                console.log("i ->", i);
+                const student = await Student.findById(stu);
+                if (student?.user) {
+                  const user = await User.findById(student?.user);
+                  let notify = "";
+
+                  notify = await StudentNotification.findOne({
+                    $and: [
+                      {
+                        subjectMasterId: { $eq: `${master?._id}` },
+                      },
+                      {
+                        notifyPublisher: { $eq: `${student?._id}` },
+                      },
+                      {
+                        student_feedback: { $eq: `${feedback?._id}` },
+                      },
+                      {
+                        staffFeedbackId: { $eq: `${staff_feedbaack?._id}` },
+                      },
+                    ],
+                  });
+                  if (notify?._id) {
+                  } else {
+                    ++j;
+                    console.log("j->", j);
+                    notify = new StudentNotification({});
+                    notify.notifyContent = `Give your valuable feedback to your beloved teacher - ${
+                      staff?.staffFirstName
+                    } ${
+                      staff?.staffMiddleName ? `${staff?.staffMiddleName} ` : ""
+                    }${staff?.staffLastName ?? ""} of - ${master?.subjectName}`;
+                    notify.notifySender = institute?._id;
+                    notify.notifyReceiever = user?._id;
+                    notify.notifyType = "Student";
+                    notify.notifyPublisher = student?._id;
+                    notify.instituteId = institute?._id;
+                    user.activity_tab.push(notify?._id);
+                    notify.notifyByInsPhoto = institute?._id;
+                    notify.notifyCategory = "Subject Teacher Feedback";
+                    notify.redirectIndex = 89;
+                    notify.student_feedback = feedback?._id;
+                    notify.staffId = staff?._id;
+                    notify.subjectMasterId = master?._id;
+                    notify.staffFeedbackId = staff_feedbaack?._id;
+                    notify.feedbackClassId = obj;
+                    feedback.feedback_notify?.push(notify?._id);
+                    feedback.feedback_notify_count += 1;
+                    if (user?.deviceToken) {
+                      invokeMemberTabNotification(
+                        "Student Activity",
+                        notify,
+                        "Staff Feedback",
+                        user._id,
+                        user.deviceToken,
+                        "Student",
+                        notify
+                      );
+                    }
+                    await Promise.all([notify.save(), user.save()]);
+                  }
+                }
+              }
+            }
+          }
+          await Promise.all([
+            feedback.save(),
+            // staff_feedbaack.save(),
+            staff.save(),
+          ]);
+        }
+      }
+    }
   } catch (e) {
     console.log(e);
   }

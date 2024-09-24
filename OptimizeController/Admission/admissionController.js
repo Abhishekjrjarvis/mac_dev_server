@@ -18112,9 +18112,15 @@ exports.all_documents_export_query = async (req, res) => {
     var numss = {};
     for (let ele of all_student) {
       if (ele?.collect_docs?.length > 0) {
-        for (let val of ele?.collect_docs) {
-          numss[val?.docs?.document_name] = val?.not_filled ?? "No";
+        for (let val = 1; val <= ele?.collect_docs?.length; val++) {
+          if (ele?.collect_docs[val]?.not_filled == "Yes") {
+            numss[`Document_${val}`] =
+              ele?.collect_docs[val]?.not_filled == "Yes"
+                ? ele?.collect_docs[val]?.docs?.document_name
+                : "";
+          }
         }
+        // console.log(numss);
         excel_list.push({
           RegistrationID: ele?.studentGRNO ?? "#NA",
           Name: `${ele?.studentFirstName} ${

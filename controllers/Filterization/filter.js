@@ -1971,8 +1971,8 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             select:
               "structure_name unique_structure_name category_master total_admission_fees applicable_fees",
             populate: {
-              path: "category_master",
-              select: "category_name",
+              path: "category_master class_master department batch_master",
+              select: "category_name dName className batchName",
             },
           },
         })
@@ -1996,7 +1996,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         })
         .populate({
           path: "application",
-          select: "applicationDepartment",
+          select: "applicationDepartment applicationName",
           populate: {
             path: "applicationDepartment",
             select: "bank_account",
@@ -2104,7 +2104,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         })
         .populate({
           path: "application",
-          select: "applicationDepartment",
+          select: "applicationDepartment applicationName",
           populate: {
             path: "applicationDepartment",
             select: "bank_account",
@@ -2164,7 +2164,10 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         if (ref?.student?.studentFirstName) {
           console.log("ENTER");
           var remain_list = await RemainingList.findOne({
-            $and: [{ student: ref?.student }, { appId: ref?.application }],
+            $and: [
+              { fee_structure: ref?.fee_structure },
+              // { appId: ref?.application?._id },
+            ],
           })
             .select("fee_structure appId")
             .populate({
@@ -2236,6 +2239,12 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             var result = await buildStructureObject(head_array);
           }
           if (result) {
+            // console.log(remain_list?.fee_structure?.class_master?.className);
+            // console.log(remain_list?.fee_structure?.department?.dName);
+            // console.log(remain_list?.fee_structure?.batch_master?.batchName);
+            // console.log(
+            //   remain_list?.fee_structure?.category_master?.category_name
+            // );
             head_list.push({
               ReceiptNumber: ref?.invoice_count ?? "0",
               ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
